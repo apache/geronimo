@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.28 $ $Date: 2004/02/12 23:23:53 $ -->
+<!-- $Revision: 1.29 $ $Date: 2004/02/18 22:11:28 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -100,7 +100,7 @@
                 <fixcrlf srcdir="${srcdir}" eol="lf" eof="remove" tab="remove" tablength="4">
                     <include name="**/*.java"/>
                 </fixcrlf>
-                <fixcrlf srcdir="${basedir}" eol="lf" eof="remove" tab="remove" tablength="2">
+                <fixcrlf srcdir="${basedir}" eol="lf" eof="remove" tab="remove" tablength="4">
                     <include name="**/*.xml"/>
                     <include name="**/*.html"/>
                 </fixcrlf>
@@ -114,7 +114,7 @@
                     <include name="**/*.xml"/>
                     <include name="**/*.html"/>
                 </fixcrlf>
-                <fixcrlf srcdir="${srcdir}" eol="lf" eof="remove" tab="remove" tablength="2">
+                <fixcrlf srcdir="${srcdir}" eol="lf" eof="remove" tab="remove" tablength="4">
                     <include name="**/*.xml"/>
                     <include name="**/*.html"/>
                 </fixcrlf>
@@ -123,14 +123,14 @@
             <!-- Cleanse xdocs -->
             <j:set var="srcdir" value="${basedir}/src/xdocs"/>
             <u:available file="${srcdir}">
-                <fixcrlf srcdir="${srcdir}" eol="lf" eof="remove" tab="remove" tablength="2">
+                <fixcrlf srcdir="${srcdir}" eol="lf" eof="remove" tab="remove" tablength="4">
                     <include name="**/*.xml"/>
                     <include name="**/*.html"/>
                 </fixcrlf>
             </u:available>
 
             <!-- Cleanse build files -->
-            <fixcrlf srcdir="." eol="lf" tab="remove" eof="remove" tablength="2">
+            <fixcrlf srcdir="." eol="lf" tab="remove" eof="remove" tablength="4">
                 <include name="project.xml"/>
                 <include name="maven.xml"/>
             </fixcrlf>
