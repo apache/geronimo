@@ -149,7 +149,7 @@ by the server.
 
     <gbean name="geronimo.server:type=HOWLTransactionLog" class="org.apache.geronimo.transaction.log.HOWLLog">
         <attribute name="bufferClassName" type="java.lang.String">org.objectweb.howl.log.BlockLogBuffer</attribute>
-        <attribute name="bufferSizeKBytes" type="int">4096</attribute>
+        <attribute name="bufferSizeKBytes" type="int">32</attribute>
         <attribute name="checksumEnabled" type="boolean">true</attribute>
         <attribute name="flushSleepTimeMilliseconds" type="int">50</attribute>
         <attribute name="logFileDir" type="java.lang.String">var/txlog</attribute>

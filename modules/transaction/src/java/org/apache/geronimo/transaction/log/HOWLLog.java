@@ -91,7 +91,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
             int minBuffers,
             int threadsWaitingForceThreshold,
             ServerInfo serverInfo
-            ) throws IOException {
+            ) throws IOException, LogConfigurationException {
         this.serverInfo = serverInfo;
         setBufferClassName(bufferClassName);
         setBufferSizeKBytes(bufferSize);
@@ -148,7 +148,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
         return configuration.getBufferSize();
     }
 
-    public void setBufferSizeKBytes(int bufferSize) {
+    public void setBufferSizeKBytes(int bufferSize) throws LogConfigurationException {
         configuration.setBufferSize(bufferSize);
     }
 
@@ -164,7 +164,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
         return configuration.getMaxBuffers();
     }
 
-    public void setMaxBuffers(int maxBuffers) {
+    public void setMaxBuffers(int maxBuffers) throws LogConfigurationException {
         configuration.setMaxBuffers(maxBuffers);
     }
 
@@ -172,7 +172,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
         return configuration.getMinBuffers();
     }
 
-    public void setMinBuffers(int minBuffers) {
+    public void setMinBuffers(int minBuffers) throws LogConfigurationException {
         configuration.setMinBuffers(minBuffers);
     }
 
