@@ -89,7 +89,7 @@ import org.apache.geronimo.twiddle.console.IOContext;
  *    command processor, it serves only to facilitate their operation and to
  *    provide a simple API to execute commands (hence facade).
  *
- * @version <tt>$Revision: 1.9 $ $Date: 2003/08/25 16:07:45 $</tt>
+ * @version <tt>$Revision: 1.10 $ $Date: 2003/08/25 18:44:06 $</tt>
  */
 public class Twiddle
 {
@@ -153,6 +153,16 @@ public class Twiddle
     public IOContext getIOContext()
     {
         return io;
+    }
+    
+    /**
+     * Get the class world.
+     *
+     * @return The class world.
+     */
+    public ClassWorld getClassWorld()
+    {
+        return world;
     }
     
     /**
@@ -249,20 +259,28 @@ public class Twiddle
     {
         // Determine what our home directory is
         String temp = System.getProperty(TWIDDLE_HOME);
-        if (temp == null) {
-            String path = Twiddle.class.getProtectionDomain().getCodeSource().getLocation().getFile();
-            try {
+        File dir = null;
+        
+        try {
+            if (temp == null) {
+                String path = Twiddle.class.getProtectionDomain().getCodeSource().getLocation().getFile();
                 path = URLDecoder.decode(path, "UTF-8");
-                //
-                // jason: home dir is expected to be lib/..
-                //
-                temp = new File(path).getParentFile().getParentFile().getCanonicalPath();
+                
+                // home dir is expected to be lib/..
+                dir = new File(path).getParentFile().getParentFile();
             }
-            catch (IOException e) {
-                throw new RuntimeException("Unable to determine home dir", e);
+            else {
+                dir = new File(temp);
             }
+            
+            // Make sure the home dir does not have any ../ bits
+            dir = dir.getCanonicalFile();
         }
-        return new File(temp);
+        catch (IOException e) {
+            throw new RuntimeException("Unable to determine home dir", e);
+        }
+        
+        return dir;
     }
     
     /**
