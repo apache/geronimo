@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.jar.JarOutputStream;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -30,11 +31,13 @@ import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/06/11 19:18:21 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/06 17:19:14 $
  */
 public class EARContext extends DeploymentContext {
     private final Map ejbRefs = new HashMap();
     private final Map ejbLocalRefs = new HashMap();
+    private final Map resourceAdapterModules = new HashMap();
+    private final Map activationSpecInfos = new HashMap();
     private final String j2eeDomainName;
     private final String j2eeServerName;
     private final String j2eeApplicationName;
@@ -188,5 +191,20 @@ public class EARContext extends DeploymentContext {
             }
             return ejbRef;
         }
+    }
+
+    public void addResourceAdapter(String resourceAdapterName, String resourceAdapterModule, Map activationSpecInfoMap) {
+        resourceAdapterModules.put(resourceAdapterName, resourceAdapterModule);
+        activationSpecInfos.put(resourceAdapterName, activationSpecInfoMap);
+    }
+
+    public Object getActivationSpecInfo(String resourceAdapterName, String activationSpecClassName) {
+        Map activationSpecInfoMap = (Map) activationSpecInfos.get(resourceAdapterName);
+        Object activationSpecInfo = activationSpecInfoMap.get(activationSpecClassName);
+        return activationSpecInfo;
+    }
+
+    public String getResourceAdapterModule(String resourceAdapterName) {
+        return (String) resourceAdapterModules.get(resourceAdapterName);
     }
 }

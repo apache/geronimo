@@ -30,6 +30,7 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.LinkedHashSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
@@ -62,7 +63,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.11 $ $Date: 2004/06/23 21:58:22 $
+ * @version $Revision: 1.12 $ $Date: 2004/07/06 17:19:14 $
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
     private static final String PARENT_ID = "org/apache/geronimo/Server";
@@ -205,9 +206,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
             // get the modules either the application plan or for a stand alone module from the specific deployer
             Set moduleLocations = new HashSet();
-            Set modules = new HashSet();
+            Set modules = new LinkedHashSet();
             ApplicationType application = addModules(configId, plan, earFile, moduleLocations, modules);
-
             // if this is an ear, the application name is the configId; otherwise application name is "null"
             String applicationName;
             if (application != null) {
@@ -319,8 +319,12 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 throw new DeploymentException("Unable to parse application.xml");
             }
 
-            // get a set contianing all of the files in the ear that are actually modules
+            // get a set containing all of the files in the ear that are actually modules
             ModuleType[] moduleTypes = application.getModuleArray();
+            Set ejbModules = new HashSet();
+            Set connectorModules = new HashSet();
+            Set webModules = new HashSet();
+
             for (int i = 0; i < moduleTypes.length; i++) {
                 ModuleType module = moduleTypes[i];
                 if (module.isSetEjb()) {
@@ -330,7 +334,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                         throw new DeploymentException("Can not deploy ejb application; No ejb deployer defined: " + ejbModule.getURI());
                     }
                     moduleLocations.add(uri.toString());
-                    modules.add(ejbModule);
+                    ejbModules.add(ejbModule);
                 } else if (module.isSetWeb()) {
                     org.apache.geronimo.xbeans.j2ee.WebType web = module.getWeb();
                     URI uri = URI.create(web.getWebUri().getStringValue());
@@ -340,7 +344,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                         throw new DeploymentException("Can not deploy web application; No war deployer defined: " + webModule.getURI());
                     }
                     moduleLocations.add(uri.toString());
-                    modules.add(webModule);
+                    webModules.add(webModule);
                 } else if (module.isSetConnector()) {
                     URI uri = URI.create(module.getConnector().getStringValue());
                     ConnectorModule connectorModule = new ConnectorModule(uri.toString(), uri);
@@ -348,9 +352,12 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                         throw new DeploymentException("Can not deploy resource adapter; No rar deployer defined: " + connectorModule.getURI());
                     }
                     moduleLocations.add(uri.toString());
-                    modules.add(connectorModule);
+                    connectorModules.add(connectorModule);
                 }
             }
+            modules.addAll(connectorModules);
+            modules.addAll(ejbModules);
+            modules.addAll(webModules);
         } else if (webConfigBuilder != null && webConfigBuilder.canHandlePlan(plan)) {
             modules.add(webConfigBuilder.createModule(configId.toString(), plan));
             application = null;

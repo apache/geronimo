@@ -38,6 +38,7 @@ import java.util.Set;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -49,7 +50,7 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.repository.Repository;
 
 /**
- * @version $Revision: 1.11 $ $Date: 2004/06/01 16:06:50 $
+ * @version $Revision: 1.12 $ $Date: 2004/07/06 17:19:14 $
  */
 public class DeploymentContext {
     private final URI configID;
@@ -228,8 +229,9 @@ public class DeploymentContext {
 
     public void close() throws IOException, DeploymentException {
         if (outputStreams.size() != 1) {
-            throw new IllegalStateException("Conext must be unnested before being closed");
+            throw new IllegalStateException("Context must be unnested before being closed");
         }
+
         JarOutputStream jos = getJos();
         saveConfiguration();
         try {

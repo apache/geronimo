@@ -59,7 +59,7 @@ import org.apache.xmlbeans.XmlOptions;
 import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
- * @version $Revision: 1.12 $ $Date: 2004/06/25 21:33:27 $
+ * @version $Revision: 1.13 $ $Date: 2004/07/06 17:19:14 $
  */
 public class RAR_1_5ConfigBuilderTest extends TestCase {
     private URL j2eeDD;
@@ -201,6 +201,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
 
             // ResourceAdapter
             assertRunning(kernel, resourceAdapter);
+            assertAttributeValue(kernel, resourceAdapter, "RAStringProperty", "NewStringValue");
 
             // FirstTestOutboundConnectionFactory
             ObjectName firstConnectionManagerFactory = new ObjectName(j2eeDomainName +
@@ -225,6 +226,9 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
                     ",J2EEServer=" + j2eeServerName +
                     ",name=FirstTestOutboundConnectionFactory");
             assertRunning(kernel, firstOutMCF);
+            assertAttributeValue(kernel, firstOutMCF, "OutboundStringProperty1", "newvalue1");
+            assertAttributeValue(kernel, firstOutMCF, "OutboundStringProperty2", "originalvalue2");
+            assertAttributeValue(kernel, firstOutMCF, "OutboundStringProperty3", "newvalue2");
 
             // SecondTestOutboundConnectionFactory
             ObjectName secondConnectionManagerFactory = new ObjectName(j2eeDomainName +
@@ -305,6 +309,11 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
             }
             Thread.currentThread().setContextClassLoader(cl);
         }
+    }
+
+    private void assertAttributeValue(Kernel kernel, ObjectName objectName, String attributeName, String attributeValue) throws Exception {
+        Object value = kernel.getAttribute(objectName, attributeName);
+        assertEquals(attributeValue, value);
     }
 
     private void assertRunning(Kernel kernel, ObjectName objectName) throws Exception {

@@ -100,7 +100,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/06/29 21:46:32 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/06 17:19:13 $
  */
 public class ConnectorModuleBuilder implements ModuleBuilder {
     private static final String BASE_REALM_BRIDGE_NAME = "geronimo.security:service=RealmBridge,name=";
@@ -344,6 +344,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
                     //get the ActivationSpec metadata as GBeanInfos
                     Map activationSpecInfoMap = getActivationSpecInfoMap(resourceadapter.getInboundResourceadapter().getMessageadapter().getMessagelistenerArray(), cl);
                     resourceAdapterGBean.setAttribute("activationSpecInfoMap", activationSpecInfoMap);
+                    earContext.addResourceAdapter(resourceAdapterName, module.getName(), activationSpecInfoMap);
                 }
             } catch (Exception e) {
                 throw new DeploymentException("Could not set ResourceAdapterClass", e);

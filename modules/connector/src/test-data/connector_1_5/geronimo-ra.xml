@@ -105,11 +105,8 @@
     </gbean>
 
     <gbean name="geronimo.connector:service=WorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManager">
-        <attribute name="SyncMinimumPoolSize" type="int">0</attribute>
         <attribute name="SyncMaximumPoolSize" type="int">10</attribute>
-        <attribute name="StartMinimumPoolSize" type="int">0</attribute>
         <attribute name="StartMaximumPoolSize" type="int">10</attribute>
-        <attribute name="ScheduledMinimumPoolSize" type="int">0</attribute>
         <attribute name="ScheduledMaximumPoolSize" type="int">10</attribute>
         <reference name="XAWork">geronimo.server:type=TransactionManager</reference>
     </gbean>
