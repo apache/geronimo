@@ -65,6 +65,7 @@ public class TransactionalExecutorTask implements ExecutorTask {
                 }
             } finally {
                 try {
+                    transactionContextManager.setContext(null);
                     if (transactionContext.commit()) {
                         if (workInfo.isOneTime()) {
                             threadPooledTimer.removeWorkInfo(workInfo);
