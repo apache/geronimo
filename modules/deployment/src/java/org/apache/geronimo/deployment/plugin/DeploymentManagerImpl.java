@@ -105,7 +105,7 @@ import org.w3c.dom.Document;
 /**
  *
  *
- * @version $Revision: 1.10 $ $Date: 2004/02/09 07:10:25 $
+ * @version $Revision: 1.11 $ $Date: 2004/02/22 23:06:38 $
  */
 public class DeploymentManagerImpl implements DeploymentManager, GBean {
     private final DeploymentServer server;
@@ -169,7 +169,7 @@ public class DeploymentManagerImpl implements DeploymentManager, GBean {
                 return config;
             }
         }
-        throw new InvalidModuleException("Unable to load DeploymentConfigurationFactory");
+        throw new InvalidModuleException("Unable to locate a DeploymentConfigurationFactory for supplied DeployableObject");
     }
 
     public DConfigBeanVersionType getDConfigBeanVersion() {
