@@ -41,9 +41,8 @@
                     <name>SystemDatasource</name>
                     <config-property-setting name="UserName"></config-property-setting>
                     <config-property-setting name="Password"></config-property-setting>
-                    <config-property-setting name="Driver">org.apache.derby.jdbc.EmbeddedDriver</config-property-setting>
-                    <config-property-setting name="ConnectionURL">jdbc:derby:SystemDatabase;create=true</config-property-setting>
-                    <config-property-setting name="ExceptionSorterClass">org.tranql.connector.NoExceptionsAreFatalSorter</config-property-setting>
+                    <config-property-setting name="DatabaseName">SystemDatabase</config-property-setting>
+                    <config-property-setting name="CreateDatabase">create</config-property-setting>
                     <connectionmanager>
                         <local-transaction/>
                         <single-pool>
@@ -68,19 +67,19 @@
         <attribute name="port">1527</attribute>
     </gbean>
 
-    <!--
-    <gbean name="geronimo.server:type=ThreadPooledTimer,name=JDBCTransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledTransactionalTimer">
+    <gbean namePart="JDBCTransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledTransactionalTimer">
         <attribute name="repeatCount">5</attribute>
-        <reference name="TransactionContextManager">geronimo.server:type=TransactionContextManager</reference>
-        <reference name="ManagedConnectionFactoryWrapper">geronimo.server:J2EEServer=geronimo,j2eeType=JCAManagedConnectionFactory,name=DefaultDatasource</reference>
-        <reference name="ThreadPool">geronimo.server:type=ThreadPool,name=DefaultThreadPool</reference>
+        <reference name="TransactionContextManager">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=JTAResource,name=TransactionContextManager,*</reference>
+        <reference name="ManagedConnectionFactoryWrapper">geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=org/apache/geronimo/SystemDatabase,j2eeType=JCAManagedConnectionFactory,name=SystemDatasource,*</reference>
+        <reference name="ThreadPool">geronimo.server:J2EEServer=geronimo,j2eeType=GBean,name=DefaultThreadPool,*</reference>
+        <reference name="DerbySystem">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/SystemDatabase,J2EEServer=geronimo,j2eeType=GBean,name=DerbySystem</reference>
     </gbean>
 
-    <gbean name="geronimo.server:type=ThreadPooledTimer,name=JDBCNonTransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledNonTransactionalTimer">
-        <reference name="ManagedConnectionFactoryWrapper">geronimo.server:J2EEServer=geronimo,j2eeType=JCAManagedConnectionFactory,name=DefaultDatasource</reference>
-        <reference name="TransactionContextManager">geronimo.server:type=TransactionContextManager</reference>
-        <reference name="ThreadPool">geronimo.server:type=ThreadPool,name=DefaultThreadPool</reference>
+    <gbean namePart="JDBCNonTransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledNonTransactionalTimer">
+        <reference name="ManagedConnectionFactoryWrapper">geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=org/apache/geronimo/SystemDatabase,j2eeType=JCAManagedConnectionFactory,name=SystemDatasource,*</reference>
+        <reference name="TransactionContextManager">geronimo.server:J2EEServer=geronimo,j2eeType=JTAResource,name=TransactionContextManager,*</reference>
+        <reference name="ThreadPool">geronimo.server:J2EEServer=geronimo,j2eeType=GBean,name=DefaultThreadPool,*</reference>
+        <reference name="DerbySystem">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/SystemDatabase,J2EEServer=geronimo,j2eeType=GBean,name=DerbySystem</reference>
     </gbean>
--->
 
 </connector>

@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.timer.jdbc;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 
 import javax.sql.DataSource;
@@ -43,6 +44,7 @@ public class JDBCStoreThreadPooledTransactionalTimer extends ThreadPooledTimer {
             TransactionContextManager transactionContextManager,
             ManagedConnectionFactoryWrapper managedConnectionFactoryWrapper,
             Executor threadPool,
+            Serializable derbySystem,
             Kernel kernel) throws SQLException {
         super(new TransactionalExecutorTaskFactory(transactionContextManager, repeatCount),
                 new JDBCWorkerPersistence(kernel.getKernelName(), (DataSource)managedConnectionFactoryWrapper.$getResource(), false), threadPool, transactionContextManager);
@@ -59,9 +61,10 @@ public class JDBCStoreThreadPooledTransactionalTimer extends ThreadPooledTimer {
         infoFactory.addReference("TransactionContextManager", TransactionContextManager.class);
         infoFactory.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class);
         infoFactory.addReference("ThreadPool", Executor.class);
+        infoFactory.addReference("DerbySystem", Serializable.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
 
-        infoFactory.setConstructor(new String[] {"repeatCount", "TransactionContextManager", "ManagedConnectionFactoryWrapper", "ThreadPool", "kernel"});
+        infoFactory.setConstructor(new String[] {"repeatCount", "TransactionContextManager", "ManagedConnectionFactoryWrapper", "ThreadPool", "DerbySystem", "kernel"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

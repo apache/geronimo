@@ -313,6 +313,16 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-derby-connector</artifactId>
+            <version>${pom.currentVersion}</version>
+            <type>rar</type>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-service-builder</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>

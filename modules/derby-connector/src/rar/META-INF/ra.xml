@@ -17,26 +17,49 @@
             <connection-definition>
                 <managedconnectionfactory-class>org.apache.geronimo.derby.connector.DerbyXAManagedConnectionFactory</managedconnectionfactory-class>
                 <config-property>
+                    <description>
+                      The name of the database to access.  A mandatory config-property.
+                    </description>
                     <config-property-name>DatabaseName</config-property-name>
                     <config-property-type>java.lang.String</config-property-type>
                 </config-property>
                 <config-property>
+                    <description>
+                        The database password.
+                    </description>
                     <config-property-name>Password</config-property-name>
                     <config-property-type>java.lang.String</config-property-type>
                 </config-property>
                 <config-property>
+                    <description>
+                        The database UserName.
+                        Note:  The current schema for any connection defaults to a schema corresponding to the user name. 
+                        If no user name is supplied then the user name (and hence current schema) defaults to APP.
+                    </description>
                     <config-property-name>UserName</config-property-name>
                     <config-property-type>java.lang.String</config-property-type>
                 </config-property>
                 <config-property>
+                    <description>
+                        This config-property is currently ignored by Derby.
+                    </description>                
                     <config-property-name>LoginTimeout</config-property-name>
                     <config-property-type>java.lang.Integer</config-property-type>
                 </config-property>
                 <config-property>
-                    <config-property-name>CreateDatabase</config-property-name>
+                    <description>
+                        If set to the string "create", this will cause a new database to be created if the database
+                        specified in the databaseName config-property does not already exist.  
+                        The database is created when a connection object is obtained from the data source.                
+                    </description>
+	                <config-property-name>CreateDatabase</config-property-name>
                     <config-property-type>java.lang.String</config-property-type>
                 </config-property>
                 <config-property>
+                    <description>
+                        If set to the string "shutdown", this will cause the database to shutdown when a java.sql.Connection object
+                        is obtained from the data source.
+                    </description>
                     <config-property-name>ShutdownDatabase</config-property-name>
                     <config-property-type>java.lang.String</config-property-type>
                 </config-property>
