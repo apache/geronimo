@@ -17,14 +17,13 @@
 
 package org.apache.geronimo.jetty;
 
-import javax.management.ObjectName;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.Properties;
+import java.util.Set;
+import javax.management.ObjectName;
 
 import junit.framework.TestCase;
-
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.jetty.connector.HTTPConnector;

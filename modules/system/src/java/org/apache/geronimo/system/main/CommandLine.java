@@ -22,14 +22,14 @@ import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
 import javax.management.ObjectName;
-import javax.management.InstanceNotFoundException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.system.url.GeronimoURLFactory;
 
@@ -95,7 +95,7 @@ public class CommandLine {
 
     protected void startKernel(List configurations) throws Exception {
         // boot the kernel
-        kernel = new Kernel("geronimo.kernel", "geronimo");
+        kernel = new Kernel("geronimo");
         kernel.boot();
 
         // load and start the configuration in this jar
@@ -126,7 +126,7 @@ public class CommandLine {
         return kernel;
     }
 
-    protected void stopKernel() throws InstanceNotFoundException, InvalidConfigException {
+    protected void stopKernel() throws GBeanNotFoundException, InternalKernelException {
         // stop this configuration
         kernel.stopGBean(config.getName());
 

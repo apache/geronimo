@@ -16,10 +16,9 @@
  */
 package org.apache.geronimo.j2ee.mejb;
 
-import java.rmi.RemoteException;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.List;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBObject;
 import javax.ejb.Handle;
@@ -28,254 +27,227 @@ import javax.management.Attribute;
 import javax.management.AttributeList;
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
-import javax.management.IntrospectionException;
-import javax.management.InvalidAttributeValueException;
 import javax.management.MBeanException;
 import javax.management.MBeanInfo;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.QueryExp;
 import javax.management.ReflectionException;
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanConstructorInfo;
-import javax.management.MBeanOperationInfo;
-import javax.management.MBeanParameterInfo;
-import javax.management.MBeanNotificationInfo;
-import javax.management.NotificationListener;
-import javax.management.NotificationFilter;
-import javax.management.ListenerNotFoundException;
 import javax.management.j2ee.ListenerRegistration;
 import javax.management.j2ee.Management;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.gbean.GNotificationInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.jmx.GBeanJMXUtil;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelMBean;
+import org.apache.geronimo.kernel.NoSuchAttributeException;
+import org.apache.geronimo.kernel.NoSuchOperationException;
 
 /**
  * GBean implementing Management interface and supplying proxies to act as the MEJB container.
  *
  * @version $Rev:  $ $Date:  $
  */
-public class MEJB implements Management, ListenerRegistration {
-
+public class MEJB implements Management {
     private final Kernel kernel;
-    private static final ObjectName ALL_GBEANS_QUERY;
-
-    static {
-        try {
-            ALL_GBEANS_QUERY = ObjectName.getInstance("*.*");
-        } catch (MalformedObjectNameException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public MEJB(Kernel kernel) {
         this.kernel = kernel;
     }
 
-    public Object getAttribute(ObjectName name, String attribute) throws MBeanException, AttributeNotFoundException, InstanceNotFoundException, ReflectionException, RemoteException {
+    public Object getAttribute(ObjectName name, String attribute) throws MBeanException, AttributeNotFoundException, InstanceNotFoundException, ReflectionException {
         try {
             return kernel.getAttribute(name, attribute);
-        } catch (MBeanException e) {
-            throw e;
-        } catch (AttributeNotFoundException e) {
-            throw e;
-        } catch (InstanceNotFoundException e) {
-            throw e;
-        } catch (ReflectionException e) {
-            throw e;
+        } catch (NoSuchAttributeException e) {
+            throw new AttributeNotFoundException(attribute);
+        } catch (GBeanNotFoundException e) {
+            throw new InstanceNotFoundException(name.getCanonicalName());
+        } catch (InternalKernelException e) {
+            throw new MBeanException(unwrapInternalKernelException(e));
         } catch (Exception e) {
             throw new MBeanException(e);
         }
     }
 
-    public AttributeList getAttributes(ObjectName name, String[] attributes) throws InstanceNotFoundException, ReflectionException, RemoteException {
+    public AttributeList getAttributes(ObjectName name, String[] attributes) throws InstanceNotFoundException, ReflectionException {
         AttributeList attributeList = new AttributeList(attributes.length);
         for (int i = 0; i < attributes.length; i++) {
             String attribute = attributes[i];
             try {
-                attributeList.add(i, new Attribute(attribute, kernel.getAttribute(name, attribute)));
-            } catch (InstanceNotFoundException e) {
-                throw e;
-            } catch (ReflectionException e) {
-                throw e;
+                Object value = kernel.getAttribute(name, attribute);
+                attributeList.add(i, new Attribute(attribute, value));
+            } catch (NoSuchAttributeException e) {
+                // ignored - caller will simply find no value
+            } catch (GBeanNotFoundException e) {
+                throw new InstanceNotFoundException(name.getCanonicalName());
+            } catch (InternalKernelException e) {
+                throw new ReflectionException(unwrapInternalKernelException(e));
             } catch (Exception e) {
-                //ignore ?
+                // ignored - caller will simply find no value
             }
         }
         return attributeList;
     }
 
-    public String getDefaultDomain() throws RemoteException {
+    public String getDefaultDomain() {
         return kernel.getKernelName();
     }
 
-    public Integer getMBeanCount() throws RemoteException {
-        return new Integer(kernel.listGBeans(ALL_GBEANS_QUERY).size());
+    public Integer getMBeanCount() {
+        return new Integer(kernel.listGBeans((ObjectName)null).size());
     }
 
-    public MBeanInfo getMBeanInfo(ObjectName name) throws IntrospectionException, InstanceNotFoundException, ReflectionException, RemoteException {
-        return mapToMBeanInfo(kernel.getGBeanInfo(name));
+    public MBeanInfo getMBeanInfo(ObjectName name) throws InstanceNotFoundException, ReflectionException {
+        GBeanInfo gbeanInfo;
+        try {
+            gbeanInfo = kernel.getGBeanInfo(name);
+        } catch (GBeanNotFoundException e) {
+            throw new InstanceNotFoundException(name.toString());
+        } catch (InternalKernelException e) {
+            throw new ReflectionException(unwrapInternalKernelException(e));
+        }
+        return GBeanJMXUtil.toMBeanInfo(gbeanInfo);
     }
 
-    public Object invoke(ObjectName name, String operationName, Object[] params, String[] signature) throws InstanceNotFoundException, MBeanException, ReflectionException, RemoteException {
+    public Object invoke(ObjectName name, String operationName, Object[] params, String[] signature) throws InstanceNotFoundException, MBeanException, ReflectionException {
         try {
             return kernel.invoke(name, operationName, params, signature);
-        } catch (MBeanException e) {
-            throw e;
-        } catch (InstanceNotFoundException e) {
-            throw e;
-        } catch (ReflectionException e) {
-            throw e;
+        } catch (NoSuchOperationException e) {
+            throw new ReflectionException(new NoSuchMethodException(e.getMessage()));
+        } catch (GBeanNotFoundException e) {
+            throw new InstanceNotFoundException(name.getCanonicalName());
+        } catch (InternalKernelException e) {
+            throw new MBeanException(unwrapInternalKernelException(e));
         } catch (Exception e) {
             throw new MBeanException(e);
         }
     }
 
-    public boolean isRegistered(ObjectName name) throws RemoteException {
+    public boolean isRegistered(ObjectName name) {
         return kernel.isLoaded(name);
     }
 
-    public Set queryNames(ObjectName name, QueryExp query) throws RemoteException {
+    public Set queryNames(ObjectName pattern, QueryExp query) {
         if (query != null) {
             throw new IllegalArgumentException("NYI");
         }
-        return kernel.listGBeans(name);
+        Set names = kernel.listGBeans(pattern);
+        if (query == null) {
+            return names;
+        }
+
+        // todo this will not work for non MBean server based queries
+        // dain: I think we could create an MBeanServer wraper around
+        // kernel that passed though most operations to kernel and
+        // threw an UnsupportedOperationException for the operations
+        // that have no equivilent Kernel method.
+        query.setMBeanServer(kernel.getMBeanServer());
+
+        Set filteredNames = new HashSet(names.size());
+        for (Iterator iterator = names.iterator(); iterator.hasNext();) {
+            ObjectName name = (ObjectName) iterator.next();
+            try {
+                if (query.apply(name)) {
+                    filteredNames.add(name);
+                }
+            } catch (Exception e) {
+                // reject any name that threw an exception
+            }
+        }
+        return filteredNames;
     }
 
-    public void setAttribute(ObjectName name, Attribute attribute) throws InstanceNotFoundException, AttributeNotFoundException, InvalidAttributeValueException, MBeanException, ReflectionException, RemoteException {
+    public void setAttribute(ObjectName name, Attribute attribute) throws InstanceNotFoundException, AttributeNotFoundException, MBeanException {
+        String attributeName = attribute.getName();
+        Object attributeValue = attribute.getValue();
         try {
-            kernel.setAttribute(name, attribute.getName(), attribute.getValue());
-        } catch (MBeanException e) {
-            throw e;
-        } catch (AttributeNotFoundException e) {
-            throw e;
-        } catch (InstanceNotFoundException e) {
-            throw e;
-        } catch (InvalidAttributeValueException e) {
-            throw e;
-        } catch (ReflectionException e) {
-            throw e;
+            kernel.setAttribute(name, attributeName, attributeValue);
+        } catch (NoSuchAttributeException e) {
+            throw new AttributeNotFoundException(attributeName);
+        } catch (GBeanNotFoundException e) {
+            throw new InstanceNotFoundException(name.getCanonicalName());
+        } catch (InternalKernelException e) {
+            throw new MBeanException(unwrapInternalKernelException(e));
         } catch (Exception e) {
             throw new MBeanException(e);
         }
     }
 
-    public AttributeList setAttributes(ObjectName name, AttributeList attributes) throws InstanceNotFoundException, ReflectionException, RemoteException {
+    public AttributeList setAttributes(ObjectName name, AttributeList attributes) throws InstanceNotFoundException, ReflectionException {
         AttributeList set = new AttributeList(attributes.size());
         for (Iterator iterator = attributes.iterator(); iterator.hasNext();) {
             Attribute attribute = (Attribute) iterator.next();
+            String attributeName = attribute.getName();
+            Object attributeValue = attribute.getValue();
             try {
-                kernel.setAttribute(name, attribute.getName(), attribute.getValue());
+                kernel.setAttribute(name, attributeName, attributeValue);
                 set.add(attribute);
-            } catch (InstanceNotFoundException e) {
-                throw e;
-            } catch (ReflectionException e) {
-                throw e;
+            } catch (NoSuchAttributeException e) {
+                // ignored - caller will see value was not set because this attribute will not be in the attribute list
+            } catch (GBeanNotFoundException e) {
+                throw new InstanceNotFoundException(name.getCanonicalName());
+            } catch (InternalKernelException e) {
+                throw new ReflectionException(unwrapInternalKernelException(e));
             } catch (Exception e) {
-                //ignore ?
+                // ignored - caller will see value was not set because this attribute will not be in the attribute list
             }
         }
         return set;
     }
 
-    public ListenerRegistration getListenerRegistry() throws RemoteException {
-        throw new RuntimeException("NYI");
+    public ListenerRegistration getListenerRegistry() {
+        throw new UnsupportedOperationException("Not Yet Implemented");
     }
 
 
-    //ListenerRegistration implementation
-    public void addNotificationListener(ObjectName name, NotificationListener listener, NotificationFilter filter, Object handback) throws InstanceNotFoundException, RemoteException {
-        try {
-            kernel.invoke(name, "addNotificationListener", new Object[]{listener, filter, handback}, new String[]{NotificationListener.class.getName(), NotificationFilter.class.getName(), Object.class.getName()});
-        } catch (InstanceNotFoundException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    //ListenerRegistration implementation
+//    public void addNotificationListener(ObjectName name, NotificationListener listener, NotificationFilter filter, Object handback) throws InstanceNotFoundException {
+//        try {
+//            kernel.invoke(name, "addNotificationListener", new Object[]{listener, filter, handback}, new String[]{NotificationListener.class.getName(), NotificationFilter.class.getName(), Object.class.getName()});
+//        } catch (InstanceNotFoundException e) {
+//            throw e;
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
+//
+//    public void removeNotificationListener(ObjectName name, NotificationListener listener) throws InstanceNotFoundException, ListenerNotFoundException {
+//        try {
+//            kernel.invoke(name, "removeNotificationListener", new Object[]{listener}, new String[]{NotificationListener.class.getName()});
+//        } catch (InstanceNotFoundException e) {
+//            throw e;
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
-    public void removeNotificationListener(ObjectName name, NotificationListener listener) throws InstanceNotFoundException, ListenerNotFoundException, RemoteException {
-        try {
-            kernel.invoke(name, "removeNotificationListener", new Object[]{listener}, new String[]{NotificationListener.class.getName()});
-        } catch (InstanceNotFoundException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    //EJBObject implementation
-
-    public EJBHome getEJBHome() throws RemoteException {
+    // EJBObject implementation
+    public EJBHome getEJBHome() {
         return null;
     }
 
-    public Handle getHandle() throws RemoteException {
+    public Handle getHandle() {
         return null;
     }
 
-    public Object getPrimaryKey() throws RemoteException {
+    public Object getPrimaryKey() {
         return null;
     }
 
-    public boolean isIdentical(EJBObject obj) throws RemoteException {
+    public boolean isIdentical(EJBObject obj) {
         return false;
     }
 
-    public void remove() throws RemoteException, RemoveException {
-
+    public void remove() throws RemoveException {
     }
 
-
-    private MBeanInfo mapToMBeanInfo(GBeanInfo gBeanInfo) {
-        String className = gBeanInfo.getClassName();
-        String description = "No description available";
-        Set gbeanAttributes = gBeanInfo.getAttributes();
-        MBeanAttributeInfo[] attributes = new MBeanAttributeInfo[gbeanAttributes.size()];
-        int a = 0;
-        for (Iterator iterator = gbeanAttributes.iterator(); iterator.hasNext();) {
-            GAttributeInfo gAttributeInfo = (GAttributeInfo) iterator.next();
-            attributes[a] = new MBeanAttributeInfo(gAttributeInfo.getName(), "no description available", gAttributeInfo.getType(), gAttributeInfo.isReadable().booleanValue(), gAttributeInfo.isWritable().booleanValue(), gAttributeInfo.getGetterName().startsWith("is"));
-            a++;
+    private static Exception unwrapInternalKernelException(InternalKernelException e) {
+        if (e.getCause() instanceof Exception) {
+            return (Exception) e.getCause();
         }
-
-        //we don't expose managed constructors
-        MBeanConstructorInfo[] constructors = new MBeanConstructorInfo[0];
-
-        Set gbeanOperations = gBeanInfo.getOperations();
-        MBeanOperationInfo[] operations = new MBeanOperationInfo[gbeanOperations.size()];
-        int o = 0;
-        for (Iterator iterator = gbeanOperations.iterator(); iterator.hasNext();) {
-            GOperationInfo gOperationInfo = (GOperationInfo) iterator.next();
-            //list of class names
-            List gparameters = gOperationInfo.getParameterList();
-            MBeanParameterInfo[] parameters = new MBeanParameterInfo[gparameters.size()];
-            int p = 0;
-            for (Iterator piterator = gparameters.iterator(); piterator.hasNext();) {
-                String type = (String) piterator.next();
-                parameters[p] = new MBeanParameterInfo("parameter" + p, type, "no description available");
-                p++;
-            }
-            operations[o] = new MBeanOperationInfo(gOperationInfo.getName(), "no description available", parameters, "java.lang.Object", MBeanOperationInfo.UNKNOWN);
-            o++;
-        }
-
-        Set gnotifications = gBeanInfo.getNotifications();
-        MBeanNotificationInfo[] notifications = new MBeanNotificationInfo[gnotifications.size()];
-        int n = 0;
-        for (Iterator iterator = gnotifications.iterator(); iterator.hasNext();) {
-            GNotificationInfo gNotificationInfo = (GNotificationInfo) iterator.next();
-            notifications[n] = new MBeanNotificationInfo((String[]) gNotificationInfo.getNotificationTypes().toArray(new String[gnotifications.size()]), gNotificationInfo.getName(), "no description available");
-            n++;
-        }
-
-        MBeanInfo mbeanInfo = new MBeanInfo(className, description, attributes, constructors, operations, notifications);
-        return mbeanInfo;
+        return e;
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -284,7 +256,6 @@ public class MEJB implements Management, ListenerRegistration {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(MEJB.class.getName());
         infoBuilder.addAttribute("kernel", KernelMBean.class, false);
         infoBuilder.addInterface(Management.class);
-        infoBuilder.addInterface(ListenerRegistration.class);
 
         infoBuilder.setConstructor(new String[]{"kernel"});
 

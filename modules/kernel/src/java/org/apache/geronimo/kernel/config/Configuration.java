@@ -37,7 +37,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.management.JMRuntimeException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -202,17 +201,7 @@ public class Configuration implements GBeanLifecycle {
                 GBeanData gbeanData = (GBeanData) i.next();
                 ObjectName name = gbeanData.getName();
                 log.trace("Registering GBean " + name);
-                try {
-                    kernel.loadGBean(gbeanData, configurationClassLoader);
-                } catch (JMRuntimeException e) {
-                    Throwable cause = e.getCause();
-                    if (cause instanceof Exception) {
-                        throw (Exception) cause;
-                    } else if (cause instanceof Error) {
-                        throw (Error) cause;
-                    }
-                    throw e;
-                }
+                kernel.loadGBean(gbeanData, configurationClassLoader);
                 objectNames.add(name);
                 kernel.getDependencyManager().addDependency(name, objectName);
             }
@@ -397,9 +386,16 @@ public class Configuration implements GBeanLifecycle {
         for (Iterator i = gbeans.entrySet().iterator(); i.hasNext();) {
             Map.Entry entry = (Map.Entry) i.next();
             ObjectName objectName = (ObjectName) entry.getKey();
-            GBeanMBean gbean = (GBeanMBean) entry.getValue();
+
+            // value may be either a gbeanMBean or a gbeanData
+            GBeanData gbeanData;
+            if (entry.getValue() instanceof GBeanMBean) {
+                GBeanMBean gbeanMBean = (GBeanMBean) entry.getValue();
+                gbeanData = gbeanMBean.getGBeanData();
+            } else {
+                gbeanData = (GBeanData) entry.getValue();
+            }
             try {
-                GBeanData gbeanData = gbean.getGBeanData();
                 // todo we must explicitly set the bean name here from the gbean key because the gbean mbean may
                 // not have been brought online, so the object namve in the gbean mbean will be null
                 gbeanData.setName(objectName);

@@ -17,22 +17,23 @@
 
 package org.apache.geronimo.deployment.cli;
 
-import java.util.*;
-import java.util.jar.JarFile;
-import java.net.URI;
 import java.io.BufferedReader;
-import java.io.PrintWriter;
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.jar.JarFile;
+import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
 import javax.enterprise.deploy.spi.factories.DeploymentFactory;
-import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
 import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
+
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
 import org.apache.geronimo.deployment.plugin.factories.AuthenticationFailedException;
+import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
 import org.apache.geronimo.system.main.CommandLine;
 import org.apache.geronimo.system.main.CommandLineManifest;
 

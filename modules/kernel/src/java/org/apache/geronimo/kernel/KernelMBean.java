@@ -19,16 +19,15 @@ package org.apache.geronimo.kernel;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import java.util.Date;
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
@@ -62,45 +61,61 @@ public interface KernelMBean {
      * Load a specific GBean into this kernel.
      * This is intended for applications that are embedding the kernel.
      *
+     * @param gbeanData the GBean to load
+     * @param classLoader the class loader to use to load the gbean
+     * @throws GBeanAlreadyExistsException if the name is already used
+     * @throws InternalKernelException if there is a problem during registration
+     */
+    public void loadGBean(GBeanData gbeanData, ClassLoader classLoader) throws GBeanAlreadyExistsException, InternalKernelException;
+
+    /**
+     * Load a specific GBean into this kernel.
+     * This is intended for applications that are embedding the kernel.
+     *
      * @param name the name to register the GBean under
      * @param gbean the GBean to register
-     * @throws InstanceAlreadyExistsException if the name is already used
-     * @throws InvalidConfigException if there is a problem during registration
+     * @throws GBeanAlreadyExistsException if the name is already used
+     * @throws InternalKernelException if there is a problem during registration
+     * @deprecated use loadGBean(GBeanData gbeanData, ClassLoader classLoader)
      */
-    void loadGBean(ObjectName name, GBeanMBean gbean) throws InstanceAlreadyExistsException, InvalidConfigException;
+    void loadGBean(ObjectName name, GBeanMBean gbean) throws GBeanAlreadyExistsException, InternalKernelException;
 
     /**
      * Start a specific GBean.
      *
      * @param name the GBean to start
-     * @throws InstanceNotFoundException if the GBean could not be found
+     * @throws GBeanNotFoundException if the GBean could not be found
+     * @throws InternalKernelException if there GBean is not state manageable or if there is a general error
      */
-    void startGBean(ObjectName name) throws InstanceNotFoundException, InvalidConfigException;
+    void startGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException;
 
     /**
      * Start a specific GBean and its children.
      *
      * @param name the GBean to start
-     * @throws InstanceNotFoundException if the GBean could not be found
+     * @throws GBeanNotFoundException if the GBean could not be found
+     * @throws InternalKernelException if there GBean is not state manageable or if there is a general error
      */
-    void startRecursiveGBean(ObjectName name) throws InstanceNotFoundException, InvalidConfigException;
+    void startRecursiveGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException;
 
     /**
      * Stop a specific GBean.
      *
      * @param name the GBean to stop
-     * @throws InstanceNotFoundException if the GBean could not be found
+     * @throws GBeanNotFoundException if the GBean could not be found
+     * @throws InternalKernelException if there GBean is not state manageable or if there is a general error
      */
-    void stopGBean(ObjectName name) throws InstanceNotFoundException, InvalidConfigException;
+    void stopGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException;
 
     /**
      * Unload a specific GBean.
      * This is intended for applications that are embedding the kernel.
      *
      * @param name the name of the GBean to unregister
-     * @throws InstanceNotFoundException if the GBean could not be found
+     * @throws GBeanNotFoundException if the GBean could not be found
+     * @throws InternalKernelException if there GBean is a problem while unloading the GBean
      */
-    void unloadGBean(ObjectName name) throws InstanceNotFoundException;
+    void unloadGBean(ObjectName name) throws GBeanNotFoundException;
 
     boolean isRunning();
 
@@ -140,16 +155,25 @@ public interface KernelMBean {
      * Return the GBean info for a gbean instance.
      * @param name the name of the gbean whose info should be returned
      * @return the info for that instance
-     * @throws InstanceNotFoundException if there is no instance with the supplied name
+     * @throws GBeanNotFoundException if there is no instance with the supplied name
      */
-    GBeanInfo getGBeanInfo(ObjectName name) throws InstanceNotFoundException;
+    GBeanInfo getGBeanInfo(ObjectName name) throws GBeanNotFoundException;
 
     /**
-     * Return the names of GBeans that match the query.
-     * @param query the query to be performed
-     * @return a Set<ObjectName> of the names of online GBeans that match the query
+     * Return the names of GBeans that match the pattern.
+     * @param pattern the name pattern to match
+     * @return a Set<ObjectName> of the names of online GBeans that match the pattern
+     * @throws InternalKernelException if a problem occures while searching
      */
-    Set listGBeans(ObjectName query);
+    Set listGBeans(ObjectName pattern) throws InternalKernelException;
+
+    /**
+     * Return all of the names of GBeans that match the set of patterns.
+     * @param patterns a set of name patterns to match
+     * @return a Set<ObjectName> of the names of online GBeans that match the patterns
+     * @throws InternalKernelException if a problem occures while searching
+     */
+    Set listGBeans(Set patterns) throws InternalKernelException;
 
     void registerShutdownHook(Runnable hook);
 
@@ -157,5 +181,19 @@ public interface KernelMBean {
 
     void shutdown();
 
-    ClassLoader getClassLoaderFor(ObjectName objectName) throws InstanceNotFoundException;
+    /**
+     * Gets the class loader use for a GBean
+     * @param name name of the GBean
+     * @return the class loader used to create the GBean
+     * @throws GBeanNotFoundException if there is no instance with the supplied name
+     * @throws InternalKernelException if there was a problem getting the class loader
+     */
+    ClassLoader getClassLoaderFor(ObjectName name) throws GBeanNotFoundException, InternalKernelException;
+
+    /**
+     * Gets the gbean data for the gbean held by this gbean mbean.
+     * @return the gbean data
+     * @throws GBeanNotFoundException if no such gbean exists with the specified name
+     */
+    GBeanData getGBeanData(ObjectName name) throws GBeanNotFoundException, InternalKernelException;
 }

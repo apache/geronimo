@@ -283,7 +283,7 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
         return proxyManager;
     }
 
-    public Object getAttribute(ObjectName objectName, String attributeName) throws Exception {
+    public Object getAttribute(ObjectName objectName, String attributeName) throws GBeanNotFoundException, NoSuchAttributeException, InternalKernelException, Exception {
         try {
             return mbServer.getAttribute(objectName, attributeName);
         } catch (Exception e) {
@@ -292,17 +292,21 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
                 throw new GBeanNotFoundException(objectName.getCanonicalName());
             } else if (cause instanceof AttributeNotFoundException) {
                 throw new NoSuchAttributeException(cause.getMessage());
+            } else if (cause instanceof JMException) {
+                throw new InternalKernelException(cause);
+            } else if (cause instanceof JMRuntimeException) {
+                throw new InternalKernelException(cause);
             } else if (cause instanceof Error) {
                 throw (Error) cause;
             } else if (cause instanceof Exception) {
                 throw (Exception) cause;
             } else {
-                throw new AssertionError(cause);
+                throw new InternalKernelException("Unknown throwable", cause);
             }
         }
     }
 
-    public void setAttribute(ObjectName objectName, String attributeName, Object attributeValue) throws Exception {
+    public void setAttribute(ObjectName objectName, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, InternalKernelException, Exception {
         try {
             mbServer.setAttribute(objectName, new Attribute(attributeName, attributeValue));
         } catch (Exception e) {
@@ -311,21 +315,25 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
                 throw new GBeanNotFoundException(objectName.getCanonicalName());
             } else if (cause instanceof AttributeNotFoundException) {
                 throw new NoSuchAttributeException(cause.getMessage());
+            } else if (cause instanceof JMException) {
+                throw new InternalKernelException(cause);
+            } else if (cause instanceof JMRuntimeException) {
+                throw new InternalKernelException(cause);
             } else if (cause instanceof Error) {
                 throw (Error) cause;
             } else if (cause instanceof Exception) {
                 throw (Exception) cause;
             } else {
-                throw new AssertionError(cause);
+                throw new InternalKernelException("Unknown throwable", cause);
             }
         }
     }
 
-    public Object invoke(ObjectName objectName, String methodName) throws Exception {
+    public Object invoke(ObjectName objectName, String methodName) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
         return invoke(objectName, methodName, NO_ARGS, NO_TYPES);
     }
 
-    public Object invoke(ObjectName objectName, String methodName, Object[] args, String[] types) throws Exception {
+    public Object invoke(ObjectName objectName, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
         try {
             return mbServer.invoke(objectName, methodName, args, types);
         } catch (Exception e) {
@@ -334,12 +342,16 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
                 throw new GBeanNotFoundException(objectName.getCanonicalName());
             } else if (cause instanceof NoSuchMethodException) {
                 throw new NoSuchOperationException(cause.getMessage());
+            } else if (cause instanceof JMException) {
+                throw new InternalKernelException(cause);
+            } else if (cause instanceof JMRuntimeException) {
+                throw new InternalKernelException(cause);
             } else if (cause instanceof Error) {
                 throw (Error) cause;
             } else if (cause instanceof Exception) {
                 throw (Exception) cause;
             } else {
-                throw new AssertionError(cause);
+                throw new InternalKernelException("Unknown throwable", cause);
             }
         }
     }
@@ -353,107 +365,119 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
 
 
     public boolean isLoaded(ObjectName name) {
-        return mbServer != null && mbServer.isRegistered(name);
+        try {
+            return mbServer != null && mbServer.isRegistered(name);
+        } catch (RuntimeException e) {
+            throw new InternalKernelException(e);
+        }
     }
 
-    public GBeanInfo getGBeanInfo(ObjectName name) throws InstanceNotFoundException {
+    public GBeanInfo getGBeanInfo(ObjectName name) throws GBeanNotFoundException, InternalKernelException {
         try {
             return (GBeanInfo) getAttribute(name, "gbeanInfo");
-        } catch (InstanceNotFoundException e) {
+        } catch (GBeanNotFoundException e) {
             throw e;
-        } catch (RuntimeException e) {
+        } catch (InternalKernelException e) {
             throw e;
         } catch (Exception e) {
-            throw new RuntimeException(e); 
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public GBeanData getGBeanData(ObjectName name) throws GBeanNotFoundException, InternalKernelException {
+        try {
+            return (GBeanData) getAttribute(name, GBeanInstance.GBEAN_DATA);
+        } catch (GBeanNotFoundException e) {
+            throw e;
+        } catch (InternalKernelException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public void loadGBean(GBeanData gbeanData, ClassLoader classLoader) throws GBeanAlreadyExistsException, InternalKernelException {
+        try {
+            GBeanMBean gbean = new GBeanMBean(this, gbeanData, classLoader);
+            mbServer.registerMBean(gbean, gbeanData.getName());
+        } catch (InstanceAlreadyExistsException e) {
+            throw new GBeanAlreadyExistsException("A GBean is alreayd registered witht then name " + gbeanData.getName());
+        } catch (Exception e) {
+            throw new InternalKernelException("Error loading GBean " + gbeanData.getName().getCanonicalName(), unwrapJMException(e));
         }
     }
 
     /**
-     * Gets the gbean data for the gbean held by this gbean mbean.
-     * @return the gbean data
-     * @throws InstanceNotFoundException if no such gbean exists with the specified name
+     * @deprecated use loadGBean(GBeanData gbeanData, ClassLoader classLoader)
      */
-    public GBeanData getGBeanData(ObjectName name) throws InstanceNotFoundException {
-        try {
-            return (GBeanData) getAttribute(name, GBeanMBean.GBEAN_DATA);
-        } catch (InstanceNotFoundException e) {
-            throw e;
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw (AssertionError) new AssertionError("getGBeanData can not throw checked exceptions").initCause(e);
-        }
-    }
-
-    public void loadGBean(GBeanData gbeanData, ClassLoader classLoader) throws InstanceAlreadyExistsException, InvalidConfigException {
-        try {
-            GBeanMBean gbean = new GBeanMBean(this, gbeanData, classLoader);
-            mbServer.registerMBean(gbean, gbeanData.getName());
-        } catch (JMRuntimeException e) {
-            throw new InvalidConfigException("Invalid GBean configuration for " + gbeanData.getName(), unwrapJMException(e));
-        } catch (JMException e) {
-            throw new InvalidConfigException("Invalid GBean configuration for " + gbeanData.getName(), unwrapJMException(e));
-        }
-    }
-
-    public void loadGBean(ObjectName name, GBeanMBean gbean) throws InstanceAlreadyExistsException, InvalidConfigException {
+    public void loadGBean(ObjectName name, GBeanMBean gbean) throws GBeanAlreadyExistsException, InternalKernelException {
         try {
             mbServer.registerMBean(gbean, name);
         } catch (InstanceAlreadyExistsException e) {
-            throw e;
+            throw new GBeanAlreadyExistsException(name.getCanonicalName());
         } catch (Exception e) {
-            throw new InvalidConfigException("Invalid GBean configuration for " + name, unwrapJMException(e));
+            throw new InternalKernelException("Error loading GBean " + name.getCanonicalName(), unwrapJMException(e));
         }
     }
 
-    public void startGBean(ObjectName name) throws InstanceNotFoundException, InvalidConfigException {
+    public void startGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException {
         try {
             invoke(name, "start");
-        } catch (InstanceNotFoundException e) {
-            throw e;
         } catch (GBeanNotFoundException e) {
-            throw new InstanceNotFoundException("No instance found: " + name);
+            throw e;
+        } catch (InternalKernelException e) {
+            throw e;
+        } catch (NoSuchOperationException e) {
+            throw new InternalKernelException("GBean is not state manageable: " + name.getCanonicalName(), e);
         } catch (Exception e) {
-            throw new InvalidConfigException("Invalid GBean configuration for " + name, unwrapJMException(e));
+            throw new InternalKernelException("Invalid GBean configuration for " + name, unwrapJMException(e));
         }
     }
 
-    public void startRecursiveGBean(ObjectName name) throws InstanceNotFoundException, InvalidConfigException {
+    public void startRecursiveGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException {
         try {
             invoke(name, "startRecursive");
-        } catch (InstanceNotFoundException e) {
-            throw e;
         } catch (GBeanNotFoundException e) {
-            throw new InstanceNotFoundException("No instance found: " + name);
+            throw e;
+        } catch (InternalKernelException e) {
+            throw e;
+        } catch (NoSuchOperationException e) {
+            throw new InternalKernelException("GBean is not state manageable: " + name.getCanonicalName(), e);
         } catch (Exception e) {
-            throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
+            throw new InternalKernelException("Invalid GBean configuration for " + name, e);
         }
     }
 
-    public void stopGBean(ObjectName name) throws InstanceNotFoundException, InvalidConfigException {
+    public void stopGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException {
         try {
             invoke(name, "stop");
-        } catch (InstanceNotFoundException e) {
-            throw e;
         } catch (GBeanNotFoundException e) {
-            throw new InstanceNotFoundException("No instance found: " + name);
+            throw e;
+        } catch (InternalKernelException e) {
+            throw e;
+        } catch (NoSuchOperationException e) {
+            throw new InternalKernelException("GBean is not state manageable: " + name.getCanonicalName(), e);
         } catch (Exception e) {
-            throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
+            throw new InternalKernelException("Invalid GBean configuration for " + name, e);
         }
     }
 
-    public void unloadGBean(ObjectName name) throws InstanceNotFoundException {
+    public void unloadGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException {
        try {
             mbServer.unregisterMBean(name);
        } catch (InstanceNotFoundException e) {
-           throw e;
-       } catch (JMException e) {
-            throw (IllegalStateException) new IllegalStateException("Error unloading GBean " + name).initCause(unwrapJMException(e));
+           throw new GBeanNotFoundException(name.getCanonicalName());
+       } catch (Exception e) {
+           throw new InternalKernelException("Error unloading GBean " + name, unwrapJMException(e));
        }
     }
 
-    public Set listGBeans(ObjectName query) {
-        return mbServer.queryNames(query, null);
+    public Set listGBeans(ObjectName pattern) {
+        try {
+            return mbServer.queryNames(pattern, null);
+        } catch (RuntimeException e) {
+            throw new InternalKernelException("Error while applying pattern " + pattern, e);
+        }
     }
 
     public Set listGBeans(Set patterns) {
@@ -473,45 +497,42 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
         return getConfigurationManager().listConfigurations(storeName);
     }
 
-    public ObjectName startConfiguration(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
+    public ObjectName startConfiguration(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException, InternalKernelException {
         ObjectName configName = getConfigurationManager().load(configID);
 		try {
 		    startRecursiveGBean(configName);
-		} catch (InstanceNotFoundException e) {
+		} catch (GBeanNotFoundException e) {
 		    // should not happen as we just loaded it
 		    throw new InvalidConfigException(e);
 		}
 		return configName;
-			
     }
 
-    public void stopConfiguration(URI configID) throws NoSuchConfigException {
+    public void stopConfiguration(URI configID) throws NoSuchConfigException, InternalKernelException {
         ConfigurationManager configurationManager = getConfigurationManager();
         try {
             ObjectName configName = Configuration.getConfigurationObjectName(configID);
             stopGBean(configName);
         } catch (MalformedObjectNameException e) {
             throw new NoSuchConfigException(e);
-        } catch (InstanceNotFoundException e) {
+        } catch (GBeanNotFoundException e) {
             throw new NoSuchConfigException(e);
-        } catch (InvalidConfigException e) {
-            throw (IllegalStateException) new IllegalStateException().initCause(e);
         }
         configurationManager.unload(configID);
     }
 
-    public int getConfigurationState(URI configID) throws NoSuchConfigException {
+    public int getConfigurationState(URI configID) throws NoSuchConfigException, InternalKernelException {
          try {
              ObjectName configName = Configuration.getConfigurationObjectName(configID);
              return ((Integer)getAttribute(configName, "state")).intValue();
          } catch (MalformedObjectNameException e) {
              throw new NoSuchConfigException(e);
-         } catch (InstanceNotFoundException e) {
+         } catch (GBeanNotFoundException e) {
              throw new NoSuchConfigException(e);
-         } catch (InvalidConfigException e) {
-             throw (IllegalStateException) new IllegalStateException().initCause(e);
+         } catch (InternalKernelException e) {
+             throw e;
          } catch (Exception e) {
-             throw new NoSuchConfigException(e);
+             throw new InternalKernelException(e);
          }
     }
 
@@ -648,8 +669,14 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
         return running;
     }
 
-    public ClassLoader getClassLoaderFor(ObjectName objectName) throws InstanceNotFoundException {
-        return mbServer.getClassLoaderFor(objectName);
+    public ClassLoader getClassLoaderFor(ObjectName name) throws GBeanNotFoundException {
+        try {
+            return mbServer.getClassLoaderFor(name);
+        } catch (InstanceNotFoundException e) {
+            throw new GBeanNotFoundException(name.getCanonicalName());
+        } catch (RuntimeException e) {
+            throw new InternalKernelException("Error while attemping to get class loader for " + name.getCanonicalName(), e);
+        }
     }
 
     private static void processQueue() {

@@ -275,6 +275,7 @@ public class DependencyManager implements NotificationListener {
         return null;
     }
 
+    // todo convert this over to a kernel life cycle listener.... if possible
     public void handleNotification(Notification n, Object handback) {
         String type = n.getType();
         if (MBeanServerNotification.UNREGISTRATION_NOTIFICATION.equals(type)) {

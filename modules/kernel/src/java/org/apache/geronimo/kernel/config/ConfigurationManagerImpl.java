@@ -26,18 +26,18 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
-import javax.management.InstanceNotFoundException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
@@ -130,6 +130,9 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
         throw new NoSuchConfigException("No configuration with id: " + configID);
     }
 
+    /**
+     * @deprecated use load(GBeanData config, URL rootURL, ClassLoader classLoader)
+     */
     public ObjectName load(GBeanMBean config, URL rootURL) throws InvalidConfigException {
         URI configID;
         try {
@@ -137,26 +140,16 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
         } catch (Exception e) {
             throw new InvalidConfigException("Cannot get config ID", e);
         }
+
         ObjectName configName;
         try {
             configName = Configuration.getConfigurationObjectName(configID);
         } catch (MalformedObjectNameException e) {
             throw new InvalidConfigException("Cannot convert ID to ObjectName: ", e);
         }
-        load(config, rootURL, configName);
-        return configName;
-    }
 
-    public void load(GBeanData config, URL rootURL, ClassLoader classLoader) throws InvalidConfigException {
-        GBeanMBean mbean = new GBeanMBean(config, classLoader);
-        load(mbean, rootURL, config.getName());
-    }
-
-    public void load(GBeanMBean config, URL rootURL, ObjectName configName) throws InvalidConfigException {
         try {
             kernel.loadGBean(configName, config);
-        } catch (InvalidConfigException e) {
-            throw e;
         } catch (Exception e) {
             throw new InvalidConfigException("Unable to register configuration", e);
         }
@@ -172,6 +165,39 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
             throw new InvalidConfigException("Cannot set baseURL", e);
         }
         log.info("Loaded Configuration " + configName);
+
+        return configName;
+    }
+
+    public ObjectName load(GBeanData config, URL rootURL, ClassLoader classLoader) throws InvalidConfigException {
+        ObjectName name;
+        try {
+            URI configID = (URI) config.getAttribute("ID");
+            name = Configuration.getConfigurationObjectName(configID);
+        } catch (MalformedObjectNameException e) {
+            throw new InvalidConfigException("Cannot convert ID to ObjectName: ", e);
+        }
+        config.setName(name);
+
+        try {
+            kernel.loadGBean(config, classLoader);
+        } catch (Exception e) {
+            throw new InvalidConfigException("Unable to register configuration", e);
+        }
+
+        try {
+            kernel.setAttribute(name, "baseURL", rootURL);
+        } catch (Exception e) {
+            try {
+                kernel.unloadGBean(name);
+            } catch (Exception ignored) {
+                // ignore
+            }
+            throw new InvalidConfigException("Cannot set baseURL", e);
+        }
+        log.info("Loaded Configuration " + name);
+
+        return name;
     }
 
     public List loadRecursive(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
@@ -207,7 +233,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
     public void unload(ObjectName configName) throws NoSuchConfigException {
         try {
             kernel.unloadGBean(configName);
-        } catch (InstanceNotFoundException e) {
+        } catch (GBeanNotFoundException e) {
             throw new NoSuchConfigException("No config registered: " + configName, e);
         }
         log.info("Unloaded Configuration " + configName);
@@ -233,14 +259,14 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
                 if (kernel.isLoaded(configName)) {
                     try {
                         kernel.stopGBean(configName);
-                    } catch (InstanceNotFoundException e) {
+                    } catch (GBeanNotFoundException e) {
                         // ignore
-                    } catch (InvalidConfigException e) {
+                    } catch (InternalKernelException e) {
                         log.warn("Could not stop configuration: " + configName, e);
                     }
                     try {
                         kernel.unloadGBean(configName);
-                    } catch (InstanceNotFoundException e) {
+                    } catch (GBeanNotFoundException e) {
                         // ignore
                     }
                 }

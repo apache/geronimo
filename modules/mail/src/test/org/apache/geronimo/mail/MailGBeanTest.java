@@ -16,13 +16,11 @@
  */
 package org.apache.geronimo.mail;
 
-import javax.mail.Session;
-import javax.mail.Store;
-import javax.management.ObjectName;
 import java.util.Properties;
+import javax.mail.Session;
+import javax.management.ObjectName;
 
 import junit.framework.TestCase;
-
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 

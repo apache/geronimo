@@ -49,21 +49,21 @@ public interface ConfigurationManager {
 
     ObjectName load(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException;
 
+    /**
+     * @deprecated use load(GBeanData config, URL rootURL, ClassLoader classLoader)
+     */
     ObjectName load(GBeanMBean config, URL rootURL) throws InvalidConfigException;
-
-    void load(GBeanData config, URL rootURL, ClassLoader classLoader) throws InvalidConfigException;
 
     /**
      * Load the supplied Configuration into the Kernel and override the default JMX name.
      * This method should be used with discretion as it is possible to create
      * Configurations that cannot be located by management or monitoring tools.
      *
-     * @param config the GBeanMBean representing the Configuration
+     * @param config the GBeanData representing the Configuration
      * @param rootURL the URL to be used to resolve relative paths in the configuration
-     * @param configName the JMX ObjectName to register the Configuration under
      * @throws org.apache.geronimo.kernel.config.InvalidConfigException if the Configuration is not valid
      */
-    void load(GBeanMBean config, URL rootURL, ObjectName configName) throws InvalidConfigException;
+    ObjectName load(GBeanData config, URL rootURL, ClassLoader classLoader) throws InvalidConfigException;
 
     List loadRecursive(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException;
 

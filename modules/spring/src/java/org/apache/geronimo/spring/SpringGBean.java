@@ -17,25 +17,22 @@
 
 package org.apache.geronimo.spring;
 
+import java.util.Hashtable;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.support.BeanDefinitionValidationException;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Properties;
-import java.util.Hashtable;
 
 /**
  * A GBean for creating graphs of Spring POJOs and auto-deploying them inside Geronimo as GBeans

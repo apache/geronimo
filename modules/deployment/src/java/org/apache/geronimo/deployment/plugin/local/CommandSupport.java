@@ -105,6 +105,7 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
     }
 
     protected void doFail(Exception e) {
+        // todo dain: kernel does not throw any JMX exceptions anymore... do we still need this
         if (e instanceof MBeanException) {
             e = ((MBeanException)e).getTargetException();
         }

@@ -20,15 +20,12 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
-
 import javax.management.ObjectName;
 import javax.naming.Reference;
 
 import org.apache.geronimo.axis.AxisGeronimoUtils;
-import org.apache.geronimo.axis.WSConfigBuilder;
 import org.apache.geronimo.axis.WSPlan;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;

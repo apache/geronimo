@@ -76,11 +76,6 @@ public final class GBeanMBean implements DynamicMBean, MBeanRegistration, Notifi
     }
 
     /**
-     * Attribute name used to retrieve the GBeanData for the GBean
-     */
-    public static final String GBEAN_DATA = "$$GBEAN_DATA$$";
-
-    /**
      * The kernel in which this server is registered.
      */
     private Kernel kernel;
