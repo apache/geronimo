@@ -30,10 +30,18 @@
             <ews outDir="target/generated/samples" module="target/samples/echo.jar">
                 <ant:classpath refid="maven.dependency.classpath"/>
             </ews>
+
+	    <!-- The following ant task cause the build to break
+	         if building with JAVA 5.  The JAVA 5 'enum' reserved
+		 word is used in the source code being compiled. 
+		 The generated ANT file might need to pass the
+		 -source 1.4 option to the java compiler -->
+	    <!--
             <ant:ant antfile="build.xml"
                 inheritall="true"
                 inheritrefs="true"
                 dir="target/generated/samples"/>
+	    -->
         </j:jelly>
     </preGoal>
 </project>
