@@ -50,7 +50,7 @@ import org.apache.xmlbeans.XmlObject;
  * Command line based deployment utility which combines multiple deployable modules
  * into a single configuration.
  *
- * @version $Revision: 1.13 $ $Date: 2004/02/27 00:58:30 $
+ * @version $Revision: 1.14 $ $Date: 2004/02/29 06:11:32 $
  */
 public class Deployer {
     private final Collection builders;
@@ -209,7 +209,12 @@ public class Deployer {
         if (f.exists() && f.canRead()) {
             return f.toURI().toURL();
         }
-        return new File(".").toURI().resolve(location).toURL();
+        try {
+            return new File(".").toURI().resolve(location).toURL();
+        } catch (IllegalArgumentException e) {
+            // thrown by URI.resolve if the location is not valid
+            throw (MalformedURLException) new MalformedURLException("Invalid location: "+location).initCause(e);
+        }
     }
 
     private static class Command {
