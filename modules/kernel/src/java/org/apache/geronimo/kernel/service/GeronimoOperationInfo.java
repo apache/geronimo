@@ -59,6 +59,9 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Arrays;
+import java.util.ArrayList;
+
 import javax.management.MBeanOperationInfo;
 import javax.management.MBeanParameterInfo;
 
@@ -73,7 +76,7 @@ import net.sf.cglib.reflect.FastClass;
  * direct the operation to a specific target in a multi target GeronimoMBean.  It also supports caching of the
  * invocation result, which can reduce the number of calls on the target.
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/06 19:59:15 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/14 16:16:52 $
  */
 public final class GeronimoOperationInfo extends MBeanOperationInfo {
     /**
@@ -89,7 +92,7 @@ public final class GeronimoOperationInfo extends MBeanOperationInfo {
     /**
      * Parameters of this method.
      */
-    private final List parameters = new LinkedList();
+    private final List parameters;
 
     /**
      * Parameter types of this operation.
@@ -125,7 +128,7 @@ public final class GeronimoOperationInfo extends MBeanOperationInfo {
     /**
      * The maximum ammount ot time in seconds that a cached value is valid.
      */
-    long cacheTimeLimit;
+    long cacheTimeLimit = -1L;
 
     //
     // Runtime information -- this is not exposed to clients
@@ -153,17 +156,20 @@ public final class GeronimoOperationInfo extends MBeanOperationInfo {
     private final int hashCode = System.identityHashCode(this);
 
     public GeronimoOperationInfo() {
-        super("Ignore", null, null, "Ignore", MBeanOperationInfo.UNKNOWN);
-        immutable = false;
-        method = null;
-        returnType = null;
-        parameterTypes = null;
+        this(null, new GeronimoParameterInfo[] {}, 0, null);
     }
 
     public GeronimoOperationInfo(String name) {
+        this(name, new GeronimoParameterInfo[] {}, 0, null);
+    }
+
+    public GeronimoOperationInfo(String name, GeronimoParameterInfo[] parameterInfo, int impact, String description) {
         super("Ignore", null, null, "Ignore", MBeanOperationInfo.UNKNOWN);
-        this.name = name;
         immutable = false;
+        this.name = name;
+        parameters = new ArrayList(Arrays.asList(parameterInfo));
+        this.impact = impact;
+        this.description = description;
         method = null;
         returnType = null;
         parameterTypes = null;
@@ -209,6 +215,7 @@ public final class GeronimoOperationInfo extends MBeanOperationInfo {
             targetMethodName = source.targetMethodName;
         }
 
+        parameters = new ArrayList(source.parameters.size());
         parameterTypes = new String[source.parameters.size()];
         Class[] types = new Class[source.parameters.size()];
         for (int i = 0; i < source.parameters.size(); i++) {
