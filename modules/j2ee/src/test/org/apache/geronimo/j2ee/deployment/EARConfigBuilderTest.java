@@ -20,24 +20,25 @@ package org.apache.geronimo.j2ee.deployment;
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
-
 import javax.management.ObjectName;
 
-import junit.framework.TestCase;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import junit.extensions.TestSetup;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.9 $ $Date: 2004/08/09 04:19:35 $
+ * @version $Revision: 1.10 $ $Date: 2004/09/06 02:06:09 $
  */
 public class EARConfigBuilderTest extends TestCase {
+    private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
 
-    private static String EAR_BASE_DIR;
-    private static String EAR_PATH;
+//    private static String EAR_BASE_DIR;
+//    private static String EAR_PATH;
+    private static File earFile;
     private static MockEJBConfigBuilder ejbConfigBuilder = new MockEJBConfigBuilder();
     private static MockWARConfigBuilder webConfigBuilder = new MockWARConfigBuilder();
     private static MockConnectorConfigBuilder connectorConfigBuilder = new MockConnectorConfigBuilder();
@@ -53,8 +54,7 @@ public class EARConfigBuilderTest extends TestCase {
         TestSuite inner = new TestSuite(EARConfigBuilderTest.class);
         TestSetup setup14 = new TestSetup(inner) {
             protected void setUp() {
-                EAR_BASE_DIR = "target/test-ear14";
-                EAR_PATH = "test-ear.ear";
+                earFile = new File(basedir,  "target/test-ear14/test-ear.ear");
                 ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar.jar", URI.create("test-ejb-jar.jar"));
                 webConfigBuilder.contextRoot = "test";
                 webConfigBuilder.webModule = new WebModule("test-war.war", URI.create("test-war.war"), "test");
@@ -66,8 +66,7 @@ public class EARConfigBuilderTest extends TestCase {
         };
         TestSetup setupNaked14 = new TestSetup(inner) {
             protected void setUp() {
-                EAR_BASE_DIR = "target/test-ear14";
-                EAR_PATH = "test-naked-ear.ear";
+                earFile = new File(basedir,  "target/test-ear14/test-naked-ear.ear");
                 ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar.jar", URI.create("test-ejb-jar.jar"));
                 webConfigBuilder.contextRoot = "test";
                 webConfigBuilder.webModule = new WebModule("test-war.war", URI.create("test-war.war"), "test");
@@ -79,8 +78,7 @@ public class EARConfigBuilderTest extends TestCase {
         };
         TestSetup setup13 = new TestSetup(inner) {
             protected void setUp() {
-                EAR_BASE_DIR = "target/test-ear13";
-                EAR_PATH = "test-ear.ear";
+                earFile = new File(basedir,  "target/test-ear13/test-ear.ear");
                 ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar.jar", URI.create("test-ejb-jar.jar"));
                 webConfigBuilder.contextRoot = "test";
                 webConfigBuilder.webModule = new WebModule("test-war.war", URI.create("test-war.war"), "test");
@@ -92,8 +90,7 @@ public class EARConfigBuilderTest extends TestCase {
         };
         TestSetup setupNaked13 = new TestSetup(inner) {
             protected void setUp() {
-                EAR_BASE_DIR = "target/test-ear13";
-                EAR_PATH = "test-naked-ear.ear";
+                earFile = new File(basedir, "target/test-ear13/test-naked-ear.ear");
                 ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar.jar", URI.create("test-ejb-jar.jar"));
                 webConfigBuilder.contextRoot = "test";
                 webConfigBuilder.webModule = new WebModule("test-war.war", URI.create("test-war.war"), "test");
@@ -105,8 +102,7 @@ public class EARConfigBuilderTest extends TestCase {
         };
         TestSetup setupUnpacked = new TestSetup(inner) {
             protected void setUp() {
-                EAR_BASE_DIR = "target/test-unpacked-ear";
-                EAR_PATH = "full/";
+                earFile = new File(basedir,  "target/test-unpacked-ear/full/");
                 ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar/", URI.create("test-ejb-jar/"));
                 webConfigBuilder.contextRoot = "test";
                 webConfigBuilder.webModule = new WebModule("test-war/", URI.create("test-war/"), "test");
@@ -118,8 +114,7 @@ public class EARConfigBuilderTest extends TestCase {
         };
         TestSetup setupUnpackedNaked = new TestSetup(inner) {
             protected void setUp() {
-                EAR_BASE_DIR = "target/test-unpacked-ear";
-                EAR_PATH = "naked/";
+                earFile = new File(basedir,  "target/test-unpacked-ear/naked/");
                 ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar/", URI.create("test-ejb-jar/"));
                 webConfigBuilder.contextRoot = "test";
                 webConfigBuilder.webModule = new WebModule("test-war/", URI.create("test-war/"), "test");
@@ -131,19 +126,17 @@ public class EARConfigBuilderTest extends TestCase {
         };
         TestSetup setupUnpackedAltDD = new TestSetup(inner) {
             protected void setUp() throws Exception {
-                EAR_BASE_DIR = "target/test-unpacked-ear";
-                EAR_PATH = "alt-dd/";
+                earFile = new File(basedir,  "target/test-unpacked-ear/alt-dd/");
                 ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar/", URI.create("test-ejb-jar/"));
-                File baseDir = new File(EAR_BASE_DIR + "/" + EAR_PATH);
-                ejbConfigBuilder.ejbModule.setAltSpecDD(new File(baseDir, "alt-ejb-jar.xml").toURL());
-                ejbConfigBuilder.ejbModule.setAltVendorDD(new File(baseDir, "alt-ger-ejb-jar.xml").toURL());
+                ejbConfigBuilder.ejbModule.setAltSpecDD(new File(earFile, "alt-ejb-jar.xml").toURL());
+                ejbConfigBuilder.ejbModule.setAltVendorDD(new File(earFile, "alt-ger-ejb-jar.xml").toURL());
                 webConfigBuilder.contextRoot = "test";
                 webConfigBuilder.webModule = new WebModule("test-war/", URI.create("test-war/"), "test");
-                webConfigBuilder.webModule.setAltSpecDD(new File(baseDir, "alt-web.xml").toURL());
-                webConfigBuilder.webModule.setAltVendorDD(new File(baseDir, "alt-ger-war.xml").toURL());
+                webConfigBuilder.webModule.setAltSpecDD(new File(earFile, "alt-web.xml").toURL());
+                webConfigBuilder.webModule.setAltVendorDD(new File(earFile, "alt-ger-war.xml").toURL());
                 connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", URI.create("test-rar.rar"));
-                connectorConfigBuilder.connectorModule.setAltSpecDD(new File(baseDir, "alt-ra.xml").toURL());
-                connectorConfigBuilder.connectorModule.setAltVendorDD(new File(baseDir, "alt-ger-ra.xml").toURL());
+                connectorConfigBuilder.connectorModule.setAltSpecDD(new File(earFile, "alt-ra.xml").toURL());
+                connectorConfigBuilder.connectorModule.setAltVendorDD(new File(earFile, "alt-ger-ra.xml").toURL());
             }
 
             protected void tearDown() {
@@ -151,10 +144,9 @@ public class EARConfigBuilderTest extends TestCase {
         };
         TestSetup setupPackedAltDD = new TestSetup(inner) {
             protected void setUp() throws Exception {
-                EAR_BASE_DIR = "target/test-unpacked-ear";
-                EAR_PATH = "alt-dd.ear";
+                earFile = new File(basedir,  "target/test-unpacked-ear/alt-dd.ear");
                 ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar/", URI.create("test-ejb-jar/"));
-                String baseURI = "jar:" + new File(EAR_BASE_DIR + "/" + EAR_PATH).toURL() + "!/";
+                String baseURI = "jar:" + earFile.toURL() + "!/";
                 ejbConfigBuilder.ejbModule.setAltSpecDD(new URL(baseURI + "alt-ejb-jar.xml"));
                 ejbConfigBuilder.ejbModule.setAltVendorDD(new URL(baseURI + "alt-ger-ejb-jar.xml"));
                 webConfigBuilder.contextRoot = "test";
@@ -184,7 +176,6 @@ public class EARConfigBuilderTest extends TestCase {
 
     public void testBuildConfiguration() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, ejbConfigBuilder, null, webConfigBuilder, connectorConfigBuilder, null);
-        File earFile = new File(EAR_BASE_DIR + "/" + EAR_PATH);
 
         File carFile = File.createTempFile("EARTest", ".car");
         try {
@@ -197,7 +188,6 @@ public class EARConfigBuilderTest extends TestCase {
 
     public void testNoEJBDeployer() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, null, webConfigBuilder, connectorConfigBuilder, null);
-        File earFile = new File(EAR_BASE_DIR + "/" + EAR_PATH);
 
         File carFile = File.createTempFile("EARTest", ".car");
         try {
@@ -213,7 +203,6 @@ public class EARConfigBuilderTest extends TestCase {
 
     public void testNoWARDeployer() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, ejbConfigBuilder, null, null, connectorConfigBuilder, null);
-        File earFile = new File(EAR_BASE_DIR + "/" + EAR_PATH);
 
         File carFile = File.createTempFile("EARTest", ".car");
         try {
@@ -229,7 +218,6 @@ public class EARConfigBuilderTest extends TestCase {
 
     public void testNoConnectorDeployer() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, ejbConfigBuilder, null, webConfigBuilder, null, null);
-        File earFile = new File(EAR_BASE_DIR + "/" + EAR_PATH);
 
         File carFile = File.createTempFile("EARTest", ".car");
         try {
