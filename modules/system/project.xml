@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.5 $ $Date: 2004/02/24 06:05:37 $ -->
+<!-- $Revision: 1.6 $ $Date: 2004/02/24 12:20:46 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -57,6 +57,13 @@
             <artifactId>mx4j</artifactId>
             <version>SNAPSHOT</version>
         </dependency>
+
+        <dependency>
+            <groupId>concurrent</groupId>
+            <artifactId>concurrent</artifactId>
+            <version>1.3.2</version>
+        </dependency>
+
     </dependencies>
 
 
