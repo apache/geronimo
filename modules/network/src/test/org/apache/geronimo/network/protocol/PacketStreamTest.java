@@ -20,15 +20,17 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import EDU.oswego.cs.dl.util.concurrent.Latch;
 import junit.framework.TestCase;
 
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/03/18 04:05:51 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/20 23:03:06 $
  */
 public class PacketStreamTest extends TestCase {
 
-    EchoUpProtocol eup = new EchoUpProtocol();
+    EchoUpProtocol eup;
+    Latch startLatch;
     boolean failed;
 
     public void testStream() throws Exception {
@@ -36,6 +38,8 @@ public class PacketStreamTest extends TestCase {
 
         PacketInputStream in = new PacketInputStream(eup);
         ObjectInputStream objIn = new ObjectInputStream(in);
+
+        startLatch.release();
         String msg = (String) objIn.readObject();
 
         assertEquals(msg, "Hello World!");
@@ -47,6 +51,8 @@ public class PacketStreamTest extends TestCase {
 
         PacketInputStream in = new PacketInputStream(eup);
         ObjectInputStream objIn = new ObjectInputStream(in);
+
+        startLatch.release();
         String msg = (String) objIn.readObject();
 
         assertEquals(msg, "Hello World!");
@@ -63,19 +69,23 @@ public class PacketStreamTest extends TestCase {
 
         public void run() {
             try {
+                startLatch.acquire();
+
                 PacketOutputStream out = new PacketOutputStream(eup, packetSize);
                 ObjectOutputStream objOut = new ObjectOutputStream(out);
                 objOut.writeObject(new String("Hello World!"));
                 objOut.flush();
             } catch (IOException e) {
                 failed = true;
+            } catch (InterruptedException e) {
+                failed = true;
             }
         }
     }
 
-
     public void setUp() throws Exception {
         eup = new EchoUpProtocol();
+        startLatch = new Latch();
         failed = false;
     }
 
