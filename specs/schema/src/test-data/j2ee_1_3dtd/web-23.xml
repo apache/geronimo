@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app>
+    <icon>
+        <small-icon>small</small-icon>
+        <large-icon>large</large-icon>
+    </icon>
+    <display-name>WebAppDisplayName</display-name>
+    <description>WebAppDescription</description>
+    <distributable/>
+    <filter>
+        <icon>
+            <small-icon>small</small-icon>
+            <large-icon>large</large-icon>
+        </icon>
+        <filter-name>filterName</filter-name>
+        <display-name>displayName</display-name>
+        <description>filterDescription</description>
+        <filter-class>MyClass</filter-class>
+        <init-param>
+            <param-name>paramName</param-name>
+            <param-value>value</param-value>
+            <description>initDescription</description>
+        </init-param>
+    </filter>
+
+    <servlet>
+        <icon>
+            <small-icon>smallServlet</small-icon>
+            <large-icon>largeServlet</large-icon>
+        </icon>
+        <servlet-name>myServlet</servlet-name>
+        <display-name>servletDisplayName</display-name>
+        <description>ServletDescription</description>
+        <servlet-class>MyServletClass</servlet-class>
+        <init-param>
+            <param-name>paramName</param-name>
+            <param-value>value</param-value>
+            <description>description</description>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+        <run-as>me</run-as>
+    </servlet>
+
+</web-app>

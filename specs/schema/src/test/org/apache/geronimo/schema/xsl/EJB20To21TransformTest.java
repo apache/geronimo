@@ -30,7 +30,7 @@ import junit.framework.TestCase;
  * ejb 1.1 dtd appears to be a subset of ejb 2.0 dtd so the same xsl should
  * work for both.
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/17 06:55:11 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/17 23:49:25 $
  *
  * */
 public class EJB20To21TransformTest extends TestCase {
@@ -72,6 +72,72 @@ public class EJB20To21TransformTest extends TestCase {
         assertTrue("Differences after reconverting to schema: " + problems, compareXmlObjects(xmlObject, expected, problems));
     }
 
+    public void testOrderDescriptionGroup() throws Exception {
+        File srcXml = new File("src/test-data/j2ee_1_3dtd/DescriptionGroupTestSource.xml");
+        File expectedOutputXml = new File("src/test-data/j2ee_1_3dtd/DescriptionGroupTestExpected.xml");
+        XmlObject srcObject = XmlObject.Factory.parse(srcXml);
+        XmlCursor srcCursor = srcObject.newCursor();
+        XmlCursor moveable = srcObject.newCursor();
+        try {
+            srcCursor.toFirstChild();
+            srcCursor.toFirstChild();
+            assertTrue(srcCursor.getName().toString(), "filter".equals(srcCursor.getName().getLocalPart()));
+            do {
+                srcCursor.push();
+                srcCursor.toFirstChild();
+                SchemaConversionUtils.convertToDescriptionGroup(srcCursor, moveable);
+                srcCursor.pop();
+            } while (srcCursor.toNextSibling());
+        } finally {
+            srcCursor.dispose();
+        }
+//        System.out.println(srcObject.toString());
+        XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
+        List problems = new ArrayList();
+        assertTrue("Differences: " + problems, compareXmlObjects(srcObject, expected, problems));
+
+
+    }
+
+    public void testOrderJNDIEnvironmentRefsGroup() throws Exception {
+        File srcXml = new File("src/test-data/j2ee_1_3dtd/JNDIEnvironmentRefsGroupTestSource.xml");
+        File expectedOutputXml = new File("src/test-data/j2ee_1_3dtd/JNDIEnvironmentRefsGroupTestExpected.xml");
+        XmlObject srcObject = XmlObject.Factory.parse(srcXml);
+        XmlCursor srcCursor = srcObject.newCursor();
+        XmlCursor moveable = srcObject.newCursor();
+        try {
+            srcCursor.toFirstChild();
+            srcCursor.toFirstChild();
+            assertTrue(srcCursor.getName().toString(), "web-app".equals(srcCursor.getName().getLocalPart()));
+            do {
+                srcCursor.push();
+                srcCursor.toFirstChild();
+                srcCursor.toNextSibling();
+                srcCursor.toNextSibling();
+                SchemaConversionUtils.convertToJNDIEnvironmentRefsGroup(srcCursor, moveable);
+                srcCursor.pop();
+            } while (srcCursor.toNextSibling());
+        } finally {
+            srcCursor.dispose();
+        }
+//        System.out.println(srcObject.toString());
+        XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
+        List problems = new ArrayList();
+        assertTrue("Differences: " + problems, compareXmlObjects(srcObject, expected, problems));
+
+
+    }
+
+    public void testWeb23To24Transform() throws Exception {
+        File srcXml = new File("src/test-data/j2ee_1_3dtd/web-23.xml");
+        File expectedOutputXml = new File("src/test-data/j2ee_1_3dtd/web-24.xml");
+        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
+        xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
+        XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
+        List problems = new ArrayList();
+        assertTrue("Differences: " + problems, compareXmlObjects(xmlObject, expected, problems));
+
+    }
 
     private boolean compareXmlObjects(XmlObject xmlObject, XmlObject expectedObject, List problems) {
         XmlCursor test = xmlObject.newCursor();

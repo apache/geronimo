@@ -23,8 +23,6 @@ import java.util.ArrayList;
 
 import javax.xml.namespace.QName;
 
-import org.apache.geronimo.xbeans.j2ee.ActivationConfigPropertyType;
-import org.apache.geronimo.xbeans.j2ee.ActivationConfigType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.xmlbeans.XmlCursor;
@@ -35,7 +33,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/17 06:55:11 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/17 23:49:25 $
  *
  * */
 public class SchemaConversionUtils {
@@ -58,37 +56,58 @@ public class SchemaConversionUtils {
 
     public static EjbJarDocument convertToEJBSchema(XmlObject xmlObject) {
         XmlCursor cursor = xmlObject.newCursor();
+        XmlCursor moveable = xmlObject.newCursor();
         String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd";
         String version = "2.1";
         try {
-            SchemaConversionUtils.convertToSchema(cursor, schemaLocationURL, version);
+            convertToSchema(cursor, schemaLocationURL, version);
             //play with message-driven
             cursor.toStartDoc();
-            SchemaConversionUtils.convertToActivationConfig(cursor);
+            convertBeans(cursor, moveable);
         } finally {
             cursor.dispose();
         }
         XmlObject result = xmlObject.changeType(EjbJarDocument.type);
         if (result != null) {
-            return (EjbJarDocument)result;
+            return (EjbJarDocument) result;
         }
-        return (EjbJarDocument)xmlObject;
+        return (EjbJarDocument) xmlObject;
     }
 
     public static WebAppDocument convertToServletSchema(XmlObject xmlObject) {
         XmlCursor cursor = xmlObject.newCursor();
+        XmlCursor moveable = xmlObject.newCursor();
         String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd";
         String version = "2.4";
         try {
-            SchemaConversionUtils.convertToSchema(cursor, schemaLocationURL, version);
+            convertToSchema(cursor, schemaLocationURL, version);
+            cursor.toStartDoc();
+            cursor.toChild(J2EE_NAMESPACE, "web-app");
+            cursor.toFirstChild();
+            convertToDescriptionGroup(cursor, moveable);
+            convertToJNDIEnvironmentRefsGroup(cursor, moveable);
+            while (cursor.toNextSibling()) {
+                String name = cursor.getName().getLocalPart();
+                if ("filter".equals(name) || "servlet".equals(name)) {
+                    cursor.push();
+                    cursor.toFirstChild();
+                    convertToDescriptionGroup(cursor, moveable);
+                    if (cursor.toNextSibling(J2EE_NAMESPACE, "init-param")) {
+                        cursor.toFirstChild();
+                        convertToDescriptionGroup(cursor, moveable);
+                    }
+                    cursor.pop();
+                }
+            }
+
         } finally {
             cursor.dispose();
         }
         XmlObject result = xmlObject.changeType(WebAppDocument.type);
         if (result != null) {
-            return (WebAppDocument)result;
+            return (WebAppDocument) result;
         }
-        return (WebAppDocument)xmlObject;
+        return (WebAppDocument) xmlObject;
     }
 
     public static boolean convertToSchema(XmlCursor cursor, String schemaLocationURL, String version) {
@@ -115,76 +134,92 @@ public class SchemaConversionUtils {
         return true;
     }
 
-    public static void convertToActivationConfig(XmlCursor cursor) {
+    public static void convertBeans(XmlCursor cursor, XmlCursor moveable) {
         cursor.toChild(J2EE_NAMESPACE, "ejb-jar");
         cursor.toChild(J2EE_NAMESPACE, "enterprise-beans");
-        boolean onMessageDriven = cursor.toChild(J2EE_NAMESPACE, "message-driven");
-        while (onMessageDriven) {
-            cursor.toChild(J2EE_NAMESPACE, "transaction-type");
-            //add messaging-type
-            cursor.insertElementWithText("messaging-type", J2EE_NAMESPACE, "javax.jms.MessageListener");
-            cursor.toNextSibling();
-            //mark activation-config-properties location
-            cursor.push();
-            ActivationConfigType activationConfig = ActivationConfigType.Factory.newInstance();
-            if (cursor.isStart() && cursor.getName().equals(new QName(J2EE_NAMESPACE, "message-selector"))) {
-                addActivationConfigProperty(activationConfig, cursor, "messageSelector");
-                cursor.removeXml();
-            }
-            toNextStartToken(cursor);
-            if (cursor.isStart() && cursor.getName().equals(new QName(J2EE_NAMESPACE, "acknowledge-mode"))) {
-                addActivationConfigProperty(activationConfig, cursor, "acknowledgeMode");
-                cursor.removeXml();
-            }
-            toNextStartToken(cursor);
-            if (cursor.isStart() && cursor.getName().equals(new QName(J2EE_NAMESPACE, "message-driven-destination"))) {
+        if (cursor.toFirstChild()) {
+            //there's at least one ejb...
+            do {
                 cursor.push();
-                if (cursor.toChild(J2EE_NAMESPACE, "destination-type")) {
-                    addActivationConfigProperty(activationConfig, cursor, "destinationType");
-                } else {
-                    throw new IllegalStateException("no destination-type in message-driven-destination");
-                }
-                if (cursor.toNextSibling(J2EE_NAMESPACE, "subscription-durability")) {
-                    addActivationConfigProperty(activationConfig, cursor, "subscriptionDurability");
+                String type = cursor.getName().getLocalPart();
+                if ("session".equals(type)) {
+                    cursor.toChild(J2EE_NAMESPACE, "transaction-type");
+                    cursor.toNextSibling();
+                    convertToJNDIEnvironmentRefsGroup(cursor, moveable);
+                } else if ("entity".equals(type)) {
+                    //reentrant is the last required tag before jndiEnvironmentRefsGroup
+                    cursor.toChild(J2EE_NAMESPACE, "reentrant");
+                    cursor.toNextSibling(J2EE_NAMESPACE, "cmp-version");
+                    cursor.toNextSibling(J2EE_NAMESPACE, "abstract-schema-name");
+                    while (cursor.toNextSibling(J2EE_NAMESPACE, "cmp-field")) ;
+                    cursor.toNextSibling(J2EE_NAMESPACE, "primkey-field");
+                    cursor.toNextSibling();
+                    convertToJNDIEnvironmentRefsGroup(cursor, moveable);
+                } else if ("message-driven".equals(type)) {
+                    cursor.toChild(J2EE_NAMESPACE, "transaction-type");
+                    //add messaging-type
+                    cursor.insertElementWithText("messaging-type", J2EE_NAMESPACE, "javax.jms.MessageListener");
+                    //skip transaction-type
+                    cursor.toNextSibling();
+                    //add activation-config-properties.
+                    moveable.toCursor(cursor);
+                    cursor.push();
+                    cursor.beginElement("activation-config", J2EE_NAMESPACE);
+                    addActivationConfigProperty(moveable, cursor, "message-selector", "messageSelector");
+                    addActivationConfigProperty(moveable, cursor, "acknowledge-mode", "acknowledgeMode");
+                    if (moveable.toNextSibling(J2EE_NAMESPACE, "message-driven-destination")) {
+                        moveable.push();
+                        moveable.toFirstChild();
+                        addActivationConfigProperty(moveable, cursor, "destination-type", "destinationType");
+                        addActivationConfigProperty(moveable, cursor, "subscription-durability", "subscriptionDurability");
+                        moveable.pop();
+                        moveable.removeXml();
+                    }
+                    cursor.pop();
+                    cursor.toNextSibling();
+                    convertToJNDIEnvironmentRefsGroup(cursor, moveable);
                 }
                 cursor.pop();
-                cursor.removeXml();
-            }
+            } while (cursor.toNextSibling());
+        }
+    }
+
+    private static void addActivationConfigProperty(XmlCursor moveable, XmlCursor cursor, String elementName, String propertyName) {
+        if (moveable.toNextSibling(J2EE_NAMESPACE, elementName)) {
+            cursor.push();
+            cursor.beginElement("activation-config-property", J2EE_NAMESPACE);
+            cursor.insertElementWithText("activation-config-property-name", J2EE_NAMESPACE, propertyName);
+            cursor.insertElementWithText("activation-config-property-value", J2EE_NAMESPACE, moveable.getTextValue());
+            moveable.removeXml();
             cursor.pop();
-            cursor.insertElement(new QName(J2EE_NAMESPACE, "activation-config"));
-            //back up into element we just inserted.
-            while (!cursor.isEnd()) {
-                cursor.toPrevToken();
-            }
-            XmlCursor activationConfigCursor = activationConfig.newCursor();
-            //move past the STARTDOC token
-            toNextStartToken(activationConfigCursor);
-            //add all the activation-config-properties we defined
-            while (true) {
-                activationConfigCursor.copyXml(cursor);
-                if (!activationConfigCursor.toNextSibling(J2EE_NAMESPACE, "activation-config-property")) {
-                    break;
-                }
-            }
-            //out of activation-config element
-            cursor.toParent();
-            //out of message-driven element
-            cursor.toParent();
-            //on to next message driven bean, if any.
-            onMessageDriven = cursor.toNextSibling(J2EE_NAMESPACE, "message-driven");
+            cursor.toNextSibling();
         }
     }
 
-    private static void toNextStartToken(XmlCursor cursor) {
-        while (!cursor.isStart()) {
-            cursor.toNextToken();
-        }
+    /**
+     * Reorders elements to match descriptionGroup
+     * @param cursor XmlCursor positioned at first element of "group" to be reordered
+     */
+    public static void convertToDescriptionGroup(XmlCursor cursor, XmlCursor moveable) {
+        moveable.toCursor(cursor);
+        moveElements("description", moveable, cursor);
+        moveElements("display-name", moveable, cursor);
+        moveElements("icon", moveable, cursor);
     }
 
-    private static void addActivationConfigProperty(ActivationConfigType activationConfig, XmlCursor cursor, String activationConfigPropertyName) {
-        ActivationConfigPropertyType activationConfigProperty = activationConfig.addNewActivationConfigProperty();
-        activationConfigProperty.addNewActivationConfigPropertyName().setStringValue(activationConfigPropertyName);
-        activationConfigProperty.addNewActivationConfigPropertyValue().setStringValue(cursor.getTextValue());
+    public static void convertToJNDIEnvironmentRefsGroup(XmlCursor cursor, XmlCursor moveable) {
+        moveElements("env-entry", moveable, cursor);
+        moveElements("ejb-ref", moveable, cursor);
+        moveElements("ejb-local-ref", moveable, cursor);
+        moveElements("resource-ref", moveable, cursor);
+        moveElements("resource-env-ref", moveable, cursor);
+        moveElements("message-destination-ref", moveable, cursor);
+    }
+
+    private static void moveElements(String localName, XmlCursor moveable, XmlCursor cursor) {
+        while (moveable.toNextSibling(J2EE_NAMESPACE, localName)) {
+            moveable.moveXml(cursor);
+        }
     }
 
 }

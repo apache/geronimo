@@ -30,6 +30,36 @@
             <ejb-class>org.openejb.test.simple.slsb.SimpleStatelessSessionEJB</ejb-class>
             <session-type>Stateless</session-type>
             <transaction-type>Container</transaction-type>
+            <env-entry>
+                <env-entry-name>envEntry</env-entry-name>
+                <env-entry-type>java.lang.String</env-entry-type>
+            </env-entry>
+            <ejb-ref>
+                <ejb-ref-name>ejb/ref</ejb-ref-name>
+                <ejb-ref-type>Entity</ejb-ref-type>
+                <home>org.Home</home>
+                <remote>org.Remote</remote>
+            </ejb-ref>
+            <ejb-local-ref>
+                <ejb-ref-name>ejb.localref</ejb-ref-name>
+                <ejb-ref-type>Entity</ejb-ref-type>
+                <local-home>org.LocalHome</local-home>
+                <local>org.Local</local>
+            </ejb-local-ref>
+            <resource-ref>
+                <res-ref-name>resourceref</res-ref-name>
+                <res-type>javax.sql.DataSource</res-type>
+                <res-auth>Container</res-auth>
+                <res-sharing-scope>Shareable</res-sharing-scope>
+            </resource-ref>
+            <resource-env-ref>
+                <resource-env-ref-name>resourceenvref</resource-env-ref-name>
+                <resource-env-ref-type>javax.jms.Queue</resource-env-ref-type>
+            </resource-env-ref>
+            <security-role-ref>
+                <role-name>roleref</role-name>
+            </security-role-ref>
+            <security-identity>me</security-identity>
         </session>
         <session>
             <ejb-name>SimpleStatefulSession</ejb-name>
@@ -51,6 +81,36 @@
             <persistence-type>Bean</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <reentrant>False</reentrant>
+            <env-entry>
+                <env-entry-name>envEntry</env-entry-name>
+                <env-entry-type>java.lang.String</env-entry-type>
+            </env-entry>
+            <ejb-ref>
+                <ejb-ref-name>ejb/ref</ejb-ref-name>
+                <ejb-ref-type>Entity</ejb-ref-type>
+                <home>org.Home</home>
+                <remote>org.Remote</remote>
+            </ejb-ref>
+            <ejb-local-ref>
+                <ejb-ref-name>ejb.localref</ejb-ref-name>
+                <ejb-ref-type>Entity</ejb-ref-type>
+                <local-home>org.LocalHome</local-home>
+                <local>org.Local</local>
+            </ejb-local-ref>
+            <resource-ref>
+                <res-ref-name>resourceref</res-ref-name>
+                <res-type>javax.sql.DataSource</res-type>
+                <res-auth>Container</res-auth>
+                <res-sharing-scope>Shareable</res-sharing-scope>
+            </resource-ref>
+            <resource-env-ref>
+                <resource-env-ref-name>resourceenvref</resource-env-ref-name>
+                <resource-env-ref-type>javax.jms.Queue</resource-env-ref-type>
+            </resource-env-ref>
+            <security-role-ref>
+                <role-name>roleref</role-name>
+            </security-role-ref>
+            <security-identity>me</security-identity>
         </entity>
         <entity>
             <ejb-name>SimpleCMPEntity</ejb-name>
@@ -74,6 +134,36 @@
                 <field-name>lastName</field-name>
             </cmp-field>
             <primkey-field>id</primkey-field>
+            <env-entry>
+                <env-entry-name>envEntry</env-entry-name>
+                <env-entry-type>java.lang.String</env-entry-type>
+            </env-entry>
+            <ejb-ref>
+                <ejb-ref-name>ejb/ref</ejb-ref-name>
+                <ejb-ref-type>Entity</ejb-ref-type>
+                <home>org.Home</home>
+                <remote>org.Remote</remote>
+            </ejb-ref>
+            <ejb-local-ref>
+                <ejb-ref-name>ejb.localref</ejb-ref-name>
+                <ejb-ref-type>Entity</ejb-ref-type>
+                <local-home>org.LocalHome</local-home>
+                <local>org.Local</local>
+            </ejb-local-ref>
+            <resource-ref>
+                <res-ref-name>resourceref</res-ref-name>
+                <res-type>javax.sql.DataSource</res-type>
+                <res-auth>Container</res-auth>
+                <res-sharing-scope>Shareable</res-sharing-scope>
+            </resource-ref>
+            <resource-env-ref>
+                <resource-env-ref-name>resourceenvref</resource-env-ref-name>
+                <resource-env-ref-type>javax.jms.Queue</resource-env-ref-type>
+            </resource-env-ref>
+            <security-role-ref>
+                <role-name>roleref</role-name>
+            </security-role-ref>
+            <security-identity>me</security-identity>
         </entity>
         <message-driven>
             <description>hey its a mdb</description>
@@ -97,11 +187,32 @@
                 </activation-config-property>
             </activation-config>
             <env-entry>
-                <description>sure, it's like this</description>
-                <env-entry-name>EnvEntry</env-entry-name>
+                <env-entry-name>envEntry</env-entry-name>
                 <env-entry-type>java.lang.String</env-entry-type>
-                <env-entry-value>value</env-entry-value>
             </env-entry>
+            <ejb-ref>
+                <ejb-ref-name>ejb/ref</ejb-ref-name>
+                <ejb-ref-type>Entity</ejb-ref-type>
+                <home>org.Home</home>
+                <remote>org.Remote</remote>
+            </ejb-ref>
+            <ejb-local-ref>
+                <ejb-ref-name>ejb.localref</ejb-ref-name>
+                <ejb-ref-type>Entity</ejb-ref-type>
+                <local-home>org.LocalHome</local-home>
+                <local>org.Local</local>
+            </ejb-local-ref>
+            <resource-ref>
+                <res-ref-name>resourceref</res-ref-name>
+                <res-type>javax.sql.DataSource</res-type>
+                <res-auth>Container</res-auth>
+                <res-sharing-scope>Shareable</res-sharing-scope>
+            </resource-ref>
+            <resource-env-ref>
+                <resource-env-ref-name>resourceenvref</resource-env-ref-name>
+                <resource-env-ref-type>javax.jms.Queue</resource-env-ref-type>
+            </resource-env-ref>
+            <security-identity>me</security-identity>
         </message-driven>
         <message-driven>
             <description>hey its another mdb</description>
