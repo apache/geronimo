@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Revision: 1.17 $ $Date: 2004/07/16 06:45:48 $ -->
+<!-- $Revision: 1.18 $ $Date: 2004/07/18 22:18:59 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -177,6 +177,16 @@
             <ant:arg value="--install"/>
             <ant:arg value="--plan"/>
             <ant:arg value="src/plan/j2ee-server-plan.xml"/>
+        </ant:java>
+
+        <ant:echo>Building default database configuration</ant:echo>
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="--install"/>
+            <ant:arg value="--plan"/>
+            <ant:arg value="src/plan/default-database-plan.xml"/>
+            <ant:arg value="--module"/>
+            <ant:arg value="${maven.repo.local}/tranql/rars/tranql-connector-SNAPSHOT.rar"/>
         </ant:java>
 
         <!-- build the J2EEServer secure configuration -->

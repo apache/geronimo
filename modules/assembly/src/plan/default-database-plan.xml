@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee"
+    version="1.5"
+    configId="org/tranql/connector/axion"
+    parentId="org/apache/geronimo/Server">
+    <resourceadapter>
+        <outbound-resourceadapter>
+            <connection-definition>
+                <connectionfactory-interface>javax.sql.DataSource</connectionfactory-interface>
+                <connectiondefinition-instance>
+                    <name>DefaultDatasource</name>
+                    <config-property-setting name="UserName"></config-property-setting>
+                    <config-property-setting name="Password"></config-property-setting>
+                    <config-property-setting name="Driver">org.axiondb.jdbc.AxionDriver</config-property-setting>
+                    <config-property-setting name="ConnectionURL">jdbc:axiondb:DefaultDatabase</config-property-setting>
+                    <config-property-setting name="CommitBeforeAutocommit">true</config-property-setting>
+                    <connectionmanager>
+                        <local-transaction/>
+                        <single-pool>
+                            <max-size>10</max-size>
+                            <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
+                            <match-one/>
+                        </single-pool>
+                    </connectionmanager>
+                    <global-jndi-name>tranql/axion</global-jndi-name>
+                    <!--credential-interface>javax.resource.spi.security.PasswordCredential</credential-interface-->
+                </connectiondefinition-instance>
+            </connection-definition>
+        </outbound-resourceadapter>
+    </resourceadapter>
+
+    <!--gbean name="geronimo.security:service=RealmBridge,name=TargetRealm" class="org.apache.geronimo.security.bridge.ConfiguredIdentityUserPasswordRealmBridge">
+        <attribute name="TargetRealm" type="java.lang.String">TargetRealm</attribute>
+        <attribute name="ConfiguredUser" type="java.lang.String">testUser</attribute>
+        <attribute name="ConfiguredPassword" type="java.lang.String">testPassword</attribute>
+    </gbean-->
+
+    <gbean name="geronimo.server:type=ThreadPooledTimer,name=JDBCTransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledTransactionalTimer">
+        <attribute name="repeatCount" type="int">5</attribute>
+        <reference name="TransactionContextManager">geronimo.server:type=TransactionContextManager</reference>
+        <reference name="ManagedConnectionFactoryWrapper">geronimo.server:name=DefaultDatasource</reference>
+        <reference name="ThreadPool">geronimo.server:type=ThreadPool,name=DefaultThreadPool</reference>
+    </gbean>
+
+    <gbean name="geronimo.server:type=ThreadPooledTimer,name=JDBCNonTransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledNonTransactionalTimer">
+        <reference name="ManagedConnectionFactoryWrapper">geronimo.server:name=DefaultDatasource</reference>
+        <reference name="ThreadPool">geronimo.server:type=ThreadPool,name=DefaultThreadPool</reference>
+    </gbean>
+
+</connector>

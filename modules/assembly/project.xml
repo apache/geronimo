@@ -17,7 +17,7 @@
 -->
 
 
-<!-- $Revision: 1.32 $ $Date: 2004/07/16 06:45:48 $ -->
+<!-- $Revision: 1.33 $ $Date: 2004/07/18 22:18:59 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -200,6 +200,15 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-timer</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-transaction</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
@@ -242,6 +251,13 @@
             <properties>
                 <repository>true</repository>
             </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>tranql</groupId>
+            <artifactId>tranql-connector</artifactId>
+            <version>SNAPSHOT</version>
+            <type>rar</type>
         </dependency>
 
         <dependency>
@@ -346,15 +362,6 @@
         </dependency>
 
         <dependency>
-            <groupId>idb</groupId>
-            <artifactId>idb</artifactId>
-            <version>3.26</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-
-        <dependency>
             <groupId>jetty</groupId>
             <artifactId>org.mortbay.jetty</artifactId>
             <version>5.0.RC0</version>
@@ -426,11 +433,11 @@
             </properties>
         </dependency>
 
-        <dependency>
+        <!--dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-jca</artifactId>
             <version>2.0-SNAPSHOT</version>
-        </dependency>
+        </dependency-->
 
         <dependency>
             <groupId>openejb</groupId>

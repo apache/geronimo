@@ -45,6 +45,9 @@ by the server.
         <uri>concurrent/jars/concurrent-1.3.4.jar</uri>
     </dependency>
     <dependency>
+        <uri>geronimo/jars/geronimo-timer-1.0-SNAPSHOT.jar</uri>
+    </dependency>
+    <dependency>
         <uri>geronimo/jars/geronimo-transaction-1.0-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
@@ -159,10 +162,9 @@ by the server.
         </references>
     </gbean>
 
-    <!--gbean name="geronimo.server:type=TransactionContextManager" 
-class="org.apache.geronimo.transaction.context.TransactionContextManager">
+    <gbean name="geronimo.server:type=TransactionContextManager" class="org.apache.geronimo.transaction.context.TransactionContextManager">
         <reference name="TransactionManager">geronimo.server:type=TransactionManager</reference>
-    </gbean-->
+    </gbean>
 
 
     <!-- default WAR container using Jetty -->
@@ -222,13 +224,15 @@ class="org.apache.geronimo.transaction.context.TransactionContextManager">
     </gbean>
 
     <gbean name="geronimo.deployer:role=Builder,type=EAR,config=org/apache/geronimo/Server" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
-        <reference name="Repository">*:role=Repository,*</reference>
         <attribute name="j2eeServer" type="javax.management.ObjectName">geronimo.server:j2eeType=J2EEServer,name=geronimo</attribute>
-        <reference name="EJBConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/Server</reference>
-        <reference name="WebConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=Web,config=org/apache/geronimo/Server</reference>
-        <reference name="ConnectorConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=Connector,config=org/apache/geronimo/Server</reference>
-        <attribute name="transactionManagerObjectName" type="javax.management.ObjectName">geronimo.server:type=TransactionManager</attribute>
+        <attribute name="transactionContextManagerObjectName" type="javax.management.ObjectName">geronimo.server:type=TransactionContextManager</attribute>
         <attribute name="connectionTrackerObjectName" type="javax.management.ObjectName">geronimo.server:type=ConnectionTracker</attribute>
+        <attribute name="transactionalTimerObjectName" type="javax.management.ObjectName">geronimo.server:type=ThreadPooledTimer,name=TransactionalThreadPooledTimer</attribute>
+        <attribute name="nonTransactionalTimerObjectName" type="javax.management.ObjectName">geronimo.server:type=ThreadPooledTimer,name=NonTransactionalThreadPooledTimer</attribute>
+        <reference name="Repository">*:role=Repository,*</reference>
+        <reference name="EJBConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/J2EEDeployer</reference>
+        <reference name="WebConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=Web,config=org/apache/geronimo/J2EEDeployer</reference>
+        <reference name="ConnectorConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=Connector,config=org/apache/geronimo/J2EEDeployer</reference>
     </gbean>
 
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=Web,config=org/apache/geronimo/Server" class="org.apache.geronimo.jetty.deployment.JettyModuleBuilder"/>
