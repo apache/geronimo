@@ -57,7 +57,7 @@ package javax.enterprise.deploy.shared;
 
 import junit.framework.TestCase;
 
-public class TestStateType extends TestCase {
+public class StateTypeTest extends TestCase {
     public void testValues() {
         assertEquals(0, StateType.RUNNING.getValue());
         assertEquals(1, StateType.COMPLETED.getValue());

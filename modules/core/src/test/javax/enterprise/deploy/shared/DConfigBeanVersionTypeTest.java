@@ -57,29 +57,27 @@ package javax.enterprise.deploy.shared;
 
 import junit.framework.TestCase;
 
-public class TestCommandType extends TestCase {
-    public void testValues() {
-        assertEquals(0, CommandType.DISTRIBUTE.getValue());
-        assertEquals(1, CommandType.START.getValue());
-        assertEquals(2, CommandType.STOP.getValue());
-        assertEquals(3, CommandType.UNDEPLOY.getValue());
-        assertEquals(4, CommandType.REDEPLOY.getValue());
+/**
+DConfigBeanVersionType
+ */
+public class DConfigBeanVersionTypeTest extends TestCase {
+     public void testValues() {
+        assertEquals(0, DConfigBeanVersionType.V1_3.getValue());
+        assertEquals(1, DConfigBeanVersionType.V1_3_1.getValue());
+        assertEquals(2, DConfigBeanVersionType.V1_4.getValue());
     }
 
     public void testToString() {
-        assertEquals("distribute", CommandType.DISTRIBUTE.toString());
-        assertEquals("start", CommandType.START.toString());
-        assertEquals("stop", CommandType.STOP.toString());
-        assertEquals("undeploy", CommandType.UNDEPLOY.toString());
-        assertEquals("redeploy", CommandType.REDEPLOY.toString());
+        assertEquals("V1_3", DConfigBeanVersionType.V1_3.toString());
+        assertEquals("V1_3_1", DConfigBeanVersionType.V1_3_1.toString());
+        assertEquals("V1_4", DConfigBeanVersionType.V1_4.toString());
         // only possible due to package local access
-        assertEquals("10", new ActionType(10).toString());
-        assertEquals("-1", new ActionType(-1).toString());
+        assertEquals("5", new ActionType(5).toString());
     }
 
     public void testValueToSmall() {
         try {
-            CommandType.getCommandType(-1);
+            DConfigBeanVersionType.getDConfigBeanVersionType(-1);
             fail("Expected AIOOBE");
         } catch (ArrayIndexOutOfBoundsException aioobe) {
         }
@@ -87,7 +85,7 @@ public class TestCommandType extends TestCase {
 
     public void testValueToLarge() {
         try {
-            CommandType.getCommandType(10);
+            DConfigBeanVersionType.getDConfigBeanVersionType(3);
             fail("Expected AIOOBE");
         } catch (ArrayIndexOutOfBoundsException aioobe) {
         }

@@ -53,31 +53,50 @@
  *
  * ====================================================================
  */
-package javax.enterprise.deploy.model;
+package javax.enterprise.deploy.shared;
 
 import junit.framework.TestCase;
 
-public class TestXPathEvent extends TestCase {
-
-     public void testIsAddEvent() {
-        XpathEvent addEvent = new XpathEvent(null, XpathEvent.BEAN_ADDED);
-        assertTrue(addEvent.isAddEvent());
-        assertFalse(addEvent.isChangeEvent());
-        assertFalse(addEvent.isRemoveEvent());
+public class ModuleTypeTest extends TestCase {
+      public void testValues() {
+        assertEquals(0, ModuleType.EAR.getValue());
+        assertEquals(1, ModuleType.EJB.getValue());
+        assertEquals(2, ModuleType.CAR.getValue());
+        assertEquals(3, ModuleType.RAR.getValue());
+        assertEquals(4, ModuleType.WAR.getValue());
     }
 
-    public void testIsChangeEvent() {
-        XpathEvent changeEvent = new XpathEvent(null, XpathEvent.BEAN_CHANGED);
-        assertTrue(changeEvent.isChangeEvent());
-        assertFalse(changeEvent.isAddEvent());
-        assertFalse(changeEvent.isRemoveEvent());
+    public void testToString() {
+        assertEquals("ear", ModuleType.EAR.toString());
+        assertEquals("ejb", ModuleType.EJB.toString());
+        assertEquals("car", ModuleType.CAR.toString());
+        assertEquals("rar", ModuleType.RAR.toString());
+        assertEquals("war", ModuleType.WAR.toString());
+        // only possible due to package local access
+        assertEquals("5", new ModuleType(5).toString());
     }
 
-    public void testIsRemoveEvent() {
-        XpathEvent removeEvent = new XpathEvent(null, XpathEvent.BEAN_REMOVED);
-        assertTrue(removeEvent.isRemoveEvent());
-        assertFalse(removeEvent.isAddEvent());
-        assertFalse(removeEvent.isChangeEvent());
+    public void testModuleExtension() {
+        assertEquals(".ear", ModuleType.EAR.getModuleExtension());
+        assertEquals(".jar", ModuleType.EJB.getModuleExtension());
+        assertEquals(".jar", ModuleType.CAR.getModuleExtension());
+        assertEquals(".rar", ModuleType.RAR.getModuleExtension());
+        assertEquals(".war", ModuleType.WAR.getModuleExtension());
     }
 
+    public void testValueToSmall() {
+        try {
+            ModuleType.getModuleType(-1);
+            fail("Expected AIOOBE");
+        } catch (ArrayIndexOutOfBoundsException aioobe) {
+        }
+    }
+
+    public void testValueToLarge() {
+        try {
+            ModuleType.getModuleType(5);
+            fail("Expected AIOOBE");
+        } catch (ArrayIndexOutOfBoundsException aioobe) {
+        }
+    }
 }

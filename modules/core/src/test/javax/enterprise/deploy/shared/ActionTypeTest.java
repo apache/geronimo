@@ -57,7 +57,7 @@ package javax.enterprise.deploy.shared;
 
 import junit.framework.TestCase;
 
-public class TestActionType extends TestCase {
+public class ActionTypeTest extends TestCase {
 
     public void testValues() {
         assertEquals(0, ActionType.EXECUTE.getValue());
