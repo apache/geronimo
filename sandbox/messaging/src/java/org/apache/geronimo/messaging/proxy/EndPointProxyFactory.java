@@ -22,7 +22,7 @@ import org.apache.geronimo.messaging.EndPoint;
 /**
  * Factory of EndPoint proxies.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/20 13:37:11 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/27 14:22:02 $
  */
 public interface EndPointProxyFactory
     extends EndPoint
@@ -41,6 +41,8 @@ public interface EndPointProxyFactory
      * Releases the resources of the specified EndPoint proxy.
      * <BR>
      * From this point, the proxy can no more be used.
+     * <BR>An IllegalStateException should be thrown when a method is invoked
+     * on a EndPoint proxy. 
      * 
      * @param aProxy EndPoint proxy.
      * @exception IllegalArgumentException Indicates that the provided instance
