@@ -6,24 +6,125 @@ after that date will need to be updated here.  We also need summary of
 remaining open issues.
 
 
-** Bug Fixes
-    * [GERONIMO-260] - NullPointerException deploying EAR files
-    * [GERONIMO-261] - NullPointerException deploying EAR jetty module
-    * [GERONIMO-294] - NPE on some Windows installations stops server from booting
-    * [GERONIMO-321] - Don't process JSP EL for v2.3 web apps
-    * [GERONIMO-349] - Don't assume ResourceAdapter.getXAResources != null
-    * [GERONIMO-352] - TransactionContext is not associated with imported transactions
-    * [GERONIMO-360] - Wrong TX policy for StatefulSession ejbCreate method
-    * [GERONIMO-362] - RA ConnectionFactories support more than one interface
-    * [GERONIMO-370] - Schema dir missing geronimo-application-client.xsd
-    * [GERONIMO-385] - transaction manager generally does not call end(xid, TMSUCCESS) during commit process
-    * [GERONIMO-390] - Transaction timeout can leak memory
-    * [GERONIMO-432] - Dynamic gbean attributes don't have type information
-    * [GERONIMO-439] - Remote management blows up on null password
-    * [GERONIMO-441] - JSR-88 incorrectly handles authentication errors
-    * [GERONIMO-445] - Web Services supports localhost on IPv6 ::1
-    * [GERONIMO-447] - Schema dir missing openejb-jar.xsd
+Geronimo URLs
+-------------
+Home Page:     http://geronimo.apache.org/
+Downloads:     http://geronimo.apache.org/download.html
+Documentation: http://geronimo.apache.org/documentation.html
+Mailing Lists: http://geronimo.apache.org/mailing.html
+Source Code:   http://geronimo.apache.org/source.html
+Bug Tracking:  http://nagoya.apache.org/jira/secure/BrowseProject.jspa?id=10220
+Wiki:          http://wiki.apache.org/geronimo
 
+
+Current Project Status at a Glance
+----------------------------------
+http://wiki.apache.org/geronimo/RoadMap
+
+
+Significant Changes Since the M2 Release
+----------------------------------------
+ * CMP Entity beans are now supported.  However, there are still
+   significant limitations (no EJB QL support).  This is one of the
+   last outstanding core J2EE features.
+
+ * Geronimo security realms have been integrated with the J2EE
+   containers, so J2EE container-managed authentication works.
+
+ * The web container now supports HTTPS with configurable SSL
+   certificates, etc.
+
+ * The transaction system is more robust, with big fixes, transaction
+   log support, etc.
+
+ * An application client container is now included with Geronimo
+
+ * Configuration changes to core Geronimo services and running
+   applications are persisted, though we still lack a user-friendly
+   interface for making such changes.
+
+ * Manifest Class-Path entries in J2EE application modules are
+   supported.
+
+ * JDBS database pools and JMS connection factories, topics, and
+   queues are now fully supported "out of the box".
+
+ * When deploying a J2EE connector, multiple instances of the same
+   resource adapter can be declared in the same deployment plan.
+
+ * The command-line deployment tool supports authentication and hot
+   deployment to a running server.
+
+ * JAX-RPC and SAAJ features are available to applications acting as
+   Web Services clients (though Web Services server features are not
+   yet available)
+
+
+Significant Missing Features
+----------------------------
+ * Full EJB CMP support with EJB QL
+
+ * Message-Driven Beans support for JMS (currently present but buggy
+   in comparison to non-JMS message sources)
+
+ * A good management tool, capable of reconfiguring the core Geronimo
+   services (such as setting a different default transaction timeout,
+   changing default security realm, changing web container listen
+   port, etc.)
+
+ * A complete JSR-77 implementation, including the Management EJB
+
+ * A complete JSR-88 configuration and deployment tool
+
+ * JSR-88 support for Geronimo deployment plan configuration
+
+ * Web Services server features and required J2EE features
+
+ * Fully integrate Tomcat as an alternative to Jetty as the web
+   container
+
+ * Full functionality on non-Sun JVMs
+
+ * Full RMI over IIOP support, including 1.4 and 1.5 JVMs
+
+ * Deployment tools should work from remote machines
+
+ * Application client container should work from remote machines
+
+ * Support for general JDBC XA drivers, and product-specific JDBC
+   enhancements
+
+ * Better features for migrating application and service
+   configurations between different Geronimo servers
+
+ * Ant tasks for common tasks (deployment, etc.)
+
+
+Overall Project Status
+----------------------
+Geronimo has made great strides, and J2EE certification testing is
+well underway.  However, it's probably clear from reading the notes
+above, there's still a lot of work left.
+
+In general, many core features work as expected, and many applications
+(that do not depend too heavily on advanced EJB features) can be
+successfully run on Geronimo.  Core services such as transactions and
+security are available, (though the configuration can be onerous in
+some areas).
+
+There are a still a number of outstanding bugs, and Geronimo has not
+been extensively performance tested.  Your help would be appreciated!
+
+Documentation efforts are underway, and freely available documentation
+covers many of the more stable aspects of the product.
+
+For more information on specific bugs or features, or to help with
+testing efforts, please visit JIRA, our bug/issue tracking system, at
+http://nagoya.apache.org/jira/secure/BrowseProject.jspa?id=10220
+
+
+Specific Issues Addressed in M3 Release
+---------------------------------------
 
 ** New Features
     * [GERONIMO-173] - EJB CMP: v1.1 Entity Bean support
@@ -41,6 +142,7 @@ remaining open issues.
     * [GERONIMO-331] - Support for message-destination-ref in J2EE App Client
     * [GERONIMO-357] - Command line deployer can connect to running server
     * [GERONIMO-377] - EJB CMP: Unknown primary key support
+    * [GERONIMO-378] - Implement transaction timeouts
     * [GERONIMO-398] - Configuration changes are saved to disk
     * [GERONIMO-399] - GBeans can be configured to be disabled by default
     * [GERONIMO-401] - J2EEApplication name can be specified distinct from the configId
@@ -60,55 +162,33 @@ remaining open issues.
     * [GERONIMO-372] - Multiple deployments of the same RA in geronimo-ra.xml
     * [GERONIMO-379] - Use XID tracking provided by HOWL logger
     * [GERONIMO-393] - Simplify configuration for MDBs in openejb-jar.xml
+    * [GERONIMO-402] - Disentangle package relationships in openejb
+    * [GERONIMO-403] - Split j2ee module into j2ee and j2ee-builder
     * [GERONIMO-404] - Split deployment and runtime code for connectors
+    * [GERONIMO-405] - Jetty module should be split into jetty & jetty-builder
     * [GERONIMO-413] - geronimo-ra.xml transaction settings defaults to ra.xml transaction setting
+    * [GERONIMO-418] - Split naming module into naming and naming-builder
+    * [GERONIMO-435] - Should be able to specifiy default parent config id
+    * [GERONIMO-443] - Deployer prompts for username/password if necessary
+    * [GERONIMO-464] - Split out common geronimo-security.xsd processing code
+    * [GERONIMO-459] - Deployment module JAR includes JSR-88 Factory Attribute
 
 
-** Missing Features
-    *
-
-
-** Known Issues
-    *
-
-
-** Opened and closed all in M3 (WILL NOT APPEAR IN FINAL RELEASE NOTES)
-    * [GERONIMO-297] - Build environment for all geronimo-related projects
-    * [GERONIMO-298] - itest.skip=true doesn't work
-    * [GERONIMO-335] - Build failed because of unsatisfied dependency-geronimo-spec-j2ee-1.4-rc2.jar
-    * [GERONIMO-366] - The java 1.5 'enum' reserved word is being used as a variable name.
-    * [GERONIMO-369] - Online maven deployment fails if the module is a path with a space in it.
-    * [GERONIMO-376] - Added version entry for maven-itest-plugin
-    * [GERONIMO-381] - Cannot build a fresh checkout - two JARs not found
-    * [GERONIMO-384] - Make m:co and m:update quieter
-    * [GERONIMO-408] - TM and active mark: Testing Build fails with InvalidConfigException caused by: org.objectweb.howl.log.LogClosedException
-    * [GERONIMO-437] - test/runtime failures with latest HOWL logger
-
-
-** Redundant (WILL NOT APPEAR IN FINAL RELEASE NOTES)
-    * [GERONIMO-330] - same as 331
-    * [GERONIMO-265] - same as 349
-
-
-** Applies to disabled Tomcat module (WILL NOT APPEAR IN FINAL RELEASE NOTES)
-    * [GERONIMO-356] - tomcat-plan.xml : Missing Dependency mx4j/jars/mx4j-2.0.1.jar
-    * [GERONIMO-311] - Tomcat GBean for starting/stoping and managing a Catalina instance
-
-
-UNRESOLVED BUT MARKED FOR M3
- * 374
- * 367
- * 215
-
-CHANGES SINCE LAST RELEASE
---------------------------
- * CMP EJB support (still no EJB QL)
- * security integration
- * HTTPS support
- * transaction logs & propogation
- * application client
- * persist configuration changes
- * manifest class-path support
- * JMS and JDBC drivers fully supported out of the box
- * can deploy multiple RA instances in same plan
- * hot deploy support via command-line tool
+** Bug Fixes
+    * [GERONIMO-260] - NullPointerException deploying EAR files
+    * [GERONIMO-261] - NullPointerException deploying EAR jetty module
+    * [GERONIMO-294] - NPE on some Windows installations stops server from booting
+    * [GERONIMO-321] - Don't process JSP EL for v2.3 web apps
+    * [GERONIMO-349] - Don't assume ResourceAdapter.getXAResources != null
+    * [GERONIMO-352] - TransactionContext is not associated with imported transactions
+    * [GERONIMO-360] - Wrong TX policy for StatefulSession ejbCreate method
+    * [GERONIMO-362] - RA ConnectionFactories support more than one interface
+    * [GERONIMO-370] - Schema dir missing geronimo-application-client.xsd
+    * [GERONIMO-385] - transaction manager generally does not call end(xid, TMSUCCESS) during commit process
+    * [GERONIMO-390] - Transaction timeout can leak memory
+    * [GERONIMO-432] - Dynamic gbean attributes don't have type information
+    * [GERONIMO-439] - Remote management blows up on null password
+    * [GERONIMO-441] - JSR-88 incorrectly handles authentication errors
+    * [GERONIMO-445] - Web Services supports localhost on IPv6 ::1
+    * [GERONIMO-447] - Schema dir missing openejb-jar.xsd
+    * [GERONIMO-469] - Should allow lookup of java:/comp as well as java:comp
