@@ -152,7 +152,12 @@ public class SPRConfigBuilder
 
       // the actual Application...
       {
-	ObjectName name=new ObjectName("geronimo.spring", "name", sprFile.getName());
+	ObjectName name=new ObjectName("geronimo.server"+":"+
+				       "J2EEServer"+"="+ "geronimo"+","+
+				       "J2EEApplication"+"="+"null"+","+
+				       "j2eeType"+"="+"SpringModule"+","+
+				       "name"+"="+ sprFile.getName()
+				       );
 	GBeanData gbeanData=new GBeanData(name, SpringGBean.GBEAN_INFO);
 	gbeanData.setAttribute("classPath", classPath.toArray(new URI[classPath.size()]));
 	gbeanData.setAttribute("configPath", configPath);
