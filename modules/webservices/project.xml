@@ -149,9 +149,9 @@
 
         <!-- JAXR (Apache Scout) -->
         <dependency>
-            <groupId>scout</groupId>
-            <artifactId>jaxr-api</artifactId>
-            <version>${scout_version}</version>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-jaxr</artifactId>
+            <version>${geronimo_spec_jaxr_version}</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
