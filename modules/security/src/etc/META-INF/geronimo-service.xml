@@ -19,7 +19,7 @@
 <gbeans>
     <path>geronimo-security-DEV.jar</path>
     <path>geronimo-spec-j2ee-jacc-DEV.jar</path>
-    <path>regexp-1.3-dev.jar</path>
+    <path>regexp-1.3.jar</path>
 
     <!-- security -->
     <gbean class="org.apache.geronimo.security.SecurityService" objectName="geronimo.security:type=SecurityService">

@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.51 $ $Date: 2004/04/22 00:05:48 $ -->
+<!-- $Revision: 1.52 $ $Date: 2004/04/25 23:21:50 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -177,8 +177,8 @@
         </dependency>
 
         <dependency>
-            <groupId>xml-commons-resolver</groupId>
-            <artifactId>xml-commons-resolver</artifactId>
+            <groupId>xml-resolver</groupId>
+            <artifactId>xml-resolver</artifactId>
             <version>1.1</version>
             <url>http://xml.apache.org/commons</url>
         </dependency>

@@ -36,7 +36,7 @@ by the server.
         <uri>geronimo/jars/geronimo-j2ee-DEV.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-jetty-DEV.jar</uri>
+        <uri>geronimo/jars/geronimo-core-DEV.jar</uri>
     </dependency>
     <dependency>
         <uri>geronimo/jars/geronimo-connector-DEV.jar</uri>
@@ -55,6 +55,12 @@ by the server.
     </dependency>
     <dependency>
         <uri>tranql/jars/tranql-SNAPSHOT.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>openejb/jars/openejb-core-DEV.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-jetty-DEV.jar</uri>
     </dependency>
 
     <gbean name="geronimo.server:type=ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
@@ -87,6 +93,26 @@ by the server.
         <reference name="JettyContainer">geronimo.server:type=WebContainer,container=Jetty</reference>
 <!--        <attribute name="MaxConnections" type="int">10</attribute>-->
 <!--        <attribute name="MaxIdleTime" type="int">10</attribute>-->
+    </gbean>
+
+    <gbean name="openejb:type=ContainerIndex" class="org.openejb.ContainerIndex">
+        <references name="EJBContainers">
+            <pattern>openejb:j2eeType=StatelessSessionBean,*</pattern>
+            <pattern>openejb:j2eeType=StatefulSessionBean,*</pattern>
+            <pattern>openejb:j2eeType=EntityBean,*</pattern>
+        </references>
+    </gbean>
+
+    <!-- EJB Protocol -->
+    <gbean name="openejb:type=SocketService,name=EJB" class="org.openejb.server.SimpleSocketService">
+        <attribute name="ServiceClassName" type="java.lang.String">org.openejb.server.ejbd.EjbServer</attribute>
+        <attribute name="OnlyFrom" type="java.net.InetAddress[]">127.0.0.1</attribute>
+        <reference name="ContainerIndex">openejb:type=ContainerIndex</reference>
+    </gbean>
+    <gbean name="openejb:type=ServiceDaemon,name=EJB" class="org.openejb.server.ServiceDaemon">
+        <attribute name="Port" type="int">4201</attribute>
+        <attribute name="InetAddress" type="java.net.InetAddress">127.0.0.1</attribute>
+        <reference name="SocketService">openejb:type=SocketService,name=EJB</reference>
     </gbean>
 
     <!-- JSR77 Management Objects -->

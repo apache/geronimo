@@ -16,7 +16,7 @@
     limitations under the License.
 -->
   
-<!-- $Revision: 1.9 $ $Date: 2004/04/23 03:08:28 $ -->
+<!-- $Revision: 1.10 $ $Date: 2004/04/25 23:21:50 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -99,9 +99,6 @@
         <ant:mkdir dir="${distDir}/repository"/>
         <ant:copy todir="${distDir}/repository">
             <ant:fileset dir="${maven.repo.local}">
-                <ant:include name="geronimo/**"/>
-                <ant:include name="geronimo-spec/**"/>
-
                 <j:forEach var="artifact" items="${pom.artifacts}">
                     <j:set var="dependency" value="${artifact.dependency}"/>
                     <j:if test="${dependency.getProperty('repository') == 'true'}">

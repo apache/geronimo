@@ -27,21 +27,27 @@ Configuration for the Geronimo deployer
     parentId="org/apache/geronimo/DeployerSystem"
     >
 
-    <include>
+    <dependency>
+        <uri>openejb/jars/openejb-core-DEV.jar</uri>
+    </dependency>
+    <dependency>
         <uri>geronimo/jars/geronimo-connector-DEV.jar</uri>
-    </include>
-    <include>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-core-DEV.jar</uri>
+    </dependency>
+    <dependency>
         <uri>geronimo/jars/geronimo-security-DEV.jar</uri>
-    </include>
+    </dependency>
     <dependency>
         <uri>geronimo/jars/geronimo-jetty-DEV.jar</uri>
     </dependency>
-    <include>
+    <dependency>
         <uri>geronimo/jars/geronimo-naming-DEV.jar</uri>
-    </include>
-    <include>
+    </dependency>
+    <dependency>
         <uri>geronimo/jars/geronimo-transaction-DEV.jar</uri>
-    </include>
+    </dependency>
     <dependency>
         <uri>geronimo-spec/jars/geronimo-spec-j2eeschema-DEV.jar</uri>
     </dependency>
@@ -51,7 +57,10 @@ Configuration for the Geronimo deployer
     </dependency>
     <!-- required for rar 1.5 to load realms -->
     <dependency>
-        <uri>regexp/jars/regexp-1.3-dev.jar</uri>
+        <uri>regexp/jars/regexp-1.3.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tranql/jars/tranql-SNAPSHOT.jar</uri>
     </dependency>
 
     <gbean name="geronimo.deployment:role=Deployer,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.deployment.Deployer">
@@ -76,6 +85,11 @@ Configuration for the Geronimo deployer
     </gbean>
 
     <gbean name="geronimo.deployer:role=Builder,type=WAR,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.jetty.deployment.WARConfigBuilder">
+        <reference name="Kernel">geronimo.boot:role=Kernel</reference>
+        <reference name="Repository">*:role=Repository,*</reference>
+    </gbean>
+
+    <gbean name="geronimo.deployer:role=Builder,type=EJB,config=org/apache/geronimo/J2EEDeployer" class="org.openejb.deployment.EJBConfigBuilder">
         <reference name="Kernel">geronimo.boot:role=Kernel</reference>
         <reference name="Repository">*:role=Repository,*</reference>
     </gbean>

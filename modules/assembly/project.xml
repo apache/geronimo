@@ -17,7 +17,7 @@
 -->
 
 
-<!-- $Revision: 1.11 $ $Date: 2004/04/22 00:05:48 $ -->
+<!-- $Revision: 1.12 $ $Date: 2004/04/25 23:21:50 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -52,6 +52,9 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-clustering</artifactId>
             <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
         </dependency>
 
         <dependency>
@@ -61,6 +64,7 @@
             <properties>
                 <lib>true</lib>
                 <deploy>true</deploy>
+                <repository>true</repository>
             </properties>
         </dependency>
 
@@ -68,6 +72,9 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-connector</artifactId>
             <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
         </dependency>
 
         <dependency>
@@ -81,6 +88,9 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-core</artifactId>
             <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
         </dependency>
 
         <dependency>
@@ -90,6 +100,7 @@
             <properties>
                 <lib>true</lib>
                 <deploy>true</deploy>
+                <repository>true</repository>
             </properties>
         </dependency>
 
@@ -97,12 +108,18 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee</artifactId>
             <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-jetty</artifactId>
             <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
         </dependency>
 
         <dependency>
@@ -120,6 +137,7 @@
                 <lib>true</lib>
                 <server>true</server>
                 <deploy>true</deploy>
+                <repository>true</repository>
             </properties>
         </dependency>
 
@@ -127,18 +145,27 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-naming</artifactId>
             <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-remoting</artifactId>
             <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-security</artifactId>
             <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
         </dependency>
 
         <dependency>
@@ -149,6 +176,7 @@
                 <lib>true</lib>
                 <server>true</server>
                 <deploy>true</deploy>
+                <repository>true</repository>
             </properties>
         </dependency>
 
@@ -156,24 +184,51 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-transaction</artifactId>
             <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee</artifactId>
             <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2eeschema</artifactId>
             <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
         </dependency>
 
         <dependency>
             <groupId>ant</groupId>
             <artifactId>ant</artifactId>
             <version>1.5</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>axion</groupId>
+            <artifactId>axion</artifactId>
+            <version>1.0-M3-dev</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>castor</groupId>
+            <artifactId>castor</artifactId>
+            <version>0.9.3.9</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -214,6 +269,15 @@
         </dependency>
 
         <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.0</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <version>1.0.3</version>
@@ -222,6 +286,15 @@
                 <lib>true</lib>
                 <server>true</server>
                 <deploy>true</deploy>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-primitives</groupId>
+            <artifactId>commons-primitives</artifactId>
+            <version>1.0</version>
+            <properties>
+                <repository>true</repository>
             </properties>
         </dependency>
 
@@ -235,9 +308,27 @@
         </dependency>
 
         <dependency>
+            <groupId>idb</groupId>
+            <artifactId>idb</artifactId>
+            <version>3.26</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
             <groupId>jetty</groupId>
             <artifactId>org.mortbay.jetty</artifactId>
             <version>5.0.beta0</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -267,9 +358,30 @@
         </dependency>
 
         <dependency>
+            <groupId>openejb</groupId>
+            <artifactId>openejb-core</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>openejb</groupId>
+            <artifactId>openejb-jca</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>openejb</groupId>
+            <artifactId>openejb-itests</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
             <groupId>regexp</groupId>
             <artifactId>regexp</artifactId>
-            <version>1.3-dev</version>
+            <version>1.3</version>
             <properties>
                 <repository>true</repository>
             </properties>
