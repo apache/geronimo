@@ -106,8 +106,8 @@ public class TimeoutTest extends AbstractTest {
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
         gbean.setAttribute("serverSide", new Boolean(true));
         Properties props = new Properties();
-        props.put("usersURI", new File(new File("."), "src/test-data/data/users.properties").toString());
-        props.put("groupsURI", new File(new File("."), "src/test-data/data/groups.properties").toString());
+        props.put("usersURI", new File(new File("."), "src/test-data/data/users.properties").toURI().toString());
+        props.put("groupsURI", new File(new File("."), "src/test-data/data/groups.properties").toURI().toString());
         gbean.setAttribute("options", props);
         kernel.loadGBean(testCE, gbean);
 
