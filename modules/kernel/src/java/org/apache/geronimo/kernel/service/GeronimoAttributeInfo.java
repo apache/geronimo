@@ -59,7 +59,6 @@ import java.lang.reflect.Method;
 import javax.management.MBeanAttributeInfo;
 
 import net.sf.cglib.reflect.FastMethod;
-import net.sf.cglib.reflect.FastClass;
 
 /**
  * Describes an attibute of a GeronimoMBean.  This extension allows the properties to be mutable during setup,
@@ -67,7 +66,7 @@ import net.sf.cglib.reflect.FastClass;
  * direct the attibute to a specific target in a multi target GeronimoMBean.  It also supports caching of the
  * attribute value, which can reduce the number of calls on the target.
  *
- * @version $Revision: 1.4 $ $Date: 2003/11/06 19:59:15 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/10 20:38:31 $
  */
 public class GeronimoAttributeInfo extends MBeanAttributeInfo {
     /**
@@ -178,17 +177,23 @@ public class GeronimoAttributeInfo extends MBeanAttributeInfo {
         this(name, true, true);
     }
 
-    public GeronimoAttributeInfo(String name, boolean readable, boolean writable) {
-        super("Ignore", "Ignore", null, true, true, false);
-        this.name = name;
-        this.readable = readable;
-        this.writable = writable;
+	public GeronimoAttributeInfo(String name, boolean readable, boolean writable) {
+	    this(name, readable, writable, null, null);
+	}
 
-        immutable = false;
-        getterMethod = null;
-        setterMethod = null;
-        type = null;
-    }
+	public GeronimoAttributeInfo(String name, boolean readable, boolean writable, String description, String targetName) {
+		super("Ignore", "Ignore", null, true, true, false);
+		this.name = name;
+		this.readable = readable;
+		this.writable = writable;
+		this.description = description;
+		this.targetName = targetName;
+
+		immutable = false;
+		getterMethod = null;
+		setterMethod = null;
+		type = null;
+	}
 
 
     /**
