@@ -57,6 +57,7 @@ package org.apache.geronimo.deployment.plugin;
 
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.XpathEvent;
+import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.spi.DConfigBean;
 import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
@@ -67,7 +68,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/02/18 20:55:31 $
+ * @version $Revision: 1.9 $ $Date: 2004/02/20 08:11:39 $
  */
 public abstract class DConfigBeanSupport extends XmlBeanSupport implements DConfigBean {
     private DDBean ddBean;
@@ -99,5 +100,46 @@ public abstract class DConfigBeanSupport extends XmlBeanSupport implements DConf
     }
 
     public void notifyDDChange(XpathEvent event) {
+    }
+
+    protected String[] getXPathsWithPrefix(String prefix, String[][] xpathSegments) {
+        String[] result = new String[xpathSegments.length];
+        for (int i = 0; i < xpathSegments.length; i++) {
+            String[] xpathSegmentArray = xpathSegments[i];
+            StringBuffer xpath = new StringBuffer();
+            for (int j = 0; j < xpathSegmentArray.length; j++) {
+                String segment = xpathSegmentArray[j];
+                if (prefix != null) {
+                    xpath.append(prefix).append(":");
+                }
+                xpath.append(segment);
+                if (j < xpathSegmentArray.length -1) {
+                    xpath.append("/");
+                }
+            }
+            result[i] = xpath.toString();
+        }
+        return result;
+    }
+
+    protected String[] getXPathsFromNamespace(String uri, String[][] xpathSegments) {
+        String[] attributeNames = ddBean.getRoot().getAttributeNames();
+        for (int i = 0; i < attributeNames.length; i++) {
+            String attributeName = attributeNames[i];
+            if (attributeName.startsWith("xmlns")) {
+                if (ddBean.getRoot().getAttributeValue(attributeName).equals(uri)) {
+                    if (attributeName.equals("xmlns")) {
+                        return getXPathsWithPrefix(null , xpathSegments);
+                    }
+                    return getXPathsWithPrefix(attributeName.substring(6), xpathSegments);
+                }
+            }
+        }
+        //??? malformed document, apparently
+        throw new IllegalStateException("namespace " + uri + " not declared in source document");
+    }
+
+    protected String[] getXPathsForJ2ee_1_4(String[][] xpathSegments) {
+        return getXPathsFromNamespace("http://java.sun.com/xml/ns/j2ee", xpathSegments);
     }
 }

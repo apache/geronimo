@@ -73,7 +73,7 @@ import org.w3c.dom.Document;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/11 08:02:21 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/20 08:11:39 $
  */
 public class DDBeanRootImpl implements DDBeanRoot {
     private final DeployableObject deployable;
@@ -143,11 +143,11 @@ public class DDBeanRootImpl implements DDBeanRoot {
     }
 
     public String[] getAttributeNames() {
-        return null;
+        return docBean.getAttributeNames();
     }
 
     public String getAttributeValue(String attrName) {
-        return null;
+        return docBean.getAttributeValue(attrName);
     }
 
     public DDBean[] getChildBean(String xpath) {

@@ -71,7 +71,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/11 08:02:21 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/20 08:11:39 $
  */
 public class DDBeanRootTest extends TestCase {
     private DDBeanRoot root;
@@ -85,7 +85,6 @@ public class DDBeanRootTest extends TestCase {
         assertEquals(deployable, root.getDeployableObject());
         assertEquals(ModuleType.CAR, root.getType());
         assertEquals("/", root.getXpath());
-        assertNull(root.getAttributeNames());
         assertNull(root.getText("foo"));
         assertTrue(Arrays.equals(new String[] {"Test DD for app-client1"}, root.getText("application-client/description")));
         assertTrue(Arrays.equals(new String[] {"http://localhost"}, root.getText("application-client/env-entry/env-entry-value")));
