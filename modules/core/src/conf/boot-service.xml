@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.9 $ $Date: 2003/08/28 11:19:17 $ -->
+<!-- $Revision: 1.10 $ $Date: 2003/08/30 10:22:52 $ -->
 
 <components>
+  <!-- Log4j Logging Service -->
+  <mbean code="org.apache.geronimo.core.logging.log4j.Log4jService" name="geronimo.core:role=Logging">
+    <constructor>
+      <arg type="java.net.URL">
+        ${geronimo.home}/etc/log4j.xml
+      </arg>
+    </constructor>
+  </mbean>
+  
   <!-- RMI adaptor to support MX4J -->
   <mbean code="mx4j.tools.naming.NamingService" name="Naming:type=rmiregistry">
   </mbean>

@@ -70,7 +70,7 @@ import java.rmi.server.RMIClassLoaderSpi;
  * An implementation of {@link RMIClassLoaderSpi} which provides normilzation
  * of codebase URLs and delegates to the default {@link RMIClassLoaderSpi}.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/29 12:30:37 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/30 10:22:52 $
  */
 public class RMIClassLoaderSpiImpl
     extends RMIClassLoaderSpi
@@ -111,53 +111,59 @@ public class RMIClassLoaderSpiImpl
         return delegate.getClassAnnotation(type);
     }
     
-    static String normalizeCodebase(String codebase)
+    static String normalizeCodebase(String input)
         throws MalformedURLException
     {
-        assert codebase != null;
+        assert input != null;
+        // System.out.println("Input codebase: " + input);
         
-        StringBuffer codebaseBuff = new StringBuffer();
-        StringBuffer buff = new StringBuffer();
-        StringTokenizer stok = new StringTokenizer(codebase, " \t\n\r\f", true);
+        StringBuffer codebase = new StringBuffer();
+        StringBuffer working = new StringBuffer();
+        StringTokenizer stok = new StringTokenizer(input, " \t\n\r\f", true);
         
         while (stok.hasMoreTokens()) {
             String item = stok.nextToken();
             try {
                 URL url = new URL(item);
+                // System.out.println("Created URL: " + url);
                 
                 // If we got this far then item is a valid url, so commit the current
                 // buffer and start collecting any trailing bits from where we are now
                 
-                // Put spaces back in for URL delims
-                if (codebaseBuff.length() != 0) {
-                    codebaseBuff.append(" ");
-                }
-                
-                // Normalize the URL
-                url = normalizeURL(new URL(buff.toString()));
-                codebaseBuff.append(url);
-                
-                // Reset the working buffer
-                buff.setLength(0);
+                updateCodebase(working, codebase);
             }
             catch (MalformedURLException ignore) {
                 // just keep going & append to the working buffer
             }
             
-            buff.append(item);
+            working.append(item);
+            // System.out.println("Added to working buffer: " + item);
         }
         
-        // handle trainling elements
-        if (buff.length() != 0) {
-            URL url = normalizeURL(new URL(buff.toString()));
+        // Handle trailing elements
+        updateCodebase(working, codebase);
+        
+        // System.out.println("Normalized codebase: " + codebase);
+        return codebase.toString();
+    }
+    
+    private static void updateCodebase(final StringBuffer working, final StringBuffer codebase)
+        throws MalformedURLException
+    {
+        if (working.length() != 0) {
+            // Normalize the URL
+            URL url = normalizeURL(new URL(working.toString()));
+            // System.out.println("Created normalized URL: " + url);
             
-            if (codebaseBuff.length() != 0) {
-                codebaseBuff.append(" ");
+            // Put spaces back in for URL delims
+            if (codebase.length() != 0) {
+                codebase.append(" ");
             }
-            codebaseBuff.append(url);
+            codebase.append(url);
+            
+            // Reset the working buffer
+            working.setLength(0);
         }
-        
-        return codebaseBuff.toString();
     }
     
     static URL normalizeURL(URL url)

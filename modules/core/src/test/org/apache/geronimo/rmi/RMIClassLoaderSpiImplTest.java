@@ -59,40 +59,52 @@ package org.apache.geronimo.rmi;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import java.io.File;
+
 import junit.framework.TestCase;
 
 /**
  * Unit tests for {@link RMIClassLoaderSpiImpl} class.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/29 12:30:37 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/30 10:22:52 $
  */
 public class RMIClassLoaderSpiImplTest
     extends TestCase
 {
-    public void testNormalizeURL()
+    private String baseURL;
+    private String normalizedBaseURL;
+    
+    protected void setUp() throws Exception
     {
-        URL url = null;
-        try {
-            url = new URL("file:/Program Files/Apache Group/Geronimo");
-        }
-        catch (MalformedURLException e) {
-            fail("Unexpected MUE: " + e);
+        File dir = new File(System.getProperty("user.home"));
+        
+        baseURL = dir.toURL().toString();
+        if (baseURL.endsWith("/")) {
+            baseURL = baseURL.substring(0, baseURL.length() - 1);
         }
         
-        URL normal = RMIClassLoaderSpiImpl.normalizeURL(url);
-        assertEquals("file:/Program%20Files/Apache%20Group/Geronimo", normal.toString());
+        normalizedBaseURL = dir.toURI().toURL().toString();
+        if (normalizedBaseURL.endsWith("/")) {
+            normalizedBaseURL = normalizedBaseURL.substring(0, normalizedBaseURL.length() - 1);
+        }
+        
+        System.out.println("Using base URL: " + baseURL);
+        System.out.println("Using normalized base URL: " + normalizedBaseURL);
     }
     
-    public void testNormalizeCodebase()
+    public void testNormalizeURL() throws MalformedURLException
     {
-        String codebase = "file:/Program Files/Apache Group/Geronimo file:/Program Files/Apache Group/Whatever";
+        URL url = new URL(baseURL + "/Apache Group/Geronimo");
+        URL normal = RMIClassLoaderSpiImpl.normalizeURL(url);
+        assertEquals(normalizedBaseURL + "/Apache%20Group/Geronimo", normal.toString());
+    }
+    
+    public void testNormalizeCodebase() throws MalformedURLException
+    {
+        String codebase = baseURL + "/Apache Group/Geronimo " + baseURL + "/Apache Group/Apache2";
         
-        try {
-            String normal = RMIClassLoaderSpiImpl.normalizeCodebase(codebase);
-            assertEquals("file:/Program%20Files/Apache%20Group/Geronimo file:/Program%20Files/Apache%20Group/Whatever", normal);
-        }
-        catch (MalformedURLException e) {
-            fail("Unexpected MUE: " + e);
-        }
+        String normal = RMIClassLoaderSpiImpl.normalizeCodebase(codebase);
+        assertEquals(normalizedBaseURL + "/Apache%20Group/Geronimo " + 
+                     normalizedBaseURL + "/Apache%20Group/Apache2", normal);
     }
 }
