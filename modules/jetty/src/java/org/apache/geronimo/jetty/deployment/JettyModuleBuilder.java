@@ -228,6 +228,11 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 }
             }
 
+            // add the manifest classpath entries declared in the war to the class loader
+            // we have to explicitly add these since we are unpacking the web module
+            // and the url class loader will not pick up a manifiest from an unpacked dir
+            earContext.addManifestClassPath(warFile, URI.create(module.getTargetPath()));
+
             // add the dependencies declared in the geronimo-jetty.xml file
             JettyWebAppType jettyWebApp = (JettyWebAppType) module.getVendorDD();
             JettyDependencyType[] dependencies = jettyWebApp.getDependencyArray();

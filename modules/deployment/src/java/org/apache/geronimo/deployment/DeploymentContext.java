@@ -29,6 +29,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.net.URLClassLoader;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -37,7 +38,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 import java.util.jar.JarFile;
+import java.util.jar.Manifest;
+import java.util.jar.Attributes;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import javax.management.MalformedObjectNameException;
@@ -178,6 +182,44 @@ public class DeploymentContext {
         classPath.add(targetPath);
     }
 
+    public void addManifestClassPath(JarFile moduleFile, URI moduleBaseUri) throws DeploymentException {
+        Manifest manifest = null;
+        try {
+            manifest = moduleFile.getManifest();
+        } catch (IOException e) {
+            throw new DeploymentException("Could not read manifest: " + moduleBaseUri);
+        }
+
+        if (manifest == null) {
+            return;
+        }
+        String manifestClassPath = manifest.getMainAttributes().getValue(Attributes.Name.CLASS_PATH);
+        if (manifestClassPath == null) {
+            return;
+        }
+
+        for (StringTokenizer tokenizer = new StringTokenizer(manifestClassPath, " "); tokenizer.hasMoreTokens();) {
+            String path = tokenizer.nextToken();
+
+            URI pathUri;
+            try {
+                pathUri = new URI(path);
+            } catch (URISyntaxException e) {
+                throw new DeploymentException("Invalid manifest classpath entry: module=" + moduleBaseUri + ", path=" + path);
+            }
+
+            if (!pathUri.getPath().endsWith(".jar")) {
+                throw new DeploymentException("Manifest class path entries must end with the .jar extension (J2EE 1.4 Section 8.2): module=" + moduleBaseUri);
+            }
+            if (pathUri.isAbsolute()) {
+                throw new DeploymentException("Manifest class path entries must be relative (J2EE 1.4 Section 8.2): moduel=" + moduleBaseUri);
+            }
+
+            URI targetUri = moduleBaseUri.resolve(pathUri);
+            classPath.add(targetUri);
+        }
+    }
+
     public void addFile(URI targetPath, ZipFile zipFile, ZipEntry zipEntry) throws IOException {
         addFile(getTargetFile(targetPath), zipFile, zipEntry);
     }
@@ -241,7 +283,7 @@ public class DeploymentContext {
         }
     }
 
-    private File getTargetFile(URI targetPath) {
+    public File getTargetFile(URI targetPath) {
         assert !targetPath.isAbsolute() : "targetPath is absolute";
         assert !targetPath.isOpaque() : "targetPath is opaque";
         return new File(baseUri.resolve(targetPath));

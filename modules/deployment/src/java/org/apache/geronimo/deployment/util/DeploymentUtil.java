@@ -37,7 +37,7 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 /**
- * @version $Revision$ $Date$
+ * @version $Rev$ $Date$
  */
 public final class DeploymentUtil {
     private DeploymentUtil() {

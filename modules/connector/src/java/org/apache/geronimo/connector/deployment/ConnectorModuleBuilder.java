@@ -189,10 +189,14 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
 
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
         try {
-            URI targetURI = URI.create(module.getTargetPath() + "/");
-
             JarFile moduleFile = module.getModuleFile();
 
+            // add the manifest classpath entries declared in the connector to the class loader
+            // we have to explicitly add these since we are unpacking the connector module
+            // and the url class loader will not pick up a manifiest from an unpacked dir
+            earContext.addManifestClassPath(moduleFile, URI.create(module.getTargetPath()));
+
+            URI targetURI = URI.create(module.getTargetPath() + "/");
             Enumeration entries = moduleFile.entries();
             while (entries.hasMoreElements()) {
                 ZipEntry entry = (ZipEntry) entries.nextElement();

@@ -28,6 +28,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.HashSet;
+import java.util.StringTokenizer;
+import java.util.zip.ZipEntry;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -36,6 +38,7 @@ import javax.management.ObjectName;
 import javax.naming.Reference;
 
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.service.GBeanHelper;
 import org.apache.geronimo.deployment.util.NestedJarFile;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
@@ -380,8 +383,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                     appClientDeploymentContext.addDependency(getDependencyURI(dependencies[i]));
                 }
 
-                appClientDeploymentContext.addManifestClassPath(appClientModule.getEarFile(), appClientModule, moduleFile, moduleBase);
-
+                // add manifest class path entries to the app client context
+                addManifestClassPath(appClientDeploymentContext, appClientModule.getEarFile(), moduleFile, moduleBase);
 
                 // get the classloader
                 ClassLoader appClientClassLoader = appClientDeploymentContext.getClassLoader(repository);
@@ -454,6 +457,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                     appClienContainerGBean.setAttribute("mainClassName", mainClasss);
                     appClienContainerGBean.setAttribute("appClientModuleName", appClientModuleName);
                     appClienContainerGBean.setReferencePattern("JNDIContext", new ObjectName("geronimo.client:type=StaticJndiContext"));
+                    appClienContainerGBean.setReferencePattern("TransactionContextManager", new ObjectName("geronimo.client:type=TransactionContextManager"));
                 } catch (Exception e) {
                     throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
                 }
@@ -482,6 +486,73 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 throw new DeploymentException(e);
             }
             throw new Error(e);
+        }
+    }
+
+    public void addManifestClassPath(DeploymentContext deploymentContext, JarFile earFile, JarFile jarFile, URI jarFileLocation) throws DeploymentException {
+        Manifest manifest = null;
+        try {
+            manifest = jarFile.getManifest();
+        } catch (IOException e) {
+            throw new DeploymentException("Could not read manifest: " + jarFileLocation);
+        }
+
+        if (manifest == null) {
+            return;
+        }
+        String manifestClassPath = manifest.getMainAttributes().getValue(Attributes.Name.CLASS_PATH);
+        if (manifestClassPath == null) {
+            return;
+        }
+
+        for (StringTokenizer tokenizer = new StringTokenizer(manifestClassPath, " "); tokenizer.hasMoreTokens();) {
+            String path = tokenizer.nextToken();
+
+            URI pathUri;
+            try {
+                pathUri = new URI(path);
+            } catch (URISyntaxException e) {
+                throw new DeploymentException("Invalid manifest classpath entry: jarFile=" + jarFileLocation + ", path=" + path);
+            }
+
+            if (!pathUri.getPath().endsWith(".jar")) {
+                throw new DeploymentException("Manifest class path entries must end with the .jar extension (J2EE 1.4 Section 8.2): jarFile=" + jarFileLocation + ", path=" + path);
+            }
+            if (pathUri.isAbsolute()) {
+                throw new DeploymentException("Manifest class path entries must be relative (J2EE 1.4 Section 8.2): jarFile=" + jarFileLocation + ", path=" + path);
+            }
+
+            // determine the target file
+            URI classPathJarLocation = jarFileLocation.resolve(pathUri);
+            File classPathFile = deploymentContext.getTargetFile(classPathJarLocation);
+
+            // we only recuse if the path entry is not already in the output context
+            // this will work for all current cases, but may not work in the future
+            if (!classPathFile.exists()) {
+                // check if the path exists in the earFile
+                ZipEntry entry = earFile.getEntry(classPathJarLocation.getPath());
+                if (entry == null) {
+                    throw new DeploymentException("Cound not find manifest class path entry: jarFile=" + jarFileLocation + ", path=" + path);
+                }
+
+                try {
+                    // copy the file into the output context
+                    deploymentContext.addFile(classPathJarLocation, earFile, entry);
+                } catch (IOException e) {
+                    throw new DeploymentException("Cound not copy manifest class path entry into configuration: jarFile=" + jarFileLocation + ", path=" + path, e);
+                }
+
+                JarFile classPathJarFile = null;
+                try {
+                    classPathJarFile = new JarFile(classPathFile);
+                } catch (IOException e) {
+                    throw new DeploymentException("Manifest class path entries must be a valid jar file (J2EE 1.4 Section 8.2): jarFile=" + jarFileLocation + ", path=" + path, e);
+                }
+
+
+                // add the client jars of this class path jar
+                addManifestClassPath(deploymentContext, earFile, classPathJarFile, classPathJarLocation);
+            }
         }
     }
 
