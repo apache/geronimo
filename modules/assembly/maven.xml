@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Revision: 1.23 $ $Date: 2004/07/29 02:58:36 $ -->
+<!-- $Revision: 1.24 $ $Date: 2004/08/19 00:22:23 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -32,10 +32,8 @@
     <j:set var="project.root" value="${pom.parentBasedir().getParentFile().getCanonicalFile()}"/>
 
     <!-- Determine what the top-level project root is -->
-    <j:set var="distDir" value="${project.root}/target/${pom.groupId}-${pom.currentVersion}"/>
-    <!-- <j:set var="distDir" value="${project.root}/target"/> -->
-    <!-- Load the global properties -->
-    <ant:property file="${project.root}/etc/global.properties"/>
+    <j:set var="distDir" value="${basedir}/target/${pom.groupId}-${pom.currentVersion}"/>
+
 
     <!-- ==================== -->
     <!-- Default Global Goals -->
@@ -46,7 +44,7 @@
     </goal>
 
     <goal name="build">
-        <attainGoal name="assemble"/>
+        <attainGoal name="jar:install"/>
     </goal>
 
     <goal name="rebuild">
@@ -54,20 +52,20 @@
         <attainGoal name="build"/>
     </goal>
 
-    <postGoal name="clean:clean">
-        <ant:delete dir="${distDir}"/>
-    </postGoal>
+    <preGoal name="jar:jar">
+        <attainGoal name="assemble"/>
+        <j:set var="maven.build.dest" value="${basedir}/target/${pom.groupId}-${pom.currentVersion}"/>
+    </preGoal>
 
     <!-- ==================================================== -->
     <!-- Assemble server installation from generated modules  -->
     <!-- ==================================================== -->
     <goal name="assemble">
-        <!-- delete the dist directory first, to remove any cruft -->
-        <ant:delete dir="${distDir}"/>
 
         <!-- Copy  the runtime dependencies into lib and create a classpath for the server.jar file -->
         <j:set var="libDir" value="${distDir}/lib"/>
         <ant:mkdir dir="${libDir}"/>
+
         <j:forEach var="artifact" items="${pom.artifacts}">
             <j:set var="dependency" value="${artifact.dependency}"/>
             <j:if test="${dependency.getProperty('lib') == 'true'}">
@@ -130,9 +128,9 @@
             </ant:fileset>
         </ant:copy>
 
-        <ant:echo message="${project.root}" />
+        <ant:echo message="${project.root}"/>
         <ant:copy todir="${distDir}">
-          <fileset dir="${project.root}" includes="*.txt,STATUS" />
+            <fileset dir="${project.root}" includes="*.txt,STATUS"/>
         </ant:copy>
 
         <!-- bootstrap the deployer -->
@@ -184,6 +182,7 @@
             <ant:arg value="src/plan/j2ee-server-plan.xml"/>
         </ant:java>
 
+        <!-- building tranql connector default database configuration-->
         <ant:echo>Building default database configuration</ant:echo>
         <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
@@ -213,7 +212,7 @@
             <ant:arg value="${maven.repo.local}/geronimo/wars/geronimo-demo-${pom.currentVersion}.war"/>
         </ant:java>
 
-        <!-- build the Debug Tool configuration -->
+        <!-- build the Debug Tool configuration "org/apache/geronimo/DebugConsole"-->
         <ant:echo>Building debug tool configuration</ant:echo>
         <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
@@ -221,6 +220,9 @@
             <ant:arg value="--module"/>
             <ant:arg value="${maven.repo.local}/geronimo/wars/geronimo-jmxdebug-${pom.currentVersion}.war"/>
         </ant:java>
+    </goal>
+
+    <goal name="cli">
 
         <!-- build the cli deployer archive -->
         <ant:echo>Building the Command Line Deployer archive</ant:echo>
@@ -245,35 +247,35 @@
             manifest="${cliDeployer}/MANIFEST.MF"/>
 
     </goal>
-<!--
-    <goal name="startdb">
+    <!--
+        <goal name="startdb">
 
-        <deploy:distribute
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
-            username="system"
-            password="manager"
-            home="${basedir}"
-            module="${maven.repo.local}/tranql/rars/tranql-connector-SNAPSHOT.rar"
-            plan="src/plan/default-database-plan.xml"
-            />
-        <deploy:start
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
-            username="system"
-            password="manager"
-            id="org/apache/geronimo/DefaultDatabase"/>
-    </goal>
-    <goal name="stopdb">
-        <deploy:stop
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
-            username="system"
-            password="manager"
-            id="org/apache/geronimo/DefaultDatabase"/>
-        <ant:echo>undeploy</ant:echo>
-        <deploy:undeploy
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
-            username="system"
-            password="manager"
-            id="org/apache/geronimo/DefaultDatabase"/>
-    </goal-->
+            <deploy:distribute
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                username="system"
+                password="manager"
+                home="${basedir}"
+                module="${maven.repo.local}/tranql/rars/tranql-connector-SNAPSHOT.rar"
+                plan="src/plan/default-database-plan.xml"
+                />
+            <deploy:start
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                username="system"
+                password="manager"
+                id="org/apache/geronimo/DefaultDatabase"/>
+        </goal>
+        <goal name="stopdb">
+            <deploy:stop
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                username="system"
+                password="manager"
+                id="org/apache/geronimo/DefaultDatabase"/>
+            <ant:echo>undeploy</ant:echo>
+            <deploy:undeploy
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                username="system"
+                password="manager"
+                id="org/apache/geronimo/DefaultDatabase"/>
+        </goal-->
 
 </project>

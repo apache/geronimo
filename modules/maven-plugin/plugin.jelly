@@ -49,6 +49,22 @@
             className="org.apache.geronimo.deployment.mavenplugin.StopRemoteServer"
             method="execute"/>
 
+        <define:tag name="unpackServer" xmlns="jelly:ant">
+            <j:if test="${geronimoVersion == null}">
+                <fail>Missing required attribute: geronimoVersion</fail>
+            </j:if>
+            <j:if test="${targetDir == null}">
+                <j:set var="targetDir" value="target/geronimo"/>
+                <!--fail>Missing required attribute: targetDir</fail-->
+            </j:if>
+            <j:if test="${geronimoName == null}">
+                <j:set var="geronimoName" value="geronimo"/>
+                <!--fail>Missing required attribute: targetDir</fail-->
+            </j:if>
+
+            <unjar src="${maven.repo.local}/${geronimoName}/jars/${geronimoName}-assembly-${geronimoVersion}.jar" dest="${targetDir}"/>
+        </define:tag>
+
     </define:taglib>
 
 </project>
