@@ -139,7 +139,7 @@ public class ServiceReferenceTest extends TestCase {
         Class serviceEndpointClass = builder.enhanceServiceEndpointInterface(MockPort.class, context, module, isolatedCl);
         String portName = "foo";
         Map typeDescriptors = new HashMap();
-        SEIFactory serviceInterfaceFactory = builder.createSEIFactory(portName, serviceEndpointClass, serviceInstance, typeMappings, typeDescriptors, location, operationInfos, handlerInfos, context, isolatedCl);
+        SEIFactory serviceInterfaceFactory = builder.createSEIFactory(null, portName, serviceEndpointClass, serviceInstance, typeMappings, typeDescriptors, location, operationInfos, handlerInfos, context, isolatedCl);
         assertNotNull(serviceInterfaceFactory);
         Remote serviceInterface = serviceInterfaceFactory.createServiceEndpoint();
         assertTrue(serviceInterface instanceof MockPort);

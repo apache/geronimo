@@ -16,11 +16,13 @@
  */
 package org.apache.geronimo.axis.builder.mock;
 
+import java.net.URL;
 import java.rmi.Remote;
 
-import javax.xml.rpc.Service;
+import javax.xml.namespace.QName;
 import javax.xml.rpc.handler.HandlerChain;
 
+import org.apache.geronimo.axis.client.OperationInfo;
 import org.apache.geronimo.axis.client.SEIFactory;
 
 /**
@@ -32,6 +34,22 @@ public class MockSEIFactory implements SEIFactory {
     }
 
     public HandlerChain createHandlerChain() {
+        return null;
+    }
+
+    public OperationInfo[] getOperationInfos() {
+        return null;
+    }
+
+    public QName getPortQName() {
+        return null;
+    }
+
+    public QName getServiceName() {
+        return null;
+    }
+
+    public URL getWSDLDocumentLocation() {
         return null;
     }
 }
