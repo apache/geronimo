@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.25 $ $Date: 2004/06/04 11:50:32 $ -->
+<!-- $Revision: 1.26 $ $Date: 2004/06/10 23:31:22 $ -->
 
 <project name="Apache Geronimo">
 
@@ -79,7 +79,7 @@
       <item name="Java Message Service"                       href="/specs/jms/index.html"/>
       <item name="Java Server Pages Specification"            href="/specs/jsp/index.html"/>
       <item name="Java Transaction API"                       href="/specs/jta/index.html"/>
-      <item name="Java Servlet Specification"                 href="/specs/servelet/index.html"/>
+      <item name="Java Servlet Specification"                 href="/specs/servlet/index.html"/>
     </menu>
 
     <menu name="Apache Community">
