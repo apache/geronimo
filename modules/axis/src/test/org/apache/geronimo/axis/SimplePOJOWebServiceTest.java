@@ -22,19 +22,20 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.List;
-
-import javax.management.ObjectName;
 
 import org.apache.axis.utils.ClassUtils;
+import org.apache.geronimo.axis.testUtils.TestingUtils;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-
+import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
+/**
+ * 
+ * @version $Rev: $ $Date: $
+ */
 public class SimplePOJOWebServiceTest extends AbstractWebServiceTest {
+    
 
     public SimplePOJOWebServiceTest(String testName) throws FileNotFoundException, WaitingException, IOException {
         super(testName);
@@ -45,22 +46,8 @@ public class SimplePOJOWebServiceTest extends AbstractWebServiceTest {
         ClassLoader myCl = new URLClassLoader(new URL[]{}, cl);
         File jarfile = new File(getTestFile("target/generated/samples/echo-war/echo-ewsimpl.jar"));
   
-        //Start axis gbean        
-        GBeanMBean axisgbean = new GBeanMBean(AxisGbean.getGBeanInfo(), myCl);
-        kernel.loadGBean(axisname, axisgbean);
-        kernel.startGBean(axisname);
-
-        //build the configuration
-        WSConfigBuilder wsconfBuilder = new WSConfigBuilder(getEARConfigBuilder(), store);
-        List uri = wsconfBuilder.buildConfiguration(null, jarfile, outFile);
-        //start the configuration
-        for(int i = 0; i< uri.size();i++){
-            GBeanMBean config = store.getConfiguration((URI) uri.get(i));
-            ConfigurationManager configurationManager = kernel.getConfigurationManager();
-            ObjectName configName = configurationManager.load(config, null);
-            kernel.startRecursiveGBean(configName);
-        }
-
+        EARConfigBuilder earConfigBuilder = getEARConfigBuilder();
+        TestingUtils.buildConfiguration(jarfile,store,earConfigBuilder,kernel,wsConfgBuilderName);
 
         //let us try to brows the WSDL of the service
         URL wsdlrequestUrl = AxisGeronimoUtils.getURL("/axis/services/echoPort?wsdl");

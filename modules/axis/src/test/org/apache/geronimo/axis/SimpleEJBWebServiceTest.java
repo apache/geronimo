@@ -30,10 +30,16 @@ import java.util.List;
 
 import javax.management.ObjectName;
 
+import org.apache.geronimo.axis.testUtils.TestingUtils;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 
+/**
+ * 
+ * @version $Rev: $ $Date: $
+ */
 public class SimpleEJBWebServiceTest extends AbstractWebServiceTest {
 
     public SimpleEJBWebServiceTest(String testName) throws FileNotFoundException, WaitingException, IOException {
@@ -47,24 +53,8 @@ public class SimpleEJBWebServiceTest extends AbstractWebServiceTest {
         File jarfile = new File(getTestFile("target/generated/samples/echo-jar/echo-ewsimpl.jar"));
         ObjectName configName = new ObjectName("geronimo.test:name=" + jarfile.getName());
         
-        //axis gbean        
-        GBeanMBean axisgbean = new GBeanMBean(AxisGbean.getGBeanInfo(), myCl);
-        kernel.loadGBean(axisname, axisgbean);
-        kernel.startGBean(axisname);
-        
-        WSConfigBuilder wsconfBuilder = new WSConfigBuilder(getEARConfigBuilder(), store);
-        List uri = wsconfBuilder.buildConfiguration(null, jarfile, outFile);
-        
-        for(int i = 0; i< uri.size();i++){
-            GBeanMBean config = store.getConfiguration((URI) uri.get(i));
-            ConfigurationManager configurationManager = kernel.getConfigurationManager();
-            configName = configurationManager.load(config, null);
-            kernel.startRecursiveGBean(configName);
-        }
-        
-        
-
-
+        EARConfigBuilder earConfigBuilder = getEARConfigBuilder();
+        TestingUtils.buildConfiguration(jarfile,store,earConfigBuilder,kernel,wsConfgBuilderName);        
 
         //let us try to brows the WSDL of the service
         URL wsdlrequestUrl = AxisGeronimoUtils.getURL("/axis/services/echoPort?wsdl");

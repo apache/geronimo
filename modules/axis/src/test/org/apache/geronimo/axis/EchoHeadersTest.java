@@ -37,6 +37,10 @@ import org.apache.geronimo.axis.testUtils.TestingUtils;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 
+/**
+ * 
+ * @version $Rev$ $Date$
+ */
 public class EchoHeadersTest extends AbstractTestCase {
     private ObjectName name;
     private Kernel kernel;

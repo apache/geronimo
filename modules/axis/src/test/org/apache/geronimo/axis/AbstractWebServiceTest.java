@@ -21,20 +21,21 @@ import java.io.IOException;
 import java.net.URI;
 
 import javax.management.ObjectName;
-import javax.naming.Reference;
 
 import org.apache.geronimo.axis.testUtils.AxisGeronimoConstants;
 import org.apache.geronimo.axis.testUtils.TestingUtils;
-import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
-import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.system.configuration.LocalConfigStore;
 import org.openejb.deployment.OpenEJBModuleBuilder;
 
+/**
+ * 
+ * @version $Rev: $ $Date: $
+ */
 public class AbstractWebServiceTest extends AbstractTestCase {
 
     private static final String j2eeDomainName = "openejb.server";
@@ -43,9 +44,10 @@ public class AbstractWebServiceTest extends AbstractTestCase {
     private static final ObjectName connectionTrackerObjectName = JMXUtil.getObjectName(j2eeDomainName + ":type=ConnectionTracker");
 
     protected ObjectName axisname;
+    protected ObjectName wsConfgBuilderName;
     protected Kernel kernel;
-    protected LocalConfigStore store;
-    protected File outFile = new File(AxisGeronimoConstants.AXIS_CONFIG_STORE);
+    protected ConfigurationStore store;
+    protected File outFile = new File("target/temp");
 
     /**
      * @param testName
@@ -53,19 +55,30 @@ public class AbstractWebServiceTest extends AbstractTestCase {
     public AbstractWebServiceTest(String testName) throws FileNotFoundException, WaitingException, IOException {
         super(testName);
 
-        store = new LocalConfigStore(outFile);
-        store.doStart();
+        store = AxisGeronimoConstants.STORE;
+
     }
 
     protected void setUp() throws Exception {
         axisname = new ObjectName("test:name=AxisGBean");
-        kernel = new Kernel("test.kernel", "test");
+        wsConfgBuilderName = new ObjectName("test:name=wsConfgBuilder");
+        kernel = new Kernel("test.kernel");
         kernel.boot();
-        AxisGeronimoUtils.delete(outFile);
-        outFile.getParentFile().mkdirs();
         //start the J2EE server which would be started by the server plan
         //in the real case 
         TestingUtils.startJ2EEContinerAndAxisServlet(kernel);
+        
+        //Start axis gbean        
+        GBeanMBean axisgbean = new GBeanMBean(AxisGbean.getGBeanInfo());
+        kernel.loadGBean(axisname, axisgbean);
+        kernel.startGBean(axisname);
+        
+        GBeanMBean wsConfgBuilderbean = new GBeanMBean(WSConfigBuilder.getGBeanInfo());
+        //wsConfgBuilderbean.setReferencePattern("AxisGBean",axisname);
+        kernel.loadGBean(wsConfgBuilderName, wsConfgBuilderbean);
+        kernel.startGBean(wsConfgBuilderName);
+        
+        
 
     }
 

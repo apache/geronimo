@@ -18,7 +18,10 @@ package org.apache.geronimo.axis;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.Kernel;
-
+/**
+ * 
+ * @version $Rev: $ $Date: $
+ */
 public class PlansTest extends AbstractTestCase {
     private ObjectName configBuilderName;
     private Kernel kernel;

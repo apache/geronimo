@@ -23,15 +23,13 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.kernel.Kernel;
-
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * Class AxisGbean
+ * @version $Rev: $ $Date: $
  */
 public class POJOWSGBean implements GBeanLifecycle {
     private static Log log = LogFactory.getLog(POJOWSGBean.class);
@@ -46,17 +44,16 @@ public class POJOWSGBean implements GBeanLifecycle {
 
         // attributes
         infoFactory.addAttribute("Name", String.class, true);
-        infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("moduleURL", URL.class, true);
         infoFactory.addAttribute("classList", Collection.class, true);
         // operations
-        infoFactory.setConstructor(new String[]{"kernel", "Name",
+        infoFactory.setConstructor(new String[]{"Name",
                                                 "objectName"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
-    public POJOWSGBean(Kernel kernel, String name, String objectName) {
+    public POJOWSGBean(String name, String objectName) {
         this.name = name;
     }
 
@@ -125,5 +122,4 @@ public class POJOWSGBean implements GBeanLifecycle {
     public void setClassList(Collection collection) {
         classList = collection;
     }
-
 }

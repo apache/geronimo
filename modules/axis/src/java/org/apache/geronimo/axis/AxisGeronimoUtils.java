@@ -32,7 +32,9 @@ import org.openejb.ContainerIndex;
 import org.openejb.EJBContainer;
 
 import javax.ejb.EJBHome;
+import javax.management.AttributeNotFoundException;
 import javax.management.ObjectName;
+import javax.management.ReflectionException;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -43,6 +45,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
@@ -51,8 +54,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
@@ -60,7 +61,7 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 /**
- * Class AxisGeronimoUtils
+ * @version $Rev$ $Date$
  */
 public class AxisGeronimoUtils {
     public static final int AXIS_SERVICE_PORT = 5678;
@@ -119,11 +120,12 @@ public class AxisGeronimoUtils {
             }
             throw new AxisFault("Dependancy ejb " + ejbName + " not found ");
         } catch (Throwable e) {
-            e.printStackTrace();
-            if (e instanceof Exception)
-                throw AxisFault.makeFault((Exception) e);
-            else
+            if (e instanceof Exception){
+                throw AxisFault.makeFault((Exception) e);                
+            }else{
                 throw AxisFault.makeFault(new Exception(e));
+            }
+
         }
     }
 
@@ -146,6 +148,12 @@ public class AxisGeronimoUtils {
         }
     }
 
+    /**
+     * @param objectName
+     * @param gbean
+     * @param kernel
+     * @throws DeploymentException
+     */
     public static void startGBeanOnlyIfNotStarted(ObjectName objectName, GBeanMBean gbean, Kernel kernel)
             throws DeploymentException {
         try {
@@ -202,6 +210,11 @@ public class AxisGeronimoUtils {
         }
     }
 
+    /**
+     * 
+     * @param file
+     * @return
+     */
     public static ArrayList getClassFileList(ZipFile file) {
         ArrayList list = new ArrayList();
         if (file != null) {
@@ -219,7 +232,12 @@ public class AxisGeronimoUtils {
         }
         return list;
     }
-
+    /**
+     * 
+     * @param name
+     * @param kernel
+     * @return
+     */
     public static boolean checkAlreadyStarted(ObjectName name, Kernel kernel) {
         Set set = kernel.listGBeans(name);
         log.info(name + " = " + set);
@@ -231,6 +249,13 @@ public class AxisGeronimoUtils {
         return true;
     }
 
+    /**
+     * 
+     * @param module
+     * @param classloader
+     * @throws ZipException
+     * @throws IOException
+     */
     public static void registerClassLoader(ZipFile module, ClassLoader classloader) throws ZipException, IOException {
         ArrayList classList = AxisGeronimoUtils.getClassFileList(module);
         for (int i = 0; i < classList.size(); i++) {
@@ -262,15 +287,28 @@ public class AxisGeronimoUtils {
         } catch (DeploymentException e) {
             throw e;
         } catch (Exception e) {
-            e.printStackTrace();
             throw new DeploymentException(e);
         }
     }
 
+    /**
+     * 
+     * @param file
+     * @return
+     * @throws MalformedURLException
+     */
     public static URL getURL(String file) throws MalformedURLException {
         URL requestUrl = new URL("http", NetworkUtils.getLocalHostname(), AXIS_SERVICE_PORT, file);
         return requestUrl;
     }
+    
+    /**
+     * 
+     * @param config
+     * @param store
+     * @return
+     * @throws Exception
+     */
     public static URI saveConfiguration(GBeanMBean config, ConfigurationStore store)throws Exception{
         File sourceFile = null;
         try {
@@ -292,6 +330,35 @@ public class AxisGeronimoUtils {
         }
     }
     
+    public static void createConfiguration(URI id,byte[] state,File unpackedDir) throws AttributeNotFoundException, ReflectionException, IOException{
+        GBeanMBean config = new GBeanMBean(Configuration.GBEAN_INFO);
+        config.setAttribute("ID", id);
+        config.setReferencePatterns("Parent", null);
+        config.setAttribute("classPath", Collections.EMPTY_LIST);
+        config.setAttribute("gBeanState", state);
+        config.setAttribute("dependencies", Collections.EMPTY_LIST);
+                    
+        try {
+            File confSer = new File(unpackedDir,"META-INF/config.ser");
+            confSer.getParentFile().mkdirs();
+            confSer.createNewFile();
+            OutputStream fos = new FileOutputStream(confSer);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            config.getGBeanData().writeExternal(oos);
+            oos.flush();
+            fos.close();
+        } finally {
+            
+        }
+    }
+    
+    
+    /**
+     * 
+     * @param unpackedCar
+     * @return
+     * @throws Exception
+     */
     public static GBeanMBean loadConfig(File unpackedCar) throws Exception {
         InputStream in = new FileInputStream(new File(unpackedCar, "META-INF/config.ser"));
         try {
@@ -303,5 +370,27 @@ public class AxisGeronimoUtils {
             in.close();
         }
     }
+    
+    /**
+     * 
+     * @param state
+     * @param id
+     * @param store
+     * @return
+     * @throws Exception
+     */
+    
+    public static URI saveAsConfiguration(byte[] state,URI id, ConfigurationStore store) throws Exception{
+        //create a configuraton with Web Service GBean
+        
+        GBeanMBean config = new GBeanMBean(Configuration.GBEAN_INFO);
+        config.setAttribute("ID", id);
+        config.setReferencePatterns("Parent", null);
+        config.setAttribute("classPath", Collections.EMPTY_LIST);
+        config.setAttribute("gBeanState", state);
+        config.setAttribute("dependencies", Collections.EMPTY_LIST);
 
+        //store the Web Service Configuration
+        return AxisGeronimoUtils.saveConfiguration(config,store);
+    }
 }

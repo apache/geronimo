@@ -33,8 +33,7 @@ import org.apache.axis.deployment.wsdd.WSDDService;
  * META-INF/services/org.apache.axis.deployment.wsdd.Provider
  * By making this JAR part of the webapp, the new provider will be
  * automatically discovered.
- *
- * @author Srinath Perera(hemapani@opensource.lk)
+ * @version $Rev: $ $Date: $
  */
 public class WSDDJavaGeronimoProvider extends WSDDProvider {
     public static final String PROVIDER_EWS = "geronimo";
@@ -42,7 +41,6 @@ public class WSDDJavaGeronimoProvider extends WSDDProvider {
     public String getName() {
         return PROVIDER_EWS;
     }
-
     public Handler newProviderInstance(WSDDService service,
                                        EngineConfiguration registry)
             throws Exception {

@@ -23,6 +23,7 @@ import org.apache.geronimo.kernel.Kernel;
 /**
  * <p>This test case represents the code generation with the EWS module.
  * This test case needed the $JAVA_HOME/lib.tools.jar at the classapth.</p>
+ * @version $Rev: $ $Date: $
  */
 public class J2EEManagerTest extends AbstractTestCase {
     private ObjectName name;

@@ -22,6 +22,7 @@ import junit.framework.TestCase;
 
 /**
  * Abstract base class for test cases.
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractTestCase
         extends TestCase {

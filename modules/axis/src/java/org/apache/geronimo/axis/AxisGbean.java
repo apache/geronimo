@@ -27,7 +27,7 @@ import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
- * Class AxisGbean
+ *  @version $Rev$ $Date$
  */
 public class AxisGbean implements GBeanLifecycle {
     private static Log log = LogFactory.getLog(AxisGbean.class);

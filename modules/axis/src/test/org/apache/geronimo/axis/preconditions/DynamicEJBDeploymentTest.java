@@ -21,10 +21,8 @@ import java.net.URI;
 import java.util.jar.JarFile;
 
 import javax.management.ObjectName;
-import javax.naming.Reference;
 
 import org.apache.geronimo.axis.AbstractTestCase;
-import org.apache.geronimo.axis.AxisGeronimoUtils;
 import org.apache.geronimo.axis.testUtils.AxisGeronimoConstants;
 import org.apache.geronimo.axis.testUtils.J2EEManager;
 import org.apache.geronimo.axis.testUtils.TestingUtils;
@@ -32,6 +30,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.openejb.deployment.OpenEJBModuleBuilder;
 
@@ -39,6 +38,7 @@ import org.openejb.deployment.OpenEJBModuleBuilder;
  * <p>This test case show the infomation about openEJB that we assumed. And the
  * simmlier code code is used in the real code. As the OpenEJB is developing and
  * rapidly changing this test case act as a notifier for saying things has chaged</p>
+ * @version $Rev: $ $Date: $
  */
 public class DynamicEJBDeploymentTest extends AbstractTestCase {
     private static final String j2eeDomainName = "openejb.server";
@@ -67,7 +67,7 @@ public class DynamicEJBDeploymentTest extends AbstractTestCase {
         System.setProperty(javax.naming.Context.URL_PKG_PREFIXES, str);
         kernel = new Kernel("blah");
         kernel.boot();
-        TestingUtils.startJ2EEContinerAndAxisServlet(kernel);
+       // TestingUtils.startJ2EEContinerAndAxisServlet(kernel);
     }
 
     private ResourceReferenceBuilder resourceReferenceBuilder = TestingUtils.RESOURCE_REFERANCE_BUILDER;
@@ -95,28 +95,45 @@ public class DynamicEJBDeploymentTest extends AbstractTestCase {
                         null);
 
         
-            File unpackedDir = new File(tempDir, "OpenEJBTest-ear-Unpacked");
             JarFile jarFileModules = null;
             System.out.println("**"+jarFile +"**");
+            
+            File ejbdir = AxisGeronimoConstants.STORE.createNewConfigurationDir();
+            
+            
             try {
                 jarFileModules = new JarFile(jarFile);
                 Object plan = earConfigBuilder.getDeploymentPlan(null, jarFileModules);
-                earConfigBuilder.buildConfiguration(plan, jarFileModules, unpackedDir);
+                earConfigBuilder.buildConfiguration(plan, jarFileModules, ejbdir);
             } finally {
                 if (jarFileModules != null) {
                     jarFileModules.close();
                 }
             }
-            ObjectName name = new ObjectName("geronimo.test:name=" + jarFile.getName());
-            GBeanMBean gbean = AxisGeronimoUtils.loadConfig(unpackedDir);
-            kernel.loadGBean(name,gbean);
-            gbean.setAttribute("baseURL",unpackedDir.toURL());
-            kernel.startGBean(name);
             
+            
+//            ObjectName name = new ObjectName("geronimo.test:name=" + jarFile.getName());
+//           GBeanMBean gbean = AxisGeronimoUtils.loadConfig(ejbdir);
+//           kernel.loadGBean(name,gbean);
+//           gbean.setAttribute("baseURL",ejbdir.toURL());
+//           kernel.startGBean(name);
+//
+            URI uri = AxisGeronimoConstants.STORE.install(ejbdir);
+            
+            
+
+//            //ObjectName name = new ObjectName("geronimo.test:name=" + jarFile.getName());
+//            GBeanMBean gbean = AxisGeronimoUtils.loadConfig(unpackedDir);
+//            URI uri = AxisGeronimoUtils.saveConfiguration(gbean,AxisGeronimoConstants.STORE);
+            
+            GBeanMBean config = AxisGeronimoConstants.STORE.getConfiguration(uri);
+            ConfigurationManager configurationManager = kernel.getConfigurationManager();
+            ObjectName configName = configurationManager.load(config, AxisGeronimoConstants.STORE.getBaseURL(uri));
+            kernel.startRecursiveGBean(configName);
     }
 
     protected void tearDown() throws Exception {
-        TestingUtils.stopJ2EEContinerAndAxisServlet(kernel);
+        //TestingUtils.stopJ2EEContinerAndAxisServlet(kernel);
         kernel.shutdown();
     }
 }

@@ -30,6 +30,7 @@ import org.apache.geronimo.kernel.Kernel;
 /**
  * <p> This test case start the AxisGbean and test retiving the index.html of the
  * Axis Service</p>
+ * @version $Rev$ $Date$
  */
 public class AxisGBeanTest extends AbstractTestCase {
     private ObjectName name;

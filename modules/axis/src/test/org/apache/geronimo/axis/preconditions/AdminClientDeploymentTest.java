@@ -36,6 +36,7 @@ import java.net.URLClassLoader;
 /**
  * <p>This test case shows the possible two ways of add a entry to the Axis
  * server-config.wsdd Deployment Discrypter.</p>
+ * @version $Rev: $ $Date: $
  */
 
 public class AdminClientDeploymentTest extends AbstractWebServiceTest {

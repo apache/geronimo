@@ -26,10 +26,15 @@ import javax.management.ObjectName;
 
 import org.apache.axis.utils.ClassUtils;
 import org.apache.geronimo.axis.testUtils.AxisGeronimoConstants;
+import org.apache.geronimo.axis.testUtils.TestingUtils;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.kernel.Kernel;
 
+/**
+ * 
+ * @version $Rev$ $Date$
+ */
 public class ComplexTypeWebServiceTest extends AbstractWebServiceTest {
     private ObjectName axisname;
     private Kernel kernel;
@@ -48,22 +53,10 @@ public class ComplexTypeWebServiceTest extends AbstractWebServiceTest {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         ClassLoader myCl = new URLClassLoader(new URL[]{}, cl);
   
-        //axis gbean        
-        GBeanMBean axisgbean = new GBeanMBean(AxisGbean.getGBeanInfo(), myCl);
-        kernel.loadGBean(axisname, axisgbean);
-        kernel.startGBean(axisname);
         File jarfile = new File(getTestFile("target/generated/samples/echo-ewsimpl.jar"));
         
-        kernel.getMBeanServer().invoke(axisname,
-                "deployEWSModule",
-                new Object[]{
-                    jarfile.getAbsolutePath(),
-                    null,
-                    "ws/apache/axis/echo"},
-                new String[]{
-                    String.class.getName(),
-                    String.class.getName(),
-                    String.class.getName()});
+        EARConfigBuilder earConfigBuilder = getEARConfigBuilder();
+        TestingUtils.buildConfiguration(jarfile,store,earConfigBuilder,kernel,wsConfgBuilderName);        
 
         //check the real web service invocations 
         Class echoLoacaterClass = ClassUtils.forName("org.apache.ws.echosample.EchoServiceLocator");
@@ -88,8 +81,7 @@ public class ComplexTypeWebServiceTest extends AbstractWebServiceTest {
 
     protected void setUp() throws Exception {
         File file = new File(AxisGeronimoConstants.AXIS_CONFIG_STORE);
-        axisname = new ObjectName("test:name=AxisGBean");
-        kernel = new Kernel("test.kernel", "test");
+        kernel = new Kernel("test.kernel");
         kernel.boot();
         AxisGeronimoUtils.delete(file);
         file.getParentFile().mkdirs();

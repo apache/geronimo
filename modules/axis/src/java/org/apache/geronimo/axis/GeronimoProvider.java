@@ -27,6 +27,7 @@ import java.lang.reflect.Method;
 
 /**
  * register the MessageContext in the jax-rpc runtime of the JSR109
+ * @version $Rev: $ $Date: $
  */
 public class GeronimoProvider extends RPCProvider {
     public static final String OPTION_EJB_NAME = "beanName";
@@ -82,9 +83,6 @@ public class GeronimoProvider extends RPCProvider {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.apache.axis.providers.java.RPCProvider#invokeMethod(org.apache.axis.MessageContext, java.lang.reflect.Method, java.lang.Object, java.lang.Object[])
-     */
     protected Object invokeMethod(MessageContext msgContext,
                                   Method method,
                                   Object obj,

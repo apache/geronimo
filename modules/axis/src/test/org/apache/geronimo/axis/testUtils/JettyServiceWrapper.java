@@ -34,6 +34,7 @@ import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  * <p>This class wrap the Jetty service, This is a test utility only</p>
+ * @version $Rev: $ $Date: $
  */
 public class JettyServiceWrapper {
     private ObjectName containerName;

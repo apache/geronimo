@@ -27,11 +27,12 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 import javax.management.ObjectName;
+
 import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * Class AxisGbean
+ * @version $Rev: $ $Date: $
  */
 public class EJBWSGBean implements GBeanLifecycle {
     private static Log log = LogFactory.getLog(EJBWSGBean.class);
@@ -56,14 +57,15 @@ public class EJBWSGBean implements GBeanLifecycle {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("EJBWSGBean",
                 EJBWSGBean.class);
 
+
         // attributes
         infoFactory.addAttribute("Name", String.class, true);
         infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addAttribute("classList", Collection.class, true);
         infoFactory.addReference("ejbConfig", Configuration.class);
-
+        infoFactory.addAttribute("classList", Collection.class, true);
         // operations
-        infoFactory.setConstructor(new String[]{"Name", "objectName"});
+        infoFactory.setConstructor(new String[]{"Name",
+                                                "objectName"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
@@ -157,5 +159,4 @@ public class EJBWSGBean implements GBeanLifecycle {
     public void setEjbConfig(Configuration configuration) {
         ejbConfig = configuration;
     }
-
 }

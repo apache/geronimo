@@ -20,18 +20,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
-import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentException;
@@ -39,27 +33,37 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
 
 /**
- * This Class should build Configurations out of deployment Module. 
+ * This Class should build Configurations out of deployment Module.
+ * @version $Rev: $ $Date: $ 
  */
 public class WSConfigBuilder implements ConfigurationBuilder {
-    private boolean hasEJB = false;
-
-    private final EARConfigBuilder earConfigBuilder;
-    private final ConfigurationStore store;
-    private ObjectName configName = null;
+   // private final AxisGbean axisGBean;
     
+//    public WSConfigBuilder(AxisGbean axisGBean){
+//        //this.axisGBean = axisGBean;
+//    }
+    public WSConfigBuilder(){
+        //this.axisGBean = axisGBean;
+    }
+    
+    public static final GBeanInfo GBEAN_INFO;
 
-    public WSConfigBuilder(EARConfigBuilder earConfigBuilder,
-                           ConfigurationStore store) {
-        this.earConfigBuilder = earConfigBuilder;
-        this.store = store;
+    static {
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("WSConfigBuilder",WSConfigBuilder.class);
+        //referances
+        //infoFactory.addReference("AxisGBean", AxisGbean.class);
+        //interfaces
+        infoFactory.addInterface(ConfigurationBuilder.class);
+        //constructers
+        //infoFactory.setConstructor(new String[]{"AxisGBean"});
+        
+        GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
+    
     public void doStart() throws WaitingException, Exception {
     }
 
@@ -67,104 +71,157 @@ public class WSConfigBuilder implements ConfigurationBuilder {
         return null;
     }
 
-    public List buildConfiguration(Object plan, JarFile earFile, File outfile) throws IOException, DeploymentException {
+    public List buildConfiguration(Object plan, JarFile unused, File unpackedDir) throws IOException, DeploymentException {
+        try {
+            WSPlan wsplan = null; 
+            if(plan instanceof WSPlan){
+                wsplan = (WSPlan)plan;
+            }
+            
+            if(wsplan.isEJBbased()){
+                GBeanMBean wsGbean = new GBeanMBean(EJBWSGBean.getGBeanInfo());
+                ArrayList classList = AxisGeronimoUtils.getClassFileList(new ZipFile(wsplan.getModule()));
+                wsGbean.setAttribute("classList", classList);
+                wsGbean.setReferencePattern("ejbConfig", wsplan.getEjbConfName());
+                Map gbeans = new HashMap();
+                gbeans.put(wsplan.getWsName(), wsGbean);
+//      
+//                //create a configuraton with Web Service GBean
+                byte[] state = Configuration.storeGBeans(gbeans);
+                AxisGeronimoUtils.createConfiguration(wsplan.getConfigURI(),state,unpackedDir);
+
+            }else{
+                File rawmodule = wsplan.getModule();
+                File installedModule = new File(unpackedDir, rawmodule.getName());
+                copyTheFile(rawmodule, installedModule);
+                
+                
+                GBeanMBean gbean = new GBeanMBean(POJOWSGBean.getGBeanInfo());
+                //TODO fill up the POJOWSGBean info
+                ArrayList classList = AxisGeronimoUtils.getClassFileList(new ZipFile(installedModule));
+                gbean.setAttribute("classList", classList);
+                gbean.setAttribute("moduleURL", installedModule.toURL());
+            
+                Map gbeans = new HashMap();
+                gbeans.put(wsplan.getWsName(), gbean);
+                byte[] state = Configuration.storeGBeans(gbeans);
+                AxisGeronimoUtils.createConfiguration(wsplan.getConfigURI(),state,unpackedDir);
+            }
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new DeploymentException(e);
+        }
+
+        
+        
         //TODO this is not implemented as the current code need the location of the file 
         //where this gives a Zip file. For the time been the method is override and used.  
         return null;
     }
-
-    public List buildConfiguration(Object plan, 
-            File earFile, 
-            File outfile) throws Exception {
-        ObjectName wsconf = new ObjectName("geronimo.test:name=" + earFile.getName());
-        ObjectName ejbconf = new ObjectName("geronimo.test:name=" + earFile.getName() + "EJB");
-
-        Enumeration entires = new JarFile(earFile).entries();
-        while (entires.hasMoreElements()) {
-            ZipEntry zipe = (ZipEntry) entires.nextElement();
-            String name = zipe.getName();
-            if (name.endsWith("/ejb-jar.xml")) {
-                hasEJB = true;
-                System.out.println("entry found " + name + " the web service is based on a ejb.");
-                //log.info("the web service is based on a ejb.");
-                break;
-            }
-        }
-        GBeanMBean[] confBeans = null;
-        if (hasEJB) {
-            return installEJBWebService(earFile, outfile,wsconf,ejbconf);
-            
-        } else {
-            return installPOJOWebService(earFile, outfile,wsconf);
-
-        }
-    }
-
-
-    /**
-     * @param module      Web Service module generated by EWS
-     * @param unpackedDir for WS
-     * @return the file to where Module is copied in to
-     */
-    private List installPOJOWebService(File module, File unpackedDir,ObjectName pojoWSGbeanName) throws Exception {
-        List installedConfig = new ArrayList();
-        File out = new File(unpackedDir, module.getName());
-        copyTheFile(module, out);
-
-        GBeanMBean gbean = new GBeanMBean(POJOWSGBean.getGBeanInfo());
-        //TODO fill up the POJOWSGBean info
-        ArrayList classList = AxisGeronimoUtils.getClassFileList(new ZipFile(module));
-        gbean.setAttribute("classList", classList);
-        gbean.setAttribute("moduleURL", module.toURL());
-        Map gbeans = new HashMap();
-        gbeans.put(pojoWSGbeanName, gbean);
-        
-        
-        byte[] state = Configuration.storeGBeans(gbeans);
-        GBeanMBean config = new GBeanMBean(Configuration.GBEAN_INFO);
-        config.setAttribute("ID", new URI("test"));
-        config.setReferencePatterns("Parent", null);
-        config.setAttribute("classPath", Collections.EMPTY_LIST);
-        config.setAttribute("gBeanState", state);
-        config.setAttribute("dependencies", Collections.EMPTY_LIST);
-        installedConfig.add(AxisGeronimoUtils.saveConfiguration(config,store));
-        return installedConfig;
-    }
-
-    private List installEJBWebService(File module, 
-                File unpackedDir,
-                ObjectName wSGbeanName,
-                ObjectName ejbConfGBeanName) throws Exception {
-        List installedConfig = new ArrayList();
-
-        JarFile jarFile = new JarFile(module);
-        Object plan = earConfigBuilder.getDeploymentPlan(null, jarFile);
-        earConfigBuilder.buildConfiguration(plan, jarFile, unpackedDir);
-        GBeanMBean ejbGBean = AxisGeronimoUtils.loadConfig(unpackedDir);
-        installedConfig.add(AxisGeronimoUtils.saveConfiguration(ejbGBean,store));
-        
-        GBeanMBean wsGbean = new GBeanMBean(EJBWSGBean.getGBeanInfo());
-        ArrayList classList = AxisGeronimoUtils.getClassFileList(new ZipFile(module));
-        wsGbean.setAttribute("classList", classList);
-        wsGbean.setReferencePattern("ejbConfig", ejbConfGBeanName);
-        Map gbeans = new HashMap();
-        gbeans.put(wSGbeanName, wsGbean);
-        gbeans.put(ejbConfGBeanName, ejbGBean);
-        
-        byte[] state = Configuration.storeGBeans(gbeans);
-        GBeanMBean config = new GBeanMBean(Configuration.GBEAN_INFO);
-        config.setAttribute("ID", new URI("test"));
-        config.setReferencePatterns("Parent", null);
-        config.setAttribute("classPath", Collections.EMPTY_LIST);
-        config.setAttribute("gBeanState", state);
-        config.setAttribute("dependencies", Collections.EMPTY_LIST);
-
-        
-        installedConfig.add(AxisGeronimoUtils.saveConfiguration(config,store));
-        return installedConfig;
-    }
+    
+//    /**
+//     * the users suppose to use 
+//     * <code>
+//     * 		File outFile = store.newConfigDir();
+//     * 		buildConfiguration(objectName,module,outFile);
+//     * 		//returning list have nothing in it.
+//     * 		URI uri = store.install(outFile);
+//     * 		//the URI will put under a configuration and started later.
+//     * </code>
+//     * @param plan
+//     * @param earFile
+//     * @param outfile
+//     * @return
+//     * @throws Exception
+//     */
+//
+//    public List buildConfiguration(Object plan, 
+//            File earFile, 
+//            File outfile) throws Exception {
+//        ObjectName wsconf = new ObjectName("geronimo.test:name=" + earFile.getName());
+//        ObjectName ejbconf = new ObjectName("geronimo.test:name=" + earFile.getName() + "EJB");
+//
+//        Enumeration entires = new JarFile(earFile).entries();
+//        while (entires.hasMoreElements()) {
+//            ZipEntry zipe = (ZipEntry) entires.nextElement();
+//            String name = zipe.getName();
+//            if (name.endsWith("/ejb-jar.xml")) {
+//                hasEJB = true;
+//                System.out.println("entry found " + name + " the web service is based on a ejb.");
+//                //log.info("the web service is based on a ejb.");
+//                break;
+//            }
+//        }
+//        GBeanMBean[] confBeans = null;
+//        if (hasEJB) {
+//            return installEJBWebService(earFile, outfile,wsconf);
+//            
+//        } else {
+//            return installPOJOWebService(earFile, outfile,wsconf);
+//
+//        }
+//    }
 
 
+//    /**
+//     * @param module      Web Service module generated by EWS
+//     * @param unpackedDir for WS
+//     * @return the file to where Module is copied in to
+//     */
+//    private List installPOJOWebService(File module, File unpackedDir,ObjectName pojoWSGbeanName) throws Exception {
+//        List installedConfig = new ArrayList();
+//        File out = new File(unpackedDir, module.getName());
+//        copyTheFile(module, out);
+//
+//        GBeanMBean gbean = new GBeanMBean(POJOWSGBean.getGBeanInfo());
+//        //TODO fill up the POJOWSGBean info
+//        ArrayList classList = AxisGeronimoUtils.getClassFileList(new ZipFile(module));
+//        gbean.setAttribute("classList", classList);
+//        gbean.setAttribute("moduleURL", module.toURL());
+//        
+//        Map gbeans = new HashMap();
+//        gbeans.put(pojoWSGbeanName, gbean);
+//        byte[] state = Configuration.storeGBeans(gbeans);
+//        
+//        
+//        installedConfig.add(AxisGeronimoUtils.saveAsConfiguration(state,new URI("test1"),store));
+//        return installedConfig;
+//    }
+    
+    
+    
+
+//    private List installEJBWebService(File module, 
+//                File unpackedDir,
+//                ObjectName wSGbeanName) throws Exception {
+//        List installedConfig = new ArrayList();
+//
+//        JarFile jarFile = new JarFile(module);
+//        //Install the EJB
+//        Object plan = earConfigBuilder.getDeploymentPlan(null, jarFile);
+//        earConfigBuilder.buildConfiguration(plan, jarFile, unpackedDir);
+//        URI uri = store.install(unpackedDir);
+//        installedConfig.add(uri);
+//
+//        //load the EJB Configuration TODO, Do we need this?        
+//        GBeanMBean ejbGBean = AxisGeronimoUtils.loadConfig(unpackedDir);
+//
+////        //Create the Web Service GBean       
+//        GBeanMBean wsGbean = new GBeanMBean(EJBWSGBean.getGBeanInfo());
+//        ArrayList classList = AxisGeronimoUtils.getClassFileList(new ZipFile(module));
+//        wsGbean.setAttribute("classList", classList);
+////        wsGbean.setReferencePattern("ejbConfig", ejbGBean.getObjectNameObject());
+//        Map gbeans = new HashMap();
+//        gbeans.put(wSGbeanName, wsGbean);
+////      
+////        //create a configuraton with Web Service GBean
+//        byte[] state = Configuration.storeGBeans(gbeans);
+//        installedConfig.add(AxisGeronimoUtils.saveAsConfiguration(state,new URI("test2"),store));
+//        return installedConfig;
+//    }
+//
+//
     private void copyTheFile(File inFile, File outFile) throws IOException {
         if (!outFile.exists())
             outFile.getParentFile().mkdirs();
@@ -183,19 +240,6 @@ public class WSConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(WSConfigBuilder.class);
-        infoFactory.addInterface(ConfigurationBuilder.class);
-        infoFactory.addReference("EARConfigBuilder", EARConfigBuilder.class);
-        infoFactory.addReference("Store", ConfigurationStore.class);
-        infoFactory.setConstructor(new String[]{
-            "EARConfigBuilder",
-            "Store"
-        });
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
