@@ -352,7 +352,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
                 String adminObjectObjectName = null;
                 try {
-                    adminObjectObjectName = NameFactory.getComponentName(null, null, null, null, gerAdminObjectInstance.getMessageDestinationName(), NameFactory.JCA_ADMIN_OBJECT, resourceJ2eeContext).getCanonicalName();
+                    adminObjectObjectName = NameFactory.getComponentName(null, null, null, null, null, gerAdminObjectInstance.getMessageDestinationName(), NameFactory.JCA_ADMIN_OBJECT, resourceJ2eeContext).getCanonicalName();
                 } catch (MalformedObjectNameException e) {
                     throw new DeploymentException("Could not construct resource object name", e);
                 }
@@ -392,6 +392,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         GBeanData resourceAdapterData = new GBeanData(resourceAdapterjsr77Name, ResourceAdapterImpl.GBEAN_INFO);
         ObjectName jcaResourcejsr77Name = null;
         try {
+            //TODO double check the module type is correct.
             jcaResourcejsr77Name = NameFactory.getComponentName(null, null, null, NameFactory.RESOURCE_ADAPTER, null, resourceJ2eeContext.getJ2eeModuleName(), NameFactory.JCA_RESOURCE, moduleJ2eeContext);
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("Could not construct jca resource placeholder name", e);
@@ -724,6 +725,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             connectionManagerGBean.setAttribute("pooling", pooling);
             connectionManagerGBean.setReferencePattern("ConnectionTracker", earContext.getConnectionTrackerObjectName());
             if (connectionManager.getRealmBridge() != null) {
+                //TODO eliminate RealmBridge or find a better name
                 ObjectName realmBridgeName = NameFactory.getComponentName(null, null, null, null, connectionManager.getRealmBridge().trim(), AbstractRealmBridge.GBEAN_INFO.getJ2eeType(), j2eeContext);
                 connectionManagerGBean.setReferencePattern("RealmBridge", realmBridgeName);
             }
