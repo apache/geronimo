@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.11 $ $Date: 2003/12/10 10:54:07 $ -->
+<!-- $Revision: 1.12 $ $Date: 2003/12/30 21:14:38 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -65,7 +65,7 @@
             <version>SNAPSHOT</version>
             <url>http://jakarta.apache.org/commons/collections</url>
             <properties>
-                <runtime>fasle</runtime>
+                <runtime>false</runtime>
             </properties>
         </dependency>
 
