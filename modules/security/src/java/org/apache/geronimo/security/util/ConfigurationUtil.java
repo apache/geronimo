@@ -26,7 +26,6 @@ import javax.security.jacc.PolicyContextHandler;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebUserDataPermission;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
@@ -61,7 +60,7 @@ import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
  * A collection of utility functions that assist with the configuration of
  * <code>PolicyConfiguration</code>s.
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/27 18:14:14 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/27 01:58:22 $
  * @see javax.security.jacc.PolicyConfiguration
  * @see "JSR 115" Java Authorization Contract for Containers
  */
@@ -390,7 +389,7 @@ public class ConfigurationUtil {
         }
     }
 
-    private static String[] toStringArray(JavaTypeType[] methodParamArray) {
+    public static String[] toStringArray(JavaTypeType[] methodParamArray) {
         String[] result = new String[methodParamArray.length];
         for (int i = 0; i < methodParamArray.length; i++) {
             result[i] = methodParamArray[i].getStringValue();
