@@ -91,8 +91,8 @@ public class DeploymentSupportTest extends AbstractTest {
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
         gbean.setAttribute("serverSide", new Boolean(true));
         props = new Properties();
-        props.put("usersURI", new File(new File("."), "src/test-data/data/users.properties").toString());
-        props.put("groupsURI", new File(new File("."), "src/test-data/data/groups.properties").toString());
+        props.put("usersURI", "src/test-data/data/users.properties");
+        props.put("groupsURI", "src/test-data/data/groups.properties");
         gbean.setAttribute("options", props);
         gbean.setAttribute("loginDomainName", "TestProperties");
         kernel.loadGBean(testCE, gbean);
