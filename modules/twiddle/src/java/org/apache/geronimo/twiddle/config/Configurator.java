@@ -80,7 +80,7 @@ import org.apache.geronimo.twiddle.command.CommandException;
 /**
  * Handles the details of Twiddle configuration.
  *
- * @version <code>$Revision: 1.6 $ $Date: 2003/08/24 10:54:43 $</code>
+ * @version <code>$Revision: 1.7 $ $Date: 2003/08/24 13:57:19 $</code>
  */
 public class Configurator
 {
@@ -164,9 +164,9 @@ public class Configurator
     {
         assert globspec != null;
         
-        boolean debug = log.isDebugEnabled();
-        if (debug) {
-            log.debug("Parsing glob URLs from spec: " + globspec);
+        boolean trace = log.isDebugEnabled();
+        if (trace) {
+            log.trace("Parsing glob URLs from spec: " + globspec);
         }
         
         URL baseURL = Strings.toURL(globspec);
@@ -179,17 +179,17 @@ public class Configurator
         String glob = dir.getName();
         dir = dir.getParentFile();
         
-        if (debug) {
-            log.debug("Base dir: " + dir);
-            log.debug("Glob: " + glob);
+        if (trace) {
+            log.trace("Base dir: " + dir);
+            log.trace("Glob: " + glob);
         }
         
         int i = glob.indexOf("*");
         final String prefix = glob.substring(0, i);
         final String suffix = glob.substring(i + 1);
-        if (debug) {
-            log.debug("Prefix: " + prefix);
-            log.debug("Suffix: " + suffix);
+        if (trace) {
+            log.trace("Prefix: " + prefix);
+            log.trace("Suffix: " + suffix);
         }
         
         File[] matches = dir.listFiles(new FilenameFilter()
@@ -211,8 +211,8 @@ public class Configurator
             }
         }
         
-        if (debug) {
-            log.debug("Parsed URLs: " + list);
+        if (trace) {
+            log.trace("Parsed URLs: " + list);
         }
         
         return (URL[])list.toArray(new URL[list.size()]);
