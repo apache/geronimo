@@ -61,7 +61,7 @@ public class ServerInfoTest extends TestCase {
         }
 
         try {
-            String basedir = "C:/";
+            String basedir = File.listRoots()[0].getAbsolutePath();
             si = new ServerInfo(basedir);
             pathArg = "Documents and Settings/Administrator/Application Data/geronimo";
             assertEquals(new File(basedir, pathArg).getAbsolutePath(), si.resolvePath(pathArg));
