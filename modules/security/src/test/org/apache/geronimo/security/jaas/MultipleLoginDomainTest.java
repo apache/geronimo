@@ -53,7 +53,7 @@ public class MultipleLoginDomainTest extends TestCase {
         c.processPrincipals("D2");
         //Uncomment the following line to verify that the subject will have only 2 principals rather than the desired 3 after both
         //login modules have tried to add the same principal to the subject.
-//        assertEquals(3, s.getPrincipals().size());
+        assertEquals(3, s.getPrincipals().size());
     }
 
     public static class MockLoginModule implements LoginModule {
