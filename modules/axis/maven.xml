@@ -40,7 +40,7 @@
             </ant:classpath>
         </ant:javac>
     </preGoal>
-    -->
+ 
     <preGoal name="test:test">
         <j:if test="${context.getVariable('maven.test.skip') != 'true'}">
             <deploy:copy-deps todir="${basedir}/target/lib"/>
@@ -60,13 +60,13 @@
                 <taskdef name="ews" classname="org.apache.geronimo.ews.ws4j2ee.utils.EWSTask">
                     <classpath refid="maven.dependency.classpath"/>
                 </taskdef>
- <!--               <ews outDir="target/generated/samples/echo-jar" module="target/samples/echo.jar">
+               <ews outDir="target/generated/samples/echo-jar" module="target/samples/echo.jar">
                     <ant:classpath refid="maven.dependency.classpath"/>
                 </ews>
                 <ews outDir="target/generated/samples/echo-war" module="target/samples/echo.war">
                     <ant:classpath refid="maven.dependency.classpath"/>
                 </ews>
--->
+   -->
                 <!-- The following ant task cause the build to break
                      if building with JAVA 5.  The JAVA 5 'enum' reserved
                  word is used in the source code being compiled. 
@@ -77,12 +77,14 @@
                     inheritall="true"
                     inheritrefs="true"
                     dir="target/generated/samples/echo-jar"/>
+
                 <ant:ant antfile="build.xml"
                     inheritall="true"
                     inheritrefs="true"
                     dir="target/generated/samples/echo-war"/>
--->
+
             </j:jelly>
         </j:if>
     </preGoal>
+-->
 </project>
