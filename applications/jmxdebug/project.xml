@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Revision: 1.1 $ $Date: 2004/02/18 15:29:30 $ -->
+
+<project>
+    <pomVersion>3</pomVersion>
+    <extend>${basedir}/../../etc/project.xml</extend>
+
+    <!-- ===================== -->
+    <!-- Module Identification -->
+    <!-- ===================== -->
+
+    <name>Geronimo :: JMX Debug Webapp</name>
+    <id>geronimo-jmxdebug</id>
+    <shortDescription></shortDescription>
+    <description></description>
+    <siteDirectory></siteDirectory>
+    <distributionDirectory></distributionDirectory>
+
+    <package>org.apache.geronimo.jmxdebug.web</package>
+    <currentVersion>DEV</currentVersion>
+
+
+    <!-- ============ -->
+    <!-- Dependencies -->
+    <!-- ============ -->
+
+    <dependencies>
+
+        <!-- Plugin Dependencies -->
+
+        <!-- Module Dependencies -->
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-servlet</artifactId>
+            <version>DEV</version>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
+
+
+        <!-- Thirdparty Dependencies -->
+        <dependency>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j-jmx</artifactId>
+            <version>SNAPSHOT</version>
+            <url>http://mx4j.sourceforge.net</url>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>velocity</id>
+            <version>dep-1.4-rc1</version>
+            <url>http://jakarta.apache.org/velocity/</url>
+            <properties>
+                <runtime>true</runtime>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+
+    </dependencies>
+
+
+    <build>
+            <resources>
+                <resource>
+                    <directory>${basedir}/src/java</directory>
+                    <includes>
+                        <include>**/*.xml</include>
+                        <include>**/*.properties</include>
+                        <include>**/*.defaults</include>
+                    </includes>
+                </resource>
+            </resources>
+    </build>    
+</project>
