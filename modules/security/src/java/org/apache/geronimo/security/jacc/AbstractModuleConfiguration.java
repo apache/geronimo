@@ -24,7 +24,7 @@ import javax.security.jacc.PolicyConfigurationFactory;
 import javax.security.jacc.PolicyContextException;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.security.GeronimoSecurityException;
 
@@ -245,7 +245,7 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractModuleConfiguration.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AbstractModuleConfiguration.class);
 
         infoFactory.addAttribute("contextID", String.class, true);
         infoFactory.addAttribute("roles", HashSet.class, true); //??persistent

@@ -22,7 +22,7 @@ import javax.naming.InitialContext;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 /**
  * @version $Rev$ $Date$
@@ -49,7 +49,7 @@ public class StaticJndiContextPlugin implements AppClientPlugin {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(StaticJndiContextPlugin.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(StaticJndiContextPlugin.class);
 
         infoFactory.addAttribute("context", ReadOnlyContext.class, true);
         infoFactory.addInterface(AppClientPlugin.class);

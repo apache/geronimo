@@ -32,7 +32,7 @@ import org.apache.geronimo.connector.work.GeronimoWorkManager;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 
@@ -137,7 +137,7 @@ public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, Res
     }
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ResourceAdapterWrapper.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ResourceAdapterWrapper.class);
         infoFactory.addAttribute("resourceAdapterClass", Class.class, true);
         infoFactory.addAttribute("activationSpecInfoMap", Map.class, true);
 

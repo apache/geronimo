@@ -34,7 +34,7 @@ import javax.management.ObjectName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
@@ -252,7 +252,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConfigurationManagerImpl.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ConfigurationManagerImpl.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addReference("Stores", ConfigurationStore.class);
         infoFactory.addInterface(ConfigurationManager.class);

@@ -18,7 +18,7 @@
 package org.apache.geronimo.deployment;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 /**
  *
@@ -78,7 +78,7 @@ public class MockGBean implements MockEndpoint {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("MockGBean", MockGBean.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("MockGBean", MockGBean.class);
 
         infoFactory.addAttribute("name", String.class, true);
         infoFactory.addAttribute("value", String.class, true);

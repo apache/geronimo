@@ -34,7 +34,7 @@ import javax.management.ObjectName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
@@ -144,7 +144,7 @@ public class FileConfigurationList implements GBeanLifecycle, PersistentConfigur
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(FileConfigurationList.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(FileConfigurationList.class);
         infoFactory.addInterface(PersistentConfigurationList.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addReference("ServerInfo", ServerInfo.class);

@@ -67,7 +67,7 @@ public class BootstrapContextImpl implements javax.resource.spi.BootstrapContext
 //    public static final GBeanInfo GBEAN_INFO;
 //
 //    static {
-//        GBeanInfoFactory infoFactory = new GBeanInfoFactory(BootstrapContext.class);
+//        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(BootstrapContext.class);
 //          //adding interface does not work, creates attributes for references???
 ////        infoFactory.addInterface(javax.resource.spi.BootstrapContext.class);
 //

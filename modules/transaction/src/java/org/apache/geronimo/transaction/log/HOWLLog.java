@@ -28,7 +28,7 @@ import javax.transaction.xa.Xid;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -392,7 +392,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(HOWLLog.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(HOWLLog.class);
         infoFactory.addAttribute("bufferClassName", String.class, true);
         infoFactory.addAttribute("bufferSizeKBytes", Integer.TYPE, true);
         infoFactory.addAttribute("checksumEnabled", Boolean.TYPE, true);

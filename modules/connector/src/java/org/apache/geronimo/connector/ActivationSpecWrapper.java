@@ -27,7 +27,7 @@ import javax.transaction.xa.XAResource;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.apache.geronimo.transaction.manager.ResourceManager;
 import org.apache.geronimo.transaction.manager.WrapperNamedXAResource;
@@ -173,7 +173,7 @@ public class ActivationSpecWrapper implements ResourceManager, DynamicGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ActivationSpecWrapper.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ActivationSpecWrapper.class);
         infoFactory.addAttribute("activationSpecClass", Class.class, true);
         infoFactory.addAttribute("containerId", String.class, true);
 

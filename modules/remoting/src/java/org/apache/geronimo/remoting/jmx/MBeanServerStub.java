@@ -21,7 +21,7 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
@@ -82,7 +82,7 @@ public class MBeanServerStub implements GBeanLifecycle, JMXTarget {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(MBeanServerStub.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(MBeanServerStub.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addOperation("getRemotingEndpointInterceptor");

@@ -24,7 +24,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXParseException;
@@ -89,7 +89,7 @@ public class ParserFactoryImpl implements ParserFactory {
     public final static GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Factory for constructing suitable configured xml parsers", ParserFactoryImpl.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Factory for constructing suitable configured xml parsers", ParserFactoryImpl.class);
 
         infoFactory.addOperation("getParser");
 

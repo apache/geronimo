@@ -20,7 +20,7 @@ package org.apache.geronimo.timer.jdbc;
 import EDU.oswego.cs.dl.util.concurrent.Executor;
 import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.timer.PersistentTimer;
@@ -48,7 +48,7 @@ public class JDBCStoreThreadPooledTransactionalTimer extends ThreadPooledTimer {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(JDBCStoreThreadPooledTransactionalTimer.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JDBCStoreThreadPooledTransactionalTimer.class);
         infoFactory.addInterface(PersistentTimer.class);
 
         infoFactory.addAttribute("repeatCount", int.class, true);

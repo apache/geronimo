@@ -25,7 +25,7 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 
 /**
@@ -85,7 +85,7 @@ public class ConfiguredIdentityUserPasswordRealmBridge extends AbstractRealmBrid
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConfiguredIdentityUserPasswordRealmBridge.class, AbstractRealmBridge.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ConfiguredIdentityUserPasswordRealmBridge.class, AbstractRealmBridge.GBEAN_INFO);
         infoFactory.addAttribute("configuredUser", String.class, true);
         infoFactory.addAttribute("configuredPassword", String.class, true);
         infoFactory.setConstructor(new String[]{"targetRealm", "configuredUser", "configuredPassword"});

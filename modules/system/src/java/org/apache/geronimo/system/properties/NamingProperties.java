@@ -1,7 +1,7 @@
 package org.apache.geronimo.system.properties;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 /** java.naming.factory.initial=com.sun.jndi.rmi.registry.RegistryContextFactory
 java.naming.factory.url.pkgs=org.apache.geronimo.naming
@@ -47,7 +47,7 @@ public class NamingProperties {
     public static final GBeanInfo gbeanInfo;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(NamingProperties.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(NamingProperties.class);
         infoFactory.addAttribute("namingFactoryInitial", String.class, true);
         infoFactory.addAttribute("namingFactoryUrlPkgs", String.class, true);
         infoFactory.addAttribute("namingProviderUrl", String.class, true);

@@ -35,7 +35,7 @@ import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -500,7 +500,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(JettyModuleBuilder.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JettyModuleBuilder.class);
         infoFactory.addInterface(ModuleBuilder.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

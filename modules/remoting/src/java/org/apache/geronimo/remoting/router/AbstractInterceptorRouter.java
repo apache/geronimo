@@ -26,7 +26,7 @@ import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocation;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.remoting.InvocationSupport;
 import org.apache.geronimo.remoting.MarshalledObject;
@@ -112,7 +112,7 @@ public abstract class AbstractInterceptorRouter implements GBeanLifecycle, Route
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractInterceptorRouter.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AbstractInterceptorRouter.class);
         infoFactory.addOperation("sendRequest", new Class[]{URI.class, Msg.class});
         infoFactory.addOperation("sendDatagram", new Class[]{URI.class, Msg.class});
         GBEAN_INFO = infoFactory.getBeanInfo();

@@ -16,7 +16,7 @@
 package org.apache.geronimo.axis;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
@@ -47,8 +47,8 @@ public class WebServiceDeployerGbean implements GBeanLifecycle {
     private WebServiceDeployer wsdeployer;
 
     static {
-        GBeanInfoFactory infoFactory =
-                new GBeanInfoFactory("WebServiceDeployerGbean",
+        GBeanInfoBuilder infoFactory =
+                new GBeanInfoBuilder("WebServiceDeployerGbean",
                         WebServiceDeployerGbean.class);
 
         // attributes

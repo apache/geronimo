@@ -20,7 +20,7 @@ package org.apache.geronimo.system.logging.log4j.appender;
 import java.io.File;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.log4j.FileAppender;
 
@@ -100,7 +100,7 @@ public class FileAppenderService extends AbstractAppenderService {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(FileAppenderService.class, AbstractAppenderService.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(FileAppenderService.class, AbstractAppenderService.GBEAN_INFO);
 
         infoFactory.addAttribute("append", boolean.class, true);
         infoFactory.addAttribute("file", String.class, true);

@@ -25,7 +25,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 /**
  * @version $Rev$ $Date$
@@ -74,7 +74,7 @@ public class SubsystemRouter extends AbstractRouterRouter {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(SubsystemRouter.class, AbstractInterceptorRouter.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SubsystemRouter.class, AbstractInterceptorRouter.GBEAN_INFO);
         infoFactory.addOperation("addRoute", new Class[]{String.class, Router.class});
         infoFactory.addOperation("removeRoute", new Class[]{String.class});
         GBEAN_INFO = infoFactory.getBeanInfo();

@@ -21,7 +21,7 @@ import java.net.URI;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.remoting.InterceptorRegistry;
 
 /**
@@ -60,7 +60,7 @@ public class InterceptorRegistryRouter extends AbstractInterceptorRouter impleme
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(InterceptorRegistryRouter.class, AbstractInterceptorRouter.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(InterceptorRegistryRouter.class, AbstractInterceptorRouter.GBEAN_INFO);
         infoFactory.addReference("SubsystemRouter", SubsystemRouter.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

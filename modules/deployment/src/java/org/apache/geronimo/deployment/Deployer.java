@@ -37,7 +37,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 
@@ -329,7 +329,7 @@ public class Deployer {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(Deployer.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(Deployer.class);
 
         infoFactory.addOperation("deploy", new Class[]{String[].class});
         infoFactory.addOperation("deploy", new Class[]{File.class, File.class});

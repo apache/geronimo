@@ -18,7 +18,7 @@
 package org.apache.geronimo.kernel.config;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 /**
  * 
@@ -32,7 +32,7 @@ public class MyGBean {
 
     public static final GBeanInfo GBEAN_INFO;
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(MyGBean.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(MyGBean.class);
         infoFactory.addOperation("main", new Class[] {String[].class});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

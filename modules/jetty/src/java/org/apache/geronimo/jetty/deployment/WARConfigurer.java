@@ -23,7 +23,7 @@ import javax.enterprise.deploy.spi.DeploymentConfiguration;
 
 import org.apache.geronimo.deployment.ModuleConfigurer;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 /**
  * @version $Rev$ $Date$
@@ -40,7 +40,7 @@ public class WARConfigurer implements ModuleConfigurer {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(WARConfigurer.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(WARConfigurer.class);
         infoFactory.addInterface(ModuleConfigurer.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

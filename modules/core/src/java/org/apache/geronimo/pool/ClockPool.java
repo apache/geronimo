@@ -22,7 +22,7 @@ import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 
@@ -80,7 +80,7 @@ public class ClockPool implements GBeanLifecycle {
     private static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ClockPool.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ClockPool.class);
 
         infoFactory.addAttribute("poolName", String.class, true);
 

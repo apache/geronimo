@@ -31,7 +31,7 @@ import javax.transaction.SystemException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
@@ -349,7 +349,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty WebApplication Context", JettyWebAppContext.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty WebApplication Context", JettyWebAppContext.class);
 
         infoFactory.addAttribute("uri", URI.class, true);
         infoFactory.addAttribute("componentContext", ReadOnlyContext.class, true);

@@ -21,7 +21,7 @@ import java.util.Properties;
 import javax.security.auth.login.AppConfigurationEntry;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.gbean.jmx.GBeanMBeanLifecycleController;
@@ -104,7 +104,7 @@ public abstract class ConfigurationEntry implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConfigurationEntry.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ConfigurationEntry.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("applicationConfigName", String.class, true);
         infoFactory.addAttribute("controlFlag", LoginModuleControlFlag.class, true);

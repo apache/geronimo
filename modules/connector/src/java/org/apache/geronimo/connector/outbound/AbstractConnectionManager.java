@@ -24,7 +24,7 @@ import javax.resource.spi.LazyAssociatableConnectionManager;
 import javax.resource.spi.ManagedConnectionFactory;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
 
 /**
@@ -129,7 +129,7 @@ public abstract class AbstractConnectionManager implements ConnectionManagerFact
 
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractConnectionManager.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AbstractConnectionManager.class);
 
         infoFactory.addInterface(ConnectionManagerFactory.class);
         infoFactory.addInterface(PoolingAttributes.class);

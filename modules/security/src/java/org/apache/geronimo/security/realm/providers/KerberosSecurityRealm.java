@@ -24,7 +24,7 @@ import javax.security.auth.login.AppConfigurationEntry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.security.GeronimoSecurityException;
 import org.apache.regexp.RE;
 
@@ -238,7 +238,7 @@ public class KerberosSecurityRealm extends AbstractSecurityRealm {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(KerberosSecurityRealm.class, AbstractSecurityRealm.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(KerberosSecurityRealm.class, AbstractSecurityRealm.GBEAN_INFO);
 
         infoFactory.addAttribute("debug", boolean.class, true);
         infoFactory.addAttribute("storeKey", boolean.class, true);

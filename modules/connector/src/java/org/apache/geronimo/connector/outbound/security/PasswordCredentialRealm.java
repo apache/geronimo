@@ -25,7 +25,7 @@ import javax.resource.spi.ManagedConnectionFactory;
 import javax.security.auth.login.AppConfigurationEntry;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.security.GeronimoSecurityException;
 import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.security.realm.providers.AbstractSecurityRealm;
@@ -93,7 +93,7 @@ public class PasswordCredentialRealm extends AbstractSecurityRealm implements Se
     }
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(PasswordCredentialRealm.class, AbstractSecurityRealm.getGBeanInfo());
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(PasswordCredentialRealm.class, AbstractSecurityRealm.getGBeanInfo());
         infoFactory.addInterface(ManagedConnectionFactoryListener.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

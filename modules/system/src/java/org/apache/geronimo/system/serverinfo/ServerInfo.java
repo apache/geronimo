@@ -24,7 +24,7 @@ import java.net.URI;
 import java.net.URL;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 /**
  * @version $Rev$ $Date$
@@ -105,7 +105,7 @@ public class ServerInfo {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ServerInfo.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ServerInfo.class);
 
         infoFactory.addAttribute("baseDirectory", String.class, true);
         infoFactory.addAttribute("version", String.class, false);

@@ -20,7 +20,7 @@ import java.util.Hashtable;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.management.J2EEServer;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
@@ -78,7 +78,7 @@ public class JCAConnectionFactoryImpl {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(JCAConnectionFactoryImpl.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JCAConnectionFactoryImpl.class);
         infoFactory.addReference("J2EEServer", J2EEServer.class);
 
         infoFactory.addAttribute("objectName", String.class, false);

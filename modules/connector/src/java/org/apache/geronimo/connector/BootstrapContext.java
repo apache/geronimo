@@ -24,7 +24,7 @@ import javax.resource.spi.XATerminator;
 import javax.resource.spi.work.WorkManager;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 /**
  * GBean BootstrapContext implementation that refers to externally configured WorkManager
@@ -79,7 +79,7 @@ public class BootstrapContext implements javax.resource.spi.BootstrapContext {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(BootstrapContext.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(BootstrapContext.class);
           //adding interface does not work, creates attributes for references???
 //        infoFactory.addInterface(javax.resource.spi.BootstrapContext.class);
 

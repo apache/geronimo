@@ -40,7 +40,7 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoPool;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoTransactions;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContextImpl;
@@ -196,7 +196,7 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         static final GBeanInfo GBEAN_INFO;
 
         static {
-            GBeanInfoFactory infoFactory = new GBeanInfoFactory(MockConnectionTrackingCoordinator.class);
+            GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(MockConnectionTrackingCoordinator.class);
             infoFactory.addInterface(ConnectionTracker.class);
             GBEAN_INFO = infoFactory.getBeanInfo();
         }

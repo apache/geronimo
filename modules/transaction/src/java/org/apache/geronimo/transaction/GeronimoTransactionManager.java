@@ -22,7 +22,7 @@ import javax.transaction.SystemException;
 import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.transaction.log.UnrecoverableLog;
 import org.apache.geronimo.transaction.manager.Recovery;
@@ -64,7 +64,7 @@ public class GeronimoTransactionManager extends TransactionManagerProxy {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(GeronimoTransactionManager.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(GeronimoTransactionManager.class);
 
         infoFactory.addAttribute("defaultTransactionTimeoutSeconds", int.class, true);
         infoFactory.addReference("TransactionLog", TransactionLog.class);

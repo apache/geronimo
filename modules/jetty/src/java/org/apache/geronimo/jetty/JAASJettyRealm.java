@@ -27,7 +27,7 @@ import javax.security.jacc.WebRoleRefPermission;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.security.ContextManager;
@@ -171,7 +171,7 @@ public class JAASJettyRealm implements UserRealm, GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty Realm", JAASJettyRealm.class.getName());
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty Realm", JAASJettyRealm.class.getName());
         infoFactory.setConstructor(new String[]{"JettyContainer"});
         infoFactory.addReference("JettyContainer", JettyContainer.class);
         infoFactory.addAttribute("name", String.class, true);

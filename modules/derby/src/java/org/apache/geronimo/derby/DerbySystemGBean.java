@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -89,7 +89,7 @@ public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
     }
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(DerbySystemGBean.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(DerbySystemGBean.class);
         infoFactory.addAttribute("derbySystemHome", String.class, true);
         infoFactory.addReference("serverInfo", ServerInfo.class);
         infoFactory.setConstructor(new String[]{"serverInfo", "derbySystemHome"});

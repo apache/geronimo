@@ -31,7 +31,7 @@ import javax.sql.DataSource;
 import com.thoughtworks.xstream.XStream;
 import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
@@ -319,7 +319,7 @@ public class JDBCWorkerPersistence implements WorkerPersistence, GBeanLifecycle 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(JDBCWorkerPersistence.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JDBCWorkerPersistence.class);
         infoFactory.addAttribute("sequenceSQL", String.class, true);
         infoFactory.addAttribute("insertSQL", String.class, true);
         infoFactory.addAttribute("deleteSQL", String.class, true);

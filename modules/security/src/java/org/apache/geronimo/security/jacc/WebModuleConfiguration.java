@@ -28,7 +28,7 @@ import noNamespace.RoleMappingsType;
 import noNamespace.RoleType;
 import noNamespace.SecurityType;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.security.GeronimoSecurityException;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.util.ConfigurationUtil;
@@ -120,7 +120,7 @@ public class WebModuleConfiguration extends AbstractModuleConfiguration {
     private static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(WebModuleConfiguration.class, AbstractModuleConfiguration.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(WebModuleConfiguration.class, AbstractModuleConfiguration.GBEAN_INFO);
         //TODO make sure this attribute not backed by a getter or setter works.
         infoFactory.addAttribute("webApp", WebAppType.class, true);
         infoFactory.addAttribute("security", SecurityType.class, true);

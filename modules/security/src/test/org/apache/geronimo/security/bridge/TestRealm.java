@@ -22,7 +22,7 @@ import java.util.Set;
 import javax.security.auth.login.AppConfigurationEntry;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.security.GeronimoSecurityException;
 import org.apache.geronimo.security.realm.providers.AbstractSecurityRealm;
 import org.apache.regexp.RE;
@@ -74,7 +74,7 @@ public class TestRealm extends AbstractSecurityRealm {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(TestRealm.class, AbstractSecurityRealm.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(TestRealm.class, AbstractSecurityRealm.GBEAN_INFO);
         infoFactory.addAttribute("debug", boolean.class, true);
         infoFactory.addOperation("isLoginModuleLocal");
 

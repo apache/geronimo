@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
@@ -96,7 +96,7 @@ public class LoginServiceStub implements GBeanLifecycle, JMXTarget {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(LoginServiceStub.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(LoginServiceStub.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addReference("Router", JMXRouter.class);

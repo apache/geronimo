@@ -31,7 +31,7 @@ import javax.transaction.xa.Xid;
 
 import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.transaction.manager.LogException;
@@ -204,7 +204,7 @@ public class JDBCLog implements TransactionLog, GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(JDBCLog.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JDBCLog.class);
 
         infoFactory.addAttribute("systemId", String.class, true);
 

@@ -39,7 +39,7 @@ import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xbeans.ServiceDocument;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -194,7 +194,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ServiceConfigBuilder.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ServiceConfigBuilder.class);
 
         infoFactory.addInterface(ConfigurationBuilder.class);
 

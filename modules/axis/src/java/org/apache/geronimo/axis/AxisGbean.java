@@ -21,7 +21,7 @@ import javax.management.ObjectName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
@@ -62,7 +62,7 @@ public class AxisGbean implements GBeanLifecycle {
     private J2EEManager j2eeManager;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("AxisGbean",
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("AxisGbean",
                 AxisGbean.class);
 
         // attributes

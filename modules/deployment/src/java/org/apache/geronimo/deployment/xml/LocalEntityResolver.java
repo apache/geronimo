@@ -27,7 +27,7 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.xml.resolver.Catalog;
 import org.apache.xml.resolver.CatalogEntry;
 import org.apache.xml.resolver.CatalogException;
@@ -396,7 +396,7 @@ public class LocalEntityResolver implements EntityResolver {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("configurable local entity resolver", LocalEntityResolver.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("configurable local entity resolver", LocalEntityResolver.class);
 
         infoFactory.addAttribute("catalogFileURI", URI.class, true);
         infoFactory.addAttribute("localRepositoryURI", URI.class, true);

@@ -18,7 +18,7 @@
 package org.apache.geronimo.jetty.connector;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.jetty.JettyContainer;
 import org.mortbay.http.ajp.AJP13Listener;
 
@@ -33,7 +33,7 @@ public class AJP13Connector extends JettyConnector {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty AJP13 Connector", AJP13Connector.class, JettyConnector.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty AJP13 Connector", AJP13Connector.class, JettyConnector.GBEAN_INFO);
         infoFactory.setConstructor(new String[]{"JettyContainer"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -20,7 +20,7 @@ package org.apache.geronimo.system.logging.log4j.appender;
 import java.util.Enumeration;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.log4j.Appender;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Logger;
@@ -70,7 +70,7 @@ public class ConsoleAppenderService extends AbstractAppenderService {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConsoleAppenderService.class, AbstractAppenderService.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ConsoleAppenderService.class, AbstractAppenderService.GBEAN_INFO);
         infoFactory.addAttribute("target", String.class, true);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

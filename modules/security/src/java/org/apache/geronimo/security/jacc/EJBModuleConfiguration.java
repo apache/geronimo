@@ -28,7 +28,7 @@ import noNamespace.RoleMappingsType;
 import noNamespace.RoleType;
 import noNamespace.SecurityType;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.security.GeronimoSecurityException;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.util.ConfigurationUtil;
@@ -116,7 +116,7 @@ public class EJBModuleConfiguration extends AbstractModuleConfiguration {
     private static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(EJBModuleConfiguration.class, AbstractModuleConfiguration.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(EJBModuleConfiguration.class, AbstractModuleConfiguration.GBEAN_INFO);
         infoFactory.addAttribute("EJBJar", EjbJarType.class, true);
         infoFactory.addAttribute("security", SecurityType.class, true);
         infoFactory.setConstructor(new String[]{"contextID", "EJBJar", "security"});

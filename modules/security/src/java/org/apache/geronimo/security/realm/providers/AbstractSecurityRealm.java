@@ -18,7 +18,7 @@
 package org.apache.geronimo.security.realm.providers;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.regexp.RE;
@@ -70,7 +70,7 @@ public abstract class AbstractSecurityRealm implements SecurityRealm, GBeanLifec
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractSecurityRealm.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AbstractSecurityRealm.class);
 
         infoFactory.addAttribute("realmName", String.class, true);
         infoFactory.addAttribute("maxLoginModuleAge", long.class, true);

@@ -25,7 +25,7 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 
 /**
@@ -93,7 +93,7 @@ public class PropertiesFilePrincipalMappingUserPasswordRealmBridge extends Abstr
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(PropertiesFilePrincipalMappingUserPasswordRealmBridge.class, AbstractPrincipalMappingUserPasswordRealmBridge.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(PropertiesFilePrincipalMappingUserPasswordRealmBridge.class, AbstractPrincipalMappingUserPasswordRealmBridge.GBEAN_INFO);
         infoFactory.addAttribute("propertyFileURL", URL.class, true);
         infoFactory.setConstructor(new String[]{"targetRealm", "principalSourceType", "principalTargetCallbackName", "userNameSourceType", "userNameTargetCallbackName", "passwordSourceType", "propertyFileURL"});
         GBEAN_INFO = infoFactory.getBeanInfo();

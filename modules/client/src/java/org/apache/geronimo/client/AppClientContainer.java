@@ -21,7 +21,7 @@ import java.lang.reflect.Method;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 
@@ -95,7 +95,7 @@ public final class AppClientContainer {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AppClientContainer.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AppClientContainer.class);
 
         infoFactory.addOperation("main", new Class[]{String[].class});
         infoFactory.addAttribute("mainClassName", String.class, true);

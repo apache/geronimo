@@ -29,7 +29,7 @@ import javax.naming.NamingException;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 
@@ -153,7 +153,7 @@ public class ContextBuilderTest extends TestCase {
     }
 
     public GBeanInfo getGbeanInfo() {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(TestProxyFactory.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(TestProxyFactory.class);
         infoFactory.addAttribute("Content", Object.class, true);
         infoFactory.addOperation("getProxy");
         infoFactory.setConstructor(new String[]{"Content"});

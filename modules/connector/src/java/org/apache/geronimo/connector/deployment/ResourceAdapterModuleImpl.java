@@ -21,7 +21,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.management.J2EEApplication;
 import org.apache.geronimo.j2ee.management.J2EEServer;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
@@ -109,7 +109,7 @@ public class ResourceAdapterModuleImpl {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ResourceAdapterModuleImpl.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ResourceAdapterModuleImpl.class);
         infoFactory.addReference("J2EEServer", J2EEServer.class);
         infoFactory.addReference("J2EEApplication", J2EEApplication.class);
 

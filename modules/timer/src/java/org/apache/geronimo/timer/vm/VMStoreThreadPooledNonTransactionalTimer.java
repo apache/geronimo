@@ -19,7 +19,7 @@ package org.apache.geronimo.timer.vm;
 
 import EDU.oswego.cs.dl.util.concurrent.Executor;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.timer.NontransactionalExecutorTaskFactory;
 import org.apache.geronimo.timer.PersistentTimer;
 import org.apache.geronimo.timer.ThreadPooledTimer;
@@ -42,7 +42,7 @@ public class VMStoreThreadPooledNonTransactionalTimer extends ThreadPooledTimer 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(VMStoreThreadPooledNonTransactionalTimer.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(VMStoreThreadPooledNonTransactionalTimer.class);
         infoFactory.addInterface(PersistentTimer.class);
 
         infoFactory.addReference("ThreadPool", Executor.class);

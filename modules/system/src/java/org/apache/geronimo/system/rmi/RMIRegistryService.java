@@ -23,7 +23,7 @@ import java.rmi.server.UnicastRemoteObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 
@@ -67,7 +67,7 @@ public class RMIRegistryService implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(RMIRegistryService.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(RMIRegistryService.class);
         infoFactory.addAttribute("port", int.class, true);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

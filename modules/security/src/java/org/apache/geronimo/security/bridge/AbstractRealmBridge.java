@@ -23,7 +23,7 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 
 /**
@@ -59,7 +59,7 @@ public abstract class AbstractRealmBridge implements RealmBridge {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractRealmBridge.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AbstractRealmBridge.class);
         infoFactory.addAttribute("targetRealm", String.class, true);
         infoFactory.setConstructor(new String[]{"targetRealm"});
         infoFactory.addOperation("mapSubject", new Class[] {Subject.class});

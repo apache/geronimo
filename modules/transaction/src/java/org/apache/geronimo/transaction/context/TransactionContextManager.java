@@ -32,7 +32,7 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.transaction.ExtendedTransactionManager;
 import org.apache.geronimo.transaction.ImportedTransactionActiveException;
 import org.apache.geronimo.transaction.XAWork;
@@ -280,7 +280,7 @@ public class TransactionContextManager implements XATerminator, XAWork {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(TransactionContextManager.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(TransactionContextManager.class);
 
         infoFactory.addOperation("getTransactionManager");
         infoFactory.addOperation("getContext");

@@ -55,7 +55,7 @@ import org.apache.geronimo.deployment.service.GBeanHelper;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.DynamicGAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.ConnectorModule;
@@ -373,7 +373,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                 String resourceAdapterName = geronimoResourceAdapter.getResourceadapterInstance().getResourceadapterName();
 
                 // Create the resource adapter gbean
-                GBeanInfoFactory resourceAdapterInfoFactory = new GBeanInfoFactory("org.apache.geronimo.connector.ResourceAdapterWrapper", cl);
+                GBeanInfoBuilder resourceAdapterInfoFactory = new GBeanInfoBuilder("org.apache.geronimo.connector.ResourceAdapterWrapper", cl);
                 ConfigProperty[] configProperties = getConfigProperties(resourceadapter.getConfigPropertyArray(), geronimoResourceAdapter.getResourceadapterInstance().getConfigPropertySettingArray());
                 GBeanMBean resourceAdapterGBean = setUpDynamicGBean(resourceAdapterInfoFactory, configProperties, cl);
 
@@ -463,7 +463,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                  GerAdminobjectInstanceType gerAdminObjectInstance = gerAdminObject.getAdminobjectInstanceArray()[j];
 
                  // create the adminObjectGBean
-                 GBeanInfoFactory adminObjectInfoFactory = new GBeanInfoFactory("org.apache.geronimo.connector.AdminObjectWrapper", cl);
+                 GBeanInfoBuilder adminObjectInfoFactory = new GBeanInfoBuilder("org.apache.geronimo.connector.AdminObjectWrapper", cl);
                  ConfigProperty[] configProperties = getConfigProperties(adminObject.getConfigPropertyArray(), gerAdminObjectInstance.getConfigPropertySettingArray());
                  GBeanMBean adminObjectGBean = setUpDynamicGBean(adminObjectInfoFactory, configProperties, cl);
 
@@ -489,7 +489,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             String messageListenerInterface = messagelistenerType.getMessagelistenerType().getStringValue().trim();
             ActivationspecType activationspec = messagelistenerType.getActivationspec();
             String activationSpecClassName = activationspec.getActivationspecClass().getStringValue();
-            GBeanInfoFactory infoFactory = new GBeanInfoFactory("org.apache.geronimo.connector.ActivationSpecWrapper", cl);
+            GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("org.apache.geronimo.connector.ActivationSpecWrapper", cl);
 
             //add all javabean properties that have both getter and setter.  Ignore the "required" flag from the dd.
             BeanInfo beanInfo;
@@ -524,7 +524,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         return activationSpecInfos;
     }
 
-    private GBeanMBean setUpDynamicGBean(GBeanInfoFactory infoFactory, ConfigProperty[] configProperties, ClassLoader cl) throws DeploymentException {
+    private GBeanMBean setUpDynamicGBean(GBeanInfoBuilder infoFactory, ConfigProperty[] configProperties, ClassLoader cl) throws DeploymentException {
         for (int i = 0; i < configProperties.length; i++) {
             infoFactory.addAttribute(new DynamicGAttributeInfo(configProperties[i].getName(), true));
         }
@@ -702,7 +702,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         ObjectName connectionManagerObjectName = configureConnectionManager(earContext, j2eeContext, connectiondefinitionInstance, cl);
 
         // ManagedConnectionFactory
-        GBeanInfoFactory managedConnectionFactoryInfoFactory = new GBeanInfoFactory("org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper", cl);
+        GBeanInfoBuilder managedConnectionFactoryInfoFactory = new GBeanInfoBuilder("org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper", cl);
         GBeanMBean managedConnectionFactoryGBean = setUpDynamicGBean(managedConnectionFactoryInfoFactory, configProperties, cl);
         try {
             managedConnectionFactoryGBean.setAttribute("managedConnectionFactoryClass", cl.loadClass(managedConnectionFactoryClass));
@@ -832,7 +832,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConnectorModuleBuilder.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ConnectorModuleBuilder.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addInterface(ModuleBuilder.class);
         infoFactory.addInterface(ResourceReferenceBuilder.class);

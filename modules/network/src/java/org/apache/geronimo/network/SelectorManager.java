@@ -30,7 +30,7 @@ import java.util.Stack;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.pool.ThreadPool;
@@ -263,7 +263,7 @@ public class SelectorManager implements Runnable, GBeanLifecycle {
     private static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(SelectorManager.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SelectorManager.class);
 
         infoFactory.addAttribute("timeout", long.class, true);
         infoFactory.addReference("ThreadPool", ThreadPool.class);

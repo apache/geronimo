@@ -18,7 +18,7 @@
 package org.apache.geronimo.system.logging.log4j.appender;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.system.logging.log4j.PatternLayout;
 import org.apache.geronimo.system.logging.log4j.XLevel;
@@ -88,7 +88,7 @@ public abstract class AbstractAppenderService implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractAppenderService.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AbstractAppenderService.class);
         infoFactory.addAttribute("layoutPattern", String.class, true);
         infoFactory.addAttribute("threshold", String.class, true);
         infoFactory.addAttribute("encoding", String.class, true);

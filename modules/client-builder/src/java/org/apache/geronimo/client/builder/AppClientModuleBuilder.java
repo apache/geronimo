@@ -38,7 +38,7 @@ import org.apache.geronimo.deployment.service.GBeanHelper;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.util.NestedJarFile;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.AppClientModule;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -581,7 +581,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AppClientModuleBuilder.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AppClientModuleBuilder.class);
         infoFactory.addAttribute("transactionContextManagerObjectName", ObjectName.class, true);
         infoFactory.addAttribute("connectionTrackerObjectName", ObjectName.class, true);
         infoFactory.addReference("EJBReferenceBuilder", EJBReferenceBuilder.class);

@@ -20,7 +20,7 @@ package org.apache.geronimo.connector;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 /**
  * Wrapper around AdminObject that exposes its config-properties as GBeanAttributes and
@@ -122,7 +122,7 @@ public class AdminObjectWrapper implements DynamicGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AdminObjectWrapper.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AdminObjectWrapper.class);
         infoFactory.addAttribute("adminObjectInterface", Class.class, true);
         infoFactory.addAttribute("adminObjectClass", Class.class, true);
 

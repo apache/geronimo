@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycleController;
 
 /**
@@ -59,7 +59,7 @@ public class MockGBean implements MockEndpoint {
     }
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("MockGBean", MockGBean.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("MockGBean", MockGBean.class);
         infoFactory.addAttribute("name", String.class, true);
         infoFactory.addAttribute("actualObjectName", String.class, false);
         infoFactory.addAttribute("objectName", String.class, false);

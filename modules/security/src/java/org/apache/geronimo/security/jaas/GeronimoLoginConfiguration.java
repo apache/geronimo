@@ -23,7 +23,7 @@ import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.security.SecurityService;
@@ -88,7 +88,7 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
     private static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(GeronimoLoginConfiguration.class.getName());
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(GeronimoLoginConfiguration.class.getName());
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 }

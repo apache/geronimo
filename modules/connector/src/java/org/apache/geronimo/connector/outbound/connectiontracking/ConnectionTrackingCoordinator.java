@@ -29,7 +29,7 @@ import org.apache.geronimo.connector.outbound.ConnectionInfo;
 import org.apache.geronimo.connector.outbound.ConnectionTrackingInterceptor;
 import org.apache.geronimo.connector.outbound.ManagedConnectionInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 
@@ -145,7 +145,7 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
     }
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConnectionTrackingCoordinator.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ConnectionTrackingCoordinator.class);
         infoFactory.addInterface(TrackedConnectionAssociator.class);
         infoFactory.addInterface(ConnectionTracker.class);
         GBEAN_INFO = infoFactory.getBeanInfo();

@@ -20,7 +20,7 @@ package org.apache.geronimo.security.jaas;
 import javax.security.auth.login.AppConfigurationEntry;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
 
@@ -79,7 +79,7 @@ public class ConfigurationEntryRealmRemote extends ConfigurationEntryRealmLocal 
     private static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConfigurationEntryRealmRemote.class, ConfigurationEntryRealmLocal.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ConfigurationEntryRealmRemote.class, ConfigurationEntryRealmLocal.GBEAN_INFO);
         infoFactory.addAttribute("URI", String.class, true);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
