@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -52,7 +53,7 @@ import org.apache.xmlbeans.XmlException;
  * Command line based deployment utility which combines multiple deployable modules
  * into a single configuration.
  *
- * @version $Revision: 1.21 $ $Date: 2004/06/23 22:44:49 $
+ * @version $Revision: 1.22 $ $Date: 2004/07/23 06:14:35 $
  */
 public class Deployer {
     private final Collection builders;
@@ -64,34 +65,50 @@ public class Deployer {
     }
 
     public URI deploy(File moduleFile, File deploymentPlan) throws DeploymentException {
-        URL moduleURL;
-        try {
-            moduleURL = moduleFile.toURL();
-        } catch (MalformedURLException e) {
-            throw new DeploymentException(e);
-        }
         ConfigurationBuilder builder = null;
 
         XmlObject plan = null;
-        for (Iterator i = builders.iterator(); i.hasNext();) {
-            ConfigurationBuilder candidate = (ConfigurationBuilder) i.next();
+        if (deploymentPlan != null) {
             try {
-                plan = candidate.getDeploymentPlan(moduleURL);
-                if (!plan.validate()) {
-                    throw new DeploymentException("Unable to parse plan");
-                }
+                plan = getLoader().parse(deploymentPlan, null, null);
             } catch (XmlException e) {
                 throw new DeploymentException(e);
+            } catch (IOException e) {
+                throw new DeploymentException(e);
             }
-            if (plan != null) {
-                builder = candidate;
-                break;
+            for (Iterator i = builders.iterator(); i.hasNext();) {
+                ConfigurationBuilder candidate = (ConfigurationBuilder) i.next();
+                if (candidate.canConfigure(plan)) {
+                    builder = candidate;
+                    break;
+                }
+            }
+            if (builder == null) {
+                throw new DeploymentException("No deployer found for this plan type: " + deploymentPlan);
+            }
+        } else if (moduleFile != null) {
+            URL moduleURL;
+            try {
+                moduleURL = moduleFile.toURL();
+            } catch (MalformedURLException e) {
+                throw new DeploymentException(e);
+            }
+            for (Iterator i = builders.iterator(); i.hasNext();) {
+                ConfigurationBuilder candidate = (ConfigurationBuilder) i.next();
+                try {
+                    plan = candidate.getDeploymentPlan(moduleURL);
+                } catch (XmlException e) {
+                    throw new DeploymentException(e);
+                }
+                if (plan != null) {
+                    builder = candidate;
+                    break;
+                }
+            }
+            if (builder == null) {
+                throw new DeploymentException("No deployer found for this module type: " + moduleFile);
             }
         }
-        if (builder == null) {
-            throw new DeploymentException("No deployer found for this module type: " + moduleFile);
-        }
-
         try {
             File carfile = File.createTempFile("deployer", ".car");
             try {
