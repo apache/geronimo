@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+
+    <!-- Welcome File List -->
+    <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+
+    <taglib>
+        <taglib-uri>jmx-console</taglib-uri>
+        <taglib-location>/WEB-INF/lib/jmx-console-servlet.jar</taglib-location>
+    </taglib>
+
+</web-app>

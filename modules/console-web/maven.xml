@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Revision: 1.1 $ $Date: 2003/09/18 04:45:26 $ -->
+
+<project default="default"
+    xmlns:j="jelly:core"
+    xmlns:u="jelly:util"
+    xmlns:ant="jelly:ant">
+
+    <goal name="default">
+        <attainGoal name="war"/>
+    </goal>
+</project>

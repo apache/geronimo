@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Revision: 1.1 $ $Date: 2003/09/18 04:45:26 $ -->
+
+<project>
+    <pomVersion>3</pomVersion>
+    <extend>${basedir}/../../etc/project.xml</extend>
+
+    <!-- ===================== -->
+    <!-- Module Identification -->
+    <!-- ===================== -->
+
+    <name>Geronimo :: Web Console</name>
+    <id>geronimo-web-console</id>
+    <shortDescription></shortDescription>
+    <description></description>
+    <siteDirectory></siteDirectory>
+    <distributionDirectory></distributionDirectory>
+
+    <package>org.apache.geronimo.console.web</package>
+    <currentVersion>DEV</currentVersion>
+
+
+    <!-- ============ -->
+    <!-- Dependencies -->
+    <!-- ============ -->
+
+    <dependencies>
+
+        <!-- Plugin Dependencies -->
+
+        <!-- Module Dependencies -->
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-servlet</artifactId>
+            <version>DEV</version>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-jsp</artifactId>
+            <version>DEV</version>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
+
+        <!-- Thirdparty Dependencies -->
+        <dependency>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j-jmx</artifactId>
+            <version>SNAPSHOT</version>
+            <url>http://mx4j.sourceforge.net</url>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
+
+
+        <dependency>
+            <id>commons-logging</id>
+            <version>1.0.3</version>
+            <url>http://jakarta.apache.org/commons/logging</url>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
+
+    </dependencies>
+</project>

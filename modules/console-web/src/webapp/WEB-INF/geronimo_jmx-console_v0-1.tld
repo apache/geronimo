@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.1//EN" "http://java.sun.com/j2ee/dtds/web-jsptaglibrary_1_1.dtd">
+
+<taglib>
+    <tlibversion>0.1</tlibversion>
+    <jspversion>1.2</jspversion>
+    <shortname>geronimo_jmx-console</shortname>
+    <uri>http://geronimo.apache.org/tlds/geronimo_jmx-console_v0-1.tld</uri>
+
+    <tag>
+        <name>MBeanServerContents</name>
+        <tagclass>org.apache.geronimo.console.web.taglib.MBeanServerContentsTag</tagclass>
+    </tag>
+
+    <tag>
+        <name>MBeanServerContext</name>
+        <tagclass>org.apache.geronimo.console.web.taglib.MBeanServerContextTag</tagclass>
+    </tag>
+
+    <tag>
+        <name>ClearFilter</name>
+        <tagclass>org.apache.geronimo.console.web.taglib.ClearFilterTag</tagclass>
+    </tag>
+
+    <tag>
+        <name>MBeanServerContextValue</name>
+        <tagclass>org.apache.geronimo.console.web.taglib.MBeanServerContextValueTag</tagclass>
+
+        <attribute>
+            <name>type</name>
+            <required>true</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>MBeanAttributes</name>
+        <tagclass>org.apache.geronimo.console.web.taglib.MBeanAttributesTag</tagclass>
+    </tag>
+
+</taglib>

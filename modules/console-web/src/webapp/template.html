@@ -1,0 +1,558 @@
+
+
+
+<html>
+<head>
+    <title>Geronimo JMX Console</title>
+
+
+<style>
+
+
+a           { color: #2a3542; }
+a:link      { text-decoration: none; }
+a:hover     { text-decoration: underline;  }
+a:active    { color: #242D39; }
+
+body        { margin: 0px 0px 8px 0px;
+              font-family: verdana, arial;
+              font-size: 11px;}
+
+form        { margin: 0px;
+              padding: 0px;}
+
+h1          { font-size: 18px; }
+
+h2          { font-size: 11px;
+              margin: 0px;
+              line-height: 16px;
+              border-bottom: 1px solid #829DBD;
+              width: 160px; }
+
+p           { margin-top: 0px;
+              margin-bottom: 8px; }
+
+#topNavBar  { background-color: #627789;
+              padding-top: 4px;
+              padding-bottom: 3px;
+              border-top: 1px solid #242D39;
+              border-bottom: 1px solid #242D39; }
+
+.topNav     { color: #fff;
+              padding-left: 16px;
+              font-weight: bold; }
+
+#leftNavBar { background-color: #F6FBFD;
+              width: 176px;
+              border-right: 1px solid #242D39;
+              border-bottom: 1px solid #242D39;
+              margin-bottom: 8px;}
+
+#left       { width: 176px;
+              margin: 0px;
+              float: left;
+              line-height: 16px; }
+
+.leftNav    { margin: 0px 8px 8px 8px;
+              padding-top: 8px; }
+
+.links      { padding-left: 16px;
+              margin-bottom: 8px; }
+
+#panelTitle { padding: 4px 8px 3px 8px;
+              background-color: #8299AC;
+              border: 1px solid #242D39;
+              color: #fff;
+              margin: 8px 8px 0px 184px;
+              font-weight: bold; }
+
+#panel      { padding: 8px 8px 8px 8px;
+              background-color: #fff;
+              margin: 0px 8px 8px 184px; }
+
+.question   { font-weight: bold;
+              margin: 0px;
+              padding: 8px 0px 0px 0px;
+              color: #444;}
+
+.sponsor    { margin: 16px 0px 0px 0px;
+              text-align: center;}
+
+.textInput  { font-size: 11px;
+              font-family: verdana, arial;
+              border-top: 2px solid #242D39;
+              border-right: 1px solid #242D39;
+              border-bottom: 1px solid #242D39;
+              border-left: 2px solid #242D39;
+              margin: 2px 8px 1px 0px;
+              padding: 0px 8px 0px 8px;;}
+
+.submit     { font-size: 11px;
+              font-family: verdana, arial;
+              background-color: #DBE4EE;
+              padding: 0px 8px 0px 8px;
+              margin: 0px 0px 1px 0px;
+              border: 1px solid #242D39; }
+
+
+.mbeanDomain        { margin: 16px 0px 0px 0px;
+                      color: #242D39;
+                      font-size: 14px;
+                      font-weight: bold;}
+
+.mbeanList  { margin: 0px 0px 0px 24px;
+              color: #242D39;
+              list-style-type: disc;}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+<img src="images/geronimo_logo_console.gif" border="0" alt="geronimo jmx console"/>
+<div id="topNavBar"><div class="topNav">JMX Agent View</div></div>
+<div id="left">
+
+<div id="leftNavBar">
+    <div class="leftNav">
+        <h2>Managed Resources</h2>
+        <div class="links">
+            <a href="/index.jsp">MBean Stack</a>
+            <br/>Relationships
+            <br/>Dependencies
+            <br/>Deployments
+            <br/>Cluster
+            <br/>Remote Resources
+        </div>
+
+        <h2> Configuration </h2>
+        <div class="links">
+            Local Services
+            <br/>Add / Remove Modules
+        </div>
+
+        <h2> Help </h2>
+        <div class="links">
+            Managing Geronimo
+            <br/>JMX-Console FAQ
+            <br/>Contact us
+        </div>
+    </div>
+</div>
+
+</div>
+
+<div id="panelTitle">MBean Stack</div>
+<div id="panel">
+
+<form method="GET" action="index.jsp">
+<input class="textInput" type="text" size="30"/>
+<input class="submit" type="submit" tabindex="1" value="Filter Output"/>
+</form>
+
+<div class='mbeanDomain'>elba.admin</div>
+<ul class='mbeanList'>
+<li>service=PluginManager</li>
+</ul>
+
+
+<div class='mbeanDomain'>elba.cache</div>
+<ul class='mbeanList'>
+<li>service=InvalidationManager</li>
+</ul>
+
+
+<div class='mbeanDomain'>elba.deployment</div>
+<ul class='mbeanList'>
+<li>flavor=URL,type=DeploymentScanner</li>
+</ul>
+
+
+<div class='mbeanDomain'>elba.ejb</div>
+<ul class='mbeanList'>
+<li>service=EJBDeployer
+    <ul class='mbeanList'>
+        <li>something=repetetive</li>
+        <ul class='mbeanList'>
+            <li>somethin=else</li>
+            <ul class='mbeanList'>
+                <li>something=again</li>
+                <li>funk=soul</li>
+                <li>brother=check</li>
+                <li>it=outnow</li>
+            </ul>
+        </ul>
+        <li>somethin=else</li>
+        <ul class='mbeanList'>
+            <li>something=again</li>
+            <li>funk=soul</li>
+            <li>brother=check</li>
+            <li>it=outnow</li>
+        </ul>
+    </ul>
+</ul>
+
+
+<div class='mbeanDomain'>elba.j2ee</div>
+<ul class='mbeanList'>
+<li>jndiName=ejb/mgmt/MEJB,plugin=pool,service=EJB</li>
+<li>jndiName=ejb/mgmt/MEJB,service=EJB</li>
+<li>module=ejb-management.jar,service=EjbModule</li>
+<li>service=EARDeployer</li>
+</ul>
+
+
+<div class='mbeanDomain'>elba.jca</div>
+<ul class='mbeanList'>
+<li>name=DefaultDS,service=LocalTxCM</li>
+<li>name=DefaultDS,service=ManagedConnectionFactory</li>
+<li>name=DefaultDS,service=ManagedConnectionPool</li>
+<li>name=Elba JDBC XATransaction ResourceAdapter,service=RARDeployment</li>
+<li>name=Elba LocalTransaction JDBC Wrapper,service=RARDeployment</li>
+<li>name=JMS Adapter,service=RARDeployment</li>
+<li>name=JmsXA,service=ManagedConnectionFactory</li>
+<li>name=JmsXA,service=ManagedConnectionPool</li>
+<li>name=JmsXA,service=TxCM</li>
+<li>service=CachedConnectionManager</li>
+<li>service=ConnectionFactoryDeployer</li>
+<li>service=RARDeployer</li>
+</ul>
+
+
+<div class='mbeanDomain'>elba.jdbc</div>
+<ul class='mbeanList'>
+<li>service=SQLExceptionProcessor</li>
+</ul>
+
+
+<div class='mbeanDomain'>elba.jmx</div>
+<ul class='mbeanList'>
+<li>name=Invoker,protocol=jrmp,service=proxyFactory,type=adaptor</li>
+<li>name=Invoker,type=adaptor</li>
+<li>name=RMI,type=Connector</li>
+</ul>
+
+
+<div class='mbeanDomain'>elba.management.local</div>
+<ul class='mbeanList'>
+<li>EJBModule=ejb-management.jar,J2EEApplication=null,J2EEServer=Local,j2eeType=StatelessSessionBean,name=ejb/mgmt/MEJB</li>
+<li>J2EEApplication=elbamq-httpil.sar,J2EEServer=Local,j2eeType=WebModule,name=elbamq-httpil.war</li>
+<li>J2EEApplication=elbamq-httpil.sar,J2EEServer=Local,WebModule=elbamq-httpil.war,j2eeType=Servlet,name=default</li>
+<li>J2EEApplication=elbamq-httpil.sar,J2EEServer=Local,WebModule=elbamq-httpil.war,j2eeType=Servlet,name=HTTPServerILServlet</li>
+<li>J2EEApplication=elbamq-httpil.sar,J2EEServer=Local,WebModule=elbamq-httpil.war,j2eeType=Servlet,name=invoker</li>
+<li>J2EEApplication=elbamq-httpil.sar,J2EEServer=Local,WebModule=elbamq-httpil.war,j2eeType=Servlet,name=jsp</li>
+<li>J2EEApplication=http-invoker.sar,J2EEServer=Local,j2eeType=WebModule,name=invoker.war</li>
+<li>J2EEApplication=http-invoker.sar,J2EEServer=Local,WebModule=invoker.war,j2eeType=Servlet,name=default</li>
+<li>J2EEApplication=http-invoker.sar,J2EEServer=Local,WebModule=invoker.war,j2eeType=Servlet,name=EJBInvokerHAServlet</li>
+<li>J2EEApplication=http-invoker.sar,J2EEServer=Local,WebModule=invoker.war,j2eeType=Servlet,name=EJBInvokerServlet</li>
+<li>J2EEApplication=http-invoker.sar,J2EEServer=Local,WebModule=invoker.war,j2eeType=Servlet,name=invoker</li>
+<li>J2EEApplication=http-invoker.sar,J2EEServer=Local,WebModule=invoker.war,j2eeType=Servlet,name=JMXInvokerServlet</li>
+<li>J2EEApplication=http-invoker.sar,J2EEServer=Local,WebModule=invoker.war,j2eeType=Servlet,name=JNDIFactory</li>
+<li>J2EEApplication=http-invoker.sar,J2EEServer=Local,WebModule=invoker.war,j2eeType=Servlet,name=jsp</li>
+<li>J2EEApplication=http-invoker.sar,J2EEServer=Local,WebModule=invoker.war,j2eeType=Servlet,name=ReadOnlyJNDIFactory</li>
+<li>J2EEApplication=null,J2EEServer=Local,j2eeType=EJBModule,name=ejb-management.jar</li>
+<li>J2EEApplication=null,J2EEServer=Local,j2eeType=ResourceAdapterModule,name=elba-local-jdbc.rar</li>
+<li>J2EEApplication=null,J2EEServer=Local,j2eeType=ResourceAdapterModule,name=elba-xa-jdbc.rar</li>
+<li>J2EEApplication=null,J2EEServer=Local,j2eeType=ResourceAdapterModule,name=jms-ra.rar</li>
+<li>J2EEApplication=null,J2EEServer=Local,j2eeType=WebModule,name=jmx-console.war</li>
+<li>J2EEApplication=null,J2EEServer=Local,j2eeType=WebModule,name=was-jmx-console.war</li>
+<li>J2EEApplication=null,J2EEServer=Local,j2eeType=WebModule,name=web-console.war</li>
+<li>J2EEApplication=null,J2EEServer=Local,ResourceAdapterModule=elba-local-jdbc.rar,j2eeType=ResourceAdapter,name=Elba LocalTransaction JDBC Wrapper</li>
+<li>J2EEApplication=null,J2EEServer=Local,ResourceAdapterModule=elba-xa-jdbc.rar,j2eeType=ResourceAdapter,name=Elba JDBC XATransaction ResourceAdapter</li>
+<li>J2EEApplication=null,J2EEServer=Local,ResourceAdapterModule=jms-ra.rar,j2eeType=ResourceAdapter,name=JMS Adapter</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=cache-invalidation-service.xml,j2eeType=MBean,name=elba.cache%3aservice%3dInvalidationManager</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=console-mgr.sar,j2eeType=MBean,name=elba.admin%3aservice%3dPluginManager</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elba-jca.sar,j2eeType=MBean,name=elba.jca%3aservice%3dConnectionFactoryDeployer</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elba-jca.sar,j2eeType=MBean,name=elba.jca%3aservice%3dRARDeployer</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elba-service.xml,j2eeType=MBean,name=elba.deployment%3atype%3dDeploymentScanner%2cflavor%3dURL</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elba-service.xml,j2eeType=MBean,name=elba.ejb%3aservice%3dEJBDeployer</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elba-service.xml,j2eeType=MBean,name=elba.j2ee%3aservice%3dEARDeployer</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elba-service.xml,j2eeType=MBean,name=elba.management.local%3aj2eeType%3dJ2EEDomain%2cname%3dManager</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elba-service.xml,j2eeType=MBean,name=elba.rmi%3atype%3dRMIClassLoader</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elba-service.xml,j2eeType=MBean,name=elba.scripts%3aservice%3dBSHDeployer</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elba-service.xml,j2eeType=MBean,name=elba.security%3aservice%3dJaasSecurityManager</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elba-service.xml,j2eeType=MBean,name=elba.security%3aservice%3dSecurityConfig</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elba-service.xml,j2eeType=MBean,name=elba.security%3aservice%3dXMLLoginConfig</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elba-service.xml,j2eeType=MBean,name=elba.system%3atype%3dLog4jService%2cservice%3dLogging</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elba-service.xml,j2eeType=MBean,name=elba%3aservice%3dinvoker%2ctype%3djrmp</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elba-service.xml,j2eeType=MBean,name=elba%3aservice%3dinvoker%2ctype%3dlocal</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elba-service.xml,j2eeType=MBean,name=elba%3aservice%3dinvoker%2ctype%3dpooled</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elba-service.xml,j2eeType=MBean,name=elba%3aservice%3dJNDIView</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elba-service.xml,j2eeType=MBean,name=elba%3aservice%3dNaming</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elba-service.xml,j2eeType=MBean,name=elba%3aservice%3dWebService</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elbamq-destinations-service.xml,j2eeType=MBean,name=elba.mq.destination%3aservice%3dQueue%2cname%3dA</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elbamq-destinations-service.xml,j2eeType=MBean,name=elba.mq.destination%3aservice%3dQueue%2cname%3dB</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elbamq-destinations-service.xml,j2eeType=MBean,name=elba.mq.destination%3aservice%3dQueue%2cname%3dC</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elbamq-destinations-service.xml,j2eeType=MBean,name=elba.mq.destination%3aservice%3dQueue%2cname%3dD</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elbamq-destinations-service.xml,j2eeType=MBean,name=elba.mq.destination%3aservice%3dQueue%2cname%3dex</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elbamq-destinations-service.xml,j2eeType=MBean,name=elba.mq.destination%3aservice%3dQueue%2cname%3dtestQueue</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elbamq-destinations-service.xml,j2eeType=MBean,name=elba.mq.destination%3aservice%3dTopic%2cname%3dsecuredTopic</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elbamq-destinations-service.xml,j2eeType=MBean,name=elba.mq.destination%3aservice%3dTopic%2cname%3dtestDurableTopic</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elbamq-destinations-service.xml,j2eeType=MBean,name=elba.mq.destination%3aservice%3dTopic%2cname%3dtestTopic</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elbamq-httpil.sar,j2eeType=MBean,name=elba.mq%3aservice%3dInvocationLayer%2ctype%3dHTTP</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elbamq-service.xml,j2eeType=MBean,name=elba.mq.destination%3aservice%3dQueue%2cname%3dDLQ</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elbamq-service.xml,j2eeType=MBean,name=elba.mq%3aservice%3dCacheStore</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elbamq-service.xml,j2eeType=MBean,name=elba.mq%3aservice%3dDestinationManager</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elbamq-service.xml,j2eeType=MBean,name=elba.mq%3aservice%3dInvocationLayer%2ctype%3dJVM</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elbamq-service.xml,j2eeType=MBean,name=elba.mq%3aservice%3dInvocationLayer%2ctype%3dOIL</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elbamq-service.xml,j2eeType=MBean,name=elba.mq%3aservice%3dInvocationLayer%2ctype%3dOIL2</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elbamq-service.xml,j2eeType=MBean,name=elba.mq%3aservice%3dInvocationLayer%2ctype%3dRMI</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elbamq-service.xml,j2eeType=MBean,name=elba.mq%3aservice%3dInvocationLayer%2ctype%3dUIL</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elbamq-service.xml,j2eeType=MBean,name=elba.mq%3aservice%3dInvocationLayer%2ctype%3dUIL2</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elbamq-service.xml,j2eeType=MBean,name=elba.mq%3aservice%3dInvoker</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elbamq-service.xml,j2eeType=MBean,name=elba.mq%3aservice%3dMessageCache</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elbamq-service.xml,j2eeType=MBean,name=elba.mq%3aservice%3dPersistenceManager</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elbamq-service.xml,j2eeType=MBean,name=elba.mq%3aservice%3dSecurityManager</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elbamq-service.xml,j2eeType=MBean,name=elba.mq%3aservice%3dStateManager</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elbamq-service.xml,j2eeType=MBean,name=elba.mq%3aservice%3dTracingInterceptor</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=elbaweb-tomcat41.sar,j2eeType=MBean,name=elba.web%3aservice%3dWebServer</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=http-invoker.sar,j2eeType=MBean,name=elba%3aservice%3dinvoker%2ctype%3dhttp</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=http-invoker.sar,j2eeType=MBean,name=elba%3aservice%3dinvoker%2ctype%3dhttp%2ctarget%3dNaming</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=http-invoker.sar,j2eeType=MBean,name=elba%3aservice%3dinvoker%2ctype%3dhttp%2ctarget%3dNaming%2creadonly%3dtrue</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=http-invoker.sar,j2eeType=MBean,name=elba%3aservice%3dinvoker%2ctype%3dhttpHA</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=jmx-invoker-adaptor-server.sar,j2eeType=MBean,name=elba.jmx%3atype%3dadaptor%2cname%3dInvoker</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=jmx-invoker-adaptor-server.sar,j2eeType=MBean,name=elba.jmx%3atype%3dadaptor%2cname%3dInvoker%2cprotocol%3djrmp%2cservice%3dproxyFactory</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=jmx-rmi-adaptor.sar,j2eeType=MBean,name=elba.jmx%3atype%3dConnector%2cname%3dRMI</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=mail-service.xml,j2eeType=MBean,name=elba%3aservice%3dMail</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=properties-service.xml,j2eeType=MBean,name=elba%3atype%3dService%2cname%3dPropertyEditorManager</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=properties-service.xml,j2eeType=MBean,name=elba%3atype%3dService%2cname%3dSystemProperties</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=sqlexception-service.xml,j2eeType=MBean,name=elba.jdbc%3aservice%3dSQLExceptionProcessor</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=transaction-service.xml,j2eeType=MBean,name=elba.jca%3aservice%3dCachedConnectionManager</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=transaction-service.xml,j2eeType=MBean,name=elba%3aservice%3dClientUserTransaction</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=transaction-service.xml,j2eeType=MBean,name=elba%3aservice%3dTransactionManager</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=transaction-service.xml,j2eeType=MBean,name=elba%3aservice%3dXidFactory</li>
+<li>J2EEApplication=null,J2EEServer=Local,ServiceModule=uuid-key-generator.sar,j2eeType=MBean,name=elba%3aservice%3dUUIDKeyGeneratorFactory</li>
+<li>J2EEApplication=null,J2EEServer=Local,WebModule=jmx-console.war,j2eeType=Servlet,name=default</li>
+<li>J2EEApplication=null,J2EEServer=Local,WebModule=jmx-console.war,j2eeType=Servlet,name=invoker</li>
+<li>J2EEApplication=null,J2EEServer=Local,WebModule=jmx-console.war,j2eeType=Servlet,name=jsp</li>
+<li>J2EEApplication=null,J2EEServer=Local,WebModule=was-jmx-console.war,j2eeType=Servlet,name=default</li>
+<li>J2EEApplication=null,J2EEServer=Local,WebModule=was-jmx-console.war,j2eeType=Servlet,name=DisplayMBeans</li>
+<li>J2EEApplication=null,J2EEServer=Local,WebModule=was-jmx-console.war,j2eeType=Servlet,name=DisplayOpResult</li>
+<li>J2EEApplication=null,J2EEServer=Local,WebModule=was-jmx-console.war,j2eeType=Servlet,name=HtmlAdaptor</li>
+<li>J2EEApplication=null,J2EEServer=Local,WebModule=was-jmx-console.war,j2eeType=Servlet,name=InspectMBean</li>
+<li>J2EEApplication=null,J2EEServer=Local,WebModule=was-jmx-console.war,j2eeType=Servlet,name=invoker</li>
+<li>J2EEApplication=null,J2EEServer=Local,WebModule=was-jmx-console.war,j2eeType=Servlet,name=jsp</li>
+<li>J2EEApplication=null,J2EEServer=Local,WebModule=web-console.war,j2eeType=Servlet,name=default</li>
+<li>J2EEApplication=null,J2EEServer=Local,WebModule=web-console.war,j2eeType=Servlet,name=HTTP Invocation</li>
+<li>J2EEApplication=null,J2EEServer=Local,WebModule=web-console.war,j2eeType=Servlet,name=invoker</li>
+<li>J2EEApplication=null,J2EEServer=Local,WebModule=web-console.war,j2eeType=Servlet,name=J2EEFolder</li>
+<li>J2EEApplication=null,J2EEServer=Local,WebModule=web-console.war,j2eeType=Servlet,name=jsp</li>
+<li>J2EEApplication=null,J2EEServer=Local,WebModule=web-console.war,j2eeType=Servlet,name=JSR77 Domains and Servers</li>
+<li>J2EEApplication=null,J2EEServer=Local,WebModule=web-console.war,j2eeType=Servlet,name=JSR77 EJBModules and EJBs</li>
+<li>J2EEApplication=null,J2EEServer=Local,WebModule=web-console.war,j2eeType=Servlet,name=MBeans</li>
+<li>J2EEApplication=null,J2EEServer=Local,WebModule=web-console.war,j2eeType=Servlet,name=SystemFolder</li>
+<li>J2EEApplication=null,J2EEServer=Local,WebModule=web-console.war,j2eeType=Servlet,name=UCLs</li>
+<li>J2EEServer=Local,j2eeType=J2EEApplication,name=elbamq-httpil.sar</li>
+<li>J2EEServer=Local,j2eeType=J2EEApplication,name=http-invoker.sar</li>
+<li>J2EEServer=Local,j2eeType=JavaMailResource,name=DefaultMail</li>
+<li>J2EEServer=Local,j2eeType=JCAManagedConnectionFactory,name=DefaultDS</li>
+<li>J2EEServer=Local,j2eeType=JCAManagedConnectionFactory,name=JmsXA</li>
+<li>J2EEServer=Local,j2eeType=JMSResource,name=LocalJMS</li>
+<li>J2EEServer=Local,j2eeType=JNDIResource,name=LocalJNDI</li>
+<li>J2EEServer=Local,j2eeType=JTAResource,name=ClientUserTransaction</li>
+<li>J2EEServer=Local,j2eeType=JTAResource,name=TransactionManager</li>
+<li>J2EEServer=Local,j2eeType=JVM,name=localhost</li>
+<li>J2EEServer=Local,j2eeType=ServiceModule,name=cache-invalidation-service.xml</li>
+<li>J2EEServer=Local,j2eeType=ServiceModule,name=console-mgr.sar</li>
+<li>J2EEServer=Local,j2eeType=ServiceModule,name=elba-jca.sar</li>
+<li>J2EEServer=Local,j2eeType=ServiceModule,name=elba-service.xml</li>
+<li>J2EEServer=Local,j2eeType=ServiceModule,name=elbamq-destinations-service.xml</li>
+<li>J2EEServer=Local,j2eeType=ServiceModule,name=elbamq-httpil.sar</li>
+<li>J2EEServer=Local,j2eeType=ServiceModule,name=elbamq-service.xml</li>
+<li>J2EEServer=Local,j2eeType=ServiceModule,name=elbaweb-tomcat41.sar</li>
+<li>J2EEServer=Local,j2eeType=ServiceModule,name=http-invoker.sar</li>
+<li>J2EEServer=Local,j2eeType=ServiceModule,name=jmx-ejb-connector-server.sar</li>
+<li>J2EEServer=Local,j2eeType=ServiceModule,name=jmx-invoker-adaptor-server.sar</li>
+<li>J2EEServer=Local,j2eeType=ServiceModule,name=jmx-rmi-adaptor.sar</li>
+<li>J2EEServer=Local,j2eeType=ServiceModule,name=mail-service.xml</li>
+<li>J2EEServer=Local,j2eeType=ServiceModule,name=properties-service.xml</li>
+<li>J2EEServer=Local,j2eeType=ServiceModule,name=schedule-manager-service.xml</li>
+<li>J2EEServer=Local,j2eeType=ServiceModule,name=scheduler-service.xml</li>
+<li>J2EEServer=Local,j2eeType=ServiceModule,name=sqlexception-service.xml</li>
+<li>J2EEServer=Local,j2eeType=ServiceModule,name=transaction-service.xml</li>
+<li>J2EEServer=Local,j2eeType=ServiceModule,name=user-service.xml</li>
+<li>J2EEServer=Local,j2eeType=ServiceModule,name=uuid-key-generator.sar</li>
+<li>J2EEServer=Local,JCAResource=DefaultDS,j2eeType=JCAConnectionFactory,name=DefaultDS</li>
+<li>J2EEServer=Local,JCAResource=JmsXA,j2eeType=JCAConnectionFactory,name=JmsXA</li>
+<li>J2EEServer=Local,ResourceAdapter=Elba LocalTransaction JDBC Wrapper,j2eeType=JCAResource,name=DefaultDS</li>
+<li>J2EEServer=Local,ResourceAdapter=JMS Adapter,j2eeType=JCAResource,name=JmsXA</li>
+<li>j2eeType=J2EEDomain,name=Manager</li>
+<li>j2eeType=J2EEServer,name=Local</li>
+</ul>
+
+
+<div class='mbeanDomain'>elba.mq.destination</div>
+<ul class='mbeanList'>
+<li>name=A,service=Queue</li>
+<li>name=B,service=Queue</li>
+<li>name=C,service=Queue</li>
+<li>name=D,service=Queue</li>
+<li>name=DLQ,service=Queue</li>
+<li>name=ex,service=Queue</li>
+<li>name=securedTopic,service=Topic</li>
+<li>name=testDurableTopic,service=Topic</li>
+<li>name=testQueue,service=Queue</li>
+<li>name=testTopic,service=Topic</li>
+</ul>
+
+
+<div class='mbeanDomain'>elba.mq</div>
+<ul class='mbeanList'>
+<li>name=elbamqProvider,service=JMSProviderLoader</li>
+<li>name=StdJMSPool,service=ServerSessionPoolMBean</li>
+<li>service=CacheStore</li>
+<li>service=DestinationManager</li>
+<li>service=InvocationLayer,type=HTTP</li>
+<li>service=InvocationLayer,type=JVM</li>
+<li>service=InvocationLayer,type=OIL</li>
+<li>service=InvocationLayer,type=OIL2</li>
+<li>service=InvocationLayer,type=RMI</li>
+<li>service=InvocationLayer,type=UIL</li>
+<li>service=InvocationLayer,type=UIL2</li>
+<li>service=Invoker</li>
+<li>service=MessageCache</li>
+<li>service=PersistenceManager</li>
+<li>service=SecurityManager</li>
+<li>service=StateManager</li>
+<li>service=TracingInterceptor</li>
+</ul>
+
+
+<div class='mbeanDomain'>elba.rmi</div>
+<ul class='mbeanList'>
+<li>type=RMIClassLoader</li>
+</ul>
+
+
+<div class='mbeanDomain'>elba.scripts</div>
+<ul class='mbeanList'>
+<li>service=BSHDeployer</li>
+</ul>
+
+
+<div class='mbeanDomain'>elba.security</div>
+<ul class='mbeanList'>
+<li>service=JaasSecurityManager</li>
+<li>service=SecurityConfig</li>
+<li>service=XMLLoginConfig</li>
+</ul>
+
+
+<div class='mbeanDomain'>elba.system</div>
+<ul class='mbeanList'>
+<li>service=JARDeployer</li>
+<li>service=Logging,type=Log4jService</li>
+<li>service=MainDeployer</li>
+<li>service=ServiceController</li>
+<li>service=ServiceDeployer</li>
+<li>type=Server</li>
+<li>type=ServerConfig</li>
+<li>type=ServerInfo</li>
+</ul>
+
+
+<div class='mbeanDomain'>elba.web</div>
+<ul class='mbeanList'>
+<li>context=/elbamq-httpil,name=default,vhost=localhost</li>
+<li>context=/elbamq-httpil,name=HTTPServerILServlet,vhost=localhost</li>
+<li>context=/elbamq-httpil,name=invoker,vhost=localhost</li>
+<li>context=/elbamq-httpil,name=jsp,vhost=localhost</li>
+<li>context=/invoker,name=default,vhost=localhost</li>
+<li>context=/invoker,name=EJBInvokerHAServlet,vhost=localhost</li>
+<li>context=/invoker,name=EJBInvokerServlet,vhost=localhost</li>
+<li>context=/invoker,name=invoker,vhost=localhost</li>
+<li>context=/invoker,name=JMXInvokerServlet,vhost=localhost</li>
+<li>context=/invoker,name=JNDIFactory,vhost=localhost</li>
+<li>context=/invoker,name=jsp,vhost=localhost</li>
+<li>context=/invoker,name=ReadOnlyJNDIFactory,vhost=localhost</li>
+<li>context=/jmx-console,name=default,vhost=localhost</li>
+<li>context=/jmx-console,name=invoker,vhost=localhost</li>
+<li>context=/jmx-console,name=jsp,vhost=localhost</li>
+<li>context=/was-jmx-console,name=default,vhost=localhost</li>
+<li>context=/was-jmx-console,name=DisplayMBeans,vhost=localhost</li>
+<li>context=/was-jmx-console,name=DisplayOpResult,vhost=localhost</li>
+<li>context=/was-jmx-console,name=HtmlAdaptor,vhost=localhost</li>
+<li>context=/was-jmx-console,name=InspectMBean,vhost=localhost</li>
+<li>context=/was-jmx-console,name=invoker,vhost=localhost</li>
+<li>context=/was-jmx-console,name=jsp,vhost=localhost</li>
+<li>context=/web-console,name=default,vhost=localhost</li>
+<li>context=/web-console,name=HTTP Invocation,vhost=localhost</li>
+<li>context=/web-console,name=invoker,vhost=localhost</li>
+<li>context=/web-console,name=J2EEFolder,vhost=localhost</li>
+<li>context=/web-console,name=jsp,vhost=localhost</li>
+<li>context=/web-console,name=JSR77 Domains and Servers,vhost=localhost</li>
+<li>context=/web-console,name=JSR77 EJBModules and EJBs,vhost=localhost</li>
+<li>context=/web-console,name=MBeans,vhost=localhost</li>
+<li>context=/web-console,name=SystemFolder,vhost=localhost</li>
+<li>context=/web-console,name=UCLs,vhost=localhost</li>
+<li>service=WebServer</li>
+</ul>
+
+
+<div class='mbeanDomain'>elba</div>
+<ul class='mbeanList'>
+<li>name=PropertyEditorManager,type=Service</li>
+<li>name=SystemProperties,type=Service</li>
+<li>readonly=true,service=invoker,target=Naming,type=http</li>
+<li>service=ClientUserTransaction</li>
+<li>service=Hypersonic</li>
+<li>service=invoker,target=Naming,type=http</li>
+<li>service=invoker,type=http</li>
+<li>service=invoker,type=httpHA</li>
+<li>service=invoker,type=jrmp</li>
+<li>service=invoker,type=local</li>
+<li>service=invoker,type=pooled</li>
+<li>service=JNDIView</li>
+<li>service=Mail</li>
+<li>service=Naming</li>
+<li>service=TransactionManager</li>
+<li>service=UUIDKeyGeneratorFactory</li>
+<li>service=WebService</li>
+<li>service=XidFactory</li>
+</ul>
+
+
+<div class='mbeanDomain'>JMImplementation</div>
+<ul class='mbeanList'>
+<li>name=Default,service=LoaderRepository</li>
+<li>type=MBeanRegistry</li>
+<li>type=MBeanServerDelegate</li>
+</ul>
+
+
+<div class='mbeanDomain'>jmx.loading</div>
+<ul class='mbeanList'>
+<li>UCL=102a0a5</li>
+<li>UCL=1148603</li>
+<li>UCL=118223d</li>
+<li>UCL=14b6bed</li>
+<li>UCL=15b1773</li>
+<li>UCL=16dc861</li>
+<li>UCL=176e552</li>
+<li>UCL=18a6e6e</li>
+<li>UCL=18b8914</li>
+<li>UCL=1922f46</li>
+<li>UCL=1955970</li>
+<li>UCL=1972e3a</li>
+<li>UCL=1c486f2</li>
+<li>UCL=1f01a29</li>
+<li>UCL=1f03691</li>
+<li>UCL=39be68</li>
+<li>UCL=8ceeea</li>
+<li>UCL=9a8a68</li>
+<li>UCL=c4d04d</li>
+<li>UCL=cffc79</li>
+<li>UCL=d1e233</li>
+<li>UCL=f1916f</li>
+</ul>
+
+<br/> Number of MBeans == 283
+
+
+</div>
+
+</body>
+</html>
