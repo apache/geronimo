@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.27 $ $Date: 2004/05/27 05:20:24 $ -->
+<!-- $Revision: 1.28 $ $Date: 2004/05/27 19:43:51 $ -->
 
 <project>
 
@@ -39,7 +39,7 @@
     </organization>
 
     <inceptionYear>2003</inceptionYear>
-    <logo>http://geronimo.apache.org/images/geronimo-logo.png</logo>
+    <logo>http://incubator.apache.org/geronimo/images/geronimo.gif</logo>
     <description>Geronimo J2EE Application Server</description>
     <shortDescription>Geronimo J2EE Application Server</shortDescription>
     <url>http://geronimo.apache.org/</url>
