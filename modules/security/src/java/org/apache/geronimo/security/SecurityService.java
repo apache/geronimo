@@ -82,7 +82,12 @@ public class SecurityService implements SecurityServiceMBean, GBeanLifecycle {
 
             throw (IllegalStateException) new IllegalStateException().initCause(pce);
         }
-        setPolicyConfigurationFactory(policyConfigurationFactory);
+        
+        this.policyConfigurationFactory = policyConfigurationFactory;
+        //TODO remove this if wrapper when GeronimoMBean leaves.
+        if (policyConfigurationFactory != null) {
+            System.setProperty("javax.security.jacc.PolicyConfigurationFactory.provider", policyConfigurationFactory);
+        }
     }
 
     public String getPolicyConfigurationFactory() {
