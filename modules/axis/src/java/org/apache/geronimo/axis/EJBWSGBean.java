@@ -58,7 +58,6 @@ public class EJBWSGBean implements GBeanLifecycle {
 
         // attributes
         infoFactory.addAttribute("Name", String.class, true);
-//        infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("classList", Collection.class, true);
         infoFactory.addReference("ejbConfig", Configuration.class);
@@ -76,9 +75,7 @@ public class EJBWSGBean implements GBeanLifecycle {
      */
     public EJBWSGBean(String name, String objectName) {
         this.name = name;
-//        this.axisGBean = axisGBean;
         this.objectName = JMXUtil.getObjectName(objectName);
-//        wscontiner = new WebServiceManager(kernel);
     }
 
     /**

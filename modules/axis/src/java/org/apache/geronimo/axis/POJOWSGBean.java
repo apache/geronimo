@@ -79,8 +79,6 @@ public class POJOWSGBean implements GBeanLifecycle {
      * @throws Exception
      */
     public void doStop() throws WaitingException, Exception {
-//        ClassLoader cl = new URLClassLoader(new URL[]{moduleURL});
-//        AxisGeronimoUtils.addEntryToAxisDD(cl.getResourceAsStream("undeploy.wsdd"));
         log.info("WebServiceGBean has stoped");
     }
 

@@ -169,7 +169,6 @@ public class WSConfigBuilder implements ConfigurationBuilder {
             if (name.endsWith("/ejb-jar.xml")) {
                 hasEJB = true;
                 System.out.println("entry found " + name + " the web service is based on a ejb.");
-                //log.info("the web service is based on a ejb.");
                 break;
             }
         }
