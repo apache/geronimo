@@ -26,7 +26,7 @@ import org.apache.geronimo.console.cli.DeploymentContext;
 /**
  * Top-level menu for working with the DeploymentManager.
  *
- * @version $Revision: 1.4 $ $Date: 2004/07/16 04:39:41 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/16 06:35:55 $
  */
 public class TopLevel extends TextController {
     private static final Log log = LogFactory.getLog(TopLevel.class);
@@ -86,8 +86,12 @@ public class TopLevel extends TextController {
                         continue;
                     }
                     println("Disconnecting from deployment server...");
-                    context.deployer.release();
-                    println("Disconnected.");
+                    try {
+                        context.deployer.release();
+                    } finally {
+                        println("Disconnected.");
+                        context.connected = false;
+                    }
                     break;
                 } else if(choice.equals("q")) {
                     return;
