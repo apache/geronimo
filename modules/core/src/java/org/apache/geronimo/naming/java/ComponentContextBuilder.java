@@ -68,13 +68,14 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDIEnvironmentRefs;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDILocator;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbLocalRef;
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
 
 /**
  *
  *
- * @version $Revision: 1.9 $ $Date: 2003/11/13 04:30:56 $
+ * @version $Revision: 1.10 $ $Date: 2003/11/16 05:24:38 $
  */
 public class ComponentContextBuilder {
 
@@ -96,6 +97,7 @@ public class ComponentContextBuilder {
         Map envMap = new HashMap();
         buildEnvEntries(envMap, refs.getEnvEntry());
         buildEJBRefs(envMap, refs.getGeronimoEJBRef());
+        buildEJBLocalRefs(envMap, refs.getGeronimoEJBLocalRef());
         buildResourceRefs(envMap, refs.getGeronimoResourceRef());
 
         Map compMap = new HashMap();
@@ -152,12 +154,28 @@ public class ComponentContextBuilder {
             String name = ejbRef.getEJBRefName();
             Reference ref = null;
             try {
-                ref = referenceFactory.getReference(ejbRef, ejbRef.getEJBRefType());
+                ref = referenceFactory.getReference(ejbRef.getEJBLink(), ejbRef);
             } catch (NamingException e) {
-                throw new DeploymentException("Could not construct reference to " + ejbRef.getJndiName());
+                throw new DeploymentException("Could not construct reference to " + ejbRef.getJndiName() + ", " + e.getMessage());
             }
             if (envMap.put(name, ref) != null) {
-                throw new AssertionError("Duplicate entry for env-entry " + name);
+                throw new DeploymentException("Duplicate entry for env-entry " + name);
+            }
+        }
+    }
+
+    private void buildEJBLocalRefs(Map envMap, EjbLocalRef[] ejbLocalRefs) throws DeploymentException {
+        for (int i = 0; i < ejbLocalRefs.length; i++) {
+            EjbLocalRef ejbLocalRef = ejbLocalRefs[i];
+            String name = ejbLocalRef.getEJBRefName();
+            Reference ref = null;
+            try {
+                ref = referenceFactory.getReference(ejbLocalRef.getEJBLink(), ejbLocalRef);
+            } catch (NamingException e) {
+                throw new DeploymentException("Could not construct reference to " + ejbLocalRef.getJndiName() + ", " + e.getMessage());
+            }
+            if (envMap.put(name, ref) != null) {
+                throw new DeploymentException("Duplicate entry for env-entry " + name);
             }
         }
     }
@@ -176,7 +194,7 @@ public class ComponentContextBuilder {
                 }
             } else {
                 try {
-                    ref = referenceFactory.getReference(resRef, "ConnectionFactory");
+                    ref = referenceFactory.getReference(null, resRef);
                 } catch (NamingException e) {
                     throw new DeploymentException("Could not construct reference to " + resRef.getJndiName());
                 }

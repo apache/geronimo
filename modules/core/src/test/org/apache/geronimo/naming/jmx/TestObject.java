@@ -59,29 +59,30 @@ package org.apache.geronimo.naming.jmx;
 import javax.ejb.EJBHome;
 
 /**
- * 
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:31 $
- * 
+ *
+ * @version $Revision: 1.3 $ $Date: 2003/11/16 05:24:38 $
+ *
  * */
 public class TestObject implements TestObjectMBean {
 
-    private Object payload;
+    private Object home = new Object();
+    private Object local = new Object();
+    private Object cf = new Object();
 
-    public TestObject(Object payload) {
-        this.payload = payload;
+    public TestObject() {
     }
 
     public Object getEJBHome() {
-        return payload;
+        return home;
     }
 
     public Object getEJBLocalHome() {
-        return payload;
+        return local;
     }
 
     public Object getConnectionFactory() {
-        return payload;
+        return cf;
     }
 
 

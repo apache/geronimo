@@ -79,10 +79,10 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
 
 /**
- * 
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:31 $
- * 
+ *
+ * @version $Revision: 1.3 $ $Date: 2003/11/16 05:24:38 $
+ *
  * */
 public class ContextTest extends TestCase {
 
@@ -91,16 +91,16 @@ public class ContextTest extends TestCase {
 
     private MBeanServer server;
     private String agentId;
-    private Object payload = new Object();
     private ObjectName objectName;
     private JMXKernel kernel;
+    private TestObject mbean;
 
     protected void setUp() throws Exception {
         kernel = new JMXKernel("geronimo.test");
         server = kernel.getMBeanServer();
         agentId = kernel.getMBeanServerId();
         objectName = new ObjectName(on1);
-        Object mbean = new TestObject(payload);
+        mbean = new TestObject();
         server.registerMBean(mbean, objectName);
     }
 
@@ -111,13 +111,13 @@ public class ContextTest extends TestCase {
     public void testLookupString() throws Exception {
         JMXContext context = new JMXContext(new Hashtable());
         Object result = context.lookup(JMXContext.encode(agentId, on1, mn1));
-        assertTrue("Expected the supplied object back", result == payload);
+        assertTrue("Expected the ", result == mbean.getEJBHome());
     }
 
     public void testLookupName() throws Exception {
         JMXContext context = new JMXContext(new Hashtable());
         Object result = context.lookup(new CompositeName(JMXContext.encode(agentId, on1, mn1)));
-        assertTrue("Expected the supplied object back", result == payload);
+        assertTrue("Expected the supplied object back", result == mbean.getEJBHome());
     }
 
     public void testWrongObjectName() throws Exception {
@@ -144,7 +144,7 @@ public class ContextTest extends TestCase {
         jmxURLContextFactory contextFactory = new jmxURLContextFactory();
         Context context = (Context)contextFactory.getObjectInstance(null, null, null, new Hashtable());
         Object result = context.lookup(JMXContext.encode(agentId, on1, mn1));
-        assertTrue("Expected the supplied object back", result == payload);
+        assertTrue("Expected the supplied object back", result == mbean.getEJBHome());
     }
 
 
@@ -162,11 +162,11 @@ public class ContextTest extends TestCase {
         Context envContext = (Context) initialContext.lookup("java:comp/env");
 
         Object result = initialContext.lookup("java:comp/env/link");
-        assertTrue("Expected the supplied object back", result == payload);
+        assertTrue("Expected the supplied object back", result == mbean.getEJBHome());
         result = compContext.lookup("env/link");
-        assertTrue("Expected the supplied object back", result == payload);
+        assertTrue("Expected the supplied object back", result == mbean.getEJBHome());
         result = envContext.lookup("link");
-        assertTrue("Expected the supplied object back", result == payload);
+        assertTrue("Expected the supplied object back", result == mbean.getEJBHome());
     }
 
 

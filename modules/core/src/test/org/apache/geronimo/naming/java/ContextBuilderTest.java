@@ -69,6 +69,7 @@ import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbLocalRef;
+import org.apache.geronimo.deployment.model.geronimo.ejb.Session;
 import org.apache.geronimo.transaction.manager.UserTransactionImpl;
 import org.apache.geronimo.kernel.jmx.JMXKernel;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
@@ -77,27 +78,31 @@ import org.apache.geronimo.naming.jmx.TestObject;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2003/11/16 02:09:36 $
+ * @version $Revision: 1.9 $ $Date: 2003/11/16 05:24:38 $
  */
 public class ContextBuilderTest extends TestCase {
-    private static final String objectName1 = "geronimo.test:name=test1";
-    private static final String objectName2 = "geronimo.test:name=test2";
+    protected static final String objectName1 = "geronimo.test:name=test1";
+    protected static final String objectName2 = "geronimo.test:name=test2";
+    protected static final String objectName3 = "geronimo.test:name=test3";
 
-    private ApplicationClient client;
-
-    private Context compCtx;
-    private JMXKernel kernel;
-    private ReferenceFactory referenceFactory;
-    private TestObject testObject1 = new TestObject(new Object());
-    private TestObject testObject2 = new TestObject(new Object());
+    protected ApplicationClient client;
+    protected Session session;
+    protected Context compCtx;
+    protected JMXKernel kernel;
+    protected ReferenceFactory referenceFactory;
+    protected TestObject testObject1 = new TestObject();
+    protected TestObject testObject2 = new TestObject();
+    protected TestObject testObject3 = new TestObject();
 
     protected void setUp() throws Exception {
         kernel = new JMXKernel("geronimo.test");
         kernel.getMBeanServer().registerMBean(testObject1, ObjectName.getInstance(objectName1));
         kernel.getMBeanServer().registerMBean(testObject2, ObjectName.getInstance(objectName2));
+        kernel.getMBeanServer().registerMBean(testObject3, ObjectName.getInstance(objectName3));
 
         referenceFactory = new JMXReferenceFactory(kernel.getMBeanServerId());
         client = new ApplicationClient();
+        session = new Session();
         EnvEntry stringEntry = new EnvEntry();
         stringEntry.setEnvEntryName("string");
         stringEntry.setEnvEntryType("java.lang.String");
@@ -109,14 +114,23 @@ public class ContextBuilderTest extends TestCase {
 
         EjbRef ejbRef = new EjbRef();
         ejbRef.setEJBRefName("here/there/EJB1");
-        ejbRef.setEJBRefType("Home");
+        ejbRef.setEJBRefType("Session");
         ejbRef.setJndiName(objectName1);
 
-        //EjbLocalRef ejbLocalRef = new EjbLocalRef();
-        EjbRef ejbLocalRef = new EjbRef();
+        EjbRef ejbLinkRef = new EjbRef();
+        ejbLinkRef.setEJBRefName("here/LinkEjb");
+        ejbLinkRef.setEJBRefType("Session");
+        ejbLinkRef.setEJBLink(objectName3);
+
+        EjbLocalRef ejbLocalRef = new EjbLocalRef();
         ejbLocalRef.setEJBRefName("local/here/LocalEJB2");
-        ejbLocalRef.setEJBRefType("LocalHome");
+        ejbLocalRef.setEJBRefType("Entity");
         ejbLocalRef.setJndiName(objectName2);
+
+        EjbLocalRef ejbLocalLinkRef = new EjbLocalRef();
+        ejbLocalLinkRef.setEJBRefName("local/here/LinkLocalEjb");
+        ejbLocalLinkRef.setEJBRefType("Entity");
+        ejbLocalLinkRef.setEJBLink(objectName3);
 
         ResourceRef urlRef = new ResourceRef();
         urlRef.setResRefName("url/testURL");
@@ -128,12 +142,13 @@ public class ContextBuilderTest extends TestCase {
         cfRef.setJndiName(objectName1);
 
         client.setEnvEntry(new EnvEntry[] { stringEntry, intEntry });
-        //client.setEJBRef(new EjbRef[] {ejbRef});
-        client.setEJBRef(new EjbRef[] {ejbRef, ejbLocalRef});
-        //client.setEJBLocalRef(new EjbLocalRef[] {ejbLocalRef});
-
+        session.setEnvEntry(client.getEnvEntry());
+        client.setEJBRef(new EjbRef[] {ejbRef, ejbLinkRef});
+        session.setEJBRef(client.getEJBRef());
+        session.setEJBLocalRef(new EjbLocalRef[] {ejbLocalRef, ejbLocalLinkRef});
 
         client.setResourceRef(new ResourceRef[] { urlRef, cfRef });
+        session.setResourceRef(client.getResourceRef());
     }
 
     public void testEnvEntries() throws Exception {
@@ -157,15 +172,36 @@ public class ContextBuilderTest extends TestCase {
         assertEquals(userTransaction, compCtx.lookup("UserTransaction"));
     }
 
-    public void testEJBRefs() throws Exception {
+    public void testClientEJBRefs() throws Exception {
         ReadOnlyContext compContext = new ComponentContextBuilder(referenceFactory, null).buildContext(client);
         RootContext.setComponentContext(compContext);
         InitialContext initialContext = new InitialContext();
         assertEquals("Expected object from testObject1", testObject1.getEJBHome(),
                 initialContext.lookup("java:comp/env/here/there/EJB1"));
-        assertEquals("Expected object from testObject2", testObject2.getEJBLocalHome(),
-                initialContext.lookup("java:comp/env/local/here/LocalEJB2"));
+        assertEquals("Expected object from testObject3", testObject3.getEJBHome(),
+                initialContext.lookup("java:comp/env/here/LinkEjb"));
         assertEquals("Expected object from testObject1", testObject1.getConnectionFactory(),
                 initialContext.lookup("java:comp/env/DefaultCF"));
     }
+
+    public void testLocalEJBRefs() throws Exception {
+        ReadOnlyContext compContext = new ComponentContextBuilder(referenceFactory, null).buildContext(session);
+        RootContext.setComponentContext(compContext);
+        InitialContext initialContext = new InitialContext();
+        assertEquals("Expected object from testObject1", testObject1.getEJBHome(),
+                initialContext.lookup("java:comp/env/here/there/EJB1"));
+
+        assertEquals("Expected object from testObject3", testObject3.getEJBHome(),
+                initialContext.lookup("java:comp/env/here/LinkEjb"));
+
+        assertEquals("Expected object from testObject1", testObject2.getEJBLocalHome(),
+                initialContext.lookup("java:comp/env/local/here/LocalEJB2"));
+
+        assertEquals("Expected object from testObject3", testObject3.getEJBLocalHome(),
+                initialContext.lookup("java:comp/env/local/here/LinkLocalEjb"));
+
+        assertEquals("Expected object from testObject1", testObject1.getConnectionFactory(),
+                initialContext.lookup("java:comp/env/DefaultCF"));
+    }
+
 }

@@ -92,7 +92,7 @@ import javax.naming.spi.NamingManager;
  *   String envEntry2 = (String) componentContext.lookup("env/myEntry2");
  * </code>
  *
- * @version $Revision: 1.5 $ $Date: 2003/11/13 04:30:56 $
+ * @version $Revision: 1.6 $ $Date: 2003/11/16 05:24:38 $
  */
 public class ReadOnlyContext implements Context {
     private final Hashtable env;        // environment for this context
@@ -156,11 +156,11 @@ public class ReadOnlyContext implements Context {
                 String scheme = name.substring(0, pos);
                 Context ctx = NamingManager.getURLContext(scheme, env);
                 if (ctx == null) {
-                    throw new NamingException();
+                    throw new NamingException("scheme " + scheme + " not recognized");
                 }
                 return ctx.lookup(name);
             }
-            throw new NameNotFoundException();
+            throw new NameNotFoundException(name);
         }
         if (result instanceof LinkRef) {
             LinkRef ref = (LinkRef) result;

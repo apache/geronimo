@@ -62,6 +62,9 @@ import javax.naming.LinkRef;
 
 import org.apache.geronimo.naming.java.ReferenceFactory;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDILocator;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
+import org.apache.geronimo.deployment.model.j2ee.EJBRef;
+import org.apache.geronimo.deployment.model.j2ee.EJBLocalRef;
 
 /**
  * This is a preliminary implementation that makes several unwarranted and redundant assumptions such as:
@@ -70,13 +73,13 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDILocator;
  *
  * A better set of assumptions might be that the context params are the name/value pairs for the object name.
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:31 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/16 05:24:38 $
  *
  * */
 public class JMXReferenceFactory implements ReferenceFactory {
 
-    private final static String EJB_HOME = "Home";
-    private final static String EJB_LOCAL_HOME = "LocalHome";
+    private final static String SESSION = "Session";
+    private final static String ENTITY = "Entity";
     private final static String CONNECTION_FACTORY = "ConnectionFactory";
 
     private final String mbeanServerId;
@@ -85,20 +88,20 @@ public class JMXReferenceFactory implements ReferenceFactory {
         this.mbeanServerId = mbeanServerId;
     }
 
-    public Reference getReference(JNDILocator locator, String type) throws NamingException {
+    public Reference getReference(String link, JNDILocator locator) throws NamingException {
         String methodName;
-        if (EJB_HOME.equals(type)) {
+        if (locator instanceof EJBRef) {
             methodName = "getEJBHome";
-        } else if (EJB_LOCAL_HOME.equals(type)) {
+        } else if (locator instanceof EJBLocalRef) {
             methodName = "getEJBLocalHome";
-        } else if (CONNECTION_FACTORY.equals(type)) {
+        } else if (locator instanceof ResourceRef) {
             methodName = "getConnectionFactory";
         } else {
-            throw new NamingException("Invalid type: " + type);
+            throw new NamingException("Invalid type: " + locator);
         }
 
         return new LinkRef(JMXContext.encode(mbeanServerId,
-                locator.getJndiName(),
+                (link == null)? locator.getJndiName(): link,
                 methodName));
     }
 }
