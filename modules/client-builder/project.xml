@@ -64,6 +64,12 @@
         <!-- Module Dependencies -->
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-client</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-common</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
@@ -101,6 +107,12 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-naming</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-system</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
 

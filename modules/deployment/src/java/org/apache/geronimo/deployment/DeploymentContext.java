@@ -131,7 +131,7 @@ public class DeploymentContext {
         return type;
     }
     
-    private JarOutputStream getJos() {
+    public JarOutputStream getJos() {
         if (outputStreams.isEmpty()) {
             throw new IllegalStateException();
         }

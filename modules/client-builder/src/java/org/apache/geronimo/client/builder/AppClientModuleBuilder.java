@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.client.builder;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,21 +36,30 @@ import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
+import java.util.jar.Attributes;
 import java.util.zip.ZipEntry;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.common.xml.XmlBeansUtil;
+import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
 import org.apache.geronimo.deployment.util.FileUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.AppClientModule;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
+import org.apache.geronimo.j2ee.management.impl.J2EEAppClientModuleImpl;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.schema.SchemaConversionUtils;
@@ -62,6 +72,8 @@ import org.apache.geronimo.xbeans.geronimo.client.GerRemoteRefType;
 import org.apache.geronimo.xbeans.j2ee.ApplicationClientDocument;
 import org.apache.geronimo.xbeans.j2ee.ApplicationClientType;
 import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
+import org.apache.geronimo.system.main.CommandLineManifest;
+import org.apache.geronimo.client.AppClientContainer;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
@@ -77,7 +89,15 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         XmlBeans.typeLoaderForClassLoader(GerApplicationClientDocument.class.getClassLoader())
     });
 
-    private static final String PARENT_ID = "org/apache/geronimo/Server";
+    private static final URI CONFIG_ID = URI.create("application-client");
+
+    private final Kernel kernel;
+    private final Repository repository;
+
+    public AppClientModuleBuilder(Kernel kernel, Repository repository) {
+        this.kernel = kernel;
+        this.repository = repository;
+    }
 
     public XmlObject getDeploymentPlan(URL module) throws XmlException {
         try {
@@ -142,7 +162,6 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         GerApplicationClientType geronimoAppClient = geronimoAppClientDoc.addNewApplicationClient();
 
         // set the parentId, configId and context root
-        geronimoAppClient.setParentId(PARENT_ID);
         if (null != appClient.getId()) {
             id = appClient.getId();
         }
@@ -281,35 +300,126 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
     public void addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
         AppClientModule appClientModule = (AppClientModule) module;
-
-        ApplicationClientType appClient = (ApplicationClientType) appClientModule.getSpecDD();
-        GerApplicationClientType geronimoAppClient = (GerApplicationClientType) appClientModule.getVendorDD();
-
-        if (geronimoAppClient != null) {
-            GerGbeanType[] gbeans = geronimoAppClient.getGbeanArray();
-            for (int i = 0; i < gbeans.length; i++) {
-                GBeanHelper.addGbean(new AppClientGBeanAdapter(gbeans[i]), cl, earContext);
-            }
+        URI appClientModuleLocation;
+        if (!appClientModule.getURI().equals(URI.create("/"))) {
+            appClientModuleLocation = appClientModule.getURI();
+        } else {
+            appClientModuleLocation = URI.create("client.jar");
         }
 
-        URI configID = earContext.getConfigID();
-
+        // add the app client module gbean
         Properties nameProps = new Properties();
         nameProps.put("J2EEServer", earContext.getJ2EEServerName());
         nameProps.put("J2EEApplication", earContext.getJ2EEApplicationName());
         nameProps.put("j2eeType", "AppClientModule");
         nameProps.put("name", appClientModule.getName());
-        ObjectName name;
+        ObjectName appClientModuleObjectName;
         try {
-            name = new ObjectName(earContext.getJ2EEDomainName(), nameProps);
+            appClientModuleObjectName = new ObjectName(earContext.getJ2EEDomainName(), nameProps);
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("Unable to construct ObjectName", e);
         }
 
-        UserTransaction userTransaction = new UserTransactionImpl();
-        ReadOnlyContext compContext = buildComponentContext(earContext, appClientModule, appClient, geronimoAppClient, userTransaction, cl);
+        GBeanMBean appClientModuleGBean = new GBeanMBean(J2EEAppClientModuleImpl.GBEAN_INFO, cl);
+        try {
+            appClientModuleGBean.setReferencePatterns("J2EEServer", Collections.singleton(earContext.getServerObjectName()));
+            if (!earContext.getJ2EEApplicationName().equals("null")) {
+                appClientModuleGBean.setReferencePatterns("J2EEApplication", Collections.singleton(earContext.getApplicationObjectName()));
+            }
+            appClientModuleGBean.setAttribute("deploymentDescriptor", null);
+        } catch (Exception e) {
+            throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
+        }
+        earContext.addGBean(appClientModuleObjectName, appClientModuleGBean);
 
-        // todo install the appclient gbean here
+        // Create a new executable jar within the earcontext
+        ApplicationClientType appClient = (ApplicationClientType) appClientModule.getSpecDD();
+        GerApplicationClientType geronimoAppClient = (GerApplicationClientType) appClientModule.getVendorDD();
+
+        JarOutputStream earOutputStream = earContext.getJos();
+        try {
+            Manifest manifest = new Manifest();
+            Attributes mainAttributes = manifest.getMainAttributes();
+            mainAttributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
+            mainAttributes.putValue(Attributes.Name.MAIN_CLASS.toString(), "org.apache.geronimo.system.main.CommandLine");
+            mainAttributes.putValue(CommandLineManifest.MAIN_GBEAN.toString(), appClientModuleObjectName.getCanonicalName());
+            mainAttributes.putValue(CommandLineManifest.MAIN_METHOD.toString(), "deploy");
+            mainAttributes.putValue(CommandLineManifest.CONFIGURATIONS.toString(), CONFIG_ID.toString());
+
+            earOutputStream.putNextEntry(new ZipEntry(appClientModuleLocation.getPath()));
+            JarOutputStream appClientOutputStream = new JarOutputStream(new BufferedOutputStream(earOutputStream), manifest);
+
+            // this is an executable jar add the startup jar finder file
+            appClientOutputStream.putNextEntry(new ZipEntry("META-INF/startup-jar"));
+            appClientOutputStream.closeEntry();
+
+            DeploymentContext appClientDeploymentContext = null;
+            try {
+                appClientDeploymentContext = new DeploymentContext(earOutputStream, CONFIG_ID, ConfigurationModuleType.SERVICE, null, kernel);
+            } catch (MalformedObjectNameException e) {
+                throw new DeploymentException(e);
+            }
+
+            // add the includes
+            GerDependencyType[] includes = geronimoAppClient.getIncludeArray();
+            for (int i = 0; i < includes.length; i++) {
+                GerDependencyType include = includes[i];
+                URI uri = getDependencyURI(include);
+                String name = uri.toString();
+                int idx = name.lastIndexOf('/');
+                if (idx != -1) {
+                    name = name.substring(idx + 1);
+                }
+                URI path;
+                try {
+                    path = new URI(name);
+                } catch (URISyntaxException e) {
+                    throw new DeploymentException("Unable to generate path for include: " + uri, e);
+                }
+                try {
+                    URL url = repository.getURL(uri);
+                    appClientDeploymentContext.addInclude(path, url);
+                } catch (IOException e) {
+                    throw new DeploymentException("Unable to add include: " + uri, e);
+                }
+            }
+
+            // add the dependencies
+            GerDependencyType[] dependencies = geronimoAppClient.getDependencyArray();
+            for (int i = 0; i < dependencies.length; i++) {
+                appClientDeploymentContext.addDependency(getDependencyURI(dependencies[i]));
+            }
+
+            ClassLoader appClientClassLoader = appClientDeploymentContext.getClassLoader(repository);
+
+            if (geronimoAppClient != null) {
+                GerGbeanType[] gbeans = geronimoAppClient.getGbeanArray();
+                for (int i = 0; i < gbeans.length; i++) {
+                    GBeanHelper.addGbean(new AppClientGBeanAdapter(gbeans[i]), appClientClassLoader, appClientDeploymentContext);
+                }
+            }
+
+            UserTransaction userTransaction = new UserTransactionImpl();
+            ReadOnlyContext componentContext = buildComponentContext(earContext, appClientModule, appClient, geronimoAppClient, userTransaction, appClientClassLoader);
+            GBeanMBean appClienContainerGBean = new GBeanMBean(AppClientContainer.GBEAN_INFO, cl);
+            try {
+                appClientModuleGBean.setAttribute("componentContext", componentContext);
+            } catch (Exception e) {
+                throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
+            }
+            appClientDeploymentContext.addGBean(appClientModuleObjectName, appClienContainerGBean);
+
+            appClientDeploymentContext.close();
+        } catch (IOException e) {
+            throw new DeploymentException(e);
+        } finally {
+            try {
+                earOutputStream.closeEntry();
+            } catch (IOException e) {
+                throw new DeploymentException(e);
+            }
+        }
+
     }
 
     public SchemaTypeLoader getSchemaTypeLoader() {
@@ -358,14 +468,6 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         return refMap;
     }
 
-
-    private static String getJ2eeStringValue(org.apache.geronimo.xbeans.j2ee.String string) {
-        if (string == null) {
-            return null;
-        }
-        return string.getStringValue();
-    }
-
     private URI getDependencyURI(GerDependencyType dep) throws DeploymentException {
         URI uri;
         if (dep.isSetUri()) {
@@ -384,17 +486,6 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             }
         }
         return uri;
-    }
-
-
-    private byte[] getBytes(InputStream is) throws IOException {
-        byte[] buffer = new byte[4096];
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        int count;
-        while ((count = is.read(buffer)) > 0) {
-            baos.write(buffer, 0, count);
-        }
-        return baos.toByteArray();
     }
 
     private static abstract class InstallCallback {

@@ -31,6 +31,7 @@
 
     <xs:complexType name="application-clientType">
         <xs:sequence>
+            <xs:element name="include" type="geronimo:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="dependency" type="geronimo:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
 
             <!---->
