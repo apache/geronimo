@@ -68,7 +68,7 @@ import org.apache.geronimo.kernel.Kernel;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/22 04:24:57 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/04 14:07:10 $
  *
  * */
 public class Log4jServiceTest extends TestCase {
@@ -91,7 +91,7 @@ public class Log4jServiceTest extends TestCase {
         log4jSocketServer.setAttribute("Backlog", new Integer(50));
         log4jSocketServer.setAttribute("ListenerEnabled", Boolean.TRUE);
         log4jSocketServer.setAttribute("LoggerRepositoryFactoryType", Log4jSocketServer.DefaultLoggerRepositoryFactory.class);
-        kernel = new Kernel("test");
+        kernel = new Kernel("test.kernel", "test");
         kernel.boot();
     }
 

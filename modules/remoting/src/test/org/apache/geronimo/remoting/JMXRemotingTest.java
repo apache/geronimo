@@ -71,7 +71,7 @@ import org.apache.geronimo.remoting.transport.BytesMarshalledObject;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/01/31 20:20:44 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/04 14:15:54 $
  */
 
 public class JMXRemotingTest extends TestCase {
@@ -84,7 +84,7 @@ public class JMXRemotingTest extends TestCase {
     MBeanServer remoteProxy;
 
     public void setUp() throws Exception {
-        kernel = new Kernel("simple.geronimo.test");
+        kernel = new Kernel("test.kernel", "simple.geronimo.test");
         kernel.boot();
 
         GBeanMBean gbean;

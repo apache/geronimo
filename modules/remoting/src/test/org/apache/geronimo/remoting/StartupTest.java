@@ -68,7 +68,7 @@ import junit.framework.TestCase;
 /**
  * 
  * 
- * @version $Revision: 1.3 $ $Date: 2004/01/31 20:20:44 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/04 14:15:54 $
  */
 public class StartupTest  extends TestCase {
     private Kernel kernel;
@@ -130,7 +130,7 @@ public class StartupTest  extends TestCase {
     }
 
     protected void setUp() throws Exception {
-        kernel = new Kernel("test");
+        kernel = new Kernel("test.kernel", "test");
         kernel.boot();
     }
 

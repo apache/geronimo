@@ -80,7 +80,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/31 19:27:16 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/04 14:11:17 $
  *
  * */
 public class ConnectionManagerTest extends TestCase implements DefaultInterceptor, RealmBridge {
@@ -110,7 +110,7 @@ public class ConnectionManagerTest extends TestCase implements DefaultIntercepto
 
     protected void setUp() throws Exception {
         connectionTrackingCoordinator = new ConnectionTrackingCoordinator();
-        kernel = new Kernel("testdomain");
+        kernel = new Kernel("test.kernel", "testdomain");
         kernel.boot();
         transactionManager = new TransactionManagerImpl();
         mockManagedConnectionFactory = new MockManagedConnectionFactory();
