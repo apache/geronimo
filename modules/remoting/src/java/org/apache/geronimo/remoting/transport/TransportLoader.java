@@ -27,7 +27,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.remoting.router.Router;
 
 /**
- * @version $Revision: 1.13 $ $Date: 2004/07/12 06:07:51 $
+ * @version $Revision: 1.14 $ $Date: 2004/09/08 12:27:32 $
  */
 public class TransportLoader implements GBeanLifecycle {
     private static final Log log = LogFactory.getLog(TransportLoader.class);
@@ -66,6 +66,8 @@ public class TransportLoader implements GBeanLifecycle {
         transportServer = tf.createSever();
         transportServer.bind(bindURI, router);
         transportServer.start();
+
+        log.info("Started transport loader, listening to " + bindURI);
     }
 
     public void doStop() throws Exception {
@@ -74,6 +76,7 @@ public class TransportLoader implements GBeanLifecycle {
             transportServer.dispose();
             transportServer = null;
         }
+        log.info("Stopped transport loader");
     }
 
     public void doFail() {

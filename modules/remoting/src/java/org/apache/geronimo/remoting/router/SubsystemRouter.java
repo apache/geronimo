@@ -28,7 +28,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/06/02 05:33:04 $
+ * @version $Revision: 1.7 $ $Date: 2004/09/08 12:26:50 $
  */
 public class SubsystemRouter extends AbstractRouterRouter {
     Log log = LogFactory.getLog(SubsystemRouter.class);
@@ -56,6 +56,20 @@ public class SubsystemRouter extends AbstractRouterRouter {
         return this;
     }
 
+    public void doStart() {
+        super.doStart();
+        log.info("Started subsystem router");
+    }
+
+    public void doStop() {
+        super.doStop();
+        log.info("Stopped subsystem router");
+    }
+
+    public void doFail() {
+        super.doFail();
+        log.info("Failed subsystem router");
+    }
 
     public static final GBeanInfo GBEAN_INFO;
 

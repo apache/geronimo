@@ -19,6 +19,9 @@ package org.apache.geronimo.security.remoting.jmx;
 
 import javax.management.ObjectName;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -35,9 +38,10 @@ import org.apache.geronimo.security.jaas.LoginServiceMBean;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/06/05 07:53:22 $
+ * @version $Revision: 1.7 $ $Date: 2004/09/08 12:29:37 $
  */
 public class LoginServiceStub implements GBeanLifecycle, JMXTarget {
+    private static final Log log = LogFactory.getLog(LoginServiceStub.class);
     private final Kernel kernel;
     private final ObjectName objectName;
     private ProxyContainer serverContainer;
@@ -71,6 +75,8 @@ public class LoginServiceStub implements GBeanLifecycle, JMXTarget {
         Interceptor firstInterceptor = new ReflexiveInterceptor(loginService);
         demarshaller = new DeMarshalingInterceptor(firstInterceptor, getClass().getClassLoader());
         serverContainer = new ProxyContainer(firstInterceptor);
+
+        log.info("Started login service stub");
     }
 
     public void doStop() {
@@ -78,11 +84,13 @@ public class LoginServiceStub implements GBeanLifecycle, JMXTarget {
 
         serverContainer = null;
         demarshaller = null;
+        log.info("Stopped login service stub");
     }
 
     public void doFail() {
         serverContainer = null;
         demarshaller = null;
+        log.info("Failed login service stub");
     }
 
     public static final GBeanInfo GBEAN_INFO;
