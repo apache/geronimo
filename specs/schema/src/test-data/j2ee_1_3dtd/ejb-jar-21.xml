@@ -17,9 +17,9 @@
 -->
 
 <ejb-jar xmlns="http://java.sun.com/xml/ns/j2ee"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd"
-  version="2.1">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd"
+    version="2.1">
     <enterprise-beans>
         <session>
             <ejb-name>SimpleStatelessSession</ejb-name>
@@ -76,65 +76,65 @@
             <primkey-field>id</primkey-field>
         </entity>
         <message-driven>
-<description>hey its a mdb</description>
-<display-name>some CMT mdb</display-name>
-<ejb-name>SampleCMTMDB</ejb-name>
-<ejb-class>org.openejb.test.mdb.CMTMDB</ejb-class>
-<messaging-type>javax.jms.MessageListener</messaging-type>
-<transaction-type>Container</transaction-type>
-<activation-config>
-<activation-config-property>
-<activation-config-property-name>messageSelector</activation-config-property-name>
-<activation-config-property-value>some selector</activation-config-property-value>
-</activation-config-property>
-<activation-config-property>
-<activation-config-property-name>destinationType</activation-config-property-name>
-<activation-config-property-value>javax.jms.Queue</activation-config-property-value>
-</activation-config-property>
-<activation-config-property>
-<activation-config-property-name>subscriptionDurability</activation-config-property-name>
-<activation-config-property-value>Durable</activation-config-property-value>
-</activation-config-property>
-</activation-config>
-<env-entry>
+            <description>hey its a mdb</description>
+            <display-name>some CMT mdb</display-name>
+            <ejb-name>SampleCMTMDB</ejb-name>
+            <ejb-class>org.openejb.test.mdb.CMTMDB</ejb-class>
+            <messaging-type>javax.jms.MessageListener</messaging-type>
+            <transaction-type>Container</transaction-type>
+            <activation-config>
+                <activation-config-property>
+                    <activation-config-property-name>messageSelector</activation-config-property-name>
+                    <activation-config-property-value>some selector</activation-config-property-value>
+                </activation-config-property>
+                <activation-config-property>
+                    <activation-config-property-name>destinationType</activation-config-property-name>
+                    <activation-config-property-value>javax.jms.Queue</activation-config-property-value>
+                </activation-config-property>
+                <activation-config-property>
+                    <activation-config-property-name>subscriptionDurability</activation-config-property-name>
+                    <activation-config-property-value>Durable</activation-config-property-value>
+                </activation-config-property>
+            </activation-config>
+            <env-entry>
                 <description>sure, it's like this</description>
                 <env-entry-name>EnvEntry</env-entry-name>
                 <env-entry-type>java.lang.String</env-entry-type>
                 <env-entry-value>value</env-entry-value>
             </env-entry>
-</message-driven>
+        </message-driven>
         <message-driven>
-<description>hey its another mdb</description>
-<display-name>some BMT mdb</display-name>
-<ejb-name>SampleBMTMDB</ejb-name>
-<ejb-class>org.openejb.test.mdb.BMTMDB</ejb-class>
-<messaging-type>javax.jms.MessageListener</messaging-type>
-<transaction-type>Bean</transaction-type>
-<activation-config>
-<activation-config-property>
-<activation-config-property-name>acknowledgeMode</activation-config-property-name>
-<activation-config-property-value>Dups-ok-acknowledge</activation-config-property-value>
-</activation-config-property>
-<activation-config-property>
-<activation-config-property-name>messageSelector</activation-config-property-name>
-<activation-config-property-value>some selector</activation-config-property-value>
-</activation-config-property>
-<activation-config-property>
-<activation-config-property-name>destinationType</activation-config-property-name>
-<activation-config-property-value>javax.jms.Queue</activation-config-property-value>
-</activation-config-property>
-<activation-config-property>
-<activation-config-property-name>subscriptionDurability</activation-config-property-name>
-<activation-config-property-value>Durable</activation-config-property-value>
-</activation-config-property>
-</activation-config>
-<env-entry>
+            <description>hey its another mdb</description>
+            <display-name>some BMT mdb</display-name>
+            <ejb-name>SampleBMTMDB</ejb-name>
+            <ejb-class>org.openejb.test.mdb.BMTMDB</ejb-class>
+            <messaging-type>javax.jms.MessageListener</messaging-type>
+            <transaction-type>Bean</transaction-type>
+            <activation-config>
+                <activation-config-property>
+                    <activation-config-property-name>messageSelector</activation-config-property-name>
+                    <activation-config-property-value>some selector</activation-config-property-value>
+                </activation-config-property>
+                <activation-config-property>
+                    <activation-config-property-name>acknowledgeMode</activation-config-property-name>
+                    <activation-config-property-value>Dups-ok-acknowledge</activation-config-property-value>
+                </activation-config-property>
+                <activation-config-property>
+                    <activation-config-property-name>destinationType</activation-config-property-name>
+                    <activation-config-property-value>javax.jms.Queue</activation-config-property-value>
+                </activation-config-property>
+                <activation-config-property>
+                    <activation-config-property-name>subscriptionDurability</activation-config-property-name>
+                    <activation-config-property-value>Durable</activation-config-property-value>
+                </activation-config-property>
+            </activation-config>
+            <env-entry>
                 <description>sure, it's like this</description>
                 <env-entry-name>EnvEntry</env-entry-name>
                 <env-entry-type>java.lang.String</env-entry-type>
                 <env-entry-value>value</env-entry-value>
             </env-entry>
-</message-driven>
+        </message-driven>
     </enterprise-beans>
     <assembly-descriptor>
         <method-permission>

@@ -17,7 +17,7 @@
 -->
 
 
-<!-- $Revision: 1.7 $ $Date: 2004/06/15 23:00:28 $ -->
+<!-- $Revision: 1.8 $ $Date: 2004/06/17 06:55:11 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -57,21 +57,9 @@
             <version>1.0-DEV</version>
         </dependency>
 
-        <!-- xsl testing -->
-        <dependency>
-            <groupId>xmlunit</groupId>
-            <artifactId>xmlunit</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>3.8.1</version>
-        </dependency>
-
     </dependencies>
 
-    <build>
+    <!--build>
         <sourceDirectory>${basedir}/src</sourceDirectory>
-    </build>
+    </build-->
 </project>
