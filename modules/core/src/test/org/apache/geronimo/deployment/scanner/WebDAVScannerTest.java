@@ -55,19 +55,18 @@
  */
 package org.apache.geronimo.deployment.scanner;
 
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.Iterator;
-import java.util.Set;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.util.Iterator;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/12 20:26:31 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/27 04:50:39 $
  */
 public class WebDAVScannerTest extends TestCase {
     private boolean testedServer;

@@ -63,7 +63,7 @@ import org.apache.geronimo.common.InvocationResult;
 import org.apache.geronimo.common.SimpleInvocationResult;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/26 22:11:24 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/27 04:50:39 $
  */
 public class MarshalingInterceptor implements Interceptor, Serializable {
     TransportInterceptor next;
@@ -85,8 +85,8 @@ public class MarshalingInterceptor implements Interceptor, Serializable {
         Object result = mo.get();
 
         // Are we demarshalling a thrown exception.
-        if (result instanceof DeMarshalingInterceptor.ExceptionWrapper) {
-            throw ((DeMarshalingInterceptor.ExceptionWrapper) result).exception;
+        if (result instanceof DeMarshalingInterceptor.ThrowableWrapper) {
+            throw ((DeMarshalingInterceptor.ThrowableWrapper) result).exception;
         }
 
         return new SimpleInvocationResult(result);

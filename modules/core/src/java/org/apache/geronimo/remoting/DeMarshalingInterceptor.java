@@ -63,18 +63,18 @@ import org.apache.geronimo.common.InvocationResult;
 import org.apache.geronimo.common.SimpleInvocationResult;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/26 22:11:24 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/27 04:50:39 $
  */
 public class DeMarshalingInterceptor implements Interceptor {
 
     private ClassLoader classloader;
     private Interceptor next;
 
-    public static class ExceptionWrapper implements Serializable {
-        ExceptionWrapper(Exception exception) {
+    public static class ThrowableWrapper implements Serializable {
+        ThrowableWrapper(Throwable exception) {
             this.exception = exception;
         }
-        public Exception exception;
+        public Throwable exception;
     }
 
     /**
@@ -107,8 +107,8 @@ public class DeMarshalingInterceptor implements Interceptor {
                 InvocationResult rc = getNext().invoke(marshalledInvocation);
                 mo.set(rc.getResult());
                 return new SimpleInvocationResult(mo);
-            } catch (Exception e) {
-                mo.set(new ExceptionWrapper(e));
+            } catch (Throwable e) {
+                mo.set(new ThrowableWrapper(e));
                 return new SimpleInvocationResult(mo);
             }
 

@@ -65,13 +65,13 @@ import org.apache.geronimo.common.Invocation;
 import org.apache.geronimo.common.InvocationResult;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/26 22:11:24 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/27 04:50:39 $
  */
 public class InterVMRoutingInterceptor implements Interceptor, Externalizable {
 
     String targetVMID = getLocalVMID();
     transient Interceptor next;
-    Interceptor remotingInterceptor;
+    TransportInterceptor transportInterceptor;
     Interceptor localInterceptor;
 
     /**
@@ -86,7 +86,7 @@ public class InterVMRoutingInterceptor implements Interceptor, Externalizable {
      */
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeUTF(targetVMID);
-        out.writeObject(remotingInterceptor);
+        out.writeObject(transportInterceptor);
         out.writeObject(localInterceptor);
     }
 
@@ -95,19 +95,21 @@ public class InterVMRoutingInterceptor implements Interceptor, Externalizable {
      */
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         targetVMID = in.readUTF();
-        remotingInterceptor = (Interceptor) in.readObject();
+        transportInterceptor = (TransportInterceptor) in.readObject();
         localInterceptor = (Interceptor) in.readObject();
 
         if (getLocalVMID().equals(targetVMID)) {
-            next.setNext(localInterceptor);
+            next = localInterceptor;
         } else {
-            next.setNext(remotingInterceptor);
+            // We have to marshall first..
+            next = new MarshalingInterceptor();
+            next.setNext(transportInterceptor);
         }
     }
-
+    
+    final static String localVMID = "VM:"+System.currentTimeMillis(); 
     public static String getLocalVMID() {
-        // TODO: generate a GUID here and return it.
-        return "";
+        return localVMID;
     }
 
     /**
@@ -127,15 +129,15 @@ public class InterVMRoutingInterceptor implements Interceptor, Externalizable {
     /**
      * @return
      */
-    public Interceptor getRemotingInterceptor() {
-        return remotingInterceptor;
+    public TransportInterceptor getTransportInterceptor() {
+        return transportInterceptor;
     }
 
     /**
      * @param remotingInterceptor
      */
-    public void setRemotingInterceptor(Interceptor remotingInterceptor) {
-        this.remotingInterceptor = remotingInterceptor;
+    public void setTransportInterceptor(TransportInterceptor remotingInterceptor) {
+        this.transportInterceptor = remotingInterceptor;
     }
 
     /**

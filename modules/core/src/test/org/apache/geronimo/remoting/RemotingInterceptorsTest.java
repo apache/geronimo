@@ -62,11 +62,9 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
 
 import junit.framework.TestCase;
 
-import org.apache.geronimo.common.Interceptor;
 import org.apache.geronimo.proxy.ProxyContainer;
 import org.apache.geronimo.proxy.ReflexiveInterceptor;
 import org.apache.geronimo.remoting.transport.BytesMarshalledObject;
@@ -82,14 +80,13 @@ import org.apache.geronimo.remoting.transport.URISupport;
  * This test uses 2 classloaders to mock 2 seperate
  * application classloaders.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/25 03:14:46 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/27 04:50:39 $
  */
 
 public class RemotingInterceptorsTest extends TestCase {
 
     private static final String PERSON_CLASS = "org.apache.geronimo.remoting.Person";
     private static final String TRANSIENT_CLASS = "org.apache.geronimo.remoting.TransientValue";
-    ArrayList severContainers = new ArrayList();
     URLClassLoader cl1, cl2;
     
     TransportServer server;
@@ -185,7 +182,7 @@ public class RemotingInterceptorsTest extends TestCase {
 
         // Simulate App1 creating a proxy.
         Thread.currentThread().setContextClassLoader(cl1);
-        Object proxy1 = createProxy(object1);
+        Object proxy1 = createProxy(object1, true);
         call(proxy1, "setSpouse", new Object[] { object1 });
     }
 
@@ -206,7 +203,7 @@ public class RemotingInterceptorsTest extends TestCase {
 
         // Simulate App2 creating a proxy.
         Thread.currentThread().setContextClassLoader(cl2);
-        Object proxy2 = createProxy(object2);
+        Object proxy2 = createProxy(object2, true);
         MarshalledObject mo = new BytesMarshalledObject(proxy2);
 
         // Simulate App1 using the serialized proxy.    
@@ -224,7 +221,6 @@ public class RemotingInterceptorsTest extends TestCase {
      * 
      * @throws Throwable
      */
-    /* Disable until proxy knows how to do a local optimize.
     public void testSetTransientWithOptimizedProxy() throws Throwable {
         Thread.currentThread().setContextClassLoader(cl1);
         Class class1 = cl1.loadClass(PERSON_CLASS);
@@ -234,7 +230,7 @@ public class RemotingInterceptorsTest extends TestCase {
         Object object2 = class2.newInstance();
         call(object2, "setValue", new Object[] { "foo" });
 
-        Object proxy1 = createProxy(object1);
+        Object proxy1 = createProxy(object1, false);
         call(proxy1, "setValue", new Object[] { object2 });
         Object rc = call(proxy1, "getValue", new Object[] {
         });
@@ -243,7 +239,6 @@ public class RemotingInterceptorsTest extends TestCase {
 
         assertSame(rc, "foo");
     }
-    */
     
     /**
      * Same as testSetTransientWithOptimizedProxy() but, the proxy is serialized before it is used.
@@ -251,7 +246,6 @@ public class RemotingInterceptorsTest extends TestCase {
      * 
      * @throws Throwable
      */
-    /* Disable until proxy knows how to do a local optimize.
     public void testSetTransientWithSerializedOptimizedProxy() throws Throwable {
         Thread.currentThread().setContextClassLoader(cl1);
         Class class1 = cl1.loadClass(PERSON_CLASS);
@@ -261,17 +255,26 @@ public class RemotingInterceptorsTest extends TestCase {
         Object object2 = class2.newInstance();
         call(object2, "setValue", new Object[] { "foo" });
 
-        Object proxy1 = createProxy(object1);
+        // First test to see waht happens if we mock it to be a remote object.
+        Object proxy1 = createProxy(object1,true);
         proxy1 = new BytesMarshalledObject(proxy1).get();
         call(proxy1, "setValue", new Object[] { object2 });
         Object rc = call(proxy1, "getValue", new Object[] {
         });
         rc = call(rc, "getValue", new Object[] {
         });
+        assertSame(rc, null); // The value was marsalled cause it's remote.
 
-        assertSame(rc, "foo");
+        // Second test to see what happens if we mock it to be a local object.
+        proxy1 = createProxy(object1,false);
+        proxy1 = new BytesMarshalledObject(proxy1).get();
+        call(proxy1, "setValue", new Object[] { object2 });
+        rc = call(proxy1, "getValue", new Object[] {
+        });
+        rc = call(rc, "getValue", new Object[] {
+        });
+        assertSame(rc, "foo"); // No serialization occured.
     }
-    */
     
     /**
      * Same as testSetTransientWithOptimizedProxy() but, the proxy is serialized before it is
@@ -285,7 +288,7 @@ public class RemotingInterceptorsTest extends TestCase {
         Class class1 = cl1.loadClass(PERSON_CLASS);
         Object object1 = class1.newInstance();
 
-        Object proxy1 = createProxy(object1);
+        Object proxy1 = createProxy(object1, true);
         Thread.currentThread().setContextClassLoader(cl2);
         proxy1 = new BytesMarshalledObject(proxy1).get();
 
@@ -353,26 +356,35 @@ public class RemotingInterceptorsTest extends TestCase {
       * @param object1
       * @return
       */
-    private Object createProxy(Object object1) throws Exception {
-        
-        ProxyContainer serverContainer = new ProxyContainer();        
+    private Object createProxy(Object target, boolean mockFromRemoteMV ) throws Exception {
 
-        DeMarshalingInterceptor dmi = new DeMarshalingInterceptor();
-        dmi.setClassloader(object1.getClass().getClassLoader());
-        Long dmiid = InterceptorRegistry.instance.register(dmi);
-        serverContainer.addInterceptor(dmi);      
-        Interceptor reflexive = new ReflexiveInterceptor(object1);
-        serverContainer.addInterceptor(reflexive);
-        severContainers.add(serverContainer);
+        // Setup the server side contianer..        
+        ProxyContainer serverContainer = new ProxyContainer();        
+        DeMarshalingInterceptor demarshaller = new DeMarshalingInterceptor();
+        serverContainer.addInterceptor(demarshaller);      
+        serverContainer.addInterceptor(new ReflexiveInterceptor(target));
         
+        // Configure the server side interceptors.
+        demarshaller.setClassloader(target.getClass().getClassLoader());
+        Long dmiid = InterceptorRegistry.instance.register(demarshaller);
+        
+        // Setup the client side container..        
         ProxyContainer clientContainer = new ProxyContainer();
-        clientContainer.addInterceptor(new MarshalingInterceptor());
-        RemoteTransportInterceptor rti = new RemoteTransportInterceptor();
-        URI u = URISupport.setFragment(connectURI, ""+dmiid);        
-        rti.setRemoteURI(u);
-        clientContainer.addInterceptor(rti);
+        InterVMRoutingInterceptor remoteRouter = new InterVMRoutingInterceptor();
+        clientContainer.addInterceptor(remoteRouter);
+        IntraVMRoutingInterceptor localRouter = new IntraVMRoutingInterceptor();
+        clientContainer.addInterceptor(localRouter);
+
+        // Configure the client side interceptors.
+        localRouter.setDeMarshalingInterceptorID(dmiid);
+        remoteRouter.setLocalInterceptor(localRouter);
+        RemoteTransportInterceptor transport = new RemoteTransportInterceptor();
+        transport.setRemoteURI(URISupport.setFragment(connectURI, ""+dmiid));
+        remoteRouter.setTransportInterceptor(transport);
+        if(mockFromRemoteMV)
+            remoteRouter.setTargetVMID("THIS CRAP WILL NOT MATCH THE LOCAL VM ID");
         
-        return clientContainer.createProxy(object1.getClass());
+        return clientContainer.createProxy(target.getClass());
     }
 
 }
