@@ -106,7 +106,7 @@ import org.apache.geronimo.gbean.jmx.DependencyService;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.8 $ $Date: 2004/01/22 20:58:40 $
+ * @version $Revision: 1.9 $ $Date: 2004/01/23 16:45:48 $
  */
 public class Kernel implements Serializable, KernelMBean, NotificationBroadcaster {
 
@@ -163,6 +163,19 @@ public class Kernel implements Serializable, KernelMBean, NotificationBroadcaste
      */
     public MBeanServer getMBeanServer() {
         return mbServer;
+    }
+
+    /**
+     * Install the CAR at the supplied URL into this kernel's store
+     * @param source the URL of a CAR format archive
+     * @throws java.io.IOException if the CAR could not be read
+     * @throws org.apache.geronimo.kernel.config.InvalidConfigException if there is a configuration problem with the CAR
+     */
+    public void install(URL source) throws  IOException, InvalidConfigException {
+        if (store == null) {
+            throw new UnsupportedOperationException("Kernel does not have a ConfigurationStore");
+        }
+        store.install(source);
     }
 
     /**
