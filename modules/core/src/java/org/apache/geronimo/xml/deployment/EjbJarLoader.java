@@ -86,7 +86,7 @@ import org.w3c.dom.Element;
  * Knows how to load a set of POJOs from a DOM representing an ejb-jar.xml
  * deployment descriptor.
  *
- * @version $Revision: 1.10 $ $Date: 2003/11/17 03:27:56 $
+ * @version $Revision: 1.11 $ $Date: 2003/11/18 02:14:19 $
  */
 public class EjbJarLoader {
     public static EjbJarDocument load(Document doc) {
@@ -317,7 +317,7 @@ public class EjbJarLoader {
         J2EELoader.loadDescribable(root, query);
         query.setEjbQl(LoaderUtil.getChildContent(root, "ejb-ql"));
         query.setResultTypeMapping(LoaderUtil.getChildContent(root, "result-type-mapping"));
-        query.setQueryMethod(loadQueryMethod(root));
+        query.setQueryMethod(loadQueryMethod(LoaderUtil.getChild(root, "query-method")));
         return query;
     }
 
@@ -327,7 +327,10 @@ public class EjbJarLoader {
         }
         QueryMethod method = new QueryMethod();
         method.setMethodName(LoaderUtil.getChildContent(root, "method-name"));
-        method.setMethodParam(LoaderUtil.getChildrenContent(LoaderUtil.getChild(root, "method-params"), "method-param"));
+        Element methodParams = LoaderUtil.getChild(root, "method-params");
+        if (methodParams != null) {
+            method.setMethodParam(LoaderUtil.getChildrenContent(methodParams, "method-param"));
+        }
         return method;
     }
 
