@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.14 $ $Date: 2003/11/22 23:30:50 $ -->
+<!-- $Revision: 1.15 $ $Date: 2003/11/23 02:08:46 $ -->
 
 <project>
   
@@ -22,7 +22,7 @@
   </organization>
 
   <inceptionYear>2003</inceptionYear>
-  <logo>/images/geronimo.jpg</logo>
+  <logo>/images/geronimo.gif</logo>
   <description>Geronimo J2EE Application Server</description>
   <shortDescription>Geronimo J2EE Application Server</shortDescription>
   <url>http://incubator.apache.org/projects/geronimo/</url>
