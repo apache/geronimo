@@ -64,14 +64,13 @@ import javax.transaction.Transaction;
 import org.apache.geronimo.common.Invocation;
 import org.apache.geronimo.common.InvocationResult;
 import org.apache.geronimo.common.InvocationType;
-import org.apache.geronimo.common.RPCContainer;
 import org.apache.geronimo.ejb.container.EJBPlugins;
 
 /**
  *
  *
  *
- * @version $Revision: 1.7 $ $Date: 2003/08/23 22:09:39 $
+ * @version $Revision: 1.8 $ $Date: 2003/08/26 22:11:23 $
  */
 public final class StatelessBMTInterceptor extends ExecutionContextInterceptor {
     private String ejbName;
@@ -81,7 +80,7 @@ public final class StatelessBMTInterceptor extends ExecutionContextInterceptor {
         ejbName = EJBPlugins.getEJBMetadata(getContainer()).getName();
     }
 
-    public InvocationResult invoke(Invocation invocation) throws Exception {
+    public InvocationResult invoke(Invocation invocation) throws Throwable {
         // suspend any transaction supplied by the client
         Transaction oldTransaction = suspend();
         InvocationResult result;
@@ -94,26 +93,15 @@ public final class StatelessBMTInterceptor extends ExecutionContextInterceptor {
                 } finally {
                     checkStatelessCompletion(noTxContext, invocation);
                 }
-            } catch (Error e) {
-                ExecutionContext.pop(noTxContext);
-                noTxContext.abnormalTermination(e);
-                throw e;
-            } catch (RuntimeException e) {
-                ExecutionContext.pop(noTxContext);
-                noTxContext.abnormalTermination(e);
-                throw e;
-            } catch (RemoteException e) {
-                ExecutionContext.pop(noTxContext);
-                noTxContext.abnormalTermination(e);
-                throw e;
-            } catch (Exception e) {
                 ExecutionContext.pop(noTxContext);
                 noTxContext.normalTermination();
-                throw e;
+                return result;
+            } catch (Throwable t) {
+                // system exception
+                ExecutionContext.pop(noTxContext);
+                noTxContext.abnormalTermination(t);
+                throw t;
             }
-            ExecutionContext.pop(noTxContext);
-            noTxContext.normalTermination();
-            return result;
         } finally {
             if (oldTransaction != null) {
                 // resume original transaction from client

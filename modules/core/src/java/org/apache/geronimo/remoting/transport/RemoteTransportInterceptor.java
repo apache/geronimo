@@ -73,7 +73,7 @@ import org.apache.geronimo.remoting.MarshalledObject;
 import org.apache.geronimo.remoting.TransportInterceptor;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/26 22:11:24 $
  */
 public class RemoteTransportInterceptor implements TransportInterceptor, Externalizable {
 
@@ -83,7 +83,7 @@ public class RemoteTransportInterceptor implements TransportInterceptor, Externa
     /**
      * @see org.apache.geronimo.common.AbstractInterceptor#invoke(org.apache.geronimo.common.Invocation)
      */
-    public InvocationResult invoke(Invocation invocation) throws Exception {
+    public InvocationResult invoke(Invocation invocation) throws Throwable {
 
         MarshalledObject mo = InvocationSupport.getMarshaledValue(invocation);
         // URI remoteURI = InvocationSupport.getRemoteURI(invocation);

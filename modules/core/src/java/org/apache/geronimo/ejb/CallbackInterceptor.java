@@ -74,10 +74,10 @@ import org.apache.geronimo.ejb.metadata.MethodMetadata;
  * object.  This should be the last interceptor in the chain.
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/08/23 22:09:39 $
+ * @version $Revision: 1.6 $ $Date: 2003/08/26 22:11:23 $
  */
 public final class CallbackInterceptor extends AbstractInterceptor {
-    public InvocationResult invoke(Invocation invocation) throws Exception {
+    public InvocationResult invoke(Invocation invocation) throws Throwable {
         // Instance
         EnterpriseContext ctx = EJBInvocationUtil.getEnterpriseContext(invocation);
         if (ctx == null) {

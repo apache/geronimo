@@ -64,7 +64,7 @@ import org.apache.geronimo.common.InvocationResult;
 import org.apache.geronimo.common.SimpleInvocationResult;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:25 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/26 22:11:24 $
  */
 final public class ReflexiveInterceptor extends AbstractInterceptor {
 
@@ -77,7 +77,7 @@ final public class ReflexiveInterceptor extends AbstractInterceptor {
     /* (non-Javadoc)
      * @see org.apache.geronimo.common.AbstractInterceptor#invoke(org.apache.geronimo.common.Invocation)
      */
-    public InvocationResult invoke(Invocation invocation) throws Exception {
+    public InvocationResult invoke(Invocation invocation) throws Throwable {
         try {
 
             Method m = ProxyInvocation.getMethod(invocation);
@@ -86,13 +86,11 @@ final public class ReflexiveInterceptor extends AbstractInterceptor {
             return new SimpleInvocationResult(rc);
 
         } catch (InvocationTargetException e) {
-            Throwable t = e.getTargetException();
-            if (t instanceof Exception) {
-                throw (Exception) t;
-            } else if (t instanceof Error) {
-                throw (Error) t;
+            Throwable t = e.getCause();
+            if (t instanceof Exception && t instanceof RuntimeException == false) {
+                return new SimpleInvocationResult((Exception)t);
             } else {
-                throw new Error("Unexpected Throwable", t);
+                throw t;
             }
         }
     }

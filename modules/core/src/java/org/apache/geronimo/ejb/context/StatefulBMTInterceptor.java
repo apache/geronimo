@@ -55,7 +55,6 @@
  */
 package org.apache.geronimo.ejb.context;
 
-import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.ejb.EJBException;
@@ -71,12 +70,12 @@ import org.apache.geronimo.ejb.EJBInvocationUtil;
  * re-associated with the invocation the next time the bean is invoked.
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/23 09:07:11 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/26 22:11:23 $
  */
 public final class StatefulBMTInterceptor extends ExecutionContextInterceptor {
     private final static Map savedTransactions = new HashMap();
 
-    public InvocationResult invoke(Invocation invocation) throws Exception {
+    public InvocationResult invoke(Invocation invocation) throws Throwable {
         InvocationResult result;
         Object id = EJBInvocationUtil.getId(invocation);
         // suspend any transaction supplied by the client
@@ -93,30 +92,15 @@ public final class StatefulBMTInterceptor extends ExecutionContextInterceptor {
                     suspendInstanceTx(id);
                     assert getTransaction() == null;
                 }
-            } catch (Error e) {
-                // system exception
-                ExecutionContext.pop(noTxContext);
-                noTxContext.abnormalTermination(e);
-                throw e;
-            } catch (RuntimeException e) {
-                // system exception
-                ExecutionContext.pop(noTxContext);
-                noTxContext.abnormalTermination(e);
-                throw e;
-            } catch (RemoteException e) {
-                // system exception
-                ExecutionContext.pop(noTxContext);
-                noTxContext.abnormalTermination(e);
-                throw e;
-            } catch (Exception e) {
-                // application exception
                 ExecutionContext.pop(noTxContext);
                 noTxContext.normalTermination();
-                throw e;
+                return result;
+            } catch (Throwable t) {
+                // system exception
+                ExecutionContext.pop(noTxContext);
+                noTxContext.abnormalTermination(t);
+                throw t;
             }
-            ExecutionContext.pop(noTxContext);
-            noTxContext.normalTermination();
-            return result;
         } finally {
             if (oldTransaction != null) {
                 // resume original transaction from client

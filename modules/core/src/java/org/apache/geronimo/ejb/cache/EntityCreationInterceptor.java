@@ -69,10 +69,10 @@ import org.apache.geronimo.ejb.EnterpriseContext;
  * a normal business method.
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/26 22:11:23 $
  */
 public final class EntityCreationInterceptor extends AbstractInterceptor {
-    public InvocationResult invoke(Invocation invocation) throws Exception {
+    public InvocationResult invoke(Invocation invocation) throws Throwable {
         InvocationResult result = getNext().invoke(invocation);
 
         InvocationType type = InvocationType.getType(invocation);

@@ -60,7 +60,7 @@ package org.apache.geronimo.common;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/22 02:08:41 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/26 22:11:23 $
  */
 public interface Interceptor {
     /**
@@ -84,8 +84,8 @@ public interface Interceptor {
      * in the chain.
      *
      * @param invocation the invocation for which work will be done
-     * @return the result of the invocation
-     * @throws Exception if an exception occures while doing the work
+     * @return the result of the invocation (includes return or application Exception)
+     * @throws Throwable if a system exception occures while doing the work
      */
-    InvocationResult invoke(Invocation invocation) throws Exception;
+    InvocationResult invoke(Invocation invocation) throws Throwable;
 }

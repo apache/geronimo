@@ -68,7 +68,7 @@ import org.apache.geronimo.ejb.container.EJBPlugins;
  *
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/08/23 22:09:39 $
+ * @version $Revision: 1.6 $ $Date: 2003/08/26 22:11:23 $
  */
 public abstract class ExecutionContextInterceptor extends AbstractInterceptor {
     protected TransactionManager tm;
@@ -88,7 +88,7 @@ public abstract class ExecutionContextInterceptor extends AbstractInterceptor {
      * @return the result of the invocation
      * @throws java.lang.Exception any Exception from the next interceptor
      */
-    protected InvocationResult invokeNext(ExecutionContext context, Invocation invocation) throws Exception {
+    protected InvocationResult invokeNext(ExecutionContext context, Invocation invocation) throws Throwable {
         ExecutionContext.push(context);
         try {
             return getNext().invoke(invocation);

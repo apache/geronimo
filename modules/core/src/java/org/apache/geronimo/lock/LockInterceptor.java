@@ -70,7 +70,7 @@ import org.apache.geronimo.ejb.context.ExecutionContext;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2003/08/23 22:09:39 $
+ * @version $Revision: 1.8 $ $Date: 2003/08/26 22:11:24 $
  */
 public final class LockInterceptor extends AbstractInterceptor {
     private LockDomain lockDomain;
@@ -84,7 +84,7 @@ public final class LockInterceptor extends AbstractInterceptor {
         lockDomain = null;
     }
 
-    public InvocationResult invoke(Invocation invocation) throws Exception {
+    public InvocationResult invoke(Invocation invocation) throws Throwable {
         InvocationType type = InvocationType.getType(invocation);
         if (org.apache.geronimo.ejb.Entrancy.isNonEntrant(invocation)) {
             return getNext().invoke(invocation);

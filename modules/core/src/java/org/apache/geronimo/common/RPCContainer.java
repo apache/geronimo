@@ -65,18 +65,18 @@ import javax.management.ObjectName;
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/15 14:11:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/26 22:11:23 $
  */
 public interface RPCContainer extends Container {
     //
     //  Main entry point
     //
-    InvocationResult invoke(Invocation invocation) throws Exception;
+    InvocationResult invoke(Invocation invocation) throws Throwable;
 
 
     /**
      * Add an interceptor to the interceptor stack
-     * @param Interceptor
+     * @param interceptor
      */
     void addInterceptor (Interceptor interceptor);
 

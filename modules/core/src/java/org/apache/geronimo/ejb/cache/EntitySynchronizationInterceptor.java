@@ -66,13 +66,13 @@ import org.apache.geronimo.ejb.SynchronizationRegistry;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/26 22:11:23 $
  */
 public final class EntitySynchronizationInterceptor extends AbstractInterceptor {
     // todo find a home for me... should be a JMX object
     private static final SynchronizationRegistry synchronizationRegistry = new SynchronizationRegistry();
 
-    public InvocationResult invoke(Invocation invocation) throws Exception {
+    public InvocationResult invoke(Invocation invocation) throws Throwable {
         // register the context for synchronization
         EnterpriseContext ctx = EJBInvocationUtil.getEnterpriseContext(invocation);
         Object id = EJBInvocationUtil.getId(invocation);

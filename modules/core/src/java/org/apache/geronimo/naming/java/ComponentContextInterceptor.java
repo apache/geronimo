@@ -65,7 +65,7 @@ import org.apache.geronimo.common.InvocationResult;
  * An interceptor that pushes the current component's java:comp context into
  * the java: JNDI namespace
  * 
- * @version $Revision: 1.1 $ $Date: 2003/08/23 22:13:15 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/26 22:11:24 $
  */
 public class ComponentContextInterceptor extends AbstractInterceptor {
     private final Context compContext;
@@ -78,7 +78,7 @@ public class ComponentContextInterceptor extends AbstractInterceptor {
         this.compContext = compContext;
     }
 
-    public InvocationResult invoke(Invocation invocation) throws Exception {
+    public InvocationResult invoke(Invocation invocation) throws Throwable {
         Context oldContext = RootContext.getComponentContext();
         try {
             RootContext.setComponentContext(compContext);

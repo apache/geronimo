@@ -63,7 +63,7 @@ import org.apache.geronimo.common.InvocationResult;
 import org.apache.geronimo.common.SimpleInvocationResult;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/26 22:11:24 $
  */
 public class MarshalingInterceptor implements Interceptor, Serializable {
     TransportInterceptor next;
@@ -71,7 +71,7 @@ public class MarshalingInterceptor implements Interceptor, Serializable {
     /**
      * @see org.apache.geronimo.common.AbstractInterceptor#invoke(org.apache.geronimo.common.Invocation)
      */
-    public InvocationResult invoke(Invocation invocation) throws Exception {
+    public InvocationResult invoke(Invocation invocation) throws Throwable {
 
         // Marshall the invocation and store it.
         MarshalledObject mo = next.createMarshalledObject();

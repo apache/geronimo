@@ -65,7 +65,7 @@ import org.apache.geronimo.remoting.InvocationSupport;
 import org.apache.geronimo.remoting.MarshalledObject;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/26 22:11:24 $
  */
 public class FragmentBasedInterceptorRouter implements Router {
 
@@ -88,7 +88,7 @@ public class FragmentBasedInterceptorRouter implements Router {
             msg.pushMarshaledObject((MarshalledObject) result.getResult());
             return msg;
 
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
             throw new TransportException(e.getMessage());
         }
@@ -107,13 +107,13 @@ public class FragmentBasedInterceptorRouter implements Router {
 
             InvocationResult result = interceptor.invoke(invocation);
 
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new TransportException(e.getMessage());
         }
     }
 
     /**
-     * @param string
+     * @param to
      * @return
      */
     private Interceptor lookupInterceptorFrom(URI to) {

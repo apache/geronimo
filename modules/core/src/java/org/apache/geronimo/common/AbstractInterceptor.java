@@ -62,7 +62,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2003/08/23 22:09:39 $
+ * @version $Revision: 1.8 $ $Date: 2003/08/26 22:11:23 $
  */
 public abstract class AbstractInterceptor implements Interceptor {
     private RPCContainer container;
@@ -85,5 +85,5 @@ public abstract class AbstractInterceptor implements Interceptor {
         next = nextInterceptor;
     }
 
-    public abstract InvocationResult invoke(Invocation invocation) throws Exception;
+    public abstract InvocationResult invoke(Invocation invocation) throws Throwable;
 }

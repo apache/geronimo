@@ -56,13 +56,48 @@
 package org.apache.geronimo.common;
 
 /**
+ * The result of an Invocation.
+ * There are two types of result:
+ * <ul>
+ * <li>normal - indicating the operation completed normally (e.g. the method returned)</li>
+ * <li>exception - indicating the operation completed abnormally (e.g. the method threw a checked exception)</li>
+ * </ul>
+ * <p>Note that these should both be considered a normal completion of the operation by the container. Abnormal
+ * completions, such as a RuntimeException or Error from the invocation, or any problem in the interceptor
+ * chain itself, should result in a Throwable being thrown up the chain rather than being contained in this
+ * result.</p>
+ * <p>This distinction mirrors the semantics for EJB invocations, where a business method is considered to have
+ * completed successfuly even if it throws declared Exception - the Exception there is indicating a business level
+ * issue and not a system problem.</p>
  *
- *
- *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:10 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/26 22:11:23 $
  */
 public interface InvocationResult {
+    /**
+     * Was this a normal completion (return)?
+     * @return true if the invocation returned; false if a declared exception was thrown
+     */
+    boolean isNormal();
+
+    /**
+     * Get the return value from the invocation.
+     * It is an error to call this method if the invocation is not complete normally.
+     * @return the return value from the invocation; null if the operation was void
+     */
     Object getResult();
 
-    void setResult(Object result);
+    /**
+     * Was an application exception raised by the invocation?
+     * Note, this indicates a checked application exception was thrown; this will never contain
+     * a system exception
+     * @return true if a declared exception was thrown; false if the invocation returned
+     */
+    boolean isException();
+
+    /**
+     * Get the application exception raised by the invocation.
+     * It is an error to call this method if the invocation did not raise an exception
+     * @return the checked Exception raised by the application
+     */
+    Exception getException();
 }

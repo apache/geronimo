@@ -61,23 +61,37 @@ import java.io.Serializable;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/22 02:08:41 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/26 22:11:23 $
  */
 public class SimpleInvocationResult implements InvocationResult, Serializable {
-    private Object result;
-
-    public SimpleInvocationResult() {
-    }
+    private final Object result;
+    private final boolean normal;
 
     public SimpleInvocationResult(Object result) {
         this.result = result;
+        normal = true;
+    }
+
+    public SimpleInvocationResult(Exception appException) {
+        this.result = appException;
+        this.normal = false;
+    }
+
+    public boolean isNormal() {
+        return normal;
+    }
+
+    public boolean isException() {
+        return !normal;
     }
 
     public Object getResult() {
+        assert (normal == true);
         return result;
     }
 
-    public void setResult(Object result) {
-        this.result = result;
+    public Exception getException() {
+        assert (normal == false);
+        return (Exception) result;
     }
 }

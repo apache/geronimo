@@ -67,7 +67,7 @@ import org.apache.geronimo.proxy.ProxyInvocation;
 /**
  * Basic invoker for the main method of an Application Client
  * 
- * @version $Revision: 1.1 $ $Date: 2003/08/23 22:14:20 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/26 22:11:23 $
  */
 public class MainInvokerInterceptor extends AbstractInterceptor {
     private final Method mainMethod;
@@ -76,14 +76,17 @@ public class MainInvokerInterceptor extends AbstractInterceptor {
         this.mainMethod = mainMethod;
     }
 
-    public InvocationResult invoke(Invocation invocation) throws Exception {
+    public InvocationResult invoke(Invocation invocation) throws Throwable {
         assert (mainMethod.equals(ProxyInvocation.getMethod(invocation)));
         Object[] args = ProxyInvocation.getArguments(invocation);
         try {
             mainMethod.invoke(null, args);
         } catch (InvocationTargetException e) {
             Throwable cause = e.getCause();
-            return new SimpleInvocationResult(cause);
+            if (cause instanceof Exception && cause instanceof RuntimeException == false) {
+                return new SimpleInvocationResult((Exception)cause);
+            }
+            throw cause;
         }
         return new SimpleInvocationResult(null);
     }

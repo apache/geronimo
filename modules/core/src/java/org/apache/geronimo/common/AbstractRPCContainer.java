@@ -65,7 +65,7 @@ import org.apache.geronimo.management.State;
 /**
  * Base class for a Container that can accept invocations.
  *
- * @version $Revision: 1.7 $ $Date: 2003/08/23 22:09:39 $
+ * @version $Revision: 1.8 $ $Date: 2003/08/26 22:11:23 $
  */
 public class AbstractRPCContainer extends AbstractContainer implements RPCContainer {
     // @todo access to these objects must be synchronized
@@ -82,7 +82,7 @@ public class AbstractRPCContainer extends AbstractContainer implements RPCContai
         super.postDeregister();
     }
 
-    public final InvocationResult invoke(Invocation invocation) throws Exception {
+    public final InvocationResult invoke(Invocation invocation) throws Throwable {
         if (getStateInstance() != State.RUNNING) {
             throw new IllegalStateException("invoke can only be called after the Container has started");
         }

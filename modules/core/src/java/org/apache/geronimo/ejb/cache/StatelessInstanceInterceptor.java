@@ -72,7 +72,7 @@ import org.apache.geronimo.ejb.container.EJBPlugins;
  * and returns it to the pools after invocation.
  *
  *
- * @version $Revision: 1.6 $ $Date: 2003/08/23 22:09:39 $
+ * @version $Revision: 1.7 $ $Date: 2003/08/26 22:11:23 $
  */
 public final class StatelessInstanceInterceptor extends AbstractInterceptor {
     private InstancePool pool;
@@ -86,7 +86,7 @@ public final class StatelessInstanceInterceptor extends AbstractInterceptor {
         pool = null;
     }
 
-    public InvocationResult invoke(final Invocation invocation) throws Exception {
+    public InvocationResult invoke(final Invocation invocation) throws Throwable {
         if (InvocationType.getType(invocation).isHomeInvocation()) {
             // Stateless home invocations don't call on an instance
             return getNext().invoke(invocation);

@@ -68,7 +68,7 @@ import org.apache.geronimo.common.InvocationResult;
 import org.apache.geronimo.common.RPCContainer;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:25 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/26 22:11:24 $
  */
 public class SimpleRPCContainer extends SimpleContainer implements RPCContainer {
 
@@ -80,7 +80,7 @@ public class SimpleRPCContainer extends SimpleContainer implements RPCContainer 
     /**
     * @see org.apache.geronimo.common.RPCContainer#invoke(org.apache.geronimo.common.Invocation)
     */
-    public final InvocationResult invoke(Invocation invocation) throws Exception {
+    public final InvocationResult invoke(Invocation invocation) throws Throwable {
         return firstInterceptor.invoke(invocation);
     }
 

@@ -65,7 +65,7 @@ import org.apache.geronimo.ejb.metadata.EJBMetadata;
  *
  *
  *
- * @version $Revision: 1.11 $ $Date: 2003/08/23 22:09:39 $
+ * @version $Revision: 1.12 $ $Date: 2003/08/26 22:11:23 $
  */
 public class TransactionInterceptor extends AbstractInterceptor {
     private ExecutionContextInterceptor transactionInterceptor;
@@ -88,7 +88,7 @@ public class TransactionInterceptor extends AbstractInterceptor {
         transactionInterceptor = null;
     }
 
-    public InvocationResult invoke(Invocation invocation) throws Exception {
+    public InvocationResult invoke(Invocation invocation) throws Throwable {
         return transactionInterceptor.invoke(invocation);
     }
 }

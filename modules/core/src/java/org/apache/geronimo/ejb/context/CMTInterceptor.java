@@ -68,7 +68,6 @@ import javax.transaction.TransactionRequiredException;
 import org.apache.geronimo.common.Invocation;
 import org.apache.geronimo.common.InvocationResult;
 import org.apache.geronimo.common.InvocationType;
-import org.apache.geronimo.common.RPCContainer;
 import org.apache.geronimo.ejb.EJBInvocationUtil;
 import org.apache.geronimo.ejb.container.EJBPlugins;
 import org.apache.geronimo.ejb.metadata.EJBMetadata;
@@ -80,14 +79,14 @@ import org.apache.geronimo.transaction.GeronimoTransactionRolledbackLocalExcepti
 
 /**
  *
- * @version $Revision: 1.6 $ $Date: 2003/08/23 09:07:11 $
+ * @version $Revision: 1.7 $ $Date: 2003/08/26 22:11:23 $
  */
 public final class CMTInterceptor extends ExecutionContextInterceptor {
     private EJBMetadata ejbMetadata;
 
     protected void doStart() throws Exception {
         super.doStart();
-        ejbMetadata = EJBPlugins.getEJBMetadata((RPCContainer)getContainer());
+        ejbMetadata = EJBPlugins.getEJBMetadata(getContainer());
     }
 
     protected void doStop() throws Exception {
@@ -95,7 +94,7 @@ public final class CMTInterceptor extends ExecutionContextInterceptor {
         super.doStop();
     }
 
-    public InvocationResult invoke(Invocation invocation) throws Exception {
+    public InvocationResult invoke(Invocation invocation) throws Throwable {
         Method m = EJBInvocationUtil.getMethod(invocation);
         if (m == null) {
             // we are not invoking a method (e.g. its a CMR message) so pass straight through
@@ -174,7 +173,7 @@ public final class CMTInterceptor extends ExecutionContextInterceptor {
      * @throws Exception from the next interceptor
      * @throws EJBTransactionException if there was a problem interacting with the TransactionManager
      */
-    private InvocationResult newTxContext(Invocation invocation, Transaction oldTransaction) throws EJBTransactionException, Exception {
+    private InvocationResult newTxContext(Invocation invocation, Transaction oldTransaction) throws EJBTransactionException, Throwable {
         if (oldTransaction == null) {
             // we have no transaction, start the new one
             return invokeWithNewTx(invocation);
@@ -194,10 +193,10 @@ public final class CMTInterceptor extends ExecutionContextInterceptor {
      * There must not be a Transaction currently associated with the Thread
      * @param invocation the invocation to pass down
      * @return the result from the interceptor
-     * @throws Exception from the next interceptor
+     * @throws Throwable from the next interceptor
      * @throws EJBTransactionException if there was a problem interacting with the TransactionManager
      */
-    private InvocationResult invokeWithNewTx(Invocation invocation) throws Exception {
+    private InvocationResult invokeWithNewTx(Invocation invocation) throws Throwable {
         TxExecutionContext newContext = new TxExecutionContext(tm);
         InvocationResult result;
         try {
@@ -209,37 +208,17 @@ public final class CMTInterceptor extends ExecutionContextInterceptor {
 
         try {
             result = invokeNext(newContext, invocation);
-        } catch (Error e) {
-            systemException(newContext, e);
-            throw e;
-        } catch (RuntimeException e) {
-            systemException(newContext, e);
-            throw e;
-        } catch (RemoteException e) {
-            systemException(newContext, e);
-            throw e;
-        } catch (Exception e) {
-            // application exception
             endTransaction(invocation, newContext);
-            throw e;
-        }
-        endTransaction(invocation, newContext);
-        return result;
-    }
-
-    /**
-     * Handle a system exception returned by the interceptor chain
-     * @param newContext the current execution context
-     * @param t the system exception
-     */
-    private void systemException(TxExecutionContext newContext, Throwable t) {
-        try {
-            tm.setRollbackOnly();
-            tm.rollback();
-        } catch (SystemException e) {
-            log.error("Unable to roll back after system exception, continuing", e);
-        } finally {
+            return result;
+        } catch (Throwable t) {
+            try {
+                tm.setRollbackOnly();
+                tm.rollback();
+            } catch (SystemException e) {
+                log.error("Unable to roll back after system exception, continuing", e);
+            }
             newContext.abnormalTermination(t);
+            throw t;
         }
     }
 
@@ -276,7 +255,7 @@ public final class CMTInterceptor extends ExecutionContextInterceptor {
      * @throws Exception from the next interceptor
      * @throws EJBTransactionException if there was a problem interacting with the TransactionManager
      */
-    private InvocationResult noTxContext(Invocation invocation, Transaction oldTransaction) throws EJBTransactionException, Exception {
+    private InvocationResult noTxContext(Invocation invocation, Transaction oldTransaction) throws EJBTransactionException, Throwable {
         if (oldTransaction == null) {
             // we have no transaction, so just invoke
             return invokeWithNoTx(invocation);
@@ -297,24 +276,15 @@ public final class CMTInterceptor extends ExecutionContextInterceptor {
      * @return the result from the interceptor
      * @throws Exception from the next interceptor
      */
-    private InvocationResult invokeWithNoTx(Invocation invocation) throws Exception {
+    private InvocationResult invokeWithNoTx(Invocation invocation) throws Throwable {
         NoTxExecutionContext newContext = new NoTxExecutionContext();
         try {
-            return invokeNext(newContext, invocation);
-        } catch (Error e) {
-            newContext.abnormalTermination(e);
-            throw e;
-        } catch (RuntimeException e) {
-            newContext.abnormalTermination(e);
-            throw e;
-        } catch (RemoteException e) {
-            newContext.abnormalTermination(e);
-            throw e;
-        } catch (Exception e) {
+            InvocationResult result = invokeNext(newContext, invocation);
             newContext.normalTermination();
-            throw e;
-        } finally {
-            newContext.normalTermination();
+            return result;
+        } catch (Throwable t) {
+            newContext.abnormalTermination(t);
+            throw t;
         }
     }
 
@@ -327,7 +297,7 @@ public final class CMTInterceptor extends ExecutionContextInterceptor {
      * @throws Exception from the next interceptor
      * @throws EJBTransactionException if we could not register a new TxExecutionContext with the TransactionManager
      */
-    private InvocationResult sameTxContext(Invocation invocation, Transaction oldTransaction) throws EJBTransactionException, Exception {
+    private InvocationResult sameTxContext(Invocation invocation, Transaction oldTransaction) throws EJBTransactionException, Throwable {
         TxExecutionContext context = TxExecutionContext.getContext(oldTransaction);
         if (context == null) {
             assert oldTransaction != null;

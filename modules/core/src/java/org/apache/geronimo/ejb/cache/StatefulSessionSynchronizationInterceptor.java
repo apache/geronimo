@@ -82,7 +82,7 @@ import org.apache.geronimo.ejb.metadata.EJBMetadata;
  *
  *
  *
- * @version $Revision: 1.6 $ $Date: 2003/08/23 22:09:39 $
+ * @version $Revision: 1.7 $ $Date: 2003/08/26 22:11:23 $
  */
 public final class StatefulSessionSynchronizationInterceptor extends AbstractInterceptor {
     protected TransactionManager tm;
@@ -102,7 +102,7 @@ public final class StatefulSessionSynchronizationInterceptor extends AbstractInt
         tm = null;
     }
 
-    public InvocationResult invoke(Invocation invocation) throws Exception {
+    public InvocationResult invoke(Invocation invocation) throws Throwable {
         if (InvocationType.getType(invocation).isHomeInvocation()) {
             // Home invocation's don't have state so they don't need to be synchronized
             return getNext().invoke(invocation);

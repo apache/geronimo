@@ -71,7 +71,7 @@ import org.apache.geronimo.ejb.metadata.EJBMetadata;
  *
  *
  *
- * @version $Revision: 1.6 $ $Date: 2003/08/23 22:09:39 $
+ * @version $Revision: 1.7 $ $Date: 2003/08/26 22:11:23 $
  */
 public class StatelessLifeCycleInterceptor extends AbstractInterceptor {
     private static final Method removeRemote;
@@ -107,7 +107,7 @@ public class StatelessLifeCycleInterceptor extends AbstractInterceptor {
         createLocal = null;
     }
 
-    public InvocationResult invoke(Invocation invocation) throws Exception {
+    public InvocationResult invoke(Invocation invocation) throws Throwable {
         Method method = EJBInvocationUtil.getMethod(invocation);
         if (method == null) {
             return getNext().invoke(invocation);
@@ -115,7 +115,7 @@ public class StatelessLifeCycleInterceptor extends AbstractInterceptor {
 
         if (method.equals(removeRemote) || method.equals(removeLocal)) {
             // remove for a stateless bean does nothing
-            return new SimpleInvocationResult();
+            return new SimpleInvocationResult(null);
         } else if (method.equals(createRemote)) {
             EJBProxyFactoryManager ejbProxyFactoryManager = EJBPlugins.getEJBProxyFactoryManager(getContainer());
             EJBProxyFactory ejbProxyFactory = ejbProxyFactoryManager.getThreadEJBProxyFactory();

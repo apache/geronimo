@@ -65,7 +65,7 @@ import org.apache.geronimo.common.Invocation;
 import org.apache.geronimo.common.InvocationResult;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/26 22:11:24 $
  */
 public class InterVMRoutingInterceptor implements Interceptor, Externalizable {
 
@@ -77,7 +77,7 @@ public class InterVMRoutingInterceptor implements Interceptor, Externalizable {
     /**
      * @see org.apache.geronimo.common.AbstractInterceptor#invoke(org.apache.geronimo.common.Invocation)
      */
-    public InvocationResult invoke(Invocation invocation) throws Exception {
+    public InvocationResult invoke(Invocation invocation) throws Throwable {
         return next.invoke(invocation);
     }
 
