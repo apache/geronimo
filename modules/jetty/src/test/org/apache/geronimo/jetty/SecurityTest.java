@@ -103,20 +103,22 @@ public class SecurityTest extends TestCase {
 
         securityConfig.getRoleMappings().add(role);
 
-        URL url = Thread.currentThread().getContextClassLoader().getResource("deployables/war3/");
         GBeanMBean app = new GBeanMBean(JettyWebAppJACCContext.GBEAN_INFO);
-        app.setAttribute("uri", URI.create(url.toString()));
-        app.setAttribute("contextPath", "/test");
+
+        app.setAttribute("uri", URI.create("war3/"));
         app.setAttribute("componentContext", null);
         UserTransactionImpl userTransaction = new UserTransactionImpl();
         app.setAttribute("userTransaction", userTransaction);
+        app.setAttribute("webClassPath", new URI[0]);
+        app.setAttribute("configurationBaseUrl", Thread.currentThread().getContextClassLoader().getResource("deployables/"));
         app.setAttribute("securityConfig", securityConfig);
         app.setAttribute("policyContextID", "TEST");
-        app.setReferencePatterns("Configuration", Collections.EMPTY_SET);
-        app.setReferencePatterns("JettyContainer", containerPatterns);
+
+        app.setAttribute("contextPath", "/test");
+
         app.setReferencePattern("TransactionContextManager", tcmName);
         app.setReferencePattern("TrackedConnectionAssociator", tcaName);
-        app.setReferencePattern("TrackedConnectionAssociator", tcaName);
+        app.setReferencePatterns("JettyContainer", containerPatterns);
         start(appName, app);
 
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678/test/protected/hello.txt").openConnection();

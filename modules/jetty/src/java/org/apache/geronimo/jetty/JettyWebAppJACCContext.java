@@ -18,7 +18,9 @@
 package org.apache.geronimo.jetty;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
 import java.security.Principal;
@@ -40,7 +42,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.kernel.config.ConfigurationParent;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.GeronimoSecurityException;
@@ -78,36 +79,48 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
 
     private final String policyContextID;
     private final Security securityConfig;
+    private final JAASJettyPrincipal defaultPrincipal;
 
     private PolicyConfigurationFactory factory;
     private PolicyConfiguration policyConfiguration;
 
     private final Map roleDesignates = new HashMap();
-
-    private final JAASJettyPrincipal defaultPrincipal;
-
     private final PathMap constraintMap = new PathMap();
 
     private String formLoginPath;
 
     public JettyWebAppJACCContext() {
-        this(null, null, null, null, null, null, null, null, null, null, null, null);
+        policyContextID = null;
+        securityConfig = null;
+        defaultPrincipal = null;
     }
 
-    public JettyWebAppJACCContext(URI uri,
-            ReadOnlyContext compContext,
+    public JettyWebAppJACCContext(
+            URI uri,
+            ReadOnlyContext componentContext,
             UserTransactionImpl userTransaction,
             ClassLoader classLoader,
+            URI[] webClassPath,
+            URL configurationBaseUrl,
             Set unshareableResources,
             Set applicationManagedSecurityResources,
             String policyContextID,
             Security securityConfig,
             TransactionContextManager transactionContextManager,
-            TrackedConnectionAssociator associator,
-            ConfigurationParent config,
-            JettyContainer container) {
+            TrackedConnectionAssociator trackedConnectionAssociator,
+            JettyContainer jettyContainer) throws MalformedURLException {
 
-        super(uri, compContext, userTransaction, classLoader, unshareableResources, applicationManagedSecurityResources, transactionContextManager, associator, config, container);
+        super(uri,
+                componentContext,
+                userTransaction,
+                classLoader,
+                webClassPath,
+                configurationBaseUrl,
+                unshareableResources,
+                applicationManagedSecurityResources,
+                transactionContextManager,
+                trackedConnectionAssociator,
+                jettyContainer);
 
         this.policyContextID = policyContextID;
         this.securityConfig = securityConfig;
@@ -139,8 +152,10 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
      * Handler request.
      * Call each HttpHandler until request is handled.
      *
-     * @param pathInContext Path in context
-     * @param pathParams Path parameters such as encoded Session ID
+     * @param pathInContext path in context
+     * @param pathParams path parameters such as encoded Session ID
+     * @param httpRequest the request object
+     * @param httpResponse the response object
      */
     public void handle(String pathInContext,
             String pathParams,
@@ -479,21 +494,22 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty JACC WebApplication Context", JettyWebAppJACCContext.class, JettyWebAppContext.GBEAN_INFO);
 
-        infoFactory.addAttribute("securityConfig", Security.class, true);
         infoFactory.addAttribute("policyContextID", String.class, true);
+        infoFactory.addAttribute("securityConfig", Security.class, true);
 
         infoFactory.setConstructor(new String[]{
             "uri",
             "componentContext",
             "userTransaction",
             "classLoader",
+            "webClassPath",
+            "configurationBaseUrl",
             "unshareableResources",
             "applicationManagedSecurityResources",
             "policyContextID",
             "securityConfig",
             "TransactionContextManager",
             "TrackedConnectionAssociator",
-            "Configuration",
             "JettyContainer",
         });
 

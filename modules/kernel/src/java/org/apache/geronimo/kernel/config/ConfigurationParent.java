@@ -17,13 +17,11 @@
 
 package org.apache.geronimo.kernel.config;
 
-import java.net.URL;
+
 
 /**
  * @version $Rev$ $Date$
  */
 public interface ConfigurationParent {
     ClassLoader getClassLoader();
-
-    URL getBaseURL();
 }

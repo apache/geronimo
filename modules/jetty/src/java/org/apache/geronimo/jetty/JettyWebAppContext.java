@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Set;
 import javax.resource.ResourceException;
 
@@ -30,7 +31,6 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.kernel.config.ConfigurationParent;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
 import org.apache.geronimo.transaction.DefaultInstanceContext;
@@ -52,54 +52,75 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
 public class JettyWebAppContext extends WebApplicationContext implements GBeanLifecycle {
     private static Log log = LogFactory.getLog(JettyWebAppContext.class);
 
-    private final ConfigurationParent config;
-    private final URI uri;
-    private final JettyContainer container;
     private final ReadOnlyContext componentContext;
-    private final TransactionContextManager transactionContextManager;
-    private final TrackedConnectionAssociator associator;
     private final UserTransactionImpl userTransaction;
     private final ClassLoader classLoader;
     private final Set unshareableResources;
     private final Set applicationManagedSecurityResources;
+    private final TransactionContextManager transactionContextManager;
+    private final TrackedConnectionAssociator trackedConnectionAssociator;
+    private final JettyContainer jettyContainer;
 
     private boolean contextPriorityClassLoader = false;
+    private final URI webAppRoot;
 
+    /**
+     * @deprecated never use this... this is only here because Jetty WebApplicationContext is externalizable
+     */
     public JettyWebAppContext() {
-        this(null, null, null, null, null, null, null, null, null, null);
+        componentContext = null;
+        userTransaction = null;
+        classLoader = null;
+        unshareableResources = null;
+        applicationManagedSecurityResources = null;
+        transactionContextManager = null;
+        trackedConnectionAssociator = null;
+        jettyContainer = null;
+        webAppRoot = null;
     }
 
     public JettyWebAppContext(URI uri,
-            ReadOnlyContext compContext,
+            ReadOnlyContext componentContext,
             UserTransactionImpl userTransaction,
             ClassLoader classLoader,
+            URI[] webClassPath,
+            URL configurationBaseUrl,
             Set unshareableResources,
             Set applicationManagedSecurityResources,
             TransactionContextManager transactionContextManager,
-            TrackedConnectionAssociator associator,
-            ConfigurationParent config,
-            JettyContainer container) {
-        super();
+            TrackedConnectionAssociator trackedConnectionAssociator,
+            JettyContainer jettyContainer) throws MalformedURLException {
 
-        assert container != null;
-        assert compContext != null;
-        assert transactionContextManager != null;
-        assert associator != null;
+        assert uri != null;
+        assert componentContext != null;
         assert userTransaction != null;
         assert classLoader != null;
+        assert webClassPath != null;
+        assert configurationBaseUrl != null;
+        assert transactionContextManager != null;
+        assert trackedConnectionAssociator != null;
+        assert jettyContainer != null;
 
-        this.config = config;
-        this.uri = uri;
-        this.container = container;
-        this.componentContext = compContext;
+        this.componentContext = componentContext;
+        this.userTransaction = userTransaction;
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
         this.transactionContextManager = transactionContextManager;
-        this.associator = associator;
-        this.userTransaction = userTransaction;
-        this.classLoader = classLoader;
+        this.trackedConnectionAssociator = trackedConnectionAssociator;
+        this.jettyContainer = jettyContainer;
 
         setConfigurationClassNames(new String[]{"org.apache.geronimo.jetty.JettyXMLConfiguration"});
+
+        URI root = URI.create(configurationBaseUrl.toString());
+        webAppRoot = root.resolve(uri);
+
+        URL[] urls = new URL[webClassPath.length];
+        for (int i = 0; i < webClassPath.length; i++) {
+            URI classPathEntry = webClassPath[i];
+            classPathEntry = webAppRoot.resolve(classPathEntry);
+            urls[i] = classPathEntry.toURL();
+        }
+        this.classLoader = new URLClassLoader(urls, classLoader);
     }
 
     /**
@@ -127,12 +148,10 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
      * determine if the context needs to create its own classloader.
      */
     protected void initClassLoader(boolean forceContextLoader) throws MalformedURLException, IOException {
+        setClassLoader(classLoader);
+
+        // todo this has no effect since our classloader is not a Jetty context loader
         setClassLoaderJava2Compliant(!contextPriorityClassLoader);
-        if (!contextPriorityClassLoader) {
-            // TODO - once geronimo is correctly setting up the classpath, this should be uncommented.
-            // At the moment, the g classloader does not appear to know about the WEB-INF classes and lib.
-            // setClassLoader(Thread.currentThread().getContextClassLoader());
-        }
         super.initClassLoader(forceContextLoader);
 
         if (log.isDebugEnabled()) {
@@ -167,7 +186,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
             try {
                 try {
-                    oldInstanceContext = associator.enter(new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources));
+                    oldInstanceContext = trackedConnectionAssociator.enter(new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources));
                 } catch (ResourceException e) {
                     throw new RuntimeException(e);
                 }
@@ -186,7 +205,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             }
         } finally {
             try {
-                associator.exit(oldInstanceContext);
+                trackedConnectionAssociator.exit(oldInstanceContext);
             } catch (ResourceException e) {
                 throw new RuntimeException(e);
             } finally {
@@ -204,14 +223,10 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             return;
         }
 
-        if (uri.isAbsolute()) {
-            setWAR(uri.toString());
-        } else {
-            setWAR(new URL(config.getBaseURL(), uri.toString()).toString());
-        }
+        setWAR(webAppRoot.toString());
 
-        userTransaction.setUp(transactionContextManager, associator);
-        container.addContext(this);
+        userTransaction.setUp(transactionContextManager, trackedConnectionAssociator);
+        jettyContainer.addContext(this);
 
         ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
         try {
@@ -233,7 +248,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                 try {
 
                     try {
-                        oldInstanceContext = associator.enter(new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources));
+                        oldInstanceContext = trackedConnectionAssociator.enter(new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources));
                     } catch (ResourceException e) {
                         throw new RuntimeException(e);
                     }
@@ -252,7 +267,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                 }
             } finally {
                 try {
-                    associator.exit(oldInstanceContext);
+                    trackedConnectionAssociator.exit(oldInstanceContext);
                 } catch (ResourceException e) {
                     throw new RuntimeException(e);
                 } finally {
@@ -294,7 +309,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                 try {
 
                     try {
-                        oldInstanceContext = associator.enter(new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources));
+                        oldInstanceContext = trackedConnectionAssociator.enter(new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources));
                     } catch (ResourceException e) {
                         throw new RuntimeException(e);
                     }
@@ -320,7 +335,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                 }
             } finally {
                 try {
-                    associator.exit(oldInstanceContext);
+                    trackedConnectionAssociator.exit(oldInstanceContext);
                 } catch (ResourceException e) {
                     throw new RuntimeException(e);
                 } finally {
@@ -329,7 +344,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                 }
                 //TODO should we reset the transactioncontext to null if we set it?
             }
-            container.removeContext(this);
+            jettyContainer.removeContext(this);
             if (userTransaction != null) {
                 userTransaction.setOnline(false);
             }
@@ -346,7 +361,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         } catch (InterruptedException e) {
         }
 
-        container.removeContext(this);
+        jettyContainer.removeContext(this);
         log.info("JettyWebAppContext failed");
     }
 
@@ -356,29 +371,32 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty WebApplication Context", JettyWebAppContext.class);
 
         infoFactory.addAttribute("uri", URI.class, true);
-        infoFactory.addAttribute("contextPath", String.class, true);
-        infoFactory.addAttribute("contextPriorityClassLoader", Boolean.TYPE, true);
         infoFactory.addAttribute("componentContext", ReadOnlyContext.class, true);
-        infoFactory.addAttribute("unshareableResources", Set.class, true);
-        infoFactory.addAttribute("applicationManagedSecurityResources", Set.class, true);
         infoFactory.addAttribute("userTransaction", UserTransactionImpl.class, true);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
+        infoFactory.addAttribute("webClassPath", URI[].class, true);
+        infoFactory.addAttribute("configurationBaseUrl", URL.class, true);
+        infoFactory.addAttribute("unshareableResources", Set.class, true);
+        infoFactory.addAttribute("applicationManagedSecurityResources", Set.class, true);
 
-        infoFactory.addReference("Configuration", ConfigurationParent.class);
-        infoFactory.addReference("JettyContainer", JettyContainer.class);
+        infoFactory.addAttribute("contextPath", String.class, true);
+        infoFactory.addAttribute("contextPriorityClassLoader", Boolean.TYPE, true);
+
         infoFactory.addReference("TransactionContextManager", TransactionContextManager.class);
         infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class);
+        infoFactory.addReference("JettyContainer", JettyContainer.class);
 
         infoFactory.setConstructor(new String[]{
             "uri",
             "componentContext",
             "userTransaction",
             "classLoader",
+            "webClassPath",
+            "configurationBaseUrl",
             "unshareableResources",
             "applicationManagedSecurityResources",
             "TransactionContextManager",
             "TrackedConnectionAssociator",
-            "Configuration",
             "JettyContainer",
         });
 
@@ -388,5 +406,4 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
-
 }

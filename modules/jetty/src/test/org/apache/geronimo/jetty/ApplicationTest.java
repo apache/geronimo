@@ -60,17 +60,19 @@ public class ApplicationTest extends TestCase {
     }
 
     public void testApplication() throws Exception {
-        URL url = Thread.currentThread().getContextClassLoader().getResource("deployables/war1/");
         GBeanMBean app = new GBeanMBean(JettyWebAppContext.GBEAN_INFO);
-        app.setAttribute("uri", URI.create(url.toString()));
-        app.setAttribute("contextPath", "/test");
+        app.setAttribute("uri", URI.create("war1/"));
         app.setAttribute("componentContext", null);
         UserTransactionImpl userTransaction = new UserTransactionImpl();
         app.setAttribute("userTransaction", userTransaction);
-        app.setReferencePatterns("Configuration", Collections.EMPTY_SET);
-        app.setReferencePatterns("JettyContainer", containerPatterns);
+        app.setAttribute("webClassPath", new URI[0]);
+        app.setAttribute("configurationBaseUrl", Thread.currentThread().getContextClassLoader().getResource("deployables/"));
         app.setReferencePattern("TransactionContextManager", tcmName);
         app.setReferencePattern("TrackedConnectionAssociator", tcaName);
+        app.setReferencePatterns("JettyContainer", containerPatterns);
+
+        app.setAttribute("contextPath", "/test");
+
         start(appName, app);
 
 

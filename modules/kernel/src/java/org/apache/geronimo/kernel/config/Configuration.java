@@ -172,6 +172,12 @@ public class Configuration implements GBeanLifecycle {
             // create and initialize GBeans
             gbeans = loadGBeans(gbeanState, classLoader);
 
+            // set configurationBaseUrl attribute on each gbean
+            for (Iterator i = gbeans.values().iterator(); i.hasNext();) {
+                GBeanMBean gbean = (GBeanMBean) i.next();
+                setGBeanBaseUrl(gbean, baseURL);
+            }
+
             // register all the GBeans
             for (Iterator i = gbeans.entrySet().iterator(); i.hasNext();) {
                 Map.Entry entry = (Map.Entry) i.next();
@@ -196,6 +202,18 @@ public class Configuration implements GBeanLifecycle {
         }
 
         log.info("Started configuration " + id);
+    }
+
+    private static void setGBeanBaseUrl(GBeanMBean gbean, URL baseUrl) throws ReflectionException, AttributeNotFoundException {
+        GBeanInfo gbeanInfo = gbean.getGBeanInfo();
+        Set attributes = gbeanInfo.getAttributes();
+        for (Iterator iterator = attributes.iterator(); iterator.hasNext();) {
+            GAttributeInfo attribute = (GAttributeInfo) iterator.next();
+            if (attribute.getName().equals("configurationBaseUrl") && attribute.getType().equals("java.net.URL")) {
+                gbean.setAttribute("configurationBaseUrl", baseUrl);
+                return;
+            }
+        }
     }
 
     public void doStop() {

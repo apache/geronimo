@@ -28,7 +28,6 @@ import java.net.URLClassLoader;
 import java.util.Collections;
 import java.util.List;
 import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 import javax.management.MalformedObjectNameException;
 
 import org.apache.geronimo.deployment.ConfigurationBuilder;
