@@ -71,10 +71,14 @@ import javax.management.ObjectName;
  * MalformedObjectNameException, such as when defining a static final in an
  * interface.
  *      
- * @version $Revision: 1.1 $ $Date: 2003/08/30 16:32:38 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/30 20:12:23 $
  */
 public class ObjectNameFactory
 {
+    //
+    // TODO: Replace Error with InvalidArgumentException
+    //
+    
     public static ObjectName create(String name) {
         try {
             return new ObjectName(name);

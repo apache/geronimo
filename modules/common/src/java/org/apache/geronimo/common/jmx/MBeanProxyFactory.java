@@ -61,47 +61,73 @@ import java.lang.reflect.Proxy;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
+import org.apache.geronimo.common.NullArgumentException;
+
 /**
  * Creates a dynamic proxy to an MBean by ObjectName.
  *
  * The interface type and object existance is not enforced during construction.
  * Instead, if a method is invoked on the proxy and there is no object registered
  * with the assigned name, an InvocationTargetException is thrown, which contains
- * an InstanceNotFoundException.  If an interface method that is not implemented by
+ * an InstanceNotFoundException.
+ *
+ * If an interface method that is not implemented by
  * the MBean is invoked, an InvocationTargetException is thrown, which contains an
  * NoSuchMethodException.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/30 17:49:17 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/30 20:12:23 $
  */
-public final class MBeanProxyFactory
+public class MBeanProxyFactory
 {
-    /** Disallow instantation. */
-    private MBeanProxyFactory() {}
-
     /**
      * Creates an MBean proxy using the specified interface to the objectName.
      *
-     * @param iface         The interface to implement for this proxy
+     * @param type          The interface to implement for this proxy
      * @param server        The MBeanServer in which the object is registered
      * @param objectName    The objectName of the MBean to proxy
      * @return              The new MBean proxy, which implemnts the specified interface.
      */
-    public static Object getProxy(final Class iface,
-                                  final MBeanServer server,
-                                  final ObjectName objectName)
+    public static Object create(final Class type,
+                                final MBeanServer server,
+                                final ObjectName objectName)
     {
-        assert iface != null;
-        assert iface.isInterface();
-        assert server != null;
+        if (type == null) {
+            throw new NullArgumentException("type");
+        }
+        if (!type.isInterface()) {
+            throw new IllegalArgumentException("Type is not an interface: " + type);
+        }
+        if (server == null) {
+            throw new NullArgumentException("server");
+        }
         
-        ClassLoader cl = iface.getClassLoader();
-        LocalHandler handler =  new LocalHandler(iface, server, objectName);
+        ClassLoader cl = type.getClassLoader();
+        Class[] types = { type, MBeanProxy.class };
         
-        return Proxy.newProxyInstance(
-            cl, new Class[] { iface, MBeanProxy.class }, handler
-        );
+        MBeanProxyHandler handler =  new MBeanProxyHandler(server, objectName);
+        
+        return Proxy.newProxyInstance(cl, types, handler);
     }
     
+    /**
+     * Creates an MBean proxy using the specified interface to the objectName.
+     *
+     * @param tyep          The interface to implement for this proxy
+     * @param objectName    The objectName of the MBean to proxy
+     * @return              The new MBean proxy, which implemnts the specified interface.
+     */
+    public static Object create(final Class type, final ObjectName objectName)
+    {
+        MBeanServer server = MBeanServerLocator.locate();
+        assert server != null;
+        
+        return create(type, server, objectName);
+    }
+    
+    /**
+     * An interface which all proxies created by {@link MBeanProxyFactory}
+     * will implement in addition to the requested interface.
+     */
     public static interface MBeanProxy
     {
         /**
@@ -117,24 +143,5 @@ public final class MBeanProxyFactory
          * @return   The ObjectName for this proxy.
          */
         MBeanServer getMBeanProxyMBeanServer();
-    }
-    
-    private static class LocalHandler 
-        extends AbstractMBeanProxyHandler
-    {
-        private ObjectName objectName;
-        
-        public LocalHandler(final Class iface,
-                            final MBeanServer server,
-                            final ObjectName objectName)
-        {
-            super(iface, server);
-            
-            this.objectName = objectName;
-        }
-        
-        public ObjectName getObjectName() {
-            return objectName;
-        }
     }
 }
