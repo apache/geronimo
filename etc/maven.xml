@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.15 $ $Date: 2003/09/01 17:31:26 $ -->
+<!-- $Revision: 1.16 $ $Date: 2003/09/01 18:16:12 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -175,7 +175,7 @@
       
       <uptodate property="${uptodatePropName}"
                 targetfile="${uptodateFile}">
-        <srcfiles dir= "${srcdic}" includes="**/*.java"/>
+        <srcfiles dir="${srcdic}" includes="**/*.java"/>
       </uptodate>
       
       <j:if test="${context.getVariable(uptodatePropName) == null}">
@@ -247,19 +247,23 @@
       <maven:addPath id="maven.compile.src.set"
                      refid="maven.castor.compile.src.set"/>
       
-      <j:new var="schemaFile" className="java.io.File">
-        <j:arg type="java.lang.String" value="${schema}"/>
-      </j:new>
-      
+      <u:file var="schemaFile" name="${schema}"/>
+      <j:if test="${binding != null}">
+        <u:file var="bindingFile" name="${binding}"/>
+      </j:if>
       <j:set var="uptodatePropName" value="castor.schema.${schemaFile.name}.uptodate"/>
-      <j:remove var="${uptodatePropName}"/>
       <j:set var="uptodateFile" value="${basedir}/target/castor/${schemaFile.name}.tstamp"/>
       
       <uptodate property="${uptodatePropName}"
-                srcfile="${schema}"
-                targetfile="${uptodateFile}"/>
+                targetfile="${uptodateFile}">
+        <!-- Evil hack to make uptodate work when I do not have a known basedir -->
+        <srcfiles dir="${schemaFile.parentFile.path}" includes="${schemaFile.name}"/>
+        <j:if test="${binding != null}">
+          <srcfiles dir="${bindingFile.parentFile.path}" includes="${bindingFile.name}"/>
+        </j:if>
+      </uptodate>
       
-      <j:if test="${context.getVariable(uptodatePropName) == null}">
+      <j:if test="${context.getVariable(uptodatePropName) != 'true'}">
         <echo message="Generating sources for ${schema}"/>
         
         <path id="castor.classpath">
@@ -267,7 +271,9 @@
         </path>
          
         <java className="org.exolab.castor.builder.SourceGenerator"
-                  failonerror="true" fork="yes">
+              failonerror="true"
+              fork="yes">
+          
           <classpath refid="castor.classpath"/>
           <arg value="-i"/>
           <arg value="${schema}"/>
