@@ -48,7 +48,7 @@ import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/07/08 22:07:54 $
+ * @version $Revision: 1.8 $ $Date: 2004/07/10 16:26:36 $
  */
 public class GSSAPIProtocolTest extends TestCase {
 
@@ -85,7 +85,7 @@ public class GSSAPIProtocolTest extends TestCase {
         public Object run() throws Exception {
             ThreadPool tp = new ThreadPool();
             tp.setKeepAliveTime(1 * 1000);
-            tp.setPoolSize(1);
+            tp.setPoolSize(5);
             tp.setPoolName("Client TP");
             tp.doStart();
 
@@ -165,7 +165,7 @@ public class GSSAPIProtocolTest extends TestCase {
         public Object run() throws Exception {
             ThreadPool tp = new ThreadPool();
             tp.setKeepAliveTime(1 * 1000);
-            tp.setPoolSize(1);
+            tp.setPoolSize(5);
             tp.setPoolName("Server TP");
             tp.doStart();
 
