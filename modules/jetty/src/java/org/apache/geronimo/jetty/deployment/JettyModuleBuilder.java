@@ -119,11 +119,9 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
     public XmlObject validateVendorDD(XmlObject vendorDD) throws DeploymentException {
         try {
-            // TODO this is totally wrong but works
-//            vendorDD = SchemaConversionUtils.getNestedObjectAsType(vendorDD, "web-app", JettyWebAppType.type);
-//            SchemaConversionUtils.validateDD(vendorDD);
-            vendorDD = ((JettyWebAppDocument)vendorDD).getWebApp();
+            vendorDD = SchemaConversionUtils.getNestedObjectAsType(vendorDD, "web-app", JettyWebAppType.type);
             vendorDD = SchemaConversionUtils.convertToGeronimoNamingSchema(vendorDD);
+            SchemaConversionUtils.validateDD(vendorDD);
             return vendorDD;
         } catch (Exception e) {
             throw new DeploymentException(e);
