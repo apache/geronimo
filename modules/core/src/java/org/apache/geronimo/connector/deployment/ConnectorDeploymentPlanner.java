@@ -112,7 +112,7 @@ import org.xml.sax.SAXException;
  * DeploymentPlanner in charge of the plannification of Connector deployments.
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/11/16 02:09:36 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/18 02:18:04 $
  */
 public class ConnectorDeploymentPlanner
         extends AbstractDeploymentPlanner {
@@ -307,9 +307,9 @@ public class ConnectorDeploymentPlanner
         DeployGeronimoMBean createTask =
                 new DeployGeronimoMBean(getServer(), metadata);
         plan.addTask(createTask);
-        InitializeMBeanInstance initTask =
-                new InitializeMBeanInstance(getServer(), metadata);
-        plan.addTask(initTask);
+//        InitializeMBeanInstance initTask =
+//                new InitializeMBeanInstance(getServer(), metadata);
+//        plan.addTask(initTask);
         StartMBeanInstance startTask =
                 new StartMBeanInstance(getServer(), metadata);
         plan.addTask(startTask);
