@@ -40,7 +40,7 @@ import org.apache.geronimo.security.RealmPrincipal;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:58:10 $
+ * @version $Revision: 1.3 $ $Date: 2004/05/22 15:25:35 $
  */
 public class ConfigurationEntryTest extends TestCase {
     protected Kernel kernel;
@@ -85,7 +85,6 @@ public class ConfigurationEntryTest extends TestCase {
         gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginService");
         loginService = new ObjectName("geronimo.security:type=LoginService");
         gbean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
-        gbean.setAttribute("Kernel", kernel);
         gbean.setAttribute("ReclaimPeriod", new Long(100));
         gbean.setAttribute("Algorithm", "HmacSHA1");
         gbean.setAttribute("Password", "secret");

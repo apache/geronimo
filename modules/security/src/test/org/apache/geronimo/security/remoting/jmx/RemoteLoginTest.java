@@ -43,7 +43,7 @@ import org.apache.geronimo.security.jaas.LoginServiceMBean;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/02/25 09:58:11 $
+ * @version $Revision: 1.6 $ $Date: 2004/05/22 15:25:35 $
  */
 public class RemoteLoginTest extends TestCase {
     Kernel kernel;
@@ -90,7 +90,6 @@ public class RemoteLoginTest extends TestCase {
         loginService = new ObjectName("geronimo.security:type=LoginService");
         gbean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
         gbean.setAttribute("ReclaimPeriod", new Long(100));
-        gbean.setAttribute("Kernel", kernel);
         gbean.setAttribute("Algorithm", "HmacSHA1");
         gbean.setAttribute("Password", "secret");
         kernel.loadGBean(loginService, gbean);

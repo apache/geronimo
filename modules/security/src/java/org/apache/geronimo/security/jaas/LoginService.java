@@ -57,7 +57,6 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.GeronimoSecurityException;
@@ -70,7 +69,7 @@ import org.apache.geronimo.security.realm.SecurityRealm;
 /**
  * An MBean that maintains a list of security realms.
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/25 09:58:09 $
+ * @version $Revision: 1.5 $ $Date: 2004/05/22 15:25:35 $
  */
 public class LoginService implements LoginServiceMBean, GBean {
 
@@ -91,7 +90,6 @@ public class LoginService implements LoginServiceMBean, GBean {
     private Map loginCache = new Hashtable();
     private long reclaimPeriod;
 
-    private Kernel kernel;
     private Collection realms = Collections.EMPTY_SET;
     private Collection loginModules = Collections.EMPTY_SET;
     private final static ClassLoader classLoader;
@@ -124,14 +122,6 @@ public class LoginService implements LoginServiceMBean, GBean {
 
     public void setReclaimPeriod(long reclaimPeriod) {
         this.reclaimPeriod = reclaimPeriod;
-    }
-
-    public Kernel getKernel() {
-        return kernel;
-    }
-
-    public void setKernel(Kernel kernel) {
-        this.kernel = kernel;
     }
 
     public Collection getRealms() throws GeronimoSecurityException {
@@ -466,7 +456,6 @@ public class LoginService implements LoginServiceMBean, GBean {
         infoFactory.addOperation(new GOperationInfo("abort", new String[]{LoginModuleId.class.getName()}));
         infoFactory.addOperation(new GOperationInfo("logout", new String[]{LoginModuleId.class.getName()}));
         infoFactory.addOperation(new GOperationInfo("retrieveSubject", new String[]{LoginModuleId.class.getName()}));
-        infoFactory.addAttribute(new GAttributeInfo("Kernel", true));
         infoFactory.addAttribute(new GAttributeInfo("ReclaimPeriod", true));
         infoFactory.addAttribute(new GAttributeInfo("Algorithm", true));
         infoFactory.addAttribute(new GAttributeInfo("Password", true));
