@@ -1,5 +1,5 @@
 ##
-## $Revision: 1.20 $ $Date: 2004/01/09 17:12:27 $
+## $Revision: 1.21 $ $Date: 2004/02/05 17:16:34 $
 ##
 
 Exit Criteria
@@ -7,11 +7,13 @@ Exit Criteria
 
 Copyrights & Licensing
 
-  -- Do all the software in the codebase has its copyright assigned to The
-    Apache Software Foundation?
+X -- Do all the software in the codebase has its copyright assigned to The
+     Apache Software Foundation?
+     Yes
 
-  -- Do All the software in the codebase, are licensed (or multi-licensed) under the
-    Apache licence?
+X -- Do All the software in the codebase, are licensed (or multi-licensed) under the
+     Apache licence?
+     Yes - all code is currently ASL1.1 and will move soon to ASL2.0
 
   -- Do all the software in the codebase,are compliant with the
      Specifications set by Java Community Process?(Wherever applicable)
@@ -28,48 +30,63 @@ Distribution rights
 
 Naming
 
-  --  Has the final name for the project decided?
+X -- Has the final name for the project decided?
 2003/12/21 vote on keeping the name Geronimo
       +1 jboynes, dblevins, adc, gstein, jdillon, djencks, dims, chirino, dain, janb, gregwilkins, bsnyder, rmonson, jules, geir
       -1 jstrachan
       Decision made on 2003/12/24 to keep the name Geronimo
 
-  --  Does the codebase,mailing list,bug tracker contain the right name of the project?
+X -- Does the codebase,mailing list,bug tracker contain the right name of the project?
      (In case,if the name geronimo is changed)
+     Yes
 
 Infrastructure
 
-  -- CVS modules created and committers added to avail file?
+X -- CVS modules created and committers added to avail file?
+     Yes:       http://cvs.apache.org/viewcvs.cgi/incubator-geronimo/
 
-  -- Are the developer,commit and user mailing lists set up and archived?
+X -- Are the developer,commit and user mailing lists set up and archived?
+     Developer: http://nagoya.apache.org/eyebrowse/SummarizeList?listId=140
+     CVS:       http://nagoya.apache.org/eyebrowse/SummarizeList?listId=141
+     User:      to be set up when a distribution is made
 
-  -- Bug tracking system enabled?
+X -- Bug tracking system enabled?
+     Yes:       http://nagoya.apache.org/jira/secure/BrowseProject.jspa?id=10220
 
-  -- wiki based documentation site enabled?
+X -- wiki based documentation site enabled?
+     Yes:       http://wiki.apache.org/geronimo
 
-  -- Has the project migrated to our infrastructure?
+X -- Has the project migrated to our infrastructure?
+     Yes
 
 Committers:
 
-  -- Have all of the active long-term volunteers been identified
+X -- Have all of the active long-term volunteers been identified
      and acknowledged as committers on the project?
+     Yes
 
-  -- Have all the commiters signed the CLA?
+X -- Have all the commiters signed the CLA?
+     Yes, with the exception of Simone Bordet. He is listed as a committer
+     but does not have commit access.
 
-  -- Do they have accounts on cvs.apache.org?
+X -- Do they have accounts on cvs.apache.org?
+     Yes
 
-  -- Are there three or more independent committers?
-X    Yes
+X -- Are there three or more independent committers?
+     Yes
 
 Collaborative Development:
 
-  -- Are project decisions being made in public by the committers?
+X -- Are project decisions being made in public by the committers?
+     Yes
 
-  -- Are the decision-making guidelines published and agreed to by
+X -- Are the decision-making guidelines published and agreed to by
      all of the committers?
+     Yes
 
   -- Does the documentation site has enough information on the architecure,design decisions and
      modules?
+
 
   -- Has the community decided on a policy for the composition of its 'steering committee'?
 
@@ -78,8 +95,9 @@ Collaborative Development:
      will move at the end of incubation (if any), and the Incubator PMC, decided the
      expected time frame of stay in incubator?
 
-  -- Has the community adopted the Apache voting rules and is otherwise following the Apache
+X -- Has the community adopted the Apache voting rules and is otherwise following the Apache
      guidelines?
+     Yes
 
 
 organisational acceptance:
