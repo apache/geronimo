@@ -67,11 +67,12 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.ServiceRef;
 /**
  * JavaBean for the geronimo-ejb-jar.xml tag entity
  *
- * @version $Revision: 1.6 $ $Date: 2003/11/18 22:22:28 $
+ * @version $Revision: 1.7 $ $Date: 2003/11/19 11:07:57 $
  */
 public class Entity extends org.apache.geronimo.deployment.model.ejb.Entity implements JNDIEnvironmentRefs {
 
     private Query[] update;
+    private Query[] call;
 
     public Entity() {
         super.setSecurityRoleRef(new SecurityRoleRef[0]);
@@ -298,4 +299,19 @@ public class Entity extends org.apache.geronimo.deployment.model.ejb.Entity impl
         return update[i];
     }
 
+    public Query[] getCall() {
+        return call;
+    }
+
+    public void setCall(Query[] call) {
+        this.call = call;
+    }
+
+    public void setCall(int i, Query cal) {
+        call[i] = cal;
+    }
+
+    public Query getCall(int i) {
+        return call[i];
+    }
 }

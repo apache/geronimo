@@ -76,7 +76,7 @@ import org.apache.geronimo.deployment.model.geronimo.ejb.EjbRelation;
 /**
  * Loads a Geronimo ejb-jar.xml file into POJOs
  *
- * @version $Revision: 1.13 $ $Date: 2003/11/19 08:01:52 $
+ * @version $Revision: 1.14 $ $Date: 2003/11/19 11:07:57 $
  */
 public class GeronimoEjbJarLoader {
     public static GeronimoEjbJarDocument load(Document doc) {
@@ -221,6 +221,8 @@ public class GeronimoEjbJarLoader {
             entities[i].setQuery(GeronimoEjbJarLoader.loadQueries(query));
             Element[] update = LoaderUtil.getChildren(root, "update");
             entities[i].setUpdate(GeronimoEjbJarLoader.loadQueries(update));
+            Element[] call = LoaderUtil.getChildren(root, "call");
+            entities[i].setCall(GeronimoEjbJarLoader.loadQueries(call));
         }
         return entities;
     }

@@ -240,6 +240,7 @@
             <xsd:element name="security-identity" type="j2ee:security-identityType" minOccurs="0"/>
             <xsd:element name="query" type="j2ee:queryType" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="update" type="j2ee:queryType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="call" type="j2ee:queryType" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
         <xsd:attribute name="id" type="xsd:ID"/>
     </xsd:complexType>
