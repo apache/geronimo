@@ -23,15 +23,13 @@ import org.apache.geronimo.messaging.NodeInfo;
 import org.apache.geronimo.messaging.io.IOContext;
 import org.apache.geronimo.messaging.remotenode.RemoteNodeConnection;
 import org.apache.geronimo.network.SelectorManager;
-import org.apache.geronimo.network.protocol.BufferProtocol;
 import org.apache.geronimo.network.protocol.Protocol;
 import org.apache.geronimo.network.protocol.ProtocolException;
-import org.apache.geronimo.network.protocol.ProtocolStack;
 import org.apache.geronimo.network.protocol.SocketProtocol;
 
 /**
  * 
- * @version $Revision: 1.2 $ $Date: 2004/06/03 14:39:44 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/17 03:45:41 $
  */
 public class RemoteNodeJoinerConnection
     extends AbstractRemoteNodeConnection
@@ -62,23 +60,14 @@ public class RemoteNodeJoinerConnection
         String hostName = nodeInfo.getAddress().getHostName();
         int port = nodeInfo.getPort();
 
-        ProtocolStack stack = new ProtocolStack();
-        
         SocketProtocol socketProtocol = new SocketProtocol();
         // TODO configurable.
         socketProtocol.setTimeout(10 * 1000);
         socketProtocol.setInterface(new InetSocketAddress(hostName, 0));
         socketProtocol.setAddress(new InetSocketAddress(hostName, port));
         socketProtocol.setSelectorManager(selectorManager);
-        stack.push(socketProtocol);
-        
-        BufferProtocol buffpt = new BufferProtocol();
-        buffpt.setThreadPool(selectorManager.getThreadPool());
-        stack.push(buffpt);
-
-        stack.setup();
-        
-        return stack;
+        socketProtocol.setup();
+        return socketProtocol;
     }
 
 }

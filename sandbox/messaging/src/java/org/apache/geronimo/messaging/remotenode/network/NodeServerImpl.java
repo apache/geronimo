@@ -35,8 +35,6 @@ import org.apache.geronimo.messaging.remotenode.RemoteNodeManager;
 import org.apache.geronimo.messaging.remotenode.admin.JoinReply;
 import org.apache.geronimo.network.SelectorManager;
 import org.apache.geronimo.network.protocol.AcceptableProtocol;
-import org.apache.geronimo.network.protocol.AcceptableProtocolStack;
-import org.apache.geronimo.network.protocol.BufferProtocol;
 import org.apache.geronimo.network.protocol.ProtocolException;
 import org.apache.geronimo.network.protocol.ProtocolFactory;
 import org.apache.geronimo.network.protocol.ServerSocketAcceptor;
@@ -47,7 +45,7 @@ import org.apache.geronimo.pool.ClockPool;
 /**
  * NodeServer implementation.
  *
- * @version $Revision: 1.4 $ $Date: 2004/07/08 05:13:29 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/17 03:45:41 $
  */
 public class NodeServerImpl
     implements NodeServer, AcceptedCallBack
@@ -89,26 +87,19 @@ public class NodeServerImpl
     }
 
     public void start() throws IOException, CommunicationException {
-        log.info("Starting NodeServer.");
-        AcceptableProtocolStack stack = new AcceptableProtocolStack();
-        
+        log.debug("Starting NodeServer.");
         SocketProtocol spt = new SocketProtocol();
         // TODO configurable.
         spt.setTimeout(10 * 1000);
         spt.setSelectorManager(selectorManager);
-        stack.push(spt);
 
-        BufferProtocol buffpt = new BufferProtocol();
-        buffpt.setThreadPool(selectorManager.getThreadPool());
-        stack.push(buffpt);
-        
         ProtocolFactory pf = new ProtocolFactory();
         pf.setClockPool(clockPool);
         // TODO configurable.
         pf.setMaxAge(Long.MAX_VALUE);
         pf.setMaxInactivity(1 * 60 * 60 * 1000);
         pf.setReclaimPeriod(10 * 1000);
-        pf.setTemplate(stack);
+        pf.setTemplate(spt);
         pf.setAcceptedCallBack(this);
 
         serverSocketAcceptor.setAcceptorListener(pf);
