@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.19 $ $Date: 2003/09/01 19:44:14 $ -->
+<!-- $Revision: 1.20 $ $Date: 2003/09/01 20:47:04 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -245,7 +245,7 @@
   <goal name="xdoclet:jmxdoclet:test-compile">
     <xdoclet:jmxdoclet
       srcdir="${basedir}/src/test"
-      destdir="${basedir}/target/test-xodclet/jmx"
+      destdir="${basedir}/target/test-xdoclet/jmx"
       appendSet="maven.test.compile.src.set"/>
   </goal>
   
