@@ -40,20 +40,21 @@ import org.apache.geronimo.messaging.NodeInfo;
 import org.apache.geronimo.pool.ClockPool;
 
 import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
+import EDU.oswego.cs.dl.util.concurrent.QueuedExecutor;
 
 /**
- * Heartbeats listeners.
+ * Heartbeats listener.
  * <BR>
  * It joins the multicast group associated to the bound cluster and monitors
  * node heartbeats. When an heartbeat is received for the very first time, it
- * adds it the underlying cluster. Conversely, when a configurable number of
+ * adds it to the underlying cluster. Conversely, when a configurable number of
  * heartbeats have been missed, it removes it from the underlying cluster.
  * <BR>
  * This service must be executed by a single node of the cluster. If the node
  * running this service fails, then another node of the cluster should start
  * automatically this service.
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/17 03:44:18 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/20 00:01:54 $
  */
 public class ClusterHBReceiver
     implements GBeanLifecycle
@@ -84,6 +85,11 @@ public class ClusterHBReceiver
      */
     private final Map trackers;
 
+    /**
+     * Queue the cluster operations (add or remove node).
+     */
+    private QueuedExecutor queuedExecutor;
+    
     private MulticastSocket socket;
 
     /**
@@ -122,6 +128,7 @@ public class ClusterHBReceiver
         socket.joinGroup(info.getAddress());
         running = true;
         new Thread(new HearbeatListener()).start();
+        queuedExecutor = new QueuedExecutor();
     }
 
     public void doStop() throws WaitingException, Exception {
@@ -130,6 +137,7 @@ public class ClusterHBReceiver
         stopTrackers();
         socket.leaveGroup(info.getAddress());
         socket.close();
+        queuedExecutor.shutdownAfterProcessingCurrentlyQueuedTasks();
     }
 
     public void doFail() {
@@ -142,6 +150,7 @@ public class ClusterHBReceiver
             log.error("Can not leave group", e);
         }
         socket.close();
+        queuedExecutor.shutdownAfterProcessingCurrentlyQueuedTasks();
     }
 
     /**
@@ -181,23 +190,50 @@ public class ClusterHBReceiver
                         log.error(e);
                         break;
                     }
+                    long timestamp = System.currentTimeMillis();
                     ByteArrayInputStream memIn =
                         new ByteArrayInputStream(buf, 0, packet.getLength());
                     ObjectInputStream in = new ObjectInputStream(memIn);
                     NodeInfo nodeInfo = (NodeInfo) in.readObject();
-                    long tempo = in.readLong();
                     HeartbeatTracker tracker;
                     synchronized(trackers) {
                         tracker = (HeartbeatTracker) trackers.get(nodeInfo);
                         if ( null == tracker ) {
+                            long tempo = in.readLong();
                             tracker = new HeartbeatTracker(nodeInfo, tempo);
-                            tracker.start();
+                            trackers.put(nodeInfo, tracker);
+                            // Does not start the tracker in this thread
+                            // as one wants this loop to reflect "correct"
+                            // timestamps. When a tracker is started, it
+                            // adds its associated node to the cluster, which
+                            // can takes some time.
+                            queuedExecutor.execute(new StartTracker(tracker));
                         }
                     }
-                    tracker.lastTimestamp = System.currentTimeMillis();
+                    tracker.lastTimestamp = timestamp;
                 } catch (Exception e) {
                     log.error("Error while listening heartbeat", e);
                 }
+            }
+        }
+    }
+    
+    /**
+     * Starts an heartbeat tracker.
+     */
+    private class StartTracker implements Runnable {
+        private final HeartbeatTracker tracker;
+        private StartTracker(HeartbeatTracker aTracker) {
+            tracker = aTracker;
+        }
+        public void run() {
+            try {
+                tracker.start();
+            } catch (NodeException e) {
+                synchronized(trackers) {
+                    trackers.remove(tracker.node);
+                }
+                log.error("Can not start tracker", e);
             }
         }
     }
@@ -237,6 +273,13 @@ public class ClusterHBReceiver
                     stop();
                 } catch (NodeException e) {
                     log.error(e);
+                } catch (Throwable e) {
+                    // Ensures that the underlying thread of ClockDaemon
+                    // is not interrupted.
+                    // TODO as a matter of fact, this happen if a node
+                    // fails during a reconfiguration. There is a bug in
+                    // the way exceptions are unwrapped via GBeans. 
+                    log.error(e);
                 }
             }
         }
@@ -244,7 +287,6 @@ public class ClusterHBReceiver
             cluster.addMember(node);
             ticket = clockPool.getClockDaemon().
                 executePeriodically(delay, this, false);
-            trackers.put(node, this);
         }
         public void stop() throws NodeException {
             synchronized(trackers) {
