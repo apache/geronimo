@@ -58,14 +58,11 @@ package org.apache.geronimo.twiddle.cli;
 
 import java.io.PrintWriter;
 import java.io.OutputStreamWriter;
+import java.io.InputStream;
 
 import java.net.URL;
 
 import com.werken.classworlds.ClassWorld;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.impl.LogFactoryImpl;
 
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.Option;
@@ -85,21 +82,10 @@ import org.apache.geronimo.twiddle.util.HelpFormatter;
 /**
  * Command-line interface to <code>Twiddle</code>.
  *
- * @version $Revision: 1.11 $ $Date: 2003/08/27 10:38:38 $
+ * @version $Revision: 1.12 $ $Date: 2003/08/27 11:08:57 $
  */
 public class Main
 {
-    static {
-        // Add our default Commons Logger that support the trace level
-        if (System.getProperty(LogFactoryImpl.LOG_PROPERTY) == null) {
-            System.setProperty(
-                LogFactoryImpl.LOG_PROPERTY,
-                "org.apache.geronimo.common.log.log4j.CachingLog4jLog");
-        }
-    }
-    
-    private static final Log log = LogFactory.getLog(Main.class);
-    
     private String filename = "etc/twiddle.conf";
     private ClassWorld world;
     
@@ -198,16 +184,17 @@ public class Main
             throw new NullArgumentException("args");
         }
         
+        // Read property defaults
+        InputStream input = getClass().getResourceAsStream("/twiddle.properties");
+        if (input != null) {
+            System.getProperties().load(input);
+        }
+        
         // Process command-line options
         args = processCommandLine(args);
         
         URL homeURL = Twiddle.getHomeURL();
         URL configURL = new URL(homeURL, filename);
-        
-        if (log.isDebugEnabled()) {
-            log.debug("Home URL: " + homeURL);
-            log.debug("Configuration URL: " + configURL);
-        }
         
         ConfigurationReader reader = new ConfigurationReader();
         Configuration config = reader.read(configURL);
