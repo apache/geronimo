@@ -97,18 +97,18 @@ public class TestTransactionManager extends TestCase {
         MockResource res1 = rm1.getResource("rm1");
         tm.begin();
         tx = tm.getTransaction();
-        assertNull(res1.getXid());
+        assertNull(res1.getCurrentXid());
         assertTrue(tx.enlistResource(res1));
-        assertNotNull(res1.getXid());
+        assertNotNull(res1.getCurrentXid());
         assertTrue(tx.delistResource(res1, XAResource.TMFAIL));
-        assertNull(res1.getXid());
+        assertNull(res1.getCurrentXid());
         tm.rollback();
 
         tm.begin();
         tx = tm.getTransaction();
         assertTrue(tx.enlistResource(res1));
         tm.rollback();
-        assertNull(res1.getXid());
+        assertNull(res1.getCurrentXid());
     }
 
     protected void setUp() throws Exception {

@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.IdentityHashMap;
 
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
@@ -50,10 +51,11 @@ public class TransactionImpl implements Transaction {
     private final XidFactory xidFactory;
     private final Xid xid;
     private final TransactionLog txnLog;
+    private final List syncList = new ArrayList(5);
+    private final LinkedList resourceManagers = new LinkedList();
+    private final IdentityHashMap activeXaResources = new IdentityHashMap(3);
+    private final IdentityHashMap suspendedXaResources = new IdentityHashMap(3);
     private int status = Status.STATUS_NO_TRANSACTION;
-    private List syncList = new ArrayList(5);
-    private LinkedList resourceManagers = new LinkedList();
-    private Map xaResources = new HashMap(3);
     private Object logMark;
 
     TransactionImpl(XidFactory xidFactory, TransactionLog txnLog) throws SystemException {
@@ -131,14 +133,25 @@ public class TransactionImpl implements Transaction {
                 throw new IllegalStateException("Status is " + getStateString(status));
         }
 
+        if (activeXaResources.containsKey(xaRes)) {
+            throw new IllegalStateException("xaresource: " + xaRes + " is already enlisted!");
+        }
+
         try {
+            TransactionBranch manager = (TransactionBranch) suspendedXaResources.remove(xaRes);
+            if (manager != null) {
+                //we know about this one, it was suspended
+                xaRes.start(manager.getBranchId(), XAResource.TMRESUME);
+                activeXaResources.put(xaRes, manager);
+                return true;
+            }
+            //it is not suspended.
             for (Iterator i = resourceManagers.iterator(); i.hasNext();) {
-                TransactionBranch manager = (TransactionBranch) i.next();
+                manager = (TransactionBranch) i.next();
                 boolean sameRM;
                 //if the xares is already known, we must be resuming after a suspend.
                 if (xaRes == manager.getCommitter()) {
-                    xaRes.start(manager.getBranchId(), XAResource.TMRESUME);
-                    return true;
+                    throw new IllegalStateException("xaRes " + xaRes + " is a committer but is not active or suspended");
                 }
                 //Otherwise, see if this is a new xares for the same resource manager
                 try {
@@ -149,14 +162,14 @@ public class TransactionImpl implements Transaction {
                 }
                 if (sameRM) {
                     xaRes.start(manager.getBranchId(), XAResource.TMJOIN);
-                    xaResources.put(xaRes, manager);
+                    activeXaResources.put(xaRes, manager);
                     return true;
                 }
             }
-
+            //we know nothing about this XAResource or resource manager
             Xid branchId = xidFactory.createBranch(xid, resourceManagers.size() + 1);
             xaRes.start(branchId, XAResource.TMNOFLAGS);
-            addBranchXid(xaRes,  branchId);
+            activeXaResources.put(xaRes, addBranchXid(xaRes,  branchId));
             return true;
         } catch (XAException e) {
             log.warn("Unable to enlist XAResource " + xaRes, e);
@@ -165,6 +178,9 @@ public class TransactionImpl implements Transaction {
     }
 
     public synchronized boolean delistResource(XAResource xaRes, int flag) throws IllegalStateException, SystemException {
+        if (!(flag == XAResource.TMFAIL || flag == XAResource.TMSUCCESS || flag == XAResource.TMSUSPEND)) {
+            throw new IllegalStateException("invalid flag for delistResource: " + flag);
+        }
         if (xaRes == null) {
             throw new IllegalArgumentException("XAResource is null");
         }
@@ -175,12 +191,23 @@ public class TransactionImpl implements Transaction {
             default:
                 throw new IllegalStateException("Status is " + getStateString(status));
         }
-        TransactionBranch manager = (TransactionBranch) xaResources.remove(xaRes);
+        TransactionBranch manager = (TransactionBranch) activeXaResources.remove(xaRes);
         if (manager == null) {
-            throw new IllegalStateException("Resource not enlisted");
+            if (flag == XAResource.TMSUSPEND) {
+                throw new IllegalStateException("trying to suspend an inactive xaresource: " + xaRes);
+            }
+            //not active, and we are not trying to suspend.  We must be ending tx.
+            manager = (TransactionBranch) suspendedXaResources.remove(xaRes);
+            if (manager == null) {
+                throw new IllegalStateException("Resource not known to transaction: " + xaRes);
+            }
         }
+
         try {
             xaRes.end(manager.getBranchId(), flag);
+            if (flag == XAResource.TMSUSPEND) {
+                suspendedXaResources.put(xaRes, manager);
+            }
             return true;
         } catch (XAException e) {
             log.warn("Unable to delist XAResource " + xaRes, e);
@@ -460,12 +487,17 @@ public class TransactionImpl implements Transaction {
     }
 
     private void endResources() {
+        endResources(activeXaResources);
+        endResources(suspendedXaResources);
+    }
+
+    private void endResources(IdentityHashMap resourceMap) {
         while (true) {
             XAResource xaRes;
             TransactionBranch manager;
             int flags;
             synchronized (this) {
-                Set entrySet = xaResources.entrySet();
+                Set entrySet = resourceMap.entrySet();
                 if (entrySet.isEmpty()) {
                     return;
                 }
@@ -473,7 +505,7 @@ public class TransactionImpl implements Transaction {
                 xaRes = (XAResource) entry.getKey();
                 manager = (TransactionBranch) entry.getValue();
                 flags = (status == Status.STATUS_MARKED_ROLLBACK) ? XAResource.TMFAIL : XAResource.TMSUCCESS;
-                xaResources.remove(xaRes);
+                resourceMap.remove(xaRes);
             }
             try {
                 xaRes.end(manager.getBranchId(), flags);
@@ -578,10 +610,12 @@ public class TransactionImpl implements Transaction {
         }
     }
 
-    public void addBranchXid(XAResource xaRes, Xid branchId) {
+    //when used from recovery, do not add manager to active or suspended resource maps.
+    // The xaresources have already been ended with TMSUCCESS.
+    public TransactionBranch addBranchXid(XAResource xaRes, Xid branchId) {
         TransactionBranch manager = new TransactionBranch(xaRes, branchId);
         resourceManagers.add(manager);
-        xaResources.put(xaRes, manager);
+        return manager;
     }
 
     private static class TransactionBranch implements TransactionBranchInfo {

@@ -25,19 +25,19 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
 /**
- *
- *
  * @version $Rev$ $Date$
  */
 public class MockResource implements NamedXAResource {
     private String xaResourceName = "mockResource";
-    private Xid xid;
+    private Xid currentXid;
     private MockResourceManager manager;
     private int timeout = 0;
     private boolean prepared;
     private boolean committed;
     private boolean rolledback;
     private Set preparedXids = new HashSet();
+    private Set knownXids = new HashSet();
+    private Set finishedXids = new HashSet();//end was called with TMSUCCESS or TMFAIL
 
     public MockResource(MockResourceManager manager, String xaResourceName) {
         this.manager = manager;
@@ -52,12 +52,18 @@ public class MockResource implements NamedXAResource {
         return false;
     }
 
-    public Xid getXid() {
-        return xid;
+    public Xid getCurrentXid() {
+        return currentXid;
     }
 
     public void start(Xid xid, int flags) throws XAException {
-        if (this.xid != null) {
+        if (this.currentXid != null) {
+            throw new XAException(XAException.XAER_PROTO);
+        }
+        if (flags == XAResource.TMRESUME && !knownXids.contains(xid)) {
+            throw new XAException(XAException.XAER_PROTO);
+        }
+        if (finishedXids.contains(xid)) {
             throw new XAException(XAException.XAER_PROTO);
         }
         if ((flags & XAResource.TMJOIN) != 0) {
@@ -65,28 +71,52 @@ public class MockResource implements NamedXAResource {
         } else {
             manager.newTx(xid, this);
         }
-        this.xid = xid;
+        this.currentXid = xid;
+        if (!knownXids.contains(xid)) {
+            knownXids.add(xid);
+        }
     }
 
     public void end(Xid xid, int flags) throws XAException {
-        if (this.xid != xid) {
-            throw new XAException(XAException.XAER_INVAL);
+        if (!knownXids.contains(xid)) {
+            throw new XAException(XAException.XAER_PROTO);
         }
-        this.xid = null;
+        if (flags == XAResource.TMSUSPEND) {
+            if (currentXid == null) {
+                throw new XAException(XAException.XAER_PROTO);
+            } else if (this.currentXid != xid) {
+                throw new XAException(XAException.XAER_PROTO);
+            }
+        } else if (flags == XAResource.TMFAIL || flags == XAResource.TMSUCCESS) {
+            if (finishedXids.contains(xid)) {
+                throw new XAException(XAException.XAER_PROTO);
+            }
+            finishedXids.add(xid);
+        }
+        this.currentXid = null;
     }
 
     public int prepare(Xid xid) throws XAException {
+        if (!finishedXids.contains(xid)) {
+            throw new XAException(XAException.XAER_PROTO);
+        }
         prepared = true;
         preparedXids.add(xid);
         return XAResource.XA_OK;
     }
 
     public void commit(Xid xid, boolean onePhase) throws XAException {
+        if (!finishedXids.contains(xid)) {
+            throw new XAException(XAException.XAER_PROTO);
+        }
         preparedXids.remove(xid);
         committed = true;
     }
 
     public void rollback(Xid xid) throws XAException {
+        if (!finishedXids.contains(xid)) {
+            throw new XAException(XAException.XAER_PROTO);
+        }
         rolledback = true;
         preparedXids.remove(xid);
         manager.forget(xid, this);
