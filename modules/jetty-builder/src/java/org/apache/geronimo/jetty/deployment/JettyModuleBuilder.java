@@ -1006,18 +1006,18 @@ public class JettyModuleBuilder implements ModuleBuilder {
         //Create the uncheckedPermissions for WebResourcePermissions
         iter = uncheckedResourcePatterns.keySet().iterator();
         while (iter.hasNext()) {
-            String name = (String)iter.next();
-            String actions = (String)uncheckedResourcePatterns.get(name);
+            UncheckedItem item = (UncheckedItem)iter.next();
+            String actions = (String)uncheckedResourcePatterns.get(item);
 
-            uncheckedPermissions.add(new WebResourcePermission(name, actions));
+            uncheckedPermissions.add(new WebResourcePermission(item.getName(), actions));
         }
         //Create the uncheckedPermissions for WebUserDataPermissions
         iter = uncheckedUserPatterns.keySet().iterator();
         while (iter.hasNext()) {
-            String name = (String)iter.next();
-            String actions = (String)uncheckedUserPatterns.get(name);
+            UncheckedItem item = (UncheckedItem)iter.next();
+            String actions = (String)uncheckedUserPatterns.get(item);
 
-            uncheckedPermissions.add(new WebUserDataPermission(name, actions));
+            uncheckedPermissions.add(new WebUserDataPermission(item.getName(), actions));
         }
 
         webModuleData.setAttribute("excludedPermissions", excludedPermissions);
@@ -1026,13 +1026,14 @@ public class JettyModuleBuilder implements ModuleBuilder {
     }
 
     private void addOrUpdatePattern(Map patternMap, String name, String actions){
-        String oldActions = (String)patternMap.get(name);
-        if (oldActions != null){
-            patternMap.put(name,actions + "," + oldActions);
+        UncheckedItem item = new UncheckedItem(name, actions);
+        String existingActions = (String)patternMap.get(item);
+        if (existingActions != null){
+            patternMap.put(item, actions + "," + existingActions);
             return;
         }
 
-        patternMap.put(name, actions);
+        patternMap.put(item, actions);
     }
 
     private static Set collectRoleNames(WebAppType webApp) {
@@ -1131,6 +1132,55 @@ public class JettyModuleBuilder implements ModuleBuilder {
         if (webApp.getLoginConfigArray().length > 1) throw new DeploymentException("Multiple <login-config> elements found");
     }
 
+    class UncheckedItem{
+        final static int NA = 0x00;
+        final static int INTEGRAL = 0x01;
+        final static int CONFIDENTIAL = 0x02;
+
+        private int transportType = NA;
+        private String name;
+
+        public UncheckedItem(String name, String actions){
+            setName(name);
+            setTransportType(actions);
+        }
+
+        public boolean equals(Object o){
+            UncheckedItem item = (UncheckedItem)o;
+            return item.getKey().equals(this.getKey());
+        }
+
+        public String getKey(){
+            return (name + transportType);
+        }
+
+        public int hashCode(){
+            return getKey().hashCode();
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public int getTransportType() {
+            return transportType;
+        }
+
+        public void setTransportType(String actions) {
+            String[] tokens = actions.split(":", 2);
+            if (tokens.length == 2) {
+                if (tokens[1].equals("INTEGRAL")) {
+                    this.transportType = INTEGRAL;
+                } else if (tokens[1].equals("CONFIDENTIAL")) {
+                    this.transportType = CONFIDENTIAL;
+                }
+            } 
+        }
+    }
 
     public static final GBeanInfo GBEAN_INFO;
 
