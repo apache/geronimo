@@ -363,7 +363,7 @@
          -->
 
         <j:if test="${context.getVariable('module.types') == null}">
-            <j:set var="module.types" value="modules,applications"/>
+            <j:set var="module.types" value="modules,applications,plugins"/>
         </j:if>
 
         <j:if test="${context.getVariable('modules') == null}">
