@@ -28,7 +28,7 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/25 08:22:07 $
+ * @version $Revision: 1.2 $ $Date: 2004/08/01 02:04:41 $
  *
  * */
 public class DistributeModule extends AbstractModuleCommand {
@@ -51,6 +51,14 @@ public class DistributeModule extends AbstractModuleCommand {
 
     public void setPlan(String plan) {
         this.plan = plan;
+    }
+
+    public String getHome() {
+        return home;
+    }
+
+    public void setHome(String home) {
+        this.home = home;
     }
 
     public void execute() throws Exception {
@@ -80,11 +88,4 @@ public class DistributeModule extends AbstractModuleCommand {
         }
     }
 
-    public String getHome() {
-        return home;
-    }
-
-    public void setHome(String home) {
-        this.home = home;
-    }
 }
