@@ -56,30 +56,6 @@ public class WebServiceDeployer {
     protected final Log log = LogFactory.getLog(getClass());
 
     /**
-     * Field j2eeDomainName
-     */
-    private static final String j2eeDomainName =
-            AxisGeronimoConstants.J2EE_DOMAIN_NAME;
-
-    /**
-     * Field j2eeServerName
-     */
-    private static final String j2eeServerName =
-            AxisGeronimoConstants.J2EE_SERVER_PREFIX;
-
-    /**
-     * Field transactionManagerObjectName
-     */
-    private static final ObjectName transactionManagerObjectName =
-            JMXUtil.getObjectName(j2eeDomainName + ":type=TransactionManager");
-
-    /**
-     * Field connectionTrackerObjectName
-     */
-    private static final ObjectName connectionTrackerObjectName =
-            JMXUtil.getObjectName(j2eeDomainName + ":type=ConnectionTracker");
-
-    /**
      * Field j2eeModuleName
      */
     private String j2eeModuleName;
@@ -337,7 +313,7 @@ public class WebServiceDeployer {
              * But this can quickly fix looking at it.      
              */
 
-            OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(kernel);
+            OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder();
 //            ClassLoader oldCl =
 //                    Thread.currentThread().getContextClassLoader();
 //            ClassLoader cl =
@@ -355,7 +331,7 @@ public class WebServiceDeployer {
                                 AxisGeronimoConstants.TRACKED_CONNECTION_ASSOCIATOR_NAME,
                                 AxisGeronimoConstants.TRANSACTIONAL_TIMER_NAME,
                                 AxisGeronimoConstants.NONTRANSACTIONAL_TIMER_NAME,
-                                null, moduleBuilder, moduleBuilder, null, null, null, null);
+                                null, moduleBuilder, moduleBuilder, null, null, null, null, null);
 
                 JarFile jarFile = null;
                 try {
