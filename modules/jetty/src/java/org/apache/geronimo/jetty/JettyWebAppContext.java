@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Set;
 import javax.resource.ResourceException;
 
@@ -61,7 +60,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     private final TrackedConnectionAssociator trackedConnectionAssociator;
     private final JettyContainer jettyContainer;
 
-    private boolean contextPriorityClassLoader = false;
     private final URI webAppRoot;
 
     /**
@@ -84,6 +82,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             UserTransactionImpl userTransaction,
             ClassLoader classLoader,
             URI[] webClassPath,
+            boolean contextPriorityClassLoader,
             URL configurationBaseUrl,
             Set unshareableResources,
             Set applicationManagedSecurityResources,
@@ -121,43 +120,8 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             classPathEntry = webAppRoot.resolve(classPathEntry);
             urls[i] = classPathEntry.toURL();
         }
-        this.classLoader = new URLClassLoader(urls, classLoader);
-    }
-
-    /**
-     * getContextPriorityClassLoader.
-     *
-     * @return True if this context should give web application class in preference over the containers
-     *         classes, as per the servlet specification recommendations.
-     */
-    public boolean getContextPriorityClassLoader() {
-        return contextPriorityClassLoader;
-    }
-
-    /**
-     * setContextPriorityClassLoader.
-     *
-     * @param b True if this context should give web application class in preference over the containers
-     * classes, as per the servlet specification recommendations.
-     */
-    public void setContextPriorityClassLoader(boolean b) {
-        contextPriorityClassLoader = b;
-    }
-
-    /**
-     * init the classloader. Uses the value of contextPriorityClassLoader to
-     * determine if the context needs to create its own classloader.
-     */
-    protected void initClassLoader(boolean forceContextLoader) throws MalformedURLException, IOException {
-        setClassLoader(classLoader);
-
-        // todo this has no effect since our classloader is not a Jetty context loader
-        setClassLoaderJava2Compliant(!contextPriorityClassLoader);
-        super.initClassLoader(forceContextLoader);
-
-        if (log.isDebugEnabled()) {
-            log.debug("classloader for " + getContextPath() + ": " + getClassLoader());
-        }
+        this.classLoader = new JettyClassLoader(urls, classLoader, contextPriorityClassLoader);
+        setClassLoader(this.classLoader);
     }
 
     public void handle(String pathInContext,
@@ -218,6 +182,9 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     }
 
     public void doStart() throws WaitingException, Exception {
+        // reset the classsloader... jetty likes to set it to null when stopping
+        setClassLoader(classLoader);
+
         // merge Geronimo and Jetty Lifecycles
         if (!isStarting()) {
             super.start();
@@ -376,12 +343,12 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         infoFactory.addAttribute("userTransaction", UserTransactionImpl.class, true);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addAttribute("webClassPath", URI[].class, true);
+        infoFactory.addAttribute("contextPriorityClassLoader", boolean.class, true);
         infoFactory.addAttribute("configurationBaseUrl", URL.class, true);
         infoFactory.addAttribute("unshareableResources", Set.class, true);
         infoFactory.addAttribute("applicationManagedSecurityResources", Set.class, true);
 
         infoFactory.addAttribute("contextPath", String.class, true);
-        infoFactory.addAttribute("contextPriorityClassLoader", Boolean.TYPE, true);
 
         infoFactory.addReference("TransactionContextManager", TransactionContextManager.class);
         infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class);
@@ -393,6 +360,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             "userTransaction",
             "classLoader",
             "webClassPath",
+            "contextPriorityClassLoader",
             "configurationBaseUrl",
             "unshareableResources",
             "applicationManagedSecurityResources",

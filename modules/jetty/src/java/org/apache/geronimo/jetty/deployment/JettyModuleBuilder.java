@@ -18,20 +18,19 @@
 package org.apache.geronimo.jetty.deployment;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.FileFilter;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.MalformedURLException;
-import java.net.URLClassLoader;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.LinkedList;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import javax.management.AttributeNotFoundException;
@@ -50,6 +49,7 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
+import org.apache.geronimo.jetty.JettyClassLoader;
 import org.apache.geronimo.jetty.JettyWebAppContext;
 import org.apache.geronimo.jetty.JettyWebAppJACCContext;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
@@ -254,6 +254,9 @@ public class JettyModuleBuilder implements ModuleBuilder {
     public String addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
         WebModule webModule = (WebModule) module;
 
+        WebAppType webApp = (WebAppType) webModule.getSpecDD();
+        JettyWebAppType jettyWebApp = (JettyWebAppType) webModule.getVendorDD();
+
         // construct the webClassLoader
         URI[] webClassPath = getWebClassPath(earContext, webModule);
         URI baseUri = earContext.getTargetFile(URI.create(webModule.getTargetPath() + "/")).toURI();
@@ -266,11 +269,12 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 throw new DeploymentException("Invalid web class path element: path=" + path + ", baseUri=" + baseUri);
             }
         }
-        ClassLoader webClassLoader = new URLClassLoader(webClassPathURLs, cl);
 
-
-        WebAppType webApp = (WebAppType) webModule.getSpecDD();
-        JettyWebAppType jettyWebApp = (JettyWebAppType) webModule.getVendorDD();
+        boolean contextPriorityClassLoader = false;
+        if (jettyWebApp != null) {
+            contextPriorityClassLoader = Boolean.valueOf(jettyWebApp.getContextPriorityClassloader()).booleanValue();
+        }
+        ClassLoader webClassLoader = new JettyClassLoader(webClassPathURLs, cl, contextPriorityClassLoader);
 
         if (jettyWebApp != null) {
             JettyGbeanType[] gbeans = jettyWebApp.getGbeanArray();
@@ -321,7 +325,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             setResourceEnvironment(gbean, webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray());
 
             gbean.setAttribute("contextPath", webModule.getContextRoot());
-            gbean.setAttribute("contextPriorityClassLoader", Boolean.valueOf(jettyWebApp.getContextPriorityClassloader()));
+            gbean.setAttribute("contextPriorityClassLoader", Boolean.valueOf(contextPriorityClassLoader));
 
             gbean.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
             gbean.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerObjectName());

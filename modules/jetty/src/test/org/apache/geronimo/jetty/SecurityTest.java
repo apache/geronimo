@@ -110,6 +110,7 @@ public class SecurityTest extends TestCase {
         UserTransactionImpl userTransaction = new UserTransactionImpl();
         app.setAttribute("userTransaction", userTransaction);
         app.setAttribute("webClassPath", new URI[0]);
+        app.setAttribute("contextPriorityClassLoader", Boolean.FALSE);
         app.setAttribute("configurationBaseUrl", Thread.currentThread().getContextClassLoader().getResource("deployables/"));
         app.setAttribute("securityConfig", securityConfig);
         app.setAttribute("policyContextID", "TEST");
