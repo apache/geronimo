@@ -1,9 +1,0 @@
-*.ipr
-*.iws
-*.iml
-.project
-.classpath
-maven.log
-junit*.properties
-target
-velocity.log
