@@ -66,7 +66,7 @@ import java.util.LinkedList;
 import java.util.List;
 import javax.mail.search.SearchTerm;
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/16 04:29:52 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/04 01:07:33 $
  */
 public abstract class Message implements Part {
     public static class RecipientType implements Serializable {
@@ -87,6 +87,9 @@ public abstract class Message implements Part {
             } else {
                 return this;
             }
+        }
+        public String toString() {
+            return type;
         }
     }
     private static final Address[] ADDRESS_ARRAY = new Address[0];
