@@ -56,26 +56,20 @@
 package org.apache.geronimo.clustering.web;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import javax.management.MBeanServer;
+
 import javax.management.ObjectName;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.clustering.LocalCluster;
-import org.apache.geronimo.clustering.Data;
-import org.apache.geronimo.clustering.Tier;
 import org.apache.geronimo.clustering.MBeanImpl;
-import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
+import org.apache.geronimo.clustering.Tier;
 
 /**
  * An HttpSessionManager for &lt;distributable/&gt; webapps, which
  * backs onto the generic Geronimo clustering framework.
  *
- * @version $Revision: 1.8 $ $Date: 2004/01/21 14:12:12 $
+ * @version $Revision: 1.9 $ $Date: 2004/01/22 09:13:17 $
  */
 public class
   HttpSessionManager
@@ -161,7 +155,7 @@ public class
     _tier.deregisterData(getUID());
     // TODO - leave cluster
   }
-
+  /*
   public static GeronimoMBeanInfo
     getGeronimoMBeanInfo()
   {
@@ -179,4 +173,5 @@ public class
 
     return mbeanInfo;
   }
+  */
 }

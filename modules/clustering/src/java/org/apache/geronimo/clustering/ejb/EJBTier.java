@@ -57,24 +57,15 @@ package org.apache.geronimo.clustering.ejb;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
 import org.apache.geronimo.clustering.Tier;
-import org.apache.geronimo.clustering.Data;
-import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 
 /**
  * Responsible for maintaining state stored in the EJB tier -
  * i.e. StatefulSessions.
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/07 22:09:47 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/22 09:13:17 $
  */
 public class
   EJBTier
@@ -115,7 +106,7 @@ public class
   //----------------------------------------
   // GeronimoMBeanTarget
   //----------------------------------------
-
+  /*
   public static GeronimoMBeanInfo
     getGeronimoMBeanInfo()
   {
@@ -125,4 +116,5 @@ public class
     mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("StatefulSessionCount", true, false, "Number of Stateful Sessions stored in this Tier"));
     return mbeanInfo;
   }
+  */
 }

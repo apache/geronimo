@@ -56,24 +56,19 @@
 package org.apache.geronimo.clustering;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Vector;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 
 /**
  * A uniquely identifiable n->n intra-vm event-raising communications
  * channel. A number of nodes which are part of the same cluster and
  * reside in the same VM should share a single Cluster object.
  *
- * @version $Revision: 1.12 $ $Date: 2004/01/04 14:35:06 $
+ * @version $Revision: 1.13 $ $Date: 2004/01/22 09:13:16 $
  */
 public class
   LocalCluster
@@ -184,7 +179,7 @@ public class
       }
     }
   }
-
+  /*
   public static GeronimoMBeanInfo
     getGeronimoMBeanInfo()
   {
@@ -192,4 +187,5 @@ public class
     mbeanInfo.setTargetClass(LocalCluster.class);
     return mbeanInfo;
   }
+  */
 }

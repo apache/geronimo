@@ -55,20 +55,14 @@
  */
 package org.apache.geronimo.clustering;
 
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 
 /**
  * A base class containing fnality useful to Named MBeans of the
  * Clustering module.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/04 15:51:59 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 09:13:16 $
  */
 public abstract class
   NamedMBeanImpl
@@ -100,7 +94,7 @@ public abstract class
 
     return true;
   }
-
+  /*
   public static GeronimoMBeanInfo
     getGeronimoMBeanInfo()
   {
@@ -109,4 +103,5 @@ public abstract class
     mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Name", true, false, "this Object's name"));
     return mbeanInfo;
   }
+  */
 }

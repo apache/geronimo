@@ -55,26 +55,19 @@
  */
 package org.apache.geronimo.clustering;
 
-import java.util.HashMap;
 import java.util.Map;
-import javax.management.MBeanOperationInfo;
-import javax.management.MBeanServer;
+
 import javax.management.ObjectName;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
-import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
-import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
 
 /**
  * Tier abstracts code common to different Tier impls
  * into the same abstract base.
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/01/21 14:12:12 $
+ * @version $Revision: 1.8 $ $Date: 2004/01/22 09:13:16 $
  */
 public abstract class
   Tier
@@ -174,14 +167,15 @@ public abstract class
     }
     _log.info("Node Data:"+data);
   }
-
+  /*
   public void
     setMBeanContext(GeronimoMBeanContext context)
   {
     super.setMBeanContext(context);
     _log=LogFactory.getLog(getClass().getName()+"#"+getClusterName()+"/"+getNodeName()+"/"+getName());
   }
-
+  */
+    /*
   public static GeronimoMBeanInfo
     getGeronimoMBeanInfo()
   {
@@ -192,4 +186,5 @@ public abstract class
     mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("NodeObjectName", true, false, "ObjectName of this Tier's Node"));
     return mbeanInfo;
   }
+  */
 }

@@ -56,25 +56,15 @@
 package org.apache.geronimo.clustering.jndi;
 
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
 import org.apache.geronimo.clustering.Tier;
-import org.apache.geronimo.clustering.Data;
-import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 
 /**
  * Responsible for maintaining state stored in the JNDI tier -
  * i.e. StatefulSessions.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/07 22:09:47 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 09:13:17 $
  */
 public class
   JNDITier
@@ -99,7 +89,7 @@ public class
   //----------------------------------------
   // GeronimoMBeanTarget
   //----------------------------------------
-
+ /*
   public static GeronimoMBeanInfo
     getGeronimoMBeanInfo()
   {
@@ -107,4 +97,5 @@ public class
     mbeanInfo.setTargetClass(JNDITier.class);
     return mbeanInfo;
   }
+  */
 }

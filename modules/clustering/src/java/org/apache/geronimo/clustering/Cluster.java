@@ -56,14 +56,11 @@
 package org.apache.geronimo.clustering;
 
 import java.util.List;
-import javax.management.MBeanServer;
+
 import javax.management.ObjectName;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 
 /**
  * A 'Cluster' is a point of connection between all 'Cluster's with
@@ -72,7 +69,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
  * every node replicates every other node and CleverCluster, which
  * automagically partitions data into SubClusters etc...
  *
- * @version $Revision: 1.9 $ $Date: 2004/01/07 00:15:38 $
+ * @version $Revision: 1.10 $ $Date: 2004/01/22 09:13:16 $
  */
 public abstract class
   Cluster
@@ -144,14 +141,15 @@ public abstract class
   {
     _log.debug("failing");
   }
-
+  /*
   public void
     setMBeanContext(GeronimoMBeanContext context)
   {
     super.setMBeanContext(context);
     _log=LogFactory.getLog(Cluster.class.getName()+"#"+getName());
   }
-
+  */
+    /*
   public static GeronimoMBeanInfo
     getGeronimoMBeanInfo()
   {
@@ -161,4 +159,5 @@ public abstract class
     mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Data",    true, false, "Cluster's current state"));
     return mbeanInfo;
   }
+  */
 }
