@@ -56,15 +56,15 @@
 
 package org.apache.geronimo.common;
 
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * A static singleton that handles processing throwables that otherwise would
  * be ignored or dumped to System.err.
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/16 15:14:11 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/18 16:54:41 $
  */
 public final class ThrowableHandler
 {
@@ -82,7 +82,9 @@ public final class ThrowableHandler
         /** Warning throwable. */
         int WARNING = 2;
     }
-   
+
+    private ThrowableHandler() {
+    }
 
     /////////////////////////////////////////////////////////////////////////
     //                            Listener Methods                         //
@@ -176,6 +178,6 @@ public final class ThrowableHandler
      * @param t    Throwable to be handled.
      */
     public static void addWarning(Throwable t) {
-        add(Type.ERROR, t);
+        add(Type.WARNING, t);
     }
 }
