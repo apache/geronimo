@@ -114,18 +114,18 @@
       <xsd:element name="service-ref"
 		   type="j2ee:service-refType"
 		   minOccurs="0" maxOccurs="unbounded">
-	<xsd:key name="service-ref_handler-name-key">
-	  <xsd:annotation>
-	    <xsd:documentation>
-
-	      Defines the name of the handler. The name must be unique
-	      within the module.
-
-	    </xsd:documentation>
-	  </xsd:annotation>
-	  <xsd:selector xpath="j2ee:handler"/>
-	  <xsd:field xpath="j2ee:handler-name"/>
-	</xsd:key>
+<!--	<xsd:key name="service-ref_handler-name-key">-->
+<!--	  <xsd:annotation>-->
+<!--	    <xsd:documentation>-->
+<!---->
+<!--	      Defines the name of the handler. The name must be unique-->
+<!--	      within the module.-->
+<!---->
+<!--	    </xsd:documentation>-->
+<!--	  </xsd:annotation>-->
+<!--	  <xsd:selector xpath="j2ee:handler"/>-->
+<!--	  <xsd:field xpath="j2ee:handler-name"/>-->
+<!--	</xsd:key>-->
       </xsd:element>
     </xsd:sequence>
   </xsd:group>
