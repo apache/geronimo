@@ -282,6 +282,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
             if (jettyWebApp != null) {
                 jettyWebApp = (JettyWebAppType) SchemaConversionUtils.convertToGeronimoNamingSchema(jettyWebApp);
                 jettyWebApp = (JettyWebAppType) SchemaConversionUtils.convertToGeronimoSecuritySchema(jettyWebApp);
+                jettyWebApp = (JettyWebAppType) SchemaConversionUtils.convertToGeronimoServiceSchema(jettyWebApp);
                 SchemaConversionUtils.validateDD(jettyWebApp);
             } else {
                 String path;
