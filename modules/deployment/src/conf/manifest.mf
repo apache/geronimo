@@ -1,0 +1,1 @@
+J2EE-DeploymentFactory-Implementation-Class: org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl

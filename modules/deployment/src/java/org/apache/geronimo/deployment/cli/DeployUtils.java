@@ -42,9 +42,9 @@ public class DeployUtils {
                     line = prefix + line;
                     if(line.length() > endCol) {
                         pos = line.lastIndexOf(' ', endCol);
-                        if(pos < 0) {
+                        if(pos < indent) {
                             pos = line.indexOf(' ', endCol);
-                            if(pos < 0) {
+                            if(pos < indent) {
                                 pos = line.length();
                             }
                         }
@@ -75,6 +75,9 @@ public class DeployUtils {
     }
 
     public static boolean isJarFile(File file) throws DeploymentException {
+        if(file.isDirectory()) {
+            return false;
+        }
         if(!file.canRead()) {
             throw new DeploymentException("Cannot read file "+file.getAbsolutePath());
         }
@@ -89,5 +92,10 @@ public class DeployUtils {
         } catch(IOException e) {
             throw new DeploymentException("Cannot read from file "+file.getAbsolutePath(), e);
         }
+    }
+
+    public static void main(String[] args) {
+        String msg = "/home/ammulder/cvs/geronimo/modules/security/target/geronimo-security-1.0-SNAPSHOT.jar does not specify a J2EE-DeploymentFactory-Implementation-Class; cannot load driver.";
+        System.out.println(reformat("Error: "+msg, 4, 72));
     }
 }

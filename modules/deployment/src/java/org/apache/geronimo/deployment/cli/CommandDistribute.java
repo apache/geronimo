@@ -77,28 +77,28 @@ public class CommandDistribute extends AbstractCommand {
         File plan = null;
         if(args.length > 0) {
             File test = new File(args[0]);
-            if(DeployUtils.isJarFile(test)) {
+            if(DeployUtils.isJarFile(test) || test.isDirectory()) {
                 if(module != null) {
-                    throw new DeploymentSyntaxException("Module and plan cannot both be JAR files!");
+                    throw new DeploymentSyntaxException("Module and plan cannot both be JAR files or directories!");
                 }
                 module = test;
             } else {
                 if(plan != null) {
-                    throw new DeploymentSyntaxException("Module or plan must be a JAR file!");
+                    throw new DeploymentSyntaxException("Module or plan must be a JAR file or directory!");
                 }
                 plan = test;
             }
         }
         if(args.length > 1) {
             File test = new File(args[1]);
-            if(DeployUtils.isJarFile(test)) {
+            if(DeployUtils.isJarFile(test) || test.isDirectory()) {
                 if(module != null) {
-                    throw new DeploymentSyntaxException("Module and plan cannot both be JAR files!");
+                    throw new DeploymentSyntaxException("Module and plan cannot both be JAR files or directories!");
                 }
                 module = test;
             } else {
                 if(plan != null) {
-                    throw new DeploymentSyntaxException("Module or plan must be a JAR file!");
+                    throw new DeploymentSyntaxException("Module or plan must be a JAR file or directory!");
                 }
                 plan = test;
             }

@@ -18,7 +18,12 @@
 package org.apache.geronimo.deployment.cli;
 
 import java.util.*;
+import java.util.jar.JarFile;
 import java.net.URI;
+import java.io.BufferedReader;
+import java.io.PrintWriter;
+import java.io.IOException;
+import java.io.File;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
 import javax.enterprise.deploy.spi.factories.DeploymentFactory;
@@ -66,9 +71,13 @@ public class ServerConnection {
 
     private DeploymentManager manager;
     private KernelWrapper kernel;
+    private PrintWriter out;
+    private BufferedReader in;
 
-    public ServerConnection(String[] args, boolean forceLocal) throws DeploymentException {
+    public ServerConnection(String[] args, boolean forceLocal, PrintWriter out, BufferedReader in) throws DeploymentException {
         String uri = null, driver = null, user = null, password = null;
+        this.out = out;
+        this.in = in;
         for(int i = 0; i < args.length; i++) {
             String arg = args[i];
             if(arg.equals("--uri")) {
@@ -90,7 +99,7 @@ public class ServerConnection {
             throw new DeploymentSyntaxException("This command does not use normal server connectivity.  No standard options are allowed.");
         }
         if(!forceLocal) {
-            tryToConnect(uri, driver, user, password);
+            tryToConnect(uri, driver, user, password, true);
             if(manager == null) { // uri must be null too or we'd have thrown an exception
                 initializeKernel();
             }
@@ -116,26 +125,66 @@ public class ServerConnection {
         }
     }
 
-    private void tryToConnect(String uri, String driver, String user, String password) throws DeploymentException {
+    private void tryToConnect(String uri, String driver, String user, String password, boolean authPrompt) throws DeploymentException {
         DeploymentFactoryManager mgr = DeploymentFactoryManager.getInstance();
-        mgr.registerDeploymentFactory(new DeploymentFactoryImpl());
         if(driver != null) {
-            try {
-                DeploymentFactory factory = (DeploymentFactory) Class.forName(driver).newInstance();
-                mgr.registerDeploymentFactory(factory);
-            } catch(Exception e) {
-                throw new DeploymentSyntaxException("Unable to load driver class "+driver, e);
-            }
+            loadDriver(driver, mgr);
+        } else {
+            mgr.registerDeploymentFactory(new DeploymentFactoryImpl());
         }
         try {
             manager = mgr.getDeploymentManager(uri == null ? DEFAULT_URI : uri, user, password);
         } catch(AuthenticationFailedException e) { // server's there, you just can't talk to it
-            throw new DeploymentException("Unable to connect to server: "+e.getMessage());
+            if(authPrompt && (user == null || password == null)) {
+                doAuthPromptAndRetry(uri, user, password);
+            } else {
+                throw new DeploymentException("Unable to connect to server: "+e.getMessage());
+            }
         } catch(DeploymentManagerCreationException e) {
             if(uri != null) {
                 throw new DeploymentException("Unable to connect to server at "+uri+" -- "+e.getMessage());
             } //else, fall through and try local access
         }
+    }
+
+    private void loadDriver(String driver, DeploymentFactoryManager mgr) throws DeploymentException {
+        File file = new File(driver);
+        if(!file.exists() || !file.canRead() || !DeployUtils.isJarFile(file)) {
+            throw new DeploymentSyntaxException("Driver '"+file.getAbsolutePath()+"' is not a readable JAR file");
+        }
+        String className = null;
+        try {
+            JarFile jar = new JarFile(file);
+            className = jar.getManifest().getMainAttributes().getValue("J2EE-DeploymentFactory-Implementation-Class");
+            if(className == null) {
+                throw new DeploymentException("The driver JAR "+file.getAbsolutePath()+" does not specify a J2EE-DeploymentFactory-Implementation-Class; cannot load driver.");
+            }
+            jar.close();
+            DeploymentFactory factory = (DeploymentFactory) Class.forName(className).newInstance();
+            mgr.registerDeploymentFactory(factory);
+        } catch(DeploymentException e) {
+            throw e;
+        } catch(Exception e) {
+            throw new DeploymentSyntaxException("Unable to load driver class "+className+" from JAR "+file.getAbsolutePath(), e);
+        }
+    }
+
+    private void doAuthPromptAndRetry(String uri, String user, String password) throws DeploymentException {
+        try {
+            if(user == null) {
+                out.print("Username: ");
+                out.flush();
+                user = in.readLine();
+            }
+            if(password == null) {
+                out.print("Password: ");
+                out.flush();
+                password = in.readLine();
+            }
+        } catch(IOException e) {
+            throw new DeploymentException("Unable to prompt for login", e);
+        }
+        tryToConnect(uri, null, user, password, false);
     }
 
     public DeploymentManager getDeploymentManager() {

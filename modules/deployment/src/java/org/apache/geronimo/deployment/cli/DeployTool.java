@@ -22,6 +22,8 @@ import org.apache.geronimo.deployment.DeploymentException;
 import java.util.*;
 import java.io.PrintWriter;
 import java.io.OutputStreamWriter;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
 
 /**
  * The main class for the CLI deployer.  Handles chunking the input arguments
@@ -77,6 +79,7 @@ public class DeployTool {
 
     public boolean execute(String args[]) {
         PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out), true);
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         String command;
         String[] commonArgs = new String[0];
         String[] commandArgs = new String[0];
@@ -103,7 +106,7 @@ public class DeployTool {
             } else {
                 ServerConnection con = null;
                 try {
-                    con = new ServerConnection(commonArgs, dc.isLocalOnly());
+                    con = new ServerConnection(commonArgs, dc.isLocalOnly(), out, in);
                     try {
                         dc.execute(out, con, commandArgs);
                     } catch (DeploymentSyntaxException e) {

@@ -77,14 +77,14 @@ public class CommandPackage extends AbstractCommand {
         }
         if(i < args.length-1) {
             File test = new File(args[args.length-2]);
-            if(DeployUtils.isJarFile(test)) {
+            if(DeployUtils.isJarFile(test) || test.isDirectory()) {
                 if(module != null) {
-                    throw new DeploymentSyntaxException("Module and plan cannot both be JAR files!");
+                    throw new DeploymentSyntaxException("Module and plan cannot both be JAR files or directories!");
                 }
                 module = test;
             } else {
                 if(plan != null) {
-                    throw new DeploymentSyntaxException("Module or plan must be a text file!");
+                    throw new DeploymentSyntaxException("Module or plan must be a JAR file or directory!");
                 }
                 plan = test;
             }
@@ -93,12 +93,12 @@ public class CommandPackage extends AbstractCommand {
             File test = new File(args[args.length-2]);
             if(DeployUtils.isJarFile(test)) {
                 if(module != null) {
-                    throw new DeploymentSyntaxException("Module and plan cannot both be JAR files!");
+                    throw new DeploymentSyntaxException("Module and plan cannot both be JAR files or directories!");
                 }
                 module = test;
             } else {
                 if(plan != null) {
-                    throw new DeploymentSyntaxException("Module or plan must be a text file!");
+                    throw new DeploymentSyntaxException("Module or plan must be a JAR file or directory!");
                 }
                 plan = test;
             }
