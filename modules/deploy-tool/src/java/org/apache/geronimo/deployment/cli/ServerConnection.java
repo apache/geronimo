@@ -159,7 +159,7 @@ public class ServerConnection {
             if(authPrompt && (user == null || password == null)) {
                 doAuthPromptAndRetry(uri, user, password);
             } else {
-                throw new DeploymentException("Unable to connect to server: "+e.getMessage());
+                throw new DeploymentException("Unable to connect to server", e);
             }
         } catch(DeploymentManagerCreationException e) {
             if(uri != null) {

@@ -18,8 +18,6 @@
 package org.apache.geronimo.deployment.plugin.factories;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
@@ -93,7 +91,7 @@ public class DeploymentFactoryImpl implements DeploymentFactory {
                 } catch (IOException e) {
                     throw (DeploymentManagerCreationException)new DeploymentManagerCreationException(e.getMessage()).initCause(e);
                 } catch (SecurityException e) {
-                    throw new AuthenticationFailedException("Invalid login.");
+                    throw (AuthenticationFailedException) new AuthenticationFailedException("Invalid login.").initCause(e);
                 }
             } else {
                 throw new DeploymentManagerCreationException("Invalid URI: " + uri);
