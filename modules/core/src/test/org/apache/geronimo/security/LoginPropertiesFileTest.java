@@ -73,7 +73,7 @@ import org.apache.geronimo.security.providers.PropertiesFileSecurityRealm;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/28 19:34:05 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/20 01:36:59 $
  */
 public class LoginPropertiesFileTest extends TestCase {
     SecurityService securityService;
@@ -82,10 +82,9 @@ public class LoginPropertiesFileTest extends TestCase {
 
         securityService = new SecurityService();
 
-        PropertiesFileSecurityRealm securityRealm = new PropertiesFileSecurityRealm();
-        securityRealm.setRealmName("Foo");
-        securityRealm.setUsersURI((new File(new File("."), "src/test-data/data/users.properties")).toURI());
-        securityRealm.setGroupsURI((new File(new File("."), "src/test-data/data/groups.properties")).toURI());
+        PropertiesFileSecurityRealm securityRealm = new PropertiesFileSecurityRealm("Foo",
+                (new File(new File("."), "src/test-data/data/users.properties")).toURI(),
+                (new File(new File("."), "src/test-data/data/groups.properties")).toURI());
         securityRealm.doStart();
         securityService.setRealms(Collections.singleton(securityRealm));
 

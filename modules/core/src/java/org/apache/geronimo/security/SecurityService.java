@@ -72,15 +72,22 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
 import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
 import org.apache.geronimo.security.util.ConfigurationUtil;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GOperationInfo;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GConstructorInfo;
 
 
 /**
  * An MBean that maintains a list of security realms.
  *
- * @version $Revision: 1.7 $ $Date: 2004/01/16 02:10:46 $
+ * @version $Revision: 1.8 $ $Date: 2004/01/20 01:36:59 $
  */
 public class SecurityService  {
 
+    private static final GBeanInfo GBEAN_INFO;
 
     private final Log log = LogFactory.getLog(SecurityService.class);
 
@@ -93,31 +100,13 @@ public class SecurityService  {
      * Permissions that protect access to sensitive security information
      */
     public static final GeronimoSecurityPermission CONFIGURE = new GeronimoSecurityPermission("configure");
-
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
-        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
-        mbeanInfo.setTargetClass(SecurityService.class.getName());
-
-        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getModuleConfiguration",
-                new GeronimoParameterInfo[] {
-                    new GeronimoParameterInfo("contextID", String.class, ""),
-                    new GeronimoParameterInfo("remove", Boolean.TYPE, "")},
-                GeronimoOperationInfo.ACTION_INFO,
-                "Get security configuration for module identified by contextID"));
-
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("PolicyConfigurationFactory",
-                                                             true, true,
-                                                             "The PolicyConfigurationFactory to use",
-                                                             (Object)"org.apache.geronimo.security.GeronimoPolicyConfigurationFactory"));
-
-        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("Realms", SecurityRealm.class, ObjectName.getInstance(SecurityRealm.BASE_OBJECT_NAME + ",*")));
-        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("ModuleConfigurations", ModuleConfiguration.class, ObjectName.getInstance(AbstractModuleConfiguration.BASE_OBJECT_NAME + ",*")));
-
-        return mbeanInfo;
+    //deprecated, for geronimo mbean only
+    public SecurityService() {
+        this(null);
     }
 
 
-    public SecurityService() {
+    public SecurityService(String policyConfigurationFactory) {
         AccessController.doPrivileged(
                 new java.security.PrivilegedAction() {
                     public Object run() {
@@ -137,6 +126,7 @@ public class SecurityService  {
 
             throw (IllegalStateException)new IllegalStateException().initCause(pce);
         }
+        setPolicyConfigurationFactory(policyConfigurationFactory);
     }
 
     public String getPolicyConfigurationFactory() {
@@ -145,8 +135,10 @@ public class SecurityService  {
 
     public void setPolicyConfigurationFactory(String policyConfigurationFactory) {
         this.policyConfigurationFactory = policyConfigurationFactory;
-
-        System.setProperty("javax.security.jacc.PolicyConfigurationFactory.provider", policyConfigurationFactory);
+        //TODO remove this if wrapper when GeronimoMBean leaves.
+        if (policyConfigurationFactory != null) {
+            System.setProperty("javax.security.jacc.PolicyConfigurationFactory.provider", policyConfigurationFactory);
+        }
     }
 
     /**
@@ -224,6 +216,44 @@ public class SecurityService  {
             }
         }
         return null;
+    }
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(SecurityService.class.getName());
+        infoFactory.addAttribute(new GAttributeInfo("PolicyConfigurationFactory", true));
+        infoFactory.addOperation(new GOperationInfo("getModuleConfiguration", new String[] {String.class.getName(), Boolean.TYPE.getName()}));
+        infoFactory.addEndpoint(new GEndpointInfo("Realms", SecurityRealm.class.getName()));
+        infoFactory.addEndpoint(new GEndpointInfo("ModuleConfigurations", ModuleConfiguration.class.getName()));
+        infoFactory.setConstructor(new GConstructorInfo(
+                new String[] {"PolicyConfigurationFactory"},
+                new Class[] {String.class}));
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
+        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
+        mbeanInfo.setTargetClass(SecurityService.class.getName());
+
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getModuleConfiguration",
+                new GeronimoParameterInfo[] {
+                    new GeronimoParameterInfo("contextID", String.class, ""),
+                    new GeronimoParameterInfo("remove", Boolean.TYPE, "")},
+                GeronimoOperationInfo.ACTION_INFO,
+                "Get security configuration for module identified by contextID"));
+
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("PolicyConfigurationFactory",
+                                                             true, true,
+                                                             "The PolicyConfigurationFactory to use",
+                                                             (Object)"org.apache.geronimo.security.GeronimoPolicyConfigurationFactory"));
+
+        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("Realms", SecurityRealm.class, ObjectName.getInstance(SecurityRealm.BASE_OBJECT_NAME + ",*")));
+        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("ModuleConfigurations", ModuleConfiguration.class, ObjectName.getInstance(AbstractModuleConfiguration.BASE_OBJECT_NAME + ",*")));
+
+        return mbeanInfo;
     }
 
 }

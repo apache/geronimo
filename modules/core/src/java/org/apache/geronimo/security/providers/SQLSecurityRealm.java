@@ -64,11 +64,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.Map;
+import java.util.Set;
 
 import javax.security.auth.login.AppConfigurationEntry;
 
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.security.AbstractSecurityRealm;
@@ -78,10 +82,13 @@ import org.apache.regexp.RE;
 
 /**
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/11 08:22:59 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/20 01:36:59 $
  */
 
 public class SQLSecurityRealm extends AbstractSecurityRealm {
+
+    private static final GBeanInfo GBEAN_INFO;
+
     private boolean running = false;
     private String connectionURL;
     private String user = "";
@@ -93,19 +100,18 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
 
     final static String REALM_INSTANCE = "org.apache.geronimo.security.providers.SQLSecurityRealm";
 
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
-        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
+    /**
+     * @deprecated
+     */
+    public SQLSecurityRealm() {}
 
-        mbeanInfo.setTargetClass(PropertiesFileSecurityRealm.class.getName());
-
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("RealmName", true, true, "The name of this security realm"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ConnectionURL", true, true, "The URL of the data source"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("User", true, true, "The user name to use when logging in to the data source"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Password", true, true, "The password to use when logging in to the data source"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UserSelect", true, true, "The SQL statement to used to obtain the list of users"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("GroupSelect", true, true, "The SQL statement to used to obtain the list of groups"));
-
-        return mbeanInfo;
+    public SQLSecurityRealm(String realmName, String connectionURL, String user, String password, String userSelect, String groupSelect) {
+        super(realmName);
+        this.connectionURL = connectionURL;
+        this.user = user;
+        this.password = password;
+        this.userSelect = userSelect;
+        this.groupSelect = groupSelect;
     }
 
     public void doStart() {
@@ -306,4 +312,38 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
 
         return configuration;
     }
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(PropertiesFileSecurityRealm.class.getName(), AbstractSecurityRealm.getGBeanInfo());
+        infoFactory.addAttribute(new GAttributeInfo("RealmName", true));
+        infoFactory.addAttribute(new GAttributeInfo("ConnectionURL", true));
+        infoFactory.addAttribute(new GAttributeInfo("User", true));
+        infoFactory.addAttribute(new GAttributeInfo("Password", true));
+        infoFactory.addAttribute(new GAttributeInfo("UserSelect", true));
+        infoFactory.addAttribute(new GAttributeInfo("GroupSelect", true));
+        infoFactory.setConstructor(new GConstructorInfo(
+                new String[] {"RealmName", "ConnectionURL", "User", "UserSelect", "GroupSelect"},
+                new Class[] {String.class, String.class, String.class, String.class, String.class}));
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
+        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
+
+        mbeanInfo.setTargetClass(PropertiesFileSecurityRealm.class.getName());
+
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("RealmName", true, true, "The name of this security realm"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ConnectionURL", true, true, "The URL of the data source"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("User", true, true, "The user name to use when logging in to the data source"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Password", true, true, "The password to use when logging in to the data source"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UserSelect", true, true, "The SQL statement to used to obtain the list of users"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("GroupSelect", true, true, "The SQL statement to used to obtain the list of groups"));
+
+        return mbeanInfo;
+    }
+
 }

@@ -72,14 +72,21 @@ import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.security.AbstractSecurityRealm;
 import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.regexp.RE;
 
 
 /**
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/05 18:56:34 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/20 01:36:59 $
  */
 public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
+
+    private static final GBeanInfo GBEAN_INFO;
+
     private boolean running = false;
     private URI usersURI;
     private URI groupsURI;
@@ -87,17 +94,14 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
     Properties groups = new Properties();
 
     final static String REALM_INSTANCE = "org.apache.geronimo.security.providers.PropertiesFileSecurityRealm";
+    //deprecated for geronimombeans only
+    public PropertiesFileSecurityRealm() {
+    }
 
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
-        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
-
-        mbeanInfo.setTargetClass(PropertiesFileSecurityRealm.class.getName());
-
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("RealmName", true, true, "The name of this security realm"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UsersURI", true, true, "The location of the users property file"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("GroupsURI", true, true, "The location of the groups property file"));
-
-        return mbeanInfo;
+    public PropertiesFileSecurityRealm(String realmName, URI usersURI, URI groupsURI) {
+        super(realmName);
+        setUsersURI(usersURI);
+        setGroupsURI(groupsURI);
     }
 
     public void doStart() {
@@ -109,9 +113,6 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
     }
 
     public void doStop() {
-        usersURI = null;
-        groupsURI = null;
-
         users.clear();
         groups.clear();
         running = false;
@@ -125,7 +126,7 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
         if (running) {
             throw new IllegalStateException("Cannot change the Users URI after the realm is started");
         }
-        this.usersURI = usersURI;
+        this.usersURI = usersURI == null ? null : usersURI.normalize();
     }
 
     public URI getGroupsURI() {
@@ -136,7 +137,7 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
         if (running) {
             throw new IllegalStateException("Cannot change the Groups URI after the realm is started");
         }
-        this.groupsURI = groupsURI;
+        this.groupsURI = groupsURI == null ? null : groupsURI.normalize();
     }
 
     public Set getGroupPrincipals() throws GeronimoSecurityException {
@@ -191,8 +192,10 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
 
     public void refresh() throws GeronimoSecurityException {
         try {
-            users.load(new FileInputStream(new File(usersURI)));
-            groups.load(new FileInputStream(new File(groupsURI)));
+            users.load(usersURI.toURL().openStream());
+            groups.load(groupsURI.toURL().openStream());
+            //users.load(new FileInputStream(new File(usersURI)));
+            //groups.load(new FileInputStream(new File(groupsURI)));
         } catch (IOException e) {
             throw new GeronimoSecurityException(e);
         }
@@ -209,4 +212,31 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
 
         return configuration;
     }
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(PropertiesFileSecurityRealm.class.getName(), AbstractSecurityRealm.getGBeanInfo());
+        infoFactory.addAttribute(new GAttributeInfo("UsersURI", true));
+        infoFactory.addAttribute(new GAttributeInfo("GroupsURI", true));
+        infoFactory.setConstructor(new GConstructorInfo(
+                new String[]{"RealmName", "UsersURI", "GroupsURI"},
+                new Class[]{String.class, URI.class, URI.class}));
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
+        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
+
+        mbeanInfo.setTargetClass(PropertiesFileSecurityRealm.class.getName());
+
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("RealmName", true, true, "The name of this security realm"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UsersURI", true, true, "The location of the users property file"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("GroupsURI", true, true, "The location of the groups property file"));
+
+        return mbeanInfo;
+    }
+
 }

@@ -67,13 +67,20 @@ import javax.security.jacc.PolicyContextException;
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GOperationInfo;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBean;
 
 
 /**
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/16 02:10:46 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/20 01:36:58 $
  */
-public abstract class AbstractModuleConfiguration implements ModuleConfiguration, GeronimoMBeanTarget {
+public abstract class AbstractModuleConfiguration implements ModuleConfiguration, GeronimoMBeanTarget, GBean {
+
+    private static final GBeanInfo GBEAN_INFO;
 
     public static final String BASE_OBJECT_NAME = "geronimo.security:type=ModuleConfiguration";
 
@@ -97,13 +104,15 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
         }
     }
 
-
+    /**
+     * Implement configuration from supplied metadata (dds) in subclasses.
+     */
     public void doStart() {
 
     }
 
     public void doStop() {
-
+        delete();
     }
 
     public void doFail() {
@@ -228,6 +237,7 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
      *
      * <p> This operation has no affect on any linked <code>PolicyConfigurations</code> other than removing any links
      * involving the deleted <code>PolicyConfiguration<code>.</p>
+     *
      * @throws java.lang.SecurityException if called by an <code>AccessControlContext</code> that has not been granted
      * the "setPolicy" <code>SecurityPermission</code>.
      * @throws GeronimoSecurityException if the implementation throws a checked exception that has not been accounted for by
@@ -235,26 +245,10 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
      * construction) in the thrown <code>GeronimoSecurityException</code>.
      */
     public void delete() throws GeronimoSecurityException {
-
         try {
-            if (context != null) {
-                try {
-                    context.stop();
-                } catch (Exception e) {
-                }
-                try {
-                    context.getServer().unregisterMBean(context.getObjectName());
-                } catch (InstanceNotFoundException e) {
-                    throw new GeronimoSecurityException("Already deleted", e);
-                } catch (MBeanRegistrationException e) {
-                }
-            }
-        }finally {
-            try {
-                policyConfiguration.delete();
-            } catch (PolicyContextException e) {
-                throw new GeronimoSecurityException("Unable to delete configuration", e.getCause());
-            }
+            policyConfiguration.delete();
+        } catch (PolicyContextException e) {
+            throw new GeronimoSecurityException("Unable to delete configuration", e.getCause());
         }
     }
 
@@ -301,6 +295,22 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
         } catch (PolicyContextException e) {
             throw new GeronimoSecurityException("Unable to obtain inService state", e.getCause());
         }
+    }
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractModuleConfiguration.class.getName());
+        infoFactory.addAttribute(new GAttributeInfo("ContextID", true));
+        infoFactory.addAttribute(new GAttributeInfo("Roles", true));//??persistent
+        infoFactory.addOperation(new GOperationInfo("addRoleMapping",
+                new String[]{String.class.getName(), Collection.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("linkConfiguration", new String[]{ModuleConfiguration.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("commit"));
+        infoFactory.addOperation(new GOperationInfo("inService"));
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
 
     public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {

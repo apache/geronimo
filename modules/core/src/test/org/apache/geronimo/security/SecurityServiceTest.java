@@ -72,7 +72,7 @@ import org.apache.geronimo.deployment.model.ejb.ExcludeList;
 /**
  * Unit test for web module configuration
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/16 02:10:46 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/20 01:36:59 $
  */
 public class SecurityServiceTest extends TestCase {
     SecurityService securityService;
@@ -82,10 +82,10 @@ public class SecurityServiceTest extends TestCase {
 
         securityService = new SecurityService();
 
-        PropertiesFileSecurityRealm securityRealm = new PropertiesFileSecurityRealm();
-        securityRealm.setRealmName("Foo");
-        securityRealm.setUsersURI((new File(new File("."), "src/test-data/data/users.properties")).toURI());
-        securityRealm.setGroupsURI((new File(new File("."), "src/test-data/data/groups.properties")).toURI());
+        PropertiesFileSecurityRealm securityRealm = new PropertiesFileSecurityRealm("Foo",
+                (new File(new File("."), "src/test-data/data/users.properties")).toURI(),
+                (new File(new File("."), "src/test-data/data/groups.properties")).toURI());
+        securityRealm.doStart();
 
         securityService.setRealms(Collections.singleton(securityRealm));
         EjbJar ejbJar = new EjbJar();

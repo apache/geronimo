@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.50 $ $Date: 2004/01/19 06:43:32 $ -->
+<!-- $Revision: 1.51 $ $Date: 2004/01/20 01:36:58 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -659,6 +659,10 @@
                         <include name="jasper-compiler-4.0.4.jar"/>
                         <include name="jasper-runtime-4.0.4.jar"/>
                     </fileset>
+                    <!-- security -->
+                    <fileset dir="${maven.repo.local}/regexp/jars">
+                          <include name="regexp-1.3-dev.jar"/>
+                    </fileset>
                 </classpath>
 
                 <arg value="file:${run.dir}/deployment/src/test-resources/etc/bootstrapped-service.xml"/>
@@ -727,6 +731,10 @@
                     <fileset dir="${maven.repo.local}/tomcat/jars">
                         <include name="jasper-compiler-4.0.4.jar"/>
                         <include name="jasper-runtime-4.0.4.jar"/>
+                    </fileset>
+                    <!-- security -->
+                    <fileset dir="${maven.repo.local}/regexp/jars">
+                          <include name="regexp-1.3-dev.jar"/>
                     </fileset>
                 </classpath>
 

@@ -57,17 +57,34 @@ package org.apache.geronimo.security;
 
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
+import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GOperationInfo;
+import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.regexp.RE;
 
 
 /**
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/02 04:31:44 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/20 01:36:59 $
  */
-public abstract class AbstractSecurityRealm  implements SecurityRealm, GeronimoMBeanTarget {
+public abstract class AbstractSecurityRealm  implements SecurityRealm, GeronimoMBeanTarget, GBean {
+
+    private static final GBeanInfo GBEAN_INFO;
 
     private String realmName;
 
     protected GeronimoMBeanContext context;
+
+    //deprecated, GeronimoMBean only
+    public AbstractSecurityRealm() {}
+
+
+    public AbstractSecurityRealm(String realmName) {
+        this.realmName = realmName;
+    }
 
     public String getRealmName() {
         return realmName;
@@ -96,5 +113,22 @@ public abstract class AbstractSecurityRealm  implements SecurityRealm, GeronimoM
     }
 
     public void doFail() {
+    }
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractSecurityRealm.class.getName());
+        infoFactory.addAttribute(new GAttributeInfo("RealmName", true));
+        infoFactory.addOperation(new GOperationInfo("getGroupPrincipals"));
+        infoFactory.addOperation(new GOperationInfo("getGroupPrincipals", new String[] {RE.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("getUserPrincipals"));
+        infoFactory.addOperation(new GOperationInfo("getUserPrincipals", new String[] {RE.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("refresh"));
+        infoFactory.addOperation(new GOperationInfo("getAppConfigurationEntry"));
+        infoFactory.setConstructor(new GConstructorInfo(new String[] {"RealmName"}, new Class[] {String.class}));
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
 }

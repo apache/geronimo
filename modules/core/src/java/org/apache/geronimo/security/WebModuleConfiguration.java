@@ -68,6 +68,10 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.Role;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.RoleMappings;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.Security;
 import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 
@@ -82,29 +86,31 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
  * <p>It is expected that deployment tools will configure modules through
  * these utility MBeans and not directly access the
  * <code>PolicyConfiguration</code> objects.
- * @version $Revision: 1.7 $ $Date: 2004/01/16 02:10:46 $
+ * @version $Revision: 1.8 $ $Date: 2004/01/20 01:36:59 $
  * @see javax.security.jacc.PolicyConfiguration
  * @see "Java Authorization Contract for Containers", section 3.1.3
  */
 public class WebModuleConfiguration extends AbstractModuleConfiguration {
 
-    public WebModuleConfiguration(String contextId, WebApp webApp) throws GeronimoSecurityException {
+    private static final GBeanInfo GBEAN_INFO;
+
+    private WebApp webApp;
+
+    public WebModuleConfiguration(String contextId, WebApp webApp) {
         super(contextId);
-        configure(webApp);
+        this.webApp = webApp;
     }
 
     /**
      * Translate the web deployment descriptors into equivalent security
      * permissions.  These permissions are placed into the appropriate
      * <code>PolicyConfiguration</code> object as defined in the JAAC spec.
-     * @param webApp the deployment descriptor from which to obtain the
-     * security constraints that are to be translated.
      * @throws GeronimoSecurityException if there is any violation of the semantics of
      * the security descriptor or the state of the module configuration.
      * @see javax.security.jacc.PolicyConfiguration
      * @see "Java Authorization Contract for Containers", section 3.1.3
      */
-    private void configure(WebApp webApp) throws GeronimoSecurityException {
+    public void doStart() {
 
         PolicyConfiguration configuration = getPolicyConfiguration();
 
@@ -149,6 +155,20 @@ public class WebModuleConfiguration extends AbstractModuleConfiguration {
                 }
             }
         }
+    }
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(WebModuleConfiguration.class.getName(), AbstractModuleConfiguration.getGBeanInfo());
+        //TODO make sure this attribute not backed by a getter or setter works.
+        infoFactory.addAttribute(new GAttributeInfo("WebApp", true));
+        infoFactory.setConstructor(new GConstructorInfo(
+                new String[] {"ContextID", "WebApp"},
+                new Class[] {String.class, WebApp.class}));
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
 
     public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {

@@ -71,32 +71,38 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.Security;
 import org.apache.geronimo.deployment.model.j2ee.SecurityRole;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.security.util.ConfigurationUtil;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.geronimo.gbean.GAttributeInfo;
 
 
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/01/16 02:10:46 $
+ * @version $Revision: 1.8 $ $Date: 2004/01/20 01:36:59 $
  */
 public class EJBModuleConfiguration extends AbstractModuleConfiguration {
 
+    private static final GBeanInfo GBEAN_INFO;
+
+    private EjbJar ejbJar;
+
     public EJBModuleConfiguration(String contextId, EjbJar ejbJar) throws GeronimoSecurityException {
         super(contextId);
-        configure(ejbJar);
+        this.ejbJar = ejbJar;
     }
 
     /**
      * Translate the EJB deployment descriptors into equivalent security
      * permissions.  These permissions are placed into the appropriate
      * <code>PolicyConfiguration</code> object as defined in the JAAC spec.
-     * @param ejbJar the deployment descriptor from which to obtain the
-     * security constraints that are to be translated.
      * @throws GeronimoSecurityException if there is any violation of the semantics of
      * the security descriptor or the state of the module configuration.
      * @see javax.security.jacc.PolicyConfiguration
      * @see "Java Authorization Contract for Containers", section 3.1.3
      */
-    private void configure(EjbJar ejbJar) throws GeronimoSecurityException {
+    public void doStart() {
         PolicyConfiguration configuration = getPolicyConfiguration();
 
         AssemblyDescriptor assemblyDescriptor = ejbJar.getAssemblyDescriptor();
@@ -147,6 +153,20 @@ public class EJBModuleConfiguration extends AbstractModuleConfiguration {
                 }
             }
         }
+    }
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(EJBModuleConfiguration.class.getName(), AbstractModuleConfiguration.getGBeanInfo());
+        //TODO make sure this attribute not backed by a getter or setter works.
+        infoFactory.addAttribute(new GAttributeInfo("EJBJar", true));
+        infoFactory.setConstructor(new GConstructorInfo(
+                new String[] {"ContextID", "EJBJar"},
+                new Class[] {String.class, EjbJar.class}));
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
 
     public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {

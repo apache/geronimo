@@ -18,6 +18,25 @@
         </endpoint>
     </gbean>
 
+    <!-- security -->
+    <gbean class="org.apache.geronimo.security.SecurityService" objectName="geronimo.security:type=SecurityService">
+        <default attribute="PolicyConfigurationFactory" type="java.lang.String">org.apache.geronimo.security.GeronimoPolicyConfigurationFactory</default>
+        <endpoint name="Realms">
+            <pattern>geronimo.security:type=SecurityRealm,*</pattern>
+        </endpoint>
+        <endpoint name="ModuleConfigurations">
+            <pattern>geronimo.security:type=ModuleConfiguration,*</pattern>
+        </endpoint>
+    </gbean>
+
+    <gbean class="org.apache.geronimo.security.providers.PropertiesFileSecurityRealm" objectName="geronimo.security:type=SecurityRealm,name=Foo">
+        <default attribute="RealmName" type="java.lang.String">Foo</default>
+        <default attribute="UsersURI" type="java.net.URI">file:./core/src/test-data/data/users.properties</default>
+        <default attribute="GroupsURI" type="java.net.URI">file:./core/src/test-data/data/groups.properties</default>
+    </gbean>
+
+    <!-- web -->
+
     <gbean class="org.apache.geronimo.web.jetty.JettyWebContainer" objectName="geronimo.web:type=WebContainer,container=Jetty">
         <default attribute="DefaultWebXmlURI" type="java.net.URI">web/src/deploy/jetty/webdefault.xml</default>
         <endpoint name="WebAccessLogs">
@@ -34,8 +53,8 @@
     <gbean class="org.apache.geronimo.web.jetty.JettyWebConnector" objectName="geronimo.web:type=WebConnector,container=Jetty,port=8080">
         <default attribute="Protocol" type="java.lang.String">http</default>
         <!-- IMPORTANT localhost here will result in access only from 127.0.0.1-->
-        <default attribute="Interface" type="java.lang.String">localhost</default>
-        <!--default attribute="Interface" type="java.lang.String">192.168.1.1</default-->
+        <!-- leaving the Interface attribute out will bind to all interfaces-->
+        <!--default attribute="Interface" type="java.lang.String">localhost</default-->
         <default attribute="Port" type="int">8080</default>
         <default attribute="MaxConnections" type="int">10</default>
         <default attribute="MaxIdleTime" type="int">10</default>
