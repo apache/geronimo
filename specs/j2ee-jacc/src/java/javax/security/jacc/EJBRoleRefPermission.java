@@ -23,6 +23,7 @@
 
 package javax.security.jacc;
 
+import java.io.Serializable;
 import java.security.Permission;
 
 /**
@@ -38,7 +39,7 @@ import java.security.Permission;
  * determine if the subject is a member of the role identified by the reference.
  * @version $Rev$ $Date$
  */
-public final class EJBRoleRefPermission extends Permission {
+public final class EJBRoleRefPermission extends Permission implements Serializable {
 
     private transient int cachedHashCode = 0;
     private String actions;

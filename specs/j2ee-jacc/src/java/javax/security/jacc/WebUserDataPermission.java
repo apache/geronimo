@@ -24,29 +24,27 @@
 package javax.security.jacc;
 
 import java.io.IOException;
-
 import java.io.ObjectInputStream;
-
 import java.io.ObjectOutputStream;
-
+import java.io.Serializable;
 import java.security.Permission;
-
 import java.security.PermissionCollection;
-
+import java.util.Hashtable;
+import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
 
 
 /**
  * Class for Servlet Web user data permissions. A WebUserDataPermission is a
  * named permission and has actions.<p>
- *
+ * <p/>
  * The name of a WebUserDataPermission (also referred to as the target name)
  * identifies a Web resource by its context path relative URL pattern.
  *
  * @version $Rev$ $Date$
  * @see java.security.Permission
  */
-public final class WebUserDataPermission extends Permission {
+public final class WebUserDataPermission extends Permission implements Serializable {
 
     private transient int cachedHashCode = 0;
     private transient URLPatternSpec urlPatternSpec;
@@ -54,16 +52,16 @@ public final class WebUserDataPermission extends Permission {
 
     /**
      * Creates a new WebUserDataPermission from the HttpServletRequest object.
-     * 
+     *
      * @param request the HttpServletRequest object corresponding to the
-     * Servlet operation to which the permission pertains. The permission
-     * name is the substring of the requestURI (HttpServletRequest.getRequestURI())
-     * that begins after the contextPath (HttpServletRequest.getContextPath()).
-     * When the substring operation yields the string “/”, the permission is
-     * constructed with the empty string as its name. The HTTP method component
-     * of the permission’s actions is as obtained from HttpServletRequest.getMethod().
-     * The TransportType component of the permission’s actions is determined
-     * by calling HttpServletRequest.isSecure().
+     *                Servlet operation to which the permission pertains. The permission
+     *                name is the substring of the requestURI (HttpServletRequest.getRequestURI())
+     *                that begins after the contextPath (HttpServletRequest.getContextPath()).
+     *                When the substring operation yields the string “/”, the permission is
+     *                constructed with the empty string as its name. The HTTP method component
+     *                of the permission’s actions is as obtained from HttpServletRequest.getMethod().
+     *                The TransportType component of the permission’s actions is determined
+     *                by calling HttpServletRequest.isSecure().
      */
     public WebUserDataPermission(HttpServletRequest request) {
         super(request.getServletPath());
@@ -89,7 +87,7 @@ public final class WebUserDataPermission extends Permission {
     public boolean equals(Object o) {
         if (o == null || !(o instanceof WebUserDataPermission)) return false;
 
-        WebUserDataPermission other = (WebUserDataPermission)o;
+        WebUserDataPermission other = (WebUserDataPermission) o;
         return urlPatternSpec.equals(other.urlPatternSpec) && httpMethodSpec.equals(other.httpMethodSpec);
     }
 
@@ -107,12 +105,12 @@ public final class WebUserDataPermission extends Permission {
     public boolean implies(Permission permission) {
         if (permission == null || !(permission instanceof WebUserDataPermission)) return false;
 
-        WebUserDataPermission other = (WebUserDataPermission)permission;
+        WebUserDataPermission other = (WebUserDataPermission) permission;
         return urlPatternSpec.implies(other.urlPatternSpec) && httpMethodSpec.implies(other.httpMethodSpec);
     }
 
     public PermissionCollection newPermissionCollection() {
-    	return new WebUserDataPermissionCollection();
+        return new WebUserDataPermissionCollection();
     }
 
     private synchronized void readObject(ObjectInputStream in) throws IOException {
@@ -123,6 +121,60 @@ public final class WebUserDataPermission extends Permission {
     private synchronized void writeObject(ObjectOutputStream out) throws IOException {
         out.writeUTF(urlPatternSpec.getPatternSpec());
         out.writeUTF(httpMethodSpec.getActions());
+    }
+
+    private static final class WebUserDataPermissionCollection extends PermissionCollection {
+        private Hashtable permissions = new Hashtable();
+
+        /**
+         * Adds a permission object to the current collection of permission objects.
+         *
+         * @param permission the Permission object to add.
+         *
+         * @exception SecurityException -  if this PermissionCollection object
+         *                                 has been marked readonly
+         */
+        public void add(Permission permission) {
+            if (isReadOnly()) throw new IllegalArgumentException("Read only collection");
+
+            if (!(permission instanceof WebUserDataPermission)) throw new IllegalArgumentException("Wrong permission type");
+
+            WebUserDataPermission p  = (WebUserDataPermission)permission;
+
+            permissions.put(p, p);
+        }
+
+        /**
+         * Checks to see if the specified permission is implied by
+         * the collection of Permission objects held in this PermissionCollection.
+         *
+         * @param permission the Permission object to compare.
+         *
+         * @return true if "permission" is implied by the  permissions in
+         * the collection, false if not.
+         */
+        public boolean implies(Permission permission) {
+            if (!(permission instanceof WebUserDataPermission)) return false;
+
+            WebUserDataPermission p  = (WebUserDataPermission)permission;
+            Enumeration enum = permissions.elements();
+
+            while (enum.hasMoreElements()) {
+                if (((WebUserDataPermission)enum.nextElement()).implies(p)) return true;
+            }
+
+            return false;
+
+        }
+
+        /**
+         * Returns an enumeration of all the Permission objects in the collection.
+         *
+         * @return an enumeration of all the Permissions.
+         */
+        public Enumeration elements() {
+            return permissions.elements();
+        }
     }
 }
 

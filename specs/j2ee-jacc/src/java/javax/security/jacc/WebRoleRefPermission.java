@@ -23,13 +23,14 @@
 
 package javax.security.jacc;
 
+import java.io.Serializable;
 import java.security.Permission;
 
 /**
  *
  * @version $Rev$ $Date$
  */
-public final class WebRoleRefPermission extends Permission {
+public final class WebRoleRefPermission extends Permission implements Serializable {
     private transient int cachedHashCode = 0;
     private String actions;
 

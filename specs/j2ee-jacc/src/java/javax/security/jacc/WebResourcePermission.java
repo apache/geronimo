@@ -26,15 +26,17 @@ package javax.security.jacc;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.security.Permission;
 import java.security.PermissionCollection;
+import java.util.Hashtable;
+import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- *
  * @version $Rev$ $Date$
  */
-public final class WebResourcePermission extends Permission {
+public final class WebResourcePermission extends Permission implements Serializable {
     private transient int cachedHashCode = 0;
     private transient URLPatternSpec urlPatternSpec;
     private transient HTTPMethodSpec httpMethodSpec;
@@ -63,7 +65,7 @@ public final class WebResourcePermission extends Permission {
     public boolean equals(Object o) {
         if (o == null || !(o instanceof WebResourcePermission)) return false;
 
-        WebResourcePermission other = (WebResourcePermission)o;
+        WebResourcePermission other = (WebResourcePermission) o;
         return urlPatternSpec.equals(other.urlPatternSpec) && httpMethodSpec.equals(other.httpMethodSpec);
     }
 
@@ -81,12 +83,12 @@ public final class WebResourcePermission extends Permission {
     public boolean implies(Permission permission) {
         if (permission == null || !(permission instanceof WebResourcePermission)) return false;
 
-        WebResourcePermission other = (WebResourcePermission)permission;
+        WebResourcePermission other = (WebResourcePermission) permission;
         return urlPatternSpec.implies(other.urlPatternSpec) && httpMethodSpec.implies(other.httpMethodSpec);
     }
 
     public PermissionCollection newPermissionCollection() {
-    	return new WebResourcePermissionCollection();
+        return new WebResourcePermissionCollection();
     }
 
     private synchronized void readObject(ObjectInputStream in) throws IOException {
@@ -97,6 +99,59 @@ public final class WebResourcePermission extends Permission {
     private synchronized void writeObject(ObjectOutputStream out) throws IOException {
         out.writeUTF(urlPatternSpec.getPatternSpec());
         out.writeUTF(httpMethodSpec.getActions());
+    }
+
+    private static final class WebResourcePermissionCollection extends PermissionCollection {
+        private Hashtable permissions = new Hashtable();
+
+        /**
+         * Adds a permission object to the current collection of permission objects.
+         *
+         * @param permission the Permission object to add.
+         *
+         * @exception SecurityException -  if this PermissionCollection object
+         *                                 has been marked readonly
+         */
+        public void add(Permission permission) {
+            if (isReadOnly()) throw new IllegalArgumentException("Read only collection");
+
+            if (!(permission instanceof WebResourcePermission)) throw new IllegalArgumentException("Wrong permission type");
+
+            WebResourcePermission p  = (WebResourcePermission)permission;
+
+            permissions.put(p, p);
+        }
+
+        /**
+         * Checks to see if the specified permission is implied by
+         * the collection of Permission objects held in this PermissionCollection.
+         *
+         * @param permission the Permission object to compare.
+         *
+         * @return true if "permission" is implied by the  permissions in
+         * the collection, false if not.
+         */
+        public boolean implies(Permission permission) {
+            if (!(permission instanceof WebResourcePermission)) return false;
+
+            WebResourcePermission p  = (WebResourcePermission)permission;
+            Enumeration enum = permissions.elements();
+
+            while (enum.hasMoreElements()) {
+                if (((WebResourcePermission)enum.nextElement()).implies(p)) return true;
+            }
+
+            return false;
+        }
+
+        /**
+         * Returns an enumeration of all the Permission objects in the collection.
+         *
+         * @return an enumeration of all the Permissions.
+         */
+        public Enumeration elements() {
+            return permissions.elements();
+        }
     }
 }
 

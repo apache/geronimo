@@ -39,6 +39,9 @@ public final class PolicyContext {
     private static Hashtable handlers = new Hashtable();
     private final static SecurityPermission SET_POLICY = new SecurityPermission("setPolicy");
 
+    private PolicyContext() {
+    }
+
     public static void setContextID(String contextID) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(SET_POLICY);
@@ -57,7 +60,7 @@ public final class PolicyContext {
         handlerData.set(data);
     }
 
-    public static void registerHandler(String key, PolicyContextHandler handler, boolean replace) {
+    public static void registerHandler(String key, PolicyContextHandler handler, boolean replace) throws PolicyContextException {
         if (key == null) throw new IllegalArgumentException("Key must not be null");
         if (handler == null) throw new IllegalArgumentException("Handler must not be null");
         if (!replace && handlers.containsKey(key)) throw new IllegalArgumentException("A handler has already been registered under '" + key + "' and replace is false.");
