@@ -62,11 +62,8 @@ import org.apache.geronimo.core.service.ManagedComponent;
  * nodes. The particular cluster to which it belongs is identified by
  * it's 'name' property.
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/28 19:12:51 $
+ * @version $Revision: 1.3 $ $Date: 2003/12/30 21:16:03 $
  */
-public interface
-  Cluster
-  extends ManagedComponent
-{
+public interface Cluster {
   public String getName();
 }

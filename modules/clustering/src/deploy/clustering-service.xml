@@ -17,31 +17,31 @@
   <!-- ============================================================ -->
 
   <mbean
-    code="org.apache.geronimo.clustering.LocalCluster"
+    descriptor="org.apache.geronimo.clustering.LocalCluster"
     name="geronimo.clustering:role=Cluster,name=GERONIMO,node=0"
     >
   </mbean>
 
   <mbean
-    code="org.apache.geronimo.clustering.LocalCluster"
+    descriptor="org.apache.geronimo.clustering.LocalCluster"
     name="geronimo.clustering:role=Cluster,name=GERONIMO,node=1"
     >
   </mbean>
 
   <mbean
-    code="org.apache.geronimo.clustering.LocalCluster"
+    descriptor="org.apache.geronimo.clustering.LocalCluster"
     name="geronimo.clustering:role=Cluster,name=GERONIMO,node=2"
     >
   </mbean>
 
   <mbean
-    code="org.apache.geronimo.clustering.LocalCluster"
+    descriptor="org.apache.geronimo.clustering.LocalCluster"
     name="geronimo.clustering:role=Cluster,name=GERONIMO2,node=0"
     >
   </mbean>
 
   <mbean
-    code="org.apache.geronimo.clustering.LocalCluster"
+    descriptor="org.apache.geronimo.clustering.LocalCluster"
     name="geronimo.clustering:role=Cluster,name=GERONIMO2,node=1"
     >
   </mbean>

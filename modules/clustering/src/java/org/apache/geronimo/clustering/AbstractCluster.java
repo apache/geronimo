@@ -56,58 +56,74 @@
 package org.apache.geronimo.clustering;
 
 import javax.management.ObjectName;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.core.service.AbstractManagedComponent;
-import org.apache.geronimo.core.service.ManagedComponent;
+import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 
 /**
  * AbstractCluster abstracts code common to different 'Cluster' impls
  * into the same abstract base.
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/12/29 18:50:11 $
- * @jmx:mbean extends="org.apache.geronimo.clustering.Cluster, org.apache.geronimo.kernel.management.StateManageable"
+ * @version $Revision: 1.4 $ $Date: 2003/12/30 21:16:03 $
  */
-public abstract class
-  AbstractCluster
-  extends AbstractManagedComponent
-  implements Cluster, AbstractClusterMBean
-{
-  protected static  Log _log=LogFactory.getLog(AbstractCluster.class);
+public abstract class AbstractCluster implements Cluster, GeronimoMBeanTarget {
+    protected static Log _log = LogFactory.getLog(AbstractCluster.class);
+    private ObjectName objectName;
 
-  //----------------------------------------
-  /**
-   * @jmx.managed-attribute
-   */
-  public String
-    getName()
-    {
-      String name=objectName.getKeyProperty("name");
+    public String getName() {
+        String name = objectName.getKeyProperty("name");
 
-      if (name==null)
-      {
-	name="GERONIMO";
-	_log.warn("MBean name should contain 'name' property - defaulting to: "+name);
-      }
+        if (name == null) {
+            name = "GERONIMO";
+            _log.warn("MBean name should contain 'name' property - defaulting to: " + name);
+        }
 
-      return name;
+        return name;
     }
 
-  /**
-   * @jmx.managed-attribute
-   */
-  public String
-    getNode()
-    {
-      String node=objectName.getKeyProperty("node");
+    public String getNode() {
+        String node = objectName.getKeyProperty("node");
 
-      if (node==null)
-      {
-	node="0";
-	_log.warn("MBean name should contain 'node' property - defaulting to: "+node);
-      }
+        if (node == null) {
+            node = "0";
+            _log.warn("MBean name should contain 'node' property - defaulting to: " + node);
+        }
 
-      return node;
+        return node;
+    }
+
+    public void setMBeanContext(GeronimoMBeanContext context) {
+        objectName = (context == null)? null:context.getObjectName();
+    }
+
+    public boolean canStart() {
+        return true;
+    }
+
+    public void doStart() {
+    }
+
+    public boolean canStop() {
+        return true;
+    }
+
+    public void doStop() {
+    }
+
+    public void doFail() {
+    }
+
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
+        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
+        //set target class in concrete subclass
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Name", true, false, "Name of cluster we are a part of"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Node", true, false, "Node id within the cluster"));
+        return mbeanInfo;
+
     }
 }
