@@ -24,15 +24,27 @@
 package javax.security.jacc;
 
 import java.io.IOException;
+
 import java.io.ObjectInputStream;
+
 import java.io.ObjectOutputStream;
+
 import java.security.Permission;
+
 import java.security.PermissionCollection;
+
 import javax.servlet.http.HttpServletRequest;
 
+
 /**
+ * Class for Servlet Web user data permissions. A WebUserDataPermission is a
+ * named permission and has actions.<p>
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:53 $
+ * The name of a WebUserDataPermission (also referred to as the target name)
+ * identifies a Web resource by its context path relative URL pattern.
+ *
+ * @version $Revision: 1.5 $ $Date: 2004/07/25 00:57:35 $
+ * @see java.security.Permission
  */
 public final class WebUserDataPermission extends Permission {
 
@@ -40,6 +52,19 @@ public final class WebUserDataPermission extends Permission {
     private transient URLPatternSpec urlPatternSpec;
     private transient HTTPMethodSpec httpMethodSpec;
 
+    /**
+     * Creates a new WebUserDataPermission from the HttpServletRequest object.
+     * 
+     * @param request the HttpServletRequest object corresponding to the
+     * Servlet operation to which the permission pertains. The permission
+     * name is the substring of the requestURI (HttpServletRequest.getRequestURI())
+     * that begins after the contextPath (HttpServletRequest.getContextPath()).
+     * When the substring operation yields the string “/”, the permission is
+     * constructed with the empty string as its name. The HTTP method component
+     * of the permission’s actions is as obtained from HttpServletRequest.getMethod().
+     * The TransportType component of the permission’s actions is determined
+     * by calling HttpServletRequest.isSecure().
+     */
     public WebUserDataPermission(HttpServletRequest request) {
         super(request.getServletPath());
 
@@ -100,4 +125,6 @@ public final class WebUserDataPermission extends Permission {
         out.writeUTF(httpMethodSpec.getActions());
     }
 }
+
+
 
