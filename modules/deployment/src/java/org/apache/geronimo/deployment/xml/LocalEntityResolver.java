@@ -51,10 +51,10 @@ import org.xml.sax.SAXException;
  * </ul>
  *
  * The catalog resolving is based on the OASIS XML Catalog Standard.
- * (see http://www.oasis-open.org/committees/entity/spec-2001-08-01.html
+ * (see http://www.oasis-open.org/committees/entity/archives/spec-2001-08-01.html
  * and http://www.oasis-open.org/html/a401.htm)
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/25 09:57:39 $
+ * @version $Revision: 1.5 $ $Date: 2004/03/03 09:03:28 $
  */
 public class LocalEntityResolver implements EntityResolver {
 
