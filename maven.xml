@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.76 $ $Date: 2004/06/17 02:23:14 $ -->
+<!-- $Revision: 1.77 $ $Date: 2004/07/13 02:25:13 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -211,6 +211,10 @@
         <modules:reactor goals="site"/>
     </goal>
 
+    <goal name="modules:eclipse">
+        <modules:reactor goals="eclipse"/>
+    </goal>
+
     <goal name="modules:javadoc">
         <modules:reactor goals="javadoc"/>
     </goal>
@@ -270,6 +274,10 @@
 
     <goal name="default">
         <attainGoal name="modules:default"/>
+    </goal>
+
+    <goal name="eclipse">
+        <attainGoal name="modules:eclipse"/>
     </goal>
 
     <goal name="blah">
