@@ -58,19 +58,23 @@ package org.apache.geronimo.deployment.scanner;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+
 import java.util.jar.JarFile;
 import java.util.zip.ZipException;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/12 07:10:15 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/03 10:40:53 $
  */
-public class URLType {
-    private final String desc;
+public class URLType
+{
+    public static final String MANIFEST_LOCATON = "META-INF/MANIFEST.MF";
+    
     public static final URLType RESOURCE = new URLType("RESOURCE");
     public static final URLType COLLECTION = new URLType("COLLECTION");
     public static final URLType PACKED_ARCHIVE = new URLType("PACKED_ARCHIVE");
@@ -80,7 +84,7 @@ public class URLType {
         if (file.isDirectory()) {
             // file is a directory - see if it has a manifest
             // we check for an actual manifest file to keep things consistent with a packed archive
-            if (new File(file, "META-INF/MANIFEST.MF").exists()) {
+            if (new File(file, MANIFEST_LOCATON).exists()) {
                 return UNPACKED_ARCHIVE;
             } else {
                 return COLLECTION;
@@ -90,6 +94,7 @@ public class URLType {
             try {
                 JarFile jar = new JarFile(file);
                 jar.getManifest();
+                jar.close();
                 return PACKED_ARCHIVE;
             } catch (ZipException e) {
                 return RESOURCE;
@@ -99,7 +104,7 @@ public class URLType {
 
     public static URLType getType(URL url) throws IOException {
         if (url.toString().endsWith("/")) {
-            URL metaInfURL = new URL(url, "META-INF/MANIFEST.MF");
+            URL metaInfURL = new URL(url, MANIFEST_LOCATON);
             URLConnection urlConnection = metaInfURL.openConnection();
             urlConnection.connect();
             try {
@@ -120,8 +125,10 @@ public class URLType {
             }
         }
     }
-
-    private URLType(String desc) {
+    
+    private final String desc;
+    
+    private URLType(final String desc) {
         this.desc = desc;
     }
 
