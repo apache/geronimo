@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Id: project.xml,v 1.1 2003/08/16 12:28:26 jdillon Exp $ -->
+
+<project>
+  <pomVersion>3</pomVersion>
+  <extend>${basedir}/../../etc/project.xml</extend>
+  
+  <name>Geronimo :: J2EE Application Deployment Specification</name>
+  <groupId>geronimo-spec</groupId>
+  <id>geronimo-spec-j2ee-deployment</id>
+  <shortDescription>J2EE Application Deployment Specification</shortDescription>
+  <description></description>
+  <siteDirectory></siteDirectory>
+  <distributionDirectory></distributionDirectory>
+  
+  <package>javax.enterprise.deploy</package>
+  <currentVersion>DEV</currentVersion>
+
+</project>
