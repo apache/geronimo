@@ -30,12 +30,22 @@ import org.apache.geronimo.system.ClockPool;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/17 03:11:59 $
+ * @version $Revision: 1.5 $ $Date: 2004/04/19 16:34:06 $
  */
 public class ProtocolFactory implements ServerSocketAcceptorListener {
 
     private final static Log log = LogFactory.getLog(ProtocolFactory.class);
 
+    /**
+     * Null AcceptedCallBack.
+     */
+    private final static AcceptedCallBack NULL_CALLBACK =
+        new AcceptedCallBack() {
+            public void accepted(AcceptableProtocol aProtocol) {
+            }
+        };
+    
+    private AcceptedCallBack callBack = NULL_CALLBACK;
     private AcceptableProtocol template;
     private ClockPool clockPool;
     private Map connectionCache = new Hashtable();
@@ -45,6 +55,14 @@ public class ProtocolFactory implements ServerSocketAcceptorListener {
     private long maxInactivity;
 
 
+    public AcceptedCallBack getAcceptedCallBack() {
+        return callBack;
+    }
+    
+    public void setAcceptedCallBack(AcceptedCallBack aCallBack) {
+        callBack = aCallBack;
+    }
+    
     public AcceptableProtocol getTemplate() {
         return template;
     }
@@ -89,6 +107,7 @@ public class ProtocolFactory implements ServerSocketAcceptorListener {
         try {
             AcceptableProtocol protocol = (AcceptableProtocol) template.cloneProtocol();
             protocol.accept(socketChannel);
+            callBack.accepted(protocol);
             protocol.setup();
 
             Long id = new Long(nextConnectionId++);
@@ -128,6 +147,20 @@ public class ProtocolFactory implements ServerSocketAcceptorListener {
 
     }
 
+    /**
+     * When the AcceptableProtocol template is cloned and just before to be
+     * set-up with the SocketChannel being accepted, the following call-back
+     * is performed.
+     * <BR>
+     * A client may use this call-back to monitor the creation of a new protocol
+     * stack bound to a client/connection and set-up a specific handler for the
+     * highest protocol of the stack.
+     */
+    public interface AcceptedCallBack {
+        public void accepted(AcceptableProtocol aProtocol)
+            throws ProtocolException;
+    }
+    
     /**
      * This class periodically checks one login module.
      */
