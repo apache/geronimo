@@ -59,10 +59,7 @@ package org.apache.geronimo.connector.deployment;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayInputStream;
 import java.net.URI;
-import java.net.URL;
 
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.shared.ModuleType;
@@ -77,8 +74,6 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
-import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
 import org.apache.xmlbeans.XmlException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -86,14 +81,14 @@ import org.w3c.dom.Element;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/02 22:10:35 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/03 06:51:21 $
  *
  * */
-public class RARConfigurationFactory implements DeploymentConfigurationFactory {
+public abstract class AbstractRARConfigurationFactory implements DeploymentConfigurationFactory {
+    private final ObjectName connectionTrackerNamePattern;
+    public static final GBeanInfo GBEAN_INFO;
 
-    private ObjectName connectionTrackerNamePattern;
-
-    public RARConfigurationFactory(ObjectName connectionTrackerNamePattern) {
+    public AbstractRARConfigurationFactory(ObjectName connectionTrackerNamePattern) {
         this.connectionTrackerNamePattern = connectionTrackerNamePattern;
     }
 
@@ -109,46 +104,17 @@ public class RARConfigurationFactory implements DeploymentConfigurationFactory {
     }
 
     public DeploymentModule createModule(InputStream moduleArchive, Document deploymentPlan, URI configID) throws DeploymentException {
-        Element root = deploymentPlan.getDocumentElement();
-        if (!"connector".equals(root.getNodeName())) {
-            return null;
-        }
-
-        return new Connector_1_5Module(configID, moduleArchive, deploymentPlan, connectionTrackerNamePattern);
+        return null;
     }
 
     public DeploymentModule createModule(File moduleArchive, Document deploymentPlan, URI configID, boolean isLocal) throws DeploymentException {
-        Element root = deploymentPlan.getDocumentElement();
-        if (!"connector".equals(root.getNodeName())) {
-            return null;
-        }
-
-        return new Connector_1_5Module(configID, moduleArchive, deploymentPlan, connectionTrackerNamePattern);
+        return null;
     }
 
-    public DeploymentModule createModule(URL moduleArchive, InputStream standardDD, InputStream geronimoDD, URI configID, boolean isLocal) throws DeploymentException, XmlException, IOException {
-        GerConnectorDocument geronimoConnectorDocument = GerConnectorDocument.Factory.parse(geronimoDD);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        byte[] buffer = new byte[1024];
-        int chunk = standardDD.read(buffer);
-        while (chunk > 0) {
-            baos.write(buffer, 0, chunk);
-            chunk = standardDD.read(buffer);
-        }
-        standardDD.close();
-        try {
-            ConnectorDocument connectorDocument = ConnectorDocument.Factory.parse(new ByteArrayInputStream(baos.toByteArray()));
-            return new Connector_1_5Module(configID, moduleArchive, connectorDocument, geronimoConnectorDocument, connectionTrackerNamePattern);
-        } catch (XmlException e) {
-            org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorDocument connectorDocument = org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorDocument.Factory.parse(new ByteArrayInputStream(baos.toByteArray()));
-            return new Connector_1_0Module(configID, moduleArchive, connectorDocument, geronimoConnectorDocument, connectionTrackerNamePattern);
-        }
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
+    public abstract DeploymentModule createModule(InputStream moduleArchive, Object geronimoDD, URI configID, boolean isLocal) throws DeploymentException, XmlException, IOException;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Geronimo RAR Configuration Factory", RARConfigurationFactory.class.getName());
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Geronimo RAR Configuration Factory", AbstractRARConfigurationFactory.class.getName());
         infoFactory.addInterface(DeploymentConfigurationFactory.class);
         infoFactory.addAttribute(new GAttributeInfo("ConnectionTrackerNamePattern", true));
         infoFactory.setConstructor(new GConstructorInfo(
@@ -157,7 +123,4 @@ public class RARConfigurationFactory implements DeploymentConfigurationFactory {
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

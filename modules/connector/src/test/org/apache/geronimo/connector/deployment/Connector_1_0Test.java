@@ -60,9 +60,13 @@ import java.net.URL;
 import java.net.URI;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.zip.ZipEntry;
+import java.util.jar.JarOutputStream;
 import java.io.InputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
 
 import javax.management.ObjectName;
 
@@ -76,13 +80,12 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/02 22:10:35 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/03 06:51:21 $
  *
  * */
 public class Connector_1_0Test extends TestCase implements ConfigurationCallback {
     private URL j2eeDD;
     private URL geronimoDD;
-    private URL moduleArchive = null;
     private URI configID = URI.create("geronimo/connector10/test");
     private Map gbeans = new HashMap();
 
@@ -99,10 +102,25 @@ public class Connector_1_0Test extends TestCase implements ConfigurationCallback
     }
 
     public void testCreateConnector_1_0Module() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        JarOutputStream jarOutputStream = new JarOutputStream(baos);
+        ZipEntry entry = new ZipEntry("META-INF/ra.xml");
+        jarOutputStream.putNextEntry(entry);
+
         InputStream j2eeInputStream = j2eeDD.openStream();
+        byte[] buffer = new byte[1024];
+        for (int length; (length = j2eeInputStream.read(buffer)) > 0; ) {
+            jarOutputStream.write(buffer, 0, length);
+        }
+        jarOutputStream.flush();
+        jarOutputStream.closeEntry();
+        jarOutputStream.close();
+
+        InputStream moduleArchive = new ByteArrayInputStream(baos.toByteArray());
         InputStream geronimoInputStream = geronimoDD.openStream();
-        RARConfigurationFactory rarConfigurationFactory = new RARConfigurationFactory(ObjectName.getInstance("geronimo.test:role=ConnectionTracker"));
-        DeploymentModule connector_1_0Module = rarConfigurationFactory.createModule(moduleArchive, j2eeInputStream, geronimoInputStream, configID, true);
+        GerConnectorDocument connectorDocument = GerConnectorDocument.Factory.parse(geronimoInputStream);
+        RAR_1_0ConfigurationFactory rarConfigurationFactory = new RAR_1_0ConfigurationFactory(ObjectName.getInstance("geronimo.test:role=ConnectionTracker"));
+        DeploymentModule connector_1_0Module = rarConfigurationFactory.createModule(moduleArchive, connectorDocument, configID, true);
         connector_1_0Module.init();
         connector_1_0Module.generateClassPath(this);
         connector_1_0Module.defineGBeans(this, this.getClass().getClassLoader());

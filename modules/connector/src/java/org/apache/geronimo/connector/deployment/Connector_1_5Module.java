@@ -59,11 +59,14 @@ package org.apache.geronimo.connector.deployment;
 import java.beans.PropertyEditor;
 import java.io.File;
 import java.io.InputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.jar.JarInputStream;
+import java.util.jar.JarEntry;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InvalidAttributeValueException;
@@ -80,6 +83,7 @@ import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
 import org.apache.geronimo.deployment.ConfigurationCallback;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentModule;
+import org.apache.geronimo.deployment.util.UnclosableInputStream;
 import org.apache.geronimo.gbean.DynamicGAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -97,52 +101,33 @@ import org.apache.geronimo.xbeans.j2ee.ConfigPropertyType;
 import org.apache.geronimo.xbeans.j2ee.ConnectionDefinitionType;
 import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.ResourceadapterType;
+import org.apache.xmlbeans.XmlException;
 import org.w3c.dom.Document;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/02 22:10:35 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/03 06:51:21 $
  *
  * */
-public class Connector_1_5Module implements DeploymentModule {
+public class Connector_1_5Module extends AbstractConnectorModule {
 
-    public final static String BASE_RESOURCE_ADAPTER_NAME = "geronimo.management:J2eeType=ResourceAdapter,name=";
-    private final static String BASE_CONNECTION_MANAGER_FACTORY_NAME = "geronimo.management:J2eeType=ConnectionManager,name=";
-    private static final String BASE_MANAGED_CONNECTION_FACTORY_NAME = "geronimo.management:J2eeType=ManagedConnectionFactory,name=";
-    private static final String BASE_REALM_BRIDGE_NAME = "geronimo.security:service=RealmBridge,name=";
-    private static final String BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME = "geronimo.security:service=Realm,type=PasswordCredential,name=";
-    private static final String BASE_ADMIN_OBJECT_NAME = "geronimo.management:service=AdminObject,name=";
-
-    private final URI configID;
     private ConnectorDocument connectorDocument;
-    private GerConnectorDocument geronimoConnectorDocument;
-    private final ObjectName connectionTrackerNamePattern;
-    private URL moduleArchive;
 
-    public Connector_1_5Module(URI moduleID, URL moduleArchive, ConnectorDocument connectorDocument, GerConnectorDocument geronimoConnectorDocument, ObjectName connectionTrackerNamePattern) {
-        this.configID = moduleID;
-        this.moduleArchive = moduleArchive;
-        this.connectorDocument = connectorDocument;
-        this.geronimoConnectorDocument = geronimoConnectorDocument;
-        this.connectionTrackerNamePattern = connectionTrackerNamePattern;
+    public Connector_1_5Module(URI configID, InputStream moduleArchive, Object geronimoConnectorDocument, ObjectName connectionTrackerNamePattern) {
+        super(configID, moduleArchive, geronimoConnectorDocument, connectionTrackerNamePattern);
     }
 
     public Connector_1_5Module(URI configID, InputStream moduleArchive, Document deploymentPlan, ObjectName connectionTrackerNamePattern) {
-        this.configID = configID;
-        this.connectionTrackerNamePattern = connectionTrackerNamePattern;
+        super(configID, moduleArchive, null, connectionTrackerNamePattern);
     }
 
     public Connector_1_5Module(URI configID, File moduleArchive, Document deploymentPlan, ObjectName connectionTrackerNamePattern) {
-        this.configID = configID;
-        this.connectionTrackerNamePattern = connectionTrackerNamePattern;
+        super(configID, null, null, connectionTrackerNamePattern);
     }
 
-    public void init() throws DeploymentException {
-    }
-
-    public void generateClassPath(ConfigurationCallback callback) throws DeploymentException {
-        //I have no idea
+    protected void getConnectorDocument(JarInputStream jarInputStream) throws XmlException, IOException {
+        connectorDocument = ConnectorDocument.Factory.parse(new UnclosableInputStream(jarInputStream));
     }
 
     public void defineGBeans(ConfigurationCallback callback, ClassLoader cl) throws DeploymentException {
@@ -150,23 +135,24 @@ public class Connector_1_5Module implements DeploymentModule {
         GerResourceadapterType geronimoResourceAdapter = geronimoConnectorDocument.getConnector().getResourceadapter();
         //ResourceAdapter setup
         String resourceAdapterClassName = resourceadapter.getResourceadapterClass().getStringValue();
-        ObjectName resourceAdapterObjectName = null;
-        if (resourceAdapterClassName != null) {
-            GBeanInfoFactory resourceAdapterInfoFactory = new GBeanInfoFactory(ResourceAdapterWrapper.class.getName(), ResourceAdapterWrapper.getGBeanInfo());
-            GBeanMBean resourceAdapterGBean = setUpDynamicGBean(resourceAdapterInfoFactory, resourceadapter.getConfigPropertyArray(), geronimoResourceAdapter.getConfigPropertySettingArray());
-            try {
-                resourceAdapterGBean.setAttribute("ResourceAdapterClass", cl.loadClass(resourceAdapterClassName));
-            } catch (Exception e) {
-                throw new DeploymentException(e);
-            }
-            try {
-                resourceAdapterObjectName = ObjectName.getInstance(BASE_RESOURCE_ADAPTER_NAME + configID);
-            } catch (MalformedObjectNameException e) {
-                throw new DeploymentException("Could not construct resource adapter object name", e);
-            }
-            callback.addGBean(resourceAdapterObjectName, resourceAdapterGBean);
-
+        if (resourceAdapterClassName == null) {
+            throw new DeploymentException("No resource adapter class provided for J2ee Connector Architecture 1.5 adapter");
         }
+        ObjectName resourceAdapterObjectName = null;
+        GBeanInfoFactory resourceAdapterInfoFactory = new GBeanInfoFactory(ResourceAdapterWrapper.class.getName(), ResourceAdapterWrapper.getGBeanInfo());
+        GBeanMBean resourceAdapterGBean = setUpDynamicGBean(resourceAdapterInfoFactory, resourceadapter.getConfigPropertyArray(), geronimoResourceAdapter.getConfigPropertySettingArray());
+        try {
+            resourceAdapterGBean.setAttribute("ResourceAdapterClass", cl.loadClass(resourceAdapterClassName));
+        } catch (Exception e) {
+            throw new DeploymentException(e);
+        }
+        try {
+            resourceAdapterObjectName = ObjectName.getInstance(BASE_RESOURCE_ADAPTER_NAME + configID);
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Could not construct resource adapter object name", e);
+        }
+        callback.addGBean(resourceAdapterObjectName, resourceAdapterGBean);
+
         Map connectionDefinitions = new HashMap();
         for (int j = 0; j < resourceadapter.getOutboundResourceadapter().getConnectionDefinitionArray().length; j++) {
             ConnectionDefinitionType connectionDefinition = resourceadapter.getOutboundResourceadapter().getConnectionDefinitionArray(j);
@@ -342,6 +328,4 @@ public class Connector_1_5Module implements DeploymentModule {
         }
     }
 
-    public void complete() {
-    }
 }
