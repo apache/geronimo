@@ -18,7 +18,7 @@ public class PlanParsingTest extends TestCase {
     public void testResourceRef() throws Exception {
         File resourcePlan = new File(basedir, "src/test-resources/plans/plan1.xml");
         assertTrue(resourcePlan.exists());
-        GerApplicationClientType appClient = builder.getApplicationClientType(resourcePlan, null, null, null);
+        GerApplicationClientType appClient = builder.getGeronimoAppClient(resourcePlan, null, true, null, null);
         assertEquals(1, appClient.getResourceRefArray().length);
     }
 
@@ -38,7 +38,7 @@ public class PlanParsingTest extends TestCase {
     public void testConnectorInclude() throws Exception {
         File resourcePlan = new File(basedir, "src/test-resources/plans/plan2.xml");
         assertTrue(resourcePlan.exists());
-        GerApplicationClientType appClient = builder.getApplicationClientType(resourcePlan, null, null, null);
+        GerApplicationClientType appClient = builder.getGeronimoAppClient(resourcePlan, null, true, null, null);
         assertEquals(1, appClient.getResourceRefArray().length);
         assertEquals(1, appClient.getResourceArray().length);
     }

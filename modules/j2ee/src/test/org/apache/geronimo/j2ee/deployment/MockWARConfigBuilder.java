@@ -16,9 +16,11 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import java.io.File;
 import java.net.URL;
-import java.net.URI;
 import java.util.jar.JarFile;
+
+import javax.management.ObjectName;
 
 import junit.framework.Assert;
 import org.apache.geronimo.deployment.DeploymentException;
@@ -32,8 +34,12 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
     public ClassLoader cl;
     public String contextRoot;
 
-    public Module createModule(String name, Object planFile, JarFile moduleFile, URL specDDUrl, String targetPath) throws DeploymentException {
-        return new WebModule(name, null, null, URI.create(targetPath), moduleFile, targetPath, null, null, null);
+    public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
+        return new WebModule(true, null, null, moduleFile, "war", null, null, null);
+    }
+
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl) throws DeploymentException {
+        return new WebModule(false, null, null, moduleFile, targetPath, null, null, null);
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module webModule) throws DeploymentException {
@@ -56,12 +62,13 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
         this.cl = cl;
     }
 
-    public void addGBeans(EARContext earContext, Module webModule, ClassLoader cl) throws DeploymentException {
+    public String addGBeans(EARContext earContext, Module webModule, ClassLoader cl) throws DeploymentException {
         assertEquals(this.earContext, earContext);
 //        assertEquals(this.webModule, webModule);
         assertEquals(this.cl, cl);
         assertNotNull(contextRoot);
         this.contextRoot = ((WebModule) webModule).getContextRoot();
+        return null;
     }
 
 }

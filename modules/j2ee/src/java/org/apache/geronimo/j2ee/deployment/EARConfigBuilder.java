@@ -29,8 +29,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.List;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
@@ -113,30 +115,23 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             return plan;
         }
 
-        // give the module the default name of the module file
-        String name = new File(jarFile.getName()).getName();
-
         // get the modules either the application plan or for a stand alone module from the specific deployer
         Module module = null;
         if (webConfigBuilder != null) {
-            module = webConfigBuilder.createModule(name, planFile, jarFile, null, null);
+            module = webConfigBuilder.createModule(planFile, jarFile);
         }
         if (module == null && ejbConfigBuilder != null) {
-            module = ejbConfigBuilder.createModule(name, planFile, jarFile, null, null);
+            module = ejbConfigBuilder.createModule(planFile, jarFile);
         }
         if (module == null && connectorConfigBuilder != null) {
-            module = connectorConfigBuilder.createModule(name, planFile, jarFile, null, null);
+            module = connectorConfigBuilder.createModule(planFile, jarFile);
         }
         if (module == null && appClientConfigBuilder != null) {
-            module = appClientConfigBuilder.createModule(name, planFile, jarFile, null, null);
+            module = appClientConfigBuilder.createModule(planFile, jarFile);
         }
         if (module == null) {
             return null;
         }
-
-        // in the case of a stand alone module we actually want the name to be the
-        // config id, which may be derived from the module file name set above
-        module.setName(module.getConfigId().toString());
 
         return new ApplicationInfo(module.getType(),
                 module.getConfigId(),
@@ -248,10 +243,12 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         return gerApplication;
     }
 
-    public void buildConfiguration(File outfile, Manifest manifest, Object plan, JarFile earFile) throws IOException, DeploymentException {
+    public List buildConfiguration(File outfile, Manifest manifest, Object plan, JarFile earFile) throws IOException, DeploymentException {
         ApplicationInfo applicationInfo = (ApplicationInfo) plan;
         FileOutputStream fos = new FileOutputStream(outfile);
         try {
+            List moduleIDs = new LinkedList();
+
             // Create the output ear context
             JarOutputStream os = new JarOutputStream(new BufferedOutputStream(fos));
             EARContext earContext = null;
@@ -324,17 +321,21 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                     throw new DeploymentException("Error initializing J2EEApplication managed object");
                 }
                 gbean.setReferencePatterns("j2eeServer", Collections.singleton(j2eeServer));
-                earContext.addGBean(earContext.getApplicationObjectName(), gbean);
+                ObjectName applicationName = earContext.getApplicationObjectName();
+                earContext.addGBean(applicationName, gbean);
+                moduleIDs.add(applicationName.getCanonicalName());
             }
 
             // each module can now add it's GBeans
             for (Iterator iterator = modules.iterator(); iterator.hasNext();) {
                 Module module = (Module) iterator.next();
-                getBuilder(module).addGBeans(earContext, module, cl);
+                String moduleID = getBuilder(module).addGBeans(earContext, module, cl);
+                moduleIDs.add(moduleID);
             }
 
             earContext.close();
             os.flush();
+            return moduleIDs;
         } finally {
             fos.close();
         }
@@ -424,11 +425,10 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 altSpecDD = JarUtil.createJarURL(earFile, moduleXml.getAltDd().getStringValue());
             }
 
-            Module module = builder.createModule(modulePath,
-                    altVendorDDs.get(modulePath),
+            Module module = builder.createModule(altVendorDDs.get(modulePath),
                     new NestedJarFile(earFile, modulePath),
-                    altSpecDD,
-                    modulePath);
+                    modulePath,
+                    altSpecDD);
 
             if (module == null) {
                 throw new DeploymentException("Module was not " + moduleTypeName + ": " + modulePath);

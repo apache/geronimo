@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.util.List;
 
 /**
  * @version $Rev$ $Date$
@@ -46,5 +47,5 @@ public interface ConfigurationBuilder {
      * @throws IOException if there was a problem reading or writing the files
      * @throws DeploymentException if there was a problem with the configuration
      */
-    void buildConfiguration(File outfile, Manifest manifest, Object plan, JarFile module) throws IOException, DeploymentException;
+    List buildConfiguration(File outfile, Manifest manifest, Object plan, JarFile module) throws IOException, DeploymentException;
 }

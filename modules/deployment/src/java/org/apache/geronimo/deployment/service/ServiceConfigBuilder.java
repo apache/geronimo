@@ -32,6 +32,8 @@ import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
+import java.util.List;
+import java.util.Collections;
 import javax.management.MalformedObjectNameException;
 
 import org.apache.geronimo.deployment.ConfigurationBuilder;
@@ -82,7 +84,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    public void buildConfiguration(File outfile, Manifest manifest, Object plan, JarFile unused) throws IOException, DeploymentException {
+    public List buildConfiguration(File outfile, Manifest manifest, Object plan, JarFile unused) throws IOException, DeploymentException {
         FileOutputStream fos = new FileOutputStream(outfile);
         try {
             JarOutputStream os = new JarOutputStream(new BufferedOutputStream(fos), manifest);
@@ -94,7 +96,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
             }
 
             buildConfiguration(os, (XmlObject) plan);
-
+            return Collections.EMPTY_LIST;
         } finally {
             fos.close();
         }

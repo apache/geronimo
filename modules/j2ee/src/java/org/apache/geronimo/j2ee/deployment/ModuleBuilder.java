@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import java.io.File;
 import java.net.URL;
 import java.util.jar.JarFile;
 
@@ -25,12 +26,13 @@ import org.apache.geronimo.deployment.DeploymentException;
  * @version $Rev$ $Date$
  */
 public interface ModuleBuilder {
-    Module createModule(String name, Object planFile, JarFile moduleFile, URL specDDUrl, String targetPath) throws DeploymentException;
+    Module createModule(File plan, JarFile moduleFile) throws DeploymentException;
+
+    Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl) throws DeploymentException;
 
     void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException;
 
     void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException;
 
-    void addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException;
-
+    String addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException;
 }

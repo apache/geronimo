@@ -28,10 +28,32 @@ import javax.enterprise.deploy.spi.Target;
 public class TargetModuleIDImpl implements TargetModuleID {
     private final Target target;
     private final String moduleID;
+    private final TargetModuleID parentTargetModuleID;
+    private final TargetModuleID[] childTargetModuleID;
 
     public TargetModuleIDImpl(Target target, String moduleID) {
         this.target = target;
         this.moduleID = moduleID;
+        parentTargetModuleID = null;
+        childTargetModuleID = null;
+    }
+
+    public TargetModuleIDImpl(Target target, String moduleID, String[] childIDs) {
+        this.target = target;
+        this.moduleID = moduleID;
+        parentTargetModuleID = null;
+        childTargetModuleID = new TargetModuleID[childIDs.length];
+        for (int i = 0; i < childIDs.length; i++) {
+            String childID = childIDs[i];
+            childTargetModuleID[i] = new TargetModuleIDImpl(target, childID, this);
+        }
+    }
+
+    private TargetModuleIDImpl(Target target, String moduleID, TargetModuleID parent) {
+        this.target = target;
+        this.moduleID = moduleID;
+        this.parentTargetModuleID = parent;
+        childTargetModuleID = null;
     }
 
     public Target getTarget() {
@@ -43,11 +65,11 @@ public class TargetModuleIDImpl implements TargetModuleID {
     }
 
     public TargetModuleID getParentTargetModuleID() {
-        return null;
+        return parentTargetModuleID;
     }
 
     public TargetModuleID[] getChildTargetModuleID() {
-        return null;
+        return childTargetModuleID;
     }
 
     public String getWebURL() {

@@ -126,7 +126,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
 
         Thread.currentThread().setContextClassLoader(cl);
 
-        Module module = moduleBuilder.createModule(j2eeModuleName, null, JarUtil.createJarFile(action.getRARFile()), null, null);
+        Module module = moduleBuilder.createModule(null, JarUtil.createJarFile(action.getRARFile()));
         assertEquals(j2eeModuleName, module.getConfigId().toString());
 
         File carFile = File.createTempFile("RARTest", ".car");

@@ -18,7 +18,6 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.io.File;
-import java.net.URI;
 import java.util.jar.JarFile;
 import javax.management.ObjectName;
 
@@ -54,11 +53,11 @@ public class EARConfigBuilderTest extends TestCase {
         TestSetup setup14 = new TestSetup(inner) {
             protected void setUp() throws Exception {
                 earFile = JarUtil.createJarFile(new File(basedir,  "target/test-ear14/test-ear.ear"));
-                ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar.jar", null, null, URI.create("test-ejb-jar.jar"), null, "test-ejb-jar.jar", null, null, null);
+                ejbConfigBuilder.ejbModule = new EJBModule(false, null, null, null, "test-ejb-jar.jar", null, null, null);
                 webConfigBuilder.contextRoot = "test";
-                webConfigBuilder.webModule = new WebModule("test-war.war", null, null, URI.create("test-war.war"), null, "test-war.war", null, null, null);
+                webConfigBuilder.webModule = new WebModule(false, null, null, null, "test-war.war", null, null, null);
                 webConfigBuilder.webModule.setContextRoot("test");
-                connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", null, null, URI.create("test-rar.rar"), null, "test-rar.rar", null, null, null);
+                connectorConfigBuilder.connectorModule = new ConnectorModule(false, null, null, null, "test-rar.rar", null, null, null);
             }
 
             protected void tearDown() {
@@ -67,11 +66,11 @@ public class EARConfigBuilderTest extends TestCase {
         TestSetup setupNaked14 = new TestSetup(inner) {
             protected void setUp() throws Exception {
                 earFile = JarUtil.createJarFile(new File(basedir,  "target/test-ear14/test-naked-ear.ear"));
-                ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar.jar", null, null, URI.create("test-ejb-jar.jar"), null, "test-ejb-jar.jar", null, null, null);
+                ejbConfigBuilder.ejbModule = new EJBModule(false, null, null, null, "test-ejb-jar.jar", null, null, null);
                 webConfigBuilder.contextRoot = "test";
-                webConfigBuilder.webModule = new WebModule("test-war.war", null, null, URI.create("test-war.war"), null, "test-war.war", null, null, null);
+                webConfigBuilder.webModule = new WebModule(false, null, null, null, "test-war.war", null, null, null);
                 webConfigBuilder.webModule.setContextRoot("test");
-                connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", null, null, URI.create("test-rar.rar"), null, "test-rar.rar", null, null, null);
+                connectorConfigBuilder.connectorModule = new ConnectorModule(false, null, null, null, "test-rar.rar", null, null, null);
             }
 
             protected void tearDown() {
@@ -80,11 +79,11 @@ public class EARConfigBuilderTest extends TestCase {
         TestSetup setup13 = new TestSetup(inner) {
             protected void setUp() throws Exception {
                 earFile = JarUtil.createJarFile(new File(basedir,  "target/test-ear13/test-ear.ear"));
-                ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar.jar", null, null, URI.create("test-ejb-jar.jar"), null, "test-ejb-jar.jar", null, null, null);
+                ejbConfigBuilder.ejbModule = new EJBModule(false, null, null, null, "test-ejb-jar.jar", null, null, null);
                 webConfigBuilder.contextRoot = "test";
-                webConfigBuilder.webModule = new WebModule("test-war.war", null, null, URI.create("test-war.war"), null, "test-war.war", null, null, null);
+                webConfigBuilder.webModule = new WebModule(false, null, null, null, "test-war.war", null, null, null);
                 webConfigBuilder.webModule.setContextRoot("test");
-                connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", null, null, URI.create("test-rar.rar"), null, "test-rar.rar", null, null, null);
+                connectorConfigBuilder.connectorModule = new ConnectorModule(false, null, null, null, "test-rar.rar", null, null, null);
             }
 
             protected void tearDown() {
@@ -93,11 +92,11 @@ public class EARConfigBuilderTest extends TestCase {
         TestSetup setupNaked13 = new TestSetup(inner) {
             protected void setUp() throws Exception {
                 earFile = JarUtil.createJarFile(new File(basedir, "target/test-ear13/test-naked-ear.ear"));
-                ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar.jar", null, null, URI.create("test-ejb-jar.jar"), null, "test-ejb-jar.jar", null, null, null);
+                ejbConfigBuilder.ejbModule = new EJBModule(false, null, null, null, "test-ejb-jar.jar", null, null, null);
                 webConfigBuilder.contextRoot = "test";
-                webConfigBuilder.webModule = new WebModule("test-war.war", null, null, URI.create("test-war.war"), null, "test-war.war", null, null, null);
+                webConfigBuilder.webModule = new WebModule(false, null, null, null, "test-war.war", null, null, null);
                 webConfigBuilder.webModule.setContextRoot("test");
-                connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", null, null, URI.create("test-rar.rar"), null, "test-rar.rar", null, null, null);
+                connectorConfigBuilder.connectorModule = new ConnectorModule(false, null, null, null, "test-rar.rar", null, null, null);
             }
 
             protected void tearDown() {
@@ -106,11 +105,11 @@ public class EARConfigBuilderTest extends TestCase {
         TestSetup setupUnpacked = new TestSetup(inner) {
             protected void setUp() throws Exception {
                 earFile = JarUtil.createJarFile(new File(basedir,  "target/test-unpacked-ear/full/"));
-                ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar.jar/", null, null, URI.create("test-ejb-jar.jar/"), null, "test-ejb-jar.jar/", null, null, null);
+                ejbConfigBuilder.ejbModule = new EJBModule(false, null, null, null, "test-ejb-jar.jar/", null, null, null);
                 webConfigBuilder.contextRoot = "test";
-                webConfigBuilder.webModule = new WebModule("test-war.war/", null, null, URI.create("test-war.war/"), null, "test-war.war/", null, null, null);
+                webConfigBuilder.webModule = new WebModule(false, null, null, null, "test-war.war/", null, null, null);
                 webConfigBuilder.webModule.setContextRoot("test");
-                connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", null, null, URI.create("test-rar.rar"), null, "test-rar.rar", null, null, null);
+                connectorConfigBuilder.connectorModule = new ConnectorModule(false, null, null, null, "test-rar.rar", null, null, null);
             }
 
             protected void tearDown() {
@@ -119,11 +118,11 @@ public class EARConfigBuilderTest extends TestCase {
         TestSetup setupUnpackedNaked = new TestSetup(inner) {
             protected void setUp() throws Exception {
                 earFile = JarUtil.createJarFile(new File(basedir,  "target/test-unpacked-ear/naked/"));
-                ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar.jar/", null, null, URI.create("test-ejb-jar.jar/"), null, "test-ejb-jar.jar/", null, null, null);
+                ejbConfigBuilder.ejbModule = new EJBModule(false, null, null, null, "test-ejb-jar.jar/", null, null, null);
                 webConfigBuilder.contextRoot = "test";
-                webConfigBuilder.webModule = new WebModule("test-war.war/", null, null, URI.create("test-war.war/"), null, "test-war.war", null, null, null);
+                webConfigBuilder.webModule = new WebModule(false, null, null, null, "test-war.war", null, null, null);
                 webConfigBuilder.webModule.setContextRoot("test");
-                connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", null, null, URI.create("test-rar.rar"), null, "test-rar.rar", null, null, null);
+                connectorConfigBuilder.connectorModule = new ConnectorModule(false, null, null, null, "test-rar.rar", null, null, null);
             }
 
             protected void tearDown() {
@@ -132,11 +131,11 @@ public class EARConfigBuilderTest extends TestCase {
         TestSetup setupUnpackedAltDD = new TestSetup(inner) {
             protected void setUp() throws Exception {
                 earFile = JarUtil.createJarFile(new File(basedir,  "target/test-unpacked-ear/alt-dd/"));
-                ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar.jar/", null, null, URI.create("test-ejb-jar.jar/"), null, "test-ejb-jar.jar/", null, null, null);
+                ejbConfigBuilder.ejbModule = new EJBModule(false, null, null, null, "test-ejb-jar.jar/", null, null, null);
                 webConfigBuilder.contextRoot = "test";
-                webConfigBuilder.webModule = new WebModule("test-war.war/", null, null, URI.create("test-war.war/"), null, "test-war.war/", null, null, null);
+                webConfigBuilder.webModule = new WebModule(false, null, null, null, "test-war.war/", null, null, null);
                 webConfigBuilder.webModule.setContextRoot("test");
-                connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", null, null, URI.create("test-rar.rar"), null, "test-rar.rar", null, null, null);
+                connectorConfigBuilder.connectorModule = new ConnectorModule(false, null, null, null, "test-rar.rar", null, null, null);
             }
 
             protected void tearDown() {
@@ -145,11 +144,11 @@ public class EARConfigBuilderTest extends TestCase {
         TestSetup setupPackedAltDD = new TestSetup(inner) {
             protected void setUp() throws Exception {
                 earFile = JarUtil.createJarFile(new File(basedir,  "target/test-unpacked-ear/alt-dd.ear"));
-                ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar.jar/", null, null, URI.create("test-ejb-jar.jar/"), null, "test-ejb-jar.jar/", null, null, null);
+                ejbConfigBuilder.ejbModule = new EJBModule(false, null, null, null, "test-ejb-jar.jar/", null, null, null);
                 webConfigBuilder.contextRoot = "test";
-                webConfigBuilder.webModule = new WebModule("test-war.war/", null, null, URI.create("test-war.war/"), null, "test-war.war/", null, null, null);
+                webConfigBuilder.webModule = new WebModule(false, null, null, null, "test-war.war/", null, null, null);
                 webConfigBuilder.webModule.setContextRoot("test");
-                connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", null, null, URI.create("test-rar.rar"), null, "test-rar.rar", null, null, null);
+                connectorConfigBuilder.connectorModule = new ConnectorModule(false, null, null, null, "test-rar.rar", null, null, null);
             }
 
             protected void tearDown() {

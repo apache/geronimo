@@ -22,8 +22,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.Target;
@@ -91,9 +91,16 @@ public class DistributeCommand extends CommandSupport {
             }
 
             Object[] args = {moduleArchive, deploymentPlan};
-            URI configId = (URI) kernel.invoke(deployer, "deploy", args, DEPLOY_SIG);
-            TargetModuleID moduleID = new TargetModuleIDImpl(targetList[0], configId.toString());
-            addModule(moduleID);
+            List objectNames = (List) kernel.invoke(deployer, "deploy", args, DEPLOY_SIG);
+            if (objectNames != null && !objectNames.isEmpty()) {
+                String parentName = (String) objectNames.get(0);
+
+                List childNames = objectNames.subList(1, objectNames.size());
+                String[] childIDs = (String[]) childNames.toArray(new String[childNames.size()]);
+
+                TargetModuleID moduleID = new TargetModuleIDImpl(targetList[0], parentName.toString(), childIDs);
+                addModule(moduleID);
+            }
             complete("Completed");
         } catch (Exception e) {
             doFail(e);

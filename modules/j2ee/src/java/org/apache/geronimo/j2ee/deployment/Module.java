@@ -26,7 +26,8 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
  * @version $Rev$ $Date$
  */
 public abstract class Module {
-    private String name;
+    private final boolean standAlone;
+    private final String name;
     private final URI configId;
     private final URI parentId;
     private final URI moduleURI;
@@ -36,16 +37,23 @@ public abstract class Module {
     private final XmlObject vendorDD;
     private final String originalSpecDD;
 
-    public Module(String name, URI configId, URI parentId, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
-        this.name = name;
+    protected Module(boolean standAlone, URI configId, URI parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
+        this.standAlone = standAlone;
         this.configId = configId;
         this.parentId = parentId;
-        this.moduleURI = moduleURI;
         this.moduleFile = moduleFile;
         this.targetPath = targetPath;
         this.specDD = specDD;
         this.vendorDD = vendorDD;
         this.originalSpecDD = originalSpecDD;
+
+        if (standAlone) {
+            name = configId.toString();
+            moduleURI = URI.create("");
+        } else {
+            name = targetPath;
+            moduleURI = URI.create(targetPath);
+        }
     }
 
     public abstract ConfigurationModuleType  getType();
@@ -54,8 +62,8 @@ public abstract class Module {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public boolean isStandAlone() {
+        return standAlone;
     }
 
     public URI getConfigId() {

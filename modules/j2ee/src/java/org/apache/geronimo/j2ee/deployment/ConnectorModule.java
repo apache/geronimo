@@ -26,8 +26,8 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
  * @version $Rev$ $Date$
  */
 public class ConnectorModule extends Module {
-    public ConnectorModule(String name, URI configId, URI parentId, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
-        super(name, configId, parentId, moduleURI, moduleFile, targetPath, specDD, vendorDD, originalSpecDD);
+    public ConnectorModule(boolean standAlone, URI configId, URI parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
+        super(standAlone, configId, parentId, moduleFile, targetPath, specDD, vendorDD, originalSpecDD);
     }
 
     public ConfigurationModuleType getType() {

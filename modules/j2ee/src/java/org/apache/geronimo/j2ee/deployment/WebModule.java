@@ -28,8 +28,8 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 public class WebModule extends Module {
     private String contextRoot;
 
-    public WebModule(String name, URI configId, URI parentId, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
-        super(name, configId, parentId, moduleURI, moduleFile, targetPath, specDD, vendorDD, originalSpecDD);
+    public WebModule(boolean standAlone, URI configId, URI parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
+        super(standAlone, configId, parentId, moduleFile, targetPath, specDD, vendorDD, originalSpecDD);
     }
 
     public String getContextRoot() {

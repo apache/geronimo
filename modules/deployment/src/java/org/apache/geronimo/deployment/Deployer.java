@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Collections;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -53,7 +55,7 @@ public class Deployer {
         this.store = store;
     }
 
-    public URI deploy(File moduleFile, File planFile) throws DeploymentException {
+    public List deploy(File moduleFile, File planFile) throws DeploymentException {
         return deploy(planFile, moduleFile, null, true, null, null);
     }
 
@@ -76,11 +78,17 @@ public class Deployer {
         String classPath = cmd.classPath;
 
 
-        URI uri = deploy(planFile, module, carfile, install, mainClass, classPath);
-        System.out.println("Deployment uri is " + uri);
+        List objectNames = deploy(planFile, module, carfile, install, mainClass, classPath);
+        if (!objectNames.isEmpty()) {
+            Iterator iterator = objectNames.iterator();
+            System.out.println("Deployed " + iterator.next());
+            while (iterator.hasNext()) {
+                System.out.println("    " + iterator.next());
+            }
+        }
     }
 
-    public URI deploy(File planFile, File moduleFile, File carfile, boolean install, String mainClass, String classPath) throws DeploymentException {
+    public List deploy(File planFile, File moduleFile, File carfile, boolean install, String mainClass, String classPath) throws DeploymentException {
         if (planFile == null && moduleFile == null) {
             throw new DeploymentException("No plan or module specified");
         }
@@ -132,13 +140,14 @@ public class Deployer {
 
 
         try {
-            builder.buildConfiguration(carfile, manifest, plan, module);
+            List objectNames = builder.buildConfiguration(carfile, manifest, plan, module);
 
             try {
                 if (install) {
-                    return store.install(carfile.toURL());
+                    store.install(carfile.toURL());
+                    return objectNames;
                 }
-                return null;
+                return Collections.EMPTY_LIST;
             } catch (InvalidConfigException e) {
                 // unlikely as we just built this
                 throw new DeploymentException(e);

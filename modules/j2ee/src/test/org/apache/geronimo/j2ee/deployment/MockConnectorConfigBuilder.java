@@ -16,8 +16,8 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import java.io.File;
 import java.net.URL;
-import java.net.URI;
 import java.util.jar.JarFile;
 
 import junit.framework.Assert;
@@ -31,8 +31,12 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder 
     public Module connectorModule;
     public ClassLoader cl;
 
-    public Module createModule(String name, Object planFile, JarFile moduleFile, URL specDDUrl, String targetPath) throws DeploymentException {
-        return new ConnectorModule(name, null, null, URI.create(targetPath), moduleFile, targetPath, null, null, null);
+    public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
+        return new ConnectorModule(true, null, null, moduleFile, "connector", null, null, null);
+    }
+
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl) throws DeploymentException {
+        return new ConnectorModule(false, null, null, moduleFile, targetPath, null, null, null);
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module connectorModule) {
@@ -55,10 +59,11 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder 
         this.cl = cl;
     }
 
-    public void addGBeans(EARContext earContext, Module connectorModule, ClassLoader cl) {
+    public String addGBeans(EARContext earContext, Module connectorModule, ClassLoader cl) {
         assertEquals(this.earContext, earContext);
 //        assertEquals(this.connectorModule, connectorModule);
         assertEquals(this.cl, cl);
+        return null;
     }
 
 }

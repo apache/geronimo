@@ -95,17 +95,31 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         this.connectorModuleBuilder = connectorModuleBuilder;
     }
 
-    public Module createModule(String name, Object plan, JarFile moduleFile, URL appClientXmlUrl, String targetPath) throws DeploymentException {
+    public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
+        return createModule(plan, moduleFile, "app-client", null, true);
+    }
+
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl) throws DeploymentException {
+        return createModule(plan, moduleFile, targetPath, specDDUrl, false);
+    }
+
+    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone) throws DeploymentException {
+        assert moduleFile != null: "moduleFile is null";
+        assert targetPath != null: "targetPath is null";
+        assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
+
         String specDD;
         ApplicationClientType appClient;
         try {
-            if (appClientXmlUrl == null) {
-                appClientXmlUrl = JarUtil.createJarURL(moduleFile, "META-INF/application-client.xml");
+            if (specDDUrl == null) {
+                specDDUrl = JarUtil.createJarURL(moduleFile, "META-INF/application-client.xml");
             }
 
-            specDD = IOUtil.readAll(appClientXmlUrl);
+            // read in the entire specDD as a string, we need this for getDeploymentDescriptor
+            // on the J2ee management object
+            specDD = IOUtil.readAll(specDDUrl);
 
-            // check if we have an alt spec dd
+            // parse it
             XmlObject xmlObject = SchemaConversionUtils.parse(specDD);
             ApplicationClientDocument appClientDoc = SchemaConversionUtils.convertToApplicationClientSchema(xmlObject);
             appClient = appClientDoc.getApplicationClient();
@@ -115,8 +129,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             return null;
         }
 
-        GerApplicationClientType gerAppClient = null;
-        gerAppClient = getApplicationClientType(plan, moduleFile, name, appClient);
+        // parse vendor dd
+        GerApplicationClientType gerAppClient = getGeronimoAppClient(plan, moduleFile, standAlone, targetPath, appClient);
 
         // get the ids from either the application plan or for a stand alone module from the specific deployer
         URI configId = null;
@@ -135,21 +149,10 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             }
         }
 
-        URI moduleURI;
-        if (targetPath != null) {
-            moduleURI = URI.create(targetPath);
-            if (targetPath.endsWith("/")) {
-                throw new DeploymentException("targetPath must not end with a '/'");
-            }
-        } else {
-            targetPath = "app-client";
-            moduleURI = URI.create("");
-        }
-
-        return new AppClientModule(name, configId, parentId, moduleURI, moduleFile, targetPath, appClient, gerAppClient, specDD);
+        return new AppClientModule(standAlone, configId, parentId, moduleFile, targetPath, appClient, gerAppClient, specDD);
     }
 
-    GerApplicationClientType getApplicationClientType(Object plan, JarFile moduleFile, String name, ApplicationClientType appClient) throws DeploymentException {
+    GerApplicationClientType getGeronimoAppClient(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, ApplicationClientType appClient) throws DeploymentException {
         GerApplicationClientType gerAppClient = null;
         try {
             // load the geronimo-application-client.xml from either the supplied plan or from the earFile
@@ -179,7 +182,15 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 gerAppClient = (GerApplicationClientType) SchemaConversionUtils.convertToGeronimoNamingSchema(gerAppClient);
                 SchemaConversionUtils.validateDD(gerAppClient);
             } else {
-                gerAppClient = createDefaultPlan(name, appClient);
+                String path;
+                if (standAlone) {
+                    // default configId is based on the moduleFile name
+                    path = new File(moduleFile.getName()).getName();
+                } else {
+                    // default configId is based on the module uri from the application.xml
+                    path = targetPath;
+                }
+                gerAppClient = createDefaultPlan(path, appClient);
             }
         } catch (XmlException e) {
             throw new DeploymentException(e);
@@ -225,7 +236,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         // application clients do not add anything to the shared context
     }
 
-    public void addGBeans(EARContext earContext, Module module, ClassLoader earClassLoader) throws DeploymentException {
+    public String addGBeans(EARContext earContext, Module module, ClassLoader earClassLoader) throws DeploymentException {
         AppClientModule appClientModule = (AppClientModule) module;
 
         ApplicationClientType appClient = (ApplicationClientType) appClientModule.getSpecDD();
@@ -365,7 +376,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                       connectorFile = new NestedJarFile(appClientModule.getEarFile(), path);
                     }
                     XmlObject connectorPlan = resource.getConnector();
-                    Module connectorModule = connectorModuleBuilder.createModule(path, connectorPlan, connectorFile, null, path);
+                    Module connectorModule = connectorModuleBuilder.createModule(connectorPlan, connectorFile, path, null);
                     resourceModules.add(connectorModule);
                     connectorModuleBuilder.installModule(connectorFile, appClientDeploymentContext, connectorModule);
                 }
@@ -409,6 +420,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         } catch (Exception e) {
             throw new DeploymentException(e);
         }
+        return appClientModuleName.getCanonicalName();
     }
 
     private ReadOnlyContext buildComponentContext(EARContext earContext, AppClientModule appClientModule, ApplicationClientType appClient, GerApplicationClientType geronimoAppClient, ClassLoader cl) throws DeploymentException {

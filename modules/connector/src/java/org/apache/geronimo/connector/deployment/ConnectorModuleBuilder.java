@@ -96,16 +96,31 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
     private static final String BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME = "geronimo.security:service=Realm,type=PasswordCredential,name=";
     private static final String BASE_WORK_MANAGER_NAME = "geronimo.server:type=WorkManager,name=";
 
-    public Module createModule(String name, Object plan, JarFile moduleFile, URL appClientXmlUrl, String targetPath) throws DeploymentException {
+    public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
+        return createModule(plan, moduleFile, "war", null, true);
+    }
+
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl) throws DeploymentException {
+        return createModule(plan, moduleFile, targetPath, specDDUrl, false);
+    }
+
+    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone) throws DeploymentException {
+        assert moduleFile != null: "moduleFile is null";
+        assert targetPath != null: "targetPath is null";
+        assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
+
         String specDD;
         XmlObject connector;
         try {
-            if (appClientXmlUrl == null) {
-                appClientXmlUrl = JarUtil.createJarURL(moduleFile, "META-INF/ra.xml");
+            if (specDDUrl == null) {
+                specDDUrl = JarUtil.createJarURL(moduleFile, "META-INF/ra.xml");
             }
 
-            specDD = IOUtil.readAll(appClientXmlUrl);
+            // read in the entire specDD as a string, we need this for getDeploymentDescriptor
+            // on the J2ee management object
+            specDD = IOUtil.readAll(specDDUrl);
 
+            // parse it
             try {
                 // try 1.0
                 ConnectorDocument10 connectorDoc = ConnectorDocument10.Factory.parse(specDD);
@@ -171,24 +186,12 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
             }
         }
 
-        URI moduleURI;
-        if (targetPath != null) {
-            moduleURI = URI.create(targetPath);
-            if (targetPath.endsWith("/")) {
-                throw new DeploymentException("targetPath must not end with a '/'");
-            }
-            targetPath += "/";
-        } else {
-            targetPath = "connector/";
-            moduleURI = URI.create("");
-        }
-
-        return new ConnectorModule(name, configId, parentId, moduleURI, moduleFile, targetPath, connector, gerConnector, specDD);
+        return new ConnectorModule(standAlone, configId, parentId, moduleFile, targetPath, connector, gerConnector, specDD);
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
         try {
-            URI targetURI = URI.create(module.getTargetPath());
+            URI targetURI = URI.create(module.getTargetPath() + "/");
 
             JarFile moduleFile = module.getModuleFile();
 
@@ -226,8 +229,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         // TODO should the 1.5 ActivationSpecInfos be processed here? YES
     }
 
-    public void addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
-        addResourceAdapterModuleGBean(earContext, module, cl);
+    public String addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+        ObjectName resourceAdapterModuleName = addResourceAdapterModuleGBean(earContext, module, cl);
 
         GerConnectorType geronimoConnector = (GerConnectorType) module.getVendorDD();
         XmlObject specDD = module.getSpecDD();
@@ -241,9 +244,11 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         for (int i = 0; i < gbeans.length; i++) {
             GBeanHelper.addGbean(new RARGBeanAdapter(gbeans[i]), cl, earContext);
         }
+
+        return resourceAdapterModuleName.getCanonicalName();
     }
 
-    private void addResourceAdapterModuleGBean(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+    private ObjectName addResourceAdapterModuleGBean(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
         // build the objectName
         Properties nameProps = new Properties();
         nameProps.put("j2eeType", "ResourceAdapterModule");
@@ -251,9 +256,9 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         nameProps.put("J2EEServer", earContext.getJ2EEServerName());
         nameProps.put("J2EEApplication", earContext.getJ2EEApplicationName());
 
-        ObjectName resourceAdapterModuleObjectName = null;
+        ObjectName resourceAdapterModuleName = null;
         try {
-            resourceAdapterModuleObjectName = new ObjectName(earContext.getJ2EEDomainName(), nameProps);
+            resourceAdapterModuleName = new ObjectName(earContext.getJ2EEDomainName(), nameProps);
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("Unable to construct ResourceAdapterModule ObjectName", e);
         }
@@ -272,7 +277,9 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         }
 
         // add it
-        earContext.addGBean(resourceAdapterModuleObjectName, resourceAdapterModule);
+        earContext.addGBean(resourceAdapterModuleName, resourceAdapterModule);
+
+        return resourceAdapterModuleName;
     }
 
     private void addConnectorGBeans(EARContext context, ConnectorType10 connector, GerConnectorType geronimoConnector, ClassLoader cl) throws DeploymentException {

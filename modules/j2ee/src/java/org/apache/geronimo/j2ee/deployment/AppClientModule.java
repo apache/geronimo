@@ -16,14 +16,13 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
-import java.util.jar.JarFile;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Collection;
 import java.net.URI;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.jar.JarFile;
 
-import org.apache.xmlbeans.XmlObject;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
@@ -34,8 +33,8 @@ public class AppClientModule extends Module {
 
     private JarFile earFile;
 
-    public AppClientModule(String name, URI configId, URI parentId, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
-        super(name, configId, parentId, moduleURI, moduleFile, targetPath, specDD, vendorDD, originalSpecDD);
+    public AppClientModule(boolean standAlone, URI configId, URI parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
+        super(standAlone, configId, parentId, moduleFile, targetPath, specDD, vendorDD, originalSpecDD);
     }
 
     public ConfigurationModuleType getType() {

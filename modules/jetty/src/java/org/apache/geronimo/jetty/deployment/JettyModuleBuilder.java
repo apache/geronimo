@@ -85,17 +85,32 @@ import org.apache.xmlbeans.XmlObject;
 public class JettyModuleBuilder implements ModuleBuilder {
     private static final String PARENT_ID = "org/apache/geronimo/Server";
 
-    public Module createModule(String name, Object plan, JarFile moduleFile, URL webXmlUrl, String targetPath) throws DeploymentException {
+    public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
+        return createModule(plan, moduleFile, "war", null, true);
+    }
+
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl) throws DeploymentException {
+        return createModule(plan, moduleFile, targetPath, specDDUrl, false);
+    }
+
+    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone) throws DeploymentException {
+        assert moduleFile != null: "moduleFile is null";
+        assert targetPath != null: "targetPath is null";
+        assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
+
+        // parse the spec dd
         String specDD;
         WebAppType webApp;
         try {
-            if (webXmlUrl == null) {
-                webXmlUrl = JarUtil.createJarURL(moduleFile, "WEB-INF/web.xml");
+            if (specDDUrl == null) {
+                specDDUrl = JarUtil.createJarURL(moduleFile, "WEB-INF/web.xml");
             }
 
-            specDD = IOUtil.readAll(webXmlUrl);
+            // read in the entire specDD as a string, we need this for getDeploymentDescriptor
+            // on the J2ee management object
+            specDD = IOUtil.readAll(specDDUrl);
 
-            // check if we have an alt spec dd
+            // parse it
             WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(SchemaConversionUtils.parse(specDD));
             webApp = webAppDoc.getWebApp();
         } catch (Exception e) {
@@ -103,7 +118,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
         }
 
 
-        JettyWebAppType jettyWebApp = getJettyWebApp(plan, moduleFile, name, webApp);
+        // parse vendor dd
+        JettyWebAppType jettyWebApp = getJettyWebApp(plan, moduleFile, standAlone, targetPath, webApp);
 
         // get the ids from either the application plan or for a stand alone module from the specific deployer
         URI configId = null;
@@ -122,24 +138,12 @@ public class JettyModuleBuilder implements ModuleBuilder {
             }
         }
 
-        URI moduleURI;
-        if (targetPath != null) {
-            moduleURI = URI.create(targetPath);
-            if (targetPath.endsWith("/")) {
-                throw new DeploymentException("targetPath must not end with a '/'");
-            }
-            targetPath += "/";
-        } else {
-            targetPath = "war/";
-            moduleURI = URI.create("");
-        }
-
-        WebModule module = new WebModule(name, configId, parentId, moduleURI, moduleFile, targetPath, webApp, jettyWebApp, specDD);
+        WebModule module = new WebModule(standAlone, configId, parentId, moduleFile, targetPath, webApp, jettyWebApp, specDD);
         module.setContextRoot(jettyWebApp.getContextRoot());
         return module;
     }
 
-    JettyWebAppType getJettyWebApp(Object plan, JarFile moduleFile, String name, WebAppType webApp) throws DeploymentException {
+    JettyWebAppType getJettyWebApp(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, WebAppType webApp) throws DeploymentException {
         JettyWebAppType jettyWebApp = null;
         try {
             // load the geronimo-jetty.xml from either the supplied plan or from the earFile
@@ -164,12 +168,20 @@ public class JettyModuleBuilder implements ModuleBuilder {
             } catch (IOException e) {
             }
 
-            // if we got one extract the validate it otherwise create a default one
+            // if we got one extract and validate it otherwise create a default one
             if (jettyWebApp != null) {
                 jettyWebApp = (JettyWebAppType) SchemaConversionUtils.convertToGeronimoNamingSchema(jettyWebApp);
                 SchemaConversionUtils.validateDD(jettyWebApp);
             } else {
-                jettyWebApp = createDefaultPlan(name, webApp);
+                String path;
+                if (standAlone) {
+                    // default configId is based on the moduleFile name
+                    path = new File(moduleFile.getName()).getName();
+                } else {
+                    // default configId is based on the module uri from the application.xml
+                    path = targetPath;
+                }
+                jettyWebApp = createDefaultPlan(path, webApp);
             }
         } catch (XmlException e) {
             throw new DeploymentException(e);
@@ -177,10 +189,10 @@ public class JettyModuleBuilder implements ModuleBuilder {
         return jettyWebApp;
     }
 
-    private JettyWebAppType createDefaultPlan(String name, WebAppType webApp) {
+    private JettyWebAppType createDefaultPlan(String path, WebAppType webApp) {
         String id = webApp.getId();
         if (id == null) {
-            id = name;
+            id = path;
             if (id.endsWith(".war")) {
                 id = id.substring(0, id.length() - 4);
             }
@@ -203,7 +215,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
         try {
-            URI targetURI = URI.create(module.getTargetPath());
+            URI targetURI = URI.create(module.getTargetPath() + "/");
 
             // add the warfile's content to the configuration
             JarFile warFile = module.getModuleFile();
@@ -239,7 +251,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         // web application do not add anything to the shared context
     }
 
-    public void addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+    public String addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
         WebModule webModule = (WebModule) module;
 
         WebAppType webApp = (WebAppType) webModule.getSpecDD();
@@ -259,9 +271,9 @@ public class JettyModuleBuilder implements ModuleBuilder {
         nameProps.put("J2EEApplication", earContext.getJ2EEApplicationName());
         nameProps.put("j2eeType", "WebModule");
         nameProps.put("name", webModule.getName());
-        ObjectName name;
+        ObjectName webModuleName;
         try {
-            name = new ObjectName(earContext.getJ2EEDomainName(), nameProps);
+            webModuleName = new ObjectName(earContext.getJ2EEDomainName(), nameProps);
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("Unable to construct ObjectName", e);
         }
@@ -279,7 +291,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 gbean = new GBeanMBean(JettyWebAppJACCContext.GBEAN_INFO, cl);
             }
 
-            gbean.setAttribute("uri", URI.create(module.getTargetPath()));
+            gbean.setAttribute("uri", URI.create(module.getTargetPath() + "/"));
             gbean.setAttribute("contextPath", webModule.getContextRoot());
             gbean.setAttribute("contextPriorityClassLoader", Boolean.valueOf(jettyWebApp.getContextPriorityClassloader()));
             if (security != null) {
@@ -303,7 +315,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize webapp GBean", e);
         }
-        earContext.addGBean(name, gbean);
+        earContext.addGBean(webModuleName, gbean);
+        return webModuleName.getCanonicalName();
     }
 
     private ReadOnlyContext buildComponentContext(EARContext earContext, WebModule webModule, WebAppType webApp, JettyWebAppType jettyWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
