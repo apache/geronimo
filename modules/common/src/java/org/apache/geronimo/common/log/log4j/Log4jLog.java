@@ -56,32 +56,33 @@
 package org.apache.geronimo.common.log.log4j;
 
 import org.apache.commons.logging.Log;
+
 import org.apache.log4j.Logger;
-import org.apache.log4j.Priority;
+import org.apache.log4j.Level;
 
 /**
  * A Commons <code>Log</code> implementation for Log4j which supports
  * real <em>trace</em> levels.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/27 10:08:45 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/27 11:15:27 $
  */
 public class Log4jLog
     implements Log
 {
-    private String FQCN = getClass().getName();
-    private Logger logger;
+    protected final String FQCN = getClass().getName();
+    protected Logger logger;
 
     public Log4jLog() {
-    }
-
-    public Log4jLog(String name) {
-        logger = Logger.getLogger(name);
     }
 
     public Log4jLog(Logger logger) {
         this.logger = logger;
     }
 
+    public Log4jLog(String name) {
+        logger = Logger.getLogger(name);
+    }
+    
     public boolean isTraceEnabled() {
         return logger.isEnabledFor(XLevel.TRACE);
     }
@@ -99,11 +100,11 @@ public class Log4jLog
     }
 
     public void debug(Object message) {
-        logger.log(FQCN, Priority.DEBUG, message, null);
+        logger.log(FQCN, Level.DEBUG, message, null);
     }
 
     public void debug(Object message, Throwable throwable) {
-        logger.log(FQCN, Priority.DEBUG, message, throwable);
+        logger.log(FQCN, Level.DEBUG, message, throwable);
     }
 
     public boolean isInfoEnabled() {
@@ -111,46 +112,46 @@ public class Log4jLog
     }
 
     public void info(Object message) {
-        logger.log(FQCN, Priority.INFO, message, null);
+        logger.log(FQCN, Level.INFO, message, null);
     }
 
     public void info(Object message, Throwable throwable) {
-        logger.log(FQCN, Priority.INFO, message, throwable);
+        logger.log(FQCN, Level.INFO, message, throwable);
     }
 
     public boolean isWarnEnabled() {
-        return true;
+        return logger.isEnabledFor(Level.WARN);
     }
 
     public void warn(Object message) {
-        logger.log(FQCN, Priority.WARN, message, null);
+        logger.log(FQCN, Level.WARN, message, null);
     }
 
     public void warn(Object message, Throwable throwable) {
-        logger.log(FQCN, Priority.WARN, message, throwable);
+        logger.log(FQCN, Level.WARN, message, throwable);
     }
 
     public boolean isErrorEnabled() {
-        return true;
+        return logger.isEnabledFor(Level.ERROR);
     }
 
     public void error(Object message) {
-        logger.log(FQCN, Priority.ERROR, message, null);
+        logger.log(FQCN, Level.ERROR, message, null);
     }
 
     public void error(Object message, Throwable throwable) {
-        logger.log(FQCN, Priority.ERROR, message, throwable);
+        logger.log(FQCN, Level.ERROR, message, throwable);
     }
 
     public boolean isFatalEnabled() {
-        return true;
+        return logger.isEnabledFor(Level.FATAL);
     }
 
     public void fatal(Object message) {
-        logger.log(FQCN, Priority.FATAL, message, null);
+        logger.log(FQCN, Level.FATAL, message, null);
     }
 
     public void fatal(Object message, Throwable throwable) {
-        logger.log(FQCN, Priority.FATAL, message, throwable);
+        logger.log(FQCN, Level.FATAL, message, throwable);
     }
 }

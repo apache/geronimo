@@ -56,25 +56,26 @@
 package org.apache.geronimo.common.log.log4j;
 
 import java.lang.ref.WeakReference;
+
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.Priority;
-
 import org.apache.commons.logging.Log;
+
+import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 
 /**
  * This log wrapper caches the trace, debug and info enabled flags.  The flags are updated
- * by a single timer task for all logs.  The error, warn and fatal levels are always enabled.
+ * by a single timer task for all logs.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/27 10:08:45 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/27 11:15:27 $
  */
 public final class CachingLog4jLog
-    implements Log
+    extends Log4jLog
 {
     // @todo this need to be moved to a log manager MBean, but this works as a proof of concept
     private static final Set logs = new HashSet();
@@ -111,20 +112,18 @@ public final class CachingLog4jLog
         }
     }
 
-    private static final String FQCN = CachingLog4jLog.class.getName();
-    private final Logger logger;
     private boolean traceEnabled;
     private boolean debugEnabled;
     private boolean infoEnabled;
 
     public CachingLog4jLog(String name) {
-        logger = Logger.getLogger(name);
+        super(name);
         updateLevelInfo();
         addLog(this);
     }
 
     public CachingLog4jLog(Logger logger) {
-        this.logger = logger;
+        super(logger);
         updateLevelInfo();
         addLog(this);
     }
@@ -151,13 +150,13 @@ public final class CachingLog4jLog
 
     public void debug(Object message) {
         if (debugEnabled) {
-            logger.log(FQCN, Priority.DEBUG, message, null);
+            logger.log(FQCN, Level.DEBUG, message, null);
         }
     }
 
     public void debug(Object message, Throwable throwable) {
         if (debugEnabled) {
-            logger.log(FQCN, Priority.DEBUG, message, throwable);
+            logger.log(FQCN, Level.DEBUG, message, throwable);
         }
     }
 
@@ -167,50 +166,14 @@ public final class CachingLog4jLog
 
     public void info(Object message) {
         if (infoEnabled) {
-            logger.log(FQCN, Priority.INFO, message, null);
+            logger.log(FQCN, Level.INFO, message, null);
         }
     }
 
     public void info(Object message, Throwable throwable) {
         if (infoEnabled) {
-            logger.log(FQCN, Priority.INFO, message, throwable);
+            logger.log(FQCN, Level.INFO, message, throwable);
         }
-    }
-
-    public boolean isWarnEnabled() {
-        return true;
-    }
-
-    public void warn(Object message) {
-        logger.log(FQCN, Priority.WARN, message, null);
-    }
-
-    public void warn(Object message, Throwable throwable) {
-        logger.log(FQCN, Priority.WARN, message, throwable);
-    }
-
-    public boolean isErrorEnabled() {
-        return true;
-    }
-
-    public void error(Object message) {
-        logger.log(FQCN, Priority.ERROR, message, null);
-    }
-
-    public void error(Object message, Throwable throwable) {
-        logger.log(FQCN, Priority.ERROR, message, throwable);
-    }
-
-    public boolean isFatalEnabled() {
-        return true;
-    }
-
-    public void fatal(Object message) {
-        logger.log(FQCN, Priority.FATAL, message, null);
-    }
-
-    public void fatal(Object message, Throwable throwable) {
-        logger.log(FQCN, Priority.FATAL, message, throwable);
     }
 
     private void updateLevelInfo() {
