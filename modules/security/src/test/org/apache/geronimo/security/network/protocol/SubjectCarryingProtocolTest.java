@@ -24,19 +24,18 @@ import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 import java.util.Collections;
 import java.util.Properties;
+
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 
-import com.sun.security.auth.login.ConfigFile;
 import org.activeio.AcceptListener;
 import org.activeio.AsynchChannelServer;
 import org.activeio.Channel;
 import org.activeio.Packet;
 import org.activeio.RequestChannel;
 import org.activeio.RequestListener;
-import org.activeio.SynchChannel;
 import org.activeio.adapter.AsynchChannelToClientRequestChannel;
 import org.activeio.adapter.AsynchChannelToServerRequestChannel;
 import org.activeio.adapter.AsynchToSynchChannelAdapter;
@@ -45,7 +44,6 @@ import org.activeio.adapter.SynchToAsynchChannelServerAdapter;
 import org.activeio.filter.PacketAggregatingAsynchChannel;
 import org.activeio.net.SocketSynchChannelFactory;
 import org.activeio.packet.ByteArrayPacket;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
@@ -53,6 +51,8 @@ import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+
+import com.sun.security.auth.login.ConfigFile;
 
 
 /**
@@ -165,7 +165,7 @@ public class SubjectCarryingProtocolTest extends AbstractTest implements Request
                         new AsynchChannelToServerRequestChannel( 
 	                        new SubjectCarryingChannel(
 	                            new PacketAggregatingAsynchChannel(
-	                                new SynchToAsynchChannelAdapter((SynchChannel)channel))));
+	                                SynchToAsynchChannelAdapter.adapt(channel))));
                     
                     requestChannel.setRequestListener(SubjectCarryingProtocolTest.this);
                     requestChannel.start();

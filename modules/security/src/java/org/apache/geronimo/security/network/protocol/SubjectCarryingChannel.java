@@ -152,8 +152,10 @@ public class SubjectCarryingChannel extends FilterAsynchChannel {
     }
 
     private Packet createClearSubjectPackt() {
-        header.clear().write(CLEAR_SUBJECT);
-        return header.flip();
+        header.clear();
+        header.write(CLEAR_SUBJECT);
+        header.flip();
+        return header;
     }
 
     private Packet createSubjectPacket(Long subjectId, byte[] hash) throws IOException {
@@ -163,12 +165,15 @@ public class SubjectCarryingChannel extends FilterAsynchChannel {
         os.writeLong(subjectId.longValue());
         os.writeInt(hash.length);
         os.close();
-        return AppendedPacket.join(header.flip(), new ByteArrayPacket(hash));
+        header.flip();
+        return AppendedPacket.join(header, new ByteArrayPacket(hash));
     }
 
     private Packet createPassthroughPacket(Packet packet) {
-        header.clear().write(PASSTHROUGH);        
-        return AppendedPacket.join(header.flip(),packet);
+        header.clear();
+        header.write(PASSTHROUGH);
+        header.flip();
+        return AppendedPacket.join(header,packet);
     }
 
     public Subject getLocalSubject() {
