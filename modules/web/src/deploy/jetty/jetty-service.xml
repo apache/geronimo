@@ -37,4 +37,31 @@
         <attribute name="Contexts">/abc, /def, /geh</attribute>
         <depends name="jetty:role=WebContainer"/>
     </mbean>
+
+    <!-- ================================================================ -->
+    <!-- Set up an access log                                             -->
+    <!-- NOTE:                                                            -->
+    <!--    1. Jetty will only rollover logs at midnight, so set 24hrs    -->
+    <!--       to approximate this, <= 0 disables rollover.               -->
+    <!--    2. Jetty does not support resolution to names of IP addresses -->
+    <!--    3. buffering attribute is particular to Jetty, set to true    -->
+    <!--       to enhance performance                                     -->
+    <!--    4. LogPattern values are: "common", "extended", or a valid    -->
+    <!--       NCSA-style log pattern (see for example:                   -->
+    <!--            http://httpd.apache.org/docs/logs.html#accesslog      -->
+    <!-- ================================================================ -->
+    <!-- COMMENTED OUT PENDING NEW JETTY SNAPSHOT JAR
+    <mbean code="org.apache.geronimo.web.jetty.JettyWebAccessLog"
+           name="jetty:role=WebAccessLog, instance=1">
+           <attribute name="LogLocation" type="java.net.URI">logs</attribute>
+           <attribute name="LogRolloverIntervalHrs">24</attribute>
+           <attribute name="LogRetentionDays">10</attribute>
+           <attribute name="LogPrefix">ncsa_</attribute>
+           <attribute name="LogSuffix">_requests</attribute>
+           <attribute name="Append">true</attribute>
+           <attribute name="Buffering">false</attribute>
+           <attribute name="LogDateFormat">dd/MMM/yyyy:HH:mm:ss ZZZ</attribute>
+           <attribute name="LogPattern">extended</attribute>
+    </mbean>
+    -->
 </components>
