@@ -20,6 +20,7 @@ package org.apache.geronimo.transaction.manager;
 import java.io.File;
 
 import org.apache.geronimo.transaction.log.HOWLLog;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.extensions.TestSetup;
@@ -27,7 +28,7 @@ import junit.extensions.TestSetup;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/22 18:41:00 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/25 21:29:34 $
  *
  * */
 public class HOWLLogRecoveryTest extends AbstractRecoveryTest {
@@ -47,14 +48,15 @@ public class HOWLLogRecoveryTest extends AbstractRecoveryTest {
                 4, //                "bufferSizeKBytes",
                 true, //                "checksumEnabled",
                 20, //                "flushSleepTime",
-                "target", //                "logFileDir",
+                "txlog", //                "logFileDir",
                 "log", //                "logFileExt",
                 LOG_FILE_NAME, //                "logFileName",
                 200, //                "maxBlocksPerFile",
                 10, //                "maxBuffers",                       log
                 2, //                "maxLogFiles",
                 2, //                "minBuffers",
-                10//                "threadsWaitingForceThreshold"});
+                10,//                "threadsWaitingForceThreshold"});
+                new ServerInfo("target")
         );
         howlLog.doStart();
         txLog = howlLog;

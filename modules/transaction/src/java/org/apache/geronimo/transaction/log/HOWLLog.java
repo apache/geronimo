@@ -28,31 +28,32 @@ import java.util.Set;
 
 import javax.transaction.xa.Xid;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.transaction.manager.LogException;
 import org.apache.geronimo.transaction.manager.TransactionBranchInfo;
 import org.apache.geronimo.transaction.manager.TransactionBranchInfoImpl;
 import org.apache.geronimo.transaction.manager.TransactionLog;
 import org.apache.geronimo.transaction.manager.XidFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.objectweb.howl.log.Configuration;
 import org.objectweb.howl.log.LogClosedException;
 import org.objectweb.howl.log.LogConfigurationException;
 import org.objectweb.howl.log.LogFileOverflowException;
 import org.objectweb.howl.log.LogRecord;
 import org.objectweb.howl.log.LogRecordSizeException;
+import org.objectweb.howl.log.LogRecordType;
 import org.objectweb.howl.log.Logger;
 import org.objectweb.howl.log.ReplayListener;
-import org.objectweb.howl.log.LogRecordType;
-import org.objectweb.howl.log.Configuration;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/22 18:41:00 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/25 21:29:34 $
  *
  * */
 public class HOWLLog implements TransactionLog, GBeanLifecycle {
@@ -64,8 +65,12 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
 
     private static final Log log = LogFactory.getLog(HOWLLog.class);
 
+    private final ServerInfo serverInfo;
+    private String logFileDir;
+
     private final Logger logger;
     private final Configuration configuration = new Configuration();
+    private boolean started = false;
 
     public HOWLLog(
             String bufferClassName,
@@ -79,13 +84,16 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
             int maxBuffers,
             int maxLogFiles,
             int minBuffers,
-            int threadsWaitingForceThreshold
+            int threadsWaitingForceThreshold,
+            ServerInfo serverInfo
             ) throws IOException {
+        this.serverInfo = serverInfo;
         setBufferClassName(bufferClassName);
         setBufferSizeKBytes(bufferSize);
         setChecksumEnabled(checksumEnabled);
         setFlushSleepTimeMilliseconds(flushSleepTimeMilliseconds);
-        setLogFileDir(logFileDir);
+        //setLogFileDir(logFileDir);
+        this.logFileDir = logFileDir;
         setLogFileExt(logFileExt);
         setLogFileName(logFileName);
         setMaxBlocksPerFile(maxBlocksPerFile);
@@ -97,107 +105,117 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
     }
 
     public String getLogFileDir() {
-         return configuration.getLogFileDir();
-     }
+        return logFileDir;
+    }
 
-     public void setLogFileDir(String logDir) {
-         configuration.setLogFileDir(logDir);
-     }
+    public void setLogFileDir(String logDir) {
+        this.logFileDir = logDir;
+        if (started) {
+            configuration.setLogFileDir(serverInfo.resolvePath(logDir));
+        }
+    }
 
-     public String getLogFileExt() {
-         return configuration.getLogFileExt();
-     }
+    public String getLogFileExt() {
+        return configuration.getLogFileExt();
+    }
 
-     public void setLogFileExt(String logFileExt) {
-         configuration.setLogFileExt(logFileExt);
-     }
+    public void setLogFileExt(String logFileExt) {
+        configuration.setLogFileExt(logFileExt);
+    }
 
-     public String getLogFileName() {
-         return configuration.getLogFileName();
-     }
+    public String getLogFileName() {
+        return configuration.getLogFileName();
+    }
 
-     public void setLogFileName(String logFileName) {
-         configuration.setLogFileName(logFileName);
-     }
+    public void setLogFileName(String logFileName) {
+        configuration.setLogFileName(logFileName);
+    }
 
-     public boolean isChecksumEnabled() {
-         return configuration.isChecksumEnabled();
-     }
+    public boolean isChecksumEnabled() {
+        return configuration.isChecksumEnabled();
+    }
 
-     public void setChecksumEnabled(boolean checksumOption) {
-         configuration.setChecksumEnabled(checksumOption);
-     }
+    public void setChecksumEnabled(boolean checksumOption) {
+        configuration.setChecksumEnabled(checksumOption);
+    }
 
-     public int getBufferSizeKBytes() {
-         return configuration.getBufferSize();
-     }
+    public int getBufferSizeKBytes() {
+        return configuration.getBufferSize();
+    }
 
-     public void setBufferSizeKBytes(int bufferSize) {
-         configuration.setBufferSize(bufferSize);
-     }
+    public void setBufferSizeKBytes(int bufferSize) {
+        configuration.setBufferSize(bufferSize);
+    }
 
-     public String getBufferClassName() {
-         return configuration.getBufferClassName();
-     }
+    public String getBufferClassName() {
+        return configuration.getBufferClassName();
+    }
 
-     public void setBufferClassName(String bufferClassName) {
-         configuration.setBufferClassName(bufferClassName);
-     }
+    public void setBufferClassName(String bufferClassName) {
+        configuration.setBufferClassName(bufferClassName);
+    }
 
-     public int getMaxBuffers() {
-         return configuration.getMaxBuffers();
-     }
+    public int getMaxBuffers() {
+        return configuration.getMaxBuffers();
+    }
 
-     public void setMaxBuffers(int maxBuffers) {
-         configuration.setMaxBuffers(maxBuffers);
-     }
+    public void setMaxBuffers(int maxBuffers) {
+        configuration.setMaxBuffers(maxBuffers);
+    }
 
-     public int getMinBuffers() {
-         return configuration.getMinBuffers();
-     }
+    public int getMinBuffers() {
+        return configuration.getMinBuffers();
+    }
 
-     public void setMinBuffers(int minBuffers) {
-         configuration.setMinBuffers(minBuffers);
-     }
+    public void setMinBuffers(int minBuffers) {
+        configuration.setMinBuffers(minBuffers);
+    }
 
-     public int getFlushSleepTimeMilliseconds() {
-         return configuration.getFlushSleepTime();
-     }
+    public int getFlushSleepTimeMilliseconds() {
+        return configuration.getFlushSleepTime();
+    }
 
-     public void setFlushSleepTimeMilliseconds(int flushSleepTime) {
-         configuration.setFlushSleepTime(flushSleepTime);
-     }
+    public void setFlushSleepTimeMilliseconds(int flushSleepTime) {
+        configuration.setFlushSleepTime(flushSleepTime);
+    }
 
-     public int getThreadsWaitingForceThreshold() {
-         return configuration.getThreadsWaitingForceThreshold();
-     }
+    public int getThreadsWaitingForceThreshold() {
+        return configuration.getThreadsWaitingForceThreshold();
+    }
 
-     public void setThreadsWaitingForceThreshold(int threadsWaitingForceThreshold) {
-         configuration.setThreadsWaitingForceThreshold(threadsWaitingForceThreshold == -1? Integer.MAX_VALUE: threadsWaitingForceThreshold);
-     }
+    public void setThreadsWaitingForceThreshold(int threadsWaitingForceThreshold) {
+        configuration.setThreadsWaitingForceThreshold(threadsWaitingForceThreshold == -1 ? Integer.MAX_VALUE : threadsWaitingForceThreshold);
+    }
 
-     public int getMaxBlocksPerFile() {
-         return configuration.getMaxBlocksPerFile();
-     }
+    public int getMaxBlocksPerFile() {
+        return configuration.getMaxBlocksPerFile();
+    }
 
-     public void setMaxBlocksPerFile(int maxBlocksPerFile) {
-         configuration.setMaxBlocksPerFile(maxBlocksPerFile == -1? Integer.MAX_VALUE: maxBlocksPerFile);
-     }
+    public void setMaxBlocksPerFile(int maxBlocksPerFile) {
+        configuration.setMaxBlocksPerFile(maxBlocksPerFile == -1 ? Integer.MAX_VALUE : maxBlocksPerFile);
+    }
 
-     public int getMaxLogFiles() {
-         return configuration.getMaxLogFiles();
-     }
+    public int getMaxLogFiles() {
+        return configuration.getMaxLogFiles();
+    }
 
-     public void setMaxLogFiles(int maxLogFiles) {
-         configuration.setMaxLogFiles(maxLogFiles);
-     }
+    public void setMaxLogFiles(int maxLogFiles) {
+        configuration.setMaxLogFiles(maxLogFiles);
+    }
 
+    public ServerInfo getServerInfo() {
+        return serverInfo;
+    }
 
     public void doStart() throws WaitingException, Exception {
+        started = true;
+        setLogFileDir(logFileDir);
+
         logger.open();
     }
 
     public void doStop() throws WaitingException, Exception {
+        started = false;
         logger.close();
     }
 
@@ -405,9 +423,11 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
         infoFactory.addAttribute("minBuffers", Integer.TYPE, true);
         infoFactory.addAttribute("threadsWaitingForceThreshold", Integer.TYPE, true);
 
+        infoFactory.addReference("serverInfo", ServerInfo.class);
+
         infoFactory.addInterface(TransactionLog.class);
 
-        infoFactory.setConstructor(new String[] {
+        infoFactory.setConstructor(new String[]{
             "bufferClassName",
             "bufferSizeKBytes",
             "checksumEnabled",
@@ -419,7 +439,8 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
             "maxBuffers",
             "maxLogFiles",
             "minBuffers",
-            "threadsWaitingForceThreshold"});
+            "threadsWaitingForceThreshold",
+            "serverInfo"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

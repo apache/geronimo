@@ -17,7 +17,7 @@
 -->
 
 
-<!-- $Revision: 1.18 $ $Date: 2004/06/24 20:59:52 $ -->
+<!-- $Revision: 1.19 $ $Date: 2004/06/25 21:29:34 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -43,6 +43,13 @@
 
     <dependencies>
         <!-- Module Dependencies -->
+        <!-- temp, for ServerInfo. Remove when it is moved to Kernel-->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-system</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
@@ -78,9 +85,9 @@
 
         <!--compiled by David Jencks, but tagged version-->
         <dependency>
-             <groupId>howl</groupId>
+            <groupId>howl</groupId>
             <artifactId>howl-logger</artifactId>
-            <version>0.1.1</version>
+            <version>0.1.3</version>
             <url>http://forge.objectweb.org/projects/howl</url>
         </dependency>
 
