@@ -19,6 +19,7 @@ package org.apache.geronimo.gbean.jmx;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,6 +46,7 @@ import javax.management.ReflectionException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.GBeanLifecycleController;
@@ -53,7 +55,7 @@ import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GOperationSignature;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
-import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.NotificationType;
 
@@ -106,7 +108,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     /**
      * References lookup table
      */
-    private final GBeanMBeanReference[] references;
+    private final GBeanReference[] references;
 
     /**
      * References supported by this GBeanMBean by (String) name.
@@ -173,6 +175,8 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
      */
     private final RawInvoker rawInvoker;
 
+    private Kernel kernel;
+
     /**
      * Constructa a GBeanMBean using the supplied GBeanData and class loader
      *
@@ -238,9 +242,14 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         Set referencesSet = new HashSet();
         for (Iterator iterator = gbeanInfo.getReferences().iterator(); iterator.hasNext();) {
             GReferenceInfo referenceInfo = (GReferenceInfo) iterator.next();
-            referencesSet.add(new GBeanMBeanReference(this, referenceInfo, (Class) constructorTypes.get(referenceInfo.getName())));
+            Class constructorType = (Class) constructorTypes.get(referenceInfo.getName());
+            if (isCollectionValuedReference(this, referenceInfo, constructorType)) {
+                referencesSet.add(new GBeanCollectionReference(this, referenceInfo, constructorType));
+            } else {
+                referencesSet.add(new GBeanSingleReference(this, referenceInfo, constructorType));
+            }
         }
-        references = (GBeanMBeanReference[]) referencesSet.toArray(new GBeanMBeanReference[gbeanInfo.getReferences().size()]);
+        references = (GBeanReference[]) referencesSet.toArray(new GBeanReference[gbeanInfo.getReferences().size()]);
         for (int i = 0; i < references.length; i++) {
             referenceIndex.put(references[i].getName(), new Integer(i));
         }
@@ -295,6 +304,15 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         rawInvoker = new RawInvoker(this);
 
         gbeanLifecycleController = new GBeanMBeanLifecycleController(this);
+    }
+
+    private static boolean isCollectionValuedReference(GBeanMBean gbeanMBean, GReferenceInfo referenceInfo, Class constructorType) {
+        if (constructorType != null) {
+            return Collection.class == constructorType;
+        } else {
+            Method setterMethod = AbstractGBeanReference.searchForSetter(gbeanMBean, referenceInfo);
+            return Collection.class == setterMethod.getParameterTypes()[0];
+        }
     }
 
     /**
@@ -523,15 +541,10 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         setAttribute("classLoader", classLoader);
         try {
             String kernelName = (String) server.getAttribute(Kernel.KERNEL, "KernelName");
-            Kernel kernel = Kernel.getKernel(kernelName);
+            kernel = Kernel.getKernel(kernelName);
             setAttribute("kernel", kernel);
         } catch (Exception e) {
             setAttribute("kernel", null);
-        }
-
-        // bring any reference not used in the constructor online
-        for (int i = 0; i < references.length; i++) {
-            references[i].online();
         }
 
         return returnValue;
@@ -542,39 +555,50 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
 
         if (registrationDone.booleanValue()) {
             // we're now offically on line
-            offline = false;
-        } else {
-            // we need to bring the reference back off line
             for (int i = 0; i < references.length; i++) {
-                references[i].offline();
+                references[i].online(kernel);
             }
 
+            offline = false;
+        } else {
+            kernel = null;
             target = null;
         }
     }
 
     public void postDeregister() {
-        // take all of the reference offline
+        // just to be sure, stop all the references again
         for (int i = 0; i < references.length; i++) {
             references[i].offline();
         }
 
         offline = true;
+        kernel = null;
         target = null;
 
         super.postDeregister();
     }
 
     protected void doStart() throws Exception {
-        // start all of the proxies
+        // start each of the references... if they need to wait remember the
+        // waiting exception so we can throw it later. this way we the dependecies
+        // are held until we can start
+        WaitingException waitingException = null;
         for (int i = 0; i < references.length; i++) {
-            references[i].start();
+            try {
+                references[i].start();
+            } catch (WaitingException e) {
+                waitingException = e;
+            }
+        }
+        if (waitingException != null) {
+            throw waitingException;
         }
 
         GConstructorInfo constructorInfo = gbeanInfo.getConstructor();
         Class[] parameterTypes = constructor.getParameterTypes();
 
-        // create parameter array
+        // create constructor parameter array
         Object[] parameters = new Object[parameterTypes.length];
         Iterator names = constructorInfo.getAttributeNames().iterator();
         for (int i = 0; i < parameters.length; i++) {
@@ -614,7 +638,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
             attributes[i].inject();
         }
 
-        // inject the proxy into the new instance
+        // inject the proxies into the new instance
         for (int i = 0; i < references.length; i++) {
             references[i].inject();
         }
@@ -641,6 +665,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         for (int i = 0; i < attributes.length; i++) {
             GBeanMBeanAttribute attribute = attributes[i];
             if (attribute.isPersistent() && attribute.isReadable()) {
+                // copy the current attribute value to the persistent value
                 Object value = attribute.getValue();
                 attribute.setPersistentValue(value);
             }
@@ -748,7 +773,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
 
         // add the references
         for (int i = 0; i < references.length; i++) {
-            GBeanMBeanReference reference = references[i];
+            GBeanReference reference = references[i];
             String name = reference.getName();
             Set patterns = reference.getPatterns();
             gbeanData.setReferencePatterns(name, patterns);
@@ -943,12 +968,12 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         getReferenceByName(name).setPatterns(patterns);
     }
 
-    private GBeanMBeanReference getReferenceByName(String name) {
+    private GBeanReference getReferenceByName(String name) {
         Integer index = (Integer) referenceIndex.get(name);
         if (index == null) {
             throw new IllegalArgumentException("Unknown reference " + name);
         }
-        GBeanMBeanReference reference = references[index.intValue()];
+        GBeanReference reference = references[index.intValue()];
         return reference;
     }
 

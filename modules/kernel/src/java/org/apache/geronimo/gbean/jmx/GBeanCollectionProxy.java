@@ -19,7 +19,6 @@ package org.apache.geronimo.gbean.jmx;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -33,18 +32,13 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
-import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
  */
-public class CollectionProxy implements Proxy {
-    private static final Log log = LogFactory.getLog(CollectionProxy.class);
-
-    /**
-     * The GBeanMBean to which this proxy belongs.
-     */
-    private GBeanMBean gmbean;
+public class GBeanCollectionProxy {
+    private static final Log log = LogFactory.getLog(GBeanCollectionProxy.class);
 
     /**
      * Name of the reference
@@ -70,16 +64,16 @@ public class CollectionProxy implements Proxy {
      * Facotry for proxy instances.
      */
     private ProxyFactory factory;
+    private Kernel kernel;
 
-    /**
-     * Is this proxy currently stopped?
-     */
-    private boolean stopped;
-
-    public CollectionProxy(GBeanMBean gmbean, String name, Class type) {
-        this.gmbean = gmbean;
+    public GBeanCollectionProxy(Kernel kernel, String name, Class type, Set targets) {
+        this.kernel = kernel;
         this.name = name;
         factory = ProxyFactory.newProxyFactory(type);
+
+        for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
+            addTarget((ObjectName) iterator.next());
+        }
     }
 
     public synchronized void destroy() {
@@ -88,43 +82,37 @@ public class CollectionProxy implements Proxy {
             interceptor.disconnect();
         }
         proxy.listeners = null;
-        gmbean = null;
+        kernel = null;
         name = null;
         proxies = null;
         interceptors = null;
         proxy = null;
         factory = null;
-        stopped = true;
     }
 
     public synchronized Object getProxy() {
         return proxy;
     }
 
-    public synchronized Set getTargets() {
-        return Collections.unmodifiableSet(proxies.keySet());
-    }
-
     public synchronized void addTarget(ObjectName target) {
         // if this is a new target...
         if (!proxies.containsKey(target)) {
+            // create the interceptor
             ProxyMethodInterceptor interceptor = factory.getMethodInterceptor();
-            interceptor.connect(gmbean.getServer(), target, proxy.isStopped());
+            interceptor.connect(kernel.getMBeanServer(), target);
             interceptors.put(target, interceptor);
+
+            // create the proxy
             Object targetProxy = factory.create(interceptor);
             proxies.put(target, targetProxy);
-            if (!stopped) {
-                proxy.fireMemberAdddedEvent(targetProxy);
-            }
+            proxy.fireMemberAdddedEvent(targetProxy);
         }
     }
 
     public synchronized void removeTarget(ObjectName target) {
         Object targetProxy = proxies.remove(target);
         if (targetProxy != null) {
-            if (!stopped) {
-                proxy.fireMemberRemovedEvent(targetProxy);
-            }
+            proxy.fireMemberRemovedEvent(targetProxy);
             ProxyMethodInterceptor interceptor = (ProxyMethodInterceptor) interceptors.remove(target);
             if (interceptor != null) {
                 interceptor.disconnect();
@@ -132,46 +120,30 @@ public class CollectionProxy implements Proxy {
         }
     }
 
-    public synchronized void start() throws WaitingException {
-        stopped = false;
-        for (Iterator iterator = interceptors.values().iterator(); iterator.hasNext();) {
-            ProxyMethodInterceptor interceptor = (ProxyMethodInterceptor) iterator.next();
-            interceptor.start();
-        }
-    }
-
-    public synchronized void stop() {
-        stopped = true;
-        for (Iterator iterator = interceptors.values().iterator(); iterator.hasNext();) {
-            ProxyMethodInterceptor interceptor = (ProxyMethodInterceptor) iterator.next();
-            interceptor.stop();
-        }
-    }
-
     private class ClientCollection implements ReferenceCollection {
         private Set listeners = new HashSet();
 
         public boolean isStopped() {
-            synchronized (CollectionProxy.this) {
-                return stopped;
+            synchronized (GBeanCollectionProxy.this) {
+                return proxy == null;
             }
         }
 
         public void addReferenceCollectionListener(ReferenceCollectionListener listener) {
-            synchronized (CollectionProxy.this) {
+            synchronized (GBeanCollectionProxy.this) {
                 listeners.add(listener);
             }
         }
 
         public void removeReferenceCollectionListener(ReferenceCollectionListener listener) {
-            synchronized (CollectionProxy.this) {
+            synchronized (GBeanCollectionProxy.this) {
                 listeners.remove(listener);
             }
         }
 
         private void fireMemberAdddedEvent(Object member) {
             ArrayList listenerCopy;
-            synchronized (CollectionProxy.this) {
+            synchronized (GBeanCollectionProxy.this) {
                 listenerCopy = new ArrayList(listeners);
             }
             for (Iterator iterator = listenerCopy.iterator(); iterator.hasNext();) {
@@ -186,7 +158,7 @@ public class CollectionProxy implements Proxy {
 
         private void fireMemberRemovedEvent(Object member) {
             ArrayList listenerCopy;
-            synchronized (CollectionProxy.this) {
+            synchronized (GBeanCollectionProxy.this) {
                 listenerCopy = new ArrayList(listeners);
             }
             for (Iterator iterator = listenerCopy.iterator(); iterator.hasNext();) {
@@ -200,8 +172,8 @@ public class CollectionProxy implements Proxy {
         }
 
         public int size() {
-            synchronized (CollectionProxy.this) {
-                if (stopped) {
+            synchronized (GBeanCollectionProxy.this) {
+                if (proxy == null) {
                     return 0;
                 }
                 return proxies.size();
@@ -209,8 +181,8 @@ public class CollectionProxy implements Proxy {
         }
 
         public boolean isEmpty() {
-            synchronized (CollectionProxy.this) {
-                if (stopped) {
+            synchronized (GBeanCollectionProxy.this) {
+                if (proxy == null) {
                     return true;
                 }
                 return proxies.isEmpty();
@@ -218,8 +190,8 @@ public class CollectionProxy implements Proxy {
         }
 
         public boolean contains(Object o) {
-            synchronized (CollectionProxy.this) {
-                if (stopped) {
+            synchronized (GBeanCollectionProxy.this) {
+                if (proxy == null) {
                     return false;
                 }
                 return proxies.containsValue(o);
@@ -227,8 +199,8 @@ public class CollectionProxy implements Proxy {
         }
 
         public Iterator iterator() {
-            synchronized (CollectionProxy.this) {
-                if (stopped) {
+            synchronized (GBeanCollectionProxy.this) {
+                if (proxy == null) {
                     return new Iterator() {
                         public boolean hasNext() {
                             return false;
@@ -265,8 +237,8 @@ public class CollectionProxy implements Proxy {
         }
 
         public Object[] toArray() {
-            synchronized (CollectionProxy.this) {
-                if (stopped) {
+            synchronized (GBeanCollectionProxy.this) {
+                if (proxy == null) {
                     return new Object[0];
                 }
                 return proxies.values().toArray();
@@ -274,8 +246,8 @@ public class CollectionProxy implements Proxy {
         }
 
         public Object[] toArray(Object a[]) {
-            synchronized (CollectionProxy.this) {
-                if (stopped) {
+            synchronized (GBeanCollectionProxy.this) {
+                if (proxy == null) {
                     if (a.length > 0) {
                         a[0] = null;
                     }
@@ -286,8 +258,8 @@ public class CollectionProxy implements Proxy {
         }
 
         public boolean containsAll(Collection c) {
-            synchronized (CollectionProxy.this) {
-                if (stopped) {
+            synchronized (GBeanCollectionProxy.this) {
+                if (proxy == null) {
                     return c.isEmpty();
                 }
                 return proxies.values().containsAll(c);

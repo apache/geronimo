@@ -193,7 +193,7 @@ public class DependencyManager implements NotificationListener {
         if (parents == null) {
             return Collections.EMPTY_SET;
         }
-        return parents;
+        return new HashSet(parents);
     }
 
     /**
@@ -208,7 +208,7 @@ public class DependencyManager implements NotificationListener {
         if (children == null) {
             return Collections.EMPTY_SET;
         }
-        return children;
+        return new HashSet(children);
     }
 
     /**

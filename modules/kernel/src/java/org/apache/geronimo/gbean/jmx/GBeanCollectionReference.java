@@ -1,0 +1,79 @@
+/**
+ *
+ * Copyright 2003-2004 The Apache Software Foundation
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+package org.apache.geronimo.gbean.jmx;
+
+import javax.management.ObjectName;
+
+import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.gbean.InvalidConfigurationException;
+
+/**
+ * @version $Rev: 71492 $ $Date: 2004-11-14 21:31:50 -0800 (Sun, 14 Nov 2004) $
+ */
+public class GBeanCollectionReference extends AbstractGBeanReference {
+    /**
+     * Proxy to the to this connection.
+     */
+    private GBeanCollectionProxy proxy;
+
+    public GBeanCollectionReference(GBeanMBean gmbean, GReferenceInfo referenceInfo, Class constructorType) throws InvalidConfigurationException {
+        super(gmbean, referenceInfo, constructorType);
+    }
+
+    public synchronized void start() throws Exception {
+        // if there are no patterns then there is nothing to start
+        if (getPatterns().isEmpty()) {
+            return;
+        }
+
+        // if we already have a proxy then we have already been started
+        if (proxy != null) {
+            return;
+        }
+
+        // add a dependency on our target and create the proxy
+        proxy = new GBeanCollectionProxy(getKernel(), getName(), getType(), getTargets());
+    }
+
+    public synchronized void stop() {
+        if (proxy != null) {
+            proxy.destroy();
+            proxy = null;
+        }
+    }
+
+    public Object getProxy() {
+        if (proxy == null) {
+            return null;
+        } else {
+            return proxy.getProxy();
+        }
+    }
+
+    public synchronized void targetAdded(ObjectName target) {
+        if (proxy != null) {
+            proxy.addTarget(target);
+        }
+    }
+
+    public synchronized void targetRemoved(ObjectName target) {
+        if (proxy != null) {
+            proxy.removeTarget(target);
+        }
+    }
+}

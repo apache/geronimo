@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,29 +14,29 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package org.apache.geronimo.kernel;
 
-package org.apache.geronimo.gbean.jmx;
-
-import java.util.Set;
 import javax.management.ObjectName;
-
-import org.apache.geronimo.gbean.WaitingException;
 
 /**
  * @version $Rev$ $Date$
  */
-public interface Proxy {
-    void destroy();
+public class LifecycleAdapter implements LifecycleListener {
+    public void created(ObjectName objectName) {
+    }
 
-    Object getProxy();
+    public void starting(ObjectName objectName) {
+    }
 
-    Set getTargets();
+    public void running(ObjectName objectName) {
+    }
 
-    void addTarget(ObjectName target);
+    public void stopping(ObjectName objectName) {
+    }
 
-    void removeTarget(ObjectName target);
+    public void stopped(ObjectName objectName) {
+    }
 
-    void start() throws WaitingException;
-
-    void stop();
+    public void deleted(ObjectName objectName) {
+    }
 }

@@ -28,6 +28,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Iterator;
+import java.util.HashSet;
 import javax.management.Attribute;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
@@ -44,12 +46,12 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 
@@ -158,6 +160,12 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
     private GBeanMBean configurationManagerGBean;
 
     /**
+     * Monitors the lifecycle of all gbeans.
+     * @deprecated don't use this yet... it may go away
+     */
+    private LifecycleMonitor lifecycleMonitor;
+
+    /**
      * No-arg constructor allowing this class to be used as a GBean reference.
      */
     public Kernel() {
@@ -247,6 +255,14 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
 
     public ConfigurationManager getConfigurationManager() {
         return configurationManager;
+    }
+
+    /**
+     * Gets the lifecycle monitor.
+     * @deprecated don't use this yet... it may change or go away
+     */
+    public LifecycleMonitor getLifecycleMonitor() {
+        return lifecycleMonitor;
     }
 
     public Object getAttribute(ObjectName objectName, String attributeName) throws Exception {
@@ -404,6 +420,15 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
         return mbServer.queryNames(query, null);
     }
 
+    public Set listGBeans(Set patterns) {
+        Set gbeans = new HashSet();
+        for (Iterator iterator = patterns.iterator(); iterator.hasNext();) {
+            ObjectName pattern = (ObjectName) iterator.next();
+            gbeans.addAll(listGBeans(pattern));
+        }
+        return gbeans;
+    }
+
     public List listConfigurationStores() {
         return getConfigurationManager().listStores();
     }
@@ -479,12 +504,13 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
         mbServer.registerMBean(this, KERNEL);
         dependencyManager = new DependencyManager(mbServer);
 
+        lifecycleMonitor = new LifecycleMonitor(mbServer);
+
         configurationManagerGBean = new GBeanMBean(ConfigurationManagerImpl.GBEAN_INFO);
         configurationManagerGBean.setReferencePatterns("Stores", Collections.singleton(CONFIGURATION_STORE_PATTERN));
         mbServer.registerMBean(configurationManagerGBean, CONFIGURATION_MANAGER_NAME);
         configurationManagerGBean.start();
         configurationManager = (ConfigurationManager) configurationManagerGBean.getTarget();
-
         running = true;
         log.info("Booted");
     }

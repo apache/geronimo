@@ -67,13 +67,9 @@ public class CGLibMethodInterceptor implements ProxyMethodInterceptor, MethodInt
     }
 
     public synchronized void connect(MBeanServerConnection server, ObjectName objectName) {
-        this.connect(server, objectName, false);
-    }
-
-    public synchronized void connect(MBeanServerConnection server, ObjectName objectName, boolean stopped) {
         assert server != null && objectName != null;
         this.objectName = objectName;
-        this.stopped = stopped;
+        stopped = false;
         gbeanInvokers = createGBeanInvokers(server, objectName);
     }
 
@@ -81,17 +77,6 @@ public class CGLibMethodInterceptor implements ProxyMethodInterceptor, MethodInt
         stopped = true;
         objectName = null;
         gbeanInvokers = null;
-    }
-
-    public synchronized void start() {
-        if (gbeanInvokers == null) {
-            throw new IllegalStateException("Proxy is not connected");
-        }
-        this.stopped = false;
-    }
-
-    public synchronized void stop() {
-        this.stopped = true;
     }
 
     public final Object intercept(final Object object, final Method method, final Object[] args, final MethodProxy proxy) throws Throwable {

@@ -27,13 +27,7 @@ public interface ProxyMethodInterceptor {
 
     void connect(MBeanServerConnection server, ObjectName objectName);
 
-    void connect(MBeanServerConnection server, ObjectName objectName, boolean stopped);
-
     void disconnect();
-
-    void start();
-
-    void stop();
 
     static final class HashCodeInvoke implements GBeanInvoker {
         public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {

@@ -166,10 +166,10 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
     }
 
     public void preDeregister() throws Exception {
+        sendNotification(NotificationType.OBJECT_DELETED);
     }
 
     public void postDeregister() {
-        sendNotification(NotificationType.OBJECT_DELETED);
         synchronized (this) {
             server = null;
             objectName = null;

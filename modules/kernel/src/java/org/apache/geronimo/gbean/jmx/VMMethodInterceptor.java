@@ -45,13 +45,9 @@ public class VMMethodInterceptor implements ProxyMethodInterceptor, InvocationHa
     }
 
     public void connect(MBeanServerConnection server, ObjectName objectName) {
-        connect(server, objectName, false);
-    }
-
-    public void connect(MBeanServerConnection server, ObjectName objectName, boolean stopped) {
         assert server != null && objectName != null;
         this.objectName = objectName;
-        this.stopped = stopped;
+        stopped = false;
         gbeanInvokers = createGBeanInvokers(server, objectName);
     }
 
@@ -59,17 +55,6 @@ public class VMMethodInterceptor implements ProxyMethodInterceptor, InvocationHa
         stopped = true;
         objectName = null;
         gbeanInvokers = null;
-    }
-
-    public void start() {
-        if (gbeanInvokers == null) {
-            throw new DeadProxyException("Proxy is no longer valid");
-        }
-        this.stopped = false;
-    }
-
-    public void stop() {
-        this.stopped = true;
     }
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {

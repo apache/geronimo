@@ -16,8 +16,6 @@
  */
 package org.apache.geronimo.gbean.jmx;
 
-import java.lang.reflect.InvocationTargetException;
-
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
