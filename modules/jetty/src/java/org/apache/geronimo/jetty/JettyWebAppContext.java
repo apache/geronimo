@@ -114,7 +114,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                                   int sessionTimeoutSeconds,
 
                                   String policyContextID,
-                                  String loginDomainName,
+                                  String securityRealmName,
                                   Security securityConfig,
                                   //from jettyxmlconfig
                                   Set securityRoles,
@@ -186,9 +186,9 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 //JACC
         if (securityConfig != null) {
             //set the JAASJettyRealm as our realm.
-            JAASJettyRealm realm = new JAASJettyRealm(realmName, loginDomainName);
+            JAASJettyRealm realm = new JAASJettyRealm(realmName, securityRealmName);
             setRealm(realm);
-            this.securityInterceptor = new SecurityContextBeforeAfter(interceptor, index++, index++, policyContextID, securityConfig, loginDomainName, authenticator, securityRoles, uncheckedPermissions, excludedPermissions, rolePermissions, realm);
+            this.securityInterceptor = new SecurityContextBeforeAfter(interceptor, index++, index++, policyContextID, securityConfig, securityRealmName, authenticator, securityRoles, uncheckedPermissions, excludedPermissions, rolePermissions, realm);
             interceptor = securityInterceptor;
         } else {
             securityInterceptor = null;
@@ -407,7 +407,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         infoBuilder.addInterface(JettyServletRegistration.class);
 
         infoBuilder.addAttribute("policyContextID", String.class, true);
-        infoBuilder.addAttribute("loginDomainName", String.class, true);
+        infoBuilder.addAttribute("securityRealmName", String.class, true);
         infoBuilder.addAttribute("securityConfig", Security.class, true);
 
         infoBuilder.addAttribute("securityRoles", Set.class, true);
@@ -442,7 +442,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             "sessionTimeoutSeconds",
 
             "policyContextID",
-            "loginDomainName",
+            "securityRealmName",
             "securityConfig",
 
             "securityRoles",

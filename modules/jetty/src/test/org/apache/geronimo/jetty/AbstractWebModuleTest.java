@@ -127,7 +127,7 @@ public class AbstractWebModuleTest extends TestCase {
 
     protected void setUpSecureAppContext(Security securityConfig, PermissionCollection uncheckedPermissions, PermissionCollection excludedPermissions, Map rolePermissions, Set securityRoles) throws Exception {
         GBeanData app = new GBeanData(webModuleName, JettyWebAppContext.GBEAN_INFO);
-        app.setAttribute("loginDomainName", "demo-properties-realm");
+        app.setAttribute("securityRealmName", "demo-properties-realm");
         app.setAttribute("securityConfig", securityConfig);
         app.setAttribute("uncheckedPermissions", uncheckedPermissions);
         app.setAttribute("excludedPermissions", excludedPermissions);
@@ -190,6 +190,7 @@ public class AbstractWebModuleTest extends TestCase {
         options.setProperty("usersURI", "src/test-resources/data/users.properties");
         options.setProperty("groupsURI", "src/test-resources/data/groups.properties");
         propertiesLMGBean.setAttribute("options", options);
+        //TODO should this be called securityRealmName?
         propertiesLMGBean.setAttribute("loginDomainName", "demo-properties-realm");
 
         propertiesRealmName = new ObjectName("geronimo.server:j2eeType=SecurityRealm,name=demo-properties-realm");

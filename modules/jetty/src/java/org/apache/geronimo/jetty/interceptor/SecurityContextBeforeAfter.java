@@ -87,7 +87,7 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
                                       int webAppContextIndex,
                                       String policyContextID,
                                       Security securityConfig,
-                                      String loginDomainName,
+                                      String securityRealmName,
                                       Authenticator authenticator,
                                       Set securityRoles,
                                       PermissionCollection uncheckedPermissions,
@@ -99,7 +99,7 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
         this.webAppContextIndex = webAppContextIndex;
         this.policyContextID = policyContextID;
 
-        this.defaultPrincipal = generateDefaultPrincipal(securityConfig, loginDomainName);
+        this.defaultPrincipal = generateDefaultPrincipal(securityConfig, securityRealmName);
 
         if (authenticator instanceof FormAuthenticator) {
             String formLoginPath = ((FormAuthenticator) authenticator).getLoginPage();
@@ -132,7 +132,7 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
 
         policyConfiguration = factory.getPolicyConfiguration(policyContextID, true);
         configure(uncheckedPermissions, excludedPermissions, rolePermissions);
-        addRoleMappings(securityRoles, loginDomainName, securityConfig, (RoleMappingConfiguration) policyConfiguration);
+        addRoleMappings(securityRoles, securityRealmName, securityConfig, (RoleMappingConfiguration) policyConfiguration);
         policyConfiguration.commit();
         this.excludedPermissions = excludedPermissions;
 
@@ -328,10 +328,10 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
      * Generate the default principal from the security config.
      *
      * @param securityConfig  The Geronimo security configuration.
-     * @param loginDomainName
+     * @param securityRealmName
      * @return the default principal
      */
-    protected JAASJettyPrincipal generateDefaultPrincipal(Security securityConfig, String loginDomainName) throws GeronimoSecurityException {
+    protected JAASJettyPrincipal generateDefaultPrincipal(Security securityConfig, String securityRealmName) throws GeronimoSecurityException {
 
         DefaultPrincipal defaultPrincipal = securityConfig.getDefaultPrincipal();
         if (defaultPrincipal == null) {
@@ -341,11 +341,11 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
         JAASJettyPrincipal result = new JAASJettyPrincipal("default");
         Subject defaultSubject = new Subject();
 
-        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(defaultPrincipal.getPrincipal(), loginDomainName, defaultPrincipal.getRealmName());
+        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(defaultPrincipal.getPrincipal(), securityRealmName, defaultPrincipal.getRealmName());
         if (realmPrincipal == null) {
             throw new GeronimoSecurityException("Unable to create realm principal");
         }
-        PrimaryRealmPrincipal primaryRealmPrincipal = ConfigurationUtil.generatePrimaryRealmPrincipal(defaultPrincipal.getPrincipal(), loginDomainName, defaultPrincipal.getRealmName());
+        PrimaryRealmPrincipal primaryRealmPrincipal = ConfigurationUtil.generatePrimaryRealmPrincipal(defaultPrincipal.getPrincipal(), securityRealmName, defaultPrincipal.getRealmName());
         if (primaryRealmPrincipal == null) {
             throw new GeronimoSecurityException("Unable to create primary realm principal");
         }
@@ -359,7 +359,7 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
     }
 
 
-    public void addRoleMappings(Set securityRoles, String loginDomainName, Security security, RoleMappingConfiguration roleMapper) throws PolicyContextException, GeronimoSecurityException {
+    public void addRoleMappings(Set securityRoles, String securityRealmName, Security security, RoleMappingConfiguration roleMapper) throws PolicyContextException, GeronimoSecurityException {
 
         for (Iterator roleMappings = security.getRoleMappings().values().iterator(); roleMappings.hasNext();) {
             Role role = (Role) roleMappings.next();
@@ -378,7 +378,7 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
                 for (Iterator principals = realm.getPrincipals().iterator(); principals.hasNext();) {
                     org.apache.geronimo.security.deploy.Principal principal = (org.apache.geronimo.security.deploy.Principal) principals.next();
 
-                    RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, loginDomainName, realm.getRealmName());
+                    RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, securityRealmName, realm.getRealmName());
                     if (realmPrincipal == null) {
                         throw new GeronimoSecurityException("Unable to create realm principal");
                     }
