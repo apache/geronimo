@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.17 $ $Date: 2003/09/01 20:38:48 $ -->
+<!-- $Revision: 1.18 $ $Date: 2003/09/29 19:34:10 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -39,6 +39,12 @@
     <ant:jar destfile="${basedir}/target/geronimo-core-rmiclassloaderspi.jar"
              basedir="${basedir}/target/classes"
              includes="org/apache/geronimo/rmi/RMIClassLoaderSpiImpl.class"/>
+  </postGoal>
+  
+  <postGoal name="jar:jar">
+    <ant:jar destfile="${basedir}/target/geronimo-schemas.jar"
+             basedir="${basedir}/src/schema"
+             includes="*.xsd"/>
   </postGoal>
   
   <!-- Set up the test files -->

@@ -76,7 +76,7 @@ import org.xml.sax.SAXException;
 /**
  * Holds utility methods for parsing a DOM tree.
  *
- * @version $Revision: 1.6 $ $Date: 2003/09/29 14:00:56 $
+ * @version $Revision: 1.7 $ $Date: 2003/09/29 19:34:10 $
  */
 public final class LoaderUtil {
     private static final Log log = LogFactory.getLog(LoaderUtil.class);
@@ -189,7 +189,7 @@ public final class LoaderUtil {
         factory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema");
         try {
             DocumentBuilder builder = factory.newDocumentBuilder();
-            builder.setEntityResolver(new LocalEntityResolver(new File("modules/core/src/schema"))); // @todo get this from resource
+            builder.setEntityResolver(new LocalEntityResolver());
             return builder.parse(new InputSource(new BufferedReader(reader)));
         } catch (ParserConfigurationException e) {
             throw new AssertionError("Unable to obtain suitable DocumentBuilder");

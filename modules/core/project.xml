@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.23 $ $Date: 2003/09/08 04:55:00 $ -->
+<!-- $Revision: 1.24 $ $Date: 2003/09/29 19:34:10 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -298,6 +298,21 @@
                 </includes>
             </resource>
         </resources>
+        <unitTest>
+            <includes>
+                <include>**/*Test.java</include>
+            </includes>
+            <excludes>
+                <exclude>**/Abstract*.java</exclude>
+            </excludes>
+            <resources>
+                <resource>
+                    <directory>${basedir}/src/schema</directory>
+                    <includes>
+                        <include>*.xsd</include>
+                    </includes>
+                </resource>
+            </resources>
+        </unitTest>
     </build>
-
 </project>

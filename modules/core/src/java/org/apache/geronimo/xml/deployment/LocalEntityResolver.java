@@ -59,6 +59,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -69,7 +70,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Implementation of EntityResolver that looks to the local filesystem.
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/29 14:14:42 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/29 19:34:10 $
  */
 public class LocalEntityResolver implements EntityResolver {
     private static final Log log = LogFactory.getLog(LocalEntityResolver.class);
@@ -79,24 +80,46 @@ public class LocalEntityResolver implements EntityResolver {
         this.root = root;
     }
 
+    public LocalEntityResolver() {
+        root = null;
+    }
+
     public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
         //todo: resolve the core XML Schema schemas locally so no network connection is required
-        if (log.isDebugEnabled()) {
-            log.debug("Resolving entity S="+systemId+" P="+publicId);
-        }
         if (publicId != null || systemId == null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Not attempting to locally resolve entity S="+systemId+" P="+publicId);
+            }
             return null;
+        }
+        String message = null;
+        if(log.isDebugEnabled()) {
+            message = "Resolving entity S="+systemId+" P="+publicId+": ";
         }
         int index = systemId.lastIndexOf("/");
         String fileName = systemId.substring(index+1);
-        File file = new File(root, fileName);
-        if (log.isDebugEnabled()) {
-            log.debug("File "+file.getAbsolutePath()+" exists: "+file.exists());
+        if(root != null) {
+            File file = new File(root, fileName);
+            if (file.exists()) {
+                if (log.isDebugEnabled()) {
+                    log.debug(message+"found file relative to "+root);
+                }
+                InputSource is = new InputSource(new BufferedInputStream(new FileInputStream(file)));
+                is.setSystemId(systemId);
+                return is;
+            }
         }
-        if (file.exists()) {
-            InputSource is = new InputSource(new BufferedInputStream(new FileInputStream(file)));
+        InputStream in = getClass().getClassLoader().getResourceAsStream(fileName);
+        if(in != null) {
+            if (log.isDebugEnabled()) {
+                log.debug(message+"found file on classpath");
+            }
+            InputSource is = new InputSource(new BufferedInputStream(in));
             is.setSystemId(systemId);
             return is;
+        }
+        if (log.isDebugEnabled()) {
+            log.debug(message+"not found");
         }
         return null;
     }
