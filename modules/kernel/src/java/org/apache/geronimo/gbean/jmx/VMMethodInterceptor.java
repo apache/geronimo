@@ -63,7 +63,7 @@ public class VMMethodInterceptor implements ProxyMethodInterceptor, InvocationHa
 
     public void start() {
         if (gbeanInvokers == null) {
-            throw new IllegalStateException("Proxy is not connected");
+            throw new DeadProxyException("Proxy is no longer valid");
         }
         this.stopped = false;
     }
@@ -77,7 +77,7 @@ public class VMMethodInterceptor implements ProxyMethodInterceptor, InvocationHa
 
         synchronized (this) {
             if (stopped) {
-                throw new IllegalStateException("Proxy is stopped");
+                throw new DeadProxyException("Proxy is no longer valid");
             }
             gbeanInvoker = (GBeanInvoker) gbeanInvokers.get(method);
         }

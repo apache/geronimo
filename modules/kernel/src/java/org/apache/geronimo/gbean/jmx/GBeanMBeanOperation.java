@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Iterator;
 
 import javax.management.MBeanOperationInfo;
 import javax.management.MBeanParameterInfo;
@@ -42,8 +43,14 @@ public final class GBeanMBeanOperation {
     private final List parameterTypes;
     private final MBeanOperationInfo mbeanOperationInfo;
     private final MethodInvoker methodInvoker;
+    private final boolean framework;
 
-    public GBeanMBeanOperation(GBeanMBean gMBean, String name, List parameterTypes, Class returnType, MethodInvoker methodInvoker) {
+    static GBeanMBeanOperation createFrameworkOperation(GBeanMBean gMBean, String name, List parameterTypes, Class returnType, MethodInvoker methodInvoker) {
+        return new GBeanMBeanOperation(gMBean, name, parameterTypes, returnType, methodInvoker);
+    }
+
+    private GBeanMBeanOperation(GBeanMBean gMBean, String name, List parameterTypes, Class returnType, MethodInvoker methodInvoker) {
+        framework = true;
         this.gmbean = gMBean;
         this.name = name;
         this.parameterTypes = Collections.unmodifiableList(new ArrayList(parameterTypes));
@@ -63,6 +70,7 @@ public final class GBeanMBeanOperation {
     }
 
     public GBeanMBeanOperation(GBeanMBean gMBean, GOperationInfo operationInfo) throws InvalidConfigurationException {
+        framework = false;
         this.gmbean = gMBean;
         this.name = operationInfo.getName();
 
@@ -133,11 +141,12 @@ public final class GBeanMBeanOperation {
         return mbeanOperationInfo;
     }
 
-    public Object invoke(final Object[] arguments) throws ReflectionException {
-        if (gmbean.isOffline()) {
-            throw new IllegalStateException("Operations can not be called while offline");
-        }
+    public boolean isFramework() {
+        return framework;
+    }
 
+    public Object invoke(final Object[] arguments) throws ReflectionException {
+        // get the target to invoke
         try {
             return methodInvoker.invoke(gmbean.getTarget(), arguments);
         } catch (Exception e) {
@@ -147,4 +156,16 @@ public final class GBeanMBeanOperation {
         }
     }
 
+    public String getDescription() {
+        String signature = name + "(";
+        for (Iterator iterator = parameterTypes.iterator(); iterator.hasNext();) {
+            String type = (String) iterator.next();
+            signature += type;
+            if (iterator.hasNext()) {
+                signature += ", ";
+            }
+        }
+        signature += ")";
+        return "Operation Signature: " + signature + ", GBean: " + gmbean.getName();
+    }
 }

@@ -85,19 +85,20 @@ public class LoginService implements LoginServiceMBean, GBeanLifecycle {
 
     private Collection realms = Collections.EMPTY_SET;
     private Collection loginModules = Collections.EMPTY_SET;
-    private final static ClassLoader classLoader;
 
     private SecretKey key;
-    private String algorithm;
-    private String password;
+    private final String algorithm;
+    private final String password;
+    private final ClassLoader classLoader;
+
+    public LoginService(long reclaimPeriod, String algorithm, String password, ClassLoader classLoader) {
+        this.reclaimPeriod = reclaimPeriod;
+        this.algorithm = algorithm;
+        this.password = password;
+        this.classLoader = classLoader;
+    }
 
     static {
-        classLoader = (ClassLoader) AccessController.doPrivileged(new java.security.PrivilegedAction() {
-            public Object run() {
-                return Thread.currentThread().getContextClassLoader();
-            }
-        });
-
         clockDaemon = new ClockDaemon();
         clockDaemon.setThreadFactory(new ThreadFactory() {
             public Thread newThread(Runnable r) {
@@ -121,7 +122,6 @@ public class LoginService implements LoginServiceMBean, GBeanLifecycle {
         return realms;
     }
 
-
     public void setRealms(Collection realms) {
         this.realms = realms;
     }
@@ -134,16 +134,8 @@ public class LoginService implements LoginServiceMBean, GBeanLifecycle {
         return algorithm;
     }
 
-    public void setAlgorithm(String algorithm) {
-        this.algorithm = algorithm;
-    }
-
     public String getPassword() {
         return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public SerializableACE[] getAppConfigurationEntries(String realmName) {
@@ -485,6 +477,9 @@ public class LoginService implements LoginServiceMBean, GBeanLifecycle {
         infoFactory.addAttribute("reclaimPeriod", long.class, true);
         infoFactory.addAttribute("algorithm", String.class, true);
         infoFactory.addAttribute("password", String.class, true);
+        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
+
+        infoFactory.setConstructor(new String[] {"reclaimPeriod", "algorithm", "password", "classLoader"});
 
         infoFactory.addReference("Realms", SecurityRealm.class);
         GBEAN_INFO = infoFactory.getBeanInfo();

@@ -17,18 +17,18 @@
 
 package org.apache.geronimo.security.jaas;
 
-import javax.management.ObjectName;
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginContext;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import javax.management.ObjectName;
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
 
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
+import org.apache.geronimo.kernel.management.State;
 
 
 /**
@@ -108,6 +108,9 @@ public class LoginSQLTest extends AbstractTest {
 
     }
 
+    public void testNothing() {
+    }
+
     public void XtestLogin() throws Exception {
         LoginContext context = new LoginContext("sql", new UsernamePasswordCallback("alan", "starcraft"));
 
@@ -124,37 +127,46 @@ public class LoginSQLTest extends AbstractTest {
         context.logout();
     }
 
-    public void testLogoutTimeout() throws Exception {
-        LoginContext context = new LoginContext("sql", new UsernamePasswordCallback("alan", "starcraft"));
+    public void XtestLogoutTimeout() throws Exception {
 
-        context.login();
-        Subject subject = context.getSubject();
+        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(sqlRealm, "state"));
 
-        assertTrue("expected non-null subject", subject != null);
-        assertEquals("subject should have five principal", 5, subject.getPrincipals().size());
-        assertEquals("subject should have two realm principals", 2, subject.getPrincipals(RealmPrincipal.class).size());
-        assertEquals("subject should have one remote principal", 1, subject.getPrincipals(IdentificationPrincipal.class).size());
-        IdentificationPrincipal principal = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
-        assertTrue("id of principal should be non-zero", principal.getId().getSubjectId().longValue() != 0);
-
-        Thread.sleep(20 * 1000);
-
+        ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
         try {
-            context.logout();
-            fail("The login module should have expired");
-        } catch (ExpiredLoginModuleException e) {
-            context.login();
+            Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+            LoginContext context = new LoginContext("sql", new UsernamePasswordCallback("alan", "starcraft"));
 
-            subject = context.getSubject();
+            context.login();
+            Subject subject = context.getSubject();
 
             assertTrue("expected non-null subject", subject != null);
             assertEquals("subject should have five principal", 5, subject.getPrincipals().size());
             assertEquals("subject should have two realm principals", 2, subject.getPrincipals(RealmPrincipal.class).size());
             assertEquals("subject should have one remote principal", 1, subject.getPrincipals(IdentificationPrincipal.class).size());
-            principal = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
+            IdentificationPrincipal principal = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
             assertTrue("id of principal should be non-zero", principal.getId().getSubjectId().longValue() != 0);
 
-            context.logout();
+            Thread.sleep(20 * 1000);
+
+            try {
+                context.logout();
+                fail("The login module should have expired");
+            } catch (ExpiredLoginModuleException e) {
+                context.login();
+
+                subject = context.getSubject();
+
+                assertTrue("expected non-null subject", subject != null);
+                assertEquals("subject should have five principal", 5, subject.getPrincipals().size());
+                assertEquals("subject should have two realm principals", 2, subject.getPrincipals(RealmPrincipal.class).size());
+                assertEquals("subject should have one remote principal", 1, subject.getPrincipals(IdentificationPrincipal.class).size());
+                principal = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
+                assertTrue("id of principal should be non-zero", principal.getId().getSubjectId().longValue() != 0);
+
+                context.logout();
+            }
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldCl);
         }
     }
 

@@ -17,7 +17,7 @@
 
 package org.apache.geronimo.gbean.jmx;
 
-import java.lang.reflect.InvocationTargetException;
+
 
 /**
  * @version $Rev$ $Date$

@@ -48,7 +48,7 @@ public class UserTransactionImpl implements UserTransaction, Serializable {
     }
 
     public void setUp(TransactionContextManager transactionContextManager, TrackedConnectionAssociator trackedConnectionAssociator) {
-        assert !isOnline() : "Only set the tx manager when UserTransaction is offline";
+        assert !isOnline() : "Only set the tx manager when UserTransaction is stop";
         this.ONLINE.setUp(transactionContextManager, trackedConnectionAssociator);
     }
 

@@ -100,7 +100,7 @@ public class CGLibMethodInterceptor implements ProxyMethodInterceptor, MethodInt
         int interfaceIndex = proxy.getSuperIndex();
         synchronized (this) {
             if (stopped) {
-                throw new IllegalStateException("Proxy is stopped");
+                throw new DeadProxyException("Proxy is no longer valid");
             }
             gbeanInvoker = gbeanInvokers[interfaceIndex];
         }

@@ -427,7 +427,7 @@ public class Configuration implements GBeanLifecycle {
         infoFactory.addAttribute("classPath", List.class, true);
         infoFactory.addAttribute("dependencies", List.class, true);
         infoFactory.addAttribute("gBeanState", byte[].class, true);
-        infoFactory.addAttribute("baseURL", URL.class, false);
+        infoFactory.addAttribute("baseURL", URL.class, true);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
         infoFactory.addReference("Parent", ConfigurationParent.class);

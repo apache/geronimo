@@ -203,11 +203,6 @@ public class GBeanMBeanReference implements NotificationListener {
                     }
                 }
             }
-
-            // set the proxy into the instance
-            if (setInvoker != null && patterns.size() > 0) {
-                setInvoker.invoke(gmbean.getTarget(), new Object[]{proxy.getProxy()});
-            }
         } catch (Exception e) {
             // clean up if we got an exception
             offline();
@@ -249,7 +244,7 @@ public class GBeanMBeanReference implements NotificationListener {
         }
     }
 
-    public synchronized void start() throws WaitingException {
+    public synchronized void start() throws WaitingException, Exception {
         if (proxy == null) {
             log.debug("Start should not be called on an offline reference");
             return;
@@ -257,6 +252,17 @@ public class GBeanMBeanReference implements NotificationListener {
 
         if (!patterns.isEmpty()) {
             proxy.start();
+        }
+    }
+
+    public synchronized void inject() throws Exception {
+        if (proxy == null) {
+            throw new IllegalStateException("Reference must be started before injection can take place");
+        }
+
+        // set the proxy into the instance
+        if (setInvoker != null && patterns.size() > 0) {
+            setInvoker.invoke(gmbean.getTarget(), new Object[]{proxy.getProxy()});
         }
     }
 

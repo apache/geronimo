@@ -12,7 +12,7 @@ public class DerbyXAManagedConnectionFactory extends AbstractXADataSourceMCF{
 
     public DerbyXAManagedConnectionFactory() throws IllegalAccessException, InstantiationException, ClassNotFoundException {
         super(new EmbeddedXADataSource());
-        setExceptionSorterClass(NoExceptionsAreFatalSorter.class.getName());
+        setExceptionSorter(new NoExceptionsAreFatalSorter());
     }
 
     EmbeddedXADataSource getDerbyXADS() {

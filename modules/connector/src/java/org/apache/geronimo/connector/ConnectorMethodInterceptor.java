@@ -17,16 +17,14 @@
 
 package org.apache.geronimo.connector;
 
-import java.io.InvalidObjectException;
-import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.reflect.Method;
-
 import javax.management.ObjectName;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.gbean.jmx.DeadProxyException;
 
 /**
  * MethodInterceptor used by various Proxies.  The important part of this class is the
@@ -36,7 +34,6 @@ import org.apache.geronimo.kernel.Kernel;
  *
  * */
 public class ConnectorMethodInterceptor implements MethodInterceptor, Serializable {
-
     private final String kernelName;
     private final ObjectName targetName;
 
@@ -49,29 +46,26 @@ public class ConnectorMethodInterceptor implements MethodInterceptor, Serializab
 
     public Object intercept(final Object o, final Method method, Object[] objects, final MethodProxy methodProxy) throws Throwable {
         if (internalProxy == null) {
-            throw new IllegalStateException("Proxy is not connected");
+            connectInternalProxy();
         }
-        return methodProxy.invoke(internalProxy, objects);
+        try {
+            return methodProxy.invoke(internalProxy, objects);
+        } catch (DeadProxyException e) {
+            connectInternalProxy();
+            return methodProxy.invoke(internalProxy, objects);            
+        }
     }
 
     public void setInternalProxy(final Object internalProxy) {
         this.internalProxy = internalProxy;
     }
 
-    /**
-     * Deserializing readResolve method.  This uses the stored kernel name and target object name to
-     * obtain and return the original version of this object that is attached to the actual object of
-     * interest.  This allows serialization of resource-refs and resource-env-refs (admin objects).
-     * @return
-     * @throws ObjectStreamException
-     */
-    private Object readResolve() throws ObjectStreamException {
+    private void connectInternalProxy() throws Throwable {
         Kernel kernel = Kernel.getKernel(kernelName);
         try {
-            return kernel.invoke(targetName, "$getMethodInterceptor");
+            internalProxy = kernel.invoke(targetName, "$getConnectionFactory");
         } catch (Exception e) {
-            throw (InvalidObjectException)new InvalidObjectException("could not get method interceptor from ManagedConnectionFactoryWrapper").initCause(e);
+            throw new IllegalStateException("Could not connect proxy to ManagedConnectionFactoryWrapper").initCause(e);
         }
     }
-
 }

@@ -17,12 +17,10 @@
 
 package org.apache.geronimo.security.jaas;
 
+import java.util.Collection;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 
-import java.util.Collection;
-
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.GeronimoSecurityException;
 
 

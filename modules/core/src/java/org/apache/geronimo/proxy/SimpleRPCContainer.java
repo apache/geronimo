@@ -20,10 +20,8 @@ package org.apache.geronimo.proxy;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
-
 import javax.management.ObjectName;
 
-import org.apache.geronimo.core.service.Component;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;

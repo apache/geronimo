@@ -200,23 +200,22 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
 
         //create a new ConnectionFactory
         connectionFactory = connectionManagerFactory.createConnectionFactory(managedConnectionFactory);
-        //build proxy
-        if (proxy == null) {
 
-            if (isProxyable) {
-                Enhancer enhancer = new Enhancer();
-                enhancer.setInterfaces(allImplementedInterfaces);
-                enhancer.setCallbackType(net.sf.cglib.proxy.MethodInterceptor.class);
-                enhancer.setUseFactory(false);//????
-                interceptor = new ConnectorMethodInterceptor(kernel.getKernelName(), ObjectName.getInstance(objectName));
-                enhancer.setCallbacks(new Callback[]{interceptor});
-                proxy = enhancer.create(new Class[0], new Object[0]);
-            } else {
-                proxy = connectionFactory;
-            }
-        }
-        //connect proxy
+        //build proxy
         if (isProxyable) {
+            Enhancer enhancer = new Enhancer();
+            enhancer.setInterfaces(allImplementedInterfaces);
+            enhancer.setCallbackType(net.sf.cglib.proxy.MethodInterceptor.class);
+            enhancer.setUseFactory(false);//????
+            interceptor = new ConnectorMethodInterceptor(kernel.getKernelName(), ObjectName.getInstance(objectName));
+            enhancer.setCallbacks(new Callback[]{interceptor});
+            proxy = enhancer.create(new Class[0], new Object[0]);
+        } else {
+            proxy = connectionFactory;
+        }
+
+        //connect proxy
+        if (interceptor != null) {
             interceptor.setInternalProxy(connectionFactory);
         }
         //If a globalJNDIName is supplied, bind it.
@@ -227,8 +226,8 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
 
     }
 
-    public void doStop() throws WaitingException {
-        if (isProxyable) {
+    public void doStop() {
+        if (interceptor != null) {
             interceptor.setInternalProxy(null);
         }
         //tear down login if present
@@ -246,6 +245,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
     }
 
     public void doFail() {
+        doStop();
     }
 
     //DynamicGBean implementation
@@ -266,8 +266,8 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         return proxy;
     }
 
-    public Object $getMethodInterceptor() {
-        return interceptor;
+    public Object $getConnectionFactory() {
+        return connectionFactory;
     }
 
     //ResourceManager implementation
@@ -298,7 +298,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         infoFactory.addAttribute("objectName", String.class, false);
 
         infoFactory.addOperation("$getResource");
-        infoFactory.addOperation("$getMethodInterceptor");
+        infoFactory.addOperation("$getConnectionFactory");
 
         infoFactory.addInterface(ResourceManager.class);
 
