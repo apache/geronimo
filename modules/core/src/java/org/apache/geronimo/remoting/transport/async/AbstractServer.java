@@ -60,7 +60,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import org.apache.geronimo.proxy.SimpleContainer;
-import org.apache.geronimo.remoting.transport.Router;
+import org.apache.geronimo.remoting.router.Router;
 import org.apache.geronimo.remoting.transport.TransportServer;
 
 import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
@@ -70,7 +70,7 @@ import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
  * 
  * Sets up a blocking ServerSocket to accept blocking client connections.
  * 
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/29 19:16:53 $
  */
 abstract public class AbstractServer extends SimpleContainer implements TransportServer {
 

@@ -53,62 +53,71 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.remoting.transport;
+package org.apache.geronimo.remoting.router;
 
 import java.net.URI;
 
-import org.apache.geronimo.common.Component;
-import org.apache.geronimo.remoting.router.*;
+import org.apache.geronimo.common.Interceptor;
+import org.apache.geronimo.common.InvocationResult;
+import org.apache.geronimo.common.SimpleInvocation;
+import org.apache.geronimo.remoting.InterceptorRegistry;
+import org.apache.geronimo.remoting.InvocationSupport;
+import org.apache.geronimo.remoting.MarshalledObject;
+import org.apache.geronimo.remoting.transport.Msg;
+import org.apache.geronimo.remoting.transport.TransportException;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/29 19:16:53 $
+ * @version $Revision: 1.1 $ $Date: 2003/08/29 19:16:54 $
  */
-public interface TransportServer extends Component {
+public class SimpleInterceptorRegistryRouter implements Router {
 
     /**
-     * Configures and otatains any resources needed to
-     * start accepting client requests.  The bindURI argument
-     * will configure the interface/port etc. that the server 
-     * will use to service requests.
-     * 
-     * The sever should pass all requests and datagrams to the 
-     * dispatcher.
-     * 
-     * @param bindURI
-     * @throws Exception
+     *
+     *
+     * @see org.apache.geronimo.remoting.transport.Router#sendRequest(java.net.URI, org.apache.geronimo.remoting.transport.Msg)
      */
-    void bind(URI bindURI, Router dispatcher) throws Exception;
+    public Msg sendRequest(URI to, Msg msg) throws TransportException {
+        try {
+            Interceptor interceptor = lookupInterceptorFrom(to);
+            
+            SimpleInvocation invocation = new SimpleInvocation();
+            InvocationSupport.putMarshaledValue(invocation, msg.popMarshaledObject());
+            InvocationSupport.putRemoteURI(invocation, to);
+
+            InvocationResult result = interceptor.invoke(invocation);
+
+            msg = msg.createMsg();
+            msg.pushMarshaledObject((MarshalledObject) result.getResult());
+            return msg;
+
+        } catch (Throwable e) {
+            e.printStackTrace();
+            throw new TransportException(e.getMessage());
+        }
+    }
 
     /**
-     * Once the bind() call has been done, this method will 
-     * return a URI that can be used by a client to connect 
-     * to the server.
-     * 
-     * @return null if server has not been bound.
+     * @see org.apache.geronimo.remoting.transport.Router#sendDatagram(java.net.URI, org.apache.geronimo.remoting.transport.Msg)
      */
-    URI getClientConnectURI();
+    public void sendDatagram(URI to, Msg msg) throws TransportException {
+        try {
+            Interceptor interceptor = lookupInterceptorFrom(to);
+            
+            SimpleInvocation invocation = new SimpleInvocation();
+            InvocationSupport.putMarshaledValue(invocation, msg.popMarshaledObject());
+            InvocationSupport.putRemoteURI(invocation, to);
 
-    /**
-     * Enables the server to start accepting new client requests.
-     * @throws Exception
-     */
-    void start() throws Exception;
+            InvocationResult result = interceptor.invoke(invocation);
 
-    /**
-     * Stops the server from accepting new client requests.
-     * start() may be called at a later time to start processing
-     * requests again.
-     * 
-     * @throws Exception
-     */
-    void stop() throws Exception;
+        } catch (Throwable e) {
+            throw new TransportException(e.getMessage());
+        }
+    }
 
-    /**
-     * Rleases all resources that were obtained during the life of
-     * the server.  Once disposed, the sever instance cannot be used 
-     * again.
-     * @throws Exception
-     */
-    void dispose() throws Exception;
+    protected Interceptor lookupInterceptorFrom(URI to) throws Throwable {
+        Long x = new Long(to.getFragment());
+        return InterceptorRegistry.instance.lookup(x);
+    }
+
 
 }

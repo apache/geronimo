@@ -58,17 +58,19 @@ package org.apache.geronimo.remoting;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import org.apache.geronimo.common.Classes;
+
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/29 19:16:53 $
  */
 public class MarshalledMethod implements Serializable {
 
     String declaringClass;
-    short methodIndex;
-    short methodHash;
+    String signature;
 
     /**
      * 
@@ -80,30 +82,24 @@ public class MarshalledMethod implements Serializable {
      * @param method
      */
     public MarshalledMethod(Method method) {
-        Class owner = method.getDeclaringClass();
-        declaringClass = owner.getName();
-        methodHash = hashCode(method);
-        Method[] methods = owner.getMethods();
-        methodIndex = -1;
-        for (short i = 0; i < methods.length; i++) {
-            if (methods[i].equals(method)) {
-                methodIndex = i;
-                break;
-            }
-        }
-        // I don't thing this will EVER happen.
-        if (methodIndex == -1)
-            throw new RuntimeException("Could not find method in declaring class!");
+        declaringClass = method.getDeclaringClass().getName();
+        signature = getSignature( method );
     }
 
     /**
-     * TODO: figure out a better hashcode algorithim for the method.
-     * 
      * @param method
      * @return
      */
-    private static short hashCode(Method method) {
-        return (short) method.getName().hashCode();
+    static private String getSignature(Method method) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(method.getName());
+        sb.append(' ');
+        Class[] args = method.getParameterTypes();
+        for (int i = 0; i < args.length; i++) {
+            sb.append(' ');
+            sb.append( Classes.getClassName(args[i]) );
+        }
+        return sb.toString();
     }
 
     /**
@@ -111,22 +107,51 @@ public class MarshalledMethod implements Serializable {
      */
     public Method getMethod() throws ClassNotFoundException {
         Class c = Thread.currentThread().getContextClassLoader().loadClass(declaringClass);
-        Method rc = c.getMethods()[methodIndex];
-        short lhc = hashCode(rc);
-        if (lhc != methodHash)
-            throw new ClassNotFoundException("The '" + declaringClass + "' class is incompatible. ");
-        return rc;
+        Map sigs = getCachedSignatureMap(c);        
+        return (Method) sigs.get(signature);
     }
 
-    private static Map methodCache = Collections.synchronizedMap(new WeakHashMap());
-    public static MarshalledMethod getMarshalledMethod(Method method) {
-        Integer cacheKey = new Integer(method.hashCode());
-        MarshalledMethod rc = (MarshalledMethod) methodCache.get(cacheKey);
-        if (rc == null) {
-            rc = new MarshalledMethod(method);
-            methodCache.put(cacheKey, rc);
+    /**
+     * TODO: try to cache the results.
+     * @param clazz
+     * @return
+     */
+    static private Map getSignatureMapFor(Class clazz) {
+        Map rc = new HashMap();
+        Method[] methods = clazz.getDeclaredMethods();
+        for (int i = 0; i < methods.length; i++) {
+            Method method = methods[i];
+            rc.put(getSignature(method), method);
         }
         return rc;
     }
+
+    private static Map SignatureMapCache= Collections.synchronizedMap(new WeakHashMap());
+    static class CacheValue {
+        Class clazz;
+        Map sigs;
+    }
+
+
+    public static Map getCachedSignatureMap(Class clazz) {
+        String cacheKey = clazz.getName();
+        CacheValue rc = (CacheValue) SignatureMapCache.get(cacheKey);
+        if (rc == null) {
+            rc = new CacheValue();
+            rc.clazz = clazz;
+            rc.sigs = getSignatureMapFor(clazz);
+            SignatureMapCache.put(cacheKey, rc);
+            return rc.sigs;
+        } else if ( rc.clazz.equals( clazz ) ) {
+            return rc.sigs;
+        } else {
+            // the previously cache class name might not be the same class
+            // due to classloader issues.
+            return getSignatureMapFor(clazz);
+        }
+        
+    }
+
+    
 
 }

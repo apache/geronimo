@@ -53,62 +53,40 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.remoting.transport;
+package org.apache.geronimo.remoting.router;
 
 import java.net.URI;
 
-import org.apache.geronimo.common.Component;
-import org.apache.geronimo.remoting.router.*;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+
+import org.apache.geronimo.common.Interceptor;
+import org.apache.geronimo.jmx.MBeanProxyFactory;
+
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/29 19:16:53 $
+ * Uses JMX Object names to route the request to a JMX object that implements the 
+ * JMXTargetMBean interface.
+ * 
+ * @version $Revision: 1.1 $ $Date: 2003/08/29 19:16:54 $
  */
-public interface TransportServer extends Component {
+public class JMXRouter extends AbstractInterceptorRouter implements JMXRouterMBean {
 
     /**
-     * Configures and otatains any resources needed to
-     * start accepting client requests.  The bindURI argument
-     * will configure the interface/port etc. that the server 
-     * will use to service requests.
-     * 
-     * The sever should pass all requests and datagrams to the 
-     * dispatcher.
-     * 
-     * @param bindURI
-     * @throws Exception
+     * @see org.apache.geronimo.remoting.router.AbstractInterceptorRouter#lookupInterceptorFrom(java.net.URI)
      */
-    void bind(URI bindURI, Router dispatcher) throws Exception;
+    protected Interceptor lookupInterceptorFrom(URI to) throws MalformedObjectNameException {
+        ObjectName on = new ObjectName(to.getFragment());
+        JMXTargetMBean bean = (JMXTargetMBean)MBeanProxyFactory.getProxy(JMXTargetMBean.class, server, on);
+        return bean.getRemotingEndpointInterceptor();
+    }
 
     /**
-     * Once the bind() call has been done, this method will 
-     * return a URI that can be used by a client to connect 
-     * to the server.
-     * 
-     * @return null if server has not been bound.
+     * @see org.apache.geronimo.remoting.router.SubsystemRouterMBean#getRouter()
      */
-    URI getClientConnectURI();
+    public Router getRouter() {
+        return this;
+    }
 
-    /**
-     * Enables the server to start accepting new client requests.
-     * @throws Exception
-     */
-    void start() throws Exception;
-
-    /**
-     * Stops the server from accepting new client requests.
-     * start() may be called at a later time to start processing
-     * requests again.
-     * 
-     * @throws Exception
-     */
-    void stop() throws Exception;
-
-    /**
-     * Rleases all resources that were obtained during the life of
-     * the server.  Once disposed, the sever instance cannot be used 
-     * again.
-     * @throws Exception
-     */
-    void dispose() throws Exception;
 
 }

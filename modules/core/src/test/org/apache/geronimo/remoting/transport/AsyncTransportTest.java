@@ -61,13 +61,14 @@ import java.net.URI;
 import junit.framework.TestCase;
 
 import org.apache.geronimo.remoting.MarshalledObject;
+import org.apache.geronimo.remoting.router.Router;
 
 import EDU.oswego.cs.dl.util.concurrent.Semaphore;
 
 /**
  * Unit test for the Async Remoting Transport
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:36 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/29 19:16:54 $
  */
 
 public class AsyncTransportTest extends TestCase {

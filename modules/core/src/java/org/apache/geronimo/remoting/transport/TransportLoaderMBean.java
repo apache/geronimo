@@ -57,11 +57,14 @@ package org.apache.geronimo.remoting.transport;
 
 import java.net.URI;
 
+import javax.management.MalformedObjectNameException;
+
 import org.apache.geronimo.management.ManagedObject;
 import org.apache.geronimo.management.StateManageable;
+import org.apache.geronimo.remoting.router.Router;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/28 05:12:10 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/29 19:16:53 $
  */
 public interface TransportLoaderMBean extends ManagedObject, StateManageable {
     /**
@@ -84,4 +87,7 @@ public interface TransportLoaderMBean extends ManagedObject, StateManageable {
      * @return
      */
     public abstract URI getClientConnectURI();
+
+    public void setRouterTarget(String ob) throws MalformedObjectNameException;
+    
 }

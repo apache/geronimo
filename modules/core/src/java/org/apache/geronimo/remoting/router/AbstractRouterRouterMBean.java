@@ -53,29 +53,17 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.remoting.transport;
+package org.apache.geronimo.remoting.router;
 
-import java.net.URI;
+import org.apache.geronimo.management.ManagedObject;
+import org.apache.geronimo.management.StateManageable;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:26 $
+ * @version $Revision: 1.1 $ $Date: 2003/08/29 19:16:54 $
  */
-public interface Router {
-
-    /**
-     * Sends a request message to the other end.
-     * 
-     * @param request
-     * @return
-     */
-    Msg sendRequest(URI to, Msg request) throws TransportException;
-
-    /**
-     * Sends a datagram message.  No response is expected.   
-     * 
-     * @param request
-     * @return
-     */
-    void sendDatagram(URI to, Msg request) throws TransportException;
+public interface AbstractRouterRouterMBean extends ManagedObject, StateManageable {
+    
+    public long getStoppedRoutingTimeout();
+    public void setStoppedRoutingTimeout(long stoppedRoutingTimeout);
 
 }

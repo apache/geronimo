@@ -67,7 +67,7 @@ import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.remoting.transport.Router;
+import org.apache.geronimo.remoting.router.Router;
 import org.apache.geronimo.remoting.transport.TransportException;
 import org.apache.geronimo.remoting.transport.URISupport;
 import org.apache.geronimo.remoting.transport.async.AbstractServer;
@@ -77,7 +77,7 @@ import org.apache.geronimo.remoting.transport.async.ChannelPool;
  * 
  * Sets up a blocking ServerSocket to accept blocking client connections.
  * 
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/29 19:16:54 $
  */
 public final class BlockingServer extends AbstractServer implements Runnable {
     final static private Log log = LogFactory.getLog(BlockingServer.class);

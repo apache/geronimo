@@ -56,9 +56,10 @@
 package org.apache.geronimo.remoting.transport;
 
 import org.apache.geronimo.remoting.MarshalledObject;
+import org.apache.geronimo.remoting.router.*;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/29 19:16:53 $
  */
 public interface TransportClient extends Router {
 

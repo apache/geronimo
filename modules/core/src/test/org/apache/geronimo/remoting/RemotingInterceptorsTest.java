@@ -67,8 +67,8 @@ import junit.framework.TestCase;
 
 import org.apache.geronimo.proxy.ProxyContainer;
 import org.apache.geronimo.proxy.ReflexiveInterceptor;
+import org.apache.geronimo.remoting.router.SimpleInterceptorRegistryRouter;
 import org.apache.geronimo.remoting.transport.BytesMarshalledObject;
-import org.apache.geronimo.remoting.transport.FragmentBasedInterceptorRouter;
 import org.apache.geronimo.remoting.transport.RemoteTransportInterceptor;
 import org.apache.geronimo.remoting.transport.TransportFactory;
 import org.apache.geronimo.remoting.transport.TransportServer;
@@ -80,7 +80,7 @@ import org.apache.geronimo.remoting.transport.URISupport;
  * This test uses 2 classloaders to mock 2 seperate
  * application classloaders.
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/28 05:12:10 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/29 19:16:54 $
  */
 
 public class RemotingInterceptorsTest extends TestCase {
@@ -106,7 +106,7 @@ public class RemotingInterceptorsTest extends TestCase {
         URI bindURI = new URI("async://0.0.0.0:0");
         TransportFactory tf = TransportFactory.getTransportFactory(bindURI);
         server = tf.createSever();
-        server.bind(bindURI,new FragmentBasedInterceptorRouter());
+        server.bind(bindURI,new SimpleInterceptorRegistryRouter());
         connectURI = server.getClientConnectURI();
         server.start();
 

@@ -64,8 +64,8 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.remoting.router.Router;
 import org.apache.geronimo.remoting.transport.Msg;
-import org.apache.geronimo.remoting.transport.Router;
 import org.apache.geronimo.remoting.transport.TransportException;
 import org.apache.geronimo.remoting.transport.async.Correlator.FutureResult;
 
@@ -77,7 +77,7 @@ import EDU.oswego.cs.dl.util.concurrent.Semaphore;
  * - It pools AsychChannel connections to be able concurrently do multiple
  * asyc sends. 
  *   
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/29 19:16:53 $
  */
 public class ChannelPool implements Router {
 

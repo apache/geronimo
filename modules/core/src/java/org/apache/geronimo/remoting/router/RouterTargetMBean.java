@@ -53,72 +53,11 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.remoting.transport;
-
-import java.net.URI;
-
-import org.apache.geronimo.common.Interceptor;
-import org.apache.geronimo.common.InvocationResult;
-import org.apache.geronimo.common.SimpleInvocation;
-import org.apache.geronimo.remoting.InterceptorRegistry;
-import org.apache.geronimo.remoting.InvocationSupport;
-import org.apache.geronimo.remoting.MarshalledObject;
+package org.apache.geronimo.remoting.router;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/26 22:11:24 $
+ * @version $Revision: 1.1 $ $Date: 2003/08/29 19:16:54 $
  */
-public class FragmentBasedInterceptorRouter implements Router {
-
-    /**
-     *
-     *
-     * @see org.apache.geronimo.remoting.transport.Router#sendRequest(java.net.URI, org.apache.geronimo.remoting.transport.Msg)
-     */
-    public Msg sendRequest(URI to, Msg msg) throws TransportException {
-        Interceptor interceptor = lookupInterceptorFrom(to);
-
-        try {
-            SimpleInvocation invocation = new SimpleInvocation();
-            InvocationSupport.putMarshaledValue(invocation, msg.popMarshaledObject());
-            InvocationSupport.putRemoteURI(invocation, to);
-
-            InvocationResult result = interceptor.invoke(invocation);
-
-            msg = msg.createMsg();
-            msg.pushMarshaledObject((MarshalledObject) result.getResult());
-            return msg;
-
-        } catch (Throwable e) {
-            e.printStackTrace();
-            throw new TransportException(e.getMessage());
-        }
-    }
-
-    /**
-     * @see org.apache.geronimo.remoting.transport.Router#sendDatagram(java.net.URI, org.apache.geronimo.remoting.transport.Msg)
-     */
-    public void sendDatagram(URI to, Msg msg) throws TransportException {
-        Interceptor interceptor = lookupInterceptorFrom(to);
-
-        try {
-            SimpleInvocation invocation = new SimpleInvocation();
-            InvocationSupport.putMarshaledValue(invocation, msg.popMarshaledObject());
-            InvocationSupport.putRemoteURI(invocation, to);
-
-            InvocationResult result = interceptor.invoke(invocation);
-
-        } catch (Throwable e) {
-            throw new TransportException(e.getMessage());
-        }
-    }
-
-    /**
-     * @param to
-     * @return
-     */
-    private Interceptor lookupInterceptorFrom(URI to) {
-        Long x = new Long(to.getFragment());
-        return InterceptorRegistry.instance.lookup(x);
-    }
-
+public interface RouterTargetMBean {
+    Router getRouter();
 }

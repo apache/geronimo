@@ -53,62 +53,107 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.remoting.transport;
+package org.apache.geronimo.remoting.router;
 
 import java.net.URI;
 
-import org.apache.geronimo.common.Component;
-import org.apache.geronimo.remoting.router.*;
+import org.apache.geronimo.management.AbstractManagedObject;
+import org.apache.geronimo.remoting.transport.Msg;
+import org.apache.geronimo.remoting.transport.TransportException;
+
+import EDU.oswego.cs.dl.util.concurrent.Latch;
+import EDU.oswego.cs.dl.util.concurrent.Sync;
+import EDU.oswego.cs.dl.util.concurrent.TimeoutSync;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/29 19:16:53 $
+ * @version $Revision: 1.1 $ $Date: 2003/08/29 19:16:54 $
  */
-public interface TransportServer extends Component {
+abstract public class AbstractRouterRouter
+    extends AbstractManagedObject
+    implements Router, AbstractInterceptorRouterMBean {
+
+    private long stoppedRoutingTimeout = 1000 * 60; // 1 min.
+
+    /** 
+     * Allows us to pause invocations when in the stopped state.
+     */
+    private Sync routerLock = createNewRouterLock();
 
     /**
-     * Configures and otatains any resources needed to
-     * start accepting client requests.  The bindURI argument
-     * will configure the interface/port etc. that the server 
-     * will use to service requests.
-     * 
-     * The sever should pass all requests and datagrams to the 
-     * dispatcher.
-     * 
-     * @param bindURI
-     * @throws Exception
+     * @return
      */
-    void bind(URI bindURI, Router dispatcher) throws Exception;
+    public long getStoppedRoutingTimeout() {
+        return stoppedRoutingTimeout;
+    }
 
     /**
-     * Once the bind() call has been done, this method will 
-     * return a URI that can be used by a client to connect 
-     * to the server.
-     * 
-     * @return null if server has not been bound.
+     * @param stoppedRoutingTimeout
      */
-    URI getClientConnectURI();
+    public void setStoppedRoutingTimeout(long stoppedRoutingTimeout) {
+        this.stoppedRoutingTimeout = stoppedRoutingTimeout;
+    }
 
     /**
-     * Enables the server to start accepting new client requests.
-     * @throws Exception
+     * @return
      */
-    void start() throws Exception;
+    private Sync createNewRouterLock() {
+        Latch lock = new Latch();
+        return new TimeoutSync(lock, stoppedRoutingTimeout);
+    }
 
     /**
-     * Stops the server from accepting new client requests.
-     * start() may be called at a later time to start processing
-     * requests again.
-     * 
-     * @throws Exception
+     *
+     *
+     * @see org.apache.geronimo.remoting.transport.Router#sendRequest(java.net.URI, org.apache.geronimo.remoting.transport.Msg)
      */
-    void stop() throws Exception;
+    public Msg sendRequest(URI to, Msg msg) throws TransportException {
+        try {
+            routerLock.acquire();
+
+            routerLock.acquire();
+            Router next = lookupRouterFrom(to);
+            if( next == null )
+                throw new TransportException("No route is available to: "+to);
+                
+            return next.sendRequest(to, msg);
+
+        } catch (Throwable e) {
+            e.printStackTrace();
+            throw new TransportException(e.getMessage());
+        }
+    }
 
     /**
-     * Rleases all resources that were obtained during the life of
-     * the server.  Once disposed, the sever instance cannot be used 
-     * again.
-     * @throws Exception
+     * @see org.apache.geronimo.remoting.transport.Router#sendDatagram(java.net.URI, org.apache.geronimo.remoting.transport.Msg)
      */
-    void dispose() throws Exception;
+    public void sendDatagram(URI to, Msg msg) throws TransportException {
+        try {
+            routerLock.acquire();
+            Router next = lookupRouterFrom(to);
+            next.sendDatagram(to, msg);
+        } catch (Throwable e) {
+            throw new TransportException(e.getMessage());
+        }
+    }
+
+    /**
+     * @param to
+     * @return
+     */
+    abstract protected Router lookupRouterFrom(URI to);
+
+    /**
+     * @see org.apache.geronimo.common.AbstractStateManageable#doStart()
+     */
+    protected void doStart() throws Exception {
+        routerLock.release();
+    }
+
+    /**
+     * @see org.apache.geronimo.common.AbstractStateManageable#doStop()
+     */
+    protected void doStop() throws Exception {
+        routerLock = createNewRouterLock();
+    }
 
 }

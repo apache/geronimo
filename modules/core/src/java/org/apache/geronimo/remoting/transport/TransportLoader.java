@@ -57,34 +57,54 @@ package org.apache.geronimo.remoting.transport;
 
 import java.net.URI;
 
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+
+import org.apache.geronimo.jmx.MBeanProxyFactory;
 import org.apache.geronimo.management.AbstractManagedObject;
+import org.apache.geronimo.remoting.router.*;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/28 05:12:10 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/29 19:16:53 $
  */
 public class TransportLoader extends AbstractManagedObject implements TransportLoaderMBean {
 
     URI bindURI;
-    TransportServer server;
-    Router dispatchingRouter = new FragmentBasedInterceptorRouter();
+    TransportServer transportServer;
+    Router dispatchingRouter;
+    private ObjectName routerTarget;
 
     /**
      * @see org.apache.geronimo.common.AbstractComponent#doStart()
      */
     protected void doStart() throws Exception {
+
+        if (dispatchingRouter == null) {
+            if (routerTarget == null)
+                throw new IllegalStateException("Target router was not set.");
+            RouterTargetMBean target =
+                (RouterTargetMBean) MBeanProxyFactory.getProxy(RouterTargetMBean.class, server, routerTarget);
+            dispatchingRouter = target.getRouter();
+        }
+
         TransportFactory tf = TransportFactory.getTransportFactory(bindURI);
-        server = tf.createSever();
-        server.bind(bindURI, dispatchingRouter);
-        server.start();
+        transportServer = tf.createSever();
+        transportServer.bind(bindURI, dispatchingRouter);
+        transportServer.start();
     }
 
     /**
      * @see org.apache.geronimo.common.AbstractComponent#doStop()
      */
     protected void doStop() throws Exception {
-        server.stop();
-        server.dispose();
-        server = null;
+        if (transportServer == null) {
+            log.error("Cannot STOP. This component was never started.");
+            return;
+        }
+        transportServer.stop();
+        transportServer.dispose();
+        transportServer = null;
+
     }
     /**
      * @return
@@ -115,10 +135,16 @@ public class TransportLoader extends AbstractManagedObject implements TransportL
     }
 
     /**
+     * @param dispatchingRouter
+     */
+    public void setRouterTarget(String ob) throws MalformedObjectNameException {
+        this.routerTarget = new ObjectName(ob);
+    }
+
+    /**
      * @return
      */
     public URI getClientConnectURI() {
-        return server.getClientConnectURI();
+        return transportServer.getClientConnectURI();
     }
-
 }

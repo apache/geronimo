@@ -53,62 +53,32 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.remoting.transport;
+package org.apache.geronimo.remoting.router;
 
 import java.net.URI;
 
-import org.apache.geronimo.common.Component;
-import org.apache.geronimo.remoting.router.*;
+import org.apache.geronimo.remoting.transport.Msg;
+import org.apache.geronimo.remoting.transport.TransportException;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/29 19:16:53 $
+ * @version $Revision: 1.1 $ $Date: 2003/08/29 19:16:54 $
  */
-public interface TransportServer extends Component {
+public interface Router {
 
     /**
-     * Configures and otatains any resources needed to
-     * start accepting client requests.  The bindURI argument
-     * will configure the interface/port etc. that the server 
-     * will use to service requests.
+     * Sends a request message to the other end.
      * 
-     * The sever should pass all requests and datagrams to the 
-     * dispatcher.
+     * @param request
+     * @return
+     */
+    Msg sendRequest(URI to, Msg request) throws TransportException;
+
+    /**
+     * Sends a datagram message.  No response is expected.   
      * 
-     * @param bindURI
-     * @throws Exception
+     * @param request
+     * @return
      */
-    void bind(URI bindURI, Router dispatcher) throws Exception;
-
-    /**
-     * Once the bind() call has been done, this method will 
-     * return a URI that can be used by a client to connect 
-     * to the server.
-     * 
-     * @return null if server has not been bound.
-     */
-    URI getClientConnectURI();
-
-    /**
-     * Enables the server to start accepting new client requests.
-     * @throws Exception
-     */
-    void start() throws Exception;
-
-    /**
-     * Stops the server from accepting new client requests.
-     * start() may be called at a later time to start processing
-     * requests again.
-     * 
-     * @throws Exception
-     */
-    void stop() throws Exception;
-
-    /**
-     * Rleases all resources that were obtained during the life of
-     * the server.  Once disposed, the sever instance cannot be used 
-     * again.
-     * @throws Exception
-     */
-    void dispose() throws Exception;
+    void sendDatagram(URI to, Msg request) throws TransportException;
 
 }

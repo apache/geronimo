@@ -57,10 +57,10 @@ package org.apache.geronimo.remoting.transport.async;
 
 import java.net.URI;
 
-import org.apache.geronimo.remoting.transport.Router;
+import org.apache.geronimo.remoting.router.Router;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/29 19:16:53 $
  */
 public class BackChannelServer extends AbstractServer {
 
