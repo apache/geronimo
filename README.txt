@@ -8,16 +8,26 @@ To build me please install Maven from here - version b10 or later.
 In addition you should have JDK 1.4.x installed with JAVA_HOME
 environment defined to point to this JDK.
 
-In the following examples, '$>' is your prompt, so if you see '$>maven', at your prompt, type in 'maven' (without the quotes) and then press [enter].
+In the following examples, '$>' is your prompt, so if you see 
+'$>maven', at your prompt, type in 'maven' (without the quotes) 
+and then press [enter].
 
-To build Geronimo running all of the unit test cases, compileing all the Geronimo sources and installing them in your local maven repository:
+To build Geronimo running all of the unit test cases, compiling 
+all the Geronimo sources and installing them in your local maven
+repository:
 
         $>maven
 
-To build and run the server, change into the assembly directory and type:
+To build and run the server, change into the assembly directory and
+type:
 	
         $>maven
-        $>maven run:server
+        $>cd target
+        $>java -jar bin/server.jar org/apache/geronimo/Server
+
+To stop the server use ctrl-C or an equivalent; a proper shutdown
+command will be made available in a future release.  
+(See http://wiki.apache.org/geronimo/Running for more information).
 
 To do a clean rebuild of Geronimo type
 
@@ -28,7 +38,8 @@ To do a clean rebuild of Geronimo type
         $>maven clean
         $>maven
 
-To only build select modules (assumes that depends are installed already):
+To only build select modules (assumes that depends are installed
+already):
 
         $>maven -Dmodules=common,core
 
@@ -36,8 +47,8 @@ To clean your workspace:
 	
         $>maven clean
 
-NOTE: You need to build the server first for this to work due to a problem
-      with dependencies & the reactor.
+NOTE: You need to build the server first for this to work due to 
+      a problem with dependencies & the reactor.
 
 To removal all build generated files:
 
