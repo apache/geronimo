@@ -132,7 +132,7 @@ import org.xml.sax.SAXException;
  * 2. the url is a directory which contains a WEB-INF/web.xml file
  *
  * @jmx:mbean extends="org.apache.geronimo.web.WebContainer, org.apache.geronimo.kernel.management.StateManageable, javax.management.MBeanRegistration"
- * @version $Revision: 1.22 $ $Date: 2003/11/24 00:04:32 $
+ * @version $Revision: 1.23 $ $Date: 2003/11/29 03:30:45 $
  */
 public abstract class AbstractWebContainer
         extends AbstractManagedContainer
@@ -235,7 +235,7 @@ public abstract class AbstractWebContainer
         }
         URI baseURI = URI.create(url.toString()).normalize();
 
-        log.trace("Planning the ejb module deployment " + url);
+        log.trace("Planning the web module deployment " + url);
 
         // One can deploy the specified URL. One removes it from the current goal set.
         //goals.remove(goal);
