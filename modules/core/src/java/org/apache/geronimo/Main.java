@@ -68,6 +68,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.impl.LogFactoryImpl;
 
 import org.apache.geronimo.common.StopWatch;
+import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 
 import org.apache.geronimo.common.net.protocol.Protocols; 
 
@@ -78,7 +79,7 @@ import org.apache.geronimo.jmx.JMXKernel;
  *
  *
  *
- * @version $Revision: 1.16 $ $Date: 2003/08/30 12:02:34 $
+ * @version $Revision: 1.17 $ $Date: 2003/09/05 04:49:58 $
  */
 public class Main implements Runnable {
     static {
@@ -89,6 +90,9 @@ public class Main implements Runnable {
         
         // Make the common URL protocol handlers available
         Protocols.appendHandlerPackage("org.apache.geronimo.common.net.protocol");
+
+        // Make sure the property editor is initialized
+        PropertyEditors.getEditorSearchPath();
     }
 
     private static final Log log = LogFactory.getLog("Geronimo");
