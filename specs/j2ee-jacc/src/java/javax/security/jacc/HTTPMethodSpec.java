@@ -23,59 +23,47 @@
 
 package javax.security.jacc;
 
-import javax.servlet.http.HttpServletRequest;
-
 
 /**
  * @version $Rev$ $Date$
  */
-class HTTPMethodSpec {
+final class HTTPMethodSpec {
 
     private final static String[] HTTP_METHODS = {"GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "TRACE"};
     private final static int[] HTTP_MASKS = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40};
 
-    private final static int INTEGRAL = 0x01;
-    private final static int CONFIDENTIAL = 0x02;
-    private final static int NONE = INTEGRAL | CONFIDENTIAL;
+    final static int NA = 0x00;
+    final static int INTEGRAL = 0x01;
+    final static int CONFIDENTIAL = 0x02;
+    final static int NONE = INTEGRAL | CONFIDENTIAL;
 
-    private int mask;
-    private int transport;
+    private final int mask;
+    private final int transport;
     private String actions;
 
     public HTTPMethodSpec(String[] HTTPMethods) {
         this(HTTPMethods, null);
     }
 
-    public HTTPMethodSpec(HttpServletRequest request) {
-        for (int j = 0; j < HTTP_METHODS.length; j++) {
-            if (request.getMethod().equals(HTTP_METHODS[j])) {
-                mask = HTTP_MASKS[j];
-
-                break;
-            }
-        }
-
-        transport = request.isSecure() ? CONFIDENTIAL : NONE;
-    }
-
-    public HTTPMethodSpec(String name) {
+    public HTTPMethodSpec(String name, boolean parseTransportType) {
         if (name == null || name.length() == 0) {
-            mask = 0x7F;
-            transport = NONE;
+            this.mask = 0x7F;
+            this.transport = NONE;
         } else {
             String[] tokens = name.split(":", 2);
 
             if (tokens[0].length() == 0) {
-                mask = 0x7F;
+                this.mask = 0x7F;
             } else {
                 String[] methods = tokens[0].split(",", -1);
+                int tmpMask = 0;
 
                 for (int i = 0; i < methods.length; i++) {
                     boolean found = false;
 
                     for (int j = 0; j < HTTP_METHODS.length; j++) {
                         if (methods[i].equals(HTTP_METHODS[j])) {
-                            mask |= HTTP_MASKS[j];
+                            tmpMask |= HTTP_MASKS[j];
                             found = true;
 
                             break;
@@ -83,58 +71,80 @@ class HTTPMethodSpec {
                     }
                     if (!found) throw new IllegalArgumentException("Invalid HTTPMethodSpec");
                 }
+                this.mask = tmpMask;
             }
 
             if (tokens.length == 2) {
+                if (!parseTransportType) throw new IllegalArgumentException("Invalid HTTPMethodSpec");
+
                 if (tokens[1].equals("NONE")) {
-                    transport = NONE;
+                    this.transport = NONE;
                 } else if (tokens[1].equals("INTEGRAL")) {
-                    transport = INTEGRAL;
+                    this.transport = INTEGRAL;
                 } else if (tokens[1].equals("CONFIDENTIAL")) {
-                    transport = CONFIDENTIAL;
+                    this.transport = CONFIDENTIAL;
                 } else {
                     throw new IllegalArgumentException("Invalid transportType: " + tokens[1]);
                 }
             } else {
-                transport = NONE;
+                if (parseTransportType)
+                    this.transport = NONE;
+                else
+                    this.transport = NA;
             }
         }
     }
 
-    public HTTPMethodSpec(String[] HTTPMethods, String transportType) {
-        boolean parseTransportType = transportType != null;
+    public HTTPMethodSpec(String[] HTTPMethods, String transport) {
+        boolean parseTransportType = transport != null;
 
         if (HTTPMethods == null || HTTPMethods.length == 0) {
-            mask = 0x7F;
+            this.mask = 0x7F;
         } else {
+            int tmpMask = 0;
+
             for (int i = 0; i < HTTPMethods.length; i++) {
-                boolean found = false;
 
                 for (int j = 0; j < HTTP_METHODS.length; j++) {
                     if (HTTPMethods[i].equals(HTTP_METHODS[j])) {
-                        mask |= HTTP_MASKS[j];
-                        found = true;
+                        tmpMask |= HTTP_MASKS[j];
 
                         break;
                     }
                 }
-                if (!found) throw new IllegalArgumentException("Invalid HTTPMethodSpec");
+                if (tmpMask == 0) throw new IllegalArgumentException("Invalid HTTPMethodSpec");
             }
+            this.mask = tmpMask;
         }
 
         if (parseTransportType) {
-            if (transportType.length() == 0 || transportType.equals("NONE")) {
-                transport = NONE;
-            } else if (transportType.equals("INTEGRAL")) {
-                transport = INTEGRAL;
-            } else if (transportType.equals("CONFIDENTIAL")) {
-                transport = CONFIDENTIAL;
+            if (transport.length() == 0 || transport.equals("NONE")) {
+                this.transport = NONE;
+            } else if (transport.equals("INTEGRAL")) {
+                this.transport = INTEGRAL;
+            } else if (transport.equals("CONFIDENTIAL")) {
+                this.transport = CONFIDENTIAL;
             } else {
-                throw new IllegalArgumentException("Invalid transportType");
+                throw new IllegalArgumentException("Invalid transport");
             }
         } else {
-            transport = NONE;
+            this.transport = NONE;
         }
+    }
+
+    public HTTPMethodSpec(String singleMethod, int transport) {
+        int tmpMask = 0;
+
+        for (int j = 0; j < HTTP_METHODS.length; j++) {
+            if (HTTP_METHODS[j].equals(singleMethod)) {
+                tmpMask = HTTP_MASKS[j];
+
+                break;
+            }
+        }
+        if (tmpMask == 0) throw new IllegalArgumentException("Invalid HTTPMethodSpec");
+        this.mask = tmpMask;
+        this.transport = transport;
     }
 
     public boolean equals(HTTPMethodSpec o) {
@@ -157,14 +167,12 @@ class HTTPMethodSpec {
                 }
             }
 
-            if (transport != NONE) {
-                buffer.append(":");
-                if (transport == INTEGRAL) {
-                    buffer.append("INTEGRAL");
-                } else {
-                    buffer.append("CONFIDENTIAL");
-                }
+            if (transport == INTEGRAL) {
+                buffer.append(":INTEGRAL");
+            } else if (transport == CONFIDENTIAL) {
+                buffer.append(":CONFIDENTIAL");
             }
+
             actions = buffer.toString();
         }
         return actions;

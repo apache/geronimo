@@ -30,11 +30,11 @@ import java.util.LinkedList;
  *
  * @version $Rev$ $Date$
  */
-class URLPatternSpec {
+final class URLPatternSpec {
 
-    private String pattern;
-    private URLPattern first;
-    private LinkedList qualifiers = new LinkedList();
+    private final String pattern;
+    private final URLPattern first;
+    private final LinkedList qualifiers = new LinkedList();
 
     public URLPatternSpec(String name) {
         if (name == null) throw new java.lang.IllegalArgumentException("URLPatternSpec cannot be null");
