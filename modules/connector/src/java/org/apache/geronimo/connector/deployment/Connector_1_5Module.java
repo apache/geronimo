@@ -107,7 +107,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/02/10 19:59:14 $
+ * @version $Revision: 1.9 $ $Date: 2004/02/19 23:16:06 $
  *
  * */
 public class Connector_1_5Module extends AbstractConnectorModule {
@@ -140,14 +140,21 @@ public class Connector_1_5Module extends AbstractConnectorModule {
         }
         ObjectName resourceAdapterObjectName = null;
         GBeanInfoFactory resourceAdapterInfoFactory = new GBeanInfoFactory(ResourceAdapterWrapper.class.getName(), ResourceAdapterWrapper.getGBeanInfo());
-        GBeanMBean resourceAdapterGBean = setUpDynamicGBean(resourceAdapterInfoFactory, resourceadapter.getConfigPropertyArray(), geronimoResourceAdapter.getConfigPropertySettingArray());
+        GBeanMBean resourceAdapterGBean = setUpDynamicGBean(resourceAdapterInfoFactory, resourceadapter.getConfigPropertyArray(), geronimoResourceAdapter.getResourceadapterInstance().getConfigPropertySettingArray());
         try {
             resourceAdapterGBean.setAttribute("ResourceAdapterClass", cl.loadClass(resourceAdapterClassName));
         } catch (Exception e) {
             throw new DeploymentException(e);
         }
+        ObjectName bootstrapContextObjectName = null;
         try {
-            resourceAdapterObjectName = ObjectName.getInstance(BASE_RESOURCE_ADAPTER_NAME + geronimoResourceAdapter.getResourceadapterName() + ",configID=" + configID);
+            bootstrapContextObjectName = ObjectName.getInstance(geronimoResourceAdapter.getResourceadapterInstance().getBootstrapcontextName().getStringValue());
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Could not create object name for bootstrap context", e);
+        }
+        resourceAdapterGBean.setReferencePatterns("BootstrapContext", Collections.singleton(bootstrapContextObjectName));
+        try {
+            resourceAdapterObjectName = ObjectName.getInstance(BASE_RESOURCE_ADAPTER_NAME + geronimoResourceAdapter.getResourceadapterInstance().getResourceadapterName() + ",configID=" + configID);
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("Could not construct resource adapter object name", e);
         }

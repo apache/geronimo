@@ -101,13 +101,14 @@ import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
+import org.apache.geronimo.xbeans.geronimo.GerResourceadapterInstanceType;
 import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/02/18 20:57:08 $
+ * @version $Revision: 1.9 $ $Date: 2004/02/19 23:16:06 $
  *
  * */
 public class Connector_1_5Test extends TestCase implements ConfigurationCallback {
@@ -194,8 +195,9 @@ public class Connector_1_5Test extends TestCase implements ConfigurationCallback
         InputStream is = new ByteArrayInputStream(bytes);
         GerConnectorDocument gcDoc = GerConnectorDocument.Factory.parse(is);
         GerResourceadapterType ra = gcDoc.getConnector().getResourceadapter();
-        assertEquals("TestRAName", ra.getResourceadapterName());
-        GerConfigPropertySettingType rasetting = ra.getConfigPropertySettingArray(0);
+        GerResourceadapterInstanceType rai = ra.getResourceadapterInstance();
+        assertEquals("TestRAName", rai.getResourceadapterName());
+        GerConfigPropertySettingType rasetting = rai.getConfigPropertySettingArray(0);
         assertEquals("TestRAValue", rasetting.getStringValue());
 
         //admin object

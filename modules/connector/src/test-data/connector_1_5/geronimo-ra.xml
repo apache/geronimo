@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee" version="1.5">
     <resourceadapter>
-        <resourceadapter-name>testRA</resourceadapter-name>
-        <config-property-setting name="RAStringProperty">NewStringValue</config-property-setting>
-        <bootstrapcontext-name>geronimo.jca:service=bootstrapcontext</bootstrapcontext-name>
+        <resourceadapter-instance>
+            <resourceadapter-name>testRA</resourceadapter-name>
+            <config-property-setting name="RAStringProperty">NewStringValue</config-property-setting>
+            <bootstrapcontext-name>geronimo.jca:service=bootstrapcontext</bootstrapcontext-name>
+        </resourceadapter-instance>
         <outbound-resourceadapter>
             <connection-definition>
                 <connectionfactory-interface>javax.resource.cci.ConnectionFactory</connectionfactory-interface>
@@ -36,7 +38,7 @@
                         <useTransactionCaching>true</useTransactionCaching>
                         <useConnectionRequestInfo>false</useConnectionRequestInfo>
                         <useSubject>true</useSubject>
-                     </connectionmanager>
+                    </connectionmanager>
                 </connectiondefinition-instance>
             </connection-definition>
             <connection-definition>

@@ -252,9 +252,7 @@
     <xsd:complexType name="connectorType">
         <xsd:annotation>
             <xsd:documentation>
-
                 The connectorType defines a resource adapter.
-
             </xsd:documentation>
         </xsd:annotation>
 
@@ -346,13 +344,8 @@
     <xsd:complexType name="resourceadapterType">
 
         <xsd:sequence>
-            <xsd:element name="resourceadapter-name" type="xsd:string"/>
-            <xsd:element name="config-property-setting"
-                type="ger:config-property-settingType"
-                minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="bootstrapcontext-name"
-                type="j2ee:string"
+            <xsd:element name="resourceadapter-instance"
+                type="ger:resourceadapter-instanceType"
                 minOccurs="0"/>
             <xsd:element name="outbound-resourceadapter"
                 type="ger:outbound-resourceadapterType"
@@ -362,6 +355,24 @@
                 type="ger:adminobjectType"
                 minOccurs="0"
                 maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="resourceadapter-instanceType">
+        <xsd:annotation>
+            <xsd:documentation>
+                The resourceadapter instance info is put in a separate optional element
+                to provide easier more consistent support for 1.0 adapters.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="resourceadapter-name" type="xsd:string"/>
+            <xsd:element name="config-property-setting"
+                type="ger:config-property-settingType"
+                minOccurs="0"
+                maxOccurs="unbounded"/>
+            <xsd:element name="bootstrapcontext-name"
+                type="j2ee:string"/>
         </xsd:sequence>
     </xsd:complexType>
 

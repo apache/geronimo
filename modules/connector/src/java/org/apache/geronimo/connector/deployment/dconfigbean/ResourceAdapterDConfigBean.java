@@ -69,13 +69,14 @@ import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
 import org.apache.geronimo.xbeans.geronimo.GerOutboundResourceadapterType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
+import org.apache.geronimo.xbeans.geronimo.GerResourceadapterInstanceType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/18 20:57:07 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/19 23:16:06 $
  *
  * */
 public class ResourceAdapterDConfigBean extends DConfigBeanSupport {
@@ -91,13 +92,19 @@ public class ResourceAdapterDConfigBean extends DConfigBeanSupport {
 
     public ResourceAdapterDConfigBean(DDBean ddBean, final GerResourceadapterType resourceadapter) {
         super(ddBean, resourceadapter, SCHEMA_TYPE_LOADER);
+        if (getResourceadapterInstance() == null) {
+            resourceadapter.addNewResourceadapterInstance();
+        }
+        if (getResourceadapterInstance().getBootstrapcontextName() == null) {
+            getResourceadapterInstance().addNewBootstrapcontextName();
+        }
         ConfigPropertiesHelper.initializeConfigSettings(ddBean, new ConfigPropertiesHelper.ConfigPropertiesSource() {
             public GerConfigPropertySettingType[] getConfigPropertySettingArray() {
-                return resourceadapter.getConfigPropertySettingArray();
+                return getResourceadapterInstance().getConfigPropertySettingArray();
             }
 
             public GerConfigPropertySettingType addNewConfigPropertySetting() {
-                return resourceadapter.addNewConfigPropertySetting();
+                return getResourceadapterInstance().addNewConfigPropertySetting();
             }
 
             public void removeConfigPropertySetting(int j) {
@@ -177,12 +184,24 @@ public class ResourceAdapterDConfigBean extends DConfigBeanSupport {
         return (GerResourceadapterType)getXmlObject();
     }
 
+    private GerResourceadapterInstanceType getResourceadapterInstance() {
+        return getResourceadapter().getResourceadapterInstance();
+    }
+
     public String getResourceAdapterName() {
-        return getResourceadapter().getResourceadapterName();
+        return getResourceadapterInstance().getResourceadapterName();
     }
 
     public void setResourceAdapterName(String resourceAdapterName) {
-        getResourceadapter().setResourceadapterName(resourceAdapterName);
+        getResourceadapterInstance().setResourceadapterName(resourceAdapterName);
+    }
+
+    public String getBootstrapContext() {
+        return getResourceadapterInstance().getBootstrapcontextName().getStringValue();
+    }
+
+    public void setBootstrapContext(String bootstrapContext) {
+        getResourceadapterInstance().getBootstrapcontextName().setStringValue(bootstrapContext);
     }
 
     public DConfigBean getDConfigBean(DDBean bean) throws ConfigurationException {
