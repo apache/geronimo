@@ -105,7 +105,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
             throw new DeploymentException("Invalid webservice endpoint URI", e);
         }
 
-        AxisWebServiceContainer axisWebServiceContainer = new AxisWebServiceContainer(location, wsdlURL, service);
+        AxisWebServiceContainer axisWebServiceContainer = new AxisWebServiceContainer(location, wsdlURL, service, classLoader);
         targetGBean.setAttribute("webServiceContainer", axisWebServiceContainer);
     }
 

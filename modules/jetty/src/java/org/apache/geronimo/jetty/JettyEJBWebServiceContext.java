@@ -21,6 +21,7 @@ import java.io.OutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -130,12 +131,12 @@ public class JettyEJBWebServiceContext extends HttpContext implements HttpHandle
             return request.getField(name);
         }
 
-        public URL getURI() {
-            // TODO getURI should return a URI
+        public java.net.URI getURI() {
             try {
-                URI uri = request.getURI();
-                return new URL(uri.toString());
-            } catch (MalformedURLException e) {
+                String uriString = request.getURI().toString();
+                //return new java.net.URI(uri.getScheme(),uri.getHost(),uri.getPath(),uri.);
+                return new java.net.URI(uriString);
+            } catch (URISyntaxException e) {
                 throw new IllegalStateException(e.getMessage());
             }
         }

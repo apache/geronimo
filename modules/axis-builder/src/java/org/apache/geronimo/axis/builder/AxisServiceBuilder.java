@@ -43,6 +43,7 @@ import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointMethodMappingType;
+import org.apache.geronimo.axis.server.ReadOnlyServiceDesc;
 import org.apache.xmlbeans.SchemaType;
 
 /**
@@ -87,8 +88,9 @@ public class AxisServiceBuilder {
     }
 
     public static JavaServiceDesc createServiceDesc(PortInfo portInfo, ClassLoader classLoader) throws DeploymentException {
+
         Port port = portInfo.getPort();
-        System.out.println("port = " + port);
+//        System.out.println("port = " + port);
 
         Class serviceEndpointInterface = null;
         try {
@@ -145,6 +147,8 @@ public class AxisServiceBuilder {
         } else {
             buildHeavyweightTypes(javaXmlTypeMappings, classLoader, schemaTypeKeyToSchemaTypeMap, typeMapping);
         }
+
+        serviceDesc.getOperations();
         return new ReadOnlyServiceDesc(serviceDesc);
     }
 

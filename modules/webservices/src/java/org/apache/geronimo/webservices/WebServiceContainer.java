@@ -76,7 +76,7 @@ public interface WebServiceContainer {
 
         String getHeader(String name);
 
-        URL getURI();
+        URI getURI();
 
         String getHost();
 

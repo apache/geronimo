@@ -48,17 +48,20 @@ public class AxisWebServiceContainer implements WebServiceContainer {
     public static final String XSD_NS = "http://www.w3.org/2001/XMLSchema";
     protected final URI location;
     protected final URL wsdlURL;
-    protected final SOAPService service;
+    protected final SOAPService service;  //TODO why did i make these protected?
+    private final ClassLoader classLoader;
 
-    public AxisWebServiceContainer(URI location, URL wsdlURL, SOAPService service) {
+    public AxisWebServiceContainer(URI location, URL wsdlURL, SOAPService service, ClassLoader classLoader) {
         this.location = location;
         this.wsdlURL = wsdlURL;
         this.service = service;
+        this.classLoader = classLoader;
     }
 
     public void invoke(Request req, Response res) throws Exception {
         org.apache.axis.MessageContext context = new org.apache.axis.MessageContext(null);
-
+        context.setClassLoader(classLoader);
+        
         Message responseMessage = null;
 
         String contentType = req.getHeader(HTTPConstants.HEADER_CONTENT_TYPE);
@@ -175,7 +178,7 @@ public class AxisWebServiceContainer implements WebServiceContainer {
             in = wsdlURL.openStream();
             byte[] buffer = new byte[1024];
             for (int read = in.read(buffer); read > 0; read = in.read(buffer)) {
-                System.out.write(buffer, 0, read);
+//                System.out.write(buffer, 0, read);
                 out.write(buffer, 0, read);
             }
         } finally {

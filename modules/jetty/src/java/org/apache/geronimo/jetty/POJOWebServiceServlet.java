@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.Servlet;
@@ -99,12 +100,11 @@ public class POJOWebServiceServlet implements Servlet {
             return request.getHeader(name);
         }
 
-        public URL getURI() {
-            // TODO getURI should return a URI
+        public java.net.URI getURI() {
             try {
-                URI uri = new URI(request.getRequestURI());
-                return new URL(uri.toString());
-            } catch (MalformedURLException e) {
+                String uriString = request.getRequestURI();
+                return new java.net.URI(uriString);
+            } catch (URISyntaxException e) {
                 throw new IllegalStateException(e.getMessage());
             }
         }
