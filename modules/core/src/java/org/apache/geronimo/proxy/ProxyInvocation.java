@@ -60,12 +60,12 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.lang.reflect.Method;
 
-import org.apache.geronimo.common.Invocation;
-import org.apache.geronimo.common.SimpleInvocation;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.SimpleInvocation;
 import org.apache.geronimo.remoting.*;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/28 05:12:10 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/08 04:31:39 $
  */
 final public class ProxyInvocation extends SimpleInvocation {
 
@@ -74,7 +74,7 @@ final public class ProxyInvocation extends SimpleInvocation {
     Object proxy;
 
     /* (non-Javadoc)
-     * @see org.apache.geronimo.common.SimpleInvocation#writeExternal(java.io.ObjectOutput)
+     * @see org.apache.geronimo.core.service.SimpleInvocation#writeExternal(java.io.ObjectOutput)
      */
     public void writeExternal(ObjectOutput out) throws IOException {
         super.writeExternal(out);
@@ -83,7 +83,7 @@ final public class ProxyInvocation extends SimpleInvocation {
     }
 
     /**
-     * @see org.apache.geronimo.common.SimpleInvocation#readExternal(java.io.ObjectInput)
+     * @see org.apache.geronimo.core.service.SimpleInvocation#readExternal(java.io.ObjectInput)
      */
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         super.readExternal(in);

@@ -59,11 +59,11 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-import org.apache.geronimo.common.Invocation;
-import org.apache.geronimo.common.InvocationResult;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationResult;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/25 03:14:46 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/08 04:31:39 $
  */
 public class ProxyContainer extends SimpleRPCContainer implements InvocationHandler {
 

@@ -61,14 +61,14 @@ import java.util.Map;
 
 import javax.management.ObjectName;
 
-import org.apache.geronimo.common.Component;
-import org.apache.geronimo.common.Interceptor;
-import org.apache.geronimo.common.Invocation;
-import org.apache.geronimo.common.InvocationResult;
-import org.apache.geronimo.common.RPCContainer;
+import org.apache.geronimo.core.service.Component;
+import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.RPCContainer;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/26 22:11:24 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/08 04:31:39 $
  */
 public class SimpleRPCContainer extends SimpleContainer implements RPCContainer {
 
@@ -78,7 +78,7 @@ public class SimpleRPCContainer extends SimpleContainer implements RPCContainer 
     private Interceptor firstInterceptor;
 
     /**
-    * @see org.apache.geronimo.common.RPCContainer#invoke(org.apache.geronimo.common.Invocation)
+    * @see org.apache.geronimo.core.service.RPCContainer#invoke(org.apache.geronimo.core.service.Invocation)
     */
     public final InvocationResult invoke(Invocation invocation) throws Throwable {
         return firstInterceptor.invoke(invocation);

@@ -57,11 +57,11 @@ package org.apache.geronimo.proxy;
 
 import java.io.Serializable;
 
-import org.apache.geronimo.common.Component;
-import org.apache.geronimo.common.Container;
+import org.apache.geronimo.core.service.Component;
+import org.apache.geronimo.core.service.Container;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:25 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/08 04:31:39 $
  */
 public class SimpleComponent implements Component, Serializable {
 
@@ -69,14 +69,14 @@ public class SimpleComponent implements Component, Serializable {
     private String objectName;
 
     /**
-     * @see org.apache.geronimo.common.Component#getContainer()
+     * @see org.apache.geronimo.core.service.Component#getContainer()
      */
     public Container getContainer() {
         return container;
     }
 
     /**
-     * @see org.apache.geronimo.common.Component#setContainer(org.apache.geronimo.common.Container)
+     * @see org.apache.geronimo.core.service.Component#setContainer(org.apache.geronimo.core.service.Container)
      */
     public void setContainer(Container container) throws IllegalStateException, IllegalArgumentException {
         this.container = container;
@@ -84,7 +84,7 @@ public class SimpleComponent implements Component, Serializable {
     }
 
     /**
-     * @see org.apache.geronimo.common.Component#getObjectName()
+     * @see org.apache.geronimo.core.service.Component#getObjectName()
      */
     public String getObjectName() {
         return objectName;

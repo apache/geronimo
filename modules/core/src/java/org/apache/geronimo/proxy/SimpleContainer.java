@@ -60,19 +60,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.geronimo.common.Component;
-import org.apache.geronimo.common.Container;
+import org.apache.geronimo.core.service.Component;
+import org.apache.geronimo.core.service.Container;
 import org.apache.geronimo.common.NullArgumentException;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:25 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/08 04:31:39 $
  */
 public class SimpleContainer extends SimpleComponent implements Container {
 
     private ArrayList components = new ArrayList();
 
     /**
-     * @see org.apache.geronimo.common.Container#addComponent(org.apache.geronimo.common.Component)
+     * @see org.apache.geronimo.core.service.Container#addComponent(org.apache.geronimo.core.service.Component)
      */
     public void addComponent(Component component) {
         if (component == null)
@@ -82,14 +82,14 @@ public class SimpleContainer extends SimpleComponent implements Container {
     }
 
     /**
-     * @see org.apache.geronimo.common.Container#getComponents()
+     * @see org.apache.geronimo.core.service.Container#getComponents()
      */
     public List getComponents() {
         return Collections.unmodifiableList(components);
     }
 
     /**
-     * @see org.apache.geronimo.common.Container#removeComponent(org.apache.geronimo.common.Component)
+     * @see org.apache.geronimo.core.service.Container#removeComponent(org.apache.geronimo.core.service.Component)
      */
     public void removeComponent(Component component) throws Exception {
         if (component == null)
