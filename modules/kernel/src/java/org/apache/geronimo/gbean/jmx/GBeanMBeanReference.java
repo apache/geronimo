@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServerNotification;
@@ -43,7 +44,7 @@ import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.ClassLoading;
 
 /**
- * @version $Revision: 1.10 $ $Date: 2004/06/24 01:46:30 $
+ * @version $Revision: 1.11 $ $Date: 2004/07/18 22:05:11 $
  */
 public class GBeanMBeanReference implements NotificationListener {
     private static final Log log = LogFactory.getLog(GBeanMBeanReference.class);
@@ -130,9 +131,17 @@ public class GBeanMBeanReference implements NotificationListener {
         if (!gmbean.isOffline()) {
             throw new IllegalStateException("Pattern set can not be modified while online");
         }
-        if (patterns == null) {
+        if (patterns == null || patterns.isEmpty() || (patterns.size() == 1 && patterns.iterator().next() == null)) {
             this.patterns = Collections.EMPTY_SET;
         } else {
+            patterns = new HashSet(patterns);
+            for (Iterator iterator = this.patterns.iterator(); iterator.hasNext();) {
+                if (iterator.next() == null) {
+                    iterator.remove();
+                    //there can be at most one null value in a set.
+                    break;
+                }
+            }
             this.patterns = Collections.unmodifiableSet(patterns);
         }
     }
