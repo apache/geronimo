@@ -38,6 +38,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 import javax.transaction.UserTransaction;
+import javax.xml.namespace.QName;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
@@ -76,8 +77,14 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
+import org.apache.geronimo.xbeans.j2ee.ServletMappingType;
+import org.apache.geronimo.xbeans.j2ee.FilterMappingType;
+import org.apache.geronimo.xbeans.j2ee.SecurityConstraintType;
+import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
+
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlCursor;
 
 
 /**
@@ -118,6 +125,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             return null;
         }
 
+        checkURLPattern(webApp);
 
         // parse vendor dd
         JettyWebAppType jettyWebApp = getJettyWebApp(plan, moduleFile, standAlone, targetPath, webApp);
@@ -510,6 +518,32 @@ public class JettyModuleBuilder implements ModuleBuilder {
             }
         }
         return uri;
+    }
+
+    private static void checkURLPattern(WebAppType webApp) throws DeploymentException {
+
+        FilterMappingType[] filterMappings = webApp.getFilterMappingArray();
+        for (int i = 0; i < filterMappings.length; i++) {
+            checkString(filterMappings[i].getUrlPattern().getStringValue());
+        }
+
+        ServletMappingType[] servletMappings = webApp.getServletMappingArray();
+        for (int i = 0; i < servletMappings.length; i++) {
+            checkString(servletMappings[i].getUrlPattern().getStringValue());
+        }
+
+        SecurityConstraintType[] constraints = webApp.getSecurityConstraintArray();
+        for (int i = 0; i < constraints.length; i++) {
+            WebResourceCollectionType[] collections  = constraints[i].getWebResourceCollectionArray();
+            for (int j = 0; j < collections.length; j++) {
+                checkString(collections[j].addNewUrlPattern().getStringValue());
+            }
+        }
+    }
+
+    private static void checkString(String pattern)throws DeploymentException {
+        if (pattern.indexOf(0x0D) >= 0) throw new DeploymentException("<url-pattern> must not contain CR(#xD)");
+        if (pattern.indexOf(0x0A) >= 0) throw new DeploymentException("<url-pattern> must not contain LF(#xA)");
     }
 
     public static final GBeanInfo GBEAN_INFO;
