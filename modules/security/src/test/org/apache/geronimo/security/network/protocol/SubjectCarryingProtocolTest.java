@@ -21,7 +21,6 @@ import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
-
 import java.io.File;
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -29,8 +28,8 @@ import java.nio.ByteBuffer;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Collections;
+import java.util.Properties;
 
 import EDU.oswego.cs.dl.util.concurrent.Latch;
 import com.sun.security.auth.login.ConfigFile;
@@ -59,7 +58,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
 /**
- * @version $Revision: 1.9 $ $Date: 2004/05/30 01:27:36 $
+ * @version $Revision: 1.10 $ $Date: 2004/05/30 18:39:12 $
  */
 public class SubjectCarryingProtocolTest extends AbstractTest {
 
@@ -293,7 +292,7 @@ public class SubjectCarryingProtocolTest extends AbstractTest {
         gbean.setAttribute("JAASId", "properties");
         gbean.setAttribute("RealmName", "properties-realm");
         gbean.setAttribute("ControlFlag", LoginModuleControlFlag.REQUIRED);
-        gbean.setAttribute("Options", new HashMap());
+        gbean.setAttribute("Options", new Properties());
         kernel.loadGBean(propertiesCE, gbean);
 
         kernel.startGBean(propertiesRealm);

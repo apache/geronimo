@@ -22,8 +22,7 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-
-import java.util.HashMap;
+import java.util.Properties;
 
 import com.sun.security.auth.login.ConfigFile;
 
@@ -37,7 +36,7 @@ import org.apache.geronimo.security.RealmPrincipal;
  * An example of how to setup non-Geronimo login modules when the
  * <code>GeronimoLoginConfiguration</code> has been installed in the JVM.
  *
- * @version $Revision: 1.3 $ $Date: 2004/05/30 01:27:36 $
+ * @version $Revision: 1.4 $ $Date: 2004/05/30 18:39:40 $
  * @see org.apache.geronimo.security.jaas.GeronimoLoginConfiguration
  * @see javax.security.auth.login.Configuration
  */
@@ -57,7 +56,7 @@ public class LoginKerberosNonGeronimoTest extends AbstractTest {
 
         super.setUp();
 
-        HashMap options = new HashMap();
+        Properties options = new Properties();
         options.put("debug", "true");
         options.put("useTicketCache", "true");
         options.put("doNotPrompt", "true");

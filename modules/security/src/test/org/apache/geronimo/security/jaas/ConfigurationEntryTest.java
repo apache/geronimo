@@ -21,11 +21,10 @@ import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
-
 import java.io.File;
 import java.net.URI;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.Properties;
 
 import com.sun.security.auth.login.ConfigFile;
 import junit.framework.TestCase;
@@ -40,9 +39,10 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/05/30 01:27:36 $
+ * @version $Revision: 1.6 $ $Date: 2004/05/30 18:39:40 $
  */
 public class ConfigurationEntryTest extends TestCase {
+
     protected Kernel kernel;
     protected ObjectName serverInfo;
     protected ObjectName loginService;
@@ -102,7 +102,7 @@ public class ConfigurationEntryTest extends TestCase {
         gbean.setAttribute("JAASId", "properties");
         gbean.setAttribute("RealmName", "properties-realm");
         gbean.setAttribute("ControlFlag", LoginModuleControlFlag.REQUIRED);
-        gbean.setAttribute("Options", new HashMap());
+        gbean.setAttribute("Options", new Properties());
         kernel.loadGBean(testCE, gbean);
 
         gbean = new GBeanMBean("org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm");
