@@ -61,8 +61,10 @@
 		  -->
 		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/geronimo/jars"
 		      file="target/${maven.final.name}.jar"/>
-                <copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/tomcat/jars">
-		      <fileset dir="${maven.repo.local}/tomcat/jars" includes="*-&tomcat-version;.jar"/>
+		      <copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/tomcat/jars">
+		      <!-- Don't want to break the other modules that rely on the libs -->
+		      <!-- fileset dir="${maven.repo.local}/tomcat/jars" includes="*-&tomcat-version;.jar"/ -->
+		      <fileset dir="${maven.repo.local}/tomcat/jars" includes="*-5.5.4.jar"/>
 		</copy>
 		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/commons-beanutils/jars"
 		      file="${maven.repo.local}/commons-beanutils/jars/commons-beanutils-&commons-beanutils-version;.jar"/>
