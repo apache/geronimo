@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @version $Revision: 1.20 $ $Date: 2004/06/02 05:33:03 $
+ * @version $Revision: 1.21 $ $Date: 2004/07/11 20:56:41 $
  */
 public class GBeanInfoFactory {
     private static final Class[] NO_ARGS = {};
@@ -66,6 +66,14 @@ public class GBeanInfoFactory {
         this(checkNotNull(clazz).getName(), clazz.getName(), source);
     }
 
+    public GBeanInfoFactory(String name, GBeanInfo source) {
+        this(checkNotNull(name), name, source);
+    }
+
+    public GBeanInfoFactory(String name, ClassLoader cl) {
+        this(checkNotNull(name), name, GBeanInfo.getGBeanInfo(name, cl));
+    }
+
     public GBeanInfoFactory(String name, Class clazz, GBeanInfo source) {
         this(name, checkNotNull(clazz).getName(), source);
     }
@@ -101,7 +109,7 @@ public class GBeanInfoFactory {
     /**
      * Checks whether or not the input argument is null; otherwise it throws
      * {@link IllegalArgumentException}.
-     * 
+     *
      * @param clazz the input argument to validate
      * @throws IllegalArgumentException if input is null
      */
@@ -115,7 +123,7 @@ public class GBeanInfoFactory {
     /**
      * Checks whether or not the input argument is null; otherwise it throws
      * {@link IllegalArgumentException}.
-     * 
+     *
      * @param string the input argument to validate
      * @throws IllegalArgumentException if input is null
      */
