@@ -74,16 +74,14 @@ import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
  * into the same abstract base.
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/04 14:18:06 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/04 14:35:06 $
  */
 public abstract class
   Tier
-  implements GeronimoMBeanTarget
+  extends MBeanImpl
 {
-  protected static Log  _log=LogFactory.getLog(Tier.class);
-  protected ObjectName  _objectName;
+  protected Log         _log=LogFactory.getLog(Tier.class);
   protected Node        _node;
-  protected MBeanServer _server;
   protected Data        _data;
   protected Map         _tiers;
   protected Object      _tier;
@@ -106,14 +104,6 @@ public abstract class
   {
     return new ObjectName("geronimo.clustering:role=Tier,name="+tierName+",node="+nodeName+",cluster="+clusterName);
   }
-
-  /**
-   * Return a local reference to this Object. For tight coupling via
-   * JMX (bad idea?).
-   *
-   * @return a <code>Tier</code> value
-   */
-  public Tier getReference(){return this;}
 
   //----------------------------------------
   // GeronimoMBeanTarget
@@ -153,8 +143,6 @@ public abstract class
     return true;
   }
 
-  public boolean canStop() {return true;}
-
   public synchronized void
     doStart()
   {
@@ -177,34 +165,15 @@ public abstract class
     }
   }
 
-  public void
-    doStop()
-  {
-    // TODO
-  }
-
-  public void doFail() {}
-
-  public void
-    setMBeanContext(GeronimoMBeanContext context)
-  {
-    _objectName=(context==null)?null:context.getObjectName();
-    _server    =(context==null)?null:context.getServer();
-  }
-
   public static GeronimoMBeanInfo
     getGeronimoMBeanInfo()
   {
-    GeronimoMBeanInfo mbeanInfo=new GeronimoMBeanInfo();
+    GeronimoMBeanInfo mbeanInfo=MBeanImpl.getGeronimoMBeanInfo();
     //set target class in concrete subclass
     mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Reference",   true, false, "a local reference to this Tier"));
     mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Name",        true, false, "Name of this Tier"));
     mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("NodeName",    true, false, "Name of this Tier's Node"));
     mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ClusterName", true, false, "Name of this Tier's Node's Cluster"));
-    mbeanInfo.addOperationInfo(new GeronimoOperationInfo("registerData",
-							 new GeronimoParameterInfo[] {new GeronimoParameterInfo("uid", String.class, "uid of webapp"),new GeronimoParameterInfo("data", Object.class, "data to be held")},
-							 MBeanOperationInfo.ACTION,
-							 "Register data with Tier state manager"));
     return mbeanInfo;
   }
 }

@@ -73,11 +73,11 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
  * every other node and CleverCluster, which automagically partitions
  * data into SubClusters etc...
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/04 14:18:06 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/04 14:35:06 $
  */
 public abstract class
   Cluster
-  implements GeronimoMBeanTarget
+  extends MBeanImpl
 {
   protected Log _log=LogFactory.getLog(Cluster.class);
 
@@ -87,9 +87,6 @@ public abstract class
   {
     return new ObjectName("geronimo.clustering:role=Cluster,name="+clusterName);
   }
-
-  protected ObjectName 	_objectName;
-  protected MBeanServer _server;
 
   /**
    * Return current Cluster members.
@@ -114,14 +111,6 @@ public abstract class
    */
   public abstract void leave(Object member);
 
-  /**
-   * Return a local reference to this Object. For tight coupling via
-   * JMX (bad idea?).
-   *
-   * @return a <code>Cluster</code> value
-   */
-  public Cluster getReference(){return this;}
-
   //----------------------------------------
   // GeronimoMBeanTarget
   //----------------------------------------
@@ -137,8 +126,6 @@ public abstract class
 
     return true;
   }
-
-  public boolean canStop(){return true;}
 
   public void
     doStart()
@@ -159,19 +146,11 @@ public abstract class
     _log.debug("failing");
   }
 
-  public void
-    setMBeanContext(GeronimoMBeanContext context)
-  {
-    _objectName=(context==null)?null:context.getObjectName();
-    _server    =(context==null)?null:context.getServer();
-  }
-
   public static GeronimoMBeanInfo
     getGeronimoMBeanInfo()
   {
-    GeronimoMBeanInfo mbeanInfo=new GeronimoMBeanInfo();
+    GeronimoMBeanInfo mbeanInfo=MBeanImpl.getGeronimoMBeanInfo();
     // set target class in concrete subclasses...
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Reference", true, false, "a local reference to this Cluster"));
     return mbeanInfo;
   }
 }

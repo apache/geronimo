@@ -55,12 +55,8 @@
  */
 package org.apache.geronimo.clustering;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
@@ -69,127 +65,51 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 
 /**
- * A uniquely identifiable n->n intra-vm event-raising communications
- * channel. A number of nodes which are part of the same cluster and
- * reside in the same VM should share a single Cluster object.
+ * A base class containing fnality useful to the MBeans of the
+ * Clustering module.
  *
- * @version $Revision: 1.12 $ $Date: 2004/01/04 14:35:06 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/04 14:35:06 $
  */
-public class
-  LocalCluster
-  extends Cluster
+public abstract class
+  MBeanImpl
+  implements GeronimoMBeanTarget
 {
-  protected Log  _log=LogFactory.getLog(LocalCluster.class);
-  protected List _members=new Vector();
-
-  public List getMembers(){synchronized (_members){return Collections.unmodifiableList(_members);}}
-
-  // MetaData
+  protected Log         _log=LogFactory.getLog(MBeanImpl.class);
+  protected ObjectName  _objectName;
+  protected MBeanServer _server;
 
   /**
-   * Notify interested Cluster members of a change in membership,
-   * including the node which generated it.
+   * Return a local reference to this Object. For tight coupling via
+   * JMX (bad idea?).
    *
-   * @param members a <code>List</code> value
+   * @return a <code>Object</code> value
    */
-  protected void
-    notifyMembershipChanged(List members)
-  {
-    for (Iterator i=members.iterator(); i.hasNext();)
-      try
-      {
-	Object member=i.next();
-	if (member instanceof MetaDataListener)
-	  ((MetaDataListener)member).setMetaData(members);
-      }
-      catch (Exception e)
-      {
-	_log.warn("problem notifying membership changed", e);
-      }
-  }
+  public Object getReference(){return this;}
+
+  //----------------------------------------
+  // GeronimoMBeanTarget
+  //----------------------------------------
+
+  public boolean canStart(){return true;}
+  public boolean canStop(){return true;}
+
+  public void doStart(){}
+  public void doStop(){}
+  public void doFail(){}
 
   public void
-    join(Object member)
+    setMBeanContext(GeronimoMBeanContext context)
   {
-    // first one in could turn on the lights...
-    synchronized (_members)
-    {
-      _members.add(member);
-      notifyMembershipChanged(_members);
-    }
-  }
-
-  public void
-    leave(Object member)
-  {
-    synchronized (_members)
-    {
-      _members.remove(member);
-      notifyMembershipChanged(_members);
-    }
-
-    // last one out could turn off the lights...
-  }
-
-  // Data
-
-  /**
-   * Get the Cluster's Data - uses an election policy (currently
-   * hardwired) to decide which node to get it from.
-   *
-   * @return a <code>Data</code> value - The data
-   */
-  public synchronized Data
-    getData()
-  {
-    // TODO - we need a pluggable election policy to decide who will
-    // be asked for state...
-
-    synchronized (_members)
-    {
-      if (_members.isEmpty())
-	return null;
-      else
-      {
-	for (Iterator i=_members.iterator(); i.hasNext();)
-	{
-	  Object member=i.next();
-	  // TODO - we need to do a deep copy of the state here -
-	  // serialise and deserialise...
-	  if (member instanceof DataListener)
-	    return ((DataListener)member).getData();
-	}
-	return null;
-      }
-    }
-  }
-
-  /**
-   * Apply the given delta to all interested members of the cluster,
-   * excluding the member which generated it.
-   *
-   * @param l a <code>DataDeltaListener</code> value - The node that generated the delta
-   * @param delta a <code>DataDelta</code> value - The delta
-   */
-  public void
-    notifyDataDelta(DataDeltaListener l, DataDelta delta)
-  {
-    synchronized (_members)
-    {
-      for (Iterator i=_members.iterator(); i.hasNext();)
-      {
-	Object member=i.next();
-	if (member != l && member instanceof DataDeltaListener)
-	  ((DataDeltaListener)member).applyDataDelta(delta);
-      }
-    }
+    _objectName=(context==null)?null:context.getObjectName();
+    _server    =(context==null)?null:context.getServer();
   }
 
   public static GeronimoMBeanInfo
     getGeronimoMBeanInfo()
   {
-    GeronimoMBeanInfo mbeanInfo=Cluster.getGeronimoMBeanInfo();
-    mbeanInfo.setTargetClass(LocalCluster.class);
+    GeronimoMBeanInfo mbeanInfo=new GeronimoMBeanInfo();
+    // set target class in concrete subclasses...
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Reference", true, false, "a local reference to this Object"));
     return mbeanInfo;
   }
 }
