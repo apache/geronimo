@@ -71,6 +71,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
     private final Style defaultStyle;
     private final Map exceptionMap;
     private final Map complexTypeMap;
+    private final Map elementMap;
     private final ClassLoader classLoader;
 
     /* Keep track of in and out parameter names so we can verify that
@@ -80,13 +81,14 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
     private final Set outParamNames = new HashSet();
     private final Class serviceEndpointInterface;
 
-    public HeavyweightOperationDescBuilder(BindingOperation bindingOperation, JavaWsdlMappingType mapping, ServiceEndpointMethodMappingType methodMapping, Style defaultStyle, Map exceptionMap, Map complexTypeMap, ClassLoader classLoader, Class serviceEndpointInterface) throws DeploymentException {
+    public HeavyweightOperationDescBuilder(BindingOperation bindingOperation, JavaWsdlMappingType mapping, ServiceEndpointMethodMappingType methodMapping, Style defaultStyle, Map exceptionMap, Map complexTypeMap, Map elementMap, ClassLoader classLoader, Class serviceEndpointInterface) throws DeploymentException {
         super(bindingOperation);
         this.mapping = mapping;
         this.methodMapping = methodMapping;
         this.defaultStyle = defaultStyle;
         this.exceptionMap = exceptionMap;
         this.complexTypeMap = complexTypeMap;
+        this.elementMap = elementMap;
         this.classLoader = classLoader;
         this.serviceEndpointInterface = serviceEndpointInterface;
         BindingInput bindingInput = bindingOperation.getBindingInput();
@@ -123,7 +125,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         }
         built = true;
 
-        operationDesc.setName( operationName );
+        operationDesc.setName(operationName);
         
         // Set to 'document' or 'rpc'
         Style style = Style.getStyle(soapOperation.getStyle(), defaultStyle);
@@ -176,12 +178,12 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
             String args = "(";
             for (int i = 0; i < paramTypes.length; i++) {
                 args += paramTypes[i].getName();
-                if (i < paramTypes.length - 1){
+                if (i < paramTypes.length - 1) {
                     args += ",";
                 }
             }
             args += ")";
-            
+
             throw new DeploymentException("Mapping references non-existent method in service-endpoint: " + methodName + args);
         }
 
@@ -255,8 +257,20 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         } else {
             part = (Part) message.getOrderedParts(null).iterator().next();
         }
-        QName faultTypeQName = part.getElementName() == null ? part.getTypeName() : part.getElementName();
-        boolean isComplex = faultTypeQName != null && complexTypeMap.containsKey(faultTypeQName);
+        QName faultTypeQName;// = part.getElementName() == null ? part.getTypeName() : part.getElementName();
+        if (part.getElementName() == null) {
+            faultTypeQName = part.getTypeName();
+            if (faultTypeQName == null) {
+                throw new DeploymentException("Neither type nor element name supplied for part: " + part);
+            }
+        } else {
+            faultTypeQName = (QName) elementMap.get(part.getElementName());
+            if (faultTypeQName == null) {
+                throw new DeploymentException("Can not find type for: element: " + part.getElementName() + ", known elements: " + elementMap);
+            }
+        }
+        SchemaType complexType = (SchemaType) complexTypeMap.get(faultTypeQName);
+        boolean isComplex = complexType != null;
         FaultDesc faultDesc = new FaultDesc(faultQName, className, faultTypeQName, isComplex);
 
         //constructor parameters
@@ -264,7 +278,6 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
             if (!isComplex) {
                 throw new DeploymentException("ConstructorParameterOrder can only be set for complex types, not " + faultTypeQName);
             }
-            SchemaType complexType = (SchemaType) complexTypeMap.get(faultTypeQName);
             Map elementMap = new HashMap();
             SchemaProperty[] properties = complexType.getProperties();
             for (int i = 0; i < properties.length; i++) {
@@ -295,10 +308,10 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
                     } catch (ClassNotFoundException e) {
                         throw new DeploymentException("Could not load exception constructor parameter", e);
                     }
-                } else if (qnameToClassMap.containsKey(elementType)){
+                } else if (qnameToClassMap.containsKey(elementType)) {
                     javaElementType = (Class) qnameToClassMap.get(elementType);
                 } else {
-                    throw new DeploymentException("Unknown type: " +  elementType);
+                    throw new DeploymentException("Unknown type: " + elementType);
                 }
                 //todo faultTypeQName is speculative
                 //todo outheader might be true!
@@ -401,7 +414,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
             if (!wsdlMessageQName.equals(output.getQName())) {
                 throw new DeploymentException("QName of output message: " + output.getQName() +
                         " does not match mapping message QName: " + wsdlMessageQName + " for operation " + operationName);
-             }
+            }
             part = output.getPart(wsdlMessagePartName);
             if (part == null) {
                 throw new DeploymentException("No part for wsdlMessagePartName " + wsdlMessagePartName + " in output message for operation " + operationName);

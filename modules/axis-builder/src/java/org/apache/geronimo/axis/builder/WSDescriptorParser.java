@@ -521,6 +521,21 @@ public class WSDescriptorParser {
         return complexTypeMap;
     }
 
+    public static Map getElementToTypeMap(Map schemaTypeKeyToSchemaTypeMap) {
+        Map elementToTypeMap = new HashMap();
+        for (Iterator iterator = schemaTypeKeyToSchemaTypeMap.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            SchemaTypeKey key = (SchemaTypeKey) entry.getKey();
+            if (key.isElement()) {
+                QName elementQName = key.getqName();
+                SchemaType schemaType = (SchemaType) entry.getValue();
+                QName typeQName = schemaType.getName();
+                elementToTypeMap.put(elementQName, typeQName);
+            }
+        }
+        return elementToTypeMap;
+    }
+
     public static Map getExceptionMap(JavaWsdlMappingType mapping) {
         Map exceptionMap = new HashMap();
         if (mapping != null) {

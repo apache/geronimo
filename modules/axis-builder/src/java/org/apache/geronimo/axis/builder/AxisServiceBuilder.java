@@ -16,23 +16,6 @@
  */
 package org.apache.geronimo.axis.builder;
 
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.jar.JarFile;
-import java.io.Serializable;
-import javax.wsdl.*;
-import javax.wsdl.extensions.soap.SOAPAddress;
-import javax.wsdl.extensions.soap.SOAPBinding;
-import javax.wsdl.extensions.soap.SOAPBody;
-import javax.xml.namespace.QName;
-import javax.xml.rpc.handler.HandlerInfo;
-
 import org.apache.axis.constants.Style;
 import org.apache.axis.constants.Use;
 import org.apache.axis.description.JavaServiceDesc;
@@ -42,17 +25,26 @@ import org.apache.axis.encoding.SerializerFactory;
 import org.apache.axis.encoding.TypeMapping;
 import org.apache.axis.encoding.TypeMappingRegistryImpl;
 import org.apache.axis.encoding.ser.*;
+import org.apache.geronimo.axis.server.ReadOnlyServiceDesc;
+import org.apache.geronimo.axis.server.ServiceInfo;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.kernel.ClassLoading;
-import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
-import org.apache.geronimo.xbeans.j2ee.ServiceEndpointMethodMappingType;
-import org.apache.geronimo.xbeans.j2ee.PortComponentHandlerType;
-import org.apache.geronimo.xbeans.j2ee.ParamValueType;
-import org.apache.geronimo.xbeans.j2ee.XsdQNameType;
-import org.apache.geronimo.axis.server.ReadOnlyServiceDesc;
-import org.apache.geronimo.axis.server.ServiceInfo;
+import org.apache.geronimo.xbeans.j2ee.*;
 import org.apache.xmlbeans.SchemaType;
+
+import javax.wsdl.*;
+import javax.wsdl.extensions.soap.SOAPAddress;
+import javax.wsdl.extensions.soap.SOAPBinding;
+import javax.wsdl.extensions.soap.SOAPBody;
+import javax.xml.namespace.QName;
+import javax.xml.rpc.handler.HandlerInfo;
+import java.lang.String;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
+import java.util.jar.JarFile;
 
 /**
  * @version $Rev$ $Date$
@@ -158,7 +150,7 @@ public class AxisServiceBuilder {
         Map exceptionMap = WSDescriptorParser.getExceptionMap(portInfo.getJavaWsdlMapping());
         Map schemaTypeKeyToSchemaTypeMap = WSDescriptorParser.buildSchemaTypeKeyToSchemaTypeMap(portInfo.getDefinition());
         Map complexTypeMap = WSDescriptorParser.getComplexTypesInWsdl(schemaTypeKeyToSchemaTypeMap);
-
+        Map elementMap = WSDescriptorParser.getElementToTypeMap(schemaTypeKeyToSchemaTypeMap);
 
         JavaServiceDesc serviceDesc = new JavaServiceDesc();
 
@@ -187,7 +179,7 @@ public class AxisServiceBuilder {
             validateLightweightMapping(portInfo.getDefinition());
         }
 
-        buildOperations(binding, serviceEndpointInterface, isLightweight, portInfo, exceptionMap, complexTypeMap, classLoader, serviceDesc);
+        buildOperations(binding, serviceEndpointInterface, isLightweight, portInfo, exceptionMap, complexTypeMap, elementMap, classLoader, serviceDesc);
 
         TypeMappingRegistryImpl tmr = new TypeMappingRegistryImpl();
         tmr.doRegisterFromVersion("1.3");
@@ -304,7 +296,7 @@ public class AxisServiceBuilder {
         }
     }
 
-    private static void buildOperations(Binding binding, Class serviceEndpointInterface, boolean lightweight, PortInfo portInfo, Map exceptionMap, Map complexTypeMap, ClassLoader classLoader, JavaServiceDesc serviceDesc) throws DeploymentException {
+    private static void buildOperations(Binding binding, Class serviceEndpointInterface, boolean lightweight, PortInfo portInfo, Map exceptionMap, Map complexTypeMap, Map elementMap, ClassLoader classLoader, JavaServiceDesc serviceDesc) throws DeploymentException {
         List bindingOperations = binding.getBindingOperations();
         for (int i = 0; i < bindingOperations.size(); i++) {
             BindingOperation bindingOperation = (BindingOperation) bindingOperations.get(i);
@@ -317,7 +309,7 @@ public class AxisServiceBuilder {
                 String operationName = bindingOperation.getOperation().getName();
                 ServiceEndpointMethodMappingType[] methodMappings = portInfo.getServiceEndpointInterfaceMapping().getServiceEndpointMethodMappingArray();
                 ServiceEndpointMethodMappingType methodMapping = WSDescriptorParser.getMethodMappingForOperation(operationName, methodMappings);
-                operationDescBuilder = new HeavyweightOperationDescBuilder(bindingOperation, portInfo.getJavaWsdlMapping(), methodMapping, Style.RPC, exceptionMap, complexTypeMap, classLoader, serviceEndpointInterface);
+                operationDescBuilder = new HeavyweightOperationDescBuilder(bindingOperation, portInfo.getJavaWsdlMapping(), methodMapping, Style.RPC, exceptionMap, complexTypeMap, elementMap, classLoader, serviceEndpointInterface);
             }
 
             serviceDesc.addOperationDesc(operationDescBuilder.buildOperationDesc());

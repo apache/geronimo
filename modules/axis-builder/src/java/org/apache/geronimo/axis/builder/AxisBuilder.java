@@ -235,6 +235,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
         Map exceptionMap = WSDescriptorParser.getExceptionMap(mapping);
         Map schemaTypeKeyToSchemaTypeMap = WSDescriptorParser.buildSchemaTypeKeyToSchemaTypeMap(definition);
         Map complexTypeMap = WSDescriptorParser.getComplexTypesInWsdl(schemaTypeKeyToSchemaTypeMap);
+        Map elementMap = WSDescriptorParser.getElementToTypeMap(schemaTypeKeyToSchemaTypeMap);
 
         Map wsdlPortMap = service.getPorts();
         for (Iterator iterator = wsdlPortMap.entrySet().iterator(); iterator.hasNext();) {
@@ -260,7 +261,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
             if (endpointMappings.length == 0) {
                 doLightweightMapping(service.getQName(), portType, mapping, classLoader, context, module, operations, binding, portStyle, soapVersion, operationInfos, schemaTypeKeyToSchemaTypeMap, portName, serviceImpl, location, handlerInfos, seiPortNameToFactoryMap, seiClassNameToFactoryMap, credentialsName);
             } else {
-                doHeavyweightMapping(service.getQName(), portType, endpointMappings, classLoader, context, module, operations, binding, portStyle, soapVersion, exceptionMap, complexTypeMap, mapping, operationInfos, schemaTypeKeyToSchemaTypeMap, portName, serviceImpl, location, handlerInfos, seiPortNameToFactoryMap, seiClassNameToFactoryMap, credentialsName);
+                doHeavyweightMapping(service.getQName(), portType, endpointMappings, classLoader, context, module, operations, binding, portStyle, soapVersion, exceptionMap, complexTypeMap, elementMap, mapping, operationInfos, schemaTypeKeyToSchemaTypeMap, portName, serviceImpl, location, handlerInfos, seiPortNameToFactoryMap, seiClassNameToFactoryMap, credentialsName);
             }
         }
     }
@@ -302,7 +303,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
         return location;
     }
 
-    private void doHeavyweightMapping(QName serviceName, PortType portType, ServiceEndpointInterfaceMappingType[] endpointMappings, ClassLoader classLoader, DeploymentContext context, Module module, List operations, Binding binding, Style portStyle, SOAPConstants soapVersion, Map exceptionMap, Map complexTypeMap, JavaWsdlMappingType mapping, OperationInfo[] operationInfos, Map schemaTypeKeyToSchemaTypeMap, String portName, Object serviceImpl, URL location, List handlerInfos, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, String credentialsName) throws DeploymentException {
+    private void doHeavyweightMapping(QName serviceName, PortType portType, ServiceEndpointInterfaceMappingType[] endpointMappings, ClassLoader classLoader, DeploymentContext context, Module module, List operations, Binding binding, Style portStyle, SOAPConstants soapVersion, Map exceptionMap, Map complexTypeMap, Map elementMap, JavaWsdlMappingType mapping, OperationInfo[] operationInfos, Map schemaTypeKeyToSchemaTypeMap, String portName, Object serviceImpl, URL location, List handlerInfos, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, String credentialsName) throws DeploymentException {
         Class serviceEndpointInterface;
         SEIFactory seiFactory;
         //complete jaxrpc mapping file supplied
@@ -321,9 +322,23 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
         for (Iterator ops = operations.iterator(); ops.hasNext();) {
             Operation operation = (Operation) ops.next();
             String operationName = operation.getName();
-            BindingOperation bindingOperation = binding.getBindingOperation(operationName, operation.getInput().getName(), operation.getOutput() == null ? null : operation.getOutput().getName());
+            //the obvious method seems to be buggy
+//            BindingOperation bindingOperation = binding.getBindingOperation(operationName, operation.getInput().getName(), operation.getOutput() == null ? null : operation.getOutput().getName());
+            BindingOperation bindingOperation = null;
+            List bops = binding.getBindingOperations();
+            for (Iterator iterator = bops.iterator(); iterator.hasNext();) {
+                BindingOperation bindingOperation1 = (BindingOperation) iterator.next();
+                if (bindingOperation1.getOperation().equals(operation)) {
+                    bindingOperation = bindingOperation1;
+                    break;
+                }
+            }
+            if (bindingOperation == null) {
+                throw new DeploymentException("No BindingOperation for operation: " + operationName + ", input: " + operation.getInput().getName() + ", output: " + (operation.getOutput() == null ? "<none>" : operation.getOutput().getName()));
+            }
             ServiceEndpointMethodMappingType methodMapping = WSDescriptorParser.getMethodMappingForOperation(operationName, methodMappings);
-            OperationInfo operationInfo = buildOperationInfoHeavyweight(methodMapping, bindingOperation, portStyle, soapVersion, exceptionMap, complexTypeMap, mapping, classLoader, enhancedServiceEndpointClass);
+            HeavyweightOperationDescBuilder operationDescBuilder = new HeavyweightOperationDescBuilder(bindingOperation, mapping, methodMapping, portStyle, exceptionMap, complexTypeMap, elementMap, classLoader, enhancedServiceEndpointClass);
+            OperationInfo operationInfo = operationDescBuilder.buildOperationInfo(soapVersion);
             operationInfos[i++] = operationInfo;
         }
         JavaXmlTypeMappingType[] javaXmlTypeMappings = mapping.getJavaXmlTypeMappingArray();
@@ -514,11 +529,6 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
 
     public OperationInfo buildOperationInfoLightweight(Method method, BindingOperation bindingOperation, Style defaultStyle, SOAPConstants soapVersion) throws DeploymentException {
         LightweightOperationDescBuilder operationDescBuilder = new LightweightOperationDescBuilder(bindingOperation, method);
-        return operationDescBuilder.buildOperationInfo(soapVersion);
-    }
-
-    public OperationInfo buildOperationInfoHeavyweight(ServiceEndpointMethodMappingType methodMapping, BindingOperation bindingOperation, Style defaultStyle, SOAPConstants soapVersion, Map exceptionMap, Map complexTypeMap, JavaWsdlMappingType mapping, ClassLoader classLoader, Class serviceEndpointInterface) throws DeploymentException {
-        HeavyweightOperationDescBuilder operationDescBuilder = new HeavyweightOperationDescBuilder(bindingOperation, mapping, methodMapping, defaultStyle, exceptionMap, complexTypeMap, classLoader, serviceEndpointInterface);
         return operationDescBuilder.buildOperationInfo(soapVersion);
     }
 

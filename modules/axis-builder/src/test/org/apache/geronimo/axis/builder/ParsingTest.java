@@ -84,4 +84,15 @@ public class ParsingTest extends TestCase {
         return map;
     }
 
+    public void testElementToTypeMapping() throws Exception {
+        File schema1 = new File(basedir, "src/test-resources/schema/schema4.xsd");
+        System.out.println("SCHEMA 4");
+        Map map = parse(schema1);
+        assertEquals(3, map.size());
+        Map elements = WSDescriptorParser.getElementToTypeMap(map);
+        System.out.println("ELEMENT MAP");
+        System.out.println(elements);
+        assertEquals(1, elements.size());
+    }
+
 }
