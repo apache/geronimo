@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.5 $ $Date: 2004/02/12 08:10:05 $ -->
+<!-- $Revision: 1.6 $ $Date: 2004/02/13 04:04:25 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -17,4 +17,11 @@
             cataloglocation="${basedir}/src/catalog/resolver-catalog.xml"/>
     </preGoal>
 
+    <postGoal name="xdoc:register-reports">
+      <attainGoal name="maven-javadoc-plugin:deregister"/>  
+    </postGoal>
+    
+    <goal name="javadoc">
+        <!-- no Java src per se, don't run javadoc -->
+    </goal>
 </project>
