@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.11 $ $Date: 2003/08/30 15:01:31 $ -->
+<!-- $Revision: 1.12 $ $Date: 2003/09/01 16:17:50 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -161,8 +161,15 @@
       </taskdef>
       
       <!-- Where sources will be generated -->
-      <j:set var="maven.xdoclet.jmx.dest" value="${maven.build.dir}/xdoclet/jmx"/>
+      <j:if test="${context.getVariable('maven.xdoclet.jmx.dest') == null}">
+        <j:set var="maven.xdoclet.jmx.dest" value="${maven.build.dir}/xdoclet/jmx"/>
+      </j:if>
       <mkdir dir="${maven.xdoclet.jmx.dest}"/>
+      
+      <!-- Where sources come from -->
+      <j:if test="${context.getVariable('maven.xdoclet.jmx.src') == null}">
+        <j:set var="maven.xdoclet.jmx.src" value="${basedir}/src/java"/>
+      </j:if>
       
       <!-- Inlcude the generated sources in the Javac compile -->
       <path id="maven.xdoclet.jmx.compile.src.set" location="${maven.xdoclet.jmx.dest}"/>
@@ -171,7 +178,7 @@
       <!-- Generate MBean interfaces -->
       <jmxdoclet destDir="${maven.xdoclet.jmx.dest}" verbose="false">
         
-        <fileset dir="${basedir}/src/java">
+        <fileset dir="${maven.xdoclet.jmx.src}">
           <include name="**/*.java"/>
         </fileset>
         
