@@ -33,13 +33,15 @@ import java.util.zip.ZipEntry;
  * @version $Rev$ $Date$
  */
 public class NestedJarFile extends JarFile {
-    private final JarFile baseJar;
-    private final String basePath;
+    private JarFile baseJar;
+    private String basePath;
+    private boolean isClosed = false;
     private boolean manifestLoaded = false;
     private Manifest manifest;
+    private File tempFile;
 
     public NestedJarFile(JarFile jarFile, String path) throws IOException {
-        super(JarUtil.DUMMY_JAR_FILE);  this.close();
+        super(DeploymentUtil.DUMMY_JAR_FILE);
 
         // verify that the jar actually contains that path
         JarEntry targetEntry = jarFile.getJarEntry(path + "/");
@@ -65,7 +67,7 @@ public class NestedJarFile extends JarFile {
                 baseJar = new JarFile(targetFile);
                 basePath = "";
             } else {
-                File tempFile = FileUtil.toTempFile(jarFile.getInputStream(targetEntry), true);
+                tempFile = DeploymentUtil.toFile(jarFile, targetEntry.getName());
                 baseJar = new JarFile(tempFile);
                 basePath = "";
             }
@@ -73,22 +75,38 @@ public class NestedJarFile extends JarFile {
     }
 
     public boolean isUnpacked() {
+        if (isClosed) {
+            throw new IllegalStateException("NestedJarFile is closed");
+        }
         return basePath.length() > 0;
     }
 
     public boolean isPacked() {
+        if (isClosed) {
+            throw new IllegalStateException("NestedJarFile is closed");
+        }
         return basePath.length() == 0;
     }
 
     public JarFile getBaseJar() {
+        if (isClosed) {
+            throw new IllegalStateException("NestedJarFile is closed");
+        }
         return baseJar;
     }
 
     public String getBasePath() {
+        if (isClosed) {
+            throw new IllegalStateException("NestedJarFile is closed");
+        }
         return basePath;
     }
 
     public Manifest getManifest() throws IOException {
+        if (isClosed) {
+            throw new IllegalStateException("NestedJarFile is closed");
+        }
+
         if (!manifestLoaded) {
             JarEntry manifestEntry = getBaseEntry("META-INF/MANIFEST.MF");
 
@@ -113,6 +131,10 @@ public class NestedJarFile extends JarFile {
     }
 
     public NestedJarEntry getNestedJarEntry(String name) {
+        if (isClosed) {
+            throw new IllegalStateException("NestedJarFile is closed");
+        }
+
         JarEntry baseEntry = getBaseEntry(name);
         if (baseEntry == null) {
             return null;
@@ -121,14 +143,26 @@ public class NestedJarFile extends JarFile {
     }
 
     public JarEntry getJarEntry(String name) {
+        if (isClosed) {
+            throw new IllegalStateException("NestedJarFile is closed");
+        }
+
         return getNestedJarEntry(name);
     }
 
     public ZipEntry getEntry(String name) {
+        if (isClosed) {
+            throw new IllegalStateException("NestedJarFile is closed");
+        }
+
         return getNestedJarEntry(name);
     }
 
     public Enumeration entries() {
+        if (isClosed) {
+            throw new IllegalStateException("NestedJarFile is closed");
+        }
+
         Collection baseEntries = Collections.list(baseJar.entries());
         Collection entries = new LinkedList();
         for (Iterator iterator = baseEntries.iterator(); iterator.hasNext();) {
@@ -142,6 +176,10 @@ public class NestedJarFile extends JarFile {
     }
 
     public InputStream getInputStream(ZipEntry zipEntry) throws IOException {
+        if (isClosed) {
+            throw new IllegalStateException("NestedJarFile is closed");
+        }
+
         JarEntry baseEntry;
         if (zipEntry instanceof NestedJarEntry) {
             baseEntry = ((NestedJarEntry)zipEntry).getBaseEntry();
@@ -152,7 +190,7 @@ public class NestedJarFile extends JarFile {
         if (baseEntry == null) {
             throw new IOException("Entry not found: name=" + baseEntry.getName());
         } else if (baseEntry.isDirectory()) {
-            return new JarUtil.EmptyInputStream();
+            return new DeploymentUtil.EmptyInputStream();
         }
         return baseJar.getInputStream(baseEntry);
     }
@@ -166,13 +204,36 @@ public class NestedJarFile extends JarFile {
      * @return -1
      */
     public int size() {
+        if (isClosed) {
+            throw new IllegalStateException("NestedJarFile is closed");
+        }
         return -1;
     }
 
     public void close() throws IOException {
+        if (isClosed) {
+            return;
+        }
+
+        isClosed = true;
+        try {
+            if (baseJar != null && isPacked()) {
+                baseJar.close();
+            }
+        } finally {
+            baseJar = null;
+            basePath = null;
+            manifestLoaded = false;
+            manifest = null;
+            if (tempFile != null) {
+                tempFile.delete();
+                tempFile = null;
+            }
+        }
     }
 
     protected void finalize() throws IOException {
+        close();
     }
 
     private JarEntry getBaseEntry(String name) {

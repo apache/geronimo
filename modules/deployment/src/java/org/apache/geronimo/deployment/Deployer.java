@@ -19,6 +19,7 @@ package org.apache.geronimo.deployment;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.FileOutputStream;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Iterator;
@@ -34,8 +35,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-import org.apache.geronimo.deployment.util.FileUtil;
-import org.apache.geronimo.deployment.util.JarUtil;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
@@ -67,29 +67,38 @@ public class Deployer {
      */
     public void deploy(String[] args) throws Exception {
         Command cmd = parseArgs(args);
-        if (cmd == null) {
-            return;                                                                     
-        }
+        try {
+            if (cmd == null) {
+                return;
+            }
 
-        File planFile = cmd.planFile;
-        File module = cmd.module;
-        File carfile = cmd.carfile;
-        boolean install = cmd.install;
-        String mainClass = cmd.mainClass;
-        String classPath = cmd.classPath;
+            File planFile = cmd.planFile;
+            File module = cmd.moduleFile;
+            File carfile = cmd.carFile;
+            boolean install = cmd.install;
+            String mainClass = cmd.mainClass;
+            String classPath = cmd.classPath;
 
 
-        List objectNames = deploy(planFile, module, carfile, install, mainClass, classPath);
-        if (!objectNames.isEmpty()) {
-            Iterator iterator = objectNames.iterator();
-            System.out.println("Deployed " + iterator.next());
-            while (iterator.hasNext()) {
-                System.out.println("    " + iterator.next());
+            List objectNames = deploy(planFile, module, carfile, install, mainClass, classPath);
+            if (!objectNames.isEmpty()) {
+                Iterator iterator = objectNames.iterator();
+                System.out.println("Server URI: " + iterator.next());
+                while (iterator.hasNext()) {
+                    System.out.println("Client URI: " + iterator.next());
+                }
+            }
+        } finally {
+            if (cmd.isPlanFileTemp) {
+                cmd.planFile.delete();
+            }
+            if (cmd.isModuleFileTemp) {
+                cmd.moduleFile.delete();
             }
         }
     }
 
-    public List deploy(File planFile, File moduleFile, File carfile, boolean install, String mainClass, String classPath) throws DeploymentException {
+    public List deploy(File planFile, File moduleFile, File targetFile, boolean install, String mainClass, String classPath) throws DeploymentException {
         if (planFile == null && moduleFile == null) {
             throw new DeploymentException("No plan or module specified");
         }
@@ -97,56 +106,79 @@ public class Deployer {
         JarFile module = null;
         if (moduleFile != null) {
             try {
-                module = JarUtil.createJarFile(moduleFile);
+                module = DeploymentUtil.createJarFile(moduleFile);
             } catch (IOException e) {
                 throw new DeploymentException("Cound not open module file: " + moduleFile.getAbsolutePath(), e);
             }
         }
 
-        Object plan = null;
-        ConfigurationBuilder builder = null;
-        for (Iterator i = builders.iterator(); i.hasNext();) {
-            ConfigurationBuilder candidate = (ConfigurationBuilder) i.next();
-            plan = candidate.getDeploymentPlan(planFile, module);
-            if (plan != null) {
-                builder = candidate;
-                break;
+        File tempDir = null;
+        try {
+            Object plan = null;
+            ConfigurationBuilder builder = null;
+            for (Iterator i = builders.iterator(); i.hasNext();) {
+                ConfigurationBuilder candidate = (ConfigurationBuilder) i.next();
+                plan = candidate.getDeploymentPlan(planFile, module);
+                if (plan != null) {
+                    builder = candidate;
+                    break;
+                }
             }
-        }
-        if (builder == null) {
-            throw new DeploymentException("No deployer found for this plan type: " + planFile);
-        }
+            if (builder == null) {
+                throw new DeploymentException("No deployer found for this plan type: " + planFile);
+            }
 
-        boolean saveOutput;
-        if (carfile == null) {
-            saveOutput = false;
+            // create a temp dir to write the configuration during the building proces
             try {
-                carfile = FileUtil.createTempFile();
+                tempDir = DeploymentUtil.createTempDir();
             } catch (IOException e) {
                 throw new DeploymentException("Unable to create temp file for deployment", e);
             }
-        } else {
-            saveOutput = true;
-        }
 
-        Manifest manifest = new Manifest();
-        Attributes mainAttributes = manifest.getMainAttributes();
-        mainAttributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
-        if (mainClass != null) {
-            mainAttributes.putValue(Attributes.Name.MAIN_CLASS.toString(), mainClass);
-        }
-        if (classPath != null) {
-            mainAttributes.putValue(Attributes.Name.CLASS_PATH.toString(), classPath);
-        }
+            // create te meta-inf dir
+            File metaInf = new File(tempDir, "META-INF");
+            metaInf.mkdirs();
+
+            // create the manifest
+            Manifest manifest = new Manifest();
+            Attributes mainAttributes = manifest.getMainAttributes();
+            mainAttributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
+            if (mainClass != null) {
+                mainAttributes.putValue(Attributes.Name.MAIN_CLASS.toString(), mainClass);
+            }
+            if (classPath != null) {
+                mainAttributes.putValue(Attributes.Name.CLASS_PATH.toString(), classPath);
+            }
+
+            // Write the manifest
+            FileOutputStream out = null;
+            try {
+                out = new FileOutputStream(new File(metaInf, "MANIFEST.MF"));
+                manifest.write(out);
+            } finally {
+                DeploymentUtil.close(out);
+            }
 
 
-        try {
             // this is a bit weird and should be rethougth but it works
-            List childURIs = builder.buildConfiguration(carfile, manifest, plan, module);
+            List childURIs = builder.buildConfiguration(plan, module, tempDir);
 
             try {
+                if (targetFile != null) {
+                    // add the startup tag file which allows us to locate the startup directory
+                    File startupJarTag = new File(metaInf, "startup-jar");
+                    if (mainClass != null) {
+                        startupJarTag.createNewFile();
+                    }
+
+                    // jar up the directory
+                    DeploymentUtil.jarDirectory(tempDir,  targetFile);
+
+                    // remove the startup tag file so it doesn't accidently leak into a normal classloader
+                    startupJarTag.delete();
+                }
                 if (install) {
-                    URI uri = store.install(carfile.toURL());
+                    URI uri = store.install(tempDir);
                     List deployedURIs = new ArrayList(childURIs.size() + 1);
                     deployedURIs.add(uri.toString());
                     deployedURIs.addAll(childURIs);
@@ -158,15 +190,18 @@ public class Deployer {
                 throw new DeploymentException(e);
             }
         } catch (DeploymentException e) {
-            saveOutput = false;
+            if (targetFile != null) {
+                targetFile.delete();
+            }
             throw e;
         } catch (Exception e) {
-            saveOutput = false;
+            if (targetFile != null) {
+                targetFile.delete();
+            }
             throw new DeploymentException(e);
         } finally {
-            if (!saveOutput) {
-                carfile.delete();
-            }
+            DeploymentUtil.recursiveDelete(tempDir);
+            DeploymentUtil.close(module);
         }
     }
 
@@ -187,54 +222,89 @@ public class Deployer {
         }
 
         Command command = new Command();
-        command.install = cmd.hasOption('I');
-        if (cmd.hasOption('o')) {
-            command.carfile = new File(cmd.getOptionValue('o'));
-        }
-        if (cmd.hasOption('p')) {
-            command.planFile = getFile(cmd.getOptionValue('p'));
-        }
-        if (cmd.hasOption('m')) {
-             command.module = getFile(cmd.getOptionValue('m'));
-        }
-
-        if (command.module == null && command.planFile == null) {
-            System.err.println("No plan or module specified");
-            return null;
-        }
-        if (cmd.hasOption("mainClass")) {
-            command.mainClass = cmd.getOptionValue("mainClass");
-        }
-        if (cmd.hasOption("classPath")) {
-            command.classPath = cmd.getOptionValue("classPath");
-        }
-        return command;
-    }
-
-    private static File getFile(String location) throws DeploymentException {
-        File f = new File(location);
-        if (f.exists() && f.canRead()) {
-            return f;
-        }
-            URI uri = new File(".").toURI().resolve(location);
-            if ("file".equals(uri.getScheme())) {
-                return new File(uri);
-            } else if (uri.getPath().endsWith("/")) {
-                throw new DeploymentException("Unpacked modules can only be loaded from the local file system");
-            } else {
-                try {
-                    return FileUtil.toTempFile(uri.toURL());
-                } catch (IOException e) {
-                    throw new DeploymentException("Could not open url: " + uri);
+        try {
+            command.install = cmd.hasOption('I');
+            if (cmd.hasOption('o')) {
+                URI uri = getURI(cmd.getOptionValue('o'));
+                if (!"file".equals(uri.getScheme())) {
+                    throw new DeploymentException("Output file can only be written to the local file system");
+                }
+                command.carFile = new File(uri);
+            }
+            if (cmd.hasOption('p')) {
+                URI uri = getURI(cmd.getOptionValue('p'));
+                if ("file".equals(uri.getScheme())) {
+                    command.planFile = new File(uri);
+                    command.isPlanFileTemp = false;
+                } else {
+                    try {
+                        command.planFile = DeploymentUtil.toTempFile(uri.toURL());
+                    } catch (IOException e) {
+                        throw new DeploymentException("Invalid plan file location: " + uri, e);
+                    }
+                    command.isPlanFileTemp = true;
                 }
             }
+            if (cmd.hasOption('m')) {
+                URI uri = getURI(cmd.getOptionValue('m'));
+                if ("file".equals(uri.getScheme())) {
+                    command.moduleFile = new File(uri);
+                    command.isModuleFileTemp = false;
+                } else {
+                    try {
+                        command.moduleFile = DeploymentUtil.toTempFile(uri.toURL());
+                    } catch (IOException e) {
+                        throw new DeploymentException("Invalid module file location: " + uri, e);
+                    }
+                    command.isModuleFileTemp = true;
+                }
+            }
+
+            if (command.moduleFile == null && command.planFile == null) {
+                System.err.println("No plan or module specified");
+                return null;
+            }
+            if (cmd.hasOption("mainClass")) {
+                command.mainClass = cmd.getOptionValue("mainClass");
+            }
+            if (cmd.hasOption("classPath")) {
+                command.classPath = cmd.getOptionValue("classPath");
+            }
+            return command;
+        } catch (Throwable e) {
+            if (command.isPlanFileTemp) {
+                command.planFile.delete();
+            }
+            if (command.isModuleFileTemp) {
+                command.moduleFile.delete();
+            }
+
+            if (e instanceof DeploymentException) {
+                throw (DeploymentException) e;
+            } else if (e instanceof RuntimeException) {
+                throw (RuntimeException) e;
+            } else if (e instanceof Error) {
+                throw (Error) e;
+            }
+            throw new DeploymentException(e);
+        }
+    }
+
+    private static URI getURI(String location) throws DeploymentException {
+        URI uri = new File(".").toURI().resolve(location);
+        if (!"file".equals(uri.getScheme()) && uri.getPath().endsWith("/")) {
+            throw new DeploymentException("Unpacked modules can only be loaded from the local file system");
+        }
+        return uri;
     }
 
     private static class Command {
         private boolean install;
-        private File carfile;
-        private File module;
+        private File carFile;
+        private File moduleFile;
+        private boolean isModuleFileTemp = false;
         private File planFile;
+        private boolean isPlanFileTemp = false;
         private String mainClass;
         private String classPath;
     }

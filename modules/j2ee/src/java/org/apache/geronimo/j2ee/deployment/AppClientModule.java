@@ -17,8 +17,6 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.net.URI;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
@@ -28,9 +26,6 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
  */
 public class AppClientModule extends Module {
-
-    private final Collection resourceModules = new HashSet();
-
     private JarFile earFile;
 
     public AppClientModule(boolean standAlone, URI configId, URI parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
@@ -47,10 +42,6 @@ public class AppClientModule extends Module {
 
     public void setEarFile(JarFile earFile) {
         this.earFile = earFile;
-    }
-
-    public Collection getResourceModules() {
-        return resourceModules;
     }
 }
 

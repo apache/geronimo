@@ -26,7 +26,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.deployment.util.JarUtil;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
@@ -52,7 +52,7 @@ public class EARConfigBuilderTest extends TestCase {
         TestSuite inner = new TestSuite(EARConfigBuilderTest.class);
         TestSetup setup14 = new TestSetup(inner) {
             protected void setUp() throws Exception {
-                earFile = JarUtil.createJarFile(new File(basedir,  "target/test-ear14/test-ear.ear"));
+                earFile = DeploymentUtil.createJarFile(new File(basedir,  "target/test-ear14/test-ear.ear"));
                 ejbConfigBuilder.ejbModule = new EJBModule(false, null, null, null, "test-ejb-jar.jar", null, null, null);
                 webConfigBuilder.contextRoot = "test";
                 webConfigBuilder.webModule = new WebModule(false, null, null, null, "test-war.war", null, null, null);
@@ -61,11 +61,15 @@ public class EARConfigBuilderTest extends TestCase {
             }
 
             protected void tearDown() {
+                DeploymentUtil.close(earFile);
+                close(ejbConfigBuilder.ejbModule);
+                close(webConfigBuilder.webModule);
+                close(connectorConfigBuilder.connectorModule);
             }
         };
         TestSetup setupNaked14 = new TestSetup(inner) {
             protected void setUp() throws Exception {
-                earFile = JarUtil.createJarFile(new File(basedir,  "target/test-ear14/test-naked-ear.ear"));
+                earFile = DeploymentUtil.createJarFile(new File(basedir,  "target/test-ear14/test-naked-ear.ear"));
                 ejbConfigBuilder.ejbModule = new EJBModule(false, null, null, null, "test-ejb-jar.jar", null, null, null);
                 webConfigBuilder.contextRoot = "test";
                 webConfigBuilder.webModule = new WebModule(false, null, null, null, "test-war.war", null, null, null);
@@ -74,11 +78,15 @@ public class EARConfigBuilderTest extends TestCase {
             }
 
             protected void tearDown() {
+                DeploymentUtil.close(earFile);
+                close(ejbConfigBuilder.ejbModule);
+                close(webConfigBuilder.webModule);
+                close(connectorConfigBuilder.connectorModule);
             }
         };
         TestSetup setup13 = new TestSetup(inner) {
             protected void setUp() throws Exception {
-                earFile = JarUtil.createJarFile(new File(basedir,  "target/test-ear13/test-ear.ear"));
+                earFile = DeploymentUtil.createJarFile(new File(basedir,  "target/test-ear13/test-ear.ear"));
                 ejbConfigBuilder.ejbModule = new EJBModule(false, null, null, null, "test-ejb-jar.jar", null, null, null);
                 webConfigBuilder.contextRoot = "test";
                 webConfigBuilder.webModule = new WebModule(false, null, null, null, "test-war.war", null, null, null);
@@ -87,11 +95,15 @@ public class EARConfigBuilderTest extends TestCase {
             }
 
             protected void tearDown() {
+                DeploymentUtil.close(earFile);
+                close(ejbConfigBuilder.ejbModule);
+                close(webConfigBuilder.webModule);
+                close(connectorConfigBuilder.connectorModule);
             }
         };
         TestSetup setupNaked13 = new TestSetup(inner) {
             protected void setUp() throws Exception {
-                earFile = JarUtil.createJarFile(new File(basedir, "target/test-ear13/test-naked-ear.ear"));
+                earFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear13/test-naked-ear.ear"));
                 ejbConfigBuilder.ejbModule = new EJBModule(false, null, null, null, "test-ejb-jar.jar", null, null, null);
                 webConfigBuilder.contextRoot = "test";
                 webConfigBuilder.webModule = new WebModule(false, null, null, null, "test-war.war", null, null, null);
@@ -100,11 +112,15 @@ public class EARConfigBuilderTest extends TestCase {
             }
 
             protected void tearDown() {
+                DeploymentUtil.close(earFile);
+                close(ejbConfigBuilder.ejbModule);
+                close(webConfigBuilder.webModule);
+                close(connectorConfigBuilder.connectorModule);
             }
         };
         TestSetup setupUnpacked = new TestSetup(inner) {
             protected void setUp() throws Exception {
-                earFile = JarUtil.createJarFile(new File(basedir,  "target/test-unpacked-ear/full/"));
+                earFile = DeploymentUtil.createJarFile(new File(basedir,  "target/test-unpacked-ear/full/"));
                 ejbConfigBuilder.ejbModule = new EJBModule(false, null, null, null, "test-ejb-jar.jar/", null, null, null);
                 webConfigBuilder.contextRoot = "test";
                 webConfigBuilder.webModule = new WebModule(false, null, null, null, "test-war.war/", null, null, null);
@@ -113,11 +129,15 @@ public class EARConfigBuilderTest extends TestCase {
             }
 
             protected void tearDown() {
+                DeploymentUtil.close(earFile);
+                close(ejbConfigBuilder.ejbModule);
+                close(webConfigBuilder.webModule);
+                close(connectorConfigBuilder.connectorModule);
             }
         };
         TestSetup setupUnpackedNaked = new TestSetup(inner) {
             protected void setUp() throws Exception {
-                earFile = JarUtil.createJarFile(new File(basedir,  "target/test-unpacked-ear/naked/"));
+                earFile = DeploymentUtil.createJarFile(new File(basedir,  "target/test-unpacked-ear/naked/"));
                 ejbConfigBuilder.ejbModule = new EJBModule(false, null, null, null, "test-ejb-jar.jar/", null, null, null);
                 webConfigBuilder.contextRoot = "test";
                 webConfigBuilder.webModule = new WebModule(false, null, null, null, "test-war.war", null, null, null);
@@ -126,11 +146,15 @@ public class EARConfigBuilderTest extends TestCase {
             }
 
             protected void tearDown() {
+                DeploymentUtil.close(earFile);
+                close(ejbConfigBuilder.ejbModule);
+                close(webConfigBuilder.webModule);
+                close(connectorConfigBuilder.connectorModule);
             }
         };
         TestSetup setupUnpackedAltDD = new TestSetup(inner) {
             protected void setUp() throws Exception {
-                earFile = JarUtil.createJarFile(new File(basedir,  "target/test-unpacked-ear/alt-dd/"));
+                earFile = DeploymentUtil.createJarFile(new File(basedir,  "target/test-unpacked-ear/alt-dd/"));
                 ejbConfigBuilder.ejbModule = new EJBModule(false, null, null, null, "test-ejb-jar.jar/", null, null, null);
                 webConfigBuilder.contextRoot = "test";
                 webConfigBuilder.webModule = new WebModule(false, null, null, null, "test-war.war/", null, null, null);
@@ -139,11 +163,15 @@ public class EARConfigBuilderTest extends TestCase {
             }
 
             protected void tearDown() {
+                DeploymentUtil.close(earFile);
+                close(ejbConfigBuilder.ejbModule);
+                close(webConfigBuilder.webModule);
+                close(connectorConfigBuilder.connectorModule);
             }
         };
         TestSetup setupPackedAltDD = new TestSetup(inner) {
             protected void setUp() throws Exception {
-                earFile = JarUtil.createJarFile(new File(basedir,  "target/test-unpacked-ear/alt-dd.ear"));
+                earFile = DeploymentUtil.createJarFile(new File(basedir,  "target/test-unpacked-ear/alt-dd.ear"));
                 ejbConfigBuilder.ejbModule = new EJBModule(false, null, null, null, "test-ejb-jar.jar/", null, null, null);
                 webConfigBuilder.contextRoot = "test";
                 webConfigBuilder.webModule = new WebModule(false, null, null, null, "test-war.war/", null, null, null);
@@ -152,6 +180,10 @@ public class EARConfigBuilderTest extends TestCase {
             }
 
             protected void tearDown() {
+                DeploymentUtil.close(earFile);
+                close(ejbConfigBuilder.ejbModule);
+                close(webConfigBuilder.webModule);
+                close(connectorConfigBuilder.connectorModule);
             }
         };
         
@@ -170,58 +202,67 @@ public class EARConfigBuilderTest extends TestCase {
     public void testBuildConfiguration() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, ejbConfigBuilder, null, webConfigBuilder, connectorConfigBuilder, appClientConfigBuilder, null);
 
-        File carFile = File.createTempFile("EARTest", ".car");
+        File tempDir = null;
         try {
+            tempDir = DeploymentUtil.createTempDir();
             Object plan = configBuilder.getDeploymentPlan(null, earFile);
-            configBuilder.buildConfiguration(carFile, null, plan, earFile);
+            configBuilder.buildConfiguration(plan, earFile, tempDir);
         } finally {
-            carFile.delete();
+            DeploymentUtil.recursiveDelete(tempDir);
         }
     }
 
     public void testNoEJBDeployer() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, null, webConfigBuilder, connectorConfigBuilder, appClientConfigBuilder, null);
 
-        File carFile = File.createTempFile("EARTest", ".car");
+        File tempDir = null;
         try {
+            tempDir = DeploymentUtil.createTempDir();
             Object plan = configBuilder.getDeploymentPlan(null, earFile);
-            configBuilder.buildConfiguration(carFile, null, plan, earFile);
+            configBuilder.buildConfiguration(plan, earFile, tempDir);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             // expected
         } finally {
-            carFile.delete();
+            DeploymentUtil.recursiveDelete(tempDir);
         }
     }
 
     public void testNoWARDeployer() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, ejbConfigBuilder, null, null, connectorConfigBuilder, appClientConfigBuilder, null);
 
-        File carFile = File.createTempFile("EARTest", ".car");
+        File tempDir = null;
         try {
+            tempDir = DeploymentUtil.createTempDir();
             Object plan = configBuilder.getDeploymentPlan(null, earFile);
-            configBuilder.buildConfiguration(carFile, null, plan, earFile);
+            configBuilder.buildConfiguration(plan, earFile, tempDir);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             // expected
         } finally {
-            carFile.delete();
+            DeploymentUtil.recursiveDelete(tempDir);
         }
     }
 
     public void testNoConnectorDeployer() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, ejbConfigBuilder, null, webConfigBuilder, null, appClientConfigBuilder, null);
 
-        File carFile = File.createTempFile("EARTest", ".car");
+        File tempDir = null;
         try {
+            tempDir = DeploymentUtil.createTempDir();
             Object plan = configBuilder.getDeploymentPlan(null, earFile);
-            configBuilder.buildConfiguration(carFile, null, plan, earFile);
+            configBuilder.buildConfiguration(plan, earFile, tempDir);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             // expected
         } finally {
-            carFile.delete();
+            DeploymentUtil.recursiveDelete(tempDir);
         }
     }
 
+    private static void close(Module module) {
+        if (module != null) {
+            module.close();
+        }
+    }
 }

@@ -19,9 +19,8 @@ package org.apache.geronimo.deployment;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 import java.util.List;
+import java.util.jar.JarFile;
 
 /**
  * @version $Rev$ $Date$
@@ -40,12 +39,11 @@ public interface ConfigurationBuilder {
     /**
      * Build a configuration from a local file
      *
-     * @param outfile the file to write the configuration to
-     * @param manifest the manifest to add to the output file
      * @param plan the deployment plan
      * @param module the module to build
+     * @param outfile the file to write the configuration to
      * @throws IOException if there was a problem reading or writing the files
      * @throws DeploymentException if there was a problem with the configuration
      */
-    List buildConfiguration(File outfile, Manifest manifest, Object plan, JarFile module) throws IOException, DeploymentException;
+    List buildConfiguration(Object plan, JarFile module, File outfile) throws IOException, DeploymentException;
 }

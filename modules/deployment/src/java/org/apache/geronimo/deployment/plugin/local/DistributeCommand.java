@@ -25,15 +25,14 @@ import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.net.URI;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
-import org.apache.geronimo.deployment.util.FileUtil;
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.kernel.KernelMBean;
 
 /**
@@ -73,11 +72,11 @@ public class DistributeCommand extends CommandSupport {
         try {
             if (spool) {
                 if (moduleStream != null) {
-                    moduleArchive = FileUtil.createTempFile();
+                    moduleArchive = DeploymentUtil.createTempFile();
                     copyTo(moduleArchive, moduleStream);
                 }
                 if (deploymentStream != null) {
-                    deploymentPlan = FileUtil.createTempFile();
+                    deploymentPlan = DeploymentUtil.createTempFile();
                     copyTo(deploymentPlan, deploymentStream);
                 }
             }

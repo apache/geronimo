@@ -49,36 +49,49 @@ public class RunTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        Map gbeans = new HashMap();
-        ObjectName objectName = new ObjectName("test:name=MyGBean");
-        gbeans.put(objectName, new GBeanMBean(MyGBean.GBEAN_INFO));
-        GBeanMBean config = new GBeanMBean(Configuration.GBEAN_INFO);
-        config.setAttribute("ID", URI.create("org/apache/geronimo/run-test"));
-        config.setReferencePatterns("Parent", null);
-        config.setAttribute("classPath", Collections.EMPTY_LIST);
-        config.setAttribute("gBeanState", Configuration.storeGBeans(gbeans));
+        try {
+            Map gbeans = new HashMap();
+            ObjectName objectName = new ObjectName("test:name=MyGBean");
+            gbeans.put(objectName, new GBeanMBean(MyGBean.GBEAN_INFO));
+            GBeanMBean config = new GBeanMBean(Configuration.GBEAN_INFO);
+            config.setAttribute("ID", URI.create("org/apache/geronimo/run-test"));
+            config.setReferencePatterns("Parent", null);
+            config.setAttribute("classPath", Collections.EMPTY_LIST);
+            config.setAttribute("gBeanState", Configuration.storeGBeans(gbeans));
 
-        carFile = File.createTempFile("run", ".car");
-        Manifest manifest = new Manifest();
-        Attributes attrs = manifest.getMainAttributes();
-        attrs.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
-        attrs.putValue("Geronimo-GBean", objectName.toString());
-        attrs.putValue(Attributes.Name.MAIN_CLASS.toString(), Run.class.getName());
-        attrs.putValue(Attributes.Name.CLASS_PATH.toString(), "geronimo-kernel-DEV.jar commons-logging-1.0.3.jar cglib-full-2.0-RC2.jar");
-        JarOutputStream jos = new JarOutputStream(new FileOutputStream(carFile), manifest);
-        jos.putNextEntry(new ZipEntry("META-INF/config.ser"));
-        ObjectOutputStream oos = new ObjectOutputStream(jos);
-        Configuration.storeGMBeanState(config, oos);
-        oos.flush();
-        jos.closeEntry();
-        jos.putNextEntry(new ZipEntry("org/apache/geronimo/kernel/config/MyGBean.class"));
-        byte[] buffer = new byte[4096];
-        InputStream is = MyGBean.class.getClassLoader().getResourceAsStream("org/apache/geronimo/kernel/config/MyGBean.class");
-        int count;
-        while ((count = is.read(buffer)) > 0) {
-            jos.write(buffer, 0, count);
+            carFile = File.createTempFile("run", ".car");
+            Manifest manifest = new Manifest();
+            Attributes attrs = manifest.getMainAttributes();
+            attrs.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
+            attrs.putValue("Geronimo-GBean", objectName.toString());
+            attrs.putValue(Attributes.Name.MAIN_CLASS.toString(), Run.class.getName());
+            attrs.putValue(Attributes.Name.CLASS_PATH.toString(), "geronimo-kernel-DEV.jar commons-logging-1.0.3.jar cglib-full-2.0-RC2.jar");
+            JarOutputStream jos = new JarOutputStream(new FileOutputStream(carFile), manifest);
+            jos.putNextEntry(new ZipEntry("META-INF/config.ser"));
+            ObjectOutputStream oos = new ObjectOutputStream(jos);
+            Configuration.storeGMBeanState(config, oos);
+            oos.flush();
+            jos.closeEntry();
+            jos.putNextEntry(new ZipEntry("org/apache/geronimo/kernel/config/MyGBean.class"));
+            byte[] buffer = new byte[4096];
+            InputStream is = MyGBean.class.getClassLoader().getResourceAsStream("org/apache/geronimo/kernel/config/MyGBean.class");
+            int count;
+            while ((count = is.read(buffer)) > 0) {
+                jos.write(buffer, 0, count);
+            }
+            jos.closeEntry();
+            jos.close();
+        } catch (Exception e) {
+            if (carFile != null) {
+                carFile.delete();
+            }
+            throw e;
         }
-        jos.closeEntry();
-        jos.close();
+    }
+
+    protected void tearDown() throws Exception {
+        if (carFile != null) {
+            carFile.delete();
+        }
     }
 }

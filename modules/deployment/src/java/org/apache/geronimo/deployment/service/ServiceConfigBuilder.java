@@ -17,9 +17,7 @@
 
 package org.apache.geronimo.deployment.service;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -27,13 +25,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.JarOutputStream;
-import java.util.jar.Manifest;
-import java.util.zip.ZipEntry;
-import java.util.List;
 import java.util.Collections;
+import java.util.List;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import javax.management.MalformedObjectNameException;
 
 import org.apache.geronimo.deployment.ConfigurationBuilder;
@@ -49,7 +44,6 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
 
 /**
@@ -84,29 +78,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    public List buildConfiguration(File outfile, Manifest manifest, Object plan, JarFile unused) throws IOException, DeploymentException {
-        FileOutputStream fos = new FileOutputStream(outfile);
-        try {
-            JarOutputStream os = new JarOutputStream(new BufferedOutputStream(fos), manifest);
-
-            // if this is an executable jar add the startup jar finder file
-            if (manifest.getMainAttributes().containsKey(Attributes.Name.MAIN_CLASS)) {
-                os.putNextEntry(new ZipEntry("META-INF/startup-jar"));
-                os.closeEntry();
-            }
-
-            buildConfiguration(os, (XmlObject) plan);
-            return Collections.EMPTY_LIST;
-        } finally {
-            fos.close();
-        }
-
-    }
-
-    //
-    // For use by the bootstrap deployer
-    //
-    public void buildConfiguration(JarOutputStream os, XmlObject plan) throws DeploymentException, IOException {
+    public List buildConfiguration(Object plan, JarFile unused, File outfile) throws IOException, DeploymentException {
         ConfigurationType configType = (ConfigurationType) plan;
         URI configID;
         try {
@@ -127,7 +99,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
 
         DeploymentContext context = null;
         try {
-            context = new DeploymentContext(os, configID, ConfigurationModuleType.SERVICE, parentID, kernel);
+            context = new DeploymentContext(outfile, configID, ConfigurationModuleType.SERVICE, parentID, kernel);
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException(e);
         }
@@ -140,7 +112,8 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
 
         }
         context.close();
-        os.flush();
+
+        return Collections.EMPTY_LIST;
     }
 
     private void addIncludes(DeploymentContext context, ConfigurationType configType) throws DeploymentException {

@@ -17,39 +17,39 @@
 
 package org.apache.geronimo.deployment;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
-import java.net.MalformedURLException;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
+import java.net.MalformedURLException;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.jar.JarOutputStream;
+import java.util.ArrayList;
+import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-
+import java.util.zip.ZipFile;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.deployment.util.FileUtil;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.repository.Repository;
 
 /**
  * @version $Rev$ $Date$
@@ -64,24 +64,35 @@ public class DeploymentContext {
     private final GBeanMBean config;
     private final Map gbeans = new HashMap();
     private final Set dependencies = new LinkedHashSet();
-    private final Set classPath = new LinkedHashSet();
-    private final Map includes = new HashMap();
-    private final LinkedList outputStreams = new LinkedList();
+    private final LinkedHashSet classPath = new LinkedHashSet();
+    private final File baseDir;
+    private final URI baseUri;
     private final byte[] buffer = new byte[4096];
     private final List ancestors;
     private final ClassLoader parentCL;
-    private final Collection tmpfiles = new ArrayList();
 
-    public DeploymentContext(JarOutputStream jos, URI id, ConfigurationModuleType type, URI parentID, Kernel kernel) throws MalformedObjectNameException, DeploymentException {
-        this.configID = id;
+    public DeploymentContext(File baseDir, URI configID, ConfigurationModuleType type, URI parentID, Kernel kernel) throws MalformedObjectNameException, DeploymentException {
+        assert baseDir != null: "baseDir is null";
+        assert configID != null: "configID is null";
+        assert type != null: "type is null";
+
+        this.configID = configID;
         this.type = type;
-        outputStreams.addLast(jos);
         this.kernel = kernel;
+
+        if (!baseDir.exists()) {
+            baseDir.mkdirs();
+        }
+        if (!baseDir.isDirectory()) {
+            throw new DeploymentException("Base directory is not a directory: " + baseDir.getAbsolutePath());
+        }
+        this.baseDir = baseDir;
+        this.baseUri = baseDir.toURI();
 
         config = new GBeanMBean(Configuration.GBEAN_INFO);
 
         try {
-            config.setAttribute("ID", id);
+            config.setAttribute("ID", configID);
             config.setAttribute("type", type);
             config.setAttribute("parentID", parentID);
         } catch (Exception e) {
@@ -130,12 +141,9 @@ public class DeploymentContext {
     public ConfigurationModuleType getType() {
         return type;
     }
-    
-    public JarOutputStream getJos() {
-        if (outputStreams.isEmpty()) {
-            throw new IllegalStateException();
-        }
-        return (JarOutputStream) outputStreams.getLast();
+
+    public File getBaseDir() {
+        return baseDir;
     }
 
     public void addGBean(ObjectName name, GBeanMBean gbean) {
@@ -146,34 +154,97 @@ public class DeploymentContext {
         dependencies.add(uri);
     }
 
-    public void addInclude(URI path, URL url) throws IOException {
-        InputStream is = url.openStream();
+    public void addIncludeAsPackedJar(URI targetPath, JarFile jarFile) throws IOException {
+        File targetFile = getTargetFile(targetPath);
+        DeploymentUtil.copyToPackedJar(jarFile, targetFile);
+        classPath.add(targetPath);
+    }
+
+    public void addInclude(URI targetPath, ZipFile zipFile, ZipEntry zipEntry) throws IOException {
+        File targetFile = getTargetFile(targetPath);
+        addFile(targetFile, zipFile, zipEntry);
+        classPath.add(targetPath);
+    }
+
+    public void addInclude(URI targetPath, URL source) throws IOException {
+        File targetFile = getTargetFile(targetPath);
+        addFile(targetFile, source);
+        classPath.add(targetPath);
+    }
+
+    public void addInclude(URI targetPath, File source) throws IOException {
+        File targetFile = getTargetFile(targetPath);
+        addFile(targetFile, source);
+        classPath.add(targetPath);
+    }
+
+    public void addFile(URI targetPath, ZipFile zipFile, ZipEntry zipEntry) throws IOException {
+        addFile(getTargetFile(targetPath), zipFile, zipEntry);
+    }
+
+    public void addFile(URI targetPath, URL source) throws IOException {
+        addFile(getTargetFile(targetPath), source);
+    }
+
+    public void addFile(URI targetPath, File source) throws IOException {
+        addFile(getTargetFile(targetPath), source);
+    }
+
+    public void addFile(URI targetPath, String source) throws IOException {
+        addFile(getTargetFile(targetPath), new ByteArrayInputStream(source.getBytes()));
+    }
+
+    private void addFile(File targetFile, ZipFile zipFile, ZipEntry zipEntry) throws IOException {
+        if (zipEntry.isDirectory()) {
+            targetFile.mkdirs();
+        } else {
+            InputStream is = zipFile.getInputStream(zipEntry);
+            try {
+                addFile(targetFile, is);
+            } finally {
+                DeploymentUtil.close(is);
+            }
+        }
+    }
+
+    private void addFile(File targetFile, URL source) throws IOException {
+        InputStream in = null;
         try {
-            addFile(path, is);
+            in = source.openStream();
+            addFile(targetFile, in);
         } finally {
-            is.close();
-        }
-        addToClassPath(path, url);
-    }
-
-    public File addStreamInclude(URI path, InputStream is) throws IOException {
-        File tmp = FileUtil.toTempFile(is);
-        addInclude(path, tmp.toURL());
-        tmpfiles.add(tmp);
-        return tmp;
-    }
-
-    public void addArchive(URI path, ZipInputStream archive) throws IOException {
-        ZipEntry src;
-        while ((src = archive.getNextEntry()) != null) {
-            URI target = path.resolve(src.getName());
-            addFile(target, archive);
+            DeploymentUtil.close(in);
         }
     }
 
-    public void addToClassPath(URI path, URL url) {
-        classPath.add(path);
-        includes.put(path, url);
+    private void addFile(File targetFile, File source) throws IOException {
+        InputStream in = null;
+        try {
+            in = new FileInputStream(source);
+            addFile(targetFile, in);
+        } finally {
+            DeploymentUtil.close(in);
+        }
+    }
+
+    private void addFile(File targetFile, InputStream source) throws IOException {
+        targetFile.getParentFile().mkdirs();
+        OutputStream out = null;
+        try {
+            out = new FileOutputStream(targetFile);
+            int count;
+            while ((count = source.read(buffer)) > 0) {
+                out.write(buffer, 0, count);
+            }
+        } finally {
+            DeploymentUtil.close(out);
+        }
+    }
+
+    private File getTargetFile(URI targetPath) {
+        assert !targetPath.isAbsolute() : "targetPath is absolute";
+        assert !targetPath.isOpaque() : "targetPath is opaque";
+        return new File(baseUri.resolve(targetPath));
     }
 
     public ClassLoader getClassLoader(Repository repository) throws DeploymentException {
@@ -186,85 +257,28 @@ public class DeploymentContext {
             throw new DeploymentException("Unable to initialize Configuration", e);
         }
 
+        // shouldn't user classpath come before dependencies?
         URL[] urls = new URL[dependencies.size() + classPath.size()];
-        int j = 0;
-        for (Iterator i = dependencies.iterator(); i.hasNext();) {
-            URI uri = (URI) i.next();
-            try {
-                urls[j++] = repository.getURL(uri);
-            } catch (MalformedURLException e) {
-                throw new DeploymentException(e);
+        try {
+            int index = 0;
+            for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
+                URI uri = (URI) iterator.next();
+                urls[index++] = repository.getURL(uri);
             }
-        }
 
-        for (Iterator i = classPath.iterator(); i.hasNext();) {
-            URI uri = (URI) i.next();
-            urls[j++] = (URL) includes.get(uri);
+            for (Iterator i = classPath.iterator(); i.hasNext();) {
+                URI path = (URI) i.next();
+                urls[index++] = getTargetFile(path).toURL();
+            }
+        } catch (MalformedURLException e) {
+            throw new DeploymentException(e);
         }
 
         return new URLClassLoader(urls, parentCL);
     }
 
-    public void nest(URI path) throws IOException {
-        JarOutputStream jos = getJos();
-        jos.putNextEntry(new ZipEntry(path.getPath()));
-        JarOutputStream nestedStream = new JarOutputStream(jos);
-        outputStreams.addLast(nestedStream);
-    }
-
-    public void unnest() throws IOException {
-        if (outputStreams.size() < 2) {
-            throw new IllegalStateException("Conext is not currently nested");
-        }
-        JarOutputStream jos = (JarOutputStream) outputStreams.removeLast();
-        try {
-            jos.flush();
-        } finally {
-            jos.close();
-        }
-    }
-
-    public void addFile(URI path, File source) throws IOException {
-        InputStream in = new FileInputStream(source);
-        try {
-            addFile(path, in);
-        } finally {
-            in.close();
-        }
-    }
-    
-    public void addFile(URI path, InputStream source) throws IOException {
-        JarOutputStream jos = getJos();
-        jos.putNextEntry(new ZipEntry(path.getPath()));
-        try {
-            int count;
-            while ((count = source.read(buffer)) > 0) {
-                jos.write(buffer, 0, count);
-            }
-        } finally {
-            jos.closeEntry();
-        }
-    }
-
     public void close() throws IOException, DeploymentException {
-        if (outputStreams.size() != 1) {
-            throw new IllegalStateException("Context must be unnested before being closed");
-        }
-
-        JarOutputStream jos = getJos();
         saveConfiguration();
-        try {
-            jos.flush();
-        } finally {
-            jos.close();
-        }
-
-        for (Iterator iterator = tmpfiles.iterator(); iterator.hasNext();) {
-            try {
-                ((File) iterator.next()).delete();
-            } catch (Exception e) {
-            }
-        }
 
         if (kernel != null && ancestors != null && ancestors.size() > 0) {
             try {
@@ -276,8 +290,6 @@ public class DeploymentContext {
     }
 
     private void saveConfiguration() throws IOException, DeploymentException {
-        JarOutputStream jos = getJos();
-
         // persist all the GBeans in this Configuration
         try {
             config.setAttribute("gBeanState", Configuration.storeGBeans(gbeans));
@@ -286,19 +298,23 @@ public class DeploymentContext {
         }
 
         // save the persisted form in the archive
-        jos.putNextEntry(new ZipEntry("META-INF/config.ser"));
+        File metaInf = new File(baseDir, "META-INF");
+        metaInf.mkdirs();
+        File configSer = new File(metaInf, "config.ser");
+
+        ObjectOutputStream out = null;
         try {
-            ObjectOutputStream oos = new ObjectOutputStream(jos);
+            out = new ObjectOutputStream(new FileOutputStream(configSer));
             try {
-                Configuration.storeGMBeanState(config, oos);
+                Configuration.storeGMBeanState(config, out);
             } catch (IOException e) {
                 throw e;
             } catch (Exception e) {
                 throw new DeploymentException("Unable to save Configuration state", e);
             }
-            oos.flush();
         } finally {
-            jos.closeEntry();
+            DeploymentUtil.flush(out);
+            DeploymentUtil.close(out);
         }
     }
 }

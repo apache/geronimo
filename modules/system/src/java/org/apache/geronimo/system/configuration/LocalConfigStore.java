@@ -136,32 +136,81 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         }
     }
 
+    private File createConfigurationDir() {
+        // loop until we find a directory that doesn't alredy exist
+        // this can happen when a deployment fails (leaving an bad directory)
+        // and the server reboots without saving out the index.propreties file
+        // the is rare but we should check for it
+        File configurationDir;
+        do {
+            String newId;
+            synchronized (this) {
+                newId = Integer.toString(++maxId);
+            }
+            configurationDir = new File(rootDir, newId);
+        } while (configurationDir.exists());
+        configurationDir.mkdir();
+        return configurationDir;
+    }
+
     public URI install(URL source) throws IOException, InvalidConfigException {
-        String newId;
-        synchronized (this) {
-            newId = Integer.toString(++maxId);
-        }
-        File bundleRoot = new File(rootDir, newId);
-        bundleRoot.mkdir();
+        File configurationDir = createConfigurationDir();
+
         InputStream is = source.openStream();
         try {
-            unpack(bundleRoot, is);
+            unpack(configurationDir, is);
+        } catch (IOException e) {
+            delete(configurationDir);
+            throw e;
         } finally {
             is.close();
         }
+
         URI configId;
         try {
-            GBeanMBean config = loadConfig(bundleRoot);
+            GBeanMBean config = loadConfig(configurationDir);
             configId = (URI) config.getAttribute("ID");
-            index.setProperty(configId.toString(), newId);
+            index.setProperty(configId.toString(), configurationDir.getName());
         } catch (Exception e) {
-            delete(bundleRoot);
+            delete(configurationDir);
             throw new InvalidConfigException("Unable to get ID from downloaded configuration", e);
         }
+
         synchronized (this) {
             saveIndex();
         }
-        log.info("Installed configuration " + configId + " in location " + newId);
+
+        log.info("Installed configuration " + configId + " in location " + configurationDir.getName());
+        return configId;
+    }
+
+    public URI install(File source) throws IOException, InvalidConfigException {
+        if (!source.isDirectory()) {
+            throw new InvalidConfigException("Source must be a directory");
+        }
+
+        File configurationDir = createConfigurationDir();
+        if (!source.renameTo(configurationDir)) {
+            throw new IOException("Could not move source directory into config store:" +
+                    " source=" + source.getAbsolutePath() + ", destination=" + configurationDir.getAbsolutePath());
+        }
+
+        URI configId;
+        try {
+            GBeanMBean config = loadConfig(configurationDir);
+            configId = (URI) config.getAttribute("ID");
+            index.setProperty(configId.toString(), configurationDir.getName());
+        } catch (Exception e) {
+            // try to put the file back
+            configurationDir.renameTo(source);
+            throw new InvalidConfigException("Unable to get ID from downloaded configuration", e);
+        }
+
+        synchronized (this) {
+            saveIndex();
+        }
+
+        log.info("Installed configuration " + configId + " in location " + configurationDir.getName());
         return configId;
     }
 

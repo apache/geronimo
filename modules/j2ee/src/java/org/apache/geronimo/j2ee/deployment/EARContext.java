@@ -16,24 +16,23 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import java.util.jar.JarOutputStream;
+import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-import java.util.jar.Attributes;
-import java.io.IOException;
-import java.io.File;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.deployment.util.JarUtil;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 
@@ -58,8 +57,8 @@ public class EARContext extends DeploymentContext {
 
     private final EJBRefContext ejbRefContext;
 
-    public EARContext(JarOutputStream jos, URI id, ConfigurationModuleType moduleType, URI parentID, Kernel kernel, String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactedTimerName, ObjectName nonTransactedTimerName, EJBRefContext ejbRefContext) throws MalformedObjectNameException, DeploymentException {
-        super(jos, id, moduleType, parentID, kernel);
+    public EARContext(File baseDir, URI id, ConfigurationModuleType moduleType, URI parentID, Kernel kernel, String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactedTimerName, ObjectName nonTransactedTimerName, EJBRefContext ejbRefContext) throws MalformedObjectNameException, DeploymentException {
+        super(baseDir, id, moduleType, parentID, kernel);
         this.j2eeDomainName = j2eeDomainName;
         this.j2eeServerName = j2eeServerName;
 
@@ -190,22 +189,24 @@ public class EARContext extends DeploymentContext {
             }
 
             URI path = baseUri.resolve(uri);
-            File classPathFile = JarUtil.toFile(earFile, path.getPath());
+            // todo no need to copy this into a temp file...
+            File classPathFile = DeploymentUtil.toFile(earFile, path.getPath());
 
             // before going to the work of adding this file, let's make sure it really is a jar file
-            JarFile classPathJar;
+            JarFile classPathJar = null;
             try {
                 classPathJar = new JarFile(classPathFile);
+
+                // add this class path jar to the output context
+                addInclude(path, classPathFile);
+
+                // add the client jars of this class path jar
+                addManifestClassPath(earFile, module, classPathJar, path);
             } catch (IOException e) {
                 throw new DeploymentException("Manifest class path entries must be a valid jar file (J2EE 1.4 Section 8.2)", e);
+            } finally {
+                DeploymentUtil.close(classPathJar);
             }
-
-            // add this class path jar to the output context
-            addInclude(path, classPathFile.toURL());
-
-            // add the client jars of this class path jar
-            addManifestClassPath(earFile, module, classPathJar, path);
         }
     }
-
 }

@@ -59,9 +59,15 @@ public class URLType {
         } else {
             // we have a regular file - see if it contains a manifest
             try {
-                JarFile jar = new JarFile(file);
-                jar.getManifest();
-                jar.close();
+                JarFile jar = null;
+                try {
+                    jar = new JarFile(file);
+                    jar.getManifest();
+                } finally {
+                    if (jar != null) {
+                        jar.close();
+                    }
+                }
                 return PACKED_ARCHIVE;
             } catch (ZipException e) {
                 return RESOURCE;

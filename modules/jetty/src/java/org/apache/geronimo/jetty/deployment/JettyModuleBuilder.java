@@ -17,10 +17,8 @@
 
 package org.apache.geronimo.jetty.deployment;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -40,8 +38,7 @@ import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
-import org.apache.geronimo.deployment.util.IOUtil;
-import org.apache.geronimo.deployment.util.JarUtil;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
@@ -103,12 +100,12 @@ public class JettyModuleBuilder implements ModuleBuilder {
         WebAppType webApp;
         try {
             if (specDDUrl == null) {
-                specDDUrl = JarUtil.createJarURL(moduleFile, "WEB-INF/web.xml");
+                specDDUrl = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/web.xml");
             }
 
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
             // on the J2ee management object
-            specDD = IOUtil.readAll(specDDUrl);
+            specDD = DeploymentUtil.readAll(specDDUrl);
 
             // parse it
             WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(SchemaConversionUtils.parse(specDD));
@@ -158,7 +155,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
                     if (plan != null) {
                         jettyWebAppdoc = JettyWebAppDocument.Factory.parse((File)plan);
                     } else {
-                        URL path = JarUtil.createJarURL(moduleFile, "WEB-INF/geronimo-jetty.xml");
+                        URL path = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/geronimo-jetty.xml");
                         jettyWebAppdoc = JettyWebAppDocument.Factory.parse(path);
                     }
                     if (jettyWebAppdoc != null) {
@@ -215,24 +212,19 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
         try {
-            URI targetURI = URI.create(module.getTargetPath() + "/");
+            URI baseDir = URI.create(module.getTargetPath() + "/");
 
             // add the warfile's content to the configuration
             JarFile warFile = module.getModuleFile();
             Enumeration entries = warFile.entries();
             while (entries.hasMoreElements()) {
                 ZipEntry entry = (ZipEntry) entries.nextElement();
-                URI target = targetURI.resolve(entry.getName());
+                URI targetPath = baseDir.resolve(entry.getName());
                 if (entry.getName().equals("WEB-INF/web.xml")) {
                     // TODO gets rid of these tests when Jetty will use the serialized Geronimo DD.
-                    earContext.addFile(target, new ByteArrayInputStream(module.getOriginalSpecDD().getBytes()));
+                    earContext.addFile(targetPath, module.getOriginalSpecDD());
                 } else {
-                    InputStream in = warFile.getInputStream(entry);
-                    try {
-                        earContext.addFile(target, in);
-                    } finally {
-                        IOUtil.close(in);
-                    }
+                    earContext.addFile(targetPath, warFile, entry);
                 }
             }
 

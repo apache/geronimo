@@ -26,11 +26,9 @@ import java.net.URL;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.system.configuration.LocalConfigStore;
-import org.apache.geronimo.kernel.config.Configuration;
-
 import junit.framework.TestCase;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.kernel.config.Configuration;
 
 /**
  *
@@ -53,28 +51,37 @@ public class LocalConfigStoreTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
-        root = new File(System.getProperty("java.io.tmpdir") + "/config-store");
-        root.mkdir();
+        try {
+            root = new File(System.getProperty("java.io.tmpdir") + "/config-store");
+            root.mkdir();
 
-        store = new LocalConfigStore(root);
-        store.doStart();
+            store = new LocalConfigStore(root);
+            store.doStart();
 
-        GBeanMBean gbean = new GBeanMBean(Configuration.GBEAN_INFO);
-        uri = new URI("test");
-        gbean.setAttribute("ID", uri);
-        sourceFile = File.createTempFile("test", ".car");
-        source = sourceFile.toURL();
-        JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(sourceFile)));
-        jos.putNextEntry(new ZipEntry("META-INF/config.ser"));
-        ObjectOutputStream oos = new ObjectOutputStream(jos);
-        Configuration.storeGMBeanState(gbean, oos);
-        oos.flush();
-        jos.closeEntry();
-        jos.close();
+            GBeanMBean gbean = new GBeanMBean(Configuration.GBEAN_INFO);
+            uri = new URI("test");
+            gbean.setAttribute("ID", uri);
+            sourceFile = File.createTempFile("test", ".car");
+            source = sourceFile.toURL();
+            JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(sourceFile)));
+            jos.putNextEntry(new ZipEntry("META-INF/config.ser"));
+            ObjectOutputStream oos = new ObjectOutputStream(jos);
+            Configuration.storeGMBeanState(gbean, oos);
+            oos.flush();
+            jos.closeEntry();
+            jos.close();
+        } catch (Exception e) {
+            if (sourceFile != null) {
+                sourceFile.delete();
+            }
+            throw e;
+        }
     }
 
     protected void tearDown() throws Exception {
-        sourceFile.delete();
+        if (sourceFile != null) {
+            sourceFile.delete();
+        }
         store.doStop();
         store = null;
         recursiveDelete(root);

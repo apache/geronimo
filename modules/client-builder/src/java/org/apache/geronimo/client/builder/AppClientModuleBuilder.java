@@ -16,9 +16,7 @@
  */
 package org.apache.geronimo.client.builder;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -29,9 +27,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+import java.util.HashSet;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
-import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -39,10 +37,8 @@ import javax.naming.Reference;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
-import org.apache.geronimo.deployment.util.FileUtil;
-import org.apache.geronimo.deployment.util.IOUtil;
-import org.apache.geronimo.deployment.util.JarUtil;
 import org.apache.geronimo.deployment.util.NestedJarFile;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
@@ -117,12 +113,12 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         ApplicationClientType appClient;
         try {
             if (specDDUrl == null) {
-                specDDUrl = JarUtil.createJarURL(moduleFile, "META-INF/application-client.xml");
+                specDDUrl = DeploymentUtil.createJarURL(moduleFile, "META-INF/application-client.xml");
             }
 
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
             // on the J2ee management object
-            specDD = IOUtil.readAll(specDDUrl);
+            specDD = DeploymentUtil.readAll(specDDUrl);
 
             // parse it
             XmlObject xmlObject = SchemaConversionUtils.parse(specDD);
@@ -172,7 +168,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                     if (plan != null) {
                         gerAppClientDoc = GerApplicationClientDocument.Factory.parse((File)plan);
                     } else {
-                        URL path = JarUtil.createJarURL(moduleFile, "META-INF/geronimo-application-client.xml");
+                        URL path = DeploymentUtil.createJarURL(moduleFile, "META-INF/geronimo-application-client.xml");
                         gerAppClientDoc = GerApplicationClientDocument.Factory.parse(path);
                     }
                     if (gerAppClientDoc != null) {
@@ -233,8 +229,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         // extract the ejbJar file into a standalone packed jar file and add the contents to the output
         JarFile moduleFile = module.getModuleFile();
         try {
-            File appClientJarFile = JarUtil.extractToPackedJar(moduleFile);
-            earContext.addInclude(URI.create(module.getTargetPath()), appClientJarFile.toURL());
+            earContext.addIncludeAsPackedJar(URI.create(module.getTargetPath()), moduleFile);
         } catch (IOException e) {
             throw new DeploymentException("Unable to copy app client module jar into configuration: " + moduleFile.getName());
         }
@@ -306,170 +301,185 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         EARContext appClientDeploymentContext = null;
         File appClientConfiguration = null;
         try {
-            appClientConfiguration = FileUtil.createTempFile();
-            JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(appClientConfiguration)));
-
-            // construct the app client deployment context... this is the same class used by the ear context
             try {
-                EJBReferenceBuilder ejbReferenceBuilder = new EJBReferenceBuilder() {
-                    public Reference createEJBLocalReference(String objectName, boolean isSession, String localHome, String local) {
-                        throw new UnsupportedOperationException("Application client cannot have a local ejb ref");
-                    }
+                appClientConfiguration = DeploymentUtil.createTempDir();
 
-                    public Reference createEJBRemoteReference(String objectName, boolean isSession, String home, String remote) {
-                        RemoteEJBRefAddr addr = new RemoteEJBRefAddr(objectName);
-                        Reference reference = new Reference(null, addr, RemoteEJBObjectFactory.class.getName(), null);
-                        return reference;
-                    }
-                };
-
-                URI clientConfigId = URI.create(geronimoAppClient.getClientConfigId());
-                URI clientParentId;
-                if (geronimoAppClient.isSetClientParentId()) {
-                    clientParentId = URI.create(geronimoAppClient.getClientParentId());
-                } else {
-                    clientParentId = CLIENT_PARENT_ID;
-                }
-                appClientDeploymentContext = new EARContext(jos,
-                        clientConfigId,
-                        ConfigurationModuleType.APP_CLIENT,
-                        clientParentId,
-                        kernel,
-                        clientDomainName,
-                        clientServerName,
-                        clientApplicationName,
-                        transactionContextManagerObjectName,
-                        connectionTrackerObjectName,
-                        null,
-                        null,
-                        new EJBRefContext(earContext.getEJBRefContext(), ejbReferenceBuilder));
-            } catch (Exception e) {
-                throw new DeploymentException("Could not create a deployment context for the app client", e);
-            }
-
-            // extract the client Jar file into a standalone packed jar file and add the contents to the output
-            File appClientJarFile = JarUtil.extractToPackedJar(moduleFile);
-            URI moduleBase = new URI(appClientModule.getTargetPath());
-            appClientDeploymentContext.addInclude(moduleBase, appClientJarFile.toURL());
-
-            // add the includes
-            GerDependencyType[] includes = geronimoAppClient.getIncludeArray();
-            for (int i = 0; i < includes.length; i++) {
-                GerDependencyType include = includes[i];
-                URI uri = getDependencyURI(include);
-                String name = uri.toString();
-                int idx = name.lastIndexOf('/');
-                if (idx != -1) {
-                    name = name.substring(idx + 1);
-                }
-                URI path;
+                // construct the app client deployment context... this is the same class used by the ear context
                 try {
-                    path = new URI(name);
-                } catch (URISyntaxException e) {
-                    throw new DeploymentException("Unable to generate path for include: " + uri, e);
-                }
-                try {
-                    URL url = repository.getURL(uri);
-                    appClientDeploymentContext.addInclude(path, url);
-                } catch (IOException e) {
-                    throw new DeploymentException("Unable to add include: " + uri, e);
-                }
-            }
-
-            // add the dependencies
-            GerDependencyType[] dependencies = geronimoAppClient.getDependencyArray();
-            for (int i = 0; i < dependencies.length; i++) {
-                appClientDeploymentContext.addDependency(getDependencyURI(dependencies[i]));
-            }
-
-            appClientDeploymentContext.addManifestClassPath(appClientModule.getEarFile(), appClientModule, moduleFile, moduleBase);
-
-
-            // get the classloader
-            ClassLoader appClientClassLoader = appClientDeploymentContext.getClassLoader(repository);
-
-            // pop in all the gbeans declared in the geronimo app client file
-            if (geronimoAppClient != null) {
-                GerGbeanType[] gbeans = geronimoAppClient.getGbeanArray();
-                for (int i = 0; i < gbeans.length; i++) {
-                    GBeanHelper.addGbean(new AppClientGBeanAdapter(gbeans[i]), appClientClassLoader, appClientDeploymentContext);
-                }
-                //deploy the resource adapters specified in the geronimo-application.xml
-                Collection resourceModules = appClientModule.getResourceModules();
-                GerResourceType[] resources = geronimoAppClient.getResourceArray();
-                for (int i = 0; i < resources.length; i++) {
-                    GerResourceType resource = resources[i];
-                    String path;
-                    JarFile connectorFile;
-                    if (resource.isSetExternalRar()) {
-                        path = resource.getExternalRar();
-                        URI pathURI = new URI(path);
-                        if (!repository.hasURI(pathURI)) {
-                            throw new DeploymentException("Missing rar in repository: " + path);
+                    EJBReferenceBuilder ejbReferenceBuilder = new EJBReferenceBuilder() {
+                        public Reference createEJBLocalReference(String objectName, boolean isSession, String localHome, String local) {
+                            throw new UnsupportedOperationException("Application client cannot have a local ejb ref");
                         }
-                        URL pathURL = repository.getURL(pathURI);
-                        connectorFile = new JarFile(pathURL.getFile());
+
+                        public Reference createEJBRemoteReference(String objectName, boolean isSession, String home, String remote) {
+                            RemoteEJBRefAddr addr = new RemoteEJBRefAddr(objectName);
+                            Reference reference = new Reference(null, addr, RemoteEJBObjectFactory.class.getName(), null);
+                            return reference;
+                        }
+                    };
+
+                    URI clientConfigId = URI.create(geronimoAppClient.getClientConfigId());
+                    URI clientParentId;
+                    if (geronimoAppClient.isSetClientParentId()) {
+                        clientParentId = URI.create(geronimoAppClient.getClientParentId());
                     } else {
-                        path = resource.getInternalRar();
-                        connectorFile = new NestedJarFile(appClientModule.getEarFile(), path);
+                        clientParentId = CLIENT_PARENT_ID;
                     }
-                    XmlObject connectorPlan = resource.getConnector();
-                    Module connectorModule = connectorModuleBuilder.createModule(connectorPlan, connectorFile, path, null, null);
-                    resourceModules.add(connectorModule);
-                    connectorModuleBuilder.installModule(connectorFile, appClientDeploymentContext, connectorModule);
-                }
-                ClassLoader cl = appClientDeploymentContext.getClassLoader(repository);
-                for (Iterator iterator = resourceModules.iterator(); iterator.hasNext();) {
-                    Module connectorModule = (Module) iterator.next();
-                    connectorModuleBuilder.initContext(appClientDeploymentContext, connectorModule, cl);
+                    appClientDeploymentContext = new EARContext(appClientConfiguration,
+                            clientConfigId,
+                            ConfigurationModuleType.APP_CLIENT,
+                            clientParentId,
+                            kernel,
+                            clientDomainName,
+                            clientServerName,
+                            clientApplicationName,
+                            transactionContextManagerObjectName,
+                            connectionTrackerObjectName,
+                            null,
+                            null,
+                            new EJBRefContext(earContext.getEJBRefContext(), ejbReferenceBuilder));
+                } catch (Exception e) {
+                    throw new DeploymentException("Could not create a deployment context for the app client", e);
                 }
 
-                for (Iterator iterator = resourceModules.iterator(); iterator.hasNext();) {
-                    Module connectorModule = (Module) iterator.next();
-                    connectorModuleBuilder.addGBeans(appClientDeploymentContext, connectorModule, cl);
+                // extract the client Jar file into a standalone packed jar file and add the contents to the output
+                URI moduleBase = new URI(appClientModule.getTargetPath());
+                try {
+                    appClientDeploymentContext.addIncludeAsPackedJar(moduleBase, moduleFile);
+                } catch (IOException e) {
+                    throw new DeploymentException("Unable to copy app client module jar into configuration: " + moduleFile.getName());
                 }
 
+                // add the includes
+                GerDependencyType[] includes = geronimoAppClient.getIncludeArray();
+                for (int i = 0; i < includes.length; i++) {
+                    GerDependencyType include = includes[i];
+                    URI uri = getDependencyURI(include);
+                    String name = uri.toString();
+                    int idx = name.lastIndexOf('/');
+                    if (idx != -1) {
+                        name = name.substring(idx + 1);
+                    }
+                    URI path;
+                    try {
+                        path = new URI(name);
+                    } catch (URISyntaxException e) {
+                        throw new DeploymentException("Unable to generate path for include: " + uri, e);
+                    }
+                    try {
+                        URL url = repository.getURL(uri);
+                        appClientDeploymentContext.addInclude(path, url);
+                    } catch (IOException e) {
+                        throw new DeploymentException("Unable to add include: " + uri, e);
+                    }
+                }
+
+                // add the dependencies
+                GerDependencyType[] dependencies = geronimoAppClient.getDependencyArray();
+                for (int i = 0; i < dependencies.length; i++) {
+                    appClientDeploymentContext.addDependency(getDependencyURI(dependencies[i]));
+                }
+
+                appClientDeploymentContext.addManifestClassPath(appClientModule.getEarFile(), appClientModule, moduleFile, moduleBase);
+
+
+                // get the classloader
+                ClassLoader appClientClassLoader = appClientDeploymentContext.getClassLoader(repository);
+
+                // pop in all the gbeans declared in the geronimo app client file
+                if (geronimoAppClient != null) {
+                    GerGbeanType[] gbeans = geronimoAppClient.getGbeanArray();
+                    for (int i = 0; i < gbeans.length; i++) {
+                        GBeanHelper.addGbean(new AppClientGBeanAdapter(gbeans[i]), appClientClassLoader, appClientDeploymentContext);
+                    }
+                    //deploy the resource adapters specified in the geronimo-application.xml
+                    Collection resourceModules = new HashSet();
+                    try {
+                        GerResourceType[] resources = geronimoAppClient.getResourceArray();
+                        for (int i = 0; i < resources.length; i++) {
+                            GerResourceType resource = resources[i];
+                            String path;
+                            JarFile connectorFile;
+                            if (resource.isSetExternalRar()) {
+                                path = resource.getExternalRar();
+                                URI pathURI = new URI(path);
+                                if (!repository.hasURI(pathURI)) {
+                                    throw new DeploymentException("Missing rar in repository: " + path);
+                                }
+                                URL pathURL = repository.getURL(pathURI);
+                                connectorFile = new JarFile(pathURL.getFile());
+                            } else {
+                                path = resource.getInternalRar();
+                                connectorFile = new NestedJarFile(appClientModule.getEarFile(), path);
+                            }
+                            XmlObject connectorPlan = resource.getConnector();
+                            Module connectorModule = connectorModuleBuilder.createModule(connectorPlan, connectorFile, path, null, null);
+                            resourceModules.add(connectorModule);
+                            connectorModuleBuilder.installModule(connectorFile, appClientDeploymentContext, connectorModule);
+                        }
+                        ClassLoader cl = appClientDeploymentContext.getClassLoader(repository);
+                        for (Iterator iterator = resourceModules.iterator(); iterator.hasNext();) {
+                            Module connectorModule = (Module) iterator.next();
+                            connectorModuleBuilder.initContext(appClientDeploymentContext, connectorModule, cl);
+                        }
+
+                        for (Iterator iterator = resourceModules.iterator(); iterator.hasNext();) {
+                            Module connectorModule = (Module) iterator.next();
+                            connectorModuleBuilder.addGBeans(appClientDeploymentContext, connectorModule, cl);
+                        }
+                    } finally {
+                        for (Iterator iterator = resourceModules.iterator(); iterator.hasNext();) {
+                            Module connectorModule = (Module) iterator.next();
+                            connectorModule.close();
+                        }
+                    }
+                }
+
+                // add the app client static jndi provider
+                ObjectName jndiContextName = ObjectName.getInstance("geronimo.client:type=StaticJndiContext");
+                GBeanMBean jndiContextGBean = new GBeanMBean("org.apache.geronimo.client.StaticJndiContextPlugin", appClientClassLoader);
+                try {
+
+                    componentContext = buildComponentContext(appClientDeploymentContext, appClientModule, appClient, geronimoAppClient, earClassLoader);
+                    jndiContextGBean.setAttribute("context", componentContext);
+                } catch (Exception e) {
+                    throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
+                }
+                appClientDeploymentContext.addGBean(jndiContextName, jndiContextGBean);
+
+                // finally add the app client container
+                ObjectName appClienContainerName = ObjectName.getInstance("geronimo.client:type=ClientContainer");
+                GBeanMBean appClienContainerGBean = new GBeanMBean("org.apache.geronimo.client.AppClientContainer", appClientClassLoader);
+                try {
+                    appClienContainerGBean.setAttribute("mainClassName", mainClasss);
+                    appClienContainerGBean.setAttribute("appClientModuleName", appClientModuleName);
+                    appClienContainerGBean.setReferencePattern("JNDIContext", new ObjectName("geronimo.client:type=StaticJndiContext"));
+                } catch (Exception e) {
+                    throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
+                }
+                appClientDeploymentContext.addGBean(appClienContainerName, appClienContainerGBean);
+            } finally {
+                if (appClientDeploymentContext != null) {
+                    try {
+                        appClientDeploymentContext.close();
+                    } catch (IOException e) {
+                    }
+                }
             }
 
-            // add the app client static jndi provider
-            ObjectName jndiContextName = ObjectName.getInstance("geronimo.client:type=StaticJndiContext");
-            GBeanMBean jndiContextGBean = new GBeanMBean("org.apache.geronimo.client.StaticJndiContextPlugin", appClientClassLoader);
             try {
-
-                componentContext = buildComponentContext(appClientDeploymentContext, appClientModule, appClient, geronimoAppClient, earClassLoader);
-                jndiContextGBean.setAttribute("context", componentContext);
+                return store.install(appClientConfiguration).toString();
             } catch (Exception e) {
-                throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
+                throw new DeploymentException(e);
             }
-            appClientDeploymentContext.addGBean(jndiContextName, jndiContextGBean);
-
-            // finally add the app client container
-            ObjectName appClienContainerName = ObjectName.getInstance("geronimo.client:type=ClientContainer");
-            GBeanMBean appClienContainerGBean = new GBeanMBean("org.apache.geronimo.client.AppClientContainer", appClientClassLoader);
-            try {
-                appClienContainerGBean.setAttribute("mainClassName", mainClasss);
-                appClienContainerGBean.setAttribute("appClientModuleName", appClientModuleName);
-                appClienContainerGBean.setReferencePattern("JNDIContext", new ObjectName("geronimo.client:type=StaticJndiContext"));
-            } catch (Exception e) {
-                throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
-            }
-            appClientDeploymentContext.addGBean(appClienContainerName, appClienContainerGBean);
+        } catch (DeploymentException e) {
+            throw e;
         } catch (Exception e) {
             throw new DeploymentException(e);
         } finally {
-            if (appClientDeploymentContext != null) {
-                try {
-                    appClientDeploymentContext.close();
-                } catch (IOException e) {
-                }
-            }
+            DeploymentUtil.recursiveDelete(appClientConfiguration);
         }
 
-        try {
-            return store.install(appClientConfiguration.toURL()).toString();
-        } catch (Exception e) {
-            throw new DeploymentException(e);
-        }
     }
 
     private ReadOnlyContext buildComponentContext(EARContext earContext, AppClientModule appClientModule, ApplicationClientType appClient, GerApplicationClientType geronimoAppClient, ClassLoader cl) throws DeploymentException {

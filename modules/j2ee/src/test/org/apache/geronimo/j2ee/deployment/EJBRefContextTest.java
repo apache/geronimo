@@ -16,7 +16,6 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
-import java.io.File;
 import java.net.URI;
 import javax.naming.Reference;
 
@@ -44,7 +43,6 @@ public class EJBRefContextTest extends TestCase {
     private final String car_gt_local = "car_gt_local";
     private final String car_enzo = "car_enzo";
     private final String car_enzo_local = "car_enzo_local";
-    private File carFile;
     private EJBRefContext ejbRefContext;
 
     public void testSimpleRefs() throws Exception {
@@ -153,7 +151,6 @@ public class EJBRefContextTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
-        carFile = File.createTempFile("EARTest", ".car");
         ejbRefContext = new EJBRefContext(new EJBReferenceBuilder() {
             public Reference createEJBLocalReference(String objectName, boolean isSession, String localHome, String local) {
                 return new FakeReference(objectName);
@@ -178,10 +175,6 @@ public class EJBRefContextTest extends TestCase {
         ejbRefContext.addEJBLocalId(car, "gt", car_gt_local, true, "GTLocalHome", "GTLocalRemote");
         ejbRefContext.addEJBRemoteId(car, "enzo", car_enzo, true, "EnzoHome", "EnzoRemote");
         ejbRefContext.addEJBLocalId(car, "enzo", car_enzo_local, true, "LocalHome", "Local");
-    }
-
-    protected void tearDown() throws Exception {
-        carFile.delete();
     }
 
     private void assertReferenceEqual(String expected, Reference reference) {

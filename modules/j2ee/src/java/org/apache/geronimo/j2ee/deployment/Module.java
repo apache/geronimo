@@ -21,6 +21,7 @@ import java.net.URI;
 
 import org.apache.xmlbeans.XmlObject;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 
 /**
  * @version $Rev$ $Date$
@@ -111,5 +112,9 @@ public abstract class Module {
             return name.equals(module.name);
         }
         return false;
+    }
+
+    public void close() {
+        DeploymentUtil.close(moduleFile);
     }
 }

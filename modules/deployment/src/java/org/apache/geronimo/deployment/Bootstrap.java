@@ -17,15 +17,13 @@
 
 package org.apache.geronimo.deployment;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.jar.Attributes;
-import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
-import java.util.zip.ZipEntry;
 
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;
 import org.apache.geronimo.system.configuration.LocalConfigStore;
@@ -137,29 +135,54 @@ public class Bootstrap {
             // attribute that indicates to a JSR-88 tool that we have a Deployment factory
             mainAttributes.putValue("J2EE-DeploymentFactory-Implementation-Class", deploymentFactory);
 
-            // build and install the deployer-system configuration
             // write the deployer system out to a jar
-            File outputFile = new File(deployerJar);
-            JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(outputFile)), manifest);
-            try {
-                // add the startup jar entry which allows us to locate the startup directory
-                jos.putNextEntry(new ZipEntry("META-INF/startup-jar"));
-                jos.closeEntry();
 
-                // add the deployment system configuration to the jar
-                builder.buildConfiguration(jos, deployerSystemConfig);
+            // create a temp directory to build into
+            File tempDir = null;
+            try {
+                tempDir = DeploymentUtil.createTempDir();
+
+                // build the deployer-system configuration into the tempDir
+                builder.buildConfiguration(deployerSystemConfig, null, tempDir);
+
+                // Write the manifest
+                File metaInf = new File(tempDir, "META-INF");
+                metaInf.mkdirs();
+                FileOutputStream out = null;
+                try {
+                    out = new FileOutputStream(new File(metaInf, "MANIFEST.MF"));
+                    manifest.write(out);
+                } finally {
+                    DeploymentUtil.close(out);
+                }
+
+                // add the startup file which allows us to locate the startup directory
+                File startupJarTag = new File(metaInf, "startup-jar");
+                startupJarTag.createNewFile();
+
+                // jar up the directory
+                DeploymentUtil.jarDirectory(tempDir,  new File(deployerJar));
+
+                // delete the startup file before moving this to the config store
+                startupJarTag.delete();
+
+                // install the configuration
+                configStore.install(tempDir);
             } finally {
-                jos.close();
+                DeploymentUtil.recursiveDelete(tempDir);
             }
-            configStore.install(outputFile.toURL());
 
             // build and install the j2ee-deployer configuration
-            File tempFile = File.createTempFile("j2ee-deployer", ".car");
             try {
-                builder.buildConfiguration(tempFile, manifest, j2eeDeployerConfig, null);
-                configStore.install(tempFile.toURL());
+                tempDir = DeploymentUtil.createTempDir();
+
+                // build the j2ee-deployer configuration into the tempDir
+                builder.buildConfiguration(j2eeDeployerConfig, null, tempDir);
+
+                // install the configuration
+                configStore.install(tempDir);
             } finally {
-                tempFile.delete();
+                DeploymentUtil.recursiveDelete(tempDir);
             }
         } finally {
             Thread.currentThread().setContextClassLoader(oldCL);

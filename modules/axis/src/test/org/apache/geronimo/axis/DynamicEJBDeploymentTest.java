@@ -148,7 +148,7 @@ public class DynamicEJBDeploymentTest extends AbstractTestCase{
 //								transactionManagerObjectName, connectionTrackerObjectName);
 
 			XmlObject plan = earConfigBuilder.getDeploymentPlan(earFile.toURL());
-			earConfigBuilder.buildConfiguration(carFile, null, earFile, plan);
+			earConfigBuilder.buildConfiguration(earFile, plan, carFile);
 			File unpackedDir = new File(tempDir, "OpenEJBTest-ear-Unpacked");
 			LocalConfigStore.unpack(unpackedDir, new FileInputStream(carFile));
 		} finally {

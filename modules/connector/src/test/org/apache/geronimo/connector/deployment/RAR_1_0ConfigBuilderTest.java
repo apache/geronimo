@@ -20,7 +20,6 @@ package org.apache.geronimo.connector.deployment;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.net.MalformedURLException;
@@ -33,13 +32,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.jar.JarFile;
-import java.util.jar.JarOutputStream;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.deployment.util.JarUtil;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
@@ -50,7 +48,6 @@ import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.system.configuration.LocalConfigStore;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorDocument10;
@@ -180,15 +177,16 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
 
         Thread.currentThread().setContextClassLoader(cl);
 
-        JarFile rarJarFile = JarUtil.createJarFile(rarFile);
+        JarFile rarJarFile = DeploymentUtil.createJarFile(rarFile);
         Module module = moduleBuilder.createModule(action.getVendorDD(), rarJarFile, j2eeModuleName, action.getSpecDD(), null);
         if (module == null) {
             throw new DeploymentException("Was not a connector module");
         }
 
-        File carFile = File.createTempFile("RARTest", ".car");
+        File tempDir = null;
         try {
-            EARContext earContext = new EARContext(new JarOutputStream(new FileOutputStream(carFile)),
+            tempDir = DeploymentUtil.createTempDir();
+            EARContext earContext = new EARContext(tempDir,
                     module.getConfigId(),
                     module.getType(),
                     module.getParentId(),
@@ -208,13 +206,10 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
             moduleBuilder.addGBeans(earContext, module, cl);
             earContext.close();
 
-            File tempdir = new File(System.getProperty("java.io.tmpdir"));
-            File unpackedDir = new File(tempdir, "OpenEJBTest-Unpacked");
-            LocalConfigStore.unpack(unpackedDir, new FileInputStream(carFile));
-
-            verifyDeployment(unpackedDir, oldCl, j2eeDomainName, j2eeServerName, j2eeApplicationName, j2eeModuleName);
+            verifyDeployment(tempDir, oldCl, j2eeDomainName, j2eeServerName, j2eeApplicationName, j2eeModuleName);
         } finally {
-            carFile.delete();
+            module.close();
+            DeploymentUtil.recursiveDelete(tempDir);
         }
     }
 
@@ -225,19 +220,22 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
         ObjectName j2eeServer = new ObjectName(j2eeDomainName + ":name=" + j2eeServerName);
         Kernel kernel = new Kernel("blah");
         kernel.boot();
+        JarFile rarFile = null;
         try {
+            rarFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear-noger.ear"));
             EARConfigBuilder configBuilder = new EARConfigBuilder(j2eeServer, null, connectionTrackerName, null, null, null, null, null, null, new ConnectorModuleBuilder(), null, kernel);
-            JarFile rarFile = JarUtil.createJarFile(new File(basedir, "target/test-ear-noger.ear"));
-            File outFile = File.createTempFile("EARTest", ".car");
+            File tempDir = null;
             try {
+                tempDir = DeploymentUtil.createTempDir();
                 File planFile = new File(basedir, "src/test-data/data/external-application-plan.xml");
                 Object plan = configBuilder.getDeploymentPlan(planFile, rarFile);
-                configBuilder.buildConfiguration(outFile, null, plan, rarFile);
+                configBuilder.buildConfiguration(plan, rarFile, tempDir);
             } finally {
-                outFile.delete();
+                DeploymentUtil.recursiveDelete(tempDir);
             }
         } finally {
             kernel.shutdown();
+            DeploymentUtil.close(rarFile);
         }
     }
 
@@ -413,7 +411,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
         public abstract File getRARFile();
 
         public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
-            moduleBuilder.installModule(JarUtil.createJarFile(getRARFile()), earContext, module);
+            moduleBuilder.installModule(module.getModuleFile(), earContext, module);
         }
     }
 

@@ -20,7 +20,6 @@ package org.apache.geronimo.connector.deployment;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.net.URL;
@@ -32,13 +31,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.jar.JarOutputStream;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.connector.ActivationSpecInfo;
-import org.apache.geronimo.deployment.util.JarUtil;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -48,7 +46,6 @@ import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.system.configuration.LocalConfigStore;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
@@ -90,7 +87,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
                 return rarFile;
             }
             public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
-                moduleBuilder.installModule(JarUtil.createJarFile(rarFile), earContext, module);
+                moduleBuilder.installModule(module.getModuleFile(), earContext, module);
             }
         };
         executeTestBuildModule(action);
@@ -104,7 +101,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
                 return rarFile;
             }
             public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
-                moduleBuilder.installModule(JarUtil.createJarFile(rarFile), earContext, module);
+                moduleBuilder.installModule(module.getModuleFile(), earContext, module);
             }
         };
         executeTestBuildModule(action);
@@ -126,12 +123,13 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
 
         Thread.currentThread().setContextClassLoader(cl);
 
-        Module module = moduleBuilder.createModule(null, JarUtil.createJarFile(action.getRARFile()));
+        Module module = moduleBuilder.createModule(null, DeploymentUtil.createJarFile(action.getRARFile()));
         assertEquals(j2eeModuleName, module.getConfigId().toString());
 
-        File carFile = File.createTempFile("RARTest", ".car");
+        File tempDir = null;
         try {
-            EARContext earContext = new EARContext(new JarOutputStream(new FileOutputStream(carFile)),
+            tempDir = DeploymentUtil.createTempDir();
+            EARContext earContext = new EARContext(tempDir,
                     module.getConfigId(),
                     module.getType(),
                     module.getParentId(),
@@ -151,13 +149,10 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
             moduleBuilder.addGBeans(earContext, module, cl);
             earContext.close();
 
-            File tempdir = new File(System.getProperty("java.io.tmpdir"));
-            File unpackedDir = new File(tempdir, "OpenEJBTest-Unpacked");
-            LocalConfigStore.unpack(unpackedDir, new FileInputStream(carFile));
-
-            verifyDeployment(unpackedDir, oldCl, j2eeDomainName, j2eeServerName, j2eeApplicationName, j2eeModuleName, resourceAdapterName);
+            verifyDeployment(tempDir, oldCl, j2eeDomainName, j2eeServerName, j2eeApplicationName, j2eeModuleName, resourceAdapterName);
         } finally {
-            carFile.delete();
+            module.close();
+            DeploymentUtil.recursiveDelete(tempDir);
         }
     }
 

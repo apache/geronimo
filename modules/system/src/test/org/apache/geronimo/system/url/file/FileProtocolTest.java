@@ -48,12 +48,21 @@ public class FileProtocolTest extends TestCase {
     private URL fileURL;
 
     protected void setUp() throws Exception {
-        file = File.createTempFile("FileProtocolTest", ".tmp");
-        fileURL = file.toURI().toURL();
+        try {
+            file = File.createTempFile("FileProtocolTest", ".tmp");
+            fileURL = file.toURI().toURL();
+        } catch (Exception e) {
+            if (file != null) {
+                file.delete();
+            }
+            throw e;
+        }
     }
 
     protected void tearDown() throws Exception {
-        file.delete();
+        if (file != null) {
+            file.delete();
+        }
     }
 
     public void testCreateURL() throws Exception {
@@ -61,10 +70,17 @@ public class FileProtocolTest extends TestCase {
     }
 
     public void testURLConnectionType() throws Exception {
-        File tempFile = File.createTempFile("foo", "bar");
-        URL url = new URL(tempFile.toURL().toExternalForm());
-        URLConnection c = url.openConnection();
-        assertEquals(FileURLConnection.class, c.getClass());
+        File tempFile = null;
+        try {
+            tempFile = File.createTempFile("foo", "bar");
+            URL url = new URL(tempFile.toURL().toExternalForm());
+            URLConnection c = url.openConnection();
+            assertEquals(FileURLConnection.class, c.getClass());
+        } finally {
+            if (tempFile != null) {
+                tempFile.delete();
+            }
+        }
     }
 
     public void testFileToURL() throws Exception {
@@ -128,12 +144,15 @@ public class FileProtocolTest extends TestCase {
     }
 
     public void testGetContentType() throws Exception {
-        File file = File.createTempFile("FileProtocolTest", ".xml");
+        File file = null;
         try {
+            file = File.createTempFile("FileProtocolTest", ".xml");
             URLConnection c = file.toURI().toURL().openConnection();
             assertEquals("application/xml", c.getContentType());
         } finally {
-            file.delete();
+            if (file != null) {
+                file.delete();
+            }
         }
     }
 
@@ -159,16 +178,25 @@ public class FileProtocolTest extends TestCase {
     }
 
     public void testSyncFDUpdatesFileLength() throws Exception {
-        File foo = File.createTempFile("TestFileLength", ".tmp");
-        FileOutputStream fos = new FileOutputStream(foo);
-        OutputStream out = new BufferedOutputStream(fos);
+        File foo = null;
+        OutputStream out = null;
         try {
+            foo = File.createTempFile("TestFileLength", ".tmp");
+            FileOutputStream fos = new FileOutputStream(foo);
+            out = new BufferedOutputStream(fos);
+
             out.write(new byte[10]);
             out.flush();
             // out.close();
             fos.getFD().sync(); // this is required on Windows for foo.length to be updated
             assertEquals(10, foo.length());
         } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException ignored) {
+                }
+            }
             foo.delete();
         }
     }

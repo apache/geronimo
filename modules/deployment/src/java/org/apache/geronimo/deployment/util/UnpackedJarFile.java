@@ -39,12 +39,8 @@ public class UnpackedJarFile extends JarFile {
     private boolean manifestLoaded = false;
     private Manifest manifest;
 
-    public UnpackedJarFile(String name) throws IOException {
-        this(new File(name));
-    }
-
     public UnpackedJarFile(File baseDir) throws IOException {
-        super(JarUtil.DUMMY_JAR_FILE);
+        super(DeploymentUtil.DUMMY_JAR_FILE);
         this.baseDir = baseDir;
         if (!baseDir.isDirectory()) {
             throw new IOException("File must be a directory: file=" + baseDir.getAbsolutePath());
@@ -96,7 +92,7 @@ public class UnpackedJarFile extends JarFile {
     }
 
     public Enumeration entries() {
-        Collection files = FileUtil.listRecursiveFiles(baseDir);
+        Collection files = DeploymentUtil.listRecursiveFiles(baseDir);
 
         Manifest manifest = getManifestSafe();
         LinkedList entries = new LinkedList();
@@ -121,7 +117,7 @@ public class UnpackedJarFile extends JarFile {
         if (file == null) {
             throw new IOException("Entry not found: name=" + file.getAbsolutePath());
         } else if (file.isDirectory()) {
-            return new JarUtil.EmptyInputStream();
+            return new DeploymentUtil.EmptyInputStream();
         }
         return new FileInputStream(file);
     }

@@ -19,7 +19,6 @@ package org.apache.geronimo.connector.deployment;
 import java.beans.PropertyEditor;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -49,8 +48,7 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransact
 import org.apache.geronimo.connector.outbound.security.PasswordCredentialRealm;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
-import org.apache.geronimo.deployment.util.IOUtil;
-import org.apache.geronimo.deployment.util.JarUtil;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.DynamicGAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -113,12 +111,12 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         XmlObject connector;
         try {
             if (specDDUrl == null) {
-                specDDUrl = JarUtil.createJarURL(moduleFile, "META-INF/ra.xml");
+                specDDUrl = DeploymentUtil.createJarURL(moduleFile, "META-INF/ra.xml");
             }
 
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
             // on the J2ee management object
-            specDD = IOUtil.readAll(specDDUrl);
+            specDD = DeploymentUtil.readAll(specDDUrl);
 
             // parse it
             try {
@@ -150,7 +148,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
                     if (plan != null) {
                         gerConnectorDoc = GerConnectorDocument.Factory.parse((File)plan);
                     } else {
-                        URL path = JarUtil.createJarURL(moduleFile, "META-INF/geronimo-ra.xml");
+                        URL path = DeploymentUtil.createJarURL(moduleFile, "META-INF/geronimo-ra.xml");
                         gerConnectorDoc = GerConnectorDocument.Factory.parse(path);
                     }
                     if (gerConnectorDoc != null) {
@@ -199,18 +197,10 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
             while (entries.hasMoreElements()) {
                 ZipEntry entry = (ZipEntry) entries.nextElement();
                 URI target = targetURI.resolve(entry.getName());
-                InputStream in = moduleFile.getInputStream(entry);
-                try {
-                    if (entry.getName().endsWith(".jar")) {
-                        earContext.addStreamInclude(target, in);
-                    } else {
-                        earContext.addFile(target, in);
-                    }
-                } finally {
-                    try {
-                        in.close();
-                    } catch (IOException e) {
-                    }
+                if (entry.getName().endsWith(".jar")) {
+                    earContext.addInclude(target, moduleFile, entry);
+                } else {
+                    earContext.addFile(target, moduleFile, entry);
                 }
             }
 

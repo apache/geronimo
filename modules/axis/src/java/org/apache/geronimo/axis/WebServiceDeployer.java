@@ -369,8 +369,7 @@ public class WebServiceDeployer {
                 XmlObject plan =
                         earConfigBuilder.getDeploymentPlan(earFile.toURL());
 
-                earConfigBuilder.buildConfiguration(carFile, null, earFile,
-                        plan);
+                earConfigBuilder.buildConfiguration(earFile, plan, carFile);
                 LocalConfigStore.unpack(unpackedDir,
                         new FileInputStream(carFile));
 /////////////////////////////////////////////////////////////////////////////////
