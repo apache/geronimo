@@ -59,16 +59,17 @@ package org.apache.geronimo;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-import javax.management.ObjectName;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.log.GeronimoLogFactory;
-import org.apache.geronimo.kernel.config.LocalConfigStore;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.LocalConfigStore;
+import org.apache.geronimo.kernel.log.GeronimoLogFactory;
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/02/11 03:14:11 $
+ * @version $Revision: 1.8 $ $Date: 2004/02/12 18:23:58 $
  */
 public class Geronimo {
     static {
@@ -89,91 +90,71 @@ public class Geronimo {
      * will remain running until the shutdown() method on the kernel is
      * invoked or until the JVM exits.
      * @param args
+     * @todo commons-cli support
+     * @todo save list of started configurations and restart them next time
      */
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         if (args.length < 2) {
-            System.err.println("usage: " + Geronimo.class.getName() + " <config-store-dir> <config-id>");
+            System.err.println("usage: " + Geronimo.class.getName() + " <config-store-dir> <config-id>...");
             System.exit(1);
         }
         String storeDirName = args[0];
-        URI configID = null;
-        try {
-            configID = new URI(args[1]);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-        String domain = "geronimo";
-
-        Kernel kernel = null;
-        try {
-            kernel = createKernel(domain, storeDirName);
-        } catch (IllegalArgumentException e) {
-            System.err.println(e.getMessage());
-            System.exit(1);
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(2);
-        }
-        try {
-            kernel.load(configID);
-        } catch (Exception e) {
-            kernel.shutdown();
-            e.printStackTrace();
-            System.exit(3);
-        }
-        kernel.getMBeanServer().invoke(new ObjectName("geronimo.config:name=" + ObjectName.quote(args[1])), "startRecursive", null, null);
-        while (kernel.isRunning()) {
+        List configs = new ArrayList();
+        for (int i = 1; i < args.length; i++) {
+            URI configID;
             try {
-                synchronized (kernel) {
-                    kernel.wait();
-                }
-            } catch (InterruptedException e) {
-                // continue
+                configID = new URI(args[i]);
+            } catch (URISyntaxException e) {
+                System.err.println("Invalid config-id: " + args[i]);
+                e.printStackTrace();
+                System.exit(1);
+                throw new AssertionError();
             }
+            configs.add(configID);
         }
-    }
 
-    public static Kernel createKernel(String domain, String storeDirName) throws Exception {
+        final Kernel kernel;
         File storeDir = new File(storeDirName);
         if (storeDir.exists()) {
             if (!storeDir.isDirectory() || !storeDir.canWrite()) {
-                throw new IllegalArgumentException("Store location is not a writable directory: " + storeDir);
+                System.err.println("Store location is not a writable directory: " + storeDir);
+                System.exit(2);
+                throw new AssertionError();
             }
         } else {
             if (!storeDir.mkdirs()) {
-                throw new IllegalArgumentException("Could not create store directory: " + storeDir);
+                System.err.println("Could not create store directory: " + storeDir);
+                System.exit(2);
+                throw new AssertionError();
             }
         }
 
-        final Kernel kernel = new Kernel("geronimo.kernel", domain, LocalConfigStore.GBEAN_INFO, storeDir);
+        kernel = new Kernel("geronimo.kernel", "geronimo", LocalConfigStore.GBEAN_INFO, storeDir);
         Runtime.getRuntime().addShutdownHook(new Thread("Shutdown Thread") {
             public void run() {
                 kernel.shutdown();
             }
         });
-        //Kernel may not be loaded by SystemClassLoader if run embedded.
-        Thread.currentThread().setContextClassLoader(kernel.getClass().getClassLoader());
-        kernel.boot();
-        return kernel;
-    }
 
-    public static Kernel installPackage(String domain, String storeDirName, String packageURLName) throws Exception {
-        Kernel kernel = createKernel(domain, storeDirName);
-        URL packageURL = new File(packageURLName).toURL();
-        kernel.install(packageURL);
-        return kernel;
-    }
+        try {
+            kernel.boot();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(2);
+        }
 
-    public static Kernel load(String domain, String storeDirName, String configIDString) throws Exception {
-        Kernel kernel = createKernel(domain, storeDirName);
-        URI configID = new URI(configIDString);
-        kernel.load(configID);
-        return kernel;
-    }
+        try {
+            for (Iterator i = configs.iterator(); i.hasNext();) {
+                URI configID = (URI) i.next();
+                kernel.load(configID);
+                kernel.startRecursiveGBean(Kernel.getConfigObjectName(configID));
+            }
+        } catch (Exception e) {
+            kernel.shutdown();
+            e.printStackTrace();
+            System.exit(3);
+        }
 
-    public static void loadAndWait(String domain, String storeDirName, String configIDString) throws Exception {
-        Kernel kernel = load(domain, storeDirName, configIDString);
         while (kernel.isRunning()) {
             try {
                 synchronized (kernel) {
