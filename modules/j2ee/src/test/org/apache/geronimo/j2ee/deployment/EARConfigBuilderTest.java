@@ -57,7 +57,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/06/11 19:18:21 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/23 21:58:22 $
  */
 public class EARConfigBuilderTest extends TestCase {
     private static final ObjectName j2eeServer = JMXUtil.getObjectName("someDomain:j2eeType=J2EEServer,name=J2EEServerName");
@@ -70,6 +70,27 @@ public class EARConfigBuilderTest extends TestCase {
         MockConnectorConfigBuilder connectorConfigBuilder = new MockConnectorConfigBuilder();
         EARConfigBuilder configBuilder = new EARConfigBuilder(null, null, j2eeServer, ejbConfigBuilder, webConfigBuilder, connectorConfigBuilder, transactionManagerObjectName, connectionTrackerObjectName);
         File earFile = new File("target/test-ear.ear");
+
+        File carFile = File.createTempFile("EARTest", ".car");
+        try {
+            ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar.jar", URI.create("test-ejb-jar.jar"));
+            webConfigBuilder.contextRoot = "test";
+            webConfigBuilder.webModule = new WebModule("test-war.war", URI.create("test-war.war"), "test");
+            connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", URI.create("test-rar.rar"));
+
+            XmlObject plan = configBuilder.getDeploymentPlan(earFile.toURL());
+            configBuilder.buildConfiguration(carFile, null, earFile, plan);
+        } finally {
+            carFile.delete();
+        }
+    }
+
+    public void testNakedEarBuildConfiguration() throws Exception {
+        MockEJBConfigBuilder ejbConfigBuilder = new MockEJBConfigBuilder();
+        MockWARConfigBuilder webConfigBuilder = new MockWARConfigBuilder();
+        MockConnectorConfigBuilder connectorConfigBuilder = new MockConnectorConfigBuilder();
+        EARConfigBuilder configBuilder = new EARConfigBuilder(null, null, j2eeServer, ejbConfigBuilder, webConfigBuilder, connectorConfigBuilder, transactionManagerObjectName, connectionTrackerObjectName);
+        File earFile = new File("target/test-naked-ear.ear");
 
         File carFile = File.createTempFile("EARTest", ".car");
         try {

@@ -35,7 +35,6 @@ import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
-
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -63,9 +62,11 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.10 $ $Date: 2004/06/23 20:24:45 $
+ * @version $Revision: 1.11 $ $Date: 2004/06/23 21:58:22 $
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
+    private static final String PARENT_ID = "org/apache/geronimo/Server";
+
     private final Kernel kernel;
     private final Repository repository;
     private final ModuleBuilder ejbConfigBuilder;
@@ -102,35 +103,44 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     }
 
     public XmlObject getDeploymentPlan(URL module) throws XmlException {
-        XmlObject plan;
 
         try {
-            URL gerAppURL = new URL("jar:" + module.toString() + "!/META-INF/geronimo-application.xml");
-            plan = XmlBeansUtil.getXmlObject(gerAppURL, GerApplicationDocument.type);
-            if (plan != null) {
-                return plan;
+            URL moduleBase;
+            if (module.toString().endsWith("/")) {
+                moduleBase = module;
+            } else {
+                moduleBase = new URL("jar:" + module.toString() + "!/");
+            }
+            GerApplicationDocument gerAppDoc = (GerApplicationDocument) XmlBeansUtil.getXmlObject(new URL(moduleBase, "META-INF/geronimo-application.xml"), GerApplicationDocument.type);
+            if (gerAppDoc != null) {
+                return gerAppDoc.getApplication();
+            }
+
+            // try to create a default plan (will return null if this is not an ear file)
+            GerApplicationType defaultPlan = createDefaultPlan(moduleBase);
+            if (defaultPlan != null) {
+                return defaultPlan;
             }
         } catch (MalformedURLException e) {
         }
 
         // support a naked modules
-
         if (webConfigBuilder != null) {
-            plan = webConfigBuilder.getDeploymentPlan(module);
+            XmlObject plan = webConfigBuilder.getDeploymentPlan(module);
             if (plan != null) {
                 return plan;
             }
         }
 
         if (ejbConfigBuilder != null) {
-            plan = ejbConfigBuilder.getDeploymentPlan(module);
+            XmlObject plan = ejbConfigBuilder.getDeploymentPlan(module);
             if (plan != null) {
                 return plan;
             }
         }
 
         if (connectorConfigBuilder != null) {
-            plan = connectorConfigBuilder.getDeploymentPlan(module);
+            XmlObject plan = connectorConfigBuilder.getDeploymentPlan(module);
             if (plan != null) {
                 return plan;
             }
@@ -138,6 +148,41 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
         return null;
     }
+
+    private GerApplicationType createDefaultPlan(URL moduleBase) throws XmlException {
+        // load the web.xml
+        URL applicationXmlUrl = null;
+        try {
+            applicationXmlUrl = new URL(moduleBase, "META-INF/application.xml");
+        } catch (MalformedURLException e) {
+            return null;
+        }
+        ApplicationDocument applicationDoc = (ApplicationDocument) XmlBeansUtil.getXmlObject(applicationXmlUrl, ApplicationDocument.type);
+        if (applicationDoc == null) {
+            return null;
+        }
+
+        // construct the empty geronimo-application.xml
+        GerApplicationType gerApplication = GerApplicationType.Factory.newInstance();
+
+        // set the parentId and configId
+        gerApplication.setParentId(PARENT_ID);
+        String id = applicationDoc.getApplication().getId();
+        if (id == null) {
+            id = moduleBase.getFile();
+            if (id.endsWith("!/")) {
+                id = id.substring(0, id.length()-2);
+            }
+            if (id.endsWith(".ear")) {
+                id = id.substring(0, id.length()-4);
+            }
+            id = id.substring(id.lastIndexOf('/') + 1);
+        }
+
+        gerApplication.setConfigId(id);
+        return gerApplication;
+    }
+
 
     public void buildConfiguration(File outfile, Manifest manifest, InputStream is, XmlObject plan) throws IOException, DeploymentException {
         File tmp = FileUtil.toTempFile(is);
@@ -199,9 +244,9 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             }
 
             // add dependencies declared in the geronimo-application.xml
-            if (plan instanceof GerApplicationDocument) {
-                GerApplicationDocument geronimoDoc = (GerApplicationDocument) plan;
-                GerDependencyType[] dependencies = geronimoDoc.getApplication().getDependencyArray();
+            if (plan instanceof GerApplicationType) {
+                GerApplicationType geronimoApplication = (GerApplicationType) plan;
+                GerDependencyType[] dependencies = geronimoApplication.getDependencyArray();
                 for (int i = 0; i < dependencies.length; i++) {
                     earContext.addDependency(getDependencyURI(dependencies[i]));
                 }
@@ -221,9 +266,9 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             }
 
             // add gbeans declared in the geronimo-application.xml
-            if (plan instanceof GerApplicationDocument) {
-                GerApplicationDocument geronimoDoc = (GerApplicationDocument) plan;
-                GerGbeanType[] gbeans = geronimoDoc.getApplication().getGbeanArray();
+            if (plan instanceof GerApplicationType) {
+                GerApplicationType geronimoApplication = (GerApplicationType) plan;
+                GerGbeanType[] gbeans = geronimoApplication.getGbeanArray();
                 for (int i = 0; i < gbeans.length; i++) {
                     GBeanHelper.addGbean(new GerGBeanAdapter(gbeans[i]), cl, earContext);
                 }
@@ -262,7 +307,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
     private ApplicationType addModules(URI configId, XmlObject plan, JarFile earFile, Set moduleLocations, Set modules) throws DeploymentException, IOException {
         ApplicationType application;
-        if (plan instanceof GerApplicationDocument) {
+        if (plan instanceof GerApplicationType) {
             try {
                 JarEntry appXMLEntry = earFile.getJarEntry("META-INF/application.xml");
                 if (appXMLEntry == null) {
@@ -333,9 +378,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     }
 
     private URI getParentId(XmlObject plan) throws DeploymentException {
-        if (plan instanceof GerApplicationDocument) {
-            GerApplicationType application = ((GerApplicationDocument) plan).getApplication();
-
+        if (plan instanceof GerApplicationType) {
+            GerApplicationType application = (GerApplicationType) plan;
             if (application.isSetParentId()) {
                 try {
                     return new URI(application.getParentId());
@@ -369,9 +413,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     }
 
     private URI getConfigId(XmlObject plan) throws DeploymentException {
-        if (plan instanceof GerApplicationDocument) {
-            GerApplicationType application = ((GerApplicationDocument) plan).getApplication();
-
+        if (plan instanceof GerApplicationType) {
+            GerApplicationType application = (GerApplicationType) plan;
             try {
                 return new URI(application.getConfigId());
             } catch (URISyntaxException e) {

@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.2 $ $Date: 2004/06/21 20:33:32 $ -->
+<!-- $Revision: 1.3 $ $Date: 2004/06/23 21:58:22 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -72,5 +72,16 @@
             </fileset>
         </ant:jar>
         
+        <!-- Build test-naked-ear -->
+        <ant:jar destfile="${basedir}/target/test-naked-ear.ear" >
+            <fileset dir="${basedir}/target">
+                <include name="test-ejb-jar.jar"/>
+                <include name="test-war.war"/>
+            </fileset>
+            <fileset dir="${basedir}/src/test-ear">
+                <include name="META-INF/*"/>
+                <exclude name="META-INF/geronimo-application.xml"/>
+            </fileset>
+        </ant:jar>
     </preGoal>
 </project>
