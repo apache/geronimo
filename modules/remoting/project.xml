@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.5 $ $Date: 2004/01/26 06:50:47 $ -->
+<!-- $Revision: 1.6 $ $Date: 2004/02/17 07:26:47 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -27,9 +27,7 @@
     <!-- ============ -->
 
     <dependencies>
-
         <!-- Module Dependencies -->
-
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-common</artifactId>
@@ -59,7 +57,8 @@
 
         <!-- Thirdparty Dependencies -->
         <dependency>
-            <id>commons-logging</id>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
             <version>1.0.3</version>
             <url>http://jakarta.apache.org/commons/logging/</url>
             <properties>
@@ -68,7 +67,8 @@
         </dependency>        
 
         <dependency>
-            <id>commons-lang</id>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
             <version>SNAPSHOT</version>
             <url>http://jakarta.apache.org/commons/lang</url>
             <properties>
@@ -77,7 +77,8 @@
         </dependency>
 
         <dependency>
-            <id>concurrent</id>
+            <groupId>concurrent</groupId>
+            <artifactId>concurrent</artifactId>
             <version>1.3.2</version>
             <properties>
                 <runtime>true</runtime>
@@ -85,7 +86,8 @@
         </dependency>
 
         <dependency>
-            <id>mx4j</id>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j</artifactId>
             <version>SNAPSHOT</version>
             <properties>
                 <runtime>false</runtime>
@@ -93,7 +95,8 @@
         </dependency>
 
         <dependency>
-            <id>cglib+full</id>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-full</artifactId>
             <version>2.0-RC2</version>
             <url>http://cglib.sf.net/</url>
             <properties>

@@ -68,7 +68,7 @@ import org.apache.geronimo.kernel.config.LocalConfigStore;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 
 /**
- * @version $Revision: 1.9 $ $Date: 2004/02/13 07:22:22 $
+ * @version $Revision: 1.10 $ $Date: 2004/02/17 07:26:47 $
  */
 public class Geronimo {
     static {
@@ -94,7 +94,7 @@ public class Geronimo {
      */
     public static void main(String[] args) {
         if (args.length < 2) {
-            System.err.println("usage: " + Geronimo.class.getName() + " <config-store-dir> <config-id>...");
+            System.err.println("usage: " + Geronimo.class.getName() + " <config-store-dir> <config-artifactId>...");
             System.exit(1);
         }
         String storeDirName = args[0];

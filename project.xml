@@ -1,99 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.21 $ $Date: 2004/01/31 16:16:13 $ -->
+<!-- $Revision: 1.22 $ $Date: 2004/02/17 07:26:46 $ -->
 
 <project>
 
-  <pomVersion>3</pomVersion>
-  <extend>${basedir}/etc/project.xml</extend>
+    <pomVersion>3</pomVersion>
+    <extend>${basedir}/etc/project.xml</extend>
 
-  <!-- ===================== -->
-  <!-- Module Identification -->
-  <!-- ===================== -->
+    <!-- ===================== -->
+    <!-- Module Identification -->
+    <!-- ===================== -->
 
-    <developers>
-        <developer>
-            <name>Jan Bartel</name>
-            <id>janb</id>
-            <role>committer</role>
-        </developer>
-        <developer>
-            <name>Jeremy Boynes</name>
-            <id>jboynes</id>
-            <role>committer</role>
-        </developer>
-        <developer>
-            <name>Alan Cabrera</name>
-            <id>adc</id>
-            <role>committer</role>
-        </developer>
-        <developer>
-            <name>Hiram Chirino</name>
-            <id>chirino</id>
-            <role>committer</role>
-        </developer>
-        <developer>
-            <name>Gianni Damour</name>
-            <id>gdamour</id>
-            <role>committer</role>
-        </developer>
-        <developer>
-            <name>Jason Dillon</name>
-            <id>jdillon</id>
-            <role>committer</role>
-        </developer>
-        <developer>
-            <name>Jules Gosnell</name>
-            <id>jules</id>
-            <role>committer</role>
-        </developer>
-        <developer>
-            <name>David Jencks</name>
-            <id>djencks</id>
-            <role>committer</role>
-        </developer>
-        <developer>
-            <name>Richard Monson-Haefel</name>
-            <id></id>
-            <role>committer</role>
-        </developer>
-        <developer>
-            <name>Aaron Mulder</name>
-            <id>ammulder</id>
-            <role>committer</role>
-        </developer>
-        <developer>
-            <name>Bruce Snyder</name>
-            <id>bsnyder</id>
-            <role>committer</role>
-        </developer>
-        <developer>
-            <name>James Strachan</name>
-            <id>jstrachan</id>
-            <role>committer</role>
-        </developer>
-        <developer>
-            <name>Dain Sundstrom</name>
-            <id>dain</id>
-            <role>committer</role>
-        </developer>
-        <developer>
-            <name>Greg Wilkins</name>
-            <id>gregw</id>
-            <role>committer</role>
-        </developer>
-    </developers>
-
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 1.1</name>
-            <url>http://www.apache.org/licenses/LICENSE</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-  <build>
-    <sourceDirectory></sourceDirectory>
-    <unitTestSourceDirectory></unitTestSourceDirectory>
-  </build>
+    <build>
+        <sourceDirectory></sourceDirectory>
+        <unitTestSourceDirectory></unitTestSourceDirectory>
+    </build>
 </project>

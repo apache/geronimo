@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.2 $ $Date: 2004/02/16 21:21:45 $ -->
+<!-- $Revision: 1.3 $ $Date: 2004/02/17 07:26:47 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -27,7 +27,6 @@
     <!-- ============ -->
 
     <dependencies>
-
         <!-- needed for xmlbeans runtime-->
         <dependency>
             <groupId>xmlbeans</groupId>
@@ -86,7 +85,8 @@
 
         <!-- Thirdparty Dependencies -->
         <dependency>
-            <id>mx4j</id>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j</artifactId>
             <version>SNAPSHOT</version>
             <properties>
                 <runtime>false</runtime>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.65 $ $Date: 2004/02/11 07:36:44 $ -->
+<!-- $Revision: 1.66 $ $Date: 2004/02/17 07:26:46 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -12,6 +12,64 @@
     xmlns:modules="local:modules">
 
     <j:set var="release.id" value="${pom.standardToLegacyId(pom.id)}-${pom.currentVersion}"/>
+
+    <goal name="run">
+        <attainGoal name="run:server"/>
+    </goal>
+
+    <goal name="run:server">
+        <j:set var="run.dir" value="target/bin"/>
+        <ant:echo message="Running in ${run.dir}"/>
+
+        <j:jelly xmlns="jelly:ant">
+
+            <property environment="env"/>
+            <java jar="target/bin/server.jar"
+                fork="true"
+                maxmemory="256m"
+                failonerror="true"
+                dir="${run.dir}">
+
+                <jvmarg value="-ea"/>
+
+                <arg value="../config-store"/>
+                <arg value="org/apache/geronimo/System"/>
+                <arg value="org/apache/geronimo/Server"/>
+            </java>
+        </j:jelly>
+    </goal>
+
+    <goal name="debug">
+        <attainGoal name="debug:server"/>
+    </goal>
+
+    <goal name="debug:server">
+        <j:set var="run.dir" value="target/bin"/>
+        <ant:echo message="Running in ${run.dir}"/>
+
+        <j:jelly xmlns="jelly:ant">
+
+            <property environment="env"/>
+            <java jar="target/bin/server.jar"
+                fork="true"
+                maxmemory="256m"
+                failonerror="true"
+                dir="${run.dir}">
+
+                <jvmarg value="-ea"/>
+                <jvmarg value="-Xdebug"/>
+                <jvmarg value="-Xnoagent"/>
+                <jvmarg value="-Djava.compiler=NONE"/>
+                <jvmarg value="-Xrunjdwp:transport=dt_socket,address=8888,server=y,suspend=y"/>
+
+                <sysproperty key="java.compiler" value="NONE"/>
+
+                <arg value="../config-store"/>
+                <arg value="org/apache/geronimo/System"/>
+                <arg value="org/apache/geronimo/Server"/>
+            </java>
+        </j:jelly>
+    </goal>
 
     <!-- ======= -->
     <!-- Modules -->
@@ -217,6 +275,90 @@
     </goal>
 
 
+
+    <!-- =============================== -->
+    <!-- Documentation & Site Generation -->
+    <!-- =============================== -->
+
+    <goal name="javadoc">
+        <attainGoal name="modules:javadoc"/>
+    </goal>
+
+    <preGoal name="xdoc:jelly-transform">
+        <attainGoal name="html2xdoc"/>
+        <attainGoal name="faq"/>
+    </preGoal>
+
+    <!-- Turn off reports for the top-level project -->
+    <postGoal name="xdoc:register-reports">
+        <attainGoal name="maven-license-plugin:deregister"/>
+        <attainGoal name="maven-checkstyle-plugin:deregister"/>
+        <attainGoal name="maven-pmd-plugin:deregister"/>
+        <attainGoal name="maven-simian-plugin:deregister"/>
+        <attainGoal name="maven-jdepend-plugin:deregister"/>
+        <attainGoal name="maven-statcvs-plugin:deregister"/>
+        <attainGoal name="maven-jxr-plugin:deregister"/>
+        <attainGoal name="maven-javadoc-plugin:deregister"/>
+        <attainGoal name="maven-junit-report-plugin:deregister"/>
+        <attainGoal name="maven-clover-plugin:deregister"/>
+
+        <!-- Run some useful top-level reports -->
+        <!--<attainGoal name="maven-changelog-plugin:deregister"/>-->
+        <!--<attainGoal name="maven-file-activity-plugin:deregister"/>-->
+        <!--<attainGoal name="maven-developer-activity-plugin:deregister"/>-->
+    </postGoal>
+
+    <preGoal name="site">
+        <attainGoal name="modules:aggregate:site"/>
+    </preGoal>
+
+    <goal name="modules:aggregate:site" prereqs="modules:site"
+        description="Copy the generated websites of all the modules into the root project">
+
+        <ant:echo>Aggregating module site documentation...</ant:echo>
+
+        <!-- Setup the target aggregation directory -->
+        <j:set var="aggregate.dir" value="${basedir}/target/docs"/>
+        <ant:mkdir dir="${aggregate.dir}"/>
+
+        <j:forEach var="module" items="${reactorProjects}">
+            <ant:echo>Processing ${module.id}...</ant:echo>
+
+            <!-- Get the modules root directory -->
+            <j:set var="module.root" value="${module.file.parent}"/>
+
+            <!-- Setup the target dir under docs -->
+            <j:set var="moduleDirName">${module.file.parentFile.name}</j:set>
+            <j:set var="moduleTypeDirName">${module.file.parentFile.parentFile.name}</j:set>
+            <j:set var="outputDir">${aggregate.dir}/${moduleTypeDirName}/${moduleDirName}</j:set>
+
+            <!-- Copy module docs -->
+            <ant:echo>Copying docs to ${outputDir}...</ant:echo>
+            <ant:mkdir dir="${outputDir}"/>
+            <ant:copy todir="${outputDir}">
+                <ant:fileset dir="${module.root}/target/docs"/>
+            </ant:copy>
+        </j:forEach>
+    </goal>
+
+    <goal name="site:tocvs"
+        description="Creates the entire website and copies it to the local CVS repository so that it can be checked in to update the Incubator site">
+
+        <j:jelly xmlns="jelly:ant">
+
+            <j:if test="${empty(geronimo.cvs.docdir)}">
+                <j:set var="geronimo.cvs.docdir" value="../incubator-site/build/site/projects/geronimo"/>
+            </j:if>
+
+            <mkdir dir="${geronimo.cvs.docdir}"/>
+            <copy todir="${geronimo.cvs.docdir}">
+                <fileset dir="${basedir}/target/docs"/>
+            </copy>
+
+        </j:jelly>
+    </goal>
+
+
     <!-- ========================= -->
     <!-- Module Output Aggregation -->
     <!-- ========================= -->
@@ -367,96 +509,5 @@
             </fixcrlf>
         </u:available>
     </goal>
-
-
-    <!-- =============================== -->
-    <!-- Module Output Aggregation Hooks -->
-    <!-- =============================== -->
-
-
-
-    <!-- =============================== -->
-    <!-- Documentation & Site Generation -->
-    <!-- =============================== -->
-
-    <goal name="javadoc">
-        <attainGoal name="modules:javadoc"/>
-    </goal>
-
-    <preGoal name="xdoc:jelly-transform">
-        <attainGoal name="html2xdoc"/>
-        <attainGoal name="faq"/>
-    </preGoal>
-
-    <!-- Turn off reports for the top-level project -->
-    <postGoal name="xdoc:register-reports">
-        <attainGoal name="maven-license-plugin:deregister"/>
-        <attainGoal name="maven-checkstyle-plugin:deregister"/>
-        <attainGoal name="maven-pmd-plugin:deregister"/>
-        <attainGoal name="maven-simian-plugin:deregister"/>
-        <attainGoal name="maven-jdepend-plugin:deregister"/>
-        <attainGoal name="maven-statcvs-plugin:deregister"/>
-        <attainGoal name="maven-jxr-plugin:deregister"/>
-        <attainGoal name="maven-javadoc-plugin:deregister"/>
-        <attainGoal name="maven-junit-report-plugin:deregister"/>
-        <attainGoal name="maven-clover-plugin:deregister"/>
-
-        <!-- Run some useful top-level reports -->
-        <!--<attainGoal name="maven-changelog-plugin:deregister"/>-->
-        <!--<attainGoal name="maven-file-activity-plugin:deregister"/>-->
-        <!--<attainGoal name="maven-developer-activity-plugin:deregister"/>-->
-    </postGoal>
-
-    <preGoal name="site">
-        <attainGoal name="modules:aggregate:site"/>
-    </preGoal>
-
-    <goal name="modules:aggregate:site" prereqs="modules:site"
-        description="Copy the generated websites of all the modules into the root project">
-
-        <ant:echo>Aggregating module site documentation...</ant:echo>
-
-        <!-- Setup the target aggregation directory -->
-        <j:set var="aggregate.dir" value="${basedir}/target/docs"/>
-        <ant:mkdir dir="${aggregate.dir}"/>
-
-        <j:forEach var="module" items="${reactorProjects}">
-            <ant:echo>Processing ${module.id}...</ant:echo>
-
-            <!-- Get the modules root directory -->
-            <j:set var="module.root" value="${module.file.parent}"/>
-
-            <!-- Setup the target dir under docs -->
-            <j:set var="moduleDirName">${module.file.parentFile.name}</j:set>
-            <j:set var="moduleTypeDirName">${module.file.parentFile.parentFile.name}</j:set>
-            <j:set var="outputDir">${aggregate.dir}/${moduleTypeDirName}/${moduleDirName}</j:set>
-
-            <!-- Copy module docs -->
-            <ant:echo>Copying docs to ${outputDir}...</ant:echo>
-            <ant:mkdir dir="${outputDir}"/>
-            <ant:copy todir="${outputDir}">
-                <ant:fileset dir="${module.root}/target/docs"/>
-            </ant:copy>
-        </j:forEach>
-    </goal>
-
-    <goal name="site:tocvs"
-        description="Creates the entire website and copies it to the local CVS repository so that it can be checked in to update the Incubator site">
-
-        <j:jelly xmlns="jelly:ant">
-
-            <j:if test="${empty(geronimo.cvs.docdir)}">
-                <j:set var="geronimo.cvs.docdir" value="../incubator-site/build/site/projects/geronimo"/>
-            </j:if>
-
-            <mkdir dir="${geronimo.cvs.docdir}"/>
-            <copy todir="${geronimo.cvs.docdir}">
-                <fileset dir="${basedir}/target/docs"/>
-            </copy>
-
-        </j:jelly>
-    </goal>
-
-
 
 </project>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.1 $ $Date: 2003/09/18 04:45:26 $ -->
+<!-- $Revision: 1.2 $ $Date: 2004/02/17 07:26:47 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -62,7 +62,8 @@
 
 
         <dependency>
-            <id>commons-logging</id>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
             <version>1.0.3</version>
             <url>http://jakarta.apache.org/commons/logging</url>
             <properties>

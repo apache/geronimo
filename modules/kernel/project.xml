@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.16 $ $Date: 2004/01/28 23:05:38 $ -->
+<!-- $Revision: 1.17 $ $Date: 2004/02/17 07:26:47 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -11,6 +11,7 @@
     <!-- ===================== -->
 
     <name>Geronimo :: Kernel</name>
+    <groupId>geronimo</groupId>
     <id>geronimo-kernel</id>
     <shortDescription>Geronimo Kernel</shortDescription>
     <description>Geronimo Kernel</description>
@@ -59,7 +60,8 @@
         </dependency>
 
         <dependency>
-            <id>commons-logging</id>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
             <version>1.0.3</version>
             <url>http://jakarta.apache.org/commons/logging/</url>
             <properties>
@@ -69,7 +71,8 @@
         </dependency>
 
         <dependency>
-            <id>log4j</id>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
             <version>1.2.8</version>
             <url>http://jakarta.apache.org/log4j</url>
             <properties>
@@ -79,7 +82,8 @@
         </dependency>
 
         <dependency>
-            <id>mx4j</id>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j</artifactId>
             <version>SNAPSHOT</version>
             <properties>
                 <runtime>true</runtime>

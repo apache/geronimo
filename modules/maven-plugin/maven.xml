@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.2 $ $Date: 2004/01/29 02:43:41 $ -->
+<!-- $Revision: 1.3 $ $Date: 2004/02/17 07:26:47 $ -->
 
 <project default="default"
-    xmlns:j="jelly:core"
-    xmlns:u="jelly:util"
     xmlns:ant="jelly:ant"
-    xmlns:maven="jelly:maven"
-    xmlns:define="jelly:define"
-    xmlns:deploy="geronimo:deploy">
+    xmlns:j="jelly:core">
 
     <!-- ================= -->
     <!-- Global Properties -->
@@ -26,7 +22,14 @@
     <!-- ==================== -->
 
     <goal name="default">
-        <attainGoal name="plugin:install"/>
+        <attainGoal name="jar:jar"/>
+        <ant:property name="pluginsDir" value="${maven.repo.local}/${pom.artifactDirectory}/plugins"/>
+        <ant:mkdir dir="${pluginsDir}"/>
+        <ant:copy
+            file="${basedir}/target/${pom.artifactId}-${pom.currentVersion}.jar"
+            todir="${pluginsDir}"
+            overwrite="true"
+            />
     </goal>
 
     <goal name="build">
@@ -43,4 +46,21 @@
         <!--attainGoal name="clover"/-->
     </goal>
 
+    <!-- Remove the log files -->
+    <goal name="clobber"
+        description="Removes all (non-repository installed) build generated files">
+
+        <!-- Let clean:clean do some work first -->
+        <attainGoal name="clean:clean"/>
+
+        <j:jelly xmlns="jelly:ant">
+            <delete quiet="false" failonerror="false">
+                <fileset dir="${basedir}">
+                    <include name="maven.log"/>
+                    <include name="velocity.log*"/>
+                    <include name="junit*.properties"/>
+                </fileset>
+            </delete>
+        </j:jelly>
+    </goal>
 </project>

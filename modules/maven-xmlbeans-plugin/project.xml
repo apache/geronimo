@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project>
     <pomVersion>3</pomVersion>
-    <id>geronimo-maven-xmlbeans-plugin</id>
+    <groupId>geronimo</groupId>
+    <id>geronimo-xmlbeans-plugin</id>
     <name>Geronimo maven xmlbeans plugin</name>
-    <groupId>maven</groupId>
     <currentVersion>DEV</currentVersion>
     <organization>
         <name>Apache Software Foundation</name>
@@ -15,25 +15,17 @@
     <logo></logo>
 
     <dependencies>
-
         <dependency>
             <groupId>xml-commons-resolver</groupId>
             <artifactId>xml-commons-resolver</artifactId>
             <version>1.1</version>
-            <properties>
-                <classloader>root</classloader>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>xmlbeans</groupId>
             <artifactId>xbean-apache</artifactId>
             <version>1.0-DEV</version>
-            <properties>
-                <classloader>root</classloader>
-            </properties>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -61,8 +53,5 @@
                 </includes>
             </resource>
         </resources>
-
     </build>
-
-
 </project>

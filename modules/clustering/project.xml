@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.3 $ $Date: 2004/01/22 20:24:38 $ -->
+<!-- $Revision: 1.4 $ $Date: 2004/02/17 07:26:46 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -28,7 +28,8 @@
     <dependencies>
 
         <dependency>
-            <id>commons-logging</id>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
             <version>1.0.3</version>
             <url>http://jakarta.apache.org/commons/logging/</url>
             <properties>
@@ -37,7 +38,8 @@
         </dependency>
 
         <dependency>
-            <id>mx4j</id>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j</artifactId>
             <version>SNAPSHOT</version>
             <properties>
                 <runtime>false</runtime>

@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.1 $ $Date: 2004/02/12 03:17:54 $ -->
+<!-- $Revision: 1.2 $ $Date: 2004/02/17 07:26:47 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
     xmlns:ant="jelly:ant">
 
-    <goal name="jar" prereqs="jar:jar"/>
-
-    <goal name="jar:jar">
+    <goal name="default">
         <ant:available property="jarExsts" file="${basedir}/target/${pom.artifactId}-${pom.currentVersion}.jar"/>
         <j:if test="${jarExsts}">
             <j:forEach var="artifact" items="${pom.artifacts}">
@@ -33,9 +31,8 @@
                 </j:forEach>
             </ant:jar>
         </j:if>
-    </goal>
 
-    <goal name="jar:install" prereqs="jar:jar">
+        <!-- install jar -->
         <ant:property name="jardir__" value="${maven.repo.local}/${pom.artifactDirectory}/jars"/>
         <ant:mkdir dir="${jardir__}"/>
         <ant:copy
@@ -44,8 +41,6 @@
             overwrite="false"
             />
     </goal>
-
-    <goal name="test:test"/>
 
     <!-- ================= -->
     <!-- Global Properties -->
@@ -61,10 +56,6 @@
     <!-- ==================== -->
     <!-- Default Global Goals -->
     <!-- ==================== -->
-
-    <goal name="default">
-        <attainGoal name="jar:install"/>
-    </goal>
 
     <goal name="build">
         <attainGoal name="default"/>

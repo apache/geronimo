@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.18 $ $Date: 2004/01/23 00:34:10 $ -->
+<!-- $Revision: 1.19 $ $Date: 2004/02/17 07:26:46 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -27,9 +27,9 @@
 
     <dependencies>
         <!-- Thirdparty Dependencies -->
-
         <dependency>
-            <id>commons-logging</id>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
             <version>1.0.3</version>
             <url>http://jakarta.apache.org/commons/logging</url>
             <properties>
@@ -38,7 +38,8 @@
         </dependency>
 
         <dependency>
-            <id>commons-lang</id>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
             <version>SNAPSHOT</version>
             <url>http://jakarta.apache.org/commons/lang</url>
             <properties>
@@ -47,7 +48,8 @@
         </dependency>
 
         <dependency>
-            <id>commons-collections</id>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
             <version>SNAPSHOT</version>
             <url>http://jakarta.apache.org/commons/collections</url>
             <properties>
@@ -56,7 +58,8 @@
         </dependency>
 
         <dependency>
-            <id>commons-jexl</id>
+            <groupId>commons-jexl</groupId>
+            <artifactId>commons-jexl</artifactId>
             <version>SNAPSHOT</version>
             <url>http://jakarta.apache.org/commons/jexl</url>
             <properties>
@@ -65,7 +68,8 @@
         </dependency>
 
         <dependency>
-            <id>log4j</id>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
             <version>1.2.8</version>
             <url>http://jakarta.apache.org/log4j</url>
             <properties>
@@ -86,6 +90,7 @@
 
 
     <!-- =================== -->
+    <!-- Build Specification -->
     <!-- Build Specification -->
     <!-- =================== -->
 

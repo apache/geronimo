@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.4 $ $Date: 2004/01/25 17:55:35 $ -->
+<!-- $Revision: 1.5 $ $Date: 2004/02/17 07:26:47 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -25,9 +25,7 @@
     <!-- ============ -->
 
     <dependencies>
-
         <!-- Module Dependencies -->
-
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
@@ -69,13 +67,13 @@
         <!-- Thirdparty -->
 
         <dependency>
-            <id>commons-logging</id>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
             <version>1.0.3</version>
             <url>http://jakarta.apache.org/commons/logging/</url>
             <properties>
                 <runtime>false</runtime>
             </properties>
         </dependency>
-
     </dependencies>
 </project>
