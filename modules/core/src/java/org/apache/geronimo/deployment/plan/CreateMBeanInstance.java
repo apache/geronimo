@@ -86,7 +86,7 @@ import org.apache.geronimo.jmx.JMXUtil;
 /**
  * Creates an new MBean instance and intializes it according to the specified MBeanMetadata metadata
  *
- * @version $Revision: 1.13 $ $Date: 2003/09/05 02:35:59 $
+ * @version $Revision: 1.14 $ $Date: 2003/09/05 04:52:04 $
  */
 public class CreateMBeanInstance implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
@@ -158,6 +158,10 @@ public class CreateMBeanInstance implements DeploymentTask {
                     Class type = null;
                     try {
                         type = Classes.loadClass(typeString, newCL);
+
+                        // set the type string based on the loaded class
+                        // load class code is more friendly then the Sun code
+                        constructorTypeStrings.set(i, type.getName());
                     } catch (ClassNotFoundException e) {
                         throw new DeploymentException(e);
                     }
