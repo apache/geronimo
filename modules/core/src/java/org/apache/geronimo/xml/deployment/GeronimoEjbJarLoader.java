@@ -63,6 +63,8 @@ import org.apache.geronimo.deployment.model.geronimo.ejb.EnterpriseBeans;
 import org.apache.geronimo.deployment.model.geronimo.ejb.MessageDriven;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Entity;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Session;
+import org.apache.geronimo.deployment.model.geronimo.ejb.Query;
+import org.apache.geronimo.deployment.model.geronimo.ejb.Binding;
 import org.apache.geronimo.deployment.model.ejb.Ejb;
 import org.apache.geronimo.deployment.model.ejb.Relationships;
 import org.apache.geronimo.deployment.model.ejb.AssemblyDescriptor;
@@ -70,7 +72,7 @@ import org.apache.geronimo.deployment.model.ejb.AssemblyDescriptor;
 /**
  * Loads a Geronimo ejb-jar.xml file into POJOs
  *
- * @version $Revision: 1.6 $ $Date: 2003/11/17 02:03:16 $
+ * @version $Revision: 1.7 $ $Date: 2003/11/17 03:27:56 $
  */
 public class GeronimoEjbJarLoader {
     public static GeronimoEjbJarDocument load(Document doc) {
@@ -170,11 +172,44 @@ public class GeronimoEjbJarLoader {
             entities[i].setAbstractSchemaName(LoaderUtil.getChildContent(root, "abstract-schema-name"));
             entities[i].setPrimkeyField(LoaderUtil.getChildContent(root, "primkey-field"));
             entities[i].setCmpField(EjbJarLoader.loadCmpFields(root));
-            entities[i].setQuery(EjbJarLoader.loadQueries(root));
+            entities[i].setQuery(GeronimoEjbJarLoader.loadQueries(root));
             entities[i].setJndiName(LoaderUtil.getChildContent(root, "jndi-name"));
         }
         return entities;
     }
+
+    static Query[] loadQueries(Element parent) {
+        Element[] roots = LoaderUtil.getChildren(parent, "query");
+        Query[] queries = new Query[roots.length];
+        for(int i = 0; i < roots.length; i++) {
+            Element root = roots[i];
+            Query query = (Query) EjbJarLoader.loadQuery(root, new Query());
+            query.setSql(LoaderUtil.getChildContent(root, "sql"));
+            query.setInputBinding(loadInputBinding(LoaderUtil.getChild(root, "input-binding")));
+            Element outputBinding = LoaderUtil.getChild(root, "output-binding");
+            query.setAbstractSchemaName(LoaderUtil.getChildContent(outputBinding, "abstract-schema-name"));
+            query.setOutputBinding(loadBinding(outputBinding));
+            queries[i] = query;
+        }
+        return queries;
+    }
+
+    private static Binding[] loadInputBinding(Element parent) {
+        Element[] roots = LoaderUtil.getChildren(parent, "binding");
+        Binding[] bindings = new Binding[roots.length];
+        for (int i = 0; i < bindings.length; i++) {
+            bindings[i] = loadBinding(roots[i]);
+        }
+        return bindings;
+    }
+
+    private static Binding loadBinding(Element root) {
+        Binding binding = new Binding();
+        binding.setType(LoaderUtil.getAttribute(root, "type"));
+        binding.setParam(Integer.parseInt(LoaderUtil.getChildContent(root, "param")));
+        return binding;
+    }
+
 
     private static void loadEjb(Element root, Ejb bean) {
         EjbJarLoader.loadEjb(root, bean);

@@ -67,7 +67,7 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.ServiceRef;
 /**
  * JavaBean for the geronimo-ejb-jar.xml tag entity
  *
- * @version $Revision: 1.4 $ $Date: 2003/09/29 14:17:22 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/17 03:27:55 $
  */
 public class Entity extends org.apache.geronimo.deployment.model.ejb.Entity implements JNDIEnvironmentRefs {
     private String jndiName;
@@ -80,6 +80,7 @@ public class Entity extends org.apache.geronimo.deployment.model.ejb.Entity impl
         super.setResourceEnvRef(new ResourceEnvRef[0]);
         super.setMessageDestinationRef(new MessageDestinationRef[0]);
         super.setServiceRef(new ServiceRef[0]);
+        super.setQuery(new Query[0]);
     }
 
     public String getJndiName() {
@@ -270,5 +271,21 @@ public class Entity extends org.apache.geronimo.deployment.model.ejb.Entity impl
 
     public void setGeronimoServiceRef(int i, ServiceRef ref) {
         super.setServiceRef(i, ref);
+    }
+
+    public void setGeronimoQuery(Query[] query) {
+        super.setQuery(query);
+    }
+
+    public Query[] getGeronimoQuery() {
+        return (Query[])super.getQuery();
+    }
+
+    public void setGeronimoQuery(int i, Query query) {
+        super.setQuery(i, query);
+    }
+
+    public Query getGeronimoQuery(int i) {
+        return (Query)super.getQuery(i);
     }
 }

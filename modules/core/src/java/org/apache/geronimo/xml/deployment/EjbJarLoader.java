@@ -86,7 +86,7 @@ import org.w3c.dom.Element;
  * Knows how to load a set of POJOs from a DOM representing an ejb-jar.xml
  * deployment descriptor.
  *
- * @version $Revision: 1.9 $ $Date: 2003/10/01 03:22:48 $
+ * @version $Revision: 1.10 $ $Date: 2003/11/17 03:27:56 $
  */
 public class EjbJarLoader {
     public static EjbJarDocument load(Document doc) {
@@ -308,12 +308,17 @@ public class EjbJarLoader {
         Element[] roots = LoaderUtil.getChildren(parent, "query");
         Query[] queries = new Query[roots.length];
         for(int i = 0; i < roots.length; i++) {
-            J2EELoader.loadDescribable(roots[i], queries[i]);
-            queries[i].setEjbQl(LoaderUtil.getChildContent(roots[i], "ejb-ql"));
-            queries[i].setResultTypeMapping(LoaderUtil.getChildContent(roots[i], "result-type-mapping"));
-            queries[i].setQueryMethod(loadQueryMethod(roots[i]));
+            queries[i] = loadQuery(roots[i], new Query());
         }
         return queries;
+    }
+
+    static Query loadQuery(Element root, Query query) {
+        J2EELoader.loadDescribable(root, query);
+        query.setEjbQl(LoaderUtil.getChildContent(root, "ejb-ql"));
+        query.setResultTypeMapping(LoaderUtil.getChildContent(root, "result-type-mapping"));
+        query.setQueryMethod(loadQueryMethod(root));
+        return query;
     }
 
     private static QueryMethod loadQueryMethod(Element root) {
