@@ -53,7 +53,7 @@ import org.apache.geronimo.gbean.WaitingException;
  * Implementors of StateManageable may use this class and simply provide
  * {@link #doStart()}, {@link #doStop()} and {@link #sendNotification(String)} methods.
  *
- * @version $Revision: 1.7 $ $Date: 2004/03/13 23:48:56 $
+ * @version $Revision: 1.8 $ $Date: 2004/04/23 07:18:04 $
  */
 public abstract class AbstractManagedObject implements ManagedObject, StateManageable, EventProvider, NotificationListener, MBeanRegistration, NotificationEmitter {
     protected final Log log = LogFactory.getLog(getClass());
@@ -122,7 +122,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
     }
 
     /**
-     * Do the stop tasks for the component.  Called in the {@link #STOPPING} state by 
+     * Do the stop tasks for the component.  Called in the {@link State#STOPPING} state by
      * the {@link #stop()} method to perform the tasks required to stop the component.
      *
      * Note: this method is called from within a synchronized block, so be careful what you call as you
@@ -134,7 +134,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
     }
 
     /**
-     * Do the failure tasks for the component.  Called in the {@link #FAILED} state by 
+     * Do the failure tasks for the component.  Called in the {@link State#FAILED} state by
      * the {@link #fail()} method to perform the tasks required to cleanup a failed component.
      *
      * Note: this method is called from within a synchronized block, so be careful what you call as you
@@ -255,7 +255,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
 
     /**
      * Moves this MBean to the {@link State#STARTING} state and then attempts to move this MBean immediately 
-     * to the {@link State#STARTED} state.
+     * to the {@link State#RUNNING} state.
      *
      * Note:  This method cannot be called while the current thread holds a synchronized lock on this MBean,
      * because this method sends JMX notifications. Sending a general notification from a synchronized block
