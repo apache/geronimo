@@ -62,6 +62,7 @@ public abstract class AbstractRealmBridge implements RealmBridge {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractRealmBridge.class);
         infoFactory.addAttribute("targetRealm", String.class, true);
         infoFactory.setConstructor(new String[]{"targetRealm"});
+        infoFactory.addOperation("mapSubject", new Class[] {Subject.class});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

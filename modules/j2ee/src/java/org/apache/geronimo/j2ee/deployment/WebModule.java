@@ -16,7 +16,10 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import java.util.jar.JarFile;
 import java.net.URI;
+
+import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
@@ -24,13 +27,16 @@ import java.net.URI;
 public class WebModule extends Module {
     private String contextRoot;
 
-    public WebModule(String name, URI uri, String contextRoot) {
-        super(name, uri);
-        this.contextRoot = contextRoot;
+    public WebModule(String name, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD) {
+        super(name, moduleURI, moduleFile, targetPath, specDD, vendorDD);
     }
 
     public String getContextRoot() {
         return contextRoot;
+    }
+
+    public void setContextRoot(String contextRoot) {
+        this.contextRoot = contextRoot;
     }
 }
 

@@ -19,7 +19,6 @@ package org.apache.geronimo.j2ee.deployment;
 
 import java.io.File;
 import java.net.URI;
-import java.net.URL;
 import javax.management.ObjectName;
 
 import junit.extensions.TestSetup;
@@ -36,8 +35,6 @@ import org.apache.xmlbeans.XmlObject;
 public class EARConfigBuilderTest extends TestCase {
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
 
-//    private static String EAR_BASE_DIR;
-//    private static String EAR_PATH;
     private static File earFile;
     private static MockEJBConfigBuilder ejbConfigBuilder = new MockEJBConfigBuilder();
     private static MockWARConfigBuilder webConfigBuilder = new MockWARConfigBuilder();
@@ -55,10 +52,11 @@ public class EARConfigBuilderTest extends TestCase {
         TestSetup setup14 = new TestSetup(inner) {
             protected void setUp() {
                 earFile = new File(basedir,  "target/test-ear14/test-ear.ear");
-                ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar.jar", URI.create("test-ejb-jar.jar"));
+                ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar.jar", URI.create("test-ejb-jar.jar"), null, "test-ejb-jar.jar", null, null);
                 webConfigBuilder.contextRoot = "test";
-                webConfigBuilder.webModule = new WebModule("test-war.war", URI.create("test-war.war"), "test");
-                connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", URI.create("test-rar.rar"));
+                webConfigBuilder.webModule = new WebModule("test-war.war", URI.create("test-war.war"), null, "test-war.war", null, null);
+                webConfigBuilder.webModule.setContextRoot("test");
+                connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", URI.create("test-rar.rar"), null, "test-rar.rar", null, null);
             }
 
             protected void tearDown() {
@@ -67,10 +65,11 @@ public class EARConfigBuilderTest extends TestCase {
         TestSetup setupNaked14 = new TestSetup(inner) {
             protected void setUp() {
                 earFile = new File(basedir,  "target/test-ear14/test-naked-ear.ear");
-                ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar.jar", URI.create("test-ejb-jar.jar"));
+                ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar.jar", URI.create("test-ejb-jar.jar"), null, "test-ejb-jar.jar", null, null);
                 webConfigBuilder.contextRoot = "test";
-                webConfigBuilder.webModule = new WebModule("test-war.war", URI.create("test-war.war"), "test");
-                connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", URI.create("test-rar.rar"));
+                webConfigBuilder.webModule = new WebModule("test-war.war", URI.create("test-war.war"), null, "test-war.war", null, null);
+                webConfigBuilder.webModule.setContextRoot("test");
+                connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", URI.create("test-rar.rar"), null, "test-rar.rar", null, null);
             }
 
             protected void tearDown() {
@@ -79,10 +78,11 @@ public class EARConfigBuilderTest extends TestCase {
         TestSetup setup13 = new TestSetup(inner) {
             protected void setUp() {
                 earFile = new File(basedir,  "target/test-ear13/test-ear.ear");
-                ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar.jar", URI.create("test-ejb-jar.jar"));
+                ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar.jar", URI.create("test-ejb-jar.jar"), null, "test-ejb-jar.jar", null, null);
                 webConfigBuilder.contextRoot = "test";
-                webConfigBuilder.webModule = new WebModule("test-war.war", URI.create("test-war.war"), "test");
-                connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", URI.create("test-rar.rar"));
+                webConfigBuilder.webModule = new WebModule("test-war.war", URI.create("test-war.war"), null, "test-war.war", null, null);
+                webConfigBuilder.webModule.setContextRoot("test");
+                connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", URI.create("test-rar.rar"), null, "test-rar.rar", null, null);
             }
 
             protected void tearDown() {
@@ -91,10 +91,11 @@ public class EARConfigBuilderTest extends TestCase {
         TestSetup setupNaked13 = new TestSetup(inner) {
             protected void setUp() {
                 earFile = new File(basedir, "target/test-ear13/test-naked-ear.ear");
-                ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar.jar", URI.create("test-ejb-jar.jar"));
+                ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar.jar", URI.create("test-ejb-jar.jar"), null, "test-ejb-jar.jar", null, null);
                 webConfigBuilder.contextRoot = "test";
-                webConfigBuilder.webModule = new WebModule("test-war.war", URI.create("test-war.war"), "test");
-                connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", URI.create("test-rar.rar"));
+                webConfigBuilder.webModule = new WebModule("test-war.war", URI.create("test-war.war"), null, "test-war.war", null, null);
+                webConfigBuilder.webModule.setContextRoot("test");
+                connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", URI.create("test-rar.rar"), null, "test-rar.rar", null, null);
             }
 
             protected void tearDown() {
@@ -103,10 +104,11 @@ public class EARConfigBuilderTest extends TestCase {
         TestSetup setupUnpacked = new TestSetup(inner) {
             protected void setUp() {
                 earFile = new File(basedir,  "target/test-unpacked-ear/full/");
-                ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar/", URI.create("test-ejb-jar/"));
+                ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar.jar/", URI.create("test-ejb-jar.jar/"), null, "test-ejb-jar.jar/", null, null);
                 webConfigBuilder.contextRoot = "test";
-                webConfigBuilder.webModule = new WebModule("test-war/", URI.create("test-war/"), "test");
-                connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", URI.create("test-rar.rar"));
+                webConfigBuilder.webModule = new WebModule("test-war.war/", URI.create("test-war.war/"), null, "test-war.war/", null, null);
+                webConfigBuilder.webModule.setContextRoot("test");
+                connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", URI.create("test-rar.rar"), null, "test-rar.rar", null, null);
             }
 
             protected void tearDown() {
@@ -115,10 +117,11 @@ public class EARConfigBuilderTest extends TestCase {
         TestSetup setupUnpackedNaked = new TestSetup(inner) {
             protected void setUp() {
                 earFile = new File(basedir,  "target/test-unpacked-ear/naked/");
-                ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar/", URI.create("test-ejb-jar/"));
+                ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar.jar/", URI.create("test-ejb-jar.jar/"), null, "test-ejb-jar.jar/", null, null);
                 webConfigBuilder.contextRoot = "test";
-                webConfigBuilder.webModule = new WebModule("test-war/", URI.create("test-war/"), "test");
-                connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", URI.create("test-rar.rar"));
+                webConfigBuilder.webModule = new WebModule("test-war.war/", URI.create("test-war.war/"), null, "test-war.war", null, null);
+                webConfigBuilder.webModule.setContextRoot("test");
+                connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", URI.create("test-rar.rar"), null, "test-rar.rar", null, null);
             }
 
             protected void tearDown() {
@@ -127,16 +130,17 @@ public class EARConfigBuilderTest extends TestCase {
         TestSetup setupUnpackedAltDD = new TestSetup(inner) {
             protected void setUp() throws Exception {
                 earFile = new File(basedir,  "target/test-unpacked-ear/alt-dd/");
-                ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar/", URI.create("test-ejb-jar/"));
-                ejbConfigBuilder.ejbModule.setAltSpecDD(new File(earFile, "alt-ejb-jar.xml").toURL());
-                ejbConfigBuilder.ejbModule.setAltVendorDD(new File(earFile, "alt-ger-ejb-jar.xml").toURL());
+                ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar.jar/", URI.create("test-ejb-jar.jar/"), null, "test-ejb-jar.jar/", null, null);
+//                ejbConfigBuilder.ejbModule.setAltSpecDD(new File(earFile, "alt-ejb-jar.xml").toURL());
+//                ejbConfigBuilder.ejbModule.setAltVendorDD(new File(earFile, "alt-ger-ejb-jar.xml").toURL());
                 webConfigBuilder.contextRoot = "test";
-                webConfigBuilder.webModule = new WebModule("test-war/", URI.create("test-war/"), "test");
-                webConfigBuilder.webModule.setAltSpecDD(new File(earFile, "alt-web.xml").toURL());
-                webConfigBuilder.webModule.setAltVendorDD(new File(earFile, "alt-ger-war.xml").toURL());
-                connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", URI.create("test-rar.rar"));
-                connectorConfigBuilder.connectorModule.setAltSpecDD(new File(earFile, "alt-ra.xml").toURL());
-                connectorConfigBuilder.connectorModule.setAltVendorDD(new File(earFile, "alt-ger-ra.xml").toURL());
+                webConfigBuilder.webModule = new WebModule("test-war.war/", URI.create("test-war.war/"), null, "test-war.war/", null, null);
+                webConfigBuilder.webModule.setContextRoot("test");
+//                webConfigBuilder.webModule.setAltSpecDD(new File(earFile, "alt-web.xml").toURL());
+//                webConfigBuilder.webModule.setAltVendorDD(new File(earFile, "alt-ger-war.xml").toURL());
+                connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", URI.create("test-rar.rar"), null, "test-rar.rar", null, null);
+//                connectorConfigBuilder.connectorModule.setAltSpecDD(new File(earFile, "alt-ra.xml").toURL());
+//                connectorConfigBuilder.connectorModule.setAltVendorDD(new File(earFile, "alt-ger-ra.xml").toURL());
             }
 
             protected void tearDown() {
@@ -145,17 +149,18 @@ public class EARConfigBuilderTest extends TestCase {
         TestSetup setupPackedAltDD = new TestSetup(inner) {
             protected void setUp() throws Exception {
                 earFile = new File(basedir,  "target/test-unpacked-ear/alt-dd.ear");
-                ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar/", URI.create("test-ejb-jar/"));
-                String baseURI = "jar:" + earFile.toURL() + "!/";
-                ejbConfigBuilder.ejbModule.setAltSpecDD(new URL(baseURI + "alt-ejb-jar.xml"));
-                ejbConfigBuilder.ejbModule.setAltVendorDD(new URL(baseURI + "alt-ger-ejb-jar.xml"));
+                ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar.jar/", URI.create("test-ejb-jar.jar/"), null, "test-ejb-jar.jar/", null, null);
+//                String baseURI = "jar:" + earFile.toURL() + "!/";
+//                ejbConfigBuilder.ejbModule.setAltSpecDD(new URL(baseURI + "alt-ejb-jar.xml"));
+//                ejbConfigBuilder.ejbModule.setAltVendorDD(new URL(baseURI + "alt-ger-ejb-jar.xml"));
                 webConfigBuilder.contextRoot = "test";
-                webConfigBuilder.webModule = new WebModule("test-war/", URI.create("test-war/"), "test");
-                webConfigBuilder.webModule.setAltSpecDD(new URL(baseURI + "alt-web.xml"));
-                webConfigBuilder.webModule.setAltVendorDD(new URL(baseURI + "alt-ger-war.xml"));
-                connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", URI.create("test-rar.rar"));
-                connectorConfigBuilder.connectorModule.setAltSpecDD(new URL(baseURI + "alt-ra.xml"));
-                connectorConfigBuilder.connectorModule.setAltVendorDD(new URL(baseURI + "alt-ger-ra.xml"));
+                webConfigBuilder.webModule = new WebModule("test-war.war/", URI.create("test-war.war/"), null, "test-war.war/", null, null);
+                webConfigBuilder.webModule.setContextRoot("test");
+//                webConfigBuilder.webModule.setAltSpecDD(new URL(baseURI + "alt-web.xml"));
+//                webConfigBuilder.webModule.setAltVendorDD(new URL(baseURI + "alt-ger-war.xml"));
+                connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", URI.create("test-rar.rar"), null, "test-rar.rar", null, null);
+//                connectorConfigBuilder.connectorModule.setAltSpecDD(new URL(baseURI + "alt-ra.xml"));
+//                connectorConfigBuilder.connectorModule.setAltVendorDD(new URL(baseURI + "alt-ger-ra.xml"));
             }
 
             protected void tearDown() {

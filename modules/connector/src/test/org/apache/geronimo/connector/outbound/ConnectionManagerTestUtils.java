@@ -19,7 +19,6 @@ package org.apache.geronimo.connector.outbound;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.security.auth.Subject;
 import javax.transaction.TransactionManager;
 
@@ -35,12 +34,11 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransact
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.outbound.connectiontracking.DefaultComponentInterceptor;
 import org.apache.geronimo.connector.outbound.connectiontracking.DefaultInterceptor;
-import org.apache.geronimo.transaction.DefaultInstanceContext;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.bridge.RealmBridge;
+import org.apache.geronimo.transaction.DefaultInstanceContext;
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.UserTransactionImpl;
-import org.apache.geronimo.transaction.GeronimoTransactionManager;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 

@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -32,15 +33,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
-
+import java.util.jar.JarFile;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
 
 import junit.framework.TestCase;
-
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.deployment.util.JarUtil;
+import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -90,12 +91,20 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
 
     public void testBuildUnpackedModule() throws Exception {
         InstallAction action = new InstallAction() {
+            public URL getVendorDD() {
+                return null;
+            }
+
+            public URL getSpecDD() {
+                return null;
+            }
+
             private File rarFile = new File(basedir, "target/test-rar-10");
             public File getRARFile() {
                 return rarFile;
             }
             public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
-                moduleBuilder.installModule(rarFile, earContext, module);
+                moduleBuilder.installModule(new UnpackedJarFile(rarFile), earContext, module);
             }
         };
         executeTestBuildModule(action);
@@ -103,18 +112,20 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
 
     public void testBuildUnpackedAltSpecDDModule() throws Exception {
         InstallAction action = new InstallAction() {
+            public URL getVendorDD() throws MalformedURLException {
+                return new File(basedir, "target/test-rar-10/META-INF/geronimo-ra.xml").toURL();
+            }
+
+            public URL getSpecDD() throws MalformedURLException {
+                return new File(basedir, "target/test-rar-10/dummy.xml").toURL();
+            }
+
             private File rarFile = new File(basedir, "target/test-rar-10");
             public File getRARFile() {
                 return rarFile;
             }
             public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
-                // Resets the vendor DD, such that it will be reloaded.
-                module.setVendorDD(null);
-                // this file does not exist, one expects a DeploymentException.
-                module.setAltSpecDD(new File(basedir, "target/test-rar-10/dummy.xml").toURL());
-                // this file exists
-                module.setAltVendorDD(new File(basedir, "target/test-rar-10/META-INF/geronimo-ra.xml").toURL());
-                moduleBuilder.installModule(rarFile, earContext, module);
+                moduleBuilder.installModule(new UnpackedJarFile(rarFile), earContext, module);
             }
         };
         try {
@@ -126,18 +137,21 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
 
     public void testBuildUnpackedAltVendorDDModule() throws Exception {
         InstallAction action = new InstallAction() {
+            public URL getVendorDD() throws MalformedURLException {
+                // this file does not exist, one expects a DeploymentException.
+                return new File(basedir, "target/test-rar-10/dummy.xml").toURL();
+            }
+
+            public URL getSpecDD() throws MalformedURLException {
+                return new File(basedir, "target/test-rar-10/META-INF/ra.xml").toURL();
+            }
+
             private File rarFile = new File(basedir, "target/test-rar-10");
             public File getRARFile() {
                 return rarFile;
             }
             public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
-                // Resets the vendor DD, such that it will be reloaded.
-                module.setVendorDD(null);
-                // this file exists
-                module.setAltSpecDD(new File(basedir, "target/test-rar-10/META-INF/ra.xml").toURL());
-                // this file does not exist, one expects a DeploymentException.
-                module.setAltVendorDD(new File(basedir, "target/test-rar-10/dummy.xml").toURL());
-                moduleBuilder.installModule(rarFile, earContext, module);
+                moduleBuilder.installModule(new UnpackedJarFile(rarFile), earContext, module);
             }
         };
         try {
@@ -149,18 +163,21 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
     
     public void testBuildUnpackedAltSpecVendorDDModule() throws Exception {
         InstallAction action = new InstallAction() {
+            public URL getVendorDD() throws MalformedURLException {
+                // this file exists
+                return new File(basedir, "target/test-rar-10/META-INF/geronimo-ra.xml").toURL();
+            }
+
+            public URL getSpecDD() throws MalformedURLException {
+                return new File(basedir, "target/test-rar-10/META-INF/ra.xml").toURL();
+            }
+
             private File rarFile = new File(basedir, "target/test-rar-10");
             public File getRARFile() {
                 return rarFile;
             }
             public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
-                // Resets the vendor DD, such that it will be reloaded.
-                module.setVendorDD(null);
-                // this file exists
-                module.setAltSpecDD(new File(basedir, "target/test-rar-10/META-INF/ra.xml").toURL());
-                // this file exists
-                module.setAltVendorDD(new File(basedir, "target/test-rar-10/META-INF/geronimo-ra.xml").toURL());
-                moduleBuilder.installModule(rarFile, earContext, module);
+                moduleBuilder.installModule(new UnpackedJarFile(rarFile), earContext, module);
             }
         };
         executeTestBuildModule(action);
@@ -168,12 +185,20 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
     
     public void testBuildPackedModule() throws Exception {
         InstallAction action = new InstallAction() {
+            public URL getVendorDD() {
+                return null;
+            }
+
+            public URL getSpecDD() {
+                return null;
+            }
+
             private File rarFile = new File(basedir, "target/test-rar-10.rar");
             public File getRARFile() {
                 return rarFile;
             }
             public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
-                moduleBuilder.installModule(new JarFile(rarFile), earContext, module);
+                moduleBuilder.installModule(JarUtil.createJarFile(rarFile), earContext, module);
             }
         };
         executeTestBuildModule(action);
@@ -194,12 +219,21 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
 
         Thread.currentThread().setContextClassLoader(cl);
 
-        XmlObject plan = moduleBuilder.getDeploymentPlan(rarFile.toURL());
+        JarFile rarJarFile = JarUtil.createJarFile(rarFile);
+        URL vendorURL = action.getVendorDD();
+        if (vendorURL == null) {
+            vendorURL = JarUtil.createJarURL(rarJarFile, "META-INF/geronimo-ra.xml");
+        }
+        XmlObject plan = moduleBuilder.parseVendorDD(vendorURL);
+        if (plan == null) {
+            throw new DeploymentException();
+        }
+
         URI parentId = moduleBuilder.getParentId(plan);
         URI configId = moduleBuilder.getConfigId(plan);
         assertEquals(j2eeModuleName, configId.toString());
 
-        Module module = moduleBuilder.createModule(configId.toString(), plan);
+        Module module = moduleBuilder.createModule(configId.toString(), URI.create("/"), rarJarFile, "connector", plan, action.getSpecDD());
 
         File carFile = File.createTempFile("RARTest", ".car");
         try {
@@ -232,7 +266,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
             carFile.delete();
         }
     }
-    
+
     private void verifyDeployment(File unpackedDir, ClassLoader cl, String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName) throws Exception {
         DataSource ds = null;
         Kernel kernel = null;
@@ -393,8 +427,10 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
     }
 
     private interface InstallAction {
-        public File getRARFile();
-        public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception;
+        File getRARFile();
+        void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception;
+        URL getVendorDD() throws MalformedURLException;
+        URL getSpecDD() throws MalformedURLException;
     }
 
 }

@@ -16,10 +16,8 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import java.util.jar.JarFile;
 import java.net.URI;
-import java.net.URL;
-import java.io.InputStream;
-import java.io.IOException;
 
 import org.apache.xmlbeans.XmlObject;
 
@@ -27,65 +25,44 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev$ $Date$
  */
 public class Module {
-    protected final String name;
-    protected final URI uri;
-    protected URL altSpecDD;
-    protected XmlObject specDD;
-    protected URL altVendorDD;
-    protected XmlObject vendorDD;
+    private final String name;
+    private final URI moduleURI;
+    private final JarFile moduleFile;
+    private final String targetPath;
+    private final XmlObject specDD;
+    private final XmlObject vendorDD;
 
-    public Module(String name, URI uri) {
-        assert name != null: "Module name is null";
+    public Module(String name, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD) {
         this.name = name;
-        this.uri = uri;
+        this.moduleURI = moduleURI;
+        this.moduleFile = moduleFile;
+        this.targetPath = targetPath;
+        this.specDD = specDD;
+        this.vendorDD = vendorDD;
     }
 
     public String getName() {
         return name;
     }
 
-    public URI getURI() {
-        return uri;
+    public URI getModuleURI() {
+        return moduleURI;
     }
 
-    public URL getAltSpecDD() {
-        return altSpecDD;
+    public JarFile getModuleFile() {
+        return moduleFile;
     }
 
-    public InputStream openAltSpecDD() throws IOException {
-        return openURL(altSpecDD);
+    public String getTargetPath() {
+        return targetPath;
     }
 
-    public void setAltSpecDD(URL altSpecDD) {
-        this.altSpecDD = altSpecDD;
-    }
-    
     public XmlObject getSpecDD() {
         return specDD;
     }
 
-    public void setSpecDD(XmlObject specDD) {
-        this.specDD = specDD;
-    }
-
-    public URL getAltVendorDD() {
-        return altVendorDD;
-    }
-    
-    public InputStream openAltVendorDD() throws IOException {
-        return openURL(altVendorDD);
-    }
-
-    public void setAltVendorDD(URL altVendorDD) {
-        this.altVendorDD = altVendorDD;
-    }
-    
     public XmlObject getVendorDD() {
         return vendorDD;
-    }
-
-    public void setVendorDD(XmlObject vendorDD) {
-        this.vendorDD = vendorDD;
     }
 
     public int hashCode() {
@@ -101,15 +78,5 @@ public class Module {
             return name.equals(module.name);
         }
         return false;
-    }
-    
-    private InputStream openURL(URL url) throws IOException {
-        if (url != null) {
-            InputStream in = url.openStream();
-            if (in != null) {
-                return in;
-            }
-        }
-        return null;
     }
 }

@@ -17,9 +17,6 @@
 
 package org.apache.geronimo.connector.outbound;
 
-import javax.resource.spi.ManagedConnectionFactory;
-import javax.resource.ResourceException;
-
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PartitionedPool;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;

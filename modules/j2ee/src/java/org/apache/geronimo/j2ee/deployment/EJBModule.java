@@ -17,13 +17,16 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.net.URI;
+import java.util.jar.JarFile;
+
+import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
  */
 public class EJBModule extends Module {
-    public EJBModule(String name, URI uri) {
-        super(name, uri);
+    public EJBModule(String name, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD) {
+        super(name, moduleURI, moduleFile, targetPath, specDD, vendorDD);
     }
 }
 

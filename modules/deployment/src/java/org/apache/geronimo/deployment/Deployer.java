@@ -19,7 +19,6 @@ package org.apache.geronimo.deployment;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -31,7 +30,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
-
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -40,15 +38,15 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.apache.geronimo.deployment.util.FileUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.deployment.util.FileUtil;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  * Command line based deployment utility which combines multiple deployable modules
@@ -200,18 +198,7 @@ public class Deployer {
             } else if (cmd.module.toString().endsWith("/")) {
                 throw new DeploymentException("Unpacked modules must be files");
             } else {
-                File tempFile;
-                InputStream moduleStream = cmd.module.openStream();
-                try {
-                    tempFile = FileUtil.toTempFile(moduleStream);
-                } finally {
-                    try {
-                        moduleStream.close();
-                    } catch (IOException e) {
-                        // ignore
-                    }
-                }
-                builder.buildConfiguration(cmd.carfile, manifest, tempFile, plan);
+                builder.buildConfiguration(cmd.carfile, manifest, FileUtil.toTempFile(cmd.module.openStream(), true), plan);
             }
 
             try {

@@ -17,27 +17,20 @@
 package org.apache.geronimo.connector.deployment;
 
 import java.beans.PropertyEditor;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.jar.JarInputStream;
 import java.util.zip.ZipEntry;
-
 import javax.management.AttributeNotFoundException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -58,7 +51,7 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransact
 import org.apache.geronimo.connector.outbound.security.PasswordCredentialRealm;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
-import org.apache.geronimo.deployment.util.FileUtil;
+import org.apache.geronimo.deployment.util.JarUtil;
 import org.apache.geronimo.gbean.DynamicGAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -68,6 +61,7 @@ import org.apache.geronimo.j2ee.deployment.ConnectorModule;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
+import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
 import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
@@ -92,17 +86,15 @@ import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConfigPropertyType10;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorDocument10;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorType10;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ResourceadapterType10;
-import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
  */
 public class ConnectorModuleBuilder implements ModuleBuilder {
-
     private static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[]{
         XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.j2ee.String.class.getClassLoader()),
         XmlBeans.typeLoaderForClassLoader(GerConnectorDocument.class.getClassLoader())
@@ -112,6 +104,52 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
     private static final String BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME = "geronimo.security:service=Realm,type=PasswordCredential,name=";
     private static final String BASE_WORK_MANAGER_NAME = "geronimo.server:type=WorkManager,name=";
 
+    public XmlObject parseSpecDD(URL path) throws DeploymentException {
+        InputStream in = null;
+        try {
+            // try 1.0
+            in = path.openStream();
+            ConnectorDocument10 connectorDoc = ConnectorDocument10.Factory.parse(in);
+            SchemaConversionUtils.validateDD(connectorDoc);
+            return connectorDoc.getConnector();
+        } catch (Exception ignore) {
+            // ignore
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
+        }
+
+        // that didn't work try 1.5
+        in = null;
+        try {
+            in = path.openStream();
+            ConnectorDocument connectorDoc = ConnectorDocument.Factory.parse(in);
+            SchemaConversionUtils.validateDD(connectorDoc);
+            return connectorDoc.getConnector();
+        } catch (Exception e) {
+            // ignore
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
+        }
+
+        throw new DeploymentException("Unable to parse " + path);
+    }
+
+    public XmlObject parseVendorDD(URL url) throws XmlException {
+        return XmlBeansUtil.getXmlObject(url, GerConnectorDocument.type);
+    }
+
     public XmlObject getDeploymentPlan(URL module) throws XmlException {
         try {
             URL moduleBase;
@@ -120,11 +158,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
             } else {
                 moduleBase = new URL("jar:" + module.toString() + "!/");
             }
-            GerConnectorDocument plan = (GerConnectorDocument) XmlBeansUtil.getXmlObject(new URL(moduleBase, "META-INF/geronimo-ra.xml"), GerConnectorDocument.type);
-            if (plan == null) {
-                return null;
-            }
-            return plan;
+            return (GerConnectorDocument) parseVendorDD(new URL(moduleBase, "META-INF/geronimo-ra.xml"));
         } catch (MalformedURLException e) {
             return null;
         }
@@ -134,135 +168,87 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         return plan instanceof GerConnectorDocument;
     }
 
-    public Module createModule(String name, XmlObject plan) throws DeploymentException {
-        if (!canHandlePlan(plan)) {
-            throw new DeploymentException("Wrong kind of plan");
-        }
-        ConnectorModule module = new ConnectorModule(name, URI.create("/"));
-        GerConnectorType gerConnector = ((GerConnectorDocument) plan).getConnector();
-        module.setVendorDD(gerConnector);
-        return module;
-    }
-
     public URI getParentId(XmlObject plan) throws DeploymentException {
         GerConnectorType geronimoConnector = ((GerConnectorDocument) plan).getConnector();
-        URI parentID;
         if (geronimoConnector.isSetParentId()) {
             try {
-                parentID = new URI(geronimoConnector.getParentId());
+                return new URI(geronimoConnector.getParentId());
             } catch (URISyntaxException e) {
                 throw new DeploymentException("Invalid parentId " + geronimoConnector.getParentId(), e);
             }
         } else {
-            parentID = null;
+            return null;
         }
-        return parentID;
     }
 
     public URI getConfigId(XmlObject plan) throws DeploymentException {
         GerConnectorType geronimoConnector = ((GerConnectorDocument) plan).getConnector();
-        URI configID;
         try {
-            configID = new URI(geronimoConnector.getConfigId());
+            return new URI(geronimoConnector.getConfigId());
         } catch (URISyntaxException e) {
             throw new DeploymentException("Invalid configId " + geronimoConnector.getConfigId(), e);
         }
-        return configID;
     }
 
-    public void installModule(File earFolder, EARContext earContext, Module module) throws DeploymentException {
-        File rarFolder = new File(earFolder, module.getURI().toString());
-        
-        // Unpacked EAR modules can define via application.xml either
-        // (standard) packed or unpacked modules
-        InstallCallback callback;
-        if ( rarFolder.isDirectory() ) {
-            callback = new UnPackedInstallCallback(module, rarFolder);
-        } else {
-            JarFile rarFile;
-            try {
-                rarFile = new JarFile(rarFolder);
-            } catch (IOException e) {
-                throw new DeploymentException("Can not create RAR file " + rarFolder, e);
-            }
-            callback = new PackedInstallCallback(module, rarFile);
+    public Module createModule(String name, JarFile moduleFile, XmlObject vendorDD) throws DeploymentException {
+        return createModule(name, URI.create("/"), moduleFile, "connector", vendorDD, null);
+    }
+
+    public Module createModule(String name, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject vendorDD, URL specDD) throws DeploymentException {
+        if (specDD == null) {
+            specDD = JarUtil.createJarURL(moduleFile, "META-INF/ra.xml");
         }
-        installModule(callback, earContext, module);
+        XmlObject connector = parseSpecDD(specDD);
+
+        if (vendorDD == null) {
+            try {
+                JarEntry entry = moduleFile.getJarEntry("META-INF/geronimo-ra.xml");
+                if (entry != null) {
+                    InputStream in = moduleFile.getInputStream(entry);
+                    if (in != null) {
+                        vendorDD = XmlBeansUtil.parse(in, GerConnectorDocument.type);
+                    }
+                }
+            } catch (Exception e) {
+                throw new DeploymentException("Unable to parse META-INF/geronimo-ra.xml", e);
+            }
+        }
+        if (vendorDD == null) {
+            throw new DeploymentException("No geronimo-ra.xml.");
+        }
+
+        GerConnectorDocument geronimoConnectorDoc = (GerConnectorDocument) vendorDD;
+        GerConnectorType geronimoConnector = geronimoConnectorDoc.getConnector();
+
+        return new ConnectorModule(name, moduleURI, moduleFile, targetPath, connector, geronimoConnector);
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
-        JarFile rarFile;
         try {
-            if (!module.getURI().equals(URI.create("/"))) {
-                ZipEntry rarEntry = earFile.getEntry(module.getURI().toString());
-                if ( null == rarEntry ) {
-                    throw new DeploymentException("Can not find RAR file " + module.getURI());
-                }
-                // Unpack the nested RAR.
-                File tempFile = FileUtil.toTempFile(earFile.getInputStream(rarEntry));
-                rarFile = new JarFile(tempFile);
-            } else {
-                rarFile = earFile;
-            }
-        } catch (IOException e) {
-            throw new DeploymentException("Problem deploying rar", e);
-        }
-        InstallCallback callback = new PackedInstallCallback(module, rarFile);
-        installModule(callback, earContext, module);
-    }
+            URI moduleBase = URI.create(module.getTargetPath());
 
-    public void installModule(InstallCallback callback, EARContext earContext, Module module) throws DeploymentException {
-        URI moduleBase = null;
-        if (!module.getURI().equals(URI.create("/"))) {
-            moduleBase = URI.create(module.getURI() + "/");
-        } else {
-            moduleBase = URI.create("connector/");
-        }
+            JarFile moduleFile = module.getModuleFile();
 
-        try {
-            XmlObject specConnnector;
-            try {
-                // try 1.0
-                ConnectorDocument10 connectorDoc = ConnectorDocument10.Factory.parse(callback.getRaDD());
-                SchemaConversionUtils.validateDD(connectorDoc);
-                specConnnector = connectorDoc.getConnector();
-            } catch (XmlException ignore) {
-                // that didn't work try 1.5
+            Enumeration entries = moduleFile.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = (ZipEntry) entries.nextElement();
+                URI target = moduleBase.resolve(entry.getName());
+                InputStream in = moduleFile.getInputStream(entry);
                 try {
-                    ConnectorDocument connectorDoc = ConnectorDocument.Factory.parse(callback.getRaDD());
-                    SchemaConversionUtils.validateDD(connectorDoc);
-                    specConnnector = connectorDoc.getConnector();
-                } catch (XmlException e) {
-                    throw new DeploymentException("Unable to parse " +
-                        (null == module.getAltSpecDD() ? 
-                            "META-INF/ra.xml":
-                                module.getAltSpecDD().toString()), e);
+                    if (entry.getName().endsWith(".jar")) {
+                        earContext.addStreamInclude(target, in);
+                    } else {
+                        earContext.addFile(target, in);
+                    }
+                } finally {
+                    try {
+                        in.close();
+                    } catch (IOException e) {
+                    }
                 }
             }
-            module.setSpecDD(specConnnector);
 
             GerConnectorType vendorConnector = (GerConnectorType) module.getVendorDD();
-            if ( null == vendorConnector ) {
-                try {
-                    InputStream gerDDInputStream = callback.getGeronimoRaDD();
-                    GerConnectorDocument doc;
-                    if (gerDDInputStream != null) {
-                        doc = (GerConnectorDocument) XmlBeansUtil.parse(gerDDInputStream, GerConnectorDocument.type);
-                    } else {
-                        throw new DeploymentException("No geronimo-ra.xml.");
-                    }
-                    vendorConnector = doc.getConnector();
-                    module.setVendorDD(vendorConnector);
-                } catch (XmlException e) {
-                    throw new DeploymentException("Unable to parse " +
-                        (null == module.getAltVendorDD() ?
-                            "geronimo-ra.xml":
-                                module.getAltVendorDD().toString()), e);
-                }
-            }
-
-            callback.installInEARContext(earContext, moduleBase);
-
             GerDependencyType[] dependencies = vendorConnector.getDependencyArray();
             for (int i = 0; i < dependencies.length; i++) {
                 earContext.addDependency(getDependencyURI(dependencies[i]));
@@ -274,7 +260,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
         // connectors do not add anything to the shared context
-        //TODO should the 1.5 ActivationSpecInfos be processed here?
+        // TODO should the 1.5 ActivationSpecInfos be processed here? YES
     }
 
     public void addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
@@ -320,7 +306,17 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
             if (!earContext.getJ2EEApplicationName().equals("null")) {
                 resourceAdapterModule.setReferencePatterns("J2EEApplication", Collections.singleton(earContext.getApplicationObjectName()));
             }
-            resourceAdapterModule.setAttribute("deploymentDescriptor", module.getSpecDD().toString());
+
+            XmlObject specDD = module.getSpecDD();
+            if (specDD instanceof ConnectorType10) {
+                ConnectorDocument10 connectorDoc = ConnectorDocument10.Factory.newInstance();
+                connectorDoc.setConnector((ConnectorType10) specDD);
+                resourceAdapterModule.setAttribute("deploymentDescriptor", connectorDoc.toString());
+            } else {
+                ConnectorDocument connectorDoc = ConnectorDocument.Factory.newInstance();
+                connectorDoc.setConnector((ConnectorType) specDD);
+                resourceAdapterModule.setAttribute("deploymentDescriptor", connectorDoc.toString());
+            }
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize EJBModule GBean", e);
         }
@@ -771,7 +767,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         }
     }
 
-
     private static URI getDependencyURI(GerDependencyType dependency) throws DeploymentException {
         if (dependency.isSetUri()) {
             try {
@@ -787,16 +782,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
                 throw new DeploymentException("Unable to construct URI for groupId=" + dependency.getGroupId() + ", artifactId=" + dependency.getArtifactId() + ", version=" + dependency.getVersion(), e);
             }
         }
-    }
-
-    private static byte[] getBytes(InputStream is) throws IOException {
-        byte[] buffer = new byte[4096];
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        int count;
-        while ((count = is.read(buffer)) > 0) {
-            baos.write(buffer, 0, count);
-        }
-        return baos.toByteArray();
     }
 
     private final static class ConfigProperty {
@@ -829,129 +814,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         }
     }
 
-    private static abstract class InstallCallback {
-        
-        protected final Module rarModule;
-        
-        private InstallCallback(Module rarModule) {
-            this.rarModule = rarModule;
-        }
-        
-        public abstract void installInEARContext(EARContext earContext, URI moduleBase) throws DeploymentException, IOException;
-        
-        public InputStream getRaDD() throws DeploymentException, IOException {
-            if ( null == rarModule.getAltSpecDD() ) {
-                return null;
-            }
-            return rarModule.getAltSpecDD().openStream();
-        }
-        
-        public InputStream getGeronimoRaDD() throws DeploymentException, IOException {
-            if ( null == rarModule.getAltVendorDD() ) {
-                return null;
-            }
-            return rarModule.getAltVendorDD().openStream();
-        }
-
-    }
-    
-    private static final class UnPackedInstallCallback extends InstallCallback {
-        
-        private final File rarFolder;
-        
-        private UnPackedInstallCallback(Module rarModule, File rarFolder) {
-            super(rarModule);
-            this.rarFolder = rarFolder;
-        }
-        
-        public void installInEARContext(EARContext earContext, URI moduleBase) throws DeploymentException, IOException {
-            URI raRoot = rarFolder.toURI();
-            Collection files = new ArrayList();
-            FileUtil.listRecursiveFiles(rarFolder, files);
-            for (Iterator iter = files.iterator(); iter.hasNext();) {
-                File file = (File) iter.next();
-                URI fileURI = raRoot.relativize(file.toURI());
-                URI target = moduleBase.resolve(fileURI);
-                if (file.getName().endsWith(".jar")) {
-                    earContext.addInclude(target, file.toURL());
-                } else {
-                    earContext.addFile(target, file);
-                }
-            }
-        }
-        
-        public InputStream getRaDD() throws DeploymentException, IOException {
-            InputStream in = super.getRaDD();
-            if (null != in) {
-                return in;
-            }
-            File raFile = new File(rarFolder, "META-INF/ra.xml");
-            if ( !raFile.exists() ) {
-                throw new DeploymentException("No  in module [" + rarModule.getName() + "]");
-            }
-            return new FileInputStream(raFile);
-        }
-        
-        public InputStream getGeronimoRaDD() throws DeploymentException, IOException {
-            InputStream in = super.getGeronimoRaDD();
-            if (null != in) {
-                return in;
-            }
-            File geronimoRaFile = new File(rarFolder, "META-INF/geronimo-ra.xml");
-            if ( geronimoRaFile.exists() ) {
-                return new FileInputStream(geronimoRaFile);
-            }
-            return null;
-        }
-        
-    }
-    
-    private static final class PackedInstallCallback extends InstallCallback {
-
-        private final JarFile rarFile;
-        
-        private PackedInstallCallback(Module rarModule, JarFile rarFile) {
-            super(rarModule);
-            this.rarFile = rarFile;
-        }
-        
-        public void installInEARContext(EARContext earContext, URI moduleBase) throws DeploymentException, IOException {
-            JarInputStream jarIS = new JarInputStream(new FileInputStream(rarFile.getName()));
-            for (JarEntry entry; (entry = jarIS.getNextJarEntry()) != null; jarIS.closeEntry()) {
-                URI target = moduleBase.resolve(entry.getName());
-                if (entry.getName().endsWith(".jar")) {
-                    earContext.addStreamInclude(target, jarIS);
-                } else {
-                    earContext.addFile(target, jarIS);
-                }
-            }
-        }
-        
-        public InputStream getRaDD() throws DeploymentException, IOException {
-            InputStream in = super.getRaDD();
-            if (null != in) {
-                return in;
-            }
-            JarEntry entry = rarFile.getJarEntry("META-INF/ra.xml");
-            if (entry == null) {
-                throw new DeploymentException("No META-INF/ra.xml in module [" + rarModule.getName() + "]");
-            }
-            return rarFile.getInputStream(entry);
-        }
-        
-        public InputStream getGeronimoRaDD() throws DeploymentException, IOException {
-            InputStream in = super.getGeronimoRaDD();
-            if (null != in) {
-                return in;
-            }
-            JarEntry entry = rarFile.getJarEntry("META-INF/geronimo-ra.xml");
-            if (entry != null) {
-                return rarFile.getInputStream(entry);
-            }
-            return null;
-        }
-    }
-    
     public static final GBeanInfo GBEAN_INFO;
 
     static {

@@ -33,14 +33,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
-
 import javax.management.ObjectName;
 import javax.sql.DataSource;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.connector.ActivationSpecInfo;
+import org.apache.geronimo.deployment.util.JarUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -94,7 +93,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
                 return rarFile;
             }
             public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
-                moduleBuilder.installModule(rarFile, earContext, module);
+                moduleBuilder.installModule(JarUtil.createJarFile(rarFile), earContext, module);
             }
         };
         executeTestBuildModule(action);
@@ -108,7 +107,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
                 return rarFile;
             }
             public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
-                moduleBuilder.installModule(new JarFile(rarFile), earContext, module);
+                moduleBuilder.installModule(JarUtil.createJarFile(rarFile), earContext, module);
             }
         };
         executeTestBuildModule(action);
@@ -135,7 +134,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
         URI configId = moduleBuilder.getConfigId(plan);
         assertEquals(j2eeModuleName, configId.toString());
 
-        Module module = moduleBuilder.createModule(configId.toString(), plan);
+        Module module = moduleBuilder.createModule(configId.toString(), JarUtil.createJarFile(action.getRARFile()), plan);
 
         File carFile = File.createTempFile("RARTest", ".car");
         try {

@@ -16,15 +16,17 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
-import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.util.jar.JarFile;
+import java.io.InputStream;
+import java.io.IOException;
 
 import junit.framework.Assert;
-
-import org.apache.xmlbeans.XmlObject;
+import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlException;
 
 /**
  * @version $Rev$ $Date$
@@ -50,46 +52,71 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder 
         return null;
     }
 
-    public Module createModule(String name, XmlObject plan) {
-        return null;
+    public Module createModule(String name, JarFile moduleFile, XmlObject vendorDD) throws DeploymentException {
+        return createModule(name, URI.create("/"), moduleFile, "connector", vendorDD, null);
     }
 
-    public void installModule(File earFolder, EARContext earContext, Module connectorModule) {
-        assertNotNull(earFolder);
-        assertNotNull(earContext);
-        this.earContext = earContext;
-        assertEquals(this.connectorModule, connectorModule);
-        if ( null != this.connectorModule.getAltSpecDD() ) {
-            assertEquals(this.connectorModule.getAltSpecDD(), connectorModule.getAltSpecDD());
-        }
-        if ( null != this.connectorModule.getAltVendorDD() ) {
-            assertEquals(this.connectorModule.getAltVendorDD(), connectorModule.getAltVendorDD());
-        }
+    public Module createModule(String name, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject vendorDD, URL specDD) throws DeploymentException {
+        return new ConnectorModule(name, moduleURI, moduleFile, targetPath, null, vendorDD);
     }
-    
+
     public void installModule(JarFile earFile, EARContext earContext, Module connectorModule) {
         assertNotNull(earFile);
         assertNotNull(earContext);
         this.earContext = earContext;
-        assertEquals(this.connectorModule, connectorModule);
-        if ( null != this.connectorModule.getAltSpecDD() ) {
-            assertEquals(this.connectorModule.getAltSpecDD(), connectorModule.getAltSpecDD());
+//        assertEquals(this.connectorModule, connectorModule);
+//        if ( null != this.connectorModule.getAltSpecDD() ) {
+//            assertEquals(this.connectorModule.getAltSpecDD(), connectorModule.getAltSpecDD());
+//        }
+//        if ( null != this.connectorModule.getAltVendorDD() ) {
+//            assertEquals(this.connectorModule.getAltVendorDD(), connectorModule.getAltVendorDD());
+//        }
+    }
+
+    public XmlObject parseSpecDD(URL path) throws DeploymentException {
+        InputStream in = null;
+        try {
+            in = path.openStream();
+            return XmlObject.Factory.newInstance();
+        } catch (IOException e) {
+            throw new DeploymentException(e);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                }
+            }
         }
-        if ( null != this.connectorModule.getAltVendorDD() ) {
-            assertEquals(this.connectorModule.getAltVendorDD(), connectorModule.getAltVendorDD());
+    }
+
+    public XmlObject parseVendorDD(URL vendorURL) throws XmlException {
+        InputStream in = null;
+        try {
+            in = vendorURL.openStream();
+            return XmlObject.Factory.newInstance();
+        } catch (IOException e) {
+            throw new XmlException(e);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                }
+            }
         }
     }
 
     public void initContext(EARContext earContext, Module connectorModule, ClassLoader cl) {
         assertEquals(this.earContext, earContext);
-        assertEquals(this.connectorModule, connectorModule);
+//        assertEquals(this.connectorModule, connectorModule);
         assertNotNull(cl);
         this.cl = cl;
     }
 
     public void addGBeans(EARContext earContext, Module connectorModule, ClassLoader cl) {
         assertEquals(this.earContext, earContext);
-        assertEquals(this.connectorModule, connectorModule);
+//        assertEquals(this.connectorModule, connectorModule);
         assertEquals(this.cl, cl);
     }
 

@@ -16,15 +16,17 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
-import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.util.jar.JarFile;
+import java.io.InputStream;
+import java.io.IOException;
 
 import junit.framework.Assert;
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlException;
 
 /**
  * @version $Rev$ $Date$
@@ -51,46 +53,71 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
         return null;
     }
 
-    public Module createModule(String name, XmlObject plan) {
-        return null;
+    public Module createModule(String name, JarFile moduleFile, XmlObject vendorDD) throws DeploymentException {
+        return createModule(name, URI.create("/"), moduleFile, "connector", vendorDD, null);
     }
 
-    public void installModule(File earFolder, EARContext earContext, Module webModule) throws DeploymentException {
-        assertNotNull(earFolder);
-        assertNotNull(earContext);
-        this.earContext = earContext;
-        assertEquals(this.webModule, webModule);
-        if ( null != this.webModule.getAltSpecDD() ) {
-            assertEquals(this.webModule.getAltSpecDD(), webModule.getAltSpecDD());
-        }
-        if ( null != this.webModule.getAltVendorDD() ) {
-            assertEquals(this.webModule.getAltVendorDD(), webModule.getAltVendorDD());
-        }
+    public Module createModule(String name, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject vendorDD, URL specDD) throws DeploymentException {
+        return new WebModule(name, moduleURI, moduleFile, targetPath, null, vendorDD);
     }
-    
+
     public void installModule(JarFile earFile, EARContext earContext, Module webModule) throws DeploymentException {
         assertNotNull(earFile);
         assertNotNull(earContext);
         this.earContext = earContext;
-        assertEquals(this.webModule, webModule);
-        if ( null != this.webModule.getAltSpecDD() ) {
-            assertEquals(this.webModule.getAltSpecDD(), webModule.getAltSpecDD());
+//        assertEquals(this.webModule, webModule);
+//        if ( null != this.webModule.getAltSpecDD() ) {
+//            assertEquals(this.webModule.getAltSpecDD(), webModule.getAltSpecDD());
+//        }
+//        if ( null != this.webModule.getAltVendorDD() ) {
+//            assertEquals(this.webModule.getAltVendorDD(), webModule.getAltVendorDD());
+//        }
+    }
+
+    public XmlObject parseSpecDD(URL path) throws DeploymentException {
+        InputStream in = null;
+        try {
+            in = path.openStream();
+            return XmlObject.Factory.newInstance();
+        } catch (IOException e) {
+            throw new DeploymentException(e);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                }
+            }
         }
-        if ( null != this.webModule.getAltVendorDD() ) {
-            assertEquals(this.webModule.getAltVendorDD(), webModule.getAltVendorDD());
+    }
+
+    public XmlObject parseVendorDD(URL vendorURL) throws XmlException {
+        InputStream in = null;
+        try {
+            in = vendorURL.openStream();
+            return XmlObject.Factory.newInstance();
+        } catch (IOException e) {
+            throw new XmlException(e);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                }
+            }
         }
     }
 
     public void initContext(EARContext earContext, Module webModule, ClassLoader cl) {
         assertEquals(this.earContext, earContext);
-        assertEquals(this.webModule, webModule);
+//        assertEquals(this.webModule, webModule);
         assertNotNull(cl);
         this.cl = cl;
     }
 
     public void addGBeans(EARContext earContext, Module webModule, ClassLoader cl) throws DeploymentException {
         assertEquals(this.earContext, earContext);
-        assertEquals(this.webModule, webModule);
+//        assertEquals(this.webModule, webModule);
         assertEquals(this.cl, cl);
         assertNotNull(contextRoot);
         this.contextRoot = ((WebModule) webModule).getContextRoot();

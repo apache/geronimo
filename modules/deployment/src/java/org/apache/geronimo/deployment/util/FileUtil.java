@@ -18,12 +18,13 @@
 package org.apache.geronimo.deployment.util;
 
 import java.io.File;
-import java.io.InputStream;
-import java.io.IOException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.Collections;
+import java.util.LinkedList;
 
 /**
  *
@@ -35,16 +36,37 @@ public class FileUtil {
     private static int i;
 
     public static File toTempFile(InputStream is) throws IOException {
-        File tmp = File.createTempFile("geronimodeployment" + i++, "tmp");
-        FileOutputStream fos = new FileOutputStream(tmp);
-        byte[] buffer = new byte[4096];
-        int count;
-        while ((count = is.read(buffer)) > 0) {
-            fos.write(buffer, 0, count);
+        return toTempFile(is, false);
+    }
+
+    public static File toTempFile(InputStream in, boolean close) throws IOException {
+        OutputStream out = null;
+        try {
+            File tempFile = File.createTempFile("geronimodeployment" + i++, "tmp");
+            out = new FileOutputStream(tempFile);
+
+            byte[] buffer = new byte[4096];
+            int count;
+            while ((count = in.read(buffer)) > 0) {
+                out.write(buffer, 0, count);
+            }
+
+            out.flush();
+            return tempFile;
+        } finally {
+            try {
+                in.close();
+            } catch (IOException e) {
+                // ignore
+            }
+            if (close && out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
         }
-        fos.flush();
-        fos.close();
-        return tmp;
     }
 
     public static void recursiveDelete(File root) {

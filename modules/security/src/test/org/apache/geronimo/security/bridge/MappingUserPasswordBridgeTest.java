@@ -17,11 +17,10 @@
 
 package org.apache.geronimo.security.bridge;
 
-import javax.security.auth.Subject;
-
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
+import javax.security.auth.Subject;
 
 
 /**

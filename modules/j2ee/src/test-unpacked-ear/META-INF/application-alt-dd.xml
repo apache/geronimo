@@ -39,7 +39,7 @@
     </module>
     <module>
         <!-- supports a standard RAR within an exploded RAR -->
-        <connector>test-rar.rar</connector>
+        <connector>test-rar</connector>
         <alt-dd>alt-ra.xml</alt-dd>
     </module>
 </application>

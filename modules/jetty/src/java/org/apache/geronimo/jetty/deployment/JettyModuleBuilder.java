@@ -17,26 +17,20 @@
 
 package org.apache.geronimo.jetty.deployment;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.jar.JarInputStream;
 import java.util.zip.ZipEntry;
 import javax.management.AttributeNotFoundException;
 import javax.management.MalformedObjectNameException;
@@ -47,7 +41,7 @@ import javax.transaction.UserTransaction;
 import org.apache.geronimo.common.xml.XmlBeansUtil;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
-import org.apache.geronimo.deployment.util.FileUtil;
+import org.apache.geronimo.deployment.util.JarUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
@@ -66,14 +60,25 @@ import org.apache.geronimo.security.deploy.Realm;
 import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.transaction.UserTransactionImpl;
-import org.apache.geronimo.xbeans.geronimo.jetty.*;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyDefaultPrincipalType;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyDependencyType;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyGbeanType;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyLocalRefType;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyPrincipalType;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyRealmType;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyRemoteRefType;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyRoleMappingsType;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyRoleType;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettySecurityType;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 
 
 /**
@@ -87,6 +92,21 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
     private static final String PARENT_ID = "org/apache/geronimo/Server";
 
+    public XmlObject parseSpecDD(URL path) throws DeploymentException {
+        try {
+            // check if we have an alt spec dd
+            XmlObject dd = SchemaConversionUtils.parse(path.openStream());
+            WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(dd);
+            return webAppDoc.getWebApp();
+        } catch (Exception e) {
+            throw new DeploymentException("Unable to parse " + path, e);
+        }
+    }
+
+    public XmlObject parseVendorDD(URL vendorURL) throws XmlException {
+        return XmlBeansUtil.getXmlObject(vendorURL, JettyWebAppDocument.type);
+    }
+
     public XmlObject getDeploymentPlan(URL module) throws XmlException {
         try {
             URL moduleBase;
@@ -95,7 +115,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             } else {
                 moduleBase = new URL("jar:" + module.toString() + "!/");
             }
-            JettyWebAppDocument plan = (JettyWebAppDocument) XmlBeansUtil.getXmlObject(new URL(moduleBase, "WEB-INF/geronimo-jetty.xml"), JettyWebAppDocument.type);
+            JettyWebAppDocument plan = (JettyWebAppDocument) parseVendorDD(new URL(moduleBase, "WEB-INF/geronimo-jetty.xml"));
             if (plan == null) {
                 return createDefaultPlan(moduleBase);
             }
@@ -105,7 +125,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         }
     }
 
-    private JettyWebAppDocument createDefaultPlan(URL moduleBase) throws XmlException {
+    private JettyWebAppDocument createDefaultPlan(URL moduleBase) {
         // load the web.xml
         URL webXmlUrl = null;
         try {
@@ -113,20 +133,14 @@ public class JettyModuleBuilder implements ModuleBuilder {
         } catch (MalformedURLException e) {
             return null;
         }
-        WebAppDocument webAppDoc = null;
+
+        WebAppType webApp = null;
         try {
-            InputStream ddInputStream = webXmlUrl.openStream();
-            webAppDoc = getWebAppDocument(ddInputStream);
-        } catch (IOException e) {
-            return null;
+            webApp = (WebAppType) parseSpecDD(webXmlUrl);
         } catch (DeploymentException e) {
             return null;
         }
-        if (webAppDoc == null) {
-            return null;
-        }
 
-        WebAppType webApp = webAppDoc.getWebApp();
         String id = webApp.getId();
         if (id == null) {
             id = moduleBase.getFile();
@@ -145,7 +159,6 @@ public class JettyModuleBuilder implements ModuleBuilder {
     }
     
     private JettyWebAppDocument newJettyWebAppDocument(WebAppType webApp, String id) {
-        // construct the empty geronimo-jetty.xml
         JettyWebAppDocument jettyWebAppDocument = JettyWebAppDocument.Factory.newInstance();
         JettyWebAppType jettyWebApp = jettyWebAppDocument.addNewWebApp();
 
@@ -181,106 +194,72 @@ public class JettyModuleBuilder implements ModuleBuilder {
         }
     }
 
-    public Module createModule(String name, XmlObject plan) throws DeploymentException {
-        JettyWebAppType jettyWebApp = ((JettyWebAppDocument) plan).getWebApp();
-        WebModule module = new WebModule(name, URI.create("/"), jettyWebApp.getContextRoot());
-        module.setVendorDD(jettyWebApp);
+    public Module createModule(String name, JarFile moduleFile, XmlObject vendorDD) throws DeploymentException {
+        return createModule(name, URI.create("/"), moduleFile, "connector", vendorDD, null);
+    }
+
+    public Module createModule(String name, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject vendorDD, URL specDD) throws DeploymentException {
+        if (specDD == null) {
+            specDD = JarUtil.createJarURL(moduleFile, "WEB-INF/web.xml");
+        }
+        WebAppType webApp = (WebAppType) parseSpecDD(specDD);
+
+        if (vendorDD == null) {
+            try {
+                JarEntry entry = moduleFile.getJarEntry("WEB-INF/geronimo-jetty.xml");
+                if (entry != null) {
+                    InputStream in = moduleFile.getInputStream(entry);
+                    if (in != null) {
+                        vendorDD = XmlBeansUtil.parse(in, JettyWebAppDocument.type);
+                    }
+                }
+            } catch (Exception e) {
+                throw new DeploymentException("Unable to parse WEB-INF/geronimo-jetty.xml", e);
+            }
+        }
+        if (vendorDD == null) {
+            vendorDD = newJettyWebAppDocument(webApp, name);
+        }
+
+        JettyWebAppDocument jettyWebAppDoc = (JettyWebAppDocument) vendorDD;
+        JettyWebAppType jettyWebApp = jettyWebAppDoc.getWebApp();
+
+        WebModule module = new WebModule(name, moduleURI, moduleFile, targetPath, webApp, jettyWebApp);
+        module.setContextRoot(jettyWebApp.getContextRoot());
         return module;
     }
 
-    public void installModule(File earFolder, EARContext earContext, Module webModule) throws DeploymentException {
-        File webFolder = new File(earFolder, webModule.getURI().toString());
-        
-        // Unpacked EAR modules can define via application.xml either
-        // (standard) packed or unpacked modules
-        InstallCallback callback;
-        if ( webFolder.isDirectory() ) {
-            callback = new UnPackedInstallCallback(webModule, webFolder);
-        } else {
-            JarFile warFile;
-            try {
-                warFile = new JarFile(webFolder);
-            } catch (IOException e) {
-                throw new DeploymentException("Can not create WAR file " + webFolder, e);
-            }
-            callback = new PackedInstallCallback(webModule, warFile);
-        }
-        installModule(callback, earContext, webModule);
-    }
-
     public void installModule(JarFile earFile, EARContext earContext, Module webModule) throws DeploymentException {
-        JarFile webAppFile;
         try {
-            if (!webModule.getURI().equals(URI.create("/"))) {
-                ZipEntry warEntry = earFile.getEntry(webModule.getURI().toString());
-                if ( null == warEntry ) {
-                    throw new DeploymentException("Can not find WAR file " + webModule.getURI());
-                }
-                // Unpack the nested JAR.
-                File tempFile = FileUtil.toTempFile(earFile.getInputStream(warEntry));
-                webAppFile = new JarFile(tempFile);
-            } else {
-                webAppFile = earFile;
-            }
-        } catch (IOException e) {
-            throw new DeploymentException("Problem deploying war", e);
-        }
-        InstallCallback callback = new PackedInstallCallback(webModule, webAppFile);
-        installModule(callback, earContext, webModule);
-    }
-
-    private void installModule(InstallCallback callback, EARContext earContext, Module webModule) throws DeploymentException {
-        URI moduleBase;
-        if (!webModule.getURI().equals(URI.create("/"))) {
-            moduleBase = URI.create(webModule.getURI() + "/");
-        } else {
-            moduleBase = URI.create("war/");
-        }
-        try {
-            // load the web.xml file
-            WebAppType webApp;
-            try {
-                InputStream ddInputStream = callback.getWebDD();
-                webApp = getWebAppDocument(ddInputStream).getWebApp();
-                webModule.setSpecDD(webApp);
-            } catch (XmlException e) {
-                throw new DeploymentException("Unable to parse " +
-                    (null == webModule.getAltSpecDD() ?
-                        "WEB-INF/web.xml":
-                            webModule.getAltSpecDD().toString()), e);
-            }
-
-            // load the geronimo-jetty.xml file
-            JettyWebAppType jettyWebApp = (JettyWebAppType) webModule.getVendorDD();
-            if (jettyWebApp == null) {
-                try {
-                    InputStream jettyDDInputStream = callback.getGeronimoJettyDD();
-                    JettyWebAppDocument doc;
-                    if (jettyDDInputStream != null) {
-                        doc = (JettyWebAppDocument) XmlBeansUtil.parse(jettyDDInputStream, JettyWebAppDocument.type);
-                    } else {
-                        doc = newJettyWebAppDocument(webApp, moduleBase.toString());
-                    }
-                    jettyWebApp = doc.getWebApp();
-                    webModule.setVendorDD(jettyWebApp);
-                } catch (XmlException e) {
-                    throw new DeploymentException("Unable to parse " +
-                        (null == webModule.getAltVendorDD() ?
-                            "WEB-INF/geronimo-jetty.xml":
-                                webModule.getAltVendorDD().toString()), e);
-                }
-            }
-
-            // TODO gets rid of these tests when Jetty will use the
-            // serialized Geronimo DD.
-            if ( null != webModule.getAltSpecDD()) {
-                earContext.addFile(moduleBase.resolve("WEB-INF/web.xml"), webModule.getAltSpecDD().openStream());
-            }
+            URI targetURI = URI.create(webModule.getTargetPath());
 
             // add the warfile's content to the configuration
-            callback.installInEARContext(earContext, moduleBase);
+            JarFile warFile = webModule.getModuleFile();
+            Enumeration entries = warFile.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = (ZipEntry) entries.nextElement();
+                URI target = targetURI.resolve(entry.getName());
+
+                if ( entry.getName().equals("WEB-INF/web.xml")) {
+                    // TODO gets rid of these tests when Jetty will use the serialized Geronimo DD.
+                    WebAppDocument webAppDoc = WebAppDocument.Factory.newInstance();
+                    webAppDoc.setWebApp((WebAppType) webModule.getSpecDD());
+                    earContext.addFile(target, webAppDoc.newInputStream());
+                } else {
+                    InputStream in = warFile.getInputStream(entry);
+                    try {
+                        earContext.addFile(target, in);
+                    } finally {
+                        try {
+                            in.close();
+                        } catch (IOException e) {
+                        }
+                    }
+                }
+            }
 
             // add the dependencies declared in the geronimo-jetty.xml file
+            JettyWebAppType jettyWebApp = (JettyWebAppType) webModule.getVendorDD();
             JettyDependencyType[] dependencies = jettyWebApp.getDependencyArray();
             for (int i = 0; i < dependencies.length; i++) {
                 earContext.addDependency(getDependencyURI(dependencies[i]));
@@ -334,21 +313,19 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 gbean = new GBeanMBean(JettyWebAppJACCContext.GBEAN_INFO, cl);
             }
 
-            URI warRoot = null;
-            if (!webModule.getURI().equals(URI.create("/"))) {
-                warRoot = URI.create(webModule.getURI() + "/");
-            } else {
-                warRoot = URI.create("war/");
-            }
-
-            String PolicyContextID = (earContext.getApplicationObjectName() == null ? module.getName() : earContext.getApplicationObjectName().toString());
-
-            gbean.setAttribute("uri", warRoot);
+            gbean.setAttribute("uri", URI.create(module.getTargetPath()));
             gbean.setAttribute("contextPath", webModule.getContextRoot());
             gbean.setAttribute("contextPriorityClassLoader", Boolean.valueOf(jettyWebApp.getContextPriorityClassloader()));
             if (security != null) {
                 gbean.setAttribute("securityConfig", security);
-                gbean.setAttribute("policyContextID", PolicyContextID);
+
+                String policyContextID;
+                if (earContext.getApplicationObjectName() == null) {
+                    policyContextID = module.getName();
+                } else {
+                    policyContextID = earContext.getApplicationObjectName().toString();
+                }
+                gbean.setAttribute("policyContextID", policyContextID);
             }
             gbean.setAttribute("componentContext", compContext);
             gbean.setAttribute("userTransaction", userTransaction);
@@ -367,27 +344,14 @@ public class JettyModuleBuilder implements ModuleBuilder {
         return SCHEMA_TYPE_LOADER;
     }
 
-    private WebAppDocument getWebAppDocument(InputStream ddInputStream) throws XmlException, DeploymentException {
-        XmlObject dd;
-        try {
-            dd = SchemaConversionUtils.parse(ddInputStream);
-        } catch (IOException e) {
-            throw new DeploymentException(e);
-        }
-        WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(dd);
-        return webAppDoc;
-    }
-
     private ReadOnlyContext buildComponentContext(EARContext earContext, WebModule webModule, WebAppType webApp, JettyWebAppType jettyWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
         Map ejbRefMap = mapRefs(jettyWebApp.getEjbRefArray());
         Map ejbLocalRefMap = mapRefs(jettyWebApp.getEjbLocalRefArray());
         Map resourceRefMap = mapRefs(jettyWebApp.getResourceRefArray());
         Map resourceEnvRefMap = mapRefs(jettyWebApp.getResourceEnvRefArray());
 
-        URI uri = webModule.getURI();
-
         return ENCConfigBuilder.buildComponentContext(earContext,
-                uri,
+                URI.create(webModule.getTargetPath()),
                 userTransaction,
                 webApp.getEnvEntryArray(),
                 webApp.getEjbRefArray(), ejbRefMap,
@@ -396,7 +360,6 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 webApp.getResourceEnvRefArray(), resourceEnvRefMap,
                 webApp.getMessageDestinationRefArray(),
                 cl);
-
     }
 
     private static Map mapRefs(JettyRemoteRefType[] refs) {
@@ -466,7 +429,6 @@ public class JettyModuleBuilder implements ModuleBuilder {
         return principal;
     }
 
- 
     private void setResourceEnvironment(GBeanMBean bean, ResourceRefType[] resourceRefArray, JettyLocalRefType[] jettyResourceRefArray) throws AttributeNotFoundException, ReflectionException {
         Map openejbNames = new HashMap();
         for (int i = 0; i < jettyResourceRefArray.length; i++) {
@@ -497,42 +459,6 @@ public class JettyModuleBuilder implements ModuleBuilder {
         return string.getStringValue();
     }
 
-    private static void assureEJBObjectInterface(String remote, ClassLoader cl) throws DeploymentException {
-        assureInterface(remote, "javax.ejb.EJBObject", "Remote", cl);
-    }
-
-    private static void assureEJBHomeInterface(String home, ClassLoader cl) throws DeploymentException {
-        assureInterface(home, "javax.ejb.EJBHome", "Home", cl);
-    }
-
-    private static void assureEJBLocalObjectInterface(String local, ClassLoader cl) throws DeploymentException {
-        assureInterface(local, "javax.ejb.EJBLocalObject", "Local", cl);
-    }
-
-    private static void assureEJBLocalHomeInterface(String localHome, ClassLoader cl) throws DeploymentException {
-        assureInterface(localHome, "javax.ejb.EJBLocalHome", "LocalHome", cl);
-    }
-
-    private static void assureInterface(String interfaceName, String superInterfaceName, String interfactType, ClassLoader cl) throws DeploymentException {
-        Class clazz = null;
-        try {
-            clazz = cl.loadClass(interfaceName);
-        } catch (ClassNotFoundException e) {
-            throw new DeploymentException(interfactType + " interface class not found: " + interfaceName);
-        }
-        if (!clazz.isInterface()) {
-            throw new DeploymentException(interfactType + " interface is not an interface: " + interfaceName);
-        }
-        Class superInterface = null;
-        try {
-            superInterface = cl.loadClass(superInterfaceName);
-        } catch (ClassNotFoundException e) {
-            throw new DeploymentException("Class " + superInterfaceName + " could not be loaded");
-        }
-        if (clazz.isAssignableFrom(superInterface)) {
-            throw new DeploymentException(interfactType + " interface does not extend " + superInterfaceName + ": " + interfaceName);
-        }
-    }
 
     private URI getDependencyURI(JettyDependencyType dep) throws DeploymentException {
         URI uri;
@@ -552,145 +478,6 @@ public class JettyModuleBuilder implements ModuleBuilder {
             }
         }
         return uri;
-    }
-
-
-    private byte[] getBytes(InputStream is) throws IOException {
-        byte[] buffer = new byte[4096];
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        int count;
-        while ((count = is.read(buffer)) > 0) {
-            baos.write(buffer, 0, count);
-        }
-        return baos.toByteArray();
-    }
-
-    private static abstract class InstallCallback {
-        
-        protected final Module webModule;
-        
-        private InstallCallback(Module webModule) {
-            this.webModule = webModule;
-        }
-        
-        public abstract void installInEARContext(EARContext earContext, URI moduleBase) throws DeploymentException, IOException;
-        
-        public InputStream getWebDD() throws DeploymentException, IOException {
-            if ( null == webModule.getAltSpecDD() ) {
-                return null;
-            }
-            return webModule.getAltSpecDD().openStream();
-        }
-        
-        public InputStream getGeronimoJettyDD() throws DeploymentException, IOException {
-            if ( null == webModule.getAltVendorDD() ) {
-                return null;
-            }
-            return webModule.getAltVendorDD().openStream();
-        }
-
-    }
-
-    private static final class UnPackedInstallCallback extends InstallCallback {
-        
-        private final File webFolder;
-        
-        private UnPackedInstallCallback(Module webModule, File webFolder) {
-            super(webModule);
-            this.webFolder = webFolder;
-        }
-        
-        public void installInEARContext(EARContext earContext, URI moduleBase) throws DeploymentException, IOException {
-            URI warRoot = webFolder.toURI();
-            // add the warfile's content to the configuration
-            Collection files = new ArrayList();
-            FileUtil.listRecursiveFiles(webFolder, files);
-            for (Iterator iter = files.iterator(); iter.hasNext();) {
-                File file = (File) iter.next();
-                URI fileURI = warRoot.relativize(file.toURI());
-                URI target = moduleBase.resolve(fileURI);
-                // TODO gets rid of these tests when Jetty will use the
-                // serialized Geronimo DD.
-                if ( fileURI.equals("WEB-INF/web.xml") &&
-                    null != webModule.getAltSpecDD()) {
-                } else {
-                    earContext.addFile(target, file);
-                }
-            }
-        }
-        
-        public InputStream getWebDD() throws DeploymentException, IOException {
-            InputStream in = super.getWebDD();
-            if ( null != in ) {
-                return in;
-            }
-            File webAppFile = new File(webFolder, "WEB-INF/web.xml");
-            if ( !webAppFile.exists() ) {
-                throw new DeploymentException("No WEB-INF/web.xml in module [" + webModule.getName() + "]");
-            }
-            return new FileInputStream(webAppFile);
-        }
-        
-        public InputStream getGeronimoJettyDD() throws DeploymentException, IOException {
-            InputStream in = super.getGeronimoJettyDD();
-            if ( null != in ) {
-                return in;
-            }
-            File jettyWebAppFile = new File(webFolder, "WEB-INF/geronimo-jetty.xml");
-            if ( jettyWebAppFile.exists() ) {
-                return new FileInputStream(jettyWebAppFile);
-            }
-            return null;
-        }
-        
-    }
-
-    private static final class PackedInstallCallback extends InstallCallback {
-
-        private final JarFile webAppFile;
-        
-        private PackedInstallCallback(Module webModule, JarFile webAppFile) {
-            super(webModule);
-            this.webAppFile = webAppFile;
-        }
-
-        public void installInEARContext(EARContext earContext, URI moduleBase) throws DeploymentException, IOException {
-            JarInputStream jarIS = new JarInputStream(new FileInputStream(webAppFile.getName()));
-            for (JarEntry entry; (entry = jarIS.getNextJarEntry()) != null; jarIS.closeEntry()) {
-                URI target = moduleBase.resolve(entry.getName());
-                // TODO gets rid of these tests when Jetty will use the
-                // serialized Geronimo DD.
-                if ( entry.getName().equals("WEB-INF/web.xml") &&
-                    null != webModule.getAltSpecDD() ) {
-                } else {
-                    earContext.addFile(target, jarIS);
-                }
-            }
-        }
-        
-        public InputStream getWebDD() throws DeploymentException, IOException {
-            InputStream in = super.getWebDD();
-            if ( null != in ) {
-                return in;
-            }
-            JarEntry entry = webAppFile.getJarEntry("WEB-INF/web.xml");
-            if (entry == null) {
-                throw new DeploymentException("No WEB-INF/web.xml in module [" + webModule.getName() + "]");
-            }
-            return webAppFile.getInputStream(entry);
-        }
-        
-        public InputStream getGeronimoJettyDD() throws DeploymentException, IOException {
-            InputStream in = super.getGeronimoJettyDD();
-            if ( null != in ) {
-                return in;
-            }
-            JarEntry entry = webAppFile.getJarEntry("WEB-INF/geronimo-jetty.xml");
-            if (entry != null) {
-                return webAppFile.getInputStream(entry);
-            }
-            return null;
-        }
     }
 
     public static final GBeanInfo GBEAN_INFO;

@@ -77,11 +77,16 @@
         <ant:jar destfile="${ear.target.base.dir}/test-war.war"
             basedir="${ear.src.base.dir}/test-war"/>
 
+        <!-- Build test-rar -->
+        <ant:jar destfile="${ear.target.base.dir}/test-rar.rar"
+            basedir="${ear.src.base.dir}/test-rar"/>
+
         <!-- Build test-ear -->
         <ant:jar destfile="${ear.target.base.dir}/test-ear.ear">
             <fileset dir="${ear.target.base.dir}">
                 <include name="test-ejb-jar.jar"/>
                 <include name="test-war.war"/>
+                <include name="test-rar.rar"/>
             </fileset>
             <fileset dir="${ear.src.base.dir}">
                 <include name="META-INF/*"/>
@@ -93,6 +98,7 @@
             <fileset dir="${ear.target.base.dir}">
                 <include name="test-ejb-jar.jar"/>
                 <include name="test-war.war"/>
+                <include name="test-rar.rar"/>
             </fileset>
             <fileset dir="${ear.src.base.dir}">
                 <include name="META-INF/*"/>
@@ -110,7 +116,8 @@
                 <include name="geronimo-application.xml"/>
             </fileset>
         </copy>
-        
+
+
         <j:set var="ear.unpacked.relative" value="naked"/>
         <attainGoal name="setupBaseUnpackedEar"/>
         <copy todir="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}/META-INF">
@@ -118,7 +125,9 @@
                 <include name="application.xml"/>
             </fileset>
         </copy>
-        
+
+
+
         <j:set var="ear.unpacked.relative" value="alt-dd"/>
         <attainGoal name="setupBaseUnpackedEar"/>
         <copy todir="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}/META-INF">
@@ -133,7 +142,12 @@
             </fileset>
             <mapper type="merge" to="geronimo-application.xml"/>
         </copy>
-        
+        <copy todir="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}">
+            <fileset dir="${basedir}/src/test-unpacked-ear">
+                <include name="*.xml"/>
+            </fileset>
+        </copy>
+
         <ant:jar destfile="${basedir}/target/test-unpacked-ear/alt-dd.ear">
             <fileset dir="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}"/>
         </ant:jar>
@@ -143,7 +157,7 @@
         <ant:mkdir dir="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}/META-INF"/>
         <ant:mkdir dir="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}/test-ejb-jar"/>
         <ant:mkdir dir="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}/test-war"/>
-        <ant:touch file="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}/test-rar.rar"/>
+        <ant:mkdir dir="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}/test-rar"/>
     </goal>
 
 </project>

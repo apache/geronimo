@@ -17,37 +17,24 @@
 package org.apache.geronimo.deployment.util;
 
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.FileInputStream;
-import java.util.Enumeration;
-import java.util.LinkedList;
-import java.util.Iterator;
-import java.util.Collections;
+import java.net.URI;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
-import java.net.URI;
 
 /**
  * @version $Rev$ $Date$
  */
 public class UnpackedJarFile extends JarFile {
-    private static final File dummyJarFile;
-    static {
-        try {
-            dummyJarFile = File.createTempFile("fake", null);
-            new JarOutputStream(new FileOutputStream(dummyJarFile), new Manifest()).close();
-            dummyJarFile.deleteOnExit();
-        } catch (IOException e) {
-            throw new ExceptionInInitializerError(e);
-        }
-    }
-
     private final File baseDir;
     private boolean manifestLoaded = false;
     private Manifest manifest;
@@ -57,7 +44,7 @@ public class UnpackedJarFile extends JarFile {
     }
 
     public UnpackedJarFile(File baseDir) throws IOException {
-        super(dummyJarFile);
+        super(JarUtil.DUMMY_JAR_FILE);
         this.baseDir = baseDir;
         if (!baseDir.isDirectory()) {
             throw new IOException("File must be a directory: file=" + baseDir.getAbsolutePath());
@@ -126,9 +113,9 @@ public class UnpackedJarFile extends JarFile {
     public InputStream getInputStream(ZipEntry zipEntry) throws IOException {
         File file;
         if (zipEntry instanceof UnpackedJarEntry) {
-            file = getFile(zipEntry.getName());
-        } else {
             file = ((UnpackedJarEntry)zipEntry).getFile();
+        } else {
+            file = getFile(zipEntry.getName());
         }
 
         if (file == null) {

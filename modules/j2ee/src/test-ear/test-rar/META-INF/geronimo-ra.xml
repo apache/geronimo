@@ -16,24 +16,8 @@
     limitations under the License.
 -->
 
-<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
+<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee" version="1.5"
     configId="org/apache/geronimo/j2ee/deployment/test"
     parentId="org/apache/geronimo/Server">
 
-    <!-- a random gbean just to verify that the deployer doesn't die because of it -->
-    <gbean name="foo:j2eeType=J2EEDomain,name=foo" class="org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl"/>
-
-    <module>
-        <web>test-war/</web>
-        <alt-dd>alt-ger-war.xml</alt-dd>
-    </module>
-    <module>
-        <ejb>test-ejb-jar/</ejb>
-        <alt-dd>alt-ger-ejb-jar.xml</alt-dd>
-    </module>
-    <module>
-        <connector>test-rar</connector>
-        <alt-dd>alt-ger-ra.xml</alt-dd>
-    </module>
-
-</application>
+</connector>
