@@ -23,14 +23,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.messaging.cluster.topology.TopologyManager;
 import org.apache.geronimo.messaging.io.NullReplacerResolver;
 import org.apache.geronimo.messaging.io.ReplacerResolver;
 import org.apache.geronimo.messaging.proxy.EndPointProxyInfo;
 
 /**
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/10 23:12:24 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/17 03:52:33 $
  */
 public class MockNode implements Node
 {

@@ -32,7 +32,7 @@ import org.apache.geronimo.messaging.proxy.EndPointProxyInfo;
  * EndPoint -- MTO -- Node -- MTM -- Node -- OTM -- EndPoint
  * </PRE>
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/10 23:12:24 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/17 03:52:34 $
  */
 public interface Node extends GBeanLifecycle
 {
@@ -55,8 +55,10 @@ public interface Node extends GBeanLifecycle
      * locally.
      * 
      * @param aTopology Topology of the nodes constituting the network layout.
+     * 
+     * @exception NodeException Indicates that the topology can not be set.
      */
-    public void setTopology(NodeTopology aTopology);
+    public void setTopology(NodeTopology aTopology) throws NodeException;
 
     /**
      * Gets the node topology in which this instance is operating.

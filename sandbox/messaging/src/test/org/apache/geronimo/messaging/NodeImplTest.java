@@ -20,6 +20,8 @@ package org.apache.geronimo.messaging;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,7 +36,7 @@ import org.apache.geronimo.pool.ThreadPool;
 
 /**
  *
- * @version $Revision: 1.5 $ $Date: 2004/07/08 05:13:29 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/17 03:52:33 $
  */
 public class NodeImplTest
     extends TestCase
@@ -110,7 +112,7 @@ public class NodeImplTest
         // Sets the topology.
         NodeTopology topology =
             new MockTopology(nodeInfo1, nodeInfo2, nodeInfo3, nodeInfo4);
-        node1.setTopology(topology);
+        node3.setTopology(topology);
     }
 
     protected void tearDown() throws Exception {
@@ -208,8 +210,7 @@ public class NodeImplTest
         public void init(String aName) throws Exception {
             tp = new ThreadPool();
             tp.setKeepAliveTime(1 * 1000);
-            tp.setMinimumPoolSize(5);
-            tp.setMaximumPoolSize(25);
+            tp.setPoolSize(10);
             tp.setPoolName("TP " + aName);
 
             cp = new ClockPool();
@@ -234,6 +235,7 @@ public class NodeImplTest
  
     private static class MockTopology implements NodeTopology {
 
+        private final NodeInfo[] nodesInfo;
         private final NodeInfo nodeInfo1;
         private final NodeInfo nodeInfo2;
         private final NodeInfo nodeInfo3;
@@ -247,67 +249,68 @@ public class NodeImplTest
             nodeInfo2 = aNodeInfo2;
             nodeInfo3 = aNodeInfo3;
             nodeInfo4 = aNodeInfo4;
+            nodesInfo = new NodeInfo[] {
+                nodeInfo1, nodeInfo2, nodeInfo3, nodeInfo4};
         }
         
         public Set getNeighbours(NodeInfo aRoot) {
             Set result = new HashSet();
-            if ( aRoot.equals(nodeInfo1) ) {
-                result.add(nodeInfo2);
-            } else if ( aRoot.equals(nodeInfo2) ) {
-                result.add(nodeInfo3);
-            } else if ( aRoot.equals(nodeInfo3) ) {
-                result.add(nodeInfo4);
-            } else if ( aRoot.equals(nodeInfo4) ) {
-            } else {
-                throw new IllegalArgumentException("Not expected");
+            if ( aRoot.equals(nodesInfo[0]) ) {
+                result.add(nodesInfo[1]);
+                return result;
+            } else if ( aRoot.equals(nodesInfo[nodesInfo.length - 1]) ) {
+                result.add(nodesInfo[nodesInfo.length - 2]);
+                return result;
             }
-            return result;
+            for (int i = 1; i < nodesInfo.length - 1; i++) {
+                if ( nodesInfo[i].equals(aRoot) ) {
+                    result.add(nodesInfo[i - 1]);
+                    result.add(nodesInfo[i + 1]);
+                    return result;
+                }
+            }
+            throw new IllegalArgumentException("Not expected");
         }
         public NodeInfo[] getPath(NodeInfo aSource, NodeInfo aTarget) {
-            if ( aSource.equals(nodeInfo1) && aTarget.equals(nodeInfo2) ) {
-                return new NodeInfo[] {nodeInfo2};
-            } else if ( aSource.equals(nodeInfo2) && aTarget.equals(nodeInfo1) ) {
-                return new NodeInfo[] {nodeInfo1};
-            } else if ( aSource.equals(nodeInfo2) && aTarget.equals(nodeInfo3) ) {
-                return new NodeInfo[] {nodeInfo3};
-            } else if ( aSource.equals(nodeInfo3) && aTarget.equals(nodeInfo2) ) {
-                return new NodeInfo[] {nodeInfo2};
-            } else if ( aSource.equals(nodeInfo3) && aTarget.equals(nodeInfo4) ) {
-                return new NodeInfo[] {nodeInfo4};
-            } else if ( aSource.equals(nodeInfo4) && aTarget.equals(nodeInfo3) ) {
-                return new NodeInfo[] {nodeInfo3};
-            } else if ( aSource.equals(nodeInfo1) && aTarget.equals(nodeInfo4) ) {
-                return new NodeInfo[] {nodeInfo2, nodeInfo3, nodeInfo4};
-            } else if ( aSource.equals(nodeInfo4) && aTarget.equals(nodeInfo1) ) {
-                return new NodeInfo[] {nodeInfo3, nodeInfo2, nodeInfo1};
+            boolean isInside = false;
+            List result = new ArrayList();
+            for (int i = 0; i < nodesInfo.length ; i++) {
+                NodeInfo curNode = nodesInfo[i];
+                if ( curNode.equals(aSource) ) {
+                    if ( isInside ) {
+                        Collections.reverse(result);
+                        return (NodeInfo[]) result.toArray(new NodeInfo[0]);
+                    }
+                    isInside = true;
+                    continue;
+                } else if ( curNode.equals(aTarget) ) {
+                    if ( isInside ) {
+                        result.add(curNode);
+                        return (NodeInfo[]) result.toArray(new NodeInfo[0]);
+                    }
+                    isInside = true;
+                    result.add(curNode);
+                    continue;
+                }
+                if ( isInside ) {
+                    result.add(nodesInfo[i]);
+                }
             }
             throw new IllegalArgumentException("Not expected");
         }
         public int getIDOfNode(NodeInfo aNodeInfo) {
-            if ( aNodeInfo.equals(nodeInfo1) ) {
-                return 1;
-            } else if ( aNodeInfo.equals(nodeInfo2) ) {
-                return 2;
-            } else if ( aNodeInfo.equals(nodeInfo3) ) {
-                return 3;
-            } else if ( aNodeInfo.equals(nodeInfo4) ) {
-                return 4;
+            for (int i = 0; i < nodesInfo.length; i++) {
+                if ( nodesInfo[i].equals(aNodeInfo) ) {
+                    return i + 1;
+                }
             }
             throw new IllegalArgumentException("Not expected");
         }
         public NodeInfo getNodeById(int anId) {
-            switch (anId) {
-                case 1:
-                    return nodeInfo1;
-                case 2:
-                    return nodeInfo2;
-                case 3:
-                    return nodeInfo3;
-                case 4:
-                    return nodeInfo4;
-                default:
-                    throw new IllegalArgumentException("Not expected");
+            if ( nodesInfo.length <= anId  ) {
+                throw new IllegalArgumentException("Not expected");
             }
+            return nodesInfo[anId - 1];
         }
         public Set getNodes() {
             throw new IllegalArgumentException("Not expected");

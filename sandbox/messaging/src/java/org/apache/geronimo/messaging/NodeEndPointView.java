@@ -17,8 +17,6 @@
 
 package org.apache.geronimo.messaging;
 
-import java.util.Set;
-
 /**
  * When a Node is created, it registers itself as an EndPoint defining the
  * following contracts.
@@ -28,7 +26,7 @@ import java.util.Set;
  * create a proxy for static nested interfaces. I think that this is a CGLIB
  * limitation.
  *
- * @version $Revision :$ $Date: 2004/06/10 23:12:24 $
+ * @version $Revision :$ $Date: 2004/07/17 03:52:34 $
  */
 public interface NodeEndPointView extends EndPoint
 {
@@ -39,15 +37,22 @@ public interface NodeEndPointView extends EndPoint
     public static final Object NODE_ID = "Node";
 
     /**
-     * Cascades the specified topology to all the neighbours of the underlying
-     * Node. The topology change should not be cascaded to the Nodes contained
-     * by aSetOfProcessed. 
+     * Prepares the specified topology.
+     * <BR>
+     * The node must validate (join) all of its neighbours defined by the
+     * specified topology.
      * 
-     * @param aTopology Topology to be cascaded to all the neighbours of the
-     * underlying Node and then applied on the underlying node. 
-     * @param aSetOfProcessed Set<NodeInfo> Nodes which have already received
-     * the topology change request.
+     * @param aTopology Topology to be prepared.
      */
-    public void cascadeTopology(NodeTopology aTopology, Set aSetOfProcessed);
+    public void prepareTopology(NodeTopology aTopology);
+    
+    /**
+     * Commits the specified topology.
+     * <BR>
+     * This latter must have been prepared just before this call.
+     * 
+     * @param aTopology Topology to be committed.
+     */
+    public void commitTopology(NodeTopology aTopology);
     
 }

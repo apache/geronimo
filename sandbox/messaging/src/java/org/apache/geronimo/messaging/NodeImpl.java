@@ -19,6 +19,7 @@ package org.apache.geronimo.messaging;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -50,10 +51,12 @@ import org.apache.geronimo.messaging.remotenode.RemoteNodeManagerImpl;
 import org.apache.geronimo.pool.ClockPool;
 import org.apache.geronimo.pool.ThreadPool;
 
+import EDU.oswego.cs.dl.util.concurrent.Semaphore;
+
 /**
  * Node implementation.
  *
- * @version $Revision: 1.7 $ $Date: 2004/07/08 05:13:29 $
+ * @version $Revision: 1.8 $ $Date: 2004/07/17 03:52:34 $
  */
 public class NodeImpl
     implements Node, GBeanLifecycle
@@ -114,6 +117,11 @@ public class NodeImpl
     private final ClockPool clockPool;
 
     /**
+     * EndPoint view of this node.
+     */
+    private final NodeEndPointView endPointView;
+    
+    /**
      * NodeTopology within which this node is operating.
      */
     private NodeTopology nodeTopology;
@@ -121,7 +129,7 @@ public class NodeImpl
     /**
      * To serialize the topology changes.
      */
-    private final Object topologyMonitor;
+    private final Semaphore topologyMonitor;
     
     /**
      * Creates a Node.
@@ -147,8 +155,9 @@ public class NodeImpl
         clockPool = aClockPool;
         
         replacerResolver = new MsgReplacerResolver();
-        topologyMonitor = new Object();
-
+        topologyMonitor = new Semaphore(1);
+        endPointView = new NodeEndPointViewImpl();
+        
         streamManager = newStreamManager();
         referenceableManager = newReferenceableManager();
         endPointProxyFactory = newEndPointProxyFactory();
@@ -171,7 +180,7 @@ public class NodeImpl
         addEndPoint(endPointProxyFactory);
         addEndPoint(referenceableManager);
         addEndPoint(streamManager);
-        addEndPoint(new NodeEndPointViewImpl());
+        addEndPoint(endPointView);
     }
 
     public ReplacerResolver getReplacerResolver() {
@@ -182,53 +191,94 @@ public class NodeImpl
         return nodeInfo;
     }
     
-    public void setTopology(NodeTopology aTopology) {
-        synchronized(topologyMonitor) {
-            cascadeTopology(aTopology, Collections.EMPTY_SET);
+    public void setTopology(NodeTopology aTopology) throws NodeException {
+        try {
+            topologyMonitor.attempt(1000);
+
+            endPointView.prepareTopology(aTopology);
+
+            Set processed = new HashSet();
+            processed.add(nodeInfo);
+            prepareNodes(aTopology, processed, nodeInfo);
+            
+            endPointView.commitTopology(aTopology);
+            processed = new HashSet();
+            processed.add(nodeInfo);
+            commitNodes(aTopology, processed, nodeInfo);
+        } catch (InterruptedException e) {
+            throw new NodeException("Topology already being applied.");
+        } finally  {
+            topologyMonitor.release();
+        }
+    }
+
+    /**
+     * Prepares the topology of the node aNodeInfo.
+     * 
+     * @param aTopology Topology to be prepared.
+     * @param aProcessed Set<NodeInfo> nodes already processed.
+     * @param aNodeInfo Node to be prepared.
+     */
+    private void prepareNodes(NodeTopology aTopology, Set aProcessed,
+        NodeInfo aNodeInfo) {
+        // Computes the neighbours which have not yet received the
+        // topology reconfiguration.
+        Set toBeProcessed = new HashSet(aTopology.getNeighbours(aNodeInfo));
+        toBeProcessed.removeAll(aProcessed);
+
+        // No more nodes to process.
+        if (0 == toBeProcessed.size()) {
+            return;
+        }
+
+        for (Iterator iter = toBeProcessed.iterator(); iter.hasNext();) {
+            NodeInfo nodeInfo = (NodeInfo) iter.next();
+            EndPointProxyInfo proxyInfo = new EndPointProxyInfo(
+                NodeEndPointView.NODE_ID, NodeEndPointView.class, nodeInfo);
+            NodeEndPointView topologyEndPoint =
+                (NodeEndPointView) endPointProxyFactory.factory(proxyInfo);
+            try {
+                topologyEndPoint.prepareTopology(aTopology);
+            } finally {
+                endPointProxyFactory.releaseProxy(topologyEndPoint);
+            }
+            // Computes the nodes which have already received the topology
+            // reconfiguration.
+            aProcessed.add(nodeInfo);
+            prepareNodes(aTopology, aProcessed, nodeInfo);
         }
     }
     
-    private void cascadeTopology(NodeTopology aTopology, Set aSetOfProcessed) {
-        // Registers a future topology here. This way neighbours can start to
-        // send Msgs compressed with the new topology.
-        compression.registerFutureTopology(aTopology);
-        
-        // Applies the new topology.
-        nodeManager.setTopology(aTopology);
+    /**
+     * Commits the topology of the node aNodeInfo.
+     * 
+     * @param aTopology Topology to be committed.
+     * @param aProcessed Set<NodeInfo> nodes already processed.
+     * @param aNodeInfo Node to be committed.
+     */
+    private void commitNodes(NodeTopology aTopology, Set aProcessed,
+        NodeInfo aNodeInfo) {
+        Set toBeProcessed = new HashSet(aTopology.getNeighbours(aNodeInfo));
+        toBeProcessed.removeAll(aProcessed);
 
-        // Computes the neighbours which have not yet received the topology
-        // reconfiguration.
-        Set neighbours = new HashSet(aTopology.getNeighbours(nodeInfo));
-        neighbours.removeAll(aSetOfProcessed);
-        
-        // Computes the nodes which have already received the topology
-        // reconfiguration.
-        Set processed = new HashSet(aSetOfProcessed);
-        processed.add(nodeInfo);
-        processed.addAll(neighbours);
-
-        NodeInfo[] targets = (NodeInfo[]) neighbours.toArray(new NodeInfo[0]);
-        // No more nodes to process.
-        if ( 0 == targets.length ) {
+        if (0 == toBeProcessed.size()) {
             return;
         }
-      
-        // Acquires a proxy on the NodeEndPointViews of all the neighbours,
-        // which have not yet been processed.
-        EndPointProxyInfo proxyInfo =
-            new EndPointProxyInfo(NodeEndPointView.NODE_ID,
-                new Class[] {NodeEndPointView.class}, targets);
-        NodeEndPointView topologyEndPoint = (NodeEndPointView)
-            endPointProxyFactory.factory(proxyInfo);
-        try {
-            // Cascades the new topology to all of them.
-            topologyEndPoint.cascadeTopology(aTopology, processed);
-        } finally {
-            endPointProxyFactory.releaseProxy(topologyEndPoint);
+
+        for (Iterator iter = toBeProcessed.iterator(); iter.hasNext();) {
+            NodeInfo nodeInfo = (NodeInfo) iter.next();
+            EndPointProxyInfo proxyInfo = new EndPointProxyInfo(
+                NodeEndPointView.NODE_ID, NodeEndPointView.class, nodeInfo);
+            NodeEndPointView topologyEndPoint =
+                (NodeEndPointView) endPointProxyFactory.factory(proxyInfo);
+            try {
+                topologyEndPoint.commitTopology(aTopology);
+            } finally {
+                endPointProxyFactory.releaseProxy(topologyEndPoint);
+            }
+            aProcessed.add(nodeInfo);
+            commitNodes(aTopology, aProcessed, nodeInfo);
         }
-        
-        compression.registerTopology(aTopology);
-        nodeTopology = aTopology;
     }
     
     public NodeTopology getTopology() {
@@ -266,13 +316,13 @@ public class NodeImpl
                 return Collections.EMPTY_SET;
             }
             public NodeInfo[] getPath(NodeInfo aSource, NodeInfo aTarget) {
-                throw new UnsupportedOperationException();
+                throw new UnsupportedOperationException("getPath");
             }
             public int getIDOfNode(NodeInfo aNodeInfo) {
-                throw new UnsupportedOperationException();
+                throw new UnsupportedOperationException("getIDOfNode");
             }
             public NodeInfo getNodeById(int anId) {
-                throw new UnsupportedOperationException();
+                throw new UnsupportedOperationException("getNodeById");
             }
             public Set getNodes() {
                 Set result = new HashSet();
@@ -283,7 +333,7 @@ public class NodeImpl
                 return 0;
             }
             public void setVersion(int aVersion) {
-                throw new UnsupportedOperationException();
+                throw new UnsupportedOperationException("setVersion");
             }
         };
         setTopology(topology);
@@ -373,7 +423,7 @@ public class NodeImpl
         }
         public void push(final Msg aMsg) {
             try {
-                threadPool.getWorkManager().execute(new Runnable() {
+                threadPool.execute(new Runnable() {
                     public void run() {
                         out.push(aMsg);
                     }
@@ -451,8 +501,19 @@ public class NodeImpl
         private NodeEndPointViewImpl() {
             super(NodeImpl.this, NODE_ID);
         }
-        public void cascadeTopology(NodeTopology aTopology, Set aSetOfProcessed) {
-            NodeImpl.this.cascadeTopology(aTopology, aSetOfProcessed);
+        public void prepareTopology(NodeTopology aTopology) {
+            // Registers a future topology here. This way neighbours can start
+            // to send Msgs compressed with the new topology.
+            // TODO re-enable compression.
+//            compression.registerFutureTopology(aTopology);
+            nodeManager.setTopology(aTopology);
+        }
+        public void commitTopology(NodeTopology aTopology) {
+            log.info("********** Topology update **********\n" + aTopology);
+            nodeTopology = aTopology;
+            log.info("********** End Topology update ******");
+            // TODO re-enable compression.
+//            compression.registerTopology(aTopology);
         }
     }
     
@@ -460,9 +521,9 @@ public class NodeImpl
 
     static {
         GBeanInfoFactory factory = new GBeanInfoFactory(NodeImpl.class);
-        factory.setConstructor(new String[] {"NodeInfo", "ThreadPool",
+        factory.setConstructor(new String[] {"nodeInfo", "ThreadPool",
             "ClockPool", "MessagingTransportFactory"});
-        factory.addInterface(Node.class, new String[] {"NodeInfo"});
+        factory.addInterface(Node.class, new String[] {"nodeInfo"});
         factory.addReference("ThreadPool", ThreadPool.class);
         factory.addReference("ClockPool", ClockPool.class);
         factory.addReference("MessagingTransportFactory",

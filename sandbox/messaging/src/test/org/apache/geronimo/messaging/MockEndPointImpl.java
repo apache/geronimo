@@ -26,7 +26,7 @@ import org.apache.geronimo.messaging.interceptors.HeaderOutInterceptor;
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/10 23:12:24 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/17 03:52:33 $
  */
 public class MockEndPointImpl
     extends GBeanBaseEndPoint
@@ -69,9 +69,9 @@ public class MockEndPointImpl
     static {
         GBeanInfoFactory factory = new GBeanInfoFactory(MockEndPointImpl.class, GBeanBaseEndPoint.GBEAN_INFO);
         factory.setConstructor(
-            new String[] {"Node", "ID", "TargetNodes"});
-        factory.addAttribute("TargetNodes", NodeInfo[].class, true);
-        factory.addAttribute("Received", List.class, false);
+            new String[] {"Node", "ID", "targetNodes"});
+        factory.addAttribute("targetNodes", NodeInfo[].class, true);
+        factory.addAttribute("received", List.class, false);
         factory.addOperation("sendRawObject", new Class[]{Object.class});
         GBEAN_INFO = factory.getBeanInfo();
     }
