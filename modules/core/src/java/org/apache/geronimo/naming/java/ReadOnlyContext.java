@@ -70,6 +70,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.NotContextException;
 import javax.naming.OperationNotSupportedException;
+import javax.naming.LinkRef;
 import javax.naming.spi.NamingManager;
 
 /**
@@ -90,7 +91,7 @@ import javax.naming.spi.NamingManager;
  *   String envEntry2 = (String) componentContext.lookup("env/myEntry2");
  * </code>
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/23 22:13:15 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/03 17:21:16 $
  */
 public class ReadOnlyContext implements Context {
     private static final Hashtable ENVIRONMENT = new Hashtable();
@@ -140,7 +141,11 @@ public class ReadOnlyContext implements Context {
             }
             throw new NameNotFoundException();
         }
-        // @todo handle References
+        if (result instanceof LinkRef) {
+            LinkRef ref = (LinkRef) result;
+            String link = (String) ref.get("LinkAddress").getContent();
+            result = lookup(link);
+        }
         return result;
     }
 

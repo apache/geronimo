@@ -69,6 +69,7 @@ import javax.naming.InitialContext;
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.LinkRef;
 
 import org.apache.geronimo.common.StopWatch;
 
@@ -77,7 +78,7 @@ import junit.framework.TestCase;
 /**
 * Unit tests for basic ops on an {@link InitialContext}.
  * 
- * @version $Revision: 1.3 $ $Date: 2003/08/30 09:33:32 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/03 17:21:16 $
  */
 public class BasicContextTest extends TestCase {
     private Properties syntax;
@@ -116,7 +117,7 @@ public class BasicContextTest extends TestCase {
     }
 
     public void testLookupLink() throws NamingException {
-        assertEquals("Hello", envContext.lookup("hello"));
+        assertEquals("Hello", envContext.lookup("link"));
     }
 
     public void testComposeName() throws NamingException {
@@ -206,6 +207,7 @@ public class BasicContextTest extends TestCase {
         envBinding = new HashMap();
         envBinding.put("hello", "Hello");
         envBinding.put("world", "Hello World");
+        envBinding.put("link", new LinkRef("java:comp/env/hello"));
         envContext = new ReadOnlyContext(envBinding);
 
         compBinding.put("env", envContext);
