@@ -68,7 +68,7 @@ import org.apache.geronimo.jmx.JMXUtil;
 /**
  * Abstract implementation of Container interface.
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/16 23:16:18 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/18 13:38:52 $
  *
  */
 public abstract class AbstractContainer extends AbstractComponent implements Container {
@@ -87,26 +87,6 @@ public abstract class AbstractContainer extends AbstractComponent implements Con
     public ObjectName preRegister(MBeanServer server, ObjectName objectName) throws Exception {
         dependency = JMXUtil.getDependencyService(server);
         return super.preRegister(server, objectName);
-    }
-
-    /**
-     * A Container cannot be itself contained in a Container.
-     *
-     * NB. Do we agree this is the model?
-     * @return always null
-     */
-    public Container getContainer() {
-        return null;
-    }
-
-    /**
-     * A Container cannot be itself contained in a Container.
-     *
-     * NB. Do we agree this is the model?
-     * @throws java.lang.UnsupportedOperationException
-     */
-    public void setContainer() {
-        throw new UnsupportedOperationException("Cannot call setContainer on a Container");
     }
 
     /**
