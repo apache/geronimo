@@ -45,7 +45,7 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
 /**
  * An MBean that maintains a list of security realms.
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:59:25 $
+ * @version $Revision: 1.6 $ $Date: 2004/05/30 01:24:30 $
  */
 public class SecurityService implements SecurityServiceMBean, GBean {
 
@@ -128,12 +128,15 @@ public class SecurityService implements SecurityServiceMBean, GBean {
     }
 
     public void doStart() throws WaitingException, Exception {
+        log.info("Security service started");
     }
 
     public void doStop() throws WaitingException, Exception {
+        log.info("Security service stopped");
     }
 
     public void doFail() {
+        log.info("Security service failed");
     }
 
     static {
