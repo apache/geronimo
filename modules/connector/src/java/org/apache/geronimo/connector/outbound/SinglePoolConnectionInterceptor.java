@@ -19,6 +19,7 @@ package org.apache.geronimo.connector.outbound;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Arrays;
 import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnection;
 
@@ -202,9 +203,8 @@ public class SinglePoolConnectionInterceptor extends AbstractSinglePoolConnectio
         //internal
         public void add(ManagedConnectionInfo mci) {
             if (last == deque.length - 1) {
-                throw new IllegalStateException("deque is full");
+                throw new IllegalStateException("deque is full: contents: " + Arrays.asList(deque));
             }
-
             deque[++last] = mci;
         }
 
