@@ -60,18 +60,24 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
+import org.apache.geronimo.security.GeronimoLoginConfiguration;
 
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
 import org.mortbay.jetty.servlet.WebApplicationContext;
 
+import javax.management.MBeanServer;
+import javax.security.jacc.PolicyContext;
+
 /**
  * 
  * 
- * @version $Revision: 1.2 $ $Date: 2003/11/20 09:10:18 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/25 13:51:30 $
  */
 public class JettyWebApplicationContext extends WebApplicationContext {
     private Context componentContext;
+    private MBeanServer server;
+    private String contextID;
     private Log log = LogFactory.getLog(JettyWebApplicationContext.class);
 
     public JettyWebApplicationContext() {
@@ -84,12 +90,15 @@ public class JettyWebApplicationContext extends WebApplicationContext {
     public Object enterContextScope(HttpRequest httpRequest, HttpResponse httpResponse) {
         log.info("Entering context " + httpRequest.getRequestURL());
         RootContext.setComponentContext((ReadOnlyContext)componentContext);
+        GeronimoLoginConfiguration.setMBeanServer(server);
+        PolicyContext.setContextID(contextID);
         return super.enterContextScope(httpRequest, httpResponse);
     }
 
     public void leaveContextScope(HttpRequest httpRequest, HttpResponse httpResponse, Object o) {
         super.leaveContextScope(httpRequest, httpResponse, o);
         RootContext.setComponentContext(null);
+        PolicyContext.setContextID(null);
         log.info("Leaving context " + httpRequest.getRequestURL());
     }
 
@@ -99,5 +108,21 @@ public class JettyWebApplicationContext extends WebApplicationContext {
 
     public void setComponentContext(Context componentContext) {
         this.componentContext = componentContext;
+    }
+
+    public MBeanServer getServer() {
+        return server;
+    }
+
+    public void setServer(MBeanServer server) {
+        this.server = server;
+    }
+
+    public String getContextID() {
+        return contextID;
+    }
+
+    public void setContextID(String contextID) {
+        this.contextID = contextID;
     }
 }

@@ -24,7 +24,7 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
  * Created: Sun Sep 14 16:40:17 2003
  *
  * @jmx:mbean extends="org.apache.geronimo.web.AbstractWebApplicationMBean
- * @version $Revision: 1.6 $ $Date: 2003/11/20 09:10:17 $
+ * @version $Revision: 1.7 $ $Date: 2003/11/25 13:51:30 $
  */
 public class JettyWebApplication extends AbstractWebApplication implements JettyWebApplicationMBean {
     private JettyWebApplicationContext jettyContext;
@@ -54,6 +54,7 @@ public class JettyWebApplication extends AbstractWebApplication implements Jetty
     }
 
     public ObjectName preRegister(MBeanServer server, ObjectName objectName) throws Exception {
+        jettyContext.setServer(server);
         return super.preRegister(server, objectName);
     }
 
