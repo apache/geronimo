@@ -117,7 +117,7 @@ public class CommandDistribute extends AbstractCommand {
     }
 
     private void executeOffline(ServerConnection connection, PrintWriter out, File module, File plan) throws DeploymentException {
-        List list = (List)connection.invokeOfflineDeployer("deploy", new Object[]{module, plan},
+        List list = (List)connection.invokeOfflineDeployer(new Object[]{module, plan},
                         new String[]{File.class.getName(), File.class.getName()});
         for(Iterator it = list.iterator(); it.hasNext();) {
             out.println(getAction()+" "+it.next());

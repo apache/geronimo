@@ -67,7 +67,6 @@ public class ServerConnection {
         return OPTION_HELP;
     }
 
-    private final static String DEPLOYER_OBJECT_NAME="geronimo.deployment:role=Deployer,config=org/apache/geronimo/J2EEDeployer";
     private final static String DEFAULT_URI = "deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector";
 
     private DeploymentManager manager;
@@ -208,28 +207,34 @@ public class ServerConnection {
         return manager != null;
     }
 
-    public Object invokeOfflineDeployer(String method, Object[] args, String[] argTypes) throws DeploymentException {
+    public Object invokeOfflineDeployer(Object[] args, String[] argTypes) throws DeploymentException {
         if(kernel == null) {
             throw new IllegalStateException("Cannot attempt to package when no local kernel is available");
         }
-        try {
-            return kernel.invoke(new ObjectName(DEPLOYER_OBJECT_NAME), method, args, argTypes);
-        } catch(MalformedObjectNameException e) {
-            throw new DeploymentException("This should never happen", e);
-        }
+        return kernel.invoke(args, argTypes);
     }
 
     private static class KernelWrapper extends CommandLine {
-        public Object invoke(ObjectName target, String method, Object[] args, String[] argTypes) throws DeploymentException {
+        private ObjectName mainGbean;
+        private String mainMethod;
+        private List configurations;
+
+        public KernelWrapper() {
+            CommandLineManifest entries = CommandLineManifest.getManifestEntries();
+            configurations = entries.getConfigurations();
+            mainGbean = entries.getMainGBean();
+            mainMethod = entries.getMainMethod();
+        }
+
+        public Object invoke(Object[] args, String[] argTypes) throws DeploymentException {
             try {
-                return getKernel().invoke(target, method, args, argTypes);
+                return getKernel().invoke(mainGbean, mainMethod, args, argTypes);
             } catch(Exception e) {
                 throw new DeploymentException("Unable to connect to local deployer service", e);
             }
         }
 
         public void start() throws DeploymentException {
-            List configurations = CommandLineManifest.getManifestEntries().getConfigurations();
             try {
                 super.startKernel(configurations);
             } catch(Exception e) {

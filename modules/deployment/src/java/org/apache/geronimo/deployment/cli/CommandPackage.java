@@ -117,7 +117,7 @@ public class CommandPackage extends AbstractCommand {
         if(plan != null) {
             plan = plan.getAbsoluteFile();
         }
-        List list = (List)connection.invokeOfflineDeployer("deploy", new Object[]{plan, module, packageFile, install ? Boolean.TRUE : Boolean.FALSE, mainClass, classPath},
+        List list = (List)connection.invokeOfflineDeployer(new Object[]{plan, module, packageFile, install ? Boolean.TRUE : Boolean.FALSE, mainClass, classPath},
                         new String[]{File.class.getName(), File.class.getName(), File.class.getName(), boolean.class.getName(), String.class.getName(), String.class.getName()});
         for (int j = 0; j < list.size(); j++) {
             out.println("Packaged configuration "+list.get(j)+" to "+packageFile);
