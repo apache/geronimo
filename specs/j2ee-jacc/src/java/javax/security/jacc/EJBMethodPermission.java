@@ -68,7 +68,7 @@ import java.security.*;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/30 01:55:12 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/27 16:00:23 $
  */
 public final class EJBMethodPermission extends Permission {
 
@@ -90,8 +90,8 @@ public final class EJBMethodPermission extends Permission {
 
         methodInterfaces = newMethodInterfaces.split(",", -1);
     }
-    private transient int cachedHashCode = 0;
-    private transient MethodSpec methodSpec;
+    private transient int cachedHashCode;
+    protected transient MethodSpec methodSpec;
 
     public EJBMethodPermission(String name, String spec) {
         super(name);
@@ -138,9 +138,8 @@ public final class EJBMethodPermission extends Permission {
         return getName().equals(other.getName()) && methodSpec.implies(other.methodSpec);
     }
 
-    // TODO should return a real PermissionCollection
-    public PermissionCollection newPermissionCollection() {
-    	return null;
+     public PermissionCollection newPermissionCollection() {
+    	return new EJBMethodPermissionCollection();
     }
 
     private synchronized void readObject(ObjectInputStream in) throws IOException {
@@ -151,11 +150,11 @@ public final class EJBMethodPermission extends Permission {
         out.writeUTF(methodSpec.getActions());
     }
 
-    private class MethodSpec {
-        private String methodName;
-        private String methodInterface;
-        private String methodParams;
-        private String actions;
+    protected class MethodSpec {
+        protected String methodName;
+        protected String methodInterface;
+        protected String methodParams;
+        protected String actions;
 
         public MethodSpec(String actionString) {
             if (actionString == null || actionString.length() == 0) {
@@ -193,18 +192,18 @@ public final class EJBMethodPermission extends Permission {
 
                         methodName = emptyNullCheck(tokens[0]);
                         methodInterface = emptyNullCheck(tokens[1]);
-                        methodParams = emptyNullCheck(tokens[2]);
+                        methodParams = tokens[2];
                     }
                 }
                 actions = actionString;
             }
         }
 
-        public MethodSpec(String methodName, String methodInterface, String[] methodParamsArray) {
-            checkMethodInterface(methodInterface);
+        public MethodSpec(String mthdName, String mthdInterface, String[] methodParamsArray) {
+            checkMethodInterface(mthdInterface);
 
-            methodName = emptyNullCheck(methodName);
-            methodInterface = emptyNullCheck(methodInterface);
+            methodName = emptyNullCheck(mthdName);
+            methodInterface = emptyNullCheck(mthdInterface);
 
             if (methodParamsArray == null) {
                 methodParams = null;
@@ -226,11 +225,11 @@ public final class EJBMethodPermission extends Permission {
             initActions();
         }
 
-        public MethodSpec(String methodInterface, Method method) {
-            checkMethodInterface(methodInterface);
+        public MethodSpec(String mthdInterface, Method method) {
+            checkMethodInterface(mthdInterface);
 
             methodName = method.getName();
-            methodInterface = emptyNullCheck(methodInterface);
+            methodInterface = emptyNullCheck(mthdInterface);
 
             Class[] paramTypes = method.getParameterTypes();
             if (paramTypes.length == 0) {
@@ -248,7 +247,7 @@ public final class EJBMethodPermission extends Permission {
         }
 
         public boolean equals(MethodSpec spec) {
-            return actions.equals(spec.actions);
+            return implies(spec) && spec.implies(this);
         }
 
         public String getActions() {

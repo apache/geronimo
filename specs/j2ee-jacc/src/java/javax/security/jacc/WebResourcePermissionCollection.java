@@ -51,90 +51,69 @@
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  *
- * This source code implements specifications defined by the Java
- * Community Process. In order to remain compliant with the specification
- * DO NOT add / change / or delete method signatures!
- *
  * ====================================================================
  */
-
 package javax.security.jacc;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.security.Permission;
 import java.security.PermissionCollection;
-import javax.servlet.http.HttpServletRequest;
+import java.security.Permission;
+import java.util.Enumeration;
+import java.util.Hashtable;
+
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/27 16:00:23 $
+ * @version $Revision: 1.1 $ $Date: 2003/09/27 16:00:23 $
  */
-public final class WebUserDataPermission extends Permission {
+public final class WebResourcePermissionCollection extends PermissionCollection {
+    private Hashtable permissions = new Hashtable();
 
-    private transient int cachedHashCode = 0;
-    private transient URLPatternSpec urlPatternSpec;
-    private transient HTTPMethodSpec httpMethodSpec;
+    /**
+     * Adds a permission object to the current collection of permission objects.
+     *
+     * @param permission the Permission object to add.
+     *
+     * @exception SecurityException -  if this PermissionCollection object
+     *                                 has been marked readonly
+     */
+    public void add(Permission permission) {
+        if (isReadOnly()) throw new IllegalArgumentException("Read only collection");
 
-    public WebUserDataPermission(HttpServletRequest request) {
-        super(request.getServletPath());
+        if (!(permission instanceof WebResourcePermission)) throw new IllegalArgumentException("Wrong permission type");
 
-        urlPatternSpec = new URLPatternSpec(request.getServletPath());
-        httpMethodSpec = new HTTPMethodSpec(request.getMethod());
+        WebResourcePermission p  = (WebResourcePermission)permission;
+
+        permissions.put(p, p);
     }
 
-    public WebUserDataPermission(String name, String actions) {
-        super(name);
-
-        urlPatternSpec = new URLPatternSpec(name);
-        httpMethodSpec = new HTTPMethodSpec(actions, true);
-    }
-
-    public WebUserDataPermission(String urlPattern, String[] HTTPMethods, String transportType) {
-        super(urlPattern);
-
-        urlPatternSpec = new URLPatternSpec(urlPattern);
-        httpMethodSpec = new HTTPMethodSpec(HTTPMethods, transportType);
-    }
-
-    public boolean equals(Object o) {
-        if (o == null || !(o instanceof WebUserDataPermission)) return false;
-
-        WebUserDataPermission other = (WebUserDataPermission)o;
-        return urlPatternSpec.equals(other.urlPatternSpec) && httpMethodSpec.equals(other.httpMethodSpec);
-    }
-
-    public String getActions() {
-        return httpMethodSpec.getActions();
-    }
-
-    public int hashCode() {
-        if (cachedHashCode == 0) {
-            cachedHashCode = urlPatternSpec.hashCode() ^ httpMethodSpec.hashCode();
-        }
-        return cachedHashCode;
-    }
-
+    /**
+     * Checks to see if the specified permission is implied by
+     * the collection of Permission objects held in this PermissionCollection.
+     *
+     * @param permission the Permission object to compare.
+     *
+     * @return true if "permission" is implied by the  permissions in
+     * the collection, false if not.
+     */
     public boolean implies(Permission permission) {
-        if (permission == null || !(permission instanceof WebUserDataPermission)) return false;
+        if (!(permission instanceof WebResourcePermission)) return false;
 
-        WebUserDataPermission other = (WebUserDataPermission)permission;
-        return urlPatternSpec.implies(other.urlPatternSpec) && httpMethodSpec.implies(other.httpMethodSpec);
+        WebResourcePermission p  = (WebResourcePermission)permission;
+        Enumeration enum = permissions.elements();
+
+        while (enum.hasMoreElements()) {
+            if (((WebResourcePermission)enum.nextElement()).implies(p)) return true;
+        }
+
+        return false;
     }
 
-    public PermissionCollection newPermissionCollection() {
-    	return new WebUserDataPermissionCollection();
-    }
-
-    private synchronized void readObject(ObjectInputStream in) throws IOException {
-        urlPatternSpec = new URLPatternSpec(in.readUTF());
-        httpMethodSpec = new HTTPMethodSpec(in.readUTF());
-    }
-
-    private synchronized void writeObject(ObjectOutputStream out) throws IOException {
-        out.writeUTF(urlPatternSpec.getPatternSpec());
-        out.writeUTF(httpMethodSpec.getActions());
+    /**
+     * Returns an enumeration of all the Permission objects in the collection.
+     *
+     * @return an enumeration of all the Permissions.
+     */
+    public Enumeration elements() {
+        return permissions.elements();
     }
 }
-

@@ -69,7 +69,7 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/30 01:55:13 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/27 16:00:23 $
  */
 public final class WebResourcePermission extends Permission {
     private transient int cachedHashCode = 0;
@@ -122,9 +122,8 @@ public final class WebResourcePermission extends Permission {
         return urlPatternSpec.implies(other.urlPatternSpec) && httpMethodSpec.implies(other.httpMethodSpec);
     }
 
-    // TODO should return a real PermissionCollection
     public PermissionCollection newPermissionCollection() {
-    	return null;
+    	return new WebResourcePermissionCollection();
     }
 
     private synchronized void readObject(ObjectInputStream in) throws IOException {
