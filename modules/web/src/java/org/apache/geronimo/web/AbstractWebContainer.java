@@ -56,8 +56,10 @@
 
 package org.apache.geronimo.web;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -117,7 +119,7 @@ import org.w3c.dom.Node;
  * 2. the url is a directory which contains a WEB-INF/web.xml file
  * 
  * @jmx:mbean extends="org.apache.geronimo.kernel.deployment.DeploymentPlanner, org.apache.geronimo.web.WebContainer, org.apache.geronimo.kernel.management.StateManageable, javax.management.MBeanRegistration" 
- * @version $Revision: 1.11 $ $Date: 2003/10/30 07:47:05 $
+ * @version $Revision: 1.12 $ $Date: 2003/11/08 08:02:10 $
  */
 public abstract class AbstractWebContainer
     extends AbstractManagedContainer
@@ -387,6 +389,37 @@ public abstract class AbstractWebContainer
                     throw new DeploymentException( "Failed to close stream for URL: " + url, iox);
                 }
             }
+        }
+        else if (type == URLType.RESOURCE)
+        {
+            //we will try and deploy a WEB-INF/web.xml by looking for the parent directory 
+             if (!url.getPath().endsWith("web.xml"))
+                 return false;
+
+            try
+            {
+                File file = new File (url.toExternalForm());
+                
+                if (!file.exists())
+                    throw new DeploymentException ("No such file:"+url);
+                    
+                File parent = file.getParentFile();
+                if (!parent.getName().equals("WEB-INF"))
+                    throw new DeploymentException ("web.xml must be in WEB-INF directory");
+                
+                // find the parent dir of WEB-INF and try to deploy that    
+                parent = parent.getParentFile();         
+                url = parent.toURL();
+            }
+            catch (NullPointerException e)
+            {
+                 throw new DeploymentException ("No path to web.xml file", e);       
+            }
+            catch (MalformedURLException e)
+            {
+                throw new DeploymentException ("Bad url for possible webapp directory", e);
+            }
+            
         }
         else
         {
