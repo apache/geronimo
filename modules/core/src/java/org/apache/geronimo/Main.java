@@ -59,6 +59,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Properties;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectInstance;
@@ -66,16 +67,24 @@ import javax.management.ObjectName;
 import javax.management.loading.MLet;
 
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.impl.LogFactoryImpl;
 
 /**
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:09 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/11 21:04:56 $
  */
 public class Main implements Runnable {
-    private static final Logger log = Logger.getLogger("Geronimo");
+    static {
+        // Add our default Commons Logger that support the trace level
+        if(System.getProperty(LogFactoryImpl.LOG_PROPERTY) == null) {
+            System.setProperty(LogFactoryImpl.LOG_PROPERTY, "org.apache.geronimo.core.log.Log4jLog");
+        }
+    }
+    private static final Log log = LogFactory.getLog("Geronimo");
     private static final String[] DEPLOY_ARG_TYPES = {"java.net.URL"};
 
     private final String domainName;
