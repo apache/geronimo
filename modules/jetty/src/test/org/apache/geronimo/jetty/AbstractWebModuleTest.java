@@ -16,36 +16,38 @@
  */
 package org.apache.geronimo.jetty;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Collections;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Properties;
-import java.net.URI;
 import java.io.File;
-
+import java.net.URI;
+import java.security.PermissionCollection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
-import org.apache.geronimo.transaction.OnlineUserTransaction;
-import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty.connector.HTTPConnector;
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.security.deploy.Security;
-import org.apache.geronimo.security.realm.GenericSecurityRealm;
+import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
 import org.apache.geronimo.security.jaas.JaasLoginService;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
+import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.transaction.OnlineUserTransaction;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.mortbay.jetty.servlet.FormAuthenticator;
+
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -65,6 +67,8 @@ public class AbstractWebModuleTest extends TestCase {
     private GBeanData tcm;
     private ClassLoader cl;
     private J2eeContext moduleContext = new J2eeContextImpl("jetty.test", "test", "null", "jettyTest", null, null);
+    private GBeanData loginConfigurationGBean;
+    protected ObjectName loginConfigurationName;
     private GBeanData securityServiceGBean;
     protected ObjectName securityServiceName;
     private ObjectName loginServiceName;
@@ -76,8 +80,9 @@ public class AbstractWebModuleTest extends TestCase {
     private ObjectName serverInfoName;
     private GBeanData serverInfoGBean;
 
-    public void testDummy() throws Exception { }
-    
+    public void testDummy() throws Exception {
+    }
+
     protected void setUpStaticContentServlet() throws Exception {
         GBeanData staticContentServletGBeanData = new GBeanData(JettyServletHolder.GBEAN_INFO);
         staticContentServletGBeanData.setAttribute("servletName", "default");
@@ -106,10 +111,9 @@ public class AbstractWebModuleTest extends TestCase {
         OnlineUserTransaction userTransaction = new OnlineUserTransaction();
         app.setAttribute("userTransaction", userTransaction);
         //we have no classes or libs.
-        app.setAttribute("webClassPath", new URI[] {});
+        app.setAttribute("webClassPath", new URI[]{});
         app.setAttribute("contextPriorityClassLoader", Boolean.FALSE);
         app.setAttribute("configurationBaseUrl", new File("src/test-resources/deployables/").toURL());
-//        app.setAttribute("configurationBaseUrl", Thread.currentThread().getContextClassLoader().getResource("deployables/"));
         app.setReferencePattern("TransactionContextManager", tcmName);
         app.setReferencePattern("TrackedConnectionAssociator", ctcName);
         app.setReferencePattern("JettyContainer", containerName);
@@ -119,15 +123,15 @@ public class AbstractWebModuleTest extends TestCase {
         start(app);
     }
 
-    protected void setUpSecureAppContext(Security securityConfig, Set uncheckedPermissions, Set excludedPermissions, Map rolePermissions, Set securityRoles, Map legacySecurityConstraintMap) throws Exception {
+    protected void setUpSecureAppContext(Security securityConfig, PermissionCollection uncheckedPermissions, PermissionCollection excludedPermissions, Map rolePermissions, Set securityRoles) throws Exception {
         GBeanData app = new GBeanData(webModuleName, JettyWebAppJACCContext.GBEAN_INFO);
-        app.setAttribute("loginDomainName", "jaasTest");
+        app.setAttribute("loginDomainName", "demo-properties-realm");
         app.setAttribute("securityConfig", securityConfig);
         app.setAttribute("uncheckedPermissions", uncheckedPermissions);
         app.setAttribute("excludedPermissions", excludedPermissions);
         app.setAttribute("rolePermissions", rolePermissions);
         app.setAttribute("securityRoles", securityRoles);
-        app.setAttribute("legacySecurityConstraintMap", legacySecurityConstraintMap);
+
         FormAuthenticator formAuthenticator = new FormAuthenticator();
         formAuthenticator.setLoginPage("/auth/logon.html?param=test");
         formAuthenticator.setErrorPage("/auth/logonError.html?param=test");
@@ -136,10 +140,11 @@ public class AbstractWebModuleTest extends TestCase {
         app.setAttribute("policyContextID", "TEST");
         app.setAttribute("uri", URI.create("war3/"));
         app.setAttribute("componentContext", null);
+
         OnlineUserTransaction userTransaction = new OnlineUserTransaction();
         app.setAttribute("userTransaction", userTransaction);
         //we have no classes or libs.
-        app.setAttribute("webClassPath", new URI[] {});
+        app.setAttribute("webClassPath", new URI[]{});
         app.setAttribute("contextPriorityClassLoader", Boolean.FALSE);
         app.setAttribute("configurationBaseUrl", new File("src/test-resources/deployables/").toURL());
         app.setReferencePattern("TransactionContextManager", tcmName);
@@ -152,6 +157,14 @@ public class AbstractWebModuleTest extends TestCase {
     }
 
     protected void setUpSecurity() throws Exception {
+
+        loginConfigurationName = new ObjectName("geronimo.security:type=LoginConfiguration");
+        loginConfigurationGBean = new GBeanData(loginConfigurationName, GeronimoLoginConfiguration.getGBeanInfo());
+        Set configurations = new HashSet();
+        configurations.add(new ObjectName("geronimo.security:type=SecurityRealm,*"));
+        configurations.add(new ObjectName("geronimo.security:type=ConfigurationEntry,*"));
+        loginConfigurationGBean.setReferencePatterns("Configurations", configurations);
+
         securityServiceName = new ObjectName("geronimo.security:type=SecurityService");
         securityServiceGBean = new GBeanData(securityServiceName, SecurityServiceImpl.GBEAN_INFO);
         securityServiceGBean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
@@ -166,17 +179,18 @@ public class AbstractWebModuleTest extends TestCase {
         loginServiceGBean.setAttribute("password", "secret");
 
         serverInfoName = new ObjectName("geronimo.system:role=ServerInfo");
-         serverInfoGBean = new GBeanData(serverInfoName, ServerInfo.GBEAN_INFO);
-       serverInfoGBean.setAttribute("baseDirectory", ".");
+        serverInfoGBean = new GBeanData(serverInfoName, ServerInfo.GBEAN_INFO);
+        serverInfoGBean.setAttribute("baseDirectory", ".");
 
         propertiesLMName = new ObjectName("geronimo.security:type=LoginModule,name=demo-properties-login");
         propertiesLMGBean = new GBeanData(propertiesLMName, LoginModuleGBean.GBEAN_INFO);
         propertiesLMGBean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
         propertiesLMGBean.setAttribute("serverSide", Boolean.TRUE);
         Properties options = new Properties();
-        options.setProperty("usersURI", new File(new File("."), "src/test-resources/data/users.properties").toString());
-        options.setProperty("groupsURI", new File(new File("."), "src/test-resources/data/groups.properties").toString());
+        options.setProperty("usersURI", "src/test-resources/data/users.properties");
+        options.setProperty("groupsURI", "src/test-resources/data/groups.properties");
         propertiesLMGBean.setAttribute("options", options);
+        propertiesLMGBean.setAttribute("loginDomainName", "demo-properties-realm");
 
         propertiesRealmName = new ObjectName("geronimo.security:type=SecurityRealm,realm=demo-properties-realm");
         propertiesRealmGBean = new GBeanData(propertiesRealmName, GenericSecurityRealm.GBEAN_INFO);
@@ -188,6 +202,7 @@ public class AbstractWebModuleTest extends TestCase {
 //        propertiesRealmGBean.setAttribute("autoMapPrincipalClasses", "org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal");
         propertiesRealmGBean.setAttribute("defaultPrincipal", "metro=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
 
+        start(loginConfigurationGBean);
         start(securityServiceGBean);
         start(loginServiceGBean);
         start(serverInfoGBean);
@@ -202,12 +217,13 @@ public class AbstractWebModuleTest extends TestCase {
         stop(serverInfoName);
         stop(loginServiceName);
         stop(securityServiceName);
+        stop(loginConfigurationName);
     }
 
     private void start(GBeanData gbeanData) throws Exception {
         kernel.loadGBean(gbeanData, cl);
         kernel.startGBean(gbeanData.getName());
-        if (((Integer)kernel.getAttribute(gbeanData.getName(), "state")).intValue() != State.RUNNING_INDEX ) {
+        if (((Integer) kernel.getAttribute(gbeanData.getName(), "state")).intValue() != State.RUNNING_INDEX) {
             fail("gbean not started: " + gbeanData.getName());
         }
     }

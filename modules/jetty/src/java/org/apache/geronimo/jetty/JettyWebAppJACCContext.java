@@ -18,18 +18,20 @@
 package org.apache.geronimo.jetty;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
 import java.security.Permission;
+import java.security.PermissionCollection;
+import java.security.Permissions;
 import java.security.Principal;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Enumeration;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
@@ -42,6 +44,16 @@ import javax.security.jacc.WebUserDataPermission;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.mortbay.http.Authenticator;
+import org.mortbay.http.HttpException;
+import org.mortbay.http.HttpRequest;
+import org.mortbay.http.HttpResponse;
+import org.mortbay.http.SecurityConstraint;
+import org.mortbay.http.UserRealm;
+import org.mortbay.jetty.servlet.FormAuthenticator;
+import org.mortbay.jetty.servlet.ServletHolder;
+import org.mortbay.jetty.servlet.ServletHttpRequest;
+
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -63,17 +75,6 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.transaction.OnlineUserTransaction;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.mortbay.http.Authenticator;
-import org.mortbay.http.HttpException;
-import org.mortbay.http.HttpRequest;
-import org.mortbay.http.HttpResponse;
-import org.mortbay.http.PathMap;
-import org.mortbay.http.SecurityConstraint;
-import org.mortbay.http.UserRealm;
-import org.mortbay.jetty.servlet.FormAuthenticator;
-import org.mortbay.jetty.servlet.ServletHolder;
-import org.mortbay.jetty.servlet.ServletHttpRequest;
-import org.mortbay.util.LazyList;
 
 
 /**
@@ -95,14 +96,14 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
     private PolicyConfigurationFactory factory;
     private PolicyConfiguration policyConfiguration;
 
-    private final PathMap constraintMap = new PathMap();
-
     private String formLoginPath;
 
     private final Set securityRoles;
-    private final Set excludedPermissions;
-    private final Set uncheckedPermissions;
+    private final PermissionCollection excludedPermissions;
+    private final PermissionCollection uncheckedPermissions;
     private final Map rolePermissions;
+
+    PermissionCollection checked = new Permissions();
 
     private final SecurityContextBeforeAfter securityInterceptor;
 
@@ -148,12 +149,9 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
                                   Security securityConfig,
                                   //from jettyxmlconfig
                                   Set securityRoles,
-                                  Set uncheckedPermissions,
-                                  Set excludedPermissions,
+                                  PermissionCollection uncheckedPermissions,
+                                  PermissionCollection excludedPermissions,
                                   Map rolePermissions,
-
-                                  //TODO remove
-                                  Map legacySecurityConstraintMap,
 
                                   TransactionContextManager transactionContextManager,
                                   TrackedConnectionAssociator trackedConnectionAssociator,
@@ -209,16 +207,18 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
         contextLength = index;
         chain = securityInterceptor;
 
-        //TODO remove
-        for (Iterator entries = legacySecurityConstraintMap.entrySet().iterator(); entries.hasNext();) {
-            Map.Entry entry = (Map.Entry) entries.next();
-            String urlPattern = (String) entry.getKey();
-            List securityConstraints = (List) entry.getValue();
-            for (Iterator constraints = securityConstraints.iterator(); constraints.hasNext();) {
-                SecurityConstraint securityConstraint = (SecurityConstraint) constraints.next();
-                addSecurityConstraint(urlPattern, securityConstraint);
+        Set p = new HashSet();
+        for (Iterator iterator = rolePermissions.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            Set permissions = (Set) entry.getValue();
+            for (Iterator iterator1 = permissions.iterator(); iterator1.hasNext();) {
+                Permission permission = (Permission) iterator1.next();
+                p.add(permission);
             }
-
+        }
+        for (Iterator iterator = p.iterator(); iterator.hasNext();) {
+            Permission permission = (Permission) iterator.next();
+            checked.add(permission);
         }
 
     }
@@ -234,31 +234,6 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
             policyConfiguration.addToRole(roleName, webRoleRefPermission);
         }
         policyConfiguration.commit();
-    }
-
-
-    /**
-     * Keep our own copy of security constraints.<p/>
-     * <p/>
-     * We keep our own copy of security constraints because Jetty's copy is
-     * private.  We use these constraints not for any authorization descitions
-     * but, to decide whether we should attempt to authenticate the request.
-     *
-     * @param pathSpec The path spec to which the secuiryt cosntraint applies
-     * @param sc       the security constraint
-     *                 TODO Jetty to provide access to this map so we can remove this method
-     * @see org.mortbay.http.HttpContext#addSecurityConstraint(java.lang.String, org.mortbay.http.SecurityConstraint)
-     */
-    public void addSecurityConstraint(String pathSpec, SecurityConstraint sc) {
-        super.addSecurityConstraint(pathSpec, sc);
-
-        Object scs = constraintMap.get(pathSpec);
-        scs = LazyList.add(scs, sc);
-        constraintMap.put(pathSpec, scs);
-
-        if (log.isDebugEnabled()) {
-            log.debug("added " + sc + " at " + pathSpec);
-        }
     }
 
     /**
@@ -328,49 +303,11 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
      *         e.g. login page.
      */
     public Principal obtainUser(String pathInContext, HttpRequest request, HttpResponse response) throws HttpException, IOException {
-        List scss = constraintMap.getMatches(pathInContext);
-        String pattern = null;
-        boolean unauthenticated = false;
-        boolean forbidden = false;
-
-        if (scss != null && scss.size() > 0) {
-
-            // for each path match
-            // Add only constraints that have the correct method
-            // break if the matching pattern changes.  This allows only
-            // constraints with matching pattern and method to be combined.
-            loop:
-            for (int m = 0; m < scss.size(); m++) {
-                Map.Entry entry = (Map.Entry) scss.get(m);
-                Object scs = entry.getValue();
-                String p = (String) entry.getKey();
-                for (int c = 0; c < LazyList.size(scs); c++) {
-                    SecurityConstraint sc = (SecurityConstraint) LazyList.get(scs, c);
-                    if (!sc.forMethod(request.getMethod())) continue;
-
-                    if (pattern != null && !pattern.equals(p)) break loop;
-                    pattern = p;
-
-                    // Check the method applies
-                    if (!sc.forMethod(request.getMethod())) continue;
-
-                    // Combine auth constraints.
-                    if (sc.getAuthenticate()) {
-                        if (!sc.isAnyRole()) {
-                            List scr = sc.getRoles();
-                            if (scr == null || scr.size() == 0) {
-                                forbidden = true;
-                                break loop;
-                            }
-                        }
-                    } else {
-                        unauthenticated = true;
-                    }
-                }
-            }
-        } else {
-            unauthenticated = true;
-        }
+        ServletHttpRequest servletHttpRequest = (ServletHttpRequest) request.getWrapper();
+        WebResourcePermission resourcePermission = new WebResourcePermission(servletHttpRequest);
+        WebUserDataPermission dataPermission = new WebUserDataPermission(servletHttpRequest);
+        boolean unauthenticated = !(checked.implies(resourcePermission) || checked.implies(dataPermission));
+        boolean forbidden = excludedPermissions.implies(resourcePermission) || excludedPermissions.implies(dataPermission);
 
         UserRealm realm = getRealm();
         Authenticator authenticator = getAuthenticator();
@@ -414,7 +351,7 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
     /**
      * Generate the default principal from the security config.
      *
-     * @param securityConfig The Geronimo security configuration.
+     * @param securityConfig  The Geronimo security configuration.
      * @param loginDomainName
      * @return the default principal
      */
@@ -553,21 +490,15 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
 
     private void configure() throws GeronimoSecurityException {
         try {
-            for (Iterator iterator = excludedPermissions.iterator(); iterator.hasNext();) {
-                Permission permission =  (Permission) iterator.next();
-                policyConfiguration.addToExcludedPolicy(permission);
-            }
-            for (Iterator iterator = uncheckedPermissions.iterator(); iterator.hasNext();) {
-                Permission permission = (Permission) iterator.next();
-                policyConfiguration.addToUncheckedPolicy(permission);
-            }
+            policyConfiguration.addToExcludedPolicy(excludedPermissions);
+            policyConfiguration.addToUncheckedPolicy(uncheckedPermissions);
             for (Iterator iterator = rolePermissions.entrySet().iterator(); iterator.hasNext();) {
                 Map.Entry entry = (Map.Entry) iterator.next();
                 String roleName = (String) entry.getKey();
                 Set permissions = (Set) entry.getValue();
                 for (Iterator iterator1 = permissions.iterator(); iterator1.hasNext();) {
                     Permission permission = (Permission) iterator1.next();
-                    policyConfiguration.addToRole(roleName,  permission);
+                    policyConfiguration.addToRole(roleName, permission);
                 }
             }
         } catch (PolicyContextException e) {
@@ -587,11 +518,9 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
         infoBuilder.addAttribute("securityConfig", Security.class, true);
 
         infoBuilder.addAttribute("securityRoles", Set.class, true);
-        infoBuilder.addAttribute("uncheckedPermissions", Set.class, true);
-        infoBuilder.addAttribute("excludedPermissions", Set.class, true);
+        infoBuilder.addAttribute("uncheckedPermissions", PermissionCollection.class, true);
+        infoBuilder.addAttribute("excludedPermissions", PermissionCollection.class, true);
         infoBuilder.addAttribute("rolePermissions", Map.class, true);
-        //TODO remove
-        infoBuilder.addAttribute("legacySecurityConstraintMap", Map.class, true);
 
         infoBuilder.addAttribute("kernel", Kernel.class, false);
 
@@ -627,8 +556,6 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
             "uncheckedPermissions",
             "excludedPermissions",
             "rolePermissions",
-            //TODO remove
-            "legacySecurityConstraintMap",
 
             "TransactionContextManager",
             "TrackedConnectionAssociator",

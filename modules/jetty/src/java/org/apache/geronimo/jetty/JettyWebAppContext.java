@@ -198,7 +198,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
         setWAR(webAppRoot.toString());
 
-
         jettyContainer.addContext(this);
 
         Object context = enterContextScope(null, null);

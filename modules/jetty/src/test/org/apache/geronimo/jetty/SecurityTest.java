@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.PermissionCollection;
+import java.security.Permissions;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -50,7 +52,7 @@ public class SecurityTest extends AbstractWebModuleTest {
      *
      * @throws Exception thrown if an error in the test occurs
      */
-    public void xtestExplicitMapping() throws Exception {
+    public void testExplicitMapping() throws Exception {
         Security securityConfig = new Security();
         securityConfig.setUseContextHandler(false);
 
@@ -75,13 +77,24 @@ public class SecurityTest extends AbstractWebModuleTest {
 
         securityConfig.getRoleMappings().put(role.getRoleName(), role);
 
-        Set uncheckedPermissions = new HashSet();
-        Set excludedPermissions = new HashSet();
-        Map rolePermissions = new HashMap();
-        Set securityRoles = new HashSet();
-        Map legacySecurityConstraintMap = new HashMap();
+        PermissionCollection uncheckedPermissions = new Permissions();
 
-        startWebApp(securityConfig, uncheckedPermissions, excludedPermissions, rolePermissions, securityRoles, legacySecurityConstraintMap);
+        PermissionCollection excludedPermissions = new Permissions();
+        excludedPermissions.add(new WebResourcePermission("/auth/login.html", ""));
+        excludedPermissions.add(new WebUserDataPermission("/auth/login.html", ""));
+
+        Map rolePermissions = new HashMap();
+        Set permissions = new HashSet();
+        permissions.add(new WebUserDataPermission("/protected/*", ""));
+        permissions.add(new WebResourcePermission("/protected/*", ""));
+        rolePermissions.put("content-administrator", permissions);
+        rolePermissions.put("auto-administrator", permissions);
+
+        Set securityRoles = new HashSet();
+        securityRoles.add("content-administrator");
+        securityRoles.add("auto-administrator");
+
+        startWebApp(securityConfig, uncheckedPermissions, excludedPermissions, rolePermissions, securityRoles);
 
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678/test/protected/hello.txt").openConnection();
         connection.setInstanceFollowRedirects(false);
@@ -153,7 +166,7 @@ public class SecurityTest extends AbstractWebModuleTest {
      *
      * @throws Exception thrown if an error in the test occurs
      */
-    public void xtestAutoMapping() throws Exception {
+    public void testAutoMapping() throws Exception {
         Security securityConfig = new Security();
         securityConfig.setUseContextHandler(false);
 
@@ -171,27 +184,24 @@ public class SecurityTest extends AbstractWebModuleTest {
             kernel.getProxyManager().destroyProxy(securityService);
         }
 
-        String actions = "GET,POST,PUT,DELETE,HEAD,OPTIONS,TRACE";
-        Set uncheckedPermissions = new HashSet();
-        uncheckedPermissions.add(new WebUserDataPermission("/protected/*", actions));
-        uncheckedPermissions.add(new WebResourcePermission("/:/protected/*:/auth/logon.html", actions));
-        uncheckedPermissions.add(new WebUserDataPermission("/:/protected/*:/auth/logon.html", actions));
-        Set excludedPermissions = new HashSet();
-        excludedPermissions.add(new WebResourcePermission("/auth/login.html", actions));
-        excludedPermissions.add(new WebUserDataPermission("/auth/login.html", actions));
+        PermissionCollection uncheckedPermissions = new Permissions();
+
+        PermissionCollection excludedPermissions = new Permissions();
+        excludedPermissions.add(new WebResourcePermission("/auth/login.html", ""));
+        excludedPermissions.add(new WebUserDataPermission("/auth/login.html", ""));
+
         Map rolePermissions = new HashMap();
-        WebResourcePermission permission = new WebResourcePermission("/protected/*", actions);
-        Set permissionSet = new HashSet();
-        permissionSet.add(permission);
-        rolePermissions.put("content-administrator", permissionSet);
-        rolePermissions.put("auto-administrator", permissionSet);
+        Set permissions = new HashSet();
+        permissions.add(new WebUserDataPermission("/protected/*", ""));
+        permissions.add(new WebResourcePermission("/protected/*", ""));
+        rolePermissions.put("content-administrator", permissions);
+        rolePermissions.put("auto-administrator", permissions);
+
         Set securityRoles = new HashSet();
         securityRoles.add("content-administrator");
         securityRoles.add("auto-administrator");
 
-        Map legacySecurityConstraintMap = new HashMap();
-
-        startWebApp(securityConfig, uncheckedPermissions, excludedPermissions, rolePermissions, securityRoles, legacySecurityConstraintMap);
+        startWebApp(securityConfig, uncheckedPermissions, excludedPermissions, rolePermissions, securityRoles);
 
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678/test/protected/hello.txt").openConnection();
         connection.setInstanceFollowRedirects(false);
@@ -264,7 +274,7 @@ public class SecurityTest extends AbstractWebModuleTest {
      *
      * @throws Exception thrown if an error in the test occurs
      */
-    public void xtestMixedMapping() throws Exception {
+    public void testMixedMapping() throws Exception {
         Security securityConfig = new Security();
         securityConfig.setUseContextHandler(false);
 
@@ -303,13 +313,24 @@ public class SecurityTest extends AbstractWebModuleTest {
 
         securityConfig.append(role);
 
-        Set uncheckedPermissions = new HashSet();
-        Set excludedPermissions = new HashSet();
-        Map rolePermissions = new HashMap();
-        Set securityRoles = new HashSet();
-        Map legacySecurityConstraintMap = new HashMap();
+        PermissionCollection uncheckedPermissions = new Permissions();
 
-        startWebApp(securityConfig, uncheckedPermissions, excludedPermissions, rolePermissions, securityRoles, legacySecurityConstraintMap);
+        PermissionCollection excludedPermissions = new Permissions();
+        excludedPermissions.add(new WebResourcePermission("/auth/login.html", ""));
+        excludedPermissions.add(new WebUserDataPermission("/auth/login.html", ""));
+
+        Map rolePermissions = new HashMap();
+        Set permissions = new HashSet();
+        permissions.add(new WebUserDataPermission("/protected/*", ""));
+        permissions.add(new WebResourcePermission("/protected/*", ""));
+        rolePermissions.put("content-administrator", permissions);
+        rolePermissions.put("auto-administrator", permissions);
+
+        Set securityRoles = new HashSet();
+        securityRoles.add("content-administrator");
+        securityRoles.add("auto-administrator");
+
+        startWebApp(securityConfig, uncheckedPermissions, excludedPermissions, rolePermissions, securityRoles);
 
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678/test/protected/hello.txt").openConnection();
         connection.setInstanceFollowRedirects(false);
@@ -373,30 +394,9 @@ public class SecurityTest extends AbstractWebModuleTest {
         stopWebApp();
     }
 
-    protected void startWebApp(Security securityConfig, Set uncheckedPermissions, Set excludedPermissions, Map rolePermissions, Set securityRoles, Map legacySecurityConstraintMap) throws Exception {
-        setUpSecureAppContext(securityConfig, uncheckedPermissions, excludedPermissions, rolePermissions, securityRoles, legacySecurityConstraintMap);
+    protected void startWebApp(Security securityConfig, PermissionCollection uncheckedPermissions, PermissionCollection excludedPermissions, Map rolePermissions, Set securityRoles) throws Exception {
+        setUpSecureAppContext(securityConfig, uncheckedPermissions, excludedPermissions, rolePermissions, securityRoles);
         setUpStaticContentServlet();
-//        GBeanMBean app = new GBeanMBean(JettyWebAppJACCContext.GBEAN_INFO);
-//
-//        app.setAttribute("userRealmName", "Test JAAS Realm");
-//        app.setAttribute("securityRealmName", "jaasTest");
-//        app.setAttribute("uri", URI.create("war3/"));
-//        app.setAttribute("componentContext", null);
-//        OnlineUserTransaction userTransaction = new OnlineUserTransaction();
-//        app.setAttribute("userTransaction", userTransaction);
-//        app.setAttribute("webClassPath", new URI[0]);
-//        app.setAttribute("contextPriorityClassLoader", Boolean.FALSE);
-//        app.setAttribute("configurationBaseUrl", Thread.currentThread().getContextClassLoader().getResource("deployables/"));
-//        app.setAttribute("securityConfig", securityConfig);
-//        app.setReferencePattern("SecurityService", securityServiceName);
-//        app.setAttribute("policyContextID", "TEST");
-//
-//        app.setAttribute("contextPath", "/test");
-//
-//        app.setReferencePattern("TransactionContextManager", tcmName);
-//        app.setReferencePattern("TrackedConnectionAssociator", tcaName);
-//        app.setReferencePatterns("JettyContainer", containerPatterns);
-//
 //        start(appName, app);
     }
 

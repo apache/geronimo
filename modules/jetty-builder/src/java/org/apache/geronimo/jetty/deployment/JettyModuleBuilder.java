@@ -24,6 +24,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.security.PermissionCollection;
+import java.security.Permissions;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -43,6 +45,13 @@ import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebRoleRefPermission;
 import javax.security.jacc.WebUserDataPermission;
 import javax.transaction.UserTransaction;
+
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
+import org.mortbay.http.BasicAuthenticator;
+import org.mortbay.http.ClientCertAuthenticator;
+import org.mortbay.http.DigestAuthenticator;
+import org.mortbay.jetty.servlet.FormAuthenticator;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
@@ -102,13 +111,6 @@ import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
 import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
 import org.apache.geronimo.xbeans.j2ee.WelcomeFileListType;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
-import org.mortbay.http.BasicAuthenticator;
-import org.mortbay.http.ClientCertAuthenticator;
-import org.mortbay.http.DigestAuthenticator;
-import org.mortbay.http.SecurityConstraint;
-import org.mortbay.jetty.servlet.FormAuthenticator;
 
 
 /**
@@ -384,8 +386,6 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 }
                 webModuleData.setAttribute("policyContextID", policyContextID);
                 buildSpecSecurityConfig(webApp, webModuleData, securityRoles);
-                //TODO figure out if we can avoid this.
-                buildLegacySecurityConstraints(webApp, webModuleData);
 
             } else {
                 webModuleData = new GBeanData(webModuleName, JettyWebAppContext.GBEAN_INFO);
@@ -839,8 +839,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
             }
         }
 
-        Set excludedPermissions = new HashSet();
-        Set uncheckedPermissions = new HashSet();
+        PermissionCollection excludedPermissions = new Permissions();
+        PermissionCollection uncheckedPermissions = new Permissions();
         Map rolePermissions = new HashMap();
 
         Iterator iter = excludedPatterns.keySet().iterator();
@@ -934,71 +934,6 @@ public class JettyModuleBuilder implements ModuleBuilder {
         webModuleData.setAttribute("excludedPermissions", excludedPermissions);
         webModuleData.setAttribute("uncheckedPermissions", uncheckedPermissions);
         webModuleData.setAttribute("rolePermissions", rolePermissions);
-    }
-
-    private void buildLegacySecurityConstraints(WebAppType webApp, GBeanData webModuleData) throws DeploymentException {
-        //this is basically what jetty's XMLConfiguration does.  I would hope we could come up with a better way.
-        Map urlToSecurityConstraintListMap = new HashMap();
-        SecurityConstraintType[] securityConstraintArray = webApp.getSecurityConstraintArray();
-        for (int i = 0; i < securityConstraintArray.length; i++) {
-            SecurityConstraintType securityConstraintType = securityConstraintArray[i];
-
-            SecurityConstraint scBase = new SecurityConstraint();
-            if (securityConstraintType.isSetAuthConstraint()) {
-                scBase.setAuthenticate(true);
-                RoleNameType[] roleNameArray = securityConstraintType.getAuthConstraint().getRoleNameArray();
-                for (int j = 0; j < roleNameArray.length; j++) {
-                    RoleNameType roleNameType = roleNameArray[j];
-                    scBase.addRole(roleNameType.getStringValue().trim());
-                }
-            }
-            if (securityConstraintType.isSetUserDataConstraint()) {
-                String guarantee = securityConstraintType.getUserDataConstraint().getTransportGuarantee().getStringValue().trim();
-                if (guarantee == null || guarantee.length() == 0 || "NONE".equals(guarantee))
-                    scBase.setDataConstraint(SecurityConstraint.DC_NONE);
-                else if ("INTEGRAL".equals(guarantee))
-                    scBase.setDataConstraint(SecurityConstraint.DC_INTEGRAL);
-                else if ("CONFIDENTIAL".equals(guarantee))
-                    scBase.setDataConstraint(SecurityConstraint.DC_CONFIDENTIAL);
-                else {
-                    //ToDO what do we do here?
-//                    log.warn("Unknown user-data-constraint:" + guarantee);
-                    scBase.setDataConstraint(SecurityConstraint.DC_CONFIDENTIAL);
-                }
-            }
-            WebResourceCollectionType[] webResourceCollectionArray = securityConstraintType.getWebResourceCollectionArray();
-            for (int j = 0; j < webResourceCollectionArray.length; j++) {
-                WebResourceCollectionType webResourceCollectionType = webResourceCollectionArray[j];
-
-                String name = webResourceCollectionType.getWebResourceName().getStringValue().trim();
-                SecurityConstraint sc = null;
-                try {
-                    sc = (SecurityConstraint) scBase.clone();
-                } catch (CloneNotSupportedException e) {
-                    throw new DeploymentException("this should not have happened", e);
-                }
-                sc.setName(name);
-                HttpMethodType[] httpMethodArray = webResourceCollectionType.getHttpMethodArray();
-                for (int k = 0; k < httpMethodArray.length; k++) {
-                    HttpMethodType httpMethodType = httpMethodArray[k];
-                    sc.addMethod(httpMethodType.getStringValue().trim());
-                }
-                UrlPatternType[] urlPatternArray = webResourceCollectionType.getUrlPatternArray();
-                for (int k = 0; k < urlPatternArray.length; k++) {
-                    UrlPatternType urlPatternType = urlPatternArray[k];
-                    String urlPattern = urlPatternType.getStringValue();
-                    List securityConstraints = (List) urlToSecurityConstraintListMap.get(urlPattern);
-                    if (securityConstraints == null) {
-                        securityConstraints = new ArrayList();
-                        urlToSecurityConstraintListMap.put(urlPattern, securityConstraints);
-                    }
-                    securityConstraints.add(sc);
-                }
-            }
-        }
-
-        webModuleData.setAttribute("legacySecurityConstraintMap", urlToSecurityConstraintListMap);
-
     }
 
     private static Set collectRoleNames(WebAppType webApp) {
