@@ -69,8 +69,9 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.management.relation.RelationServiceMBean;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.jmx.JMXUtil;
-import org.apache.log4j.Logger;
 
 /**
  * An MBean that maintains a list of URLs and periodically invokes a Scanner
@@ -78,10 +79,10 @@ import org.apache.log4j.Logger;
  * Notifiction.
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/11 21:27:18 $
  */
 public class DeploymentScanner implements DeploymentScannerMBean, MBeanRegistration {
-    private static final Logger log = Logger.getLogger(DeploymentScanner.class);
+    private static final Log log = LogFactory.getLog(DeploymentScanner.class);
     private MBeanServer server;
     private RelationServiceMBean relationService;
     private ObjectName objectName;
