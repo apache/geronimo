@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.connector.deployment;
+package org.apache.geronimo.connector.outbound;
 
 import java.util.Hashtable;
 import javax.management.ObjectName;

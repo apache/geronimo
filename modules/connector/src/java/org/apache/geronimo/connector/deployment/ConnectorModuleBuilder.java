@@ -40,6 +40,7 @@ import javax.naming.Reference;
 
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.connector.ActivationSpecInfo;
+import org.apache.geronimo.connector.ResourceAdapterModuleImpl;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.LocalTransactions;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoPool;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoTransactions;
@@ -50,6 +51,7 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.Transactio
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransactions;
 import org.apache.geronimo.connector.outbound.security.PasswordCredentialRealm;
+import org.apache.geronimo.connector.outbound.JCAConnectionFactoryImpl;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
@@ -656,15 +658,15 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             throw new DeploymentException("Unable to create GMBean", e);
         }
         TransactionSupport transactionSupport = null;
-        if (connectionManager.getNoTransaction() != null) {
+        if (connectionManager.isSetNoTransaction()) {
             transactionSupport = NoTransactions.INSTANCE;
-        } else if (connectionManager.getLocalTransaction() != null) {
+        } else if (connectionManager.isSetLocalTransaction()) {
             transactionSupport = LocalTransactions.INSTANCE;
-        } else if (connectionManager.getTransactionLog() != null) {
+        } else if (connectionManager.isSetTransactionLog()) {
             transactionSupport = TransactionLog.INSTANCE;
-        } else if (connectionManager.getXaTransaction() != null) {
-            transactionSupport = new XATransactions(connectionManager.getXaTransaction().getTransactionCaching() != null,
-                    connectionManager.getXaTransaction().getThreadCaching() != null);
+        } else if (connectionManager.isSetXaTransaction()) {
+            transactionSupport = new XATransactions(connectionManager.getXaTransaction().isSetTransactionCaching(),
+                    connectionManager.getXaTransaction().isSetThreadCaching());
         } else {
             throw new DeploymentException("Unexpected transaction support element");
         }
