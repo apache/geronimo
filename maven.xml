@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.42 $ $Date: 2003/10/29 05:08:09 $ -->
+<!-- $Revision: 1.43 $ $Date: 2003/11/16 05:39:54 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -558,21 +558,25 @@
                 failonerror="true"
                 dir="${run.dir}">
 
+
                 <classpath>
                     <pathelement path="${env.JAVA_HOME}/lib/tools.jar"/>
                     <pathelement path="${run.dir}/etc"/>
-                    <fileset dir="${run.dir}/lib">
+                    <fileset dir="${run.dir}/bootlib">
                         <include name="*.jar"/>
                     </fileset>
+                    
+                    <!-- temporary addition allows RMI to be used, such as with the JMX RMI connector -->
+                    <pathelement location="${run.dir}/lib/geronimo-core-rmiclassloaderspi.jar"/>
                 </classpath>
 
                 <jvmarg value="-Xdebug"/>
                 <jvmarg value="-Xnoagent"/>
                 <jvmarg value="-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y"/>
 
-                <sysproperty key="program.name" value="maven:debug"/>
-                <sysproperty key="geronimo.home" value="file:${run.dir}/"/>
                 <sysproperty key="java.compiler" value="NONE"/>
+                <sysproperty key="program.name" value="maven:run"/>
+                <sysproperty key="geronimo.home" value="file:${run.dir}/"/>
                 <sysproperty key="java.rmi.server.RMIClassLoaderSpi" value="org.apache.geronimo.rmi.RMIClassLoaderSpiImpl"/>
 
             </java>
