@@ -62,6 +62,10 @@ import javax.management.MBeanServerFactory;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ServiceNotFoundException;
+import javax.management.MBeanException;
+import javax.management.AttributeNotFoundException;
+import javax.management.InstanceNotFoundException;
+import javax.management.ReflectionException;
 import javax.management.loading.MLet;
 
 import org.apache.commons.logging.Log;
@@ -70,7 +74,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:34 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/13 04:19:39 $
  */
 public class JMXKernel {
     private static final Log log = LogFactory.getLog(JMXKernel.class);
@@ -86,6 +90,23 @@ public class JMXKernel {
 
     public MBeanServer getMBeanServer() {
         return server;
+    }
+
+    public String getMBeanServerId() {
+        try {
+            return (String)server.getAttribute(ObjectName.getInstance("JMImplementation:type=MBeanServerDelegate"), "MBeanServerId");
+        } catch (MBeanException e) {
+            log.info(e);
+        } catch (AttributeNotFoundException e) {
+            log.info(e);
+        } catch (InstanceNotFoundException e) {
+            log.info(e);
+        } catch (ReflectionException e) {
+            log.info(e);
+        } catch (MalformedObjectNameException e) {
+            log.info(e);
+        }
+        throw new RuntimeException("could not get the MBeanServerId");
     }
 
     public Set bootMLet(URL mletURL) throws ServiceNotFoundException {
