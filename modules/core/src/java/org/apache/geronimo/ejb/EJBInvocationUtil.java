@@ -58,7 +58,6 @@ package org.apache.geronimo.ejb;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.security.Principal;
 
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationKey;
@@ -67,19 +66,17 @@ import org.apache.geronimo.core.service.InvocationKey;
  *
  *
  *
- * @version $Revision: 1.8 $ $Date: 2003/11/01 16:25:58 $
+ * @version $Revision: 1.9 $ $Date: 2003/11/25 13:50:32 $
  */
 public final class EJBInvocationUtil implements Serializable, InvocationKey {
     
     // Be careful here.  If you change the ordinals, this class must be changed on evey client.
-    private static int MAX_ORDINAL = 5;
+    private static int MAX_ORDINAL = 3;
     private static final EJBInvocationUtil[] values = new EJBInvocationUtil[MAX_ORDINAL + 1];
     private static final EJBInvocationUtil METHOD = new EJBInvocationUtil("METHOD", 0, false);
     private static final EJBInvocationUtil ID = new EJBInvocationUtil("ID", 1, false);
     private static final EJBInvocationUtil ARGUMENTS = new EJBInvocationUtil("ARGUMENTS", 2, false);
     private static final EJBInvocationUtil EJB_CONTEXT_KEY = new EJBInvocationUtil("EJB_CONTEXT_KEY", 3, true);
-    private static final EJBInvocationUtil PRINCIPAL = new EJBInvocationUtil("PRINCIPAL", 4, false);
-    private static final EJBInvocationUtil CREDENTIALS = new EJBInvocationUtil("CREDENTIALS", 5, false);
 
     public static Method getMethod(Invocation invocation) {
         return (Method) invocation.get(METHOD);
@@ -111,22 +108,6 @@ public final class EJBInvocationUtil implements Serializable, InvocationKey {
 
     public static void putEnterpriseContext(Invocation invocation, EnterpriseContext enterpriseContext) {
         invocation.put(EJB_CONTEXT_KEY, enterpriseContext);
-    }
-
-    public static Principal getPrincipal(Invocation invocation) {
-        return (Principal) invocation.get(PRINCIPAL);
-    }
-
-    public static void putPrincipal(Invocation invocation, Principal principal) {
-        invocation.put(PRINCIPAL, principal);
-    }
-
-    public static Object getCredentials(Invocation invocation) {
-        return invocation.get(CREDENTIALS);
-    }
-
-    public static void putCredentials(Invocation invocation, Object credentials) {
-        invocation.put(CREDENTIALS, credentials);
     }
 
     private final transient String name;
