@@ -59,14 +59,12 @@ package org.apache.geronimo.common.mutable;
 import java.io.Serializable;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
-
 import org.apache.geronimo.common.CloneableObject;
-import org.apache.geronimo.common.coerce.NotCoercibleException;
 
 /**
  * A mutable boolean class.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/24 20:51:22 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/26 08:53:51 $
  */
 public class MuBoolean
     extends CloneableObject
@@ -135,9 +133,7 @@ public class MuBoolean
      * @return     The previous value.
      */
     public boolean set(Boolean b) {
-        boolean old = value;
-        value = b.booleanValue();
-        return old;
+        return set(b.booleanValue());
     }
     
     /**
@@ -147,9 +143,7 @@ public class MuBoolean
      * @return     The previous value.
      */
     public boolean set(MuBoolean b) {
-        boolean old = value;
-        value = b.value;
-        return old;
+        return set(b.get());
     }
     
     /**
