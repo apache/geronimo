@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.30 $ $Date: 2003/08/29 19:33:43 $ -->
+<!-- $Revision: 1.31 $ $Date: 2003/09/01 07:44:29 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -68,9 +68,11 @@
         </j:when>
       </j:choose>
       
+      <!-- Set resctor projects in parent scope so goals have access to it -->
+      <j:set var="reactorProjects" value="${reactorProjects}" scope="parent"/>
+      
       <!-- Optionaly perform module aggregation -->
       <j:if test="${context.getVariable('modules.aggregate.skip') != 'true'}">
-        <j:set var="reactorProjects" value="${reactorProjects}" scope="parent"/>
         <attainGoal name="modules:aggregate"/>
       </j:if>
     </define:tag>
@@ -187,7 +189,7 @@
   
   <goal name="modules:aggregate"
         description="Aggregates module target output.">
-        
+    
     <ant:echo>Aggregating modules...</ant:echo>
     
     <!-- Setup the target aggregation directory -->
@@ -226,7 +228,7 @@
     </j:forEach>
     
     <!-- Cleanse some stuff -->
-    <u:available file="${aggregate.dir}/bin">
+    <u:available file="${aggregate.dir}/bin" xmlns="jelly:ant">
       <!-- Fix permissions -->
       <chmod perm="ugo+x">
         <fileset dir="${aggregate.dir}/bin">
@@ -318,37 +320,38 @@
   </preGoal>
   
   <goal name="modules:copy-site" prereqs="modules:site"
-    description="Copy the generated websites of all the modules into the root project">
+        description="Copy the generated websites of all the modules into the root project">
     
-    <!-- a dummy scope tag to change XML namespace to ant -->
-    <j:scope xmlns="jelly:ant">
+    <ant:echo>Aggregating module documentation...</ant:echo>
+    
+    <!-- Setup the target aggregation directory -->
+    <j:set var="aggregate.dir" value="${basedir}/target/docs"/>
+    <ant:mkdir dir="${aggregate.dir}"/>
+    
+    <j:forEach var="module" items="${reactorProjects}">
+      <ant:echo>Processing ${module.id}...</ant:echo>
       
-      <fileScanner var="scanner">
-        <fileset dir="${basedir}"
-          includes="${modules.includes}"
-          excludes="${modules.excludes}"/>
-      </fileScanner>
+      <!-- Get the modules root directory -->
+      <j:set var="module.root" value="${module.file.parent}"/>
       
-      <j:forEach var="file" items="${scanner.iterator()}">
-        <j:set var="name">${file.parentFile.name}</j:set>
-        <j:set var="type">${file.parentFile.parentFile.name}</j:set>
-        <j:set var="outDir">${basedir}/target/docs/${type}/${name}</j:set>
-        
-        <echo>Copying module ${name} documentation to ${outDir}</echo>
-        <mkdir dir="${outDir}"/>
-        <copy todir="${outDir}">
-          <fileset dir="${basedir}/${type}/${name}/target/docs"/>
-        </copy>
-      </j:forEach>
+      <!-- Setup the target dir under docs -->
+      <j:set var="moduleDirName">${module.file.parentFile.name}</j:set>
+      <j:set var="moduleTypeDirName">${module.file.parentFile.parentFile.name}</j:set>
+      <j:set var="outputDir">${aggregate.dir}/${moduleTypeDirName}/${moduleDirName}</j:set>
       
-    </j:scope>
+      <!-- Copy module docs -->
+      <ant:echo>Copying docs to ${outputDir}...</ant:echo>
+      <ant:mkdir dir="${outputDir}"/>
+      <ant:copy todir="${outputDir}">
+        <ant:fileset dir="${module.root}/target/docs"/>
+      </ant:copy>
+    </j:forEach>
   </goal>
   
   <goal name="site:tocvs"
     description="Creates the entire website and copies it to the local CVS repository so that it can be checked in to update the Incubator site">
     
-    <!-- a dummy scope tag to change XML namespace to ant -->
-    <j:scope xmlns="jelly:ant">
+    <j:jelly xmlns="jelly:ant">
     
       <j:if test="${empty(geronimo.cvs.docdir)}">
         <j:set var="geronimo.cvs.docdir" value="../incubator-site/build/site/projects/geronimo"/>
@@ -359,7 +362,7 @@
         <fileset dir="${basedir}/target/docs"/>
       </copy>
       
-    </j:scope>
+    </j:jelly>
   </goal>
   
   
@@ -398,12 +401,10 @@
 
   <goal name="run:main">
     <j:set var="run.dir" value="${basedir}/target/${release.id}"/>
-    <!--
-       | Should really execute the system script but for now...
-     -->
+    
     <j:jelly xmlns="jelly:ant">
 
-        <java classname="org.apache.geronimo.Main" 
+        <java classname="org.apache.geronimo.Main"
             fork="true"
             maxmemory="128m"
             failonerror="true"
@@ -414,7 +415,7 @@
           <fileset dir="${run.dir}/lib">
             <include name="*.jar"/>
             <exclude name="xerces-2.4.0.jar"/>
-          </fileset>              
+          </fileset>
         </classpath>
 
         <sysproperty key="program.name" value="maven:run"/>
@@ -449,6 +450,7 @@
         <sysproperty key="program.name" value="maven:debug"/>
         <sysproperty key="geronimo.home" value="file:${run.dir}/"/>
         <sysproperty key="java.compiler" value="NONE"/>
+        <sysproperty key="java.rmi.server.RMIClassLoaderSpi" value="org.apache.geronimo.rmi.RMIClassLoaderSpiImpl"/>
 
       </java>
     </j:jelly>
