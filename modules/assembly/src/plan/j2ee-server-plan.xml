@@ -63,6 +63,9 @@ by the server.
         <uri>geronimo/jars/geronimo-jetty-1.0-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
+        <uri>geronimo/jars/geronimo-jmxremoting-1.0-SNAPSHOT.jar</uri>
+    </dependency>
+    <dependency>
       <uri>activemq/jars/activemq-SNAPSHOT.jar</uri>
     </dependency>
 
@@ -78,6 +81,12 @@ by the server.
         <attribute name="UsersURI" type="java.net.URI">var/security/users.properties</attribute>
         <attribute name="GroupsURI" type="java.net.URI">var/security/groups.properties</attribute>
         <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
+    </gbean>
+
+    <gbean name="geronimo.security:type=ConfigurationEntry,jaasId=JMX" class="org.apache.geronimo.security.jaas.ConfigurationEntryRealmLocal">
+        <attribute name="JAASId" type="java.lang.String">JMX</attribute>
+        <attribute name="RealmName" type="java.lang.String">geronimo-properties-realm</attribute>
+        <attribute name="ControlFlag" type="org.apache.geronimo.security.jaas.LoginModuleControlFlag">REQUIRED</attribute>
     </gbean>
 
     <!-- Register GeronimoLoginConfiguration as the LoginConfiguration handler -->
@@ -166,4 +175,11 @@ by the server.
         <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
     </gbean>
     <gbean name="geronimo.server:j2eeType=JVM,J2EEServer=geronimo" class="org.apache.geronimo.j2ee.management.impl.JVMImpl"/>
+
+    <!-- JMX Remoting -->
+    <gbean name="geronimo.server:role=JMXService,name=localhost" class="org.apache.geronimo.jmxremoting.JMXConnector">
+        <attribute name="URL" type="java.lang.String">service:jmx:rmi://localhost/jndi/rmi:/JMXConnector</attribute>
+        <attribute name="ApplicationConfigName" type="java.lang.String">JMX</attribute>
+        <reference name="Kernel">geronimo.boot:role=Kernel</reference>
+    </gbean>
 </configuration>

@@ -17,7 +17,7 @@
 -->
 
 
-<!-- $Revision: 1.21 $ $Date: 2004/05/30 19:07:52 $ -->
+<!-- $Revision: 1.22 $ $Date: 2004/05/30 19:53:57 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -127,6 +127,15 @@
             <artifactId>geronimo-jmxdebug</artifactId>
             <version>${pom.currentVersion}</version>
             <type>war</type>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-jmxremoting</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
         </dependency>
 
         <dependency>
