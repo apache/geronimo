@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.18 $ $Date: 2003/09/01 18:47:14 $ -->
+<!-- $Revision: 1.19 $ $Date: 2003/09/01 19:44:14 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -162,7 +162,7 @@
       </ant:uptodate>
       
       <j:if test="${context.getVariable(uptodatePropName) == 'true'}">
-        <ant:echo>NOTICE: Skipping tests, then seem to have passed already</ant:echo>
+        <ant:echo>NOTICE: Skipping tests; they seem to have passed already</ant:echo>
         <j:set var="maven.test.skip" value="true"/>
         <j:set var="unitTestSourcesPresent" value="false"/>
       </j:if>
