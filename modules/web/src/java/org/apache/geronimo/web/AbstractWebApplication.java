@@ -79,52 +79,52 @@ import org.w3c.dom.Document;
  *
  * Instances are created by a deployer. The deployer finds the
  * WebContainer and associates it with the WebApplication.
- * 
- * @jmx:mbean extends="org.apache.geronimo.web.WebApplication, org.apache.geronimo.kernel.management.ManagedObject, org.apache.geronimo.kernel.management.StateManageable, javax.management.MBeanRegistration" 
- * @version $Revision: 1.10 $ $Date: 2003/11/20 09:10:17 $
+ *
+ * @jmx:mbean extends="org.apache.geronimo.web.WebApplication, org.apache.geronimo.kernel.management.ManagedObject, org.apache.geronimo.kernel.management.StateManageable, javax.management.MBeanRegistration"
+ * @version $Revision: 1.11 $ $Date: 2003/12/28 19:38:19 $
  */
 public abstract class AbstractWebApplication extends AbstractManagedComponent implements WebApplication {
 
     private final static Log log = LogFactory.getLog(AbstractWebApplication.class);
 
     //uri of the webapp
-    protected URI uri; 
-    
+    protected final URI uri;
+
     // pojo for web.xml
     protected WebApp webDDObj;
-    
+
     // pojo for geronimo-web.xml
     protected GeronimoWebAppDocument geronimoDDObj;
-    
+
     // parsed web.xml
     protected Document deploymentDescriptorDoc;
-    
+
     // deployment descriptor as a string
     protected String deploymentDescriptorStr;
-    
+
     //jndi context for webapp
     protected Context context;
-    
+
     //servlet definitions
     protected String[] servlets;
-    
+
     // context path of webapp
     protected String contextPath;
-    
+
     //class loading delegation model. Default to web-app scope
     private boolean java2ClassloadingCompliance = false;
 
 
-    
+
     /**
      * Creates a new <code>AbstractWebApplication</code> instance.
      *
      */
     public AbstractWebApplication() {
-    
+        uri = null;
     }
-    
-    
+
+
     /**
      * Creates a new <code>AbstractWebApplication</code> instance.
      *
@@ -135,19 +135,19 @@ public abstract class AbstractWebApplication extends AbstractManagedComponent im
     }
 
 
-    
-  
-    
+
+
+
     /**
      * Start the webapp. Called by the container or management interface
      * @throws Exception
      * @throws IllegalStateException
      */
     public void doStart() throws Exception {
-           
+
     }
 
-    
+
     /**
      * Stop the webapp. Called by the container, or by mangement
      * interface
@@ -156,10 +156,10 @@ public abstract class AbstractWebApplication extends AbstractManagedComponent im
     }
 
 
-  
 
-    
-    
+
+
+
     /** Get the URI of this webapp
      * @return the URI of the webapp
      * @see org.apache.geronimo.web.WebApplication#getURI()
@@ -168,9 +168,9 @@ public abstract class AbstractWebApplication extends AbstractManagedComponent im
         return uri;
     }
 
- 
 
-    
+
+
     /**
      * Setter for classloading compliance. If true, then classloading will
      * delegate first to parent classloader a la Java2 spec. If false, then
@@ -181,7 +181,7 @@ public abstract class AbstractWebApplication extends AbstractManagedComponent im
         java2ClassloadingCompliance = state;
     }
 
-    
+
     /**
      * Getter for classloading compliance.
      * @return truen if application is using Java 2 compliant class loading
@@ -191,7 +191,7 @@ public abstract class AbstractWebApplication extends AbstractManagedComponent im
     }
 
 
-    
+
     /** Set the container to which this webapp belongs.
      * In turn, we add ourselves as a component to that container.
      * @param container
@@ -201,8 +201,8 @@ public abstract class AbstractWebApplication extends AbstractManagedComponent im
         super.setContainer(container);
         container.addComponent (this);
     }
-  
-   
+
+
      /** JSR077
       * Return the list of Servlets of this webapp
       * @return
@@ -210,31 +210,31 @@ public abstract class AbstractWebApplication extends AbstractManagedComponent im
       */
      public String[] getServlets() {
         if (servlets == null) {
-            if (webDDObj == null) 
+            if (webDDObj == null)
                 return null;
-           
+
            Servlet[] servletObjs = webDDObj.getServlet();
            servlets = new String[servletObjs.length];
            for (int i=0; i<servletObjs.length; i++) {
-               servlets[i] = servletObjs[i].getServletName();             
+               servlets[i] = servletObjs[i].getServletName();
            }
         }
-        
+
         return servlets;
      }
 
-   
+
      /** JSR077
-      * TODO: This method should be able to be implemented based on the pojos. 
+      * TODO: This method should be able to be implemented based on the pojos.
       *  Need a method to get from pojo->xml->string
       * @return web.xml as a string
       * @see org.apache.geronimo.web.WebApplication#getDeploymentDescriptor()
       */
      public abstract String getDeploymentDescriptor();
-    
 
 
-    
+
+
     /**JSR077
      * @return ObjectName(s) as string of JVM(s) on which this webapp is deployed
      * @see org.apache.geronimo.kernel.management.J2EEModule#getJavaVMs()
@@ -245,7 +245,7 @@ public abstract class AbstractWebApplication extends AbstractManagedComponent im
     }
 
 
-    /** JSR077 
+    /** JSR077
      * @return ObjectName as string of Geronimo server  on which this webapp is deployed
      * @see org.apache.geronimo.kernel.management.J2EEDeployedObject#getServer()
      */
@@ -255,8 +255,8 @@ public abstract class AbstractWebApplication extends AbstractManagedComponent im
     }
 
 
-    
-    /* 
+
+    /*
      * @return
      * @see org.apache.geronimo.web.WebApplication#getComponentContext()
      */
@@ -265,15 +265,15 @@ public abstract class AbstractWebApplication extends AbstractManagedComponent im
     }
 
 
-    /* 
+    /*
      * @param context
      * @see org.apache.geronimo.web.WebApplication#setComponentContext(javax.naming.Context)
      */
     public void setComponentContext(Context context) {
         this.context = context;
     }
-    
-    /* 
+
+    /*
      * @return
      * @see org.apache.geronimo.web.WebApplication#getContextPath()
      */
@@ -281,17 +281,17 @@ public abstract class AbstractWebApplication extends AbstractManagedComponent im
         return contextPath;
     }
 
- 
-    /* 
+
+    /*
      * @param path
      * @see org.apache.geronimo.web.WebApplication#setContextPath(java.lang.String)
      */
     public void setContextPath(String path) {
         contextPath = path;
     }
-    
-    
-    /* 
+
+
+    /*
      * @return
      * @see org.apache.geronimo.web.WebApplication#getParentClassLoader()
      */
@@ -300,12 +300,12 @@ public abstract class AbstractWebApplication extends AbstractManagedComponent im
         return null;
     }
 
-    
 
-   
 
-   
-    /* 
+
+
+
+    /*
      * @param loader
      * @see org.apache.geronimo.web.WebApplication#setParentClassLoader(java.lang.ClassLoader)
      */
@@ -314,18 +314,18 @@ public abstract class AbstractWebApplication extends AbstractManagedComponent im
     }
 
 
- 
-    
-    /* 
-     * 
+
+
+    /*
+     *
      * @see org.apache.geronimo.web.WebApplication#setGeronimoDDObj()
      */
     public void setGeronimoDDObj(GeronimoWebAppDocument geronimoDDObj) {
         this.geronimoDDObj = geronimoDDObj;
     }
- 
- 
-    /* 
+
+
+    /*
      * @return
      * @see org.apache.geronimo.web.WebApplication#getGeronimoDDObj()
      */
@@ -333,18 +333,18 @@ public abstract class AbstractWebApplication extends AbstractManagedComponent im
         return geronimoDDObj;
     }
 
-    /* 
+    /*
      * @param webDDObj
      * @see org.apache.geronimo.web.WebApplication#setWebDDObj(org.apache.geronimo.deployment.model.web.WebApp)
      */
     public void setWebDDObj(WebApp webDDObj) {
         this.webDDObj = webDDObj;
     }
-    
+
     public WebApp getWebDDObj () {
         return webDDObj;
     }
 
- 
+
 
 }

@@ -24,13 +24,13 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
  * Created: Sun Sep 14 16:40:17 2003
  *
  * @jmx:mbean extends="org.apache.geronimo.web.AbstractWebApplicationMBean
- * @version $Revision: 1.7 $ $Date: 2003/11/25 13:51:30 $
+ * @version $Revision: 1.8 $ $Date: 2003/12/28 19:38:19 $
  */
 public class JettyWebApplication extends AbstractWebApplication implements JettyWebApplicationMBean {
     private JettyWebApplicationContext jettyContext;
     private final Log log = LogFactory.getLog(getClass());
 
-    
+
     public JettyWebApplication() {
         super();
         jettyContext = new JettyWebApplicationContext();
@@ -74,7 +74,7 @@ public class JettyWebApplication extends AbstractWebApplication implements Jetty
         return jettyContext.getContextPath();
     }
 
-   
+
     /* Hacky implementation of getting the web.xm as a String.
      * This should be handled by converting pojo->xml->string
      * @return
@@ -83,7 +83,7 @@ public class JettyWebApplication extends AbstractWebApplication implements Jetty
     public String getDeploymentDescriptor() {
         if (deploymentDescriptorStr != null)
             return deploymentDescriptorStr;
-            
+
         BufferedReader reader = null;
         try {
             URL url = new URL (jettyContext.getDeploymentDescriptor());
@@ -97,11 +97,11 @@ public class JettyWebApplication extends AbstractWebApplication implements Jetty
                 else
                     strbuff.append (line);
             }
-            
+
             deploymentDescriptorStr = strbuff.toString();
 
             return deploymentDescriptorStr;
-            
+
         } catch (IOException e) {
             log.error (e);
             return null;
@@ -112,8 +112,8 @@ public class JettyWebApplication extends AbstractWebApplication implements Jetty
             } catch (IOException e) {
                 log.warn("Error closing web.xml reader", e);
             }
-            
-        }    
+
+        }
     }
 
     public boolean getJava2ClassloadingCompliance() {
