@@ -56,25 +56,34 @@
 package org.apache.geronimo.kernel.jmx;
 
 import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Set;
 
-import net.sf.cglib.proxy.SimpleFilter;
 import net.sf.cglib.proxy.Callbacks;
+import net.sf.cglib.proxy.SimpleFilter;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/07 17:32:11 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/09 19:56:55 $
  */
 public final class InterfaceCallbackFilter extends SimpleFilter {
-    public InterfaceCallbackFilter() {
+    private final Set methodSet;
+    public InterfaceCallbackFilter(Class iface) {
         super(Callbacks.INTERCEPT);
+        Method[] methods = iface.getMethods();
+        methodSet = new HashSet(methods.length);
+        for (int i = 0; i < methods.length; i++) {
+            Method method = methods[i];
+            methodSet.add(new MBeanOperationSignature(method));
+        }
     }
 
     public int accept(Method method) {
-        if(method.getDeclaringClass() == Object.class) {
-            return Callbacks.NO_OP;
+        if(methodSet.contains(new MBeanOperationSignature(method))) {
+            return Callbacks.INTERCEPT;
         }
-        return Callbacks.INTERCEPT;
+        return Callbacks.NO_OP;
     }
 
 }

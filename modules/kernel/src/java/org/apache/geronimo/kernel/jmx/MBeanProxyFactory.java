@@ -74,7 +74,7 @@ import net.sf.cglib.reflect.FastClass;
  * MBeanProxyFactory creates a dynamic proxy to an MBean by ObjectName.
  * The interface type and object existance are enforced during construction.
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/07 17:32:11 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/09 19:56:55 $
  */
 public final class MBeanProxyFactory {
 
@@ -95,7 +95,7 @@ public final class MBeanProxyFactory {
         Factory factory = Enhancer.create(
                 Object.class,
                 new Class[]{iface},
-                new InterfaceCallbackFilter(),
+                new InterfaceCallbackFilter(iface),
                 new SimpleCallbacks());
 
         // build the method table

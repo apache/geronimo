@@ -68,15 +68,24 @@ import javax.management.Attribute;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/07 18:06:02 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/09 19:56:55 $
  */
-public final class InvokeMBean {
+public class InvokeMBean {
     private final String name;
     private final String[] argumentTypes;
     private final Class[] declaredExceptions;
     private final boolean isAttribute;
     private final boolean isGetter;
     private final int expectedArguments;
+
+    protected InvokeMBean(String name, String[] argumentTypes, Class[] declaredExceptions, boolean attribute, boolean getter, int expectedArguments) {
+        this.name = name;
+        this.argumentTypes = argumentTypes;
+        this.declaredExceptions = declaredExceptions;
+        isAttribute = attribute;
+        isGetter = getter;
+        this.expectedArguments = expectedArguments;
+    }
 
     public InvokeMBean(Method method, boolean isAttribute, boolean isGetter) {
         this.isAttribute = isAttribute;
@@ -101,7 +110,7 @@ public final class InvokeMBean {
         } else {
             name = method.getName();
         }
-        
+
         // conver the parameters to a MBeanServer friendly string array
         Class[] parameters = method.getParameterTypes();
         argumentTypes = new String[parameters.length];
