@@ -56,27 +56,55 @@
 
 package org.apache.geronimo.common.propertyeditor;
 
-import java.util.List;
-
 import java.net.URL;
 
-import org.apache.geronimo.common.Strings;
+import java.beans.PropertyEditor;
+
+import junit.framework.TestCase;
 
 /**
- * A property editor for URL[].
+ * Unit test for {@link ArrayPropertyEditorAdapter} class.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/28 10:16:39 $
+ * @version $Revision: 1.1 $ $Date: 2003/08/30 21:08:08 $
  */
-public class URLArrayEditor
-    extends ArrayPropertyEditorSupport
+public class ArrayPropertyEditorAdapterTest
+    extends TestCase
 {
-    protected Object convertValue(final String value) throws Exception
+    PropertyEditor editor;
+    
+    protected void setUp()
     {
-        return Strings.toURL(value);
+        editor = PropertyEditors.findEditor(URL[].class);
     }
     
-    protected Object createArray(final List list)
+    public void testGetValue_Simple()
     {
-        return list.toArray(new URL[list.size()]);
+        String input = "http://apache.org";
+        
+        editor.setAsText(input);
+        Object output = editor.getValue();
+        
+        assertNotNull(output);
+        assertEquals(URL[].class, output.getClass());
+        
+        URL[] urls = (URL[])output;
+        assertEquals(1, urls.length);
+        assertEquals(input, urls[0].toString());
+    }
+    
+    public void testGetValue_2URLs()
+    {
+        String input = "http://apache.org, http://google.com";
+        
+        editor.setAsText(input);
+        Object output = editor.getValue();
+        
+        assertNotNull(output);
+        assertEquals(URL[].class, output.getClass());
+        
+        URL[] urls = (URL[])output;
+        assertEquals(2, urls.length);
+        assertEquals("http://apache.org", urls[0].toString());
+        assertEquals("http://google.com", urls[1].toString());
     }
 }

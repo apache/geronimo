@@ -70,7 +70,7 @@ import org.apache.geronimo.common.NullArgumentException;
  *
  * <p>Allows editors to be nested sub-classes named PropertyEditor.
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/29 21:40:49 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/30 21:08:08 $
  */
 public class PropertyEditors
 {
@@ -82,11 +82,6 @@ public class PropertyEditors
     {
         // Append our package to the serach path
         appendEditorSearchPath("org.apache.geronimo.common.propertyeditor");
-        
-        // Have to explicity register this because it does not follow the
-        // naming convention used by PropertyManagerEditor to discover editors
-        registerEditor(String[].class, StringArrayEditor.class);
-        registerEditor(java.net.URL[].class, URLArrayEditor.class);
     }
     
     /**
