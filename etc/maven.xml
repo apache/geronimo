@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.5 $ $Date: 2003/08/16 15:14:11 $ -->
+<!-- $Revision: 1.6 $ $Date: 2003/08/16 15:42:03 $ -->
 
-<project
+<project default="default"
   xmlns:j="jelly:core"
   xmlns:u="jelly:util"
   xmlns:ant="jelly:ant">
