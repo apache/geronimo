@@ -32,6 +32,7 @@ import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.soap.SOAPBinding;
 import javax.xml.namespace.QName;
 import javax.xml.rpc.handler.HandlerInfo;
+import javax.xml.rpc.holders.IntHolder;
 
 import net.sf.cglib.core.DefaultGeneratorStrategy;
 import net.sf.cglib.proxy.Callback;
@@ -51,8 +52,11 @@ import org.apache.axis.encoding.ser.BeanSerializerFactory;
 import org.apache.axis.soap.SOAPConstants;
 import org.apache.axis.providers.java.RPCProvider;
 import org.apache.axis.handlers.soap.SOAPService;
+import org.apache.axis.MessageContext;
+import org.apache.axis.Handler;
 import org.apache.geronimo.axis.client.*;
 import org.apache.geronimo.axis.server.AxisWebServiceContainer;
+import org.apache.geronimo.axis.server.POJOProvider;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.GBeanData;
@@ -87,7 +91,15 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
         PortInfo portInfo = (PortInfo) portInfoObject;
 
         JavaServiceDesc serviceDesc = AxisServiceBuilder.createServiceDesc(portInfo, classLoader);
-        RPCProvider provider = new RPCProvider();
+
+        Class pojoClass = null;
+        try {
+            pojoClass = classLoader.loadClass(seiClassName);
+        } catch (ClassNotFoundException e) {
+            throw new DeploymentException("Unable to load servlet class for pojo webservice: "+seiClassName, e);
+        }
+
+        RPCProvider provider = new POJOProvider(pojoClass);
         SOAPService service = new SOAPService(null, provider, null);
         service.setServiceDescription(serviceDesc);
         service.setOption("className", seiClassName);

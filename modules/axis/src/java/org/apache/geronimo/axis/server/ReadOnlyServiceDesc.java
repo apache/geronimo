@@ -18,15 +18,14 @@ package org.apache.geronimo.axis.server;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.namespace.QName;
 
+import org.apache.axis.constants.Style;
+import org.apache.axis.constants.Use;
 import org.apache.axis.description.JavaServiceDesc;
 import org.apache.axis.description.OperationDesc;
 import org.apache.axis.encoding.TypeMapping;
 import org.apache.axis.encoding.TypeMappingRegistry;
-import org.apache.axis.constants.Style;
-import org.apache.axis.constants.Use;
 
 /**
  * @version $Rev$ $Date$
@@ -50,10 +49,10 @@ public class ReadOnlyServiceDesc extends JavaServiceDesc {
         return serviceDesc.getStopClasses();
     }
 
-    public void setStopClasses(ArrayList stopClasses) {        }
+    public void setStopClasses(ArrayList stopClasses) {
+    }
 
-    public void loadServiceDescByIntrospection()
-    {
+    public void loadServiceDescByIntrospection() {
         serviceDesc.loadServiceDescByIntrospection();
     }
 
@@ -61,8 +60,7 @@ public class ReadOnlyServiceDesc extends JavaServiceDesc {
         serviceDesc.loadServiceDescByIntrospection(implClass);
     }
 
-    public void loadServiceDescByIntrospection(Class cls, TypeMapping tm)
-    {
+    public void loadServiceDescByIntrospection(Class cls, TypeMapping tm) {
         serviceDesc.loadServiceDescByIntrospection(cls, tm);
     }
 
@@ -125,7 +123,7 @@ public class ReadOnlyServiceDesc extends JavaServiceDesc {
         return serviceDesc.getOperations();
     }
 
-    public OperationDesc [] getOperationsByName(String methodName) {
+    public OperationDesc[] getOperationsByName(String methodName) {
         return serviceDesc.getOperationsByName(methodName);
     }
 
@@ -137,7 +135,7 @@ public class ReadOnlyServiceDesc extends JavaServiceDesc {
         return serviceDesc.getOperationByElementQName(qname);
     }
 
-    public OperationDesc [] getOperationsByQName(QName qname) {
+    public OperationDesc[] getOperationsByQName(QName qname) {
         return serviceDesc.getOperationsByQName(qname);
     }
 
@@ -187,4 +185,5 @@ public class ReadOnlyServiceDesc extends JavaServiceDesc {
 
     public void setDisallowedMethods(List disallowedMethods) {
     }
+
 }

@@ -35,6 +35,7 @@ import org.apache.axis.handlers.soap.SOAPService;
 import org.apache.axis.providers.java.RPCProvider;
 import org.apache.geronimo.axis.server.AxisWebServiceContainer;
 import org.apache.geronimo.axis.server.ReadOnlyServiceDesc;
+import org.apache.geronimo.axis.server.POJOProvider;
 import org.apache.geronimo.axis.testData.echosample.EchoBean;
 
 //import org.openejb.deployment.OpenEJBModuleBuilder;
@@ -84,7 +85,8 @@ public class AxisWebServiceContainerTest extends AbstractTestCase {
         serviceDesc.getOperations();
         ReadOnlyServiceDesc sd = new ReadOnlyServiceDesc(serviceDesc);
 
-        RPCProvider provider = new RPCProvider();
+        Class pojoClass = cl.loadClass("org.apache.geronimo.axis.testData.echosample.EchoBean");
+        RPCProvider provider = new POJOProvider(pojoClass);
         SOAPService service = new SOAPService(null, provider, null);
         service.setServiceDescription(serviceDesc);
         service.setOption("className","org.apache.geronimo.axis.testData.echosample.EchoBean");
