@@ -73,12 +73,19 @@ import org.apache.geronimo.remoting.MarshalledObject;
 import org.apache.geronimo.remoting.TransportInterceptor;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2003/09/08 04:33:54 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/07 16:41:10 $
  */
 public class RemoteTransportInterceptor implements TransportInterceptor, Externalizable {
 
     URI remoteURI;
     transient TransportClient transportClient;
+
+    public RemoteTransportInterceptor() {
+    }
+
+    public RemoteTransportInterceptor(URI remoteURI) {
+        this.remoteURI = remoteURI;
+    }
 
     /**
      * @see org.apache.geronimo.core.service.AbstractInterceptor#invoke(org.apache.geronimo.core.service.Invocation)

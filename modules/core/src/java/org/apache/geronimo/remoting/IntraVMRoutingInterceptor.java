@@ -66,13 +66,21 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.remoting.transport.NullTransportInterceptor;
 
 /**
- * @version $Revision: 1.6 $ $Date: 2003/10/31 17:03:22 $
+ * @version $Revision: 1.7 $ $Date: 2003/11/07 16:41:10 $
  */
 public class IntraVMRoutingInterceptor implements Interceptor, Externalizable {
 
     Long deMarshalingInterceptorID;
     boolean allwaysMarshall=false;
     transient Interceptor next;
+
+    public IntraVMRoutingInterceptor() {
+    }
+
+    public IntraVMRoutingInterceptor(Long deMarshalingInterceptorID, boolean allwaysMarshall) {
+        this.deMarshalingInterceptorID = deMarshalingInterceptorID;
+        this.allwaysMarshall = allwaysMarshall;
+    }
 
     /**
      * @see org.apache.geronimo.core.service.AbstractInterceptor#invoke(org.apache.geronimo.core.service.Invocation)

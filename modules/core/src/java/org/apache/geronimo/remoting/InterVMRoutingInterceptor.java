@@ -65,7 +65,7 @@ import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2003/09/08 04:33:54 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/07 16:41:10 $
  */
 public class InterVMRoutingInterceptor implements Interceptor, Externalizable {
 
@@ -73,6 +73,14 @@ public class InterVMRoutingInterceptor implements Interceptor, Externalizable {
     transient Interceptor next;
     TransportInterceptor transportInterceptor;
     Interceptor localInterceptor;
+
+    public InterVMRoutingInterceptor() {
+    }
+
+    public InterVMRoutingInterceptor(TransportInterceptor transportInterceptor, Interceptor localInterceptor) {
+        this.transportInterceptor = transportInterceptor;
+        this.localInterceptor = localInterceptor;
+    }
 
     /**
      * @see org.apache.geronimo.core.service.AbstractInterceptor#invoke(org.apache.geronimo.core.service.Invocation)
