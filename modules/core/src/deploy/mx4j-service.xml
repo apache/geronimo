@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<components>
+    <class-space name="geronimo.system:role=ClassSpace,name=System"/>
+
+    <!-- RMI adaptor to support MX4J -->
+    <!-- Commented out for now since it is not working right now  -->
+    <!--
+    <mbean code="mx4j.tools.naming.NamingService" 
+           name="Naming:type=rmiregistry">
+    </mbean>
+    <mbean code="mx4j.adaptor.rmi.jrmp.JRMPAdaptor" 
+            name="Adaptor:protocol=JRMP">
+        <attribute name="JNDIName">jrmp</attribute>
+    </mbean>
+    -->
+
+</components>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.17 $ $Date: 2003/10/29 05:09:42 $ -->
+<!-- $Revision: 1.18 $ $Date: 2003/11/11 01:50:00 $ -->
 
 <components>
     <class-space name="geronimo.system:role=ClassSpace,name=System">
@@ -21,12 +21,6 @@
     </mbean>
     -->
 
-    <!-- RMI adaptor to support MX4J -->
-    <mbean code="mx4j.tools.naming.NamingService" name="Naming:type=rmiregistry">
-    </mbean>
-    <mbean code="mx4j.adaptor.rmi.jrmp.JRMPAdaptor" name="Adaptor:protocol=JRMP">
-        <attribute name="JNDIName">jrmp</attribute>
-    </mbean>
     <mbean code="org.apache.geronimo.kernel.deployment.scanner.DeploymentScanner"
         name="geronimo.deployment:role=DeploymentScanner">
         <constructor>
