@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.8 $ $Date: 2003/08/27 10:24:36 $ -->
+<!-- $Revision: 1.9 $ $Date: 2003/08/29 20:07:29 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -32,7 +32,7 @@
     <dependency>
       <id>commons-logging</id>
       <version>1.0.3</version>
-      <url>http://jakarta.apache.org/commons/logging.html</url>
+      <url>http://jakarta.apache.org/commons/logging</url>
       <properties>
         <runtime>true</runtime>
       </properties>
@@ -41,7 +41,7 @@
     <dependency>
       <id>commons-lang</id>
       <version>SNAPSHOT</version>
-      <url>http://jakarta.apache.org/commons/lang.html</url>
+      <url>http://jakarta.apache.org/commons/lang</url>
       <properties>
         <runtime>true</runtime>
       </properties>
@@ -50,7 +50,7 @@
     <dependency>
       <id>commons-jexl</id>
       <version>SNAPSHOT</version>
-      <url>http://jakarta.apache.org/commons/jexl.html</url>
+      <url>http://jakarta.apache.org/commons/jexl</url>
       <properties>
         <runtime>true</runtime>
       </properties>
