@@ -58,20 +58,20 @@ package org.apache.geronimo.kernel.deployment.task;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
 
 /**
- * DeploymenTask is a single unit of work in a plan.  The plan checks is all tasks canRun() before
- * executing the plan and performing all the tasks.  I this task throws an exception during perform,
- * it must clean up after itself before throwing the exception as undo will not be called.  If this
+ * DeploymentTask is a single unit of work in a plan.  The plan checks whether or not all tasks canRun() 
+ * before executing the plan and performing all the tasks.  If this task threw an exception during perform,
+ * it must have cleaned up after itself before throwing as undo will not be called.  If this
  * task completes successfully but a subsequent task throws an exception the undo method will be
  * called so the task can rollback any changes.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:34 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/07 03:50:29 $
  */
 public interface DeploymentTask {
     /**
      * Can this task complete now?
-     * @return true if the can can complete now; otherwise false and the plan should wait
-     * @throws org.apache.geronimo.kernel.deployment.DeploymentException if a problem occurs while checking the task, if the can check
-     * throws an exception the plan should be discarded
+     * @return true if the can complete now; otherwise false and the plan should wait
+     * @throws org.apache.geronimo.kernel.deployment.DeploymentException if a problem occurs while checking the task.
+     * If the exception is thrown the plan should be discarded
      */
     boolean canRun() throws DeploymentException;
 

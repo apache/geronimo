@@ -101,7 +101,7 @@ import org.apache.geronimo.kernel.management.StateManageable;
  * Implementors of StateManageable may use this class and simply provide
  * doStart, doStop and sendNotification methods.
  *
- * @version $Revision: 1.4 $ $Date: 2003/11/16 00:46:37 $
+ * @version $Revision: 1.5 $ $Date: 2003/12/07 03:50:29 $
  */
 public abstract class AbstractManagedObject implements ManagedObject, StateManageable, EventProvider, NotificationListener, MBeanRegistration, NotificationEmitter {
     protected final Log log = LogFactory.getLog(getClass());
@@ -283,19 +283,19 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
     /**
      * Sends the specified MBean notification.
      *
-     * Note:  This method can not be call while the current thread holds a syncronized lock on this MBean,
+     * Note:  This method cannot be call while the current thread holds a synchronized lock on this MBean,
      * because this method sends JMX notifications.  Sending a general notification from a synchronized block
      * is a bad idea and therefore not allowed.
      *
      * @param type the notification type to send
      */
     public final void sendNotification(String type) {
-        assert !Thread.holdsLock(this): "This method cannot be called while holding a syncrhonized lock on this";
+        assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
         notificationBroadcaster.sendNotification(new Notification(type, objectName, sequenceNumber++));
     }
 
     public void sendNotification(Notification notification) {
-        assert !Thread.holdsLock(this): "This method cannot be called while holding a syncrhonized lock on this";
+        assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
         notificationBroadcaster.sendNotification(notification);
     }
 
@@ -304,17 +304,17 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
     }
 
     /**
-     * Moves this MBean to the STARTING state and then attempst to move this MBean immedately to the STARTED
+     * Moves this MBean to the STARTING state and then attempts to move this MBean immediately to the STARTED
      * state.
      *
-     * Note:  This method cannot be call while the current thread holds a syncronized lock on this MBean,
+     * Note:  This method cannot be call while the current thread holds a synchronized lock on this MBean,
      * because this method sends JMX notifications.  Sending a general notification from a synchronized block
      * is a bad idea and therefore not allowed.
      *
      * @throws java.lang.Exception  If an exception occurs while starting this MBean
      */
     public final void start() throws Exception {
-        assert !Thread.holdsLock(this): "This method cannot be called while holding a syncrhonized lock on this";
+        assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
 
         // Move to the starting state
         synchronized (this) {
@@ -359,14 +359,14 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
      * Moves this MBean to the STOPPING state, calls stop on all start dependent children, and then attempt
      * to move this MBean to the STOPPED state.
      *
-     * Note:  This method can not be call while the current thread holds a syncronized lock on this MBean,
+     * Note:  This method can not be call while the current thread holds a synchronized lock on this MBean,
      * because this method sends JMX notifications.  Sending a general notification from a synchronized block
      * is a bad idea and therefore not allowed.
      *
      * @throws java.lang.Exception  If an exception occurs while stoping this MBean or any of the childern
      */
     public final void stop() throws Exception {
-        assert !Thread.holdsLock(this): "This method cannot be called while holding a syncrhonized lock on this";
+        assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
 
         // move to the stopping state
         synchronized (this) {
@@ -430,14 +430,14 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
     /**
      * Starts this MBean and then attempts to start all of the start dependent children of this MBean.
      *
-     * Note:  This method can not be call while the current thread holds a syncronized lock on this MBean,
+     * Note:  This method can not be call while the current thread holds a synchronized lock on this MBean,
      * because this method sends JMX notifications.  Sending a general notification from a synchronized block
      * is a bad idea and therefore not allowed.
      *
      * @throws java.lang.Exception  if a problem occurs will starting this MBean or any child MBean
      */
     public final void startRecursive() throws Exception {
-        assert !Thread.holdsLock(this): "This method cannot be called while holding a syncrhonized lock on this";
+        assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
 
         State state = getStateInstance();
         if (state != State.STOPPED && state != State.FAILED) {
@@ -532,7 +532,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
             case State.STOPPING_INDEX:
             case State.FAILED_INDEX:
                 throw new IllegalStateException(
-                        "Can not transition to " + newState + " state from " + state);
+                        "Cannot transition to " + newState + " state from " + state);
             }
             break;
 
@@ -545,7 +545,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
             case State.STOPPED_INDEX:
             case State.STARTING_INDEX:
                 throw new IllegalStateException(
-                        "Can not transition to " + newState + " state from " + state);
+                        "Cannot transition to " + newState + " state from " + state);
             }
             break;
 
@@ -558,7 +558,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
             case State.STARTING_INDEX:
             case State.RUNNING_INDEX:
                 throw new IllegalStateException(
-                        "Can not transition to " + newState + " state from " + state);
+                        "Cannot transition to " + newState + " state from " + state);
 
             }
             break;
@@ -572,7 +572,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
             case State.RUNNING_INDEX:
             case State.STOPPING_INDEX:
                 throw new IllegalStateException(
-                        "Can not transition to " + newState + " state from " + state);
+                        "Cannot transition to " + newState + " state from " + state);
             }
             break;
 
@@ -602,7 +602,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
      * Note: Do not call this from within a synchronized block as it makes may send a JMX notification
      */
     protected void checkState() {
-        assert !Thread.holdsLock(this): "This method cannot be called while holding a syncrhonized lock on this";
+        assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
 
         State newState = null;
         try {

@@ -62,9 +62,9 @@ import javax.management.ObjectName;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 
 /**
- * This class contains the information necessary to setup a class space for a deployment.
+ * This class contains the information necessary to set up a class space for a deployment.
  *
- * @version $Revision: 1.4 $ $Date: 2003/11/10 20:36:32 $
+ * @version $Revision: 1.5 $ $Date: 2003/12/07 03:50:29 $
  */
 public class ClassSpaceMetadata {
     public static final int CREATE_IF_NECESSARY = 0;

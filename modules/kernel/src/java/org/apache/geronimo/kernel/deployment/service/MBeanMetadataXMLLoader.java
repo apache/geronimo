@@ -69,7 +69,7 @@ import org.w3c.dom.NodeList;
 /**
  * Loads MBean metadata from xml.
  *
- * @version $Revision: 1.5 $ $Date: 2003/11/16 00:50:28 $
+ * @version $Revision: 1.6 $ $Date: 2003/12/07 03:50:29 $
  */
 public class MBeanMetadataXMLLoader {
     public MBeanMetadata loadXML(URI baseURI, Element element) throws DeploymentException {
@@ -89,7 +89,7 @@ public class MBeanMetadataXMLLoader {
                 md.setName(new ObjectName(s));
             }
         } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Invalid ObjectName" + s, e);
+            throw new DeploymentException("Invalid ObjectName: " + s, e);
         }
 
         NodeList nl = element.getElementsByTagName("constructor");
