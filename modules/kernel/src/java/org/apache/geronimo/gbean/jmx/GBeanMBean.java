@@ -949,7 +949,9 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                                 setEnabled(enabled.booleanValue());
                                 return null;
                             }
-                        }));
+                        },
+                        true,
+                        Boolean.TRUE));
 
         //
         // Normal attributes

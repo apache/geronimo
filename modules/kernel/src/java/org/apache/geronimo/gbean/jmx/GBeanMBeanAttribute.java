@@ -115,6 +115,10 @@ public class GBeanMBeanAttribute {
 
 
     GBeanMBeanAttribute(GBeanMBean gmbean, String name, Class type, MethodInvoker getInvoker, MethodInvoker setInvoker) {
+        this(gmbean, name, type, getInvoker, setInvoker, false, null);
+    }
+
+    GBeanMBeanAttribute(GBeanMBean gmbean, String name, Class type, MethodInvoker getInvoker, MethodInvoker setInvoker, boolean persistent, Object persistentValue) {
         if (gmbean == null || name == null || type == null) {
             throw new IllegalArgumentException("null param(s) supplied");
         }
@@ -130,7 +134,8 @@ public class GBeanMBeanAttribute {
         this.writable = (setInvoker != null);
         this.setInvoker = setInvoker;
         this.isConstructorArg = false;
-        this.persistent = false;
+        this.persistent = persistent;
+        initializePersistentValue(persistentValue);
         if (!readable && !writable) {
             this.mbeanAttributeInfo = null;
         } else {
@@ -217,26 +222,33 @@ public class GBeanMBeanAttribute {
 
         mbeanAttributeInfo = new MBeanAttributeInfo(attributeInfo.getName(), type.getName(), null, readable, writable, isIs);
 
-        if (persistent && type.isPrimitive()) {
-            if (type == Boolean.TYPE) {
-                persistentValue = Boolean.FALSE;
-            } else if (type == Byte.TYPE) {
-                persistentValue = new Byte((byte) 0);
-            } else if (type == Short.TYPE) {
-                persistentValue = new Short((short) 0);
-            } else if (type == Integer.TYPE) {
-                persistentValue = new Integer(0);
-            } else if (type == Long.TYPE) {
-                persistentValue = new Long(0);
-            } else if (type == Character.TYPE) {
-                persistentValue = new Character((char) 0);
-            } else if (type == Float.TYPE) {
-                persistentValue = new Float(0);
-            } else /** if (type == Double.TYPE) */ {
-                persistentValue = new Double(0);
-            }
-        }
+        initializePersistentValue(null);
         special = false;
+    }
+
+    private void initializePersistentValue(Object value) {
+        if (persistent) {
+            if (value == null && type.isPrimitive()) {
+                if (type == Boolean.TYPE) {
+                    value = Boolean.FALSE;
+                } else if (type == Byte.TYPE) {
+                    value = new Byte((byte) 0);
+                } else if (type == Short.TYPE) {
+                    value = new Short((short) 0);
+                } else if (type == Integer.TYPE) {
+                    value = new Integer(0);
+                } else if (type == Long.TYPE) {
+                    value = new Long(0);
+                } else if (type == Character.TYPE) {
+                    value = new Character((char) 0);
+                } else if (type == Float.TYPE) {
+                    value = new Float(0);
+                } else /** if (type == Double.TYPE) */ {
+                    value = new Double(0);
+                }
+            }
+            persistentValue = value;
+        }
     }
 
     public String getName() {

@@ -50,6 +50,7 @@ public class LocalConfigStoreTest extends TestCase {
     private Kernel kernel;
     private byte[] state;
     private ObjectName gbeanName1;
+    private ObjectName gbeanName2;
     private ObjectName storeName;
 
     public void testInstall() throws Exception {
@@ -85,9 +86,12 @@ public class LocalConfigStoreTest extends TestCase {
         ObjectName configName = configurationManager.load(uri);
         kernel.invoke(configName, "startRecursive", null, null);
 
-        // make sure the config and the gbean are running
+        // make sure the config and the enabled gbean are running
         assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(configName, "state"));
         assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(gbeanName1, "state"));
+
+        // make sure the config and the disabled gbean are NOT running
+        assertEquals(new Integer(State.STOPPED_INDEX), kernel.getAttribute(gbeanName2, "state"));
 
         // set the value
         kernel.setAttribute(gbeanName1, "value", "9900990099");
@@ -121,8 +125,14 @@ public class LocalConfigStoreTest extends TestCase {
             GBeanMBean mockBean1 = new GBeanMBean(MockGBean.getGBeanInfo());
             mockBean1.setAttribute("value", "1234");
 
+            gbeanName2 = new ObjectName("geronimo.test:name=MyMockGMBean2");
+            GBeanMBean mockBean2 = new GBeanMBean(MockGBean.getGBeanInfo());
+            mockBean2.setAttribute("gbeanEnabled", Boolean.FALSE);
+            mockBean2.setAttribute("value", "1234");
+
             Map gbeans = new HashMap();
             gbeans.put(gbeanName1, mockBean1);
+            gbeans.put(gbeanName2, mockBean2);
             state = Configuration.storeGBeans(gbeans);
 
             root = new File(System.getProperty("java.io.tmpdir") + "/config-store");
