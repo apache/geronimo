@@ -26,7 +26,7 @@ import java.util.Iterator;
  * Utility class for <code>WebModuleConfiguration</code>.  This class is used to generate qualified patterns, HTTP
  * method sets, complements of HTTP method sets, and HTTP method sets w/ transport restrictions for URL patterns that
  * are found in the web deployment descriptor.
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:27 $
+ * @version $Revision: 1.4 $ $Date: 2004/05/30 01:25:21 $
  * @see org.apache.geronimo.security.jacc.WebModuleConfiguration
  */
 public class URLPattern {
@@ -70,7 +70,7 @@ public class URLPattern {
      * @param patterns the set of possible URL patterns that could be used to qualify this pattern
      * @return a qualifed URL pattern
      */
-    String getQualifiedPattern(HashSet patterns) {
+    public String getQualifiedPattern(HashSet patterns) {
         if (type == EXACT) {
             return pattern;
         } else {
@@ -101,7 +101,7 @@ public class URLPattern {
      * the set of all HTTP methods.
      * @param method the HTTP method to be added to the set.
      */
-    void addMethod(String method) {
+    public void addMethod(String method) {
         if (method.length() == 0) {
             mask = 0xFF;
             return;
@@ -123,7 +123,7 @@ public class URLPattern {
      * Return the set of HTTP methods that have been associated with this URL pattern.
      * @return a set of HTTP methods
      */
-    String getMethods() {
+    public String getMethods() {
         StringBuffer buffer = null;
 
         for (int i = 0; i < HTTP_MASKS.length; i++) {
@@ -140,7 +140,7 @@ public class URLPattern {
         return (buffer == null ? "" : buffer.toString());
     }
 
-    String getComplementedMethods() {
+    public String getComplementedMethods() {
         StringBuffer buffer = null;
 
         for (int i = 0; i < HTTP_MASKS.length; i++) {
@@ -157,7 +157,7 @@ public class URLPattern {
         return (buffer == null ? "" : buffer.toString());
     }
 
-    String getMethodsWithTransport() {
+    public String getMethodsWithTransport() {
         StringBuffer buffer = new StringBuffer(getMethods());
 
 
@@ -176,7 +176,7 @@ public class URLPattern {
         return buffer.toString();
     }
 
-    void setTransport(String trans) {
+    public void setTransport(String trans) {
         switch (transport) {
             case NA:
                 {
@@ -198,15 +198,15 @@ public class URLPattern {
         }
     }
 
-    void addRole(String role) {
+    public void addRole(String role) {
         roles.add(role);
     }
 
-    void addAllRoles(Collection collection) {
+    public void addAllRoles(Collection collection) {
         roles.addAll(collection);
     }
 
-    HashSet getRoles() {
+    public HashSet getRoles() {
         return roles;
     }
 
