@@ -60,10 +60,14 @@ import java.util.WeakHashMap;
 import java.util.Iterator;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.HashMap;
 
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.SystemException;
+import javax.transaction.Synchronization;
+import javax.transaction.RollbackException;
 import javax.resource.ResourceException;
 
 import org.apache.geronimo.connector.TxUtils;
@@ -80,74 +84,118 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor {
 
     private final ConnectionInterceptor next;
     private final TransactionManager tm;
-    private final WeakHashMap txToMCIListMap = new WeakHashMap();
+    private final Map txToConnectionList = new HashMap();
 
     public TransactionCachingInterceptor(final ConnectionInterceptor next, final TransactionManager tm) {
         this.next = next;
         this.tm = tm;
-    } // TransactionCachingInterceptor constructor
+    }
 
     public void getConnection(ConnectionInfo ci) throws ResourceException {
         try {
             Transaction tx = tm.getTransaction();
             if (TxUtils.isActive(tx)) {
                 ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
-                Collection mcis = null;
-                synchronized (txToMCIListMap) {
-                    mcis = (Collection) txToMCIListMap.get(tx);
+                Collection mcis;
+                synchronized (txToConnectionList) {
+                    mcis = (Collection)txToConnectionList.get(tx);
+                    if (mcis == null) {
+                        mcis = new LinkedList();
+                        txToConnectionList.put(tx, mcis);
+                        tx.registerSynchronization(new Synch(tx, this, mcis));
+                    }
                 }
+
                 /*Access to mcis should not need to be synchronized
                  * unless several requests in the same transaction in
                  * different threads are being processed at the same
                  * time.  This cannot occur with transactions imported
                  * through jca.  I don't know about any other possible
                  * ways this could occur.*/
-                if (mcis != null) {
-                    for (Iterator i = mcis.iterator(); i.hasNext();) {
-                        ManagedConnectionInfo oldmci = (ManagedConnectionInfo) i.next();
-                        if (mci.securityMatches(oldmci)) {
-                            ci.setManagedConnectionInfo(oldmci);
-                            return;
-                        } // end of if ()
-
-                    } // end of for ()
-
-                } // end of if ()
-                else {
-                    mcis = new LinkedList();
-                    synchronized (txToMCIListMap) {
-                        txToMCIListMap.put(tx, mcis);
+                for (Iterator i = mcis.iterator(); i.hasNext();) {
+                    ManagedConnectionInfo oldmci = (ManagedConnectionInfo) i.next();
+                    if (mci.securityMatches(oldmci)) {
+                        ci.setManagedConnectionInfo(oldmci);
+                        return;
                     }
-                } // end of else
-                next.getConnection(ci);
-                //put it in the map
-                synchronized (mcis) {
-                    mcis.add(ci.getManagedConnectionInfo());
+
                 }
 
-            } // end of if ()
-            else {
                 next.getConnection(ci);
-            } // end of else
+                //put it in the map
+                mcis.add(ci.getManagedConnectionInfo());
 
+            } else {
+                next.getConnection(ci);
+            }
         } catch (SystemException e) {
             throw new ResourceException("Could not get transaction from transaction manager", e);
-        } // end of try-catch
-
+        } catch (RollbackException e) {
+            throw new ResourceException("Transaction is rolled back, can't enlist synchronization", e);
+        }
     }
 
     public void returnConnection(ConnectionInfo ci, ConnectionReturnAction cra) {
 
         try {
-            Transaction tx = tm.getTransaction();
-            if (cra == ConnectionReturnAction.DESTROY || !TxUtils.isActive(tx)) {
+            if (cra == ConnectionReturnAction.DESTROY) {
                 next.returnConnection(ci, cra);
             }
-            //if tx is active, we keep it cached and do nothing.
+
+            Transaction tx = tm.getTransaction();
+            if (TxUtils.isActive(tx)) {
+                return;
+            }
+            if (ci.getManagedConnectionInfo().hasConnectionHandles()) {
+                return;
+            }
+            //No transaction, no handles, we return it.
+            next.returnConnection(ci, cra);
         } catch (SystemException e) {
             //throw new ResourceException("Could not get transaction from transaction manager", e);
-        } // end of try-catch
+        }
 
     }
 
-} // TransactionCachingInterceptor
+
+    public void afterCompletion(Transaction tx) {
+        Collection connections = (Collection) txToConnectionList.get(tx);
+        if (connections != null) {
+            for (Iterator iterator = connections.iterator(); iterator.hasNext();) {
+                ManagedConnectionInfo managedConnectionInfo = (ManagedConnectionInfo) iterator.next();
+                ConnectionInfo connectionInfo = new ConnectionInfo();
+                connectionInfo.setManagedConnectionInfo(managedConnectionInfo);
+                returnConnection(connectionInfo, ConnectionReturnAction.RETURN_HANDLE);
+            }
+        }
+
+    }
+
+    private static class Synch implements Synchronization {
+
+        private final Transaction transaction;
+        private final TransactionCachingInterceptor returnStack;
+        private final Collection connections;
+
+        public Synch(Transaction transaction, TransactionCachingInterceptor returnStack, Collection connections) {
+            this.transaction = transaction;
+            this.returnStack = returnStack;
+            this.connections = connections;
+        }
+
+        public void beforeCompletion() {
+        }
+
+        public void afterCompletion(int status) {
+            for (Iterator iterator = connections.iterator(); iterator.hasNext();) {
+                ManagedConnectionInfo managedConnectionInfo = (ManagedConnectionInfo) iterator.next();
+                iterator.remove();
+                if (!managedConnectionInfo.hasConnectionHandles()) {
+                    returnStack.returnConnection(new ConnectionInfo(managedConnectionInfo), ConnectionReturnAction.RETURN_HANDLE);
+                }
+            }
+        }
+
+    }
+
+}
