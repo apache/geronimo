@@ -17,8 +17,8 @@
 
 package org.apache.geronimo.system.main;
 
-import java.io.ObjectInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -26,9 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import javax.management.ObjectName;
 
-import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
-
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -38,9 +37,7 @@ import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.system.url.GeronimoURLFactory;
 
 /**
- *
- *
- * @version $Revision: 1.9 $ $Date: 2004/07/31 15:05:12 $
+ * @version $Revision: 1.10 $ $Date: 2004/09/09 02:27:31 $
  */
 public class Daemon {
     private static Log log;
@@ -52,6 +49,9 @@ public class Daemon {
 
         // Install our url factory
         GeronimoURLFactory.install();
+
+        // Install the lame tools jar hack
+        ToolsJarHack.install();
     }
 
     private Daemon() {
@@ -61,11 +61,12 @@ public class Daemon {
      * Static entry point allowing a Kernel to be run from the command line.
      * Arguments are:
      * <li>the filename of the directory to use for the configuration store.
-     *     This will be created if it does not exist.</li>
+     * This will be created if it does not exist.</li>
      * <li>the id of a configuation to load</li>
      * Once the Kernel is booted and the configuration is loaded, the process
      * will remain running until the shutdown() method on the kernel is
      * invoked or until the JVM exits.
+     *
      * @param args the command line arguments
      */
     public static void main(String[] args) {
