@@ -83,7 +83,7 @@ import org.apache.geronimo.Main;
 /**
  * A <em>Twiddle</em> command to start a Apache Geronimo server instance.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/24 11:23:14 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/24 19:49:09 $
  */
 public class StartCommand
     extends AbstractCommand
@@ -131,13 +131,13 @@ public class StartCommand
             return Command.SUCCESS;
         }
         
-        URL mletURL = Strings.toURL("etc/boot.mlet");
+        URL mletURL = Strings.toURL(System.getProperty("twiddle.home") + "/etc/boot.mlet");
         if (line.hasOption('m')) {
             String value = line.getOptionValue('m');
             mletURL = Strings.toURL(value);
         }
         
-        URL deployURL = Strings.toURL("etc/boot-service.xml");
+        URL deployURL = Strings.toURL(System.getProperty("twiddle.home") + "/etc/boot-service.xml");
         if (line.hasOption('d')) {
             String value = line.getOptionValue('d');
             deployURL = Strings.toURL(value);
