@@ -63,6 +63,8 @@ import java.net.URL;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 
 import org.apache.geronimo.kernel.deployment.DeploymentException;
 import org.apache.geronimo.kernel.deployment.service.XMLUtil;
@@ -74,7 +76,7 @@ import org.w3c.dom.NodeList;
 /**
  * Loads the GeronimoMBeanInfo from xml.
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/24 22:37:00 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/06 19:54:39 $
  */
 public class GeronimoMBeanInfoXMLLoader {
     private static final DocumentBuilder parser;
@@ -126,6 +128,7 @@ public class GeronimoMBeanInfoXMLLoader {
         loadAttributes(mbeanElement, mbeanInfo);
         loadOperations(mbeanElement, mbeanInfo);
         loadNotifications(mbeanElement, mbeanInfo);
+        loadEndpoints(mbeanElement, mbeanInfo);
 
         return mbeanInfo;
     }
@@ -296,5 +299,58 @@ public class GeronimoMBeanInfoXMLLoader {
         }
 
         return notificationInfo;
+    }
+
+    public static void loadEndpoints(Element mbeanElement, GeronimoMBeanInfo mbeanInfo) {
+        NodeList nl = mbeanElement.getElementsByTagName("endpoint");
+        for (int i = 0; i < nl.getLength(); i++) {
+            Element notificationElement = (Element) nl.item(i);
+            mbeanInfo.addEndpoint(loadEndpoint(notificationElement));
+        }
+    }
+
+    public static GeronimoMBeanEndpoint loadEndpoint(Element endpointElement) {
+        GeronimoMBeanEndpoint endpoint = new GeronimoMBeanEndpoint();
+
+        endpoint.setName(endpointElement.getAttribute("name"));
+        endpoint.setName(endpointElement.getAttribute("type"));
+        endpoint.setDescription(endpointElement.getAttribute("description"));
+
+        String targetName = endpointElement.getAttribute("targetName");
+        if (targetName == null || targetName.length() == 0) {
+            targetName = "default";
+        }
+        endpoint.setTargetName(targetName);
+
+        String requriedString = endpointElement.getAttribute("required");
+        if (requriedString == null || requriedString.length() == 0) {
+            endpoint.setRequired(false);
+        } else {
+            if (requriedString.equalsIgnoreCase("true") || requriedString.equals("1")) {
+                endpoint.setRequired(true);
+            } else {
+                endpoint.setRequired(false);
+            }
+        }
+
+        String setterName = endpointElement.getAttribute("setterName");
+        if (setterName != null && setterName.length() > 0) {
+            endpoint.setSetterName(setterName);
+        }
+
+
+        NodeList nl = endpointElement.getElementsByTagName("peer");
+        for (int i = 0; i < nl.getLength(); i++) {
+            final Element peerElement = (Element) nl.item(i);
+            final String patternString = peerElement.getAttribute("pattern");
+            try {
+                ObjectName pattern = new ObjectName(patternString);
+                endpoint.addPeer(pattern);
+            } catch (MalformedObjectNameException e) {
+                throw new IllegalArgumentException("Invalid object name pattern: pattern" + patternString);
+            }
+        }
+
+        return endpoint;
     }
 }
