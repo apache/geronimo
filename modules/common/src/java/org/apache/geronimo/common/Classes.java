@@ -74,7 +74,7 @@ import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 /**
  * A collection of <code>Class</code> utilities.
  *
- * @version $Revision: 1.5 $ $Date: 2003/09/05 04:48:44 $
+ * @version $Revision: 1.6 $ $Date: 2003/09/05 05:49:26 $
  */
 public class Classes extends ClassUtils {
     private static final Class[] stringArg = new Class[]{String.class};
@@ -410,6 +410,9 @@ public class Classes extends ClassUtils {
     }
 
     public static Object getValue(Class type, String value, URI baseURI) {
+        StringValueParser parser = new StringValueParser();
+        value = parser.parse(value);
+
         if (URI.class.equals(type)) {
             return baseURI.resolve(value);
         }
@@ -428,6 +431,9 @@ public class Classes extends ClassUtils {
     }
 
     public static Object getValue(Class type, String value) {
+        StringValueParser parser = new StringValueParser();
+        value = parser.parse(value);
+
         // try a property editor
         PropertyEditor editor = PropertyEditors.findEditor(type);
         if (editor != null) {
