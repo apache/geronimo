@@ -191,8 +191,10 @@ public class Deployer {
                     deployedURIs.add(uri.toString());
                     deployedURIs.addAll(childURIs);
                     return deployedURIs;
+                } else {
+                    DeploymentUtil.recursiveDelete(configurationDir);
+                    return Collections.EMPTY_LIST;
                 }
-                return Collections.EMPTY_LIST;
             } catch (InvalidConfigException e) {
                 // unlikely as we just built this
                 throw new DeploymentException(e);
