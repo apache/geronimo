@@ -63,6 +63,8 @@
 package javax.activation;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -71,45 +73,69 @@ import java.io.OutputStream;
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/16 18:07:45 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/29 12:50:29 $
  */
 public class FileDataSource implements DataSource {
-    private File file;
 
+    private File file;
+    private FileTypeMap fileTypeMap;
+
+    /**
+     * Creates a FileDataSource from a File object
+     */
     public FileDataSource(File file) {
         this.file = file;
     }
 
+    /**
+     * Creates a FileDataSource from the specified path name
+     */
     public FileDataSource(String name) {
         this(new File(name));
     }
 
+    /**
+     * Return the InputStream obtained from the data source
+     */
     public InputStream getInputStream() throws IOException {
-        /*@todo implement*/
-        return null;
+        return new FileInputStream(file);
     }
 
+    /**
+     * Return the OutputStream obtained from the data source
+     */
     public OutputStream getOutputStream() throws IOException {
-        /*@todo implement*/
-        return null;
+        return new FileOutputStream(file);
     }
 
+    /**
+     * Returns the content type of the data source
+     */
     public String getContentType() {
-        /*@todo implement*/
-        return null;
+        if (fileTypeMap == null)
+            return FileTypeMap.getDefaultFileTypeMap().getContentType(file);
+
+        return fileTypeMap.getContentType(file);
     }
 
+    /**
+     * Returns the name of the data source object
+     */
     public String getName() {
-        /*@todo implement*/
-        return null;
+        return file.getName();
     }
 
+    /**
+     * Returns the data source file
+     */
     public File getFile() {
-        /*@todo implement*/
-        return null;
+        return file;
     }
 
+    /**
+     * Sets the FileTypeMap associated with the data source
+     */
     public void setFileTypeMap(FileTypeMap map) {
-        /*@todo implement*/
+        fileTypeMap = map;
     }
 }

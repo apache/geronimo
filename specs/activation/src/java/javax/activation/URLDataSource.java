@@ -66,40 +66,72 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.net.URLConnection;
 
 /**
  *
- *
- *
- * @version $Revision: 1.1 $ $Date: 2003/08/16 18:07:45 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/29 12:50:29 $
  */
 public class URLDataSource implements DataSource {
+
+    private URL url;
+    private final static String DEFAULT_CONTENT_TYPE = "application/octet-stream";
+
+    /**
+     * Creates a URLDataSource from a URL object
+     */
     public URLDataSource(URL url) {
-        /*@todo implement*/
+        this.url = url;
     }
 
+    /**
+     * Returns the value of the URL content-type header field
+     * 
+     */
     public String getContentType() {
-        /*@todo implement*/
-        return null;
+        URLConnection connection = null;
+        try {
+            connection = url.openConnection();
+        } catch (IOException e) {
+        }
+        if (connection == null)
+            return DEFAULT_CONTENT_TYPE;
+
+        return connection.getContentType();
+
     }
 
+    /**
+     * Returns the file name of the URL object
+     */
     public String getName() {
-        /*@todo implement*/
-        return null;
+        return url.getFile();
     }
 
+    /**
+     * Returns an InputStream obtained from the data source
+     */
     public InputStream getInputStream() throws IOException {
-        /*@todo implement*/
-        return null;
+        return url.openStream();
     }
 
+    /**
+     * Returns an OutputStream obtained from the data source
+     */
     public OutputStream getOutputStream() throws IOException {
-        /*@todo implement*/
-        return null;
+
+        URLConnection connection = url.openConnection();
+        if (connection == null)
+            return null;
+
+        connection.setDoOutput(true); //is it necessary?
+        return connection.getOutputStream();
     }
 
+    /**
+     * Returns the URL of the data source
+     */
     public URL getURL() {
-        /*@todo implement*/
-        return null;
+        return url;
     }
 }

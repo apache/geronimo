@@ -65,26 +65,34 @@ package javax.activation;
 import java.io.File;
 
 /**
+ * FileTypeMap is an abstract class that provides a data type interface for files.
  *
- *
- *
- * @version $Revision: 1.1 $ $Date: 2003/08/16 18:07:45 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/29 12:50:29 $
  */
 public abstract class FileTypeMap {
+	
+	private static FileTypeMap defaultFileTypeMap;
+
     public FileTypeMap() {
-        /*@todo implement*/
     }
 
     public abstract String getContentType(File file);
 
     public abstract String getContentType(String filename);
 
+	/**
+	 * Sets the default FileTypeMap for the system
+	 */
     public static void setDefaultFileTypeMap(FileTypeMap map) {
-        /*@todo implement*/
+        defaultFileTypeMap = map;
     }
 
+	/**
+	 * Returns the default FileTypeMap
+	 */
     public static FileTypeMap getDefaultFileTypeMap() {
-        /*@todo implement*/
-        return null;
+        if (defaultFileTypeMap==null)
+        	return new MimetypesFileTypeMap();
+        return defaultFileTypeMap;
     }
 }
