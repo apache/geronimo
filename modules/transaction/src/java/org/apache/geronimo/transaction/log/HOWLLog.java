@@ -52,7 +52,7 @@ import org.objectweb.howl.log.Configuration;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/19 17:17:13 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/20 07:39:02 $
  *
  * */
 public class HOWLLog implements TransactionLog, GBeanLifecycle {
@@ -71,7 +71,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
             String bufferClassName,
             int bufferSize,
             boolean checksumEnabled,
-            int flushSleepTime,
+            int flushSleepTimeMilliseconds,
             String logFileDir,
             String logFileExt,
             String logFileName,
@@ -84,7 +84,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
         setBufferClassName(bufferClassName);
         setBufferSizeKBytes(bufferSize);
         setChecksumEnabled(checksumEnabled);
-        setFlushSleepTime(flushSleepTime);
+        setFlushSleepTimeMilliseconds(flushSleepTimeMilliseconds);
         setLogFileDir(logFileDir);
         setLogFileExt(logFileExt);
         setLogFileName(logFileName);
@@ -160,11 +160,11 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
          configuration.setMinBuffers(minBuffers);
      }
 
-     public int getFlushSleepTime() {
+     public int getFlushSleepTimeMilliseconds() {
          return configuration.getFlushSleepTime();
      }
 
-     public void setFlushSleepTime(int flushSleepTime) {
+     public void setFlushSleepTimeMilliseconds(int flushSleepTime) {
          configuration.setFlushSleepTime(flushSleepTime);
      }
 
@@ -173,7 +173,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
      }
 
      public void setThreadsWaitingForceThreshold(int threadsWaitingForceThreshold) {
-         configuration.setThreadsWaitingForceThreshold(threadsWaitingForceThreshold);
+         configuration.setThreadsWaitingForceThreshold(threadsWaitingForceThreshold == -1? Integer.MAX_VALUE: threadsWaitingForceThreshold);
      }
 
      public int getMaxBlocksPerFile() {
@@ -181,7 +181,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
      }
 
      public void setMaxBlocksPerFile(int maxBlocksPerFile) {
-         configuration.setMaxBlocksPerFile(maxBlocksPerFile);
+         configuration.setMaxBlocksPerFile(maxBlocksPerFile == -1? Integer.MAX_VALUE: maxBlocksPerFile);
      }
 
      public int getMaxLogFiles() {
@@ -395,7 +395,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
         infoFactory.addAttribute("bufferClassName", String.class, true);
         infoFactory.addAttribute("bufferSizeKBytes", Integer.TYPE, true);
         infoFactory.addAttribute("checksumEnabled", Boolean.TYPE, true);
-        infoFactory.addAttribute("flushSleepTime", Integer.TYPE, true);
+        infoFactory.addAttribute("flushSleepTimeMilliseconds", Integer.TYPE, true);
         infoFactory.addAttribute("logFileDir", String.class, true);
         infoFactory.addAttribute("logFileExt", String.class, true);
         infoFactory.addAttribute("logFileName", String.class, true);
@@ -405,11 +405,13 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
         infoFactory.addAttribute("minBuffers", Integer.TYPE, true);
         infoFactory.addAttribute("threadsWaitingForceThreshold", Integer.TYPE, true);
 
+        infoFactory.addInterface(TransactionLog.class);
+
         infoFactory.setConstructor(new String[] {
             "bufferClassName",
             "bufferSizeKBytes",
             "checksumEnabled",
-            "flushSleepTime",
+            "flushSleepTimeMilliseconds",
             "logFileDir",
             "logFileExt",
             "logFileName",
