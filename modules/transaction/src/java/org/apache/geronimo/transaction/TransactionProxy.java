@@ -69,7 +69,7 @@ import javax.transaction.xa.XAResource;
  * the vendor's TransactionManager.
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 18:54:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/23 20:28:43 $
  */
 public class TransactionProxy implements Transaction {
     private final Transaction delegate;
@@ -104,5 +104,9 @@ public class TransactionProxy implements Transaction {
 
     public void setRollbackOnly() throws IllegalStateException, SystemException {
         delegate.setRollbackOnly();
+    }
+
+    Transaction getDelegate() {
+        return delegate;
     }
 }

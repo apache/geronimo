@@ -55,6 +55,11 @@
  */
 package org.apache.geronimo.transaction;
 
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
+
 import javax.resource.spi.XATerminator;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
@@ -74,6 +79,7 @@ import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.transaction.manager.XidImporter;
 
 /**
  * A wrapper for a TransactionManager that wraps all Transactions in a TransactionProxy
@@ -81,21 +87,25 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
  * are delegated to the wrapped TransactionManager; all other operations are delegated to the
  * wrapped Transaction.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/30 01:32:00 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/23 20:28:43 $
  */
-public class TransactionManagerProxy implements TransactionManager, XATerminator {
+public class TransactionManagerProxy implements TransactionManager, XATerminator, XAWork {
 
     public static final GBeanInfo GBEAN_INFO;
 
     private final TransactionManager delegate;
+    private final XidImporter importer;
     private final ThreadLocal threadTx = new ThreadLocal();
+    private final Map importedTransactions = new HashMap();
+    private Set activeTransactions = new HashSet();
 
     /**
      * Constructor taking the TransactionManager to wrap.
      * @param delegate the TransactionManager that should be wrapped
      */
-    public TransactionManagerProxy(TransactionManager delegate) {
+    public TransactionManagerProxy(TransactionManager delegate, XidImporter importer) {
         this.delegate = delegate;
+        this.importer = importer;
     }
 
     /**
@@ -103,6 +113,7 @@ public class TransactionManagerProxy implements TransactionManager, XATerminator
      */
     public TransactionManagerProxy() {
         this.delegate = new TransactionManagerImpl();
+        this.importer = null;
     }
 
     public void setTransactionTimeout(int timeout) throws SystemException {
@@ -174,22 +185,55 @@ public class TransactionManagerProxy implements TransactionManager, XATerminator
     /**
      * @see javax.resource.spi.XATerminator#commit(javax.transaction.xa.Xid, boolean)
      */
-    public void commit(Xid arg0, boolean arg1) throws XAException {
-        throw new XAException("Not implemented.");
+    public void commit(Xid xid, boolean onePhase) throws XAException {
+        TransactionProxy tx = (TransactionProxy) importedTransactions.remove(xid);
+        if (tx == null) {
+            throw new XAException("No imported transaction for xid: " + xid);
+        }
+
+        try {
+            int status = tx.getStatus();
+            assert status == Status.STATUS_ACTIVE || status == Status.STATUS_PREPARED;
+        } catch (SystemException e) {
+            throw new XAException();
+        }
+        importer.commit(tx.getDelegate(), onePhase);
     }
 
     /**
      * @see javax.resource.spi.XATerminator#forget(javax.transaction.xa.Xid)
      */
-    public void forget(Xid arg0) throws XAException {
-        throw new XAException("Not implemented.");
+    public void forget(Xid xid) throws XAException {
+        TransactionProxy tx = (TransactionProxy) importedTransactions.remove(xid);
+        if (tx == null) {
+            throw new XAException("No imported transaction for xid: " + xid);
+        }
+
+        try {
+            int status = tx.getStatus();
+            //assert status == Status.STATUS_ACTIVE || status == Status.STATUS_PREPARED;
+        } catch (SystemException e) {
+            throw new XAException();
+        }
+        importer.forget(tx.getDelegate());
     }
 
     /**
      * @see javax.resource.spi.XATerminator#prepare(javax.transaction.xa.Xid)
      */
-    public int prepare(Xid arg0) throws XAException {
-        throw new XAException("Not implemented.");
+    public int prepare(Xid xid) throws XAException {
+        TransactionProxy tx = (TransactionProxy) importedTransactions.get(xid);
+        if (tx == null) {
+            throw new XAException("No imported transaction for xid: " + xid);
+        }
+
+        try {
+            int status = tx.getStatus();
+            assert status == Status.STATUS_ACTIVE;
+        } catch (SystemException e) {
+            throw new XAException();
+        }
+        return importer.prepare(tx.getDelegate());
     }
 
     /**
@@ -202,8 +246,47 @@ public class TransactionManagerProxy implements TransactionManager, XATerminator
     /**
      * @see javax.resource.spi.XATerminator#rollback(javax.transaction.xa.Xid)
      */
-    public void rollback(Xid arg0) throws XAException {
-        throw new XAException("Not implemented.");
+    public void rollback(Xid xid) throws XAException {
+        TransactionProxy tx = (TransactionProxy) importedTransactions.remove(xid);
+        if (tx == null) {
+            throw new XAException("No imported transaction for xid: " + xid);
+        }
+
+        try {
+            int status = tx.getStatus();
+            assert status == Status.STATUS_ACTIVE || status == Status.STATUS_PREPARED;
+        } catch (SystemException e) {
+            throw new XAException();
+        }
+        importer.rollback(tx.getDelegate());
+    }
+
+    public void begin(Xid xid, long txTimeoutMillis) throws XAException {
+        TransactionProxy tx = (TransactionProxy) importedTransactions.get(xid);
+        if (tx == null) {
+            try {
+                tx = new TransactionProxy(importer.importXid(xid));
+            } catch (SystemException e) {
+                throw (XAException)new XAException("Could not import xid").initCause(e);
+            }
+            importedTransactions.put(xid, tx);
+        }
+        if (activeTransactions.contains(tx)) {
+            throw new XAException("Xid already active");
+        }
+        activeTransactions.add(tx);
+        threadTx.set(tx);
+        importer.setTransactionTimeout(txTimeoutMillis);
+    }
+
+    public void end(Xid xid) throws XAException {
+        TransactionProxy tx = (TransactionProxy) importedTransactions.get(xid);
+        if (tx == null) {
+            throw new XAException("No imported transaction for xid: " + xid);
+        }
+        if (!activeTransactions.remove(tx)) {
+            throw new XAException("tx not active for xid: " + xid);
+        }
     }
 
     //for now we use the default constructor.
@@ -211,17 +294,17 @@ public class TransactionManagerProxy implements TransactionManager, XATerminator
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(TransactionManagerProxy.class.getName());
 
         infoFactory.setConstructor(new GConstructorInfo(
-                new String[] { "Delegate" },
-                new Class[] { TransactionManager.class }));
+                new String[]{"Delegate"},
+                new Class[]{TransactionManager.class}));
 
         infoFactory.addAttribute(new GAttributeInfo("Delegate", true));
 
-        infoFactory.addOperation(new GOperationInfo("setTransactionTimeout", new String[] {Integer.TYPE.getName()}));
+        infoFactory.addOperation(new GOperationInfo("setTransactionTimeout", new String[]{Integer.TYPE.getName()}));
         infoFactory.addOperation(new GOperationInfo("begin"));
         infoFactory.addOperation(new GOperationInfo("getStatus"));
         infoFactory.addOperation(new GOperationInfo("getTransaction"));
         infoFactory.addOperation(new GOperationInfo("suspend"));
-        infoFactory.addOperation(new GOperationInfo("resume", new String[] {Transaction.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("resume", new String[]{Transaction.class.getName()}));
         infoFactory.addOperation(new GOperationInfo("commit"));
         infoFactory.addOperation(new GOperationInfo("rollback"));
         infoFactory.addOperation(new GOperationInfo("setRollbackOnly"));

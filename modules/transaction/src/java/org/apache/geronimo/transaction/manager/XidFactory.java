@@ -66,8 +66,8 @@ import javax.transaction.xa.Xid;
  * <li>4 byte system id</li>
  * <li>4 or 16 byte IP address of host</li>
  * <ol>
- * @version $Revision: 1.1 $ $Date: 2004/01/23 18:54:16 $
- * @todo Should have a way of setting baseId
+ * @version $Revision: 1.2 $ $Date: 2004/02/23 20:28:43 $
+ * todo Should have a way of setting baseId
  */
 public class XidFactory {
     byte[] baseId = new byte[Xid.MAXGTRIDSIZE];
@@ -106,6 +106,11 @@ public class XidFactory {
     }
 
     public Xid createBranch(Xid globalId, int branch) {
-        return new XidImpl(globalId, branch);
+        byte[] branchId = (byte[]) baseId.clone();
+        branchId[0] = (byte) branch;
+        branchId[1] = (byte) (branch >>> 8);
+        branchId[2] = (byte) (branch >>> 16);
+        branchId[3] = (byte) (branch >>> 24);
+        return new XidImpl(globalId, branchId);
     }
 }

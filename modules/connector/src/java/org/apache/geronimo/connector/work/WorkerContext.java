@@ -67,13 +67,14 @@ import javax.resource.spi.work.WorkRejectedException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.transaction.XAWork;
 
 import EDU.oswego.cs.dl.util.concurrent.Latch;
 
 /**
  * Work wrapper providing an execution context to a Work instance.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 05:56:11 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/23 20:28:42 $
  */
 public class WorkerContext implements Work {
 
@@ -118,7 +119,9 @@ public class WorkerContext implements Work {
     /**
      * Execution context of the actual work to be executed.
      */
-    private ExecutionContext executionContext;
+    private final ExecutionContext executionContext;
+
+    private final XAWork xaWork;
 
     /**
      * Listener to be notified during the life-cycle of the work treatment.
@@ -147,6 +150,8 @@ public class WorkerContext implements Work {
      */
     public WorkerContext(Work aWork) {
         adaptee = aWork;
+        executionContext = null;
+        xaWork = null;
     }
 
     /**
@@ -162,11 +167,13 @@ public class WorkerContext implements Work {
      * work completed) occur.
      */
     public WorkerContext(Work aWork, long aStartTimeout,
-            ExecutionContext execContext,
-            WorkListener workListener) {
+                         ExecutionContext execContext,
+                         XAWork xaWork,
+                         WorkListener workListener) {
         adaptee = aWork;
         startTimeOut = aStartTimeout;
         executionContext = execContext;
+        this.xaWork = xaWork;
         if (null != workListener) {
             this.workListener = workListener;
         }
@@ -303,7 +310,17 @@ public class WorkerContext implements Work {
                 new WorkEvent(this, WorkEvent.WORK_STARTED, adaptee, null));
         startLatch.release();
         try {
-            adaptee.run();
+            if (executionContext == null || executionContext.getXid() == null) {
+                adaptee.run();
+            } else {
+                try {
+                    xaWork.begin(executionContext.getXid(), executionContext.getTransactionTimeout());
+                    adaptee.run();
+                } finally {
+                    xaWork.end(executionContext.getXid());
+                }
+
+            }
             workListener.workCompleted(
                     new WorkEvent(this, WorkEvent.WORK_COMPLETED, adaptee, null));
         } catch (Throwable e) {

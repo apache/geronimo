@@ -62,7 +62,7 @@ import javax.transaction.xa.Xid;
 /**
  * Unique id for a transaction.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 18:54:16 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/23 20:28:43 $
  */
 public class XidImpl implements Xid, Serializable {
     private static int FORMAT_ID = 0x4765526f;  // Gero
@@ -76,7 +76,7 @@ public class XidImpl implements Xid, Serializable {
      */
     public XidImpl(byte[] globalId) {
         this.globalId = globalId;
-        this.hash = hash(globalId);
+        this.hash = hash(0, globalId);
         branchId = new byte[Xid.MAXBQUALSIZE];
     }
 
@@ -85,28 +85,20 @@ public class XidImpl implements Xid, Serializable {
      * @param global the xid of the global transaction this branch belongs to
      * @param branch the branch id
      */
-    public XidImpl(Xid global, int branch) {
+    public XidImpl(Xid global, byte[] branch) {
         int hash;
         if (global instanceof XidImpl) {
             globalId = ((XidImpl) global).globalId;
             hash = ((XidImpl) global).hash;
         } else {
             globalId = global.getGlobalTransactionId();
-            hash = hash(globalId);
+            hash = hash(0, globalId);
         }
-        branchId = new byte[Xid.MAXBQUALSIZE];
-        branchId[0] = (byte) branch;
-        branchId[1] = (byte) (branch >>> 8);
-        branchId[2] = (byte) (branch >>> 16);
-        branchId[3] = (byte) (branch >>> 24);
-        for (int i = 0; i < 4; i++) {
-            hash = (hash * 37) + branchId[i];
-        }
-        this.hash = hash;
+        branchId = branch;
+        this.hash = hash(hash, branchId);
     }
 
-    private int hash(byte[] id) {
-        int hash = 0;
+    private int hash(int hash, byte[] id) {
         for (int i = 0; i < id.length; i++) {
             hash = (hash * 37) + id[i];
         }

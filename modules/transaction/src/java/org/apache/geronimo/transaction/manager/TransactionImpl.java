@@ -63,6 +63,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.RollbackException;
@@ -80,7 +81,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Basic local transaction with support for multiple resources.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 18:54:16 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/23 20:28:43 $
  */
 public class TransactionImpl implements Transaction {
     private static final Log log = LogFactory.getLog("Transaction");
@@ -94,9 +95,13 @@ public class TransactionImpl implements Transaction {
     private Map xaResources = new HashMap(3);
 
     TransactionImpl(XidFactory xidFactory, TransactionLog txnLog) throws SystemException {
+        this(xidFactory.createXid(), xidFactory, txnLog);
+    }
+
+    TransactionImpl(Xid xid, XidFactory xidFactory, TransactionLog txnLog) throws SystemException {
         this.xidFactory = xidFactory;
         this.txnLog = txnLog;
-        this.xid = xidFactory.createXid();
+        this.xid = xid;
         try {
             txnLog.begin(xid);
         } catch (IOException e) {
@@ -114,16 +119,16 @@ public class TransactionImpl implements Transaction {
 
     public synchronized void setRollbackOnly() throws IllegalStateException, SystemException {
         switch (status) {
-        case Status.STATUS_ACTIVE:
-        case Status.STATUS_PREPARING:
-            status = Status.STATUS_MARKED_ROLLBACK;
-            break;
-        case Status.STATUS_MARKED_ROLLBACK:
-        case Status.STATUS_ROLLING_BACK:
-            // nothing to do
-            break;
-        default:
-            throw new IllegalStateException("Cannot set rollback only, status is " + getStateString(status));
+            case Status.STATUS_ACTIVE:
+            case Status.STATUS_PREPARING:
+                status = Status.STATUS_MARKED_ROLLBACK;
+                break;
+            case Status.STATUS_MARKED_ROLLBACK:
+            case Status.STATUS_ROLLING_BACK:
+                // nothing to do
+                break;
+            default:
+                throw new IllegalStateException("Cannot set rollback only, status is " + getStateString(status));
         }
     }
 
@@ -132,13 +137,13 @@ public class TransactionImpl implements Transaction {
             throw new IllegalArgumentException("Synchronization is null");
         }
         switch (status) {
-        case Status.STATUS_ACTIVE:
-        case Status.STATUS_PREPARING:
-            break;
-        case Status.STATUS_MARKED_ROLLBACK:
-            throw new RollbackException("Transaction is marked for rollback");
-        default:
-            throw new IllegalStateException("Status is " + getStateString(status));
+            case Status.STATUS_ACTIVE:
+            case Status.STATUS_PREPARING:
+                break;
+            case Status.STATUS_MARKED_ROLLBACK:
+                throw new RollbackException("Transaction is marked for rollback");
+            default:
+                throw new IllegalStateException("Status is " + getStateString(status));
         }
         syncList.add(synch);
     }
@@ -148,12 +153,12 @@ public class TransactionImpl implements Transaction {
             throw new IllegalArgumentException("XAResource is null");
         }
         switch (status) {
-        case Status.STATUS_ACTIVE:
-            break;
-        case Status.STATUS_MARKED_ROLLBACK:
-            throw new RollbackException("Transaction is marked for rollback");
-        default:
-            throw new IllegalStateException("Status is " + getStateString(status));
+            case Status.STATUS_ACTIVE:
+                break;
+            case Status.STATUS_MARKED_ROLLBACK:
+                throw new RollbackException("Transaction is marked for rollback");
+            default:
+                throw new IllegalStateException("Status is " + getStateString(status));
         }
 
         try {
@@ -196,11 +201,11 @@ public class TransactionImpl implements Transaction {
             throw new IllegalArgumentException("XAResource is null");
         }
         switch (status) {
-        case Status.STATUS_ACTIVE:
-        case Status.STATUS_MARKED_ROLLBACK:
-            break;
-        default:
-            throw new IllegalStateException("Status is " + getStateString(status));
+            case Status.STATUS_ACTIVE:
+            case Status.STATUS_MARKED_ROLLBACK:
+                break;
+            default:
+                throw new IllegalStateException("Status is " + getStateString(status));
         }
         ResourceManager manager = (ResourceManager) xaResources.remove(xaRes);
         if (manager == null) {
@@ -215,27 +220,21 @@ public class TransactionImpl implements Transaction {
         }
     }
 
+    //Transaction method, does 2pc
     public void commit() throws HeuristicMixedException, HeuristicRollbackException, RollbackException, SecurityException, SystemException {
-        synchronized (this) {
-            switch (status) {
-            case Status.STATUS_ACTIVE:
-            case Status.STATUS_MARKED_ROLLBACK:
-                break;
-            default:
-                throw new IllegalStateException("Status is " + getStateString(status));
-            }
-        }
+        beforePrepare();
 
-        beforeCompletion();
-        endResources();
         try {
-            LinkedList rms;
+            if (status == Status.STATUS_MARKED_ROLLBACK) {
+                rollbackResources(resourceManagers);
+                throw new RollbackException("Unable to commit");
+            }
             synchronized (this) {
                 if (status == Status.STATUS_ACTIVE) {
-                    if (resourceManagers.size() == 0) {
+                    if (this.resourceManagers.size() == 0) {
                         // nothing to commit
                         status = Status.STATUS_COMMITTED;
-                    } else if (resourceManagers.size() == 1) {
+                    } else if (this.resourceManagers.size() == 1) {
                         // one-phase commit decision
                         status = Status.STATUS_COMMITTING;
                     } else {
@@ -244,12 +243,11 @@ public class TransactionImpl implements Transaction {
                     }
                 }
                 // resourceManagers is now immutable
-                rms = resourceManagers;
             }
 
             // one-phase
-            if (rms.size() == 1) {
-                ResourceManager manager = (ResourceManager) rms.getFirst();
+            if (resourceManagers.size() == 1) {
+                ResourceManager manager = (ResourceManager) resourceManagers.getFirst();
                 try {
                     manager.committer.commit(manager.branchId, true);
                     synchronized (this) {
@@ -267,71 +265,13 @@ public class TransactionImpl implements Transaction {
             }
 
             // two-phase
-            try {
-                txnLog.prepare(xid);
-            } catch (IOException e) {
-                try {
-                    rollbackResources(rms);
-                } catch (Exception se) {
-                    log.error("Unable to rollback after failure to log prepare", se.getCause());
-                }
-                SystemException ex = new SystemException("Error logging prepare; transaction was rolled back)");
-                ex.initCause(e);
-                throw ex;
-            }
-            for (Iterator i = rms.iterator(); i.hasNext();) {
-                synchronized (this) {
-                    if (status != Status.STATUS_PREPARING) {
-                        // we were marked for rollback
-                        break;
-                    }
-                }
-                ResourceManager manager = (ResourceManager) i.next();
-                try {
-                    int vote = manager.committer.prepare(manager.branchId);
-                    if (vote == XAResource.XA_RDONLY) {
-                        // we don't need to consider this RM any more
-                        i.remove();
-                    }
-                } catch (XAException e) {
-                    synchronized (this) {
-                        status = Status.STATUS_MARKED_ROLLBACK;
-                    }
-                }
-            }
-
-            // decision time...
-            boolean willCommit;
-            synchronized (this) {
-                willCommit = (status != Status.STATUS_MARKED_ROLLBACK);
-                if (willCommit) {
-                    status = Status.STATUS_PREPARED;
-                }
-            }
-
-            // log our decision
-            try {
-                if (willCommit) {
-                    txnLog.commit(xid);
-                } else {
-                    txnLog.rollback(xid);
-                }
-            } catch (IOException e) {
-                try {
-                    rollbackResources(rms);
-                } catch (Exception se) {
-                    log.error("Unable to rollback after failure to log decision", se.getCause());
-                }
-                SystemException ex = new SystemException("Error logging decision (outcome is unknown)");
-                ex.initCause(e);
-                throw ex;
-            }
+            boolean willCommit = internalPrepare();
 
             // notify the RMs
             if (willCommit) {
-                commitResources(rms);
+                commitResources(resourceManagers);
             } else {
-                rollbackResources(rms);
+                rollbackResources(resourceManagers);
                 throw new RollbackException("Unable to commit");
             }
         } finally {
@@ -342,17 +282,150 @@ public class TransactionImpl implements Transaction {
         }
     }
 
+    //Used from XATerminator for first phase in a remotely controlled tx.
+    int prepare() throws SystemException, RollbackException {
+        beforePrepare();
+        int result = XAResource.XA_RDONLY;
+        try {
+            LinkedList rms;
+            synchronized (this) {
+                if (status == Status.STATUS_ACTIVE) {
+                    if (resourceManagers.size() == 0) {
+                        // nothing to commit
+                        status = Status.STATUS_COMMITTED;
+                        return result;
+                    } else {
+                        // start prepare part of two-phase
+                        status = Status.STATUS_PREPARING;
+                    }
+                }
+                // resourceManagers is now immutable
+                rms = resourceManagers;
+            }
+
+            boolean willCommit = internalPrepare();
+
+            // notify the RMs
+            if (willCommit) {
+                if (!rms.isEmpty()) {
+                    result = XAResource.XA_OK;
+                }
+
+            } else {
+                rollbackResources(rms);
+                throw new RollbackException("Unable to commit");
+            }
+        } finally {
+            if (result == XAResource.XA_RDONLY) {
+                afterCompletion();
+                synchronized (this) {
+                    status = Status.STATUS_NO_TRANSACTION;
+                }
+            }
+        }
+        return result;
+    }
+
+    //used from XATerminator for commit phase of non-readonly remotely controlled tx.
+    void preparedCommit() throws SystemException {
+        try {
+            commitResources(resourceManagers);
+        } finally {
+            afterCompletion();
+            synchronized (this) {
+                status = Status.STATUS_NO_TRANSACTION;
+            }
+        }
+    }
+
+    //helper method used by Transaction.commit and XATerminator prepare.
+    private void beforePrepare() {
+        synchronized (this) {
+            switch (status) {
+                case Status.STATUS_ACTIVE:
+                case Status.STATUS_MARKED_ROLLBACK:
+                    break;
+                default:
+                    throw new IllegalStateException("Status is " + getStateString(status));
+            }
+        }
+
+        beforeCompletion();
+        endResources();
+    }
+
+
+    //helper method used by Transaction.commit and XATerminator prepare.
+    private boolean internalPrepare() throws SystemException {
+        try {
+            txnLog.prepare(xid);
+        } catch (IOException e) {
+            try {
+                rollbackResources(resourceManagers);
+            } catch (Exception se) {
+                log.error("Unable to rollback after failure to log prepare", se.getCause());
+            }
+            throw (SystemException) new SystemException("Error logging prepare; transaction was rolled back)").initCause(e);
+        }
+        for (Iterator i = resourceManagers.iterator(); i.hasNext();) {
+            synchronized (this) {
+                if (status != Status.STATUS_PREPARING) {
+                    // we were marked for rollback
+                    break;
+                }
+            }
+            ResourceManager manager = (ResourceManager) i.next();
+            try {
+                int vote = manager.committer.prepare(manager.branchId);
+                if (vote == XAResource.XA_RDONLY) {
+                    // we don't need to consider this RM any more
+                    i.remove();
+                }
+            } catch (XAException e) {
+                synchronized (this) {
+                    status = Status.STATUS_MARKED_ROLLBACK;
+                }
+            }
+        }
+
+        // decision time...
+        boolean willCommit;
+        synchronized (this) {
+            willCommit = (status != Status.STATUS_MARKED_ROLLBACK);
+            if (willCommit) {
+                status = Status.STATUS_PREPARED;
+            }
+        }
+
+        // log our decision
+        try {
+            if (willCommit) {
+                txnLog.commit(xid);
+            } else {
+                txnLog.rollback(xid);
+            }
+        } catch (IOException e) {
+            try {
+                rollbackResources(resourceManagers);
+            } catch (Exception se) {
+                log.error("Unable to rollback after failure to log decision", se.getCause());
+            }
+            throw (SystemException) new SystemException("Error logging decision (outcome is unknown)").initCause(e);
+        }
+        return willCommit;
+    }
+
     public void rollback() throws IllegalStateException, SystemException {
         List rms;
         synchronized (this) {
             switch (status) {
-            case Status.STATUS_ACTIVE:
-                status = Status.STATUS_MARKED_ROLLBACK;
-                break;
-            case Status.STATUS_MARKED_ROLLBACK:
-                break;
-            default:
-                throw new IllegalStateException("Status is " + getStateString(status));
+                case Status.STATUS_ACTIVE:
+                    status = Status.STATUS_MARKED_ROLLBACK;
+                    break;
+                case Status.STATUS_MARKED_ROLLBACK:
+                    break;
+                default:
+                    throw new IllegalStateException("Status is " + getStateString(status));
             }
             rms = resourceManagers;
         }
@@ -368,9 +441,7 @@ public class TransactionImpl implements Transaction {
                 } catch (Exception se) {
                     log.error("Unable to rollback after failure to log decision", se.getCause());
                 }
-                SystemException ex = new SystemException("Error logging rollback");
-                ex.initCause(e);
-                throw ex;
+                throw (SystemException) new SystemException("Error logging rollback").initCause(e);
             }
             rollbackResources(rms);
         } finally {
@@ -494,28 +565,28 @@ public class TransactionImpl implements Transaction {
 
     private static String getStateString(int status) {
         switch (status) {
-        case Status.STATUS_ACTIVE:
-            return "STATUS_ACTIVE";
-        case Status.STATUS_PREPARING:
-            return "STATUS_PREPARING";
-        case Status.STATUS_PREPARED:
-            return "STATUS_PREPARED";
-        case Status.STATUS_MARKED_ROLLBACK:
-            return "STATUS_MARKED_ROLLBACK";
-        case Status.STATUS_ROLLING_BACK:
-            return "STATUS_ROLLING_BACK";
-        case Status.STATUS_COMMITTING:
-            return "STATUS_COMMITTING";
-        case Status.STATUS_COMMITTED:
-            return "STATUS_COMMITTED";
-        case Status.STATUS_ROLLEDBACK:
-            return "STATUS_ROLLEDBACK";
-        case Status.STATUS_NO_TRANSACTION:
-            return "STATUS_NO_TRANSACTION";
-        case Status.STATUS_UNKNOWN:
-            return "STATUS_UNKNOWN";
-        default:
-            throw new AssertionError();
+            case Status.STATUS_ACTIVE:
+                return "STATUS_ACTIVE";
+            case Status.STATUS_PREPARING:
+                return "STATUS_PREPARING";
+            case Status.STATUS_PREPARED:
+                return "STATUS_PREPARED";
+            case Status.STATUS_MARKED_ROLLBACK:
+                return "STATUS_MARKED_ROLLBACK";
+            case Status.STATUS_ROLLING_BACK:
+                return "STATUS_ROLLING_BACK";
+            case Status.STATUS_COMMITTING:
+                return "STATUS_COMMITTING";
+            case Status.STATUS_COMMITTED:
+                return "STATUS_COMMITTED";
+            case Status.STATUS_ROLLEDBACK:
+                return "STATUS_ROLLEDBACK";
+            case Status.STATUS_NO_TRANSACTION:
+                return "STATUS_NO_TRANSACTION";
+            case Status.STATUS_UNKNOWN:
+                return "STATUS_UNKNOWN";
+            default:
+                throw new AssertionError();
         }
     }
 
@@ -527,6 +598,7 @@ public class TransactionImpl implements Transaction {
             return false;
         }
     }
+
 
     private static class ResourceManager {
         private final XAResource committer;

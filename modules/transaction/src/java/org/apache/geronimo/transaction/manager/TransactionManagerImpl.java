@@ -64,15 +64,17 @@ import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
+import javax.transaction.xa.Xid;
+import javax.transaction.xa.XAException;
 
 import org.apache.geronimo.transaction.log.UnrecoverableLog;
 
 /**
  * Simple implementation of a local transaction manager.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 18:54:16 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/23 20:28:43 $
  */
-public class TransactionManagerImpl implements TransactionManager {
+public class TransactionManagerImpl implements TransactionManager, XidImporter {
     private final TransactionLog txnLog;
     private final XidFactory xidFactory = new XidFactory();
     private volatile int timeout;
@@ -153,5 +155,64 @@ public class TransactionManagerImpl implements TransactionManager {
         } finally {
             threadTx.set(null);
         }
+    }
+
+    public Transaction importXid(Xid xid) throws XAException, SystemException {
+        if (getStatus() != Status.STATUS_NO_TRANSACTION) {
+            throw new XAException("Transaction already active in this thread");
+        }
+        TransactionImpl tx = new TransactionImpl(xid, xidFactory, txnLog);
+        threadTx.set(tx);
+        return tx;
+    }
+
+    public void commit(Transaction tx, boolean onePhase) throws XAException {
+        if (onePhase) {
+            try {
+                tx.commit();
+            } catch (HeuristicMixedException e) {
+                throw new XAException();
+            } catch (HeuristicRollbackException e) {
+                throw new XAException();
+            } catch (RollbackException e) {
+                throw new XAException();
+            } catch (SecurityException e) {
+                throw new XAException();
+            } catch (SystemException e) {
+                throw new XAException();
+            }
+        } else {
+            try {
+                ((TransactionImpl)tx).preparedCommit();
+            } catch (SystemException e) {
+                throw new XAException();
+            }
+        }
+    }
+
+    public void forget(Transaction tx) throws XAException {
+    }
+
+    public int prepare(Transaction tx) throws XAException {
+        try {
+            return ((TransactionImpl)tx).prepare();
+        } catch (SystemException e) {
+            throw new XAException();
+        } catch (RollbackException e) {
+            throw new XAException();
+        }
+    }
+
+    public void rollback(Transaction tx) throws XAException {
+        try {
+            tx.rollback();
+        } catch (IllegalStateException e) {
+            throw new XAException();
+        } catch (SystemException e) {
+            throw new XAException();
+        }
+    }
+
+    public void setTransactionTimeout(long milliseconds) {
     }
 }
