@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE application PUBLIC "-//Sun Microsystems, Inc.//DTD J2EE Application 1.3//EN" "http://java.sun.com/dtd/application_1_3.dtd">
+<application>
+	<display-name>MagicGBall</display-name>
+	<module>
+		<ejb>magicGball-ejb.jar</ejb>
+	</module>
+	<module>
+		<web>
+			<web-uri>magicGball.war</web-uri>
+			<context-root>magicGball</context-root>
+		</web>
+	</module>
+	<module>
+		<java>magicGball-client.jar</java>
+	</module>
+</application>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ejb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD Enterprise JavaBeans 2.0//EN" "http://java.sun.com/dtd/ejb-jar_2_0.dtd">
+<ejb-jar>
+	<display-name>MagicGBallEJB</display-name>
+	<enterprise-beans>
+		<session id="MagicGBall">
+			<ejb-name>MagicGBall</ejb-name>
+			<home>org.acme.MagicGBallHome</home>
+			<remote>org.acme.MagicGBall</remote>
+			<local-home>org.acme.MagicGBallLocalHome</local-home>
+			<local>org.acme.MagicGBallLocal</local>
+			<ejb-class>org.acme.MagicGBallBean</ejb-class>
+			<session-type>Stateless</session-type>
+			<transaction-type>Container</transaction-type>
+		</session>
+	</enterprise-beans>
+</ejb-jar>

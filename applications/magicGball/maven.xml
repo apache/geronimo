@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Rev: 45928 $ $Date: 2004-09-11 17:03:39 -0700 (Sat, 11 Sep 2004) $ -->
+
+<project default="default"
+    xmlns:j="jelly:core"
+    xmlns:u="jelly:util"
+    xmlns:ant="jelly:ant">
+
+    <goal name="default" prereqs="ear"/>
+    <goal name="build" prereqs="default"/>
+
+    <goal name="rebuild" prereqs="clean,build"/>
+
+    <goal name="ejb" prereqs="java:compile">
+        <ant:jar destfile="target/${pom.artifactId}-ejb.jar">
+            <fileset dir="target/classes">
+                <exclude name="**/*Servlet.class"/>
+                <exclude name="**/*Client.class"/>
+            </fileset>
+            <fileset dir="src/resources/ejb"/>
+        </ant:jar>
+    </goal>
+
+     <goal name="client" prereqs="java:compile">
+        <ant:jar destfile="target/${pom.artifactId}-client.jar">
+            <fileset dir="target/classes">
+                <include name="**/*Client.class"/>
+                <include name="**/MagicGBall.class"/>
+                <include name="**/MagicGBallHome.class"/>
+            </fileset>
+            <fileset dir="src/resources/client"/>
+            <manifest>
+                <attribute name="Main-Class" value="org.acme.MagicGBallClient"/>
+            </manifest>
+        </ant:jar>
+    </goal>
+
+    <goal name="ear" prereqs="ejb,war:war,client">
+        <ant:jar destfile="target/${pom.artifactId}.ear">
+            <fileset dir="target">
+                <include name="${pom.artifactId}-ejb.jar"/>
+                <include name="${pom.artifactId}-client.jar"/>
+                <include name="${pom.artifactId}.war"/>
+            </fileset>
+            <fileset dir="src/resources/ear"/>
+        </ant:jar>
+    </goal>
+</project>
