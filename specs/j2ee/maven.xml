@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Revision: 1.1 $ $Date: 2004/02/12 03:17:54 $ -->
+
+<project default="default"
+    xmlns:j="jelly:core"
+    xmlns:ant="jelly:ant">
+
+    <goal name="jar" prereqs="jar:jar"/>
+
+    <goal name="jar:jar">
+        <ant:available property="jarExsts" file="${basedir}/target/${pom.artifactId}-${pom.currentVersion}.jar"/>
+        <j:if test="${jarExsts}">
+            <j:forEach var="artifact" items="${pom.artifacts}">
+                <uptodate property="rebuildJar"
+                    srcfile="${basedir}/target/${pom.artifactId}-${pom.currentVersion}.jar"
+                    targetfile="${artifact.path}"/>
+                <j:if test="${rebuildJar}">
+                    <j:break/>
+                </j:if>
+            </j:forEach>
+        </j:if>
+
+        <j:if test="${!jarExsts || rebuildJar}">
+            <ant:mkdir dir="${basedir}/target"/>
+            <ant:delete file="${basedir}/target/${pom.artifactId}-${pom.currentVersion}.jar"/>
+            <ant:jar destfile="${basedir}/target/${pom.artifactId}-${pom.currentVersion}.jar">
+                <ant:metainf dir="${basedir}">
+                    <ant:include name="LICENSE.txt"/>
+                </ant:metainf>
+                <j:forEach var="artifact" items="${pom.artifacts}">
+                    <zipfileset src="${artifact.path}" excludes="META-INF/LICENSE.txt"/>
+                </j:forEach>
+            </ant:jar>
+        </j:if>
+    </goal>
+
+    <goal name="jar:install" prereqs="jar:jar">
+        <ant:property name="jardir__" value="${maven.repo.local}/${pom.artifactDirectory}/jars"/>
+        <ant:mkdir dir="${jardir__}"/>
+        <ant:copy
+            file="${basedir}/target/${pom.artifactId}-${pom.currentVersion}.jar"
+            todir="${jardir__}"
+            overwrite="false"
+            />
+    </goal>
+
+    <goal name="test:test"/>
+
+    <!-- ================= -->
+    <!-- Global Properties -->
+    <!-- ================= -->
+
+    <!-- Determine what the top-level project root is -->
+    <j:set var="project.root" value="${pom.parentBasedir().getParentFile().getCanonicalFile()}"/>
+
+    <!-- Load the global properties -->
+    <ant:property file="${project.root}/etc/global.properties"/>
+
+
+    <!-- ==================== -->
+    <!-- Default Global Goals -->
+    <!-- ==================== -->
+
+    <goal name="default">
+        <attainGoal name="jar:install"/>
+    </goal>
+
+    <goal name="build">
+        <attainGoal name="default"/>
+    </goal>
+
+    <goal name="rebuild">
+        <attainGoal name="clean"/>
+        <attainGoal name="build"/>
+    </goal>
+
+    <!-- Remove the log files -->
+    <goal name="clobber"
+        description="Removes all (non-repository installed) build generated files">
+
+        <!-- Let clean:clean do some work first -->
+        <attainGoal name="clean:clean"/>
+
+        <j:jelly xmlns="jelly:ant">
+            <delete quiet="false" failonerror="false">
+                <fileset dir="${basedir}">
+                    <include name="maven.log"/>
+                    <include name="velocity.log*"/>
+                    <include name="junit*.properties"/>
+                </fileset>
+            </delete>
+        </j:jelly>
+
+    </goal>
+
+    <goal name="clover.wrapper">
+        <!-- no src/test, don't run clover -->
+        <!--attainGoal name="clover"/-->
+    </goal>
+</project>
