@@ -378,7 +378,78 @@
 
     <goal name="interop:idlj:costxn">
         <!-- Are there any CosTransaction IDL files that require generation? -->
+        <j:set var="pkg.prefix" value="org.apache.geronimo.interop"/>
         <ant:echo message="Interop :: idlj :: CosTransactions"/>
+        <ant:exec dir="${basedir}" executable="idlj">
+            <ant:arg value="-td"/>
+            <ant:arg value="${maven.build.src}"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${java.home}/lib"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${maven.src.dir}/idl"/>
+            <ant:arg value="-verbose"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="GIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CosNaming"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="TimeBase"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CosTransactions"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CosTSInteroperation"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CosTSPortability"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg file="${maven.src.dir}/idl/CosTransactions.idl"/>
+        </ant:exec>
+        
+        <ant:echo message="Interop :: idlj :: CosTSInteroperation"/>
+        <ant:exec dir="${basedir}" executable="idlj">
+            <ant:arg value="-td"/>
+            <ant:arg value="${maven.build.src}"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${java.home}/lib"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${maven.src.dir}/idl"/>
+            <ant:arg value="-verbose"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="GIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CosNaming"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="TimeBase"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CosTransactions"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CosTSInteroperation"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CosTSPortability"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg file="${maven.src.dir}/idl/CosTSInteroperation.idl"/>
+        </ant:exec>
     </goal>
 
     <goal name="interop:java:compile">
@@ -395,6 +466,7 @@
         <attainGoal name="interop:idlj:interop-rmi-iiop"/>
         <attainGoal name="interop:idlj:csi"/>
         <attainGoal name="interop:idlj:security-service"/>
+        <attainGoal name="interop:idlj:costxn"/>
     </goal>
 
     <preGoal name="java:compile">
