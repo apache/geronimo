@@ -60,9 +60,10 @@ import org.apache.xmlbeans.XmlOptions;
 import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
- * @version $Revision: 1.19 $ $Date: 2004/08/09 04:08:19 $
+ * @version $Revision: 1.20 $ $Date: 2004/09/05 21:05:07 $
  */
 public class RAR_1_5ConfigBuilderTest extends TestCase {
+    private static final File basedir = new File(System.getProperty("geronimo.test.basedir", System.getProperty("user.dir")));
     private URL j2eeDD;
     private URL geronimoDD;
     private XmlOptions xmlOptions;
@@ -88,7 +89,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
 
     public void testBuildUnpackedModule() throws Exception {
         InstallAction action = new InstallAction() {
-            private File rarFile = new File("target/test-rar-15");
+            private File rarFile = new File(basedir, "target/test-rar-15");
             public File getRARFile() {
                 return rarFile;
             }
@@ -102,7 +103,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
     
     public void testBuildPackedModule() throws Exception {
         InstallAction action = new InstallAction() {
-            private File rarFile = new File("target/test-rar-15.rar");
+            private File rarFile = new File(basedir, "target/test-rar-15.rar");
             public File getRARFile() {
                 return rarFile;
             }
@@ -367,7 +368,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
-        File docDir = new File("src/test-data/connector_1_5");
+        File docDir = new File(basedir, "src/test-data/connector_1_5");
         j2eeDD = new File(docDir, "ra.xml").toURL();
         geronimoDD = new File(docDir, "geronimo-ra.xml").toURL();
         xmlOptions = new XmlOptions();

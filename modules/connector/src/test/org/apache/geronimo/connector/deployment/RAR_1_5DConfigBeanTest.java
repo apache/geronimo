@@ -52,10 +52,11 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/05/06 03:59:55 $
+ * @version $Revision: 1.5 $ $Date: 2004/09/05 21:05:07 $
  *
  * */
 public class RAR_1_5DConfigBeanTest extends TestCase {
+    private static final File basedir = new File(System.getProperty("geronimo.test.basedir", System.getProperty("user.dir")));
     private URL j2eeDD;
     XmlOptions xmlOptions;
     private List errors;
@@ -175,7 +176,7 @@ public class RAR_1_5DConfigBeanTest extends TestCase {
 
 
     protected void setUp() throws Exception {
-        File docDir = new File("src/test-data/connector_1_5");
+        File docDir = new File(basedir, "src/test-data/connector_1_5");
         j2eeDD = new File(docDir, "ra.xml").toURL();
         xmlOptions = new XmlOptions();
         xmlOptions.setLoadLineNumbers();
