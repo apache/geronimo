@@ -87,6 +87,7 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
             return null;
         }
     };
+    private ClassLoader classLoader = this.getClass().getClassLoader();
 
     protected void setUp() throws Exception {
         connectionTrackingCoordinator = new ConnectionTrackingCoordinator();
@@ -98,10 +99,11 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
         connectionManagerDeployment = new GenericConnectionManager(
                 transactionSupport,
                 poolingSupport,
-                name,
                 realmBridge,
                 connectionTrackingCoordinator,
-                transactionContextManager);
+                transactionContextManager,
+                name,
+                classLoader);
         connectionFactory = (MockConnectionFactory) connectionManagerDeployment.createConnectionFactory(mockManagedConnectionFactory);
         defaultComponentContext = new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources);
         defaultComponentInterceptor = new DefaultComponentInterceptor(this, connectionTrackingCoordinator, transactionContextManager);

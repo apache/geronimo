@@ -42,11 +42,13 @@ public class GenericConnectionManager extends AbstractConnectionManager {
 
     public GenericConnectionManager(TransactionSupport transactionSupport,
                                     PoolingSupport pooling,
-                                    String objectName,
                                     RealmBridge realmBridge,
                                     ConnectionTracker connectionTracker,
-                                    TransactionContextManager transactionContextManager) {
-        super(new InterceptorsImpl(transactionSupport, pooling, objectName, realmBridge, connectionTracker, transactionContextManager));
+                                    TransactionContextManager transactionContextManager,
+                                    String objectName,
+                                    ClassLoader classLoader
+                                    ) {
+        super(new InterceptorsImpl(transactionSupport, pooling, objectName, realmBridge, connectionTracker, transactionContextManager, classLoader));
     }
 
     private static class InterceptorsImpl implements AbstractConnectionManager.Interceptors {
@@ -59,6 +61,7 @@ public class GenericConnectionManager extends AbstractConnectionManager {
          * Order of constructed interceptors:
          * <p/>
          * ConnectionTrackingInterceptor (connectionTracker != null)
+         * TCCLInterceptor
          * ConnectionHandleInterceptor
          * TransactionCachingInterceptor (useTransactions & useTransactionCaching)
          * TransactionEnlistingInterceptor (useTransactions)
@@ -67,7 +70,13 @@ public class GenericConnectionManager extends AbstractConnectionManager {
          * LocalXAResourceInsertionInterceptor or XAResourceInsertionInterceptor (useTransactions (&localTransactions))
          * MCFConnectionInterceptor
          */
-        public InterceptorsImpl(TransactionSupport transactionSupport, PoolingSupport pooling, String objectName, RealmBridge realmBridge, ConnectionTracker connectionTracker, TransactionContextManager transactionContextManager) {
+        public InterceptorsImpl(TransactionSupport transactionSupport,
+                                PoolingSupport pooling,
+                                String objectName,
+                                RealmBridge realmBridge,
+                                ConnectionTracker connectionTracker,
+                                TransactionContextManager transactionContextManager,
+                                ClassLoader classLoader) {
             //check for consistency between attributes
             if (realmBridge == null && pooling instanceof PartitionedPool && ((PartitionedPool) pooling).isPartitionBySubject()) {
                 throw new IllegalStateException("To use Subject in pooling, you need a SecurityDomain");
@@ -91,9 +100,12 @@ public class GenericConnectionManager extends AbstractConnectionManager {
                 stack = new SubjectInterceptor(stack, realmBridge);
             }
 
-            recoveryStack = stack;
+            ConnectionInterceptor recoveryStack = stack;
+            this.recoveryStack = new TCCLInterceptor(recoveryStack, classLoader);
+
 
             stack = new ConnectionHandleInterceptor(stack);
+            stack = new TCCLInterceptor(stack, classLoader);
             if (connectionTracker != null) {
                 stack = new ConnectionTrackingInterceptor(stack,
                         objectName,
@@ -127,6 +139,7 @@ public class GenericConnectionManager extends AbstractConnectionManager {
         infoBuilder.addAttribute("pooling", PoolingSupport.class, true);
 
         infoBuilder.addAttribute("objectName", String.class, false);
+        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
 
         infoBuilder.addReference("ConnectionTracker", ConnectionTracker.class, NameFactory.JCA_RESOURCE);
         infoBuilder.addReference("RealmBridge", RealmBridge.class, NameFactory.GERONIMO_SERVICE);
@@ -135,10 +148,12 @@ public class GenericConnectionManager extends AbstractConnectionManager {
         infoBuilder.setConstructor(new String[]{
             "transactionSupport",
             "pooling",
-            "objectName",
             "RealmBridge",
             "ConnectionTracker",
-            "TransactionContextManager"});
+            "TransactionContextManager",
+            "objectName",
+            "classLoader"
+        });
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
