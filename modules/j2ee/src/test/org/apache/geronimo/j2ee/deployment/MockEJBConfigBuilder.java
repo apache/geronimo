@@ -16,16 +16,18 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.util.jar.JarFile;
 
 import junit.framework.Assert;
+
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/07/18 22:04:27 $
+ * @version $Revision: 1.3 $ $Date: 2004/08/07 11:22:12 $
  */
 public class MockEJBConfigBuilder extends Assert implements ModuleBuilder {
     public EARContext earContext;
@@ -50,6 +52,13 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder {
 
     public Module createModule(String name, XmlObject plan) {
         return null;
+    }
+
+    public void installModule(File earFolder, EARContext earContext, Module module) {
+        assertNotNull(earFolder);
+        assertNotNull(earContext);
+        this.earContext = earContext;
+        assertEquals(this.ejbModule, ejbModule);
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module ejbModule) {

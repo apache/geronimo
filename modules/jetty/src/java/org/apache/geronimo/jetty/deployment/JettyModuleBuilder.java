@@ -42,7 +42,6 @@ import javax.management.AttributeNotFoundException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
-import javax.naming.NamingException;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.common.xml.XmlBeansUtil;
@@ -55,14 +54,11 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
-import org.apache.geronimo.j2ee.deployment.ModuleBuilderWithUnpack;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.jetty.JettyWebAppContext;
 import org.apache.geronimo.jetty.JettyWebAppJACCContext;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
-import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
-import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deploy.Principal;
@@ -71,9 +67,6 @@ import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.xbeans.geronimo.jetty.*;
-import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
-import org.apache.geronimo.xbeans.j2ee.EjbRefType;
-import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
@@ -84,9 +77,9 @@ import org.apache.xmlbeans.XmlBeans;
 
 
 /**
- * @version $Revision: 1.20 $ $Date: 2004/08/06 22:44:37 $
+ * @version $Revision: 1.21 $ $Date: 2004/08/07 11:22:13 $
  */
-public class JettyModuleBuilder implements ModuleBuilderWithUnpack {
+public class JettyModuleBuilder implements ModuleBuilder {
     static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[]{
         XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.j2ee.String.class.getClassLoader()),
         XmlBeans.typeLoaderForClassLoader(JettyWebAppDocument.class.getClassLoader())
@@ -220,6 +213,9 @@ public class JettyModuleBuilder implements ModuleBuilderWithUnpack {
         try {
             if (!webModule.getURI().equals(URI.create("/"))) {
                 ZipEntry warEntry = earFile.getEntry(webModule.getURI().toString());
+                if ( null == warEntry ) {
+                    throw new DeploymentException("Can not find WAR file " + webModule.getURI());
+                }
                 // Unpack the nested JAR.
                 File tempFile = FileUtil.toTempFile(earFile.getInputStream(warEntry));
                 webAppFile = new JarFile(tempFile);
@@ -650,7 +646,6 @@ public class JettyModuleBuilder implements ModuleBuilderWithUnpack {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(JettyModuleBuilder.class);
         infoFactory.addInterface(ModuleBuilder.class);
-        infoFactory.addInterface(ModuleBuilderWithUnpack.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.util.jar.JarFile;
@@ -26,7 +27,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/07/18 22:04:27 $
+ * @version $Revision: 1.3 $ $Date: 2004/08/07 11:22:12 $
  */
 public interface ModuleBuilder {
     XmlObject getDeploymentPlan(URL module) throws XmlException;
@@ -38,6 +39,8 @@ public interface ModuleBuilder {
     URI getParentId(XmlObject plan) throws DeploymentException;
 
     URI getConfigId(XmlObject plan) throws DeploymentException;
+
+    void installModule(File earFolder, EARContext earContext, Module module) throws DeploymentException;
 
     void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException;
 

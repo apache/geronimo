@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.4 $ $Date: 2004/08/01 20:14:19 $ -->
+<!-- $Revision: 1.5 $ $Date: 2004/08/07 11:22:13 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -45,9 +45,13 @@
         <j:set var="ear.target.base.dir" value="${basedir}/target/test-ear13"/>
 
         <attainGoal name="setupEar"/>
+        
+        <attainGoal name="setupUnpackedEar"/>
     </preGoal>
 
     <goal name="setupEar">
+        <ant:mkdir dir="${ear.target.base.dir}/test-ejb-jar/META-INF"/>
+        
         <ant:mkdir dir="${ear.target.base.dir}/test-ejb-jar/META-INF"/>
         <copy todir="${ear.target.base.dir}/test-ejb-jar/META-INF">
             <fileset dir="${ear.src.base.dir}/test-ejb-jar/META-INF"/>
@@ -96,4 +100,28 @@
             </fileset>
         </ant:jar>
     </goal>
+
+    <goal name="setupUnpackedEar">
+        <j:set var="ear.unpacked.relative" value="full"/>
+        <attainGoal name="setupBaseUnpackedEar"/>
+        <copy todir="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}/META-INF">
+            <fileset dir="${basedir}/src/test-unpacked-ear/META-INF"/>
+        </copy>
+        
+        <j:set var="ear.unpacked.relative" value="naked"/>
+        <attainGoal name="setupBaseUnpackedEar"/>
+        <copy todir="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}/META-INF">
+            <fileset dir="${basedir}/src/test-unpacked-ear/META-INF">
+                <include name="application.xml"/>
+            </fileset>
+        </copy>
+    </goal>
+    
+    <goal name="setupBaseUnpackedEar">
+        <ant:mkdir dir="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}/META-INF"/>
+        <ant:mkdir dir="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}/test-ejb-jar"/>
+        <ant:mkdir dir="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}/test-war"/>
+        <ant:touch file="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}/test-rar.rar"/>
+    </goal>
+
 </project>

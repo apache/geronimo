@@ -28,9 +28,9 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/07/23 06:06:19 $
+ * @version $Revision: 1.4 $ $Date: 2004/08/07 11:22:12 $
  */
-public class MockConnectorConfigBuilder extends Assert implements ModuleBuilderWithUnpack {
+public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder {
     public EARContext earContext;
     public Module connectorModule;
     public ClassLoader cl;

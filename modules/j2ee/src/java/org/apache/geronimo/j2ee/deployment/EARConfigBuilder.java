@@ -56,7 +56,7 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 /**
- * @version $Revision: 1.18 $ $Date: 2004/08/06 22:44:36 $
+ * @version $Revision: 1.19 $ $Date: 2004/08/07 11:22:12 $
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
     static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[]{
@@ -70,8 +70,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final Kernel kernel;
     private final Repository repository;
     private final ModuleBuilder ejbConfigBuilder;
-    private final ModuleBuilderWithUnpack webConfigBuilder;
-    private final ModuleBuilderWithUnpack connectorConfigBuilder;
+    private final ModuleBuilder webConfigBuilder;
+    private final ModuleBuilder connectorConfigBuilder;
     private final EJBReferenceBuilder ejbReferenceBuilder;
     private final String j2eeServerName;
     private final String j2eeDomainName;
@@ -82,7 +82,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final ObjectName nonTransactionalTimerObjectName;
 
 
-    public EARConfigBuilder(ObjectName j2eeServer, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactionalTimerObjectName, ObjectName nonTransactionalTimerObjectName, Repository repository, ModuleBuilder ejbConfigBuilder, EJBReferenceBuilder ejbReferenceBuilder, ModuleBuilderWithUnpack webConfigBuilder, ModuleBuilderWithUnpack connectorConfigBuilder, Kernel kernel) {
+    public EARConfigBuilder(ObjectName j2eeServer, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactionalTimerObjectName, ObjectName nonTransactionalTimerObjectName, Repository repository, ModuleBuilder ejbConfigBuilder, EJBReferenceBuilder ejbReferenceBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder, Kernel kernel) {
         this.kernel = kernel;
         this.repository = repository;
         this.j2eeServer = j2eeServer;
@@ -213,6 +213,9 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             if (id.endsWith(".ear")) {
                 id = id.substring(0, id.length() - 4);
             }
+            if ( id.endsWith("/") ) {
+                id = id.substring(0, id.length() - 1);
+            }
             id = id.substring(id.lastIndexOf('/') + 1);
         }
 
@@ -251,7 +254,16 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 for (Iterator iter = files.iterator(); iter.hasNext();) {
                     File file = (File) iter.next();
                     URI path = baseURI.relativize(file.toURI());
-                    if (moduleLocations.contains(path.toString())) {
+                    boolean isNestedModuleFile = false;
+                    // skips the files contained by a nested module.
+                    for (Iterator iter2 = moduleLocations.iterator(); iter2.hasNext();) {
+                        String moduleLocation = (String) iter2.next();
+                        if ( path.toString().startsWith(moduleLocation) ) {
+                            isNestedModuleFile = true;
+                            break;
+                        }
+                    }
+                    if ( isNestedModuleFile ) {
                         continue;
                     }
                     earContext.addFile(path, file);
@@ -259,13 +271,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             }
 
             public void installModule(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws IOException, DeploymentException {
-                if (false == module instanceof ConnectorModule &&
-                        false == module instanceof WebModule) {
-                    throw new DeploymentException("Only unpacked RARs and WARs (in unpacked EAR) are supported.");
-                }
-                // TODO gets rid of this cast when all the ModuleBuilder will
-                // support unpacked deployments.
-                ((ModuleBuilderWithUnpack) moduleBuilder).installModule(earFolder, earContext, module);
+                moduleBuilder.installModule(earFolder, earContext, module);
             }
 
             public void release() {
@@ -452,6 +458,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                     if (webConfigBuilder == null) {
                         throw new DeploymentException("Can not deploy web application; No war deployer defined: " + webModule.getURI());
                     }
+
                     moduleLocations.add(uri.toString());
                     webModules.add(webModule);
                 } else if (module.isSetConnector()) {
@@ -648,8 +655,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         infoFactory.addReference("Repository", Repository.class);
         infoFactory.addReference("EJBConfigBuilder", ModuleBuilder.class);
         infoFactory.addReference("EJBReferenceBuilder", EJBReferenceBuilder.class);
-        infoFactory.addReference("WebConfigBuilder", ModuleBuilderWithUnpack.class);
-        infoFactory.addReference("ConnectorConfigBuilder", ModuleBuilderWithUnpack.class);
+        infoFactory.addReference("WebConfigBuilder", ModuleBuilder.class);
+        infoFactory.addReference("ConnectorConfigBuilder", ModuleBuilder.class);
 
         infoFactory.addAttribute("kernel", Kernel.class, false);
 

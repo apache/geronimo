@@ -68,7 +68,6 @@ import org.apache.geronimo.j2ee.deployment.ConnectorModule;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
-import org.apache.geronimo.j2ee.deployment.ModuleBuilderWithUnpack;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
 import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
@@ -100,9 +99,9 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 
 /**
- * @version $Revision: 1.11 $ $Date: 2004/08/04 12:05:34 $
+ * @version $Revision: 1.12 $ $Date: 2004/08/07 11:22:12 $
  */
-public class ConnectorModuleBuilder implements ModuleBuilderWithUnpack {
+public class ConnectorModuleBuilder implements ModuleBuilder {
 
     private static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[]{
         XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.j2ee.String.class.getClassLoader()),
@@ -196,6 +195,9 @@ public class ConnectorModuleBuilder implements ModuleBuilderWithUnpack {
         try {
             if (!module.getURI().equals(URI.create("/"))) {
                 ZipEntry rarEntry = earFile.getEntry(module.getURI().toString());
+                if ( null == rarEntry ) {
+                    throw new DeploymentException("Can not find RAR file " + module.getURI());
+                }
                 // Unpack the nested RAR.
                 File tempFile = FileUtil.toTempFile(earFile.getInputStream(rarEntry));
                 rarFile = new JarFile(tempFile);
@@ -922,7 +924,6 @@ public class ConnectorModuleBuilder implements ModuleBuilderWithUnpack {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConnectorModuleBuilder.class);
         infoFactory.addInterface(ModuleBuilder.class);
-        infoFactory.addInterface(ModuleBuilderWithUnpack.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
