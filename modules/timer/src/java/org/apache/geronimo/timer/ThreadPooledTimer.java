@@ -41,7 +41,7 @@ import org.apache.geronimo.transaction.context.TransactionContext;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/07/20 23:36:53 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/21 03:53:43 $
  *
  * */
 public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
@@ -146,7 +146,7 @@ public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
         }
     }
 
-    private void addWorkInfo(WorkInfo worker) {
+    void addWorkInfo(WorkInfo worker) {
         idToWorkInfoMap.put(new Long(worker.getId()), worker);
     }
 
@@ -166,7 +166,7 @@ public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
         }
     }
 
-    private Timer getTimer() {
+    Timer getTimer() {
         if (delegate == null) {
             throw new IllegalStateException("Timer is stopped");
         }

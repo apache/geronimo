@@ -32,7 +32,7 @@ import org.apache.geronimo.timer.WorkInfo;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/07/20 23:36:53 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/21 03:53:43 $
  *
  * */
 public abstract class AbstractThreadPooledTimerTest extends TestCase {
@@ -145,7 +145,7 @@ public abstract class AbstractThreadPooledTimerTest extends TestCase {
         assertEquals(COUNT, counter.get());
     }
 
-    public void testCancelInTransaction() throws Exception {
+    public void testCancelInCommittedTransaction() throws Exception {
         Thread.currentThread().sleep(SLOP + DELAY);
         WorkInfo[] workInfos = new WorkInfo[COUNT];
         for (long i = 0; i < COUNT; i++) {
@@ -158,10 +158,30 @@ public abstract class AbstractThreadPooledTimerTest extends TestCase {
             workInfos[i].getExecutorFeedingTimerTask().cancel();
         }
         Thread.currentThread().sleep(SLOP + DELAY);
-        assertEquals(2 * COUNT, counter.get());
+        assertEquals(COUNT, counter.get());
         transactionContext.commit();
         Thread.currentThread().sleep(SLOP + DELAY);
-        assertEquals(2 * COUNT, counter.get());
+        assertEquals(COUNT, counter.get());
+    }
+
+    public void testCancelInRolledBackTransaction() throws Exception {
+        Thread.currentThread().sleep(SLOP + DELAY);
+        WorkInfo[] workInfos = new WorkInfo[COUNT];
+        for (long i = 0; i < COUNT; i++) {
+            workInfos[(int) i] = timer.scheduleAtFixedRate(key, userTaskFactory, userId, userKey, DELAY, DELAY);
+        }
+        Thread.currentThread().sleep(SLOP + DELAY);
+        assertEquals(COUNT, counter.get());
+        TransactionContext transactionContext = transactionContextManager.newContainerTransactionContext();
+        for (int i = 0; i < workInfos.length; i++) {
+            workInfos[i].getExecutorFeedingTimerTask().cancel();
+        }
+        Thread.currentThread().sleep(SLOP + DELAY);
+        assertEquals(COUNT, counter.get());
+        transactionContext.rollback();
+        Thread.currentThread().sleep(SLOP + DELAY);
+        // Catches up with two periods.
+        assertEquals(3 * COUNT, counter.get());
     }
 
     public void testRepeatCountFromPersisted() throws Exception {

@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.timer;
 
+import java.util.Date;
 import java.util.TimerTask;
 
 import javax.transaction.RollbackException;
@@ -30,7 +31,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/18 22:10:56 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/21 03:53:44 $
  *
  * */
 public class ExecutorFeedingTimerTask extends TimerTask {
@@ -54,11 +55,9 @@ public class ExecutorFeedingTimerTask extends TimerTask {
     }
 
     public boolean cancel() {
-        try {
-            threadPooledTimer.getWorkerPersistence().cancel(workInfo.getId());
-        } catch (PersistenceException e) {
-            log.warn(e);
-        }
+        // TODO double-check if this is indeed the mechanism use to raise
+        // a NoSuchObjectLocalException exception.
+        threadPooledTimer.removeWorkInfo(workInfo);
         try {
             threadPooledTimer.registerSynchronization(new CancelSynchronization(this));
         } catch (RollbackException e) {
@@ -68,14 +67,41 @@ public class ExecutorFeedingTimerTask extends TimerTask {
             log.info(e);
             throw (IllegalStateException) new IllegalStateException("SystemException when trying to register cacel synchronization").initCause(e);
         }
-        //return value is meaningless.
-        return true;
+        // One cancels the task at this specific time. If the transaction is
+        // rolled-back, one will recreate it.
+        return super.cancel();
     }
 
     private void doCancel() {
-        super.cancel();
+        try {
+            // Impacts the timer storage only if the timer is cancelled
+            // in the scope of a committed transactions.
+            threadPooledTimer.getWorkerPersistence().cancel(workInfo.getId());
+        } catch (PersistenceException e) {
+            log.warn(e);
+        }
     }
 
+    private void rollbackCancel() {
+        threadPooledTimer.addWorkInfo(workInfo);
+        
+        // The transaction has been rolled-back, we need to restore the
+        // task as if cancel has been called.
+        if ( workInfo.isOneTime() ) {
+            threadPooledTimer.getTimer().schedule(
+                new ExecutorFeedingTimerTask(workInfo, threadPooledTimer), 
+                workInfo.getTime());
+        } else if ( workInfo.getAtFixedRate() ) {
+            threadPooledTimer.getTimer().scheduleAtFixedRate(
+                new ExecutorFeedingTimerTask(workInfo, threadPooledTimer), 
+                workInfo.getTime(), workInfo.getPeriod().longValue());
+        } else {
+            threadPooledTimer.getTimer().schedule(
+                new ExecutorFeedingTimerTask(workInfo, threadPooledTimer),
+                workInfo.getTime(), workInfo.getPeriod().longValue());
+        }
+    }
+    
     private static class CancelSynchronization implements Synchronization {
 
         private final ExecutorFeedingTimerTask worker;
@@ -90,6 +116,8 @@ public class ExecutorFeedingTimerTask extends TimerTask {
         public void afterCompletion(int status) {
             if (status == Status.STATUS_COMMITTED) {
                 worker.doCancel();
+            } else if (status == Status.STATUS_ROLLEDBACK) {
+                worker.rollbackCancel();
             }
         }
 
