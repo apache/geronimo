@@ -17,10 +17,7 @@
 
 package org.apache.geronimo.deployment.mavenplugin;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
@@ -34,6 +31,12 @@ public class StartRemoteServer {
     private String vmArgs = "";
     private String configs;
     private String debugPort;
+    private String output;
+    private String error;
+    private PrintStream out = System.out;
+    private PrintStream err = System.err;
+
+
 
     public String getGeronimoTarget() {
         return geronimoTarget;
@@ -65,6 +68,47 @@ public class StartRemoteServer {
 
     public void setDebugPort(String debugPort) {
         this.debugPort = debugPort;
+    }
+
+    public String getOutput() {
+        return output;
+    }
+
+    public void setOutput(String output) {
+        this.output = output;
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
+    }
+
+    private PrintStream getOut() {
+        try {
+            if (getOutput() != null) {
+                out = new PrintStream(new FileOutputStream(getOutput()));
+            }
+        } catch (FileNotFoundException e) {
+            System.err.println(e.getMessage());
+        }
+
+        return out;
+    }
+
+    private PrintStream getErr() {
+        try {
+            if (getError() != null) {
+                err = new PrintStream(new FileOutputStream(getError()));
+            } else if (getOutput() != null) {
+                err = getOut();
+            }
+        } catch (FileNotFoundException e) {
+            System.err.println(e.getMessage());
+        }
+        return err;
     }
 
     public void execute() throws Exception {
@@ -102,13 +146,13 @@ public class StartRemoteServer {
 
         // Pipe the processes STDOUT to ours
         InputStream out = server.getInputStream();
-        Thread serverOut = new Thread(new Pipe(out, System.out));
+        Thread serverOut = new Thread(new Pipe(out, getOut()));
         serverOut.setDaemon(true);
         serverOut.start();
 
         // Pipe the processes STDERR to ours
         InputStream err = server.getErrorStream();
-        Thread serverErr = new Thread(new Pipe(err, System.err));
+        Thread serverErr = new Thread(new Pipe(err, getErr()));
         serverErr.setDaemon(true);
         serverErr.start();
 
