@@ -32,7 +32,7 @@ import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/07/08 22:07:54 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/11 21:45:37 $
  */
 public class BufferProtocol extends AbstractProtocol implements BootstrapCook {
 
@@ -56,7 +56,7 @@ public class BufferProtocol extends AbstractProtocol implements BootstrapCook {
         log.trace("Starting");
         running = true;
         try {
-            threadPool.getExecutor().execute(new Runnable() {
+            threadPool.execute(new Runnable() {
                 public void run() {
                     try {
                         while (running) {
@@ -70,7 +70,7 @@ public class BufferProtocol extends AbstractProtocol implements BootstrapCook {
                     }
                 }
             });
-            threadPool.getExecutor().execute(new Runnable() {
+            threadPool.execute(new Runnable() {
                 public void run() {
                     try {
                         while (running) {

@@ -36,7 +36,7 @@ import EDU.oswego.cs.dl.util.concurrent.Latch;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/07/08 22:07:54 $
+ * @version $Revision: 1.7 $ $Date: 2004/07/11 21:45:37 $
  */
 public class GSSAPIClientProtocol extends AbstractProtocol {
 
@@ -119,7 +119,7 @@ public class GSSAPIClientProtocol extends AbstractProtocol {
             context.requestInteg(integrity);
             context.requestCredDeleg(true);
 
-            threadPool.getExecutor().execute(new Runnable() {
+            threadPool.execute(new Runnable() {
                 public void run() {
                     try {
                         byte[] token = new byte[0];
