@@ -42,7 +42,7 @@ import org.apache.geronimo.kernel.management.NotificationType;
 import org.apache.geronimo.kernel.management.State;
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/05/19 20:54:00 $
+ * @version $Revision: 1.7 $ $Date: 2004/05/29 05:18:45 $
  */
 public class GBeanMBeanReference implements NotificationListener {
     private static final Log log = LogFactory.getLog(GBeanMBeanReference.class);
@@ -184,7 +184,7 @@ public class GBeanMBeanReference implements NotificationListener {
                             // the instance died before we could get going... not a big deal
                             break;
                         } catch (Exception e) {
-                            throw new Exception("Could not add listener: objectName" + gmbean.getObjectName() + ", referenceName=" + name, e);
+                            throw new Exception("Could not add state change listener to: " + target + " on behalf of objectName " + gmbean.getObjectName() + ":: referenceName: " + name + ":: found from pattern: " + pattern, e);
                         }
 
                         // if the bean is running add it to the runningTargets list
