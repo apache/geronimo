@@ -120,14 +120,16 @@
         <ant:fileScanner var="schemaScanner">
             <ant:fileset dir="${distDir}/schema">
                 <ant:include name="geronimo-application.xsd"/>
+                <ant:include name="geronimo-application-client.xsd"/>
                 <ant:include name="geronimo-jetty.xsd"/>
                 <ant:include name="geronimo-connector_1_5.xsd"/>
             </ant:fileset>
         </ant:fileScanner>
         <j:forEach var="schema" items="${schemaScanner.iterator()}">
-            <ant:replace file="${schema}" token="../../../naming/src/schema/" value=""/>
+            <ant:replace file="${schema}" token="../../../naming-builder/src/schema/" value=""/>
             <ant:replace file="${schema}" token="../../../deployment/src/schema/" value=""/>
-            <ant:replace file="${schema}" token="../../../security/src/schema/" value=""/>
+            <ant:replace file="${schema}" token="../../../security-builder/src/schema/" value=""/>
+            <ant:replace file="${schema}" token="../../../connector-builder/src/schema/" value=""/>
         </j:forEach>
 
         <!-- copy in data files -->
