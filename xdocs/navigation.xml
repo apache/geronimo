@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.12 $ $Date: 2003/11/23 02:21:05 $ -->
+<!-- $Revision: 1.13 $ $Date: 2003/11/23 16:10:45 $ -->
 
 <project name="Apache Geronimo">
 
   <title>Apache Geronimo</title>
-  <organizationLogo href="/images/apache-incubator.png">Apache</organizationLogo>
+  <organizationLogo href="http://incubator.apache.org/geronimo/images/apache-incubator.png">Apache</organizationLogo>
 
   <body>
     <search/>
@@ -17,7 +17,7 @@
     <menu name="Geronimo">
       <item name="Overview"                href="/index.html"/>
       <item name="FAQ"                     href="/faq.html"/>
-      <item name="Wiki"                    href="http://nagoya.apache.org/wiki/apachewiki.cgi?ApacheJ2EE"/>
+      <item name="Wiki"                    href="http://wiki.apache.org/geronimo"/>
       
       <!--
       <item name="To Do List"              href="/todo.html"/>
@@ -32,21 +32,29 @@
     
     <menu name="Modules">
       <item name="Common"                   href="/modules/common/index.html"/>
-      <item name="Core Container"		    href="/modules/core/index.html"/>
-      <item name="Web Container"		    href="/modules/web/index.html"/>
-      <item name="XML Beans"		        href="/modules/xmlbeans/index.html"/>
-      <item name="Twiddle"		   		    href="/modules/twiddle/index.html"/>
+      <item name="Web Console"              href="/modules/console-web/index.html"/>
+      <item name="Core Container"           href="/modules/core/index.html"/>
+      <item name="Explorer"                 href="/modules/explorer/index.html"/>
+      <item name="Kernel"                   href="/modules/kernel/index.html"/>
+      <item name="Mail"                     href="/modules/mail/index.html"/>
+      <item name="Remoting"                 href="/modules/remoting/index.html"/>
+      <item name="Twiddle"                  href="/modules/twiddle/index.html"/>
+      <item name="Web Container"            href="/modules/web/index.html"/>
+      <item name="XML Beans"                href="/modules/xbeans/index.html"/>
     </menu>
     
     <menu name="Specifications">
-      <item name="Java Activation Framework" href="/specs/activation/index.html"/>
-      <item name="JavaMail" href="/specs/javamail/index.html"/>
-      <item name="Java Connector" href="/specs/j2ee-connector/index.html"/>
-      <item name="Java Transaction API" href="/specs/jta/index.html"/>
-      <item name="Enterprise Java Beans" href="/specs/ejb/index.html"/>
-      <item name="Java Message Service" href="/specs/jms/index.html"/>
-      <item name="J2EE Application Management" href="/specs/j2ee-management/index.html"/>
-      <item name="J2EE Application Deployment" href="/specs/j2ee-deployment/index.html"/>
+      <item name="Java Activation Framework"                  href="/specs/activation/index.html"/>
+      <item name="Enterprise Java Beans"                      href="/specs/ejb/index.html"/>
+      <item name="Java Connector"                             href="/specs/j2ee-connector/index.html"/>
+      <item name="J2EE Application Deployment"                href="/specs/j2ee-deployment/index.html"/>
+      <item name="J2EE Authorization Contract for Containers" href="/specs/j2ee-jacc/index.html"/>
+      <item name="J2EE Application Management"                href="/specs/j2ee-management/index.html"/>
+      <item name="JavaMail"                                   href="/specs/javamail/index.html"/>
+      <item name="Java Message Service"                       href="/specs/jms/index.html"/>
+      <item name="Java Server Pages Specification"            href="/specs/jsp/index.html"/>
+      <item name="Java Transaction API"                       href="/specs/jta/index.html"/>
+      <item name="Java Servlet Specification"                 href="/specs/servelet/index.html"/>
     </menu>
     
     <menu name="Apache Community">
