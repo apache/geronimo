@@ -73,6 +73,10 @@ import javax.management.NotificationBroadcaster;
 import javax.management.NotificationFilter;
 import javax.management.NotificationListener;
 import javax.management.ObjectName;
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.NotCompliantMBeanException;
+import javax.management.MBeanException;
+import javax.management.ReflectionException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -102,7 +106,7 @@ import org.apache.geronimo.kernel.service.DependencyService2;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/19 06:34:21 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/21 22:53:42 $
  */
 public class Kernel implements Serializable, KernelMBean, NotificationBroadcaster {
 
@@ -269,6 +273,70 @@ public class Kernel implements Serializable, KernelMBean, NotificationBroadcaste
             throw (IllegalStateException) new IllegalStateException("Error deregistering configuration " + configName).initCause(e);
         }
         log.info("Unloaded Configuration " + configName);
+    }
+
+    /**
+     * Load a specific GBean into this kernel.
+     * This is intended for applications that are embedding the kernel.
+     * @param name the name to register the GBean under
+     * @param gbean the GBean to register
+     * @throws InstanceAlreadyExistsException if the name is already used
+     * @throws InvalidConfigException if there is a problem during registration
+     */
+    public void loadGBean(ObjectName name, GBeanMBean gbean) throws InstanceAlreadyExistsException, InvalidConfigException {
+        try {
+            mbServer.registerMBean(gbean, name);
+        } catch (MBeanRegistrationException e) {
+            throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
+        } catch (NotCompliantMBeanException e) {
+            throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
+        }
+    }
+
+    /**
+     * Start a specific GBean.
+     * @param name the GBean to start
+     * @throws InstanceNotFoundException if the GBean could not be found
+     */
+    public void startGBean(ObjectName name) throws InstanceNotFoundException, InvalidConfigException {
+        try {
+            mbServer.invoke(name, "start", null, null);
+        } catch (MBeanException e) {
+            // start is not supposed to throw anything
+            throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
+        } catch (ReflectionException e) {
+            throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
+        }
+    }
+
+    /**
+     * Stop a specific GBean.
+     * @param name the GBean to stop
+     * @throws InstanceNotFoundException if the GBean could not be found
+     */
+    public void stopGBean(ObjectName name) throws InstanceNotFoundException, InvalidConfigException {
+        try {
+            mbServer.invoke(name, "stop", null, null);
+        } catch (MBeanException e) {
+            // stop is not supposed to throw anything
+            throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
+        } catch (ReflectionException e) {
+            throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
+        }
+    }
+
+    /**
+     * Unload a specific GBean.
+     * This is intended for applications that are embedding the kernel.
+     * @param name the name of the GBean to unregister
+     * @throws InstanceNotFoundException if the GBean could not be found
+     */
+    public void unloadGBean(ObjectName name) throws InstanceNotFoundException {
+        try {
+            mbServer.unregisterMBean(name);
+        } catch (MBeanRegistrationException e) {
+            throw (IllegalStateException) new IllegalStateException("Error unloading GBean " + name).initCause(e);
+        }
     }
 
     /**
