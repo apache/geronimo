@@ -55,8 +55,7 @@
  */
 package org.apache.geronimo.transaction;
 
-import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
-
+import javax.resource.spi.XATerminator;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.InvalidTransactionException;
@@ -66,6 +65,12 @@ import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.Xid;
+
+import org.apache.geronimo.connector.work.GeronimoWorkManager;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 
 /**
  * A wrapper for a TransactionManager that wraps all Transactions in a TransactionProxy
@@ -73,9 +78,9 @@ import javax.transaction.TransactionManager;
  * are delegated to the wrapped TransactionManager; all other operations are delegated to the
  * wrapped Transaction.
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/11 21:11:58 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/17 00:46:09 $
  */
-public class TransactionManagerProxy implements TransactionManager {
+public class TransactionManagerProxy implements TransactionManager, XATerminator {
     private final TransactionManager delegate;
     private final ThreadLocal threadTx = new ThreadLocal();
 
@@ -159,4 +164,52 @@ public class TransactionManagerProxy implements TransactionManager {
         }
         tx.setRollbackOnly();
     }
+
+    /**
+     * @see javax.resource.spi.XATerminator#commit(javax.transaction.xa.Xid, boolean)
+     */
+    public void commit(Xid arg0, boolean arg1) throws XAException {
+        throw new XAException("Not implemented.");
+    }
+
+    /**
+     * @see javax.resource.spi.XATerminator#forget(javax.transaction.xa.Xid)
+     */
+    public void forget(Xid arg0) throws XAException {
+        throw new XAException("Not implemented.");
+    }
+
+    /**
+     * @see javax.resource.spi.XATerminator#prepare(javax.transaction.xa.Xid)
+     */
+    public int prepare(Xid arg0) throws XAException {
+        throw new XAException("Not implemented.");
+    }
+
+    /**
+     * @see javax.resource.spi.XATerminator#recover(int)
+     */
+    public Xid[] recover(int arg0) throws XAException {
+        throw new XAException("Not implemented.");
+    }
+
+    /**
+     * @see javax.resource.spi.XATerminator#rollback(javax.transaction.xa.Xid)
+     */
+    public void rollback(Xid arg0) throws XAException {
+        throw new XAException("Not implemented.");
+    }
+    
+    /**
+     * Provides the GeronimoMBean description for this class
+     * @return
+     */
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
+        GeronimoMBeanInfo rc = new GeronimoMBeanInfo();
+        rc.setTargetClass(TransactionManagerProxy.class);
+        rc.addOperationsDeclaredIn(TransactionManager.class);
+        rc.addOperationsDeclaredIn(XATerminator.class);
+        return rc;
+    }
+    
 }

@@ -45,4 +45,11 @@
         </constructor>
     </mbean>
 
+
+    <!-- ============================================================ -->
+    <!-- ============================================================ -->
+    <mbean name="geronimo.transaction:role=BootstrapContext"
+           descriptor="org.apache.geronimo.connector.BootstrapContext">
+    </mbean>    
+
 </components>

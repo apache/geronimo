@@ -63,6 +63,7 @@ import javax.resource.spi.work.WorkListener;
 import javax.resource.spi.work.WorkManager;
 import javax.resource.spi.work.WorkRejectedException;
 
+import org.apache.geronimo.common.Classes;
 import org.apache.geronimo.connector.work.pool.WorkExecutorPool;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
@@ -79,7 +80,7 @@ import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
  * A WorkManager is a component of the JCA specifications, which allows a
  * Resource Adapter to submit tasks to an Application Server for execution.  
  * 
-* @version $Revision: 1.2 $ $Date: 2003/11/16 23:12:07 $
+* @version $Revision: 1.3 $ $Date: 2003/11/17 00:46:09 $
  */
 public class GeronimoWorkManager implements WorkManager, GeronimoMBeanTarget {
 
@@ -106,37 +107,6 @@ public class GeronimoWorkManager implements WorkManager, GeronimoMBeanTarget {
      * Create a WorkManager. 
      */
     public GeronimoWorkManager() {
-    }
-
-    /**
-     * Provides the GeronimoMBean description for this class
-     * @return
-     */
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
-
-        // TODO: add descriptions to all operations.
-        GeronimoMBeanInfo rc = new GeronimoMBeanInfo();
-        rc.setTargetClass(GeronimoWorkManager.class);
-        rc.addOperationInfo(
-            new GeronimoOperationInfo(
-                "setSyncExecutor",
-                new GeronimoParameterInfo[] { new GeronimoParameterInfo("pool", WorkExecutorPool.class, "")},
-                MBeanOperationInfo.ACTION,
-                ""));
-        rc.addOperationInfo(
-            new GeronimoOperationInfo(
-                "setStartExecutor",
-                new GeronimoParameterInfo[] { new GeronimoParameterInfo("pool", WorkExecutorPool.class, "")},
-                MBeanOperationInfo.ACTION,
-                ""));
-        rc.addOperationInfo(
-            new GeronimoOperationInfo(
-                "setAsyncExecutor",
-                new GeronimoParameterInfo[] { new GeronimoParameterInfo("pool", WorkExecutorPool.class, "")},
-                MBeanOperationInfo.ACTION,
-                ""));
-        return rc;
-
     }
 
     /**
@@ -317,4 +287,21 @@ public class GeronimoWorkManager implements WorkManager, GeronimoMBeanTarget {
     public void doFail() {
     }
 
+    
+    /**
+     * Provides the GeronimoMBean description for this class
+     * @return
+     */
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
+
+        // TODO: add descriptions to all operations.
+        GeronimoMBeanInfo rc = new GeronimoMBeanInfo();
+        rc.setTargetClass(GeronimoWorkManager.class);
+        rc.addOperationFor( Classes.getMethod(GeronimoWorkManager.class, "setSyncExecutor") ); 
+        rc.addOperationFor( Classes.getMethod(GeronimoWorkManager.class, "setStartExecutor") ); 
+        rc.addOperationFor( Classes.getMethod(GeronimoWorkManager.class, "setAsyncExecutor") ); 
+        return rc;
+
+    }
+    
 }
