@@ -55,21 +55,34 @@
  */
 package org.apache.geronimo.deployment.goal;
 
+import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
+
+import org.apache.geronimo.common.NullArgumentException;
 
 import org.apache.geronimo.deployment.scanner.URLType;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/12 07:10:15 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/27 11:40:01 $
  */
-public class DeployURL extends DeploymentGoal {
+public class DeployURL
+    extends DeploymentGoal
+{
     private final URL url;
     private final URLType type;
 
-    public DeployURL(URL url, URLType type) {
-        this.url = url;
+    public DeployURL(final URL url, final URLType type) {
+        if (url == null) {
+            throw new NullArgumentException("url");
+        }
+        if (type == null) {
+            throw new NullArgumentException("type");
+        }
+        
+        this.url = normalize(url);
         this.type = type;
     }
 
@@ -79,5 +92,46 @@ public class DeployURL extends DeploymentGoal {
 
     public URLType getType() {
         return type;
+    }
+    
+    private static URL normalize(URL url) {
+        assert url != null;
+        
+        File f = toFile(url);
+        if (f != null) {
+            try {
+                url = f.toURI().toURL();
+            }
+            catch (MalformedURLException ignore) {
+                // ignore, return passed in url
+            }
+        }
+        
+        return url;
+    }
+    
+    /**
+     * Convert from a <code>URL</code> to a <code>File</code>.
+     *
+     * @param url   File URL.
+     * @return      The equivalent <code>File</code> object, or <code>null</code>
+     *              if the URL's protocol is not <code>file</code>
+     * 
+     * @todo this method was taken from commons-sandbox-io.  if/when that
+     *       project is promoted to commons proper, remove this method and use
+     *       said library.
+     */
+    private static File toFile(final URL url) {
+        if (url == null) {
+            throw new NullArgumentException("url");
+        }
+        
+        if (!url.getProtocol().equals("file")) {
+            return null;
+        }
+        else {
+            String filename = url.getFile().replace('/', File.separatorChar);
+            return new File(filename);
+        }
     }
 }
