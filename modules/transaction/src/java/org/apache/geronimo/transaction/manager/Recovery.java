@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Arrays;
+import java.util.HashSet;
 
 import javax.transaction.SystemException;
 import javax.transaction.xa.XAException;
@@ -37,7 +38,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/11 19:20:55 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/22 03:39:01 $
  *
  * */
 public interface Recovery {
@@ -58,5 +59,35 @@ public interface Recovery {
 //    boolean remoteRecoveryComplete();
 
     Map getExternalXids();
+
+    public static class XidBranchesPair {
+        private final Xid xid;
+
+        //set of TransactionBranchInfo
+        private final Set branches = new HashSet();
+
+        private final long mark;
+
+        public XidBranchesPair(Xid xid, long mark) {
+            this.xid = xid;
+            this.mark = mark;
+        }
+
+        public Xid getXid() {
+            return xid;
+        }
+
+        public Set getBranches() {
+            return branches;
+        }
+
+        public long getMark() {
+            return mark;
+        }
+
+        public void addBranch(TransactionBranchInfo branchInfo) {
+            branches.add(branchInfo);
+        }
+    }
 
 }

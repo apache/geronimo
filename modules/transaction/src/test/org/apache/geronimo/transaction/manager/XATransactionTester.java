@@ -21,6 +21,9 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.util.Map;
 import java.util.List;
+import java.util.Set;
+import java.util.Collection;
+import java.util.ArrayList;
 
 import javax.sql.XAConnection;
 import javax.sql.XADataSource;
@@ -32,7 +35,7 @@ import javax.transaction.xa.Xid;
  *
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/06/19 17:17:13 $
+ * @version $Revision: 1.8 $ $Date: 2004/07/22 03:39:01 $
  */
 public class XATransactionTester {
     private TransactionLog log;
@@ -106,17 +109,18 @@ public class XATransactionTester {
             XATransactionTester.this.xid = xid;
         }
 
-        public void prepare(Xid xid, List branches) throws LogException {
+        public long prepare(Xid xid, List branches) throws LogException {
+            return 0L;
         }
 
-        public void commit(Xid xid) throws LogException {
+        public void commit(Xid xid, long logMark) throws LogException {
         }
 
-        public void rollback(Xid xid) throws LogException {
+        public void rollback(Xid xid, long logMark) throws LogException {
         }
 
-        public Map recover(XidFactory xidFactory) throws LogException {
-            return null;
+        public Collection recover(XidFactory xidFactory) throws LogException {
+            return new ArrayList();
         }
 
         public String getXMLStats() {

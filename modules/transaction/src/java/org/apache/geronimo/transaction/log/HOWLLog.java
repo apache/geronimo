@@ -19,12 +19,13 @@ package org.apache.geronimo.transaction.log;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.transaction.xa.Xid;
 
@@ -36,11 +37,13 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.transaction.manager.LogException;
+import org.apache.geronimo.transaction.manager.Recovery;
 import org.apache.geronimo.transaction.manager.TransactionBranchInfo;
 import org.apache.geronimo.transaction.manager.TransactionBranchInfoImpl;
 import org.apache.geronimo.transaction.manager.TransactionLog;
 import org.apache.geronimo.transaction.manager.XidFactory;
 import org.objectweb.howl.log.Configuration;
+import org.objectweb.howl.log.InvalidLogKeyException;
 import org.objectweb.howl.log.LogClosedException;
 import org.objectweb.howl.log.LogConfigurationException;
 import org.objectweb.howl.log.LogFileOverflowException;
@@ -53,7 +56,7 @@ import org.objectweb.howl.log.ReplayListener;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/07/18 21:51:51 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/22 03:39:01 $
  *
  * */
 public class HOWLLog implements TransactionLog, GBeanLifecycle {
@@ -71,6 +74,8 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
     private final Logger logger;
     private final Configuration configuration = new Configuration();
     private boolean started = false;
+
+    private final SortedSet marks = new TreeSet();
 
     public HOWLLog(
             String bufferClassName,
@@ -225,7 +230,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
     public void begin(Xid xid) throws LogException {
     }
 
-    public void prepare(Xid xid, List branches) throws LogException {
+    public long prepare(Xid xid, List branches) throws LogException {
         int branchCount = branches.size();
         byte[][] data = new byte[4 + 2 * branchCount][];
         data[0] = new byte[]{PREPARE};
@@ -239,7 +244,9 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
             data[i++] = transactionBranchInfo.getResourceName().getBytes();
         }
         try {
-            logger.put(data, true);
+            long logMark = logger.put(data, true);
+            addMark(logMark);
+            return logMark;
         } catch (LogClosedException e) {
             throw (IllegalStateException) new IllegalStateException().initCause(e);
         } catch (LogRecordSizeException e) {
@@ -253,7 +260,13 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
         }
     }
 
-    public void commit(Xid xid) throws LogException {
+    private void addMark(long logMark) {
+        synchronized (marks) {
+            marks.add(new Long(logMark));
+        }
+    }
+
+    public void commit(Xid xid, long logMark) throws LogException {
         byte[][] data = new byte[4][];
         data[0] = new byte[]{COMMIT};
         data[1] = intToBytes(xid.getFormatId());
@@ -261,6 +274,10 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
         data[3] = xid.getBranchQualifier();
         try {
             logger.put(data, false);
+            boolean doMark = removeMark(logMark);
+            if (doMark) {
+                logger.mark(logMark);
+            }
         } catch (LogClosedException e) {
             throw (IllegalStateException) new IllegalStateException().initCause(e);
         } catch (LogRecordSizeException e) {
@@ -271,10 +288,12 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
             throw (IllegalStateException) new IllegalStateException().initCause(e);
         } catch (IOException e) {
             throw new LogException(e);
+        } catch (InvalidLogKeyException e) {
+            throw new LogException(e);
         }
     }
 
-    public void rollback(Xid xid) throws LogException {
+    public void rollback(Xid xid, long logMark) throws LogException {
         byte[][] data = new byte[4][];
         data[0] = new byte[]{ROLLBACK};
         data[1] = intToBytes(xid.getFormatId());
@@ -282,6 +301,10 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
         data[3] = xid.getBranchQualifier();
         try {
             logger.put(data, false);
+            boolean doMark = removeMark(logMark);
+            if (doMark) {
+                logger.mark(logMark);
+            }
         } catch (LogClosedException e) {
             throw (IllegalStateException) new IllegalStateException().initCause(e);
         } catch (LogRecordSizeException e) {
@@ -292,20 +315,32 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
             throw (IllegalStateException) new IllegalStateException().initCause(e);
         } catch (IOException e) {
             throw new LogException(e);
+        } catch (InvalidLogKeyException e) {
+            throw new LogException(e);
         }
     }
 
-    public Map recover(XidFactory xidFactory) throws LogException {
+    private boolean removeMark(long logMark) {
+        boolean doMark = false;
+        Long mark = new Long(logMark);
+        synchronized (marks) {
+            doMark = (mark.equals(marks.first()));
+            marks.remove(mark);
+        }
+        return doMark;
+    }
+
+    public Collection recover(XidFactory xidFactory) throws LogException {
         log.info("Initiating transaction manager recovery");
         Map recovered = new HashMap();
-        ReplayListener replayListener = new GeronimoReplayListener(xidFactory, recovered, log);
+        ReplayListener replayListener = new GeronimoReplayListener(xidFactory, recovered);
         try {
             logger.replay(replayListener);
         } catch (LogConfigurationException e) {
             throw new LogException(e);
         }
         log.info("In doubt transactions recovered from log");
-        return recovered;
+        return recovered.values();
     }
 
     public String getXMLStats() {
@@ -329,70 +364,71 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
         return buffer;
     }
 
-    private static class GeronimoReplayListener implements ReplayListener {
+    private class GeronimoReplayListener implements ReplayListener {
 
         private final XidFactory xidFactory;
         private final Map recoveredTx;
-        private final Log log;
 
-        public GeronimoReplayListener(XidFactory xidFactory, Map recoveredTx, Log log) {
+        public GeronimoReplayListener(XidFactory xidFactory, Map recoveredTx) {
             this.xidFactory = xidFactory;
             this.recoveredTx = recoveredTx;
-            this.log = log;
         }
 
         public void onRecord(LogRecord lr) {
             short recordType = lr.type;
-            if (recordType != LogRecordType.USER) {
-                if (recordType != LogRecordType.END_OF_LOG) {
-                    log.warn("Received unexpected log record: " + lr);
+            long logMark = lr.key;
+            if (recordType == LogRecordType.USER) {
+                ByteBuffer raw = lr.dataBuffer;
+                if (raw.remaining() == 0) {
+                    log.warn("Received empty log record of user type!");
+                    return;
                 }
-                return;
-            }
-            ByteBuffer raw = lr.dataBuffer;
-            if (raw.remaining() == 0) {
-                log.warn("Received empty log record of user type!");
-                return;
-            }
-            //type (PREPARE etc)
-            short size = raw.getShort();
-            assert size == 1;
-            byte type = raw.get();
-            //format id integer
-            size = raw.getShort();
-            assert size == 4;
-            int formatId = raw.getInt();
-            //global id
-            int globalIdLength = raw.getShort();
-            byte[] globalId = new byte[globalIdLength];
-            raw.get(globalId);
-            //branch qualifier for master xid
-            int branchIdLength = raw.getShort();
-            byte[] branchId = new byte[branchIdLength];
-            raw.get(branchId);
-            Xid masterXid = xidFactory.recover(formatId, globalId, branchId);
-            if (type == PREPARE) {
-                Set branches = new HashSet();
-                recoveredTx.put(masterXid, branches);
+                //type (PREPARE etc)
+                short size = raw.getShort();
+                assert size == 1;
+                byte type = raw.get();
+                //format id integer
+                size = raw.getShort();
+                assert size == 4;
+                int formatId = raw.getInt();
+                //global id
+                int globalIdLength = raw.getShort();
+                byte[] globalId = new byte[globalIdLength];
+                raw.get(globalId);
+                //branch qualifier for master xid
+                int branchIdLength = raw.getShort();
+                byte[] branchId = new byte[branchIdLength];
+                raw.get(branchId);
+                Xid masterXid = xidFactory.recover(formatId, globalId, branchId);
+                if (type == PREPARE) {
+                    Recovery.XidBranchesPair xidBranchesPair = new Recovery.XidBranchesPair(masterXid, logMark);
+                    recoveredTx.put(masterXid, xidBranchesPair);
+                    addMark(logMark);
 //                log.info("recovered prepare record for master xid: " + masterXid);
-                while (raw.hasRemaining()) {
-                    int branchBranchIdLength = raw.getShort();
-                    byte[] branchBranchId = new byte[branchBranchIdLength];
-                    raw.get(branchBranchId);
-                    Xid branchXid = xidFactory.recover(formatId, globalId, branchBranchId);
-                    int nameLength = raw.getShort();
-                    byte[] nameBytes = new byte[nameLength];
-                    raw.get(nameBytes);
-                    String name = new String(nameBytes);
-                    TransactionBranchInfoImpl branchInfo = new TransactionBranchInfoImpl(branchXid, name);
-                    branches.add(branchInfo);
+                    while (raw.hasRemaining()) {
+                        int branchBranchIdLength = raw.getShort();
+                        byte[] branchBranchId = new byte[branchBranchIdLength];
+                        raw.get(branchBranchId);
+                        Xid branchXid = xidFactory.recover(formatId, globalId, branchBranchId);
+                        int nameLength = raw.getShort();
+                        byte[] nameBytes = new byte[nameLength];
+                        raw.get(nameBytes);
+                        String name = new String(nameBytes);
+                        TransactionBranchInfoImpl branchInfo = new TransactionBranchInfoImpl(branchXid, name);
+                        xidBranchesPair.addBranch(branchInfo);
 //                    log.info("recovered branch for resource manager, branchId " + name + ", " + branchXid);
-                }
-            } else if (type == COMMIT || type == ROLLBACK) {
-                Object o = recoveredTx.remove(masterXid);
+                    }
+                } else if (type == COMMIT || type == ROLLBACK) {
+                    recoveredTx.remove(masterXid);
+                    removeMark(logMark);
 //                log.info("Recovered " + TYPE_NAMES[type] + " for xid: " + masterXid + " and branches: " + o);
-            } else {
-                log.error("Unknown recovery record received, type byte: " + type + ", buffer: " + raw);
+                } else {
+                    log.error("Unknown recovery record received, type byte: " + type + ", buffer: " + raw);
+                }
+            } else if (recordType == LogRecordType.MARKKEY) {
+
+            } else if (recordType != LogRecordType.END_OF_LOG) {
+                log.warn("Received unexpected log record: " + lr);
             }
         }
 

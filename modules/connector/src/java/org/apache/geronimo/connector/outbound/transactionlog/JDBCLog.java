@@ -22,10 +22,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.sql.DataSource;
 import javax.transaction.xa.Xid;
@@ -36,17 +35,18 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.transaction.manager.LogException;
-import org.apache.geronimo.transaction.manager.TransactionLog;
-import org.apache.geronimo.transaction.manager.XidFactory;
+import org.apache.geronimo.transaction.manager.Recovery;
 import org.apache.geronimo.transaction.manager.TransactionBranchInfo;
 import org.apache.geronimo.transaction.manager.TransactionBranchInfoImpl;
+import org.apache.geronimo.transaction.manager.TransactionLog;
+import org.apache.geronimo.transaction.manager.XidFactory;
 
 /**
  * "Last Resource optimization" for single servers wishing to have valid xa transactions with
  * a single 1-pc datasource.  The database is used for the log, and the database work is
  * committed when the log writes its prepare record.
  *
- * @version $Revision: 1.8 $ $Date: 2004/07/12 06:07:49 $
+ * @version $Revision: 1.9 $ $Date: 2004/07/22 03:39:01 $
  */
 public class JDBCLog implements TransactionLog, GBeanLifecycle {
     private final static String INSERT_XID = "INSERT INTO TXLOG (SYSTEMID, FORMATID, GLOBALID, GLOBALBRANCHID, BRANCHBRANCHID, NAME) VALUES (?, ?, ?, ?, ?)";
@@ -60,6 +60,12 @@ public class JDBCLog implements TransactionLog, GBeanLifecycle {
     public JDBCLog(String systemId, ManagedConnectionFactoryWrapper managedConnectionFactoryWrapper) {
         this.systemId = systemId;
         this.managedConnectionFactoryWrapper = managedConnectionFactoryWrapper;
+    }
+
+    public JDBCLog(String systemId, DataSource dataSource) {
+        this.systemId = systemId;
+        this.managedConnectionFactoryWrapper = null;
+        this.dataSource = dataSource;
     }
 
     public void doStart() throws WaitingException, Exception {
@@ -76,7 +82,7 @@ public class JDBCLog implements TransactionLog, GBeanLifecycle {
     public void begin(Xid xid) throws LogException {
     }
 
-    public void prepare(Xid xid, List branches) throws LogException {
+    public long prepare(Xid xid, List branches) throws LogException {
         int formatId = xid.getFormatId();
         byte[] globalTransactionId = xid.getGlobalTransactionId();
         byte[] branchQualifier = xid.getBranchQualifier();
@@ -107,9 +113,10 @@ public class JDBCLog implements TransactionLog, GBeanLifecycle {
         } catch (SQLException e) {
             throw new LogException("Failure during prepare or commit", e);
         }
+        return 0L;
     }
 
-    public void commit(Xid xid) throws LogException {
+    public void commit(Xid xid, long logMark) throws LogException {
         try {
             Connection connection = dataSource.getConnection();
             try {
@@ -134,40 +141,45 @@ public class JDBCLog implements TransactionLog, GBeanLifecycle {
         }
     }
 
-    public void rollback(Xid xid) throws LogException {
+    public void rollback(Xid xid, long logMark) throws LogException {
         throw new LogException("JDBCLog does not support rollback of prepared transactions.  Use it only on servers that do not import transactions");
     }
 
-    public Map recover(XidFactory xidFactory) throws LogException {
+    public Collection recover(XidFactory xidFactory) throws LogException {
         try {
             Connection connection = dataSource.getConnection();
             try {
-                Map xids = new HashMap();
+                Collection recovered = new ArrayList();
                 PreparedStatement ps = connection.prepareStatement(RECOVER);
-                ps.setString(0, systemId);
-                ResultSet rs = ps.executeQuery();
-                Xid lastXid = null;
-                Xid currentXid = null;
-                List branches = new ArrayList();
-                while (rs.next()) {
-                    int formatId = rs.getInt(0);
-                    byte[] globalId = rs.getBytes(1);
-                    byte[] globalBranchId = rs.getBytes(2);
-                    byte[] branchBranchId = rs.getBytes(3);
-                    String name = rs.getString(4);
-                    currentXid = xidFactory.recover(formatId, globalId, globalBranchId);
-                    Xid branchXid = xidFactory.recover(formatId, globalId, branchBranchId);
-                    if (!currentXid.equals(lastXid) && lastXid != null) {
-                        addRecoveredXid(xids, lastXid, branches);
-                        branches.clear();
-                        lastXid = currentXid;
+                try {
+                    ps.setString(0, systemId);
+                    ResultSet rs = ps.executeQuery();
+                    try {
+                        Xid lastXid = null;
+                        Xid currentXid = null;
+                        Recovery.XidBranchesPair xidBranchesPair = null;
+                        while (rs.next()) {
+                            int formatId = rs.getInt(0);
+                            byte[] globalId = rs.getBytes(1);
+                            byte[] globalBranchId = rs.getBytes(2);
+                            byte[] branchBranchId = rs.getBytes(3);
+                            String name = rs.getString(4);
+                            currentXid = xidFactory.recover(formatId, globalId, globalBranchId);
+                            Xid branchXid = xidFactory.recover(formatId, globalId, branchBranchId);
+                            if (!currentXid.equals(lastXid)) {
+                                xidBranchesPair = new Recovery.XidBranchesPair(currentXid, 0L);
+                                recovered.add(xidBranchesPair);
+                                lastXid = currentXid;
+                            }
+                            xidBranchesPair.addBranch(new TransactionBranchInfoImpl(branchXid, name));
+                        }
+                        return recovered;
+                    } finally {
+                        rs.close();
                     }
-                    branches.add(new TransactionBranchInfoImpl(branchXid, name));
+                } finally {
+                    ps.close();
                 }
-                if (currentXid != null) {
-                    addRecoveredXid(xids, currentXid, branches);
-                }
-                return xids;
             } finally {
                 connection.close();
             }
@@ -175,11 +187,6 @@ public class JDBCLog implements TransactionLog, GBeanLifecycle {
             throw new LogException("Recovery failure", e);
         }
 
-    }
-
-    private void addRecoveredXid(Map xids, Xid xid, List names) {
-        String[] nameArray = (String[])names.toArray(new String[names.size()]);
-        xids.put(xid, nameArray);
     }
 
     public String getXMLStats() {

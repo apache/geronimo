@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Collection;
 
 import javax.transaction.SystemException;
 import javax.transaction.xa.XAException;
@@ -38,7 +39,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/19 17:17:13 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/22 03:39:01 $
  *
  * */
 public class RecoveryImpl implements Recovery {
@@ -60,20 +61,18 @@ public class RecoveryImpl implements Recovery {
     }
 
     public synchronized void recoverLog() throws XAException {
-        Map preparedXids = null;
+        Collection preparedXids = null;
         try {
             preparedXids = txLog.recover(xidFactory);
         } catch (LogException e) {
             throw (XAException) new XAException(XAException.XAER_RMERR).initCause(e);
         }
-        for (Iterator iterator = preparedXids.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            Xid xid = (Xid) entry.getKey();
+        for (Iterator iterator = preparedXids.iterator(); iterator.hasNext();) {
+            XidBranchesPair xidBranchesPair = (Recovery.XidBranchesPair) iterator.next();
+            Xid xid = xidBranchesPair.getXid();
             if (xidFactory.matchesGlobalId(xid.getGlobalTransactionId())) {
-                Object o = entry.getValue();
-                XidBranchesPair xidBranchesPair = new XidBranchesPair(xid, (Set) entry.getValue());
                 ourXids.put(new ByteArrayWrapper(xid.getGlobalTransactionId()), xidBranchesPair);
-                for (Iterator branches = xidBranchesPair.branches.iterator(); branches.hasNext();) {
+                for (Iterator branches = xidBranchesPair.getBranches().iterator(); branches.hasNext();) {
                     String name = ((TransactionBranchInfo) branches.next()).getResourceName();
                     Set transactionsForName = (Set)nameToOurTxMap.get(name);
                     if (transactionsForName == null) {
@@ -82,8 +81,7 @@ public class RecoveryImpl implements Recovery {
                     transactionsForName.add(xidBranchesPair);
                 }
             } else {
-                Object o = entry.getValue();
-                TransactionImpl externalTx = new ExternalTransaction(xid, txLog, (Set) entry.getValue());
+                TransactionImpl externalTx = new ExternalTransaction(xid, txLog, xidBranchesPair.getBranches());
                 externalXids.put(xid, externalTx);
                 externalGlobalIdMap.put(xid.getGlobalTransactionId(), externalTx);
             }
@@ -143,7 +141,7 @@ public class RecoveryImpl implements Recovery {
 
     private void removeNameFromTransaction(XidBranchesPair xidBranchesPair, String name, boolean warn) {
         int removed = 0;
-        for (Iterator branches = xidBranchesPair.branches.iterator(); branches.hasNext();) {
+        for (Iterator branches = xidBranchesPair.getBranches().iterator(); branches.hasNext();) {
             TransactionBranchInfo transactionBranchInfo = (TransactionBranchInfo) branches.next();
             if (name.equals(transactionBranchInfo.getResourceName())) {
                 branches.remove();
@@ -151,12 +149,12 @@ public class RecoveryImpl implements Recovery {
             }
         }
         if (warn && removed == 0) {
-            log.error("XAResource named: " + name + " returned branch xid for xid: " + xidBranchesPair.xid + " but was not registered with that transaction!");
+            log.error("XAResource named: " + name + " returned branch xid for xid: " + xidBranchesPair.getXid() + " but was not registered with that transaction!");
         }
-        if (xidBranchesPair.branches.isEmpty()) {
+        if (xidBranchesPair.getBranches().isEmpty()) {
             try {
-                ourXids.remove(new ByteArrayWrapper(xidBranchesPair.xid.getGlobalTransactionId()));
-                txLog.commit(xidBranchesPair.xid);
+                ourXids.remove(new ByteArrayWrapper(xidBranchesPair.getXid().getGlobalTransactionId()));
+                txLog.commit(xidBranchesPair.getXid(), xidBranchesPair.getMark());
             } catch (LogException e) {
                 recoveryErrors.add(e);
                 log.error(e);
@@ -186,17 +184,6 @@ public class RecoveryImpl implements Recovery {
 
     public synchronized Map getExternalXids() {
         return new HashMap(externalXids);
-    }
-
-    private static class XidBranchesPair {
-        private final Xid xid;
-        //set of TransactionBranchInfo
-        private final Set branches;
-
-        public XidBranchesPair(Xid xid, Set branches) {
-            this.xid = xid;
-            this.branches = branches;
-        }
     }
 
     private static class ByteArrayWrapper {

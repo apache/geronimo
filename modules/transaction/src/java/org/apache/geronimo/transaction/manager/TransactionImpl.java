@@ -42,7 +42,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Basic local transaction with support for multiple resources.
  *
- * @version $Revision: 1.7 $ $Date: 2004/06/11 19:20:55 $
+ * @version $Revision: 1.8 $ $Date: 2004/07/22 03:39:01 $
  */
 public class TransactionImpl implements Transaction {
     private static final Log log = LogFactory.getLog("Transaction");
@@ -54,6 +54,7 @@ public class TransactionImpl implements Transaction {
     private List syncList = new ArrayList(5);
     private LinkedList resourceManagers = new LinkedList();
     private Map xaResources = new HashMap(3);
+    private long logMark;
 
     TransactionImpl(XidFactory xidFactory, TransactionLog txnLog) throws SystemException {
         this(xidFactory.createXid(), xidFactory, txnLog);
@@ -357,7 +358,7 @@ public class TransactionImpl implements Transaction {
         // log our decision
         if (willCommit) {
             try {
-                txnLog.prepare(xid, resourceManagers);
+                logMark = txnLog.prepare(xid, resourceManagers);
             } catch (LogException e) {
                 try {
                     rollbackResources(resourceManagers);
@@ -390,7 +391,7 @@ public class TransactionImpl implements Transaction {
         try {
             rollbackResources(rms);
             try {
-                txnLog.rollback(xid);
+                txnLog.rollback(xid, logMark);
             } catch (LogException e) {
                 try {
                     rollbackResources(rms);
@@ -511,7 +512,7 @@ public class TransactionImpl implements Transaction {
             }
         }
         try {
-            txnLog.commit(xid);
+            txnLog.commit(xid, logMark);
         } catch (LogException e) {
             log.error("Unexpected exception logging commit completion for xid " + xid, e);
             throw (SystemException)new SystemException("Unexpected error logging commit completion for xid " + xid).initCause(e);

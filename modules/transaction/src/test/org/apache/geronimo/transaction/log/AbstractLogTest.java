@@ -32,7 +32,7 @@ import org.apache.geronimo.transaction.manager.TransactionLog;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/06/22 18:41:00 $
+ * @version $Revision: 1.7 $ $Date: 2004/07/22 03:39:01 $
  *
  * */
 public abstract class AbstractLogTest extends TestCase {
@@ -130,11 +130,11 @@ public abstract class AbstractLogTest extends TestCase {
 
                         for (int i = 0; i < xidCount; i++) {
                             // journalize COMMITTING record
-                            logger.prepare(xid, names);
+                            long logMark = logger.prepare(xid, names);
                             //localXidCount++;
 
                             // journalize FORGET record
-                            logger.commit(xid);
+                            logger.commit(xid, logMark);
                             localXidCount++;
                         }
                         localDuration = System.currentTimeMillis() - localStartTime;

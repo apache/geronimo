@@ -17,20 +17,18 @@
 
 package org.apache.geronimo.transaction.manager;
 
-import java.util.Map;
-import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Iterator;
-import java.util.HashSet;
-import java.util.Arrays;
+import java.util.Map;
 
 import javax.transaction.xa.Xid;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/11 19:20:55 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/22 03:39:01 $
  *
  * */
 public class MockLog implements TransactionLog {
@@ -42,27 +40,26 @@ public class MockLog implements TransactionLog {
     public void begin(Xid xid) throws LogException {
     }
 
-    public void prepare(Xid xid, List branches) throws LogException {
-        prepared.put(xid, new HashSet(branches));
+    public long prepare(Xid xid, List branches) throws LogException {
+        Recovery.XidBranchesPair xidBranchesPair = new Recovery.XidBranchesPair(xid, 0L);
+        xidBranchesPair.getBranches().addAll(branches);
+        prepared.put(xid, xidBranchesPair);
+        return 0L;
     }
 
-    public void commit(Xid xid) throws LogException {
+    public void commit(Xid xid, long logMark) throws LogException {
         committed.add(xid);
     }
 
-    public void rollback(Xid xid) throws LogException {
+    public void rollback(Xid xid, long logMark) throws LogException {
         rolledBack.add(xid);
     }
 
-    public Map recover(XidFactory xidFactory) throws LogException {
+    public Collection recover(XidFactory xidFactory) throws LogException {
         Map copy = new HashMap(prepared);
-        for (Iterator iterator = committed.iterator(); iterator.hasNext();) {
-            copy.remove(iterator.next());
-        }
-        for (Iterator iterator = rolledBack.iterator(); iterator.hasNext();) {
-            copy.remove(iterator.next());
-        }
-        return copy;
+        copy.keySet().removeAll(committed);
+        copy.keySet().removeAll(rolledBack);
+        return copy.values();
     }
 
     public String getXMLStats() {
