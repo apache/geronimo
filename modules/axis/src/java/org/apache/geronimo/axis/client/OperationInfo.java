@@ -23,6 +23,7 @@ import javax.xml.namespace.QName;
 import org.apache.axis.description.OperationDesc;
 import org.apache.axis.client.Call;
 import org.apache.axis.soap.SOAPConstants;
+import net.sf.cglib.core.Signature;
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -34,13 +35,21 @@ public class OperationInfo implements Serializable {
     private final String soapActionURI;
     private final SOAPConstants soapVersion;
     private final QName operationName;
+    private final String methodName;
+    private final String methodDesc;
 
-    public OperationInfo(OperationDesc operationDesc, boolean useSOAPAction, String soapActionURI, SOAPConstants soapVersion, QName operationName) {
+    public OperationInfo(OperationDesc operationDesc, boolean useSOAPAction, String soapActionURI, SOAPConstants soapVersion, QName operationName, String methodName, String methodDesc) {
         this.operationDesc = operationDesc;
         this.useSOAPAction = useSOAPAction;
         this.soapActionURI = soapActionURI;
         this.soapVersion = soapVersion;
         this.operationName = operationName;
+        this.methodName = methodName;
+        this.methodDesc = methodDesc;
+    }
+
+    public Signature getSignature() {
+        return new Signature(methodName, methodDesc);
     }
 
     public OperationDesc getOperationDesc() {

@@ -49,16 +49,14 @@ import javax.wsdl.extensions.soap.SOAPBinding;
 import javax.wsdl.extensions.soap.SOAPBody;
 import javax.wsdl.extensions.soap.SOAPOperation;
 import javax.wsdl.factory.WSDLFactory;
-import javax.wsdl.xml.WSDLReader;
 import javax.wsdl.xml.WSDLLocator;
+import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 
 import net.sf.cglib.core.DefaultGeneratorStrategy;
-import net.sf.cglib.core.Signature;
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
 import net.sf.cglib.proxy.NoOp;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastConstructor;
@@ -87,9 +85,9 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.naming.reference.DeserializingReference;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingDocument;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
+import org.apache.geronimo.xbeans.j2ee.MethodParamPartsMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointInterfaceMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointMethodMappingType;
-import org.apache.geronimo.xbeans.j2ee.MethodParamPartsMappingType;
 import org.apache.xmlbeans.XmlException;
 import org.objectweb.asm.Type;
 import org.xml.sax.InputSource;
@@ -249,32 +247,32 @@ public class AxisBuilder implements ServiceReferenceBuilder {
             Style portStyle = Style.getStyle(portStyleString);
             PortType portType = binding.getPortType();
             SOAPAddress soapAddress = (SOAPAddress) getExtensibilityElement(SOAPAddress.class, port.getExtensibilityElements());
-             String locationURIString = soapAddress.getLocationURI();
-             URL location = null;
-             try {
-                 location = new URL(locationURIString);
-             } catch (MalformedURLException e) {
-                 throw new DeploymentException("Could not construct web service location URL from " + locationURIString);
-             }
+            String locationURIString = soapAddress.getLocationURI();
+            URL location = null;
+            try {
+                location = new URL(locationURIString);
+            } catch (MalformedURLException e) {
+                throw new DeploymentException("Could not construct web service location URL from " + locationURIString);
+            }
 
-                        SEIFactory seiFactory;
+            SEIFactory seiFactory;
 
             Class serviceEndpointInterface = null;
             ServiceEndpointInterfaceMappingType[] endpointMappings = mapping.getServiceEndpointInterfaceMappingArray();
+            //port type corresponds to SEI
+            List operations = portType.getOperations();
+            OperationInfo[] operationInfos = new OperationInfo[operations.size()];
             if (endpointMappings.length == 0) {
                 serviceEndpointInterface = getServiceEndpointInterfaceLightweight(serviceInterface, port);
                 Class enhancedServiceEndpointClass = enhanceServiceEndpointInterface(serviceEndpointInterface, context, module, classloader);
 
-                 //port type corresponds to SEI
-                List operations = portType.getOperations();
-                OperationInfo[] operationInfos = new OperationInfo[FastClass.create(enhancedServiceEndpointClass).getMaxIndex() + 1];
+                int i = 0;
                 for (Iterator ops = operations.iterator(); ops.hasNext();) {
                     Operation operation = (Operation) ops.next();
                     Method method = getMethodForOperation(enhancedServiceEndpointClass, operation);
-                    BindingOperation bindingOperation = binding.getBindingOperation(operation.getName(), operation.getInput().getName(), operation.getOutput() == null? null: operation.getOutput().getName());
+                    BindingOperation bindingOperation = binding.getBindingOperation(operation.getName(), operation.getInput().getName(), operation.getOutput() == null ? null : operation.getOutput().getName());
                     OperationInfo operationInfo = buildOperationInfo(method, bindingOperation, portStyle, soapVersion);
-                    int methodIndex = getSuperIndex(enhancedServiceEndpointClass, method);
-                    operationInfos[methodIndex] = operationInfo;
+                    operationInfos[i++] = operationInfo;
                 }
                 List typeMappings = new ArrayList();
                 seiFactory = createSEIFactory(enhancedServiceEndpointClass, serviceImpl, typeMappings, location, operationInfos, context, classloader);
@@ -289,13 +287,11 @@ public class AxisBuilder implements ServiceReferenceBuilder {
                 }
                 Class enhancedServiceEndpointClass = enhanceServiceEndpointInterface(serviceEndpointInterface, context, module, classloader);
 
-                 //port type corresponds to SEI
-                List operations = portType.getOperations();
                 ServiceEndpointMethodMappingType[] methodMappings = endpointMapping.getServiceEndpointMethodMappingArray();
-                OperationInfo[] operationInfos = new OperationInfo[FastClass.create(enhancedServiceEndpointClass).getMaxIndex() + 1];
+                int i = 0;
                 for (Iterator ops = operations.iterator(); ops.hasNext();) {
                     Operation operation = (Operation) ops.next();
-                    BindingOperation bindingOperation = binding.getBindingOperation(operation.getName(), operation.getInput().getName(), operation.getOutput() == null? null: operation.getOutput().getName());
+                    BindingOperation bindingOperation = binding.getBindingOperation(operation.getName(), operation.getInput().getName(), operation.getOutput() == null ? null : operation.getOutput().getName());
                     ServiceEndpointMethodMappingType methodMapping = getMethodMappingForOperation(operation, methodMappings);
                     String javaMethodName = methodMapping.getJavaMethodName().getStringValue().trim();
                     Class[] types = getParameterTypes(methodMapping, classloader);
@@ -306,8 +302,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
                         throw new DeploymentException("Could not find method for operation", e);
                     }
                     OperationInfo operationInfo = buildOperationInfo(method, bindingOperation, portStyle, soapVersion);
-                    int methodIndex = getSuperIndex(enhancedServiceEndpointClass, method);
-                    operationInfos[methodIndex] = operationInfo;
+                    operationInfos[i++] = operationInfo;
                 }
                 List typeMappings = new ArrayList();
                 seiFactory = createSEIFactory(enhancedServiceEndpointClass, serviceImpl, typeMappings, location, operationInfos, context, classloader);
@@ -458,13 +453,13 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         QName returnQName = null;
 
         Message inputMessage = operation.getInput().getMessage();
-        Message outputMessage = operation.getOutput() == null? null: operation.getOutput().getMessage();
+        Message outputMessage = operation.getOutput() == null ? null : operation.getOutput().getMessage();
 
         if (order == null || order.size() == 0) {
             if (outputMessage != null && outputMessage.getParts().size() > 1) {
 //                throw new DeploymentException("We don't handle multiple out params unless you supply the parameter order!");
                 System.out.println("We don't handle multiple out params unless you supply the parameter order!");
-                return null;
+                return new OperationInfo(null, false, null, null, null, method.getName(), Type.getMethodDescriptor(method));
             }
             Class[] methodParamTypes = method.getParameterTypes();
             Map inputParts = inputMessage.getParts();
@@ -495,7 +490,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
             //todo fix this
 //            throw new DeploymentException("specified parameter order NYI");
             System.out.println("specified parameter order NYI");
-            return null;
+            return new OperationInfo(null, false, null, null, null, method.getName(), Type.getMethodDescriptor(method));
         }
         ParameterDesc[] parameterDescs = (ParameterDesc[]) parameterList.toArray(new ParameterDesc[parameterList.size()]);
         OperationDesc operationDesc = new OperationDesc(operationName, parameterDescs, returnQName);
@@ -526,18 +521,10 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         boolean usesSOAPAction = (soapActionURI != null);
         QName operationQName = new QName("", operation.getName());
 
-        OperationInfo operationInfo = new OperationInfo(operationDesc, usesSOAPAction, soapActionURI, soapVersion, operationQName);
+        String methodName = method.getName();
+        String methodDesc = Type.getMethodDescriptor(method);
+        OperationInfo operationInfo = new OperationInfo(operationDesc, usesSOAPAction, soapActionURI, soapVersion, operationQName, methodName, methodDesc);
         return operationInfo;
-    }
-
-    //from openejb MethodHelper
-    public static int getSuperIndex(Class proxyType, Method method) {
-        Signature signature = new Signature(method.getName(), Type.getReturnType(method), Type.getArgumentTypes(method));
-        MethodProxy methodProxy = MethodProxy.find(proxyType, signature);
-        if (methodProxy != null) {
-            return methodProxy.getSuperIndex();
-        }
-        return -1;
     }
 
 

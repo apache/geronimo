@@ -27,8 +27,10 @@ import javax.xml.rpc.ServiceException;
 
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.MethodProxy;
 import net.sf.cglib.reflect.FastConstructor;
 import net.sf.cglib.reflect.FastClass;
+import net.sf.cglib.core.Signature;
 import org.apache.axis.client.Service;
 
 /**
@@ -43,6 +45,7 @@ public class SEIFactoryImpl implements SEIFactory, Serializable {
     private final Object serviceImpl;
     private final List typeMappings;
     private final URL location;
+    private transient OperationInfo[] sortedOperationInfos;
 
     public SEIFactoryImpl(Class serviceEndpointClass, OperationInfo[] operationInfos, Object serviceImpl, List typeMappings, URL location, ClassLoader classLoader) throws ClassNotFoundException {
         this.serviceEndpointClass = serviceEndpointClass;
@@ -53,12 +56,20 @@ public class SEIFactoryImpl implements SEIFactory, Serializable {
         this.serviceImpl = serviceImpl;
         this.typeMappings = typeMappings;
         this.location = location;
+        sortedOperationInfos = new OperationInfo[FastClass.create(serviceEndpointClass).getMaxIndex() + 1];
+        for (int i = 0; i < operationInfos.length; i++) {
+            OperationInfo operationInfo = operationInfos[i];
+            Signature signature = operationInfo.getSignature();
+            MethodProxy methodProxy = MethodProxy.find(serviceEndpointClass, signature);
+            int index = methodProxy.getSuperIndex();
+            sortedOperationInfos[index] = operationInfo;
+        }
     }
 
     public Remote createServiceEndpoint() throws ServiceException {
         Service service = ((ServiceImpl)serviceImpl).getService();
         GenericServiceEndpoint serviceEndpoint = new GenericServiceEndpoint(service, typeMappings, location);
-        Callback callback = new ServiceEndpointMethodInterceptor(serviceEndpoint, operationInfos);
+        Callback callback = new ServiceEndpointMethodInterceptor(serviceEndpoint, sortedOperationInfos);
         Callback[] callbacks = new Callback[]{SerializableNoOp.INSTANCE, callback};
         Enhancer.registerCallbacks(serviceEndpointClass, callbacks);
         try {

@@ -18,6 +18,7 @@ package org.apache.geronimo.axis.client;
 
 import java.lang.reflect.Method;
 import java.io.Serializable;
+import java.util.Arrays;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
@@ -40,7 +41,7 @@ public class ServiceEndpointMethodInterceptor implements MethodInterceptor{
         int index = methodProxy.getSuperIndex();
         OperationInfo operationInfo = operations[index];
         if (operationInfo == null) {
-            throw new RuntimeException("Operation not mapped: " + method.getName());
+            throw new RuntimeException("Operation not mapped: " + method.getName() + " index: " + index + "\n OperationInfos: " + Arrays.asList(operations));
         }
         stub.checkCachedEndpoint();
 
