@@ -506,7 +506,7 @@ public class MimeMessage extends Message implements MimePart {
     }
 
     public Enumeration getMatchingHeaders(String[] names) throws MessagingException {
-        return getMatchingHeaders(names);
+        return headers.getMatchingHeaders(names);
     }
 
     public Enumeration getNonMatchingHeaders(String[] names) throws MessagingException {
