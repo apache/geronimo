@@ -22,7 +22,7 @@ Documentation
  Notebook by David Blevins (O'Reilly 2004-ish) to help Geronimo reach its M2 
  goals and to grow the community.  The chapters are located at:
   
- http://today.java.net/pub/a/today/2004/08/04/geronimo.html
+ http://today.java.net/pub/a/today/2004/08/02/geronimo.html 
 ___________________
 Release Notes
 ===================
