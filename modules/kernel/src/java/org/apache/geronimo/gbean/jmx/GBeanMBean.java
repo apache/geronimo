@@ -823,6 +823,17 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                             }
                         }));
 
+        attributesMap.put("gbeanInfo",
+                new GBeanMBeanAttribute((GBeanMBeanAttribute) attributesMap.get("gbeanInfo"),
+                        this,
+                        "gbeanInfo",
+                        GBeanInfo.class,
+                        new MethodInvoker() {
+                            public Object invoke(Object target, Object[] arguments) throws Exception {
+                                return getGBeanInfo();
+                            }
+                        }));
+
         attributesMap.put("classLoader",
                 new GBeanMBeanAttribute((GBeanMBeanAttribute) attributesMap.get("classLoader"),
                         this,

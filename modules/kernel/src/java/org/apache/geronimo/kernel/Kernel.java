@@ -43,6 +43,7 @@ import javax.management.ObjectName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
@@ -247,6 +248,18 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
 
     public boolean isLoaded(ObjectName name) {
         return mbServer != null && mbServer.isRegistered(name);
+    }
+
+    public GBeanInfo getGBeanInfo(ObjectName name) throws InstanceNotFoundException {
+        try {
+            return (GBeanInfo) getAttribute(name, "gbeanInfo");
+        } catch (InstanceNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e); 
+        }
     }
 
     public void loadGBean(ObjectName name, GBeanMBean gbean) throws InstanceAlreadyExistsException, InvalidConfigException {

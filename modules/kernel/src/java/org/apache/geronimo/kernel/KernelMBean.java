@@ -27,6 +27,7 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
@@ -127,6 +128,14 @@ public interface KernelMBean {
     Object invoke(ObjectName objectName, String methodName, Object[] args, String[] types) throws Exception;
 
     boolean isLoaded(ObjectName name);
+
+    /**
+     * Return the GBean info for a gbean instance.
+     * @param name the name of the gbean whose info should be returned
+     * @return the info for that instance
+     * @throws InstanceNotFoundException if there is no instance with the supplied name
+     */
+    GBeanInfo getGBeanInfo(ObjectName name) throws InstanceNotFoundException;
 
     /**
      * Return the names of GBeans that match the query.
