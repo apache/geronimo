@@ -73,11 +73,11 @@ public class StartupTest  extends TestCase {
         kernel.startGBean(serverStub);
 
         // They should all be started now
-        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getMBeanServer().getAttribute(subsystemRouter, "state"));
-        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getMBeanServer().getAttribute(asyncTransport, "state"));
-        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getMBeanServer().getAttribute(jmxRouter, "state"));
-        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getMBeanServer().getAttribute(registeryRouter, "state"));
-        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getMBeanServer().getAttribute(serverStub, "state"));
+        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(subsystemRouter, "state"));
+        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(asyncTransport, "state"));
+        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(jmxRouter, "state"));
+        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(registeryRouter, "state"));
+        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(serverStub, "state"));
 
         kernel.stopGBean(subsystemRouter);
         kernel.stopGBean(asyncTransport);

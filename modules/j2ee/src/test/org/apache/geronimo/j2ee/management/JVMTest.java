@@ -19,8 +19,6 @@ package org.apache.geronimo.j2ee.management;
 
 import java.net.InetAddress;
 
-import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
-
 /**
  * @version $Rev$ $Date$
  */
@@ -38,10 +36,10 @@ public class JVMTest extends Abstract77Test {
     }
 
     public void testStandardAttributes() throws Exception {
-        assertEquals(JVM_NAME.getCanonicalName(), mbServer.getAttribute(JVM_NAME, "objectName"));
-        assertEquals(System.getProperty("java.version"), mbServer.getAttribute(JVM_NAME, "javaVersion"));
-        assertEquals(System.getProperty("java.vendor"), mbServer.getAttribute(JVM_NAME, "javaVendor"));
-        assertEquals(node, mbServer.getAttribute(JVM_NAME, "node"));
+        assertEquals(JVM_NAME.getCanonicalName(), kernel.getAttribute(JVM_NAME, "objectName"));
+        assertEquals(System.getProperty("java.version"), kernel.getAttribute(JVM_NAME, "javaVersion"));
+        assertEquals(System.getProperty("java.vendor"), kernel.getAttribute(JVM_NAME, "javaVendor"));
+        assertEquals(node, kernel.getAttribute(JVM_NAME, "node"));
     }
 
     public void testGeronimoInterface() {
@@ -55,20 +53,26 @@ public class JVMTest extends Abstract77Test {
     }
 
     public void testGeronimoAttributes() throws Exception {
-        assertEquals(new Integer(runtime.availableProcessors()), mbServer.getAttribute(JVM_NAME, "availableProcessors"));
+        assertEquals(new Integer(runtime.availableProcessors()), kernel.getAttribute(JVM_NAME, "availableProcessors"));
 
         // I'm going to leave these in but I am not sure the results are deterministic
-//        assertEquals(new Long(runtime.freeMemory()), mbServer.getAttribute(JVM_NAME, "freeMemory"));
-        assertEquals(new Long(runtime.maxMemory()), mbServer.getAttribute(JVM_NAME, "maxMemory"));
-        assertEquals(new Long(runtime.totalMemory()), mbServer.getAttribute(JVM_NAME, "totalMemory"));
+//        assertEquals(new Long(runtime.freeMemory()), kernel.getAttribute(JVM_NAME, "freeMemory"));
+        assertEquals(new Long(runtime.maxMemory()), kernel.getAttribute(JVM_NAME, "maxMemory"));
+        assertEquals(new Long(runtime.totalMemory()), kernel.getAttribute(JVM_NAME, "totalMemory"));
 
     }
 
     protected void setUp() throws Exception {
         super.setUp();
-        jvm = (JVM) MBeanProxyFactory.getProxy(JVM.class, mbServer, JVM_NAME);
-        jvmEx = (org.apache.geronimo.j2ee.management.geronimo.JVM) MBeanProxyFactory.getProxy(org.apache.geronimo.j2ee.management.geronimo.JVM.class, mbServer, JVM_NAME);
+        jvm = (JVM) kernel.getProxyManager().createProxy(JVM_NAME, JVM.class);
+        jvmEx = (org.apache.geronimo.j2ee.management.geronimo.JVM) kernel.getProxyManager().createProxy(JVM_NAME, org.apache.geronimo.j2ee.management.geronimo.JVM.class);
         node = InetAddress.getLocalHost().toString();
         runtime = Runtime.getRuntime();
+    }
+
+    protected void tearDown() throws Exception {
+        kernel.getProxyManager().destroyProxy(jvm);
+        kernel.getProxyManager().destroyProxy(jvmEx);
+        super.tearDown();
     }
 }

@@ -31,7 +31,6 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 import org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingClient;
 
 /**
@@ -138,6 +137,10 @@ public class JaasLoginCoordinator implements LoginModule {
     }
 
     private void clear() {
+        Kernel kernel = Kernel.getKernel(kernelName);
+        if (kernel != null) {
+            kernel.getProxyManager().destroyProxy(service);
+        }
         serverHost = null;
         serverPort = 0;
         realmName = null;
@@ -155,7 +158,8 @@ public class JaasLoginCoordinator implements LoginModule {
         if(serverHost != null && serverPort > 0) {
             return JaasLoginServiceRemotingClient.create(serverHost, serverPort);
         } else {
-            return (JaasLoginServiceMBean) MBeanProxyFactory.getProxy(JaasLoginServiceMBean.class, Kernel.getKernel(kernelName).getMBeanServer(), JaasLoginService.OBJECT_NAME);
+            Kernel kernel = Kernel.getKernel(kernelName);
+            return (JaasLoginServiceMBean) kernel.getProxyManager().createProxy(JaasLoginService.OBJECT_NAME, JaasLoginServiceMBean.class);
         }
     }
 

@@ -43,8 +43,8 @@ public class GBeanTest extends TestCase {
         gbean.setAttribute("finalInt", new Integer(123));
         kernel.loadGBean(name, gbean);
         kernel.startGBean(name);
-        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getMBeanServer().getAttribute(name, "state"));
-        assertEquals("Hello", kernel.getMBeanServer().invoke(name, "doSomething", new Object[]{"Hello"}, new String[]{String.class.getName()}));
+        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(name, "state"));
+        assertEquals("Hello", kernel.invoke(name, "doSomething", new Object[]{"Hello"}, new String[]{String.class.getName()}));
 
         assertEquals(name.getCanonicalName(), kernel.getAttribute(name, "objectName"));
         assertEquals(name.getCanonicalName(), kernel.getAttribute(name, "actualObjectName"));
@@ -78,7 +78,7 @@ public class GBeanTest extends TestCase {
         kernel.loadGBean(name2, gbean2);
         kernel.startGBean(name2);
 
-        assertEquals("endpointCheck", kernel.getMBeanServer().invoke(name2, "checkEndpoint", null, null));
+        assertEquals("endpointCheck", kernel.invoke(name2, "checkEndpoint", null, null));
     }
 
     protected void setUp() throws Exception {

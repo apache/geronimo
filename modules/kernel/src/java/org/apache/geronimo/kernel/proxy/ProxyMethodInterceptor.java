@@ -31,9 +31,8 @@ import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import net.sf.cglib.reflect.FastClass;
 import org.apache.geronimo.gbean.GOperationSignature;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.gbean.runtime.RawInvoker;
 import org.apache.geronimo.gbean.runtime.GBeanInstance;
+import org.apache.geronimo.gbean.runtime.RawInvoker;
 import org.apache.geronimo.kernel.Kernel;
 import org.objectweb.asm.Type;
 

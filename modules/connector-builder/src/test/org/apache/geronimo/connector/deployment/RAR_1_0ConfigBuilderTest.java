@@ -276,7 +276,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
             if (!j2eeContext.getJ2eeApplicationName().equals("null")) {
                 assertRunning(kernel, applicationObjectName);
             } else {
-                Set applications = kernel.getMBeanServer().queryNames(applicationObjectName, null);
+                Set applications = kernel.listGBeans(applicationObjectName);
                 assertTrue("No application object should be registered for a standalone module", applications.isEmpty());
             }
 

@@ -25,7 +25,6 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
@@ -46,7 +45,6 @@ public class ApplicationTest extends TestCase {
     private ObjectName containerName;
     private Set containerPatterns;
     private ObjectName connectorName;
-    private MBeanServer mbServer;
     private GBeanMBean connector;
     private ObjectName appName;
     private ObjectName tmName;
@@ -84,14 +82,14 @@ public class ApplicationTest extends TestCase {
         connection.disconnect();
     }
 
-    private void start(ObjectName name, Object instance) throws Exception {
-        mbServer.registerMBean(instance, name);
-        mbServer.invoke(name, "start", null, null);
+    private void start(ObjectName name, GBeanMBean instance) throws Exception {
+        kernel.loadGBean(name, instance);
+        kernel.startGBean(name);
     }
 
     private void stop(ObjectName name) throws Exception {
-        mbServer.invoke(name, "stop", null, null);
-        mbServer.unregisterMBean(name);
+        kernel.stopGBean(name);
+        kernel.unloadGBean(name);
     }
 
     protected void setUp() throws Exception {
@@ -106,7 +104,6 @@ public class ApplicationTest extends TestCase {
 
         kernel = new Kernel("test.kernel", "test");
         kernel.boot();
-        mbServer = kernel.getMBeanServer();
         container = new GBeanMBean(JettyContainerImpl.GBEAN_INFO);
 
         connector = new GBeanMBean(HTTPConnector.GBEAN_INFO);

@@ -16,28 +16,19 @@
  */
 package org.apache.geronimo.security.jaas;
 
-import javax.management.ObjectName;
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginContext;
-import java.io.File;
-import java.util.Collections;
-import java.util.Properties;
-import java.util.Set;
-import java.util.List;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
+import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.security.AbstractTest;
-import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.IdentificationPrincipal;
-import org.apache.geronimo.security.RealmPrincipal;
-import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.security.realm.DeploymentSupport;
-import org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal;
+import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal;
+import org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
-import org.apache.geronimo.kernel.Kernel;
 
 /**
  * Unit test for the DeploymentSupport features of security realms.
@@ -132,38 +123,42 @@ public class DeploymentSupportTest extends AbstractTest {
     }
 
     public void testDeploymentSupport() throws Exception {
-        SecurityRealm realm = (SecurityRealm) MBeanProxyFactory.getProxy(SecurityRealm.class, kernel.getMBeanServer(), testRealm);
-        String[] domains = realm.getLoginDomains();
-        assertEquals(1, domains.length);
-        DeploymentSupport deployment = realm.getDeploymentSupport(domains[0]);
-        assertNotNull(deployment);
-        String[] classes = deployment.getPrincipalClassNames();
-        assertEquals(2, classes.length);
-        if(classes[0].equals(GeronimoUserPrincipal.class.getName())) {
-            assertEquals(GeronimoGroupPrincipal.class.getName(), classes[1]);
-        } else if(classes[1].equals(GeronimoUserPrincipal.class.getName())) {
-            assertEquals(GeronimoGroupPrincipal.class.getName(), classes[0]);
-        } else {
-            fail("Unexpected principal class names "+classes[0]+" / "+classes[1]);
+        SecurityRealm realm = (SecurityRealm) kernel.getProxyManager().createProxy(testRealm, SecurityRealm.class);
+        try {
+            String[] domains = realm.getLoginDomains();
+            assertEquals(1, domains.length);
+            DeploymentSupport deployment = realm.getDeploymentSupport(domains[0]);
+            assertNotNull(deployment);
+            String[] classes = deployment.getPrincipalClassNames();
+            assertEquals(2, classes.length);
+            if(classes[0].equals(GeronimoUserPrincipal.class.getName())) {
+                assertEquals(GeronimoGroupPrincipal.class.getName(), classes[1]);
+            } else if(classes[1].equals(GeronimoUserPrincipal.class.getName())) {
+                assertEquals(GeronimoGroupPrincipal.class.getName(), classes[0]);
+            } else {
+                fail("Unexpected principal class names "+classes[0]+" / "+classes[1]);
+            }
+            String[] names = deployment.getPrincipalsOfClass(GeronimoUserPrincipal.class.getName());
+            assertEquals(5, names.length);
+            List list = Arrays.asList(names);
+            assertTrue(list.contains("izumi"));
+            assertTrue(list.contains("alan"));
+            assertTrue(list.contains("george"));
+            assertTrue(list.contains("gracie"));
+            assertTrue(list.contains("metro"));
+            names = deployment.getPrincipalsOfClass(GeronimoGroupPrincipal.class.getName());
+            assertEquals(5, names.length);
+            list = Arrays.asList(names);
+            assertTrue(list.contains("manager"));
+            assertTrue(list.contains("it"));
+            assertTrue(list.contains("pet"));
+            assertTrue(list.contains("dog"));
+            assertTrue(list.contains("cat"));
+            String[] map = deployment.getAutoMapPrincipalClassNames();
+            assertEquals(1, map.length);
+            assertEquals(GeronimoGroupPrincipal.class.getName(), map[0]);
+        } finally {
+            kernel.getProxyManager().destroyProxy(realm);
         }
-        String[] names = deployment.getPrincipalsOfClass(GeronimoUserPrincipal.class.getName());
-        assertEquals(5, names.length);
-        List list = Arrays.asList(names);
-        assertTrue(list.contains("izumi"));
-        assertTrue(list.contains("alan"));
-        assertTrue(list.contains("george"));
-        assertTrue(list.contains("gracie"));
-        assertTrue(list.contains("metro"));
-        names = deployment.getPrincipalsOfClass(GeronimoGroupPrincipal.class.getName());
-        assertEquals(5, names.length);
-        list = Arrays.asList(names);
-        assertTrue(list.contains("manager"));
-        assertTrue(list.contains("it"));
-        assertTrue(list.contains("pet"));
-        assertTrue(list.contains("dog"));
-        assertTrue(list.contains("cat"));
-        String[] map = deployment.getAutoMapPrincipalClassNames();
-        assertEquals(1, map.length);
-        assertEquals(GeronimoGroupPrincipal.class.getName(), map[0]);
     }
 }

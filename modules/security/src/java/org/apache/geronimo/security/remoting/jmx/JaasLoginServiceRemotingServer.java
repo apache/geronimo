@@ -21,14 +21,12 @@ import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 import org.apache.geronimo.proxy.ProxyContainer;
 import org.apache.geronimo.proxy.ReflexiveInterceptor;
 import org.apache.geronimo.remoting.DeMarshalingInterceptor;
@@ -51,6 +49,7 @@ public class JaasLoginServiceRemotingServer implements GBeanLifecycle, JMXTarget
     private ProxyContainer serverContainer;
     private DeMarshalingInterceptor demarshaller;
     private JMXRouter router;
+    private JaasLoginServiceMBean loginService;
 
     public JaasLoginServiceRemotingServer(Kernel kernel, String objectName) {
         this.kernel = kernel;
@@ -73,9 +72,9 @@ public class JaasLoginServiceRemotingServer implements GBeanLifecycle, JMXTarget
         router.register(objectName, this);
 
         // Setup the server side contianer..
-        JaasLoginServiceMBean loginService = (JaasLoginServiceMBean) MBeanProxyFactory.getProxy(JaasLoginServiceMBean.class,
-                kernel.getMBeanServer(),
-                JMXUtil.getObjectName("geronimo.security:type=JaasLoginService"));
+        // todo dain: alan, why is this not a dependency?
+        // todo dain: hard coded object names are very very bery bad
+        loginService = (JaasLoginServiceMBean) kernel.getProxyManager().createProxy(JMXUtil.getObjectName("geronimo.security:type=JaasLoginService"), JaasLoginServiceMBean.class);
         Interceptor firstInterceptor = new ReflexiveInterceptor(loginService);
         demarshaller = new DeMarshalingInterceptor(firstInterceptor, getClass().getClassLoader());
         serverContainer = new ProxyContainer(firstInterceptor);
@@ -85,7 +84,7 @@ public class JaasLoginServiceRemotingServer implements GBeanLifecycle, JMXTarget
 
     public void doStop() {
         router.unregister(objectName);
-
+        kernel.getProxyManager().destroyProxy(loginService);
         serverContainer = null;
         demarshaller = null;
         log.info("Stopped login service stub");

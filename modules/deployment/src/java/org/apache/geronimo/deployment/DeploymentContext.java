@@ -117,6 +117,7 @@ public class DeploymentContext {
             }
 
             try {
+                // todo it is a really bad to start the configurations
                 ObjectName currentConfig = parentName;
                 while ( State.RUNNING != State.fromInteger((Integer) kernel.getAttribute(currentConfig, "state")) ) {
                     kernel.startGBean(currentConfig);

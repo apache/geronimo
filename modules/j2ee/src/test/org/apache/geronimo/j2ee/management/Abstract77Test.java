@@ -20,7 +20,6 @@ package org.apache.geronimo.j2ee.management;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
@@ -44,7 +43,6 @@ public abstract class Abstract77Test extends TestCase {
     protected static final ObjectName JVM_NAME = JMXUtil.getObjectName(DOMAIN + ":j2eeType=JVM,J2EEServer=Test");
 
     protected Kernel kernel;
-    protected MBeanServer mbServer;
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -68,7 +66,6 @@ public abstract class Abstract77Test extends TestCase {
         kernel.startGBean(DOMAIN_NAME);
         kernel.startGBean(SERVER_NAME);
         kernel.startGBean(JVM_NAME);
-        mbServer = kernel.getMBeanServer();
     }
 
     protected void tearDown() throws Exception {

@@ -17,7 +17,7 @@
 
 package org.apache.geronimo.j2ee.management;
 
-import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
+
 
 /**
  * @version $Rev$ $Date$
@@ -36,17 +36,22 @@ public class ServerTest extends Abstract77Test {
     }
 
     public void testStandardAttributes() throws Exception {
-        assertEquals(SERVER_NAME.toString(), mbServer.getAttribute(SERVER_NAME, "objectName"));
-        assertEquals(0, ((String[]) mbServer.getAttribute(SERVER_NAME, "deployedObjects")).length);
-        assertEquals(0, ((String[]) mbServer.getAttribute(SERVER_NAME, "resources")).length);
-        assertObjectNamesEqual(new String[]{JVM_NAME.toString()}, (String[]) mbServer.getAttribute(SERVER_NAME, "javaVMs"));
-        assertEquals("The Apache Software Foundation", mbServer.getAttribute(SERVER_NAME, "serverVendor"));
-        assertEquals(version, mbServer.getAttribute(SERVER_NAME, "serverVersion"));
+        assertEquals(SERVER_NAME.toString(), kernel.getAttribute(SERVER_NAME, "objectName"));
+        assertEquals(0, ((String[]) kernel.getAttribute(SERVER_NAME, "deployedObjects")).length);
+        assertEquals(0, ((String[]) kernel.getAttribute(SERVER_NAME, "resources")).length);
+        assertObjectNamesEqual(new String[]{JVM_NAME.toString()}, (String[]) kernel.getAttribute(SERVER_NAME, "javaVMs"));
+        assertEquals("The Apache Software Foundation", kernel.getAttribute(SERVER_NAME, "serverVendor"));
+        assertEquals(version, kernel.getAttribute(SERVER_NAME, "serverVersion"));
     }
 
     protected void setUp() throws Exception {
         super.setUp();
-        server = (J2EEServer) MBeanProxyFactory.getProxy(J2EEServer.class, mbServer, SERVER_NAME);
-        version = (String) mbServer.getAttribute(SERVER_INFO_NAME, "version");
+        server = (J2EEServer) kernel.getProxyManager().createProxy(SERVER_NAME, J2EEServer.class);
+        version = (String) kernel.getAttribute(SERVER_INFO_NAME, "version");
+    }
+
+    protected void tearDown() throws Exception {
+        kernel.getProxyManager().destroyProxy(server);
+        super.tearDown();
     }
 }

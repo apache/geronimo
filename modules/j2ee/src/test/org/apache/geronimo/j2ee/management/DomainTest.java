@@ -17,7 +17,7 @@
 
 package org.apache.geronimo.j2ee.management;
 
-import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
+
 
 
 /**
@@ -32,12 +32,17 @@ public class DomainTest extends Abstract77Test {
     }
 
     public void testStandardAttributes() throws Exception {
-        assertEquals(DOMAIN_NAME.toString(), mbServer.getAttribute(DOMAIN_NAME, "objectName"));
-        assertObjectNamesEqual(new String[]{SERVER_NAME.toString()}, (String[]) mbServer.getAttribute(DOMAIN_NAME, "servers"));
+        assertEquals(DOMAIN_NAME.toString(), kernel.getAttribute(DOMAIN_NAME, "objectName"));
+        assertObjectNamesEqual(new String[]{SERVER_NAME.toString()}, (String[]) kernel.getAttribute(DOMAIN_NAME, "servers"));
     }
 
     protected void setUp() throws Exception {
         super.setUp();
-        domain = (J2EEDomain) MBeanProxyFactory.getProxy(J2EEDomain.class, mbServer, DOMAIN_NAME);
+        domain = (J2EEDomain) kernel.getProxyManager().createProxy(DOMAIN_NAME, J2EEDomain.class);
+    }
+
+    protected void tearDown() throws Exception {
+        kernel.getProxyManager().destroyProxy(domain);
+        super.tearDown();
     }
 }

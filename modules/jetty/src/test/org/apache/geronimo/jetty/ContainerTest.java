@@ -21,7 +21,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
-import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
@@ -39,10 +38,9 @@ public class ContainerTest extends TestCase {
     private ObjectName containerName;
     private Set containerPatterns;
     private ObjectName connectorName;
-    private MBeanServer mbServer;
 
     public void testServer() throws Exception {
-        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getMBeanServer().getAttribute(containerName, "state"));
+        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(containerName, "state"));
     }
 
     public void testHTTPConnector() throws Exception {
@@ -51,7 +49,7 @@ public class ContainerTest extends TestCase {
         connector.setReferencePatterns("JettyContainer", containerPatterns);
         start(connectorName, connector);
 
-        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getMBeanServer().getAttribute(connectorName, "state"));
+        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(connectorName, "state"));
 
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678").openConnection();
         try {
@@ -65,14 +63,14 @@ public class ContainerTest extends TestCase {
         stop(connectorName);
     }
 
-    private void start(ObjectName name, Object instance) throws Exception {
-        mbServer.registerMBean(instance, name);
-        mbServer.invoke(name, "start", null, null);
+    private void start(ObjectName name, GBeanMBean instance) throws Exception {
+        kernel.loadGBean(name, instance);
+        kernel.startGBean(name);
     }
 
     private void stop(ObjectName name) throws Exception {
-        mbServer.invoke(name, "stop", null, null);
-        mbServer.unregisterMBean(name);
+        kernel.stopGBean(name);
+        kernel.unloadGBean(name);
     }
 
     protected void setUp() throws Exception {
@@ -82,7 +80,6 @@ public class ContainerTest extends TestCase {
         connectorName = new ObjectName("geronimo.jetty:role=Connector");
         kernel = new Kernel("test.kernel", "test");
         kernel.boot();
-        mbServer = kernel.getMBeanServer();
         container = new GBeanMBean(JettyContainerImpl.GBEAN_INFO);
         start(containerName, container);
     }

@@ -85,7 +85,7 @@ public class Run {
             });
 
             kernel.startGBean(configName);
-            kernel.getMBeanServer().invoke(gbeanName, "main", new Object[]{args}, MAIN_ARGS);
+            kernel.invoke(gbeanName, "main", new Object[]{args}, MAIN_ARGS);
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(2);

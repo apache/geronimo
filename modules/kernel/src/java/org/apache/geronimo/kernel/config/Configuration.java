@@ -239,7 +239,7 @@ public class Configuration implements GBeanLifecycle {
         try {
             gbeanState = storeGBeans(kernel, objectNames);
         } catch (InvalidConfigException e) {
-            log.info(e);
+            log.info("Unable to update persistent state during shutdown", e);
         }
 
         // unregister all GBeans
@@ -401,7 +401,7 @@ public class Configuration implements GBeanLifecycle {
                 gbeanData.setName(objectName);
                 gbeanData.writeExternal(oos);
             } catch (Exception e) {
-                throw new InvalidConfigException("Unable to serialize GBeanState for " + objectName, e);
+                throw new InvalidConfigException("Unable to serialize GBeanData for " + objectName, e);
             }
         }
         try {
@@ -434,7 +434,7 @@ public class Configuration implements GBeanLifecycle {
                 GBeanData gbeanData = kernel.getGBeanData(objectName);
                 gbeanData.writeExternal(oos);
             } catch (Exception e) {
-                throw new InvalidConfigException("Unable to serialize GBeanState for " + objectName, e);
+                throw new InvalidConfigException("Unable to serialize GBeanData for " + objectName, e);
             }
         }
         try {

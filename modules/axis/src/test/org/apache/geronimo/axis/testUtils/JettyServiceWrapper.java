@@ -19,8 +19,6 @@ package org.apache.geronimo.axis.testUtils;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.axis.AxisGeronimoUtils;
@@ -43,11 +41,11 @@ public class JettyServiceWrapper {
     private ObjectName tcaName;
     private ObjectName connectorName;
     private ObjectName tcmName;
+    private final Kernel kernel;
 
-    private final MBeanServer mbServer;
 
     public JettyServiceWrapper(Kernel kernel) {
-        this.mbServer = kernel.getMBeanServer();
+        this.kernel = kernel;
         containerName = AxisGeronimoConstants.WEB_CONTAINER_NAME;
         containerPatterns = Collections.singleton(containerName);
         connectorName = AxisGeronimoConstants.WEB_CONNECTOR_NAME;
@@ -87,14 +85,13 @@ public class JettyServiceWrapper {
         stop(containerName);
     }
 
-    private void start(ObjectName name, Object instance) throws Exception {
-        mbServer.registerMBean(instance, name);
-        mbServer.invoke(name, "start", null, null);
+    private void start(ObjectName name, GBeanMBean instance) throws Exception {
+        kernel.loadGBean(name, instance);
+        kernel.startGBean(name);
     }
 
     private void stop(ObjectName name) throws Exception {
-        mbServer.invoke(name, "stop", null, null);
-        mbServer.unregisterMBean(name);
+        kernel.stopGBean(name);
+        kernel.unloadGBean(name);
     }
-
 }

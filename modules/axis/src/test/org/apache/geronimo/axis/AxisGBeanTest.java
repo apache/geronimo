@@ -48,7 +48,7 @@ public class AxisGBeanTest extends AbstractTestCase {
         GBeanMBean gbean = new GBeanMBean(AxisGbean.getGBeanInfo(), myCl);
         kernel.loadGBean(name, gbean);
         kernel.startGBean(name);
-        System.out.println(kernel.getMBeanServer().getAttribute(name, "state"));
+        System.out.println(kernel.getAttribute(name, "state"));
         HttpURLConnection connection = (HttpURLConnection) AxisGeronimoUtils.getURL("/axis/index.html").openConnection();
         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         connection.getResponseCode();
