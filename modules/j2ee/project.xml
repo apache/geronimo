@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.5 $ $Date: 2004/05/19 20:53:59 $ -->
+<!-- $Revision: 1.6 $ $Date: 2004/05/27 05:20:25 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -31,8 +31,8 @@
     <id>geronimo-j2ee</id>
     <shortDescription>J2EE Services</shortDescription>
     <description>Geronimo J2EE Services</description>
-    <url>http://incubator.apache.org/projects/geronimo/j2ee/</url>
-    <siteDirectory>/www/incubator.apache.org/projects/geronimo/j2ee</siteDirectory>
+    <url>http://geronimo.apache.org/modules/j2ee/</url>
+    <siteDirectory>/www/geronimo.apache.org/modules/j2ee</siteDirectory>
     <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/j2ee</distributionDirectory>
 
     <package>org.apache.geronimo.j2ee</package>

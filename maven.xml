@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.74 $ $Date: 2004/05/06 15:25:42 $ -->
+<!-- $Revision: 1.75 $ $Date: 2004/05/27 05:20:24 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -348,7 +348,7 @@
     </goal>
 
     <goal name="site:tocvs"
-        description="Creates the entire website and copies it to the local CVS repository so that it can be checked in to update the Incubator site">
+        description="Creates the entire website and copies it to the local CVS repository so that it can be checked in to update the site">
 
         <j:jelly xmlns="jelly:ant">
 

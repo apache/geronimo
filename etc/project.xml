@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.26 $ $Date: 2004/05/01 06:40:19 $ -->
+<!-- $Revision: 1.27 $ $Date: 2004/05/27 05:20:24 $ -->
 
 <project>
 
@@ -34,20 +34,20 @@
 
     <organization>
         <name>Apache Software Foundation</name>
-        <url>http://incubator.apache.org/</url>
-        <logo>http://incubator.apache.org/geronimo/images/apache-incubator.png</logo>
+        <url>http://geronimo.apache.org/</url>
+        <logo>http://geronimo.apache.org/images/geronimo-logo.png</logo>
     </organization>
 
     <inceptionYear>2003</inceptionYear>
-    <logo>http://incubator.apache.org/geronimo/images/geronimo.gif</logo>
+    <logo>http://geronimo.apache.org/images/geronimo-logo.png</logo>
     <description>Geronimo J2EE Application Server</description>
     <shortDescription>Geronimo J2EE Application Server</shortDescription>
-    <url>http://incubator.apache.org/projects/geronimo/</url>
+    <url>http://geronimo.apache.org/</url>
     <issueTrackingUrl>http://issues.apache.org/jira/secure/BrowseProject.jspa?id=10220</issueTrackingUrl>
 
-    <siteAddress>incubator.apache.org</siteAddress>
-    <siteDirectory>/www/incubator.apache.org/geronimo</siteDirectory>
-    <distributionDirectory>/www/incubator.apache.org/geronimo/builds</distributionDirectory>
+    <siteAddress>geronimo.apache.org</siteAddress>
+    <siteDirectory>/www/geronimo.apache.org</siteDirectory>
+    <distributionDirectory>/www/geronimo.apache.org/builds</distributionDirectory>
 
     <repository>
         <connection>scm:cvs:pserver:anoncvs@cvs.apache.org:/home/cvspublic:incubator-geronimo</connection>
@@ -59,15 +59,15 @@
         <!--
         <mailingList>
           <name>Geronimo User List</name>
-          <subscribe>geronimo-users-subscribe@incubator.apache.org</subscribe>
-          <unsubscribe>geronimo-users-unsubscribe@incubator.apache.org</unsubscribe>
+          <subscribe>user-subscribe@geronimo.apache.org</subscribe>
+          <unsubscribe>user-unsubscribe@geronimo.apache.org</unsubscribe>
           <archive>http://nagoya.apache.org/eyebrowse/SummarizeList?listName=geronimo-user@jakarta.apache.org</archive>
         </mailingList>
         -->
         <mailingList>
             <name>Geronimo Developer List</name>
-            <subscribe>geronimo-dev-subscribe@incubator.apache.org</subscribe>
-            <unsubscribe>geronimo-dev-unsubscribe@incubator.apache.org</unsubscribe>
+            <subscribe>dev-subscribe@geronimo.apache.org</subscribe>
+            <unsubscribe>dev-unsubscribe@geronimo.apache.org</unsubscribe>
             <archive>http://nagoya.apache.org/eyebrowse/SummarizeList?listId=140</archive>
         </mailingList>
     </mailingLists>
@@ -282,7 +282,7 @@
     <!-- =================== -->
 
     <build>
-        <nagEmailAddress>geronimo-dev@incubator.apache.org</nagEmailAddress>
+        <nagEmailAddress>dev@geronimo.apache.org</nagEmailAddress>
         <sourceDirectory>${basedir}/src/java</sourceDirectory>
         <unitTestSourceDirectory>${basedir}/src/test</unitTestSourceDirectory>
 

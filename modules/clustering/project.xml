@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.9 $ $Date: 2004/04/22 00:05:48 $ -->
+<!-- $Revision: 1.10 $ $Date: 2004/05/27 05:20:24 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -31,7 +31,7 @@
     <id>geronimo-clustering</id>
     <shortDescription>Geronimo Clustering Service</shortDescription>
     <description>Geronimo Clustering Service</description>
-    <siteDirectory>/www/incubator.apache.org/projects/geronimo/clustering</siteDirectory>
+    <siteDirectory>/www/geronimo.apache.org/modules/clustering</siteDirectory>
     <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/clustering</distributionDirectory>
 
     <package>org.apache.geronimo.clustering</package>

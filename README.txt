@@ -2,8 +2,7 @@
 Apache Geronimo milestone build M1  (Apr 28, 2004)
 
 http://wiki.apache.org/geronimo
-http://incubator.apache.org/geronimo
-http://incubator.apache.org/projects/geronimo.html
+http://geronimo.apache.org
 ------------------------------------------------------
 
 ___________________
@@ -44,7 +43,7 @@ Geronimo Home
  binary was unpacked or the it is the 'target' directory created by
  Maven from a source distrobution.
  
- If you unpacked the binary into the directory C:\incubator-geronimo,
+ If you unpacked the binary into the directory C:\geronimo,
  for example, than this directory is your GERONIMO_HOME directory.
  The GERONIMO_HOME directory is refered to in various parts of the
  documentation, so it's good to remeber where it is.
@@ -57,9 +56,9 @@ Deploying
  bin/deployer.jar under the GERONIMO_HOME and can be executed like
  this:
 
-   C:\incubator-geronimo> java -jar bin\deployer.jar --install --module myDataSource.rar
-   C:\incubator-geronimo> java -jar bin\deployer.jar --install --module myEJB.jar
-   C:\incubator-geronimo> java -jar bin\deployer.jar --install --module myWebapp.war
+   C:\geronimo> java -jar bin\deployer.jar --install --module myDataSource.rar
+   C:\geronimo> java -jar bin\deployer.jar --install --module myEJB.jar
+   C:\geronimo> java -jar bin\deployer.jar --install --module myWebapp.war
 
  Notice that the deployer.jar is capable of handling a number of
  different archive types; rar, war, and ejb jar.  At this time ear
@@ -72,7 +71,7 @@ Starting
  The main server class is also packed in an executable jar,
  bin/server.jar, and can be ran in a way similar to the deploy tool.
 
-   C:\incubator-geronimo> java -jar bin\server.jar  org/apache/geronimo/DebugConsole
+   C:\geronimo> java -jar bin\server.jar  org/apache/geronimo/DebugConsole
    
  I know what you're thinking, "Why does 'bin\server.jar' use
  back-slashes and 'org/apache/geronimo/DebugConsole' use
@@ -93,7 +92,7 @@ Support
  http://nagoya.apache.org/eyebrowse/SummarizeList?listId=140
 
  Mailing list subscription:
- geronimo-dev-subscribe@incubator.apache.org
+ dev-subscribe@geronimo.apache.org
 
  Jira:
  http://issues.apache.org/jira/secure/BrowseProject.jspa?id=10220 

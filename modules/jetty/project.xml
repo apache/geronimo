@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.32 $ $Date: 2004/05/19 20:54:00 $ -->
+<!-- $Revision: 1.33 $ $Date: 2004/05/27 05:20:25 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -31,8 +31,8 @@
     <id>geronimo-jetty</id>
     <shortDescription>Jetty Integration</shortDescription>
     <description>Geronimo Jetty Integration</description>
-    <url>http://incubator.apache.org/projects/geronimo/jetty/</url>
-    <siteDirectory>/www/incubator.apache.org/projects/geronimo/jetty</siteDirectory>
+    <url>http://geronimo.apache.org/modules/jetty/</url>
+    <siteDirectory>/www/geronimo.apache.org/modules/jetty</siteDirectory>
     <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/jetty</distributionDirectory>
 
     <package>org.apache.geronimo.jetty</package>
