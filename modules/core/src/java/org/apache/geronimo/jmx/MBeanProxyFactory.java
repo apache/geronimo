@@ -55,139 +55,49 @@
  */
 package org.apache.geronimo.jmx;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.HashMap;
-import java.util.Map;
-import javax.management.Attribute;
-import javax.management.MBeanException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import javax.management.ReflectionException;
-import javax.management.RuntimeErrorException;
-import javax.management.RuntimeMBeanException;
-import javax.management.RuntimeOperationsException;
 
 /**
+ * MBeanProxyFactory creates a dynamic proxy to an MBean by ObjectName.
+ * The interface type and object existance is not enforced during construction.  Instead, if a method is
+ * invoked on the proxy and there is no object registered with the assigned name, an InvocationTargetException
+ * is thrown, which contains an InstanceNotFoundException.  If an interface method that is not implemented by
+ * the MBean is invoked, an InvocationTargetException is thrown, which contains an NoSuchMethodException.
  *
- *
- *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:12 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/13 21:18:47 $
  */
-public class MBeanProxyFactory {
-    public static Object getProxy(Class iface, MBeanServer server, ObjectName name) {
+public final class MBeanProxyFactory {
+    private MBeanProxyFactory() {
+    }
+
+    /**
+     * Creates an MBean proxy using the specified interface to the objectName.
+     *
+     * @param iface the interface to implement for this proxy
+     * @param server the MBeanServer in which the object is registered
+     * @param objectName the objectName of the MBean to proxy
+     * @return the new MBean proxy, which implemnts the specified interface
+     */
+    public static Object getProxy(Class iface, MBeanServer server, ObjectName objectName) {
         assert (iface != null);
         assert (iface.isInterface());
         assert (server != null);
 
         ClassLoader cl = iface.getClassLoader();
-        return Proxy.newProxyInstance(cl, new Class[]{iface}, new LocalHandler(server, name, iface));
+        return Proxy.newProxyInstance(cl, new Class[]{iface}, new LocalHandler(iface, server, objectName));
     }
 
-    protected abstract static class AbstractHandler implements InvocationHandler {
-        protected final MBeanServer server;
-        protected final ObjectName name;
-        protected final Map operationMap;
-
-        public AbstractHandler(MBeanServer server, ObjectName name, Class iface) {
-            this.server = server;
-            this.name = name;
-            Method[] methods = iface.getMethods();
-            operationMap = new HashMap(methods.length);
-            for (int i = 0; i < methods.length; i++) {
-                Method method = methods[i];
-                Class returnType = method.getReturnType();
-                String methodName = method.getName();
-                Class[] paramTypes = method.getParameterTypes();
-
-                // skip non-operation methods
-                if (methodName.startsWith("set") && returnType == Void.TYPE && paramTypes.length == 1) {
-                    continue;
-                } else if (methodName.startsWith("get") && paramTypes.length == 0) {
-                    continue;
-                } else if (methodName.startsWith("is") && returnType == Boolean.TYPE && paramTypes.length == 0) {
-                    continue;
-                }
-
-                String[] paramTypeNames = new String[paramTypes.length];
-                for (int j = 0; j < paramTypes.length; j++) {
-                    paramTypeNames[j] = paramTypes[j].getName();
-                }
-                operationMap.put(method, paramTypeNames);
-            }
+    private static class LocalHandler extends AbstractMBeanProxyHandler {
+        private ObjectName objectName;
+        public LocalHandler(Class iface, MBeanServer server, ObjectName objectName) {
+            super(iface, server);
+            this.objectName = objectName;
         }
 
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            try {
-                String methodName = method.getName();
-
-                // quick check if this is an operation
-                String[] params = (String[]) operationMap.get(method);
-                if (params != null) {
-                    return invokeOperation(methodName, args, params);
-                }
-
-                if (methodName.startsWith("set")) {
-                    setAttribute(new Attribute(methodName.substring(3), args[0]));
-                    return null;
-                } else if (methodName.startsWith("get")) {
-                    return getAttribute(methodName.substring(3));
-                } else if (methodName.startsWith("is")) {
-                    return getAttribute(methodName.substring(2));
-                }
-            } catch (Throwable t) {
-                Class[] declaredEx = method.getExceptionTypes();
-                Throwable tt = t;
-                while (true) {
-                    for (int i = 0; i < declaredEx.length; i++) {
-                        Class aClass = declaredEx[i];
-                        if (aClass.isInstance(tt)) {
-                            throw tt;
-                        }
-                    }
-
-                    if (tt instanceof MBeanException) {
-                        tt = (((MBeanException) tt).getTargetException());
-                    } else if (tt instanceof ReflectionException) {
-                        tt = (((ReflectionException) tt).getTargetException());
-                    } else if (tt instanceof RuntimeOperationsException) {
-                        tt = (((RuntimeOperationsException) tt).getTargetException());
-                    } else if (tt instanceof RuntimeMBeanException) {
-                        tt = (((RuntimeMBeanException) tt).getTargetException());
-                    } else if (tt instanceof RuntimeErrorException) {
-                        tt = (((RuntimeErrorException) tt).getTargetError());
-                    } else {
-                        // don't know how to unwrap this, just throw it
-                        throw tt;
-                    }
-                }
-            }
-            throw new AssertionError("Method did not match during invoke");
-        }
-
-        protected abstract void setAttribute(Attribute attribute) throws Exception;
-
-        protected abstract Object getAttribute(String attribute) throws Exception;
-
-        protected abstract Object invokeOperation(String method, Object[] args, String[] params) throws Exception;
-    }
-
-    protected static class LocalHandler extends AbstractHandler {
-        public LocalHandler(MBeanServer server, ObjectName name, Class iface) {
-            super(server, name, iface);
-        }
-
-        protected void setAttribute(Attribute attribute) throws Exception {
-            server.setAttribute(name, attribute);
-        }
-
-        protected Object getAttribute(String attribute) throws Exception {
-            return server.getAttribute(this.name, attribute);
-        }
-
-        protected Object invokeOperation(String method, Object[] args, String[] params) throws Exception {
-            return server.invoke(name, method, args, params);
+        public ObjectName getObjectName() {
+            return objectName;
         }
     }
 }
