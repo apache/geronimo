@@ -57,26 +57,33 @@ package org.apache.geronimo.gbean;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Arrays;
 
 /**
- *
- *
- * @version $Revision: 1.11 $ $Date: 2004/02/21 22:17:52 $
+ * @version $Revision: 1.12 $ $Date: 2004/02/24 18:41:45 $
  */
 public class GBeanInfoFactory {
+
     private static final Class[] NO_ARGS = {};
+
     private final String name;
+
     private final String className;
-    private final Set attributes = new HashSet();
+
+    private final Map attributes = new HashMap();
+
     private GConstructorInfo constructor;
-    private final Set operations = new HashSet();
+
+    private final Map operations = new HashMap();
+
     private final Set references = new HashSet();
+
     private final Set notifications = new HashSet();
 
     public GBeanInfoFactory(String name) {
@@ -84,6 +91,9 @@ public class GBeanInfoFactory {
     }
 
     public GBeanInfoFactory(Class clazz) {
+        if (clazz == null) {
+            throw new IllegalArgumentException("argument is null");
+        }
         this.name = this.className = clazz.getName();
     }
 
@@ -101,13 +111,28 @@ public class GBeanInfoFactory {
     }
 
     public GBeanInfoFactory(String name, String className, GBeanInfo source) {
-        assert name != null && className != null && source != null;
+        if (name == null || className == null || source == null) {
+            throw new IllegalArgumentException("null argument(s) supplied");
+        }
         this.name = name;
         this.className = className;
-        attributes.addAll(source.getAttributeSet());
-        operations.addAll(source.getOperationsSet());
-        references.addAll(source.getReferencesSet());
-        notifications.addAll(source.getNotificationsSet());
+        Set sourceAttrs = source.getAttributes();
+        if (sourceAttrs != null && !sourceAttrs.isEmpty()) {
+            for (Iterator it = sourceAttrs.iterator(); it.hasNext();) {
+                GAttributeInfo gattrInfo = (GAttributeInfo) it.next();
+                attributes.put(gattrInfo.getName(), gattrInfo);
+            }
+        }
+
+        Set sourceOps = source.getOperations();
+        if (sourceOps != null && !sourceOps.isEmpty()) {
+            for (Iterator it = sourceOps.iterator(); it.hasNext();) {
+                GOperationInfo gopInfo = (GOperationInfo) it.next();
+                operations.put(gopInfo.getName(), gopInfo);
+            }
+        }
+        references.addAll(source.getReferences());
+        notifications.addAll(source.getNotifications());
         //in case subclass constructor has same parameters as superclass.
         constructor = source.getConstructor();
     }
@@ -116,9 +141,8 @@ public class GBeanInfoFactory {
         addInterface(intf, new String[0]);
     }
 
-    public void addInterface(Class intf, String[] persistentAttriubtes) {
-        Set persistentName = new HashSet(Arrays.asList(persistentAttriubtes));
-        Map tempAttributes = new HashMap();
+    public void addInterface(Class intf, String[] persistentAttributes) {
+        Set persistentName = new HashSet(Arrays.asList(persistentAttributes));
 
         Method[] methods = intf.getMethods();
         for (int i = 0; i < methods.length; i++) {
@@ -127,37 +151,40 @@ public class GBeanInfoFactory {
             Class[] parameterTypes = method.getParameterTypes();
             if ((name.startsWith("get") || name.startsWith("is")) && parameterTypes.length == 0) {
                 String attributeName = (name.startsWith("get")) ? name.substring(3) : name.substring(2);
-                GAttributeInfo attribute = (GAttributeInfo) tempAttributes.get(attributeName);
+                GAttributeInfo attribute = (GAttributeInfo) attributes.get(attributeName);
                 if (attribute == null) {
-                    tempAttributes.put(attributeName, new GAttributeInfo(attributeName, persistentName.contains(attributeName), name, null));
+                    attributes.put(attributeName, new GAttributeInfo(attributeName,
+                            persistentName.contains(attributeName), name, null));
                 } else {
-                    tempAttributes.put(attributeName, new GAttributeInfo(attributeName, persistentName.contains(attributeName), name, attribute.getSetterName()));
+                    attributes.put(attributeName, new GAttributeInfo(attributeName,
+                            persistentName.contains(attributeName), name, attribute.getSetterName()));
                 }
             } else if (name.startsWith("set") && parameterTypes.length == 1) {
                 String attributeName = name.substring(3);
-                GAttributeInfo attribute = (GAttributeInfo) tempAttributes.get(attributeName);
+                GAttributeInfo attribute = (GAttributeInfo) attributes.get(attributeName);
                 if (attribute == null) {
-                    tempAttributes.put(attributeName, new GAttributeInfo(attributeName, persistentName.contains(attributeName), null, name));
+                    attributes.put(attributeName, new GAttributeInfo(attributeName,
+                            persistentName.contains(attributeName), null, name));
                 } else {
-                    tempAttributes.put(attributeName, new GAttributeInfo(attributeName, persistentName.contains(attributeName), attribute.getSetterName(), name));
+                    attributes.put(attributeName, new GAttributeInfo(attributeName,
+                            persistentName.contains(attributeName), attribute.getSetterName(), name));
                 }
             } else {
                 List parameters = new ArrayList(parameterTypes.length);
                 for (int j = 0; j < parameterTypes.length; j++) {
                     parameters.add(parameterTypes[j].getName());
                 }
-                operations.add(new GOperationInfo(name, name, parameters));
+                addOperation(new GOperationInfo(name, name, parameters));
             }
         }
-        attributes.addAll(tempAttributes.values());
     }
 
     public void addAttribute(String name, boolean persistent) {
-        attributes.add(new GAttributeInfo(name, persistent));
+        addAttribute(new GAttributeInfo(name, persistent));
     }
 
     public void addAttribute(GAttributeInfo info) {
-        attributes.add(info);
+        attributes.put(info.getName(), info);
     }
 
     public void setConstructor(GConstructorInfo constructor) {
@@ -169,15 +196,15 @@ public class GBeanInfoFactory {
     }
 
     public void addOperation(GOperationInfo info) {
-        operations.add(info);
+        operations.put(info.getName(), info);
     }
 
     public void addOperation(String name) {
-        operations.add(new GOperationInfo(name, NO_ARGS));
+        addOperation(new GOperationInfo(name, NO_ARGS));
     }
 
     public void addOperation(String name, Class[] paramTypes) {
-        operations.add(new GOperationInfo(name, paramTypes));
+        addOperation(new GOperationInfo(name, paramTypes));
     }
 
     public void addReference(GReferenceInfo info) {
@@ -185,7 +212,7 @@ public class GBeanInfoFactory {
     }
 
     public void addReference(String name, Class type) {
-        references.add(new GReferenceInfo(name, type));
+        addReference(new GReferenceInfo(name, type));
     }
 
     public void addNotification(GNotificationInfo info) {
@@ -193,6 +220,7 @@ public class GBeanInfoFactory {
     }
 
     public GBeanInfo getBeanInfo() {
-        return new GBeanInfo(name, className, attributes, constructor, operations, references, notifications);
+        return new GBeanInfo(name, className, attributes.values(), constructor, operations.values(), references,
+                notifications);
     }
 }

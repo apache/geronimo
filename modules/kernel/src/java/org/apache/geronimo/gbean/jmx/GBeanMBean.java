@@ -94,12 +94,12 @@ import org.apache.geronimo.kernel.management.NotificationType;
 import net.sf.cglib.reflect.FastClass;
 
 /**
- * A GeronimoMBean is a J2EE Management Managed Object, and is standard base for Geronimo services.
+ * A GBeanMBean is a J2EE Management Managed Object, and is standard base for Geronimo services.
  * This wraps one or more target POJOs and exposes the attributes and opperation according to a supplied
- * GeronimoMBeanInfo instance.  The GeronimoMBean also support caching of attribute values and invocation results
+ * {@link GBeanInfo} instance.  The GBeanMBean also supports caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.10 $ $Date: 2004/02/24 06:05:37 $
+ * @version $Revision: 1.11 $ $Date: 2004/02/24 18:41:45 $
  */
 public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     public static final FastClass fastClass = FastClass.create(GBeanMBean.class);
@@ -128,7 +128,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     private final Map referenceMap = new HashMap();
 
     /**
-     * Opperations supported by this GBeanMBean by (MBeanOperationSignature) name.
+     * Operations supported by this GBeanMBean by (MBeanOperationSignature) name.
      */
     private final Map operationMap = new HashMap();
 
@@ -156,7 +156,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         try {
             type = classLoader.loadClass(beanInfo.getClassName());
         } catch (ClassNotFoundException e) {
-            throw new InvalidConfigurationException("Could not load GBean class from classloader: " +
+            throw new InvalidConfigurationException("Could not load GBeanInfo class from classloader: " +
                     " className=" + beanInfo.getClassName());
         }
 
@@ -164,19 +164,19 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
 
         // attributes
         Map constructorTypes = gbeanInfo.getConstructor().getAttributeTypeMap();
-        for (Iterator iterator = beanInfo.getAttributeSet().iterator(); iterator.hasNext();) {
+        for (Iterator iterator = beanInfo.getAttributes().iterator(); iterator.hasNext();) {
             GAttributeInfo attributeInfo = (GAttributeInfo) iterator.next();
             addAttribute(new GBeanMBeanAttribute(this, attributeInfo, (Class) constructorTypes.get(attributeInfo.getName())));
         }
 
         // references
-        for (Iterator iterator = beanInfo.getReferencesSet().iterator(); iterator.hasNext();) {
+        for (Iterator iterator = beanInfo.getReferences().iterator(); iterator.hasNext();) {
             GReferenceInfo referenceInfo = (GReferenceInfo) iterator.next();
             addReference(new GBeanMBeanReference(this, referenceInfo, (Class) constructorTypes.get(referenceInfo.getName())));
         }
 
         // operations
-        for (Iterator iterator = beanInfo.getOperationsSet().iterator(); iterator.hasNext();) {
+        for (Iterator iterator = beanInfo.getOperations().iterator(); iterator.hasNext();) {
             GOperationInfo operationInfo = (GOperationInfo) iterator.next();
             addOperation(new GBeanMBeanOperation(this, operationInfo));
         }
@@ -205,6 +205,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                 mbeanAttrs,
                 new MBeanConstructorInfo[0],
                 mbeanOps,
+                // Is there any way to add notifications before an instance of the class is created?
                 (MBeanNotificationInfo[]) notifications.toArray(new MBeanNotificationInfo[notifications.size()]));
     }
 
@@ -218,7 +219,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
      * this static method in the class to be wrapped in the GBeanMBean instance.
      * @param className name of the class to call getGBeanInfo on
      * @param classLoader the class loader for this GBean
-     * @throws java.lang.Exception if an exception occurs while getting the GeronimoMBeanInfo from the class
+     * @throws java.lang.Exception if an exception occurs while getting the GBeanInfo from the class
      */
     public GBeanMBean(String className, ClassLoader classLoader) throws Exception {
         this(GBeanInfo.getGBeanInfo(className, classLoader), classLoader);
@@ -229,7 +230,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
      * "getGBeanInfo" is called to get the gbean info.  Usually one will include
      * this static method in the class to be wrapped in the GBeanMBean instance.
      * @param className name of the class to call getGBeanInfo on
-     * @throws java.lang.Exception if an exception occurs while getting the GeronimoMBeanInfo from the class
+     * @throws java.lang.Exception if an exception occurs while getting the GBeanInfo from the class
      */
     public GBeanMBean(String className) throws Exception {
         this(className, ClassLoader.getSystemClassLoader());
@@ -373,7 +374,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     }
 
     protected void doStart() throws Exception {
-        // start all of the reference
+        // start all of the references
         for (Iterator iterator = referenceMap.values().iterator(); iterator.hasNext();) {
             GBeanMBeanReference reference = (GBeanMBeanReference) iterator.next();
             reference.start();

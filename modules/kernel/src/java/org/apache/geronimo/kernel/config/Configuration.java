@@ -122,7 +122,7 @@ import org.apache.geronimo.kernel.repository.Repository;
  * a startRecursive() for all the GBeans it contains. Similarly, if the
  * Configuration is stopped then all of its GBeans will be stopped as well.
  *
- * @version $Revision: 1.13 $ $Date: 2004/02/24 06:05:37 $
+ * @version $Revision: 1.14 $ $Date: 2004/02/24 18:41:45 $
  */
 public class Configuration implements GBean {
     private static final Log log = LogFactory.getLog(Configuration.class);
@@ -395,7 +395,7 @@ public class Configuration implements GBean {
             oos.writeObject(attributeInfo.getName());
             oos.writeObject(gbean.getAttribute(attributeInfo.getName()));
         }
-        Set endpointsSet = gbean.getGBeanInfo().getReferencesSet();
+        Set endpointsSet = gbean.getGBeanInfo().getReferences();
         oos.writeInt(endpointsSet.size());
         for (Iterator iterator = endpointsSet.iterator(); iterator.hasNext();) {
             GReferenceInfo gEndpointInfo = (GReferenceInfo) iterator.next();
