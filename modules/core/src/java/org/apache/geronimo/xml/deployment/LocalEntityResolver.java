@@ -60,67 +60,183 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Hashtable;
+import java.util.Properties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Implementation of EntityResolver that looks to the local filesystem.
  *
- * @version $Revision: 1.4 $ $Date: 2003/09/29 19:34:10 $
+ * @jmx:mbean
+ *
+ * @version $Revision: 1.5 $ $Date: 2003/12/09 04:19:38 $
  */
-public class LocalEntityResolver implements EntityResolver {
+public class LocalEntityResolver implements EntityResolver, LocalEntityResolverMBean {
     private static final Log log = LogFactory.getLog(LocalEntityResolver.class);
-    private final File root;
+    private File root;
+    private String configFile;
+    private Properties mappings = new Properties();
 
+    /**
+     * @jmx:managed-constructor
+     */
     public LocalEntityResolver(File root) {
         this.root = root;
+        log.info("root=" + root);
     }
 
     public LocalEntityResolver() {
         root = null;
+        init();
     }
 
     public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-        //todo: resolve the core XML Schema schemas locally so no network connection is required
+        InputSource is = null;
+
+                is = resolveEntityLocally(publicId, systemId);
+                if (is != null) {
+                        return is;
+                }
         if (publicId != null || systemId == null) {
             if (log.isDebugEnabled()) {
-                log.debug("Not attempting to locally resolve entity S="+systemId+" P="+publicId);
+                log.debug("Not attempting to locally resolve entity S=" + systemId + " P=" + publicId);
             }
             return null;
         }
         String message = null;
-        if(log.isDebugEnabled()) {
-            message = "Resolving entity S="+systemId+" P="+publicId+": ";
+        if (log.isDebugEnabled()) {
+            message = "Resolving entity S=" + systemId + " P=" + publicId + ": ";
         }
         int index = systemId.lastIndexOf("/");
-        String fileName = systemId.substring(index+1);
-        if(root != null) {
+        String fileName = systemId.substring(index + 1);
+        if (root != null) {
             File file = new File(root, fileName);
             if (file.exists()) {
                 if (log.isDebugEnabled()) {
-                    log.debug(message+"found file relative to "+root);
+                    log.debug(message + "found file relative to " + root);
+                }
+                is = new InputSource(new BufferedInputStream(new FileInputStream(file)));
+                is.setSystemId(systemId);
+                return is;
+            }
+        }
+        InputStream in = getClass().getClassLoader().getResourceAsStream(fileName);
+        if (in != null) {
+            if (log.isDebugEnabled()) {
+                log.debug(message + "found file on classpath");
+            }
+            is = new InputSource(new BufferedInputStream(in));
+            is.setSystemId(systemId);
+            return is;
+        }
+        if (log.isDebugEnabled()) {
+            log.debug(message + "not found");
+        }
+        return null;
+    }
+
+    /**
+     * @jmx:managed-attribute
+     */
+    public void setConfigFile(String configFile) {
+        this.configFile = configFile;
+        init();
+    }
+
+    /**
+     * @jmx:managed-attribute
+     */
+    public String getConfigFile() {
+        return this.configFile;
+    }
+
+    /**
+     * @jmx:managed-operation
+     */
+    public void addMapping(String publicId, String systemId) {
+        if ( publicId == null || systemId == null )
+        {
+                        if (log.isDebugEnabled()) {
+                                log.debug("publicId or systemId are null");
+                        }
+                        return;
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Adding entity P=" + publicId + " and its S=" + systemId);
+        }
+        mappings.put(publicId, systemId);
+    }
+
+    /**
+     * Resolve entities locally.
+     *
+     * TODO: Look for the systemIds in jar(s) beside their file representatives
+     *
+     * @param publicId
+     * @param systemId
+     * @return input source of the local representative of systemId
+     * @throws SAXException
+     * @throws IOException
+     */
+    private InputSource resolveEntityLocally(String publicId, String systemId) throws SAXException, IOException {
+        System.out.println("publicId: " + publicId + ", systemId: " + systemId);
+                if ( publicId == null || publicId.length() == 0)
+                {
+                        if (log.isDebugEnabled()) {
+                                log.debug("publicId is null or empty; skipping resolving");
+                        }
+                        return null;
+                }
+        if (log.isDebugEnabled()) {
+            log.debug("Resolving entity locally S=" + systemId + " P=" + publicId);
+        }
+        String publicIdPath = (String) mappings.get(publicId);
+        if (publicIdPath != null && publicIdPath.length() != 0) {
+            File file = new File(publicIdPath);
+            if (file.exists()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("found file: " + publicIdPath);
                 }
                 InputSource is = new InputSource(new BufferedInputStream(new FileInputStream(file)));
                 is.setSystemId(systemId);
                 return is;
             }
         }
-        InputStream in = getClass().getClassLoader().getResourceAsStream(fileName);
-        if(in != null) {
-            if (log.isDebugEnabled()) {
-                log.debug(message+"found file on classpath");
-            }
-            InputSource is = new InputSource(new BufferedInputStream(in));
-            is.setSystemId(systemId);
-            return is;
-        }
-        if (log.isDebugEnabled()) {
-            log.debug(message+"not found");
-        }
         return null;
+    }
+
+    /**
+     * Loads mappings from configuration file
+     */
+    private void init() {
+        mappings.clear();
+        try {
+            if (this.configFile == null || this.configFile.length() == 0) {
+                if (log.isDebugEnabled()) {
+                    log.debug("No configuration file provided");
+                }
+                return;
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Loading configuration file=" + this.configFile);
+            }
+            mappings.load(new BufferedInputStream(new FileInputStream(this.configFile)));
+        } catch (IOException ioe) {
+            if (log.isDebugEnabled()) {
+                log.debug("Exception occured: " + ioe.getMessage() + "; ignore it");
+            }
+        }
+    }
+
+    /**
+     * @jmx:managed-operation
+     */
+    public Hashtable showMappings() {
+        return mappings;
     }
 }
