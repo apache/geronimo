@@ -72,6 +72,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -83,10 +84,10 @@ import org.apache.geronimo.kernel.repository.Repository;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/12 18:27:39 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/20 16:18:14 $
  */
 public class DeploymentContext {
-    private final ObjectName configName;
+    private final URI configID;
     private final Kernel kernel;
     private final GBeanMBean config;
     private final Map gbeans = new HashMap();
@@ -99,10 +100,10 @@ public class DeploymentContext {
     private final ClassLoader parentCL;
 
     public DeploymentContext(JarOutputStream jos, URI id, URI parentID, Kernel kernel) throws IOException,MalformedObjectNameException, DeploymentException {
+        this.configID = id;
         this.jos = jos;
         this.kernel = kernel;
 
-        configName = Kernel.getConfigObjectName(id);
         config = new GBeanMBean(Configuration.GBEAN_INFO);
 
         try {
@@ -144,6 +145,10 @@ public class DeploymentContext {
 
     }
 
+    public URI getConfigID() {
+        return configID;
+    }
+
     public void addGBean(ObjectName name, GBeanMBean gbean) {
         gbeans.put(name, gbean);
     }
@@ -161,6 +166,14 @@ public class DeploymentContext {
         }
         classPath.add(path);
         includes.put(path, url);
+    }
+
+    public void addArchive(URI path, ZipInputStream archive) throws IOException {
+        ZipEntry src;
+        while ((src = archive.getNextEntry()) != null) {
+            URI target = path.resolve(src.getName());
+            addFile(target, archive);
+        }
     }
 
     public ClassLoader getClassLoader(Repository repository) throws DeploymentException {
