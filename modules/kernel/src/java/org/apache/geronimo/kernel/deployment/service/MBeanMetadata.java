@@ -64,16 +64,14 @@ import java.util.Map;
 import java.util.Set;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-
 /**
  * Metadata about an MBean that is use during deployment.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:33 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/11 04:36:51 $
  */
 public class MBeanMetadata {
     private String code;
-    private GeronimoMBeanInfo geronimoMBeanInfo;
+    private String geronimoMBeanDescriptor;
     private ObjectName name;
     private ObjectName loaderName;
     private ObjectName parentName;
@@ -109,13 +107,6 @@ public class MBeanMetadata {
         this.parentName = parentName;
     }
 
-    public MBeanMetadata(ObjectName name, GeronimoMBeanInfo geronimoMBeanInfo, ObjectName loaderName, ObjectName parentName) {
-        this.name = name;
-        this.geronimoMBeanInfo = geronimoMBeanInfo;
-        this.loaderName = loaderName;
-        this.parentName = parentName;
-    }
-
     public String getCode() {
         return code;
     }
@@ -124,12 +115,16 @@ public class MBeanMetadata {
         this.code = code;
     }
 
-    public GeronimoMBeanInfo getGeronimoMBeanInfo() {
-        return geronimoMBeanInfo;
+    public boolean isGeronimoMBean() {
+        return geronimoMBeanDescriptor != null;
     }
 
-    public void setGeronimoMBeanInfo(GeronimoMBeanInfo geronimoMBeanInfo) {
-        this.geronimoMBeanInfo = geronimoMBeanInfo;
+    public String getGeronimoMBeanDescriptor() {
+        return geronimoMBeanDescriptor;
+    }
+
+    public void setGeronimoMBeanDescriptor(String geronimoMBeanDescriptor) {
+        this.geronimoMBeanDescriptor = geronimoMBeanDescriptor;
     }
 
     public ObjectName getName() {
