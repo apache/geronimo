@@ -72,6 +72,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     private final URI webAppRoot;
     private final WebApplicationHandler handler;
     private String displayName;
+    private final String[] welcomeFiles;
 
     private final  BeforeAfter chain;
     private final  int contextLength;
@@ -88,6 +89,8 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         chain = null;
         contextLength = 0;
         securityInterceptor = null;
+        welcomeFiles = null;
+
     }
 
     public JettyWebAppContext(URI uri,
@@ -164,7 +167,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         setListenerClassNames(listenerClassNames);
         setDistributable(distributable);
         setMimeMap(mimeMap);
-        setWelcomeFiles(welcomeFiles);
+        this.welcomeFiles = welcomeFiles;
         setLocaleEncodingMapping(localeEncodingMapping);
         setErrorPages(errorPages);
         setAuthenticator(authenticator);
@@ -237,6 +240,8 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         } finally {
             leaveContextScope(null, null, context);
         }
+        //super.doStart sets welcomefiles to null!!
+        setWelcomeFiles(welcomeFiles);
 
         log.info("JettyWebAppContext started");
     }

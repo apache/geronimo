@@ -377,7 +377,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             Set securityRoles = collectRoleNames(webApp);
             if (jettyWebApp.isSetSecurityRealmName()) {
                 String securityRealmName = jettyWebApp.getSecurityRealmName().trim();
-                Security security = SecurityBuilder.buildSecurityConfig(Collections.singleton(securityRealmName),  jettyWebApp.getSecurity(), securityRoles, localSecurityRealms, kernel);
+                Security security = SecurityBuilder.buildSecurityConfig(Collections.singleton(securityRealmName), jettyWebApp.getSecurity(), securityRoles, localSecurityRealms, kernel);
                 webModuleData.setAttribute("securityRealmName", securityRealmName);
                 webModuleData.setAttribute("securityConfig", security);
 
@@ -436,14 +436,20 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
             WelcomeFileListType[] welcomeFileArray = webApp.getWelcomeFileListArray();
             //not clear if the default welcome files should get added if explicit ones supplied...
-            List welcomeFiles = new ArrayList(defaultWelcomeFiles);
-            for (int i = 0; i < welcomeFileArray.length; i++) {
-                String[] welcomeFileListType = welcomeFileArray[i].getWelcomeFileArray();
-                for (int j = 0; j < welcomeFileListType.length; j++) {
-                    String welcomeFile = welcomeFileListType[j];
-                    welcomeFiles.add(welcomeFile);
+            List welcomeFiles;
+            if (welcomeFileArray.length > 0) {
+                welcomeFiles = new ArrayList();
+                for (int i = 0; i < welcomeFileArray.length; i++) {
+                    String[] welcomeFileListType = welcomeFileArray[i].getWelcomeFileArray();
+                    for (int j = 0; j < welcomeFileListType.length; j++) {
+                        String welcomeFile = welcomeFileListType[j];
+                        welcomeFiles.add(welcomeFile);
+                    }
                 }
+            } else {
+                welcomeFiles = new ArrayList(defaultWelcomeFiles);
             }
+
             webModuleData.setAttribute("welcomeFiles", (String[]) welcomeFiles.toArray(new String[welcomeFiles.size()]));
 
             LocaleEncodingMappingListType[] localeEncodingMappingListArray = webApp.getLocaleEncodingMappingListArray();
