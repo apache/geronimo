@@ -28,7 +28,7 @@ import junit.extensions.TestSetup;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/25 21:29:34 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/28 02:12:57 $
  *
  * */
 public class HOWLLogRecoveryTest extends AbstractRecoveryTest {
@@ -43,12 +43,20 @@ public class HOWLLogRecoveryTest extends AbstractRecoveryTest {
     }
 
     protected void setUp() throws Exception {
+        // Deletes the previous transaction log files.
+        String logFileDir = "txlog";
+        File[] files = new File(logFileDir).listFiles();
+        if ( null != files ) {
+            for (int i = 0; i < files.length; i++) {
+                files[i].delete();
+            }
+        }
         HOWLLog howlLog = new HOWLLog(
                 "org.objectweb.howl.log.BlockLogBuffer", //                "bufferClassName",
                 4, //                "bufferSizeKBytes",
                 true, //                "checksumEnabled",
                 20, //                "flushSleepTime",
-                "txlog", //                "logFileDir",
+                logFileDir, //                "logFileDir",
                 "log", //                "logFileExt",
                 LOG_FILE_NAME, //                "logFileName",
                 200, //                "maxBlocksPerFile",
