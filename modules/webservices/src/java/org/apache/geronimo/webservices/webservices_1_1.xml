@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<!DOCTYPE mapping PUBLIC "-//EXOLAB/Castor Object Mapping DTD Version 1.0//EN"
+                                              "http://castor.exolab.org/mapping.dtd">
+
+<!--
+ A dtd version of the J2EE webservices.xml file would look like this:
+
+ webservices (webservice-description+)
+ webservice-description (webservice-description-name, wsdl-file, jaxrpc-mapping-file, port-component+)
+ port-component (port-component-name, wsdl-port, service-endpoint-interface, service-impl-bean, handler*)
+ service-impl-bean (ejb-link|servlet-link)
+ handler (handler-name, handler-class, init-param*, soap-header*, soap-role*)
+-->
+<mapping>
+    <class name="org.apache.geronimo.webservices.WebServices">
+        <map-to xml="webservices"/>
+        <field name="webServiceDescription" type="org.apache.geronimo.webservices.WebServiceDescription" collection="array">
+            <bind-xml name="webservice-description"/>
+        </field>
+    </class>
+
+    <class name="org.apache.geronimo.webservices.WebServiceDescription">
+        <map-to xml="webservices-description"/>
+        <field name="webServiceDescriptionName" type="java.lang.String">
+            <bind-xml name="webservice-description-name" node="element"/>
+        </field>
+        <field name="wsdlFile" type="java.lang.String">
+            <bind-xml name="wsdl-file" node="element"/>
+        </field>
+        <field name="jaxrpcMappingFile" type="java.lang.String">
+            <bind-xml name="jaxrpc-mapping-file" node="element"/>
+        </field>
+        <field name="portComponent" type="org.apache.geronimo.webservices.PortComponent" collection="array">
+            <bind-xml name="port-component"/>
+        </field>
+    </class>
+
+    <class name="org.apache.geronimo.webservices.PortComponent">
+        <map-to xml="port-component"/>
+        <field name="portComponentName" type="java.lang.String">
+            <bind-xml name="port-component-name" node="element"/>
+        </field>
+        <field name="wsdlPort" type="java.lang.String">
+            <bind-xml name="wsdl-port" node="element"/>
+        </field>
+        <field name="serviceEndpointInterface" type="java.lang.String">
+            <bind-xml name="service-endpoint-interface" node="element"/>
+        </field>
+        <field name="serviceImplBean" type="org.apache.geronimo.webservices.ServiceImplBean">
+            <bind-xml name="service-impl-bean" node="element"/>
+        </field>
+        <field name="handler" type="org.apache.geronimo.webservices.Handler" collection="array">
+            <bind-xml name="handler"/>
+        </field>
+    </class>
+
+    <class name="org.apache.geronimo.webservices.Handler">
+        <map-to xml="handler"/>
+        <field name="handlerName" type="java.lang.String">
+            <bind-xml name="handler-name" node="element"/>
+        </field>
+        <field name="handlerClass" type="java.lang.String">
+            <bind-xml name="handler-class" node="element"/>
+        </field>
+        <field name="soapHeader" type="java.lang.String" collection="array">
+            <bind-xml name="soap-header" node="element"/>
+        </field>
+        <field name="soapRole" type="java.lang.String" collection="array">
+            <bind-xml name="soap-role" node="element"/>
+        </field>
+    </class>
+
+</mapping>

@@ -16,16 +16,13 @@
  */
 package org.apache.geronimo.validator;
 
-import java.util.Vector;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
+import java.util.*;
 
 public class ValidationContext {
     
-    protected Vector failures = new Vector();
-    protected Vector warnings = new Vector();
-    protected Vector errors   = new Vector();
+    protected ArrayList failures = new ArrayList();
+    protected ArrayList warnings = new ArrayList();
+    protected ArrayList errors   = new ArrayList();
 
     protected Map attributes = new HashMap();
 
@@ -56,33 +53,27 @@ public class ValidationContext {
     }
 
     public void addWarning( ValidationWarning warning ) {
-        warnings.addElement( warning );
+        warnings.add( warning );
     }
     
     public void addFailure(ValidationFailure failure) {
-        failures.addElement( failure );
+        failures.add( failure );
     }
 
     public void addError(ValidationError error) {
-        errors.addElement( error );
+        errors.add( error );
     }
 
     public ValidationFailure[] getFailures() {
-        ValidationFailure[] tmp = new ValidationFailure[failures.size()];
-        failures.copyInto( tmp );
-        return tmp;
+        return (ValidationFailure[])failures.toArray(new ValidationFailure[0]);
     }
     
     public ValidationWarning[] getWarnings() {
-        ValidationWarning[] tmp = new ValidationWarning[warnings.size()];
-        warnings.copyInto( tmp );
-        return tmp;
+        return (ValidationWarning[])failures.toArray(new ValidationWarning[0]);
     }
     
     public ValidationError[] getErrors() {
-        ValidationError[] tmp = new ValidationError[errors.size()];
-        errors.copyInto( tmp );
-        return tmp;
+        return (ValidationError[])failures.toArray(new ValidationError[0]);
     }
 
     public boolean hasWarnings(){
