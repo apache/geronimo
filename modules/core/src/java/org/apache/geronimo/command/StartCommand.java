@@ -71,6 +71,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.geronimo.common.NullArgumentException;
 import org.apache.geronimo.common.Strings;
 
+import org.apache.geronimo.twiddle.Twiddle;
 import org.apache.geronimo.twiddle.command.Command;
 import org.apache.geronimo.twiddle.command.CommandInfo;
 import org.apache.geronimo.twiddle.command.CommandContext;
@@ -83,7 +84,7 @@ import org.apache.geronimo.Main;
 /**
  * A <em>Twiddle</em> command to start a Apache Geronimo server instance.
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/24 22:40:24 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/26 08:00:56 $
  */
 public class StartCommand
     extends AbstractCommand
@@ -131,13 +132,16 @@ public class StartCommand
             return Command.SUCCESS;
         }
         
-        URL mletURL = Strings.toURL(System.getProperty("twiddle.home") + "/etc/boot.mlet");
+        String homeDir = Twiddle.getHomeDir().toString();
+        System.setProperty("geronimo.home", homeDir);
+        
+        URL mletURL = Strings.toURL(homeDir + "/etc/boot.mlet");
         if (line.hasOption('m')) {
             String value = line.getOptionValue('m');
             mletURL = Strings.toURL(value);
         }
         
-        URL deployURL = Strings.toURL(System.getProperty("twiddle.home") + "/etc/boot-service.xml");
+        URL deployURL = Strings.toURL(homeDir + "/etc/boot-service.xml");
         if (line.hasOption('d')) {
             String value = line.getOptionValue('d');
             deployURL = Strings.toURL(value);
@@ -148,13 +152,12 @@ public class StartCommand
             log.debug("Deploy URL: " + deployURL);
         }
         
-        System.setProperty("geronimo.home", System.getProperty("twiddle.home"));
         Main main = new Main("geronimo", mletURL, deployURL);
         
         ThreadGroup group = new ThreadGroup("Geronimo");
         Thread mainThread = new Thread(group, main, "Main-Thread");
         mainThread.start();
-        
+    
         //
         // TODO: Check if we are in interactive mode...
         //
