@@ -70,7 +70,6 @@ public class GeronimoTransactionManager extends TransactionManagerProxy {
         infoFactory.addReference("TransactionLog", TransactionLog.class);
         infoFactory.addReference("ResourceManagers", ResourceManager.class);
 
-        infoFactory.addInterface(TransactionManager.class);
         infoFactory.addInterface(ExtendedTransactionManager.class);
         infoFactory.addInterface(XidImporter.class);
 
