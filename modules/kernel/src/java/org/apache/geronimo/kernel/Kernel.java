@@ -211,6 +211,12 @@ public class Kernel {
         return kernelName;
     }
 
+    public static Set getKernelNames() {
+        synchronized(kernels) {
+            return Collections.unmodifiableSet(kernels.keySet());
+        }
+    }
+    
     /**
      * Get a particular kernel indexed by a name
      *

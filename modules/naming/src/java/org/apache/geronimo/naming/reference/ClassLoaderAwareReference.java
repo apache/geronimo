@@ -14,28 +14,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.geronimo.naming.reference;
-
-import java.util.Hashtable;
-import javax.naming.Context;
-import javax.naming.Name;
-import javax.naming.RefAddr;
-import javax.naming.Reference;
-import javax.naming.spi.ObjectFactory;
 
 /**
  * @version $Rev$ $Date$
  */
-public class RefAddrContentObjectFactory implements ObjectFactory {
-
-    public Object getObjectInstance(Object obj, Name name, Context nameCtx,
-                                    Hashtable environment) throws Exception {
-        if (obj instanceof Reference) {
-            Reference ref = (Reference) obj;
-            RefAddr refAddr = ref.get(0);
-            return refAddr.getContent();
-        }
-        return null;
-    }
+public interface ClassLoaderAwareReference {
+    void setClassLoader(ClassLoader classLoader);
 }

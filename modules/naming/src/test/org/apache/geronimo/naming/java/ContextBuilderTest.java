@@ -45,7 +45,7 @@ public class ContextBuilderTest extends TestCase {
         ReadOnlyContext context = builder.getContext();
         assertTrue(context.isFrozen());
         try {
-            builder.addEnvEntry(null, null, null);
+            builder.addEnvEntry(null, null, null, null);
             fail();
         } catch (IllegalStateException e) {
             // ok
@@ -72,15 +72,15 @@ public class ContextBuilderTest extends TestCase {
         Float floatVal = new Float(123.456);
         Double doubleVal = new Double(12345.6789);
         Boolean booleanVal = Boolean.TRUE;
-        builder.addEnvEntry("string", String.class.getName(), stringVal);
-        builder.addEnvEntry("char", Character.class.getName(), charVal.toString());
-        builder.addEnvEntry("byte", Byte.class.getName(), byteVal.toString());
-        builder.addEnvEntry("short", Short.class.getName(), shortVal.toString());
-        builder.addEnvEntry("int", Integer.class.getName(), intVal.toString());
-        builder.addEnvEntry("long", Long.class.getName(), longVal.toString());
-        builder.addEnvEntry("float", Float.class.getName(), floatVal.toString());
-        builder.addEnvEntry("double", Double.class.getName(), doubleVal.toString());
-        builder.addEnvEntry("boolean", Boolean.class.getName(), booleanVal.toString());
+        builder.addEnvEntry("string", String.class.getName(), stringVal, null);
+        builder.addEnvEntry("char", Character.class.getName(), charVal.toString(), null);
+        builder.addEnvEntry("byte", Byte.class.getName(), byteVal.toString(), null);
+        builder.addEnvEntry("short", Short.class.getName(), shortVal.toString(), null);
+        builder.addEnvEntry("int", Integer.class.getName(), intVal.toString(), null);
+        builder.addEnvEntry("long", Long.class.getName(), longVal.toString(), null);
+        builder.addEnvEntry("float", Float.class.getName(), floatVal.toString(), null);
+        builder.addEnvEntry("double", Double.class.getName(), doubleVal.toString(), null);
+        builder.addEnvEntry("boolean", Boolean.class.getName(), booleanVal.toString(), null);
 
         ReadOnlyContext context = builder.getContext();
         Set actual = new HashSet();

@@ -74,8 +74,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.naming.reference.GBeanGetResourceRefAddr;
-import org.apache.geronimo.naming.reference.RefAddrContentObjectFactory;
+import org.apache.geronimo.naming.reference.ResourceReference;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
@@ -775,15 +774,11 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
     //ResourceReferenceBuilder implementation
     public Reference createResourceRef(String containerId, Class iface) throws DeploymentException {
-        Reference ref = new Reference(null, RefAddrContentObjectFactory.class.getName(), null);
-        ref.add(new GBeanGetResourceRefAddr(null, containerId, iface));
-        return ref;
+        return new ResourceReference(containerId, iface);
     }
 
     public Reference createAdminObjectRef(String containerId, Class iface) throws DeploymentException {
-        Reference ref = new Reference(null, RefAddrContentObjectFactory.class.getName(), null);
-        ref.add(new GBeanGetResourceRefAddr(null, containerId, iface));
-        return ref;
+        return new ResourceReference(containerId, iface);
     }
 
     public ObjectName locateResourceName(ObjectName query) throws DeploymentException {

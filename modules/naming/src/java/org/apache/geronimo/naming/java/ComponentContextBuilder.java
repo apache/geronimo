@@ -17,8 +17,14 @@
 
 package org.apache.geronimo.naming.java;
 
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import javax.naming.NamingException;
 import javax.transaction.UserTransaction;
+
+import org.apache.geronimo.kernel.ClassLoading;
+import org.apache.geronimo.naming.reference.GBeanProxyReference;
+import org.apache.geronimo.naming.reference.KernelReference;
 
 /**
  * TODO consider removing this class. The only purpose is to slightly hide the internalBind method.
@@ -50,7 +56,6 @@ public class ComponentContextBuilder {
         context.internalBind("UserTransaction", userTransaction);
     }
 
-
     public void bind(String name, Object value) throws NamingException {
         if (context.isFrozen()) {
             throw new IllegalStateException("Context has been frozen");
@@ -58,15 +63,18 @@ public class ComponentContextBuilder {
         context.internalBind(ENV + name, value);
     }
 
-
-    public void addEnvEntry(String name, String type, String text) throws NamingException, NumberFormatException {
+    public void addEnvEntry(String name, String type, String text, ClassLoader classLoader) throws NamingException, NumberFormatException {
         if (context.isFrozen()) {
             throw new IllegalStateException("Context has been frozen");
         }
 
         Object value;
         if (text == null) {
-            value = null;
+            if ("org.apache.geronimo.kernel.Kernel".equals(type)) {
+                value = new KernelReference();
+            } else {
+                value = null;
+            }
         } else if ("java.lang.String".equals(type)) {
             value = text;
         } else if ("java.lang.Character".equals(type)) {
@@ -86,9 +94,25 @@ public class ComponentContextBuilder {
         } else if ("java.lang.Double".equals(type)) {
             value = Double.valueOf(text);
         } else {
-            throw new IllegalArgumentException("Invalid class for env-entry " + name + ", " + type);
+            Class clazz = null;
+            try {
+                clazz = ClassLoading.loadClass(type, classLoader);
+            } catch (ClassNotFoundException e) {
+                throw new IllegalArgumentException("Could not load class for env-entry " + name + ", " + type);
+            }
+            ObjectName objectName = null;
+            try {
+                objectName = ObjectName.getInstance(text);
+            } catch (MalformedObjectNameException e) {
+                throw new IllegalArgumentException("If env-entry type is not String, Character, Byte, Short, Integer, Long, " +
+                        "Boolean, Double, or Float, the text value must be a valid ObjectName for use in a GBeanProxy:" +
+                        " name= " + name +
+                        ", value=" + type +
+                        ", text=" + text);
+            }
+            value = new GBeanProxyReference(objectName, clazz);
+
         }
         context.internalBind(ENV + name, value);
     }
-
 }

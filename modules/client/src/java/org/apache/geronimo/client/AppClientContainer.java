@@ -71,7 +71,7 @@ public final class AppClientContainer {
         TransactionContext oldTransactionContext = transactionContextManager.getContext();
         TransactionContext currentTransactionContext = null;
         try {
-            jndiContext.startClient(appClientModuleName);
+            jndiContext.startClient(appClientModuleName, null, classLoader);
             currentTransactionContext = transactionContextManager.newUnspecifiedTransactionContext();
             mainMethod.invoke(null, new Object[]{args});
 

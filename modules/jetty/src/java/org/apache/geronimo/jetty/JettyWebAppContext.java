@@ -56,7 +56,7 @@ import org.apache.geronimo.transaction.OnlineUserTransaction;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.security.deploy.Security;
-
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
@@ -124,7 +124,8 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
                                   TransactionContextManager transactionContextManager,
                                   TrackedConnectionAssociator trackedConnectionAssociator,
-                                  JettyContainer jettyContainer) throws Exception, IllegalAccessException, InstantiationException, ClassNotFoundException {
+                                  JettyContainer jettyContainer,
+                                  Kernel kernel) throws Exception, IllegalAccessException, InstantiationException, ClassNotFoundException {
 
         assert uri != null;
         assert componentContext != null;
@@ -171,6 +172,10 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         setTagLibMap(tagLibMap);
         setSessionTimeoutSeconds(sessionTimeoutSeconds);
 
+        if (componentContext != null) {
+            componentContext.setKernel(kernel);
+            componentContext.setClassLoader(classLoader);
+        }
 
         int index = 0;
         BeforeAfter interceptor = new InstanceContextBeforeAfter(null, index++, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator);
@@ -363,7 +368,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
 
     public static final GBeanInfo GBEAN_INFO;
-
+                                                              
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder("Jetty WebApplication Context", JettyWebAppContext.class);
         //from jetty's webapp context
@@ -410,6 +415,8 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         infoBuilder.addAttribute("excludedPermissions", PermissionCollection.class, true);
         infoBuilder.addAttribute("rolePermissions", Map.class, true);
 
+        infoBuilder.addAttribute("kernel", Kernel.class, false);
+
         infoBuilder.setConstructor(new String[]{
             "uri",
             "componentContext",
@@ -445,7 +452,9 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
             "TransactionContextManager",
             "TrackedConnectionAssociator",
-            "JettyContainer"
+            "JettyContainer",
+
+            "kernel"
         });
 
         GBEAN_INFO = infoBuilder.getBeanInfo();

@@ -39,6 +39,11 @@ import javax.naming.OperationNotSupportedException;
 import javax.naming.Reference;
 import javax.naming.spi.NamingManager;
 
+import org.apache.geronimo.naming.reference.SimpleReference;
+import org.apache.geronimo.naming.reference.KernelAwareReference;
+import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
+import org.apache.geronimo.kernel.Kernel;
+
 /**
  * A read-only Context in the java: namespace.
  * <p>
@@ -59,7 +64,7 @@ import javax.naming.spi.NamingManager;
  *
  * @version $Rev$ $Date$
  */
-public class ReadOnlyContext implements Context,Serializable {
+public class ReadOnlyContext implements Context, Serializable {
     protected final Hashtable env;        // environment for this context
     protected final Map bindings;         // bindings at my level
     protected final Map treeBindings;     // all bindings under me
@@ -138,7 +143,7 @@ public class ReadOnlyContext implements Context,Serializable {
             Map subBindings = readOnlyContext.internalBind(remainder, value);
             for (Iterator iterator = subBindings.entrySet().iterator(); iterator.hasNext();) {
                 Map.Entry entry = (Map.Entry) iterator.next();
-                String subName = segment + "/" + (String)entry.getKey();
+                String subName = segment + "/" + entry.getKey();
                 Object bound = entry.getValue();
                 treeBindings.put(subName, bound);
                 newBindings.put(subName, bound);
@@ -149,6 +154,24 @@ public class ReadOnlyContext implements Context,Serializable {
 
     protected ReadOnlyContext newContext() {
         return new ReadOnlyContext();
+    }
+
+    public void setKernel(Kernel kernel) {
+        for (Iterator iterator = treeBindings.values().iterator(); iterator.hasNext();) {
+            Object o = iterator.next();
+            if (o instanceof KernelAwareReference) {
+                ((KernelAwareReference) o).setKernel(kernel);
+            }
+        }
+    }
+
+    public void setClassLoader(ClassLoader classLoader) {
+        for (Iterator iterator = treeBindings.values().iterator(); iterator.hasNext();) {
+            Object o = iterator.next();
+            if (o instanceof ClassLoaderAwareReference) {
+                ((ClassLoaderAwareReference) o).setClassLoader(classLoader);
+            }
+        }
     }
 
     public Object addToEnvironment(String propName, Object propVal) throws NamingException {
@@ -194,6 +217,13 @@ public class ReadOnlyContext implements Context,Serializable {
                     }
                     return obj;
                 }
+            }
+        }
+        if (result instanceof SimpleReference) {
+            try {
+                result = ((SimpleReference) result).getContent();
+            } catch (Exception e) {
+                throw (NamingException)new NamingException("could not look up : " + name).initCause(e);
             }
         }
         if (result instanceof LinkRef) {

@@ -23,6 +23,7 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  * @version $Rev$ $Date$
@@ -34,7 +35,9 @@ public class StaticJndiContextPlugin implements AppClientPlugin {
         this.context = context;
     }
 
-    public void startClient(ObjectName appClientModuleName) throws Exception {
+    public void startClient(ObjectName appClientModuleName, Kernel kernel, ClassLoader classLoader) throws Exception {
+        context.setKernel(kernel);
+        context.setClassLoader(classLoader);
         RootContext.setComponentContext(context);
         System.setProperty("java.naming.factory.initial", "com.sun.jndi.rmi.registry.RegistryContextFactory");
         System.setProperty("java.naming.factory.url.pkgs", "org.apache.geronimo.naming");

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,13 +16,20 @@
  */
 package org.apache.geronimo.naming.reference;
 
+import javax.management.ObjectName;
+
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.proxy.ProxyManager;
+
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
-public interface GBeanRefAddr {
+public class KernelReference extends SimpleAwareReference {
+    public String getClassName() {
+        return Kernel.class.getName();
+    }
 
-    String getContainerId();
-
-    String getKernelName();
-    
+    public Object getContent() throws IllegalStateException {
+        return getKernel();
+    }
 }

@@ -64,7 +64,6 @@ import org.apache.geronimo.xbeans.j2ee.XsdStringType;
  * @version $Rev$ $Date$
  */
 public class ENCConfigBuilder {
-
     public static ObjectName getGBeanId(String j2eeType, GerGbeanLocatorType gerGbeanLocator, J2eeContext j2eeContext, Set localGBeans, Kernel kernel) throws DeploymentException {
         ObjectName containerId = null;
         if (gerGbeanLocator.isSetGbeanLink()) {
@@ -128,14 +127,15 @@ public class ENCConfigBuilder {
         return containerId;
     }
 
-    public static void addEnvEntries(EnvEntryType[] envEntries, ComponentContextBuilder builder) throws DeploymentException {
+
+    public static void addEnvEntries(EnvEntryType[] envEntries, ComponentContextBuilder builder, ClassLoader classLoader) throws DeploymentException {
         for (int i = 0; i < envEntries.length; i++) {
             EnvEntryType envEntry = envEntries[i];
             String name = getStringValue(envEntry.getEnvEntryName());
             String type = getStringValue(envEntry.getEnvEntryType());
             String text = getStringValue(envEntry.getEnvEntryValue());
             try {
-                builder.addEnvEntry(name, type, text);
+                builder.addEnvEntry(name, type, text, classLoader);
             } catch (NumberFormatException e) {
                 throw new DeploymentException("Invalid env-entry value for name: " + name, e);
             } catch (NamingException e) {
@@ -570,7 +570,7 @@ public class ENCConfigBuilder {
             }
         }
 
-        addEnvEntries(envEntries, builder);
+        addEnvEntries(envEntries, builder, cl);
 
         // ejb-ref
         addEJBRefs(earContext, uri, ejbRefs, mapEjbRefs(gerEjbRefs), cl, builder);

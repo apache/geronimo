@@ -53,6 +53,7 @@
             </xsd:documentation>
         </xsd:annotation>
         <xsd:sequence>
+            <xsd:element name="gbean-ref" type="gernaming:gbean-refType" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="ejb-ref" type="gernaming:ejb-refType" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="ejb-local-ref" type="gernaming:ejb-local-refType" minOccurs="0" maxOccurs="unbounded"/>
             <!-- leave web services out until I know what they do -->
@@ -102,6 +103,18 @@
                 <xsd:element name="resource-link" type="xsd:string"/>
                 <xsd:element name="target-name" type="xsd:string"/>
                 <xsd:element name="url" type="xsd:string"/>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="gbean-refType">
+        <xsd:sequence>
+            <xsd:element name="ref-name" type="xsd:string"/>
+            <xsd:element name="ref-type" type="xsd:string"/>
+            <xsd:element name="proxy-type" type="xsd:string" minOccurs="0"/>
+            <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                <xsd:group ref="gernaming:objectNameGroup"/>
+                <xsd:element name="target-name" type="xsd:string"/>
             </xsd:choice>
         </xsd:sequence>
     </xsd:complexType>

@@ -14,18 +14,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.client;
-
-import javax.management.ObjectName;
+package org.apache.geronimo.naming.reference;
 
 import org.apache.geronimo.kernel.Kernel;
 
 /**
- * @version $Revision$ $Date$
+ * @version $Rev$ $Date$
  */
-public interface AppClientPlugin {
-    public void startClient(ObjectName appClientModuleName, Kernel kernel, ClassLoader classLoader) throws Exception;
-
-    public void stopClient(ObjectName appClientModuleName) throws Exception;
-
+public interface KernelAwareReference {
+    void setKernel(Kernel kernel);
 }
