@@ -38,7 +38,7 @@ import org.apache.geronimo.kernel.Kernel;
  * to contain the GBeans that are responsible for deploying each module
  * type.
  *
- * @version $Revision: 1.9 $ $Date: 2004/03/10 09:58:49 $
+ * @version $Revision: 1.10 $ $Date: 2004/05/26 07:43:39 $
  */
 public class DeploymentFactoryImpl implements DeploymentFactory {
     public static final String URI_PREFIX = "deployer:geronimo:";
@@ -48,7 +48,7 @@ public class DeploymentFactoryImpl implements DeploymentFactory {
     }
 
     public String getProductVersion() {
-        return "0.1";
+        return "1.0";
     }
 
     public boolean handlesURI(String uri) {

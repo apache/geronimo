@@ -38,7 +38,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * Helper class to bootstrap the Geronimo deployer.
  *
- * @version $Revision: 1.15 $ $Date: 2004/04/23 03:08:28 $
+ * @version $Revision: 1.16 $ $Date: 2004/05/26 07:43:39 $
  */
 public class Bootstrap {
     private String deployerJar;
@@ -48,6 +48,7 @@ public class Bootstrap {
     private String j2eeDeployerPlan;
     private String deployerClassPath;
     private String deployerGBean;
+    private String deploymentFactory;
 
     public String getDeployerJar() {
         return deployerJar;
@@ -105,6 +106,14 @@ public class Bootstrap {
         this.deployerGBean = deployerGBean;
     }
 
+    public String getDeploymentFactory() {
+        return deploymentFactory;
+    }
+
+    public void setDeploymentFactory(String deploymentFactory) {
+        this.deploymentFactory = deploymentFactory;
+    }
+
     public void bootstrap() throws Exception {
         ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(Bootstrap.class.getClassLoader());
@@ -129,12 +138,15 @@ public class Bootstrap {
             mainAttributes.putValue(CommandLineManifest.MAIN_METHOD.toString(), "deploy");
             mainAttributes.putValue(CommandLineManifest.CONFIGURATIONS.toString(), j2eeDeployerConfig.getConfigId());
 
+            // attribute that indicates to a JSR-88 tool that we have a Deployment factory
+            mainAttributes.putValue("J2EE-DeploymentFactory-Implementation-Class", deploymentFactory);
+
             // build and install the deployer-system configuration
             // write the deployer system out to a jar
             File outputFile = new File(deployerJar);
             JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(outputFile)), manifest);
             try {
-                // add the startup jar entry which allows us to locat the startup directory
+                // add the startup jar entry which allows us to locate the startup directory
                 jos.putNextEntry(new ZipEntry("META-INF/startup-jar"));
                 jos.closeEntry();
 

@@ -16,7 +16,7 @@
     limitations under the License.
 -->
   
-<!-- $Revision: 1.12 $ $Date: 2004/05/19 20:53:58 $ -->
+<!-- $Revision: 1.13 $ $Date: 2004/05/26 07:43:39 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -145,6 +145,7 @@
             j2eeDeployerPlan="${basedir}/src/plan/j2ee-deployer-plan.xml"
             deployerClassPath="${deploy.classpath}"
             deployerGBean="geronimo.deployment:role=Deployer,config=org/apache/geronimo/J2EEDeployer"
+            deploymentFactory="org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl"
             />
 
         <!-- build the system configuration and server.jar -->
