@@ -89,7 +89,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import junit.framework.TestCase;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/10/28 23:43:22 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/29 23:51:54 $
  */
 public class DefaultClassSpaceTest extends TestCase {
     private ClassLoader parentClassLoader = new URLClassLoader(new URL[0]);
@@ -178,16 +178,16 @@ public class DefaultClassSpaceTest extends TestCase {
         // Deployment one
         ObjectName deploymentOne = new ObjectName("deployment", "number", "one");
         ArrayList deploymentOneURLs = new ArrayList(2);
-        deploymentOneURLs.add(new URL("http://deploymentOne/urlOne"));
-        deploymentOneURLs.add(new URL("http://deploymentOne/urlTwo"));
+        deploymentOneURLs.add(new URL("file:deploymentOne/urlOne"));
+        deploymentOneURLs.add(new URL("file:deploymentOne/urlTwo"));
         HashMap deploymentOneMap = new HashMap();
         deploymentOneMap.put(deploymentOne,  deploymentOneURLs);
 
         // Deployment two
         ObjectName deploymentTwo = new ObjectName("deployment", "number", "two");
         ArrayList deploymentTwoURLs = new ArrayList(2);
-        deploymentTwoURLs.add(new URL("http://deploymentTwo/urlOne"));
-        deploymentTwoURLs.add(new URL("http://deploymentTwo/urlTwo"));
+        deploymentTwoURLs.add(new URL("file:deploymentTwo/urlOne"));
+        deploymentTwoURLs.add(new URL("file:deploymentTwo/urlTwo"));
         HashMap deploymentTwoMap = new HashMap();
         deploymentTwoMap.put(deploymentTwo, deploymentTwoURLs);
 
