@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.22 $ $Date: 2003/11/25 04:19:29 $ -->
+<!-- $Revision: 1.23 $ $Date: 2003/12/10 10:54:07 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -210,10 +210,8 @@
                 targetfile="${uptodateFile}">
         <srcfiles dir="${srcdir}" includes="**/*.java"/>
       </uptodate>
-      
+
       <j:if test="${context.getVariable(uptodatePropName) == null}">
-        <echo>Generating MBean interfaces...</echo>
-        
         <!-- Load the jmxdoclet task -->
         <taskdef name="jmxdoclet" classname="xdoclet.modules.jmx.JMXDocletTask">
           <classpath>
@@ -224,7 +222,8 @@
         <!-- Where sources will be generated -->
         <mkdir dir="${destdir}"/>
         
-        <!-- Generate MBean interfaces -->
+        <echo>Generating MBean interfaces...</echo>
+	<!-- Generate MBean interfaces -->
         <jmxdoclet destDir="${destdir}" verbose="false">
           
           <fileset dir="${srcdir}">
@@ -233,11 +232,59 @@
           
           <mbeaninterface templateFile="${project.root}/etc/xdoclet/template/jmx/mbean.xdt"/>
         </jmxdoclet>
-        
+
         <touch file="${uptodateFile}"/>
       </j:if>
       
     </define:tag>
+    
+    <define:tag name="geronimodoclet" xmlns="jelly:ant">
+      <j:if test="${srcdir == null}">
+        <fail>Missing required attribute: srcdir</fail>
+      </j:if>
+      <j:if test="${destdir == null}">
+        <fail>Missing required attribute: destdir</fail>
+      </j:if>
+      
+      <!-- Inlcude the generated sources in the Javac compile -->
+      <j:if test="${appendSet != null}">
+        <path id="xdoclet.geronimo.compile.src.set" location="${destdir}"/>
+        <maven:addPath id="${appendSet}" refid="xdoclet.geronimo.compile.src.set"/>
+      </j:if>
+      
+      <j:set var="uptodatePropName" value="xdoclet.geronimo.uptodate"/>
+      <j:expr value="${context.setVariable(uptodatePropName, null)}"/>
+      <j:set var="uptodateFile" value="${destdir}/tstampGeronimoDoclet"/>
+      
+      <uptodate property="${uptodatePropName}"
+                targetfile="${uptodateFile}">
+        <srcfiles dir="${srcdir}" includes="**/*.java"/>
+      </uptodate>
+
+      <j:if test="${context.getVariable(uptodatePropName) == null}">
+	<!-- Load the geronimodoclet task -->
+        <taskdef name="geronimodoclet" classname="org.apache.geronimo.tools.xdoclet.GeronimoDocletTask">
+          <classpath>
+            <path refid="maven.dependency.classpath"/>
+          </classpath>
+        </taskdef>
+
+        <!-- Where sources will be generated -->
+        <mkdir dir="${destdir}"/>
+        
+        <echo>Generating GeronimoMBeanInfo XML...</echo>
+        <geronimodoclet destDir="${destdir}" verbose="false">
+          <fileset dir="${srcdir}">
+            <include name="**/*.java"/>
+          </fileset>
+          <mbeaninfo/>
+        </geronimodoclet>
+
+        <touch file="${uptodateFile}"/>
+      </j:if>
+      
+    </define:tag>
+
   </define:taglib>
   
   <goal name="xdoclet:jmxdoclet:compile">
@@ -245,12 +292,20 @@
       srcdir="${basedir}/src/java"
       destdir="${basedir}/target/xdoclet/jmx"
       appendSet="maven.compile.src.set"/>
+    <xdoclet:geronimodoclet
+      srcdir="${basedir}/src/java"
+      destdir="${basedir}/target/classes"
+      appendSet="maven.compile.src.set"/>
   </goal>
   
   <goal name="xdoclet:jmxdoclet:test-compile">
     <xdoclet:jmxdoclet
       srcdir="${basedir}/src/test"
       destdir="${basedir}/target/test-xdoclet/jmx"
+      appendSet="maven.test.compile.src.set"/>
+    <xdoclet:geronimodoclet
+      srcdir="${basedir}/src/test"
+      destdir="${basedir}/target/test-classes"
       appendSet="maven.test.compile.src.set"/>
   </goal>
   

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.10 $ $Date: 2003/11/24 04:42:10 $ -->
+<!-- $Revision: 1.11 $ $Date: 2003/12/10 10:54:07 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -27,6 +27,14 @@
     <dependencies>
 
         <!-- Module Dependencies -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-tools</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
@@ -237,7 +245,7 @@
             </properties>
         </dependency>
 
-        <!-- Required by Jasper to compile .jsp files... lame -->
+	<!-- Required by Jasper to compile .jsp files... lame -->
         <dependency>
             <id>ant</id>
             <version>1.5.2</version>

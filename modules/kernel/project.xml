@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.10 $ $Date: 2003/11/17 10:57:40 $ -->
+<!-- $Revision: 1.11 $ $Date: 2003/12/10 10:54:07 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -70,6 +70,14 @@
         </dependency>
 
         <!-- Module Dependencies -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-tools</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
@@ -170,6 +178,23 @@
                 </includes>
             </resource>
         </resources>
+        <unitTest>
+            <includes>
+                <include>**/*Test.java</include>
+            </includes>
+            <excludes>
+                <exclude>**/Abstract*.java</exclude>
+            </excludes>
+            <resources>
+                <resource>
+                    <directory>${basedir}/target/test-xdoclet/jmx/org/apache/geronimo/tools/xdoclet</directory>
+		    <targetPath>org/apache/geronimo/tools/xdoclet</targetPath>
+                    <includes>
+                        <include>*.xml</include>
+                    </includes>
+                </resource>
+            </resources>
+        </unitTest>
     </build>
 
 </project>
