@@ -22,19 +22,22 @@ import org.apache.geronimo.transaction.ExtendedTransactionManager;
 /**
  * @version $Rev$ $Date$
  */
-public class BeanTransactionContext extends InheritableTransactionContext {
+class BeanTransactionContext extends InheritableTransactionContext {
     private UnspecifiedTransactionContext oldContext;
 
-    public BeanTransactionContext(ExtendedTransactionManager txnManager, UnspecifiedTransactionContext oldContext) {
+    BeanTransactionContext(ExtendedTransactionManager txnManager, UnspecifiedTransactionContext oldContext) {
         super(txnManager);
         this.oldContext = oldContext;
     }
 
-    public UnspecifiedTransactionContext getOldContext() {
+    UnspecifiedTransactionContext getOldContext() {
         return oldContext;
     }
 
-    public void setOldContext(UnspecifiedTransactionContext oldContext) {
+    void setOldContext(UnspecifiedTransactionContext oldContext) {
+        if (oldContext != null && oldContext.isInheritable()) {
+            throw new IllegalArgumentException("Old context is inheritable");
+        }
         this.oldContext = oldContext;
     }
 }

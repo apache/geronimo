@@ -22,7 +22,7 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import org.apache.geronimo.transaction.context.ContainerTransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
@@ -71,7 +71,7 @@ public class TransactionEnlistingInterceptorTest extends ConnectionInterceptorTe
     }
 
     public void testTransactionShareableConnection() throws Exception {
-        ContainerTransactionContext transactionContext = transactionContextManager.newContainerTransactionContext();
+        TransactionContext transactionContext = transactionContextManager.newContainerTransactionContext();
         ConnectionInfo connectionInfo = makeConnectionInfo();
         transactionEnlistingInterceptor.getConnection(connectionInfo);
         assertTrue("Expected started", started);
@@ -86,7 +86,7 @@ public class TransactionEnlistingInterceptorTest extends ConnectionInterceptorTe
     }
 
     public void testTransactionUnshareableConnection() throws Exception {
-        ContainerTransactionContext transactionContext = transactionContextManager.newContainerTransactionContext();
+        TransactionContext transactionContext = transactionContextManager.newContainerTransactionContext();
         ConnectionInfo connectionInfo = makeConnectionInfo();
         connectionInfo.setUnshareable(true);
         transactionEnlistingInterceptor.getConnection(connectionInfo);

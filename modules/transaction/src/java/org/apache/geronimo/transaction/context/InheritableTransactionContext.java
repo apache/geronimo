@@ -19,7 +19,6 @@ package org.apache.geronimo.transaction.context;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.ArrayList;
 import javax.transaction.SystemException;
 import javax.transaction.Status;
@@ -29,6 +28,8 @@ import javax.transaction.NotSupportedException;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.RollbackException;
+import javax.transaction.Synchronization;
+import javax.transaction.xa.XAResource;
 
 import org.apache.geronimo.transaction.ExtendedTransactionManager;
 import org.apache.geronimo.transaction.ConnectionReleaser;
@@ -37,11 +38,10 @@ import org.apache.geronimo.transaction.InstanceContext;
 /**
  * @version $Rev$ $Date$
  */
-public abstract class InheritableTransactionContext extends TransactionContext {
+abstract class InheritableTransactionContext extends AbstractTransactionContext {
     private final ExtendedTransactionManager txnManager;
     private Transaction transaction;
     private boolean threadAssociated = false;
-    private Map managedConnections;
 
     protected InheritableTransactionContext(ExtendedTransactionManager txnManager) {
         this.txnManager = txnManager;
@@ -52,7 +52,15 @@ public abstract class InheritableTransactionContext extends TransactionContext {
         this.transaction = transaction;
     }
 
-    public boolean isThreadAssociated() {
+    void begin(long transactionTimeoutMilliseconds) throws SystemException, NotSupportedException {
+        if (transaction != null) {
+            throw new SystemException("Context is already associated with a transaction");
+        }
+        transaction = txnManager.begin(transactionTimeoutMilliseconds);
+        threadAssociated = true;
+    }
+
+    boolean isThreadAssociated() {
         return threadAssociated;
     }
 
@@ -60,18 +68,8 @@ public abstract class InheritableTransactionContext extends TransactionContext {
         return transaction;
     }
 
-    public void setManagedConnectionInfo(ConnectionReleaser key, Object info) {
-        if (managedConnections == null) {
-            managedConnections = new HashMap();
-        }
-        managedConnections.put(key, info);
-    }
-
-    public Object getManagedConnectionInfo(ConnectionReleaser key) {
-        if (managedConnections == null) {
-            return null;
-        }
-        return managedConnections.get(key);
+    public boolean isInheritable() {
+        return true;
     }
 
     public boolean isActive() {
@@ -84,6 +82,30 @@ public abstract class InheritableTransactionContext extends TransactionContext {
         } catch (SystemException e) {
             return false;
         }
+    }
+
+    public boolean enlistResource(XAResource xaResource) throws RollbackException, SystemException {
+        if (transaction == null) {
+            throw new IllegalStateException("There is no transaction in progress.");
+        }
+
+        return transaction.enlistResource(xaResource);
+    }
+
+    public boolean delistResource(XAResource xaResource, int flag) throws SystemException {
+        if (transaction == null) {
+            throw new IllegalStateException("There is no transaction in progress.");
+        }
+
+        return transaction.delistResource(xaResource, flag);
+    }
+
+    public void registerSynchronization(Synchronization synchronization) throws RollbackException, SystemException {
+        if (transaction == null) {
+            throw new IllegalStateException("There is no transaction in progress.");
+        }
+
+        transaction.registerSynchronization(synchronization);
     }
 
     public boolean getRollbackOnly() throws SystemException {
@@ -102,12 +124,6 @@ public abstract class InheritableTransactionContext extends TransactionContext {
             throw new IllegalStateException("There is no transaction in progress.");
         }
         transaction.setRollbackOnly();
-    }
-
-    public void begin(long transactionTimeoutMilliseconds) throws SystemException, NotSupportedException {
-        assert transaction == null:  "Already associated with a transaction";
-        transaction = txnManager.begin(transactionTimeoutMilliseconds);
-        threadAssociated = true;
     }
 
     public void suspend() throws SystemException {
@@ -179,6 +195,7 @@ public abstract class InheritableTransactionContext extends TransactionContext {
         } catch (Throwable t) {
             rollbackAndThrow("Unable to commit container transaction", t);
         } finally {
+            transaction = null;
             try {
                 afterCommit(wasCommitted);
             } catch (Throwable e) {
@@ -186,7 +203,6 @@ public abstract class InheritableTransactionContext extends TransactionContext {
             } finally {
                 unassociateAll();
                 connectorAfterCommit();
-                transaction = null;
                 threadAssociated = false;
             }
         }

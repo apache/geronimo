@@ -55,7 +55,7 @@ import org.apache.geronimo.jetty.interceptor.ThreadClassloaderBeforeAfter;
 import org.apache.geronimo.jetty.interceptor.TransactionContextBeforeAfter;
 import org.apache.geronimo.jetty.interceptor.WebApplicationContextBeforeAfter;
 import org.apache.geronimo.jetty.interceptor.SecurityContextBeforeAfter;
-import org.apache.geronimo.transaction.OnlineUserTransaction;
+import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.security.deploy.Security;

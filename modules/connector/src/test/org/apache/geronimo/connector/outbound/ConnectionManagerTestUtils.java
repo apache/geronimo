@@ -37,8 +37,8 @@ import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.bridge.RealmBridge;
 import org.apache.geronimo.transaction.DefaultInstanceContext;
 import org.apache.geronimo.transaction.InstanceContext;
-import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 
 /**

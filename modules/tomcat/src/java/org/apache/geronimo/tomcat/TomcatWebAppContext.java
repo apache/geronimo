@@ -43,8 +43,8 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.tomcat.valve.ComponentContextValve;
 import org.apache.geronimo.tomcat.valve.TransactionContextValve;
 import org.apache.geronimo.tomcat.valve.PolicyContextValve;
-import org.apache.geronimo.transaction.OnlineUserTransaction;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
+import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 import javax.naming.NamingException;

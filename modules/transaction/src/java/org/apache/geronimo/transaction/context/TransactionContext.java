@@ -17,17 +17,15 @@
 
 package org.apache.geronimo.transaction.context;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.InvalidTransactionException;
 import javax.transaction.RollbackException;
+import javax.transaction.Synchronization;
 import javax.transaction.SystemException;
+import javax.transaction.xa.XAResource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.transaction.DoubleKeyedHashMap;
+import org.apache.geronimo.transaction.ConnectionReleaser;
 import org.apache.geronimo.transaction.InstanceContext;
 import org.tranql.cache.InTxCache;
 
@@ -35,113 +33,48 @@ import org.tranql.cache.InTxCache;
 /**
  * @version $Rev$ $Date$
  */
-public abstract class TransactionContext {
-    protected static final Log log = LogFactory.getLog(TransactionContext.class);
-    private static ThreadLocal CONTEXT = new ThreadLocal();
+public interface TransactionContext {
+    boolean isInheritable();
 
-    public static TransactionContext getContext() {
-        return (TransactionContext) CONTEXT.get();
-    }
+    boolean isActive();
 
-    public static void setContext(TransactionContext context) {
-        CONTEXT.set(context);
-    }
+    boolean enlistResource(XAResource xaResource) throws RollbackException, SystemException;
 
-    private InstanceContext currentContext;
-    private final DoubleKeyedHashMap associatedContexts = new DoubleKeyedHashMap();
-    private final DoubleKeyedHashMap dirtyContexts = new DoubleKeyedHashMap();
-    private InTxCache inTxCache;
+    boolean delistResource(XAResource xaResource, int flag) throws SystemException;
 
-    public abstract boolean getRollbackOnly() throws SystemException;
+    void registerSynchronization(Synchronization synchronization) throws RollbackException, SystemException;
 
-    public abstract void setRollbackOnly() throws SystemException;
+    boolean getRollbackOnly() throws SystemException;
 
-    public abstract void suspend() throws SystemException;
+    void setRollbackOnly() throws SystemException;
 
-    public abstract void resume() throws SystemException, InvalidTransactionException;
+    void suspend() throws SystemException;
 
-    public abstract boolean commit() throws HeuristicMixedException, HeuristicRollbackException, RollbackException, SystemException;
+    void resume() throws SystemException, InvalidTransactionException;
 
-    public abstract void rollback() throws SystemException;
+    boolean commit() throws HeuristicMixedException, HeuristicRollbackException, RollbackException, SystemException;
 
-    public final void associate(InstanceContext context) throws Throwable {
-        if (associatedContexts.put(context.getContainerId(), context.getId(), context) == null) {
-            context.associate();
-        }
-    }
+    void rollback() throws SystemException;
 
-    public final void unassociate(InstanceContext context) throws Throwable {
-        associatedContexts.remove(context.getContainerId(), context.getId());
-        context.unassociate();
-    }
+    void associate(InstanceContext context) throws Throwable;
 
-    public final void unassociate(Object containerId, Object id) throws Throwable {
-        InstanceContext context = (InstanceContext) associatedContexts.remove(containerId, id);
-        if (context != null) {
-            context.unassociate();
-        }
-    }
+    void unassociate(InstanceContext context) throws Throwable;
 
-    public final InstanceContext getContext(Object containerId, Object id) {
-        return (InstanceContext) associatedContexts.get(containerId, id);
-    }
+    void unassociate(Object containerId, Object id) throws Throwable;
 
-    protected final ArrayList getAssociatedContexts() {
-        return new ArrayList(associatedContexts.values());
-    }
+    InstanceContext getContext(Object containerId, Object id);
 
-    protected final void unassociateAll() {
-        ArrayList toFlush = getAssociatedContexts();
-        for (Iterator i = toFlush.iterator(); i.hasNext();) {
-            InstanceContext context = (InstanceContext) i.next();
-            try {
-                context.unassociate();
-            } catch (Throwable throwable) {
-                log.warn("Error while unassociating instance from transaction context: " + context, throwable);
-            }
-        }
-    }
+    InstanceContext beginInvocation(InstanceContext context) throws Throwable;
 
-    public final InstanceContext beginInvocation(InstanceContext context) throws Throwable {
-        if (context.getId() != null) {
-            associate(context);
-            dirtyContexts.put(context.getContainerId(), context.getId(), context);
-        }
-        context.enter();
-        InstanceContext caller = currentContext;
-        currentContext = context;
-        return caller;
-    }
+    void endInvocation(InstanceContext caller);
 
-    public final void endInvocation(InstanceContext caller) {
-        currentContext.exit();
-        currentContext = caller;
-    }
+    void flushState() throws Throwable;
 
-    public final void flushState() throws Throwable {
-        while (dirtyContexts.isEmpty() == false) {
-            ArrayList toFlush = new ArrayList(dirtyContexts.values());
-            dirtyContexts.clear();
-            for (Iterator i = toFlush.iterator(); i.hasNext();) {
-                InstanceContext context = (InstanceContext) i.next();
-                if (!context.isDead()) {
-                    context.flush();
-                }
-            }
-        }
-        if (currentContext != null && currentContext.getId() != null) {
-            dirtyContexts.put(currentContext.getContainerId(), currentContext.getId(), currentContext);
-        }
-        if(inTxCache != null) {
-            inTxCache.flush();
-        }
-    }
+    void setInTxCache(InTxCache inTxCache);
 
-    public final void setInTxCache(InTxCache inTxCache) {
-        this.inTxCache = inTxCache;
-    }
-    
-    public final InTxCache getInTxCache() {
-        return inTxCache;
-    }
+    InTxCache getInTxCache();
+
+    void setManagedConnectionInfo(ConnectionReleaser key, Object info);
+
+    Object getManagedConnectionInfo(ConnectionReleaser key);
 }

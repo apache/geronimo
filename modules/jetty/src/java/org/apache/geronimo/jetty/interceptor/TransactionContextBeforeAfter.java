@@ -21,7 +21,6 @@ import javax.transaction.HeuristicRollbackException;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 
-import org.apache.geronimo.transaction.context.InheritableTransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.mortbay.http.HttpRequest;
@@ -47,7 +46,7 @@ public class TransactionContextBeforeAfter implements BeforeAfter {
     public void before(Object[] context, HttpRequest httpRequest, HttpResponse httpResponse) {
         TransactionContext oldTransactionContext = transactionContextManager.getContext();
         TransactionContext newTransactionContext = null;
-        if (oldTransactionContext == null || !(oldTransactionContext instanceof InheritableTransactionContext)) {
+        if (oldTransactionContext == null || !oldTransactionContext.isInheritable()) {
             newTransactionContext = transactionContextManager.newUnspecifiedTransactionContext();
         }
         context[oldTxIndex] = oldTransactionContext;

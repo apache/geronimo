@@ -41,7 +41,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.transaction.OnlineUserTransaction;
+import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.jetty.JettyWebAppContext;

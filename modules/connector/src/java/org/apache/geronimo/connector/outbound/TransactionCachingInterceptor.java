@@ -21,13 +21,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
 import javax.resource.ResourceException;
 
 import org.apache.geronimo.transaction.ConnectionReleaser;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.transaction.context.InheritableTransactionContext;
 
 /**
  * TransactionCachingInterceptor.java
@@ -63,12 +61,11 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor, Con
         //There can be an inactive transaction context when a connection is requested in
         //Synchronization.afterCompletion().
         TransactionContext transactionContext = transactionContextManager.getContext();
-        if ((transactionContext instanceof InheritableTransactionContext) && ((InheritableTransactionContext) transactionContext).isActive()) {
-            InheritableTransactionContext inheritableTransactionContext = ((InheritableTransactionContext) transactionContext);
-            ManagedConnectionInfos managedConnectionInfos = (ManagedConnectionInfos) inheritableTransactionContext.getManagedConnectionInfo(this);
+        if (transactionContext != null && transactionContext.isInheritable() && transactionContext.isActive()) {
+            ManagedConnectionInfos managedConnectionInfos = (ManagedConnectionInfos) transactionContext.getManagedConnectionInfo(this);
             if (managedConnectionInfos == null) {
                 managedConnectionInfos = new ManagedConnectionInfos();
-                inheritableTransactionContext.setManagedConnectionInfo(this, managedConnectionInfos);
+                transactionContext.setManagedConnectionInfo(this, managedConnectionInfos);
             }
             if (connectionInfo.isUnshareable()) {
                 if (!managedConnectionInfos.containsUnshared(connectionInfo.getManagedConnectionInfo())) {
@@ -98,7 +95,7 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor, Con
         }
 
         TransactionContext transactionContext = transactionContextManager.getContext();
-        if ((transactionContext instanceof InheritableTransactionContext) && ((InheritableTransactionContext) transactionContext).isActive()) {
+        if (transactionContext != null && transactionContext.isInheritable() && transactionContext.isActive()) {
             return;
         }
         internalReturn(connectionInfo, connectionReturnAction);

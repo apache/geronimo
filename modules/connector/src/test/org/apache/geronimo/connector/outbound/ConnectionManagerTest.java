@@ -21,8 +21,8 @@ import org.apache.geronimo.connector.mock.MockConnection;
 import org.apache.geronimo.connector.mock.MockXAResource;
 import org.apache.geronimo.connector.outbound.connectiontracking.DefaultInterceptor;
 import org.apache.geronimo.transaction.InstanceContext;
-import org.apache.geronimo.transaction.UserTransactionImpl;
-import org.apache.geronimo.transaction.context.ContainerTransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContext;
+import org.apache.geronimo.transaction.context.UserTransactionImpl;
 
 /**
  *
@@ -34,7 +34,7 @@ public class ConnectionManagerTest extends ConnectionManagerTestUtils {
 
 
     public void testSingleTransactionCall() throws Throwable {
-        ContainerTransactionContext transactionContext = transactionContextManager.newContainerTransactionContext();
+        TransactionContext transactionContext = transactionContextManager.newContainerTransactionContext();
         defaultComponentInterceptor.invoke(defaultComponentContext);
         MockXAResource mockXAResource = (MockXAResource) mockManagedConnection.getXAResource();
         assertEquals("XAResource should know one xid", 1, mockXAResource.getKnownXids().size());
@@ -52,7 +52,7 @@ public class ConnectionManagerTest extends ConnectionManagerTestUtils {
     }
 
     public void testOneTransactionTwoCalls() throws Throwable {
-        ContainerTransactionContext transactionContext = transactionContextManager.newContainerTransactionContext();
+        TransactionContext transactionContext = transactionContextManager.newContainerTransactionContext();
         defaultComponentInterceptor.invoke(defaultComponentContext);
         MockXAResource mockXAResource = (MockXAResource) mockManagedConnection.getXAResource();
         assertEquals("XAResource should know one xid", 1, mockXAResource.getKnownXids().size());
@@ -116,7 +116,7 @@ public class ConnectionManagerTest extends ConnectionManagerTestUtils {
             }
 
         };
-        ContainerTransactionContext transactionContext = transactionContextManager.newContainerTransactionContext();
+        TransactionContext transactionContext = transactionContextManager.newContainerTransactionContext();
         defaultComponentInterceptor.invoke(defaultComponentContext);
         MockXAResource mockXAResource = (MockXAResource) mockManagedConnection.getXAResource();
         assertEquals("XAResource should know one xid", 1, mockXAResource.getKnownXids().size());

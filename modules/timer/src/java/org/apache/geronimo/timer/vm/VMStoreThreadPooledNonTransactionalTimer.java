@@ -34,7 +34,7 @@ import org.apache.geronimo.transaction.context.TransactionContextManager;
 public class VMStoreThreadPooledNonTransactionalTimer extends ThreadPooledTimer {
 
     public VMStoreThreadPooledNonTransactionalTimer(TransactionContextManager transactionContextManager, Executor threadPool) {
-        super(new NontransactionalExecutorTaskFactory(),
+        super(new NontransactionalExecutorTaskFactory(transactionContextManager),
                 new VMWorkerPersistence(), threadPool, transactionContextManager);
     }
 

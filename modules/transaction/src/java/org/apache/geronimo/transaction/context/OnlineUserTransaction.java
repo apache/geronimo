@@ -1,21 +1,17 @@
-package org.apache.geronimo.transaction;
+package org.apache.geronimo.transaction.context;
 
 import java.io.Serializable;
-import javax.transaction.UserTransaction;
-import javax.transaction.SystemException;
-import javax.transaction.NotSupportedException;
+import javax.resource.ResourceException;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
+import javax.transaction.InvalidTransactionException;
+import javax.transaction.NotSupportedException;
 import javax.transaction.RollbackException;
-import javax.resource.ResourceException;
+import javax.transaction.SystemException;
+import javax.transaction.UserTransaction;
 
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.transaction.context.BeanTransactionContext;
-import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
+import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 
-/**
- */
 public final class OnlineUserTransaction implements UserTransaction, Serializable {
     private transient TransactionContextManager transactionContextManager;
     private transient TrackedConnectionAssociator trackedConnectionAssociator;
@@ -68,9 +64,13 @@ public final class OnlineUserTransaction implements UserTransaction, Serializabl
                 throw new RollbackException();
             }
         } finally {
-            UnspecifiedTransactionContext oldContext = beanContext.getOldContext();
+            TransactionContext oldContext = beanContext.getOldContext();
             transactionContextManager.setContext(oldContext);
-            oldContext.resume();
+            try {
+                oldContext.resume();
+            } catch (InvalidTransactionException e) {
+                throw (SystemException)new SystemException("Unable to resume perexisting transaction context").initCause(e);
+            }
         }
     }
 
@@ -83,9 +83,13 @@ public final class OnlineUserTransaction implements UserTransaction, Serializabl
         try {
             beanContext.rollback();
         } finally {
-            UnspecifiedTransactionContext oldContext = beanContext.getOldContext();
+            TransactionContext oldContext = beanContext.getOldContext();
             transactionContextManager.setContext(oldContext);
-            oldContext.resume();
+            try {
+                oldContext.resume();
+            } catch (InvalidTransactionException e) {
+                throw (SystemException)new SystemException("Unable to resume perexisting transaction context").initCause(e);
+            }
         }
     }
 }

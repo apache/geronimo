@@ -22,24 +22,21 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Timer;
-import java.util.Iterator;
 import java.util.TimerTask;
-
 import javax.transaction.RollbackException;
 import javax.transaction.Status;
 import javax.transaction.Synchronization;
 import javax.transaction.SystemException;
-import javax.transaction.Transaction;
 
 import EDU.oswego.cs.dl.util.concurrent.Executor;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.transaction.context.InheritableTransactionContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  *
@@ -244,22 +241,11 @@ public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
 
     void registerSynchronization(Synchronization sync) throws RollbackException, SystemException {
         TransactionContext transactionContext = transactionContextManager.getContext();
-
-        //TODO move the registerSynchronization to the TransactionContext
-        Transaction transaction;
-        if (transactionContext instanceof InheritableTransactionContext) {
-            InheritableTransactionContext inheritableTransactionContext = ((InheritableTransactionContext) transactionContext);
-            transaction = inheritableTransactionContext.getTransaction();
-            assert transaction == null || inheritableTransactionContext.isActive(): "Trying to register a sync on an inactive transaction context";
+        if (transactionContext != null && transactionContext.isInheritable() && transactionContext.isActive()) {
+            transactionContext.registerSynchronization(sync);
         } else {
-            transaction = null;
-        }
-
-        if (transaction == null) {
             sync.beforeCompletion();
             sync.afterCompletion(Status.STATUS_COMMITTED);
-        } else {
-            transaction.registerSynchronization(sync);
         }
     }
 

@@ -16,19 +16,18 @@
  */
 package org.apache.geronimo.tomcat.valve;
 
-import org.apache.catalina.valves.ValveBase;
-import org.apache.catalina.connector.Request;
-import org.apache.catalina.connector.Response;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.transaction.context.InheritableTransactionContext;
-
+import java.io.IOException;
 import javax.servlet.ServletException;
-import javax.transaction.SystemException;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.RollbackException;
-import java.io.IOException;
+import javax.transaction.SystemException;
+
+import org.apache.catalina.connector.Request;
+import org.apache.catalina.connector.Response;
+import org.apache.catalina.valves.ValveBase;
+import org.apache.geronimo.transaction.context.TransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  * @version $Rev: $ $Date: $
@@ -46,7 +45,7 @@ public class TransactionContextValve extends ValveBase {
         TransactionContext oldTransactionContext = transactionContextManager.getContext();
         TransactionContext newTransactionContext = null;
 
-        if (oldTransactionContext == null || !(oldTransactionContext instanceof InheritableTransactionContext)) {
+        if (oldTransactionContext == null || !oldTransactionContext.isInheritable()) {
             newTransactionContext = transactionContextManager.newUnspecifiedTransactionContext();
         }
 

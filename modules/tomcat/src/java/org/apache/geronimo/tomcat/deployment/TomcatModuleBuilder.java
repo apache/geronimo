@@ -57,7 +57,7 @@ import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
-import org.apache.geronimo.transaction.OnlineUserTransaction;
+import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 
 

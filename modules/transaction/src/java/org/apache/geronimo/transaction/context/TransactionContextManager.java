@@ -38,16 +38,18 @@ import org.apache.geronimo.transaction.ExtendedTransactionManager;
 import org.apache.geronimo.transaction.ImportedTransactionActiveException;
 import org.apache.geronimo.transaction.XAWork;
 import org.apache.geronimo.transaction.manager.XidImporter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 public class TransactionContextManager implements XATerminator, XAWork {
-
+    private static final Log log = LogFactory.getLog(TransactionContextManager.class);
     private static final boolean NOT_IN_RECOVERY = false;
     private static final boolean IN_RECOVERY = true;
 
-
+    private ThreadLocal CONTEXT = new ThreadLocal();
     private final ExtendedTransactionManager transactionManager;
     private final XidImporter importer;
     private final Map importedTransactions = new HashMap();
@@ -73,21 +75,21 @@ public class TransactionContextManager implements XATerminator, XAWork {
     }
 
     public TransactionContext getContext() {
-        return TransactionContext.getContext();
+        return (TransactionContext) CONTEXT.get();
     }
 
     public void setContext(TransactionContext transactionContext) {
-        TransactionContext.setContext(transactionContext);
+        CONTEXT.set(transactionContext);
     }
 
-    public ContainerTransactionContext newContainerTransactionContext() throws NotSupportedException, SystemException {
+    public TransactionContext newContainerTransactionContext() throws NotSupportedException, SystemException {
         ContainerTransactionContext transactionContext = new ContainerTransactionContext(transactionManager);
-        TransactionContext.setContext(transactionContext);
+        setContext(transactionContext);
         return transactionContext;
     }
 
-    public BeanTransactionContext newBeanTransactionContext(long transactionTimeoutMilliseconds) throws NotSupportedException, SystemException {
-        TransactionContext ctx = TransactionContext.getContext();
+    public TransactionContext newBeanTransactionContext(long transactionTimeoutMilliseconds) throws NotSupportedException, SystemException {
+        TransactionContext ctx = getContext();
         if (ctx instanceof UnspecifiedTransactionContext == false) {
             throw new NotSupportedException("Previous Transaction has not been committed");
         }
@@ -103,14 +105,92 @@ public class TransactionContextManager implements XATerminator, XAWork {
             oldContext.resume();
             throw e;
         }
-        TransactionContext.setContext(transactionContext);
+        setContext(transactionContext);
         return transactionContext;
     }
 
-    public UnspecifiedTransactionContext newUnspecifiedTransactionContext() {
+    public TransactionContext newUnspecifiedTransactionContext() {
         UnspecifiedTransactionContext transactionContext = new UnspecifiedTransactionContext();
-        TransactionContext.setContext(transactionContext);
+        setContext(transactionContext);
         return transactionContext;
+    }
+
+    public TransactionContext suspendBeanTransactionContext() throws SystemException {
+        // suspend the exisiting unspecified transaction context
+        TransactionContext callerContext = getContext();
+        if (!(callerContext instanceof BeanTransactionContext)) {
+            throw new SystemException("Caller context is not a bean managed  transaction context");
+        }
+        BeanTransactionContext beanContext = ((BeanTransactionContext) callerContext);
+
+        // update the old context in the bean context
+        UnspecifiedTransactionContext oldContext = beanContext.getOldContext();
+        beanContext.setOldContext(null);
+
+        // suspend the bean context
+        try {
+            beanContext.suspend();
+            return beanContext;
+        } catch (SystemException e) {
+            if (beanContext.isActive()) {
+                try {
+                    beanContext.rollback();
+                } catch (SystemException e1) {
+                    log.warn("Unable to rollback transaction", e);
+                }
+            }
+            throw e;
+        } finally {
+            // always resume the old transaction
+            setContext(oldContext);
+            oldContext.resume();
+            setContext(oldContext);
+        }
+    }
+
+    public void resumeBeanTransactionContext(TransactionContext context) throws SystemException, InvalidTransactionException {
+        if (!(context instanceof BeanTransactionContext)) {
+            throw new InvalidTransactionException("Context is not a bean managed transaction context");
+        }
+        if (!context.isActive()) {
+            throw new InvalidTransactionException("Context is not active");
+        }
+        BeanTransactionContext beanContext = ((BeanTransactionContext) context);
+
+        // suspend the exisiting unspecified transaction context
+        TransactionContext callerContext = getContext();
+        if (!(callerContext instanceof UnspecifiedTransactionContext)) {
+            throw new InvalidTransactionException("Caller context is not an unspecified transaction context");
+        }
+        callerContext.suspend();
+
+        try {
+            beanContext.setOldContext((UnspecifiedTransactionContext) callerContext);
+            context.resume();
+            setContext(context);
+        } catch (SystemException e) {
+            if (beanContext.isActive()) {
+                try {
+                    beanContext.rollback();
+                } catch (SystemException e1) {
+                    log.warn("Unable to rollback transaction", e);
+                }
+            }
+            beanContext.setOldContext(null);
+            callerContext.resume();
+            throw e;
+        } catch (InvalidTransactionException e) {
+            if (beanContext.isActive()) {
+                try {
+                    beanContext.rollback();
+                } catch (SystemException e1) {
+                    log.warn("Unable to rollback transaction", e);
+                }
+            }
+            beanContext.setOldContext(null);
+            callerContext.resume();
+            throw e;
+        }
     }
 
     public int getStatus() throws SystemException {
@@ -259,11 +339,11 @@ public class TransactionContextManager implements XATerminator, XAWork {
             }
             containerTransactionContext.resume();
         }
-        TransactionContext.setContext(containerTransactionContext);
+        setContext(containerTransactionContext);
     }
 
     public void end(Xid xid) throws XAException, SystemException {
-        TransactionContext.setContext(null);
+        setContext(null);
         synchronized (importedTransactions) {
             ContainerTransactionContext containerTransactionContext = (ContainerTransactionContext) importedTransactions.get(xid);
             if (containerTransactionContext == null) {
@@ -288,6 +368,8 @@ public class TransactionContextManager implements XATerminator, XAWork {
         infoFactory.addOperation("newContainerTransactionContext");
         infoFactory.addOperation("newBeanTransactionContext", new Class[] {long.class});
         infoFactory.addOperation("newUnspecifiedTransactionContext");
+        infoFactory.addOperation("resumeBeanTransactionContext",  new Class[] {TransactionContext.class});
+        infoFactory.addOperation("suspendBeanTransactionContext");
         infoFactory.addOperation("getStatus");
         infoFactory.addOperation("setRollbackOnly");
         infoFactory.addOperation("setTransactionTimeout", new Class[] {int.class});

@@ -42,7 +42,7 @@ public class JDBCStoreThreadPooledNonTransactionalTimer extends ThreadPooledTime
                                                       Executor threadPool,
                                                       Serializable derbySystem,
                                                       Kernel kernel) throws SQLException {
-        super(new NontransactionalExecutorTaskFactory(),
+        super(new NontransactionalExecutorTaskFactory(transactionContextManager),
                 new JDBCWorkerPersistence(kernel.getKernelName(), (DataSource)managedConnectionFactoryWrapper.$getResource(), false), threadPool, transactionContextManager);
     }
 

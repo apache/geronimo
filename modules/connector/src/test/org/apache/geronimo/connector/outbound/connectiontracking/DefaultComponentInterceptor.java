@@ -20,7 +20,6 @@ package org.apache.geronimo.connector.outbound.connectiontracking;
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**

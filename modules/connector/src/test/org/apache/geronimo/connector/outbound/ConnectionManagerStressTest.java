@@ -19,8 +19,6 @@ package org.apache.geronimo.connector.outbound;
 
 import java.util.HashSet;
 
-import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
 import org.apache.geronimo.transaction.DefaultInstanceContext;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
@@ -48,7 +46,7 @@ public class ConnectionManagerStressTest extends ConnectionManagerTestUtils {
     private Exception e = null;
 
     public void testNoTransactionCallOneThread() throws Throwable {
-        TransactionContext.setContext(new UnspecifiedTransactionContext());
+        transactionContextManager.newUnspecifiedTransactionContext();
         for (int i = 0; i < repeatCount; i++) {
             defaultComponentInterceptor.invoke(defaultComponentContext);
         }
@@ -60,7 +58,7 @@ public class ConnectionManagerStressTest extends ConnectionManagerTestUtils {
         for (int t = 0; t < threadCount; t++) {
             new Thread() {
                 public void run() {
-                    TransactionContext.setContext(new UnspecifiedTransactionContext());
+                    transactionContextManager.newUnspecifiedTransactionContext();
                     long localStartTime = 0;
                     int localSlowCount = 0;
                     try {

@@ -31,7 +31,7 @@ public class NontransactionalThreadPooledTimerTest extends AbstractThreadPooledT
     protected void setUp() throws Exception {
         TransactionManagerImpl transactionManager = new TransactionManagerImpl(10 * 1000, null, null);
         transactionContextManager = new TransactionContextManager(transactionManager, transactionManager);
-        executableWorkFactory = new NontransactionalExecutorTaskFactory();
+        executableWorkFactory = new NontransactionalExecutorTaskFactory(transactionContextManager);
         super.setUp();
     }
 }

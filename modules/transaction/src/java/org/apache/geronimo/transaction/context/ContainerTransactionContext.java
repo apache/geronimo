@@ -26,13 +26,13 @@ import org.apache.geronimo.transaction.ExtendedTransactionManager;
 /**
  * @version $Rev$ $Date$
  */
-public class ContainerTransactionContext extends InheritableTransactionContext {
-    public ContainerTransactionContext(ExtendedTransactionManager txnManager) throws SystemException, NotSupportedException {
+class ContainerTransactionContext extends InheritableTransactionContext {
+    ContainerTransactionContext(ExtendedTransactionManager txnManager) throws SystemException, NotSupportedException {
         super(txnManager);
         begin(0);
     }
 
-    public ContainerTransactionContext(ExtendedTransactionManager txnManager, Transaction transaction) {
+    ContainerTransactionContext(ExtendedTransactionManager txnManager, Transaction transaction) {
         super(txnManager, transaction);
     }
 }

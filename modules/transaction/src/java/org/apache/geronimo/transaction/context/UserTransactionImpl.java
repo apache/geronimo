@@ -15,10 +15,9 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.transaction;
+package org.apache.geronimo.transaction.context;
 
 import java.io.Serializable;
-
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.NotSupportedException;
@@ -26,7 +25,7 @@ import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
-import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 
 /**
  * Implementation of UserTransaction for use in an EJB.
@@ -95,27 +94,27 @@ public class UserTransactionImpl implements UserTransaction, Serializable {
 
     private static final UserTransaction OFFLINE = new OfflineUserTransaction();
     private static final class OfflineUserTransaction implements UserTransaction, Serializable {
-        public void begin() throws NotSupportedException, SystemException {
+        public void begin() {
             throw new IllegalStateException("Cannot use UserTransaction methods in this state");
         }
 
-        public void commit() throws HeuristicMixedException, HeuristicRollbackException, IllegalStateException, RollbackException, SecurityException, SystemException {
+        public void commit() {
             throw new IllegalStateException("Cannot use UserTransaction methods in this state");
         }
 
-        public int getStatus() throws SystemException {
+        public int getStatus() {
             throw new IllegalStateException("Cannot use UserTransaction methods in this state");
         }
 
-        public void rollback() throws IllegalStateException, SecurityException, SystemException {
+        public void rollback() {
             throw new IllegalStateException("Cannot use UserTransaction methods in this state");
         }
 
-        public void setRollbackOnly() throws IllegalStateException, SystemException {
+        public void setRollbackOnly() {
             throw new IllegalStateException("Cannot use UserTransaction methods in this state");
         }
 
-        public void setTransactionTimeout(int seconds) throws SystemException {
+        public void setTransactionTimeout(int seconds) {
             throw new IllegalStateException("Cannot use UserTransaction methods in this state");
         }
     };

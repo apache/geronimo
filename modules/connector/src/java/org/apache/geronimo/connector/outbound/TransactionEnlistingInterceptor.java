@@ -24,7 +24,6 @@ import javax.transaction.xa.XAResource;
 
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.transaction.context.InheritableTransactionContext;
 
 /**
  * TransactionEnlistingInterceptor.java
@@ -49,19 +48,14 @@ public class TransactionEnlistingInterceptor implements ConnectionInterceptor {
         try {
             ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
             TransactionContext transactionContext = transactionContextManager.getContext();
-            if ((transactionContext instanceof InheritableTransactionContext)) {
-                InheritableTransactionContext inheritableTransactionContext = ((InheritableTransactionContext) transactionContext);
-                if (inheritableTransactionContext.isActive()) {
-                    XAResource xares = mci.getXAResource();
-                    inheritableTransactionContext.getTransaction().enlistResource(xares);
-                }
+            if (transactionContext != null && transactionContext.isInheritable() && transactionContext.isActive()) {
+                XAResource xares = mci.getXAResource();
+                transactionContext.enlistResource(xares);
             }
-
         } catch (SystemException e) {
             throw new ResourceException("Could not get transaction", e);
         } catch (RollbackException e) {
-            throw new ResourceException("Could not enlist resource in rolled back transaction",
-                    e);
+            throw new ResourceException("Could not enlist resource in rolled back transaction", e);
         }
 
     }
@@ -80,12 +74,9 @@ public class TransactionEnlistingInterceptor implements ConnectionInterceptor {
         try {
             ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
             TransactionContext transactionContext = transactionContextManager.getContext();
-            if ((transactionContext instanceof InheritableTransactionContext)) {
-                InheritableTransactionContext inheritableTransactionContext = ((InheritableTransactionContext) transactionContext);
-                if (inheritableTransactionContext.isActive()) {
-                    XAResource xares = mci.getXAResource();
-                    inheritableTransactionContext.getTransaction().delistResource(xares, XAResource.TMSUSPEND);
-                }
+            if (transactionContext != null && transactionContext.isInheritable() && transactionContext.isActive()) {
+                XAResource xares = mci.getXAResource();
+                transactionContext.delistResource(xares, XAResource.TMSUSPEND);
             }
 
         } catch (SystemException e) {

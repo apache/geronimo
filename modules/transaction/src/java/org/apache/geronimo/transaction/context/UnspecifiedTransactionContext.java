@@ -17,11 +17,38 @@
 
 package org.apache.geronimo.transaction.context;
 
+import javax.transaction.Synchronization;
+import javax.transaction.xa.XAResource;
+
 /**
  * @version $Rev$ $Date$
  */
-public class UnspecifiedTransactionContext extends TransactionContext {
+class UnspecifiedTransactionContext extends AbstractTransactionContext {
+    private boolean active = true;
     private boolean failed = false;
+
+    public UnspecifiedTransactionContext() {
+    }
+
+    public boolean isInheritable() {
+        return false;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public boolean enlistResource(XAResource xaResource){
+        throw new IllegalStateException("There is no transaction in progress.");
+    }
+
+    public boolean delistResource(XAResource xaResource, int flag) {
+        throw new IllegalStateException("There is no transaction in progress.");
+    }
+
+    public void registerSynchronization(Synchronization synchronization) {
+        throw new IllegalStateException("There is no transaction in progress.");
+    }
 
     public boolean getRollbackOnly() {
         return failed;
@@ -59,6 +86,7 @@ public class UnspecifiedTransactionContext extends TransactionContext {
         } catch (Throwable e) {
             log.error("Unable to flush state, continuing", e);
         } finally {
+            active = false;
             unassociateAll();
         }
     }

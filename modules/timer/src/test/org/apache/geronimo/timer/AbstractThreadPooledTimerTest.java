@@ -56,7 +56,7 @@ public abstract class AbstractThreadPooledTimerTest extends TestCase {
         timer.doStart();
 
         counter.set(0);
-        TransactionContext.setContext(null);
+        transactionContextManager.setContext(null);
     }
 
     protected void tearDown() throws Exception {

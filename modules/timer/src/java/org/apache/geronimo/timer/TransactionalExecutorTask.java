@@ -19,8 +19,8 @@ package org.apache.geronimo.timer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.transaction.context.ContainerTransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.context.TransactionContext;
 
 /**
  * @version $Rev$ $Date$
@@ -44,7 +44,7 @@ public class TransactionalExecutorTask implements ExecutorTask {
     }
     
     public void run() {
-        ContainerTransactionContext transactionContext = null;
+        TransactionContext transactionContext = null;
         for (int tries = 0; tries < repeatCount; tries++) {
             try {
                 transactionContext = transactionContextManager.newContainerTransactionContext();
