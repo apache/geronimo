@@ -26,7 +26,7 @@ import org.mortbay.http.HttpListener;
 import org.mortbay.util.ThreadedServer;
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/06/05 07:53:21 $
+ * @version $Revision: 1.9 $ $Date: 2004/07/12 06:07:51 $
  */
 public abstract class JettyConnector implements GBeanLifecycle {
     private final JettyContainer container;
@@ -79,7 +79,7 @@ public abstract class JettyConnector implements GBeanLifecycle {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty HTTP Connector", JettyConnector.class);
-        infoFactory.addAttribute("Port", int.class, true);
+        infoFactory.addAttribute("port", int.class, true);
         infoFactory.addReference("JettyContainer", JettyContainer.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

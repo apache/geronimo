@@ -38,7 +38,7 @@ import org.apache.geronimo.xbeans.j2ee.SecurityRoleType;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/06/02 05:33:04 $
+ * @version $Revision: 1.7 $ $Date: 2004/07/12 06:07:49 $
  */
 public class EJBModuleConfiguration extends AbstractModuleConfiguration {
     private EjbJarType ejbJar;
@@ -118,8 +118,8 @@ public class EJBModuleConfiguration extends AbstractModuleConfiguration {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(EJBModuleConfiguration.class, AbstractModuleConfiguration.GBEAN_INFO);
         infoFactory.addAttribute("EJBJar", EjbJarType.class, true);
-        infoFactory.addAttribute("Security", SecurityType.class, true);
-        infoFactory.setConstructor(new String[]{"ContextID", "EJBJar", "Security"});
+        infoFactory.addAttribute("security", SecurityType.class, true);
+        infoFactory.setConstructor(new String[]{"contextID", "EJBJar", "security"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

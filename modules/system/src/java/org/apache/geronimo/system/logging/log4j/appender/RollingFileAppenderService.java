@@ -17,14 +17,13 @@
 
 package org.apache.geronimo.system.logging.log4j.appender;
 
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.log4j.RollingFileAppender;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:05 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/12 06:07:50 $
  */
 public class RollingFileAppenderService extends FileAppenderService {
     public RollingFileAppenderService(ServerInfo serverInfo) {
@@ -51,8 +50,8 @@ public class RollingFileAppenderService extends FileAppenderService {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(RollingFileAppenderService.class, FileAppenderService.GBEAN_INFO);
-        infoFactory.addAttribute("MaxBackupIndex", int.class, true);
-        infoFactory.addAttribute("MaxFileSize", String.class, true);
+        infoFactory.addAttribute("maxBackupIndex", int.class, true);
+        infoFactory.addAttribute("maxFileSize", String.class, true);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

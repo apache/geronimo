@@ -27,7 +27,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 
 /**
- * @version $Revision: 1.9 $ $Date: 2004/06/04 17:27:00 $
+ * @version $Revision: 1.10 $ $Date: 2004/07/12 06:07:51 $
  */
 public class ServerInfo {
     private final File base;
@@ -107,17 +107,17 @@ public class ServerInfo {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ServerInfo.class);
 
-        infoFactory.addAttribute("BaseDirectory", String.class, true);
-        infoFactory.addAttribute("Version", String.class, false);
-        infoFactory.addAttribute("BuildDate", String.class, false);
-        infoFactory.addAttribute("BuildTime", String.class, false);
-        infoFactory.addAttribute("Copyright", String.class, false);
+        infoFactory.addAttribute("baseDirectory", String.class, true);
+        infoFactory.addAttribute("version", String.class, false);
+        infoFactory.addAttribute("buildDate", String.class, false);
+        infoFactory.addAttribute("buildTime", String.class, false);
+        infoFactory.addAttribute("copyright", String.class, false);
 
         infoFactory.addOperation("resolvePath", new Class[]{String.class});
         infoFactory.addOperation("resolve", new Class[]{String.class});
         infoFactory.addOperation("resolve", new Class[]{URI.class});
 
-        infoFactory.setConstructor(new String[]{"BaseDirectory"});
+        infoFactory.setConstructor(new String[]{"baseDirectory"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

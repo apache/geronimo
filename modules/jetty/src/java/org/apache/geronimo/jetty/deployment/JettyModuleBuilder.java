@@ -87,7 +87,7 @@ import org.apache.xmlbeans.XmlObject;
 
 
 /**
- * @version $Revision: 1.13 $ $Date: 2004/07/11 20:54:55 $
+ * @version $Revision: 1.14 $ $Date: 2004/07/12 06:07:50 $
  */
 public class JettyModuleBuilder implements ModuleBuilder {
     private static final String PARENT_ID = "org/apache/geronimo/Server";
@@ -295,14 +295,14 @@ public class JettyModuleBuilder implements ModuleBuilder {
             String PolicyContextID = (earContext.getApplicationObjectName()==null? module.getName():earContext.getApplicationObjectName().toString());
 
             gbean.setAttribute("URI", warRoot);
-            gbean.setAttribute("ContextPath", webModule.getContextRoot());
-            gbean.setAttribute("ContextPriorityClassLoader", Boolean.valueOf(jettyWebApp.getContextPriorityClassloader()));
+            gbean.setAttribute("contextPath", webModule.getContextRoot());
+            gbean.setAttribute("contextPriorityClassLoader", Boolean.valueOf(jettyWebApp.getContextPriorityClassloader()));
             if (security != null) {
-                gbean.setAttribute("SecurityConfig", security);
-                gbean.setAttribute("PolicyContextID", PolicyContextID);
+                gbean.setAttribute("securityConfig", security);
+                gbean.setAttribute("policyContextID", PolicyContextID);
             }
-            gbean.setAttribute("ComponentContext", compContext);
-            gbean.setAttribute("UserTransaction", userTransaction);
+            gbean.setAttribute("componentContext", compContext);
+            gbean.setAttribute("userTransaction", userTransaction);
             setResourceEnvironment(gbean, webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray());
             gbean.setReferencePatterns("Configuration", Collections.singleton(new ObjectName("geronimo.config:name=" + ObjectName.quote(configID.toString())))); // @todo this is used to resolve relative URIs, we should fix this
             gbean.setReferencePatterns("JettyContainer", Collections.singleton(new ObjectName("*:type=WebContainer,container=Jetty"))); // @todo configurable
@@ -491,8 +491,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 applicationManagedSecurityResources.add(name);
             }
         }
-        bean.setAttribute("UnshareableResources", unshareableResources);
-        bean.setAttribute("ApplicationManagedSecurityResources", applicationManagedSecurityResources);
+        bean.setAttribute("unshareableResources", unshareableResources);
+        bean.setAttribute("applicationManagedSecurityResources", applicationManagedSecurityResources);
     }
 
 

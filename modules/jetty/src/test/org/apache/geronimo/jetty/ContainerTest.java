@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:56 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/12 06:07:50 $
  */
 public class ContainerTest extends TestCase {
     private Kernel kernel;
@@ -49,7 +49,7 @@ public class ContainerTest extends TestCase {
 
     public void testHTTPConnector() throws Exception {
         GBeanMBean connector = new GBeanMBean(HTTPConnector.GBEAN_INFO);
-        connector.setAttribute("Port", new Integer(5678));
+        connector.setAttribute("port", new Integer(5678));
         connector.setReferencePatterns("JettyContainer", containerPatterns);
         start(connectorName, connector);
 

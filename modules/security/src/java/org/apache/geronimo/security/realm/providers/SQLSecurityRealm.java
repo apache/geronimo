@@ -39,7 +39,7 @@ import org.apache.regexp.RE;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/06/02 05:33:04 $
+ * @version $Revision: 1.7 $ $Date: 2004/07/12 06:07:51 $
  */
 
 public class SQLSecurityRealm extends AbstractSecurityRealm {
@@ -292,21 +292,21 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(SQLSecurityRealm.class, AbstractSecurityRealm.GBEAN_INFO);
 
-        infoFactory.addAttribute("ConnectionURL", String.class, true);
-        infoFactory.addAttribute("User", String.class, true);
-        infoFactory.addAttribute("Password", String.class, true);
-        infoFactory.addAttribute("UserSelect", String.class, true);
-        infoFactory.addAttribute("GroupSelect", String.class, true);
+        infoFactory.addAttribute("connectionURL", String.class, true);
+        infoFactory.addAttribute("user", String.class, true);
+        infoFactory.addAttribute("password", String.class, true);
+        infoFactory.addAttribute("userSelect", String.class, true);
+        infoFactory.addAttribute("groupSelect", String.class, true);
 
         infoFactory.addOperation("isLoginModuleLocal");
 
         infoFactory.setConstructor(new String[]{
-            "RealmName",
-            "ConnectionURL",
-            "User",
-            "Password",
-            "UserSelect",
-            "GroupSelect"});
+            "realmName",
+            "connectionURL",
+            "user",
+            "password",
+            "userSelect",
+            "groupSelect"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

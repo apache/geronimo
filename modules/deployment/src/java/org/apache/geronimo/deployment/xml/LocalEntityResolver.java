@@ -56,7 +56,7 @@ import org.xml.sax.SAXException;
  * http://www.oasis-open.org/committees/entity/archives/spec-2001-08-01.html
  * and see http://www.oasis-open.org/html/a401.htm
  *
- * @version $Revision: 1.8 $ $Date: 2004/06/02 05:33:02 $
+ * @version $Revision: 1.9 $ $Date: 2004/07/12 06:07:50 $
  */
 public class LocalEntityResolver implements EntityResolver {
     /**
@@ -398,15 +398,15 @@ public class LocalEntityResolver implements EntityResolver {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("configurable local entity resolver", LocalEntityResolver.class);
 
-        infoFactory.addAttribute("CatalogFileURI", URI.class, true);
-        infoFactory.addAttribute("LocalRepositoryURI", URI.class, true);
-        infoFactory.addAttribute("FailOnUnresolvable", boolean.class, true);
+        infoFactory.addAttribute("catalogFileURI", URI.class, true);
+        infoFactory.addAttribute("localRepositoryURI", URI.class, true);
+        infoFactory.addAttribute("failOnUnresolvable", boolean.class, true);
 
         infoFactory.addOperation("resolveEntity", new Class[]{String.class, String.class});
         infoFactory.addOperation("addPublicMapping", new Class[]{String.class, String.class});
         infoFactory.addOperation("addSystemMapping", new Class[]{String.class, String.class});
 
-        infoFactory.setConstructor(new String[]{"CatalogFileURI", "LocalRepositoryURI", "FailOnUnresolvable"});
+        infoFactory.setConstructor(new String[]{"catalogFileURI", "localRepositoryURI", "failOnUnresolvable"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -41,7 +41,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 
 /**
- * @version $Revision: 1.9 $ $Date: 2004/06/10 02:26:30 $
+ * @version $Revision: 1.10 $ $Date: 2004/07/12 06:07:52 $
  */
 public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLifecycle {
     private static final Log log = LogFactory.getLog(ConfigurationManagerImpl.class);
@@ -146,14 +146,14 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
         }
 
         try {
-            config.setAttribute("BaseURL", rootURL);
+            config.setAttribute("baseURL", rootURL);
         } catch (Exception e) {
             try {
                 kernel.unloadGBean(configName);
             } catch (Exception ignored) {
                 // ignore
             }
-            throw new InvalidConfigException("Cannot set BaseURL", e);
+            throw new InvalidConfigException("Cannot set baseURL", e);
         }
         log.info("Loaded Configuration " + configName);
     }
@@ -164,7 +164,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
             while (configID != null && !isLoaded(configID)) {
                 ObjectName name = load(configID);
                 ancestors.addFirst(name);
-                configID = (URI) kernel.getAttribute(name, "ParentID");
+                configID = (URI) kernel.getAttribute(name, "parentID");
             }
             return ancestors;
         } catch (NoSuchConfigException e) {

@@ -83,9 +83,9 @@
     </gbean>
 
     <gbean name="geronimo.security:service=RealmBridge,name=TargetRealm" class="org.apache.geronimo.security.bridge.ConfiguredIdentityUserPasswordRealmBridge">
-        <attribute name="TargetRealm" type="java.lang.String">TargetRealm</attribute>
-        <attribute name="ConfiguredUser" type="java.lang.String">testUser</attribute>
-        <attribute name="ConfiguredPassword" type="java.lang.String">testPassword</attribute>
+        <attribute name="targetRealm" type="java.lang.String">TargetRealm</attribute>
+        <attribute name="configuredUser" type="java.lang.String">testUser</attribute>
+        <attribute name="configuredPassword" type="java.lang.String">testPassword</attribute>
     </gbean>
 
 </connector>

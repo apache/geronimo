@@ -37,7 +37,7 @@ import org.apache.geronimo.transaction.GeronimoTransactionManager;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 
 /**
- * @version $Revision: 1.12 $ $Date: 2004/06/27 20:37:38 $
+ * @version $Revision: 1.13 $ $Date: 2004/07/12 06:07:50 $
  */
 public class ApplicationTest extends TestCase {
     private Kernel kernel;
@@ -60,10 +60,10 @@ public class ApplicationTest extends TestCase {
         URL url = Thread.currentThread().getContextClassLoader().getResource("deployables/war1/");
         GBeanMBean app = new GBeanMBean(JettyWebAppContext.GBEAN_INFO);
         app.setAttribute("URI", URI.create(url.toString()));
-        app.setAttribute("ContextPath", "/test");
-        app.setAttribute("ComponentContext", null);
+        app.setAttribute("contextPath", "/test");
+        app.setAttribute("componentContext", null);
         UserTransactionImpl userTransaction = new UserTransactionImpl();
-        app.setAttribute("UserTransaction", userTransaction);
+        app.setAttribute("userTransaction", userTransaction);
         app.setReferencePatterns("Configuration", Collections.EMPTY_SET);
         app.setReferencePatterns("JettyContainer", containerPatterns);
         app.setReferencePatterns("TransactionManager", Collections.singleton(tmName));
@@ -103,7 +103,7 @@ public class ApplicationTest extends TestCase {
         container = new GBeanMBean(JettyContainerImpl.GBEAN_INFO);
 
         connector = new GBeanMBean(HTTPConnector.GBEAN_INFO);
-        connector.setAttribute("Port", new Integer(5678));
+        connector.setAttribute("port", new Integer(5678));
         connector.setReferencePatterns("JettyContainer", containerPatterns);
 
         start(containerName, container);

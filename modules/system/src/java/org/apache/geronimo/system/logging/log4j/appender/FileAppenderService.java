@@ -29,7 +29,7 @@ import org.apache.log4j.FileAppender;
  * An extention of the default Log4j FileAppenderService which
  * will make the directory structure for the set log file.
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/02 05:33:05 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/12 06:07:50 $
  */
 public class FileAppenderService extends AbstractAppenderService {
     private final ServerInfo serverInfo;
@@ -102,10 +102,10 @@ public class FileAppenderService extends AbstractAppenderService {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(FileAppenderService.class, AbstractAppenderService.GBEAN_INFO);
 
-        infoFactory.addAttribute("Append", boolean.class, true);
-        infoFactory.addAttribute("File", String.class, true);
-        infoFactory.addAttribute("BufferedIO", boolean.class, true);
-        infoFactory.addAttribute("BufferedSize", int.class, true);
+        infoFactory.addAttribute("append", boolean.class, true);
+        infoFactory.addAttribute("file", String.class, true);
+        infoFactory.addAttribute("bufferedIO", boolean.class, true);
+        infoFactory.addAttribute("bufferedSize", int.class, true);
 
         infoFactory.addReference("ServerInfo", ServerInfo.class);
 

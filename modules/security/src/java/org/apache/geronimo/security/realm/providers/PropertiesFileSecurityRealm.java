@@ -37,7 +37,7 @@ import org.apache.regexp.RE;
 
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/06/22 02:07:37 $
+ * @version $Revision: 1.9 $ $Date: 2004/07/12 06:07:51 $
  */
 public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
     private static Log log = LogFactory.getLog(PropertiesFileSecurityRealm.class);
@@ -199,14 +199,14 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(PropertiesFileSecurityRealm.class, AbstractSecurityRealm.GBEAN_INFO);
 
-        infoFactory.addAttribute("UsersURI", URI.class, true);
-        infoFactory.addAttribute("GroupsURI", URI.class, true);
+        infoFactory.addAttribute("usersURI", URI.class, true);
+        infoFactory.addAttribute("groupsURI", URI.class, true);
 
         infoFactory.addReference("ServerInfo", ServerInfo.class);
 
         infoFactory.addOperation("isLoginModuleLocal");
 
-        infoFactory.setConstructor(new String[]{"RealmName", "UsersURI", "GroupsURI", "ServerInfo"});
+        infoFactory.setConstructor(new String[]{"realmName", "usersURI", "groupsURI", "ServerInfo"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

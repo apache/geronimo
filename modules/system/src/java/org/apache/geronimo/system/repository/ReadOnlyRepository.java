@@ -33,7 +33,7 @@ import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/06/05 07:53:22 $
+ * @version $Revision: 1.9 $ $Date: 2004/07/12 06:07:51 $
  */
 public class ReadOnlyRepository implements Repository, GBeanLifecycle {
     private static final Log log = LogFactory.getLog(ReadOnlyRepository.class);
@@ -93,13 +93,13 @@ public class ReadOnlyRepository implements Repository, GBeanLifecycle {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ReadOnlyRepository.class);
 
-        infoFactory.addAttribute("Root", URI.class, true);
+        infoFactory.addAttribute("root", URI.class, true);
 
         infoFactory.addReference("ServerInfo", ServerInfo.class);
 
         infoFactory.addInterface(Repository.class);
 
-        infoFactory.setConstructor(new String[]{"Root", "ServerInfo"});
+        infoFactory.setConstructor(new String[]{"root", "ServerInfo"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -35,7 +35,7 @@ import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/06/12 18:43:31 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/12 06:07:52 $
  */
 public class AdminObjectWrapperTest extends TestCase {
 
@@ -148,8 +148,8 @@ public class AdminObjectWrapperTest extends TestCase {
         selfName = ObjectName.getInstance(JMXReferenceFactory.BASE_ADMIN_OBJECT_NAME + TARGET_NAME);
 
         GBeanMBean aow = new GBeanMBean(AdminObjectWrapper.getGBeanInfo());
-        aow.setAttribute("AdminObjectInterface", MockAdminObject.class);
-        aow.setAttribute("AdminObjectClass", MockAdminObjectImpl.class);
+        aow.setAttribute("adminObjectInterface", MockAdminObject.class);
+        aow.setAttribute("adminObjectClass", MockAdminObjectImpl.class);
         kernel.loadGBean(selfName, aow);
 
         kernel.startGBean(selfName);

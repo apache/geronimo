@@ -36,7 +36,7 @@ import org.apache.geronimo.security.bridge.TestRealm;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/05/22 15:25:35 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/12 06:07:50 $
  */
 public abstract class AbstractTest extends TestCase {
     protected Kernel kernel;
@@ -58,15 +58,15 @@ public abstract class AbstractTest extends TestCase {
         gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginService");
         loginService = new ObjectName("geronimo.security:type=LoginService");
         gbean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
-        gbean.setAttribute("ReclaimPeriod", new Long(10 * 1000));  // todo check other tests to see if ok
-        gbean.setAttribute("Algorithm", "HmacSHA1");
-        gbean.setAttribute("Password", "secret");
+        gbean.setAttribute("reclaimPeriod", new Long(10 * 1000));  // todo check other tests to see if ok
+        gbean.setAttribute("algorithm", "HmacSHA1");
+        gbean.setAttribute("password", "secret");
         kernel.loadGBean(loginService, gbean);
 
         gbean = new GBeanMBean("org.apache.geronimo.security.bridge.TestRealm");
         testRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=testrealm");
-        gbean.setAttribute("RealmName", TestRealm.REALM_NAME);
-        gbean.setAttribute("MaxLoginModuleAge", new Long(1 * 1000));
+        gbean.setAttribute("realmName", TestRealm.REALM_NAME);
+        gbean.setAttribute("maxLoginModuleAge", new Long(1 * 1000));
         gbean.setAttribute("debug", new Boolean(true));
         kernel.loadGBean(testRealm, gbean);
 
@@ -75,7 +75,7 @@ public abstract class AbstractTest extends TestCase {
         kernel.loadGBean(subsystemRouter, gbean);
 
         gbean = new GBeanMBean("org.apache.geronimo.remoting.transport.TransportLoader");
-        gbean.setAttribute("BindURI", new URI("async://0.0.0.0:4242"));
+        gbean.setAttribute("bindURI", new URI("async://0.0.0.0:4242"));
         gbean.setReferencePatterns("Router", Collections.singleton(subsystemRouter));
         asyncTransport = new ObjectName("geronimo.remoting:transport=async");
         kernel.loadGBean(asyncTransport, gbean);

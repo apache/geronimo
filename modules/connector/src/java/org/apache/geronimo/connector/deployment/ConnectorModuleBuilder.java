@@ -97,7 +97,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/07/11 21:55:33 $
+ * @version $Revision: 1.7 $ $Date: 2004/07/12 06:07:51 $
  */
 public class ConnectorModuleBuilder implements ModuleBuilder {
     private static final String BASE_REALM_BRIDGE_NAME = "geronimo.security:service=RealmBridge,name=";
@@ -350,7 +350,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
 
             // set the work manager name
             try {
-                resourceAdapterGBean.setReferencePattern("workManager",
+                resourceAdapterGBean.setReferencePattern("WorkManager",
                         ObjectName.getInstance(BASE_WORK_MANAGER_NAME + geronimoResourceAdapter.getResourceadapterInstance().getWorkmanagerName().getStringValue()));
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException("Could not create object name for work manager", e);
@@ -442,8 +442,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
 
                 // set the standard properties
                 try {
-                    adminObjectGBean.setAttribute("AdminObjectInterface", cl.loadClass(adminObjectInterface));
-                    adminObjectGBean.setAttribute("AdminObjectClass", cl.loadClass(adminObject.getAdminobjectClass().getStringValue()));
+                    adminObjectGBean.setAttribute("adminObjectInterface", cl.loadClass(adminObjectInterface));
+                    adminObjectGBean.setAttribute("adminObjectClass", cl.loadClass(adminObject.getAdminobjectClass().getStringValue()));
                 } catch (Exception e) {
                     throw new DeploymentException("Could not initialize AdminObject", e);
                 }
@@ -644,9 +644,9 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("Unexpected pooling support element");
         }
         try {
-            connectionManagerGBean.setAttribute("Name", connectionfactoryInstance.getName());
-            connectionManagerGBean.setAttribute("TransactionSupport", transactionSupport);
-            connectionManagerGBean.setAttribute("Pooling", pooling);
+            connectionManagerGBean.setAttribute("name", connectionfactoryInstance.getName());
+            connectionManagerGBean.setAttribute("transactionSupport", transactionSupport);
+            connectionManagerGBean.setAttribute("pooling", pooling);
             connectionManagerGBean.setReferencePattern("ConnectionTracker", earContext.getConnectionTrackerObjectName());
             if (connectionManager.getRealmBridge() != null) {
                 connectionManagerGBean.setReferencePattern("RealmBridge", ObjectName.getInstance(BASE_REALM_BRIDGE_NAME + connectionManager.getRealmBridge()));
@@ -678,19 +678,19 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         GBeanInfoFactory managedConnectionFactoryInfoFactory = new GBeanInfoFactory("org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper", cl);
         GBeanMBean managedConnectionFactoryGBean = setUpDynamicGBean(managedConnectionFactoryInfoFactory, configProperties, cl);
         try {
-            managedConnectionFactoryGBean.setAttribute("ManagedConnectionFactoryClass", cl.loadClass(managedConnectionFactoryClass));
-            managedConnectionFactoryGBean.setAttribute("ConnectionFactoryInterface", cl.loadClass(connectionFactoryInterface));
-            managedConnectionFactoryGBean.setAttribute("ConnectionFactoryImplClass", cl.loadClass(connectionFactoryImplClass));
-            managedConnectionFactoryGBean.setAttribute("ConnectionInterface", cl.loadClass(connectionInterface));
-            managedConnectionFactoryGBean.setAttribute("ConnectionImplClass", cl.loadClass(connectionImplClass));
-            managedConnectionFactoryGBean.setAttribute("GlobalJNDIName", connectionfactoryInstance.getGlobalJndiName());
+            managedConnectionFactoryGBean.setAttribute("managedConnectionFactoryClass", cl.loadClass(managedConnectionFactoryClass));
+            managedConnectionFactoryGBean.setAttribute("connectionFactoryInterface", cl.loadClass(connectionFactoryInterface));
+            managedConnectionFactoryGBean.setAttribute("connectionFactoryImplClass", cl.loadClass(connectionFactoryImplClass));
+            managedConnectionFactoryGBean.setAttribute("connectionInterface", cl.loadClass(connectionInterface));
+            managedConnectionFactoryGBean.setAttribute("connectionImplClass", cl.loadClass(connectionImplClass));
+            managedConnectionFactoryGBean.setAttribute("globalJNDIName", connectionfactoryInstance.getGlobalJndiName());
             if (resourceAdapterObjectName != null) {
                 managedConnectionFactoryGBean.setReferencePattern("ResourceAdapterWrapper", resourceAdapterObjectName);
             }
             managedConnectionFactoryGBean.setReferencePattern("ConnectionManagerFactory", connectionManagerObjectName);
             if (connectionfactoryInstance.getCredentialInterface() != null && "javax.resource.spi.security.PasswordCredential".equals(connectionfactoryInstance.getCredentialInterface().getStringValue())) {
                 GBeanMBean realmGBean = new GBeanMBean(PasswordCredentialRealm.getGBeanInfo(), cl);
-                realmGBean.setAttribute("RealmName", BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + connectionfactoryInstance.getName());
+                realmGBean.setAttribute("realmName", BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + connectionfactoryInstance.getName());
                 ObjectName realmObjectNam = ObjectName.getInstance(BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + connectionfactoryInstance.getName());
                 earContext.addGBean(realmObjectNam, realmGBean);
                 managedConnectionFactoryGBean.setReferencePattern("ManagedConnectionFactoryListener", realmObjectNam);

@@ -80,7 +80,7 @@ import org.apache.geronimo.kernel.repository.Repository;
  * a startRecursive() for all the GBeans it contains. Similarly, if the
  * Configuration is stopped then all of its GBeans will be stopped as well.
  *
- * @version $Revision: 1.26 $ $Date: 2004/07/06 17:11:29 $
+ * @version $Revision: 1.27 $ $Date: 2004/07/12 06:07:52 $
  */
 public class Configuration implements GBeanLifecycle {
     private static final Log log = LogFactory.getLog(Configuration.class);
@@ -381,12 +381,12 @@ public class Configuration implements GBeanLifecycle {
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("ID", URI.class, true);
-        infoFactory.addAttribute("ParentID", URI.class, true);
-        infoFactory.addAttribute("ClassPath", List.class, true);
-        infoFactory.addAttribute("Dependencies", List.class, true);
-        infoFactory.addAttribute("GBeanState", byte[].class, true);
-        infoFactory.addAttribute("BaseURL", URL.class, false);
-        infoFactory.addAttribute("ClassLoader", ClassLoader.class, false);
+        infoFactory.addAttribute("parentID", URI.class, true);
+        infoFactory.addAttribute("classPath", List.class, true);
+        infoFactory.addAttribute("dependencies", List.class, true);
+        infoFactory.addAttribute("gBeanState", byte[].class, true);
+        infoFactory.addAttribute("baseURL", URL.class, false);
+        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
         infoFactory.addReference("Parent", ConfigurationParent.class);
         infoFactory.addReference("Repositories", Repository.class);
@@ -395,12 +395,12 @@ public class Configuration implements GBeanLifecycle {
             "kernel",
             "objectName",
             "ID",
-            "ParentID",
+            "parentID",
             "Parent",
-            "ClassPath",
-            "GBeanState",
+            "classPath",
+            "gBeanState",
             "Repositories",
-            "Dependencies"});
+            "dependencies"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

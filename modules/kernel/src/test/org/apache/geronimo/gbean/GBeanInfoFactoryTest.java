@@ -24,7 +24,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/06/05 07:53:22 $
+ * @version $Revision: 1.8 $ $Date: 2004/07/12 06:07:52 $
  */
 public class GBeanInfoFactoryTest extends TestCase {
 
@@ -113,22 +113,23 @@ public class GBeanInfoFactoryTest extends TestCase {
         gbeanInfo = gbeanInfoFactory.getBeanInfo();
         assertEquals(1, gbeanInfo.getAttributes().size());
         GAttributeInfo gattrInfo = (GAttributeInfo) gbeanInfo.getAttributes().iterator().next();
-        assertEquals("Int", gattrInfo.getName());
+        assertEquals("int", gattrInfo.getName());
         assertEquals("setInt", gattrInfo.getSetterName());
         assertNull(gattrInfo.getGetterName());
-
+        
         Set opsSet = gbeanInfo.getOperations();
         assertEquals(0, opsSet.size());
 
         gbeanInfoFactory.addInterface(GetterOnlyInterface.class);
         gbeanInfo = gbeanInfoFactory.getBeanInfo();
-        opsSet = gbeanInfo.getOperations();
-        assertEquals(0, opsSet.size());
         assertEquals(1, gbeanInfo.getAttributes().size());
         gattrInfo = (GAttributeInfo) gbeanInfo.getAttributes().iterator().next();
-        assertEquals("Int", gattrInfo.getName());
+        assertEquals("int", gattrInfo.getName());
         assertEquals("getInt", gattrInfo.getGetterName());
         assertEquals("setInt", gattrInfo.getSetterName());
+        opsSet = gbeanInfo.getOperations();
+        assertEquals(0, opsSet.size());
+        
     }
 
     private static interface SetterOnlyInterface {

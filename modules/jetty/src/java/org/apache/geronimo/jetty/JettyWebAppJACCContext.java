@@ -71,7 +71,7 @@ import org.apache.geronimo.transaction.UserTransactionImpl;
  * A class extension to <code>JettyWebAppContext</code> whose purpose is to
  * provide JACC security checks.
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/29 02:48:59 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/12 06:07:51 $
  * @see org.mortbay.jetty.servlet.WebApplicationContext#checkSecurityConstraints(java.lang.String, org.mortbay.http.HttpRequest, org.mortbay.http.HttpResponse)
  */
 public class JettyWebAppJACCContext extends JettyWebAppContext {
@@ -462,21 +462,21 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty JACC WebApplication Context", JettyWebAppJACCContext.class, JettyWebAppContext.GBEAN_INFO);
 
-        infoFactory.addAttribute("SecurityConfig", Security.class, true);
-        infoFactory.addAttribute("PolicyContextID", String.class, true);
+        infoFactory.addAttribute("securityConfig", Security.class, true);
+        infoFactory.addAttribute("policyContextID", String.class, true);
 
         infoFactory.setConstructor(new String[]{
             "Configuration",
             "URI",
             "JettyContainer",
-            "ComponentContext",
-            "PolicyContextID",
-            "SecurityConfig",
-            "UnshareableResources",
-            "ApplicationManagedSecurityResources",
+            "componentContext",
+            "policyContextID",
+            "securityConfig",
+            "unshareableResources",
+            "applicationManagedSecurityResources",
             "TransactionManager",
             "TrackedConnectionAssociator",
-            "UserTransaction",
+            "userTransaction",
             "classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();

@@ -27,7 +27,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/06/02 05:33:04 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/12 06:07:50 $
  */
 public abstract class AbstractRealmBridge implements RealmBridge {
     private String targetRealm;
@@ -60,8 +60,8 @@ public abstract class AbstractRealmBridge implements RealmBridge {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractRealmBridge.class);
-        infoFactory.addAttribute("TargetRealm", String.class, true);
-        infoFactory.setConstructor(new String[]{"TargetRealm"});
+        infoFactory.addAttribute("targetRealm", String.class, true);
+        infoFactory.setConstructor(new String[]{"targetRealm"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

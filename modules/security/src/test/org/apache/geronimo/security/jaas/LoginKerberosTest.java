@@ -29,7 +29,7 @@ import org.apache.geronimo.security.RealmPrincipal;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:58:10 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/12 06:07:51 $
  */
 public class LoginKerberosTest extends AbstractTest {
 
@@ -41,8 +41,8 @@ public class LoginKerberosTest extends AbstractTest {
 
         GBeanMBean gbean = new GBeanMBean("org.apache.geronimo.security.realm.providers.KerberosSecurityRealm");
         kerberosRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=TOOLAZYDOGS.COM");
-        gbean.setAttribute("RealmName", "TOOLAZYDOGS.COM");
-        gbean.setAttribute("MaxLoginModuleAge", new Long(1 * 1000));
+        gbean.setAttribute("realmName", "TOOLAZYDOGS.COM");
+        gbean.setAttribute("maxLoginModuleAge", new Long(1 * 1000));
         gbean.setAttribute("debug", new Boolean(true));
         gbean.setAttribute("useTicketCache", new Boolean(true));
         gbean.setAttribute("doNotPrompt", new Boolean(true));

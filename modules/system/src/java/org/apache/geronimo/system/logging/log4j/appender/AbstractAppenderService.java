@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.WriterAppender;
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/06/05 07:53:22 $
+ * @version $Revision: 1.7 $ $Date: 2004/07/12 06:07:50 $
  */
 public abstract class AbstractAppenderService implements GBeanLifecycle {
     protected final WriterAppender appender;
@@ -89,10 +89,10 @@ public abstract class AbstractAppenderService implements GBeanLifecycle {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractAppenderService.class);
-        infoFactory.addAttribute("LayoutPattern", String.class, true);
-        infoFactory.addAttribute("Threshold", String.class, true);
-        infoFactory.addAttribute("Encoding", String.class, true);
-        infoFactory.addAttribute("ImmedateFlush", boolean.class, true);
+        infoFactory.addAttribute("layoutPattern", String.class, true);
+        infoFactory.addAttribute("threshold", String.class, true);
+        infoFactory.addAttribute("encoding", String.class, true);
+        infoFactory.addAttribute("immedateFlush", boolean.class, true);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

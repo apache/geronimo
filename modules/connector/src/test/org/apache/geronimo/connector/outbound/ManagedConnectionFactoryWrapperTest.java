@@ -48,7 +48,7 @@ import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/06/08 17:38:01 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/12 06:07:52 $
  */
 public class ManagedConnectionFactoryWrapperTest extends TestCase {
 
@@ -183,9 +183,9 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         ctcName = ObjectName.getInstance("test:role=ConnectionTrackingCoordinator");
         kernel.loadGBean(ctcName, ctc);
         GBeanMBean cmf = new GBeanMBean(GenericConnectionManager.getGBeanInfo());
-        cmf.setAttribute("TransactionSupport", NoTransactions.INSTANCE);
-        cmf.setAttribute("Pooling", new NoPool());
-        cmf.setAttribute("Name", "TestCF");
+        cmf.setAttribute("transactionSupport", NoTransactions.INSTANCE);
+        cmf.setAttribute("pooling", new NoPool());
+        cmf.setAttribute("name", "TestCF");
         cmf.setReferencePatterns("ConnectionTracker", Collections.singleton(ctcName));
         cmfName = ObjectName.getInstance("test:role=ConnectionManagerFactory");
         kernel.loadGBean(cmfName, cmf);
@@ -193,12 +193,12 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         managedConnectionFactoryName = ObjectName.getInstance(JMXReferenceFactory.BASE_MANAGED_CONNECTION_FACTORY_NAME + TARGET_NAME);
 
         GBeanMBean mcfw = new GBeanMBean(ManagedConnectionFactoryWrapper.getGBeanInfo());
-        mcfw.setAttribute("ManagedConnectionFactoryClass", MockManagedConnectionFactory.class);
-        mcfw.setAttribute("ConnectionFactoryInterface", ConnectionFactory.class);
-        mcfw.setAttribute("ConnectionFactoryImplClass", MockConnectionFactory.class);
-        mcfw.setAttribute("ConnectionInterface", Connection.class);
-        mcfw.setAttribute("ConnectionImplClass", MockConnection.class);
-        mcfw.setAttribute("GlobalJNDIName", GLOBAL_NAME);
+        mcfw.setAttribute("managedConnectionFactoryClass", MockManagedConnectionFactory.class);
+        mcfw.setAttribute("connectionFactoryInterface", ConnectionFactory.class);
+        mcfw.setAttribute("connectionFactoryImplClass", MockConnectionFactory.class);
+        mcfw.setAttribute("connectionInterface", Connection.class);
+        mcfw.setAttribute("connectionImplClass", MockConnection.class);
+        mcfw.setAttribute("globalJNDIName", GLOBAL_NAME);
         //"ResourceAdapterWrapper",
         mcfw.setReferencePatterns("ConnectionManagerFactory", Collections.singleton(cmfName));
         //"ManagedConnectionFactoryListener",

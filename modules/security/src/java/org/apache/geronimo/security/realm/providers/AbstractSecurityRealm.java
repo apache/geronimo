@@ -25,7 +25,7 @@ import org.apache.regexp.RE;
 
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/06/05 07:53:22 $
+ * @version $Revision: 1.9 $ $Date: 2004/07/12 06:07:51 $
  */
 public abstract class AbstractSecurityRealm implements SecurityRealm, GBeanLifecycle {
     private String realmName;
@@ -72,8 +72,8 @@ public abstract class AbstractSecurityRealm implements SecurityRealm, GBeanLifec
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractSecurityRealm.class);
 
-        infoFactory.addAttribute("RealmName", String.class, true);
-        infoFactory.addAttribute("MaxLoginModuleAge", long.class, true);
+        infoFactory.addAttribute("realmName", String.class, true);
+        infoFactory.addAttribute("maxLoginModuleAge", long.class, true);
 
         infoFactory.addOperation("getGroupPrincipals");
         infoFactory.addOperation("getGroupPrincipals", new Class[]{RE.class});
@@ -82,7 +82,7 @@ public abstract class AbstractSecurityRealm implements SecurityRealm, GBeanLifec
         infoFactory.addOperation("refresh");
         infoFactory.addOperation("getAppConfigurationEntry");
 
-        infoFactory.setConstructor(new String[]{"RealmName"});
+        infoFactory.setConstructor(new String[]{"realmName"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -58,7 +58,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
 /**
- * @version $Revision: 1.13 $ $Date: 2004/07/08 22:07:54 $
+ * @version $Revision: 1.14 $ $Date: 2004/07/12 06:07:50 $
  */
 public class SubjectCarryingProtocolTest extends AbstractTest {
 
@@ -272,25 +272,25 @@ public class SubjectCarryingProtocolTest extends AbstractTest {
 
         gbean = new GBeanMBean(ServerInfo.GBEAN_INFO);
         serverInfo = new ObjectName("geronimo.system:role=ServerInfo");
-        gbean.setAttribute("BaseDirectory", ".");
+        gbean.setAttribute("baseDirectory", ".");
         kernel.loadGBean(serverInfo, gbean);
         kernel.startGBean(serverInfo);
 
         gbean = new GBeanMBean("org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm");
         propertiesRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=properties-realm");
-        gbean.setAttribute("RealmName", "properties-realm");
-        gbean.setAttribute("MaxLoginModuleAge", new Long(1 * 1000));
-        gbean.setAttribute("UsersURI", (new File(new File("."), "src/test-data/data/users.properties")).toURI());
-        gbean.setAttribute("GroupsURI", (new File(new File("."), "src/test-data/data/groups.properties")).toURI());
+        gbean.setAttribute("realmName", "properties-realm");
+        gbean.setAttribute("maxLoginModuleAge", new Long(1 * 1000));
+        gbean.setAttribute("usersURI", (new File(new File("."), "src/test-data/data/users.properties")).toURI());
+        gbean.setAttribute("groupsURI", (new File(new File("."), "src/test-data/data/groups.properties")).toURI());
         gbean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfo));
         kernel.loadGBean(propertiesRealm, gbean);
 
         gbean = new GBeanMBean("org.apache.geronimo.security.jaas.ConfigurationEntryRealmLocal");
         propertiesCE = new ObjectName("geronimo.security:type=ConfigurationEntry,jaasId=properties");
-        gbean.setAttribute("ApplicationConfigName", "properties");
-        gbean.setAttribute("RealmName", "properties-realm");
-        gbean.setAttribute("ControlFlag", LoginModuleControlFlag.REQUIRED);
-        gbean.setAttribute("Options", new Properties());
+        gbean.setAttribute("applicationConfigName", "properties");
+        gbean.setAttribute("realmName", "properties-realm");
+        gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
+        gbean.setAttribute("options", new Properties());
         kernel.loadGBean(propertiesCE, gbean);
 
         kernel.startGBean(propertiesRealm);

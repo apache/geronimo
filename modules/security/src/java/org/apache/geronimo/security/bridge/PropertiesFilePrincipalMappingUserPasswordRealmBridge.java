@@ -36,7 +36,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
  * from the appropriate principal class and possibly
  * callback name.
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/02 05:33:04 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/12 06:07:50 $
  */
 public class PropertiesFilePrincipalMappingUserPasswordRealmBridge extends AbstractPrincipalMappingUserPasswordRealmBridge {
     private URL propertyFileURL;
@@ -94,8 +94,8 @@ public class PropertiesFilePrincipalMappingUserPasswordRealmBridge extends Abstr
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(PropertiesFilePrincipalMappingUserPasswordRealmBridge.class, AbstractPrincipalMappingUserPasswordRealmBridge.GBEAN_INFO);
-        infoFactory.addAttribute("PropertyFileURL", URL.class, true);
-        infoFactory.setConstructor(new String[]{"TargetRealm", "PrincipalSourceType", "PrincipalTargetCallbackName", "UserNameSourceType", "UserNameTargetCallbackName", "PasswordSourceType", "PropertyFileURL"});
+        infoFactory.addAttribute("propertyFileURL", URL.class, true);
+        infoFactory.setConstructor(new String[]{"targetRealm", "principalSourceType", "principalTargetCallbackName", "userNameSourceType", "userNameTargetCallbackName", "passwordSourceType", "propertyFileURL"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

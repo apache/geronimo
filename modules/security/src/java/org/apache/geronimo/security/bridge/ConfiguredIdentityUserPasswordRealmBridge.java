@@ -33,7 +33,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
  * it always returns the configured user and password, no matter what the
  * source realm or source subject.
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/02 05:33:04 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/12 06:07:50 $
  */
 public class ConfiguredIdentityUserPasswordRealmBridge extends AbstractRealmBridge {
     private String configuredUser;
@@ -86,9 +86,9 @@ public class ConfiguredIdentityUserPasswordRealmBridge extends AbstractRealmBrid
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConfiguredIdentityUserPasswordRealmBridge.class, AbstractRealmBridge.GBEAN_INFO);
-        infoFactory.addAttribute("ConfiguredUser", String.class, true);
-        infoFactory.addAttribute("ConfiguredPassword", String.class, true);
-        infoFactory.setConstructor(new String[]{"TargetRealm", "ConfiguredUser", "ConfiguredPassword"});
+        infoFactory.addAttribute("configuredUser", String.class, true);
+        infoFactory.addAttribute("configuredPassword", String.class, true);
+        infoFactory.setConstructor(new String[]{"targetRealm", "configuredUser", "configuredPassword"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

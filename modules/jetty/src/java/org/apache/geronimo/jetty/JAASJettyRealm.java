@@ -42,7 +42,7 @@ import org.apache.geronimo.security.ContextManager;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/06/27 20:37:38 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/12 06:07:51 $
  */
 public class JAASJettyRealm implements UserRealm, GBeanLifecycle {
 
@@ -178,8 +178,8 @@ public class JAASJettyRealm implements UserRealm, GBeanLifecycle {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty Realm", JAASJettyRealm.class.getName());
         infoFactory.setConstructor(new String[]{"JettyContainer"});
         infoFactory.addReference("JettyContainer", JettyContainer.class);
-        infoFactory.addAttribute("Name", String.class, true);
-        infoFactory.addAttribute("LoginModuleName", String.class, true);
+        infoFactory.addAttribute("name", String.class, true);
+        infoFactory.addAttribute("loginModuleName", String.class, true);
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -32,7 +32,7 @@ import org.apache.geronimo.security.RealmPrincipal;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:59:27 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/12 06:07:51 $
  */
 public class LoginSQLTest extends AbstractTest {
 
@@ -78,13 +78,13 @@ public class LoginSQLTest extends AbstractTest {
 
         GBeanMBean gbean = new GBeanMBean("org.apache.geronimo.security.realm.providers.SQLSecurityRealm");
         sqlRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=sql-realm");
-        gbean.setAttribute("RealmName", "sql-realm");
-        gbean.setAttribute("MaxLoginModuleAge", new Long(1 * 1000));
-        gbean.setAttribute("ConnectionURL", hsqldbURL);
-        gbean.setAttribute("User", "loginmodule");
-        gbean.setAttribute("Password", "password");
-        gbean.setAttribute("UserSelect", "SELECT UserName, Password FROM Users");
-        gbean.setAttribute("GroupSelect", "SELECT GroupName, UserName FROM Groups");
+        gbean.setAttribute("realmName", "sql-realm");
+        gbean.setAttribute("maxLoginModuleAge", new Long(1 * 1000));
+        gbean.setAttribute("connectionURL", hsqldbURL);
+        gbean.setAttribute("user", "loginmodule");
+        gbean.setAttribute("password", "password");
+        gbean.setAttribute("userSelect", "SELECT UserName, Password FROM Users");
+        gbean.setAttribute("groupSelect", "SELECT GroupName, UserName FROM Groups");
         kernel.loadGBean(sqlRealm, gbean);
         kernel.startGBean(sqlRealm);
     }

@@ -20,7 +20,7 @@ package org.apache.geronimo.j2ee.management;
 import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/05/19 20:53:59 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/12 06:07:51 $
  */
 public class ServerTest extends Abstract77Test {
     private J2EEServer server;
@@ -47,6 +47,6 @@ public class ServerTest extends Abstract77Test {
     protected void setUp() throws Exception {
         super.setUp();
         server = (J2EEServer) MBeanProxyFactory.getProxy(J2EEServer.class, mbServer, SERVER_NAME);
-        version = (String) mbServer.getAttribute(SERVER_INFO_NAME, "Version");
+        version = (String) mbServer.getAttribute(SERVER_INFO_NAME, "version");
     }
 }

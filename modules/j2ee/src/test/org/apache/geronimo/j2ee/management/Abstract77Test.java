@@ -33,7 +33,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/05/19 20:53:59 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/12 06:07:51 $
  */
 public abstract class Abstract77Test extends TestCase {
     protected static final ObjectName SERVER_INFO_NAME = JMXUtil.getObjectName("geronimo.system:role=ServerInfo");
@@ -52,7 +52,7 @@ public abstract class Abstract77Test extends TestCase {
         kernel.boot();
         GBeanMBean gbean;
         gbean = new GBeanMBean(ServerInfo.getGBeanInfo());
-        gbean.setAttribute("BaseDirectory", System.getProperty("java.io.tmpdir"));
+        gbean.setAttribute("baseDirectory", System.getProperty("java.io.tmpdir"));
         kernel.loadGBean(SERVER_INFO_NAME, gbean);
 
         gbean = new GBeanMBean(J2EEDomainImpl.GBEAN_INFO);

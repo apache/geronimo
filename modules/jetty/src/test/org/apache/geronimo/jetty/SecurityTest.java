@@ -41,7 +41,7 @@ import org.apache.geronimo.transaction.UserTransactionImpl;
 
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/06/27 20:37:38 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/12 06:07:50 $
  */
 public class SecurityTest extends TestCase {
 
@@ -73,10 +73,10 @@ public class SecurityTest extends TestCase {
         URL url = Thread.currentThread().getContextClassLoader().getResource("deployables/war3/");
         GBeanMBean app = new GBeanMBean(JettyWebAppContext.GBEAN_INFO);
         app.setAttribute("URI", URI.create(url.toString()));
-        app.setAttribute("ContextPath", "/test");
-        app.setAttribute("ComponentContext", null);
+        app.setAttribute("contextPath", "/test");
+        app.setAttribute("componentContext", null);
         UserTransactionImpl userTransaction = new UserTransactionImpl();
-        app.setAttribute("UserTransaction", userTransaction);
+        app.setAttribute("userTransaction", userTransaction);
         app.setReferencePatterns("Configuration", Collections.EMPTY_SET);
         app.setReferencePatterns("JettyContainer", containerPatterns);
         app.setReferencePatterns("TransactionManager", Collections.singleton(tmName));
@@ -135,32 +135,32 @@ public class SecurityTest extends TestCase {
 
         serverInfoGBean = new GBeanMBean(ServerInfo.GBEAN_INFO);
         serverInfoName = new ObjectName("geronimo.system:role=ServerInfo");
-        serverInfoGBean.setAttribute("BaseDirectory", ".");
+        serverInfoGBean.setAttribute("baseDirectory", ".");
 
         connectorGBean = new GBeanMBean(HTTPConnector.GBEAN_INFO);
-        connectorGBean.setAttribute("Port", new Integer(5678));
+        connectorGBean.setAttribute("port", new Integer(5678));
         connectorGBean.setReferencePatterns("JettyContainer", containerPatterns);
 
         jaasRealmGBean = new GBeanMBean("org.apache.geronimo.jetty.JAASJettyRealm");
         jaasRealmName = new ObjectName("geronimo.jetty:role=JaasRealm");
         jaasRealmGBean.setReferencePatterns("JettyContainer", containerPatterns);
-        jaasRealmGBean.setAttribute("Name", "Test JAAS Realm");
-        jaasRealmGBean.setAttribute("LoginModuleName", "jaasTest");
+        jaasRealmGBean.setAttribute("name", "Test JAAS Realm");
+        jaasRealmGBean.setAttribute("loginModuleName", "jaasTest");
 
         loginServiceGBean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginService");
         loginServiceName = new ObjectName("geronimo.security:type=LoginService");
         loginServiceGBean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
-        loginServiceGBean.setAttribute("ReclaimPeriod", new Long(1000 * 1000));
-        loginServiceGBean.setAttribute("Algorithm", "HmacSHA1");
-        loginServiceGBean.setAttribute("Password", "secret");
+        loginServiceGBean.setAttribute("reclaimPeriod", new Long(1000 * 1000));
+        loginServiceGBean.setAttribute("algorithm", "HmacSHA1");
+        loginServiceGBean.setAttribute("password", "secret");
 
         propertiesRealmGBean = new GBeanMBean("org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm");
         propertiesRealmName = new ObjectName("geronimo.security:type=SecurityRealm,realm=demo-properties-realm");
         propertiesRealmGBean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfoName));
-        propertiesRealmGBean.setAttribute("RealmName", "demo-properties-realm");
-        propertiesRealmGBean.setAttribute("MaxLoginModuleAge", new Long(1 * 1000));
-        propertiesRealmGBean.setAttribute("UsersURI", (new File(new File("."), "src/test-resources/data/users.properties")).toURI());
-        propertiesRealmGBean.setAttribute("GroupsURI", (new File(new File("."), "src/test-resources/data/groups.properties")).toURI());
+        propertiesRealmGBean.setAttribute("realmName", "demo-properties-realm");
+        propertiesRealmGBean.setAttribute("maxLoginModuleAge", new Long(1 * 1000));
+        propertiesRealmGBean.setAttribute("usersURI", (new File(new File("."), "src/test-resources/data/users.properties")).toURI());
+        propertiesRealmGBean.setAttribute("groupsURI", (new File(new File("."), "src/test-resources/data/groups.properties")).toURI());
 
         start(serverInfoName, serverInfoGBean);
         start(propertiesRealmName, propertiesRealmGBean);

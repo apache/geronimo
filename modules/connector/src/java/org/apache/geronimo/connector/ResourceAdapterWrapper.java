@@ -40,7 +40,7 @@ import org.apache.geronimo.gbean.WaitingException;
  * Dynamic GBean wrapper around a ResourceAdapter object, exposing the config-properties as
  * GBean attributes.
  *
- * @version $Revision: 1.14 $ $Date: 2004/07/11 21:55:33 $
+ * @version $Revision: 1.15 $ $Date: 2004/07/12 06:07:50 $
  */
 public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, ResourceAdapter {
 
@@ -141,13 +141,13 @@ public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, Res
         infoFactory.addAttribute("resourceAdapterClass", Class.class, true);
         infoFactory.addAttribute("activationSpecInfoMap", Map.class, true);
 
-        infoFactory.addReference("workManager", GeronimoWorkManager.class);
+        infoFactory.addReference("WorkManager", GeronimoWorkManager.class);
 
         infoFactory.addOperation("registerResourceAdapterAssociation", new Class[]{ResourceAdapterAssociation.class});
 
         infoFactory.addInterface(ResourceAdapter.class);
 
-        infoFactory.setConstructor(new String[]{"resourceAdapterClass", "activationSpecInfoMap", "workManager"});
+        infoFactory.setConstructor(new String[]{"resourceAdapterClass", "activationSpecInfoMap", "WorkManager"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

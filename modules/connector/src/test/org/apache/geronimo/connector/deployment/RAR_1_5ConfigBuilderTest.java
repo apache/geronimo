@@ -59,7 +59,7 @@ import org.apache.xmlbeans.XmlOptions;
 import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
- * @version $Revision: 1.13 $ $Date: 2004/07/06 17:19:14 $
+ * @version $Revision: 1.14 $ $Date: 2004/07/12 06:07:51 $
  */
 public class RAR_1_5ConfigBuilderTest extends TestCase {
     private URL j2eeDD;
@@ -146,7 +146,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
             kernel.boot();
 
             GBeanMBean serverInfoGBean = new GBeanMBean(ServerInfo.GBEAN_INFO);
-            serverInfoGBean.setAttribute("BaseDirectory", ".");
+            serverInfoGBean.setAttribute("baseDirectory", ".");
             ObjectName serverInfoObjectName = ObjectName.getInstance(j2eeDomainName + ":type=ServerInfo");
             kernel.loadGBean(serverInfoObjectName, serverInfoGBean);
             kernel.startGBean(serverInfoObjectName);
@@ -162,7 +162,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
             // load the configuration
             ObjectName objectName = ObjectName.getInstance("test:configuration=test-ejb-jar");
             kernel.loadGBean(objectName, config);
-            config.setAttribute("BaseURL", unpackedDir.toURL());
+            config.setAttribute("baseURL", unpackedDir.toURL());
 
             //start configuration to load but not start gbeans.
             kernel.startGBean(objectName);

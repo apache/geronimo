@@ -91,34 +91,34 @@ by the server.
 
     <!-- Default security realm using properties files -->
     <gbean name="geronimo.security:type=SecurityRealm,realm=geronimo-properties-realm" class="org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm">
-        <attribute name="RealmName" type="java.lang.String">geronimo-properties-realm</attribute>
-        <attribute name="MaxLoginModuleAge" type="long">10000</attribute>
-        <attribute name="UsersURI" type="java.net.URI">var/security/users.properties</attribute>
-        <attribute name="GroupsURI" type="java.net.URI">var/security/groups.properties</attribute>
+        <attribute name="realmName" type="java.lang.String">geronimo-properties-realm</attribute>
+        <attribute name="maxLoginModuleAge" type="long">10000</attribute>
+        <attribute name="usersURI" type="java.net.URI">var/security/users.properties</attribute>
+        <attribute name="groupsURI" type="java.net.URI">var/security/groups.properties</attribute>
         <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
     </gbean>
 
     <gbean name="geronimo.security:type=ConfigurationEntry,jaasId=JMX" class="org.apache.geronimo.security.jaas.ConfigurationEntryRealmLocal">
-        <attribute name="ApplicationConfigName" type="java.lang.String">JMX</attribute>
-        <attribute name="RealmName" type="java.lang.String">geronimo-properties-realm</attribute>
-        <attribute name="ControlFlag" type="org.apache.geronimo.security.jaas.LoginModuleControlFlag">REQUIRED</attribute>
+        <attribute name="applicationConfigName" type="java.lang.String">JMX</attribute>
+        <attribute name="realmName" type="java.lang.String">geronimo-properties-realm</attribute>
+        <attribute name="controlFlag" type="org.apache.geronimo.security.jaas.LoginModuleControlFlag">REQUIRED</attribute>
     </gbean>
 
     <!-- Register GeronimoLoginConfiguration as the LoginConfiguration handler -->
     <gbean name="geronimo.security:type=LoginConfiguration" class="org.apache.geronimo.security.jaas.GeronimoLoginConfiguration"/>
 
     <gbean name="geronimo.security:type=SecurityService" class="org.apache.geronimo.security.SecurityService">
-        <attribute name="PolicyConfigurationFactory" type="java.lang.String">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
+        <attribute name="policyConfigurationFactory" type="java.lang.String">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
         <reference name="Realms">geronimo.security:type=SecurityRealm,*</reference>
     </gbean>
-
+    
     <gbean name="geronimo.security:type=LoginService" class="org.apache.geronimo.security.jaas.LoginService">
         <reference name="Realms">geronimo.security:type=SecurityRealm,*</reference>
-        <attribute name="ReclaimPeriod" type="long">100000</attribute>
-        <attribute name="Algorithm" type="java.lang.String">HmacSHA1</attribute>
-        <attribute name="Password" type="java.lang.String">secret</attribute>
+        <attribute name="reclaimPeriod" type="long">100000</attribute>
+        <attribute name="algorithm" type="java.lang.String">HmacSHA1</attribute>
+        <attribute name="password" type="java.lang.String">secret</attribute>
     </gbean>
-
+    
     <gbean name="geronimo.server:type=ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
     </gbean>
 
@@ -159,7 +159,7 @@ by the server.
     </gbean>
 
     <gbean name="geronimo.server:type=WebConnector,container=Jetty,port=8080" class="org.apache.geronimo.jetty.connector.HTTPConnector">
-        <attribute name="Port" type="int">8080</attribute>
+        <attribute name="port" type="int">8080</attribute>
         <reference name="JettyContainer">geronimo.server:type=WebContainer,container=Jetty</reference>
         <!--        <attribute name="MaxConnections" type="int">10</attribute>-->
         <!--        <attribute name="MaxIdleTime" type="int">10</attribute>-->
@@ -197,7 +197,7 @@ by the server.
     <!-- JMX Remoting -->
     <gbean name="geronimo.server:role=JMXService,name=localhost" class="org.apache.geronimo.jmxremoting.JMXConnector">
         <attribute name="URL" type="java.lang.String">service:jmx:rmi://localhost/jndi/rmi:/JMXConnector</attribute>
-        <attribute name="ApplicationConfigName" type="java.lang.String">JMX</attribute>
+        <attribute name="applicationConfigName" type="java.lang.String">JMX</attribute>
     </gbean>
 
     <!-- todo move to child config once we sort out the packaging -->

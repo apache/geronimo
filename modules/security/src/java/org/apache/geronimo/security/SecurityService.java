@@ -43,7 +43,7 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
 /**
  * An MBean that maintains a list of security realms.
  *
- * @version $Revision: 1.11 $ $Date: 2004/06/24 02:30:23 $
+ * @version $Revision: 1.12 $ $Date: 2004/07/12 06:07:51 $
  */
 public class SecurityService implements SecurityServiceMBean, GBeanLifecycle {
     /**
@@ -139,12 +139,12 @@ public class SecurityService implements SecurityServiceMBean, GBeanLifecycle {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(SecurityService.class);
 
-        infoFactory.addAttribute("PolicyConfigurationFactory", String.class, true);
+        infoFactory.addAttribute("policyConfigurationFactory", String.class, true);
 
         infoFactory.addReference("Realms", SecurityRealm.class);
         infoFactory.addReference("ModuleConfigurations", ModuleConfiguration.class);
 
-        infoFactory.setConstructor(new String[]{"PolicyConfigurationFactory"});
+        infoFactory.setConstructor(new String[]{"policyConfigurationFactory"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

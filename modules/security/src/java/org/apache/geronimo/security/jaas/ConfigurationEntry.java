@@ -39,7 +39,7 @@ import org.apache.geronimo.kernel.Kernel;
  * <p>More specifically, you can only use this method or Sun's JAAS config
  * file.
  *
- * @version $Revision: 1.11 $ $Date: 2004/06/05 16:07:04 $
+ * @version $Revision: 1.12 $ $Date: 2004/07/12 06:07:50 $
  * @see org.apache.geronimo.security.jaas.GeronimoLoginConfiguration
  * @see javax.security.auth.login.Configuration
  */
@@ -106,9 +106,9 @@ public abstract class ConfigurationEntry implements GBeanLifecycle {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConfigurationEntry.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addAttribute("ApplicationConfigName", String.class, true);
-        infoFactory.addAttribute("ControlFlag", LoginModuleControlFlag.class, true);
-        infoFactory.addAttribute("Options", Properties.class, true);
+        infoFactory.addAttribute("applicationConfigName", String.class, true);
+        infoFactory.addAttribute("controlFlag", LoginModuleControlFlag.class, true);
+        infoFactory.addAttribute("options", Properties.class, true);
         infoFactory.setConstructor(new String[]{"kernel"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

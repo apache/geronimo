@@ -43,7 +43,7 @@ import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.apache.geronimo.transaction.manager.ResourceManager;
 
 /**
- * @version $Revision: 1.17 $ $Date: 2004/06/25 21:33:26 $
+ * @version $Revision: 1.18 $ $Date: 2004/07/12 06:07:51 $
  */
 public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicGBean, ResourceManager {
 
@@ -253,12 +253,12 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ManagedConnectionFactoryWrapper.class);
 
-        infoFactory.addAttribute("ManagedConnectionFactoryClass", Class.class, true);
-        infoFactory.addAttribute("ConnectionFactoryInterface", Class.class, true);
-        infoFactory.addAttribute("ConnectionFactoryImplClass", Class.class, true);
-        infoFactory.addAttribute("ConnectionInterface", Class.class, true);
-        infoFactory.addAttribute("ConnectionImplClass", Class.class, true);
-        infoFactory.addAttribute("GlobalJNDIName", String.class, true);
+        infoFactory.addAttribute("managedConnectionFactoryClass", Class.class, true);
+        infoFactory.addAttribute("connectionFactoryInterface", Class.class, true);
+        infoFactory.addAttribute("connectionFactoryImplClass", Class.class, true);
+        infoFactory.addAttribute("connectionInterface", Class.class, true);
+        infoFactory.addAttribute("connectionImplClass", Class.class, true);
+        infoFactory.addAttribute("globalJNDIName", String.class, true);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
 
@@ -272,12 +272,12 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         infoFactory.addReference("ManagedConnectionFactoryListener", ManagedConnectionFactoryListener.class);
 
         infoFactory.setConstructor(new String[]{
-            "ManagedConnectionFactoryClass",
-            "ConnectionFactoryInterface",
-            "ConnectionFactoryImplClass",
-            "ConnectionInterface",
-            "ConnectionImplClass",
-            "GlobalJNDIName",
+            "managedConnectionFactoryClass",
+            "connectionFactoryInterface",
+            "connectionFactoryImplClass",
+            "connectionInterface",
+            "connectionImplClass",
+            "globalJNDIName",
             "ResourceAdapterWrapper",
             "ConnectionManagerFactory",
             "ManagedConnectionFactoryListener",

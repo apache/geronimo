@@ -30,7 +30,7 @@ import org.apache.geronimo.security.GeronimoSecurityException;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/06/05 07:53:22 $
+ * @version $Revision: 1.7 $ $Date: 2004/07/12 06:07:49 $
  */
 public abstract class AbstractModuleConfiguration implements ModuleConfiguration, GBeanLifecycle {
     public static final String BASE_OBJECT_NAME = "geronimo.security:type=ModuleConfiguration";
@@ -247,8 +247,8 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractModuleConfiguration.class);
 
-        infoFactory.addAttribute("ContextID", String.class, true);
-        infoFactory.addAttribute("Roles", HashSet.class, true); //??persistent
+        infoFactory.addAttribute("contextID", String.class, true);
+        infoFactory.addAttribute("roles", HashSet.class, true); //??persistent
 
         infoFactory.addOperation("addRoleMapping", new Class[]{String.class, Collection.class});
         infoFactory.addOperation("linkConfiguration", new Class[]{ModuleConfiguration.class});

@@ -37,7 +37,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 /**
  * 
  * 
- * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:04 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/12 06:07:52 $
  */
 public class RunTest extends TestCase {
     private File carFile;
@@ -55,8 +55,8 @@ public class RunTest extends TestCase {
         GBeanMBean config = new GBeanMBean(Configuration.GBEAN_INFO);
         config.setAttribute("ID", URI.create("org/apache/geronimo/run-test"));
         config.setReferencePatterns("Parent", null);
-        config.setAttribute("ClassPath", Collections.EMPTY_LIST);
-        config.setAttribute("GBeanState", Configuration.storeGBeans(gbeans));
+        config.setAttribute("classPath", Collections.EMPTY_LIST);
+        config.setAttribute("gBeanState", Configuration.storeGBeans(gbeans));
 
         carFile = File.createTempFile("run", ".car");
         Manifest manifest = new Manifest();

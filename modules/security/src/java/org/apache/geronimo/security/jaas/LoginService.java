@@ -63,7 +63,7 @@ import org.apache.geronimo.security.realm.SecurityRealm;
 /**
  * An MBean that maintains a list of security realms.
  *
- * @version $Revision: 1.8 $ $Date: 2004/06/05 07:53:22 $
+ * @version $Revision: 1.9 $ $Date: 2004/07/12 06:07:50 $
  */
 public class LoginService implements LoginServiceMBean, GBeanLifecycle {
     /**
@@ -448,9 +448,9 @@ public class LoginService implements LoginServiceMBean, GBeanLifecycle {
         infoFactory.addOperation("logout", new Class[]{LoginModuleId.class});
         infoFactory.addOperation("retrieveSubject", new Class[]{LoginModuleId.class});
 
-        infoFactory.addAttribute("ReclaimPeriod", long.class, true);
-        infoFactory.addAttribute("Algorithm", String.class, true);
-        infoFactory.addAttribute("Password", String.class, true);
+        infoFactory.addAttribute("reclaimPeriod", long.class, true);
+        infoFactory.addAttribute("algorithm", String.class, true);
+        infoFactory.addAttribute("password", String.class, true);
 
         infoFactory.addReference("Realms", SecurityRealm.class);
         GBEAN_INFO = infoFactory.getBeanInfo();

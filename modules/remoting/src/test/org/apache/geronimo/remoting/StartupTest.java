@@ -30,7 +30,7 @@ import junit.framework.TestCase;
 /**
  * 
  * 
- * @version $Revision: 1.6 $ $Date: 2004/03/10 09:59:20 $
+ * @version $Revision: 1.7 $ $Date: 2004/07/12 06:07:51 $
  */
 public class StartupTest  extends TestCase {
     private Kernel kernel;
@@ -44,7 +44,7 @@ public class StartupTest  extends TestCase {
         kernel.loadGBean(subsystemRouter, gbean);
 
         gbean = new GBeanMBean("org.apache.geronimo.remoting.transport.TransportLoader");
-        gbean.setAttribute("BindURI", new URI("async://0.0.0.0:3434"));
+        gbean.setAttribute("bindURI", new URI("async://0.0.0.0:3434"));
         gbean.setReferencePatterns("Router", Collections.singleton(subsystemRouter));
         ObjectName asyncTransport = new ObjectName("geronimo.remoting:transport=async");
         kernel.loadGBean(asyncTransport, gbean);

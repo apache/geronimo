@@ -33,7 +33,7 @@ import org.apache.geronimo.security.RealmPrincipal;
  * An example of how to setup non-Geronimo login modules when the
  * <code>GeronimoLoginConfiguration</code> has been installed in the JVM.
  *
- * @version $Revision: 1.6 $ $Date: 2004/06/27 18:07:14 $
+ * @version $Revision: 1.7 $ $Date: 2004/07/12 06:07:51 $
  * @see org.apache.geronimo.security.jaas.GeronimoLoginConfiguration
  * @see javax.security.auth.login.Configuration
  */
@@ -63,10 +63,10 @@ public class LoginKerberosNonGeronimoTest extends AbstractTest {
 
         gbean = new GBeanMBean("org.apache.geronimo.security.jaas.ConfigurationEntryLocal");
         kerberosCE = new ObjectName("geronimo.security:type=ConfigurationEntry,jaasId=kerberos-foobar");
-        gbean.setAttribute("ApplicationConfigName", "kerberos-foobar");
-        gbean.setAttribute("LoginModuleName", "com.sun.security.auth.module.Krb5LoginModule");
-        gbean.setAttribute("ControlFlag", LoginModuleControlFlag.REQUIRED);
-        gbean.setAttribute("Options", options);
+        gbean.setAttribute("applicationConfigName", "kerberos-foobar");
+        gbean.setAttribute("loginModuleName", "com.sun.security.auth.module.Krb5LoginModule");
+        gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
+        gbean.setAttribute("options", options);
         kernel.loadGBean(kerberosCE, gbean);
 
         kernel.startGBean(loginConfiguration);

@@ -27,7 +27,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanLifecycleController;
 
 /**
- * @version $Revision: 1.20 $ $Date: 2004/06/05 16:07:04 $
+ * @version $Revision: 1.21 $ $Date: 2004/07/12 06:07:49 $
  */
 public class MockGBean implements MockEndpoint {
 
@@ -60,7 +60,7 @@ public class MockGBean implements MockEndpoint {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("MockGBean", MockGBean.class);
-        infoFactory.addAttribute("Name", String.class, true);
+        infoFactory.addAttribute("name", String.class, true);
         infoFactory.addAttribute("actualObjectName", String.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("gbeanLifecycleController", GBeanLifecycleController.class, false);
@@ -68,23 +68,23 @@ public class MockGBean implements MockEndpoint {
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addAttribute("actualKernel", Kernel.class, false);
         infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addAttribute("Value", String.class, true);
-        infoFactory.addAttribute("FinalInt", Integer.TYPE, true);
-        infoFactory.addAttribute("MutableInt", Integer.TYPE, false);
-        infoFactory.addAttribute("ExceptionMutableInt", Integer.TYPE, true);
-        infoFactory.addAttribute("EndpointMutableInt", Integer.TYPE, false);
+        infoFactory.addAttribute("value", String.class, true);
+        infoFactory.addAttribute("finalInt", Integer.TYPE, true);
+        infoFactory.addAttribute("mutableInt", Integer.TYPE, false);
+        infoFactory.addAttribute("exceptionMutableInt", Integer.TYPE, true);
+        infoFactory.addAttribute("endpointMutableInt", Integer.TYPE, false);
 
         infoFactory.addOperation("echo", new Class[]{String.class});
         infoFactory.addOperation("checkEndpoint");
         infoFactory.addOperation("checkEndpointCollection");
         infoFactory.addOperation("doSomething", new Class[]{String.class});
 
-        infoFactory.addInterface(MockEndpoint.class, new String[]{"MutableInt"});
+        infoFactory.addInterface(MockEndpoint.class, new String[]{"mutableInt"});
 
         infoFactory.addReference("MockEndpoint", MockEndpoint.class);
         infoFactory.addReference("EndpointCollection", MockEndpoint.class);
 
-        infoFactory.setConstructor(new String[]{"Name", "FinalInt", "objectName", "classLoader", "gbeanLifecycleController", "kernel"});
+        infoFactory.setConstructor(new String[]{"name", "finalInt", "objectName", "classLoader", "gbeanLifecycleController", "kernel"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -46,7 +46,7 @@ import org.apache.geronimo.xbeans.j2ee.WebAppType;
  * these utility MBeans and not directly access the
  * <code>PolicyConfiguration</code> objects.
  *
- * @version $Revision: 1.6 $ $Date: 2004/06/02 05:33:04 $
+ * @version $Revision: 1.7 $ $Date: 2004/07/12 06:07:49 $
  * @see javax.security.jacc.PolicyConfiguration
  * @see "Java Authorization Contract for Containers", section 3.1.3
  */
@@ -122,9 +122,9 @@ public class WebModuleConfiguration extends AbstractModuleConfiguration {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(WebModuleConfiguration.class, AbstractModuleConfiguration.GBEAN_INFO);
         //TODO make sure this attribute not backed by a getter or setter works.
-        infoFactory.addAttribute("WebApp", WebAppType.class, true);
-        infoFactory.addAttribute("Security", SecurityType.class, true);
-        infoFactory.setConstructor(new String[]{"ContextID", "WebApp", "Security"});
+        infoFactory.addAttribute("webApp", WebAppType.class, true);
+        infoFactory.addAttribute("security", SecurityType.class, true);
+        infoFactory.setConstructor(new String[]{"contextID", "webApp", "security"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -50,7 +50,7 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.repository.Repository;
 
 /**
- * @version $Revision: 1.12 $ $Date: 2004/07/06 17:19:14 $
+ * @version $Revision: 1.13 $ $Date: 2004/07/12 06:07:52 $
  */
 public class DeploymentContext {
     private final URI configID;
@@ -75,7 +75,7 @@ public class DeploymentContext {
 
         try {
             config.setAttribute("ID", id);
-            config.setAttribute("ParentID", parentID);
+            config.setAttribute("parentID", parentID);
         } catch (Exception e) {
             // we created this GBean ...
             throw new AssertionError();
@@ -102,7 +102,7 @@ public class DeploymentContext {
                 }
             }
             try {
-                parentCL = (ClassLoader) kernel.getAttribute(parentName, "ClassLoader");
+                parentCL = (ClassLoader) kernel.getAttribute(parentName, "classLoader");
             } catch (Exception e) {
                 throw new DeploymentException(e);
             }
@@ -171,8 +171,8 @@ public class DeploymentContext {
         // save the dependencies and classpath
         try {
             config.setReferencePatterns("Repositories", Collections.singleton(new ObjectName("*:role=Repository,*")));
-            config.setAttribute("Dependencies", new ArrayList(dependencies));
-            config.setAttribute("ClassPath", new ArrayList(classPath));
+            config.setAttribute("dependencies", new ArrayList(dependencies));
+            config.setAttribute("classPath", new ArrayList(classPath));
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize Configuration", e);
         }
@@ -261,7 +261,7 @@ public class DeploymentContext {
 
         // persist all the GBeans in this Configuration
         try {
-            config.setAttribute("GBeanState", Configuration.storeGBeans(gbeans));
+            config.setAttribute("gBeanState", Configuration.storeGBeans(gbeans));
         } catch (Exception e) {
             throw new DeploymentException("Unable to persist GBeans", e);
         }

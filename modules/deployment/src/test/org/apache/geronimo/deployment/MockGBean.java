@@ -23,7 +23,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/06/03 23:12:54 $
+ * @version $Revision: 1.9 $ $Date: 2004/07/12 06:07:50 $
  */
 public class MockGBean implements MockEndpoint {
     private final String name;
@@ -80,16 +80,16 @@ public class MockGBean implements MockEndpoint {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("MockGBean", MockGBean.class);
 
-        infoFactory.addAttribute("Name", String.class, true);
-        infoFactory.addAttribute("Value", String.class, true);
-        infoFactory.addAttribute("IntValue", int.class, true);
+        infoFactory.addAttribute("name", String.class, true);
+        infoFactory.addAttribute("value", String.class, true);
+        infoFactory.addAttribute("intValue", int.class, true);
 
         infoFactory.addOperation("checkEndpoint");
         infoFactory.addOperation("doSomething", new Class[]{String.class});
 
         infoFactory.addReference("MockEndpoint", MockEndpoint.class);
 
-        infoFactory.setConstructor(new String[] {"Name"});
+        infoFactory.setConstructor(new String[] {"name"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

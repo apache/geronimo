@@ -33,7 +33,7 @@ import org.apache.geronimo.remoting.transport.BytesMarshalledObject;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:59:20 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/12 06:07:51 $
  */
 
 public class JMXRemotingTest extends TestCase {
@@ -57,7 +57,7 @@ public class JMXRemotingTest extends TestCase {
         kernel.loadGBean(subsystemRouter, gbean);
 
         gbean = new GBeanMBean("org.apache.geronimo.remoting.transport.TransportLoader");
-        gbean.setAttribute("BindURI", new URI("async://0.0.0.0:0"));
+        gbean.setAttribute("bindURI", new URI("async://0.0.0.0:0"));
         gbean.setReferencePatterns("Router", Collections.singleton(subsystemRouter));
         asyncTransport = new ObjectName("geronimo.remoting:transport=async");
         kernel.loadGBean(asyncTransport, gbean);

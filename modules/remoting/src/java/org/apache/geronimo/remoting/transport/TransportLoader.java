@@ -27,7 +27,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.remoting.router.Router;
 
 /**
- * @version $Revision: 1.12 $ $Date: 2004/06/05 07:53:22 $
+ * @version $Revision: 1.13 $ $Date: 2004/07/12 06:07:51 $
  */
 public class TransportLoader implements GBeanLifecycle {
     private static final Log log = LogFactory.getLog(TransportLoader.class);
@@ -89,8 +89,8 @@ public class TransportLoader implements GBeanLifecycle {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(TransportLoader.class);
 
-        infoFactory.addAttribute("ClientConnectURI", URI.class, false);
-        infoFactory.addAttribute("BindURI", URI.class, true);
+        infoFactory.addAttribute("clientConnectURI", URI.class, false);
+        infoFactory.addAttribute("bindURI", URI.class, true);
 
         infoFactory.addReference("Router", Router.class);
 

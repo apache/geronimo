@@ -37,26 +37,26 @@ by the server.
 
     <!-- JAAS Application Config Entry -->
     <gbean name="geronimo.security:type=ConfigurationEntry,jaasId=jaasTest" class="org.apache.geronimo.security.jaas.ConfigurationEntryRealmLocal">
-        <attribute name="ApplicationConfigName" type="java.lang.String">jaasTest</attribute>
-        <attribute name="RealmName" type="java.lang.String">demo-properties-realm</attribute>
-        <attribute name="ControlFlag" type="org.apache.geronimo.security.jaas.LoginModuleControlFlag">REQUIRED</attribute>
-        <attribute name="Options" type="java.util.Properties">foo=bar</attribute>
+        <attribute name="applicationConfigName" type="java.lang.String">jaasTest</attribute>
+        <attribute name="realmName" type="java.lang.String">demo-properties-realm</attribute>
+        <attribute name="controlFlag" type="org.apache.geronimo.security.jaas.LoginModuleControlFlag">REQUIRED</attribute>
+        <attribute name="options" type="java.util.Properties">foo=bar</attribute>
     </gbean>
 
     <!-- Demo Properties File Realm -->
     <gbean name="geronimo.security:type=SecurityRealm,realm=demo-properties-realm" class="org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm">
-        <attribute name="RealmName" type="java.lang.String">demo-properties-realm</attribute>
-        <attribute name="MaxLoginModuleAge" type="long">10000</attribute>
-        <attribute name="UsersURI" type="java.net.URI">var/security/demo_users.properties</attribute>
-        <attribute name="GroupsURI" type="java.net.URI">var/security/demo_groups.properties</attribute>
+        <attribute name="realmName" type="java.lang.String">demo-properties-realm</attribute>
+        <attribute name="maxLoginModuleAge" type="long">10000</attribute>
+        <attribute name="usersURI" type="java.net.URI">var/security/demo_users.properties</attribute>
+        <attribute name="groupsURI" type="java.net.URI">var/security/demo_groups.properties</attribute>
         <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
     </gbean>
 
     <!-- Jetty Realm that points to the Geronimo Demo Properties File Realm -->
     <gbean name="geronimo.jetty:role=JaasRealm" class="org.apache.geronimo.jetty.JAASJettyRealm">
         <reference name="JettyContainer">geronimo.server:type=WebContainer,container=Jetty</reference>
-        <attribute name="Name" type="java.lang.String">Jetty JAAS Realm</attribute>
-        <attribute name="LoginModuleName" type="java.lang.String">jaasTest</attribute>
+        <attribute name="name" type="java.lang.String">Jetty JAAS Realm</attribute>
+        <attribute name="loginModuleName" type="java.lang.String">jaasTest</attribute>
     </gbean>
 
 </configuration>

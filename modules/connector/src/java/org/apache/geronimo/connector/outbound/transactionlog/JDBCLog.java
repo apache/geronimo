@@ -46,7 +46,7 @@ import org.apache.geronimo.transaction.manager.TransactionBranchInfoImpl;
  * a single 1-pc datasource.  The database is used for the log, and the database work is
  * committed when the log writes its prepare record.
  *
- * @version $Revision: 1.7 $ $Date: 2004/06/11 19:22:05 $
+ * @version $Revision: 1.8 $ $Date: 2004/07/12 06:07:49 $
  */
 public class JDBCLog implements TransactionLog, GBeanLifecycle {
     private final static String INSERT_XID = "INSERT INTO TXLOG (SYSTEMID, FORMATID, GLOBALID, GLOBALBRANCHID, BRANCHBRANCHID, NAME) VALUES (?, ?, ?, ?, ?)";
@@ -199,13 +199,13 @@ public class JDBCLog implements TransactionLog, GBeanLifecycle {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(JDBCLog.class);
 
-        infoFactory.addAttribute("SystemId", String.class, true);
+        infoFactory.addAttribute("systemId", String.class, true);
 
         infoFactory.addInterface(TransactionLog.class);
 
         infoFactory.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class);
 
-        infoFactory.setConstructor(new String[]{"SystemId", "DataSource"});
+        infoFactory.setConstructor(new String[]{"systemId", "DataSource"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -33,7 +33,7 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.management.State;
 
 /**
- * @version $Revision: 1.15 $ $Date: 2004/06/02 05:33:03 $
+ * @version $Revision: 1.16 $ $Date: 2004/07/12 06:07:49 $
  */
 public class ConfigTest extends TestCase {
     private ObjectName gbeanName1;
@@ -52,28 +52,28 @@ public class ConfigTest extends TestCase {
         GBeanMBean config = new GBeanMBean(Configuration.GBEAN_INFO);
         config.setAttribute("ID", new URI("test"));
         config.setReferencePatterns("Parent", null);
-        config.setAttribute("ClassPath", Collections.EMPTY_LIST);
-        config.setAttribute("GBeanState", state);
-        config.setAttribute("Dependencies", Collections.EMPTY_LIST);
+        config.setAttribute("classPath", Collections.EMPTY_LIST);
+        config.setAttribute("gBeanState", state);
+        config.setAttribute("dependencies", Collections.EMPTY_LIST);
         ConfigurationManager configurationManager = kernel.getConfigurationManager();
         ObjectName configName = configurationManager.load(config, null);
         mbServer.invoke(configName, "startRecursive", null, null);
 
         assertEquals(new Integer(State.RUNNING_INDEX), mbServer.getAttribute(configName, "state"));
-        assertNotNull(mbServer.getAttribute(configName, "ClassLoader"));
+        assertNotNull(mbServer.getAttribute(configName, "classLoader"));
 
         assertEquals(new Integer(State.RUNNING_INDEX), mbServer.getAttribute(gbeanName1, "state"));
         Object state = mbServer.getAttribute(gbeanName2, "state");
         assertEquals(new Integer(State.RUNNING_INDEX), state);
-        assertEquals(new Integer(1), mbServer.getAttribute(gbeanName1, "FinalInt"));
-        assertEquals("1234", mbServer.getAttribute(gbeanName1, "Value"));
-        assertEquals(new Integer(3), mbServer.getAttribute(gbeanName2, "FinalInt"));
+        assertEquals(new Integer(1), mbServer.getAttribute(gbeanName1, "finalInt"));
+        assertEquals("1234", mbServer.getAttribute(gbeanName1, "value"));
+        assertEquals(new Integer(3), mbServer.getAttribute(gbeanName2, "finalInt"));
 
-        mbServer.setAttribute(gbeanName2, new Attribute("MutableInt", new Integer(44)));
-        assertEquals(new Integer(44), mbServer.getAttribute(gbeanName2, "MutableInt"));
+        mbServer.setAttribute(gbeanName2, new Attribute("mutableInt", new Integer(44)));
+        assertEquals(new Integer(44), mbServer.getAttribute(gbeanName2, "mutableInt"));
 
         mbServer.invoke(gbeanName2, "doSetMutableInt", new Object[]{new Integer(55)}, new String[]{"int"});
-        assertEquals(new Integer(55), mbServer.getAttribute(gbeanName2, "MutableInt"));
+        assertEquals(new Integer(55), mbServer.getAttribute(gbeanName2, "mutableInt"));
 
         assertEquals("no endpoint", mbServer.invoke(gbeanName1, "checkEndpoint", null, null));
         assertEquals("endpointCheck", mbServer.invoke(gbeanName2, "checkEndpoint", null, null));
@@ -81,13 +81,13 @@ public class ConfigTest extends TestCase {
         assertEquals(new Integer(0), mbServer.invoke(gbeanName1, "checkEndpointCollection", null, null));
         assertEquals(new Integer(1), mbServer.invoke(gbeanName2, "checkEndpointCollection", null, null));
 
-        mbServer.setAttribute(gbeanName2, new Attribute("EndpointMutableInt", new Integer(99)));
-        assertEquals(new Integer(99), mbServer.getAttribute(gbeanName2, "EndpointMutableInt"));
-        assertEquals(new Integer(99), mbServer.getAttribute(gbeanName1, "MutableInt"));
+        mbServer.setAttribute(gbeanName2, new Attribute("endpointMutableInt", new Integer(99)));
+        assertEquals(new Integer(99), mbServer.getAttribute(gbeanName2, "endpointMutableInt"));
+        assertEquals(new Integer(99), mbServer.getAttribute(gbeanName1, "mutableInt"));
 
         mbServer.invoke(configName, "stop", null, null);
         try {
-            mbServer.getAttribute(gbeanName1, "Value");
+            mbServer.getAttribute(gbeanName1, "value");
             fail();
         } catch (InstanceNotFoundException e) {
             // ok
@@ -105,14 +105,14 @@ public class ConfigTest extends TestCase {
 
         gbeanName1 = new ObjectName("geronimo.test:name=MyMockGMBean1");
         GBeanMBean mockBean1 = new GBeanMBean(MockGBean.getGBeanInfo());
-        mockBean1.setAttribute("Value", "1234");
-        mockBean1.setAttribute("Name", "child");
-        mockBean1.setAttribute("FinalInt", new Integer(1));
+        mockBean1.setAttribute("value", "1234");
+        mockBean1.setAttribute("name", "child");
+        mockBean1.setAttribute("finalInt", new Integer(1));
         gbeanName2 = new ObjectName("geronimo.test:name=MyMockGMBean2");
         GBeanMBean mockBean2 = new GBeanMBean(MockGBean.getGBeanInfo());
-        mockBean2.setAttribute("Value", "5678");
-        mockBean2.setAttribute("Name", "Parent");
-        mockBean2.setAttribute("FinalInt", new Integer(3));
+        mockBean2.setAttribute("value", "5678");
+        mockBean2.setAttribute("name", "Parent");
+        mockBean2.setAttribute("finalInt", new Integer(3));
         mockBean2.setReferencePatterns("MockEndpoint", Collections.singleton(gbeanName1));
         mockBean2.setReferencePatterns("EndpointCollection", Collections.singleton(gbeanName1));
 

@@ -48,7 +48,7 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/27 20:37:38 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/12 06:07:51 $
  */
 public class JettyWebAppContext extends WebApplicationContext implements GBeanLifecycle {
 
@@ -238,12 +238,12 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty WebApplication Context", JettyWebAppContext.class);
 
         infoFactory.addAttribute("URI", URI.class, true);
-        infoFactory.addAttribute("ContextPath", String.class, true);
-        infoFactory.addAttribute("ContextPriorityClassLoader", Boolean.TYPE, true);
-        infoFactory.addAttribute("ComponentContext", ReadOnlyContext.class, true);
-        infoFactory.addAttribute("UnshareableResources", Set.class, true);
-        infoFactory.addAttribute("ApplicationManagedSecurityResources", Set.class, true);
-        infoFactory.addAttribute("UserTransaction", UserTransactionImpl.class, true);
+        infoFactory.addAttribute("contextPath", String.class, true);
+        infoFactory.addAttribute("contextPriorityClassLoader", Boolean.TYPE, true);
+        infoFactory.addAttribute("componentContext", ReadOnlyContext.class, true);
+        infoFactory.addAttribute("unshareableResources", Set.class, true);
+        infoFactory.addAttribute("applicationManagedSecurityResources", Set.class, true);
+        infoFactory.addAttribute("userTransaction", UserTransactionImpl.class, true);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
         infoFactory.addReference("Configuration", ConfigurationParent.class);
@@ -255,12 +255,12 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             "Configuration",
             "URI",
             "JettyContainer",
-            "ComponentContext",
-            "UnshareableResources",
-            "ApplicationManagedSecurityResources",
+            "componentContext",
+            "unshareableResources",
+            "applicationManagedSecurityResources",
             "TransactionManager",
             "TrackedConnectionAssociator",
-            "UserTransaction",
+            "userTransaction",
             "classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
