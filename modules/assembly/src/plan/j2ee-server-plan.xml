@@ -66,7 +66,7 @@ by the server.
         <uri>geronimo/jars/geronimo-jmxremoting-1.0-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-        <uri>activemq/jars/activemq-SNAPSHOT.jar</uri>
+        <uri>activemq/jars/activemq-1.0-SNAPSHOT.jar</uri>
     </dependency>
 
     <!-- required for rar 1.5 to load realms -->
@@ -141,7 +141,6 @@ by the server.
         <!--        <attribute name="MaxIdleTime" type="int">10</attribute>-->
     </gbean>
 
-    <!-- JMS container
     <gbean name="geronimo.server:type=JMSServer,container=ActiveMQ" class="org.codehaus.activemq.container.ActiveMQContainer">
     </gbean>
 
@@ -149,6 +148,7 @@ by the server.
         <attribute name="Url" type="java.lang.String">tcp://localhost:61616</attribute>
         <reference name="ActiveMQContainer">geronimo.server:type=JMSServer,container=ActiveMQ</reference>
     </gbean>
+    <!-- JMS container
     -->
 
 

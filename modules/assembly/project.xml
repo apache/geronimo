@@ -17,7 +17,7 @@
 -->
 
 
-<!-- $Revision: 1.23 $ $Date: 2004/05/31 13:48:50 $ -->
+<!-- $Revision: 1.24 $ $Date: 2004/06/14 17:12:58 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -475,7 +475,7 @@
       <dependency>
           <groupId>activemq</groupId>
           <artifactId>activemq</artifactId>
-          <version>SNAPSHOT</version>
+          <version>1.0-SNAPSHOT</version>
           <properties>
               <repository>true</repository>
           </properties>
