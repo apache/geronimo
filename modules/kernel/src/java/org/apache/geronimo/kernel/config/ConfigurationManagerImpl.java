@@ -41,7 +41,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/06/05 20:33:40 $
+ * @version $Revision: 1.9 $ $Date: 2004/06/10 02:26:30 $
  */
 public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLifecycle {
     private static final Log log = LogFactory.getLog(ConfigurationManagerImpl.class);
@@ -221,10 +221,14 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
                 if (kernel.isLoaded(configName)) {
                     try {
                         kernel.stopGBean(configName);
-                        kernel.unloadGBean(configName);
                     } catch (InstanceNotFoundException e) {
                         // ignore
                     } catch (InvalidConfigException e) {
+                        log.warn("Could not stop configuration: " + configName, e);
+                    }
+                    try {
+                        kernel.unloadGBean(configName);
+                    } catch (InstanceNotFoundException e) {
                         // ignore
                     }
                 }

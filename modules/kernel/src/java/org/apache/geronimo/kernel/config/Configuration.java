@@ -81,7 +81,7 @@ import org.apache.geronimo.kernel.repository.Repository;
  * a startRecursive() for all the GBeans it contains. Similarly, if the
  * Configuration is stopped then all of its GBeans will be stopped as well.
  *
- * @version $Revision: 1.24 $ $Date: 2004/06/05 20:33:40 $
+ * @version $Revision: 1.25 $ $Date: 2004/06/10 02:26:30 $
  */
 public class Configuration implements GBeanLifecycle {
     private static final Log log = LogFactory.getLog(Configuration.class);
@@ -196,6 +196,9 @@ public class Configuration implements GBeanLifecycle {
 
     public void doStop() {
         log.info("Stopping configuration " + id);
+        if (gbeans == null) {
+            return;
+        }
 
         // unregister all GBeans
         MBeanServer mbServer = kernel.getMBeanServer();
