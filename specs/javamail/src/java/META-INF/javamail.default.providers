@@ -1,0 +1,5 @@
+protocol=imap; type=store; class=org.apache.commons.mail.imap.IMAPStore; vendor=Apache Software Foundation; version=1.0
+protocol=pop3; type=store; class=org.apache.commons.mail.pop3.POP3Store; vendor=Apache Software Foundation; version=1.0
+protocol=pop; type=store; class=org.apache.commons.mail.pop3.POP3Store; vendor=Apache Software Foundation; version=1.0
+protocol=smtp; type=transport; class=org.apache.commons.mail.smtp.SMTPTransport; vendor=Apache Software Foundation; version=1.0
+protocol=nntp; type=transport; class=org.apache.commons.mail.nntp.NNTPTransport; vendor=Apache Software Foundation; version=1.0

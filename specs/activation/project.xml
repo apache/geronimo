@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Revision $ $Date $ -->
+
+<project>
+  <pomVersion>3</pomVersion>
+  <extend>${basedir}/../../etc/project.xml</extend>
+  
+  <name>Geronimo :: Java Activation Framework Specification</name>
+  <groupId>geronimo-spec</groupId>
+  <id>geronimo-spec-activation</id>
+  <shortDescription></shortDescription>
+  <description></description>
+  <siteDirectory></siteDirectory>
+  <distributionDirectory></distributionDirectory>
+  
+  <package>javax</package>
+  <currentVersion>DEV</currentVersion>
+
+</project>
