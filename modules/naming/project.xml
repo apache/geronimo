@@ -17,7 +17,7 @@
 -->
 
 
-<!-- $Revision: 1.14 $ $Date: 2004/08/06 22:44:37 $ -->
+<!-- $Revision: 1.15 $ $Date: 2004/09/01 16:39:32 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -119,6 +119,14 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/test-data</directory>
+                <includes>
+                    <include>*.properties</include>
+                </includes>
+            </resource>
+        </resources>
         <unitTest>
            <includes>
                 <include>**/*Test.java</include>
