@@ -56,11 +56,13 @@
 package org.apache.geronimo.gbean;
 
 /**
+ * Unchecked Exception indicating that the GBeanInfo is invalid.
+ * This is unchecked becuase in many circumstances the GBeanInfo
+ * is set up in a static initializer and should always be valid.
  *
- *
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:38:55 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/05 19:25:18 $
  */
-public class InvalidConfigurationException extends Exception {
+public class InvalidConfigurationException extends RuntimeException {
     public InvalidConfigurationException() {
     }
 
