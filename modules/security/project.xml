@@ -65,13 +65,12 @@
             <artifactId>geronimo-remoting</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
-	-->
-
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-network</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
+	-->
 
         <dependency>
             <groupId>geronimo</groupId>

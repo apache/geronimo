@@ -31,6 +31,7 @@ import org.activeio.adapter.PacketInputStream;
 import org.activeio.adapter.PacketOutputStream;
 import org.activeio.packet.AppendedPacket;
 import org.activeio.packet.ByteArrayPacket;
+import org.activeio.packet.FilterPacket;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.SubjectId;
@@ -56,6 +57,10 @@ public class SubjectCarryingChannel extends FilterAsynchChannel {
     private final boolean enableLocalSubjectPublishing;
     private final boolean enableRemoteSubjectConsumption;
 
+    public SubjectCarryingChannel(AsynchChannel next) {
+        this(next, true, true);
+    }
+    
     public SubjectCarryingChannel(AsynchChannel next, boolean enableLocalSubjectPublishing, boolean enableRemoteSubjectConsumption) {
         super(next);
         this.enableLocalSubjectPublishing = enableLocalSubjectPublishing;
@@ -104,8 +109,19 @@ public class SubjectCarryingChannel extends FilterAsynchChannel {
             	    SubjectId subjectId = extractSubjectId(packet);
             	    localSubject = ContextManager.getRegisteredSubject(subjectId);
                     return;
-            	case PASSTHROUGH:        	    
-                    super.onPacket(packet);
+            	case PASSTHROUGH:
+                    super.onPacket(new FilterPacket(packet){
+                        public Object narrow(Class target) {
+                            if( target == SubjectContext.class ) {
+                                return new SubjectContext() {
+                                    public Subject getSubject() {
+                                        return remoteSubject;
+                                    }
+                                };
+                            }
+                            return super.narrow(target);
+                        }
+                    });
             }
         } catch (IOException e) {
             super.onPacketError(e);
@@ -141,6 +157,14 @@ public class SubjectCarryingChannel extends FilterAsynchChannel {
     private Packet createPassthroughPacket(Packet packet) {
         header.clear().write(PASSTHROUGH);        
         return new AppendedPacket(header.flip(),packet);
+    }
+
+    public Subject getLocalSubject() {
+        return localSubject;
+    }
+
+    public Subject getRemoteSubject() {
+        return remoteSubject;
     }
     
 }
