@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.18 $ $Date: 2003/09/29 19:34:10 $ -->
+<!-- $Revision: 1.19 $ $Date: 2003/10/06 14:35:33 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -31,7 +31,7 @@
   <postGoal name="jar:jar">
     <ant:jar destfile="${basedir}/target/jsr88-geronimo-plugin.jar"
              basedir="${basedir}/target/classes"
-             includes="org/apache/geronimo/enterprise/deploy/provider/**/*.class"
+             includes="org/apache/geronimo/enterprise/deploy/server/**/*.class"
              manifest="${basedir}/src/etc/jsr88-product-provider-manifest.mf" />
   </postGoal>
   

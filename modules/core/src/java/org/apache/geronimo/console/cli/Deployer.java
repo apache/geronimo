@@ -73,13 +73,13 @@ import org.apache.geronimo.enterprise.deploy.tool.EjbDeployableObject;
 /**
  * Initializes a command-line JSR-88 deployer.
  *
- * @version $Revision: 1.4 $ $Date: 2003/10/01 21:55:15 $
+ * @version $Revision: 1.5 $ $Date: 2003/10/06 14:35:33 $
  */
 public class Deployer {
     private static final Log log = LogFactory.getLog(Deployer.class);
     static {
         try {
-            Class.forName("org.apache.geronimo.enterprise.deploy.provider.GeronimoDeploymentFactory");
+            Class.forName("org.apache.geronimo.enterprise.deploy.server.GeronimoDeploymentFactory");
         } catch(ClassNotFoundException e) {
             log.error("Unable to load Geronimo JSR-88 implementation");
         }
