@@ -94,6 +94,11 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
      */
     private ObjectName blocker;
 
+    /**
+     * Is this gbean enabled?  A disabled gbean can not be started.
+     */
+    private boolean enabled = true;
+
     // This must be volatile otherwise getState must be synchronized which will result in deadlock as dependent
     // objects check if each other are in one state or another (i.e., classic A calls B while B calls A)
     private volatile State state = State.STOPPED;
@@ -184,6 +189,24 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
         return objectName;
     }
 
+    /**
+     * Is this gbean enabled.  A disabled gbean can not be started.
+     *
+     * @return true if the gbean is enabled and can be started
+     */
+    public synchronized final boolean isEnabled() {
+        return enabled;
+    }
+
+    /**
+     * Changes the enabled status.
+     *
+     * @param enabled the new enabled flag
+     */
+    public synchronized final void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
     public DependencyManager getDependencyManager() {
         return dependencyManager;
     }
@@ -272,6 +295,9 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
             if (state == State.STARTING || state == State.RUNNING) {
                 return;
             }
+            if (!enabled) {
+                throw new IllegalStateException("A disabled GBean can not be started: objectName=" + objectName);
+            }
             setStateInstance(State.STARTING);
         }
         sendNotification(State.STARTING.getEventTypeValue());
@@ -306,13 +332,21 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
         Set dependents = dependencyManager.getChildren(objectName);
         for (Iterator iterator = dependents.iterator(); iterator.hasNext();) {
             ObjectName dependent = (ObjectName) iterator.next();
+            boolean enabled = true;
             try {
-                server.invoke(dependent, "startRecursive", null, null);
-            } catch (ReflectionException e) {
-                if (e.getTargetException() instanceof NoSuchMethodException) {
-                    // did not have a startRecursive method - ok
-                } else {
-                    throw e;
+                enabled = ((Boolean) server.getAttribute(dependent, "gbeanEnabled")).booleanValue();
+            } catch (AttributeNotFoundException e) {
+                // this is ok didn't have the attribute....
+            }
+            if (enabled) {
+                try {
+                    server.invoke(dependent, "startRecursive", null, null);
+                } catch (ReflectionException e) {
+                    if (e.getTargetException() instanceof NoSuchMethodException) {
+                        // did not have a startRecursive method - ok
+                    } else {
+                        throw e;
+                    }
                 }
             }
         }

@@ -154,7 +154,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     private final Class type;
 
     /**
-     * Is this gbean off line?
+     * Is this gbean offline?
      */
     private boolean offline = true;
 
@@ -933,6 +933,23 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                         "kernel",
                         Kernel.class,
                         null));
+
+        attributesMap.put("gbeanEnabled",
+                new GBeanMBeanAttribute(this,
+                        "gbeanEnabled",
+                        Boolean.TYPE,
+                        new MethodInvoker() {
+                            public Object invoke(Object target, Object[] arguments) throws Exception {
+                                return new Boolean(isEnabled());
+                            }
+                        },
+                        new MethodInvoker() {
+                            public Object invoke(Object target, Object[] arguments) throws Exception {
+                                Boolean enabled = (Boolean) arguments[0];
+                                setEnabled(enabled.booleanValue());
+                                return null;
+                            }
+                        }));
 
         //
         // Normal attributes
