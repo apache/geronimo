@@ -38,9 +38,8 @@ import org.apache.geronimo.kernel.jmx.KernelMBean;
 /**
  * @version $Rev$ $Date$
  */
-public class DistributeCommand extends CommandSupport {
+public class DistributeCommand extends AbstractDeployCommand {
     private static final String[] DEPLOY_SIG = {File.class.getName(), File.class.getName()};
-    private final KernelMBean kernel;
     private final Target[] targetList;
     private final boolean spool;
     private File moduleArchive;
@@ -49,8 +48,7 @@ public class DistributeCommand extends CommandSupport {
     private InputStream deploymentStream;
 
     public DistributeCommand(KernelMBean kernel, Target[] targetList, File moduleArchive, File deploymentPlan) {
-        super(CommandType.DISTRIBUTE);
-        this.kernel = kernel;
+        super(CommandType.DISTRIBUTE, kernel);
         this.targetList = targetList;
         this.moduleArchive = moduleArchive;
         this.deploymentPlan = deploymentPlan;
@@ -58,8 +56,7 @@ public class DistributeCommand extends CommandSupport {
     }
 
     public DistributeCommand(KernelMBean kernel, Target[] targetList, InputStream moduleStream, InputStream deploymentStream) {
-        super(CommandType.DISTRIBUTE);
-        this.kernel = kernel;
+        super(CommandType.DISTRIBUTE, kernel);
         this.targetList = targetList;
         this.moduleArchive = null ;
         this.deploymentPlan = null;
@@ -80,15 +77,9 @@ public class DistributeCommand extends CommandSupport {
                     copyTo(deploymentPlan, deploymentStream);
                 }
             }
-            Set deployers = kernel.listGBeans(new ObjectName("*:role=Deployer,*"));
-            if (deployers.isEmpty()) {
-                fail("No deployer present in kernel");
+            ObjectName deployer = getDeployerName();
+            if (deployer == null) {
                 return;
-            }
-            Iterator i = deployers.iterator();
-            ObjectName deployer = (ObjectName) i.next();
-            if (i.hasNext()) {
-                throw new UnsupportedOperationException("More than one deployer found");
             }
 
             Object[] args = {moduleArchive, deploymentPlan};

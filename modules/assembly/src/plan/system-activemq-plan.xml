@@ -45,18 +45,18 @@
     -->
 
     <!-- message broker -->
-    <gbean name="geronimo.server:type=JMSServer,container=ActiveMQ" class="org.codehaus.activemq.gbean.ActiveMQContainerGBean">
-        <reference name="serverInfo">geronimo.system:role=ServerInfo</reference>
+    <gbean namePart="ActiveMQJMSServer" class="org.codehaus.activemq.gbean.ActiveMQContainerGBean">
+        <reference name="serverInfo">geronimo.system:name=ServerInfo</reference>
         <attribute name="brokerName" type="java.lang.String">possibly-unique-broker</attribute>
         <attribute name="dataDirectory" type="java.lang.String">var/activemq</attribute>    
     </gbean>
-    <gbean name='geronimo.server:type=JMSConnector,container=ActiveMQ,url="tcp://localhost:61616"' class="org.codehaus.activemq.gbean.ActiveMQConnectorGBean">
+    <gbean namePart='"tcp://localhost:61616"' type="JMSConnector" class="org.codehaus.activemq.gbean.ActiveMQConnectorGBean">
         <attribute name="Url" type="java.lang.String">tcp://localhost:61616</attribute>
-        <reference name="ActiveMQContainer">geronimo.server:type=JMSServer,container=ActiveMQ</reference>
+        <reference name="ActiveMQContainer">geronimo.server:name=ActiveMQJMSServer,*</reference>
     </gbean>
-    <gbean name='geronimo.server:type=JMSConnector,container=ActiveMQ,url="vm://localhost"' class="org.codehaus.activemq.gbean.ActiveMQConnectorGBean">
+    <gbean namePart='"vm://localhost"' type="JMSConnector" class="org.codehaus.activemq.gbean.ActiveMQConnectorGBean">
         <attribute name="Url" type="java.lang.String">vm://localhost</attribute>
-        <reference name="ActiveMQContainer">geronimo.server:type=JMSServer,container=ActiveMQ</reference>
+        <reference name="ActiveMQContainer">geronimo.server:name=ActiveMQJMSServer,*</reference>
     </gbean>
   
 </configuration>

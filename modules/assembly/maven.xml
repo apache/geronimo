@@ -208,7 +208,7 @@
             deployerSystemPlan="${basedir}/target/plan/deployer-system-plan.xml"
             j2eeDeployerPlan="${basedir}/target/plan/j2ee-deployer-plan.xml"
             deployerClassPath="${deploy.classpath}"
-            deployerGBean="geronimo.deployment:role=Deployer,config=org/apache/geronimo/J2EEDeployer"
+            deployerGBean="geronimo.server:name=Deployer,J2EEApplication=null,J2EEModule=org/apache/geronimo/J2EEDeployer,j2eeType=Deployer,J2EEServer=geronimo"
             deploymentFactory="org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl"
             />
 
@@ -327,12 +327,12 @@
         <ant:copy todir="${distDir}/var/catalina/conf"  file="${project.root}/modules/tomcat/src/var/web.xml"/>
 
         <!-- build the Demo configuration -->
-        <ant:echo>Building demo website configuration</ant:echo>
-        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
-            <ant:jvmarg value="-ea"/>
-            <ant:arg value="distribute"/>
-            <ant:arg value="${maven.repo.local}/geronimo/wars/geronimo-demo-${pom.currentVersion}.war"/>
-        </ant:java>
+<!--        <ant:echo>Building demo website configuration</ant:echo>-->
+<!--        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">-->
+<!--            <ant:jvmarg value="-ea"/>-->
+<!--            <ant:arg value="distribute"/>-->
+<!--            <ant:arg value="${maven.repo.local}/geronimo/wars/geronimo-demo-${pom.currentVersion}.war"/>-->
+<!--        </ant:java>-->
 
         <!-- build the Debug Tool configuration "org/apache/geronimo/DebugConsole"-->
         <ant:echo>Building debug tool configuration</ant:echo>

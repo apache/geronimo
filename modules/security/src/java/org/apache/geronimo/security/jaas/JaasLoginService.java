@@ -60,7 +60,7 @@ import org.apache.geronimo.security.realm.SecurityRealm;
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
 public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
-    public static final ObjectName OBJECT_NAME = JMXUtil.getObjectName("geronimo.security:type=JaasLoginService");
+    public static final ObjectName OBJECT_NAME = JMXUtil.getObjectName("geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=GBean,name=JaasLoginService");
     public static final Log log = LogFactory.getLog(JaasLoginService.class);
     private final static int DEFAULT_EXPIRED_LOGIN_SCAN_INTERVAL = 300000; // 5 mins
     private final static int DEFAULT_MAX_LOGIN_DURATION =  1000 * 3600 * 24; // 1 day

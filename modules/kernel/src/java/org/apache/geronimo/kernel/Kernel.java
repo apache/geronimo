@@ -108,7 +108,7 @@ public class Kernel {
     /**
      * Te pattern we use to find all the configuation stores registered with the kernel
      */
-    private static final ObjectName CONFIGURATION_STORE_PATTERN = JMXUtil.getObjectName("*:role=ConfigurationStore,*");
+    private static final ObjectName CONFIGURATION_STORE_PATTERN = JMXUtil.getObjectName("*:j2eeType=ConfigurationStore,*");
 
     /**
      * Name of this kernel

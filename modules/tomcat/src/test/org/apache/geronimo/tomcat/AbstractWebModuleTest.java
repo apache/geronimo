@@ -161,7 +161,7 @@ public class AbstractWebModuleTest extends TestCase {
         securityServiceGBean = new GBeanData(securityServiceName, SecurityServiceImpl.GBEAN_INFO);
         securityServiceGBean.setAttribute("policyConfigurationFactory", "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory");
 
-        loginServiceName = new ObjectName("geronimo.security:type=JaasLoginService");
+        loginServiceName = JaasLoginService.OBJECT_NAME;
         loginServiceGBean = new GBeanData(loginServiceName, JaasLoginService.GBEAN_INFO);
         loginServiceGBean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
         // loginServiceGBean.setAttribute("reclaimPeriod", new Long(1000 *
@@ -224,8 +224,8 @@ public class AbstractWebModuleTest extends TestCase {
         connectorName = NameFactory.getWebComponentName(null, null, null, null, "tomcatConnector", "WebResource", moduleContext);
         webModuleName = NameFactory.getWebComponentName(null, null, null, null, NameFactory.WEB_MODULE, "WebResource", moduleContext);
 
-        tmName = NameFactory.getComponentName(null, null, "TransactionManager", NameFactory.JTA_RESOURCE, moduleContext);
-        tcmName = NameFactory.getComponentName(null, null, "TransactionContextManager", NameFactory.JTA_RESOURCE, moduleContext);
+        tmName = NameFactory.getComponentName(null, null, null, null, "TransactionManager", NameFactory.JTA_RESOURCE, moduleContext);
+        tcmName = NameFactory.getComponentName(null, null, null, null, "TransactionContextManager", NameFactory.JTA_RESOURCE, moduleContext);
         ctcName = new ObjectName("geronimo.test:role=ConnectionTrackingCoordinator");
 
         kernel = new Kernel("test.kernel");

@@ -176,6 +176,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             // if we got one extract the validate it otherwise create a default one
             if (gerApplicationDoc != null) {
                 gerApplicationDoc = (GerApplicationDocument) SchemaConversionUtils.convertToGeronimoServiceSchema(gerApplicationDoc);
+                gerApplicationDoc = (GerApplicationDocument) SchemaConversionUtils.convertToGeronimoNamingSchema(gerApplicationDoc);
+                gerApplicationDoc = (GerApplicationDocument) SchemaConversionUtils.convertToGeronimoSecuritySchema(gerApplicationDoc);
                 SchemaConversionUtils.validateDD(gerApplicationDoc);
                 gerApplication = gerApplicationDoc.getApplication();
             } else {
@@ -325,7 +327,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             // add gbeans declared in the geronimo-application.xml
             if (geronimoApplication != null) {
                 GbeanType[] gbeans = geronimoApplication.getGbeanArray();
-                ServiceConfigBuilder.addGBeans(gbeans, cl, earContext);
+                ServiceConfigBuilder.addGBeans(gbeans, cl, earContext.getJ2eeContext(), earContext);
             }
 
             // Create the J2EEApplication managed object

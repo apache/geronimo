@@ -189,6 +189,10 @@ public class DeploymentContext {
         gbeans.put(gbean.getName(), gbean);
     }
 
+    public Set getGBeanNames() {
+        return Collections.unmodifiableSet(gbeans.keySet());
+    }
+
     public void addDependency(URI uri) {
         dependencies.add(uri);
     }
@@ -337,6 +341,12 @@ public class DeploymentContext {
         addFile(getTargetFile(targetPath), new ByteArrayInputStream(source.getBytes()));
     }
 
+    public void addClass(URI location, String fqcn, byte[] bytes) throws IOException, URISyntaxException {
+        classPath.add(location);
+        String classFileName = fqcn.replace('.', '/') + ".class";
+        addFile(getTargetFile(new URI(location.toString() + "/" + classFileName)), new ByteArrayInputStream(bytes));
+    }
+
     private void addFile(File targetFile, ZipFile zipFile, ZipEntry zipEntry) throws IOException {
         if (zipEntry.isDirectory()) {
             targetFile.mkdirs();
@@ -462,7 +472,7 @@ public class DeploymentContext {
                 }
             }
             config.setAttribute("gBeanState", Configuration.storeGBeans(gbeanArray));
-            config.setReferencePatterns("Repositories", Collections.singleton(new ObjectName("*:role=Repository,*")));
+            config.setReferencePatterns("Repositories", Collections.singleton(new ObjectName("*:name=Repository,*")));
             config.setAttribute("dependencies", new ArrayList(dependencies));
             config.setAttribute("classPath", new ArrayList(classPath));
         } catch (Exception e) {

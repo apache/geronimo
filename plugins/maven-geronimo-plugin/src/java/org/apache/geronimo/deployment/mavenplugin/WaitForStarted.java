@@ -31,7 +31,7 @@ import org.apache.geronimo.kernel.management.State;
 
 public class WaitForStarted extends AbstractModuleCommand {
 
-    private int maxTries = 20;
+    private int maxTries = 40;
 
     private MBeanServerConnection mbServerConnection;
     private KernelMBean kernel;

@@ -76,6 +76,7 @@ public class NameFactory {
     public static final String WEB_FILTER = "WebFilter";
     public static final String WEB_FILTER_MAPPING = "WebFilterMapping";
     public static final String URL_PATTERN = "URLPattern";
+    public static final String GERONIMO_SERVICE = "GBean";
 
     public static ObjectName getDomainName(String j2eeDomainName, J2eeContext context) throws MalformedObjectNameException {
         Properties props = new Properties();
@@ -202,11 +203,16 @@ public class NameFactory {
     }
 
     //for non-j2ee-deployable resources such as the transaction manager
-    public static ObjectName getComponentName(String j2eeDomainName, String j2eeServerName, String j2eeName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
+    public static ObjectName getComponentName(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName, String j2eeName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
         Properties props = new Properties();
         props.put(J2EE_TYPE, context.getJ2eeType(j2eeType));
         props.put(J2EE_SERVER, context.getJ2eeServerName(j2eeServerName));
         props.put(J2EE_NAME, context.getJ2eeName(j2eeName));
+        props.put(J2EE_APPLICATION, context.getJ2eeApplicationName(j2eeApplicationName));
+        //TODO add module type
+        if (context.getJ2eeModuleName(j2eeModuleName) != null) {
+            props.put(J2EE_MODULE, context.getJ2eeModuleName(j2eeModuleName));
+        }
         return ObjectName.getInstance(context.getJ2eeDomainName(j2eeDomainName), props);
     }
 

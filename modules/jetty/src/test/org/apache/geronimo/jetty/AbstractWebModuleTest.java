@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
@@ -38,8 +37,8 @@ import org.apache.geronimo.jetty.connector.HTTPConnector;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.security.SecurityServiceImpl;
-import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.deploy.Principal;
+import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
 import org.apache.geronimo.security.jaas.JaasLoginService;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
@@ -164,22 +163,22 @@ public class AbstractWebModuleTest extends TestCase {
         loginConfigurationName = new ObjectName("geronimo.security:type=LoginConfiguration");
         loginConfigurationGBean = new GBeanData(loginConfigurationName, GeronimoLoginConfiguration.getGBeanInfo());
         Set configurations = new HashSet();
-        configurations.add(new ObjectName("geronimo.security:type=SecurityRealm,*"));
-        configurations.add(new ObjectName("geronimo.security:type=ConfigurationEntry,*"));
+        configurations.add(new ObjectName("geronimo.server:j2eeType=SecurityRealm,*"));
+        configurations.add(new ObjectName("geronimo.server:j2eeType=ConfigurationEntry,*"));
         loginConfigurationGBean.setReferencePatterns("Configurations", configurations);
 
-        securityServiceName = new ObjectName("geronimo.security:type=SecurityService");
+        securityServiceName = new ObjectName("geronimo.server:j2eeType=SecurityService");
         securityServiceGBean = new GBeanData(securityServiceName, SecurityServiceImpl.GBEAN_INFO);
         securityServiceGBean.setAttribute("policyConfigurationFactory", "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory");
 
-        loginServiceName = new ObjectName("geronimo.security:type=JaasLoginService");
+        loginServiceName = JaasLoginService.OBJECT_NAME;
         loginServiceGBean = new GBeanData(loginServiceName, JaasLoginService.GBEAN_INFO);
-        loginServiceGBean.setReferencePattern("Realms", new ObjectName("geronimo.security:type=SecurityRealm,*"));
+        loginServiceGBean.setReferencePattern("Realms", new ObjectName("geronimo.server:j2eeType=SecurityRealm,*"));
 //        loginServiceGBean.setAttribute("reclaimPeriod", new Long(1000 * 1000));
         loginServiceGBean.setAttribute("algorithm", "HmacSHA1");
         loginServiceGBean.setAttribute("password", "secret");
 
-        serverInfoName = new ObjectName("geronimo.system:role=ServerInfo");
+        serverInfoName = new ObjectName("geronimo.system:name=ServerInfo");
         serverInfoGBean = new GBeanData(serverInfoName, ServerInfo.GBEAN_INFO);
         serverInfoGBean.setAttribute("baseDirectory", ".");
 
@@ -193,7 +192,7 @@ public class AbstractWebModuleTest extends TestCase {
         propertiesLMGBean.setAttribute("options", options);
         propertiesLMGBean.setAttribute("loginDomainName", "demo-properties-realm");
 
-        propertiesRealmName = new ObjectName("geronimo.security:type=SecurityRealm,realm=demo-properties-realm");
+        propertiesRealmName = new ObjectName("geronimo.server:j2eeType=SecurityRealm,name=demo-properties-realm");
         propertiesRealmGBean = new GBeanData(propertiesRealmName, GenericSecurityRealm.GBEAN_INFO);
         propertiesRealmGBean.setReferencePattern("ServerInfo", serverInfoName);
         propertiesRealmGBean.setAttribute("realmName", "demo-properties-realm");
@@ -241,8 +240,8 @@ public class AbstractWebModuleTest extends TestCase {
         connectorName = NameFactory.getWebComponentName(null, null, null, null, "jettyConnector", "WebResource", moduleContext);
         webModuleName = NameFactory.getWebComponentName(null, null, null, null, NameFactory.WEB_MODULE, "WebResource", moduleContext);
 
-        tmName = NameFactory.getComponentName(null, null, "TransactionManager", NameFactory.JTA_RESOURCE, moduleContext);
-        tcmName = NameFactory.getComponentName(null, null, "TransactionContextManager", NameFactory.JTA_RESOURCE, moduleContext);
+        tmName = NameFactory.getComponentName(null, null, null, null, "TransactionManager", NameFactory.JTA_RESOURCE, moduleContext);
+        tcmName = NameFactory.getComponentName(null, null, null, null, "TransactionContextManager", NameFactory.JTA_RESOURCE, moduleContext);
         ctcName = new ObjectName("geronimo.test:role=ConnectionTrackingCoordinator");
 
         kernel = new Kernel("test.kernel");

@@ -58,12 +58,12 @@
         </outbound-resourceadapter>
     </resourceadapter>
 
-    <gbean name="geronimo.server:role=DerbySystem" class="org.apache.geronimo.derby.DerbySystemGBean">
-        <reference name="serverInfo">geronimo.system:role=ServerInfo</reference>
+    <gbean namePart="DerbySystem" class="org.apache.geronimo.derby.DerbySystemGBean">
+        <reference name="serverInfo">geronimo.system:name=ServerInfo,*</reference>
         <attribute name="derbySystemHome" type="java.lang.String">var/derby</attribute>
     </gbean>
-    <gbean name="geronimo.server:role=DerbyNetwork" class="org.apache.geronimo.derby.DerbyNetworkGBean">
-        <reference name="derbySystem">geronimo.server:role=DerbySystem</reference>
+    <gbean namePart="DerbyNetwork" class="org.apache.geronimo.derby.DerbyNetworkGBean">
+        <reference name="derbySystem">geronimo.server:name=DerbySystem,*</reference>
         <attribute name="host" type="java.lang.String">127.0.0.1</attribute>
         <attribute name="port" type="int">1527</attribute>
     </gbean>

@@ -18,6 +18,7 @@
 package org.apache.geronimo.gbean.runtime;
 
 import java.util.Set;
+import java.util.Iterator;
 import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
@@ -66,10 +67,10 @@ public class GBeanSingleReference extends AbstractGBeanReference {
         Set targets = getTargets();
         if (targets.size() == 0) {
             waitingForMe = true;
-            throw new WaitingException("No targets are running for " + getName() + " reference");
+            throw new WaitingException("No targets are running for " + getName() + " reference matching patterns " + getPatternsText());
         } else if (targets.size() > 1) {
             waitingForMe = true;
-            throw new WaitingException("More then one targets are running for " + getName() + " reference");
+            throw new WaitingException("More then one targets are running for " + getName() + " reference matching patterns " + getPatternsText());
         }
         waitingForMe = false;
 
@@ -83,6 +84,16 @@ public class GBeanSingleReference extends AbstractGBeanReference {
         setProxy(getKernel().getProxyManager().createProxy(target, getReferenceType()));
         proxyTarget = target;
         dependencyManager.addDependency(objectName, target);
+    }
+
+    private String getPatternsText() {
+        StringBuffer buf = new StringBuffer();
+        Set patterns = getPatterns();
+        for (Iterator iterator = patterns.iterator(); iterator.hasNext();) {
+            ObjectName objectName = (ObjectName) iterator.next();
+            buf.append(objectName.getCanonicalName()).append(" ");
+        }
+        return buf.toString();
     }
 
     public synchronized void stop() {

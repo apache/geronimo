@@ -28,8 +28,6 @@
         <xsd:documentation>
             <![CDATA[
             Partial schema containing common naming elements which can be included in other schemas.
-            This schema does not define a targetNamespace and so all definitions from this
-            schema instance will end up in the targetNamespace of the including document.
             ]]>
         </xsd:documentation>
     </xsd:annotation>
@@ -131,6 +129,19 @@
             <xsd:choice>
                 <xsd:group ref="gernaming:objectNameGroup"/>
                 <xsd:element name="message-destination-link" type="xsd:string"/>
+                <xsd:element name="target-name" type="xsd:string"/>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <!--used by resource adapter -->
+    <xsd:element name="workmanager" type="gernaming:gbean-locatorType"/>
+
+    <xsd:complexType name="gbean-locatorType">
+        <xsd:sequence>
+            <xsd:choice>
+                <xsd:group ref="gernaming:objectNameGroup"/>
+                <xsd:element name="gbean-link" type="xsd:string"/>
                 <xsd:element name="target-name" type="xsd:string"/>
             </xsd:choice>
         </xsd:sequence>

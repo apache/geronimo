@@ -86,6 +86,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
         InputStream geronimoInputStream = geronimoDD.openStream();
         GerConnectorDocument connectorDocument = GerConnectorDocument.Factory.parse(geronimoInputStream);
         connectorDocument = (GerConnectorDocument)SchemaConversionUtils.convertToGeronimoServiceSchema(connectorDocument);
+        connectorDocument = (GerConnectorDocument)SchemaConversionUtils.convertToGeronimoNamingSchema(connectorDocument);
         assertEquals(1, connectorDocument.getConnector().getResourceadapterArray().length);
         if (!connectorDocument.validate(xmlOptions)) {
             fail(errors.toString());
@@ -181,7 +182,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
             kernel = new Kernel("blah");
             kernel.boot();
 
-            ObjectName serverInfoObjectName = ObjectName.getInstance(j2eeContext.getJ2eeDomainName() + ":type=ServerInfo");
+            ObjectName serverInfoObjectName = ObjectName.getInstance(j2eeContext.getJ2eeDomainName() + ":name=ServerInfo");
             GBeanData serverInfoGBean = new GBeanData(serverInfoObjectName, ServerInfo.GBEAN_INFO);
             serverInfoGBean.setAttribute("baseDirectory", ".");
             kernel.loadGBean(serverInfoGBean, cl);

@@ -24,7 +24,9 @@
         <resourceadapter-instance>
             <resourceadapter-name>testRA</resourceadapter-name>
             <config-property-setting name="RAStringProperty">NewStringValue</config-property-setting>
-            <workmanager-name>DefaultWorkManager</workmanager-name>
+            <workmanager>
+                <gbean-link>DefaultWorkManager</gbean-link>
+            </workmanager>
         </resourceadapter-instance>
         <outbound-resourceadapter>
             <connection-definition>
@@ -105,7 +107,7 @@
     <gbean name="geronimo.connector:service=ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
     </gbean>
 
-    <gbean name="test.domain:J2EEServer=testServer,j2eeType=JCAWorkManager,name=DefaultWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManager">
+    <gbean namePart="DefaultWorkManager" type="JCAWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManager">
         <attribute name="syncMaximumPoolSize" type="int">10</attribute>
         <attribute name="startMaximumPoolSize" type="int">10</attribute>
         <attribute name="scheduledMaximumPoolSize" type="int">10</attribute>

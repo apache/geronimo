@@ -18,8 +18,6 @@ package org.apache.geronimo.deployment.plugin.local;
 
 import java.io.File;
 import java.net.URI;
-import java.util.Iterator;
-import java.util.Set;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.management.ObjectName;
@@ -27,38 +25,28 @@ import javax.management.ObjectName;
 import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.kernel.jmx.KernelMBean;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.jmx.KernelMBean;
 
 /**
  * @version $Rev$ $Date$
  */
-public class RedeployCommand extends CommandSupport {
+public class RedeployCommand extends AbstractDeployCommand {
     private static final String[] DEPLOY_SIG = {File.class.getName(), File.class.getName()};
     private static final String[] UNINSTALL_SIG = {URI.class.getName()};
-    private final KernelMBean kernel;
     private final TargetModuleID[] modules;
     private final File moduleArchive;
     private final File deploymentPlan;
 
     public RedeployCommand(KernelMBean kernel, TargetModuleID modules[], File moduleArchive, File deploymentPlan) {
-        super(CommandType.START);
-        this.kernel = kernel;
+        super(CommandType.START, kernel);
         this.modules = modules;
         this.moduleArchive = moduleArchive;
         this.deploymentPlan = deploymentPlan;
     }
 
     public void run() {
-        Set deployers = kernel.listGBeans(JMXUtil.getObjectName("geronimo.deployment:role=Deployer,*"));
-        if (deployers.isEmpty()) {
-            fail("No deployer present in kernel");
+        ObjectName deployer = getDeployerName();
+        if (deployer == null) {
             return;
-        }
-        Iterator j = deployers.iterator();
-        ObjectName deployer = (ObjectName) j.next();
-        if (j.hasNext()) {
-            throw new UnsupportedOperationException("More than one deployer found");
         }
 
         try {
@@ -67,7 +55,7 @@ public class RedeployCommand extends CommandSupport {
 
                 URI configID = URI.create(module.getModuleID());
                 kernel.stopConfiguration(configID);
-                
+
                 TargetImpl target = (TargetImpl) module.getTarget();
                 ObjectName storeName = target.getObjectName();
                 kernel.invoke(storeName, "uninstall", new Object[]{configID}, UNINSTALL_SIG);

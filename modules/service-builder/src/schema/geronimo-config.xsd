@@ -15,7 +15,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-  
+
 <xs:schema
     targetNamespace="http://geronimo.apache.org/xml/ns/deployment"
     xmlns:sys="http://geronimo.apache.org/xml/ns/deployment"
@@ -32,7 +32,7 @@
         </xs:documentation>
     </xs:annotation>
 
-<!--    <xs:include schemaLocation="geronimo-common.xsd"/>-->
+    <!--    <xs:include schemaLocation="geronimo-common.xsd"/>-->
 
     <xs:element name="configuration" type="sys:configurationType"/>
 
@@ -67,7 +67,9 @@
             <xs:element name="references" type="sys:referencesType"/>
         </xs:choice>
         <xs:attribute name="name" type="xs:string"/>
-        <xs:attribute name="class" type="xs:string"/>
+        <xs:attribute name="namePart" type="xs:string"/>
+        <xs:attribute name="type" type="xs:string" use="optional"/>
+        <xs:attribute name="class" type="xs:string" use="required"/>
     </xs:complexType>
 
     <xs:complexType name="attributeType">

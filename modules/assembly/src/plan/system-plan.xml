@@ -33,43 +33,43 @@ specific services - those should be provided by children.
     >
 
     <!-- ServerInfo service -->
-    <gbean name="geronimo.system:role=ServerInfo" class="org.apache.geronimo.system.serverinfo.ServerInfo"/>
+    <gbean namePart="ServerInfo" class="org.apache.geronimo.system.serverinfo.ServerInfo"/>
 
     <!-- URLFactory service -->
-    <gbean name="geronimo.system:role=URLFactory" class="org.apache.geronimo.system.url.GeronimoURLFactory"/>
+    <gbean namePart="URLFactory" class="org.apache.geronimo.system.url.GeronimoURLFactory"/>
 
     <!-- Configuration Store service -->
-    <gbean name="geronimo.system:role=ConfigurationStore,type=Local" class="org.apache.geronimo.system.configuration.LocalConfigStore">
+    <gbean namePart="Local" type="ConfigurationStore" class="org.apache.geronimo.system.configuration.LocalConfigStore">
         <attribute name="root" type="java.net.URI">config-store</attribute>
-        <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
+        <reference name="ServerInfo">geronimo.server:name=ServerInfo,*</reference>
     </gbean>
 
     <!-- Persistent List of running Configurations service -->
-    <gbean name="geronimo.boot:role=PersistentConfigurationList" class="org.apache.geronimo.system.configuration.FileConfigurationList">
-        <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
+    <gbean namePart="PersistentConfigurationList" class="org.apache.geronimo.system.configuration.FileConfigurationList">
+        <reference name="ServerInfo">geronimo.server:name=ServerInfo,*</reference>
         <attribute name="configFile" type="java.lang.String">var/config/config.list</attribute>
     </gbean>
 
     <!-- Repository -->
-    <gbean name="geronimo.system:role=Repository" class="org.apache.geronimo.system.repository.ReadOnlyRepository">
+    <gbean namePart="Repository" class="org.apache.geronimo.system.repository.ReadOnlyRepository">
         <attribute name="root" type="java.net.URI">repository/</attribute>
-        <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
+        <reference name="ServerInfo">geronimo.server:name=ServerInfo,*</reference>
     </gbean>
 
     <!-- Logging service -->
-    <gbean name="geronimo.system:role=Logger" class="org.apache.geronimo.system.logging.log4j.Log4jService">
+    <gbean namePart="Logger" class="org.apache.geronimo.system.logging.log4j.Log4jService">
         <attribute name="configurationFile">var/log/server-log4j.properties</attribute>
         <attribute name="refreshPeriod">60</attribute>
-        <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
+        <reference name="ServerInfo">geronimo.server:name=ServerInfo,*</reference>
     </gbean>
 
     <!-- RMI Registry -->
-    <gbean name="geronimo.server:role=RMIRegistry" class="org.apache.geronimo.system.rmi.RMIRegistryService">
+    <gbean namePart="RMIRegistry" class="org.apache.geronimo.system.rmi.RMIRegistryService">
         <attribute name="port" type="int">1099</attribute>
     </gbean>
 
     <!-- Naming properties -->
-    <gbean name="geronimo.server:role=NamingProperties" class="org.apache.geronimo.system.properties.NamingProperties">
+    <gbean namePart="NamingProperties" class="org.apache.geronimo.system.properties.NamingProperties">
         <attribute name="namingFactoryInitial" type="java.lang.String">com.sun.jndi.rmi.registry.RegistryContextFactory</attribute>
         <attribute name="namingFactoryUrlPkgs" type="java.lang.String">org.apache.geronimo.naming</attribute>
         <attribute name="namingProviderUrl" type="java.lang.String">rmi://localhost:1099</attribute>

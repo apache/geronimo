@@ -71,34 +71,28 @@
 
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-naming-builder</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-    
-        <dependency>
-            <groupId>geronimo</groupId>
             <artifactId>geronimo-deployment</artifactId>
             <version>${pom.currentVersion}</version>
-        </dependency> 
+        </dependency>
 
-    <!-- todo: move this once DConfigBean home is selected -->
+        <!-- todo: move this once DConfigBean home is selected -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-deploy-tool</artifactId>
             <version>${pom.currentVersion}</version>
-        </dependency> 
+        </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-test-ddbean</artifactId>
             <version>${pom.currentVersion}</version>
-        </dependency> 
+        </dependency>
 
-     <dependency>
+        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-connector</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
- 
+
 
         <dependency>
             <groupId>geronimo</groupId>
@@ -106,7 +100,7 @@
             <version>${pom.currentVersion}</version>
         </dependency>
 
-      <dependency>
+        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee-builder</artifactId>
             <version>${pom.currentVersion}</version>
@@ -116,6 +110,15 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-naming-builder</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <xmlbeans>true</xmlbeans>
+            </properties>
         </dependency>
 
         <dependency>

@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import javax.management.ObjectName;
+
 import org.activeio.AcceptListener;
 import org.activeio.AsynchChannelServer;
 import org.activeio.Channel;
@@ -40,6 +42,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.proxy.ReflexiveInterceptor;
 import org.apache.geronimo.security.jaas.JaasLoginServiceMBean;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 
 /**
@@ -50,6 +53,9 @@ import org.apache.geronimo.security.jaas.JaasLoginServiceMBean;
  * @version $Rev: 56022 $ $Date: 2004-10-30 01:16:18 -0400 (Sat, 30 Oct 2004) $
  */
 public class JaasLoginServiceRemotingServer implements GBeanLifecycle {
+
+    public static final ObjectName REQUIRED_OBJECT_NAME = JMXUtil.getObjectName("geronimo.remoting:target=JaasLoginServiceRemotingServer");
+    
     private static final Log log = LogFactory.getLog(JaasLoginServiceRemotingServer.class);
     private AsynchChannelServer server;
     private JaasLoginServiceMBean loginService;

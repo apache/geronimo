@@ -231,18 +231,18 @@
             <properties>
                 <repository>true</repository>
             </properties>
-        </dependency>	
-
-	<!--
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-remoting</artifactId>
-            <version>${pom.currentVersion}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
         </dependency>
-	-->
+
+        <!--
+<dependency>
+<groupId>geronimo</groupId>
+<artifactId>geronimo-remoting</artifactId>
+<version>${pom.currentVersion}</version>
+<properties>
+<repository>true</repository>
+</properties>
+</dependency>
+        -->
 
         <dependency>
             <groupId>geronimo</groupId>
@@ -856,32 +856,32 @@
         </dependency>
         
         <!-- JavaMail -->
-	<dependency>
-	    <groupId>geronimo</groupId>
-	    <artifactId>geronimo-mail</artifactId>
-	    <version>${pom.currentVersion}</version>
-	    <properties>
-		<repository>true</repository>
-	    </properties>
-	</dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-mail</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
 
-	<dependency>
-	    <groupId>geronimo-spec</groupId>
-	    <artifactId>geronimo-spec-activation</artifactId>
-	    <version>${geronimo_spec_activation_version}</version>
-	    <properties>
-		<repository>true</repository>
-	    </properties>
-	</dependency>
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-activation</artifactId>
+            <version>${geronimo_spec_activation_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
 
-	<dependency>
-	    <groupId>geronimo-spec</groupId>
-	    <artifactId>geronimo-spec-javamail</artifactId>
-	    <version>${geronimo_spec_javamail_version}</version>
-	    <properties>
-		<repository>true</repository>
-	    </properties>
-	</dependency>
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-javamail</artifactId>
+            <version>${geronimo_spec_javamail_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
 
         <dependency>
             <groupId>axis</groupId>
@@ -953,6 +953,65 @@
                 <repository>true</repository>
             </properties>
         </dependency>
+
+        <!--corba support -->
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-orb</artifactId>
+            <version>${openorb_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-orb-omg</artifactId>
+            <version>${openorb_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-orb-tools</artifactId>
+            <version>${openorb_version}</version>
+            <properties>
+                <lib>true</lib>
+                <deploy>true</deploy>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-tools</artifactId>
+            <version>${openorb_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>avalon</groupId>
+            <artifactId>avalon-framework</artifactId>
+            <version>${avalon_framework_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>avalon</groupId>
+            <artifactId>avalon-logkit</artifactId>
+            <version>${avalon_logkit_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <!-- end corba support-->
+
     </dependencies>
 
 </project>

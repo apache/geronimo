@@ -24,7 +24,7 @@
 
     <context-root>/demo</context-root>
     <context-priority-classloader>false</context-priority-classloader>
-    <login-domain-name>demo-properties-realm</login-domain-name>
+    <security-realm-name>demo-properties-realm</security-realm-name>
     <security>
         <default-principal realm-name="demo-properties-realm">
             <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="izumi"/>

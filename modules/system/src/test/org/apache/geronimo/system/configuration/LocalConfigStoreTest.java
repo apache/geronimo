@@ -133,7 +133,7 @@ public class LocalConfigStoreTest extends TestCase {
             recursiveDelete(root);
             root.mkdir();
 
-            storeName = new ObjectName("geronimo.test:role=ConfigurationStore,name=LocalConfigStore");
+            storeName = new ObjectName("geronimo.test:j2eeType=ConfigurationStore,name=LocalConfigStore");
             GBeanData store = new GBeanData(storeName, LocalConfigStore.getGBeanInfo());
             store.setAttribute("root", root.toURI());
 

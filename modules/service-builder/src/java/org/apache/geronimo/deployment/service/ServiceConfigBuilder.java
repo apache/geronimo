@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.jar.JarFile;
 import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
@@ -49,6 +50,9 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.xmlbeans.XmlException;
 
 /**
@@ -58,13 +62,18 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     private final URI defaultParentId;
     private final Repository repository;
     private final Kernel kernel;
+    private final String j2eeServerName;
+    private final String j2eeDomainName;
 
-    public ServiceConfigBuilder(URI defaultParentId, Repository repository) {
-        this(defaultParentId, repository, null);
+    public ServiceConfigBuilder(URI defaultParentId, Repository repository) throws MalformedObjectNameException {
+        //todo include the objectname as a constructor arg
+        this(defaultParentId, new ObjectName("geronimo.server:name=geronimo"), repository, null);
     }
 
-    public ServiceConfigBuilder(URI defaultParentId, Repository repository, Kernel kernel) {
+    public ServiceConfigBuilder(URI defaultParentId, ObjectName j2eeServer, Repository repository, Kernel kernel) {
         this.defaultParentId = defaultParentId;
+        j2eeServerName = j2eeServer.getKeyProperty("name");
+        j2eeDomainName = j2eeServer.getDomain();
         this.repository = repository;
         this.kernel = kernel;
     }
@@ -114,12 +123,14 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException(e);
         }
+
+        J2eeContext j2eeContext = new J2eeContextImpl(j2eeDomainName, j2eeServerName, NameFactory.NULL, configID.toString(), null, null);
         DependencyType[] includes = configType.getIncludeArray();
         addIncludes(context, includes, repository);
         addDependencies(context, configType.getDependencyArray(), repository);
         ClassLoader cl = context.getClassLoader(repository);
         GbeanType[] gbeans = configType.getGbeanArray();
-        addGBeans(gbeans, cl, context);
+        addGBeans(gbeans, cl, j2eeContext, context);
         context.close();
 
         return Collections.EMPTY_LIST;
@@ -181,18 +192,34 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     }
 
     //TODO returning set of added gbeans is a HACK used only by stuff needing to access security gbeans at deploy time!  REMOVE IT!!
-    public static Set addGBeans(GbeanType[] gbeans, ClassLoader cl, DeploymentContext context) throws DeploymentException {
+    public static Set addGBeans(GbeanType[] gbeans, ClassLoader cl, J2eeContext j2eeContext, DeploymentContext context) throws DeploymentException {
         Set result = new HashSet();
         for (int i = 0; i < gbeans.length; i++) {
-            GBeanData gBeanData = getGBeanData(gbeans[i], cl);
+            GBeanData gBeanData = getGBeanData(gbeans[i], j2eeContext, cl);
             context.addGBean(gBeanData);
             result.add(gBeanData);
         }
         return result;
     }
 
-    public static GBeanData getGBeanData(GbeanType gbean, ClassLoader cl) throws DeploymentException {
-        GBeanBuilder builder = new GBeanBuilder(gbean.getName(), cl, gbean.getClass1());
+    public static GBeanData getGBeanData(GbeanType gbean, J2eeContext j2eeContext, ClassLoader cl) throws DeploymentException {
+        ObjectName objectName;
+        if (gbean.isSetName()) {
+            try {
+                objectName = ObjectName.getInstance(gbean.getName());
+            } catch (MalformedObjectNameException e) {
+                throw new DeploymentException("Invalid ObjectName: " + gbean.getName(), e);
+            }
+        } else {
+            String namePart = gbean.getNamePart();
+            try {
+                String type = gbean.getType();
+                objectName = NameFactory.getComponentName(null, null, null, null, namePart, type == null ? NameFactory.GERONIMO_SERVICE : type, j2eeContext);
+            } catch (MalformedObjectNameException e) {
+                throw new DeploymentException("Invalid ObjectName: " + namePart, e);
+            }
+        }
+        GBeanBuilder builder = new GBeanBuilder(objectName, cl, gbean.getClass1());
 
         // set up attributes
         AttributeType[] attributeArray = gbean.getAttributeArray();
@@ -250,10 +277,11 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         infoFactory.addInterface(ConfigurationBuilder.class);
 
         infoFactory.addAttribute("defaultParentId", URI.class, true);
+        infoFactory.addAttribute("j2eeServer", ObjectName.class, true);
         infoFactory.addReference("Repository", Repository.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
 
-        infoFactory.setConstructor(new String[]{"defaultParentId", "Repository", "kernel"});
+        infoFactory.setConstructor(new String[]{"defaultParentId", "j2eeServer", "Repository", "kernel"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

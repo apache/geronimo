@@ -351,7 +351,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         Map localSecurityRealms = new HashMap();
         if (jettyWebApp != null) {
             GbeanType[] gbeans = jettyWebApp.getGbeanArray();
-            Set added = ServiceConfigBuilder.addGBeans(gbeans, cl, earContext);
+            Set added = ServiceConfigBuilder.addGBeans(gbeans, cl, moduleJ2eeContext, earContext);
             for (Iterator iterator = added.iterator(); iterator.hasNext();) {
                 GBeanData gBeanData = (GBeanData) iterator.next();
                 String className = gBeanData.getGBeanInfo().getClassName();
@@ -374,10 +374,10 @@ public class JettyModuleBuilder implements ModuleBuilder {
         GBeanData webModuleData = new GBeanData(webModuleName, JettyWebAppContext.GBEAN_INFO);
         try {
             Set securityRoles = collectRoleNames(webApp);
-            if (jettyWebApp.isSetLoginDomainName()) {
-                String loginDomainName = jettyWebApp.getLoginDomainName().trim();
-                Security security = SecurityBuilder.buildSecurityConfig(Collections.singleton(loginDomainName),  jettyWebApp.getSecurity(), securityRoles, localSecurityRealms, kernel);
-                webModuleData.setAttribute("loginDomainName", loginDomainName);
+            if (jettyWebApp.isSetSecurityRealmName()) {
+                String securityRealmName = jettyWebApp.getSecurityRealmName().trim();
+                Security security = SecurityBuilder.buildSecurityConfig(Collections.singleton(securityRealmName),  jettyWebApp.getSecurity(), securityRoles, localSecurityRealms, kernel);
+                webModuleData.setAttribute("securityRealmName", securityRealmName);
                 webModuleData.setAttribute("securityConfig", security);
 
                 String policyContextID = webModuleName.getCanonicalName();

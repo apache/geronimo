@@ -76,6 +76,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.reference.GBeanGetResourceRefAddr;
 import org.apache.geronimo.naming.reference.RefAddrContentObjectFactory;
+import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
@@ -198,6 +199,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                 throw new DeploymentException("A connector module must be deployed using a plan");
             }
             gerConnector = (GerConnectorType) SchemaConversionUtils.convertToGeronimoServiceSchema(gerConnector);
+            //for workmanager
+            gerConnector = (GerConnectorType) SchemaConversionUtils.convertToGeronimoNamingSchema(gerConnector);
             SchemaConversionUtils.validateDD(gerConnector);
         } catch (XmlException e) {
             throw new DeploymentException(e);
@@ -378,10 +381,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         GerConnectorType geronimoConnector = (GerConnectorType) module.getVendorDD();
 
         GbeanType[] gbeans = geronimoConnector.getGbeanArray();
-        ServiceConfigBuilder.addGBeans(gbeans, cl, earContext);
-//        for (int i = 0; i < gbeans.length; i++) {
-//            GBeanHelper.addGbean(new RARGBeanAdapter(gbeans[i]), cl, earContext);
-//        }
+        ServiceConfigBuilder.addGBeans(gbeans, cl, moduleJ2eeContext, earContext);
 
         addConnectorGBeans(earContext, moduleJ2eeContext, resourceAdapterModuleName, (ConnectorType) specDD, geronimoConnector, cl);
 
@@ -404,12 +404,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                 setDynamicGBeanDataAttributes(resourceAdapterInstanceGBeanData, geronimoResourceAdapter.getResourceadapterInstance().getConfigPropertySettingArray(), cl);
 
                 // set the work manager name
-                ObjectName workManagerName = null;
-                try {
-                    workManagerName = NameFactory.getComponentName(null, null, geronimoResourceAdapter.getResourceadapterInstance().getWorkmanagerName().trim(), NameFactory.JCA_WORK_MANAGER, moduleJ2eeContext);
-                } catch (MalformedObjectNameException e) {
-                    throw new DeploymentException("Could not construct work manager object name", e);
-                }
+                ObjectName workManagerName = ENCConfigBuilder.getGBeanId(NameFactory.JCA_WORK_MANAGER, geronimoResourceAdapter.getResourceadapterInstance().getWorkmanager(), moduleJ2eeContext, earContext.getGBeanNames(), kernel);
                 resourceAdapterInstanceGBeanData.setReferencePattern("WorkManager", workManagerName);
 
                 String resourceAdapterName = geronimoResourceAdapter.getResourceadapterInstance().getResourceadapterName();

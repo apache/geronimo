@@ -54,7 +54,7 @@ public class DependencyManager {
     /**
      * Listenes for GBeans to unregister and removes all dependencies associated with the dependency
      */
-    private final LifecycleListener lifecycleListener = new DependecyManagerLifecycleListener();
+    private final LifecycleListener lifecycleListener = new DependencyManagerLifecycleListener();
 
     /**
      * A map from child names to a list of parents.
@@ -90,7 +90,6 @@ public class DependencyManager {
      *
      * @param child the dependent component
      * @param parent the component the child is depending on
-     * @jmx:managed-operation
      */
     public synchronized void addDependency(ObjectName child, ObjectName parent) {
         Set parents = (Set) childToParentMap.get(child);
@@ -113,7 +112,6 @@ public class DependencyManager {
      *
      * @param child the dependnet component
      * @param parent the component that the child wil no longer depend on
-     * @jmx:managed-operation
      */
     public synchronized void removeDependency(ObjectName child, ObjectName parent) {
         Set parents = (Set) childToParentMap.get(child);
@@ -131,7 +129,6 @@ public class DependencyManager {
      * Removes all dependencies for a child
      *
      * @param child the component that will no longer depend on anything
-     * @jmx:managed-operation
      */
     public synchronized void removeAllDependencies(ObjectName child) {
         Set parents = (Set) childToParentMap.remove(child);
@@ -153,7 +150,6 @@ public class DependencyManager {
      *
      * @param child the dependent component
      * @param parents the set of components the child is depending on
-     * @jmx:managed-operation
      */
     public synchronized void addDependencies(ObjectName child, Set parents) {
         Set existingParents = (Set) childToParentMap.get(child);
@@ -180,7 +176,6 @@ public class DependencyManager {
      *
      * @param child the dependent component
      * @return a collection containing all of the components the child depends on; will never be null
-     * @jmx:managed-operation
      */
     public synchronized Set getParents(ObjectName child) {
         Set parents = (Set) childToParentMap.get(child);
@@ -195,7 +190,6 @@ public class DependencyManager {
      *
      * @param parent the component the returned childen set depend on
      * @return a collection containing all of the components that depend on the parent; will never be null
-     * @jmx:managed-operation
      */
     public synchronized Set getChildren(ObjectName parent) {
         Set children = (Set) parentToChildMap.get(parent);
@@ -211,7 +205,6 @@ public class DependencyManager {
      *
      * @param objectName the name of the component placing the holds
      * @param holds a collection of object name patterns which should not start
-     * @jmx:managed-operation
      */
     public synchronized void addStartHolds(ObjectName objectName, Collection holds) {
         Collection currentHolds = (Collection) startHoldsMap.get(objectName);
@@ -228,7 +221,6 @@ public class DependencyManager {
      *
      * @param objectName the object name of the components owning the holds
      * @param holds a collection of the holds to remove
-     * @jmx:managed-operation
      */
     public synchronized void removeStartHolds(ObjectName objectName, Collection holds) {
         Collection currentHolds = (Collection) startHoldsMap.get(objectName);
@@ -241,7 +233,6 @@ public class DependencyManager {
      * Removes all of the holds owned by a component.
      *
      * @param objectName the object name of the component that will no longer have any holds
-     * @jmx:managed-operation
      */
     public synchronized void removeAllStartHolds(ObjectName objectName) {
         startHoldsMap.remove(objectName);
@@ -252,7 +243,6 @@ public class DependencyManager {
      *
      * @param objectName the mbean to check for blockers
      * @return the mbean blocking the specified mbean, or null if there are no blockers
-     * @jmx:managed-operation
      */
     public synchronized ObjectName checkBlocker(ObjectName objectName) {
         // check if objectName name is on one of the hold lists
@@ -269,7 +259,7 @@ public class DependencyManager {
         return null;
     }
 
-    private class DependecyManagerLifecycleListener extends LifecycleAdapter {
+    private class DependencyManagerLifecycleListener extends LifecycleAdapter {
         public void unloaded(ObjectName objectName) {
             synchronized (DependencyManager.this) {
                 removeAllDependencies(objectName);

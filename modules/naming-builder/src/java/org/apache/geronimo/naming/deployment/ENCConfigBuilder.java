@@ -25,7 +25,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Iterator;
 import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.transaction.UserTransaction;
@@ -41,6 +43,7 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanLocatorType;
 import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.j2ee.EjbRefType;
 import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
@@ -48,11 +51,75 @@ import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.XsdStringType;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  * @version $Rev$ $Date$
  */
 public class ENCConfigBuilder {
+
+    public static ObjectName getGBeanId(String j2eeType, GerGbeanLocatorType gerGbeanLocator, J2eeContext j2eeContext, Set localGBeans, Kernel kernel) throws DeploymentException {
+        ObjectName containerId = null;
+        if (gerGbeanLocator.isSetGbeanLink()) {
+            //exact match
+            String linkName = gerGbeanLocator.getGbeanLink().trim();
+            ObjectName exact = null;
+            try {
+                exact = NameFactory.getComponentName(null, null, null, null, linkName, j2eeType, j2eeContext);
+            } catch (MalformedObjectNameException e) {
+                throw new DeploymentException("Could not construct gbean name", e);
+            }
+            if (localGBeans.contains(exact)) {
+                containerId = exact;
+            } else {
+                Map keys = new HashMap();
+                keys.put(NameFactory.J2EE_TYPE, j2eeType);
+                keys.put(NameFactory.J2EE_NAME, linkName);
+                for (Iterator iterator = localGBeans.iterator(); iterator.hasNext();) {
+                    ObjectName objectName = (ObjectName) iterator.next();
+                    if (objectName.getKeyPropertyList().entrySet().containsAll(keys.entrySet())) {
+                        if (containerId != null) {
+                            throw new DeploymentException("two matches for gbean link!" + objectName);
+                        }
+                        containerId = objectName;
+                    }
+                }
+                if (containerId == null) {
+                    ObjectName query = null;
+                    try {
+                        query = NameFactory.getComponentRestrictedQueryName(null, null, linkName, j2eeType, j2eeContext);
+                    } catch (MalformedObjectNameException e) {
+                        throw new DeploymentException("Could not construct query for gbean name", e);
+                    }
+                    Set matches = kernel.listGBeans(query);
+                    if (matches.size() != 1) {
+                        throw new DeploymentException("No or ambiguous match for gbean link: " + linkName + " using query " + query + ", matches: " + matches);
+                    }
+                    containerId = (ObjectName)matches.iterator().next();
+                }
+            }
+        } else if (gerGbeanLocator.isSetTargetName()) {
+            try {
+                containerId = ObjectName.getInstance(getStringValue(gerGbeanLocator.getTargetName()));
+            } catch (MalformedObjectNameException e) {
+                throw new DeploymentException("Could not construct object name from specified string", e);
+            }
+        } else {
+            //construct name from components
+            try {
+                containerId = NameFactory.getComponentName(getStringValue(gerGbeanLocator.getDomain()),
+                        getStringValue(gerGbeanLocator.getServer()),
+                        getStringValue(gerGbeanLocator.getApplication()),
+                        getStringValue(gerGbeanLocator.getModule()),
+                        getStringValue(gerGbeanLocator.getName()),
+                        j2eeType,
+                        j2eeContext);
+            } catch (MalformedObjectNameException e) {
+                throw new DeploymentException("could not construct object name for jms resource", e);
+            }
+        }
+        return containerId;
+    }
 
     public static void addEnvEntries(EnvEntryType[] envEntries, ComponentContextBuilder builder) throws DeploymentException {
         for (int i = 0; i < envEntries.length; i++) {

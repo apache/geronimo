@@ -47,7 +47,7 @@ by the server.
         class="org.apache.geronimo.security.realm.GenericSecurityRealm">
         <attribute name="realmName">demo-properties-realm</attribute>
         <attribute name="loginModuleConfiguration">
-            LoginModule.1.REQUIRED=geronimo.security:type=LoginModule,name=demo-properties-login
+            LoginModule.1.REQUIRED=geronimo.server:j2eeType=LoginModule,J2EEServer=geronimo,J2EEApplication=null,J2EEModule=org/apache/geronimo/Secure,name=demo-properties-login
         </attribute>
         <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
     </gbean>

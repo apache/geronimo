@@ -140,8 +140,8 @@ public class ConfigurationEntryTest extends TestCase {
         gbean.setReferencePatterns("Configurations", configurations);
         kernel.loadGBean(loginConfiguration, gbean);
 
-        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.JaasLoginService");
-        loginService = new ObjectName("geronimo.security:type=JaasLoginService");
+        gbean = new GBeanMBean(JaasLoginService.class.getName());
+        loginService = JaasLoginService.OBJECT_NAME;
         gbean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
 //        gbean.setAttribute("reclaimPeriod", new Long(100));
         gbean.setAttribute("algorithm", "HmacSHA1");

@@ -93,7 +93,9 @@
                 <resourceadapter-instance>
                     <resourceadapter-name>testRA</resourceadapter-name>
                     <config-property-setting name="RAStringProperty">NewStringValue</config-property-setting>
-                    <workmanager-name>DefaultWorkManager</workmanager-name>
+                    <workmanager>
+                        <gbean-link>DefaultWorkManager</gbean-link>
+                    </workmanager>
                 </resourceadapter-instance>
                 <outbound-resourceadapter>
                     <connection-definition>
@@ -169,4 +171,25 @@
         </connector>
 
     </module>
+    
+    <gbean namePart="DefaultWorkManager" type="JCAWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManager">
+        <attribute name="syncMaximumPoolSize" type="int">10</attribute>
+        <attribute name="startMaximumPoolSize" type="int">10</attribute>
+        <attribute name="scheduledMaximumPoolSize" type="int">10</attribute>
+        <reference name="TransactionContextManager">geronimo.server:type=TransactionContextManager</reference>
+    </gbean>
+
+    <gbean name="geronimo.server:type=TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImpl">
+        <attribute name="defaultTransactionTimeoutSeconds" type="int">10</attribute>
+        <references name="ResourceManagers">
+            <pattern>geronimo.server:j2eeType=JCAManagedConnectionFactory,*</pattern>
+            <pattern>geronimo.server:j2eeType=MessageDrivenBean,*</pattern>
+        </references>
+    </gbean>
+
+    <gbean name="geronimo.server:type=TransactionContextManager" class="org.apache.geronimo.transaction.context.TransactionContextManager">
+        <reference name="TransactionManager">geronimo.server:type=TransactionManager</reference>
+        <reference name="XidImporter">geronimo.server:type=TransactionManager</reference>
+    </gbean>
+
 </application>

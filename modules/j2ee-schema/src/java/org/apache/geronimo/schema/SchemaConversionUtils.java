@@ -324,6 +324,7 @@ public class SchemaConversionUtils {
                             || localName.equals("resource-ref")
                             || localName.equals("resource-env-ref")
                             || localName.equals("cmp-connection-factory")
+                            || localName.equals("workmanager")
                             || localName.equals("resource-adapter")) {
                         convertElementToSchema(cursor, end, GERONIMO_NAMING_NAMESPACE);
                     }

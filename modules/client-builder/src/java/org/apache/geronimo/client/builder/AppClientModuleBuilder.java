@@ -373,7 +373,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 // pop in all the gbeans declared in the geronimo app client file
                 if (geronimoAppClient != null) {
                     GbeanType[] gbeans = geronimoAppClient.getGbeanArray();
-                    ServiceConfigBuilder.addGBeans(gbeans, appClientClassLoader, appClientDeploymentContext);
+                    ServiceConfigBuilder.addGBeans(gbeans, appClientClassLoader, appClientDeploymentContext.getJ2eeContext(), appClientDeploymentContext);
                     //deploy the resource adapters specified in the geronimo-application.xml
                     Collection resourceModules = new ArrayList();
                     try {
@@ -430,17 +430,17 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 appClientDeploymentContext.addGBean(jndiContextGBeanData);
 
                 // finally add the app client container
-                ObjectName appClienContainerName = ObjectName.getInstance("geronimo.client:type=ClientContainer");
-                GBeanData appClienContainerGBeanData = new GBeanData(appClienContainerName, AppClientContainer.GBEAN_INFO);
+                ObjectName appClientContainerName = ObjectName.getInstance("geronimo.client:type=ClientContainer");
+                GBeanData appClientContainerGBeanData = new GBeanData(appClientContainerName, AppClientContainer.GBEAN_INFO);
                 try {
-                    appClienContainerGBeanData.setAttribute("mainClassName", mainClasss);
-                    appClienContainerGBeanData.setAttribute("appClientModuleName", appClientModuleName);
-                    appClienContainerGBeanData.setReferencePattern("JNDIContext", new ObjectName("geronimo.client:type=StaticJndiContext"));
-                    appClienContainerGBeanData.setReferencePattern("TransactionContextManager", new ObjectName("geronimo.client:type=TransactionContextManager"));
+                    appClientContainerGBeanData.setAttribute("mainClassName", mainClasss);
+                    appClientContainerGBeanData.setAttribute("appClientModuleName", appClientModuleName);
+                    appClientContainerGBeanData.setReferencePattern("JNDIContext", jndiContextName);
+                    appClientContainerGBeanData.setReferencePattern("TransactionContextManager", transactionContextManagerObjectName);
                 } catch (Exception e) {
                     throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
                 }
-                appClientDeploymentContext.addGBean(appClienContainerGBeanData);
+                appClientDeploymentContext.addGBean(appClientContainerGBeanData);
             } finally {
                 if (appClientDeploymentContext != null) {
                     try {

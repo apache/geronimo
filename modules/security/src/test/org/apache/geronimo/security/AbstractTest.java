@@ -34,6 +34,7 @@ import junit.framework.TestCase;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.bridge.TestLoginModule;
+import org.apache.geronimo.security.jaas.JaasLoginService;
 
 
 /**
@@ -54,8 +55,8 @@ public abstract class AbstractTest extends TestCase {
 
         // Create all the parts
 
-        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.JaasLoginService");
-        loginService = new ObjectName("geronimo.security:type=JaasLoginService");
+        gbean = new GBeanMBean(JaasLoginService.class.getName());
+        loginService = JaasLoginService.OBJECT_NAME;
         gbean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
 //        gbean.setAttribute("reclaimPeriod", new Long(10 * 1000));  // todo check other tests to see if ok
         gbean.setAttribute("algorithm", "HmacSHA1");

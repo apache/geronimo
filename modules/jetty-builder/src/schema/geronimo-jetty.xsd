@@ -42,7 +42,7 @@
             <xs:element name="context-priority-classloader" type="xs:boolean"/>
 
             <xs:sequence minOccurs="0">
-                <xs:element name="login-domain-name" type="xs:string"/>
+                <xs:element name="security-realm-name" type="xs:string"/>
                 <xs:element ref="security:security"/>
             </xs:sequence>
 
