@@ -30,7 +30,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:15 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/14 00:11:29 $
  */
 public class DatagramProtocolTest extends TestCase {
 
@@ -90,13 +90,13 @@ public class DatagramProtocolTest extends TestCase {
         });
 
         dgp.setDestinationInterface(new InetSocketAddress("localhost", 0));
-        dgp.setSourceAddress(new InetSocketAddress("localhost", 8081));
+        dgp.setSourceAddress(new InetSocketAddress("localhost", 0));
         dgp.setSelectorManager(sm);
 
         dgp.doStart();
 
         DatagramDownPacket packet = new DatagramDownPacket();
-        packet.setAddress(new InetSocketAddress("localhost", 8081));
+        packet.setAddress(new InetSocketAddress(dgp.getConnectURI().getHost(), dgp.getConnectURI().getPort()));
         packet.setBuffers(getByteBuffer());
 
         dgp.sendDown(packet);

@@ -18,8 +18,11 @@
 package org.apache.geronimo.network.protocol;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
@@ -34,7 +37,7 @@ import org.apache.geronimo.network.SelectorManager;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:13 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/14 00:11:01 $
  */
 public class DatagramProtocol implements Protocol, SelectionEventListner {
 
@@ -42,10 +45,11 @@ public class DatagramProtocol implements Protocol, SelectionEventListner {
 
     private Protocol up;
 
+    private URI connectURI;
     private DatagramChannel source;
     private DatagramChannel destination;
-    private SocketAddress sourceAddress;
-    private SocketAddress destinationInterface;
+    private InetSocketAddress sourceAddress;
+    private InetSocketAddress destinationInterface;
 
     private SelectorManager selectorManager;
     private SelectionKey selectionKey;
@@ -71,11 +75,15 @@ public class DatagramProtocol implements Protocol, SelectionEventListner {
         throw new UnsupportedOperationException("Datagram protocol is at the bottom");
     }
 
+    public URI getConnectURI() {
+        return connectURI;
+    }
+
     public SocketAddress getSourceAddress() {
         return sourceAddress;
     }
 
-    public void setSourceAddress(SocketAddress sourceAddress) {
+    public void setSourceAddress(InetSocketAddress sourceAddress) {
         if (state == STARTED) throw new IllegalStateException("Protocol already started");
         this.sourceAddress = sourceAddress;
     }
@@ -84,7 +92,7 @@ public class DatagramProtocol implements Protocol, SelectionEventListner {
         return destinationInterface;
     }
 
-    public void setDestinationInterface(SocketAddress destinationInterface) {
+    public void setDestinationInterface(InetSocketAddress destinationInterface) {
         if (state == STARTED) throw new IllegalStateException("Protocol already started");
         this.destinationInterface = destinationInterface;
     }
@@ -115,6 +123,20 @@ public class DatagramProtocol implements Protocol, SelectionEventListner {
                 source.socket().setReuseAddress(true);
                 source.configureBlocking(false);
                 selectionKey = selectorManager.register(source, SelectionKey.OP_READ, this);
+
+                connectURI = new URI("async",
+                                     null,
+                                     sourceAddress.getHostName(),
+                                     source.socket().getLocalPort(),
+                                     "",
+                                     "",
+                                     null);
+
+                log.info("Datagram protocol available at: "
+                         + sourceAddress.getHostName()
+                         + ":"
+                         + source.socket().getLocalPort());
+                log.info("Datagram protocol clients will send datagrams to: " + connectURI);
             }
             if (destinationInterface != null) {
                 destination = DatagramChannel.open();
@@ -126,6 +148,9 @@ public class DatagramProtocol implements Protocol, SelectionEventListner {
             state = STOPPED;
             throw new ProtocolException(e);
         } catch (IOException e) {
+            state = STOPPED;
+            throw new ProtocolException(e);
+        } catch (URISyntaxException e) {
             state = STOPPED;
             throw new ProtocolException(e);
         }
