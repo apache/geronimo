@@ -465,7 +465,7 @@ public class ENCConfigBuilder {
                     PortComponentRefType portComponentRef = portComponentRefs[j];
                     String portComponentLink = getStringValue(portComponentRef.getPortComponentLink());
                     String serviceEndpointInterfaceType = getStringValue(portComponentRef.getServiceEndpointInterface());
-                    assureInterface(serviceEndpointInterfaceType, "javax.rmi.Remote", "ServiceEndpoint", cl);
+                    assureInterface(serviceEndpointInterfaceType, "java.rmi.Remote", "ServiceEndpoint", cl);
                     Class serviceEndpointClass;
                     try {
                         serviceEndpointClass = cl.loadClass(serviceEndpointInterfaceType);
