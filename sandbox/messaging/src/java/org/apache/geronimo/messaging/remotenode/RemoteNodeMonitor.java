@@ -24,7 +24,6 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.messaging.NodeException;
 import org.apache.geronimo.messaging.NodeInfo;
 import org.apache.geronimo.pool.ClockPool;
 
@@ -33,7 +32,7 @@ import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
 /**
  * RemoteNode monitor.
  *
- * @version $Revision: 1.3 $ $Date: 2004/07/17 03:48:57 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/20 00:15:06 $
  */
 public class RemoteNodeMonitor
 {
@@ -144,11 +143,7 @@ public class RemoteNodeMonitor
                 Long lastActivity = (Long)entry.getValue();
                 if ( lastActivity.longValue() <
                     System.currentTimeMillis() + IDLE_TIME ) {
-                    try {
-                        manager.leaveRemoteNode(node);
-                    } catch (NodeException e) {
-                        log.error("Can not leave " + node, e);
-                    }
+                    manager.leaveRemoteNode(node);
                     iter.remove();
                 }
             }

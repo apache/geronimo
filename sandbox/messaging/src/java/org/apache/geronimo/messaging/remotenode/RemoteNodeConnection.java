@@ -17,15 +17,14 @@
 
 package org.apache.geronimo.messaging.remotenode;
 
-import java.io.IOException;
 
-import org.apache.geronimo.messaging.CommunicationException;
 import org.apache.geronimo.messaging.MsgConsProd;
+import org.apache.geronimo.messaging.NodeException;
 
 /**
  * Connection to a remote node.
  * 
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:42 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/20 00:15:06 $
  */
 public interface RemoteNodeConnection
     extends MsgConsProd
@@ -34,17 +33,29 @@ public interface RemoteNodeConnection
     /**
      * Opens the connection.
      * 
-     * @throws IOException Indicates an I/O problem.
-     * @throws CommunicationException If a communication can not be established.
+     * @throws NodeException Indicates that the connection can not be opened.
      */
-    public void open() throws IOException, CommunicationException;
+    public void open() throws NodeException;
     
     /**
      * Closes the connection.
-     * 
-     * @throws IOException Indicates an I/O problem.
-     * @throws CommunicationException If a communication can not be established.
      */
-    public void close() throws IOException, CommunicationException;
+    public void close();
+    
+    /**
+     * Sets the listener to be notified when the connection is closed.
+     * 
+     * @param aListener Listener.
+     */
+    public void setLifecycleListener(LifecycleListener aListener);
+    
+    /**
+     * Callback interface to be notified when the connection is closed.
+     */
+    public interface LifecycleListener {
+
+        public void onClose();
+        
+    }
     
 }

@@ -17,15 +17,14 @@
 
 package org.apache.geronimo.messaging.remotenode;
 
-import java.io.IOException;
 
-import org.apache.geronimo.messaging.CommunicationException;
+import org.apache.geronimo.messaging.NodeException;
 
 /**
  * A NodeServer listens for remote nodes and delegates to a
  * RemoteNodeManager their management. 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:42 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/20 00:15:06 $
  */
 public interface NodeServer
 {
@@ -33,22 +32,20 @@ public interface NodeServer
     /**
      * Start the server.
      * 
-     * @throws IOException Indicates an I/O problem.
-     * @throws CommunicationException If a communication can not be established.
+     * @throws NodeException If the server can not be started.
+     * @exception IllegalStateException Indicates that no RemoteNodeManger has
+     * been set.
      */
-    public void start() throws IOException, CommunicationException;
+    public void start() throws NodeException, IllegalStateException;
 
     /**
      * Stop the server.
-     * 
-     * @throws IOException Indicates an I/O problem.
-     * @throws CommunicationException If a communication can not be established.
      */
-    public void stop() throws IOException, CommunicationException;
+    public void stop();
 
     /**
-     * Sets the RemoteNodeManager in charge of managing the remote node, which
-     * have join this server.
+     * Sets the RemoteNodeManager in charge of managing the remote nodes, which
+     * have joined this server.
      * <BR>
      * A NodeServer must notify this RemoteNodeManager when a new connection
      * abstracting a remote note has joined it.

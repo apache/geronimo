@@ -17,16 +17,15 @@
 
 package org.apache.geronimo.messaging.remotenode;
 
-import java.io.IOException;
 
-import org.apache.geronimo.messaging.CommunicationException;
 import org.apache.geronimo.messaging.MsgConsProd;
+import org.apache.geronimo.messaging.NodeException;
 import org.apache.geronimo.messaging.NodeInfo;
 
 /**
  * Provides a local representation of a remote Node.
  * 
- * @version $Revision: 1.2 $ $Date: 2004/06/03 14:39:44 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/20 00:15:06 $
  */
 public interface RemoteNode
     extends MsgConsProd
@@ -40,36 +39,23 @@ public interface RemoteNode
     public NodeInfo getNodeInfo();
 
     /**
-     * Returns a connection to the remote node.
-     * <BR>
-     * This connection is not opened.
+     * Sets the manager of this remote node.
      * 
-     * @throws IOException Indicates an I/O problem.
-     * @throws CommunicationException If a communication can not be established.
+     * @param aManager Manager.
      */
-    public RemoteNodeConnection newConnection()
-        throws IOException, CommunicationException;
-
-    /**
-     * Leaves the remote node.
-     * 
-     * @throws IOException Indicates an I/O problem.
-     * @throws CommunicationException If a communication can not be established.
-     */
-    public void leave() throws IOException, CommunicationException;
-
-    /**
-     * Adds a connection.
-     * 
-     * @param aConnection Connection to be added to the RemoteNode.
-     */
-    public void addConnection(RemoteNodeConnection aConnection);
+    public void setManager(RemoteNodeManager aManager);
     
     /**
-     * Removes a connection.
-     * 
-     * @param aConnection Connection to be removed.
+     * Leaves the remote node.
      */
-    public void removeConnection(RemoteNodeConnection aConnection);
+    public void leave();
+
+    /**
+     * Joins the remote node.
+     * 
+     * @exception NodeException Indicates that the remote node can not be 
+     * joined.
+     */
+    public void join() throws NodeException;
     
 }

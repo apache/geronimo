@@ -17,35 +17,27 @@
 
 package org.apache.geronimo.messaging.remotenode.network;
 
-import java.io.IOException;
 import java.net.URI;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.messaging.CommunicationException;
-import org.apache.geronimo.messaging.Msg;
-import org.apache.geronimo.messaging.MsgBody;
+import org.apache.geronimo.messaging.NodeException;
 import org.apache.geronimo.messaging.NodeInfo;
-import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 import org.apache.geronimo.messaging.io.IOContext;
 import org.apache.geronimo.messaging.remotenode.NodeServer;
-import org.apache.geronimo.messaging.remotenode.RemoteNode;
-import org.apache.geronimo.messaging.remotenode.RemoteNodeConnection;
 import org.apache.geronimo.messaging.remotenode.RemoteNodeManager;
-import org.apache.geronimo.messaging.remotenode.admin.JoinReply;
 import org.apache.geronimo.network.SelectorManager;
 import org.apache.geronimo.network.protocol.AcceptableProtocol;
 import org.apache.geronimo.network.protocol.ProtocolException;
 import org.apache.geronimo.network.protocol.ProtocolFactory;
 import org.apache.geronimo.network.protocol.ServerSocketAcceptor;
-import org.apache.geronimo.network.protocol.SocketProtocol;
 import org.apache.geronimo.network.protocol.ProtocolFactory.AcceptedCallBack;
 import org.apache.geronimo.pool.ClockPool;
 
 /**
  * NodeServer implementation.
  *
- * @version $Revision: 1.5 $ $Date: 2004/07/17 03:45:41 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/20 00:15:05 $
  */
 public class NodeServerImpl
     implements NodeServer, AcceptedCallBack
@@ -86,11 +78,14 @@ public class NodeServerImpl
         serverSocketAcceptor.setSelectorManager(selectorManager);
     }
 
-    public void start() throws IOException, CommunicationException {
+    public void start() throws NodeException {
+        if ( null == manager ) {
+            throw new IllegalStateException("Manager is not set.");
+        }
         log.debug("Starting NodeServer.");
-        SocketProtocol spt = new SocketProtocol();
+        CallbackSocketProtocol spt = new CallbackSocketProtocol();
         // TODO configurable.
-        spt.setTimeout(10 * 1000);
+        spt.setTimeout(1000);
         spt.setSelectorManager(selectorManager);
 
         ProtocolFactory pf = new ProtocolFactory();
@@ -98,7 +93,7 @@ public class NodeServerImpl
         // TODO configurable.
         pf.setMaxAge(Long.MAX_VALUE);
         pf.setMaxInactivity(1 * 60 * 60 * 1000);
-        pf.setReclaimPeriod(10 * 1000);
+        pf.setReclaimPeriod(500);
         pf.setTemplate(spt);
         pf.setAcceptedCallBack(this);
 
@@ -114,20 +109,16 @@ public class NodeServerImpl
             serverSocketAcceptor.setUri(bindURI);
             serverSocketAcceptor.startup();
         } catch (Exception e) {
-            IOException exception = new IOException("Can not start.");
-            exception.initCause(e);
-            throw exception;
+            throw new NodeException("Can not start server", e);
         }
     }
 
-    public void stop() throws IOException, CommunicationException {
+    public void stop() {
         log.info("Stopping NodeServer.");
         try {
             serverSocketAcceptor.drain();
         } catch (Exception e) {
-            IOException exception = new IOException("Can not stop.");
-            exception.initCause(e);
-            throw exception;
+            log.error("Error stopping NodeServer", e);
         }
     }
 
@@ -137,40 +128,14 @@ public class NodeServerImpl
     
     public void accepted(AcceptableProtocol aProtocol)
         throws ProtocolException {
-        new RemoteNodeInitializer(aProtocol);
-    }
-    
-    private class RemoteNodeInitializer implements MsgOutInterceptor {
-        private final RemoteNodeConnection connection;
-        private RemoteNodeInitializer(AcceptableProtocol aProtocol)
-            throws ProtocolException {
-            connection =
-                new RemoteNodeJoinedConnection(ioContext, aProtocol);
-            try {
-                connection.open();
-            } catch (IOException e) {
-                throw new ProtocolException(e);
-            } catch (CommunicationException e) {
-                throw new ProtocolException(e);
-            }
-            connection.setMsgProducerOut(this);
+        RemoteNodeJoined remoteNode =
+            new RemoteNodeJoined(nodeInfo, ioContext, aProtocol);
+        remoteNode.setManager(manager);
+        try {
+            remoteNode.join();
+        } catch (NodeException e) {
+            log.error("Can not join node", e);
         }
-        
-        public void push(Msg aMsg) {
-            MsgBody body = aMsg.getBody();
-            NodeInfo otherNodeInfo = (NodeInfo) body.getContent();
-            
-            JoinReply joinReply = new JoinReply(aMsg);
-            joinReply.execute(connection);
-            
-            RemoteNode remoteNode = manager.findRemoteNode(otherNodeInfo);
-            if ( null == remoteNode ) {
-                remoteNode = new RemoteNodeJoined(otherNodeInfo, ioContext);
-            }
-            remoteNode.addConnection(connection);
-            manager.registerRemoteNode(remoteNode);
-        }
-
     }
     
 }

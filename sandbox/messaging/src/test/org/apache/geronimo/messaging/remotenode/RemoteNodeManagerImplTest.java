@@ -35,7 +35,7 @@ import org.apache.geronimo.pool.ClockPool;
 
 /**
  *
- * @version $Revision: 1.4 $ $Date: 2004/07/08 05:13:29 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/20 00:15:06 $
  */
 public class RemoteNodeManagerImplTest extends TestCase
 {
@@ -54,6 +54,29 @@ public class RemoteNodeManagerImplTest extends TestCase
         cp.setPoolName("CP");
 
         manager = new RemoteNodeManagerImpl(nodeInfo1, ioContext, cp, factory);
+        
+        NodeTopology topology = new NodeTopology() {
+            public int getVersion() {
+                return 0;
+            }
+            public Set getNeighbours(NodeInfo aRoot) {
+                return new HashSet();
+            }
+            public NodeInfo[] getPath(NodeInfo aSource, NodeInfo aTarget) {
+                return null;
+            }
+            public int getIDOfNode(NodeInfo aNodeInfo) {
+                throw new UnsupportedOperationException("getVersion");
+            }
+            public NodeInfo getNodeById(int anId) {
+                throw new UnsupportedOperationException("getVersion");
+            }
+            public Set getNodes() {
+                throw new UnsupportedOperationException("getVersion");
+            }
+        };
+        manager.prepareTopology(topology);
+        manager.commitTopology();
     }
     
     public void testRegisterRemoteNode() throws Exception {
@@ -89,82 +112,148 @@ public class RemoteNodeManagerImplTest extends TestCase
         assertEquals(remoteNode, listener.event.getRemoteNode());
     }
     
-    public void testGetMsgOut() throws Exception {
+    private TestGetMsgOutInfo newGetMsgOutInfo() throws Exception {
+        final TestGetMsgOutInfo info = new TestGetMsgOutInfo();
+
         InetAddress address = InetAddress.getLocalHost();
-        final NodeInfo srcNode = new NodeInfo("SrcNode1", address, 8081);
-        final NodeInfo node1 = new NodeInfo("Node1", address, 8081);
-        final NodeInfo node2 = new NodeInfo("Node2", address, 8081);
+        info.srcNode = new NodeInfo("SrcNode1", address, 8081);
+        info.node1 = new NodeInfo("Node1", address, 8081);
+        info.node2 = new NodeInfo("Node2", address, 8081);
         
         MockRemoteNode remoteNode1 = new MockRemoteNode();
-        remoteNode1.setNodeInfo(node1);
+        remoteNode1.setNodeInfo(info.node1);
         manager.registerRemoteNode(remoteNode1);
         
         MockRemoteNode remoteNode2 = new MockRemoteNode();
-        remoteNode2.setNodeInfo(node2);
+        remoteNode2.setNodeInfo(info.node2);
         manager.registerRemoteNode(remoteNode2);
 
-        NodeTopology topology = new NodeTopology() {
+        info.topology = new NodeTopology() {
             public Set getNeighbours(NodeInfo aRoot) {
                 Set result = new HashSet();
-                result.add(node1);
-                result.add(node2);
+                result.add(info.node1);
+                result.add(info.node2);
                 return result;
             }
             public NodeInfo[] getPath(NodeInfo aSource, NodeInfo aTarget) {
-                if ( aSource.equals(srcNode) && aTarget.equals(node1) ) {
-                    return new NodeInfo[] {node1};
-                } else if ( aSource.equals(srcNode) && aTarget.equals(node2) ) {
-                    return new NodeInfo[] {node2};
+                if ( aSource.equals(info.srcNode) && 
+                    aTarget.equals(info.node1) ) {
+                    return new NodeInfo[] {info.node1};
+                } else if ( aSource.equals(info.srcNode) && 
+                    aTarget.equals(info.node2) ) {
+                    return new NodeInfo[] {info.node2};
                 }
                 return null;
             }
             public int getIDOfNode(NodeInfo aNodeInfo) {
-                return 0;
+                throw new UnsupportedOperationException("getIDOfNode");
             }
             public NodeInfo getNodeById(int anId) {
-                return null;
+                throw new UnsupportedOperationException("getNodeById");
             }
             public Set getNodes() {
-                return null;
+                throw new UnsupportedOperationException("getNodes");
             }
             public int getVersion() {
-                return 0;
+                return 1;
             }
         };
-        manager.setTopology(topology);
+        // Test that Msg are successfully routed within the context of
+        // a prepared topology.
+        manager.prepareTopology(info.topology);
+        
+        info.remoteNode1 = remoteNode1;
+        info.remoteNode2 = remoteNode2;
+        return info;
+    }
+
+    /**
+     * Test that Msg are successfully routed within the context of a prepared 
+     * topology.
+     */
+    public void testPreparedGetMsgOut() throws Exception {
+        TestGetMsgOutInfo info = newGetMsgOutInfo();
 
         MsgOutInterceptor out = manager.getMsgConsumerOut();
         Msg msg = new Msg();
         MsgHeader header = msg.getHeader();
         Integer id = new Integer(1234);
         header.addHeader(MsgHeaderConstants.CORRELATION_ID, id);
-        header.addHeader(MsgHeaderConstants.SRC_NODE, srcNode);
-        header.addHeader(MsgHeaderConstants.DEST_NODES, node1);
+        header.addHeader(MsgHeaderConstants.SRC_NODE, info.srcNode);
+        header.addHeader(MsgHeaderConstants.DEST_NODES, info.node1);
+        header.addHeader(MsgHeaderConstants.TOPOLOGY_VERSION,
+            new Integer(info.topology.getVersion()));
         out.push(msg);
         
-        List receivedMsgs = remoteNode1.getPushedMsg();
+        List receivedMsgs = info.remoteNode1.getPushedMsg();
         assertEquals(1, receivedMsgs.size());
         msg = (Msg) receivedMsgs.get(0);
         assertEquals(id, msg.getHeader().getHeader(MsgHeaderConstants.CORRELATION_ID));
         receivedMsgs.clear();
         
-        receivedMsgs = remoteNode2.getPushedMsg();
+        receivedMsgs = info.remoteNode2.getPushedMsg();
         assertEquals(0, receivedMsgs.size());
         
         msg = new Msg();
         header = msg.getHeader();
         header.addHeader(MsgHeaderConstants.CORRELATION_ID, id);
-        header.addHeader(MsgHeaderConstants.SRC_NODE, srcNode);
-        header.addHeader(MsgHeaderConstants.DEST_NODES, node2);
+        header.addHeader(MsgHeaderConstants.SRC_NODE, info.srcNode);
+        header.addHeader(MsgHeaderConstants.DEST_NODES, info.node2);
+        header.addHeader(MsgHeaderConstants.TOPOLOGY_VERSION,
+            new Integer(info.topology.getVersion()));
         out.push(msg);
         
-        receivedMsgs = remoteNode2.getPushedMsg();
+        receivedMsgs = info.remoteNode2.getPushedMsg();
         assertEquals(1, receivedMsgs.size());
         msg = (Msg) receivedMsgs.get(0);
         assertEquals(id, msg.getHeader().getHeader(MsgHeaderConstants.CORRELATION_ID));
         receivedMsgs.clear();
         
-        receivedMsgs = remoteNode1.getPushedMsg();
+        receivedMsgs = info.remoteNode1.getPushedMsg();
+        assertEquals(0, receivedMsgs.size());
+    }
+    
+    /**
+     * Test that Msg are successfully routed within the context of a committed 
+     * topology.
+     */
+    public void testCommittedGetMsgOut() throws Exception {
+        TestGetMsgOutInfo info = newGetMsgOutInfo();
+        
+        manager.commitTopology();
+
+        MsgOutInterceptor out = manager.getMsgConsumerOut();
+        Msg msg = new Msg();
+        MsgHeader header = msg.getHeader();
+        Integer id = new Integer(1234);
+        header.addHeader(MsgHeaderConstants.CORRELATION_ID, id);
+        header.addHeader(MsgHeaderConstants.SRC_NODE, info.srcNode);
+        header.addHeader(MsgHeaderConstants.DEST_NODES, info.node1);
+        out.push(msg);
+        
+        List receivedMsgs = info.remoteNode1.getPushedMsg();
+        assertEquals(1, receivedMsgs.size());
+        msg = (Msg) receivedMsgs.get(0);
+        assertEquals(id, msg.getHeader().getHeader(MsgHeaderConstants.CORRELATION_ID));
+        receivedMsgs.clear();
+        
+        receivedMsgs = info.remoteNode2.getPushedMsg();
+        assertEquals(0, receivedMsgs.size());
+        
+        msg = new Msg();
+        header = msg.getHeader();
+        header.addHeader(MsgHeaderConstants.CORRELATION_ID, id);
+        header.addHeader(MsgHeaderConstants.SRC_NODE, info.srcNode);
+        header.addHeader(MsgHeaderConstants.DEST_NODES, info.node2);
+        out.push(msg);
+        
+        receivedMsgs = info.remoteNode2.getPushedMsg();
+        assertEquals(1, receivedMsgs.size());
+        msg = (Msg) receivedMsgs.get(0);
+        assertEquals(id, msg.getHeader().getHeader(MsgHeaderConstants.CORRELATION_ID));
+        receivedMsgs.clear();
+        
+        receivedMsgs = info.remoteNode1.getPushedMsg();
         assertEquals(0, receivedMsgs.size());
     }
     
@@ -173,6 +262,15 @@ public class RemoteNodeManagerImplTest extends TestCase
         public void fireRemoteNodeEvent(RemoteNodeEvent anEvent) {
             event = anEvent;
         }
+    }
+    
+    private class TestGetMsgOutInfo {
+        private NodeTopology topology;
+        private MockRemoteNode remoteNode1;
+        private MockRemoteNode remoteNode2;
+        private NodeInfo srcNode;
+        private NodeInfo node1;
+        private NodeInfo node2;
     }
     
 }

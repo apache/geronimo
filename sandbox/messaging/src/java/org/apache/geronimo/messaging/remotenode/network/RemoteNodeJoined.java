@@ -17,27 +17,66 @@
 
 package org.apache.geronimo.messaging.remotenode.network;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.messaging.Msg;
+import org.apache.geronimo.messaging.MsgBody;
+import org.apache.geronimo.messaging.NodeException;
 import org.apache.geronimo.messaging.NodeInfo;
+import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 import org.apache.geronimo.messaging.io.IOContext;
-import org.apache.geronimo.messaging.remotenode.RemoteNode;
+import org.apache.geronimo.messaging.remotenode.AbstractRemoteNode;
 import org.apache.geronimo.messaging.remotenode.RemoteNodeConnection;
+import org.apache.geronimo.network.protocol.Protocol;
 
 /**
  * 
- * @version $Revision: 1.2 $ $Date: 2004/06/03 14:39:44 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/20 00:15:05 $
  */
 public class RemoteNodeJoined
     extends AbstractRemoteNode
-    implements RemoteNode
 {
+    
+    private static final Log log = LogFactory.getLog(RemoteNodeJoined.class);
 
-    public RemoteNodeJoined(NodeInfo aNodeInfo, IOContext anIOContext) {
-        super(aNodeInfo, anIOContext);
+    private final Protocol protocol;
+    
+    
+    public RemoteNodeJoined(NodeInfo aLocalNode, IOContext anIOContext, 
+        Protocol aProtocol) {
+        super(aLocalNode, anIOContext);
+        protocol = aProtocol;
     }
     
-    public RemoteNodeConnection newConnection() {
-        throw new UnsupportedOperationException(
-            "A joined node does not create connections");
+    public void join() throws NodeException {
+        RemoteNodeConnection connection =
+            new RemoteNodeJoinedConnection(ioContext, protocol);
+        setConnection(connection);
+        
+        setMsgProducerOut(new JoinExecutor());
+    }
+    
+    private class JoinExecutor implements MsgOutInterceptor {
+
+        public void push(Msg aMsg) {
+            MsgBody body = aMsg.getBody();
+            remoteNodeInfo = (NodeInfo) body.getContent();
+            
+            if ( null != manager.findRemoteNode(remoteNodeInfo) ) {
+                log.error(remoteNodeInfo + 
+                    " tried to join twice this node; rejecting request.");
+                Msg msg = aMsg.reply();
+                msg.getBody().setContent(Boolean.FALSE);
+                getMsgConsumerOut().push(msg);
+                return;
+            }
+            Msg msg = aMsg.reply();
+            msg.getBody().setContent(Boolean.TRUE);
+            getMsgConsumerOut().push(msg);
+
+            manager.registerRemoteNode(RemoteNodeJoined.this);
+        }
+        
     }
 
 }

@@ -18,17 +18,15 @@
 package org.apache.geronimo.messaging.remotenode.network;
 
 import org.apache.geronimo.messaging.io.IOContext;
-import org.apache.geronimo.messaging.remotenode.RemoteNodeConnection;
 import org.apache.geronimo.network.protocol.Protocol;
 import org.apache.geronimo.network.protocol.ProtocolException;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:42 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/20 00:15:05 $
  */
 public class RemoteNodeJoinedConnection
     extends AbstractRemoteNodeConnection
-    implements RemoteNodeConnection
 {
 
     public RemoteNodeJoinedConnection(IOContext anIOContext,

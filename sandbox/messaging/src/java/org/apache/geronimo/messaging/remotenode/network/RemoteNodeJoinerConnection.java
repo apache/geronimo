@@ -25,11 +25,10 @@ import org.apache.geronimo.messaging.remotenode.RemoteNodeConnection;
 import org.apache.geronimo.network.SelectorManager;
 import org.apache.geronimo.network.protocol.Protocol;
 import org.apache.geronimo.network.protocol.ProtocolException;
-import org.apache.geronimo.network.protocol.SocketProtocol;
 
 /**
  * 
- * @version $Revision: 1.3 $ $Date: 2004/07/17 03:45:41 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/20 00:15:05 $
  */
 public class RemoteNodeJoinerConnection
     extends AbstractRemoteNodeConnection
@@ -60,9 +59,9 @@ public class RemoteNodeJoinerConnection
         String hostName = nodeInfo.getAddress().getHostName();
         int port = nodeInfo.getPort();
 
-        SocketProtocol socketProtocol = new SocketProtocol();
+        CallbackSocketProtocol socketProtocol = new CallbackSocketProtocol();
         // TODO configurable.
-        socketProtocol.setTimeout(10 * 1000);
+        socketProtocol.setTimeout(1000);
         socketProtocol.setInterface(new InetSocketAddress(hostName, 0));
         socketProtocol.setAddress(new InetSocketAddress(hostName, port));
         socketProtocol.setSelectorManager(selectorManager);

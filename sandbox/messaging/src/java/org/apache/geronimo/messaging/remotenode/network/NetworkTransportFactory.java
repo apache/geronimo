@@ -19,24 +19,21 @@ package org.apache.geronimo.messaging.remotenode.network;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.messaging.NodeInfo;
 import org.apache.geronimo.messaging.io.IOContext;
 import org.apache.geronimo.messaging.remotenode.MessagingTransportFactory;
 import org.apache.geronimo.messaging.remotenode.NodeServer;
 import org.apache.geronimo.messaging.remotenode.RemoteNode;
-import org.apache.geronimo.messaging.remotenode.RemoteNodeConnection;
 import org.apache.geronimo.network.SelectorManager;
 import org.apache.geronimo.pool.ClockPool;
 
 /**
  * MessagingTransportFactory using Geronimo network as the transport layer.
  * 
- * @version $Revision: 1.4 $ $Date: 2004/07/08 05:13:29 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/20 00:15:05 $
  */
 public class NetworkTransportFactory
-    implements GBeanLifecycle, MessagingTransportFactory
+    implements MessagingTransportFactory
 {
     
     private final SelectorManager sm;
@@ -51,28 +48,16 @@ public class NetworkTransportFactory
         cp = aClockPool;
     }
     
-    public void doStart() throws WaitingException, Exception {
-    }
-
-    public void doStop() throws WaitingException, Exception {
-    }
-
-    public void doFail() {
-    }
-    
     public NodeServer factoryServer(NodeInfo aNodeInfo, IOContext anIOContext) {
         return new NodeServerImpl(aNodeInfo, anIOContext, sm, cp);
     }
     
-    public RemoteNode factoryRemoteNode(NodeInfo aNodeInfo, IOContext anIOContext) {
-        return new RemoteNodeJoiner(aNodeInfo, anIOContext, this);
+    public RemoteNode factoryRemoteNode(NodeInfo aLocalNodeInfo,
+        NodeInfo aRemoteNodeInfo, IOContext anIOContext) {
+        return new RemoteNodeJoiner(aLocalNodeInfo, aRemoteNodeInfo, 
+            anIOContext, sm);
     }
 
-    public RemoteNodeConnection factoryRemoteNodeConnection(
-        NodeInfo aNodeInfo, IOContext anIOContext) {
-        return new RemoteNodeJoinerConnection(aNodeInfo, anIOContext, sm);
-    }
-    
     public static final GBeanInfo GBEAN_INFO;
 
     static {

@@ -17,12 +17,10 @@
 
 package org.apache.geronimo.messaging.remotenode;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -38,13 +36,12 @@ import org.apache.geronimo.messaging.NodeInfo;
 import org.apache.geronimo.messaging.NodeTopology;
 import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 import org.apache.geronimo.messaging.io.IOContext;
-import org.apache.geronimo.messaging.remotenode.admin.JoinRequest;
 import org.apache.geronimo.pool.ClockPool;
 
 /**
  * RemoteNode implementation.
  *
- * @version $Revision: 1.7 $ $Date: 2004/07/17 03:49:29 $
+ * @version $Revision: 1.8 $ $Date: 2004/07/20 00:15:06 $
  */
 public class RemoteNodeManagerImpl
     implements RemoteNodeManager
@@ -66,6 +63,11 @@ public class RemoteNodeManagerImpl
      * a node.
      */
     private NodeTopology topology;
+    
+    /**
+     * Topology being prepared.
+     */
+    private NodeTopology preparedTopology;
     
     public RemoteNodeManagerImpl(NodeInfo aNodeInfo, IOContext anIOContext,
         ClockPool aClockPool, MessagingTransportFactory aFactory) {
@@ -90,100 +92,81 @@ public class RemoteNodeManagerImpl
 
     public void start() throws NodeException {
         log.info("Starting RemoteNodeManager for node {" + nodeInfo + "}");
-        try {
-            server = factory.factoryServer(nodeInfo, ioContext);
-            server.setRemoteNodeManager(this);
-            server.start();
-        } catch (IOException e) {
-            throw new NodeException("Can not start server.", e);
-        } catch (CommunicationException e) {
-            throw new NodeException("Can not start server.", e);
-        }
+        server = factory.factoryServer(nodeInfo, ioContext);
+        server.setRemoteNodeManager(this);
+        server.start();
         remoteNodeMonitor.start();
     }
     
     public void stop() throws NodeException {
         log.info("Stopping RemoteNodeManager for node {" + nodeInfo + "}");
         remoteNodeMonitor.stop();
+        server.stop();
+        Collection nodes;
         synchronized(remoteNodes) {
-            for (Iterator iter = remoteNodes.values().iterator(); iter.hasNext();) {
-                RemoteNode node = (RemoteNode) iter.next();
-                try {
-                    node.leave();
-                } catch (IOException e) {
-                    log.error(e);
-                } catch (CommunicationException e) {
-                    log.error(e);
-                } finally {
-                    node.setMsgProducerOut(null);
-                    iter.remove();
-                }
-            }
+            nodes = new ArrayList(remoteNodes.values());
         }
-        try {
-            server.stop();
-        } catch (IOException e) {
-            throw new NodeException("Can not stop NodeServer.", e);
-        } catch (CommunicationException e) {
-            throw new NodeException("Can not stop NodeServer.", e);
+        for (Iterator iter = nodes.iterator(); iter.hasNext();) {
+            RemoteNode node = (RemoteNode) iter.next();
+            node.leave();
+            node.setMsgProducerOut(null);
         }
     }
 
-    public void setTopology(NodeTopology aTopology) {
-        Set neighbours = aTopology.getNeighbours(nodeInfo);
-        
-        // Makes sure that one does not try to remove the new neighbours 
-        // during the reconfiguration.
-        remoteNodeMonitor.unscheduleNodeDeletion(neighbours);
-
-        Set newNeighbours = new HashSet();
+    public void prepareTopology(NodeTopology aTopology) throws NodeException {
         Set oldNeighbours;
         if ( null == topology ) {
             oldNeighbours = Collections.EMPTY_SET;
         } else {
             oldNeighbours = topology.getNeighbours(nodeInfo);
         }
-        // Tries to join all the neighbours declared by the specified
-        // topology.
-        for (Iterator iter = neighbours.iterator(); iter.hasNext();) {
+        // Computes the new neighbours
+        Set newNeighbours = aTopology.getNeighbours(nodeInfo);
+        newNeighbours.removeAll(oldNeighbours);
+
+        // Makes sure that one does not drop them during the reconfiguration.
+        remoteNodeMonitor.unscheduleNodeDeletion(newNeighbours);
+
+        Exception exception = null;
+        // Joins all the new neighbours
+        for (Iterator iter = newNeighbours.iterator(); iter.hasNext();) {
             NodeInfo node = (NodeInfo) iter.next();
-            if ( !oldNeighbours.contains(node) ) {
-                try {
-                    findOrJoinRemoteNode(node);
-                    newNeighbours.add(node);
-                } catch (NodeException e) {
-                    log.error("Can not apply topology change", e);
-                    break;
-                } catch (CommunicationException e) {
-                    log.error("Can not apply topology change", e);
-                    break;
-                }
+            try {
+                findOrJoinRemoteNode(node);
+            } catch (NodeException e) {
+                exception = e;
+                break;
+            } catch (CommunicationException e) {
+                exception = e;
+                break;
             }
-            iter.remove();
-            oldNeighbours.remove(node);
         }
-        // One neighbour has not been joined successfully. Rolls-back the
-        // physical connections created until now.
-        if ( 0 < neighbours.size() ) {
+        // One new neighbour has not been joined successfully. Rolls-back.
+        if ( null != exception ) {
             for (Iterator iter = newNeighbours.iterator(); iter.hasNext();) {
                 NodeInfo node = (NodeInfo) iter.next();
-                try {
-                    leaveRemoteNode(node);
-                } catch (NodeException e) {
-                    log.error("Error rolling-back topology change", e);
-                } catch (CommunicationException e) {
-                    log.error("Error rolling-back topology change", e);
-                }
+                leaveRemoteNode(node);
             }
-            throw new CommunicationException("Can not apply topology.");
+            throw new NodeException("Can not apply topology.", exception);
         }
+        preparedTopology = aTopology;
+    }
+    
+    public void commitTopology() {
+        Set oldNeighbours;
+        if ( null == topology ) {
+            oldNeighbours = Collections.EMPTY_SET;
+        } else {
+            oldNeighbours = topology.getNeighbours(nodeInfo);
+        }
+        // Computes the old neighbours
+        Set newNeighbours = preparedTopology.getNeighbours(nodeInfo);
+        oldNeighbours.removeAll(newNeighbours);
 
         // Schedules the deletion of the old neighbours.
         remoteNodeMonitor.scheduleNodeDeletion(oldNeighbours);
-        // Ensures that the new neighbours will not be leaved.
-        remoteNodeMonitor.unscheduleNodeDeletion(newNeighbours);
         
-        topology = aTopology;
+        topology = preparedTopology;
     }
     
     public void addListener(RemoteNodeEventListener aListener) {
@@ -198,22 +181,14 @@ public class RemoteNodeManagerImpl
         }
     }
     
-    public void leaveRemoteNode(NodeInfo aNodeInfo)
-        throws NodeException {
+    public void leaveRemoteNode(NodeInfo aNodeInfo) {
         synchronized(remoteNodes) {
-            RemoteNode remoteNode = findRemoteNode(aNodeInfo);
+            RemoteNode remoteNode = (RemoteNode) remoteNodes.get(aNodeInfo);
             if ( null == remoteNode ) {
                 return;
             }
-            try {
-                remoteNode.leave();
-            } catch (IOException e) {
-                throw new NodeException("Can not leave " + aNodeInfo, e);
-            } catch (CommunicationException e) {
-                throw new NodeException("Can not leave " + aNodeInfo, e);
-            } finally {
-                unregisterRemoteNode(remoteNode);
-            }
+            remoteNode.leave();
+            unregisterRemoteNode(remoteNode);
         }
     }
     
@@ -221,26 +196,14 @@ public class RemoteNodeManagerImpl
         throws NodeException {
         RemoteNode remoteNode;
         synchronized(remoteNodes) {
-            remoteNode = findRemoteNode(aNodeInfo);
+            remoteNode = (RemoteNode) remoteNodes.get(aNodeInfo);
             if ( null != remoteNode ) {
                 return remoteNode;
             }
-            log.debug("Joining node {" + aNodeInfo + "}");
-            remoteNode = factory.factoryRemoteNode(aNodeInfo, ioContext);
-            RemoteNodeConnection connection;
-            try {
-                connection = remoteNode.newConnection();
-                connection.open();
-            } catch (IOException e) {
-                throw new NodeException("Can not reach " + aNodeInfo, e);
-            } catch (CommunicationException e) {
-                throw new NodeException("Can not reach " + aNodeInfo, e);
-            }
-            JoinRequest joinRequest = new JoinRequest(nodeInfo, aNodeInfo);
-            joinRequest.execute(connection);
-
-            remoteNode.addConnection(connection);
-            registerRemoteNode(remoteNode);
+            remoteNode =
+                factory.factoryRemoteNode(nodeInfo, aNodeInfo, ioContext);
+            remoteNode.setManager(this);
+            remoteNode.join();
         }
         return remoteNode;
     }
@@ -295,10 +258,6 @@ public class RemoteNodeManagerImpl
     private class RemoteNodeRouter implements MsgOutInterceptor {
 
         public void push(Msg aMsg) {
-            if ( null == topology ) {
-                throw new RuntimeException("No topology is set.");
-            }
-            
             MsgHeader header = aMsg.getHeader();
             Object destNode = header.getHeader(MsgHeaderConstants.DEST_NODES);
             if (destNode instanceof NodeInfo) {
@@ -323,31 +282,59 @@ public class RemoteNodeManagerImpl
                         MsgHeaderConstants.DEST_NODE_PATH,
                         NodeInfo.pop(path));
                     RemoteNode remoteNode = findRemoteNode(target);
+                    if ( null == remoteNode ) {
+                        throw new CommunicationException(target +
+                            " has failed during a topology reconfiguration.");
+                    }
                     out = remoteNode.getMsgConsumerOut();
                 } else {
                     // A path has not already been computed. Computes one.
                     NodeInfo src = (NodeInfo)
                         header2.getHeader(MsgHeaderConstants.SRC_NODE);
-                    path = topology.getPath(src, target);
-                    if ( null == path ) {
-                        throw new CommunicationException("{" + target +
-                            "} is not reachable by {" + src + "}");
+                    NodeTopology topo = markTopology(header2);
+                    path = topo.getPath(src, target);
+                    if (null == path) {
+                        throw new CommunicationException("{" + target
+                            + "} is not reachable by {" + src + 
+                            "} in the topology " + topo);
                     }
-                    NodeInfo tmpNode = path[0];
-                    RemoteNode remoteNode = findRemoteNode(tmpNode);
+                    RemoteNode remoteNode = findRemoteNode(path[0]);
                     if ( null == remoteNode ) {
-                        throw new CommunicationException("{" + target +
-                            "} is not reachable by {" + src + "}");
+                        throw new CommunicationException(path[0] +
+                            " has failed during a topology reconfiguration.");
                     }
                     out = remoteNode.getMsgConsumerOut();
                     
-                    NodeInfo[] newPath = NodeInfo.pop(path);
                     // Inserts the computed path and the new dests.
-                    header2.addHeader(MsgHeaderConstants.DEST_NODE_PATH, newPath);
+                    header2.addHeader(MsgHeaderConstants.DEST_NODE_PATH, NodeInfo.pop(path));
                     header2.addHeader(MsgHeaderConstants.DEST_NODES, target);
                 }
                 out.push(msg2);
             }
+        }
+        
+        /**
+         * If the topology version is not set, then the Msg is sent in the
+         * current topology.
+         * <BR>
+         * If it is set, then one checks that the associated topology is
+         * still defined. It must be either the currently installed or the
+         * one being prepared.
+         */
+        private NodeTopology markTopology(MsgHeader aHeader) {
+            NodeTopology topo = topology;
+            Integer version = (Integer)
+                aHeader.getOptionalHeader(MsgHeaderConstants.TOPOLOGY_VERSION);
+            if ( null == version ) {
+                aHeader.addHeader(MsgHeaderConstants.TOPOLOGY_VERSION,
+                    new Integer(topo.getVersion()));
+            } else if ( version.intValue() == preparedTopology.getVersion() ) {
+                topo = preparedTopology;
+            } else if ( version.intValue() != topo.getVersion() ) {
+                throw new CommunicationException("Topology version " +
+                    version + " too old.");
+            }
+            return topo;
         }
         
     }

@@ -19,7 +19,9 @@ package org.apache.geronimo.messaging.remotenode.network;
 
 import java.io.IOException;
 
-import org.apache.geronimo.messaging.CommunicationException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.messaging.NodeException;
 import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 import org.apache.geronimo.messaging.io.IOContext;
 import org.apache.geronimo.messaging.io.PopSynchronization;
@@ -27,23 +29,27 @@ import org.apache.geronimo.messaging.io.PushSynchronization;
 import org.apache.geronimo.messaging.io.ReplacerResolver;
 import org.apache.geronimo.messaging.io.StreamManager;
 import org.apache.geronimo.messaging.remotenode.RemoteNodeConnection;
+import org.apache.geronimo.messaging.remotenode.network.CallbackSocketProtocol.SocketProtocolListener;
 import org.apache.geronimo.network.protocol.Protocol;
 import org.apache.geronimo.network.protocol.ProtocolException;
 
 /**
  * Abstract implememtation for the RemoteNodeConnection contracts.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:42 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/20 00:15:05 $
  */
 public abstract class AbstractRemoteNodeConnection
     implements RemoteNodeConnection
 {
 
+    private static final Log log = LogFactory.getLog(AbstractRemoteNodeConnection.class);
+    
     private final IOContext ioContext;
     protected Protocol protocol;
     private MsgOutInterceptor msgOut;
     private ProtocolInDispatcher inDispatcher;
-
+    private LifecycleListener listener;
+    
     public AbstractRemoteNodeConnection(IOContext anIOContext) {
         if ( null == anIOContext ) {
             throw new IllegalArgumentException("IOContext is required.");
@@ -67,36 +73,66 @@ public abstract class AbstractRemoteNodeConnection
         return msgOut;
     }
     
-    public void open() throws IOException, CommunicationException {
+    public void open() throws NodeException {
         try {
             protocol = newProtocol();
         } catch (ProtocolException e) {
-            IOException exception = new IOException("Can not create Protocol.");
-            exception.initCause(e);
-            throw exception;
+            throw new NodeException("Can not create protocol", e);
         }
+        Protocol curProtocol = protocol;
+        while ( null != curProtocol ) {
+            if ( curProtocol instanceof CallbackSocketProtocol ) {
+                ((CallbackSocketProtocol) curProtocol).setListener(
+                    new SocketProtocolListener() {
+                        public void onClose() {
+                            msgOut = null;
+                            inDispatcher = null;
+                            if ( null != listener ) {
+                                listener.onClose();
+                            }
+                        }
+                    });
+                break;
+            }
+            curProtocol = curProtocol.getDownProtocol();
+        }
+        if ( false == curProtocol instanceof CallbackSocketProtocol ) {
+            throw new AssertionError("No CallbackSocketProtocol.");
+        }
+        
         StreamManager streamManager = ioContext.getStreamManager();
         ReplacerResolver replacerResolver = ioContext.getReplacerResolver();
-        PushSynchronization pushSynchronization = ioContext.getPushSynchronization();
-        PopSynchronization popSynchronization = ioContext.getPopSynchronization();
-        msgOut = new ProtocolOutInterceptor(protocol,
-            streamManager, pushSynchronization, replacerResolver);
-        inDispatcher = new ProtocolInDispatcher(protocol,
-            streamManager, popSynchronization, replacerResolver);
+        PushSynchronization pushSynchronization = 
+            ioContext.getPushSynchronization();
+        PopSynchronization popSynchronization = 
+            ioContext.getPopSynchronization();
+        try {
+            msgOut = new ProtocolOutInterceptor(protocol,
+                streamManager, pushSynchronization, replacerResolver);
+            inDispatcher = new ProtocolInDispatcher(protocol,
+                streamManager, popSynchronization, replacerResolver);
+        } catch (IOException e) {
+            throw new NodeException("Can not set-up IO context.", e);
+        }
     }
 
     protected abstract Protocol newProtocol() throws ProtocolException;
     
-    public void close() throws IOException, CommunicationException {
+    public void close() {
         msgOut = null;
         inDispatcher = null;
         try {
             protocol.drain();
         } catch (ProtocolException e) {
-            IOException exception = new IOException("Can not drain Protocol");
-            exception.initCause(e);
-            throw exception;
+            log.error("Error when closing connection", e);
+        }
+        if ( null != listener ) {
+            listener.onClose();
         }
     }
 
+    public void setLifecycleListener(LifecycleListener aListener) {
+        listener = aListener;
+    }
+    
 }

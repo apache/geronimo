@@ -27,7 +27,7 @@ import org.apache.geronimo.messaging.NodeTopology;
 /**
  * RemoteNode manager.
  *
- * @version $Revision: 1.3 $ $Date: 2004/07/17 03:49:29 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/20 00:15:06 $
  */
 public interface RemoteNodeManager
     extends MsgConsumer
@@ -48,16 +48,26 @@ public interface RemoteNodeManager
     public void stop() throws NodeException;
     
     /**
-     * Sets the Topology to be used to derive the path between two nodes.
+     * Prepares the Topology to be used to derive the path between two nodes.
      * <BR>
-     * When the topology is set, the manager tries to "apply" it: it creates
-     * physical connections with all of its neighbours as defined by the
-     * specified topology and drops the physical connections no more
-     * required by the topology change.
+     * When the topology is prepared, the manager tries to "apply" it: it 
+     * creates physical connections to all of its neighbours as defined by the
+     * specified topology. Physical connections no more required by the 
+     * topology should not be dropped. These latter should be dropped only
+     * if the topology is committed.
      * 
      * @param aTopology Topology.
+     * @exception NodeException Indicates that the topology can not be prepared.
      */
-    public void setTopology(NodeTopology aTopology);
+    public void prepareTopology(NodeTopology aTopology) throws NodeException;
+    
+    /**
+     * Commits the Topology which has been previously prepared.
+     * <BR>
+     * When a topology is committed, the physical connections defined
+     * by the previous topology and not by the one to be committed are dropped.
+     */
+    public void commitTopology();
     
     /**
      * Adds a listener for RemoteNode event.
@@ -77,9 +87,8 @@ public interface RemoteNodeManager
      * Leaves a remote node. 
      * 
      * @param aNodeInfo Meta-data of the node to be left.
-     * @throws NodeException
      */
-    public void leaveRemoteNode(NodeInfo aNodeInfo) throws NodeException;
+    public void leaveRemoteNode(NodeInfo aNodeInfo);
     
     /**
      * Finds or joins a remote node.

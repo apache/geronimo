@@ -17,18 +17,17 @@
 
 package org.apache.geronimo.messaging.remotenode;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.geronimo.messaging.CommunicationException;
 import org.apache.geronimo.messaging.Msg;
+import org.apache.geronimo.messaging.NodeException;
 import org.apache.geronimo.messaging.NodeInfo;
 import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/10 23:12:25 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/20 00:15:06 $
  */
 public class MockRemoteNode
     implements RemoteNode
@@ -49,17 +48,13 @@ public class MockRemoteNode
         return nodeInfo;
     }
 
-    public RemoteNodeConnection newConnection() throws IOException, CommunicationException {
-        return null;
+    public void setManager(RemoteNodeManager aManager) {
     }
-
-    public void leave() throws IOException, CommunicationException {
+    
+    public void leave() {
     }
-
-    public void addConnection(RemoteNodeConnection aConnection) {
-    }
-
-    public void removeConnection(RemoteNodeConnection aConnection) {
+    
+    public void join() throws NodeException {
     }
 
     public void setMsgProducerOut(MsgOutInterceptor aMsgOut) {

@@ -24,7 +24,7 @@ import org.apache.geronimo.messaging.io.IOContext;
 /**
  * Transport layer factory.
  * 
- * @version $Revision: 1.2 $ $Date: 2004/06/24 23:39:03 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/20 00:15:06 $
  */
 public interface MessagingTransportFactory
 {
@@ -42,23 +42,13 @@ public interface MessagingTransportFactory
     /**
      * Creates a RemoteNode providing a local view of the remote node aNodeInfo.
      * 
-     * @param aNodeInfo Remote node meta-data.
+     * @param aLocalNodeInfo Local node meta-data.
+     * @param aRemoteNodeInfo Remote node meta-data.
      * @param anIOContext Used to retrieve the IOContext to be used to
      * communicate with the remote node.
      * @return RemoteNode.
      */
-    public RemoteNode factoryRemoteNode(
-        NodeInfo aNodeInfo, IOContext anIOContext);
+    public RemoteNode factoryRemoteNode(NodeInfo aLocalNodeInfo, 
+        NodeInfo aRemoteNodeInfo, IOContext anIOContext);
 
-    /**
-     * Creates a RemoteNodeConnection to the remote node aNodeInfo.
-     * 
-     * @param aNodeInfo Remote node meta-data.
-     * @param anIOContext Used to retrieve the IOContext to be used to
-     * communicate with the remote node.
-     * @return RemoteNodeConnection.
-     */
-    public RemoteNodeConnection factoryRemoteNodeConnection(
-        NodeInfo aNodeInfo, IOContext anIOContext);
-    
 }
