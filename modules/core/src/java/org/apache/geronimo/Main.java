@@ -67,7 +67,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.impl.LogFactoryImpl;
 
-import org.apache.geronimo.common.Duration;
 import org.apache.geronimo.common.StopWatch; 
 
 import org.apache.geronimo.deployment.DeploymentException;
@@ -77,7 +76,7 @@ import org.apache.geronimo.jmx.JMXKernel;
  *
  *
  *
- * @version $Revision: 1.14 $ $Date: 2003/08/29 17:56:39 $
+ * @version $Revision: 1.15 $ $Date: 2003/08/30 09:33:33 $
  */
 public class Main implements Runnable {
     static {
@@ -151,7 +150,7 @@ public class Main implements Runnable {
                 MBeanServer mbServer = kernel.getMBeanServer();
                 mbServer.invoke(controllerName, "deploy", deployArgs, DEPLOY_ARG_TYPES);
                 
-                log.info("Started Server in " + new Duration(watch.getTime())); 
+                log.info("Started Server in " + watch.toDuration());
             } catch (Throwable e) {
                 log.error("Error starting Server", e);
                 return;

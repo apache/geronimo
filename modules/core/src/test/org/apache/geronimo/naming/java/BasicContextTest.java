@@ -60,6 +60,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.NoSuchElementException;
+
 import javax.naming.Binding;
 import javax.naming.CompositeName;
 import javax.naming.CompoundName;
@@ -69,12 +70,14 @@ import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
+import org.apache.geronimo.common.StopWatch;
+
 import junit.framework.TestCase;
 
 /**
+* Unit tests for basic ops on an {@link InitialContext}.
  * 
- * 
- * @version $Revision: 1.2 $ $Date: 2003/08/23 22:13:15 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/30 09:33:32 $
  */
 public class BasicContextTest extends TestCase {
     private Properties syntax;
@@ -105,7 +108,7 @@ public class BasicContextTest extends TestCase {
 
         assertEquals(envContext, envContext.lookup(""));
     }
-
+    
     public void testSchemeLookup() throws NamingException {
         envContext.lookup("dns:apache.org");
         assertEquals("Hello", envContext.lookup("java:comp/env/hello"));
@@ -181,15 +184,17 @@ public class BasicContextTest extends TestCase {
     }
 
     public void testSpeed() throws NamingException {
+        StopWatch watch = new StopWatch();
         Context comp = (Context) initialContext.lookup("java:comp");
-        long start = System.currentTimeMillis();
+        
+        watch.start();
         for (int i=0; i < 1000000; i++) {
-//            initialContext.lookup("java:comp/hello"); // this is sloooow due to scheme resolution
-//            envContext.lookup("hello");
+            // initialContext.lookup("java:comp/hello"); // this is sloooow due to scheme resolution
+            // envContext.lookup("hello");
             comp.lookup("env/hello");
         }
-        long end = System.currentTimeMillis();
-        System.out.println("lookup(String): "+ (end-start) + "ns.");
+        
+        System.out.println("lookup(String): " + watch.toDuration());
     }
 
     protected void setUp() throws Exception {
