@@ -65,7 +65,7 @@ import junit.framework.TestCase;
 /**
  * Unit test for {@link MBeanProxyFactory} class.
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/01 15:12:36 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/01 15:15:03 $
  */
 public class MBeanProxyFactoryTest
     extends TestCase
@@ -148,6 +148,9 @@ public class MBeanProxyFactoryTest
         
         value = bean.someOperation("foo");
         assertEquals(targetObject.someOperation("foo"), value);
+        
+        value = bean.someOperation(true);
+        assertEquals(targetObject.someOperation(true), value);
     }
     
     public void testMBeanProxyContext() throws Exception
@@ -183,6 +186,8 @@ public class MBeanProxyFactoryTest
         String someOperation();
         
         String someOperation(Object arg);
+        
+        String someOperation(boolean arg);
     }
     
     public static class MockObject
@@ -229,6 +234,11 @@ public class MBeanProxyFactoryTest
         public String someOperation(Object arg)
         {
             return "someop" + arg;
+        }
+        
+        public String someOperation(boolean arg)
+        {
+            return "somebooleanop" + arg;
         }
     }
 }
