@@ -127,7 +127,7 @@ final class HTTPMethodSpec {
                 throw new IllegalArgumentException("Invalid transport");
             }
         } else {
-            this.transport = NONE;
+            this.transport = NA;
         }
     }
 
