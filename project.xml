@@ -227,7 +227,7 @@
         </unitTest>
         <resources>
             <resource>
-                <directory>${basedir}/src/conf</directory>
+                <directory>${basedir}/modules/core/src/conf</directory>
                 <includes>
                     <include>*.properties</include>
                 </includes>
