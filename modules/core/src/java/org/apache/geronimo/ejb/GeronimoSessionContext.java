@@ -80,7 +80,7 @@ import org.apache.geronimo.ejb.metadata.EJBMetadata;
  *
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/15 14:12:19 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/18 01:05:14 $
  */
 public class GeronimoSessionContext implements SessionContext {
     private final RPCContainer container;
@@ -172,15 +172,15 @@ public class GeronimoSessionContext implements SessionContext {
 
     public void setRollbackOnly() throws IllegalStateException {
         if (userTransaction != null) {
-            throw new IllegalStateException("getRollbackOnly is not allowed for beans with bean-managed transaction demarcation.");
+            throw new IllegalStateException("setRollbackOnly is not allowed for beans with bean-managed transaction demarcation.");
         }
 //        if (!state.equals("method-ready")) {
-//            throw new IllegalStateException("getRollbackOnly is only allowed in the method ready state");
+//            throw new IllegalStateException("setRollbackOnly is only allowed in the method ready state");
 //        }
 
         try {
             if (transactionManager.getStatus() == Status.STATUS_NO_TRANSACTION) {
-                throw new IllegalStateException("getRollbackOnly is only allowed during a transaction");
+                throw new IllegalStateException("setRollbackOnly is only allowed during a transaction");
             }
             transactionManager.setRollbackOnly();
         } catch (SystemException e) {
