@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.9 $ $Date: 2003/08/29 20:07:29 $ -->
+<!-- $Revision: 1.10 $ $Date: 2003/08/30 11:58:42 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -91,6 +91,25 @@
         </includes>
       </resource>
     </resources>
+    
+    <unitTest>
+      <!-- For some reason this is not pulled from the global project -->
+      <includes>
+        <include>**/*Test.java</include>
+      </includes>
+      <excludes>
+        <exclude>**/Abstract*.java</exclude>
+      </excludes>
+      
+      <resources>
+        <resource>
+          <directory>${basedir}/src/test-data</directory>
+          <includes>
+            <include>**/*</include>
+          </includes>
+        </resource>
+      </resources>
+    </unitTest>
   </build>
   
 </project>
