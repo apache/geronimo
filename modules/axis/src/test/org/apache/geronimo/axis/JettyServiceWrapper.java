@@ -16,14 +16,6 @@
 
 package org.apache.geronimo.axis;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.jetty.JettyContainerImpl;
@@ -31,6 +23,12 @@ import org.apache.geronimo.jetty.connector.HTTPConnector;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.transaction.GeronimoTransactionManager;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * <p>This class wrap the Jetty service, This is a test utility only</p>
@@ -45,15 +43,15 @@ public class JettyServiceWrapper {
 	
 	private final MBeanServer mbServer;
 	
-	public JettyServiceWrapper(Kernel kernel)throws MalformedObjectNameException{
+	public JettyServiceWrapper(Kernel kernel) {
             this.mbServer = kernel.getMBeanServer();
             
-            containerName = new ObjectName(AxisGeronimoConstants.WEB_CONTANER_NAME);
+            containerName = AxisGeronimoConstants.WEB_CONTAINER_NAME;
             containerPatterns = Collections.singleton(containerName);
-            connectorName = new ObjectName(AxisGeronimoConstants.WEB_CONNECTOR_NAME);
-            tmName = new ObjectName(AxisGeronimoConstants.TRANSACTION_MANAGER_NAME);
-            tcaName = new ObjectName(AxisGeronimoConstants.CONNTECTION_TRACKING_COORDINATOR);
-            tcmName = new ObjectName(AxisGeronimoConstants.TRANSACTION_CONTEXT_MANAGER_NAME);    
+            connectorName = AxisGeronimoConstants.WEB_CONNECTOR_NAME;
+            tmName = AxisGeronimoConstants.TRANSACTION_MANAGER_NAME;
+            tcaName = AxisGeronimoConstants.CONNTECTION_TRACKING_COORDINATOR;
+            tcmName = AxisGeronimoConstants.TRANSACTION_CONTEXT_MANAGER_NAME;    
 	}
 
 	public void doStart() throws Exception {
