@@ -55,27 +55,14 @@
  */
 package org.apache.geronimo.jetty.deployment;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.model.DeployableObject;
-import javax.enterprise.deploy.spi.DConfigBeanRoot;
-import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.geronimo.deployment.plugin.DeploymentConfigurationSupport;
-import org.apache.xmlbeans.XmlException;
-import org.xml.sax.SAXException;
-import org.w3c.dom.Document;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/06 08:55:49 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/14 01:50:15 $
  */
 public class WARConfiguration extends DeploymentConfigurationSupport {
 

@@ -55,32 +55,49 @@
  */
 package org.apache.geronimo.jetty.deployment;
 
-import java.util.Properties;
-import java.util.Collections;
 import java.net.URI;
-import javax.enterprise.deploy.spi.TargetModuleID;
-import javax.management.ObjectName;
+import java.util.Collections;
+import java.util.Properties;
 
-import org.apache.geronimo.deployment.DeploymentModule;
-import org.apache.geronimo.deployment.DeploymentException;
+import javax.management.ObjectName;
+import javax.naming.Context;
+import javax.transaction.UserTransaction;
+
 import org.apache.geronimo.deployment.ConfigurationCallback;
+import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.deployment.DeploymentModule;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.jetty.JettyWebApplicationContext;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.naming.deployment.ComponentContextBuilder;
+import org.apache.geronimo.naming.java.ProxyFactory;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
+import org.apache.geronimo.xbeans.j2ee.WebAppType;
 
 /**
- * 
- * 
- * @version $Revision: 1.4 $ $Date: 2004/02/05 01:37:56 $
+ *
+ *
+ * @version $Revision: 1.5 $ $Date: 2004/02/14 01:50:15 $
  */
 public class AbstractModule implements DeploymentModule {
+
+    private final ProxyFactory proxyFactory;
     protected final URI configID;
     protected URI uri;
     protected String contextPath;
     protected boolean contextPriorityClassLoader;
-    
-    public AbstractModule(URI configID) {
+    protected WebAppType webApp;
+    protected final JettyWebAppType jettyWebApp;
+
+    public AbstractModule(URI configID, JettyWebAppType jettyWebApp, ProxyFactory proxyFactory) throws DeploymentException {
         this.configID = configID;
+        this.jettyWebApp = jettyWebApp;
+        this.proxyFactory = proxyFactory;
+        contextPath = jettyWebApp.getContextRoot().getStringValue();
+        if (contextPath == null) {
+            throw new DeploymentException("No context root specified");
+        }
+        contextPriorityClassLoader=jettyWebApp.getContextPriorityClassloader();
     }
 
     public void init() throws DeploymentException {
@@ -102,15 +119,28 @@ public class AbstractModule implements DeploymentModule {
             GBeanMBean app = new GBeanMBean(JettyWebApplicationContext.GBEAN_INFO);
             app.setAttribute("URI", uri);
             app.setAttribute("ContextPath", contextPath);
-            app.setAttribute("ContextPriorityClassLoader", new Boolean(contextPriorityClassLoader));     
-            app.setAttribute("ComponentContext", null);
+            app.setAttribute("ContextPriorityClassLoader", new Boolean(contextPriorityClassLoader));
             app.setAttribute("PolicyContextID", null);
+            //jndi
+            if (proxyFactory != null) {
+                UserTransaction userTransaction = null;
+                Context componentContext = new ComponentContextBuilder(proxyFactory, cl).buildContext(
+                        webApp.getEjbRefArray(), jettyWebApp.getEjbRefArray(),
+                        webApp.getEjbLocalRefArray(), jettyWebApp.getEjbLocalRefArray(),
+                        webApp.getEnvEntryArray(),
+                        webApp.getMessageDestinationRefArray(), jettyWebApp.getMessageDestinationRefArray(),
+                        webApp.getResourceEnvRefArray(), jettyWebApp.getResourceEnvRefArray(),
+                        webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray(),
+                        userTransaction);
+                app.setAttribute("ComponentContext", componentContext);
+            }
+
             app.setReferencePatterns("Configuration", Collections.singleton(Kernel.getConfigObjectName(configID)));
             app.setReferencePatterns("JettyContainer", Collections.singleton(new ObjectName("geronimo.web:type=WebContainer,container=Jetty"))); // @todo configurable
             app.setReferencePatterns("TransactionManager", Collections.EMPTY_SET);
             app.setReferencePatterns("TrackedConnectionAssociator", Collections.EMPTY_SET);
             callback.addGBean(name, app);
-            
+
         } catch (Throwable e) {
             throw new DeploymentException("Unable to build GBean for web application", e);
         }

@@ -80,12 +80,12 @@ import org.apache.geronimo.deployment.plugin.local.LocalServer;
 import org.apache.geronimo.deployment.service.ServiceDeployer;
 import org.apache.geronimo.deployment.util.URLInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.xbeans.geronimo.deployment.jetty.JettyWebAppDocument;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
 
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/02/06 08:55:49 $
+ * @version $Revision: 1.7 $ $Date: 2004/02/14 01:50:15 $
  */
 public class DeploymentTest extends DeployerTestCase {
 //    private byte[] plan;

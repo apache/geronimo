@@ -58,17 +58,13 @@ package org.apache.geronimo.jetty.deployment;
 import java.io.InputStream;
 import java.net.URI;
 
-import javax.enterprise.deploy.model.DeployableObject;
-import javax.enterprise.deploy.shared.ModuleType;
-import javax.enterprise.deploy.spi.DeploymentConfiguration;
-import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
-
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentModule;
 import org.apache.geronimo.deployment.plugin.factories.DeploymentConfigurationFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.xbeans.geronimo.deployment.jetty.JettyWebAppDocument;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
+import org.apache.geronimo.naming.java.ProxyFactory;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
@@ -77,16 +73,22 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/02/09 00:01:20 $
+ * @version $Revision: 1.8 $ $Date: 2004/02/14 01:50:15 $
  */
 public class WARConfigurationFactory implements DeploymentConfigurationFactory {
     private static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
+
+    private ProxyFactory proxyFactory;
+
+    public WARConfigurationFactory(ProxyFactory proxyFactory) {
+        this.proxyFactory = proxyFactory;
+    }
 
     //TODO a createModule method taking a file/directory for unpacked jsp handling.
     //Should create a UnpackedModule if supplied file is a directory.
     public DeploymentModule createModule(InputStream moduleArchive, XmlObject deploymentPlan, URI configID, boolean isLocal) throws DeploymentException {
         JettyWebAppDocument webAppDoc = (JettyWebAppDocument)deploymentPlan;
-        return new JettyModule(configID, moduleArchive, webAppDoc.getWebApp());
+        return new JettyModule(configID, moduleArchive, webAppDoc.getWebApp(), proxyFactory);
     }
 
     //these might be temporary
@@ -103,6 +105,8 @@ public class WARConfigurationFactory implements DeploymentConfigurationFactory {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty WAR Configuration Factory", WARConfigurationFactory.class.getName());
         infoFactory.addInterface(DeploymentConfigurationFactory.class);
+        infoFactory.addReference("ProxyFactory", ProxyFactory.class);
+        infoFactory.setConstructor(new String[] {"ProxyFactory"}, new Class[] {ProxyFactory.class});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

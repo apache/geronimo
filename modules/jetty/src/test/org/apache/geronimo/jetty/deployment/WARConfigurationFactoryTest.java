@@ -61,16 +61,16 @@ import java.io.ByteArrayOutputStream;
 import javax.enterprise.deploy.spi.DConfigBeanRoot;
 
 import org.apache.geronimo.deployment.tools.loader.WebDeployable;
-import org.apache.geronimo.xbeans.geronimo.deployment.jetty.JettyContextRootType;
-import org.apache.geronimo.xbeans.geronimo.deployment.jetty.JettyWebAppDocument;
-import org.apache.geronimo.xbeans.geronimo.deployment.jetty.JettyWebAppType;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyContextRootType;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
  *
  *
- * @version $Revision: 1.9 $ $Date: 2004/02/11 08:02:21 $
+ * @version $Revision: 1.10 $ $Date: 2004/02/14 01:50:15 $
  */
 public class WARConfigurationFactoryTest extends DeployerTestCase {
 

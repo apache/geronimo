@@ -64,8 +64,8 @@ import javax.enterprise.deploy.spi.DConfigBean;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 
 import org.apache.geronimo.deployment.plugin.DConfigBeanRootSupport;
-import org.apache.geronimo.xbeans.geronimo.deployment.jetty.JettyWebAppDocument;
-import org.apache.geronimo.xbeans.geronimo.deployment.jetty.JettyWebAppType;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
@@ -73,7 +73,7 @@ import org.apache.xmlbeans.XmlException;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/02/11 08:02:21 $
+ * @version $Revision: 1.6 $ $Date: 2004/02/14 01:50:15 $
  */
 public class WebAppDConfigRoot extends DConfigBeanRootSupport {
     private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();

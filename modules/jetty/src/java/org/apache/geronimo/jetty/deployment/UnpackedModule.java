@@ -58,25 +58,26 @@ package org.apache.geronimo.jetty.deployment;
 import java.io.File;
 import java.net.URI;
 
-import org.apache.geronimo.deployment.util.XMLUtil;
-import org.w3c.dom.Document;
+import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.naming.java.ProxyFactory;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
 
 /**
- * 
- * 
- * @version $Revision: 1.3 $ $Date: 2004/02/05 01:37:56 $
+ *
+ *
+ * @version $Revision: 1.4 $ $Date: 2004/02/14 01:50:15 $
  */
 public class UnpackedModule extends AbstractModule {
-   
-    public UnpackedModule(URI configID, File archive, Document deploymentPlan) {
-        super(configID);
+
+    public UnpackedModule(URI configID, File archive, JettyWebAppType jettyWebApp, ProxyFactory proxyFactory) throws DeploymentException {
+        super(configID, jettyWebApp, proxyFactory);
         this.uri = archive.toURI();
+        //????? contextPath is read from required geronimo dd.
         contextPath = archive.getName();
         if (contextPath.endsWith(".war")) {
             contextPath = contextPath.substring(0, contextPath.length() - 4);
         }
-        contextPath = XMLUtil.getChildContent(deploymentPlan.getDocumentElement(), "context-root", contextPath, contextPath);
-    }    
-    
+    }
+
     // TODO - generate classpath?
 }

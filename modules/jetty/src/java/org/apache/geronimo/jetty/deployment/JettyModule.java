@@ -65,12 +65,16 @@ import java.util.zip.ZipInputStream;
 
 import org.apache.geronimo.deployment.ConfigurationCallback;
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.xbeans.geronimo.deployment.jetty.JettyWebAppType;
+import org.apache.geronimo.deployment.util.UnclosableInputStream;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
+import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
+import org.apache.geronimo.naming.java.ProxyFactory;
+import org.apache.xmlbeans.XmlException;
 
 /**
  *
  *
- * @version $Revision: 1.10 $ $Date: 2004/02/08 20:19:21 $
+ * @version $Revision: 1.11 $ $Date: 2004/02/14 01:50:15 $
  */
 public class JettyModule extends AbstractModule {
     private final File moduleDirectory;
@@ -79,16 +83,11 @@ public class JettyModule extends AbstractModule {
     private URI classes;
     private URI lib;
 
-    public JettyModule(URI configID, InputStream moduleArchive, JettyWebAppType webApp) throws DeploymentException {
-        super(configID);
+    public JettyModule(URI configID, InputStream moduleArchive, JettyWebAppType jettyWebApp, ProxyFactory proxyFactory) throws DeploymentException {
+        super(configID, jettyWebApp, proxyFactory);
         moduleDirectory = null;
         this.zipArchive = new ZipInputStream(moduleArchive);
         closeStream = false;
-        contextPath = webApp.getContextRoot().getStringValue();
-        if (contextPath == null) {
-            throw new DeploymentException("No context root specified");
-        }
-        contextPriorityClassLoader=webApp.getContextPriorityClassloader();
     }
 
     public void init() throws DeploymentException {
@@ -112,6 +111,11 @@ public class JettyModule extends AbstractModule {
                     }
                     callback.addFile(uri.resolve(name), zipArchive);
 
+                    if (name.equals("WEB-INF/web-app.xml")) {
+                        WebAppDocument webAppDoc = WebAppDocument.Factory.parse(new UnclosableInputStream(zipArchive));
+                        webApp = webAppDoc.getWebApp();
+                    }
+
                     // If we do not give the context priority over classloading, then we add the standard locations to our classpath.
                     if (!contextPriorityClassLoader) {
                         if (!addedClasses && name.startsWith("WEB-INF/classes/")) {
@@ -127,6 +131,8 @@ public class JettyModule extends AbstractModule {
             }
             catch (IOException e) {
                 throw new DeploymentException("Unable to unpack WAR content", e);
+            } catch (XmlException e) {
+                throw new DeploymentException("Unable to parse WAR content", e);
             }
         }
         else {

@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema"
-    xmlns:ger="http://geronimo.apache.org/xml/ns/web/jetty"
+    xmlns:jetty="http://geronimo.apache.org/xml/ns/web/jetty"
     targetNamespace="http://geronimo.apache.org/xml/ns/web/jetty"
+    xmlns:ger="http://geronimo.apache.org/xml/ns/j2ee"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
     version="1.0">
 
-    <xsd:element name="web-app" type="ger:web-appType"/>
+    <xsd:import namespace="http://geronimo.apache.org/xml/ns/j2ee" schemaLocation="../../../naming/src/schema/geronimo-naming.xsd"/>
+
+    <xsd:element name="web-app" type="jetty:web-appType"/>
 
     <xsd:complexType name="web-appType">
         <xsd:sequence>
-            <xsd:element name="context-root" type="ger:context-rootType"/>
+            <xsd:element name="context-root" type="jetty:context-rootType"/>
             <xsd:element name="context-priority-classloader" type="xsd:boolean"/>
+            <xsd:group ref="ger:jndiEnvironmentRefsGroup"/>
         </xsd:sequence>
     </xsd:complexType>
 
