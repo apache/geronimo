@@ -23,7 +23,7 @@ import javax.security.jacc.PolicyContextHandler;
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:25 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/27 03:35:10 $
  */
 public class PolicyContextHandlerHttpServletRequest implements PolicyContextHandler {
     public static final String HANDLER_KEY = "javax.servlet.http.HttpServletRequest";
@@ -37,7 +37,11 @@ public class PolicyContextHandlerHttpServletRequest implements PolicyContextHand
     }
 
     public Object getContext(String key, Object data) throws PolicyContextException {
-        // todo: Wire in the return of the HttpServletRequest object
+        if (HANDLER_KEY.equals(key) && data != null) {
+
+            return data;
+        }
+
         return null;
     }
 }
