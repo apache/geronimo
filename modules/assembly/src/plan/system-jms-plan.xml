@@ -28,7 +28,6 @@
       <config-property-setting name="ServerUrl">vm://localhost</config-property-setting>
       <config-property-setting name="UserName">geronimo</config-property-setting>
       <config-property-setting name="Password">geronimo</config-property-setting>
-      <config-property-setting name="XA">true</config-property-setting>
       <workmanager-name>DefaultWorkManager</workmanager-name>
     </resourceadapter-instance>
     <outbound-resourceadapter>
