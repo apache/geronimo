@@ -49,6 +49,8 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.ClassLoading;
+import org.apache.geronimo.kernel.ObjectInputStreamExt;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -368,24 +370,6 @@ public class Configuration implements GBeanLifecycle {
         return configurationClassLoader;
     }
 
-    private static class ConfigInputStream extends ObjectInputStream {
-        private final ClassLoader cl;
-
-        public ConfigInputStream(InputStream in, ClassLoader cl) throws IOException {
-            super(in);
-            this.cl = cl;
-        }
-
-        protected Class resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
-            try {
-                return cl.loadClass(desc.getName());
-            } catch (ClassNotFoundException e) {
-                // let the parent try
-                return super.resolveClass(desc);
-            }
-        }
-    }
-
     /**
      * Load GBeans from the supplied byte array using the supplied ClassLoader
      *
@@ -397,7 +381,7 @@ public class Configuration implements GBeanLifecycle {
     private static Collection loadGBeans(byte[] gbeanState, ClassLoader cl) throws InvalidConfigException {
         Map gbeans = new HashMap();
         try {
-            ObjectInputStream ois = new ConfigInputStream(new ByteArrayInputStream(gbeanState), cl);
+            ObjectInputStream ois = new ObjectInputStreamExt(new ByteArrayInputStream(gbeanState), cl);
             try {
                 while (true) {
                     GBeanData gbeanData = new GBeanData();

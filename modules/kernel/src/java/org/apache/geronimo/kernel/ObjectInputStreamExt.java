@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.security.remoting.jmx;
+package org.apache.geronimo.kernel;
 
 import java.io.IOException;
 import java.io.InputStream;

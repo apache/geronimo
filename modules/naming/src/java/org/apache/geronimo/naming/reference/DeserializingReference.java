@@ -17,12 +17,10 @@
 package org.apache.geronimo.naming.reference;
 
 import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
-import java.io.InputStream;
 import java.io.IOException;
-import java.io.ObjectStreamClass;
+import java.io.ObjectInputStream;
 
-import org.apache.geronimo.kernel.ClassLoading;
+import org.apache.geronimo.kernel.ObjectInputStreamExt;
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -44,7 +42,7 @@ public class DeserializingReference extends SimpleAwareReference {
         super.setClassLoader(classLoader);
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
         try {
-            ObjectInputStream is = new ConfigInputStream(bais, classLoader);
+            ObjectInputStream is = new ObjectInputStreamExt(bais, classLoader);
             try {
                 content = is.readObject();
             } finally {
@@ -57,16 +55,4 @@ public class DeserializingReference extends SimpleAwareReference {
         }
     }
 
-    private static class ConfigInputStream extends ObjectInputStream {
-        private final ClassLoader classLoader;
-
-        public ConfigInputStream(InputStream in, ClassLoader classLoader) throws IOException {
-            super(in);
-            this.classLoader = classLoader;
-        }
-
-        protected Class resolveClass(ObjectStreamClass classDesc) throws IOException, ClassNotFoundException {
-            return ClassLoading.loadClass(classDesc.getName(), classLoader);
-        }
-    }
 }
