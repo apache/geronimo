@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2003-2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,24 +22,24 @@ import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.Policy;
 import java.security.ProtectionDomain;
+import javax.security.jacc.PolicyConfigurationFactory;
 import javax.security.jacc.PolicyContext;
 import javax.security.jacc.PolicyContextException;
 
 
 /**
- *
  * @version $Rev$ $Date$
  */
 public class GeronimoPolicy extends Policy {
     private final Policy root;
     private final GeronimoPolicyConfigurationFactory factory;
 
-    public GeronimoPolicy(GeronimoPolicyConfigurationFactory factory) {
-        this(factory, null);
+    public GeronimoPolicy() {
+        this(null);
     }
 
-    public GeronimoPolicy(GeronimoPolicyConfigurationFactory factory, Policy root) {
-        this.factory = factory;
+    public GeronimoPolicy(Policy root) {
+        this.factory = obtainFactory();
         this.root = root;
     }
 
@@ -51,21 +51,34 @@ public class GeronimoPolicy extends Policy {
     }
 
     public boolean implies(ProtectionDomain domain, Permission permission) {
-        String contextID = PolicyContext.getContextID();
-        if (contextID != null) {
-            try {
-                GeronimoPolicyConfiguration configuration = factory.getGeronimoPolicyConfiguration(contextID);
 
-                if (configuration.inService()) {
-                    if (configuration.implies(domain, permission)) return true;
-                } else {
-                    return false;
+        if (factory != null) {
+            String contextID = PolicyContext.getContextID();
+            if (contextID != null) {
+                try {
+                    GeronimoPolicyConfiguration configuration = factory.getGeronimoPolicyConfiguration(contextID);
+
+                    if (configuration.inService()) {
+                        if (configuration.implies(domain, permission)) return true;
+                    } else {
+                        return false;
+                    }
+                } catch (PolicyContextException e) {
                 }
-            } catch (PolicyContextException e) {
             }
         }
         if (root != null) return root.implies(domain, permission);
 
         return false;
+    }
+
+    private GeronimoPolicyConfigurationFactory obtainFactory() {
+        GeronimoPolicyConfigurationFactory result = null;
+        try {
+            result = (GeronimoPolicyConfigurationFactory) PolicyConfigurationFactory.getPolicyConfigurationFactory();
+        } catch (ClassNotFoundException e) {
+        } catch (PolicyContextException e) {
+        }
+        return result;
     }
 }

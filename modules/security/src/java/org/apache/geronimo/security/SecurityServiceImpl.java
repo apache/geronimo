@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2003-2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@
 
 package org.apache.geronimo.security;
 
+import java.security.Policy;
 import javax.security.jacc.PolicyConfigurationFactory;
 import javax.security.jacc.PolicyContextException;
-import java.security.Policy;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,7 +27,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.security.jacc.GeronimoPolicy;
-import org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerContainerSubject;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerHttpServletRequest;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerSOAPMessage;
@@ -35,7 +34,7 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
 
 
 /**
- * An MBean that maintains a list of security realms.
+ * An MBean that registers the JACC factory and handlers.
  *
  * @version $Rev$ $Date$
  */
@@ -43,13 +42,12 @@ public class SecurityServiceImpl {
 
     private final Log log = LogFactory.getLog(SecurityServiceImpl.class);
 
-
     /**
      * Permissions that protect access to sensitive security information
      */
     public static final GeronimoSecurityPermission CONFIGURE = new GeronimoSecurityPermission("configure");
 
-    public SecurityServiceImpl(String policyConfigurationFactory) throws PolicyContextException, ClassNotFoundException {
+    public SecurityServiceImpl(ClassLoader classLoader, String policyConfigurationFactory, String policyProvider) throws PolicyContextException, ClassNotFoundException, IllegalAccessException, InstantiationException {
         /**
          *  @see "JSR 115 4.6.1" Container Subject Policy Context Handler
          */
@@ -60,10 +58,17 @@ public class SecurityServiceImpl {
         if (policyConfigurationFactory != null) {
             System.setProperty("javax.security.jacc.PolicyConfigurationFactory.provider", policyConfigurationFactory);
         }
-        PolicyConfigurationFactory factory = PolicyConfigurationFactory.getPolicyConfigurationFactory();
-        GeronimoPolicyConfigurationFactory geronimoPolicyConfigurationFactory = (GeronimoPolicyConfigurationFactory) factory;
-        Policy.setPolicy(new GeronimoPolicy(geronimoPolicyConfigurationFactory));
-        log.info("Security service started");
+
+        PolicyConfigurationFactory.getPolicyConfigurationFactory();
+
+        if (policyProvider != null) {
+            Policy customPolicy = (Policy) classLoader.loadClass(policyProvider).newInstance();
+            Policy.setPolicy(customPolicy);
+        } else {
+            Policy.setPolicy(new GeronimoPolicy());
+        }
+
+        log.info("JACC factory registered");
     }
 
 
@@ -72,10 +77,11 @@ public class SecurityServiceImpl {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SecurityServiceImpl.class);
 
+        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addAttribute("policyConfigurationFactory", String.class, true);
+        infoFactory.addAttribute("policyProvider", String.class, true);
 
-
-        infoFactory.setConstructor(new String[]{"policyConfigurationFactory"});
+        infoFactory.setConstructor(new String[]{"classLoader", "policyConfigurationFactory", "policyProvider"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
