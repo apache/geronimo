@@ -144,6 +144,35 @@ public class SchemaConversionUtilsTest extends TestCase {
         assertTrue("Differences after reconverting to application schema: " + problems, ok3);
     }
 
+    public void testEJB11ToEJB21Transform() throws Exception {
+        File srcXml = new File(basedir, "src/test-data/j2ee_1_2dtd/ejb-1-11.xml");
+        File expectedOutputXml = new File(basedir, "src/test-data/j2ee_1_2dtd/ejb-1-21.xml");
+        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
+        XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
+        SchemaConversionUtils.validateDD(expected);
+        xmlObject = SchemaConversionUtils.convertToEJBSchema(xmlObject);
+//        System.out.println(xmlObject.toString());
+//        System.out.println(expected.toString());
+        List problems = new ArrayList();
+        boolean ok = compareXmlObjects(xmlObject, expected, problems);
+        assertTrue("Differences: " + problems, ok);
+        //make sure trying to convert twice has no bad effects
+        XmlCursor cursor2 = xmlObject.newCursor();
+        try {
+            String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd";
+            String version = "2.1";
+            assertFalse(SchemaConversionUtils.convertToSchema(cursor2, SchemaConversionUtils.J2EE_NAMESPACE, schemaLocationURL, version));
+        } finally {
+            cursor2.dispose();
+        }
+        boolean ok2 = compareXmlObjects(xmlObject, expected, problems);
+        assertTrue("Differences after reconverting to schema: " + problems, ok2);
+        //do the whole transform twice...
+        xmlObject = SchemaConversionUtils.convertToEJBSchema(xmlObject);
+        boolean ok3 = compareXmlObjects(xmlObject, expected, problems);
+        assertTrue("Differences after reconverting to ejb schema: " + problems, ok3);
+    }
+
     public void testEJB20ToEJB21Transform() throws Exception {
         File srcXml = new File(basedir, "src/test-data/j2ee_1_3dtd/ejb-jar.xml");
         File expectedOutputXml = new File(basedir, "src/test-data/j2ee_1_3dtd/ejb-jar-21.xml");

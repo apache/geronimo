@@ -48,6 +48,7 @@ public class SchemaConversionUtils {
 
     private static final QName RESOURCE_ADAPTER_VERSION = new QName(J2EE_NAMESPACE, "resourceadapter-version");
     private static final QName TAGLIB = new QName(J2EE_NAMESPACE, "taglib");
+    private static final QName CMP_VERSION = new QName(J2EE_NAMESPACE, "cmp-version");
 
     private SchemaConversionUtils() {
     }
@@ -222,13 +223,29 @@ public class SchemaConversionUtils {
         }
         XmlCursor cursor = xmlObject.newCursor();
         XmlCursor moveable = xmlObject.newCursor();
-        String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd";
-        String version = "2.1";
         try {
+            cursor.toFirstChild();
+            if ("http://java.sun.com/xml/ns/j2ee".equals(cursor.getName().getNamespaceURI())) {
+                XmlObject result = xmlObject.changeType(EjbJarDocument.type);
+                validateDD(result);
+                return (EjbJarDocument) result;
+            }
+            XmlDocumentProperties xmlDocumentProperties = cursor.documentProperties();
+            String publicId = xmlDocumentProperties.getDoctypePublicId();
+            String cmpVersion;
+            if ("-//Sun Microsystems, Inc.//DTD Enterprise JavaBeans 1.1//EN".equals(publicId)) {
+                cmpVersion = "1.x";
+            } else if ("-//Sun Microsystems, Inc.//DTD Enterprise JavaBeans 2.0//EN".equals(publicId)) {
+                cmpVersion = null;//2.x is the default "2.x";
+            } else {
+                throw new XmlException("Unrecognized document type: " + publicId);
+            }
+            String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd";
+            String version = "2.1";
             convertToSchema(cursor, J2EE_NAMESPACE, schemaLocationURL, version);
             //play with message-driven
             cursor.toStartDoc();
-            convertBeans(cursor, moveable);
+            convertBeans(cursor, moveable, cmpVersion);
         } finally {
             cursor.dispose();
             moveable.dispose();
@@ -366,8 +383,8 @@ public class SchemaConversionUtils {
                 if (cursor.isStart()) {
                     String localName = cursor.getName().getLocalPart();
                     if (localName.equals("gbean")
-                    || localName.equals("dependency")
-                    || localName.equals("include")) {
+                            || localName.equals("dependency")
+                            || localName.equals("include")) {
                         convertElementToSchema(cursor, end, GERONIMO_SERVICE_NAMESPACE);
                     }
                 }
@@ -450,7 +467,7 @@ public class SchemaConversionUtils {
         return true;
     }
 
-    public static void convertBeans(XmlCursor cursor, XmlCursor moveable) {
+    public static void convertBeans(XmlCursor cursor, XmlCursor moveable, String cmpVersion) {
         cursor.toChild(J2EE_NAMESPACE, "ejb-jar");
         cursor.toChild(J2EE_NAMESPACE, "enterprise-beans");
         if (cursor.toFirstChild()) {
@@ -463,11 +480,17 @@ public class SchemaConversionUtils {
                     cursor.toNextSibling();
                     convertToJNDIEnvironmentRefsGroup(cursor, moveable);
                 } else if ("entity".equals(type)) {
+                    cursor.toChild(J2EE_NAMESPACE, "persistence-type");
+                    String persistenceType = cursor.getTextValue();
                     //reentrant is the last required tag before jndiEnvironmentRefsGroup
-                    cursor.toChild(J2EE_NAMESPACE, "reentrant");
+                    cursor.toNextSibling(J2EE_NAMESPACE, "reentrant");
                     //Convert 2.0 True/False to true/false for 2.1
                     cursor.setTextValue(cursor.getTextValue().toLowerCase());
-                    cursor.toNextSibling(J2EE_NAMESPACE, "cmp-version");
+                    if (cmpVersion != null && !cursor.toNextSibling(CMP_VERSION) && "Container".equals(persistenceType)) {
+                        cursor.toNextSibling();
+                        cursor.insertElementWithText(CMP_VERSION, cmpVersion);
+                    }
+
                     cursor.toNextSibling(J2EE_NAMESPACE, "abstract-schema-name");
                     while (cursor.toNextSibling(J2EE_NAMESPACE, "cmp-field")) {
                         ;
