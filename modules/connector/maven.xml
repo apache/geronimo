@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.3 $ $Date: 2004/02/10 23:06:31 $ -->
+<!-- $Revision: 1.4 $ $Date: 2004/02/10 23:30:10 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -14,7 +14,7 @@
             sourceschema="schema/geronimo-connector_1_5.xsd"
             xmlconfigs="${basedir}/src/schema/xmlconfig.xml"
             targetdir="${basedir}/target/xmlbeans"
-            cataloglocation="${basedir}/../specs/schema/src/catalog/resolver-catalog.xml"/>
+            cataloglocation="${basedir}/../../specs/schema/src/catalog/resolver-catalog.xml"/>
     </preGoal>
     <!--${basedir}/src/schema/connector_1_0.xsd,${basedir}/src/schema/connector_1_5.xsd,-->
 </project>
