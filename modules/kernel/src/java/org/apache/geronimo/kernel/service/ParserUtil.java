@@ -61,6 +61,7 @@ import java.beans.PropertyEditorManager;
 import java.io.File;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -69,12 +70,13 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.kernel.deployment.DeploymentException;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2003/11/11 16:00:59 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/16 00:43:24 $
  */
 public final class ParserUtil {
-    private ParserUtil(){
+    private ParserUtil() {
     }
 
 
@@ -114,7 +116,7 @@ public final class ParserUtil {
             // append the property
             String propertyName = input.substring(prefixLoc + 2, suffixLoc);
             String property = System.getProperty(propertyName);
-            if(property == null) {
+            if (property == null) {
                 property = "";
             }
             buff.append(property);
@@ -321,7 +323,7 @@ public final class ParserUtil {
     public static Object getValue(Class type, String value, URI baseURI) {
         value = parse(value);
 
-        if(baseURI != null) {
+        if (baseURI != null) {
             if (URI.class.equals(type)) {
                 return baseURI.resolve(value);
             }
@@ -360,8 +362,7 @@ public final class ParserUtil {
      * @param type   The class of the object to be edited.
      * @return       An editor for the given type or null if none was found.
      */
-    public static PropertyEditor findEditor(final Class type)
-    {
+    public static PropertyEditor findEditor(final Class type) {
         if (type == null) {
             throw new IllegalArgumentException("Type is null");
         }
@@ -378,6 +379,46 @@ public final class ParserUtil {
         }
 
         return editor;
+    }
+
+    public static Class[] translateArgs(String[] types, Object[] args, URI baseURI, ClassLoader classloader)
+            throws DeploymentException {
+        Class[] clazz = new Class[types.length];
+        for (int i = 0; i < types.length; i++) {
+            try {
+                clazz[i] = loadClass(types[i], classloader);
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException(e);
+            }
+
+            Object value = args[i];
+            if (value instanceof String) {
+                value = getValue(clazz[i], (String) value, baseURI);
+                args[i] = value;
+            }
+        }
+        return clazz;
+    }
+
+    public static Object instantiate(Class clazz, Object[] args, Class[] types)
+            throws InvocationTargetException,
+            InstantiationException,
+            IllegalAccessException,
+            NoSuchMethodException {
+        Constructor c = clazz.getConstructor(types);
+        return c.newInstance(args);
+    }
+
+    public static Object instantiate(String className, Object[] args, String[] types, URI baseURI, ClassLoader cl)
+            throws DeploymentException,
+            ClassNotFoundException,
+            NoSuchMethodException,
+            InvocationTargetException,
+            InstantiationException,
+            IllegalAccessException {
+        Class[] typeClazz = translateArgs(types, args, baseURI, cl);
+        Class clazz = cl.loadClass(className);
+        return instantiate(clazz, args, typeClazz);
     }
 }
 
