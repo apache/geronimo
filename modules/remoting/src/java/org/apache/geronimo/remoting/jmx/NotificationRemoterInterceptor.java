@@ -55,6 +55,7 @@
  */
 package org.apache.geronimo.remoting.jmx;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 
 import javax.management.NotificationFilter;
@@ -68,9 +69,9 @@ import org.apache.geronimo.proxy.ProxyInvocation;
 import org.apache.geronimo.remoting.transport.TransportFactory;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2003/11/26 20:54:29 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/28 05:42:56 $
  */
-public class NotificationRemoterInterceptor implements Interceptor {
+public class NotificationRemoterInterceptor implements Interceptor, Serializable {
     private final Interceptor next;
 
     public NotificationRemoterInterceptor(Interceptor next) {
