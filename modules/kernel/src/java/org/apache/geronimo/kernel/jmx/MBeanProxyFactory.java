@@ -69,13 +69,15 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.SimpleCallbacks;
 import net.sf.cglib.proxy.MethodProxy;
+import net.sf.cglib.proxy.CallbackFilter;
+import net.sf.cglib.proxy.Callbacks;
 import net.sf.cglib.reflect.FastClass;
 
 /**
  * MBeanProxyFactory creates a dynamic proxy to an MBean by ObjectName.
  * The interface type and object existance are enforced during construction.
  *
- * @version $Revision: 1.4 $ $Date: 2003/11/10 00:22:34 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/11 20:22:36 $
  */
 public final class MBeanProxyFactory {
 
@@ -93,11 +95,14 @@ public final class MBeanProxyFactory {
         assert server != null;
 
         // get the factory
-        Factory factory = Enhancer.create(
-                Object.class,
-                new Class[]{iface},
-                new InterfaceCallbackFilter(iface),
-                new SimpleCallbacks());
+        Enhancer enhancer = new Enhancer();
+        enhancer.setSuperclass(Object.class);
+        enhancer.setInterfaces(new Class[]{iface});
+        enhancer.setCallbackFilter(new InterfaceCallbackFilter(iface));
+        enhancer.setCallbacks(new SimpleCallbacks());
+        enhancer.setClassLoader(iface.getClassLoader());
+
+        Factory factory = enhancer.create();
 
         // build the method table
         if (objectName.isPattern()) {
