@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Processors associated to a server.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/01 13:16:35 $
  */
 class ServerProcessors
 {
@@ -56,32 +56,19 @@ class ServerProcessors
         streamManager = aServer.getStreamManager();
     }
     
+    /**
+     * Execute a Processor in a separate Thread.
+     *  
+     * @param aProcessor Processor to be executed.
+     */
+    public void execute(Processor aProcessor) {
+        processors.execute(aProcessor);
+    }
+    
     public Processors getProcessors() {
         return processors;
     }
     
-    /**
-     * Starts popping Msg from the provided connection and adds them to the
-     * inbound Msg queue.
-     * 
-     * @param aConnection Connection to be popped.
-     */
-    public void startConnection(ServerNode.ConnectionWrapper aConnection) {
-        InboundQueueFiller filler = new InboundQueueFiller(aConnection);
-        processors.execute(filler);
-    }
-    
-    /**
-     * Stops popping Msg from the provided connection.
-     * 
-     * @param aConnection Connection to be stopped.
-     */
-    public void stopConnection(ServerNode.ConnectionWrapper aConnection) {
-        Object releaser = aConnection.endReleaser;
-        synchronized(releaser) {
-            releaser.notify();
-        }
-    }
     /**
      * Dispatches the Msgs seating in the inbound queue. Pushes the Msg seating
      * in the outbound queue to the relevant node.
@@ -92,45 +79,6 @@ class ServerProcessors
     }
     
     public void stop() {
-    }
-    
-    /**
-     * Inbound queue filler.
-     */
-    private class InboundQueueFiller implements Processor {
-
-        /**
-         * Connection to read Msg from.
-         */
-        private final ServerNode.ConnectionWrapper connection;
-        
-        /**
-         * Is this Processor started.
-         */
-        private volatile boolean isStarted = true;
-        
-        /**
-         * Pops Msgs from the specified connection and adds them to the
-         * inbound queue.
-         * 
-         * @param aConnection Connection to read Msg from.
-         */
-        private InboundQueueFiller(ServerNode.ConnectionWrapper aConnection) {
-            connection = aConnection;
-        }
-        
-        public void run() {
-            QueueOutInterceptor out = new QueueOutInterceptor(server.queueIn);
-            while ( isStarted ) {
-                Msg msg = connection.in.pop();
-                out.push(msg);
-            }
-        }
-
-        public void release() {
-            isStarted = false;
-        }
-        
     }
     
     /**
@@ -152,7 +100,13 @@ class ServerProcessors
             while ( isStarted ) {
                 Msg msg = in.pop();
                 Object destNode = in.getHeader();
-                MsgOutInterceptor out = server.getOutForServant(destNode);
+                MsgOutInterceptor out;
+                try {
+                    out = server.getOutForNode((String) destNode);
+                } catch (CommunicationException e) {
+                    log.error(e);
+                    continue;
+                }
                 out.push(msg);
             }
         }

@@ -20,7 +20,6 @@ package org.apache.geronimo.datastore.impl.remote.messaging;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetAddress;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -43,17 +42,14 @@ import org.mortbay.util.ThreadedServer;
  * It is also in charge of dispatching the incoming Msgs to the registered
  * Connectors.
  * <BR>
- * A ServantNode is the counterpart of a ServerNode: it allows to access a
- * ServerNode remotely.
- * <BR>
- * The following diagram shows how ServerNode, ServantNode and Connector are
- * combined together:
+ * The following diagram shows how ServantNode and Connectors are combined
+ * together:
  * 
- * Connector -- MTO -- ServantNode -- MTO -- ServerNode -- OTM -- Connector
+ * Connector -- MTO -- ServerNode -- MTO -- ServerNode -- OTM -- Connector
  *
  * Connector communicates with each other by sending Msgs.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/01 13:16:35 $
  */
 public class ServerNode
     extends ThreadedServer
@@ -63,9 +59,9 @@ public class ServerNode
     private static final Log log = LogFactory.getLog(ServerNode.class);
 
     /**
-     * Server name.
+     * Node meta-data.
      */
-    private final String name;
+    private final NodeInfo nodeInfo;
     
     /**
      * Connectors registered by this server.
@@ -104,7 +100,12 @@ public class ServerNode
     /**
      * Processors of this server.
      */
-    private final ServerProcessors processors;
+    final ServerProcessors processors;
+    
+    /**
+     * MetaConnection to other nodes.
+     */
+    final MetaConnection metaConnection;
     
     private GBeanContext context;
 
@@ -119,24 +120,22 @@ public class ServerNode
      * @param aMaxRequest Maximum number of concurrent requests, which can be
      * processed by this server.
      */
-    public ServerNode(String aName, Collection aCollOfConnectors,
-        InetAddress anAddress, int aPort, int aMaxRequest) {
-        super(anAddress, aPort);
-        if ( null == aName ) {
-            throw new IllegalArgumentException("Name is required.");
-        }
+    public ServerNode(NodeInfo aNodeInfo, Collection aCollOfConnectors,
+        int aMaxRequest) {
+        super(aNodeInfo.getAddress(), aNodeInfo.getPort());
         
-        name = aName;
+        nodeInfo = aNodeInfo;
+        metaConnection = new MetaConnection(this);
         
         // No socket timeout.
         setMaxIdleTimeMs(0);
         
-        streamManager = new StreamManagerImpl(name);
+        streamManager = new StreamManagerImpl(getName());
         
         processors = new ServerProcessors(this);
         
-        queueIn = new MsgQueue(aName + " Inbound");
-        queueOut = new MsgQueue(aName + " Outbound");
+        queueIn = new MsgQueue(getName() + " Inbound");
+        queueOut = new MsgQueue(getName() + " Outbound");
         
         connections = new HashMap();
         
@@ -166,6 +165,48 @@ public class ServerNode
     }
 
     /**
+     * Gets the name of this node.
+     */
+    public String getName() {
+        return nodeInfo.getName();
+    }
+    
+    /**
+     * Gets the NodeInfo of this node.
+     * 
+     * @return NodeInfo.
+     */
+    public NodeInfo getNodeInfo() {
+        return nodeInfo;
+    }
+    
+    /**
+     * Joins the node uniquely identified on the network by aNodeInfo.
+     * 
+     * @param aNodeInfo NodeInfo of a remote node to join.
+     * @throws IOException Indicates that an I/O error has occured.
+     * @throws CommunicationException Indicates that the node can not be
+     * registered by the remote node identified by aNodeInfo.
+     */
+    public void join(NodeInfo aNodeInfo)
+        throws IOException, CommunicationException {
+        metaConnection.join(aNodeInfo);
+    }
+    
+    /**
+     * Leaves the node uniquely identified on the network by aNodeInfo.
+     * 
+     * @param aNodeInfo NodeInfo of the remote node to leave.
+     * @throws IOException Indicates that an I/O error has occured.
+     * @throws CommunicationException Indicates that the node has not leaved
+     * successfully the remote node.
+     */
+    public void leave(NodeInfo aNodeInfo)
+        throws IOException, CommunicationException {
+        metaConnection.leave(aNodeInfo);
+    }
+    
+    /**
      * Gets the StreamManager of this server.
      * 
      * @return StreamManager used by this server to resolve/encode InputStreams.
@@ -175,17 +216,14 @@ public class ServerNode
     }
 
     /**
-     * Gets the Output to be used to communicate with the specified servant.
+     * Gets the Output to be used to communicate with the specified node.
      * 
-     * @param aServantName Servant name.
-     * @return Output to be used to communicate with the specified servant.
+     * @param aServantName Node name.
+     * @return Output to be used to communicate with the specified node.
      */
-    public MsgOutInterceptor getOutForServant(Object aServantName) {
-        ConnectionWrapper connection; 
-        synchronized (connections) {
-            connection = (ConnectionWrapper) connections.get(aServantName);
-        }
-        return connection.out;
+    public MsgOutInterceptor getOutForNode(String aNodeName)
+        throws CommunicationException {
+        return metaConnection.getOutForNode(aNodeName);
     }
     
     /**
@@ -226,19 +264,13 @@ public class ServerNode
      * Handles a new connection.
      */
     protected void handleConnection(InputStream anIn,OutputStream anOut) {
-        ConnectionWrapper connection = initConnection(anIn, anOut);
-        
-        // Wait until the end of the connection.
-        Object releaser = connection.endReleaser;
-        synchronized (releaser) {
-            try {
-                releaser.wait();
-            } catch (InterruptedException e) {
-                log.error(e);
-            }
+        try {
+            metaConnection.joined(anIn, anOut);
+        } catch (IOException e) {
+            log.error(e);
+        } catch (CommunicationException e) {
+            log.error(e);
         }
-        
-        removeConnection(connection);
     }
     
     public void setGBeanContext(GBeanContext aContext) {
@@ -267,97 +299,9 @@ public class ServerNode
 
         processors.stop();
     }
-
-    /**
-     * Initializes a connection. Checks that a connection with the same name
-     * is not already registered by the server. If a connection with the same
-     * name exists, then the server refuses the connection and exits. Otherwise,
-     * a connection is registered with the provided name.
-     * 
-     * @param anIn Raw input of the connection.
-     * @param anOut Raw output of the connection.
-     * @return Connection.
-     */
-    private ConnectionWrapper initConnection(
-        InputStream anIn, OutputStream anOut) {
-        ConnectionWrapper connection = new ConnectionWrapper(anIn, anOut);
-        
-        Msg msg = connection.in.pop();
-        MsgBody body = msg.getBody();
-        String cName = (String) body.getContent();
-        
-        msg = new Msg();
-        body = msg.getBody();
-        synchronized (connections) {
-            if ( connections.containsKey(cName) ) {
-                body.setContent(Boolean.FALSE);
-                connection.out.push(msg);
-                throw new RuntimeException(cName + " already registered");
-            }
-            connection.nodeName = cName;
-            addConnection(connection);
-        }
-        body.setContent(Boolean.TRUE);
-        connection.out.push(msg);
-        return connection;
-    }
-
-    /**
-     * Releases a connection.
-     * 
-     * @param aConnection Connection to be released.
-     */
-    private void removeConnection(ConnectionWrapper aConnection) {
-        synchronized(connections) {
-            connections.remove(aConnection.nodeName);
-        }
-        processors.stopConnection(aConnection);
-        aConnection.close();
-    }
-
-    /**
-     * Registers a connection.
-     * 
-     * @param aConnection Connection to be registered.
-     */
-    private void addConnection(ConnectionWrapper aConnection) {
-        synchronized(connections) {
-            connections.put(aConnection.nodeName, aConnection);
-            processors.startConnection(aConnection);
-        }
-    }
     
-    class ConnectionWrapper {
-        final MsgInInterceptor in;
-        final InputStream rawIn;
-        final MsgOutInterceptor out;
-        final OutputStream rawOut;
-        String nodeName;
-        final Object endReleaser;
-        private ConnectionWrapper(InputStream anIn, OutputStream anOut) {
-            rawIn = anIn;
-            in = new StreamInInterceptor(rawIn, streamManager);
-            rawOut = anOut;
-            out =
-                new HeaderOutInterceptor(
-                    MsgHeaderConstants.SRC_NODE,
-                    name,
-                    new StreamOutInterceptor(anOut, streamManager));
-            endReleaser = new Object();
-        }
-        
-        private void close() {
-            try {
-                rawIn.close();
-            } catch (IOException e) {
-                log.error("Can not close input", e);
-            }
-            try {
-                rawOut.close();
-            } catch (IOException e) {
-                log.error("Can not close output", e);
-            }
-        }
+    public String toString() {
+        return "Node {" + nodeInfo + "}";
     }
 
 }
