@@ -28,39 +28,39 @@ Configuration for the Geronimo deployer
     >
 
     <dependency>
-        <uri>openejb/jars/openejb-core-2.0M1.jar</uri>
+        <uri>openejb/jars/openejb-core-2.0-M1.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-connector-1.0M1.jar</uri>
+        <uri>geronimo/jars/geronimo-connector-1.0-M1.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-core-1.0M1.jar</uri>
+        <uri>geronimo/jars/geronimo-core-1.0-M1.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-security-1.0M1.jar</uri>
+        <uri>geronimo/jars/geronimo-security-1.0-M1.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-jetty-1.0M1.jar</uri>
+        <uri>geronimo/jars/geronimo-jetty-1.0-M1.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-naming-1.0M1.jar</uri>
+        <uri>geronimo/jars/geronimo-naming-1.0-M1.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-transaction-1.0M1.jar</uri>
+        <uri>geronimo/jars/geronimo-transaction-1.0-M1.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo-spec/jars/geronimo-spec-j2eeschema-1.0M1.jar</uri>
+        <uri>geronimo-spec/jars/geronimo-spec-j2eeschema-1.0-M1.jar</uri>
     </dependency>
     <!-- seems to be required to load jetty deployer - but I think this should not be here-->
     <dependency>
-        <uri>geronimo-spec/jars/geronimo-spec-j2ee-1.0M1.jar</uri>
+        <uri>geronimo-spec/jars/geronimo-spec-j2ee-1.0-M1.jar</uri>
     </dependency>
     <!-- required for rar 1.5 to load realms -->
     <dependency>
         <uri>regexp/jars/regexp-1.3.jar</uri>
     </dependency>
     <dependency>
-        <uri>tranql/jars/tranql-1.0M1.jar</uri>
+        <uri>tranql/jars/tranql-1.0-M1.jar</uri>
     </dependency>
 
     <gbean name="geronimo.deployment:role=Deployer,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.deployment.Deployer">

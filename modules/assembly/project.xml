@@ -17,7 +17,7 @@
 -->
 
 
-<!-- $Revision: 1.16 $ $Date: 2004/04/26 21:48:02 $ -->
+<!-- $Revision: 1.17 $ $Date: 2004/04/27 00:39:29 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -360,7 +360,7 @@
         <dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-core</artifactId>
-            <version>2.0M1</version>
+            <version>2.0-M1</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -369,13 +369,13 @@
         <dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-jca</artifactId>
-            <version>2.0M1</version>
+            <version>2.0-M1</version>
         </dependency>
 
         <dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-itests</artifactId>
-            <version>2.0M1</version>
+            <version>2.0-M1</version>
         </dependency>
 
         <dependency>
@@ -439,7 +439,7 @@
       <dependency>
           <groupId>tranql</groupId>
           <artifactId>tranql</artifactId>
-          <version>1.0M1</version>
+          <version>1.0-M1</version>
           <properties>
               <repository>true</repository>
           </properties>
