@@ -37,7 +37,7 @@ import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
  * to contain the GBeans that are responsible for deploying each module
  * type.
  *
- * @version $Revision: 1.12 $ $Date: 2004/07/06 05:34:19 $
+ * @version $Revision: 1.13 $ $Date: 2004/07/25 08:25:07 $
  */
 public class DeploymentFactoryImpl implements DeploymentFactory {
     public static final String URI_PREFIX = "deployer:geronimo:";
@@ -80,7 +80,7 @@ public class DeploymentFactoryImpl implements DeploymentFactory {
                     JMXConnector jmxConnector = JMXConnectorFactory.connect(address, environment);
                     return new JMXDeploymentManager(jmxConnector);
                 } catch (IOException e) {
-                    throw new DeploymentManagerCreationException(e.getMessage());
+                    throw (DeploymentManagerCreationException)new DeploymentManagerCreationException(e.getMessage()).initCause(e);
                 }
             } else {
                 throw new DeploymentManagerCreationException("Invalid URI: " + uri);
