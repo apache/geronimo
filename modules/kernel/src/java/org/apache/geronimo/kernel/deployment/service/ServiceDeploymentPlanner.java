@@ -92,6 +92,7 @@ import org.apache.geronimo.kernel.deployment.task.InitializeMBeanInstance;
 import org.apache.geronimo.kernel.deployment.task.RegisterMBeanInstance;
 import org.apache.geronimo.kernel.deployment.task.StartMBeanInstance;
 import org.apache.geronimo.kernel.deployment.task.StopMBeanInstance;
+import org.apache.geronimo.kernel.deployment.task.DeployGeronimoMBean;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfoXMLLoader;
 
@@ -104,7 +105,7 @@ import org.w3c.dom.NodeList;
  *
  * @jmx:mbean extends="org.apache.geronimo.kernel.deployment.DeploymentPlanner"
  *
- * @version $Revision: 1.4 $ $Date: 2003/10/27 21:29:46 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/11 04:39:08 $
  */
 public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, MBeanRegistration {
     private MBeanServer server;
@@ -221,7 +222,6 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
         // register a plan to create each mbean
         NodeList nl = doc.getElementsByTagName("mbean");
         for (int i = 0; i < nl.getLength(); i++) {
-            DeploymentPlan createPlan = new DeploymentPlan();
 
             Element mbeanElement = (Element) nl.item(i);
             metadata = mbeanLoader.loadXML(baseURI, mbeanElement);
@@ -231,14 +231,19 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
             metadata.setLoaderName(loaderName);
             metadata.setParentName(deploymentName);
             metadata.setBaseURI(baseURI);
-            CreateMBeanInstance createTask = new CreateMBeanInstance(server, metadata);
-            createPlan.addTask(createTask);
-            InitializeMBeanInstance initTask = new InitializeMBeanInstance(server, metadata);
-            createPlan.addTask(initTask);
-            StartMBeanInstance startTask = new StartMBeanInstance(server, metadata);
-            createPlan.addTask(startTask);
+            if (metadata.isGeronimoMBean()) {
+                plans.add(new DeploymentPlan(new DeployGeronimoMBean(server, metadata)));
+            } else {
+                DeploymentPlan createPlan = new DeploymentPlan();
+                CreateMBeanInstance createTask = new CreateMBeanInstance(server, metadata);
+                createPlan.addTask(createTask);
+                InitializeMBeanInstance initTask = new InitializeMBeanInstance(server, metadata);
+                createPlan.addTask(initTask);
+                StartMBeanInstance startTask = new StartMBeanInstance(server, metadata);
+                createPlan.addTask(startTask);
+                plans.add(createPlan);
+            }
 
-            plans.add(createPlan);
         }
 
         goals.remove(goal);
