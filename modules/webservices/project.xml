@@ -69,6 +69,18 @@
             <version>${geronimo_version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-jaxrpc</artifactId>
+            <version>${geronimo_spec_jaxrpc_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-servlet</artifactId>
+            <version>${geronimo_spec_servlet_version}</version>
+        </dependency>
+
         <!-- Thirdparty -->
 
         <dependency>

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -27,6 +27,20 @@ import java.util.Map;
  * @version $Rev:  $ $Date:  $
  */
 public interface WebServiceContainer extends Serializable {
+
+    /**
+     * Used when this WebServiceContainer is servicing a POJO, in which case
+     * the pojo instance is held by the enclosing servlet/invoker and passed in
+     * the Request instance to the container.
+     */
+    public static final String POJO_INSTANCE = WebServiceContainer.class.getName()+"@pojoInstance";
+
+    /**
+     * Used when this WebServiceContainer is servicing a POJO implementing the
+     * ServiceLifecycle interface, in which case the WebServiceContainer is expected
+     * to put the JAX-RPC MessageContext it creates in the Request instance.
+     */
+    public static final String MESSAGE_CONTEXT = WebServiceContainer.class.getName()+"@MessageContext";
 
     void invoke(Request request, Response response) throws Exception;
 
@@ -89,6 +103,10 @@ public interface WebServiceContainer extends Serializable {
         String getParameter(String name);
 
         Map getParameters();
+
+        Object getAttribute(String name);
+
+        void setAttribute(String name, Object value);
     }
 
     public interface Response {

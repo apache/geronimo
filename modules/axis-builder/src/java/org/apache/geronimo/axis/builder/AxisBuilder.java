@@ -117,7 +117,9 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
             throw new DeploymentException("Unable to load servlet class for pojo webservice: "+seiClassName, e);
         }
 
-        RPCProvider provider = new POJOProvider(pojoClass);
+        targetGBean.setAttribute("pojoClassName", seiClassName);
+        RPCProvider provider = new POJOProvider();
+
         SOAPService service = new SOAPService(null, provider, null);
         service.setServiceDescription(serviceDesc);
         service.setOption("className", seiClassName);
