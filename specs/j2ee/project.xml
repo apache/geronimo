@@ -143,7 +143,7 @@
 
         <dependency>
             <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-jaxrpc</artifactId>
+            <artifactId>geronimo-spec-jaxrpc</artifactId>
             <version>${geronimo_spec_jaxrpc_version}</version>
             <properties>
                 <geronimo.spec.bundle>true</geronimo.spec.bundle>
