@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ejb-jar xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+    http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd"
+    version="2.1">
+  <enterprise-beans>
+      <session>
+          <ejb-name>StatelessBean</ejb-name>
+          <home>org.apache.geronimo.itests.naming.ejb.stateless.StatelessHome</home>
+          <remote>org.apache.geronimo.itests.naming.ejb.stateless.StatelessObject</remote>
+          <ejb-class>org.apache.geronimo.itests.naming.ejb.stateless.StatelessBean</ejb-class>
+          <session-type>Stateless</session-type>
+          <transaction-type>Container</transaction-type>
+          <service-ref>
+              <service-ref-name>service/InteropLab</service-ref-name>
+              <service-interface>org.apache.notgeronimo.itests.naming.common.webservice.interop.InteropLab</service-interface>
+              <wsdl-file>META-INF/wsdl/interop.wsdl</wsdl-file>
+              <jaxrpc-mapping-file>META-INF/wsdl/interop-jaxrpcmapping.xml</jaxrpc-mapping-file>
+              <service-qname xmlns:interop="http://tempuri.org/4s4c/1/3/wsdl/def/interopLab">interop:interopLab</service-qname>
+          </service-ref>
+      </session>
+  </enterprise-beans>
+</ejb-jar>

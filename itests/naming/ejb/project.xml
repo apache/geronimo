@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/*
+ * Copyright 2001-2005 The Apache Software Foundation.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ -->
+
+
+<project>
+    <!-- the version of maven's project object model -->
+
+    <pomVersion>3</pomVersion>
+    <extend>${basedir}/../../../etc/project.xml</extend>
+    <!-- a unique name for this project -->
+
+    <artifactId>geronimo-itests-naming-ejb</artifactId>
+    <groupId>geronimo-itests</groupId>
+    <!-- a short but descriptive name for the project -->
+
+    <name>geronimo-itests-naming-ejb</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-ejb</artifactId>
+            <version>${geronimo_spec_ejb_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-itests</groupId>
+            <artifactId>geronimo-itests-naming-common</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+<!--                <ejb.bundle>true</ejb.bundle>-->
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <!-- for client jndi -->
+        <dependency>
+            <groupId>openejb</groupId>
+            <artifactId>openejb-core</artifactId>
+            <version>${openejb_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-full</artifactId>
+            <version>${cglib_version}</version>
+            <url>http://cglib.sf.net</url>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-security</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee-jacc</artifactId>
+            <version>${geronimo_spec_j2ee_jacc_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>activeio</groupId>
+            <artifactId>activeio</artifactId>
+            <version>${activeio_version}</version>
+        </dependency>
+
+    </dependencies>
+
+    <!-- build information for the project -->
+
+    <build>
+        <sourceDirectory>src/java</sourceDirectory>
+        <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+        <unitTest>
+            <includes>
+                <include>**/*Test.java</include>
+            </includes>
+        </unitTest>
+        <resources>
+            <resource>
+                <directory>src/conf</directory>
+                <includes>
+                    <include>*.properties</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+</project>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://geronimo.apache.org/xml/ns/web/jetty"
+    configId="org/apache/geronimo/itests/naming/War"
+    parentId="org/apache/geronimo/Server">
+
+    <dependency>
+        <uri>geronimo-itests/jars/geronimo-itests-naming-common-1.0-SNAPSHOT.jar</uri>
+    </dependency>
+
+    <context-root>/geronimo/itests/naming</context-root>
+    <context-priority-classloader>false</context-priority-classloader>
+</web-app>
