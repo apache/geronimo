@@ -77,11 +77,12 @@ import org.apache.geronimo.kernel.service.GeronimoMBean;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfoXMLLoader;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
+import org.apache.geronimo.kernel.service.ParserUtil;
 
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/11/15 19:42:02 $
+ * @version $Revision: 1.6 $ $Date: 2003/11/16 00:48:37 $
  */
 public class DeployGeronimoMBean implements DeploymentTask {
     private static final Log log = LogFactory.getLog(DeployGeronimoMBean.class);
@@ -128,10 +129,7 @@ public class DeployGeronimoMBean implements DeploymentTask {
                         //ignore
                     }
                 }
-                GeronimoMBean mbean = (GeronimoMBean) server.instantiate("org.apache.geronimo.kernel.service.GeronimoMBean",
-                        metadata.getLoaderName(),
-                        metadata.getConstructorArgs(),
-                        metadata.getConstructorTypes());
+                GeronimoMBean mbean = new GeronimoMBean();
                 mbean.setClassSpace(metadata.getLoaderName());
                 GeronimoMBeanInfo geronimoMBeanInfo = metadata.getGeronimoMBeanInfo();
                 if (geronimoMBeanInfo == null) {
@@ -149,6 +147,16 @@ public class DeployGeronimoMBean implements DeploymentTask {
                     attributeInfo.setInitialValue(metadataAttributes.get(attributeInfo.getName()));
                 }
                 mbean.setMBeanInfo(geronimoMBeanInfo);
+                //If there are constructor args, build the default target ourselves.
+                if (metadata.getConstructorArgs() != null) {
+                    Object target = ParserUtil.instantiate(geronimoMBeanInfo.getTargetClass(),
+                        metadata.getConstructorArgs(),
+                        metadata.getConstructorTypes(),
+                        metadata.getBaseURI(),
+                        newCL);
+
+                    geronimoMBeanInfo.setTarget(target);
+                }
                 server.registerMBean(mbean, metadata.getName());
                 registered = true;
 
