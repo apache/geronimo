@@ -17,18 +17,19 @@
 -->
   
 
-<!-- $Revision: 1.24 $ $Date: 2004/05/27 05:20:25 $ -->
+<!-- $Revision: 1.25 $ $Date: 2004/06/04 11:50:32 $ -->
 
 <project name="Apache Geronimo">
 
   <title>Apache Geronimo</title>
-  <organizationLogo href="http://geronimo.apache.org/images/geronimo-logo.png">Apache</organizationLogo>
+
+<!--  <organizationLogo href="http://geronimo.apache.org/images/geronimo-logo.png">Apache</organizationLogo> -->
 
   <body>
     <search/>
 
     <links>
-      <item name="Apache" href="http://apache.org"/>
+      <item name="Apache" href="http://www.apache.org"/>
     </links>
 
     <menu name="Geronimo">
@@ -36,6 +37,7 @@
       <item name="FAQ"                     href="/faq.html"/>
       <item name="Wiki"                    href="http://wiki.apache.org/geronimo"/>
       <item name="Jira"                    href="http://nagoya.apache.org/jira/secure/BrowseProject.jspa?id=10220"/>
+      <item name="Download"                href="/download.html"/>
 
       <!--
       <item name="To Do List"              href="/todo.html"/>
