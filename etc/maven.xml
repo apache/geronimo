@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: maven.xml,v 1.2 2003/08/14 17:08:00 jdillon Exp $ -->
+<!-- $Id: maven.xml,v 1.3 2003/08/14 19:25:21 jdillon Exp $ -->
 
 <project
   xmlns:j="jelly:core"
@@ -15,7 +15,7 @@
   <j:set var="project.root" value="${pom.parentBasedir().getParentFile().getCanonicalFile()}"/>
   
   <!-- Load the global properties -->
-  <ant:property file="${project.root}/etc/globals.properties"/>
+  <ant:property file="${project.root}/etc/global.properties"/>
   
   
   <!-- ==================== -->
