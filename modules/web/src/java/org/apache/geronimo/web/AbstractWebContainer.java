@@ -132,7 +132,7 @@ import org.xml.sax.SAXException;
  * 2. the url is a directory which contains a WEB-INF/web.xml file
  *
  * @jmx:mbean extends="org.apache.geronimo.web.WebContainer, org.apache.geronimo.kernel.management.StateManageable, javax.management.MBeanRegistration"
- * @version $Revision: 1.24 $ $Date: 2003/12/07 03:45:48 $
+ * @version $Revision: 1.25 $ $Date: 2003/12/28 23:06:42 $
  */
 public abstract class AbstractWebContainer
         extends AbstractManagedContainer
@@ -243,11 +243,7 @@ public abstract class AbstractWebContainer
         ObjectName deploymentUnitName = deploymentHelper.buildDeploymentName();
 
         // Add a task to deploy and start the deployment unit mbean
-        DeploymentPlan deploymentInfoPlan = new DeploymentPlan();
-        DeploymentInfo deploymentInfo = new DeploymentInfo(deploymentUnitName, null, url);
-        deploymentInfoPlan.addTask(new RegisterMBeanInstance(server, deploymentUnitName, deploymentInfo));
-        MBeanMetadata deploymentUnitMetadata = new MBeanMetadata(deploymentUnitName);
-        deploymentInfoPlan.addTask(new StartMBeanInstance(server, deploymentUnitMetadata));
+        DeploymentPlan deploymentInfoPlan = DeploymentInfo.planDeploymentInfo(server, null, deploymentUnitName, null, url);
 
         // Define the ClassSpace for the archives.
         ClassSpaceMetadata classSpaceMetaData = deploymentHelper.buildClassSpace();

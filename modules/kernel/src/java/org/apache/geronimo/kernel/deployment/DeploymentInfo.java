@@ -60,77 +60,85 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.kernel.service.AbstractManagedObject;
+import org.apache.geronimo.kernel.deployment.service.MBeanMetadata;
+import org.apache.geronimo.kernel.deployment.task.DeployGeronimoMBean;
+import org.apache.geronimo.kernel.deployment.task.StartMBeanInstance;
+import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
+import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
 
 /**
  *
- * @jmx:mbean
- *      extends="org.apache.geronimo.kernel.management.StateManageable,org.apache.geronimo.kernel.management.ManagedObject"
- *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:33 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/28 23:06:42 $
  */
-public class DeploymentInfo extends AbstractManagedObject implements DeploymentInfoMBean {
+public class DeploymentInfo {
     private final URL url;
     private final ObjectName name;
     private final ObjectName parent;
     private final Set children = new HashSet();
 
-    /**
-     * @jmx:managed-constructor
-     */
     public DeploymentInfo(ObjectName name, ObjectName parent, URL url) {
         this.name = name;
         this.parent = parent;
         this.url = url;
     }
 
-    protected void doStart() throws Exception {
-    }
 
-    protected void doStop() throws Exception {
-    }
-
-    /**
-     * @jmx:managed-attribute
-     */
     public URL getURL() {
         return url;
     }
 
-    /**
-     * @jmx:managed-attribute
-     */
     public ObjectName getName() {
         return name;
     }
 
-    /**
-     * @jmx:managed-attribute
-     */
     public ObjectName getParent() {
         return parent;
     }
 
-    /**
-     * @jmx:managed-attribute
-     */
     public Collection getChildren() {
         return Collections.unmodifiableCollection(children);
     }
 
-    /**
-     * @jmx:managed-attribute
-     */
     public synchronized void addChild(ObjectName childName) {
         children.add(childName);
     }
 
-    /**
-     * @jmx:managed-attribute
-     */
     public synchronized void removeChild(ObjectName childName) {
         children.remove(childName);
+    }
+
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
+        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
+        mbeanInfo.setTargetClass(DeploymentInfo.class);
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("URL", true, false, "URL of deployed package"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Name", true, false, "Name of deployed package"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Parent", true, false, "Parent DeploymentInfo ObjectName of deployed package"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Children", true, false, "Child DeploymentInfo ObjectName of deployed package"));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("addChild",
+                new GeronimoParameterInfo[]{new GeronimoParameterInfo("ChildName", ObjectName.class, "ObjectName of child deployment info")},
+                GeronimoOperationInfo.ACTION,
+                "Add a child deployment info"));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("removeChild",
+                new GeronimoParameterInfo[]{new GeronimoParameterInfo("ChildName", ObjectName.class, "ObjectName of child deployment info")},
+                GeronimoOperationInfo.ACTION,
+                "remove a child deployment info"));
+        return mbeanInfo;
+    }
+
+    public static DeploymentPlan planDeploymentInfo(MBeanServer server, ObjectName loaderName, ObjectName deploymentInfoName, ObjectName parentName, URL deploymentURL) {
+        DeploymentPlan plan = new DeploymentPlan();
+        DeploymentInfo deploymentInfo = new DeploymentInfo(deploymentInfoName, parentName, deploymentURL);
+        GeronimoMBeanInfo mbeanInfo = DeploymentInfo.getGeronimoMBeanInfo();
+        mbeanInfo.setTarget(deploymentInfo);
+        MBeanMetadata metadata = new MBeanMetadata(deploymentInfoName, mbeanInfo, loaderName, parentName);
+        plan.addTask(new DeployGeronimoMBean(server, metadata));
+        plan.addTask(new StartMBeanInstance(server, metadata));
+        return plan;
     }
 }

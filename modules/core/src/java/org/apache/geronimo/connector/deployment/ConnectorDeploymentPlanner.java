@@ -100,7 +100,7 @@ import org.xml.sax.SAXException;
  * DeploymentPlanner in charge of the plannification of Connector deployments.
  *
  *
- * @version $Revision: 1.8 $ $Date: 2003/12/09 04:22:10 $
+ * @version $Revision: 1.9 $ $Date: 2003/12/28 23:06:42 $
  */
 public class ConnectorDeploymentPlanner
         extends AbstractDeploymentPlanner {
@@ -148,22 +148,16 @@ public class ConnectorDeploymentPlanner
 
         ObjectName deploymentUnitName = dHelper.buildDeploymentName();
 
-        // Defines a deployment plan for the deployment unit.
-        DeploymentPlan deploymentPlan = new DeploymentPlan();
-        DeploymentInfo deploymentInfo =
-                new DeploymentInfo(deploymentUnitName, null, url);
-        deploymentPlan.addTask(
-                new RegisterMBeanInstance(getServer(), deploymentUnitName, deploymentInfo));
-        MBeanMetadata deploymentUnitMetadata = new MBeanMetadata(deploymentUnitName);
-        deploymentPlan.addTask(
-                new StartMBeanInstance(getServer(), deploymentUnitMetadata));
+        // Define a deployment plan for the deployment unit.
+        DeploymentPlan deploymentInfoPlan = DeploymentInfo.planDeploymentInfo(getServer(), null, deploymentUnitName, null, url);
+
         // Define the ClassSpace for the Connector archives.
         ClassSpaceMetadata raCS = dHelper.buildClassSpace();
-        deploymentPlan.addTask(new CreateClassSpace(getServer(), raCS));//parent???
-        plans.add(deploymentPlan);
+        deploymentInfoPlan.addTask(new CreateClassSpace(getServer(), raCS));//parent???
+        plans.add(deploymentInfoPlan);
 
         //now another plan for the tasks that depend on the class space.
-        deploymentPlan = new DeploymentPlan();
+        DeploymentPlan deploymentPlan = new DeploymentPlan();
         // Load the deployment descriptor into our POJO
         URI raURI = URI.create(raURL.toString()).normalize();
         log.trace("Loading deployment descriptor " + raURI);

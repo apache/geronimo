@@ -60,50 +60,36 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
-import javax.management.MBeanRegistration;
-import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
-import javax.management.relation.RelationServiceMBean;
-import javax.management.relation.Role;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.geronimo.kernel.deployment.AbstractDeploymentPlanner;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
-import org.apache.geronimo.kernel.deployment.scanner.URLType;
+import org.apache.geronimo.kernel.deployment.DeploymentInfo;
+import org.apache.geronimo.kernel.deployment.DeploymentPlan;
 import org.apache.geronimo.kernel.deployment.goal.DeployURL;
-import org.apache.geronimo.kernel.deployment.goal.DeploymentGoal;
 import org.apache.geronimo.kernel.deployment.goal.RedeployURL;
 import org.apache.geronimo.kernel.deployment.goal.UndeployURL;
+import org.apache.geronimo.kernel.deployment.scanner.URLType;
 import org.apache.geronimo.kernel.deployment.task.CreateClassSpace;
 import org.apache.geronimo.kernel.deployment.task.CreateMBeanInstance;
-import org.apache.geronimo.kernel.deployment.DeploymentPlan;
-import org.apache.geronimo.kernel.deployment.DeploymentPlanner;
-import org.apache.geronimo.kernel.deployment.AbstractDeploymentPlanner;
+import org.apache.geronimo.kernel.deployment.task.DeployGeronimoMBean;
 import org.apache.geronimo.kernel.deployment.task.DestroyMBeanInstance;
 import org.apache.geronimo.kernel.deployment.task.InitializeMBeanInstance;
-import org.apache.geronimo.kernel.deployment.task.RegisterMBeanInstance;
 import org.apache.geronimo.kernel.deployment.task.StartMBeanInstance;
 import org.apache.geronimo.kernel.deployment.task.StopMBeanInstance;
-import org.apache.geronimo.kernel.deployment.task.DeployGeronimoMBean;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfoXMLLoader;
-import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
-import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
-
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfoXMLLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -112,7 +98,7 @@ import org.w3c.dom.NodeList;
  * Plans deployment of MBean services.
  *
  *
- * @version $Revision: 1.6 $ $Date: 2003/11/14 16:27:34 $
+ * @version $Revision: 1.7 $ $Date: 2003/12/28 23:06:42 $
  */
 public class ServiceDeploymentPlanner extends AbstractDeploymentPlanner {
 
@@ -175,18 +161,13 @@ public class ServiceDeploymentPlanner extends AbstractDeploymentPlanner {
         }
 
         // Create a plan to register the deployment unit and create the class loader
-        DeploymentPlan createDeploymentUnitPlan = new DeploymentPlan();
         ObjectName deploymentName = null;
         try {
             deploymentName = new ObjectName("geronimo.deployment:role=DeploymentUnit,type=Service,url=" + ObjectName.quote(url.toString()));
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException(e);
         }
-        ServiceDeployment serviceInfo = new ServiceDeployment(deploymentName, null, url);
-        createDeploymentUnitPlan.addTask(new RegisterMBeanInstance(getServer(), deploymentName, serviceInfo));
-        MBeanMetadata metadata = new MBeanMetadata(deploymentName);
-        createDeploymentUnitPlan.addTask(new StartMBeanInstance(getServer(), metadata));
-
+        DeploymentPlan createDeploymentUnitPlan = DeploymentInfo.planDeploymentInfo(getServer(), null, deploymentName, null, url);
         // add a plan to create a class space
         ClassSpaceMetadata md = createClassSpaceMetadata((Element) doc.getElementsByTagName("class-space").item(0), deploymentName, url);
         createDeploymentUnitPlan.addTask(new CreateClassSpace(getServer(), md));
@@ -198,7 +179,7 @@ public class ServiceDeploymentPlanner extends AbstractDeploymentPlanner {
         for (int i = 0; i < nl.getLength(); i++) {
 
             Element mbeanElement = (Element) nl.item(i);
-            metadata = mbeanLoader.loadXML(baseURI, mbeanElement);
+            MBeanMetadata metadata = mbeanLoader.loadXML(baseURI, mbeanElement);
             if (getServer().isRegistered(metadata.getName())) {
                 throw new DeploymentException("MBean already exists " + metadata.getName());
             }
