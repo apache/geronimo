@@ -63,7 +63,7 @@ by the server.
         <uri>geronimo/jars/geronimo-jetty-1.0-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-      <uri>activemq/jars/activemq-1.0-SNAPSHOT.jar</uri>
+      <uri>activemq/jars/activemq-SNAPSHOT.jar</uri>
     </dependency>
 
     <!-- required for rar 1.5 to load realms -->
