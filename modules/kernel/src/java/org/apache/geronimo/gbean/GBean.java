@@ -62,14 +62,14 @@ import org.apache.geronimo.gbean.WaitingException;
  * An optional interface for a GBean.  When a GBean implements this interface, the implementation
  * will get life-cycle callbacks.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/20 22:39:04 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 02:46:27 $
  */
 public interface GBean {
     /**
      * Sets the operating context for the GBean.
      * @param context the context object or null
      */
-//    void setGBeanContext(GBeanContext context);
+    void setGBeanContext(GBeanContext context);
 
     /**
      * Starts the GBean.  This informs the GBean that it is about to transition to the running state.

@@ -71,6 +71,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GEndpointInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
+import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.kernel.KernelMBean;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
@@ -86,7 +87,7 @@ import org.apache.geronimo.security.bridge.RealmBridge;
  * and connection manager stack according to the policies described in the attributes.
  * It's used by deserialized copies of the proxy to get a reference to the actual stack.
  *
- * @version $Revision: 1.13 $ $Date: 2004/01/21 22:21:26 $
+ * @version $Revision: 1.14 $ $Date: 2004/01/22 02:46:27 $
  * */
 public class ConnectionManagerDeployment implements GeronimoMBeanTarget, ConnectionManagerFactory, GBean {
 
@@ -147,6 +148,9 @@ public class ConnectionManagerDeployment implements GeronimoMBeanTarget, Connect
         this.name = name;
         this.connectionTracker = connectionTracker;
         this.kernel = kernel;
+    }
+
+    public void setGBeanContext(GBeanContext context) {
     }
 
     public void setMBeanContext(GeronimoMBeanContext context) {

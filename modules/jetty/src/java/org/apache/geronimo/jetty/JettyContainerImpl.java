@@ -60,6 +60,8 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.gbean.GBeanContext;
+
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpListener;
 import org.mortbay.jetty.Server;
@@ -67,7 +69,7 @@ import org.mortbay.jetty.Server;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/21 20:01:52 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/22 02:46:27 $
  */
 public class JettyContainerImpl implements JettyContainer, GBean {
     private final Server server;
@@ -90,6 +92,9 @@ public class JettyContainerImpl implements JettyContainer, GBean {
 
     public void removeContext(HttpContext context) {
         server.removeContext(context);
+    }
+
+    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws WaitingException, Exception {

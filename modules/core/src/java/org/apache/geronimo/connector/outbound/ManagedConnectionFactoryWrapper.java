@@ -74,12 +74,13 @@ import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GEndpointInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.naming.ger.GerContextManager;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/21 22:21:26 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/22 02:46:27 $
  *
  * */
 public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
@@ -191,7 +192,9 @@ public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
         this.connectionManagerFactory = connectionManagerFactory;
     }
 
-    //GBean implementation
+    public void setGBeanContext(GBeanContext context) {
+    }
+
     public void doStart() throws WaitingException, Exception {
         //register with resource adapter if not yet done
         if (!registered && resourceAdapterWrapper != null) {

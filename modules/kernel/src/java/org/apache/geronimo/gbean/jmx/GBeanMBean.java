@@ -98,7 +98,7 @@ import org.apache.geronimo.kernel.management.NotificationType;
  * GeronimoMBeanInfo instance.  The GeronimoMBean also support caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/21 19:44:29 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/22 02:46:27 $
  */
 public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     public static final FastClass fastClass = FastClass.create(GBeanMBean.class);
@@ -311,7 +311,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
             // we're now offically on line
             if (target instanceof GBean) {
                 GBean gbean = (GBean) target;
-//                gbean.setGBeanContext(new GBeanMBeanContext(server, this, objectName));
+                gbean.setGBeanContext(new GBeanMBeanContext(server, this, objectName));
             }
             offline = false;
         } else {
@@ -341,7 +341,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
 
         if (target instanceof GBean) {
             GBean gbean = (GBean) target;
-//            gbean.setGBeanContext(null);
+            gbean.setGBeanContext(null);
         }
 
         offline = true;

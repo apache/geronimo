@@ -61,6 +61,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.jetty.JettyContainer;
 import org.mortbay.http.HttpListener;
 import org.mortbay.util.ThreadedServer;
@@ -68,7 +69,7 @@ import org.mortbay.util.ThreadedServer;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/21 20:01:52 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/22 02:46:27 $
  */
 public abstract class JettyConnector implements GBean {
     private final JettyContainer container;
@@ -85,6 +86,9 @@ public abstract class JettyConnector implements GBean {
 
     public void setPort(int port) {
         listener.setPort(port);
+    }
+
+    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws WaitingException, Exception {

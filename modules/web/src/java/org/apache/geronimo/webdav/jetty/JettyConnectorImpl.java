@@ -63,6 +63,7 @@ import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.webdav.AbstractConnector;
 import org.mortbay.http.HttpListener;
 import org.mortbay.http.SocketListener;
@@ -73,7 +74,7 @@ import org.mortbay.util.ThreadedServer;
 /**
  * Connector using under the cover a Jetty HttpListener.
  * 
- * @version $Revision: 1.1 $ $Date: 2004/01/20 14:58:08 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/22 02:46:28 $
  */
 public class JettyConnectorImpl
     extends AbstractConnector
@@ -125,6 +126,9 @@ public class JettyConnectorImpl
         }
     }
 
+    public void setGBeanContext(GBeanContext context) {
+    }
+
     public void doStart() throws WaitingException, Exception {
         log.info("Starting Jetty Connector");
         lifeCycleState.doStart();
@@ -154,6 +158,9 @@ public class JettyConnectorImpl
     }
 
     private class DefinedListenerState implements GBean {
+        public void setGBeanContext(GBeanContext context) {
+        }
+
         public void doStart() throws WaitingException, Exception {
             if ( listener.isStarted() ) {
                 return;            
@@ -184,6 +191,9 @@ public class JettyConnectorImpl
     }
 
     private class UndefinedListenerState implements GBean {
+        public void setGBeanContext(GBeanContext context) {
+        }
+
         public void doStart() throws WaitingException, Exception {
             HttpListener tmpListener;
             try {

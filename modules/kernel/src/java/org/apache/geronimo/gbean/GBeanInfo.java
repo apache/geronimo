@@ -62,13 +62,14 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.HashSet;
 
 import org.apache.geronimo.gbean.GAttributeInfo;
 
 /**
  * Describes a GBean.
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/16 23:31:21 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/22 02:46:27 $
  */
 public final class GBeanInfo implements Serializable {
     /**
@@ -113,16 +114,15 @@ public final class GBeanInfo implements Serializable {
     public GBeanInfo(String name, String className, Set attributes, GConstructorInfo constructor, Set operations, Set endpoints, Set notifications) {
         this.name = name;
         this.className = className;
-        this.attributes = Collections.unmodifiableSet(attributes);
+        this.attributes = Collections.unmodifiableSet(new HashSet(attributes));
         if (constructor != null) {
             this.constructor = constructor;
         } else {
             this.constructor = new GConstructorInfo(Collections.EMPTY_LIST, Collections.EMPTY_LIST);
         }
-        this.operations = Collections.unmodifiableSet(operations);
-        this.endpoints = Collections.unmodifiableSet(endpoints);
-        this.notifications = Collections.unmodifiableSet(notifications);
-
+        this.operations = Collections.unmodifiableSet(new HashSet(operations));
+        this.endpoints = Collections.unmodifiableSet(new HashSet(endpoints));
+        this.notifications = Collections.unmodifiableSet(new HashSet(notifications));
     }
 
     public String getName() {

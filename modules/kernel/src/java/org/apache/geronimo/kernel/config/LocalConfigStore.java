@@ -83,11 +83,12 @@ import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanContext;
 
 /**
  * Implementation of ConfigurationStore using the local filesystem.
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/14 22:16:38 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/22 02:46:27 $
  */
 public class LocalConfigStore implements ConfigurationStore, GBean {
     private static final String INDEX_NAME = "index.properties";
@@ -114,6 +115,9 @@ public class LocalConfigStore implements ConfigurationStore, GBean {
 
     public LocalConfigStore(File root) {
         this.root = root;
+    }
+
+    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws WaitingException, FileNotFoundException, IOException {

@@ -74,13 +74,14 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.naming.resources.FileDirContext;
 
 /**
  * DAVRepository implementation using the Tomcat WebDAV servlet as the
  * processing servlet.
  * 
- * @version $Revision: 1.1 $ $Date: 2004/01/20 14:58:08 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/22 02:46:28 $
  */
 public class CatalinaDAVRepository
     implements DAVRepository, GBean
@@ -186,6 +187,9 @@ public class CatalinaDAVRepository
 
     public Map getServletInitParam() {
         return Collections.unmodifiableMap(servletInitParam);
+    }
+
+    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws WaitingException, Exception {

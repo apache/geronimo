@@ -81,6 +81,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GEndpointInfo;
 import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
 import org.mortbay.http.HttpRequest;
@@ -91,7 +92,7 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/22 00:52:22 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 02:46:27 $
  */
 public class JettyWebApplicationContext extends WebApplicationContext implements GBean {
     private final JettyContainer container;
@@ -186,6 +187,9 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
                 RootContext.setComponentContext(oldComponentContext);
             }
         }
+    }
+
+    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws WaitingException, Exception {

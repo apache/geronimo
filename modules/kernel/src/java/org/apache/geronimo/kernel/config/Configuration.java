@@ -89,7 +89,9 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GEndpointInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
 import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
@@ -119,7 +121,7 @@ import org.apache.geronimo.kernel.Kernel;
  * a startRecursive() for all the GBeans it contains. Similarly, if the
  * Configuration is stopped then all of its GBeans will be stopped as well.
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/16 20:30:32 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/22 02:46:27 $
  */
 public class Configuration implements GBean {
     private static final Log log = LogFactory.getLog(Configuration.class);
@@ -129,10 +131,9 @@ public class Configuration implements GBean {
     private final List classPath;
     private final byte[] gbeanState;
 
+    private GBeanMBeanContext context;
     private URL baseURL;
     private Map gbeans;
-    private MBeanServer mbServer;
-    private ObjectName objectName;
 
     private ClassLoader classLoader;
     private byte[] savedState;
@@ -150,6 +151,10 @@ public class Configuration implements GBean {
         this.parent = parent;
         this.gbeanState = gbeanState;
         this.classPath = classPath;
+    }
+
+    public void setGBeanContext(GBeanContext context) {
+        this.context = (GBeanMBeanContext)context;
     }
 
     public void doStart() throws Exception {
@@ -173,17 +178,19 @@ public class Configuration implements GBean {
             Map.Entry entry = (Map.Entry) i.next();
             ObjectName name = (ObjectName) entry.getKey();
             GBeanMBean gbean = (GBeanMBean) entry.getValue();
+            MBeanServer mbServer = context.getServer();
             mbServer.registerMBean(gbean, name);
-            mbServer.invoke(Kernel.DEPENDENCY_SERVICE, "addDependency", new Object[] { name, objectName}, new String[] {ObjectName.class.getName(), ObjectName.class.getName()});
+            mbServer.invoke(Kernel.DEPENDENCY_SERVICE, "addDependency", new Object[] { name, context.getObjectName()}, new String[] {ObjectName.class.getName(), ObjectName.class.getName()});
         }
     }
 
     public void doStop() {
         // unregister all GBeans
+        MBeanServer mbServer = context.getServer();
         for (Iterator i = gbeans.keySet().iterator(); i.hasNext();) {
             ObjectName name = (ObjectName) i.next();
             try {
-                mbServer.invoke(Kernel.DEPENDENCY_SERVICE, "removeDependency", new Object[] { name, objectName}, new String[] {ObjectName.class.getName(), ObjectName.class.getName()});
+                mbServer.invoke(Kernel.DEPENDENCY_SERVICE, "removeDependency", new Object[] { name, context.getObjectName()}, new String[] {ObjectName.class.getName(), ObjectName.class.getName()});
             } catch (Exception e) {
                 // ignore
                 log.warn("Could not remove dependency for child "+name, e);
@@ -234,22 +241,6 @@ public class Configuration implements GBean {
 
     public ClassLoader getClassLoader() {
         return classLoader;
-    }
-
-    public MBeanServer getMBeanServer() {
-        return mbServer;
-    }
-
-    public void setMBeanServer(MBeanServer mbServer) {
-        this.mbServer = mbServer;
-    }
-
-    public ObjectName getObjectName() {
-        return objectName;
-    }
-
-    public void setObjectName(ObjectName objectName) {
-        this.objectName = objectName;
     }
 
     public byte[] getSavedState() {
@@ -361,30 +352,29 @@ public class Configuration implements GBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        Set attrs = new HashSet();
-        attrs.add(new GAttributeInfo("ID", true));
-        attrs.add(new GAttributeInfo("ClassPath", true));
-        attrs.add(new GAttributeInfo("GBeanState", true));
-        attrs.add(new GAttributeInfo("BaseURL"));
-        attrs.add(new GAttributeInfo("MBeanServer"));
-        attrs.add(new GAttributeInfo("ObjectName"));
-        attrs.add(new GAttributeInfo("ClassLoader"));
-        attrs.add(new GAttributeInfo("SavedState"));
-        List ctrNames = new ArrayList();
-        ctrNames.add("ID");
-        ctrNames.add("Parent");
-        ctrNames.add("ClassPath");
-        ctrNames.add("GBeanState");
-        List ctrTypes = new ArrayList();
-        ctrTypes.add(URI.class);
-        ctrTypes.add(ConfigurationParent.class);
-        ctrTypes.add(List.class);
-        ctrTypes.add(byte[].class);
-        GConstructorInfo ctr = new GConstructorInfo(ctrNames, ctrTypes);
+        Set attributes = new HashSet();
+        attributes.add(new GAttributeInfo("ID", true));
+        attributes.add(new GAttributeInfo("ClassPath", true));
+        attributes.add(new GAttributeInfo("GBeanState", true));
+        attributes.add(new GAttributeInfo("BaseURL"));
+        attributes.add(new GAttributeInfo("ObjectName"));
+        attributes.add(new GAttributeInfo("ClassLoader"));
+        attributes.add(new GAttributeInfo("SavedState"));
+        List constructorNames = new ArrayList();
+        constructorNames.add("ID");
+        constructorNames.add("Parent");
+        constructorNames.add("ClassPath");
+        constructorNames.add("GBeanState");
+        List constructorTypes = new ArrayList();
+        constructorTypes.add(URI.class);
+        constructorTypes.add(ConfigurationParent.class);
+        constructorTypes.add(List.class);
+        constructorTypes.add(byte[].class);
+        GConstructorInfo constructor = new GConstructorInfo(constructorNames, constructorTypes);
         Set endpoints = new HashSet();
         endpoints.add(new GEndpointInfo("Parent", ConfigurationParent.class.getName()));
         Set operations = Collections.EMPTY_SET;
-        GBEAN_INFO = new GBeanInfo(Configuration.class.getName(), attrs, ctr, operations, endpoints, Collections.EMPTY_SET);
+        GBEAN_INFO = new GBeanInfo(Configuration.class.getName(), attributes, constructor, operations, endpoints, Collections.EMPTY_SET);
     }
 
     public static GBeanInfo getGBeanInfo() {

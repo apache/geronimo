@@ -71,6 +71,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GEndpointInfo;
 import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.kernel.KernelMBean;
 import org.apache.geronimo.kernel.config.ConfigurationParent;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
@@ -80,7 +81,7 @@ import org.apache.geronimo.kernel.deployment.scanner.URLType;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/19 06:40:07 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/22 02:46:27 $
  *
  * */
 public class ExplicitDeployment implements GBean {
@@ -140,6 +141,9 @@ public class ExplicitDeployment implements GBean {
 
     public KernelMBean getKernel() {
         return kernel;
+    }
+
+    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws WaitingException, Exception {

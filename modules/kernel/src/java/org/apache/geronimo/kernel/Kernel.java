@@ -106,7 +106,7 @@ import org.apache.geronimo.kernel.service.DependencyService2;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/21 22:53:42 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/22 02:46:27 $
  */
 public class Kernel implements Serializable, KernelMBean, NotificationBroadcaster {
 
@@ -241,18 +241,6 @@ public class Kernel implements Serializable, KernelMBean, NotificationBroadcaste
             throw new InvalidConfigException("Cannot set BaseURL", e);
         }
 
-        // @todo replace this with use of the MBeanContext in the Configuration target
-        try {
-            config.setAttribute("MBeanServer", mbServer);
-            config.setAttribute("ObjectName", configName);
-        } catch (Exception e) {
-            try {
-                mbServer.unregisterMBean(configName);
-            } catch (Exception e1) {
-                // ignore
-            }
-            throw new InvalidConfigException("Cannot set MBeanServer info", e);
-        }
         log.info("Loaded Configuration " + configName);
     }
 

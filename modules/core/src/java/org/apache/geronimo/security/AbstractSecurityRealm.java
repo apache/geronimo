@@ -63,12 +63,13 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.regexp.RE;
 
 
 /**
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/20 01:36:59 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/22 02:46:27 $
  */
 public abstract class AbstractSecurityRealm  implements SecurityRealm, GeronimoMBeanTarget, GBean {
 
@@ -96,6 +97,9 @@ public abstract class AbstractSecurityRealm  implements SecurityRealm, GeronimoM
 
     public void setMBeanContext(GeronimoMBeanContext context) {
         this.context = context;
+    }
+
+    public void setGBeanContext(GBeanContext context) {
     }
 
     public boolean canStart() {

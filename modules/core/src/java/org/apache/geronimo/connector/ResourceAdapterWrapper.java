@@ -72,11 +72,12 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GEndpointInfo;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
+import org.apache.geronimo.gbean.GBeanContext;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/21 22:21:25 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/22 02:46:27 $
  *
  * */
 public class ResourceAdapterWrapper implements GBean, DynamicGBean {
@@ -122,6 +123,9 @@ public class ResourceAdapterWrapper implements GBean, DynamicGBean {
 
     public void endpointDeactivation(MessageEndpointFactory messageEndpointFactory, ActivationSpec activationSpec) {
         resourceAdapter.endpointDeactivation(messageEndpointFactory, activationSpec);
+    }
+
+    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws WaitingException, Exception {

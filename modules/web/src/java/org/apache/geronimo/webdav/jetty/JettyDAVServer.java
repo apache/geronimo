@@ -71,6 +71,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GEndpointInfo;
 import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.webdav.DAVRepository;
 import org.apache.geronimo.webdav.DAVServer;
 import org.mortbay.http.HttpListener;
@@ -81,7 +82,7 @@ import org.mortbay.jetty.servlet.ServletHttpContext;
 /**
  * DAVServer using under the cover a light Jetty servlet container.
  *  
- * @version $Revision: 1.1 $ $Date: 2004/01/20 14:58:08 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/22 02:46:28 $
  */
 public class JettyDAVServer
     implements DAVServer, GBean
@@ -272,6 +273,9 @@ public class JettyDAVServer
 
     public Collection getConnectors() {
         return connectors;
+    }
+
+    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws WaitingException, Exception {

@@ -65,6 +65,7 @@ import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GOperationInfo;
+import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
@@ -78,7 +79,7 @@ import org.mortbay.http.ajp.AJP13Listener;
 import org.mortbay.util.ThreadedServer;
 
 /**
- * @version $Revision: 1.10 $ $Date: 2004/01/17 17:02:38 $
+ * @version $Revision: 1.11 $ $Date: 2004/01/22 02:46:27 $
  */
 public class JettyWebConnector extends AbstractWebConnector implements GeronimoMBeanTarget, GBean {
     private final static GBeanInfo GBEAN_INFO;
@@ -143,6 +144,9 @@ public class JettyWebConnector extends AbstractWebConnector implements GeronimoM
     }
 
     public void setMBeanContext(GeronimoMBeanContext context) {
+    }
+
+    public void setGBeanContext(GBeanContext context) {
     }
 
     public boolean canStart() {

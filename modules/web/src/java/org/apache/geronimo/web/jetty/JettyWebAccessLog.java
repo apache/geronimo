@@ -70,6 +70,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
@@ -86,7 +87,7 @@ import org.mortbay.jetty.Server;
 /**
  * JettyWebAccessLog
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/17 17:02:38 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/22 02:46:27 $
  */
 public class JettyWebAccessLog extends AbstractWebAccessLog implements GeronimoMBeanTarget, GBean {
 
@@ -161,6 +162,9 @@ public class JettyWebAccessLog extends AbstractWebAccessLog implements GeronimoM
     }
 
     public void setMBeanContext(GeronimoMBeanContext context) {
+    }
+
+    public void setGBeanContext(GBeanContext context) {
     }
 
     public boolean canStart() {
