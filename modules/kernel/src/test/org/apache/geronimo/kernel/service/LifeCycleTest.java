@@ -56,7 +56,6 @@
 package org.apache.geronimo.kernel.service;
 
 import java.util.Set;
-import javax.management.Attribute;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
@@ -69,7 +68,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/09 20:18:58 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/11 16:01:26 $
  */
 public class LifeCycleTest extends TestCase {
     private JMXKernel kernel;
@@ -84,6 +83,12 @@ public class LifeCycleTest extends TestCase {
 
     public LifeCycleTest(String s) throws Exception {
         super(s);
+    }
+
+    public void testNamesSet() throws Exception {
+        assertEquals("Grandparent", server.getAttribute(grandparentName, "name"));
+        assertEquals("Parent", server.getAttribute(parentName, "name"));
+        assertEquals("Child", server.getAttribute(childName, "name"));
     }
 
     public void testDependencies() throws Exception {
@@ -387,28 +392,25 @@ public class LifeCycleTest extends TestCase {
 
         GeronimoMBean mbean;
 
-        mbean = new GeronimoMBean(createPersonMBeanInfo(null));
+        mbean = new GeronimoMBean(createPersonMBeanInfo("Grandparent", null));
         server.registerMBean(mbean, grandparentName);
-        server.setAttribute(grandparentName, new Attribute("name", "Grandparent"));
 
-        mbean = new GeronimoMBean(createPersonMBeanInfo(grandparentName));
+        mbean = new GeronimoMBean(createPersonMBeanInfo("Parent", grandparentName));
         server.registerMBean(mbean, parentName);
-        server.setAttribute(parentName, new Attribute("name", "Parent"));
 
-        mbean = new GeronimoMBean(createPersonMBeanInfo(parentName));
+        mbean = new GeronimoMBean(createPersonMBeanInfo("Child", parentName));
         server.registerMBean(mbean, childName);
-        server.setAttribute(childName, new Attribute("name", "Child"));
 
         server.invoke(grandparentName, "start", null, null);
         server.invoke(parentName, "start", null, null);
         server.invoke(childName, "start", null, null);
     }
 
-    private GeronimoMBeanInfo createPersonMBeanInfo(ObjectName parent) {
+    private GeronimoMBeanInfo createPersonMBeanInfo(String name, ObjectName parent) {
         GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
         mbeanInfo.setTargetClass("org.apache.geronimo.kernel.service.Person");
         mbeanInfo.setName("Person");
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("name"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("name", name));
         mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("doStartCalled", true, false));
         mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("doStopCalled", true, false));
         mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("doFailCalled", true, false));
