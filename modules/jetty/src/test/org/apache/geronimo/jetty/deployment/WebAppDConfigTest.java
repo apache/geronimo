@@ -56,18 +56,17 @@
 package org.apache.geronimo.jetty.deployment;
 
 import java.util.Arrays;
-import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.model.DDBean;
+import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
-import javax.enterprise.deploy.spi.DConfigBean;
 
-import org.apache.geronimo.deployment.tools.loader.WebDeployable;
 import org.apache.geronimo.deployment.plugin.j2ee.URIRefConfigBean;
+import org.apache.geronimo.deployment.tools.loader.WebDeployable;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/25 01:53:17 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/25 01:55:00 $
  */
 public class WebAppDConfigTest extends DeployerTestCase {
     private DeploymentConfiguration config;
@@ -104,9 +103,9 @@ public class WebAppDConfigTest extends DeployerTestCase {
         URIRefConfigBean ejbRef0 = (URIRefConfigBean) webApp.getDConfigBean(ddBeans[0]);
         URIRefConfigBean ejbRef1 = (URIRefConfigBean) webApp.getDConfigBean(ddBeans[1]);
         assertNotNull(ejbRef0);
-        assertEquals(ddBeans[0],ejbRef0.getDDBean());
+        assertEquals(ddBeans[0], ejbRef0.getDDBean());
         assertNotNull(ejbRef1);
-        assertEquals(ddBeans[1],ejbRef1.getDDBean());
+        assertEquals(ddBeans[1], ejbRef1.getDDBean());
         assertTrue(ejbRef0 != ejbRef1);
     }
 
@@ -121,9 +120,9 @@ public class WebAppDConfigTest extends DeployerTestCase {
         URIRefConfigBean ejbRef0 = (URIRefConfigBean) webApp.getDConfigBean(ddBeans[0]);
         URIRefConfigBean ejbRef1 = (URIRefConfigBean) webApp.getDConfigBean(ddBeans[1]);
         assertNotNull(ejbRef0);
-        assertEquals(ddBeans[0],ejbRef0.getDDBean());
+        assertEquals(ddBeans[0], ejbRef0.getDDBean());
         assertNotNull(ejbRef1);
-        assertEquals(ddBeans[1],ejbRef1.getDDBean());
+        assertEquals(ddBeans[1], ejbRef1.getDDBean());
         assertTrue(ejbRef0 != ejbRef1);
     }
 
