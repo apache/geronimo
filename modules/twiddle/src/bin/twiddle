@@ -6,7 +6,7 @@
 ##############################################################################
 
 ##
-## $Revision: 1.4 $ $Date: 2003/08/29 12:37:35 $
+## $Revision: 1.5 $ $Date: 2003/09/05 20:25:36 $
 ##
 
 PROGNAME=`basename "$0"`
@@ -136,5 +136,5 @@ else
         -Dtwiddle.home="$TWIDDLE_HOME" \
         -Dtools.jar="$TOOLS_JAR" \
         -Djava.rmi.server.RMIClassLoaderSpi=org.apache.geronimo.rmi.RMIClassLoaderSpiImpl \
-        com.werken.classworlds.Launcher "$@"
+        org.codehaus.classworlds.Launcher "$@"
 fi

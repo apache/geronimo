@@ -62,7 +62,7 @@ import java.io.InputStream;
 
 import java.net.URL;
 
-import com.werken.classworlds.ClassWorld;
+import org.codehaus.classworlds.ClassWorld;
 
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.Option;
@@ -82,7 +82,7 @@ import org.apache.geronimo.twiddle.util.HelpFormatter;
 /**
  * Command-line interface to <code>Twiddle</code>.
  *
- * @version $Revision: 1.12 $ $Date: 2003/08/27 11:08:57 $
+ * @version $Revision: 1.13 $ $Date: 2003/09/05 20:25:36 $
  */
 public class Main
 {

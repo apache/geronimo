@@ -65,10 +65,10 @@ import java.io.FilenameFilter;
 import java.util.List;
 import java.util.LinkedList;
 
-import com.werken.classworlds.ClassWorld;
-import com.werken.classworlds.ClassRealm;
-import com.werken.classworlds.NoSuchRealmException;
-import com.werken.classworlds.ClassWorldException;
+import org.codehaus.classworlds.ClassWorld;
+import org.codehaus.classworlds.ClassRealm;
+import org.codehaus.classworlds.NoSuchRealmException;
+import org.codehaus.classworlds.ClassWorldException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -91,7 +91,7 @@ import org.apache.geronimo.twiddle.config.classworlds.ImportPackageConfig;
 /**
  * Handles the details of Twiddle configuration.
  *
- * @version <code>$Revision: 1.11 $ $Date: 2003/09/03 13:50:29 $</code>
+ * @version <code>$Revision: 1.12 $ $Date: 2003/09/05 20:25:37 $</code>
  */
 public class Configurator
 {

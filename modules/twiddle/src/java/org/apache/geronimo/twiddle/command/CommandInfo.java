@@ -56,7 +56,7 @@
 
 package org.apache.geronimo.twiddle.command;
 
-import com.werken.classworlds.ClassWorld;
+import org.codehaus.classworlds.ClassWorld;
 
 import org.apache.geronimo.common.NullArgumentException;
 
@@ -65,7 +65,7 @@ import org.apache.geronimo.twiddle.config.CommandConfig;
 /**
  * Information about a command.
  *
- * @version $Revision: 1.5 $ $Date: 2003/08/27 12:00:00 $
+ * @version $Revision: 1.6 $ $Date: 2003/09/05 20:25:37 $
  */
 public class CommandInfo
 {

@@ -65,8 +65,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.PrintWriter;
 
-import com.werken.classworlds.ClassWorld;
-import com.werken.classworlds.DuplicateRealmException;
+import org.codehaus.classworlds.ClassWorld;
+import org.codehaus.classworlds.DuplicateRealmException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -90,7 +90,7 @@ import org.apache.geronimo.twiddle.console.IOContext;
  *    command processor, it serves only to facilitate their operation and to
  *    provide a simple API to execute commands (hence facade).
  *
- * @version <tt>$Revision: 1.11 $ $Date: 2003/08/27 11:59:59 $</tt>
+ * @version <tt>$Revision: 1.12 $ $Date: 2003/09/05 20:25:36 $</tt>
  */
 public class Twiddle
 {

@@ -58,7 +58,7 @@ package org.apache.geronimo.twiddle.command;
 
 import junit.framework.TestCase;
 
-import com.werken.classworlds.ClassWorld;
+import org.codehaus.classworlds.ClassWorld;
 
 import org.apache.geronimo.twiddle.config.CommandConfig;
 import org.apache.geronimo.twiddle.config.Attribute;
@@ -68,7 +68,7 @@ import org.apache.geronimo.common.NullArgumentException;
 /**
  * Tests for <code>CommandFactory</code>.
  *
- * @version <code>$Revision: 1.8 $ $Date: 2003/08/27 12:00:00 $</code>
+ * @version <code>$Revision: 1.9 $ $Date: 2003/09/05 20:25:37 $</code>
  */
 public class CommandFactoryTest
     extends TestCase

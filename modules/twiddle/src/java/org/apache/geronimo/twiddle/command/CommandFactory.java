@@ -62,9 +62,9 @@ import java.beans.Beans;
 
 import java.lang.reflect.InvocationTargetException;
 
-import com.werken.classworlds.ClassWorld;
-import com.werken.classworlds.ClassRealm;
-import com.werken.classworlds.NoSuchRealmException;
+import org.codehaus.classworlds.ClassWorld;
+import org.codehaus.classworlds.ClassRealm;
+import org.codehaus.classworlds.NoSuchRealmException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -80,7 +80,7 @@ import org.apache.geronimo.twiddle.config.Attribute;
  * A factory for creating <code>Command</code> instances from
  * a <code>CommandConfig</code>.
  *
- * @version $Revision: 1.7 $ $Date: 2003/08/27 12:00:00 $
+ * @version $Revision: 1.8 $ $Date: 2003/09/05 20:25:37 $
  */
 public class CommandFactory
 {

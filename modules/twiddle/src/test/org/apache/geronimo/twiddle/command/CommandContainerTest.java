@@ -61,7 +61,7 @@ import java.util.NoSuchElementException;
 
 import junit.framework.TestCase;
 
-import com.werken.classworlds.ClassWorld;
+import org.codehaus.classworlds.ClassWorld;
 
 import org.apache.geronimo.common.NullArgumentException;
 import org.apache.geronimo.twiddle.config.CommandConfig;
@@ -69,7 +69,7 @@ import org.apache.geronimo.twiddle.config.CommandConfig;
 /**
  * Unit test for {@link CommandContainer} class.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/27 12:00:00 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/05 20:25:37 $
  */
 public class CommandContainerTest extends TestCase {
 
