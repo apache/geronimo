@@ -109,11 +109,11 @@ public class Configuration implements GBeanLifecycle {
      * Constructor that can be used to create an offline Configuration, typically
      * only used publically during the deployment process for initial configuration.
      *
-     * @param id the unique ID of this Configuration
-     * @param moduleType the module type identifier
-     * @param parent the parent Configuration; may be null
-     * @param classPath a List<URI> of locations that define the codebase for this Configuration
-     * @param gbeanState a byte array contain the Java Serialized form of the GBeans in this Configuration
+     * @param id           the unique ID of this Configuration
+     * @param moduleType   the module type identifier
+     * @param parent       the parent Configuration; may be null
+     * @param classPath    a List<URI> of locations that define the codebase for this Configuration
+     * @param gbeanState   a byte array contain the Java Serialized form of the GBeans in this Configuration
      * @param repositories a Collection<Repository> of repositories used to resolve dependencies
      * @param dependencies a List<URI> of dependencies
      */
@@ -249,13 +249,13 @@ public class Configuration implements GBeanLifecycle {
 
     /**
      * Gets the type of the configuration (WAR, RAR et cetera)
-     * 
+     *
      * @return Type of the configuration.
      */
     public ConfigurationModuleType getModuleType() {
         return moduleType;
     }
-    
+
     /**
      * Return the URL that is used to resolve relative classpath locations
      *
@@ -304,7 +304,7 @@ public class Configuration implements GBeanLifecycle {
      * Load GBeans from the supplied byte array using the supplied ClassLoader
      *
      * @param gbeanState the serialized form of the GBeans
-     * @param cl the ClassLoader used to locate classes needed during deserialization
+     * @param cl         the ClassLoader used to locate classes needed during deserialization
      * @return a Map<ObjectName, GBeanMBean> of GBeans loaded from the persisted state
      * @throws InvalidConfigException if there is a problem deserializing the state
      */
@@ -350,35 +350,57 @@ public class Configuration implements GBeanLifecycle {
      *
      * @param gbeans a Map<ObjectName, GBeanMBean> of GBeans to store
      * @return the persisted GBeans
-     * @throws org.apache.geronimo.kernel.config.InvalidConfigException if there is a problem serializing the state
+     * @throws org.apache.geronimo.kernel.config.InvalidConfigException
+     *          if there is a problem serializing the state
      */
     public static byte[] storeGBeans(Map gbeans) throws InvalidConfigException {
-        ByteArrayOutputStream baos = null;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos;
         try {
-            baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(baos);
-            for (Iterator i = gbeans.entrySet().iterator(); i.hasNext();) {
-                Map.Entry entry = (Map.Entry) i.next();
-                ObjectName objectName = (ObjectName) entry.getKey();
-                GBeanMBean gbean = (GBeanMBean) entry.getValue();
+            oos = new ObjectOutputStream(baos);
+        } catch (IOException e) {
+            throw (AssertionError) new AssertionError("Unable to initialize ObjectOutputStream").initCause(e);
+        }
+        for (Iterator i = gbeans.entrySet().iterator(); i.hasNext();) {
+            Map.Entry entry = (Map.Entry) i.next();
+            ObjectName objectName = (ObjectName) entry.getKey();
+            GBeanMBean gbean = (GBeanMBean) entry.getValue();
+            try {
                 oos.writeObject(objectName);
                 oos.writeObject(gbean.getGBeanInfo());
                 storeGMBeanState(gbean, oos);
+            } catch (Exception e) {
+                throw new InvalidConfigException("Unable to serialize GBeanState for " + objectName, e);
             }
+        }
+        try {
             oos.flush();
-        } catch (Exception e) {
-            throw new InvalidConfigException("Unable to serialize GBeanState", e);
+        } catch (IOException e) {
+            throw (AssertionError) new AssertionError("Unable to flush ObjectOutputStream").initCause(e);
         }
         return baos.toByteArray();
     }
 
-    public static void storeGMBeanState(GBeanMBean gbean, ObjectOutputStream oos) throws IOException, AttributeNotFoundException, ReflectionException {
+    public static void storeGMBeanState(GBeanMBean gbean, ObjectOutputStream oos) throws IOException, ReflectionException {
         List persistentAttributes = gbean.getGBeanInfo().getPersistentAttributes();
         oos.writeInt(persistentAttributes.size());
         for (Iterator j = persistentAttributes.iterator(); j.hasNext();) {
             GAttributeInfo attributeInfo = (GAttributeInfo) j.next();
-            oos.writeObject(attributeInfo.getName());
-            oos.writeObject(gbean.getAttribute(attributeInfo.getName()));
+            String name = attributeInfo.getName();
+            Object value = null;
+            try {
+                value = gbean.getAttribute(name);
+            } catch (ReflectionException e) {
+                throw e;
+            } catch (AttributeNotFoundException e) {
+                throw new AssertionError("Unable to get attribute " + name + " from GBean " + gbean.getObjectName());
+            }
+            try {
+                oos.writeObject(name);
+                oos.writeObject(value);
+            } catch (IOException e) {
+                throw (IOException) new IOException("Unable to write attribute: " + name).initCause(e);
+            }
         }
         Set endpointsSet = gbean.getGBeanInfo().getReferences();
         oos.writeInt(endpointsSet.size());
