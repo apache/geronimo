@@ -70,7 +70,7 @@ import org.apache.geronimo.twiddle.console.IOContext;
 /**
  * Executes commands.
  *
- * @version <code>$Id: CommandExecutor.java,v 1.2 2003/08/13 15:18:47 jdillon Exp $</code>
+ * @version <code>$Id: CommandExecutor.java,v 1.3 2003/08/13 16:54:48 jdillon Exp $</code>
  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
  */
 public class CommandExecutor
@@ -117,6 +117,9 @@ public class CommandExecutor
         CommandContext ctx = new CommandContext() {
             public Environment getEnvironment()
             {
+                //
+                // TODO: Fix me :-P
+                //
                 return null;
             }
             

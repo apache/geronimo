@@ -71,7 +71,7 @@ import junit.framework.Assert;
 /**
  * Tests for <code>Configuration</code>.
  *
- * @version <code>$Id: ConfigurationTest.java,v 1.3 2003/08/13 11:48:57 jdillon Exp $</code>
+ * @version <code>$Id: ConfigurationTest.java,v 1.4 2003/08/13 16:54:48 jdillon Exp $</code>
  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
  */
 public class ConfigurationTest
@@ -164,7 +164,9 @@ public class ConfigurationTest
         Assert.assertEquals("property2", props[1].getName());
         Assert.assertEquals("value2", props[1].getContent());
     }
-
+    
+    /*
+    
     public void testLibraries() throws Exception
     {
         Configuration config = read("test1.xml");
@@ -178,6 +180,8 @@ public class ConfigurationTest
         Assert.assertEquals("library1", libs[0].getContent());
         Assert.assertEquals("library2", libs[1].getContent());
     }
+    
+    */
     
     public void testIncludes() throws Exception
     {
@@ -193,6 +197,8 @@ public class ConfigurationTest
         Assert.assertEquals("include2", incs[1]);
     }
     
+    /*
+    
     public void testSearchPath() throws Exception
     {
         Configuration config = read("test1.xml");
@@ -207,4 +213,6 @@ public class ConfigurationTest
         Assert.assertEquals("path2", paths[1]);
         Assert.assertEquals("path3", paths[2]);
     }
+    
+    */
 }

@@ -65,10 +65,9 @@ import org.apache.geronimo.common.NullArgumentException;
 /**
  * An abstract implementation of a <code>Command</code>.
  *
- * <p>Sub-classes only need to implement {@link Command#execute} and
- *    can access the command context from {@link #getCommandContext}.
+ * <p>Sub-classes only need to implement {@link Command#execute}.
  *
- * @version <code>$Id: AbstractCommand.java,v 1.2 2003/08/13 15:18:47 jdillon Exp $</code>
+ * @version <code>$Id: AbstractCommand.java,v 1.3 2003/08/13 16:54:48 jdillon Exp $</code>
  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
  */
 public abstract class AbstractCommand
@@ -140,6 +139,16 @@ public abstract class AbstractCommand
         }
         
         return context;
+    }
+    
+    /**
+     * Provides sub-classes with the commands environment.
+     *
+     * @return The commands environment.
+     */
+    protected Environment getEnvironment()
+    {
+        return getCommandContext().getEnvironment();
     }
     
     /**

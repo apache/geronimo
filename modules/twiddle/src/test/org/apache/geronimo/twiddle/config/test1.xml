@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: test1.xml,v 1.2 2003/08/13 11:48:57 jdillon Exp $ -->
+<!-- $Id: test1.xml,v 1.3 2003/08/13 16:54:48 jdillon Exp $ -->
 
 <configuration xmlns="http://geronimo.apache.org/xml/schema/Twiddle/Configuration">
   
@@ -18,11 +18,14 @@
   <!-- Additional Libraries -->
   <!-- ==================== -->
   
+  <!--
+  
   <libraries>
     <library>library1</library>
     <library>library2</library>
   </libraries>
   
+  -->
   
   <!-- ====================== -->
   <!-- Configuration Includes -->
@@ -45,6 +48,8 @@
     <attribute name="boolean1" type="boolean">true</attribute>
     <attribute name="class1" type="class">my.class</attribute>
     
+    <!--
+    
     <complex-attribute name="complex1" code="my.complex.class">
       <attribute name="default2">value2</attribute>
       <attribute name="string2" type="string">value</attribute>
@@ -52,6 +57,9 @@
       <attribute name="boolean2" type="boolean">false</attribute>
       <attribute name="class2" type="class">my.other.class</attribute>
     </complex-attribute>
+    
+    -->
+    
   </environment>
   
   
@@ -59,11 +67,15 @@
   <!-- Command Search Path -->
   <!-- =================== -->
   
+  <!--
+  
   <search-path>
     <path-element>path1</path-element>
     <path-element>path2</path-element>
     <path-element>path3</path-element>
   </search-path>
+  
+  -->
   
   
   <!-- ======== -->
@@ -74,12 +86,16 @@
     
     <command name="help" code="org.geronimo.twiddle.commands.HelpCommand"/>
     
+    <!--
+    
     <command-set name="whatever">
       <command name="whatever" code="whatever">
         <attribute name="Foo">Bar</attribute>
       </command>
     </command-set>
-  
+    
+    -->
+    
   </commands>
 
 </configuration>
