@@ -87,7 +87,7 @@ import org.apache.geronimo.security.bridge.RealmBridge;
  * and connection manager stack according to the policies described in the attributes.
  * It's used by deserialized copies of the proxy to get a reference to the actual stack.
  *
- * @version $Revision: 1.11 $ $Date: 2004/01/20 06:13:38 $
+ * @version $Revision: 1.12 $ $Date: 2004/01/20 06:59:22 $
  * */
 public class ConnectionManagerDeployment implements GeronimoMBeanTarget, ConnectionManagerFactory, GBean {
 
@@ -405,7 +405,7 @@ public class ConnectionManagerDeployment implements GeronimoMBeanTarget, Connect
         mBeanInfo.addEndpoint(new GeronimoMBeanEndpoint("RealmBridge", RealmBridge.class, ObjectName.getInstance("geronimo.connector:role=SecurityDomain"), false));
 
         mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("BlockingTimeout", true, true, "Milliseconds to wait for a connection to be returned"));
-        mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("JndiName", true, true, "Name to use to identify this guy (needs refactoring of naming conventions)"));
+        mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Name", true, true, "Name to use to identify this guy (needs refactoring of naming conventions)"));
         mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("MaxSize", true, true, "Maximum number of ManagedConnections to create in each pool"));
         mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UseConnectionRequestInfo", true, true, "Select pool using app-supplied ConnectionRequestInfo"));
         mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UseTransactions", true, true, "Use local or xa transactions vs. no transactions"));
