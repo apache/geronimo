@@ -61,55 +61,59 @@ import javax.management.MBeanServerNotification;
 import javax.management.NotificationFilter;
 
 /**
+ * Static constants class which contains all of the J2EE notification types from the
+ * J2EE management specification.
  *
- *
- * @version $Revision: 1.1 $ $Date: 2003/08/18 13:29:30 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/18 23:03:55 $
  */
-public interface NotificationType {
+public final class NotificationType {
+    private NotificationType() {
+    }
+
     /**
      * A new managed object was created.
      */
-    String OBJECT_CREATED = "j2ee.object.created";
+    public static final String OBJECT_CREATED = "j2ee.object.created";
 
     /**
      * A managed object was deleted
      */
-    String OBJECT_DELETED = "j2ee.object.deleted";
+    public static final String OBJECT_DELETED = "j2ee.object.deleted";
 
     /**
      * A state manageable object entered the starting state
      */
-    String STATE_STARTING = "j2ee.state.starting";
+    public static final String STATE_STARTING = "j2ee.state.starting";
 
     /**
      * A state manageable object entered the running state
      */
-    String STATE_RUNNING = "j2ee.state.running";
+    public static final String STATE_RUNNING = "j2ee.state.running";
 
     /**
      * A state manageable object entered the stopping state
      */
-    String STATE_STOPPING = "j2ee.state.stopping";
+    public static final String STATE_STOPPING = "j2ee.state.stopping";
 
     /**
      * A state manageable object entered the stopped state.
      */
-    String STATE_STOPPED = "j2ee.state.stopped";
+    public static final String STATE_STOPPED = "j2ee.state.stopped";
 
     /**
      * A state manageable object entered the failed state
      */
-    String STATE_FAILED = "j2ee.state.failed";
+    public static final String STATE_FAILED = "j2ee.state.failed";
 
     /**
      * An attribute has change value
      */
-    String ATTRIBUTE_CHANGED = "j2ee.attribute.changed";
+    public static final String ATTRIBUTE_CHANGED = "j2ee.attribute.changed";
 
     /**
      * An array containg all of the know J2EE notification types
      */
-    String[] TYPES = new String[]{
+    public static final String[] TYPES = new String[]{
         OBJECT_CREATED, OBJECT_DELETED,
         STATE_STARTING, STATE_RUNNING, STATE_STOPPING, STATE_STOPPED, STATE_FAILED,
         ATTRIBUTE_CHANGED
@@ -118,7 +122,12 @@ public interface NotificationType {
     /**
      * A notification filter which lets all J2EE notifications pass
      */
-    NotificationFilter NOTIFICATION_FILTER = new NotificationFilter() {
+    public static final NotificationFilter NOTIFICATION_FILTER = new J2EENotificationFilter();
+
+    private static final class J2EENotificationFilter implements NotificationFilter {
+        private J2EENotificationFilter() {
+        }
+
         public boolean isNotificationEnabled(Notification notification) {
             String type = notification.getType();
             for (int i = 0; i < TYPES.length; i++) {
