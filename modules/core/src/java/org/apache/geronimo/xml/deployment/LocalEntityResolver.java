@@ -69,7 +69,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Implementation of EntityResolver that looks to the local filesystem.
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/17 01:47:14 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/29 14:14:42 $
  */
 public class LocalEntityResolver implements EntityResolver {
     private static final Log log = LogFactory.getLog(LocalEntityResolver.class);
@@ -80,6 +80,7 @@ public class LocalEntityResolver implements EntityResolver {
     }
 
     public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+        //todo: resolve the core XML Schema schemas locally so no network connection is required
         if (log.isDebugEnabled()) {
             log.debug("Resolving entity S="+systemId+" P="+publicId);
         }
@@ -89,6 +90,9 @@ public class LocalEntityResolver implements EntityResolver {
         int index = systemId.lastIndexOf("/");
         String fileName = systemId.substring(index+1);
         File file = new File(root, fileName);
+        if (log.isDebugEnabled()) {
+            log.debug("File "+file.getAbsolutePath()+" exists: "+file.exists());
+        }
         if (file.exists()) {
             InputSource is = new InputSource(new BufferedInputStream(new FileInputStream(file)));
             is.setSystemId(systemId);
