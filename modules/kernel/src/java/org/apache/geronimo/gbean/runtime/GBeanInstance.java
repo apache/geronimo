@@ -633,7 +633,7 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
     private GBeanAttribute getAttributeByName(String name) throws NoSuchAttributeException {
         Integer index = (Integer) attributeIndex.get(name);
         if (index == null) {
-            throw new NoSuchAttributeException("Unknown attribute " + name);
+            throw new NoSuchAttributeException("Unknown attribute " + name + " in gbean " + objectName);
         }
         GBeanAttribute attribute = attributes[index.intValue()];
         return attribute;
