@@ -20,6 +20,7 @@ package org.apache.geronimo.messaging.cluster.topology;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -29,7 +30,7 @@ import org.apache.geronimo.messaging.NodeTopology;
 /**
  * A simple ring topology manager.
  *
- * @version $Revision: 1.2 $ $Date: 2004/07/05 07:03:50 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/17 03:33:34 $
  */
 public class RingTopologyManager
     implements TopologyManager
@@ -43,31 +44,21 @@ public class RingTopologyManager
     public RingTopologyManager() {
         nodes = new ArrayList();
     }
-
+    
     public Set getNodes() {
-        synchronized (nodes) {
-            return new HashSet(nodes);
-        }
+        return new HashSet(nodes);
     }
 
     public void addNode(NodeInfo aNode) {
-        synchronized(nodes) {
-            nodes.add(aNode);
-        }
+        nodes.add(aNode);
     }
 
     public void removeNode(NodeInfo aNode) {
-        synchronized(nodes) {
-            nodes.remove(aNode);
-        }
+        nodes.remove(aNode);
     }
 
     public NodeTopology factoryTopology() {
-        List tmpNodes;
-        synchronized(nodes) {
-            tmpNodes = new ArrayList(nodes);
-        }
-        return new RingTopology(tmpNodes);
+        return new RingTopology(nodes);
     }
 
     private static class RingTopology implements NodeTopology {
@@ -156,6 +147,16 @@ public class RingTopologyManager
             return version;
         }
 
+        public String toString() {
+            StringBuffer buffer = new StringBuffer();
+            buffer.append("Topology type:Ring; \nMembers: ");
+            for (Iterator iter = nodeSet.iterator(); iter.hasNext();) {
+                NodeInfo nodeInfo = (NodeInfo) iter.next();
+                buffer.append("\n  " + nodeInfo + "");
+            }
+            return buffer.toString();
+        }
+        
     }
     
 }
