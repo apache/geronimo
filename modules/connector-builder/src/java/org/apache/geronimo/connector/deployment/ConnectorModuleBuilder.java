@@ -161,15 +161,19 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
             // on the J2ee management object
             specDD = DeploymentUtil.readAll(specDDUrl);
-
+        } catch (Exception e) {
+            //no ra.xml, not for us.
+            return null;
+        }
+        //we found ra.xml, if it won't parse it's an error.
+        try {
             // parse it
             XmlObject xmlObject = SchemaConversionUtils.parse(specDD);
             ConnectorDocument connectorDoc = SchemaConversionUtils.convertToConnectorSchema(xmlObject);
             connector = connectorDoc.getConnector();
-        } catch (Exception e) {
-            return null;
+        } catch (XmlException e) {
+            throw new DeploymentException("Could not parse ra.xml descriptor", e);
         }
-
         GerConnectorType gerConnector = null;
         try {
             // load the geronimo-application-client.xml from either the supplied plan or from the earFile

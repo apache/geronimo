@@ -140,15 +140,18 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
             // on the J2ee management object
             specDD = DeploymentUtil.readAll(specDDUrl);
-
+        } catch (Exception e) {
+            //no application-client.xml, not for us.
+            return null;
+        }
+        //we found application-client.xml, if it won't parse it's an error.
+        try {
             // parse it
             XmlObject xmlObject = SchemaConversionUtils.parse(specDD);
             ApplicationClientDocument appClientDoc = SchemaConversionUtils.convertToApplicationClientSchema(xmlObject);
             appClient = appClientDoc.getApplicationClient();
         } catch (XmlException e) {
             throw new DeploymentException("Unable to parse application-client.xml", e);
-        } catch (Exception e) {
-            return null;
         }
 
         // parse vendor dd

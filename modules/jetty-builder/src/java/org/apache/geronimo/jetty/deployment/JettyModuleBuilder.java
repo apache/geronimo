@@ -173,17 +173,19 @@ public class JettyModuleBuilder implements ModuleBuilder {
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
             // on the J2ee management object
             specDD = DeploymentUtil.readAll(specDDUrl);
-
+        } catch (Exception e) {
+            //no web.xml, not for us
+            return null;
+        }
+        //we found web.xml, if it won't parse that's an error.
+        try {
             // parse it
             XmlObject parsed = SchemaConversionUtils.parse(specDD);
             WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(parsed);
             webApp = webAppDoc.getWebApp();
         } catch (XmlException xmle) {
             throw new DeploymentException("Error parsing web.xml", xmle);
-        } catch (Exception e) {
-            return null;
         }
-
         check(webApp);
 
         // parse vendor dd

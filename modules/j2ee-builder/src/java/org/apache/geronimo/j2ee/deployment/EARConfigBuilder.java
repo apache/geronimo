@@ -143,16 +143,21 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     }
 
     private Object getEarPlan(File planFile, JarFile earFile) throws DeploymentException {
+        String specDD;
         ApplicationType application;
         try {
             URL applicationXmlUrl = DeploymentUtil.createJarURL(earFile, "META-INF/application.xml");
-            XmlObject xmlObject = SchemaConversionUtils.parse(applicationXmlUrl);
-            application = SchemaConversionUtils.convertToApplicationSchema(xmlObject).getApplication();
+            specDD = DeploymentUtil.readAll(applicationXmlUrl);
         } catch (Exception e) {
+            //no application.xml, not for us
             return null;
         }
-        if (application == null) {
-            return null;
+        //we found something called application.xml in the right place, if we can't parse it it's an error
+        try {
+            XmlObject xmlObject = SchemaConversionUtils.parse(specDD);
+            application = SchemaConversionUtils.convertToApplicationSchema(xmlObject).getApplication();
+        } catch (XmlException e) {
+            throw new DeploymentException("Could not parse application.xml", e);
         }
 
         GerApplicationType gerApplication = null;
