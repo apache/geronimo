@@ -43,6 +43,12 @@ public class ServerRealmConfigurationEntry implements GBeanLifecycle {
     public ServerRealmConfigurationEntry(String applicationConfigName, String realmName, Kernel kernel) {
         this.applicationConfigName = applicationConfigName;
         this.realmName = realmName;
+        if(applicationConfigName == null || realmName == null) {
+            throw new IllegalArgumentException("applicationConfigName and realmName are required");
+        }
+        if(applicationConfigName.equals(realmName)) {
+            throw new IllegalArgumentException("applicationConfigName must be different than realmName (there's an automatic entry using the same name as the realm name, so you don't need a ServerRealmConfigurationEntry if you're just going to use that!)");
+        }
         this.kernel = kernel;
     }
 
