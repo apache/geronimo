@@ -62,6 +62,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.net.URL;
+import java.net.URI;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.io.File;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
@@ -86,19 +91,21 @@ import org.apache.geronimo.jmx.JMXUtil;
 /**
  * Creates an new MBean instance and intializes it according to the specified MBeanMetadata metadata
  *
- * @version $Revision: 1.7 $ $Date: 2003/08/18 22:03:38 $
+ * @version $Revision: 1.8 $ $Date: 2003/08/20 22:38:24 $
  */
 public class CreateMBeanInstance implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
     private final MBeanServer server;
     private final MBeanMetadata metadata;
+    private final URI baseURI;
     private final DependencyServiceMBean dependencyService;
     private final RelationServiceMBean relationService;
     private ObjectName actualName;
 
-    public CreateMBeanInstance(MBeanServer server, MBeanMetadata metadata) {
+    public CreateMBeanInstance(MBeanServer server, MBeanMetadata metadata) throws DeploymentException {
         this.server = server;
         this.metadata = metadata;
+        this.baseURI = metadata.getBaseURI();
         dependencyService = JMXUtil.getDependencyService(server);
         relationService = JMXUtil.getRelationService(server);
     }
@@ -251,6 +258,20 @@ public class CreateMBeanInstance implements DeploymentTask {
     private static final Class[] stringArg = new Class[]{String.class};
 
     private Object getValue(ClassLoader cl, String typeName, String value) throws DeploymentException {
+        if("java.net.URI".equals(typeName)) {
+            return baseURI.resolve(value);
+        }
+        if("java.net.URL".equals(typeName)) {
+            try {
+                return baseURI.resolve(value).toURL();
+            } catch (MalformedURLException e) {
+                throw new DeploymentException(e);
+            }
+        }
+        if("java.io.File".equals(typeName)) {
+            return new File(baseURI.resolve(value));
+        }
+
         Class attrType = null;
         try {
             attrType = ClassUtil.getClassForName(cl, typeName);
