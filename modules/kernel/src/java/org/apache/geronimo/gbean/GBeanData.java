@@ -29,7 +29,7 @@ import java.util.Set;
 import javax.management.ObjectName;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: $ $Date: $
  */
 public class GBeanData implements Externalizable {
     private ObjectName name;
@@ -38,6 +38,12 @@ public class GBeanData implements Externalizable {
     private final Map references;
 
     public GBeanData() {
+        attributes = new HashMap();
+        references = new HashMap();
+    }
+
+    public GBeanData(GBeanInfo gbeanInfo) {
+        this.gbeanInfo = gbeanInfo;
         attributes = new HashMap();
         references = new HashMap();
     }
