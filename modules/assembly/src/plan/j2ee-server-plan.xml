@@ -85,6 +85,13 @@ by the server.
         <reference name="Realms">geronimo.security:type=SecurityRealm,*</reference>
     </gbean>
 
+    <gbean name="geronimo.security:type=LoginService" class="org.apache.geronimo.security.jaas.LoginService">
+        <reference name="Realms">geronimo.security:type=SecurityRealm,*</reference>
+        <attribute name="ReclaimPeriod" type="long">100000</attribute>
+        <attribute name="Algorithm" type="java.lang.String">HmacSHA1</attribute>
+        <attribute name="Password" type="java.lang.String">secret</attribute>
+    </gbean>
+    
     <gbean name="geronimo.server:type=ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
     </gbean>
 
