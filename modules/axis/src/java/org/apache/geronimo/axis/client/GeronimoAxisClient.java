@@ -17,14 +17,14 @@
 package org.apache.geronimo.axis.client;
 
 import java.util.Map;
+
 import javax.xml.namespace.QName;
 import javax.xml.rpc.handler.HandlerChain;
 
-import org.apache.axis.MessageContext;
 import org.apache.axis.EngineConfiguration;
+import org.apache.axis.MessageContext;
 import org.apache.axis.client.AxisClient;
 import org.apache.axis.client.Call;
-import org.apache.axis.handlers.HandlerInfoChainFactory;
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -42,7 +42,7 @@ public class GeronimoAxisClient extends AxisClient {
 
         QName portQName = (QName) context.getProperty(Call.WSDL_PORT_NAME);
         if(portQName == null) {
-            throw new RuntimeException("No port name supplied");
+            return null;
         }
         String portName = portQName.getLocalPart();
 
