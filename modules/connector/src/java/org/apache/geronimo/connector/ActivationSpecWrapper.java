@@ -156,7 +156,7 @@ public class ActivationSpecWrapper implements ResourceManager, DynamicGBean {
         }
         try {
             XAResource[] xaResources = resourceAdapterWrapper.getXAResources(new ActivationSpec[]{activationSpec});
-            if (xaResources.length == 0) {
+            if (xaResources == null || xaResources.length == 0) {
                 return null;
             }
             return new WrapperNamedXAResource(xaResources[0], containerId);
