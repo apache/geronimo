@@ -53,53 +53,40 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.plugin;
+package org.apache.geronimo.jetty.deployment;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
+import javax.enterprise.deploy.model.DDBeanRoot;
+import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.spi.DConfigBean;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
-import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
-import javax.enterprise.deploy.model.DDBean;
-import javax.enterprise.deploy.model.XpathEvent;
+
+import org.apache.geronimo.deployment.plugin.DConfigBeanRootSupport;
 
 /**
- *
- *
- * @version $Revision: 1.2 $ $Date: 2004/01/22 04:44:43 $
+ * 
+ * 
+ * @version $Revision: 1.1 $ $Date: 2004/01/22 04:44:43 $
  */
-public abstract class DConfigBeanSupport implements DConfigBean {
-    private final DDBean ddBean;
-    private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+public class WebAppDConfigRoot extends DConfigBeanRootSupport {
+    private static String[] XPATHS = {
+        "web-app"
+    };
 
-    public DConfigBeanSupport(DDBean ddBean) {
-        this.ddBean = ddBean;
-    }
+    private final WebAppDConfigBean webAppBean;
 
-    public DDBean getDDBean() {
-        return ddBean;
-    }
-
-    public DConfigBean getDConfigBean(DDBean bean) throws ConfigurationException {
-        return null;
+    public WebAppDConfigRoot(DDBeanRoot ddBean) {
+        super(ddBean);
+        webAppBean = new WebAppDConfigBean(ddBean.getChildBean("web-app")[0]);
     }
 
     public String[] getXpaths() {
+        return XPATHS;
+    }
+
+    public DConfigBean getDConfigBean(DDBean bean) throws ConfigurationException {
+        if ("/web-app".equals(bean.getXpath())) {
+            return webAppBean;
+        }
         return null;
-    }
-
-    public void removeDConfigBean(DConfigBean bean) throws BeanNotFoundException {
-        throw new BeanNotFoundException("No children");
-    }
-
-    public void notifyDDChange(XpathEvent event) {
-    }
-
-    public void addPropertyChangeListener(PropertyChangeListener pcl) {
-        pcs.addPropertyChangeListener(pcl);
-    }
-
-    public void removePropertyChangeListener(PropertyChangeListener pcl) {
-        pcs.removePropertyChangeListener(pcl);
     }
 }

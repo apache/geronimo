@@ -55,59 +55,19 @@
  */
 package org.apache.geronimo.jetty.deployment;
 
-import java.util.Collections;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
-import javax.enterprise.deploy.spi.DeploymentManager;
-import javax.management.ObjectName;
 
-import org.apache.geronimo.deployment.plugin.DeploymentManagerImpl;
 import org.apache.geronimo.deployment.tools.loader.WebDeployable;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.management.State;
-import junit.framework.TestCase;
 
 /**
- * 
- * 
- * @version $Revision: 1.1 $ $Date: 2004/01/22 00:51:09 $
+ *
+ *
+ * @version $Revision: 1.2 $ $Date: 2004/01/22 04:44:44 $
  */
-public class WARConfigurationFactoryTest extends TestCase {
-    private Kernel kernel;
-    private ObjectName managerName;
-    private ObjectName warName;
-    private GBeanMBean managerGBean;
-
+public class WARConfigurationFactoryTest extends DeployerTestCase {
     public void testFactory() throws Exception {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getMBeanServer().getAttribute(managerName, "state"));
-        DeploymentManager manager = (DeploymentManager) managerGBean.getTarget();
-        WebDeployable deployable = new WebDeployable(cl.getResource("deployables/war1/"));
+        WebDeployable deployable = new WebDeployable(classLoader.getResource("deployables/war1/"));
         DeploymentConfiguration config = manager.createConfiguration(deployable);
         assertEquals(deployable, config.getDeployableObject());
-    }
-
-    protected void setUp() throws Exception {
-        kernel = new Kernel("test");
-        kernel.boot();
-
-        warName = new ObjectName("geronimo.deployment:role=WARFactory");
-        GBeanMBean warFactory = new GBeanMBean(WARConfigurationFactory.GBEAN_INFO);
-        kernel.loadGBean(warName, warFactory);
-        kernel.startGBean(warName);
-
-        managerName = new ObjectName("geronimo.deployment:role=DeploymentManager");
-        managerGBean = new GBeanMBean(DeploymentManagerImpl.GBEAN_INFO);
-        managerGBean.setEndpointPatterns("WARFactory", Collections.singleton(warName));
-        kernel.loadGBean(managerName, managerGBean);
-        kernel.startGBean(managerName);
-    }
-
-    protected void tearDown() throws Exception {
-        kernel.stopGBean(managerName);
-        kernel.unloadGBean(managerName);
-        kernel.stopGBean(warName);
-        kernel.unloadGBean(warName);
-        kernel.shutdown();
     }
 }

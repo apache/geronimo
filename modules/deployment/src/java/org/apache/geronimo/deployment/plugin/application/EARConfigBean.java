@@ -56,31 +56,16 @@
 package org.apache.geronimo.deployment.plugin.application;
 
 import javax.enterprise.deploy.model.DDBean;
-import javax.enterprise.deploy.spi.DConfigBean;
-import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
-import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/21 20:37:29 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/22 04:44:43 $
  */
 public class EARConfigBean extends DConfigBeanSupport {
     public EARConfigBean(DDBean ddBean) {
         super(ddBean);
-    }
-
-    public String[] getXpaths() {
-        return null;
-    }
-
-    public DConfigBean getDConfigBean(DDBean bean) throws ConfigurationException {
-        throw new ConfigurationException();
-    }
-
-    public void removeDConfigBean(DConfigBean bean) throws BeanNotFoundException {
-        throw new BeanNotFoundException("No children");
     }
 }

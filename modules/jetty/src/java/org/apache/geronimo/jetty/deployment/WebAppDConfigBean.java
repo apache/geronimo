@@ -53,53 +53,29 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.plugin;
+package org.apache.geronimo.jetty.deployment;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import javax.enterprise.deploy.spi.DConfigBean;
-import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
-import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
 import javax.enterprise.deploy.model.DDBean;
-import javax.enterprise.deploy.model.XpathEvent;
+
+import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
 
 /**
- *
- *
- * @version $Revision: 1.2 $ $Date: 2004/01/22 04:44:43 $
+ * 
+ * 
+ * @version $Revision: 1.1 $ $Date: 2004/01/22 04:44:43 $
  */
-public abstract class DConfigBeanSupport implements DConfigBean {
-    private final DDBean ddBean;
-    private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+public class WebAppDConfigBean extends DConfigBeanSupport {
+    private String contextPath;
 
-    public DConfigBeanSupport(DDBean ddBean) {
-        this.ddBean = ddBean;
+    WebAppDConfigBean(DDBean ddBean) {
+        super(ddBean);
     }
 
-    public DDBean getDDBean() {
-        return ddBean;
+    public String getContextPath() {
+        return contextPath;
     }
 
-    public DConfigBean getDConfigBean(DDBean bean) throws ConfigurationException {
-        return null;
-    }
-
-    public String[] getXpaths() {
-        return null;
-    }
-
-    public void removeDConfigBean(DConfigBean bean) throws BeanNotFoundException {
-        throw new BeanNotFoundException("No children");
-    }
-
-    public void notifyDDChange(XpathEvent event) {
-    }
-
-    public void addPropertyChangeListener(PropertyChangeListener pcl) {
-        pcs.addPropertyChangeListener(pcl);
-    }
-
-    public void removePropertyChangeListener(PropertyChangeListener pcl) {
-        pcs.removePropertyChangeListener(pcl);
+    public void setContextPath(String contextPath) {
+        this.contextPath = contextPath;
     }
 }

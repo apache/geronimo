@@ -53,53 +53,46 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.plugin;
+package org.apache.geronimo.jetty.deployment;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import javax.enterprise.deploy.spi.DConfigBean;
-import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
-import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
-import javax.enterprise.deploy.model.DDBean;
-import javax.enterprise.deploy.model.XpathEvent;
+import java.util.Arrays;
+import javax.enterprise.deploy.model.DDBeanRoot;
+import javax.enterprise.deploy.spi.DeploymentConfiguration;
+
+import org.apache.geronimo.deployment.tools.loader.WebDeployable;
 
 /**
- *
- *
- * @version $Revision: 1.2 $ $Date: 2004/01/22 04:44:43 $
+ * 
+ * 
+ * @version $Revision: 1.1 $ $Date: 2004/01/22 04:44:44 $
  */
-public abstract class DConfigBeanSupport implements DConfigBean {
-    private final DDBean ddBean;
-    private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+public class WebAppDConfigTest extends DeployerTestCase {
+    private DeploymentConfiguration config;
+    private WebDeployable deployable;
 
-    public DConfigBeanSupport(DDBean ddBean) {
-        this.ddBean = ddBean;
+    public void testWebAppRoot() throws Exception {
+        DDBeanRoot ddBeanRoot = deployable.getDDBeanRoot();
+        WebAppDConfigRoot configRoot = (WebAppDConfigRoot) config.getDConfigBeanRoot(ddBeanRoot);
+        assertNotNull(configRoot);
+        assertTrue(Arrays.equals(new String[]{"web-app"}, configRoot.getXpaths()));
+        assertNotNull(configRoot.getDConfigBean(ddBeanRoot.getChildBean("web-app")[0]));
+        assertNull(configRoot.getDConfigBean(ddBeanRoot.getChildBean("web-app/description")[0]));
     }
 
-    public DDBean getDDBean() {
-        return ddBean;
+    public void testWebApp() throws Exception {
+        DDBeanRoot ddBeanRoot = deployable.getDDBeanRoot();
+        WebAppDConfigRoot configRoot = (WebAppDConfigRoot) config.getDConfigBeanRoot(ddBeanRoot);
+        WebAppDConfigBean webApp = (WebAppDConfigBean) configRoot.getDConfigBean(ddBeanRoot.getChildBean("web-app")[0]);
+        assertNotNull(webApp);
     }
 
-    public DConfigBean getDConfigBean(DDBean bean) throws ConfigurationException {
-        return null;
+    protected void setUp() throws Exception {
+        super.setUp();
+        deployable = new WebDeployable(classLoader.getResource("deployables/war1/"));
+        config = manager.createConfiguration(deployable);
     }
 
-    public String[] getXpaths() {
-        return null;
-    }
-
-    public void removeDConfigBean(DConfigBean bean) throws BeanNotFoundException {
-        throw new BeanNotFoundException("No children");
-    }
-
-    public void notifyDDChange(XpathEvent event) {
-    }
-
-    public void addPropertyChangeListener(PropertyChangeListener pcl) {
-        pcs.addPropertyChangeListener(pcl);
-    }
-
-    public void removePropertyChangeListener(PropertyChangeListener pcl) {
-        pcs.removePropertyChangeListener(pcl);
+    protected void tearDown() throws Exception {
+        super.tearDown();
     }
 }

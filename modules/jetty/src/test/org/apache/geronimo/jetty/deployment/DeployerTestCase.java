@@ -53,53 +53,55 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.plugin;
+package org.apache.geronimo.jetty.deployment;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import javax.enterprise.deploy.spi.DConfigBean;
-import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
-import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
-import javax.enterprise.deploy.model.DDBean;
-import javax.enterprise.deploy.model.XpathEvent;
+import java.util.Collections;
+import javax.management.ObjectName;
+import javax.enterprise.deploy.spi.DeploymentManager;
+
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.deployment.plugin.DeploymentManagerImpl;
+import junit.framework.TestCase;
 
 /**
- *
- *
- * @version $Revision: 1.2 $ $Date: 2004/01/22 04:44:43 $
+ * Base class for web deployer test.
+ * Handles setting up the deployment environment.
+ * 
+ * @version $Revision: 1.1 $ $Date: 2004/01/22 04:44:44 $
  */
-public abstract class DConfigBeanSupport implements DConfigBean {
-    private final DDBean ddBean;
-    private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+public class DeployerTestCase extends TestCase {
+    protected Kernel kernel;
+    protected ObjectName managerName;
+    private ObjectName warName;
+    protected GBeanMBean managerGBean;
+    protected DeploymentManager manager;
+    protected ClassLoader classLoader;
 
-    public DConfigBeanSupport(DDBean ddBean) {
-        this.ddBean = ddBean;
+    protected void setUp() throws Exception {
+        classLoader = Thread.currentThread().getContextClassLoader();
+        kernel = new Kernel("test");
+        kernel.boot();
+
+        warName = new ObjectName("geronimo.deployment:role=WARFactory");
+        GBeanMBean warFactory = new GBeanMBean(WARConfigurationFactory.GBEAN_INFO);
+        kernel.loadGBean(warName, warFactory);
+        kernel.startGBean(warName);
+
+        managerName = new ObjectName("geronimo.deployment:role=DeploymentManager");
+        managerGBean = new GBeanMBean(DeploymentManagerImpl.GBEAN_INFO);
+        managerGBean.setEndpointPatterns("WARFactory", Collections.singleton(warName));
+        kernel.loadGBean(managerName, managerGBean);
+        kernel.startGBean(managerName);
+
+        manager = (DeploymentManager) managerGBean.getTarget();
     }
 
-    public DDBean getDDBean() {
-        return ddBean;
-    }
-
-    public DConfigBean getDConfigBean(DDBean bean) throws ConfigurationException {
-        return null;
-    }
-
-    public String[] getXpaths() {
-        return null;
-    }
-
-    public void removeDConfigBean(DConfigBean bean) throws BeanNotFoundException {
-        throw new BeanNotFoundException("No children");
-    }
-
-    public void notifyDDChange(XpathEvent event) {
-    }
-
-    public void addPropertyChangeListener(PropertyChangeListener pcl) {
-        pcs.addPropertyChangeListener(pcl);
-    }
-
-    public void removePropertyChangeListener(PropertyChangeListener pcl) {
-        pcs.removePropertyChangeListener(pcl);
+    protected void tearDown() throws Exception {
+        kernel.stopGBean(managerName);
+        kernel.unloadGBean(managerName);
+        kernel.stopGBean(warName);
+        kernel.unloadGBean(warName);
+        kernel.shutdown();
     }
 }

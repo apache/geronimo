@@ -56,16 +56,29 @@
 package org.apache.geronimo.jetty.deployment;
 
 import javax.enterprise.deploy.model.DeployableObject;
+import javax.enterprise.deploy.model.DDBeanRoot;
+import javax.enterprise.deploy.spi.DConfigBeanRoot;
+import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 
 import org.apache.geronimo.deployment.plugin.DeploymentConfigurationSupport;
 
 /**
- * 
- * 
- * @version $Revision: 1.1 $ $Date: 2004/01/22 00:51:09 $
+ *
+ *
+ * @version $Revision: 1.2 $ $Date: 2004/01/22 04:44:43 $
  */
 public class WARConfiguration extends DeploymentConfigurationSupport {
+    private final WebAppDConfigRoot root;
+
     public WARConfiguration(DeployableObject deployable) {
         super(deployable);
+        root = new WebAppDConfigRoot(deployable.getDDBeanRoot());
+    }
+
+    public DConfigBeanRoot getDConfigBeanRoot(DDBeanRoot bean) throws ConfigurationException {
+        if (getDeployableObject().getDDBeanRoot().equals(bean)) {
+            return root;
+        }
+        return null;
     }
 }

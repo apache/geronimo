@@ -56,16 +56,13 @@
 package org.apache.geronimo.deployment.plugin.client;
 
 import javax.enterprise.deploy.model.DDBean;
-import javax.enterprise.deploy.spi.DConfigBean;
-import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
-import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
 
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
 
 /**
- * 
- * 
- * @version $Revision: 1.1 $ $Date: 2004/01/21 20:37:28 $
+ *
+ *
+ * @version $Revision: 1.2 $ $Date: 2004/01/22 04:44:43 $
  */
 public class ClientConfigBean extends DConfigBeanSupport {
     private static final String[] XPATHS = {
@@ -79,12 +76,5 @@ public class ClientConfigBean extends DConfigBeanSupport {
 
     public String[] getXpaths() {
         return XPATHS;
-    }
-
-    public DConfigBean getDConfigBean(DDBean bean) throws ConfigurationException {
-        return null;
-    }
-
-    public void removeDConfigBean(DConfigBean bean) throws BeanNotFoundException {
     }
 }
