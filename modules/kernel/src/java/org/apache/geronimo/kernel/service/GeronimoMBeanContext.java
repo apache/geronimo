@@ -65,7 +65,7 @@ import org.apache.geronimo.kernel.management.State;
  * Context handle for Geronimo MBean targets which gives a target a reference to the MBean server, the object name
  * of the GeronimoMBean containing the target, allows the target to send MBean notifications.
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/06 19:56:00 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/08 22:21:45 $
  */
 public class GeronimoMBeanContext {
     /**
@@ -161,11 +161,32 @@ public class GeronimoMBeanContext {
     }
 
     /**
-     * Sends the specified notification .
+     * Sends the specified notification.
      * The norification must be declared in the a GeronimoNotificationInfo.
      * @param notification the notification to send
      */
     public void sendNotification(Notification notification) {
         geronimoMBean.sendNotification(notification);
+    }
+
+    /**
+     * Gets the default target object from the GeronimoMBean.  This allows
+     * targets within the same MBean to communicate with each other.
+     * @return the default target or null if there is no default target
+     */
+    public Object getTarget() {
+        GeronimoMBeanInfo mbeanInfo = (GeronimoMBeanInfo) geronimoMBean.getMBeanInfo();
+        return mbeanInfo.targets.get(GeronimoMBeanInfo.DEFAULT_TARGET_NAME);
+    }
+
+    /**
+     * Gets the named target object from the GeronimoMBean.  This allows
+     * targets within the same MBean to communicate with each other.
+     * @param name name of the target to get
+     * @return the named target or null if there is no default target
+     */
+    public Object getTarget(String name) {
+        GeronimoMBeanInfo mbeanInfo = (GeronimoMBeanInfo) geronimoMBean.getMBeanInfo();
+        return mbeanInfo.targets.get(name);
     }
 }
