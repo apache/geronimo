@@ -16,17 +16,21 @@
  */
 package org.apache.geronimo.security.deployment;
 
-import org.apache.geronimo.security.deploy.Security;
+import org.apache.geronimo.security.deploy.AutoMapAssistant;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.deploy.Role;
-import org.apache.geronimo.security.deploy.Realm;
 import org.apache.geronimo.security.deploy.Principal;
-import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
+import org.apache.geronimo.security.deploy.Realm;
+import org.apache.geronimo.security.deploy.Role;
+import org.apache.geronimo.security.deploy.Security;
+import org.apache.geronimo.xbeans.geronimo.security.GerAutoMapRolesType;
+import org.apache.geronimo.xbeans.geronimo.security.GerClassOverrideType;
 import org.apache.geronimo.xbeans.geronimo.security.GerDefaultPrincipalType;
+import org.apache.geronimo.xbeans.geronimo.security.GerPrincipalType;
+import org.apache.geronimo.xbeans.geronimo.security.GerRealmType;
 import org.apache.geronimo.xbeans.geronimo.security.GerRoleMappingsType;
 import org.apache.geronimo.xbeans.geronimo.security.GerRoleType;
-import org.apache.geronimo.xbeans.geronimo.security.GerRealmType;
-import org.apache.geronimo.xbeans.geronimo.security.GerPrincipalType;
+import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
+
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -74,6 +78,20 @@ public class SecurityBuilder {
 
                     security.getRoleMappings().add(role);
                 }
+            }
+
+            GerAutoMapRolesType autoMapRolesType = securityType.getAutoMapRoles();
+            if (autoMapRolesType != null) {
+                AutoMapAssistant assistant = new AutoMapAssistant();
+
+                assistant.setSecurityRealm(autoMapRolesType.getSecurityRealm());
+
+                GerClassOverrideType[] classOverrideArray = autoMapRolesType.getClassOverrideArray();
+                for (int i = 0; i < classOverrideArray.length; i++) {
+                    assistant.getClassOverrides().add(classOverrideArray[i].getClass1());
+                }
+
+                security.setAssistant(assistant);
             }
         }
 

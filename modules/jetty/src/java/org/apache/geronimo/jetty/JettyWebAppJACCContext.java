@@ -36,6 +36,8 @@ import javax.security.jacc.PolicyContext;
 import javax.security.jacc.PolicyContextException;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebUserDataPermission;
+import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,13 +51,16 @@ import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.PrimaryRealmPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.SubjectId;
+import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deploy.Security;
+import org.apache.geronimo.security.deploy.AutoMapAssistant;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
-import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.OnlineUserTransaction;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.kernel.Kernel;
+
 import org.mortbay.http.Authenticator;
 import org.mortbay.http.HttpException;
 import org.mortbay.http.HttpRequest;
@@ -78,6 +83,7 @@ import org.mortbay.util.LazyList;
 public class JettyWebAppJACCContext extends JettyWebAppContext {
     private static Log log = LogFactory.getLog(JettyWebAppJACCContext.class);
 
+    private final Kernel kernel;
     private final String policyContextID;
     private final Security securityConfig;
     private final JAASJettyPrincipal defaultPrincipal;
@@ -91,12 +97,14 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
     private String formLoginPath;
 
     public JettyWebAppJACCContext() {
+        kernel = null;
         policyContextID = null;
         securityConfig = null;
         defaultPrincipal = null;
     }
 
     public JettyWebAppJACCContext(
+            Kernel kernel,
             URI uri,
             ReadOnlyContext componentContext,
             OnlineUserTransaction userTransaction,
@@ -125,6 +133,7 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
                 trackedConnectionAssociator,
                 jettyContainer);
 
+        this.kernel = kernel;
         this.policyContextID = policyContextID;
         this.securityConfig = securityConfig;
         defaultPrincipal = generateDefaultPrincipal(securityConfig);
@@ -133,6 +142,10 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
          * We want to use our own web-app handler.
          */
         addHandler(new JettyWebAppHandler());
+    }
+
+    public Kernel getKernel() {
+        return kernel;
     }
 
     public String getPolicyContextID() {
@@ -361,16 +374,40 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
      * @return the default principal
      */
     protected JAASJettyPrincipal generateDefaultPrincipal(Security securityConfig) throws GeronimoSecurityException {
+
+        DefaultPrincipal defaultPrincipal = securityConfig.getDefaultPrincipal();
+        if (defaultPrincipal == null) {
+            AutoMapAssistant config = securityConfig.getAssistant();
+            try {
+                if (config != null) {
+                    Set assistants = kernel.listGBeans(new ObjectName("geronimo.security:type=SecurityRealm,realm=" + config.getSecurityRealm()));
+                    if (assistants.size() < 1 || assistants.size() > 1) throw new GeronimoSecurityException("Only one auto mapping assistant should match " + config.getSecurityRealm());
+
+                    org.apache.geronimo.security.realm.AutoMapAssistant assistant = (org.apache.geronimo.security.realm.AutoMapAssistant) assistants.iterator().next();
+                    org.apache.geronimo.security.deploy.Principal principal = assistant.obtainDefaultPrincipal();
+                    defaultPrincipal = new DefaultPrincipal();
+                    defaultPrincipal.setPrincipal(principal);
+                    defaultPrincipal.setRealmName(((SecurityRealm)assistant).getRealmName());
+                }
+            } catch (MalformedObjectNameException e) {
+                throw new GeronimoSecurityException("Bad object name geronimo.security:type=SecurityRealm,realm=" + config.getSecurityRealm());
+            }
+
+        }
+        if (defaultPrincipal == null) throw new GeronimoSecurityException("Unable to generate default principal");
+
+        return generateDefaultPrincipal(securityConfig, defaultPrincipal);
+    }
+
+    protected JAASJettyPrincipal generateDefaultPrincipal(Security securityConfig, DefaultPrincipal defaultPrincipal) throws GeronimoSecurityException {
         JAASJettyPrincipal result = new JAASJettyPrincipal("default");
         Subject defaultSubject = new Subject();
 
-        DefaultPrincipal principal = securityConfig.getDefaultPrincipal();
-
-        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal.getPrincipal(), principal.getRealmName());
+        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getRealmName());
         if (realmPrincipal == null) {
             throw new GeronimoSecurityException("Unable to create realm principal");
         }
-        PrimaryRealmPrincipal primaryRealmPrincipal = ConfigurationUtil.generatePrimaryRealmPrincipal(principal.getPrincipal(), principal.getRealmName());
+        PrimaryRealmPrincipal primaryRealmPrincipal = ConfigurationUtil.generatePrimaryRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getRealmName());
         if (primaryRealmPrincipal == null) {
             throw new GeronimoSecurityException("Unable to create primary realm principal");
         }
@@ -497,10 +534,12 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty JACC WebApplication Context", JettyWebAppJACCContext.class, JettyWebAppContext.GBEAN_INFO);
 
+        infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("policyContextID", String.class, true);
         infoFactory.addAttribute("securityConfig", Security.class, true);
 
         infoFactory.setConstructor(new String[]{
+            "kernel",
             "uri",
             "componentContext",
             "userTransaction",

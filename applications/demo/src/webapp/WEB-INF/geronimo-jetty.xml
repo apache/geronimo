@@ -16,21 +16,26 @@
     limitations under the License.
 -->
 
-<web-app xmlns="http://geronimo.apache.org/xml/ns/web/jetty" configId="org/apache/geronimo/Demo" parentId="org/apache/geronimo/Secure">
+<web-app
+    xmlns="http://geronimo.apache.org/xml/ns/web/jetty"
+    xmlns:sec="http://geronimo.apache.org/xml/ns/security"
+    configId="org/apache/geronimo/Demo"
+    parentId="org/apache/geronimo/Secure">
+
     <context-root>/demo</context-root>
     <context-priority-classloader>false</context-priority-classloader>
-    <security>
-        <default-principal realm-name="demo-properties-realm">
-            <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="izumi"/>
-        </default-principal>
-        <role-mappings>
-            <role role-name="content-administrator">
-                <realm realm-name="demo-properties-realm">
-                    <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal" name="it" designated-run-as="true"/>
-                    <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="metro"/>
-                    <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="george"/>
-                </realm>
-            </role>
-        </role-mappings>
-    </security>
+    <sec:security>
+        <sec:default-principal realm-name="demo-properties-realm">
+            <sec:principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="izumi"/>
+        </sec:default-principal>
+        <sec:role-mappings>
+            <sec:role role-name="content-administrator">
+                <sec:realm realm-name="demo-properties-realm">
+                    <sec:principal class="org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal" name="it" designated-run-as="true"/>
+                    <sec:principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="metro"/>
+                    <sec:principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="george"/>
+                </sec:realm>
+            </sec:role>
+        </sec:role-mappings>
+    </sec:security>
 </web-app>

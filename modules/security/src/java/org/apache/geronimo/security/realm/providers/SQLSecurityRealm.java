@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.security.realm.providers;
 
+import javax.security.auth.login.AppConfigurationEntry;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -28,21 +29,24 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import javax.security.auth.login.AppConfigurationEntry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.regexp.RE;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.security.GeronimoSecurityException;
-import org.apache.regexp.RE;
+import org.apache.geronimo.security.deploy.Principal;
+import org.apache.geronimo.security.realm.AutoMapAssistant;
 
 
 /**
  * @version $Rev$ $Date$
  */
 
-public class SQLSecurityRealm extends AbstractSecurityRealm {
+public class SQLSecurityRealm extends AbstractSecurityRealm implements AutoMapAssistant {
+
     private static Log log = LogFactory.getLog(SQLSecurityRealm.class);
     public final static String USER_SELECT = "org.apache.geronimo.security.realm.providers.SQLSecurityRealm.USER_SELECT";
     public final static String GROUP_SELECT = "org.apache.geronimo.security.realm.providers.SQLSecurityRealm.GROUP_SELECT";
@@ -56,8 +60,9 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
     private String password = "";
     private String userSelect = "SELECT UserName, Password FROM Users";
     private String groupSelect = "SELECT GroupName, UserName FROM Groups";
-    final Map users = new HashMap();
-    final Map groups = new HashMap();
+    private final Map users = new HashMap();
+    private final Map groups = new HashMap();
+    private String defaultPrincipal;
 
     /**
      * @deprecated
@@ -147,6 +152,16 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
         this.groupSelect = groupSelect;
     }
 
+    public String getDefaultPrincipal() {
+        return defaultPrincipal;
+    }
+
+    public void setDefaultPrincipal(String defaultPrincipal) {
+        if (running) {
+            throw new IllegalStateException("Cannot change the default principal after the realm is started");
+        }
+        this.defaultPrincipal = defaultPrincipal;
+    }
 
     public Set getGroupPrincipals() throws GeronimoSecurityException {
         if (!running) {
@@ -277,8 +292,8 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
         options.put(PASSWORD, password);
 
         AppConfigurationEntry entry = new AppConfigurationEntry("org.apache.geronimo.security.realm.providers.SQLLoginModule",
-                AppConfigurationEntry.LoginModuleControlFlag.SUFFICIENT,
-                options);
+                                                                AppConfigurationEntry.LoginModuleControlFlag.SUFFICIENT,
+                                                                options);
 
         return new AppConfigurationEntry[]{entry};
     }
@@ -287,18 +302,47 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
         return true;
     }
 
+    /**
+     * Provides the default principal to be used when an unauthenticated
+     * subject uses a container.
+     *
+     * @return the default principal
+     */
+    public Principal obtainDefaultPrincipal() {
+        Principal principal = new Principal();
+
+        principal.setClassName(PropertiesFileUserPrincipal.class.getName());
+        principal.setPrincipalName(defaultPrincipal);
+
+        return principal;
+    }
+
+    /**
+     * Provides a set of principal class names to be used when automatically
+     * mapping principals to roles.
+     *
+     * @return a set of principal class names
+     */
+    public Set obtainRolePrincipalClasses() {
+        Set principals = new HashSet();
+
+        principals.add(PropertiesFileGroupPrincipal.class.getName());
+
+        return principals;
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SQLSecurityRealm.class, AbstractSecurityRealm.GBEAN_INFO);
 
+        infoFactory.addInterface(AutoMapAssistant.class);
         infoFactory.addAttribute("connectionURL", String.class, true);
         infoFactory.addAttribute("user", String.class, true);
         infoFactory.addAttribute("password", String.class, true);
         infoFactory.addAttribute("userSelect", String.class, true);
         infoFactory.addAttribute("groupSelect", String.class, true);
-
-        infoFactory.addOperation("isLoginModuleLocal");
+        infoFactory.addAttribute("defaultPrincipal", String.class, true);
 
         infoFactory.setConstructor(new String[]{
             "realmName",

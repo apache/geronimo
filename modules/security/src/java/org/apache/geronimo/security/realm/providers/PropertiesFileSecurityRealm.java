@@ -32,6 +32,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.geronimo.security.deploy.Principal;
+import org.apache.geronimo.security.realm.AutoMapAssistant;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.regexp.RE;
 
@@ -39,7 +41,8 @@ import org.apache.regexp.RE;
 /**
  * @version $Rev$ $Date$
  */
-public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
+public class PropertiesFileSecurityRealm extends AbstractSecurityRealm implements AutoMapAssistant {
+
     private static Log log = LogFactory.getLog(PropertiesFileSecurityRealm.class);
 
     private final ServerInfo serverInfo;
@@ -47,8 +50,9 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
     private boolean running = false;
     private URI usersURI;
     private URI groupsURI;
-    final Properties users = new Properties();
-    final Properties groups = new Properties();
+    private final Properties users = new Properties();
+    private final Properties groups = new Properties();
+    private String defaultPrincipal;
 
     final static String REALM_INSTANCE = "org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm";
 
@@ -97,6 +101,17 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
             throw new IllegalStateException("Cannot change the Groups URI after the realm is started");
         }
         this.groupsURI = groupsURI;
+    }
+
+    public String getDefaultPrincipal() {
+        return defaultPrincipal;
+    }
+
+    public void setDefaultPrincipal(String defaultPrincipal) {
+        if (running) {
+            throw new IllegalStateException("Cannot change the default principal after the realm is started");
+        }
+        this.defaultPrincipal = defaultPrincipal;
     }
 
     public Set getGroupPrincipals() throws GeronimoSecurityException {
@@ -194,17 +209,46 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
         return true;
     }
 
+    /**
+     * Provides the default principal to be used when an unauthenticated
+     * subject uses a container.
+     *
+     * @return the default principal
+     */
+    public Principal obtainDefaultPrincipal() {
+        Principal principal = new Principal();
+
+        principal.setClassName(PropertiesFileUserPrincipal.class.getName());
+        principal.setPrincipalName(defaultPrincipal);
+
+        return principal;
+    }
+
+    /**
+     * Provides a set of principal class names to be used when automatically
+     * mapping principals to roles.
+     *
+     * @return a set of principal class names
+     */
+    public Set obtainRolePrincipalClasses() {
+        Set principals = new HashSet();
+
+        principals.add(PropertiesFileGroupPrincipal.class.getName());
+
+        return principals;
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(PropertiesFileSecurityRealm.class, AbstractSecurityRealm.GBEAN_INFO);
 
+        infoFactory.addInterface(AutoMapAssistant.class);
         infoFactory.addAttribute("usersURI", URI.class, true);
         infoFactory.addAttribute("groupsURI", URI.class, true);
+        infoFactory.addAttribute("defaultPrincipal", String.class, true);
 
         infoFactory.addReference("ServerInfo", ServerInfo.class);
-
-        infoFactory.addOperation("isLoginModuleLocal");
 
         infoFactory.setConstructor(new String[]{"realmName", "usersURI", "groupsURI", "ServerInfo"});
 

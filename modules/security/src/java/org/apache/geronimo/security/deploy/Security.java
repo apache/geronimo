@@ -31,6 +31,7 @@ public class Security implements Serializable {
     private String defaultRole;
     private DefaultPrincipal defaultPrincipal;
     private Set roleMappings = new HashSet();
+    private AutoMapAssistant assistant;
 
     public boolean isDoAsCurrentCaller() {
         return doAsCurrentCaller;
@@ -66,5 +67,13 @@ public class Security implements Serializable {
 
     public Set getRoleMappings() {
         return roleMappings;
+    }
+
+    public AutoMapAssistant getAssistant() {
+        return assistant;
+    }
+
+    public void setAssistant(AutoMapAssistant assistant) {
+        this.assistant = assistant;
     }
 }

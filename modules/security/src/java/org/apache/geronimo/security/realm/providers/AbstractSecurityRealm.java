@@ -72,15 +72,9 @@ public abstract class AbstractSecurityRealm implements SecurityRealm, GBeanLifec
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AbstractSecurityRealm.class);
 
+        infoFactory.addInterface(SecurityRealm.class);
         infoFactory.addAttribute("realmName", String.class, true);
-        infoFactory.addAttribute("maxLoginModuleAge", long.class, true);
-
-        infoFactory.addOperation("getGroupPrincipals");
-        infoFactory.addOperation("getGroupPrincipals", new Class[]{RE.class});
-        infoFactory.addOperation("getUserPrincipals");
-        infoFactory.addOperation("getUserPrincipals", new Class[]{RE.class});
-        infoFactory.addOperation("refresh");
-        infoFactory.addOperation("getAppConfigurationEntries");
+        infoFactory.addAttribute("maxLoginModuleAge", Long.TYPE, true);
 
         infoFactory.setConstructor(new String[]{"realmName"});
 

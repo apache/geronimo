@@ -105,6 +105,7 @@ public class SecurityTest extends TestCase {
 
         GBeanMBean app = new GBeanMBean(JettyWebAppJACCContext.GBEAN_INFO);
 
+        app.setAttribute("kernel", kernel);
         app.setAttribute("uri", URI.create("war3/"));
         app.setAttribute("componentContext", null);
         OnlineUserTransaction userTransaction = new OnlineUserTransaction();
