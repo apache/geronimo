@@ -37,12 +37,11 @@ import org.apache.geronimo.network.SelectorManager;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/04/19 16:30:33 $
+ * @version $Revision: 1.6 $ $Date: 2004/04/24 04:07:13 $
  */
 public class SocketProtocol implements AcceptableProtocol, SelectionEventListner {
 
-    final static private Log log = LogFactory.getLog(SocketProtocol.class);
-
+    private Log log = LogFactory.getLog(SocketProtocol.class);
     private Protocol up;
 
     private SocketChannel acceptedSocketChannel;
@@ -51,7 +50,7 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
     private SocketAddress socketInterface;
 
     private long timeout;
-    private Mutex sendMutex = new Mutex();
+    private Mutex sendMutex;
     private SelectorManager selectorManager;
     private SelectionKey selectionKey;
 
@@ -62,6 +61,14 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
     private static final int STOPPED = 1;
     private int state = STOPPED;
 
+    ByteBuffer[] sendBuffer;
+    ByteBuffer headerBuffer;
+    ByteBuffer bodyBuffer;
+    
+    static int nextConnectionId=0;
+    synchronized static int getNextConnectionId() {
+    	return nextConnectionId++;    	
+    }
 
     public Protocol getUpProtocol() {
         return up;
@@ -140,10 +147,16 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
     }
 
     public Protocol cloneProtocol() throws CloneNotSupportedException {
-        return (Protocol) super.clone();
+    	SocketProtocol p = (SocketProtocol)super.clone();
+    	p.log = LogFactory.getLog(SocketProtocol.class.getName()+":"+getNextConnectionId());
+        return p;
     }
 
     public void setup() throws ProtocolException {
+    	log = LogFactory.getLog(SocketProtocol.class.getName()+":"+getNextConnectionId());
+    	sendMutex = new Mutex();
+    	headerBuffer = ByteBuffer.allocate(4);
+    	
         if (address == null && acceptedSocketChannel == null) throw new IllegalStateException("No address set");
 
         log.trace("Starting");
@@ -245,12 +258,10 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
         }
     }
 
-    ByteBuffer[] sendBuffer;
-    ByteBuffer headerBuffer = ByteBuffer.allocate(4);
-    ByteBuffer bodyBuffer = null;
-
-    private void serviceWrite() {
+    synchronized private void serviceWrite() {
+        log.trace("serviceWrite() triggered.");
         try {
+
             long count = socketChannel.write(sendBuffer);
             log.trace("Wrote " + count);
 
@@ -278,18 +289,19 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
         } catch (IOException e) {
             log.debug("Communications error, closing connection: ", e);
             close();
+        } finally {
+            log.trace("serviceWrite() done.");
         }
     }
 
-    public void serviceRead() {
+    synchronized public void serviceRead() {
         boolean tracing = log.isTraceEnabled();
-
-        if (tracing) log.trace("ReadDataAction triggered.");
-
+        if (tracing) log.trace("serviceRead() triggered.");
         lastUsed = System.currentTimeMillis();
-
         try {
             while (true) {
+
+                log.trace("HEADER reamining " + headerBuffer.remaining());
 
                 // Are we reading the header??
                 if (headerBuffer.hasRemaining()) {
@@ -304,7 +316,10 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
                         return;
                     }
 
-                    if (headerBuffer.hasRemaining()) break; // not done reading the header.
+                    if (headerBuffer.hasRemaining()) {
+                        log.trace("HEADER reamining " + headerBuffer.remaining());
+                    	break; // not done reading the header.
+                    }
 
                     headerBuffer.flip();
 
@@ -323,6 +338,8 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
                     bodyBuffer.clear();
                     bodyBuffer.limit(size);
                 }
+                
+                log.trace("BODY... HEADER remaining: " + headerBuffer.remaining()+", "+headerBuffer.hasRemaining());
                 // Are we reading the body??
                 if (bodyBuffer.hasRemaining()) {
                     if (tracing)
@@ -342,16 +359,22 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
 
                     // release old buffer
                     bodyBuffer = null;
+                    headerBuffer.clear();
 
                     up.sendUp(packet);
 
-                    headerBuffer.clear();
                 }
             }
             log.trace("OP_READ " + selectionKey);
             selectorManager.setInterestOps(selectionKey, SelectionKey.OP_READ, 0);
             if (tracing) log.trace("No more data available to be read.");
+            
+        } catch (CancelledKeyException e) {
+            log.trace("Key Cancelled: ", e);
+            // who knows, by the time we get here,
+            // the key could have been canceled.
         } catch (ClosedChannelException e) {
+            log.trace("Channel Closed: ", e);
             // who knows, by the time we get here,
             // the channel could have been closed.
         } catch (IOException e) {
@@ -360,6 +383,11 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
         } catch (ProtocolException e) {
             log.debug("Communications error, closing connection: ", e);
             close();
+        } catch (Throwable e) {
+            log.debug("Unhandled error, closing connection: ", e);
+            close();
+        } finally {
+            if (tracing) log.trace("serviceRead() done.");
         }
     }
 
