@@ -60,9 +60,9 @@ import javax.enterprise.deploy.model.DDBean;
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
 
 /**
- * 
- * 
- * @version $Revision: 1.1 $ $Date: 2004/01/22 04:44:43 $
+ *
+ *
+ * @version $Revision: 1.2 $ $Date: 2004/01/22 04:56:09 $
  */
 public class WebAppDConfigBean extends DConfigBeanSupport {
     private String contextPath;
@@ -76,6 +76,7 @@ public class WebAppDConfigBean extends DConfigBeanSupport {
     }
 
     public void setContextPath(String contextPath) {
+        pcs.firePropertyChange("contextPath", this.contextPath, contextPath);
         this.contextPath = contextPath;
     }
 }

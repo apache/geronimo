@@ -66,11 +66,11 @@ import javax.enterprise.deploy.model.XpathEvent;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/22 04:44:43 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 04:56:09 $
  */
 public abstract class DConfigBeanSupport implements DConfigBean {
+    protected final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
     private final DDBean ddBean;
-    private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
     public DConfigBeanSupport(DDBean ddBean) {
         this.ddBean = ddBean;
