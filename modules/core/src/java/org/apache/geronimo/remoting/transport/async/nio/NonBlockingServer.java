@@ -77,7 +77,7 @@ import org.apache.geronimo.remoting.transport.async.ChannelPool;
  * 
  * Sets up a blocking ServerSocket to accept blocking client connections.
  * 
- * @version $Revision: 1.2 $ $Date: 2003/08/29 19:16:54 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/30 14:49:25 $
  */
 public final class NonBlockingServer extends AbstractServer implements Runnable {
     final static private Log log = LogFactory.getLog(NonBlockingServer.class);
@@ -245,4 +245,3 @@ public final class NonBlockingServer extends AbstractServer implements Runnable 
         return nextRouter;
     }
 }
-// vim:expandtab:tabstop=3:shiftwidth=3

@@ -69,7 +69,7 @@ import javax.management.NotificationFilter;
  * Static constants class which contains all of the J2EE notification types from the
  * J2EE management specification.
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/23 06:26:04 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/30 14:49:25 $
  */
 public final class NotificationType {
     private NotificationType() {
@@ -142,5 +142,5 @@ public final class NotificationType {
             }
             return false;
         }
-    };
+    }
 }

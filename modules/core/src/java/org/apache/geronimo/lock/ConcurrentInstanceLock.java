@@ -63,13 +63,12 @@ import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
 /**
  * Implementation based on the use of the util.concurrent package from Doug Lea.
  *
- *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:12 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/30 14:49:25 $
  */
 public class ConcurrentInstanceLock implements InstanceLock {
     private final ReadWriteLock lock;
     private Object writer;
-    private final HashSet readers = new HashSet();;
+    private final HashSet readers = new HashSet();
 
     public ConcurrentInstanceLock() {
         this.lock = new WriterPreferenceReadWriteLock();
