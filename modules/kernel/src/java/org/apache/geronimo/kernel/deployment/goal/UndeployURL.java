@@ -61,17 +61,10 @@ import org.apache.geronimo.kernel.deployment.GeronimoTargetModule;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/17 10:57:40 $
+ * @version $Revision: 1.3 $ $Date: 2003/12/11 11:56:53 $
  */
-public class UndeployURL extends DeploymentGoal {
-    private final URL url;
-
+public class UndeployURL extends URLDeploymentGoal {
     public UndeployURL(final GeronimoTargetModule targetModule, URL url) {
-        super(targetModule);
-        this.url = url;
-    }
-
-    public URL getUrl() {
-        return url;
+        super(targetModule, url, false);
     }
 }

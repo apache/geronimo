@@ -53,20 +53,64 @@
  *
  * ====================================================================
  */
+
 package org.apache.geronimo.kernel.deployment.goal;
 
-import java.net.URL;
-
-import org.apache.geronimo.kernel.deployment.scanner.URLType;
 import org.apache.geronimo.kernel.deployment.GeronimoTargetModule;
 
+import java.net.URL;
+import java.net.MalformedURLException;
+import java.io.File;
+
 /**
- *
- *
- * @version $Revision: 1.3 $ $Date: 2003/12/11 11:56:53 $
+ * Adds support for URL to the DeploymentGoal.
+ * Can be used with or without normalizing of the file-protocl based URLs.
  */
-public class DeployURL extends NormalizedURLDeploymentGoal {
-    public DeployURL(final GeronimoTargetModule targetModule, final URL url, final URLType type) {
-        super(targetModule, url, type);
+abstract class URLDeploymentGoal extends DeploymentGoal {
+    protected final URL url;
+
+    /**
+     * Initializes the URLDeploymentGoal.
+     * File-protocol based URLs are normalized if the <code>normalize</code> parameter is set to <code>true</code>.
+     * @param targetModule associated GeronimoTargetModule
+     * @param url associated URL
+     * @param normalize indicates if the provided URL must be normalized.
+     * @throws IllegalArgumentException if urls are to be normalized and
+     * <code>url</code> parameter is passed as <code>null</code>.
+     */
+    protected URLDeploymentGoal(GeronimoTargetModule targetModule, URL url, final boolean normalize) {
+        super(targetModule);
+        if (normalize) {
+            if (url == null) {
+                throw new IllegalArgumentException("URL is null");
+            }
+            this.url = normalizeURL(url);
+        } else {
+            this.url = url;
+        }
+    }
+
+    /**
+     * Gets the value of <code>url</code> attribute.
+     * If the original url was file-protocol based a normalized form is returned.
+     * @return the original or normalized url
+     */
+    public URL getUrl() {
+        return url;
+    }
+
+    private static URL normalizeURL(URL url) {
+        assert url != null;
+
+        if (url.getProtocol().equals("file")) {
+            String filename = url.getFile().replace('/', File.separatorChar);
+            File file = new File(filename);
+            try {
+                url = file.toURI().toURL();
+            } catch (MalformedURLException ignore) {
+            }
+        }
+
+        return url;
     }
 }

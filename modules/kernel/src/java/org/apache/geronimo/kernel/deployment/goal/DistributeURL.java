@@ -55,8 +55,6 @@
  */
 package org.apache.geronimo.kernel.deployment.goal;
 
-import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.apache.geronimo.kernel.deployment.scanner.URLType;
@@ -69,45 +67,10 @@ import org.apache.geronimo.kernel.deployment.GeronimoTargetModule;
  * specific code must be generated.  In other words, once a module is
  * successfully distributed, it should be able to be started with no errors.
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/17 10:57:40 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/11 11:56:53 $
  */
-public class DistributeURL extends DeploymentGoal {
-    private final URL url;
-    private final URLType type;
-
+public class DistributeURL extends NormalizedURLDeploymentGoal {
     public DistributeURL(final GeronimoTargetModule targetModule, final URL url, final URLType type) {
-        super(targetModule);
-        if (url == null) {
-            throw new IllegalArgumentException("URL is null");
-        }
-        if (type == null) {
-            throw new IllegalArgumentException("URLType is null");
-        }
-
-        this.url = normalizeURL(url);
-        this.type = type;
-    }
-
-    public URL getUrl() {
-        return url;
-    }
-
-    public URLType getType() {
-        return type;
-    }
-
-    private static URL normalizeURL(URL url) {
-        assert url != null;
-
-        if (url.getProtocol().equals("file")) {
-            String filename = url.getFile().replace('/', File.separatorChar);
-            File file = new File(filename);
-            try {
-                url = file.toURI().toURL();
-            } catch (MalformedURLException ignore) {
-            }
-        }
-
-        return url;
+        super(targetModule,url,type);
     }
 }

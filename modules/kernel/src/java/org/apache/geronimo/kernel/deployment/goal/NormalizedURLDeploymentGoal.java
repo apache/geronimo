@@ -55,18 +55,40 @@
  */
 package org.apache.geronimo.kernel.deployment.goal;
 
+import org.apache.geronimo.kernel.deployment.GeronimoTargetModule;
+import org.apache.geronimo.kernel.deployment.scanner.URLType;
+
 import java.net.URL;
 
-import org.apache.geronimo.kernel.deployment.scanner.URLType;
-import org.apache.geronimo.kernel.deployment.GeronimoTargetModule;
-
 /**
- *
- *
- * @version $Revision: 1.3 $ $Date: 2003/12/11 11:56:53 $
+ * Adds support for {@link URLType} to {@link URLDeploymentGoal}.
+ * Always normalizes file-protocol based URLs.
  */
-public class DeployURL extends NormalizedURLDeploymentGoal {
-    public DeployURL(final GeronimoTargetModule targetModule, final URL url, final URLType type) {
-        super(targetModule, url, type);
+class NormalizedURLDeploymentGoal extends URLDeploymentGoal {
+    private final URLType type;
+
+    /**
+     * Initializes the NormalizedURLDeploymentGoal.
+     * File-protocol based URLs are normalized.
+     * @param targetModule associated GeronimoTargetModule
+     * @param url associated URL
+     * @param type associated URLType
+     * @throws IllegalArgumentException if either <code>url</code>
+     *  or <code>type</code> parameters are passed as <code>null</code>.
+     */
+    protected NormalizedURLDeploymentGoal(GeronimoTargetModule targetModule, URL url, URLType type) {
+        super(targetModule, url, true);
+        if (type == null) {
+            throw new IllegalArgumentException("URLType is null");
+        }
+        this.type = type;
+    }
+
+    /**
+     * Returns the URLType used on creation
+     * @return URLType used on creation
+     */
+    public URLType getType() {
+        return type;
     }
 }
