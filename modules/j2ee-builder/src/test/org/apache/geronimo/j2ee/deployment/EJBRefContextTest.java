@@ -173,6 +173,10 @@ public class EJBRefContextTest extends TestCase {
                 return new FakeReference(objectName);
             }
 
+            public Reference createCORBAReference(URI corbaURL, String objectName, String containerName, String home) throws DeploymentException {
+                return new FakeReference(containerName);
+            }
+
             public Object createHandleDelegateReference() {
                 return null;
             }

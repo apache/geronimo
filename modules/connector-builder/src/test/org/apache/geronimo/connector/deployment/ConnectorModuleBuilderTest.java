@@ -109,6 +109,10 @@ public class ConnectorModuleBuilderTest extends TestCase {
             return null;
         }
 
+        public Reference createCORBAReference(URI corbaURL, String objectName, String containerName, String home) throws DeploymentException {
+            return null;
+        }
+
         public Object createHandleDelegateReference() {
             return null;
         }

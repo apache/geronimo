@@ -77,6 +77,10 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBRe
         return null;
     }
 
+    public Reference createCORBAReference(URI corbaURL, String objectName, String containerName, String home) throws DeploymentException {
+        return null;
+    }
+
     public Object createHandleDelegateReference() {
         return null;
     }
