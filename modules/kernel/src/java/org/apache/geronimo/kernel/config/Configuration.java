@@ -119,7 +119,7 @@ import org.apache.geronimo.kernel.Kernel;
  * a startRecursive() for all the GBeans it contains. Similarly, if the
  * Configuration is stopped then all of its GBeans will be stopped as well.
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/14 22:16:38 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/16 20:30:32 $
  */
 public class Configuration implements GBean {
     private static final Log log = LogFactory.getLog(Configuration.class);
@@ -265,7 +265,12 @@ public class Configuration implements GBean {
         }
 
         protected Class resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
-            return cl.loadClass(desc.getName());
+            try {
+                return cl.loadClass(desc.getName());
+            } catch (ClassNotFoundException e) {
+                // let the parent try
+                return super.resolveClass(desc);
+            }
         }
     }
 
