@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.19 $ $Date: 2003/09/02 17:04:22 $ -->
+<!-- $Revision: 1.20 $ $Date: 2003/09/03 13:53:04 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -278,6 +278,15 @@
       <id>commons-cli</id>
       <version>1.0</version>
       <url>http://jakarta.apache.org/commons/cli</url>
+      <properties>
+        <runtime>true</runtime>
+      </properties>
+    </dependency>
+    
+    <dependency>
+      <id>commons-lang</id>
+      <version>SNAPSHOT</version>
+      <url>http://jakarta.apache.org/commons/lang</url>
       <properties>
         <runtime>true</runtime>
       </properties>

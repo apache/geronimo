@@ -64,24 +64,9 @@ import java.util.Map;
 /**
  * Unit test for {@link Strings} class.
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/16 19:22:39 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/03 13:53:04 $
  */
 public class StringsTest extends TestCase {
-    
-    public void testCapitalize() {
-        assertEquals("Apache", Strings.capitalize("apache"));
-        assertEquals("ALLCAPS", Strings.capitalize("ALLCAPS"));
-        
-        try {
-            Strings.capitalize(null);
-            fail("Expected IllegalArgumnetException to be thrown");
-        } catch (IllegalArgumentException ignore) {}
-        
-        try {
-            Strings.capitalize("");
-            fail("Expected IllegalArgumnetException to be thrown");
-        } catch (IllegalArgumentException ignore) {}
-    }
     
     public void testIsEmpty() {
         assertTrue(Strings.isEmpty(""));
@@ -100,20 +85,6 @@ public class StringsTest extends TestCase {
         assertTrue(Strings.compare("Hello", "Hello"));
     }
     
-    public void testPadWithBuffer() {
-        StringBuffer buffer = new StringBuffer("Hello");
-        assertEquals("Hello*****", Strings.pad(buffer, "*", 5));
-    }
-    
-    public void testPad() {
-        assertEquals("*****", Strings.pad("*", 5));
-    }
-    
-    public void testPadWithObject() {
-        Integer integer = new Integer(1);
-        assertEquals("11111", Strings.pad(integer, 5));
-    }
-    
     public void testCount() {
         assertEquals(3, Strings.count("Merry go round merry go round go round", "go"));
     }
@@ -128,13 +99,6 @@ public class StringsTest extends TestCase {
         assertEquals(-1, Strings.nthIndexOf(toSearch, "5", 2));
     }
     
-    public void testSubst() {
-        StringBuffer buffer = new StringBuffer();
-        
-        assertEquals("The world is not enough", Strings.subst(buffer, "basta", "enough", "The world is not basta"));
-        assertEquals("The world is not enough", Strings.subst("basta", "enough", "The world is not basta"));
-    }
-    
     public void testSubstWithMap() {
         StringBuffer buffer = new StringBuffer();
         
@@ -146,48 +110,5 @@ public class StringsTest extends TestCase {
         
         assertEquals("ilmondononbasta", Strings.subst(buffer, "<The><world><not><enough>", map, "<", ">"));
         assertEquals("ilmondononbasta", Strings.subst("<The><world><not><enough>", map, "<", ">"));
-    }
-    
-    public void testTrim() {
-        String[] toTrim = {"   Hello ", "foo bar", "ciao"};
-        Strings.trim(toTrim);
-        
-        assertEquals("Hello", toTrim[0]);
-        assertEquals("foo bar", toTrim[1]);
-        assertEquals("ciao", toTrim[2]);
-    }
-    
-    public void testJoin() {
-        StringBuffer buffer = new StringBuffer();
-        Object[] objArray = {"Java", new Integer(2), "rocks"};
-        
-        assertEquals("Java 2 rocks", Strings.join(buffer, objArray, " "));
-        
-        buffer = new StringBuffer();
-        assertEquals("<<Java 2 rocks>>", Strings.join(buffer, objArray, "<<", " ", ">>"));
-        
-        assertEquals("Java 2 rocks", Strings.join(objArray, " "));
-        assertEquals("Java2rocks", Strings.join(objArray));
-        
-    }
-    
-    public void testSplit() {
-        String toSplit = "one,two,three,four,five";
-        
-        String[] strArray = Strings.split(toSplit, ",", 3);
-        
-        assertEquals(3, strArray.length);
-        assertEquals("one", strArray[0]);
-        assertEquals("two", strArray[1]);
-        assertEquals("three,four,five", strArray[2]);
-        
-        strArray = Strings.split(toSplit, ",");
-        
-        assertEquals(5, strArray.length);
-        assertEquals("one", strArray[0]);
-        assertEquals("two", strArray[1]);
-        assertEquals("three", strArray[2]);
-        assertEquals("four", strArray[3]);
-        assertEquals("five", strArray[4]);
     }
 }

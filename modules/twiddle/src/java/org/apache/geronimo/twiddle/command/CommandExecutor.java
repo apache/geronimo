@@ -56,14 +56,16 @@
 
 package org.apache.geronimo.twiddle.command;
 
+import org.apache.commons.lang.StringUtils;
+
 import org.apache.geronimo.common.NullArgumentException;
-import org.apache.geronimo.common.Strings;
+
 import org.apache.geronimo.twiddle.console.IOContext;
 
 /**
  * Executes commands.
  *
- * @version $Revision: 1.7 $ $Date: 2003/08/28 13:32:09 $
+ * @version $Revision: 1.8 $ $Date: 2003/09/03 13:53:04 $
  */
 public class CommandExecutor
 {
@@ -176,7 +178,7 @@ public class CommandExecutor
             throw new NullArgumentException("input");
         }
         
-        String[] args = Strings.split(input, " ");
+        String[] args = StringUtils.split(input, " ");
         return execute(args);
     }
     
@@ -221,7 +223,7 @@ public class CommandExecutor
             throw new NullArgumentException("input");
         }
         
-        String[] args = Strings.split(input, " ");
+        String[] args = StringUtils.split(input, " ");
         return execute(path, args);
     }
 }
