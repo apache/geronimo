@@ -71,7 +71,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
  * uniquely within their Cluster and VM. A VM may contain more than
  * one Node.
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/04 15:51:59 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/07 00:15:38 $
  */
 public class
   Node
@@ -187,7 +187,6 @@ public class
   public void
     doStart()
   {
-    _log=LogFactory.getLog(getClass().getName()+"#"+getClusterName()+"/"+getName());
     _log.info("starting");
 
     synchronized (_cluster)
@@ -211,6 +210,13 @@ public class
   {
     _log.info("failing");
     _cluster.leave(this);	// TODO - ??
+  }
+
+  public void
+    setMBeanContext(GeronimoMBeanContext context)
+  {
+    super.setMBeanContext(context);
+    _log=LogFactory.getLog(getClass().getName()+"#"+getClusterName()+"/"+getName());
   }
 
   public static GeronimoMBeanInfo

@@ -53,112 +53,68 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.clustering;
+package org.apache.geronimo.clustering.jndi;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.clustering.Tier;
+import org.apache.geronimo.clustering.Data;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 
 /**
- * A 'Cluster' is a point of connection between all 'Cluster's with
- * the same name, running in other VMs. I hope to support different
- * types of cluster including (initially) SimpleCluster, in which
- * every node replicates every other node and CleverCluster, which
- * automagically partitions data into SubClusters etc...
+ * Responsible for maintaining state stored in the JNDI tier -
+ * i.e. StatefulSessions.
  *
- * @version $Revision: 1.9 $ $Date: 2004/01/07 00:15:38 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/07 00:15:38 $
  */
-public abstract class
-  Cluster
-  extends NamedMBeanImpl
+public class
+  JNDITier
+  extends Tier
 {
-  protected Log _log=LogFactory.getLog(Cluster.class);
+  //  protected Log _log=LogFactory.getLog(JNDITier.class);
 
   /**
-   * Makes an ObjectName for a Cluster MBean with the given parameters.
+   * Makes an ObjectName for a Tier MBean with the given parameters.
    *
    * @param clusterName a <code>String</code> value
+   * @param nodeName a <code>String</code> value
+   * @param tierName a <code>String</code> value
    * @return an <code>ObjectName</code> value
    * @exception Exception if an error occurs
    */
   public static ObjectName
-    makeObjectName(String clusterName)
+    makeObjectName(String clusterName, String nodeName)
     throws Exception
   {
-    return new ObjectName("geronimo.clustering:role=Cluster,name="+clusterName);
+    return Tier.makeObjectName(clusterName, nodeName, "jndi");
   }
 
-  /**
-   * Return current Cluster members.
-   *
-   * @return a <code>List</code> value
-   */
-  public abstract List getMembers();
+  //----------------------------------------
+  // JNDITier
+  //----------------------------------------
 
-  /**
-   * Return the Object which this Cluster is responsible for
-   * maintaining via e.g. replication.
-   *
-   * @return a <code>Data</code> value
-   */
-  public abstract Data getData();
-
-  /**
-   * Add the given node to this Cluster.
-   *
-   * @param member an <code>Object</code> value
-   */
-  public abstract void join(Object member);
-
-  /**
-   * Remove the given node from this Cluster.
-   *
-   * @param member an <code>Object</code> value
-   */
-  public abstract void leave(Object member);
+  protected Object alloc(){return new HashMap();}
+  public Object registerData(String uid, Object data) {synchronized (_tier) {return ((Map)_tier).put(uid, data);}}
+  public Object deregisterData(String uid) {synchronized (_tier){return ((Map)_tier).remove(uid);}}
 
   //----------------------------------------
   // GeronimoMBeanTarget
   //----------------------------------------
 
-  public void
-    doStart()
-  {
-    _log.debug("starting");
-  }
-
-  public void
-    doStop()
-  {
-    _log.debug("stopping");
-  }
-
-  public void
-    doFail()
-  {
-    _log.debug("failing");
-  }
-
-  public void
-    setMBeanContext(GeronimoMBeanContext context)
-  {
-    super.setMBeanContext(context);
-    _log=LogFactory.getLog(Cluster.class.getName()+"#"+getName());
-  }
-
   public static GeronimoMBeanInfo
     getGeronimoMBeanInfo()
   {
-    GeronimoMBeanInfo mbeanInfo=MBeanImpl.getGeronimoMBeanInfo();
-    // set target class in concrete subclasses...
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Members", true, false, "Cluster's current membership"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Data",    true, false, "Cluster's current state"));
+    GeronimoMBeanInfo mbeanInfo=Tier.getGeronimoMBeanInfo();
+    mbeanInfo.setTargetClass(JNDITier.class);
     return mbeanInfo;
   }
 }

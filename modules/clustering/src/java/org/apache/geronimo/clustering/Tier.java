@@ -74,7 +74,7 @@ import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
  * into the same abstract base.
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/04 15:51:59 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/07 00:15:38 $
  */
 public abstract class
   Tier
@@ -122,21 +122,22 @@ public abstract class
   {
     if (!super.canStart()) return false;
 
-    if (_objectName.getKeyProperty("node")==null)
+    if (_objectName.getKeyProperty("cluster")==null)
     {
-      _log.warn("NodeMBean name must contain a 'node' property");
+      _log.warn("Tier MBean name must contain a 'cluster' property");
       return false;
     }
 
-    if (_objectName.getKeyProperty("cluster")==null)
+    if (_objectName.getKeyProperty("node")==null)
     {
-      _log.warn("NodeMBean name must contain a 'cluster' property");
+      _log.warn("Tier MBean name must contain a 'node' property");
       return false;
     }
 
     try
     {
       _node=(Node)_server.getAttribute(Node.makeObjectName(getClusterName(), getNodeName()), "Reference");
+      _log.debug("Node: "+_node);
     }
     catch (Exception e)
     {
@@ -154,7 +155,6 @@ public abstract class
 
     // register our session map with it's Data object
     Data data=_node.getData();
-    _log.info("Data:"+data);
     _tiers=data.getTiers(); // immutable, so doesn't need synchronisation
     _tier=null;
     synchronized (_tiers)
@@ -167,6 +167,14 @@ public abstract class
       }
       // tier storage now initialised...
     }
+    _log.info("Node Data:"+data);
+  }
+
+  public void
+    setMBeanContext(GeronimoMBeanContext context)
+  {
+    super.setMBeanContext(context);
+    _log=LogFactory.getLog(getClass().getName()+"#"+getClusterName()+"/"+getNodeName()+"/"+getName());
   }
 
   public static GeronimoMBeanInfo
@@ -174,9 +182,8 @@ public abstract class
   {
     GeronimoMBeanInfo mbeanInfo=MBeanImpl.getGeronimoMBeanInfo();
     //set target class in concrete subclass
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Reference",   true, false, "a local reference to this Tier"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("NodeName",    true, false, "Name of this Tier's Node"));
     mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ClusterName", true, false, "Name of this Tier's Node's Cluster"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("NodeName",    true, false, "Name of this Tier's Node"));
     return mbeanInfo;
   }
 }

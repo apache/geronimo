@@ -75,7 +75,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
  * An HttpSessionManager for &lt;distributable/&gt; webapps, which
  * backs onto the generic Geronimo clustering framework.
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/04 15:19:31 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/07 00:15:38 $
  */
 public class
   HttpSessionManager
@@ -121,7 +121,8 @@ public class
     try
     {
       // find our tier
-      _tier=(Tier)_server.getAttribute(Tier.makeObjectName(getClusterName(), getNodeName(), "web"), "Reference");
+      _tier=(Tier)_server.getAttribute(WebTier.makeObjectName(getClusterName(), getNodeName()), "Reference");
+      _log.debug("Tier: "+_tier);
     }
     catch (Exception e)
     {

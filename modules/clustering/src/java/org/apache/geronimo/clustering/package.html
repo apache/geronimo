@@ -1,9 +1,55 @@
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html>
-  <head>
-    <title></title>
-  </head>
   <body>
+
     The Geronimo Clustering implementation.
-  </body>
+
+    <p/>
+
+      Basically it works like this...
+
+    <p/>
+
+      <li>A Geronimo instance has N Cluster instances.</li>
+
+      <li>A Cluster instance has N Node instances.</li>
+
+      <li>A Node instance has N Tier instances (each of a different
+      type - e.g. web/ejb/jndi/etc.).</li>
+
+      <li>Each Tier instance is responsible for connecting Application
+      state, of a corresponding type, to the Cluster's Data Collection
+      .</li>
+
+    <p/>
+
+      Clusters, Nodes and Tiers are statically described in a
+      descriptor (clustering-service.xml) that is deployed in the
+      Geronimo instance.
+
+    <p/>
+
+      Other types, more closely bound to the Application arena
+      (e.g. HttpSessionManager) are created dynamically as and when
+      required and hooked to a corresponding Tier Object as described
+      above.
+
+    <p/>
+
+      Messages may travel to and from these types, via their Cluster.
+
+    <p/>
+
+      Clusters map onto backends that are capable of transporting
+      these messages between JVMs, hence this collection of types
+      forms the backbone of Geronimo's distributed architecture.
+
+    <p/>
+
+      All of these types are MBeans, so will register with Geronimo's
+      JMX Agent and export interfaces to it that allow useful
+      information about their internal state to be read and possible
+      written by JMX Clients.
+
+ </body>
 </html>

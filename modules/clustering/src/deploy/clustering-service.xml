@@ -79,6 +79,16 @@
   </mbean>
 
   <!-- ============================================================ -->
+  <!-- JNDI Tier Manager                                             -->
+  <!-- ============================================================ -->
+
+  <mbean
+    descriptor="org.apache.geronimo.clustering.jndi.JNDITier"
+    name="geronimo.clustering:role=Tier,name=jndi,cluster=GERONIMO,node=0"
+    >
+  </mbean>
+
+  <!-- ============================================================ -->
   <!-- Start a test distributable HttpSessionManager...             -->
   <!-- ============================================================ -->
 
