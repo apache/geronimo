@@ -26,6 +26,10 @@
     <menu name="Apache Community">
   	  <item name="Get Involved"            href="http://jakarta.apache.org/site/getinvolved.html"/>
   	  <item name="Contributors"            href="http://www.apache.org/dev/contributors.html"/>
+      <item name="Roles"                   href="http://jakarta.apache.org/site/roles.html"/>
+      <item name="Decisions"               href="http://jakarta.apache.org/site/decisions.html"/>
+      <item name="Source"                  href="http://jakarta.apache.org/site/source.html"/>
+      <item name="CVS Repositories"        href="http://jakarta.apache.org/site/cvsindex.html"/>
     </menu>
   </body>
 </project>
