@@ -48,7 +48,7 @@ public class CommandInfoTest extends TestCase {
 
     public void testCommandObject() throws IOException, ClassNotFoundException {
         CommandInfo info = new CommandInfo("test", MockCommandObject.class.getName());
-        DataHandler dh = new DataHandler(null, null);
+        DataHandler dh = new DataHandler("Hello", "text/plain");
         Object o = info.getCommandObject(dh, MockCommandObject.class.getClassLoader());
         assertTrue(o instanceof MockCommandObject);
         MockCommandObject bean = (MockCommandObject) o;

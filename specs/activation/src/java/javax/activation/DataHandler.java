@@ -23,154 +23,243 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.net.URL;
 
 /**
  * @version $Rev$ $Date$
  */
 public class DataHandler implements Transferable {
-    private DataSource _ds;
+    private final DataSource ds;
+    private final DataFlavor flavor;
+
+    private CommandMap commandMap;
+    private DataContentHandler dch;
 
     public DataHandler(DataSource ds) {
-        _ds = ds;
+        this.ds = ds;
+        this.flavor = new ActivationDataFlavor(ds.getContentType(), null);
     }
 
     public DataHandler(Object data, String type) {
-        _ds = new ObjectDataSource(data, type);
-    }
-
-    static class ObjectDataSource implements DataSource {
-
-        private Object _data;
-        private String _type;
-
-        public Object getContent() {
-            return _data;
-        }
-
-        /**
-         * Store an object as a data source type
-         *
-         * @param data the object
-         * @param type the mimeType
-         */
-        public ObjectDataSource(Object data, String type) {
-            _data = data;
-            _type = type;
-        }
-
-        /* (non-Javadoc)
-         * @see javax.activation.DataSource#getInputStream()
-         */
-        public InputStream getInputStream() throws IOException {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        /* (non-Javadoc)
-         * @see javax.activation.DataSource#getOutputStream()
-         */
-        public OutputStream getOutputStream() throws IOException {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        /* (non-Javadoc)
-         * @see javax.activation.DataSource#getContentType()
-         */
-        public String getContentType() {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        /* (non-Javadoc)
-         * @see javax.activation.DataSource#getName()
-         */
-        public String getName() {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
+        this.ds = new ObjectDataSource(data, type);
+        this.flavor = new ActivationDataFlavor(data.getClass(), null);
     }
 
     public DataHandler(URL url) {
-        /*@todo implement*/
+        this.ds = new URLDataSource(url);
+        this.flavor = new ActivationDataFlavor(ds.getContentType(), null);
     }
 
     public DataSource getDataSource() {
-        return _ds;
+        return ds;
     }
 
     public String getName() {
-        /*@todo implement*/
-        return null;
+        return ds.getName();
     }
 
     public String getContentType() {
-        return _ds.getContentType();
+        return ds.getContentType();
     }
 
     public InputStream getInputStream() throws IOException {
-        return _ds.getInputStream();
+        return ds.getInputStream();
     }
 
     public void writeTo(OutputStream os) throws IOException {
-        // TODO implement
+        if (ds instanceof ObjectDataSource) {
+            ObjectDataSource ods = (ObjectDataSource) ds;
+            DataContentHandler dch = getDataContentHandler();
+            if (dch == null) {
+                throw new UnsupportedDataTypeException();
+            }
+            dch.writeTo(ods.data, ods.mimeType, os);
+        } else {
+            byte[] buffer = new byte[1024];
+            InputStream is = getInputStream();
+            try {
+                int count;
+                while ((count = is.read(buffer)) != -1) {
+                    os.write(buffer, 0, count);
+                }
+            } finally {
+                is.close();
+            }
+        }
     }
 
     public OutputStream getOutputStream() throws IOException {
-        return _ds.getOutputStream();
+        return ds.getOutputStream();
     }
 
     public synchronized DataFlavor[] getTransferDataFlavors() {
-        /*@todo implement*/
-        return null;
+        return getDataContentHandler().getTransferDataFlavors();
     }
 
     public boolean isDataFlavorSupported(DataFlavor flavor) {
-        /*@todo implement*/
+        DataFlavor[] flavors = getTransferDataFlavors();
+        for (int i = 0; i < flavors.length; i++) {
+            DataFlavor dataFlavor = flavors[i];
+            if (dataFlavor.equals(flavor)) {
+                return true;
+            }
+        }
         return false;
     }
 
-    public Object getTransferData(DataFlavor flavor)
-            throws UnsupportedFlavorException, IOException {
-        /*@todo implement*/
-        return null;
-    }
-
-    public synchronized void setCommandMap(CommandMap commandMap) {
-        /*@todo implement*/
+    public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
+        DataContentHandler dch = getDataContentHandler();
+        if (dch != null) {
+            return dch.getTransferData(flavor, ds);
+        } else if (this.flavor.match(flavor)) {
+            if (ds instanceof ObjectDataSource) {
+                return ((ObjectDataSource) ds).data;
+            } else {
+                return ds.getInputStream();
+            }
+        } else {
+            throw new UnsupportedFlavorException(flavor);
+        }
     }
 
     public CommandInfo[] getPreferredCommands() {
-        /*@todo implement*/
-        return null;
+        return getCommandMap().getPreferredCommands(ds.getContentType());
     }
 
     public CommandInfo[] getAllCommands() {
-        /*@todo implement*/
-        return null;
+        return getCommandMap().getAllCommands(ds.getContentType());
     }
 
     public CommandInfo getCommand(String cmdName) {
-        /*@todo implement*/
-        return null;
+        return getCommandMap().getCommand(ds.getContentType(), cmdName);
     }
 
     public Object getContent() throws IOException {
-        if (_ds instanceof ObjectDataSource) {
-            return ((ObjectDataSource) _ds).getContent();
+        if (ds instanceof ObjectDataSource) {
+            return ((ObjectDataSource) ds).data;
         } else {
-            // TODO not yet implemented
-            throw new IOException("TODO Not yet implemented");
+            DataContentHandler dch = getDataContentHandler();
+            if (dch != null) {
+                return dch.getContent(ds);
+            } else {
+                return ds.getInputStream();
+            }
         }
     }
 
     public Object getBean(CommandInfo cmdinfo) {
-        /*@todo implement*/
-        return null;
+        try {
+            return cmdinfo.getCommandObject(this, this.getClass().getClassLoader());
+        } catch (IOException e) {
+            return null;
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
     }
 
+    /**
+     * A local implementation of DataSouce used to wrap an Object and mime-type.
+     */
+    private class ObjectDataSource implements DataSource {
+        private final Object data;
+        private final String mimeType;
+
+        public ObjectDataSource(Object data, String mimeType) {
+            this.data = data;
+            this.mimeType = mimeType;
+        }
+
+        public String getName() {
+            return null;
+        }
+
+        public String getContentType() {
+            return mimeType;
+        }
+
+        public InputStream getInputStream() throws IOException {
+            final DataContentHandler dch = getDataContentHandler();
+            if (dch == null) {
+                throw new UnsupportedDataTypeException();
+            }
+            final PipedInputStream is = new PipedInputStream();
+            new Thread() {
+                public void run() {
+                    try {
+                        PipedOutputStream os = new PipedOutputStream(is);
+                        try {
+                            dch.writeTo(data, mimeType, os);
+                        } finally {
+                            os.close();
+                        }
+                    } catch (IOException e) {
+                        // ignore, per spec - doh!
+                    }
+                }
+            };
+            return is;
+        }
+
+        public OutputStream getOutputStream() throws IOException {
+            return null;
+        }
+    }
+
+    public void setCommandMap(CommandMap commandMap) {
+        synchronized(this) {
+            this.commandMap = commandMap;
+            this.dch = null;
+        }
+    }
+
+    private synchronized CommandMap getCommandMap() {
+        return commandMap != null ? commandMap : CommandMap.getDefaultCommandMap();
+    }
+
+    /**
+     * Search for a DataContentHandler for our mime type.
+     * If a commandMap has been set, then use it to create the handler.
+     * Otherwise, if a global factory has been set, use it.
+     * If neither has been set, use the default CommandMap from CommandMap.getDefaultCommandMap() to create it.
+     * @return
+     */
+    private synchronized DataContentHandler getDataContentHandler() {
+        if (dch == null) {
+            String contentType = ds.getContentType();
+            if (commandMap != null) {
+                dch = commandMap.createDataContentHandler(contentType);
+            } else {
+                synchronized(DataHandler.class) {
+                    if (factory != null) {
+                        dch = factory.createDataContentHandler(contentType);
+                    }
+                }
+                if (dch == null) {
+                    dch = CommandMap.getDefaultCommandMap().createDataContentHandler(contentType);
+                }
+            }
+        }
+        return dch;
+    }
+
+    private static DataContentHandlerFactory factory;
+
+    /**
+     * Set the DataContentHandlerFactory to use.
+     * If this method has already been called then an Error is raised.
+     * @param newFactory the new factory
+     * @throws SecurityException if the caller does not have "SetFactory" RuntimePermission
+     */
     public static synchronized void setDataContentHandlerFactory(DataContentHandlerFactory newFactory) {
+        if (factory != null) {
+            throw new Error("javax.activation.DataHandler.setDataContentHandlerFactory has already been called");
+        }
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) {
+            sm.checkSetFactory();
+        }
+        factory = newFactory;
     }
 }
