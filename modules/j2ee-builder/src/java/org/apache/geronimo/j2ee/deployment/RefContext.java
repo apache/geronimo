@@ -20,13 +20,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
-import javax.management.ObjectName;
+
 import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import javax.naming.Reference;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
@@ -148,7 +148,7 @@ public class RefContext {
     }
 
     public void addResourceAdapterId(URI modulePath, String name, String containerId) throws DeploymentException {
-        Map references = (Map) connectionFactoryIndex.get(name);
+        Map references = (Map) resourceAdapterIndex.get(name);
         if (references == null || references.isEmpty()) {
             references = new HashMap();
             resourceAdapterIndex.put(name, references);
@@ -224,7 +224,7 @@ public class RefContext {
     public String getResourceAdapterContainerId(URI module, String resourceLink, J2eeContext j2eeContext) throws DeploymentException, UnknownEJBRefException {
         String name = resourceLink.substring(resourceLink.lastIndexOf('#') + 1);
         try {
-            return getContainerId(module, resourceLink, (Map) connectionFactoryIndex.get(name));
+            return getContainerId(module, resourceLink, (Map) resourceAdapterIndex.get(name));
         } catch (UnknownEJBRefException e) {
             ObjectName query = null;
             try {
