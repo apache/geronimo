@@ -81,11 +81,10 @@ import org.apache.geronimo.security.jaas.LoginServiceMBean;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/02/18 21:26:10 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/25 02:27:01 $
  */
 public class RemoteLoginTest extends TestCase {
     Kernel kernel;
-    ObjectName gssapiRegistration;
     ObjectName loginService;
     ObjectName kerberosRealm;
     ObjectName subsystemRouter;
@@ -100,10 +99,8 @@ public class RemoteLoginTest extends TestCase {
     LoginServiceMBean saslRemoteProxy;
     LoginServiceMBean gssapiRemoteProxy;
 
-    public void testDummy() {
-    }
 
-    public void XtestLogin() throws Exception {
+    public void testLogin() throws Exception {
         LoginContext context = new LoginContext("FOO", new UsernamePasswordCallback("alan", "starcraft"));
 
         context.login();
@@ -119,18 +116,13 @@ public class RemoteLoginTest extends TestCase {
         context.logout();
     }
 
-    public void XsetUp() throws Exception {
+    public void setUp() throws Exception {
         kernel = new Kernel("test.kernel", "simple.geronimo.test");
         kernel.boot();
 
         GBeanMBean gbean;
 
         // Create all the parts
-        gbean = new GBeanMBean("org.apache.geronimo.remoting.transport.TransportRegistration");
-        gssapiRegistration = new ObjectName("geronimo.remoting:registration=gssapi");
-        gbean.setAttribute("TransportFactory", "org.apache.geronimo.remoting.transport.async.TransportFactory");
-        gbean.setAttribute("TransportName", "gssapi");
-        kernel.loadGBean(gssapiRegistration, gbean);
 
         gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginService");
         loginService = new ObjectName("geronimo.security:type=LoginService");
@@ -190,7 +182,6 @@ public class RemoteLoginTest extends TestCase {
         serverStub = new ObjectName("geronimo.remoting:target=LoginServiceStub");
         kernel.loadGBean(serverStub, gbean);
 
-        kernel.startGBean(gssapiRegistration);
         kernel.startGBean(loginService);
         kernel.startGBean(kerberosRealm);
         kernel.startGBean(subsystemRouter);
@@ -215,7 +206,7 @@ public class RemoteLoginTest extends TestCase {
         gssapiRemoteProxy = RemoteLoginServiceFactory.create(connectURI.getHost(), connectURI.getPort());
     }
 
-    protected void XtearDown() throws Exception {
+    protected void tearDown() throws Exception {
         kernel.stopGBean(serverStub);
         kernel.stopGBean(secureJmxRouter);
         kernel.stopGBean(jmxRouter);
@@ -226,9 +217,7 @@ public class RemoteLoginTest extends TestCase {
         kernel.stopGBean(subsystemRouter);
         kernel.stopGBean(kerberosRealm);
         kernel.stopGBean(loginService);
-        kernel.stopGBean(gssapiRegistration);
 
-        kernel.unloadGBean(gssapiRegistration);
         kernel.unloadGBean(loginService);
         kernel.unloadGBean(kerberosRealm);
         kernel.unloadGBean(subsystemRouter);
