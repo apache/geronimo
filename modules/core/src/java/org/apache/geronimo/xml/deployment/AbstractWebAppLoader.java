@@ -84,7 +84,7 @@ import org.w3c.dom.Element;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/27 16:17:12 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/29 12:38:13 $
  */
 public abstract class AbstractWebAppLoader {
     public AbstractWebAppLoader() {
@@ -93,7 +93,6 @@ public abstract class AbstractWebAppLoader {
     protected void loadCommonElements(AbstractWebApp webApp, Element root) {
         webApp.setVersion(LoaderUtil.getAttribute(root, "version"));
 
-        J2EELoader.loadDescribable(root, webApp);
         J2EELoader.loadDisplayable(root, webApp);
         webApp.setDistributable(LoaderUtil.getBoolean(root, "distributable"));
         loadContextParams(webApp, root);
@@ -138,7 +137,6 @@ public abstract class AbstractWebAppLoader {
             final Filter filter = new Filter();
 
             J2EELoader.loadDisplayable(e, filter);
-            J2EELoader.loadDescribable(e, filter);
             filter.setFilterName(LoaderUtil.getChildContent(e, "filter-name"));
             filter.setFilterClass(LoaderUtil.getChildContent(e, "filter-class"));
             filter.setInitParam(J2EELoader.loadInitParams(e));
@@ -187,7 +185,6 @@ public abstract class AbstractWebAppLoader {
             Listener listener = new Listener();
 
             J2EELoader.loadDisplayable(e, listener);
-            J2EELoader.loadDescribable(e, listener);
             listener.setListenerClass(LoaderUtil.getChildContent(e, "listener-class"));
 
             listeners[i] = listener;
@@ -205,7 +202,6 @@ public abstract class AbstractWebAppLoader {
             final Servlet servlet = new Servlet();
 
             J2EELoader.loadDisplayable(e, servlet);
-            J2EELoader.loadDescribable(e, servlet);
             servlet.setServletName(LoaderUtil.getChildContent(e, "servlet-name"));
             servlet.setServletClass(LoaderUtil.getChildContent(e, "servlet-class"));
             servlet.setJspFile(LoaderUtil.getChildContent(e, "jsp-file"));
@@ -355,7 +351,6 @@ public abstract class AbstractWebAppLoader {
             JSPPropertyGroup jspPropertyGroup = new JSPPropertyGroup();
 
             J2EELoader.loadDisplayable(e, jspPropertyGroup);
-            J2EELoader.loadDescribable(e, jspPropertyGroup);
             loadUrlPatterns(jspPropertyGroup, e);
             String value = LoaderUtil.getChildContent(e, "el-ignored");
             if (value != null) {
