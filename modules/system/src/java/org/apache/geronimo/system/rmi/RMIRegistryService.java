@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.system;
+package org.apache.geronimo.system.rmi;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -46,6 +46,7 @@ public class RMIRegistryService implements GBeanLifecycle {
     }
 
     public void doStart() throws WaitingException, Exception {
+        System.setProperty("java.rmi.server.RMIClassLoaderSpi",RMIClassLoaderSpiImpl.class.getName());
         registry = LocateRegistry.createRegistry(port);
         log.info("Started RMI Registry on port " + port);
     }

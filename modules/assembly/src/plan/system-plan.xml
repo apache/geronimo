@@ -82,7 +82,7 @@ specific services - those should be provided by children.
     </gbean>
 
     <!-- RMI Registry -->
-    <gbean name="geronimo.server:role=RMIRegistry" class="org.apache.geronimo.system.RMIRegistryService">
+    <gbean name="geronimo.server:role=RMIRegistry" class="org.apache.geronimo.system.rmi.RMIRegistryService">
         <attribute name="port" type="int">1099</attribute>
     </gbean>
 

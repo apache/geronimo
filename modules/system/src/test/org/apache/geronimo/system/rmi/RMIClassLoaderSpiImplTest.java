@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.rmi;
+package org.apache.geronimo.system.rmi;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -30,42 +30,38 @@ import junit.framework.TestCase;
  * @version $Rev$ $Date$
  */
 public class RMIClassLoaderSpiImplTest
-    extends TestCase
-{
+        extends TestCase {
     private String baseURL;
     private String normalizedBaseURL;
-    
-    protected void setUp() throws Exception
-    {
+
+    protected void setUp() throws Exception {
         File dir = new File(System.getProperty("user.home"));
-        
+
         baseURL = dir.toURL().toString();
         if (baseURL.endsWith("/")) {
             baseURL = baseURL.substring(0, baseURL.length() - 1);
         }
-        
+
         normalizedBaseURL = dir.toURI().toURL().toString();
         if (normalizedBaseURL.endsWith("/")) {
             normalizedBaseURL = normalizedBaseURL.substring(0, normalizedBaseURL.length() - 1);
         }
-        
+
         System.out.println("Using base URL: " + baseURL);
         System.out.println("Using normalized base URL: " + normalizedBaseURL);
     }
-    
-    public void testNormalizeURL() throws MalformedURLException
-    {
+
+    public void testNormalizeURL() throws MalformedURLException {
         URL url = new URL(baseURL + "/Apache Group/Geronimo");
         URL normal = RMIClassLoaderSpiImpl.normalizeURL(url);
         assertEquals(normalizedBaseURL + "/Apache%20Group/Geronimo", normal.toString());
     }
-    
-    public void testNormalizeCodebase() throws MalformedURLException
-    {
+
+    public void testNormalizeCodebase() throws MalformedURLException {
         String codebase = baseURL + "/Apache Group/Geronimo " + baseURL + "/Apache Group/Apache2";
-        
+
         String normal = RMIClassLoaderSpiImpl.normalizeCodebase(codebase);
-        assertEquals(normalizedBaseURL + "/Apache%20Group/Geronimo " + 
+        assertEquals(normalizedBaseURL + "/Apache%20Group/Geronimo " +
                      normalizedBaseURL + "/Apache%20Group/Apache2", normal);
     }
 }
