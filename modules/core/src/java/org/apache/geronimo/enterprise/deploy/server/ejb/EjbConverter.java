@@ -98,7 +98,7 @@ import org.apache.geronimo.enterprise.deploy.server.DConfigBeanLookup;
  * DConfigBean.  Note this means that the standard DD content may be out of
  * sync when loaded, but they'll be cleaned up when the DD is saved.
  *
- * @version $Revision: 1.4 $ $Date: 2003/11/18 22:22:28 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/22 19:49:10 $
  */
 public class EjbConverter extends J2EEConverter {
     private static final Log log = LogFactory.getLog(EjbConverter.class);
@@ -113,15 +113,13 @@ public class EjbConverter extends J2EEConverter {
         assignSession(beans, custom.getGeronimoEnterpriseBeans().getGeronimoSession(), beans.getDDBean().getChildBean(EnterpriseBeansBean.SESSION_XPATH));
         assignEntity(beans, custom.getGeronimoEnterpriseBeans().getGeronimoEntity(), beans.getDDBean().getChildBean(EnterpriseBeansBean.ENTITY_XPATH));
         assignMessageDriven(beans, custom.getGeronimoEnterpriseBeans().getGeronimoMessageDriven(), beans.getDDBean().getChildBean(EnterpriseBeansBean.MESSAGE_DRIVEN_XPATH));
-        log.warn("EJB JAR "+ejbJar+" has ClassSpace "+ejbJar.getClassSpace());
-        return root;
+       return root;
     }
 
     public static EjbJar storeDConfigBeans(EjbJarRoot root) throws ConfigurationException {
         if(root == null || root.getEjbJar() == null) {
             throw new ConfigurationException("Insufficient configuration information to save.");
         }
-        log.warn("EJB JAR "+root.getEjbJar()+" has ClassSpace "+root.getEjbJar().getClassSpace());
         EjbJar jar = new EjbJar();
         org.apache.geronimo.deployment.model.geronimo.j2ee.ClassSpace space = new org.apache.geronimo.deployment.model.geronimo.j2ee.ClassSpace();
         space.setClassSpace(root.getEjbJar().getClassSpace().getName());
