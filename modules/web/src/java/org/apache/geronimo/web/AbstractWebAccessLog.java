@@ -73,7 +73,7 @@ import org.apache.geronimo.gbean.GConstructorInfo;
 /**
  * AbstractWebAccessLog
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/16 02:19:23 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/16 23:10:14 $
  */
 public abstract class AbstractWebAccessLog implements WebAccessLog {
 
@@ -315,7 +315,7 @@ public abstract class AbstractWebAccessLog implements WebAccessLog {
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
-    public static GBeanInfo getGbeanInfo() {
+    public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
 

@@ -85,7 +85,7 @@ import org.mortbay.jetty.Server;
 /**
  * JettyWebAccessLog
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/16 02:19:23 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/16 23:10:14 $
  */
 public class JettyWebAccessLog extends AbstractWebAccessLog implements GeronimoMBeanTarget {
 
@@ -256,7 +256,7 @@ public class JettyWebAccessLog extends AbstractWebAccessLog implements GeronimoM
     }
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty Web Access Log", "Wrapped Jetty access log", JettyWebAccessLog.class.getName(), AbstractWebAccessLog.getGbeanInfo());
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty Web Access Log", "Wrapped Jetty access log", JettyWebAccessLog.class.getName(), AbstractWebAccessLog.getGBeanInfo());
         infoFactory.addAttribute(new GAttributeInfo("Buffering", true, "Should log buffer"));
         infoFactory.addOperation(new GOperationInfo("registerLog", new String[]{"Jetty Server"}, new String[]{Server.class.getName()}));
         infoFactory.addOperation(new GOperationInfo("unregisterLog", new String[]{"Jetty Server"}, new String[]{Server.class.getName()}));
@@ -273,7 +273,7 @@ public class JettyWebAccessLog extends AbstractWebAccessLog implements GeronimoM
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
-    public static GBeanInfo getGbeanInfo() {
+    public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
 

@@ -22,6 +22,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
 import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
 import org.apache.geronimo.web.AbstractWebApplication;
+import org.apache.geronimo.transaction.manager.UserTransactionImpl;
 import org.mortbay.jetty.servlet.WebApplicationContext;
 
 
@@ -31,7 +32,7 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
  *
  * Created: Sun Sep 14 16:40:17 2003
  *
- * @version $Revision: 1.10 $ $Date: 2004/01/16 02:19:23 $
+ * @version $Revision: 1.11 $ $Date: 2004/01/16 23:10:14 $
  */
 public class JettyWebApplication extends AbstractWebApplication {
 
@@ -48,9 +49,9 @@ public class JettyWebApplication extends AbstractWebApplication {
     }
 
     public JettyWebApplication(URI uri, ClassLoader parentClassLoader, WebApp webApp, GeronimoWebAppDocument geronimoWebAppDocument, String contextPath,
-                               Context context, boolean java2ClassLoadingCompliance, TransactionManager transactionManager, TrackedConnectionAssociator trackedConnectionAssociator) {
+                               Context context, boolean java2ClassLoadingCompliance, UserTransactionImpl userTransaction, TransactionManager transactionManager, TrackedConnectionAssociator trackedConnectionAssociator) {
         super(uri, parentClassLoader, webApp, geronimoWebAppDocument, contextPath, context,
-                java2ClassLoadingCompliance, transactionManager, trackedConnectionAssociator);
+                java2ClassLoadingCompliance, userTransaction, transactionManager, trackedConnectionAssociator);
         if (uri == null) {
             jettyContext = new JettyWebApplicationContext();
         } else {
@@ -130,12 +131,12 @@ public class JettyWebApplication extends AbstractWebApplication {
     }
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty Web Application", "Wrapped Jetty application", JettyWebApplication.class.getName(), AbstractWebApplication.getGbeanInfo());
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty Web Application", "Wrapped Jetty application", JettyWebApplication.class.getName(), AbstractWebApplication.getGBeanInfo());
         infoFactory.addOperation(new GOperationInfo("getJettyContext", Collections.EMPTY_LIST));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
-    public static GBeanInfo getGbeanInfo() {
+    public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
 

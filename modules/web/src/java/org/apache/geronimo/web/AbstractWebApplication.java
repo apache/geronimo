@@ -85,7 +85,7 @@ import org.w3c.dom.Document;
  * Instances are created by a deployer. The deployer finds the
  * WebContainer and associates it with the WebApplication.
  *
- * @version $Revision: 1.13 $ $Date: 2004/01/16 02:19:23 $
+ * @version $Revision: 1.14 $ $Date: 2004/01/16 23:10:14 $
  */
 public abstract class AbstractWebApplication implements WebApplication {
 
@@ -120,8 +120,21 @@ public abstract class AbstractWebApplication implements WebApplication {
     private ClassLoader parentClassLoader;
     private UserTransactionImpl userTransaction;
 
+    /**
+     * User transaction must be a parameter since it is also possibly already included in the ReadOnlyContext
+     * @param uri
+     * @param parentClassLoader
+     * @param webApp
+     * @param geronimoWebAppDocument
+     * @param contextPath
+     * @param context
+     * @param java2ClassLoadingCompliance
+     * @param userTransaction
+     * @param transactionManager
+     * @param trackedConnectionAssociator
+     */
     public AbstractWebApplication(URI uri, ClassLoader parentClassLoader, WebApp webApp, GeronimoWebAppDocument geronimoWebAppDocument, String contextPath,
-                                  Context context, boolean java2ClassLoadingCompliance, TransactionManager transactionManager, TrackedConnectionAssociator trackedConnectionAssociator) {
+                                  Context context, boolean java2ClassLoadingCompliance, UserTransactionImpl userTransaction, TransactionManager transactionManager, TrackedConnectionAssociator trackedConnectionAssociator) {
         this.uri = uri;
         this.parentClassLoader = parentClassLoader;
         this.webApp = webApp;
@@ -129,7 +142,7 @@ public abstract class AbstractWebApplication implements WebApplication {
         this.contextPath = contextPath;
         this.context = context;
         this.java2ClassLoadingCompliance = java2ClassLoadingCompliance;
-        userTransaction = new UserTransactionImpl();
+        this.userTransaction = userTransaction;
         userTransaction.setTransactionManager(transactionManager);
         userTransaction.setTrackedConnectionAssociator(trackedConnectionAssociator);
     }
@@ -281,15 +294,15 @@ public abstract class AbstractWebApplication implements WebApplication {
         infoFactory.addEndpoint(new GEndpointInfo("TrackedConnectionAssociator", TrackedConnectionAssociator.class.getName()));
         infoFactory.setConstructor(new GConstructorInfo(
                 Arrays.asList(new Object[]{"URI", "ParentClassLoader", "WebApp", "GeronimoWebAppDoc", "ContextPath",
-                                  "Context", "Java2ClassLoadingCompliance", "TransactionManager", "TrackedConnectionAssociator"}),
+                                  "Context", "Java2ClassLoadingCompliance", "UserTransaction",  "TransactionManager", "TrackedConnectionAssociator"}),
                 Arrays.asList(new Object[]{URI.class, ClassLoader.class, WebApp.class, GeronimoWebAppDocument.class, String.class,
-                                  Context.class,Boolean.TYPE, TransactionManager.class, TrackedConnectionAssociator.class})
+                                  Context.class, Boolean.TYPE, UserTransactionImpl.class, TransactionManager.class, TrackedConnectionAssociator.class})
         ));
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
-    public static GBeanInfo getGbeanInfo() {
+    public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
 
