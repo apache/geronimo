@@ -8,7 +8,14 @@
 	    version="1.5">
   <xsd:annotation>
     <xsd:documentation>
+        <![CDATA[
+        documents using this schema should start like:
+        <connector xmlns="http://org.apache.geronimo/xml/ns/j2ee"
+            xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+            xsi:SchemaLocation="http://org.apache.geronimo/xml/ns/j2ee geronimo-connector_1_5.xsd">
+
       @(#)geronimo-connector_1_5.xsds
+	]]>
     </xsd:documentation>
   </xsd:annotation>
 
