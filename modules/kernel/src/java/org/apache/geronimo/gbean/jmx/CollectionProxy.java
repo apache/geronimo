@@ -77,7 +77,7 @@ import org.apache.geronimo.gbean.WaitingException;
 /**
  *
  *
- * @version $Revision: 1.11 $ $Date: 2004/01/26 06:50:46 $
+ * @version $Revision: 1.12 $ $Date: 2004/01/29 11:23:55 $
  */
 public class CollectionProxy implements Proxy {
     private static final Log log = LogFactory.getLog(CollectionProxy.class);
@@ -153,9 +153,10 @@ public class CollectionProxy implements Proxy {
                 ProxyMethodInterceptor interceptor = new ProxyMethodInterceptor(factory.getType());
                 interceptor.connect(gmbean.getServer(), target, proxy.isStopped());
                 interceptors.put(target, interceptor);
-                proxies.put(target, factory.create(interceptor));
+                Object targetProxy = factory.create(interceptor); 
+                proxies.put(target, targetProxy);
                 if (!stopped) {
-                    proxy.fireMemberAdddedEvent(target);
+                    proxy.fireMemberAdddedEvent(targetProxy);
                 }
             } catch (InvocationTargetException e) {
                 log.info("Could not create optional proxy to mbean: objectName=" + target);
