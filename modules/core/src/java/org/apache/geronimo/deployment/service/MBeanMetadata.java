@@ -66,7 +66,7 @@ import javax.management.ObjectName;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/16 23:16:34 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/18 22:07:50 $
  */
 public class MBeanMetadata {
     private String code;
@@ -78,6 +78,31 @@ public class MBeanMetadata {
     private final Map attributeValues = new HashMap();
     private final Set relationships = new HashSet();
     private final Set dependencies = new HashSet();
+
+    public MBeanMetadata() {
+    }
+
+    public MBeanMetadata(ObjectName name) {
+        this.name = name;
+    }
+
+    public MBeanMetadata(ObjectName name, String code) {
+        this.name = name;
+        this.code = code;
+    }
+
+    public MBeanMetadata(ObjectName name, String code, ObjectName loaderName) {
+        this.name = name;
+        this.code = code;
+        this.loaderName = loaderName;
+    }
+
+    public MBeanMetadata(ObjectName name, String code, ObjectName loaderName, ObjectName parentName) {
+        this.name = name;
+        this.code = code;
+        this.loaderName = loaderName;
+        this.parentName = parentName;
+    }
 
     public String getCode() {
         return code;
