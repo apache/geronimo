@@ -26,7 +26,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 
 /**
- * @version $Revision: 1.14 $ $Date: 2004/03/13 23:46:30 $
+ * @version $Revision: 1.15 $ $Date: 2004/03/18 10:04:50 $
  */
 public class MockGBean implements MockEndpoint {
 
@@ -80,6 +80,87 @@ public class MockGBean implements MockEndpoint {
 
     public int getFinalInt() {
         return finalInt;
+    }
+
+    /**
+     * Note the wrong return type, instead of int type.
+     * 
+     * @return
+     */
+    public String getAnotherFinalInt() {
+        return null;
+    }
+
+    /**
+     * Parameter ignored
+     * 
+     * @param ignored
+     */
+    public void setAnotherFinalInt(int ignored) {
+    }
+
+    /**
+     * Only setter for YetAnotherFinalInt
+     * 
+     * @param ignored
+     */
+    public void setYetAnotherFinalInt(int ignored) {
+    }
+
+    /**
+     * @see #setYetAnotherFinalInt(int)
+     */
+    public void setCharAsYetAnotherFinalInt(char yetAnotherFinalInt) {
+        setYetAnotherFinalInt((int) yetAnotherFinalInt);
+    }
+
+    /**
+     * @see #setYetAnotherFinalInt(int)
+     */
+    public void setBooleanAsYetAnotherFinalInt(boolean yetAnotherFinalInt) {
+        setYetAnotherFinalInt((yetAnotherFinalInt ? 1 : 0));
+    }
+
+    /**
+     * @see #setYetAnotherFinalInt(int)
+     */
+    public void setByteAsYetAnotherFinalInt(byte yetAnotherFinalInt) {
+        setYetAnotherFinalInt(yetAnotherFinalInt);
+    }
+
+    /**
+     * @see #setYetAnotherFinalInt(int)
+     */
+    public void setShortAsYetAnotherFinalInt(short yetAnotherFinalInt) {
+        setYetAnotherFinalInt(yetAnotherFinalInt);
+    }
+
+    /**
+     * @see #setYetAnotherFinalInt(int)
+     */
+    public void setLongAsYetAnotherFinalInt(long yetAnotherFinalInt) {
+        setYetAnotherFinalInt((int)yetAnotherFinalInt);
+    }
+
+    /**
+     * @see #setYetAnotherFinalInt(int)
+     */
+    public void setFloatAsYetAnotherFinalInt(float yetAnotherFinalInt) {
+        setYetAnotherFinalInt((int)yetAnotherFinalInt);
+    }
+
+    /**
+     * @see #setYetAnotherFinalInt(int)
+     */
+    public void setDoubleAsYetAnotherFinalInt(double yetAnotherFinalInt) {
+        setYetAnotherFinalInt((int)yetAnotherFinalInt);
+    }
+
+    /**
+     * Getter that returns nothing
+     *  
+     */
+    public void getVoidGetterOfFinalInt() {
     }
 
     public int getMutableInt() {

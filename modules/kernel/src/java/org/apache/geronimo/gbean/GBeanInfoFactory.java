@@ -14,7 +14,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.geronimo.gbean;
 
 import java.lang.reflect.Method;
@@ -26,11 +25,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.geronimo.kernel.jmx.MBeanOperationSignature;
 
 /**
- * @version $Revision: 1.16 $ $Date: 2004/03/10 09:59:00 $
+ * @version $Revision: 1.17 $ $Date: 2004/03/18 10:04:50 $
  */
 public class GBeanInfoFactory {
 
@@ -73,7 +71,6 @@ public class GBeanInfoFactory {
     public GBeanInfoFactory(String name, String className, GBeanInfo source) {
         checkNotNull(name);
         checkNotNull(className);
-
         this.name = name;
         this.className = className;
         if (source != null) {
@@ -84,14 +81,12 @@ public class GBeanInfoFactory {
                     attributes.put(attributeInfo.getName(), attributeInfo);
                 }
             }
-
             Set sourceOperations = source.getOperations();
             if (sourceOperations != null && !sourceOperations.isEmpty()) {
                 for (Iterator it = sourceOperations.iterator(); it.hasNext();) {
                     GOperationInfo operationInfo = (GOperationInfo) it.next();
-                    operations.put(
-                            new MBeanOperationSignature(operationInfo.getName(), operationInfo.getParameterList()),
-                            operationInfo);
+                    operations.put(new MBeanOperationSignature(operationInfo.getName(),
+                            operationInfo.getParameterList()), operationInfo);
                 }
             }
             references.addAll(source.getReferences());
@@ -104,7 +99,7 @@ public class GBeanInfoFactory {
     /**
      * Checks whether or not the input argument is null; otherwise it throws
      * {@link IllegalArgumentException}.
-     *
+     * 
      * @param clazz the input argument to validate
      * @throws IllegalArgumentException if input is null
      */
@@ -118,7 +113,7 @@ public class GBeanInfoFactory {
     /**
      * Checks whether or not the input argument is null; otherwise it throws
      * {@link IllegalArgumentException}.
-     *
+     * 
      * @param string the input argument to validate
      * @throws IllegalArgumentException if input is null
      */
@@ -135,7 +130,6 @@ public class GBeanInfoFactory {
 
     public void addInterface(Class intf, String[] persistentAttributes) {
         Set persistentName = new HashSet(Arrays.asList(persistentAttributes));
-
         Method[] methods = intf.getMethods();
         for (int i = 0; i < methods.length; i++) {
             Method method = methods[i];
@@ -188,9 +182,8 @@ public class GBeanInfoFactory {
     }
 
     public void addOperation(GOperationInfo operationInfo) {
-        operations.put(
-                new MBeanOperationSignature(operationInfo.getName(), operationInfo.getParameterList()),
-                operationInfo);
+        operations.put(new MBeanOperationSignature(operationInfo.getName(), operationInfo.getParameterList()),
+                       operationInfo);
     }
 
     public void addOperation(String name) {
@@ -214,13 +207,7 @@ public class GBeanInfoFactory {
     }
 
     public GBeanInfo getBeanInfo() {
-        return new GBeanInfo(
-                name,
-                className,
-                attributes.values(),
-                constructor,
-                operations.values(),
-                references,
+        return new GBeanInfo(name, className, attributes.values(), constructor, operations.values(), references,
                 notifications);
     }
 }

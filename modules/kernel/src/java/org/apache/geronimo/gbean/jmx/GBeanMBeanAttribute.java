@@ -30,7 +30,7 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 
 /**
- * @version $Revision: 1.9 $ $Date: 2004/03/13 23:46:30 $
+ * @version $Revision: 1.10 $ $Date: 2004/03/18 10:04:50 $
  */
 public class GBeanMBeanAttribute {
 
@@ -106,8 +106,7 @@ public class GBeanMBeanAttribute {
                 getInvoker = new MethodInvoker() {
 
                     public Object invoke(Object target, Object[] arguments) throws Exception {
-                        DynamicGBean dynamicGBean = (DynamicGBean) GBeanMBeanAttribute.this.gmbean.getTarget();
-                        return dynamicGBean.getAttribute(name);
+                        return ((DynamicGBean) target).getAttribute(name);
                     }
                 };
             } else {
@@ -118,8 +117,7 @@ public class GBeanMBeanAttribute {
                 setInvoker = new MethodInvoker() {
 
                     public Object invoke(Object target, Object[] arguments) throws Exception {
-                        DynamicGBean dynamicGBean = (DynamicGBean) GBeanMBeanAttribute.this.gmbean.getTarget();
-                        dynamicGBean.setAttribute(name, arguments[0]);
+                        ((DynamicGBean) target).setAttribute(name, arguments[0]);
                         return null;
                     }
                 };
@@ -209,8 +207,6 @@ public class GBeanMBeanAttribute {
         if (persistent && type.isPrimitive()) {
             if (type == Boolean.TYPE) {
                 persistentValue = Boolean.FALSE;
-            } else if (type == Character.TYPE) {
-                persistentValue = new Character((char) 0);
             } else if (type == Byte.TYPE) {
                 persistentValue = new Byte((byte) 0);
             } else if (type == Short.TYPE) {
@@ -219,12 +215,12 @@ public class GBeanMBeanAttribute {
                 persistentValue = new Integer(0);
             } else if (type == Long.TYPE) {
                 persistentValue = new Long(0);
+            } else if (type == Character.TYPE) {
+                persistentValue = new Character((char) 0);
             } else if (type == Float.TYPE) {
                 persistentValue = new Float(0);
-            } else if (type == Double.TYPE) {
+            } else /** if (type == Double.TYPE) */ {
                 persistentValue = new Double(0);
-            } else {
-                throw new IllegalArgumentException("Unknown primitive type: " + type.getName());
             }
         }
     }
@@ -407,7 +403,7 @@ public class GBeanMBeanAttribute {
             }
         } else {
             // even though we have an exact name we need to search the methods
-            // becaus we don't know the parameter type
+            // because we don't know the parameter type
             Method[] methods = gMBean.getType().getMethods();
             String setterName = attributeInfo.getSetterName();
             for (int i = 0; i < methods.length; i++) {
