@@ -81,7 +81,7 @@ import org.apache.geronimo.twiddle.command.CommandNotFoundException;
 /**
  * Twiddle is a command processor.
  *
- * @version <code>$Id: Twiddle.java,v 1.1 2003/08/13 08:32:09 jdillon Exp $</code>
+ * @version <tt>$Revision: 1.2 $ $Date: 2003/08/13 09:12:14 $</tt>
  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
  */
 public class Twiddle
