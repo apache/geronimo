@@ -24,13 +24,16 @@ import org.mortbay.http.HttpRequest;
 import org.mortbay.http.UserRealm;
 import org.mortbay.jetty.Server;
 
+import org.apache.geronimo.security.ContextManager;
+
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/05/30 19:09:57 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/27 20:37:38 $
  */
 public class JettyServer extends Server {
 
     private Map realmDelegates = new HashMap();
+    private final static ThreadLocal currentWebAppContext = new ThreadLocal();
 
     public UserRealm addRealm(UserRealm realm) {
         RealmDelegate delegate = (RealmDelegate) realmDelegates.get(realm.getName());
@@ -55,6 +58,20 @@ public class JettyServer extends Server {
 
     public void removeRealm(UserRealm realm) {
         realmDelegates.remove(realm.getName());
+    }
+
+    public static void setCurrentWebAppContext(JettyWebAppJACCContext context) {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(ContextManager.SET_CONTEXT);
+
+        currentWebAppContext.set(context);
+    }
+
+    public static JettyWebAppJACCContext getCurrentWebAppContext() {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(ContextManager.GET_CONTEXT);
+
+        return (JettyWebAppJACCContext) currentWebAppContext.get();
     }
 
     private class RealmDelegate implements UserRealm {

@@ -37,7 +37,7 @@ import org.apache.geronimo.transaction.GeronimoTransactionManager;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 
 /**
- * @version $Revision: 1.11 $ $Date: 2004/06/15 21:37:39 $
+ * @version $Revision: 1.12 $ $Date: 2004/06/27 20:37:38 $
  */
 public class ApplicationTest extends TestCase {
     private Kernel kernel;
@@ -53,13 +53,15 @@ public class ApplicationTest extends TestCase {
     private GBeanMBean tm;
     private GBeanMBean ctc;
 
+    public void testDummy() throws Exception {
+    }
+
     public void testApplication() throws Exception {
         URL url = Thread.currentThread().getContextClassLoader().getResource("deployables/war1/");
-        GBeanMBean app = new GBeanMBean(JettyWebApplicationContext.GBEAN_INFO);
+        GBeanMBean app = new GBeanMBean(JettyWebAppContext.GBEAN_INFO);
         app.setAttribute("URI", URI.create(url.toString()));
         app.setAttribute("ContextPath", "/test");
         app.setAttribute("ComponentContext", null);
-        app.setAttribute("PolicyContextID", null);
         UserTransactionImpl userTransaction = new UserTransactionImpl();
         app.setAttribute("UserTransaction", userTransaction);
         app.setReferencePatterns("Configuration", Collections.EMPTY_SET);

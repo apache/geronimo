@@ -16,34 +16,42 @@
  */
 package org.apache.geronimo.jetty;
 
-import java.security.Principal;
-import java.util.HashMap;
+import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+import javax.security.jacc.WebRoleRefPermission;
+import java.security.AccessControlContext;
+import java.security.AccessControlException;
+import java.security.AccessController;
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.Stack;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.UserRealm;
 import org.mortbay.jaas.callback.DefaultCallbackHandler;
 import org.mortbay.util.LogSupport;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.security.ContextManager;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/06/05 07:53:21 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/27 20:37:38 $
  */
 public class JAASJettyRealm implements UserRealm, GBeanLifecycle {
 
     private static Log log = LogFactory.getLog(JAASJettyRealm.class);
 
-    protected final JettyContainer container;
-    protected String realmName;
-    protected String loginModuleName;
-    protected HashMap userMap = new HashMap();
+    private final JettyContainer container;
+    private String realmName;
+    private String loginModuleName;
+    private HashMap userMap = new HashMap();
 
     public JAASJettyRealm(JettyContainer container) {
         this.container = container;
@@ -65,9 +73,8 @@ public class JAASJettyRealm implements UserRealm, GBeanLifecycle {
         return (Principal) userMap.get(username);
     }
 
-    public Principal authenticate(String username,
-            Object credentials,
-            HttpRequest request) {
+    public Principal authenticate(String username, Object credentials, HttpRequest request) {
+
         try {
             JAASJettyPrincipal userPrincipal = (JAASJettyPrincipal) userMap.get(username);
 
@@ -85,9 +92,12 @@ public class JAASJettyRealm implements UserRealm, GBeanLifecycle {
 
             //set up the login context
             LoginContext loginContext = new LoginContext(loginModuleName,
-                    callbackHandler);
+                                                         callbackHandler);
 
             loginContext.login();
+
+            ContextManager.registerSubject(loginContext.getSubject());
+            ContextManager.setCurrentCaller(loginContext.getSubject());
 
             //login success
             userPrincipal = new JAASJettyPrincipal(username);
@@ -102,33 +112,45 @@ public class JAASJettyRealm implements UserRealm, GBeanLifecycle {
         }
     }
 
+    public void logout(Principal user) {
+        JAASJettyPrincipal principal = (JAASJettyPrincipal) user;
+
+        userMap.remove(principal.getName());
+        ContextManager.unregisterSubject(principal.getSubject());
+    }
+
     public boolean reauthenticate(Principal user) {
         // TODO This is not correct if auth can expire! We need to
+
+        ContextManager.setCurrentCaller(((JAASJettyPrincipal)user).getSubject());
+
         // get the user out of the cache
         return (userMap.get(user.getName()) != null);
     }
 
+    public void disassociate(Principal user) {
+        // do nothing
+    }
+
     public boolean isUserInRole(Principal user, String role) {
-        //TODO
+        AccessControlContext acc = ContextManager.getCurrentContext();
+        try {
+            acc.checkPermission(new WebRoleRefPermission(JettyServletHolder.getJettyServletHolder().getName(), role));
+        } catch (AccessControlException e) {
+            return false;
+        }
         return true;
     }
 
-    public void disassociate(Principal user) {
-        //TODO
-    }
-
     public Principal pushRole(Principal user, String role) {
-        //TODO
+        ((JAASJettyPrincipal)user).push(ContextManager.getCurrentCaller());
+        ContextManager.setCurrentCaller(JettyServer.getCurrentWebAppContext().getRoleDesignate(role));
         return user;
     }
 
     public Principal popRole(Principal user) {
-        //TODO
+        ContextManager.setCurrentCaller(((JAASJettyPrincipal)user).pop());
         return user;
-    }
-
-    public void logout(Principal user) {
-        log.warn(LogSupport.NOT_IMPLEMENTED);
     }
 
     public void doStart() throws WaitingException, Exception {

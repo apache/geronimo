@@ -52,7 +52,8 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
-import org.apache.geronimo.jetty.JettyWebApplicationContext;
+import org.apache.geronimo.jetty.JettyWebAppContext;
+import org.apache.geronimo.jetty.JettyWebAppJACCContext;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
@@ -86,7 +87,7 @@ import org.apache.xmlbeans.XmlObject;
 
 
 /**
- * @version $Revision: 1.11 $ $Date: 2004/06/22 00:00:22 $
+ * @version $Revision: 1.12 $ $Date: 2004/06/27 20:37:38 $
  */
 public class JettyModuleBuilder implements ModuleBuilder {
     private static final String PARENT_ID = "org/apache/geronimo/Server";
@@ -268,8 +269,16 @@ public class JettyModuleBuilder implements ModuleBuilder {
         UserTransaction userTransaction = new UserTransactionImpl();
         ReadOnlyContext compContext = buildComponentContext(earContext, webModule, webApp, jettyWebApp, userTransaction, cl);
 
-        GBeanMBean gbean = new GBeanMBean(JettyWebApplicationContext.GBEAN_INFO, cl);
+        Security security = buildSecurityConfig(jettyWebApp);
+
+        GBeanMBean gbean;
         try {
+            if (security == null) {
+                gbean = new GBeanMBean(JettyWebAppContext.GBEAN_INFO, cl);
+            } else {
+                gbean = new GBeanMBean(JettyWebAppJACCContext.GBEAN_INFO, cl);
+            }
+
             URI warRoot = null;
             if (!webModule.getURI().equals(URI.create("/"))) {
                 warRoot = URI.create(webModule.getURI() + "/");
@@ -282,8 +291,10 @@ public class JettyModuleBuilder implements ModuleBuilder {
             gbean.setAttribute("URI", warRoot);
             gbean.setAttribute("ContextPath", webModule.getContextRoot());
             gbean.setAttribute("ContextPriorityClassLoader", Boolean.valueOf(jettyWebApp.getContextPriorityClassloader()));
-            gbean.setAttribute("SecurityConfig", buildSecurityConfig(jettyWebApp));
-            gbean.setAttribute("PolicyContextID", PolicyContextID);
+            if (security != null) {
+                gbean.setAttribute("SecurityConfig", security);
+                gbean.setAttribute("PolicyContextID", PolicyContextID);
+            }
             gbean.setAttribute("ComponentContext", compContext);
             gbean.setAttribute("UserTransaction", userTransaction);
             setResourceEnvironment(gbean, webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray());
@@ -343,10 +354,12 @@ public class JettyModuleBuilder implements ModuleBuilder {
     }
 
     private static Security buildSecurityConfig(JettyWebAppType jettyWebApp) {
-        Security security = new Security();
+        Security security = null;
 
         JettySecurityType securityType = jettyWebApp.getSecurity();
         if (securityType != null) {
+            security = new Security();
+
             security.setUseContextHandler(securityType.getUseContextHandler());
 
             JettyDefaultPrincipalType defaultPrincipalType = securityType.getDefaultPrincipal();
@@ -378,7 +391,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
                         role.getRealms().add(realm);
                     }
 
-                    security.getRollMappings().add(role);
+                    security.getRoleMappings().add(role);
                 }
             }
         }
@@ -391,6 +404,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
         principal.setClassName(principalType.getClass1());
         principal.setPrincipalName(principalType.getName());
+        principal.setDesignatedRunAs(principalType.isSetDesignatedRunAs());
 
         return principal;
     }

@@ -16,16 +16,19 @@
  */
 package org.apache.geronimo.jetty;
 
+import javax.security.auth.Subject;
 import javax.security.jacc.PolicyConfiguration;
 import javax.security.jacc.PolicyContextException;
 import javax.security.jacc.WebResourcePermission;
+import javax.security.jacc.WebRoleRefPermission;
 import javax.security.jacc.WebUserDataPermission;
 import javax.servlet.UnavailableException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import org.mortbay.jetty.servlet.XMLConfiguration;
@@ -33,7 +36,6 @@ import org.mortbay.xml.XmlParser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.geronimo.jetty.JettyWebApplicationContext;
 import org.apache.geronimo.security.GeronimoSecurityException;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.deploy.Principal;
@@ -41,26 +43,31 @@ import org.apache.geronimo.security.deploy.Realm;
 import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.jacc.RoleMappingConfiguration;
+import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.security.util.URLPattern;
 
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/05/30 19:09:57 $
+ * JettyXMLConfiguration reads the web-app configuration and translates them
+ * into corresponding JACC policy permissions.
+ *
+ * @version $Revision: 1.2 $ $Date: 2004/06/27 20:37:38 $
  */
 public class JettyXMLConfiguration extends XMLConfiguration {
 
     private static Log log = LogFactory.getLog(JettyXMLConfiguration.class);
 
-    private HashSet securityRoles = new HashSet();
-    private HashMap uncheckedPatterns = new HashMap();
-    private HashMap excludedPatterns = new HashMap();
-    private HashMap rolesPatterns = new HashMap();
-    private HashSet allSet = new HashSet();
-    private HashMap allMap = new HashMap();
-    private HashSet allRoles = new HashSet();
+    private Set securityRoles = new HashSet();
+    private Map uncheckedPatterns = new HashMap();
+    private Map excludedPatterns = new HashMap();
+    private Map rolesPatterns = new HashMap();
+    private Set allSet = new HashSet();
+    private Map allMap = new HashMap();
+    private Set allRoles = new HashSet();
+    private Map roleRefs = new HashMap();
 
 
-    public JettyXMLConfiguration(JettyWebApplicationContext context) {
+    public JettyXMLConfiguration(JettyWebAppContext context) {
         super(context);
     }
 
@@ -73,10 +80,39 @@ public class JettyXMLConfiguration extends XMLConfiguration {
         }
     }
 
+    protected void initServlet(XmlParser.Node node)
+            throws ClassNotFoundException, UnavailableException, IOException, MalformedURLException {
+
+        super.initServlet(node);
+
+        String name = node.getString("servlet-name", false, true);
+        if (name == null) name = node.getString("servlet-class", false, true);
+
+        Iterator sRefsIter = node.iterator("security-role-ref");
+        while (sRefsIter.hasNext()) {
+            XmlParser.Node securityRef = (XmlParser.Node) sRefsIter.next();
+            String roleName = securityRef.getString("role-name", false, true);
+            String roleLink = securityRef.getString("role-link", false, true);
+
+            if (roleName != null && roleName.length() > 0 && roleLink != null && roleLink.length() > 0) {
+                if (log.isDebugEnabled()) log.debug("link role " + roleName + " to " + roleLink + " for " + this);
+
+                Set refs = (Set) roleRefs.get(roleLink);
+                if (refs == null) {
+                    refs = new HashSet();
+                    roleRefs.put(roleLink, refs);
+                }
+                refs.add(new WebRoleRefPermission(name, roleName));
+            } else {
+                log.warn("Ignored invalid security-role-ref element: " + "servlet-name=" + name + ", " + securityRef);
+            }
+        }
+    }
+
     /**
      * Translate the web deployment descriptors into equivalent security
      * permissions.  These permissions are placed into the appropriate
-     * <code>PolicyConfiguration</code> object as defined in the JAAC spec.
+     * <code>PolicyConfiguration</code> object as defined in the JACC spec.
      *
      * @param node the deployment descriptor from which to obtain the
      *             security constraints that are to be translated.
@@ -91,7 +127,7 @@ public class JettyXMLConfiguration extends XMLConfiguration {
 
         XmlParser.Node auths = node.get("auth-constraint");
 
-        HashMap currentPatterns;
+        Map currentPatterns;
         if (auths == null) {
             currentPatterns = uncheckedPatterns;
         } else if (auths.size() == 0) {
@@ -157,9 +193,19 @@ public class JettyXMLConfiguration extends XMLConfiguration {
     }
 
     protected void initSecurityRole(XmlParser.Node node) {
+        super.initSecurityRole(node);
+        
         securityRoles.add(node.get("role-name").toString(false, true));
     }
 
+    /**
+     * This method dumps the intermediate security information into the JACC
+     * PolicyConfiguration.
+     *
+     * @param configuration the JACC PolicyConfiguration
+     * @param security      the augmented security information from the geronimo-web.xml file
+     * @throws GeronimoSecurityException
+     */
     public void configure(PolicyConfiguration configuration, Security security) throws GeronimoSecurityException {
 
         try {
@@ -257,12 +303,16 @@ public class JettyXMLConfiguration extends XMLConfiguration {
                 configuration.addToUncheckedPolicy(new WebUserDataPermission(name, actions));
             }
 
+            JettyWebAppJACCContext context = (JettyWebAppJACCContext) getWebApplicationContext();
             RoleMappingConfiguration roleMapper = (RoleMappingConfiguration) configuration;
-            Iterator rollMappings = security.getRollMappings().iterator();
+            Iterator rollMappings = security.getRoleMappings().iterator();
             while (rollMappings.hasNext()) {
                 Role role = (Role) rollMappings.next();
+                String roleName = role.getRoleName();
 
-                if (!securityRoles.contains(role.getRoleName())) throw new GeronimoSecurityException("Role does not exist in this configuration");
+                if (!securityRoles.contains(roleName)) throw new GeronimoSecurityException("Role does not exist in this configuration");
+
+                Subject roleDesignate = new Subject();
 
                 Iterator realms = role.getRealms().iterator();
                 while (realms.hasNext()) {
@@ -273,27 +323,31 @@ public class JettyXMLConfiguration extends XMLConfiguration {
                     while (principals.hasNext()) {
                         Principal principal = (Principal) principals.next();
 
-                        Class clazz = Class.forName(principal.getClassName());
-                        Constructor constructor = clazz.getDeclaredConstructor(new Class[]{String.class});
-                        java.security.Principal p = (java.security.Principal) constructor.newInstance(new Object[]{principal.getPrincipalName()});
-                        principalSet.add(new RealmPrincipal(realm.getRealmName(), p));
+                        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, realm.getRealmName());
+
+                        if (realmPrincipal == null) throw new GeronimoSecurityException("Unable to create realm principal");
+
+                        principalSet.add(realmPrincipal);
+                        if (principal.isDesignatedRunAs()) roleDesignate.getPrincipals().add(realmPrincipal);
                     }
-                    roleMapper.addRoleMapping(role.getRoleName(), principalSet);
+                    roleMapper.addRoleMapping(roleName, principalSet);
+                }
+
+                if (roleDesignate.getPrincipals().size() > 0) context.setRoleDesignate(roleName, roleDesignate);
+            }
+
+            Iterator keys = roleRefs.keySet().iterator();
+            while (keys.hasNext()) {
+                String roleLink = (String) keys.next();
+                iter = ((Set) roleRefs.get(roleLink)).iterator();
+
+                while (iter.hasNext()) {
+                    configuration.addToRole(roleLink, (WebRoleRefPermission) iter.next());
                 }
             }
         } catch (ClassCastException cce) {
             throw new GeronimoSecurityException("Policy configuration object does not implement RoleMappingConfiguration", cce.getCause());
         } catch (PolicyContextException e) {
-            throw new GeronimoSecurityException(e);
-        } catch (IllegalAccessException e) {
-            throw new GeronimoSecurityException(e);
-        } catch (NoSuchMethodException e) {
-            throw new GeronimoSecurityException(e);
-        } catch (InvocationTargetException e) {
-            throw new GeronimoSecurityException(e);
-        } catch (InstantiationException e) {
-            throw new GeronimoSecurityException(e);
-        } catch (ClassNotFoundException e) {
             throw new GeronimoSecurityException(e);
         }
     }

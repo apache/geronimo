@@ -23,10 +23,6 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Set;
 import javax.resource.ResourceException;
-import javax.security.jacc.PolicyConfiguration;
-import javax.security.jacc.PolicyConfigurationFactory;
-import javax.security.jacc.PolicyContext;
-import javax.security.jacc.PolicyContextException;
 import javax.transaction.TransactionManager;
 
 import org.apache.commons.logging.Log;
@@ -38,8 +34,6 @@ import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.config.ConfigurationParent;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
-import org.apache.geronimo.security.GeronimoSecurityException;
-import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.transaction.DefaultInstanceContext;
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
@@ -54,17 +48,16 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
- * @version $Revision: 1.22 $ $Date: 2004/06/23 07:24:33 $
+ * @version $Revision: 1.1 $ $Date: 2004/06/27 20:37:38 $
  */
-public class JettyWebApplicationContext extends WebApplicationContext implements GBeanLifecycle {
+public class JettyWebAppContext extends WebApplicationContext implements GBeanLifecycle {
 
-    private static Log log = LogFactory.getLog(JettyWebApplicationContext.class);
+    private static Log log = LogFactory.getLog(JettyWebAppContext.class);
 
     private final ConfigurationParent config;
     private final URI uri;
     private final JettyContainer container;
     private final ReadOnlyContext componentContext;
-    private final String policyContextID;
     private final TransactionManager txManager;
     private final TrackedConnectionAssociator associator;
     private final UserTransactionImpl userTransaction;
@@ -75,19 +68,15 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
     private final Set applicationManagedSecurityResources;
 
     private boolean contextPriorityClassLoader = false;
-    private Security securityConfig;
-    private PolicyConfigurationFactory factory;
-    private PolicyConfiguration policyConfiguration;
 
-    public JettyWebApplicationContext() {
-        this(null, null, null, null, null, null, null, null, null, null, null);
+    public JettyWebAppContext() {
+        this(null, null, null, null, null, null, null, null, null, null);
     }
 
-    public JettyWebApplicationContext(ConfigurationParent config,
+    public JettyWebAppContext(ConfigurationParent config,
             URI uri,
             JettyContainer container,
             ReadOnlyContext compContext,
-            String policyContextID,
             Set unshareableResources,
             Set applicationManagedSecurityResources,
             TransactionManager txManager,
@@ -99,7 +88,6 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
         this.uri = uri;
         this.container = container;
         this.componentContext = compContext;
-        this.policyContextID = policyContextID;
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
         this.txManager = txManager;
@@ -108,10 +96,6 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
         this.classLoader = classLoader;
 
         setConfiguration(new JettyXMLConfiguration(this));
-    }
-
-    public String getPolicyContextID() {
-        return policyContextID;
     }
 
     /**
@@ -132,14 +116,6 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
      */
     public void setContextPriorityClassLoader(boolean b) {
         contextPriorityClassLoader = b;
-    }
-
-    public Security getSecurityConfig() {
-        return securityConfig;
-    }
-
-    public void setSecurityConfig(Security securityConfig) {
-        this.securityConfig = securityConfig;
     }
 
     /**
@@ -170,16 +146,12 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
 
         // save previous state
         ReadOnlyContext oldComponentContext = RootContext.getComponentContext();
-        String oldPolicyContextID = PolicyContext.getContextID();
 
         InstanceContext oldInstanceContext = null;
 
         try {
             // set up java:comp JNDI Context
             RootContext.setComponentContext(componentContext);
-
-            // set up Security Context
-            PolicyContext.setContextID(policyContextID);
 
             // Turn on the UserTransaction
             userTransaction.setOnline(true);
@@ -201,19 +173,9 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
                 throw new RuntimeException(e);
             } finally {
                 userTransaction.setOnline(false);
-                PolicyContext.setContextID(oldPolicyContextID);
                 RootContext.setComponentContext(oldComponentContext);
             }
         }
-    }
-
-    public boolean checkSecurityConstraints(String pathInContext, HttpRequest request, HttpResponse response) throws HttpException, IOException {
-
-        // todo: copy in JACC code
-        if (!super.checkSecurityConstraints(pathInContext, request, response) || !jSecurityCheck(pathInContext, request, response)) {
-            return false;
-        }
-        return true;
     }
 
     public void doStart() throws WaitingException, Exception {
@@ -238,21 +200,7 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
             Thread.currentThread().setContextClassLoader(oldCL);
         }
 
-        try {
-            factory = PolicyConfigurationFactory.getPolicyConfigurationFactory();
-
-            policyConfiguration = factory.getPolicyConfiguration(policyContextID, true);
-            ((JettyXMLConfiguration) this.getConfiguration()).configure(policyConfiguration, securityConfig);
-            policyConfiguration.commit();
-        } catch (ClassNotFoundException e) {
-            // do nothing
-        } catch (PolicyContextException e) {
-            // do nothing
-        } catch (GeronimoSecurityException e) {
-            // do nothing
-        }
-
-        log.info("JettyWebApplicationContext started");
+        log.info("JettyWebAppContext started");
     }
 
     public void doStop() throws WaitingException, Exception {
@@ -270,9 +218,7 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
             userTransaction.setOnline(false);
         }
 
-        if (policyConfiguration != null) policyConfiguration.delete();
-
-        log.info("JettyWebApplicationContext stopped");
+        log.info("JettyWebAppContext stopped");
     }
 
     public void doFail() {
@@ -283,26 +229,18 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
         }
         container.removeContext(this);
 
-        try {
-            if (policyConfiguration != null) policyConfiguration.delete();
-        } catch (PolicyContextException e) {
-            // do nothing
-        }
-
-        log.info("JettyWebApplicationContext failed");
+        log.info("JettyWebAppContext failed");
     }
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty WebApplication Context", JettyWebApplicationContext.class);
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty WebApplication Context", JettyWebAppContext.class);
 
         infoFactory.addAttribute("URI", URI.class, true);
         infoFactory.addAttribute("ContextPath", String.class, true);
         infoFactory.addAttribute("ContextPriorityClassLoader", Boolean.TYPE, true);
-        infoFactory.addAttribute("SecurityConfig", Security.class, true);
         infoFactory.addAttribute("ComponentContext", ReadOnlyContext.class, true);
-        infoFactory.addAttribute("PolicyContextID", String.class, true);
         infoFactory.addAttribute("UnshareableResources", Set.class, true);
         infoFactory.addAttribute("ApplicationManagedSecurityResources", Set.class, true);
         infoFactory.addAttribute("UserTransaction", UserTransactionImpl.class, true);
@@ -318,7 +256,6 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
             "URI",
             "JettyContainer",
             "ComponentContext",
-            "PolicyContextID",
             "UnshareableResources",
             "ApplicationManagedSecurityResources",
             "TransactionManager",
