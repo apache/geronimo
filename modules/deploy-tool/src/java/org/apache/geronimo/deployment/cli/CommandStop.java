@@ -17,9 +17,12 @@
 
 package org.apache.geronimo.deployment.cli;
 
+import org.apache.geronimo.common.DeploymentException;
+
 import java.io.PrintWriter;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.DeploymentManager;
+import javax.enterprise.deploy.spi.status.ProgressObject;
 
 /**
  * The CLI deployer logic to stop.
@@ -39,8 +42,10 @@ public class CommandStop extends CommandStart {
                 "start next time the server is started.");
     }
 
-    protected TargetModuleID[] runCommand(PrintWriter out, DeploymentManager mgr, TargetModuleID[] ids) {
-        return waitForProgress(out, mgr.stop(ids));
+    protected ProgressObject runCommand(PrintWriter out, DeploymentManager mgr, TargetModuleID[] ids) {
+        ProgressObject po = mgr.stop(ids);
+        waitForProgress(out, po);
+        return po;
     }
 
     protected String getAction() {

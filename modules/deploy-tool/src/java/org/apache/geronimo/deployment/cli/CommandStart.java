@@ -26,6 +26,7 @@ import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
+import javax.enterprise.deploy.spi.status.ProgressObject;
 
 /**
  * The CLI deployer logic to start.
@@ -69,15 +70,21 @@ public class CommandStart extends AbstractCommand {
         }
         TargetModuleID[] ids = (TargetModuleID[]) modules.toArray(new TargetModuleID[modules.size()]);
         boolean multiple = isMultipleTargets(ids);
-        TargetModuleID[] done = runCommand(out, mgr, ids);
+        ProgressObject po = runCommand(out, mgr, ids);
+        TargetModuleID[] done = po.getResultTargetModuleIDs();
         for(int i = 0; i < done.length; i++) {
             TargetModuleID id = done[i];
             out.println(getAction()+" "+id.getModuleID()+(multiple ? " on "+id.getTarget().getName() : ""));
         }
+        if(po.getDeploymentStatus().isFailed()) {
+            throw new DeploymentException("Deployment failed, Server reports: "+po.getDeploymentStatus().getMessage());
+        }
     }
 
-    protected TargetModuleID[] runCommand(PrintWriter out, DeploymentManager mgr, TargetModuleID[] ids) {
-        return waitForProgress(out, mgr.start(ids));
+    protected ProgressObject runCommand(PrintWriter out, DeploymentManager mgr, TargetModuleID[] ids) {
+        ProgressObject po = mgr.start(ids);
+        waitForProgress(out, po);
+        return po;
     }
 
     protected String getAction() {

@@ -27,6 +27,7 @@ import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
+import javax.enterprise.deploy.spi.status.ProgressObject;
 
 /**
  * The CLI deployer logic to redeploy.
@@ -109,10 +110,15 @@ public class CommandRedeploy extends AbstractCommand {
         }
         TargetModuleID[] ids = (TargetModuleID[]) modules.toArray(new TargetModuleID[modules.size()]);
         boolean multiple = isMultipleTargets(ids);
-        TargetModuleID[] done = waitForProgress(out, mgr.redeploy(ids, module, plan));
+        ProgressObject po = mgr.redeploy(ids, module, plan);
+        waitForProgress(out, po);
+        TargetModuleID[] done = po.getResultTargetModuleIDs();
         for(int i = 0; i < done.length; i++) {
             TargetModuleID id = done[i];
             out.println("Redeployed "+id.getModuleID()+(multiple ? " on "+id.getTarget().getName() : ""));
+        }
+        if(po.getDeploymentStatus().isFailed()) {
+            throw new DeploymentException("Deployment failed, Server reports: "+po.getDeploymentStatus().getMessage());
         }
     }
 }

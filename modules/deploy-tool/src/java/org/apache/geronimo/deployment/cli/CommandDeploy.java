@@ -51,8 +51,9 @@ public class CommandDeploy extends CommandDistribute {
     }
 
     protected ProgressObject runCommand(DeploymentManager mgr, PrintWriter out, Target[] tlist, File module, File plan) {
-        TargetModuleID[] modules = waitForProgress(out, mgr.distribute(tlist, module, plan));
-        return mgr.start(modules);
+        ProgressObject po = mgr.distribute(tlist, module, plan);
+        waitForProgress(out, po);
+        return mgr.start(po.getResultTargetModuleIDs());
     }
 
     public void execute(PrintWriter out, ServerConnection connection, String[] args) throws DeploymentException {

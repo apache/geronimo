@@ -20,6 +20,8 @@ package org.apache.geronimo.deployment.cli;
 import java.io.PrintWriter;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.DeploymentManager;
+import javax.enterprise.deploy.spi.status.ProgressObject;
+import org.apache.geronimo.common.DeploymentException;
 
 /**
  * the CLI deployer logic to undeploy.
@@ -36,8 +38,10 @@ public class CommandUndeploy extends CommandStart {
                 "all be undeployed.");
     }
 
-    protected TargetModuleID[] runCommand(PrintWriter out, DeploymentManager mgr, TargetModuleID[] ids) {
-        return waitForProgress(out, mgr.undeploy(ids));
+    protected ProgressObject runCommand(PrintWriter out, DeploymentManager mgr, TargetModuleID[] ids) {
+        ProgressObject po = mgr.undeploy(ids);
+        waitForProgress(out, po);
+        return po;
     }
 
     protected String getAction() {

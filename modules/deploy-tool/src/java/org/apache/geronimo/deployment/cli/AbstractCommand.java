@@ -69,19 +69,24 @@ public abstract class AbstractCommand implements DeployCommand {
         return false;
     }
 
-    protected static TargetModuleID[] waitForProgress(PrintWriter out, ProgressObject po) {
+    /**
+     * Busy-waits until the provided <code>ProgressObject</code>
+     * indicates that it's no longer running.
+     *
+     * @param out a <code>PrintWriter</code> value, only used in case
+     * of an <code>InterruptedException</code> to output the stack
+     * trace.
+     * @param po a <code>ProgressObject</code> value
+     */
+    protected static void waitForProgress(PrintWriter out, ProgressObject po) {
         while(po.getDeploymentStatus().isRunning()) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                e.printStackTrace(out);
             }
         }
-        if(po.getDeploymentStatus().isFailed()) {
-            out.println("Deployment failed");
-            out.println("  Server reports: "+po.getDeploymentStatus().getMessage());
-        }
-        return po.getResultTargetModuleIDs();
+        return;
     }
 
     protected static boolean isMultipleTargets(TargetModuleID[] ids) {

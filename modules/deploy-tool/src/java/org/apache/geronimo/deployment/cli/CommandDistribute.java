@@ -131,18 +131,30 @@ public class CommandDistribute extends AbstractCommand {
         final DeploymentManager mgr = connection.getDeploymentManager();
         TargetModuleID[] results;
         boolean multipleTargets;
+        ProgressObject po;
         if(targets.size() > 0) {
             Target[] tlist = identifyTargets(targets, mgr);
             multipleTargets = tlist.length > 1;
-            results = waitForProgress(out, runCommand(mgr, out, tlist, module, plan));
+            po = runCommand(mgr, out, tlist, module, plan);
+            waitForProgress(out, po);
         } else {
             final Target[] tlist = mgr.getTargets();
             multipleTargets = tlist.length > 1;
-            results = waitForProgress(out, runCommand(mgr, out, tlist, module, plan));
+            po = runCommand(mgr, out, tlist, module, plan);
+            waitForProgress(out, po);
         }
+
+        // print the results that succeeded
+        results = po.getResultTargetModuleIDs();
         for (int i = 0; i < results.length; i++) {
             TargetModuleID result = results[i];
             out.println(getAction()+" "+result.getModuleID()+(multipleTargets ? " to "+result.getTarget().getName() : ""));
+        }
+
+        // if any results failed then throw so that we'll return non-0
+        // to the operating system
+        if(po.getDeploymentStatus().isFailed()) {
+            throw new DeploymentException("Deployment failed, Server reports: "+po.getDeploymentStatus().getMessage());
         }
     }
 
