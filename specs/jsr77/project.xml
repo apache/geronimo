@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: project.xml,v 1.1 2003/08/14 16:13:44 jdillon Exp $ -->
+<!-- $Id: project.xml,v 1.2 2003/08/14 17:06:40 jdillon Exp $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -16,5 +16,31 @@
   
   <package>javax.management.j2ee</package>
   <currentVersion>DEV</currentVersion>
-
+  
+  
+  <!-- ============ -->
+  <!-- Dependencies -->
+  <!-- ============ -->
+  
+  <dependencies>
+    
+    <!-- Module Dependencies -->
+    
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-j2ee</artifactId>
+      <version>DEV</version>
+    </dependency>
+    
+    <!-- Thirdparty -->
+    
+    <dependency>
+      <groupId>mx4j</groupId>
+      <artifactId>mx4j-jmx</artifactId>
+      <version>SNAPSHOT</version>
+      <url>http://mx4j.sourceforge.net</url>
+    </dependency>
+    
+  </dependencies>
+  
 </project>
