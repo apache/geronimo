@@ -100,7 +100,7 @@ public final class GBeanMBeanOperation {
                 returnType = javaMethod.getReturnType();
                 methodInvoker = new FastMethodInvoker(javaMethod);
             } catch (Exception e) {
-                throw new InvalidConfigurationException("Target does not have specified method:" +
+                throw new InvalidConfigurationException("Target does not have specified method (declared in a GBeanInfo operation):" +
                         " name=" + operationInfo.getName() +
                         " methodName=" + operationInfo.getMethodName() +
                         " targetClass=" + gMBean.getType().getName());
