@@ -71,9 +71,9 @@ import javax.management.RuntimeErrorException;
 /**
  * This class handles invocations for MBean proxies.  Normally only the getObjectName method is necessary.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/13 21:18:47 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/18 22:16:25 $
  */
-abstract class AbstractMBeanProxyHandler implements InvocationHandler {
+public abstract class AbstractMBeanProxyHandler implements InvocationHandler {
     protected final MBeanServer server;
     protected final Map operationMap;
 
