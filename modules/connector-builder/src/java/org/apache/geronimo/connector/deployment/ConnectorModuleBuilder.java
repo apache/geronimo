@@ -393,7 +393,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
     private void addConnectorGBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ObjectName resourceAdapterModuleObjectName, ConnectorType connector, GerConnectorType geronimoConnector, ClassLoader cl) throws DeploymentException {
         ResourceadapterType resourceadapter = connector.getResourceadapter();
-        String transactionSupport = resourceadapter.getOutboundResourceadapter().getTransactionSupport().getStringValue().trim();
+
         GerResourceadapterType[] geronimoResourceAdapters = geronimoConnector.getResourceadapterArray();
         for (int k = 0; k < geronimoResourceAdapters.length; k++) {
             GerResourceadapterType geronimoResourceAdapter = geronimoResourceAdapters[k];
@@ -424,6 +424,10 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
             // ManagedConnectionFactory setup
             if (geronimoResourceAdapter.isSetOutboundResourceadapter()) {
+                if (!resourceadapter.isSetOutboundResourceadapter()) {
+                    throw new DeploymentException("Geronimo plan configures an outbound resource adapter but ra.xml does not describe any");
+                }
+                String transactionSupport = resourceadapter.getOutboundResourceadapter().getTransactionSupport().getStringValue().trim();
                 for (int i = 0; i < geronimoResourceAdapter.getOutboundResourceadapter().getConnectionDefinitionArray().length; i++) {
                     GerConnectionDefinitionType geronimoConnectionDefinition = geronimoResourceAdapter.getOutboundResourceadapter().getConnectionDefinitionArray(i);
                     assert geronimoConnectionDefinition != null: "Null GeronimoConnectionDefinition";
