@@ -54,17 +54,56 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl;
+package org.apache.geronimo.connector.mock;
 
-import org.apache.geronimo.connector.outbound.ConnectorComponentContext;
+import javax.resource.spi.ConnectionManager;
+import javax.resource.cci.ConnectionFactory;
+import javax.resource.cci.Connection;
+import javax.resource.cci.ConnectionSpec;
+import javax.resource.cci.RecordFactory;
+import javax.resource.cci.ResourceAdapterMetaData;
+import javax.resource.ResourceException;
+import javax.naming.Reference;
+import javax.naming.NamingException;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/23 17:34:35 $
+ * @version $Revision: 1.1 $ $Date: 2003/12/23 17:34:34 $
  *
  * */
-public interface DefaultInterceptor {
+public class MockConnectionFactory implements ConnectionFactory {
 
-    Object invoke(ConnectorComponentContext newConnectorComponentContext) throws Throwable;
+    private ConnectionManager connectionManager;
+    private MockManagedConnectionFactory managedConnectionFactory;
+    private Reference reference;
+
+    public MockConnectionFactory(MockManagedConnectionFactory managedConnectionFactory, ConnectionManager connectionManager) {
+        this.managedConnectionFactory  = managedConnectionFactory;
+        this.connectionManager = connectionManager;
+    }
+
+    public Connection getConnection() throws ResourceException {
+        return getConnection(null);
+    }
+
+    public Connection getConnection(ConnectionSpec properties) throws ResourceException {
+        return (MockConnection)connectionManager.allocateConnection(managedConnectionFactory, (MockConnectionRequestInfo)properties);
+    }
+
+    public RecordFactory getRecordFactory() throws ResourceException {
+        return null;
+    }
+
+    public ResourceAdapterMetaData getMetaData() throws ResourceException {
+        return null;
+    }
+
+    public void setReference(Reference reference) {
+        this.reference = reference;
+    }
+
+    public Reference getReference() throws NamingException {
+        return reference;
+    }
 }

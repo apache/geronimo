@@ -127,7 +127,7 @@ public class GeronimoConnectionEventListener
      * The <code>localTransactionCommitted</code> method
      *
      * @param event a <code>ConnectionEvent</code> value
-     * @todo implement this method
+     * todo implement this method
      */
     public void localTransactionCommitted(ConnectionEvent event) {
     }
@@ -136,7 +136,7 @@ public class GeronimoConnectionEventListener
      * The <code>localTransactionRolledback</code> method
      *
      * @param event a <code>ConnectionEvent</code> value
-     * @todo implement this method
+     * todo implement this method
      */
     public void localTransactionRolledback(ConnectionEvent event) {
     }

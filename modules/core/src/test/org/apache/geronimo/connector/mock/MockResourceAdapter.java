@@ -54,17 +54,44 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl;
+package org.apache.geronimo.connector.mock;
 
-import org.apache.geronimo.connector.outbound.ConnectorComponentContext;
+import javax.resource.spi.ResourceAdapter;
+import javax.resource.spi.BootstrapContext;
+import javax.resource.spi.ResourceAdapterInternalException;
+import javax.resource.spi.ActivationSpec;
+import javax.resource.spi.endpoint.MessageEndpointFactory;
+import javax.resource.ResourceException;
+import javax.transaction.xa.XAResource;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/23 17:34:35 $
+ * @version $Revision: 1.1 $ $Date: 2003/12/23 17:34:34 $
  *
  * */
-public interface DefaultInterceptor {
+public class MockResourceAdapter implements ResourceAdapter {
 
-    Object invoke(ConnectorComponentContext newConnectorComponentContext) throws Throwable;
+
+    private BootstrapContext bootstrapContext;
+
+    public void start(BootstrapContext bootstrapContext) throws ResourceAdapterInternalException {
+        assert this.bootstrapContext == null : "Attempting to restart adapter without stoppping";
+        assert bootstrapContext != null: "Null bootstrap context";
+        this.bootstrapContext = bootstrapContext;
+    }
+
+    public void stop() {
+        bootstrapContext = null;
+    }
+
+    public void endpointActivation(MessageEndpointFactory endpointFactory, ActivationSpec spec) throws ResourceException {
+    }
+
+    public void endpointDeactivation(MessageEndpointFactory endpointFactory, ActivationSpec spec) {
+    }
+
+    public XAResource[] getXAResources(ActivationSpec[] specs) throws ResourceException {
+        return new XAResource[0];
+    }
 }

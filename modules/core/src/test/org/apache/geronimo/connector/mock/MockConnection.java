@@ -54,17 +54,84 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl;
+package org.apache.geronimo.connector.mock;
 
-import org.apache.geronimo.connector.outbound.ConnectorComponentContext;
+import javax.security.auth.Subject;
+import javax.resource.cci.Connection;
+import javax.resource.cci.Interaction;
+import javax.resource.cci.LocalTransaction;
+import javax.resource.cci.ConnectionMetaData;
+import javax.resource.cci.ResultSetInfo;
+import javax.resource.ResourceException;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/23 17:34:35 $
+ * @version $Revision: 1.1 $ $Date: 2003/12/23 17:34:34 $
  *
  * */
-public interface DefaultInterceptor {
+public class MockConnection implements Connection {
 
-    Object invoke(ConnectorComponentContext newConnectorComponentContext) throws Throwable;
+    private MockManagedConnection managedConnection;
+    private Subject subject;
+    private MockConnectionRequestInfo connectionRequestInfo;
+
+    private boolean closed;
+
+
+    public MockConnection(MockManagedConnection managedConnection, Subject subject, MockConnectionRequestInfo connectionRequestInfo) {
+        this.managedConnection = managedConnection;
+        this.subject = subject;
+        this.connectionRequestInfo = connectionRequestInfo;
+    }
+
+    public Interaction createInteraction() throws ResourceException {
+        return null;
+    }
+
+    public LocalTransaction getLocalTransaction() throws ResourceException {
+        return new MockCCILocalTransaction(this);
+    }
+
+    public ConnectionMetaData getMetaData() throws ResourceException {
+        return null;
+    }
+
+    public ResultSetInfo getResultSetInfo() throws ResourceException {
+        return null;
+    }
+
+    public void close() throws ResourceException {
+        closed = true;
+        managedConnection.removeHandle(this);
+        managedConnection.closedEvent(this);
+    }
+
+    public void error() {
+        managedConnection.errorEvent(this);
+    }
+
+    public MockManagedConnection getManagedConnection() {
+        return managedConnection;
+    }
+
+    public Subject getSubject() {
+        return subject;
+    }
+
+    public MockConnectionRequestInfo getConnectionRequestInfo() {
+        return connectionRequestInfo;
+    }
+
+    public boolean isClosed() {
+        return closed;
+    }
+
+    public void reassociate(MockManagedConnection mockManagedConnection) {
+        assert managedConnection != null;
+        managedConnection.removeHandle(this);
+        managedConnection = mockManagedConnection;
+        subject = mockManagedConnection.getSubject();
+        connectionRequestInfo = mockManagedConnection.getConnectionRequestInfo();
+    }
 }

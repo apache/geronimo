@@ -54,17 +54,66 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl;
+package org.apache.geronimo.connector.mock;
 
-import org.apache.geronimo.connector.outbound.ConnectorComponentContext;
+import javax.resource.spi.LocalTransaction;
+import javax.resource.ResourceException;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/23 17:34:35 $
+ * @version $Revision: 1.1 $ $Date: 2003/12/23 17:34:34 $
  *
  * */
-public interface DefaultInterceptor {
+public class MockSPILocalTransaction implements LocalTransaction {
 
-    Object invoke(ConnectorComponentContext newConnectorComponentContext) throws Throwable;
+
+    private boolean inTransaction;
+    private boolean begun;
+    private boolean committed;
+    private boolean rolledBack;
+
+    public MockSPILocalTransaction() {
+    }
+
+    public void begin() throws ResourceException {
+        assert !inTransaction;
+        inTransaction = true;
+        begun = true;
+    }
+
+    public void commit() throws ResourceException {
+        assert inTransaction;
+        inTransaction = false;
+        committed = true;
+    }
+
+    public void rollback() throws ResourceException {
+        assert inTransaction;
+        inTransaction = false;
+        rolledBack = true;
+    }
+
+    public void reset() {
+        inTransaction = false;
+        begun = false;
+        committed = false;
+        rolledBack = false;
+    }
+
+    public boolean isInTransaction() {
+        return inTransaction;
+    }
+
+    public boolean isBegun() {
+        return begun;
+    }
+
+    public boolean isCommitted() {
+        return committed;
+    }
+
+    public boolean isRolledBack() {
+        return rolledBack;
+    }
 }

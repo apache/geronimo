@@ -54,17 +54,37 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl;
+package org.apache.geronimo.connector.mock;
 
-import org.apache.geronimo.connector.outbound.ConnectorComponentContext;
+import javax.resource.cci.LocalTransaction;
+import javax.resource.ResourceException;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/23 17:34:35 $
+ * @version $Revision: 1.1 $ $Date: 2003/12/23 17:34:34 $
  *
  * */
-public interface DefaultInterceptor {
+public class MockCCILocalTransaction extends MockSPILocalTransaction implements LocalTransaction {
 
-    Object invoke(ConnectorComponentContext newConnectorComponentContext) throws Throwable;
+    private final MockConnection mockConnection;
+
+    public MockCCILocalTransaction(MockConnection mockConnection) {
+        this.mockConnection = mockConnection;
+    }
+
+    public void begin() throws ResourceException {
+        super.begin();
+        mockConnection.getManagedConnection().localTransactionStartedEvent(mockConnection);
+    }
+
+    public void commit() throws ResourceException {
+        super.commit();
+        mockConnection.getManagedConnection().localTransactionCommittedEvent(mockConnection);
+    }
+
+    public void rollback() throws ResourceException {
+        super.rollback();
+        mockConnection.getManagedConnection().localTransactionRolledBackEvent(mockConnection);
+    }
 }

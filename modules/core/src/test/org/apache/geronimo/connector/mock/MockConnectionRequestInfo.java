@@ -54,17 +54,16 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl;
+package org.apache.geronimo.connector.mock;
 
-import org.apache.geronimo.connector.outbound.ConnectorComponentContext;
+import javax.resource.spi.ConnectionRequestInfo;
+import javax.resource.cci.ConnectionSpec;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/23 17:34:35 $
+ * @version $Revision: 1.1 $ $Date: 2003/12/23 17:34:34 $
  *
  * */
-public interface DefaultInterceptor {
-
-    Object invoke(ConnectorComponentContext newConnectorComponentContext) throws Throwable;
+public class MockConnectionRequestInfo implements ConnectionRequestInfo, ConnectionSpec {
 }

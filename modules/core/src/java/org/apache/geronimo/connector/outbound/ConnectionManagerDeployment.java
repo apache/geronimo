@@ -78,7 +78,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
  * and connection manager stack according to the policies described in the attributes.
  * It's used by deserialized copies of the proxy to get a reference to the actual stack.
  *
- * @version $Revision: 1.5 $ $Date: 2003/12/13 23:33:53 $
+ * @version $Revision: 1.6 $ $Date: 2003/12/23 17:34:35 $
  * */
 public class ConnectionManagerDeployment
 
@@ -101,27 +101,44 @@ public class ConnectionManagerDeployment
     private boolean useTransactions;
     private int maxSize;
     private int blockingTimeout;
-
-
-    //dependencies
-
-    /**
-     * (proxy for) the security domain object
-     */
-    private SecurityDomain securityDomain;
-
     /**
      * Identifying string used by unshareable resource detection
      */
     private String jndiName;
+    //dependencies
+    private SecurityDomain securityDomain;
+    private ConnectionTracker connectionTracker;
 
+    //GeronimoMBeanTarget support.
     private GeronimoMBeanContext context;
 
+    //default constructor for normal use as mbean
+    public ConnectionManagerDeployment() {
+    }
 
-    /**
-     * Actual CachedConnectionManager we relate to.
-     */
-    private ConnectionTracker connectionTracker;
+    //constructor primarily for testing.  Connection manager/connection factory will not be serializable.
+    public ConnectionManagerDeployment(boolean useConnectionRequestInfo,
+     boolean useSubject,
+     boolean useTransactionCaching,
+     boolean useLocalTransactions,
+     boolean useTransactions,
+     int maxSize,
+     int blockingTimeout,
+     SecurityDomain securityDomain,
+     String jndiName,
+     ConnectionTracker connectionTracker) {
+        this.useConnectionRequestInfo = useConnectionRequestInfo;
+        this.useLocalTransactions = useLocalTransactions;
+        this.useSubject = useSubject;
+        this.useTransactionCaching = useTransactionCaching;
+        this.useTransactions = useTransactions;
+        this.maxSize = maxSize;
+        this.blockingTimeout = blockingTimeout;
+        this.securityDomain = securityDomain;
+        this.jndiName = jndiName;
+        this.connectionTracker = connectionTracker;
+        setUpConnectionManager(null, null);
+    }
 
     public void setMBeanContext(GeronimoMBeanContext context) {
         this.context = context;
@@ -129,6 +146,19 @@ public class ConnectionManagerDeployment
 
     public boolean canStart() {
         return true;
+    }
+
+    public void doStart() {
+        ObjectName connectionManagerName = context.getObjectName();
+        String agentID;
+        try {
+            ObjectName name = ObjectName.getInstance(MBEAN_SERVER_DELEGATE);
+            agentID = (String) context.getServer().getAttribute(name, "MBeanServerId");
+        } catch (Exception e) {
+            throw new RuntimeException("Problem getting agentID from MBeanServerDelegate", e);
+        }
+        setUpConnectionManager(agentID, connectionManagerName);
+
     }
 
     /**
@@ -143,7 +173,7 @@ public class ConnectionManagerDeployment
      * LocalXAResourceInsertionInterceptor or XAResourceInsertionInterceptor (useTransactions (&localTransactions))
      * MCFConnectionInterceptor
      */
-    public void doStart() {
+    private void setUpConnectionManager(String agentID, ObjectName connectionManagerName) {
         //check for consistency between attributes
         if (securityDomain == null) {
             assert useSubject == false: "To use Subject in pooling, you need a SecurityDomain";
@@ -191,14 +221,7 @@ public class ConnectionManagerDeployment
                     securityDomain);
         }
 
-        ObjectName name = JMXUtil.getObjectName(MBEAN_SERVER_DELEGATE);
-        try {
-            String agentID = (String) context.getServer().getAttribute(name, "MBeanServerId");
-            cm = new ProxyConnectionManager(agentID, context.getObjectName(), stack);
-        } catch (Exception e) {
-            throw new RuntimeException("Problem getting agentID from MBeanServerDelegate", e);
-        }
-
+        cm = new ProxyConnectionManager(agentID, connectionManagerName, stack);
     }
 
     public boolean canStop() {

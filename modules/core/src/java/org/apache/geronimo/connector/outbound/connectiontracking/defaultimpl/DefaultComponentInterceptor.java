@@ -71,7 +71,7 @@ import org.apache.geronimo.connector.outbound.ConnectorTransactionContext;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/10 09:39:46 $
+ * @version $Revision: 1.3 $ $Date: 2003/12/23 17:34:35 $
  *
  * */
 public class DefaultComponentInterceptor implements DefaultInterceptor{
@@ -101,6 +101,7 @@ public class DefaultComponentInterceptor implements DefaultInterceptor{
             newConnectorTransactionContext = (ConnectorTransactionContext) transactionToTransactionContextMap.get(transaction);
             if (newConnectorTransactionContext == null) {
                 newConnectorTransactionContext = new DefaultTransactionContext(transaction);
+                transactionToTransactionContextMap.put(transaction,  newConnectorTransactionContext);
             }
         }
         Set oldUnshareableResources = cachedConnectionAssociator.setUnshareableResources(unshareableResources);
