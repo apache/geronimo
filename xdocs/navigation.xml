@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.27 $ $Date: 2004/07/14 00:36:43 $ -->
+<!-- $Revision: 1.28 $ $Date: 2004/09/10 20:09:59 $ -->
 
 <project name="Apache Geronimo">
 
@@ -60,7 +60,6 @@
       <item name="Deployment"               href="/modules/deployment/index.html"/>
       <item name="Jetty"                    href="/modules/jetty/index.html"/>
       <item name="Kernel"                   href="/modules/kernel/index.html"/>
-      <item name="Mail"                     href="/modules/mail/index.html"/>
       <item name="Naming"                   href="/modules/naming/index.html"/>
       <item name="Network"                  href="/modules/network/index.html"/>
       <item name="Remoting"                 href="/modules/remoting/index.html"/>
