@@ -68,28 +68,31 @@ import javax.security.jacc.PolicyContextHandler;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebUserDataPermission;
 
-import org.apache.geronimo.deployment.model.ejb.AssemblyDescriptor;
-import org.apache.geronimo.deployment.model.ejb.EnterpriseBeans;
-import org.apache.geronimo.deployment.model.ejb.Entity;
-import org.apache.geronimo.deployment.model.ejb.ExcludeList;
-import org.apache.geronimo.deployment.model.ejb.Method;
-import org.apache.geronimo.deployment.model.ejb.MethodPermission;
-import org.apache.geronimo.deployment.model.ejb.RpcBean;
-import org.apache.geronimo.deployment.model.ejb.Session;
-import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
-import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
-import org.apache.geronimo.deployment.model.j2ee.SecurityRole;
-import org.apache.geronimo.deployment.model.j2ee.SecurityRoleRef;
-import org.apache.geronimo.deployment.model.web.SecurityConstraint;
-import org.apache.geronimo.deployment.model.web.WebResourceCollection;
 import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.geronimo.xbeans.j2ee.AssemblyDescriptorType;
+import org.apache.geronimo.xbeans.j2ee.EjbJarType;
+import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
+import org.apache.geronimo.xbeans.j2ee.EntityBeanType;
+import org.apache.geronimo.xbeans.j2ee.ExcludeListType;
+import org.apache.geronimo.xbeans.j2ee.HttpMethodType;
+import org.apache.geronimo.xbeans.j2ee.JavaTypeType;
+import org.apache.geronimo.xbeans.j2ee.MethodPermissionType;
+import org.apache.geronimo.xbeans.j2ee.MethodType;
+import org.apache.geronimo.xbeans.j2ee.RoleNameType;
+import org.apache.geronimo.xbeans.j2ee.SecurityConstraintType;
+import org.apache.geronimo.xbeans.j2ee.SecurityRoleRefType;
+import org.apache.geronimo.xbeans.j2ee.SecurityRoleType;
+import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
+import org.apache.geronimo.xbeans.j2ee.UrlPatternType;
+import org.apache.geronimo.xbeans.j2ee.WebAppType;
+import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
 
 
 /**
  * A collection of utility functions that assist with the configuration of
  * <code>PolicyConfiguration</code>s.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:08 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/12 08:14:05 $
  * @see javax.security.jacc.PolicyConfiguration
  *  @see "JSR 115" Java Authorization Contract for Containers
  */
@@ -125,10 +128,10 @@ public class ConfigurationUtil {
      * @see javax.security.jacc.PolicyConfiguration
      * @see "Java Authorization Contract for Containers", section 3.1.3
      */
-    public static void configure(PolicyConfiguration configuration, WebApp webApp) throws GeronimoSecurityException {
+    public static void configure(PolicyConfiguration configuration, WebAppType webApp) throws GeronimoSecurityException {
 
         HashSet securityRoles = new HashSet();
-        SecurityRole[] securityRolesArray = webApp.getSecurityRole();
+        SecurityRoleType[] securityRolesArray = webApp.getSecurityRoleArray();
         for (int i = 0; i < securityRolesArray.length; i++) {
             securityRoles.add(securityRolesArray[i].getRoleName());
         }
@@ -139,13 +142,13 @@ public class ConfigurationUtil {
         HashSet allSet = new HashSet();
         HashMap allMap = new HashMap();
 
-        SecurityConstraint[] s = webApp.getSecurityConstraint();
+        SecurityConstraintType[] s = webApp.getSecurityConstraintArray();
         for (int i = 0; i < s.length; i++) {
 
             HashMap currentPatterns;
             if (s[i].getAuthConstraint() == null) {
                 currentPatterns = uncheckedPatterns;
-            } else if (s[i].getAuthConstraint().getRoleName().length == 0) {
+            } else if (s[i].getAuthConstraint().getRoleNameArray().length == 0) {
                 currentPatterns = excludedPatterns;
             } else {
                 currentPatterns = rolesPatterns;
@@ -153,30 +156,30 @@ public class ConfigurationUtil {
 
             String transport = "";
             if (s[i].getUserDataConstraint() != null) {
-                transport = s[i].getUserDataConstraint().getTransportGuarantee();
+                transport = s[i].getUserDataConstraint().getTransportGuarantee().getStringValue();
             }
 
-            WebResourceCollection[] collection = s[i].getWebResourceCollection();
+            WebResourceCollectionType[] collection = s[i].getWebResourceCollectionArray();
             for (int j = 0; j < collection.length; j++) {
-                String[] methods = collection[j].getHttpMethod();
-                String[] patterns = collection[j].getUrlPattern();
+                HttpMethodType[] methods = collection[j].getHttpMethodArray();
+                UrlPatternType[] patterns = collection[j].getUrlPatternArray();
                 for (int k = 0; k < patterns.length; k++) {
                     URLPattern pattern = (URLPattern) currentPatterns.get(patterns[k]);
                     if (pattern == null) {
-                        pattern = new URLPattern(patterns[k]);
-                        currentPatterns.put(patterns[k], pattern);
+                        pattern = new URLPattern(patterns[k].getStringValue());
+                        currentPatterns.put(patterns[k].getStringValue(), pattern);
                     }
 
-                    URLPattern allPattern = (URLPattern) allMap.get(patterns[k]);
+                    URLPattern allPattern = (URLPattern) allMap.get(patterns[k].getStringValue());
                     if (allPattern == null) {
-                        allPattern = new URLPattern(patterns[k]);
+                        allPattern = new URLPattern(patterns[k].getStringValue());
                         allSet.add(allPattern);
-                        allMap.put(patterns[k], allPattern);
+                        allMap.put(patterns[k].getStringValue(), allPattern);
                     }
 
                     for (int l = 0; l < methods.length; l++) {
-                        pattern.addMethod(methods[l]);
-                        allPattern.addMethod(methods[l]);
+                        pattern.addMethod(methods[l].getStringValue());
+                        allPattern.addMethod(methods[l].getStringValue());
                     }
 
                     if (methods.length == 0) {
@@ -185,12 +188,12 @@ public class ConfigurationUtil {
                     }
 
                     if (currentPatterns == rolesPatterns) {
-                        String[] roles = s[i].getAuthConstraint().getRoleName();
+                        RoleNameType[] roles = s[i].getAuthConstraint().getRoleNameArray();
                         for (int l = 0; l < roles.length; l++) {
-                            if (roles[l].equals("*")) {
+                            if (roles[l].getStringValue().equals("*")) {
                                 pattern.addAllRoles(securityRoles);
                             } else {
-                                pattern.addRole(roles[l]);
+                                pattern.addRole(roles[l].getStringValue());
                             }
                         }
                     }
@@ -299,38 +302,38 @@ public class ConfigurationUtil {
         }
     }
 
-    public static void configure(PolicyConfiguration configuration, EjbJar ejbJar) throws GeronimoSecurityException {
+    public static void configure(PolicyConfiguration configuration, EjbJarType ejbJar) throws GeronimoSecurityException {
 
-        EnterpriseBeans enterpriseBeans = ejbJar.getEnterpriseBeans();
-        Entity[] entityBeans = enterpriseBeans.getEntity();
-        Session[] sessionBeans = enterpriseBeans.getSession();
+        EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
+        EntityBeanType[] entityBeans = enterpriseBeans.getEntityArray();
+        SessionBeanType[] sessionBeans = enterpriseBeans.getSessionArray();
 
-        AssemblyDescriptor assemblyDescriptor = ejbJar.getAssemblyDescriptor();
-        MethodPermission[] methodPermissions = assemblyDescriptor.getMethodPermission();
-        ExcludeList excludeList = assemblyDescriptor.getExcludeList();
+        AssemblyDescriptorType assemblyDescriptor = ejbJar.getAssemblyDescriptor();
+        MethodPermissionType[] methodPermissions = assemblyDescriptor.getMethodPermissionArray();
+        ExcludeListType excludeList = assemblyDescriptor.getExcludeList();
 
         /**
          * Section 3.1.5.1
          */
         for (int i = 0; i < methodPermissions.length; i++) {
-            MethodPermission methodPermission = methodPermissions[i];
-            Method[] methods = methodPermission.getMethod();
+            MethodPermissionType methodPermission = methodPermissions[i];
+            MethodType[] methods = methodPermission.getMethodArray();
 
             for (int j = 0; j < methods.length; j++) {
-                Method method = methods[j];
-                EJBMethodPermission permission = new EJBMethodPermission(method.getEjbName(),
-                        method.getMethodName(),
-                        method.getMethodIntf(),
-                        method.getMethodParam());
+                MethodType method = methods[j];
+                EJBMethodPermission permission = new EJBMethodPermission(method.getEjbName().getStringValue(),
+                        method.getMethodName().getStringValue(),
+                        method.getMethodIntf().getStringValue(),
+                        toStringArray(method.getMethodParams().getMethodParamArray()));
 
                 try {
-                    if (methodPermission.isUnchecked()) {
+                    if (methodPermission.getUnchecked() != null) {
                         configuration.addToUncheckedPolicy(permission);
                     } else {
-                        String[] roleNames = methodPermission.getRoleName();
+                        RoleNameType[] roleNames = methodPermission.getRoleNameArray();
 
                         for (int k = 0; k < roleNames.length; k++) {
-                            configuration.addToRole(roleNames[k], permission);
+                            configuration.addToRole(roleNames[k].getStringValue(), permission);
                         }
                     }
                 } catch (PolicyContextException e) {
@@ -343,13 +346,13 @@ public class ConfigurationUtil {
          * Section 3.1.5.2
          */
         if (excludeList != null) {
-            Method[] methods = excludeList.getMethod();
+            MethodType[] methods = excludeList.getMethodArray();
             try {
                 for (int i = 0; i < methods.length; i++) {
-                    EJBMethodPermission permission = new EJBMethodPermission(methods[i].getEjbName(),
-                            methods[i].getMethodName(),
-                            methods[i].getMethodIntf(),
-                            methods[i].getMethodParam());
+                    EJBMethodPermission permission = new EJBMethodPermission(methods[i].getEjbName().getStringValue(),
+                            methods[i].getMethodName().getStringValue(),
+                            methods[i].getMethodIntf().getStringValue(),
+                            toStringArray(methods[i].getMethodParams().getMethodParamArray()));
                     configuration.addToExcludedPolicy(permission);
                 }
             } catch (PolicyContextException e) {
@@ -361,24 +364,32 @@ public class ConfigurationUtil {
          * Section 3.1.5.3
          */
         for (int i = 0; i < entityBeans.length; i++) {
-            translateSecurityRoleRefs(configuration, entityBeans[i]);
+            translateSecurityRoleRefs(configuration, entityBeans[i].getSecurityRoleRefArray(), entityBeans[i].getEjbName().getStringValue());
         }
 
         for (int i = 0; i < sessionBeans.length; i++) {
-            translateSecurityRoleRefs(configuration, sessionBeans[i]);
+            translateSecurityRoleRefs(configuration, sessionBeans[i].getSecurityRoleRefArray(), sessionBeans[i].getEjbName().getStringValue());
         }
     }
 
-    private static void translateSecurityRoleRefs(PolicyConfiguration configuration, RpcBean bean) throws GeronimoSecurityException {
+    private static String[] toStringArray(JavaTypeType[] methodParamArray) {
+        String[] result = new String[methodParamArray.length];
+        for (int i = 0; i < methodParamArray.length; i++) {
+            result[i] = methodParamArray[i].getStringValue();
+        }
+        return result;
+    }
+
+
+    private static void translateSecurityRoleRefs(PolicyConfiguration configuration, SecurityRoleRefType[] roleRefs, String ejbName) throws GeronimoSecurityException {
 
         try {
-            SecurityRoleRef[] roleRefs = bean.getSecurityRoleRef();
 
             for (int i = 0; i < roleRefs.length; i++) {
-                String roleName = roleRefs[i].getRoleName();
-                String roleLink = roleRefs[i].getRoleLink();
+                String roleName = roleRefs[i].getRoleName().getStringValue();
+                String roleLink = roleRefs[i].getRoleLink().getStringValue();
 
-                configuration.addToRole(roleLink, new EJBRoleRefPermission(bean.getEJBName(), roleName));
+                configuration.addToRole(roleLink, new EJBRoleRefPermission(ejbName, roleName));
             }
         } catch (PolicyContextException e) {
             throw new GeronimoSecurityException(e);

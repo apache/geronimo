@@ -62,12 +62,6 @@ import java.util.HashSet;
 
 import javax.security.jacc.PolicyConfiguration;
 
-import org.apache.geronimo.deployment.model.geronimo.j2ee.Principal;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.Realm;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.Role;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.RoleMappings;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.Security;
-import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -76,10 +70,16 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.security.jacc.AbstractModuleConfiguration;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.geronimo.xbeans.j2ee.WebAppType;
+import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
+import org.apache.geronimo.xbeans.geronimo.security.GerRoleMappingsType;
+import org.apache.geronimo.xbeans.geronimo.security.GerRoleType;
+import org.apache.geronimo.xbeans.geronimo.security.GerRealmType;
+import org.apache.geronimo.xbeans.geronimo.security.GerPrincipalType;
 
 
 /**
- * This es an MBean wrapper class that performs much of the utility work
+ * This es an GBean wrapper class that performs much of the utility work
  * needed to perform the translation of the web deployment descriptors
  * into equivalent security permissions.  These permissions are placed into
  * the appropriate <code>PolicyConfiguration</code> object as defined in the
@@ -88,7 +88,7 @@ import org.apache.geronimo.security.GeronimoSecurityException;
  * <p>It is expected that deployment tools will configure modules through
  * these utility MBeans and not directly access the
  * <code>PolicyConfiguration</code> objects.
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:07 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/12 08:14:05 $
  * @see javax.security.jacc.PolicyConfiguration
  * @see "Java Authorization Contract for Containers", section 3.1.3
  */
@@ -96,11 +96,13 @@ public class WebModuleConfiguration extends AbstractModuleConfiguration {
 
     private static final GBeanInfo GBEAN_INFO;
 
-    private WebApp webApp;
+    private WebAppType webApp;
+    private GerSecurityType security;
 
-    public WebModuleConfiguration(String contextId, WebApp webApp) {
+    public WebModuleConfiguration(String contextId, WebAppType webApp, GerSecurityType security) {
         super(contextId);
         this.webApp = webApp;
+        this.security = security;
     }
 
     /**
@@ -119,24 +121,23 @@ public class WebModuleConfiguration extends AbstractModuleConfiguration {
         ConfigurationUtil.configure(configuration, webApp);
         setConfigured(true);
 
-        Security security = webApp.getSecurity();
         //TODO not clear if schema allows/should allow security == null
         if (security != null) {
-            RoleMappings roleMappings = security.getRoleMappings();
+            GerRoleMappingsType roleMappings = security.getRoleMappings();
             if (roleMappings != null) {
-                Role[] roles = roleMappings.getRole();
+                GerRoleType[] roles = roleMappings.getRoleArray();
                 for (int i = 0; i < roles.length; i++) {
-                    Role role = roles[i];
-                    Realm[] realms = role.getRealm();
+                    GerRoleType role = roles[i];
+                    GerRealmType[] realms = role.getRealmArray();
                     for (int j = 0; j < realms.length; j++) {
-                        Realm realm = realms[j];
-                        Principal[] principals = realm.getPrincipal();
+                        GerRealmType realm = realms[j];
+                        GerPrincipalType[] principals = realm.getPrincipalArray();
                         HashSet set = new HashSet();
                         for (int k = 0; k < principals.length; k++) {
-                            Principal principal = principals[k];
+                            GerPrincipalType principal = principals[k];
                             java.security.Principal p = null;
                             try {
-                                Class clazz = Class.forName(principal.getClassName());
+                                Class clazz = Class.forName(principal.getClass1());
                                 Constructor constructor = clazz.getDeclaredConstructor(new Class[]{String.class});
                                 p = (java.security.Principal) constructor.newInstance(new Object[]{principal.getName()});
                                 set.add(new RealmPrincipal(realm.getRealmName(), p));
@@ -163,9 +164,10 @@ public class WebModuleConfiguration extends AbstractModuleConfiguration {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(WebModuleConfiguration.class.getName(), AbstractModuleConfiguration.getGBeanInfo());
         //TODO make sure this attribute not backed by a getter or setter works.
         infoFactory.addAttribute(new GAttributeInfo("WebApp", true));
+        infoFactory.addAttribute(new GAttributeInfo("Security", true));
         infoFactory.setConstructor(new GConstructorInfo(
-                new String[] {"ContextID", "WebApp"},
-                new Class[] {String.class, WebApp.class}));
+                new String[] {"ContextID", "WebApp", "Security"},
+                new Class[] {String.class, WebAppType.class, GerSecurityType.class}));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -75,7 +75,7 @@ import org.apache.geronimo.security.realm.providers.SQLSecurityRealm;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/25 01:47:30 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/12 08:14:05 $
  */
 public class LoginSQLTest extends TestCase {
 
@@ -119,11 +119,7 @@ public class LoginSQLTest extends TestCase {
 
         securityService = new SecurityService();
 
-        SQLSecurityRealm securityRealm = new SQLSecurityRealm();
-        securityRealm.setRealmName("Foo");
-        securityRealm.setConnectionURL(hsqldbURL);
-        securityRealm.setUser("loginmodule");
-        securityRealm.setPassword("password");
+        SQLSecurityRealm securityRealm = new SQLSecurityRealm("Foo", hsqldbURL, "loginmodule", "password", "SELECT UserName, Password FROM Users", "SELECT GroupName, UserName FROM Groups");
         securityRealm.doStart();
         securityService.setRealms(Collections.singleton(securityRealm));
     }

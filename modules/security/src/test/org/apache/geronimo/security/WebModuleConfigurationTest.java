@@ -58,22 +58,22 @@ package org.apache.geronimo.security;
 
 import java.io.File;
 
-import org.apache.geronimo.deployment.model.geronimo.web.GeronimoWebAppDocument;
-import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
-import org.apache.geronimo.xml.deployment.GeronimoWebAppLoader;
 import org.apache.geronimo.security.jacc.WebModuleConfiguration;
-import org.w3c.dom.Document;
+import org.apache.geronimo.xbeans.geronimo.security.GerSecurityDocument;
+import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
+import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
+import org.apache.geronimo.xbeans.j2ee.WebAppType;
 
 
 /**
  * Unit test for web module configuration
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:08 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/12 08:14:05 $
  */
 public class WebModuleConfigurationTest extends AbstractLoaderUtilTest {
     private File docDir;
     WebModuleConfiguration module;
-    WebApp client;
+    WebAppType client;
 
     public void setUp() throws Exception {
         super.setUp();
@@ -87,11 +87,12 @@ public class WebModuleConfigurationTest extends AbstractLoaderUtilTest {
 
 
         File f = new File(docDir, "geronimo-web-app-testRead.xml");
-        Document xmlDoc = parser.parse(f);
-        GeronimoWebAppDocument doc = GeronimoWebAppLoader.load(xmlDoc);
-        client = doc.getWebApp();
+        WebAppType webApp = WebAppDocument.Factory.parse(f).getWebApp();
 
-        module = new WebModuleConfiguration("pookie /test", client);
+        File s = new File(docDir, "geronimo-security.xml");
+        GerSecurityType security = GerSecurityDocument.Factory.parse(s).getSecurity();
+
+        module = new WebModuleConfiguration("pookie /test", webApp, security);
         assertSame("pookie /test", module.getContextID());
 
     }

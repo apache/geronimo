@@ -61,14 +61,6 @@ import java.util.HashSet;
 
 import javax.security.jacc.PolicyConfiguration;
 
-import org.apache.geronimo.deployment.model.ejb.AssemblyDescriptor;
-import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.Principal;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.Realm;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.Role;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.RoleMappings;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.Security;
-import org.apache.geronimo.deployment.model.j2ee.SecurityRole;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -77,22 +69,32 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.security.jacc.AbstractModuleConfiguration;
 import org.apache.geronimo.security.GeronimoSecurityException;
 import org.apache.geronimo.security.RealmPrincipal;
+import org.apache.geronimo.xbeans.j2ee.EjbJarType;
+import org.apache.geronimo.xbeans.j2ee.AssemblyDescriptorType;
+import org.apache.geronimo.xbeans.j2ee.SecurityRoleType;
+import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
+import org.apache.geronimo.xbeans.geronimo.security.GerRoleMappingsType;
+import org.apache.geronimo.xbeans.geronimo.security.GerRoleType;
+import org.apache.geronimo.xbeans.geronimo.security.GerRealmType;
+import org.apache.geronimo.xbeans.geronimo.security.GerPrincipalType;
 
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:07 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/12 08:14:05 $
  */
 public class EJBModuleConfiguration extends AbstractModuleConfiguration {
 
     private static final GBeanInfo GBEAN_INFO;
 
-    private EjbJar ejbJar;
+    private EjbJarType ejbJar;
+    private GerSecurityType security;
 
-    public EJBModuleConfiguration(String contextId, EjbJar ejbJar) throws GeronimoSecurityException {
+    public EJBModuleConfiguration(String contextId, EjbJarType ejbJar, GerSecurityType security) throws GeronimoSecurityException {
         super(contextId);
         this.ejbJar = ejbJar;
+        this.security = security;
     }
 
     /**
@@ -107,8 +109,8 @@ public class EJBModuleConfiguration extends AbstractModuleConfiguration {
     public void doStart() {
         PolicyConfiguration configuration = getPolicyConfiguration();
 
-        AssemblyDescriptor assemblyDescriptor = ejbJar.getAssemblyDescriptor();
-        SecurityRole[] securityRoles = assemblyDescriptor.getSecurityRole();
+        AssemblyDescriptorType assemblyDescriptor = ejbJar.getAssemblyDescriptor();
+        SecurityRoleType[] securityRoles = assemblyDescriptor.getSecurityRoleArray();
 
         for (int i = 0; i < securityRoles.length; i++) {
             getRoles().add(securityRoles[i].getRoleName());
@@ -117,24 +119,23 @@ public class EJBModuleConfiguration extends AbstractModuleConfiguration {
         ConfigurationUtil.configure(configuration, ejbJar);
         setConfigured(true);
 
-        Security security = ejbJar.getSecurity();
         //TODO not clear if schema allows/should allow security == null
         if (security != null) {
-            RoleMappings roleMappings = security.getRoleMappings();
+            GerRoleMappingsType roleMappings = security.getRoleMappings();
             if (roleMappings != null) {
-                Role[] roles = roleMappings.getRole();
+                GerRoleType[] roles = roleMappings.getRoleArray();
                 for (int i = 0; i < roles.length; i++) {
-                    Role role = roles[i];
-                    Realm[] realms = role.getRealm();
+                    GerRoleType role = roles[i];
+                    GerRealmType[] realms = role.getRealmArray();
                     for (int j = 0; j < realms.length; j++) {
-                        Realm realm = realms[j];
-                        Principal[] principals = realm.getPrincipal();
+                        GerRealmType realm = realms[j];
+                        GerPrincipalType[] principals = realm.getPrincipalArray();
                         HashSet set = new HashSet();
                         for (int k = 0; k < principals.length; k++) {
-                            Principal principal = principals[k];
+                            GerPrincipalType principal = principals[k];
                             java.security.Principal p = null;
                             try {
-                                Class clazz = Class.forName(principal.getClassName());
+                                Class clazz = Class.forName(principal.getClass1());
                                 Constructor constructor = clazz.getDeclaredConstructor(new Class[]{String.class});
                                 p = (java.security.Principal) constructor.newInstance(new Object[]{principal.getName()});
                                 set.add(new RealmPrincipal(realm.getRealmName(), p));
@@ -161,9 +162,10 @@ public class EJBModuleConfiguration extends AbstractModuleConfiguration {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(EJBModuleConfiguration.class.getName(), AbstractModuleConfiguration.getGBeanInfo());
         //TODO make sure this attribute not backed by a getter or setter works.
         infoFactory.addAttribute(new GAttributeInfo("EJBJar", true));
+        infoFactory.addAttribute(new GAttributeInfo("Security", true));
         infoFactory.setConstructor(new GConstructorInfo(
-                new String[] {"ContextID", "EJBJar"},
-                new Class[] {String.class, EjbJar.class}));
+                new String[] {"ContextID", "EJBJar", "Security"},
+                new Class[] {String.class, EjbJarType.class, GerSecurityType.class}));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -58,24 +58,23 @@ package org.apache.geronimo.security;
 
 import java.io.File;
 
-import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
-import org.apache.geronimo.deployment.model.geronimo.ejb.GeronimoEjbJarDocument;
-import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.Security;
-import org.apache.geronimo.xml.deployment.GeronimoEjbJarLoader;
 import org.apache.geronimo.security.jacc.EJBModuleConfiguration;
-import org.w3c.dom.Document;
+import org.apache.geronimo.xbeans.geronimo.security.GerSecurityDocument;
+import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
+import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
+import org.apache.geronimo.xbeans.j2ee.EjbJarType;
+import org.apache.geronimo.xbeans.j2ee.WebAppType;
 
 
 /**
  * Unit test for EJB module configuration
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:08 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/12 08:14:05 $
  */
 public class EjbModuleConfigurationTest extends AbstractLoaderUtilTest {
     private File docDir;
     EJBModuleConfiguration module;
-    WebApp client;
+    WebAppType client;
 
     public void setUp() throws Exception {
         super.setUp();
@@ -88,17 +87,16 @@ public class EjbModuleConfigurationTest extends AbstractLoaderUtilTest {
 
         File f = new File(docDir, "geronimo-ejb-jar-testRead.xml");
         System.out.println("file at: " + f.getAbsolutePath());
-        Document xmlDoc = parser.parse(f);
-        GeronimoEjbJarDocument doc = GeronimoEjbJarLoader.load(xmlDoc);
-        EjbJar jar = doc.getEjbJar();
-        
-        assertTrue(jar.getSecurity() != null);
 
-        Security security = jar.getSecurity();
+        EjbJarType ejbJar = EjbJarDocument.Factory.parse(f).getEjbJar();
+
+        File s = new File(docDir, "geronimo-security.xml");
+
+        GerSecurityType security = GerSecurityDocument.Factory.parse(s).getSecurity();
 
         assertTrue(security.getDefaultPrincipal() != null);
 
-        module = new EJBModuleConfiguration("pookie test", jar);
+        module = new EJBModuleConfiguration("pookie test", ejbJar, security);
         assertSame("pookie test", module.getContextID());
     }
 }

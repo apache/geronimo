@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema
+    targetNamespace="http://org.apache.geronimo/xml/ns/security"
+    xmlns:ger="http://org.apache.geronimo/xml/ns/security"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    version="1.0">
+
+    <xsd:import namespace="http://java.sun.com/xml/ns/j2ee" schemaLocation="j2ee_1_4.xsd"/>
+
+    <xsd:element name="security" type="ger:securityType"/>
+
+    <xsd:complexType name="securityType">
+        <xsd:annotation>
+            <xsd:documentation>
+                Security entries
+
+                If this element is present, all web and EJB modules MUST make the
+                appropriate access checks as outlined in the JACC spec.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="default-principal" type="ger:default-principalType"/>
+            <xsd:element name="role-mappings" type="ger:role-mappingsType" minOccurs="0"/>
+        </xsd:sequence>
+        <xsd:attribute name="use-context-handler" type="xsd:boolean">
+            <xsd:annotation>
+                <xsd:documentation>
+                    Set this attribute to "true" if the installed JACC policy
+                    contexts willuse PolicyContextHandlers.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+    <xsd:complexType name="default-principalType">
+        <xsd:sequence>
+            <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="principal" type="ger:principalType"/>
+        </xsd:sequence>
+        <xsd:attribute name="realm-name" type="xsd:string"/>
+    </xsd:complexType>
+    <xsd:complexType name="role-mappingsType">
+        <xsd:sequence>
+            <xsd:element name="role" type="ger:roleType" minOccurs="1" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="roleType">
+        <xsd:sequence>
+            <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="realm" type="ger:realmType" minOccurs="1" maxOccurs="unbounded"/>
+        </xsd:sequence>
+        <xsd:attribute name="role-name" type="xsd:string"/>
+    </xsd:complexType>
+    <xsd:complexType name="realmType">
+        <xsd:sequence>
+            <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="principal" type="ger:principalType" minOccurs="1" maxOccurs="unbounded"/>
+        </xsd:sequence>
+        <xsd:attribute name="realm-name" type="xsd:string"/>
+    </xsd:complexType>
+    <xsd:complexType name="principalType">
+        <xsd:sequence>
+            <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+        <xsd:attribute name="class" type="xsd:string"/>
+        <xsd:attribute name="name" type="xsd:string"/>
+    </xsd:complexType>
+
+</xsd:schema>

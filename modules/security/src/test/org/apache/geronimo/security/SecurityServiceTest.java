@@ -64,18 +64,15 @@ import org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm;
 import org.apache.geronimo.security.jacc.EJBModuleConfiguration;
 import org.apache.geronimo.security.jacc.ModuleConfiguration;
 import org.apache.geronimo.security.jacc.WebModuleConfiguration;
-import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
-import org.apache.geronimo.deployment.model.geronimo.ejb.EnterpriseBeans;
-import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.Security;
-import org.apache.geronimo.deployment.model.ejb.AssemblyDescriptor;
-import org.apache.geronimo.deployment.model.ejb.ExcludeList;
-
+import org.apache.geronimo.xbeans.j2ee.EjbJarType;
+import org.apache.geronimo.xbeans.j2ee.AssemblyDescriptorType;
+import org.apache.geronimo.xbeans.j2ee.WebAppType;
+import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
 
 /**
  * Unit test for web module configuration
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:08 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/12 08:14:05 $
  */
 public class SecurityServiceTest extends TestCase {
     SecurityService securityService;
@@ -91,15 +88,14 @@ public class SecurityServiceTest extends TestCase {
         securityRealm.doStart();
 
         securityService.setRealms(Collections.singleton(securityRealm));
-        EjbJar ejbJar = new EjbJar();
-        ejbJar.setEnterpriseBeans(new EnterpriseBeans());
-        AssemblyDescriptor assemblyDescriptor = new AssemblyDescriptor();
-        assemblyDescriptor.setExcludeList(new ExcludeList());
-        ejbJar.setAssemblyDescriptor(assemblyDescriptor);
-        ejbJar.setSecurity(new Security());
-        WebApp webApp = new WebApp();
-        webApp.setSecurity(new Security());
-        securityService.setModuleConfigurations(Arrays.asList(new Object[] {new EJBModuleConfiguration("Foo", ejbJar),new WebModuleConfiguration("Bar", webApp)}));
+        EjbJarType ejbJar = EjbJarType.Factory.newInstance();
+        ejbJar.addNewEnterpriseBeans();
+        AssemblyDescriptorType assemblyDescriptor = ejbJar.addNewAssemblyDescriptor();
+        assemblyDescriptor.addNewExcludeList();
+        GerSecurityType security = GerSecurityType.Factory.newInstance();
+        WebAppType webApp = WebAppType.Factory.newInstance();
+
+        securityService.setModuleConfigurations(Arrays.asList(new Object[] {new EJBModuleConfiguration("Foo", ejbJar, security),new WebModuleConfiguration("Bar", webApp, security)}));
     }
 
     public void tearDown() throws Exception {

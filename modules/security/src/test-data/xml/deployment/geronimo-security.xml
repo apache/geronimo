@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<security xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://org.apache.geronimo/xml/ns/security"
+         version="1.0">
+    <default-principal>
+        <principal>
+            <class>org.apache.geronimo.security.DefaultPrincipal</class>
+            <name>defaultPrincipalName</name>
+        </principal>
+    </default-principal>
+
+</security>
