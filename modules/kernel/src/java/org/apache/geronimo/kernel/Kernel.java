@@ -18,11 +18,14 @@
 package org.apache.geronimo.kernel;
 
 import java.io.Serializable;
+import java.io.IOException;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.List;
+import java.net.URI;
 import javax.management.Attribute;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
@@ -34,6 +37,7 @@ import javax.management.MBeanServerFactory;
 import javax.management.NotCompliantMBeanException;
 import javax.management.NotificationBroadcasterSupport;
 import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,6 +46,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 
@@ -62,7 +67,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.27 $ $Date: 2004/06/01 16:06:51 $
+ * @version $Revision: 1.28 $ $Date: 2004/06/01 18:27:02 $
  */
 public class Kernel extends NotificationBroadcasterSupport implements Serializable, KernelMBean {
 
@@ -279,6 +284,32 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
         } catch (MBeanRegistrationException e) {
             throw (IllegalStateException) new IllegalStateException("Error unloading GBean " + name).initCause(e);
         }
+    }
+
+    public ObjectName startConfiguration(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
+        ObjectName configName = getConfigurationManager().load(configID);
+        try {
+            startRecursiveGBean(configName);
+        } catch (InstanceNotFoundException e) {
+            // should not happen as we just loaded it
+            throw new InvalidConfigException(e);
+        }
+        return configName;
+    }
+
+    public void stopConfiguration(URI configID) throws NoSuchConfigException {
+        ConfigurationManager configurationManager = getConfigurationManager();
+        try {
+            ObjectName configName = configurationManager.getConfigObjectName(configID);
+            stopGBean(configName);
+        } catch (MalformedObjectNameException e) {
+            throw new NoSuchConfigException(e);
+        } catch (InstanceNotFoundException e) {
+            throw new NoSuchConfigException(e);
+        } catch (InvalidConfigException e) {
+            throw (IllegalStateException) new IllegalStateException().initCause(e);
+        }
+        configurationManager.unload(configID);
     }
 
     /**

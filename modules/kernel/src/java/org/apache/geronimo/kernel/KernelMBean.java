@@ -17,6 +17,9 @@
 
 package org.apache.geronimo.kernel;
 
+import java.net.URI;
+import java.io.IOException;
+import java.util.List;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
@@ -25,9 +28,10 @@ import javax.management.ObjectName;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/05/27 01:06:00 $
+ * @version $Revision: 1.9 $ $Date: 2004/06/01 18:27:02 $
  */
 public interface KernelMBean {
     /**
@@ -91,6 +95,10 @@ public interface KernelMBean {
     boolean isRunning();
 
     ConfigurationManager getConfigurationManager();
+
+    ObjectName startConfiguration(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException;
+
+    void stopConfiguration(URI configID) throws NoSuchConfigException;
 
     Object getAttribute(ObjectName objectName, String attributeName) throws Exception;
 
