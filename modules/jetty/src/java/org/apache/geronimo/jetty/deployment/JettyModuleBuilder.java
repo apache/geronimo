@@ -17,12 +17,6 @@
 
 package org.apache.geronimo.jetty.deployment;
 
-import javax.management.AttributeNotFoundException;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
-import javax.naming.NamingException;
-import javax.transaction.UserTransaction;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -41,9 +35,12 @@ import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.zip.ZipEntry;
-
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
+import javax.management.AttributeNotFoundException;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.ReflectionException;
+import javax.naming.NamingException;
+import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.common.xml.XmlBeansUtil;
 import org.apache.geronimo.deployment.DeploymentException;
@@ -83,10 +80,12 @@ import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/06/03 07:24:19 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/10 02:24:27 $
  */
 public class JettyModuleBuilder implements ModuleBuilder {
 
@@ -156,7 +155,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
                         WebAppDocument doc = (WebAppDocument) XmlBeansUtil.parse(new ByteArrayInputStream(buffer), WebAppDocument.type);
                         webApp = doc.getWebApp();
                     } catch (XmlException e) {
-                        throw new DeploymentException("Unable to parse web.xml");
+                        throw new DeploymentException("Unable to parse web.xml", e);
                     }
                 } else if ("WEB-INF/geronimo-jetty.xml".equals(src.getName())) {
                     byte[] buffer = getBytes(jarIS);
@@ -165,7 +164,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
                         JettyWebAppDocument doc = (JettyWebAppDocument) XmlBeansUtil.parse(new ByteArrayInputStream(buffer), JettyWebAppDocument.type);
                         jettyWebApp = doc.getWebApp();
                     } catch (XmlException e) {
-                        throw new DeploymentException("Unable to parse web.xml");
+                        throw new DeploymentException("Unable to parse geronimo-jetty.xml", e);
                     }
                 } else {
                     earContext.addFile(target, jarIS);
