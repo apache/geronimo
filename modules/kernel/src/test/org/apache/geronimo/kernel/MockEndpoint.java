@@ -17,10 +17,10 @@
 
 package org.apache.geronimo.kernel;
 
-import org.apache.geronimo.gbean.GBeanContext;
+import org.apache.geronimo.gbean.GBeanLifecycleController;
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/06/04 22:31:56 $
+ * @version $Revision: 1.8 $ $Date: 2004/06/05 16:07:04 $
  */
 public interface MockEndpoint {
 
@@ -36,5 +36,5 @@ public interface MockEndpoint {
 
     String echo(String message);
 
-    GBeanContext getGBeanContext();
+    GBeanLifecycleController getGBeanLifecycleController();
 }

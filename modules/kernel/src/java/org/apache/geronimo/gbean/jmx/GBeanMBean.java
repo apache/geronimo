@@ -45,9 +45,9 @@ import javax.management.ReflectionException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.GBeanLifecycleController;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GOperationSignature;
@@ -62,7 +62,7 @@ import org.apache.geronimo.kernel.management.NotificationType;
  * {@link GBeanInfo} instance.  The GBeanMBean also supports caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.24 $ $Date: 2004/06/05 07:53:22 $
+ * @version $Revision: 1.25 $ $Date: 2004/06/05 16:07:04 $
  */
 public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     /**
@@ -72,7 +72,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
 
     private static final Log log = LogFactory.getLog(GBeanMBean.class);
     private final Constructor constructor;
-    private final GBeanMBeanContext gbeanContext;
+    private final GBeanLifecycleController gbeanLifecycleController;
 
     /**
      * Gets the context class loader from the thread or the system class loader if there is no context class loader.
@@ -262,7 +262,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
 
         rawInvoker = new RawInvoker(this);
 
-        gbeanContext = new GBeanMBeanContext(this);
+        gbeanLifecycleController = new GBeanMBeanLifecycleController(this);
     }
 
     /**
@@ -478,7 +478,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         ObjectName returnValue = super.preRegister(server, objectName);
 
         setAttribute("objectName", getObjectName());
-        setAttribute("gbeanContext", gbeanContext);
+        setAttribute("gbeanLifecycleController", gbeanLifecycleController);
         setAttribute("classLoader", classLoader);
         try {
             String kernelName = (String) server.getAttribute(Kernel.KERNEL, "KernelName");
@@ -816,11 +816,11 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                         ClassLoader.class,
                         null));
 
-        attributesMap.put("gbeanContext",
-                new GBeanMBeanAttribute((GBeanMBeanAttribute) attributesMap.get("gbeanContext"),
+        attributesMap.put("gbeanLifecycleController",
+                new GBeanMBeanAttribute((GBeanMBeanAttribute) attributesMap.get("gbeanLifecycleController"),
                         this,
-                        "gbeanContext",
-                        GBeanContext.class,
+                        "gbeanLifecycleController",
+                        GBeanLifecycleController.class,
                         null));
 
         attributesMap.put("kernel",

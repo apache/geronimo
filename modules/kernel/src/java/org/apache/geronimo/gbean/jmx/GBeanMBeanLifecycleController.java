@@ -15,22 +15,38 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.gbean;
+package org.apache.geronimo.gbean.jmx;
+
+import org.apache.geronimo.gbean.GBeanLifecycleController;
+import org.apache.geronimo.kernel.management.State;
 
 /**
- * Context handle for a GBean which allows the bean to determin the current state, and to change the
- * current state.
- *
- * @version $Revision: 1.7 $ $Date: 2004/06/05 00:37:15 $
+ * @version $Revision: 1.1 $ $Date: 2004/06/05 16:07:04 $
  */
-public interface GBeanContext {
+public final class GBeanMBeanLifecycleController implements GBeanLifecycleController {
+    /**
+     * The GeronimoMBean which owns the target.
+     */
+    private final GBeanMBean gmbean;
+
+    /**
+     * Creates a new context for a target.
+     *
+     * @param gmbean the Geronimo Mbean the contains the target
+     */
+    public GBeanMBeanLifecycleController(GBeanMBean gmbean) {
+        this.gmbean = gmbean;
+    }
+
     /**
      * Gets the state of this component as an int.
      * The int return is required by the JSR77 specification.
      *
      * @return the current state of this component
      */
-    int getState();
+    public int getState() {
+        return gmbean.getState();
+    }
 
     /**
      * Attempts to bring the component into the fully running state. If an Exception occurs while
@@ -40,7 +56,9 @@ public interface GBeanContext {
      *
      * @throws Exception if a problem occurs while starting the component
      */
-    void start() throws Exception;
+    public void start() throws Exception {
+        gmbean.attemptFullStart();
+    }
 
     /**
      * Attempt to bring the component into the fully stopped state. If an exception occurs while
@@ -50,12 +68,21 @@ public interface GBeanContext {
      *
      * @throws Exception if a problem occurs while stopping the component
      */
-    void stop() throws Exception;
+    public void stop() throws Exception {
+        final int state = gmbean.getState();
+        if (state == State.RUNNING_INDEX || state == State.STARTING_INDEX) {
+            gmbean.stop();
+        } else if (state == State.STOPPING_INDEX) {
+            gmbean.attemptFullStop();
+        }
+    }
 
     /**
      * Moves this component to the FAILED state.
      * <p/>
      * The component is guaranteed to be in the failed state when the method returns.
      */
-    void fail();
+    public void fail() {
+        gmbean.fail();
+    }
 }

@@ -23,12 +23,12 @@ import java.util.Collections;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.gbean.GBeanContext;
+import org.apache.geronimo.gbean.GBeanLifecycleController;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.management.State;
 
 /**
- * @version $Revision: 1.9 $ $Date: 2004/06/04 22:31:56 $
+ * @version $Revision: 1.10 $ $Date: 2004/06/05 16:07:04 $
  */
 public class GBeanTest extends TestCase {
     private ObjectName name;
@@ -55,9 +55,9 @@ public class GBeanTest extends TestCase {
         // return ClassLoader.getSystemClassLoader()
         assertSame(ClassLoader.getSystemClassLoader(), kernel.getAttribute(name, "classLoader"));
 
-        GBeanContext gbeanContext = (GBeanContext) kernel.getAttribute(name, "gbeanContext");
-        assertNotNull(gbeanContext);
-        assertEquals(State.RUNNING_INDEX, gbeanContext.getState());
+        GBeanLifecycleController gbeanLifecycleController = (GBeanLifecycleController) kernel.getAttribute(name, "gbeanLifecycleController");
+        assertNotNull(gbeanLifecycleController);
+        assertEquals(State.RUNNING_INDEX, gbeanLifecycleController.getState());
 
         assertNotSame(kernel, kernel.getAttribute(name, "kernel"));
         assertSame(kernel, kernel.getAttribute(name, "actualKernel"));

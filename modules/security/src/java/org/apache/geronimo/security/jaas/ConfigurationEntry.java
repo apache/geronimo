@@ -24,7 +24,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
+import org.apache.geronimo.gbean.jmx.GBeanMBeanLifecycleController;
 import org.apache.geronimo.kernel.Kernel;
 
 
@@ -39,13 +39,13 @@ import org.apache.geronimo.kernel.Kernel;
  * <p>More specifically, you can only use this method or Sun's JAAS config
  * file.
  *
- * @version $Revision: 1.10 $ $Date: 2004/06/05 07:53:22 $
+ * @version $Revision: 1.11 $ $Date: 2004/06/05 16:07:04 $
  * @see org.apache.geronimo.security.jaas.GeronimoLoginConfiguration
  * @see javax.security.auth.login.Configuration
  */
 public abstract class ConfigurationEntry implements GBeanLifecycle {
     protected final Kernel kernel;
-    protected GBeanMBeanContext context;
+    protected GBeanMBeanLifecycleController context;
     protected String applicationConfigName;
     protected LoginModuleControlFlag controlFlag;
     protected Properties options = new Properties();
