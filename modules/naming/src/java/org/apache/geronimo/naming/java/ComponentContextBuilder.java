@@ -66,21 +66,25 @@ import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.j2ee.EjbRefType;
 import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
+import org.apache.geronimo.xbeans.j2ee.EjbLinkType;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/12 20:38:18 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/13 05:48:40 $
  */
 public class ComponentContextBuilder {
 
-    private final ProxyFactory proxyFactory;
-    private final UserTransaction userTransaction;
     private static final String ENV = "env/";
 
-    public ComponentContextBuilder(ProxyFactory proxyFactory, UserTransaction userTransaction) {
+    private final ProxyFactory proxyFactory;
+    private final UserTransaction userTransaction;
+    private final ClassLoader cl;
+
+    public ComponentContextBuilder(ProxyFactory proxyFactory, UserTransaction userTransaction, ClassLoader cl) {
         this.userTransaction = userTransaction;
         this.proxyFactory = proxyFactory;
+        this.cl = cl;
     }
 
     /**
@@ -153,7 +157,7 @@ public class ComponentContextBuilder {
             String name = ejbRef.getEjbRefName().getStringValue();
             Object proxy = null;
             try {
-                proxy = proxyFactory.getProxy(loadClass(ejbRef.getHome().getStringValue()) ,loadClass(ejbRef.getRemote().getStringValue()), getLink(ejbRef.getEjbLink().getStringValue()));
+                proxy = proxyFactory.getProxy(loadClass(ejbRef.getHome().getStringValue()), loadClass(ejbRef.getRemote().getStringValue()), getLink(ejbRef.getEjbLink()));
             } catch (NamingException e) {
                 throw new DeploymentException("Could not construct proxy for " + ejbRef + ", " + e.getMessage());
             }
@@ -165,12 +169,16 @@ public class ComponentContextBuilder {
         }
     }
 
-    private Object getLink(String link) {
+    private Object getLink(EjbLinkType link) {
         return null;
     }
 
-    private Class loadClass(String stringValue) {
-        return null;
+    private Class loadClass(String stringValue) throws DeploymentException {
+        try {
+            return cl.loadClass(stringValue);
+        } catch (ClassNotFoundException e) {
+            throw new DeploymentException("Could not load interface class: " + stringValue, e);
+        }
     }
 
     private void buildEJBLocalRefs(ReadOnlyContext readOnlyContext, EjbLocalRefType[] ejbLocalRefs) throws DeploymentException {
@@ -179,7 +187,7 @@ public class ComponentContextBuilder {
             String name = ejbLocalRef.getEjbRefName().getStringValue();
             Object proxy = null;
             try {
-                proxy = proxyFactory.getProxy(loadClass(ejbLocalRef.getLocalHome().getStringValue()), loadClass(ejbLocalRef.getLocal().getStringValue()), getLink(ejbLocalRef.toString()));
+                proxy = proxyFactory.getProxy(loadClass(ejbLocalRef.getLocalHome().getStringValue()), loadClass(ejbLocalRef.getLocal().getStringValue()), getLink(ejbLocalRef.getEjbLink()));
             } catch (NamingException e) {
                 throw new DeploymentException("Could not construct reference to " + ejbLocalRef + ", " + e.getMessage());
             }
@@ -199,13 +207,13 @@ public class ComponentContextBuilder {
             Object ref;
             if ("java.net.URL".equals(type)) {
                 try {
-                    ref = new URL(null /*resRef.geturl().getStringValue()*/);
+                    ref = new URL("http://thisisnotaurlyousupplied" /*resRef.geturl().getStringValue()*/);
                 } catch (MalformedURLException e) {
                     throw new DeploymentException("Invalid URL for resource-ref "+name, e);
                 }
             } else {
                 try {
-                    ref = proxyFactory.getProxy(loadClass(resRef.getResType().getStringValue()), getLink(resRef.toString()));
+                    ref = proxyFactory.getProxy(loadClass(resRef.getResType().getStringValue()), null);
                 } catch (NamingException e) {
                     throw new DeploymentException("Could not construct reference to " + resRef);
                 }
