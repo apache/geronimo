@@ -45,17 +45,19 @@ public final class WebResourcePermission extends Permission implements Serializa
         super(request.getServletPath());
 
         urlPatternSpec = new URLPatternSpec(request.getServletPath());
-        httpMethodSpec = new HTTPMethodSpec(request.getMethod(), false);
+        httpMethodSpec = new HTTPMethodSpec(request);
     }
 
     public WebResourcePermission(String name, String actions) {
         super(name);
-//        if (actions.indexOf(':') != -1) {
-//            throw new IllegalArgumentException("Transports not allowed in WebResourcePermission httpMethodSpec");
-//        }
+
+        // we do this because we're resusing the HTTPMethodSpec, which allows ':'
+        if (actions.indexOf(':') != -1) {
+            throw new IllegalArgumentException("Transports not allowed in WebResourcePermission httpMethodSpec");
+        }
 
         urlPatternSpec = new URLPatternSpec(name);
-        httpMethodSpec = new HTTPMethodSpec(actions, false);
+        httpMethodSpec = new HTTPMethodSpec(actions);
     }
 
     public WebResourcePermission(String urlPattern, String[] HTTPMethods) {
@@ -96,7 +98,7 @@ public final class WebResourcePermission extends Permission implements Serializa
 
     private synchronized void readObject(ObjectInputStream in) throws IOException {
         urlPatternSpec = new URLPatternSpec(in.readUTF());
-        httpMethodSpec = new HTTPMethodSpec(in.readUTF(), false);
+        httpMethodSpec = new HTTPMethodSpec(in.readUTF());
     }
 
     private synchronized void writeObject(ObjectOutputStream out) throws IOException {

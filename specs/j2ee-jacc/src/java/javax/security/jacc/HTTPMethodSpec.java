@@ -23,6 +23,9 @@
 
 package javax.security.jacc;
 
+import javax.servlet.http.HttpServletRequest;
+
+
 /**
  * @version $Rev$ $Date$
  */
@@ -35,15 +38,27 @@ class HTTPMethodSpec {
     private final static int CONFIDENTIAL = 0x02;
     private final static int NONE = INTEGRAL | CONFIDENTIAL;
 
-    private int mask = 0;
-    private int transport = 0;
+    private int mask;
+    private int transport;
     private String actions;
 
     public HTTPMethodSpec(String[] HTTPMethods) {
         this(HTTPMethods, null);
     }
 
-    public HTTPMethodSpec(String name, boolean parseTransportType) {
+    public HTTPMethodSpec(HttpServletRequest request) {
+        for (int j = 0; j < HTTP_METHODS.length; j++) {
+            if (request.getMethod().equals(HTTP_METHODS[j])) {
+                mask = HTTP_MASKS[j];
+
+                break;
+            }
+        }
+
+        transport = request.isSecure() ? CONFIDENTIAL : NONE;
+    }
+
+    public HTTPMethodSpec(String name) {
         if (name == null || name.length() == 0) {
             mask = 0x7F;
             transport = NONE;
@@ -71,8 +86,6 @@ class HTTPMethodSpec {
             }
 
             if (tokens.length == 2) {
-                if (!parseTransportType) throw new IllegalArgumentException("Invalid HTTPMethodSpec");
-
                 if (tokens[1].equals("NONE")) {
                     transport = NONE;
                 } else if (tokens[1].equals("INTEGRAL")) {

@@ -57,24 +57,24 @@ public final class WebUserDataPermission extends Permission implements Serializa
      *                Servlet operation to which the permission pertains. The permission
      *                name is the substring of the requestURI (HttpServletRequest.getRequestURI())
      *                that begins after the contextPath (HttpServletRequest.getContextPath()).
-     *                When the substring operation yields the string “/”, the permission is
+     *                When the substring operation yields the string ï¿½/ï¿½, the permission is
      *                constructed with the empty string as its name. The HTTP method component
-     *                of the permission’s actions is as obtained from HttpServletRequest.getMethod().
-     *                The TransportType component of the permission’s actions is determined
+     *                of the permissionï¿½s actions is as obtained from HttpServletRequest.getMethod().
+     *                The TransportType component of the permissionï¿½s actions is determined
      *                by calling HttpServletRequest.isSecure().
      */
     public WebUserDataPermission(HttpServletRequest request) {
         super(request.getServletPath());
 
         urlPatternSpec = new URLPatternSpec(request.getServletPath());
-        httpMethodSpec = new HTTPMethodSpec(request.getMethod(), true);
+        httpMethodSpec = new HTTPMethodSpec(request);
     }
 
     public WebUserDataPermission(String name, String actions) {
         super(name);
 
         urlPatternSpec = new URLPatternSpec(name);
-        httpMethodSpec = new HTTPMethodSpec(actions, true);
+        httpMethodSpec = new HTTPMethodSpec(actions);
     }
 
     public WebUserDataPermission(String urlPattern, String[] HTTPMethods, String transportType) {
@@ -115,7 +115,7 @@ public final class WebUserDataPermission extends Permission implements Serializa
 
     private synchronized void readObject(ObjectInputStream in) throws IOException {
         urlPatternSpec = new URLPatternSpec(in.readUTF());
-        httpMethodSpec = new HTTPMethodSpec(in.readUTF(), true);
+        httpMethodSpec = new HTTPMethodSpec(in.readUTF());
     }
 
     private synchronized void writeObject(ObjectOutputStream out) throws IOException {

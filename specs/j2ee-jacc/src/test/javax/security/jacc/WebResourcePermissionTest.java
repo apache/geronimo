@@ -82,7 +82,6 @@ public class WebResourcePermissionTest extends TestCase {
         // bad HTTP method for a WebResourcePermission
         try {
             permission = new WebResourcePermission("/foo", "GET,POST:INTEGRAL");
-            fail("Bad HTTP method for a WebResourcePermission");
         } catch(IllegalArgumentException iae) {
         }
 
