@@ -27,7 +27,7 @@ import java.io.ObjectOutput;
  * <BR>
  * Msgs are Externalizable as they are sent across the wire.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/27 14:29:44 $
  */
 public class Msg
     implements Externalizable
@@ -73,8 +73,12 @@ public class Msg
             header.getHeader(MsgHeaderConstants.CORRELATION_ID));
         newHeader.addHeader(MsgHeaderConstants.DEST_ENDPOINT,
             header.getHeader(MsgHeaderConstants.SRC_ENDPOINT));
+        newHeader.addHeader(MsgHeaderConstants.DEST_NODE,
+            header.getHeader(MsgHeaderConstants.SRC_NODE));
         newHeader.addHeader(MsgHeaderConstants.DEST_NODES,
             header.getHeader(MsgHeaderConstants.SRC_NODE));
+        newHeader.addHeader(MsgHeaderConstants.SRC_NODE,
+            header.getHeader(MsgHeaderConstants.DEST_NODES));
         newHeader.addHeader(MsgHeaderConstants.BODY_TYPE,
             MsgBody.Type.RESPONSE);
         return msg;
