@@ -27,10 +27,10 @@ import java.io.InputStream;
 import org.apache.commons.collections.ExtendedProperties;
 
 /**
- *  Simple webapp loader.  This code has been recycled from contributions to Velocity
- *  by me.
+ * Simple webapp loader.  This code has been recycled from contributions to Velocity
+ * by me.
  *
- * @version $Id$
+ * @version $Rev$ $Date$
  */
 public class WebappLoader extends ResourceLoader {
 

@@ -32,7 +32,7 @@ import org.apache.geronimo.kernel.management.State;
 /**
  * Little helper bean to deal w/ the mbean server
  *
- * @version $Id$
+ * @version $Rev$ $Date$
  */
 public class MBeanServerHelper {
     private final Kernel kernel;
