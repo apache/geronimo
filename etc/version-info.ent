@@ -32,7 +32,6 @@
 <!ENTITY axis-jaxrpc-version "1.2-RC1">
 <!ENTITY axis-saaj-version "1.2-RC1">
 <!ENTITY axis-wsdl4j-version "1.2-RC1">
-<!ENTITY axis-commons-logging-version "SNAPSHOT">
 <!ENTITY axis-commons-discovery-version "SNAPSHOT">
 <!ENTITY bouncycastle-bcprov-version "jdk14-124">
 <!ENTITY cglib-version "2.0">
@@ -47,7 +46,7 @@
 <!ENTITY commons-httpclient-version "2.0.1">
 <!ENTITY commons-jelly-version "1.0-beta-4">
 <!ENTITY commons-jxpath-version "1.1">
-<!ENTITY commons-logging-version "1.0.3">
+<!ENTITY commons-logging-version "1.0.4">
 <!ENTITY commons-modeler-version "1.1">
 <!ENTITY commons-primitives-version "1.0">
 <!ENTITY commons-pool-version "1.2">

@@ -288,14 +288,6 @@
         </dependency>
         <dependency>
             <groupId>axis</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>&axis-commons-logging-version;</version>
-            <properties>
-                <module>true</module>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>axis</groupId>
             <artifactId>axis-jaxrpc</artifactId>
             <version>&axis-jaxrpc-version;</version>
             <properties>
