@@ -17,114 +17,15 @@
 
 package org.apache.geronimo.datastore.impl.remote.replication;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.geronimo.datastore.impl.remote.messaging.CommandRequest;
-import org.apache.geronimo.datastore.impl.remote.messaging.CommandResult;
 import org.apache.geronimo.datastore.impl.remote.messaging.Connector;
-import org.apache.geronimo.datastore.impl.remote.messaging.HeaderOutInterceptor;
-import org.apache.geronimo.datastore.impl.remote.messaging.Msg;
-import org.apache.geronimo.datastore.impl.remote.messaging.MsgBody;
-import org.apache.geronimo.datastore.impl.remote.messaging.MsgHeader;
-import org.apache.geronimo.datastore.impl.remote.messaging.MsgHeaderConstants;
-import org.apache.geronimo.datastore.impl.remote.messaging.MsgOutInterceptor;
-import org.apache.geronimo.datastore.impl.remote.messaging.NodeInfo;
-import org.apache.geronimo.datastore.impl.remote.messaging.RequestSender;
-import org.apache.geronimo.datastore.impl.remote.messaging.ServerNodeContext;
-import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
-import org.apache.geronimo.gbean.WaitingException;
 
 /**
- * A replication group member.
- * <BR>
- * This is a Connector in charge of replicating the state of registered
- * ReplicantCapables across N-nodes, which constitute a replication group.
- * <BR>
- * Replication members are organized as follow:
- * <pre>
- * ReplicationMember -- MTO -- ServerNode -- MTM -- ServerNode -- OTM -- ReplicationMember
- * </pre>
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/11 15:36:14 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/24 11:37:06 $
  */
-public class ReplicationMember
-    implements UpdateListener, Connector, GBean
-{
-
-    /**
-     * Name of the replication group.
-     */
-    private final String name;
+public interface ReplicationMember
+    extends UpdateListener, Connector {
     
-    /**
-     * ReplicantID to ReplicantCapable Map.
-     */
-    private final Map idToReplicant;
-    
-    /**
-     * Nodes hosting the other members of the replication group
-     * of this member.
-     */
-    private NodeInfo[] targetNodes;
-    
-    /**
-     * Context of the ServerNode which has mounted this instance.
-     */
-    protected ServerNodeContext serverNodeContext;
-    
-    /**
-     * Output to be used to send requests.
-     */
-    private MsgOutInterceptor requestOut;
-    
-    /**
-     * Output to be used to send results.
-     */
-    private MsgOutInterceptor resultOut;
-    
-    /**
-     * Requests sender.
-     */
-    private RequestSender sender;
-    
-    /**
-     * Creates a replication group member.
-     * 
-     * @param aName Name of the replication group owning this member.
-     * @param aTargetNodes Nodes hosting the other members of the
-     * replication group containing this member.
-     */
-    public ReplicationMember(String aName, NodeInfo[] aTargetNodes) {
-        if ( null == aName ) {
-            throw new IllegalArgumentException("Name is required");
-        } else if ( null == aTargetNodes ) {
-            throw new IllegalArgumentException("Node names is required");
-        }
-        name = aName;
-        targetNodes = aTargetNodes;
-        idToReplicant = new HashMap();
-    }
-    
-    public String getName() {
-        return name;
-    }
-
-    public void fireUpdateEvent(UpdateEvent anEvent) {
-        // One does not send the actual ReplicantCapable in the case of an
-        // update. Instead, one sends only its identifier.
-        ReplicationCapable target = (ReplicationCapable) anEvent.getTarget();
-        anEvent.setTarget(target.getID());
-        sender.sendSyncRequest(
-            new CommandRequest("mergeWithUpdate", new Object[] {anEvent}),
-            requestOut, targetNodes);
-    }
-
     /**
      * Merges an UpdateEvent with a registered ReplicationCapable.
      * 
@@ -133,18 +34,7 @@ public class ReplicationMember
      * performed.
      */
     public void mergeWithUpdate(UpdateEvent anEvent)
-        throws ReplicationException {
-        ReplicantID id = (ReplicantID) anEvent.getTarget();
-        ReplicationCapable replicationCapable;
-        synchronized(idToReplicant) {
-            replicationCapable = (ReplicationCapable) idToReplicant.get(id);
-        }
-        if ( null == replicationCapable ) {
-            throw new ReplicationException(
-                "No ReplicantCapable with the id {" + id + "}");
-        }
-        replicationCapable.mergeWithUpdate(anEvent);
-    }
+        throws ReplicationException;
     
     /**
      * Registers a ReplicantCapable. From now, UpdateEvents multicasted
@@ -153,18 +43,7 @@ public class ReplicationMember
      * 
      * @param aReplicant ReplicantCapable to be controlled by this group.
      */
-    public void registerReplicantCapable(ReplicationCapable aReplicant) {
-        ReplicantID id = new ReplicantID();
-        aReplicant.setID(id);
-        sender.sendSyncRequest(
-            new CommandRequest("registerLocalReplicantCapable",
-                new Object[] {aReplicant}),
-            requestOut, targetNodes);
-        synchronized(idToReplicant) {
-            idToReplicant.put(id, aReplicant);
-            aReplicant.addUpdateListener(this);
-        }
-    }
+    public void registerReplicantCapable(ReplicationCapable aReplicant);
     
     /**
      * This method is for internal use only.
@@ -174,12 +53,7 @@ public class ReplicationMember
      * 
      * @param aReplicant ReplicantCapable to be locally registered.
      */
-    public void registerLocalReplicantCapable(ReplicationCapable aReplicant) {
-        synchronized(idToReplicant) {
-            aReplicant.addUpdateListener(this);
-            idToReplicant.put(aReplicant.getID(), aReplicant);
-        }
-    }
+    public void registerLocalReplicantCapable(ReplicationCapable aReplicant);
     
     /**
      * Retrieves the ReplicationCapable having the specified id.
@@ -188,133 +62,6 @@ public class ReplicationMember
      * @return ReplicantCapable having the specified id or null if such an
      * identifier is not known.
      */
-    public ReplicationCapable retrieveReplicantCapable(Object anID) {
-        synchronized(idToReplicant) {
-            return (ReplicationCapable) idToReplicant.get(anID);
-        }
-    }
+    public ReplicationCapable retrieveReplicantCapable(Object anID);
     
-    public void setContext(ServerNodeContext aContext) {
-        serverNodeContext = aContext;
-        sender = aContext.getRequestSender();
-        MsgOutInterceptor out = aContext.getOutput();
-        if ( null != out ) {
-            out =
-                new HeaderOutInterceptor(
-                    MsgHeaderConstants.DEST_CONNECTOR,
-                    name,
-                    out);
-            requestOut =
-                new HeaderOutInterceptor(
-                    MsgHeaderConstants.BODY_TYPE,
-                    MsgBody.Type.REQUEST,
-                    out);
-            resultOut = 
-                new HeaderOutInterceptor(
-                    MsgHeaderConstants.BODY_TYPE,
-                    MsgBody.Type.RESPONSE,
-                    out);
-        } else {
-            requestOut = null;
-            resultOut = null;
-        }
-    }
-
-    public void deliver(Msg aMsg) {
-        MsgHeader header = aMsg.getHeader();
-        MsgBody.Type bodyType =
-        (MsgBody.Type) header.getHeader(MsgHeaderConstants.BODY_TYPE);
-        if ( bodyType.equals(MsgBody.Type.REQUEST) ) {
-            handleRequest(aMsg);
-        } else if ( bodyType.equals(MsgBody.Type.RESPONSE) ) {
-            handleResponse(aMsg);
-        }
-    }
-    
-    /**
-     * Handles a request Msg.
-     * 
-     * @param aMsg Request Msg to be handled.
-     */
-    protected void handleRequest(Msg aMsg) {
-        MsgBody body = aMsg.getBody();
-        MsgHeader header = aMsg.getHeader();
-        Object sourceNode = header.getHeader(MsgHeaderConstants.SRC_NODE);
-        Object id = header.getHeader(MsgHeaderConstants.CORRELATION_ID);
-        CommandRequest command;
-        String gateway;
-        command = (CommandRequest) body.getContent();
-        command.setTarget(this);
-        CommandResult result = command.execute();
-        Msg msg = new Msg();
-        body = msg.getBody();
-        body.setContent(result);
-        MsgOutInterceptor reqOut =
-            new HeaderOutInterceptor(
-                MsgHeaderConstants.CORRELATION_ID,
-                id,
-                new HeaderOutInterceptor(
-                    MsgHeaderConstants.DEST_NODES,
-                    targetNodes,
-                    new HeaderOutInterceptor(
-                        MsgHeaderConstants.DEST_CONNECTOR,
-                        name,
-                        resultOut)));
-        reqOut.push(msg);
-    }
-
-    /**
-     * Handles a response Msg.
-     * 
-     * @param aMsg Response to be handled.
-     */
-    protected void handleResponse(Msg aMsg) {
-        MsgBody body = aMsg.getBody();
-        MsgHeader header = aMsg.getHeader();
-        CommandResult result;
-        result = (CommandResult) body.getContent();
-        sender.setResponse(
-            header.getHeader(MsgHeaderConstants.CORRELATION_ID),
-            result);
-    }
-    
-    public void setGBeanContext(GBeanContext context) {
-    }
-
-    public void doStart() throws WaitingException, Exception {
-    }
-
-    public void doStop() throws WaitingException, Exception {
-    }
-
-    public void doFail() {
-    }
-
-    /**
-     * ReplicantCapable identifier. 
-     */
-    private static class ReplicantID implements Externalizable {
-        private static volatile int seqId = 0;
-        private int id;
-        public ReplicantID() {
-            id = seqId++;
-        }
-        public int hashCode() {
-            return id;
-        }
-        public boolean equals(Object obj) {
-            if ( false == obj instanceof ReplicantID ) {
-               return false;
-            }
-            ReplicantID replicantID = (ReplicantID) obj;
-            return id == replicantID.id;
-        }
-        public void writeExternal(ObjectOutput out) throws IOException {
-            out.writeInt(id);
-        }
-        public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-            id = in.readInt();
-        }
-    }
-
 }

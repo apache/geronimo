@@ -35,7 +35,7 @@ import EDU.oswego.cs.dl.util.concurrent.TimeoutException;
  * It is provided by a ServerNode to its Connectors in order to send Msgs to
  * remote Connectors.
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/18 12:14:05 $
+ * @version $Revision: 1.6 $ $Date: 2004/03/24 11:37:05 $
  */
 public class RequestSender {
 
@@ -107,6 +107,7 @@ public class RequestSender {
         RequestID id = createID(aTargetNodes);
         header.addHeader(MsgHeaderConstants.CORRELATION_ID, id);
         header.addHeader(MsgHeaderConstants.DEST_NODES, aTargetNodes);
+        header.addHeader(MsgHeaderConstants.BODY_TYPE, MsgBody.Type.REQUEST);
         
         MsgBody body = msg.getBody();
         body.setContent(anOpaque);

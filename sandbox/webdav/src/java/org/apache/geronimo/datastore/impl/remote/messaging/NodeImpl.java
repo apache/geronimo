@@ -20,9 +20,7 @@ package org.apache.geronimo.datastore.impl.remote.messaging;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -47,20 +45,19 @@ import org.mortbay.util.ThreadedServer;
  * The following diagram shows how ServantNode and Connectors are combined
  * together:
  * 
- * Connector -- MTO -- ServerNode -- MTM -- ServerNode -- OTM -- Connector
+ * Connector -- MTO -- Node -- MTM -- Node -- OTM -- Connector
  *
  * Connector communicates with each other by sending Msgs.
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/18 12:14:05 $
+ * @version $Revision: 1.1 $ $Date: 2004/03/24 11:37:05 $
  */
-public class ServerNode
-    implements GBean
+public class NodeImpl
+    implements Node, GBean
 {
 
-    private static final Log log = LogFactory.getLog(ServerNode.class);
+    private static final Log log = LogFactory.getLog(NodeImpl.class);
 
-    private static final ServerNodeContext NULL_CONTEXT =
-        new ServerNodeContext(null, null);
+    private static final NodeContext NULL_CONTEXT = new NodeContext(null, null);
     
     /**
      * Node meta-data.
@@ -109,7 +106,7 @@ public class ServerNode
     /**
      * Processors of this server.
      */
-    final ServerProcessors processors;
+    final NodeProcessors processors;
     
     /**
      * MetaConnection to other nodes.
@@ -124,14 +121,10 @@ public class ServerNode
      * Creates a server.
      * 
      * @param aNodeInfo NodeInfo identifying uniquely this node on the network.
-     * @param aCollOfConnectors Collection of Connectors to be registered by 
-     * this server.
      */
-    public ServerNode(NodeInfo aNodeInfo, Collection aCollOfConnectors) {
+    public NodeImpl(NodeInfo aNodeInfo) {
         if ( null == aNodeInfo ) {
             throw new IllegalArgumentException("NodeInfo is required.");
-        } else if ( null == aCollOfConnectors ) {
-            throw new IllegalArgumentException("Connectors is required.");
         }
         nodeInfo = aNodeInfo;
         sender = new RequestSender(nodeInfo);
@@ -139,9 +132,9 @@ public class ServerNode
         
         metaConnection = new MetaConnection(this);
         
-        streamManager = new StreamManagerImpl(nodeInfo);
+        streamManager = new StreamManagerImpl(this, nodeInfo);
         
-        processors = new ServerProcessors(this);
+        processors = new NodeProcessors(this);
         
         queueIn = new MsgQueue(nodeInfo.getName() + " Inbound");
         queueOut = new MsgQueue(nodeInfo.getName() + " Outbound");
@@ -157,7 +150,7 @@ public class ServerNode
         
         inReactor.register(StreamManager.NAME, streamManager);
         // The stream manager writes to the output queue of the server.
-        ServerNodeContext nodeContext = new ServerNodeContext(
+        NodeContext nodeContext = new NodeContext(
             new HeaderOutInterceptor(
                 MsgHeaderConstants.SRC_CONNECTOR,
                 StreamManager.NAME,
@@ -167,12 +160,6 @@ public class ServerNode
         streamManager.setContext(nodeContext);
                 
         connectors = new HashMap();
-        // Registers the Connectors.
-        for (Iterator iter = aCollOfConnectors.iterator();
-            iter.hasNext();) {
-            Connector connector = (Connector) iter.next();
-            addConnector(connector);
-        }
     }
 
     /**
@@ -260,10 +247,10 @@ public class ServerNode
      * 
      * @param aConnector Connector to be registered.
      */
-    private void addConnector(Connector aConnector) {
+    public void addConnector(Connector aConnector) {
         String pName = aConnector.getName();
         // Connectors write to the outbound Msg queue.
-        ServerNodeContext nodeContext = new ServerNodeContext(
+        NodeContext nodeContext = new NodeContext(
             new HeaderOutInterceptor(
                 MsgHeaderConstants.SRC_CONNECTOR,
                 pName,
@@ -281,7 +268,7 @@ public class ServerNode
      * 
      * @param aConnector Connector to be deregistered.
      */
-    private void removeConnector(Connector aConnector) {
+    public void removeConnector(Connector aConnector) {
         String pName = aConnector.getName();
         aConnector.setContext(NULL_CONTEXT);
         inReactor.unregister(pName);
@@ -369,15 +356,17 @@ public class ServerNode
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory factory = new GBeanInfoFactory(ServerNode.class);
+        GBeanInfoFactory factory = new GBeanInfoFactory(NodeImpl.class);
         factory.setConstructor(
-            new String[] {"NodeInfo", "Connectors"},
-            new Class[] {NodeInfo.class, Collection.class});
+            new String[] {"NodeInfo"},
+            new Class[] {NodeInfo.class});
         factory.addAttribute("NodeInfo", true);
-        factory.addReference("Connectors", Connector.class);
+        factory.addAttribute("Topology", true);
         factory.addAttribute("StreamManager", false);
         factory.addOperation("join", new Class[]{NodeInfo.class});
         factory.addOperation("leave", new Class[]{NodeInfo.class});
+        factory.addOperation("addConnector", new Class[]{Connector.class});
+        factory.addOperation("removeConnector", new Class[]{Connector.class});
         GBEAN_INFO = factory.getBeanInfo();
     }
 

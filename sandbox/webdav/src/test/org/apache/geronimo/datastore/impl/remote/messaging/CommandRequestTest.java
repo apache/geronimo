@@ -17,11 +17,13 @@
 
 package org.apache.geronimo.datastore.impl.remote.messaging;
 
+import java.net.InetAddress;
+
 import junit.framework.TestCase;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/11 15:36:14 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/24 11:37:06 $
  */
 public class CommandRequestTest extends TestCase {
     
@@ -29,7 +31,10 @@ public class CommandRequestTest extends TestCase {
     private static final String name = "test"; 
     
     protected void setUp() throws Exception {
-        connector = new DummyConnector(name, new NodeInfo[0]);
+        connector = new DummyConnector(
+            new NodeImpl(
+                new NodeInfo("test", InetAddress.getLocalHost(), 4040)),
+            name, new NodeInfo[0]);
     }
     
     public void testExecute0() throws Exception {

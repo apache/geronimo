@@ -33,7 +33,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * This is a connection of connections.
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/18 12:14:05 $
+ * @version $Revision: 1.6 $ $Date: 2004/03/24 11:37:05 $
  */
 public class MetaConnection
 {
@@ -43,7 +43,7 @@ public class MetaConnection
     /**
      * Node owning this connection.
      */
-    private final ServerNode node;
+    private final NodeImpl node;
     
     /**
      * NodeInfo to Connection map.
@@ -72,7 +72,7 @@ public class MetaConnection
      * 
      * @param aNode Node.
      */
-    public MetaConnection(ServerNode aNode) {
+    public MetaConnection(NodeImpl aNode) {
         if ( null == aNode ) {
             throw new IllegalArgumentException("Node is required.");
         }
@@ -342,7 +342,7 @@ public class MetaConnection
      * one can replace the NodeInfo instances contained by Msgs by their
      * corresponding identifier. 
      *
-     * @version $Revision: 1.5 $ $Date: 2004/03/18 12:14:05 $
+     * @version $Revision: 1.6 $ $Date: 2004/03/24 11:37:05 $
      */
     private class LogicalCompression implements
         StreamInInterceptor.PopSynchronization,

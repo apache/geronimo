@@ -23,17 +23,17 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Processors associated to a server.
  *
- * @version $Revision: 1.6 $ $Date: 2004/03/18 12:14:05 $
+ * @version $Revision: 1.1 $ $Date: 2004/03/24 11:37:05 $
  */
-class ServerProcessors
+class NodeProcessors
 {
 
-    private static final Log log = LogFactory.getLog(ServerProcessors.class);
+    private static final Log log = LogFactory.getLog(NodeProcessors.class);
 
     /**
      * Server owning these processors.
      */
-    private final ServerNode server;
+    private final NodeImpl server;
 
     /**
      * StreamManager used by the server to resolve InputStreams.
@@ -50,7 +50,7 @@ class ServerProcessors
      * 
      * @param aServer Server owning these processors. 
      */
-    public ServerProcessors(ServerNode aServer) {
+    public NodeProcessors(NodeImpl aServer) {
         server = aServer;
         processors = new Processors(aServer.getNodeInfo().getName(), 2, 10);
         streamManager = aServer.getStreamManager();

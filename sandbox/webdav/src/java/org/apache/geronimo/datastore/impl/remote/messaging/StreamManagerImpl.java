@@ -31,9 +31,10 @@ import org.apache.commons.logging.LogFactory;
 /**
  * StreamManager implementation.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/11 15:36:14 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/24 11:37:05 $
  */
 public class StreamManagerImpl
+    extends AbstractConnector
     implements Connector, StreamManager
 {
 
@@ -70,26 +71,13 @@ public class StreamManagerImpl
     private final Map inputStreams;
 
     /**
-     * Context of the ServerNode which has mounted this instance.
-     */
-    protected ServerNodeContext serverNodeContext;
-    
-    /**
-     * To send requests.
-     */
-    protected RequestSender sender;
-    
-    /**
-     * Used to communicate with remote StreamManagers.
-     */
-    protected MsgOutInterceptor out;
-    
-    /**
      * Creates a manager owned by the specified node.
      * 
+     * @param aServerNode ServerNode containing this instance.
      * @param aNode Node owning this manager.
      */
-    public StreamManagerImpl(NodeInfo aNode) {
+    public StreamManagerImpl(NodeImpl aServerNode, NodeInfo aNode) {
+        super(aServerNode);
         if ( null == aNode ) {
             throw new IllegalArgumentException("Node is required.");
         }
@@ -99,12 +87,6 @@ public class StreamManagerImpl
     
     public String getName() {
         return owningNode.getName();
-    }
-    
-    public void setContext(ServerNodeContext aContext) {
-        serverNodeContext = aContext;
-        sender = aContext.getRequestSender();
-        out = aContext.getOutput();
     }
     
     public Object register(InputStream anIn) {
@@ -175,17 +157,6 @@ public class StreamManagerImpl
         
     }
     
-    public void deliver(Msg aMsg) {
-        MsgHeader header = aMsg.getHeader();
-        MsgBody.Type bodyType =
-            (MsgBody.Type) header.getHeader(MsgHeaderConstants.BODY_TYPE);
-        if ( bodyType.equals(MsgBody.Type.REQUEST) ) {
-            handleRequest(aMsg);
-        } else if ( bodyType.equals(MsgBody.Type.RESPONSE) ) {
-            handleResponse(aMsg);
-        }
-    }
-    
     /**
      * Handles a request Msg.
      * 
@@ -222,26 +193,11 @@ public class StreamManagerImpl
     }
 
     /**
-     * Handles a response Msg.
-     * 
-     * @param aMsg Response to be handled.
-     */
-    protected void handleResponse(Msg aMsg) {
-        MsgBody body = aMsg.getBody();
-        MsgHeader header = aMsg.getHeader();
-        CommandResult result;
-        result = (CommandResult) body.getContent();
-        sender.setResponse(
-            header.getHeader(MsgHeaderConstants.CORRELATION_ID),
-            result);
-    }
-    
-    /**
      * InputStream returned when a GInputStream is deserialized. This 
      * InputStream calls back its StreamManager when its internal buffer is
      * empty. 
      *
-     * @version $Revision: 1.3 $ $Date: 2004/03/11 15:36:14 $
+     * @version $Revision: 1.4 $ $Date: 2004/03/24 11:37:05 $
      */
     private class ProxyInputStream extends InputStream {
         /**

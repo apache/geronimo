@@ -18,16 +18,16 @@
 package org.apache.geronimo.datastore.impl.remote.messaging;
 
 /**
- * Context provided by a ServerNode to its Connectors when they are registered.
+ * Context provided by a Node to its Connectors when they are registered.
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/11 15:36:14 $
+ * @version $Revision: 1.1 $ $Date: 2004/03/24 11:37:05 $
  */
-public class ServerNodeContext {
+public class NodeContext {
 
     private final MsgOutInterceptor out;
     private final RequestSender sender;
     
-    public ServerNodeContext(MsgOutInterceptor anOut, RequestSender aSender) {
+    public NodeContext(MsgOutInterceptor anOut, RequestSender aSender) {
         out = anOut;
         sender = aSender;
     }

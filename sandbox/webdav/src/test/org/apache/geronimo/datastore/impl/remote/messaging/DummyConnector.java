@@ -20,20 +20,31 @@ package org.apache.geronimo.datastore.impl.remote.messaging;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/18 12:14:05 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/24 11:37:06 $
  */
-public class DummyConnector implements Connector {
+public class DummyConnector
+    extends AbstractConnector
+    implements Connector, GBean {
 
     private final String name;
     private final List received;
     private final NodeInfo[] targetNodes;
-    private RequestSender sender;
-    private MsgOutInterceptor out;
-    protected ServerNodeContext serverNodeContext;
     
-    public DummyConnector(String aName, NodeInfo[] aTargetNodes) {
+    public DummyConnector(Node aNode,
+        String aName, NodeInfo[] aTargetNodes) {
+        super(aNode);
+        if ( null == aName ) {
+            throw new IllegalArgumentException("Name is required.");
+        } else if ( null == aTargetNodes ) {
+            throw new IllegalArgumentException("Target nodes is required.");
+        }
         name = aName;
         targetNodes = aTargetNodes;
         received = new ArrayList();
@@ -55,10 +66,8 @@ public class DummyConnector implements Connector {
                 out), targetNodes);
     }
 
-    public void setContext(ServerNodeContext aContext) {
-        serverNodeContext = aContext;
-        sender = aContext.getRequestSender();
-        out = aContext.getOutput();
+    public void setContext(NodeContext aContext) {
+        super.setContext(aContext);
         if ( null != out ) {
             out = 
                 new HeaderOutInterceptor(
@@ -72,23 +81,12 @@ public class DummyConnector implements Connector {
         return received;
     }
     
-    public void deliver(Msg aMsg) {
-        MsgHeader header = aMsg.getHeader();
-        MsgBody.Type bodyType =
-            (MsgBody.Type) header.getHeader(MsgHeaderConstants.BODY_TYPE);
-        if ( MsgBody.Type.REQUEST == bodyType ) {
-            handleRequest(aMsg);
-        } else if ( MsgBody.Type.RESPONSE == bodyType ) {
-            handleResponse(aMsg);
-        }
-    }
-    
-    public void handleRequest(Msg aMsg) {
+    protected void handleRequest(Msg aMsg) {
         MsgHeader header = aMsg.getHeader();
         MsgBody body = aMsg.getBody();
         
         Object id = header.getHeader(MsgHeaderConstants.CORRELATION_ID);
-        Object node = header.getHeader(MsgHeaderConstants.SRC_NODE);
+        Object srcNode = header.getHeader(MsgHeaderConstants.SRC_NODE);
 
         received.add(body.getContent());
         
@@ -104,7 +102,7 @@ public class DummyConnector implements Connector {
                     MsgBody.Type.RESPONSE,
                     new HeaderOutInterceptor(
                         MsgHeaderConstants.DEST_NODES,
-                        node,
+                        srcNode,
                         new HeaderOutInterceptor(
                             MsgHeaderConstants.BODY_TYPE,
                             MsgBody.Type.RESPONSE,
@@ -112,14 +110,22 @@ public class DummyConnector implements Connector {
         reqOut.push(msg);
     }
 
-    private void handleResponse(Msg aMsg) {
-        MsgBody body = aMsg.getBody();
-        MsgHeader header = aMsg.getHeader();
-        CommandResult result;
-        result = (CommandResult) body.getContent();
-        sender.setResponse(
-            header.getHeader(MsgHeaderConstants.CORRELATION_ID),
-            result);
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoFactory factory = new GBeanInfoFactory(DummyConnector.class, AbstractConnector.GBEAN_INFO);
+        factory.setConstructor(
+            new String[] {"Node", "Name", "TargetNodes"},
+            new Class[] {Node.class, String.class, NodeInfo[].class});
+        factory.addAttribute(new GAttributeInfo("TargetNodes", true));
+        factory.addAttribute(new GAttributeInfo("Received", false));
+        factory.addOperation("raiseISException");
+        factory.addOperation("sendRawObject", new Class[]{Object.class});
+        GBEAN_INFO = factory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
     
 }

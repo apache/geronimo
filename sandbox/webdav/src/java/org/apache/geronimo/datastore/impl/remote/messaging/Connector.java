@@ -25,7 +25,7 @@ package org.apache.geronimo.datastore.impl.remote.messaging;
  * <BR>
  * See ServerNode for more details.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/11 15:36:14 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/24 11:37:05 $
  */
 public interface Connector
 {
@@ -41,7 +41,7 @@ public interface Connector
     /**
      * Sets the ServerNode context of this Connector.
      */
-    public void setContext(ServerNodeContext aContext);
+    public void setContext(NodeContext aContext);
 
     /**
      * When a ServerNode receives a Msg to be delivered to a Connector, it
