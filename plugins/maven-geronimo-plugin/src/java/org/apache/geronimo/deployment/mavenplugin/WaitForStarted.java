@@ -33,6 +33,7 @@ import org.apache.geronimo.kernel.config.NoSuchConfigException;
 public class WaitForStarted extends AbstractModuleCommand {
 
     private int maxTries = 40;
+    private int retryIntervalMilliseconds = 1000;
 
     private MBeanServerConnection mbServerConnection;
     private KernelMBean kernel;
@@ -44,6 +45,14 @@ public class WaitForStarted extends AbstractModuleCommand {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public void setMaxTries(int maxTries) {
+        this.maxTries = maxTries;
+    }
+
+    public void setRetryIntervalMilliseconds(int retryIntervalMilliseconds) {
+        this.retryIntervalMilliseconds = retryIntervalMilliseconds;
     }
 
     public void execute() throws Exception {
@@ -70,7 +79,7 @@ public class WaitForStarted extends AbstractModuleCommand {
                     if (tries == 0) {
                         throw new Exception("Could not connect");
                     }
-                    Thread.sleep(1000);
+                    Thread.sleep(retryIntervalMilliseconds);
                 }
             }
         } finally {
@@ -86,7 +95,7 @@ public class WaitForStarted extends AbstractModuleCommand {
             } catch (NoSuchConfigException e) {
                 //hasn't been loaded yet, keep trying
             }
-            Thread.sleep(1000);
+            Thread.sleep(retryIntervalMilliseconds);
         }
         throw new Exception("Configuration is not yet started");
     }
