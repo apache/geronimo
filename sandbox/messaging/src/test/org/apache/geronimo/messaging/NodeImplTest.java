@@ -36,7 +36,7 @@ import org.apache.geronimo.pool.ThreadPool;
 
 /**
  *
- * @version $Revision: 1.6 $ $Date: 2004/07/17 03:52:33 $
+ * @version $Revision: 1.7 $ $Date: 2004/07/20 00:26:03 $
  */
 public class NodeImplTest
     extends TestCase
@@ -148,6 +148,7 @@ public class NodeImplTest
         NodeImplTest test = new NodeImplTest();
         test.setUp();
         test.testSendRawPerformance();
+        test.tearDown();
     }
     
     public void testSendRawPerformance() throws Exception {
@@ -307,7 +308,7 @@ public class NodeImplTest
             throw new IllegalArgumentException("Not expected");
         }
         public NodeInfo getNodeById(int anId) {
-            if ( nodesInfo.length <= anId  ) {
+            if ( nodesInfo.length < anId  ) {
                 throw new IllegalArgumentException("Not expected");
             }
             return nodesInfo[anId - 1];
@@ -316,7 +317,7 @@ public class NodeImplTest
             throw new IllegalArgumentException("Not expected");
         }
         public int getVersion() {
-            return 0;
+            return 1;
         }
     }
     

@@ -39,21 +39,21 @@ import org.apache.geronimo.messaging.io.StreamOutputStream;
  * Its goal is to compress Msgs to be sent to other nodes. The compression is
  * based on a shared knowledge such as a Topology.
  *
- * @version $Revision: 1.3 $ $Date: 2004/07/05 07:03:50 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/20 00:26:04 $
  */
 public class LogicalCompression
     implements PopSynchronization, PushSynchronization
 {
 
     /**
-     * Future topology.
+     * Topology being prepared.
      */
-    private NodeTopology futTopology;
+    private volatile NodeTopology preparedTopology;
     
     /**
-     * Current registered topology.
+     * Committed topology.
      */
-    private NodeTopology curTopology;
+    private volatile NodeTopology topology;
     
     /**
      * No logical compression.
@@ -77,23 +77,24 @@ public class LogicalCompression
 
     /**
      * Registers a future topology. It is only used to uncompress Msgs which
-     * have not been compressed by the current topology. 
+     * have not been compressed by the topology currently committed. 
      * 
-     * @param aTopology Future topology.
+     * @param aTopology Topology.
      */
-    public void registerFutureTopology(NodeTopology aTopology) {
-        futTopology = aTopology;
+    public void prepareTopology(NodeTopology aTopology) {
+        preparedTopology = aTopology;
     }
     
     /**
-     * Registers the current topology. It is used to compress and uncompress
-     * Msgs. If it is not possible to uncompress a Msg with the current
-     * topology, then the future topology is used.
+     * Commits the previousy prepared topology. It is used to compress and 
+     * uncompress Msgs. If it is not possible to uncompress a Msg with the 
+     * current topology, then the future topology is used.
      * 
      * @param aTopology Current topology.
      */
-    public void registerTopology(NodeTopology aTopology) {
-        curTopology = aTopology;
+    public void commitTopology() {
+        topology = preparedTopology;
+        preparedTopology = null;
     }
     
     public Object beforePop(StreamInputStream anIn)
@@ -112,17 +113,8 @@ public class LogicalCompression
             return result;
         }
         int version = anIn.readInt();
-        NodeTopology topology = null;
-        if ( null != curTopology && version == curTopology.getVersion() ) {
-            topology = curTopology;
-        } else if ( null != futTopology &&
-            version == futTopology.getVersion() ) {
-            topology = futTopology;
-        }
-        if ( null == topology ) {
-            throw new IllegalArgumentException("No topology with version {" +
-                version + "} is defined.");
-        }
+        NodeTopology topology = getTopology(version);
+
         int id = anIn.readInt();
         NodeInfo nodeInfo = topology.getNodeById(id);
         result.add(nodeInfo);
@@ -164,8 +156,11 @@ public class LogicalCompression
         RequestSender.RequestID reqID  = (RequestSender.RequestID)
             header.resetHeader(MsgHeaderConstants.CORRELATION_ID);
         anOut.writeByte(reqID.getID());
-        NodeTopology topology = curTopology;
-        if ( null == topology ) {
+        Integer version = (Integer)
+            header.getHeader(MsgHeaderConstants.TOPOLOGY_VERSION);
+        NodeTopology topology = getTopology(version.intValue());
+        // Uses only the current topology to compress the data.
+        if ( null == topology || preparedTopology == topology ) {
             anOut.writeByte(NULL);
             return null;
         }
@@ -190,4 +185,18 @@ public class LogicalCompression
         Object anOpaque) throws IOException {
     }
 
+    private NodeTopology getTopology(int aVersion) {
+        if ( 0 == aVersion || null == topology ) {
+            return null;
+        } else if ( aVersion == topology.getVersion() ) {
+            return topology;
+        } else if ( null == preparedTopology ||
+            aVersion == preparedTopology.getVersion() ) {
+            return preparedTopology;
+        } else {
+            throw new IllegalArgumentException("Topology version " + 
+                aVersion + " is too old.");
+        }
+    }
+    
 }

@@ -25,13 +25,15 @@ import java.util.Set;
  * <BR>
  * This is a Serializable as it is exchanged between nodes.
  *
- * @version $Revision: 1.4 $ $Date: 2004/07/05 07:03:50 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/20 00:26:03 $
  */
 public interface NodeTopology extends Serializable
 {
 
     /**
      * Gets the version of this topology.
+     * <BR>
+     * 0 is a reserved value and must not be used.
      * 
      * @return version number.
      */
@@ -42,7 +44,8 @@ public interface NodeTopology extends Serializable
      * reachable from aRoot. 
      * 
      * @param aRoot Node.
-     * @return Set<NodeInfo> Neighbours.
+     * @return Set<NodeInfo> Neighbours. An empty Set must be returned if
+     * the specified node is not registered by this topology.
      */
     public Set getNeighbours(NodeInfo aRoot);
     

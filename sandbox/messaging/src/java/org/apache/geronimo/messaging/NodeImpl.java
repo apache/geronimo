@@ -31,11 +31,13 @@ import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.messaging.interceptors.HeaderOutInterceptor;
 import org.apache.geronimo.messaging.interceptors.MsgOutDispatcher;
 import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
+import org.apache.geronimo.messaging.interceptors.MsgTransformer;
 import org.apache.geronimo.messaging.interceptors.ThrowableTrapOutInterceptor;
 import org.apache.geronimo.messaging.io.IOContext;
 import org.apache.geronimo.messaging.io.ReplacerResolver;
 import org.apache.geronimo.messaging.io.StreamManager;
 import org.apache.geronimo.messaging.io.StreamManagerImpl;
+import org.apache.geronimo.messaging.proxy.EndPointProxy;
 import org.apache.geronimo.messaging.proxy.EndPointProxyFactory;
 import org.apache.geronimo.messaging.proxy.EndPointProxyFactoryImpl;
 import org.apache.geronimo.messaging.proxy.EndPointProxyInfo;
@@ -56,7 +58,7 @@ import EDU.oswego.cs.dl.util.concurrent.Semaphore;
 /**
  * Node implementation.
  *
- * @version $Revision: 1.8 $ $Date: 2004/07/17 03:52:34 $
+ * @version $Revision: 1.9 $ $Date: 2004/07/20 00:26:04 $
  */
 public class NodeImpl
     implements Node, GBeanLifecycle
@@ -201,7 +203,7 @@ public class NodeImpl
             processed.add(nodeInfo);
             prepareNodes(aTopology, processed, nodeInfo);
             
-            endPointView.commitTopology(aTopology);
+            endPointView.commitTopology();
             processed = new HashSet();
             processed.add(nodeInfo);
             commitNodes(aTopology, processed, nodeInfo);
@@ -219,8 +221,8 @@ public class NodeImpl
      * @param aProcessed Set<NodeInfo> nodes already processed.
      * @param aNodeInfo Node to be prepared.
      */
-    private void prepareNodes(NodeTopology aTopology, Set aProcessed,
-        NodeInfo aNodeInfo) {
+    private void prepareNodes(final NodeTopology aTopology, Set aProcessed,
+        NodeInfo aNodeInfo) throws NodeException {
         // Computes the neighbours which have not yet received the
         // topology reconfiguration.
         Set toBeProcessed = new HashSet(aTopology.getNeighbours(aNodeInfo));
@@ -231,20 +233,42 @@ public class NodeImpl
             return;
         }
 
+        // Prepares the topology of all the neighbours.
         for (Iterator iter = toBeProcessed.iterator(); iter.hasNext();) {
             NodeInfo nodeInfo = (NodeInfo) iter.next();
             EndPointProxyInfo proxyInfo = new EndPointProxyInfo(
                 NodeEndPointView.NODE_ID, NodeEndPointView.class, nodeInfo);
             NodeEndPointView topologyEndPoint =
                 (NodeEndPointView) endPointProxyFactory.factory(proxyInfo);
+            // sends the Msg in the prepared topology.
+            ((EndPointProxy) topologyEndPoint).setTransformer(
+                new MsgTransformer() {
+                    private Msg msg;
+                    public Msg pop() {
+                        MsgHeader hd = msg.getHeader();
+                        hd.addHeader(MsgHeaderConstants.TOPOLOGY_VERSION,
+                            new Integer(aTopology.getVersion()));
+                        return msg;
+                    }
+                    public void push(Msg aMsg) {
+                        msg = aMsg;
+                    }
+                }); 
             try {
                 topologyEndPoint.prepareTopology(aTopology);
+            } catch (CommunicationException e) {
+                throw new NodeException("Can not prepare topology", e);
             } finally {
                 endPointProxyFactory.releaseProxy(topologyEndPoint);
             }
             // Computes the nodes which have already received the topology
             // reconfiguration.
             aProcessed.add(nodeInfo);
+        }
+        
+        // Prepares the topology of the neighbours of the direct neighbours.
+        for (Iterator iter = toBeProcessed.iterator(); iter.hasNext();) {
+            NodeInfo nodeInfo = (NodeInfo) iter.next();
             prepareNodes(aTopology, aProcessed, nodeInfo);
         }
     }
@@ -256,8 +280,8 @@ public class NodeImpl
      * @param aProcessed Set<NodeInfo> nodes already processed.
      * @param aNodeInfo Node to be committed.
      */
-    private void commitNodes(NodeTopology aTopology, Set aProcessed,
-        NodeInfo aNodeInfo) {
+    private void commitNodes(final NodeTopology aTopology, Set aProcessed,
+        NodeInfo aNodeInfo) throws NodeException {
         Set toBeProcessed = new HashSet(aTopology.getNeighbours(aNodeInfo));
         toBeProcessed.removeAll(aProcessed);
 
@@ -271,12 +295,32 @@ public class NodeImpl
                 NodeEndPointView.NODE_ID, NodeEndPointView.class, nodeInfo);
             NodeEndPointView topologyEndPoint =
                 (NodeEndPointView) endPointProxyFactory.factory(proxyInfo);
+            // sends the Msg in the prepared topology.
+            ((EndPointProxy) topologyEndPoint).setTransformer(
+                new MsgTransformer() {
+                    private Msg msg;
+                    public Msg pop() {
+                        MsgHeader hd = msg.getHeader();
+                        hd.addHeader(MsgHeaderConstants.TOPOLOGY_VERSION,
+                            new Integer(aTopology.getVersion()));
+                        return msg;
+                    }
+                    public void push(Msg aMsg) {
+                        msg = aMsg;
+                    }
+                }); 
             try {
-                topologyEndPoint.commitTopology(aTopology);
+                topologyEndPoint.commitTopology();
+            } catch (CommunicationException e) {
+                throw new NodeException("Can not commit topology", e);
             } finally {
                 endPointProxyFactory.releaseProxy(topologyEndPoint);
             }
             aProcessed.add(nodeInfo);
+        }
+        
+        for (Iterator iter = toBeProcessed.iterator(); iter.hasNext();) {
+            NodeInfo nodeInfo = (NodeInfo) iter.next();
             commitNodes(aTopology, aProcessed, nodeInfo);
         }
     }
@@ -316,7 +360,7 @@ public class NodeImpl
                 return Collections.EMPTY_SET;
             }
             public NodeInfo[] getPath(NodeInfo aSource, NodeInfo aTarget) {
-                throw new UnsupportedOperationException("getPath");
+                return null;
             }
             public int getIDOfNode(NodeInfo aNodeInfo) {
                 throw new UnsupportedOperationException("getIDOfNode");
@@ -332,8 +376,8 @@ public class NodeImpl
             public int getVersion() {
                 return 0;
             }
-            public void setVersion(int aVersion) {
-                throw new UnsupportedOperationException("setVersion");
+            public String toString() {
+                return "Stand-alone node " + nodeInfo;
             }
         };
         setTopology(topology);
@@ -465,10 +509,6 @@ public class NodeImpl
 
         public void push(Msg aMsg, Throwable aThrowable) {
             log.error("Can not deliver " + aMsg, aThrowable);
-            // Send the Msg back to the caller and provide the exception.
-            Msg msg = aMsg.reply();
-            msg.getBody().setContent(new Result(false, aThrowable));
-            nodeManager.getMsgConsumerOut().push(aMsg);
         }
         
     }
@@ -498,22 +538,24 @@ public class NodeImpl
 
     private class NodeEndPointViewImpl extends BaseEndPoint
         implements NodeEndPointView {
+        private NodeTopology topology;
         private NodeEndPointViewImpl() {
             super(NodeImpl.this, NODE_ID);
         }
-        public void prepareTopology(NodeTopology aTopology) {
+        public void prepareTopology(NodeTopology aTopology)
+            throws NodeException {
             // Registers a future topology here. This way neighbours can start
             // to send Msgs compressed with the new topology.
-            // TODO re-enable compression.
-//            compression.registerFutureTopology(aTopology);
-            nodeManager.setTopology(aTopology);
+            compression.prepareTopology(aTopology);
+            nodeManager.prepareTopology(aTopology);
+            topology = aTopology;
         }
-        public void commitTopology(NodeTopology aTopology) {
-            log.info("********** Topology update **********\n" + aTopology);
-            nodeTopology = aTopology;
-            log.info("********** End Topology update ******");
-            // TODO re-enable compression.
-//            compression.registerTopology(aTopology);
+        public void commitTopology() {
+            nodeManager.commitTopology();
+            compression.commitTopology();
+            nodeTopology = topology;
+            log.info("\n********** Topology update **********\n" + 
+                topology + "\n********** End Topology update ******");
         }
     }
     

@@ -38,7 +38,7 @@ import org.apache.geronimo.messaging.cluster.topology.TopologyManager;
  * reconfigurations of the underlying node topology when members are added or 
  * removed.
  *  
- * @version $Revision: 1.2 $ $Date: 2004/07/17 03:38:42 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/20 00:26:03 $
  */
 public class ClusterImpl
     implements Cluster, GBeanLifecycle
@@ -117,8 +117,15 @@ public class ClusterImpl
             }
             topologyManager.addNode(aNode);
             nodeTopology = topologyManager.factoryTopology();
+            try {
+                node.setTopology(nodeTopology);
+            } catch (NodeException e) {
+                // If the topology can not be applied, then one removes it
+                // from the topologyManager.
+                topologyManager.removeNode(aNode);
+                throw e;
+            }
         }
-        node.setTopology(nodeTopology);
         fireClusterMemberEvent(
             new ClusterEvent(this, aNode, ClusterEvent.MEMBER_ADDED));
     }
@@ -132,8 +139,12 @@ public class ClusterImpl
             }
             topologyManager.removeNode(aNode);
             nodeTopology = topologyManager.factoryTopology();
+            try {
+                node.setTopology(nodeTopology);
+            } catch (NodeException e) {
+                throw e;
+            }
         }
-        node.setTopology(nodeTopology);
         fireClusterMemberEvent(
             new ClusterEvent(this, aNode, ClusterEvent.MEMBER_REMOVED));
     }

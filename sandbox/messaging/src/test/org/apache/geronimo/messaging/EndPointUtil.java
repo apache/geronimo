@@ -22,7 +22,7 @@ import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/24 12:03:34 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/20 00:26:03 $
  */
 public class EndPointUtil
 {
@@ -33,14 +33,20 @@ public class EndPointUtil
                 MsgHeaderConstants.SRC_NODE, "",
                 new HeaderOutInterceptor(
                     MsgHeaderConstants.SRC_ENDPOINT, "",
-                    anEP1.getMsgConsumerOut()));
+                    new HeaderOutInterceptor(
+                        MsgHeaderConstants.TOPOLOGY_VERSION,
+                        new Integer(1),
+                        anEP1.getMsgConsumerOut())));
         anEP2.setMsgProducerOut(out);
         out =
             new HeaderOutInterceptor(
                 MsgHeaderConstants.SRC_NODE, "",
                 new HeaderOutInterceptor(
                     MsgHeaderConstants.SRC_ENDPOINT, "",
-                    anEP2.getMsgConsumerOut()));
+                    new HeaderOutInterceptor(
+                        MsgHeaderConstants.TOPOLOGY_VERSION,
+                        new Integer(1),
+                        anEP2.getMsgConsumerOut())));
         anEP1.setMsgProducerOut(out);
     }
     

@@ -26,7 +26,7 @@ package org.apache.geronimo.messaging;
  * create a proxy for static nested interfaces. I think that this is a CGLIB
  * limitation.
  *
- * @version $Revision :$ $Date: 2004/07/17 03:52:34 $
+ * @version $Revision :$ $Date: 2004/07/20 00:26:04 $
  */
 public interface NodeEndPointView extends EndPoint
 {
@@ -43,16 +43,15 @@ public interface NodeEndPointView extends EndPoint
      * specified topology.
      * 
      * @param aTopology Topology to be prepared.
+     * @exception NodeException If the node can not join all of its neighbours.
      */
-    public void prepareTopology(NodeTopology aTopology);
+    public void prepareTopology(NodeTopology aTopology) throws NodeException;
     
     /**
-     * Commits the specified topology.
-     * <BR>
-     * This latter must have been prepared just before this call.
+     * Commits the topology previously prepared.
      * 
      * @param aTopology Topology to be committed.
      */
-    public void commitTopology(NodeTopology aTopology);
+    public void commitTopology();
     
 }
