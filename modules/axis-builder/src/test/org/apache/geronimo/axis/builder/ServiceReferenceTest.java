@@ -119,7 +119,7 @@ public class ServiceReferenceTest extends TestCase {
         Map seiClassNameToFactoryMap = new HashMap();
         seiClassNameToFactoryMap.put(MockPort.class.getName(), factory);
         AxisBuilder builder = new AxisBuilder();
-        Object service = builder.createService(MockService.class, portMap, seiClassNameToFactoryMap, context, module, isolatedCl);
+        Object service = builder.createServiceInterfaceProxy(MockService.class, portMap, seiClassNameToFactoryMap, context, module, isolatedCl);
         assertTrue(service instanceof MockService);
         MockService mockService = (MockService) service;
         MockPort mockPort = mockService.getMockPort();
