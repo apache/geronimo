@@ -75,7 +75,7 @@ import net.sf.cglib.reflect.FastClass;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/19 06:33:24 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/23 16:43:39 $
  */
 public final class ProxyMethodInterceptor implements MethodInterceptor {
     /**
@@ -156,9 +156,9 @@ public final class ProxyMethodInterceptor implements MethodInterceptor {
         }
         InvokeMBean invoker = methodTable[proxy.getSuperIndex()];
         if (invoker == null) {
-            System.out.println("NO INVOKER FOR ");
+            throw new NoSuchOperationError("No implementation method for "+method);
         }
-        return methodTable[proxy.getSuperIndex()].invoke(server, objectName, args);
+        return invoker.invoke(server, objectName, args);
     }
 
     public static InvokeMBean[] createMethodTable(MBeanServer server, ObjectName objectName, Class proxyType) {
