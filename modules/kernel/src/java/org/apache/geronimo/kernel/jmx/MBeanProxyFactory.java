@@ -55,22 +55,28 @@
  */
 package org.apache.geronimo.kernel.jmx;
 
-import java.lang.reflect.Proxy;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanInfo;
+import javax.management.MBeanOperationInfo;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.Factory;
+import net.sf.cglib.proxy.SimpleCallbacks;
+import net.sf.cglib.reflect.FastClass;
+
 /**
  * MBeanProxyFactory creates a dynamic proxy to an MBean by ObjectName.
- * The interface type and object existance is not enforced during construction.  Instead, if a method is
- * invoked on the proxy and there is no object registered with the assigned name, an InvocationTargetException
- * is thrown, which contains an InstanceNotFoundException.  If an interface method that is not implemented by
- * the MBean is invoked, an InvocationTargetException is thrown, which contains an NoSuchMethodException.
+ * The interface type and object existance are enforced during construction.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:34 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/07 17:32:11 $
  */
 public final class MBeanProxyFactory {
-    private MBeanProxyFactory() {
-    }
 
     /**
      * Creates an MBean proxy using the specified interface to the objectName.
@@ -85,20 +91,60 @@ public final class MBeanProxyFactory {
         assert iface.isInterface();
         assert server != null;
 
-        ClassLoader cl = iface.getClassLoader();
-        return Proxy.newProxyInstance(cl, new Class[]{iface}, new LocalHandler(iface, server, objectName));
-    }
+        // get the factory
+        Factory factory = Enhancer.create(
+                Object.class,
+                new Class[]{iface},
+                new InterfaceCallbackFilter(),
+                new SimpleCallbacks());
 
-    private static class LocalHandler extends AbstractMBeanProxyHandler {
-        private ObjectName objectName;
+        // build the method table
+        FastClass fastClass = FastClass.create(iface);
 
-        public LocalHandler(Class iface, MBeanServer server, ObjectName objectName) {
-            super(iface, server);
-            this.objectName = objectName;
+        if (objectName.isPattern()) {
+            Set names = server.queryNames(objectName, null);
+            if (names.isEmpty()) {
+                throw new IllegalArgumentException("No names mbeans registered that match object name pattern: " + objectName);
+            }
+            objectName = (ObjectName) names.iterator().next();
         }
 
-        public ObjectName getObjectName() {
-            return objectName;
+        MBeanInfo info = null;
+        try {
+            info = server.getMBeanInfo(objectName);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Could not get MBeanInfo for target object: " + objectName);
         }
+
+        MBeanAttributeInfo[] attributeInfos = info.getAttributes();
+        Map attributes = new HashMap(attributeInfos.length);
+        for (int i = 0; i < attributeInfos.length; i++) {
+            MBeanAttributeInfo attributeInfo = attributeInfos[i];
+            attributes.put(attributeInfo.getName(), attributeInfo);
+        }
+
+        MBeanOperationInfo[] operationInfos = info.getOperations();
+        Map operations = new HashMap(operationInfos.length);
+        for (int i = 0; i < operationInfos.length; i++) {
+            MBeanOperationInfo operationInfo = operationInfos[i];
+            operations.put(new MBeanOperationSignature(operationInfo), operationInfo);
+        }
+
+        InvokeMBean[] methodTable = new InvokeMBean[fastClass.getMaxIndex() + 1];
+        Method[] methods = fastClass.getJavaClass().getMethods();
+        for (int i = 0; i < methods.length; i++) {
+            Method method = methods[i];
+            int index = fastClass.getIndex(method.getName(), method.getParameterTypes());
+            if (operations.containsKey(new MBeanOperationSignature(method))) {
+                methodTable[index] = new InvokeMBean(method, false, false);
+            } else if (method.getName().startsWith("get") && attributes.containsKey(method.getName().substring(3))) {
+                methodTable[index] = new InvokeMBean(method, true, true);
+            } else if (method.getName().startsWith("is") && attributes.containsKey(method.getName().substring(2))) {
+                methodTable[index] = new InvokeMBean(method, true, true);
+            } else if (method.getName().startsWith("set") && attributes.containsKey(method.getName().substring(3))) {
+                methodTable[index] = new InvokeMBean(method, true, false);
+            }
+        }
+        return factory.newInstance(new MBeanProxyCallback(methodTable, server, objectName));
     }
 }
