@@ -71,7 +71,7 @@ import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
 /**
  * Tests basic Geronimo EJB JAR DD loading (not very comprehensive)
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/29 16:00:49 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/29 19:32:23 $
  */
 public class GeronimoEjbJarLoaderTest extends TestCase {
     private File docDir;
@@ -128,7 +128,6 @@ public class GeronimoEjbJarLoaderTest extends TestCase {
 
     protected void setUp() throws Exception {
         docDir = new File("src/test-data/xml/deployment");
-        System.err.println("Current directory is "+System.getProperty("user.dir"));
         loader = new GeronimoEjbJarLoader();
     }
 }
