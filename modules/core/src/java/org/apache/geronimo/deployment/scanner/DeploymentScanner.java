@@ -72,6 +72,10 @@ import javax.management.relation.RelationServiceMBean;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.apache.geronimo.common.StringValueParser;
+import org.apache.geronimo.common.Strings;
+
 import org.apache.geronimo.jmx.JMXUtil;
 import org.apache.geronimo.management.AbstractManagedObject;
 
@@ -80,7 +84,7 @@ import org.apache.geronimo.management.AbstractManagedObject;
  * to search them for deployments.
  *
  *
- * @version $Revision: 1.10 $ $Date: 2003/08/21 04:32:41 $
+ * @version $Revision: 1.11 $ $Date: 2003/08/24 21:58:07 $
  */
 public class DeploymentScanner extends AbstractManagedObject implements DeploymentScannerMBean {
     private static final Log log = LogFactory.getLog(DeploymentScanner.class);
@@ -93,10 +97,19 @@ public class DeploymentScanner extends AbstractManagedObject implements Deployme
     public DeploymentScanner() {
     }
 
-    public DeploymentScanner(String initialURLs, boolean recurse) throws MalformedURLException {
+    public DeploymentScanner(String initialURLs, boolean recurse) 
+        throws MalformedURLException
+    {
+        //
+        // TODO: jason: move this to deployment config code, but I can not 
+        //              find where that is right now
+        //
+        StringValueParser parser = new StringValueParser();
+        initialURLs = parser.parse(initialURLs);
+        
         StringTokenizer tokenizer = new StringTokenizer(initialURLs, " \t\r\n,[]{}");
         while (tokenizer.hasMoreTokens()) {
-            addURL(new URL(tokenizer.nextToken()), recurse);
+            addURL(tokenizer.nextToken(), recurse);
         }
     }
 
@@ -118,7 +131,7 @@ public class DeploymentScanner extends AbstractManagedObject implements Deployme
     }
 
     public void addURL(String url, boolean recurse) throws MalformedURLException {
-        addURL(new URL(url), recurse);
+        addURL(Strings.toURL(url), recurse);
     }
 
     public synchronized void addURL(URL url, boolean recurse) {

@@ -10,7 +10,7 @@
     <mbean code="org.apache.geronimo.deployment.scanner.DeploymentScanner" name="geronimo.deployment:role=DeploymentScanner">
         <constructor>
             <arg type="java.lang.String">
-                file:../../deploy/
+                ${twiddle.home}/deploy/
             </arg>
             <arg type="boolean">true</arg>
         </constructor>
