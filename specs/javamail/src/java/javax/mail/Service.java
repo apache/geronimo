@@ -59,17 +59,20 @@
 // DO NOT add / change / or delete method signatures!
 //
 package javax.mail;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
+
 import javax.mail.event.ConnectionEvent;
 import javax.mail.event.ConnectionListener;
 import javax.mail.event.MailEvent;
 import javax.mail.event.TransportListener;
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/16 04:29:52 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/04 00:51:57 $
  */
 public abstract class Service {
     private boolean _connected;
@@ -77,6 +80,10 @@ public abstract class Service {
     protected boolean debug;
     protected Session session;
     protected URLName url;
+    protected Service(Session session, URLName url) {
+        this.session = session;
+        this.url = url;
+    }
     public void addConnectionListener(ConnectionListener listener) {
         _connectionListeners.add(listener);
     }
@@ -97,16 +104,27 @@ public abstract class Service {
         boolean retry = true;
         while (retry) {
             try {
-                // TODO prompt the user for user/password somehow
-                user = user;
-                password = password;
                 retry = !protocolConnect(host, port, user, password);
             } catch (AuthenticationFailedException e) {
-                // IGNORE; go round loop again and will re-prompt
+                // TODO I18N
+                try {
+                    PasswordAuthentication pa =
+                        session.requestPasswordAuthentication(
+                            InetAddress.getByName(host),
+                            port,
+                            null,
+                            "Please enter your password",
+                            user);
+                    password = pa.getPassword();
+                    user = pa.getUserName();
+                } catch (UnknownHostException uhe) {
+                    throw new MessagingException(uhe.toString());
+                }
             }
         }
         setConnected(true);
-        // don't know what the URL needs to be?
+        // Either the provider will implement getURL, or it will have already set it using setURL.
+        // In either case, this is safe.
         setURLName(getURLName());
     }
     public void connect(String host, String user, String password)

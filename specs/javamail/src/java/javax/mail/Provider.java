@@ -60,10 +60,10 @@
 //
 package javax.mail;
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/16 04:29:52 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/04 00:51:57 $
  */
 public class Provider {
-    public Provider(
+    private Provider(
         String protocol,
         String className,
         Type type,

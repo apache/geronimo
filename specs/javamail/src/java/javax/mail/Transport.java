@@ -65,7 +65,7 @@ import java.util.List;
 import javax.mail.event.TransportEvent;
 import javax.mail.event.TransportListener;
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/16 04:29:52 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/04 00:51:57 $
  */
 public abstract class Transport extends Service {
     public static void send(Message message) throws MessagingException {
@@ -79,8 +79,7 @@ public abstract class Transport extends Service {
     }
     private List _listeners = new LinkedList();
     public Transport(Session session, URLName name) {
-        this.session = session;
-        this.url = name;
+        super(session,name);
     }
     public void addTransportListener(TransportListener listener) {
         _listeners.add(listener);
