@@ -56,13 +56,14 @@
 package org.apache.geronimo.kernel.jmx;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import javax.management.MBeanOperationInfo;
 import javax.management.MBeanParameterInfo;
 
 /**
  * This is a key class based on a MBean operation name and parameters.
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/07 17:32:11 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/04 23:42:58 $
  */
 public final class MBeanOperationSignature {
     private final static String[] NO_TYPES = new String[0];
@@ -91,6 +92,27 @@ public final class MBeanOperationSignature {
         this.name = name;
         if (argumentTypes != null) {
             this.argumentTypes = argumentTypes;
+        } else {
+            this.argumentTypes = NO_TYPES;
+        }
+    }
+
+    public MBeanOperationSignature(String name, List argumentTypes) {
+        this.name = name;
+        if (argumentTypes != null) {
+            this.argumentTypes = new String[argumentTypes.size()];
+            for (int i = 0; i < argumentTypes.size(); i++) {
+                Object type = argumentTypes.get(i);
+                if(type instanceof String) {
+                    this.argumentTypes[i] = (String) type;
+                } else if (type instanceof Class) {
+                    this.argumentTypes[i] = ((Class)type).getName();
+                } else {
+                    throw new IllegalArgumentException("Parameter is not instance of String or Class:" +
+                            " index=" + i +
+                            " value=" + type);
+                }
+            }
         } else {
             this.argumentTypes = NO_TYPES;
         }
