@@ -74,13 +74,13 @@ public class ServerInfo {
         if (!base.isDirectory()) {
             throw new IllegalArgumentException("Base directory is not a directory: " + baseDirectory);
         }
-        System.setProperty("geronimo.base.dir", base.getAbsolutePath());
+        //System.setProperty("geronimo.base.dir", base.getAbsolutePath());
     }
 
     /**
      * Resolves an abstract pathname to an absolute one.
      *
-     * @param filename a pathname that can either be 
+     * @param filename a pathname that can either be
      * fully-qualified (i.e. starts with a "/") or
      * relative (i.e. starts with any character but "/").  If it's
      * fully-qualified it will be resolved to an absolute pathname
@@ -88,7 +88,7 @@ public class ServerInfo {
      * it will be resolved relative to the base directory.
      *
      * @return an absolute pathname
-     * 
+     *
      * @see java.io.File#File(String pathname)
      * @see java.io.File#getAbsolutePath()
      */
