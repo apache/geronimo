@@ -49,7 +49,7 @@ import org.apache.geronimo.transaction.manager.XidImporter;
  * are delegated to the wrapped TransactionManager; all other operations are delegated to the
  * wrapped Transaction.
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/25 09:58:19 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/25 18:05:51 $
  */
 public class TransactionManagerProxy implements TransactionManager, XATerminator, XAWork {
 
@@ -75,7 +75,7 @@ public class TransactionManagerProxy implements TransactionManager, XATerminator
      */
     public TransactionManagerProxy() {
         this.delegate = new TransactionManagerImpl();
-        this.importer = null;
+        this.importer = (XidImporter)delegate;
     }
 
     public void setTransactionTimeout(int timeout) throws SystemException {

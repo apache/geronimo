@@ -24,12 +24,15 @@ import javax.transaction.xa.Xid;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:58:19 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/25 18:05:51 $
  */
 public class MockResource implements XAResource {
     private Xid xid;
     private MockResourceManager manager;
     private int timeout = 0;
+    private boolean prepared;
+    private boolean committed;
+    private boolean rolledback;
 
     public MockResource(MockResourceManager manager) {
         this.manager = manager;
@@ -67,13 +70,16 @@ public class MockResource implements XAResource {
     }
 
     public int prepare(Xid xid) throws XAException {
+        prepared = true;
         return 0;
     }
 
     public void commit(Xid xid, boolean onePhase) throws XAException {
+        committed = true;
     }
 
     public void rollback(Xid xid) throws XAException {
+        rolledback = true;
         manager.forget(xid, this);
     }
 
@@ -90,6 +96,18 @@ public class MockResource implements XAResource {
 
     public Xid[] recover(int flag) throws XAException {
         throw new UnsupportedOperationException();
+    }
+
+    public boolean isPrepared() {
+        return prepared;
+    }
+
+    public boolean isCommitted() {
+        return committed;
+    }
+
+    public boolean isRolledback() {
+        return rolledback;
     }
 
 }
