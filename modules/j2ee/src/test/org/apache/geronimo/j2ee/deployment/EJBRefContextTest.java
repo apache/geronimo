@@ -124,6 +124,34 @@ public class EJBRefContextTest extends TestCase {
         }
     }
 
+    public void testBasicImplicitRefs() throws Exception {
+        assertReferenceEqual(language_lisp, ejbRefContext.getImplicitEJBRemoteRef(coffee, "blah", true, "LispHome", "LispRemote"));
+        assertReferenceEqual(language_lisp_local, ejbRefContext.getImplicitEJBLocalRef(coffee, "blah", true, "LispLocalHome", "LispLocal"));
+    }
+
+    public void testInModuleImplicitRefs() throws Exception {
+        assertReferenceEqual(coffee_java_local, ejbRefContext.getImplicitEJBLocalRef(coffee, "blah", true, "LocalHome", "Local"));
+        assertReferenceEqual(car_enzo_local, ejbRefContext.getImplicitEJBLocalRef(car, "blah", true, "LocalHome", "Local"));
+    }
+
+    public void testAmbiguousModuleImplicitRefs() throws Exception {
+        try {
+            ejbRefContext.getImplicitEJBLocalRef(language, "blah", true, "LocalHome", "Local");
+            fail("should have thrown an UnresolvedEJBRefException");
+        } catch (UnresolvedEJBRefException e) {
+            // good
+        }
+    }
+
+    public void testNoMatchImplicitRefs() throws Exception {
+        try {
+            ejbRefContext.getImplicitEJBLocalRef(language, "blah", true, "foo", "bar");
+            fail("should have thrown an UnresolvedEJBRefException");
+        } catch (UnresolvedEJBRefException e) {
+            // good
+        }
+    }
+
     protected void setUp() throws Exception {
         carFile = File.createTempFile("EARTest", ".car");
         ejbRefContext = new EJBRefContext(new EJBReferenceBuilder() {
@@ -136,20 +164,20 @@ public class EJBRefContextTest extends TestCase {
             }
         });
 
-        ejbRefContext.addEJBRemoteId(coffee, "peaberry", coffee_peaberry);
-        ejbRefContext.addEJBLocalId(coffee, "peaberry", coffee_peaberry_local);
-        ejbRefContext.addEJBRemoteId(coffee, "java", coffee_java);
-        ejbRefContext.addEJBLocalId(coffee, "java", coffee_java_local);
+        ejbRefContext.addEJBRemoteId(coffee, "peaberry", coffee_peaberry, true, "CoffeeHome", "CoffeeRemote");
+        ejbRefContext.addEJBLocalId(coffee, "peaberry", coffee_peaberry_local, true, "CoffeeLocalHome", "CoffeeLocal");
+        ejbRefContext.addEJBRemoteId(coffee, "java", coffee_java, true, "CoffeeHome", "CoffeeRemote");
+        ejbRefContext.addEJBLocalId(coffee, "java", coffee_java_local, true, "LocalHome", "Local");
 
-        ejbRefContext.addEJBRemoteId(language, "lisp", language_lisp);
-        ejbRefContext.addEJBLocalId(language, "lisp", language_lisp_local);
-        ejbRefContext.addEJBRemoteId(language, "java", language_java);
-        ejbRefContext.addEJBLocalId(language, "java", language_java_local);
+        ejbRefContext.addEJBRemoteId(language, "lisp", language_lisp, true, "LispHome", "LispRemote");
+        ejbRefContext.addEJBLocalId(language, "lisp", language_lisp_local, true, "LispLocalHome", "LispLocal");
+        ejbRefContext.addEJBRemoteId(language, "java", language_java, true, "JavaHome", "JavaRemote");
+        ejbRefContext.addEJBLocalId(language, "java", language_java_local, true, "JavaLocalHome", "JavaLocal");
 
-        ejbRefContext.addEJBRemoteId(car, "gt", car_gt);
-        ejbRefContext.addEJBLocalId(car, "gt", car_gt_local);
-        ejbRefContext.addEJBRemoteId(car, "enzo", car_enzo);
-        ejbRefContext.addEJBLocalId(car, "enzo", car_enzo_local);
+        ejbRefContext.addEJBRemoteId(car, "gt", car_gt, true, "GTHome", "GTRemote");
+        ejbRefContext.addEJBLocalId(car, "gt", car_gt_local, true, "GTLocalHome", "GTLocalRemote");
+        ejbRefContext.addEJBRemoteId(car, "enzo", car_enzo, true, "EnzoHome", "EnzoRemote");
+        ejbRefContext.addEJBLocalId(car, "enzo", car_enzo_local, true, "LocalHome", "Local");
     }
 
     protected void tearDown() throws Exception {

@@ -20,6 +20,7 @@ package org.apache.geronimo.naming.deployment;
 import java.net.URI;
 import java.util.Map;
 import javax.naming.NamingException;
+import javax.naming.Reference;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.deployment.DeploymentException;
@@ -154,21 +155,18 @@ public class ENCConfigBuilder {
                 ejbLink = getJ2eeStringValue(ejbRef.getEjbLink());
             }
 
+            Reference ejbReference;
             if (ejbLink != null) {
-                try {
-                    builder.bind(ejbRefName, ejbRefContext.getEJBRemoteRef(uri, ejbLink, isSession, home, remote));
-                } catch (NamingException e) {
-                    throw new DeploymentException("Unable to to bind ejb-ref: ejb-ref-name=" + ejbRefName);
-                }
+                ejbReference = ejbRefContext.getEJBRemoteRef(uri, ejbLink, isSession, home, remote);
+            } else if (remoteRef != null) {
+                ejbReference = ejbRefContext.getEJBRemoteRef(remoteRef.getTargetName(), isSession, home, remote);
             } else {
-                if (remoteRef == null) {
-                    throw  new DeploymentException("No geronimo configuration for resource ref named: " + ejbRefName);
-                }
-                try {
-                    builder.bind(ejbRefName, ejbRefContext.getEJBRemoteRef(remoteRef.getTargetName(), isSession, home, remote));
-                } catch (NamingException e) {
-                    throw new DeploymentException("Invalid env-entry definition for name: " + ejbRefName, e);
-                }
+                ejbReference = ejbRefContext.getImplicitEJBRemoteRef(uri, ejbRefName, isSession, home, remote);
+            }
+            try {
+                builder.bind(ejbRefName, ejbReference);
+            } catch (NamingException e) {
+                throw new DeploymentException("Unable to to bind ejb-ref: ejb-ref-name=" + ejbRefName);
             }
         }
     }
@@ -196,24 +194,19 @@ public class ENCConfigBuilder {
                 ejbLink = getJ2eeStringValue(ejbLocalRef.getEjbLink());
             }
 
+            Reference ejbReference;
             if (ejbLink != null) {
-                try {
-                    builder.bind(ejbRefName, ejbRefContext.getEJBLocalRef(uri, ejbLink, isSession, localHome, local));
-                } catch (NamingException e) {
-                    throw new DeploymentException("Unable to to bind ejb-local-ref: ejb-ref-name=" + ejbRefName);
-                }
+                ejbReference = ejbRefContext.getEJBLocalRef(uri, ejbLink, isSession, localHome, local);
+            } else if (localRef != null) {
+                ejbReference = ejbRefContext.getEJBLocalRef(localRef.getTargetName(), isSession, localHome, local);
             } else {
-                if (localRef == null) {
-                    throw  new DeploymentException("No geronimo configuration for resource ref named: " + ejbRefName);
-                }
-                try {
-                    builder.bind(ejbRefName, ejbRefContext.getEJBLocalRef(localRef.getTargetName(), isSession, localHome, local));
-                } catch (NamingException e) {
-                    throw new DeploymentException("Invalid env-entry definition for name: " + ejbRefName, e);
-                }
+                ejbReference = ejbRefContext.getImplicitEJBLocalRef(uri, ejbLink, isSession, localHome, local);
             }
-
-
+            try {
+                builder.bind(ejbRefName, ejbReference);
+            } catch (NamingException e) {
+                throw new DeploymentException("Unable to to bind ejb-local-ref: ejb-ref-name=" + ejbRefName);
+            }
         }
     }
 

@@ -32,12 +32,14 @@ public class EJBRefContext {
     private final EJBReferenceBuilder ejbReferenceBuilder;
     private final Map ejbRemoteIndex;
     private final Map ejbLocalIndex;
+    private final Map ejbInterfaceIndex;
 
     public EJBRefContext(EJBReferenceBuilder ejbReferenceBuilder) {
         assert ejbReferenceBuilder != null: "ejbReferenceBuilder is null";
 
         ejbRemoteIndex = new HashMap();
         ejbLocalIndex = new HashMap();
+        ejbInterfaceIndex = new HashMap();
         this.ejbReferenceBuilder = ejbReferenceBuilder;
     }
 
@@ -48,6 +50,7 @@ public class EJBRefContext {
         this.ejbReferenceBuilder = ejbReferenceBuilder;
         this.ejbRemoteIndex = ejbRefContext.ejbRemoteIndex;
         this.ejbLocalIndex = ejbRefContext.ejbLocalIndex;
+        this.ejbInterfaceIndex = ejbRefContext.ejbInterfaceIndex;
     }
 
     public EJBReferenceBuilder getEjbReferenceBuilder() {
@@ -62,28 +65,46 @@ public class EJBRefContext {
         return ejbLocalIndex;
     }
 
-    public void addEJBRemoteId(URI modulePath, String name, String containerId) throws DeploymentException {
+    public void addEJBRemoteId(URI modulePath, String name, String containerId, boolean isSession, String home, String remote) throws DeploymentException {
         Map references = (Map) ejbRemoteIndex.get(name);
         if (references == null || references.isEmpty()) {
             references = new HashMap();
             ejbRemoteIndex.put(name, references);
         }
-        addEJBId(modulePath, name, containerId, references);
+
+        EJBRefInfo ejbRefInfo = new EJBRefInfo(false, isSession, home, remote);
+        Map interfacesReferences = (Map) ejbInterfaceIndex.get(ejbRefInfo);
+        if (interfacesReferences == null || interfacesReferences.isEmpty()) {
+            interfacesReferences = new HashMap();
+            ejbInterfaceIndex.put(ejbRefInfo, interfacesReferences);
+        }
+
+        addEJBId(modulePath, name, containerId, references, interfacesReferences);
     }
 
-    public void addEJBLocalId(URI modulePath, String name, String containerId) throws DeploymentException {
+    public void addEJBLocalId(URI modulePath, String name, String containerId, boolean isSession, String localHome, String local) throws DeploymentException {
         Map references = (Map) ejbLocalIndex.get(name);
         if (references == null || references.isEmpty()) {
             references = new HashMap();
             ejbLocalIndex.put(name, references);
         }
-        addEJBId(modulePath, name, containerId, references);
+
+        EJBRefInfo ejbRefInfo = new EJBRefInfo(true, isSession, localHome, local);
+        Map interfacesReferences = (Map) ejbInterfaceIndex.get(ejbRefInfo);
+        if (interfacesReferences == null || interfacesReferences.isEmpty()) {
+            interfacesReferences = new HashMap();
+            ejbInterfaceIndex.put(ejbRefInfo, interfacesReferences);
+        }
+
+        addEJBId(modulePath, name, containerId, references, interfacesReferences);
     }
 
-    private void addEJBId(URI modulePath, String name, String containerId, Map references) throws DeploymentException {
+    private void addEJBId(URI modulePath, String name, String containerId, Map references, Map interfacesReferences) throws DeploymentException {
         try {
             URI ejbURI = new URI(null, null, modulePath.getPath(), name);
             references.put(ejbURI, containerId);
+            URI moduelURI = new URI(null, null, modulePath.getPath(), null);
+            interfacesReferences.put(moduelURI, containerId);
         } catch (URISyntaxException e) {
             throw new DeploymentException(e);
         }
@@ -152,4 +173,40 @@ public class EJBRefContext {
         // there is more then one ejb with the specifiec name
         throw new AmbiguousEJBRefException(ejbLink);
     }
+
+    public Reference getImplicitEJBRemoteRef(URI module, String refName, boolean isSession, String home, String remote) throws DeploymentException {
+        EJBRefInfo ejbRefInfo = new EJBRefInfo(false, isSession, home, remote);
+        String containerId = getImplicitContainerId(module, refName, ejbRefInfo);
+        return getEJBRemoteRef(containerId, isSession, home, remote);
+    }
+
+    public Reference getImplicitEJBLocalRef(URI module, String refName, boolean isSession, String localHome, String local) throws DeploymentException {
+        EJBRefInfo ejbRefInfo = new EJBRefInfo(true, isSession, localHome, local);
+        String containerId = getImplicitContainerId(module, refName, ejbRefInfo);
+        return getEJBLocalRef(containerId, isSession, localHome, local);
+    }
+
+    private String getImplicitContainerId(URI module, String refName, EJBRefInfo ejbRefInfo) throws DeploymentException {
+        Map references = (Map) ejbInterfaceIndex.get(ejbRefInfo);
+
+        // if we didn't find any ejbs that implement that interface... give up
+        if (references == null || references.isEmpty()) {
+            throw new UnresolvedEJBRefException(refName, ejbRefInfo, false);
+        }
+
+        // if there is only one matching ejb, use it
+        if (references.size() == 1) {
+            return (String) references.values().iterator().next();
+        }
+
+        // We got more then one matching ejb.  Try to find an ejb in the current module
+        String ejbRef = (String) references.get(module);
+        if (ejbRef != null) {
+            return ejbRef;
+        }
+
+        // there is more then one ejb that implements that interface... give up
+        throw new UnresolvedEJBRefException(refName, ejbRefInfo, true);
+    }
+
 }
