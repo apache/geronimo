@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.30 $ $Date: 2004/05/01 06:40:20 $ -->
+<!-- $Revision: 1.31 $ $Date: 2004/05/14 00:06:31 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -140,7 +140,7 @@
         <dependency>
             <groupId>jetty</groupId>
             <artifactId>org.mortbay.jetty</artifactId>
-            <version>5.0.beta0</version>
+            <version>5.0.RC0</version>
         </dependency>
 
         <dependency>
