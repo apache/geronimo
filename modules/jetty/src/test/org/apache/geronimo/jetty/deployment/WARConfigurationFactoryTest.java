@@ -71,19 +71,13 @@ import org.w3c.dom.Element;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/02/06 08:55:49 $
+ * @version $Revision: 1.8 $ $Date: 2004/02/09 00:01:20 $
  */
 public class WARConfigurationFactoryTest extends DeployerTestCase {
 
-    public void testFactory() throws Exception {
-        WebDeployable deployable = new WebDeployable(classLoader.getResource("deployables/war1/"));
-        DeploymentConfiguration config = manager.createConfiguration(deployable);
-        assertEquals(deployable, config.getDeployableObject());
-    }
-
     public void testConfig() throws Exception {
         WebDeployable deployable = new WebDeployable(classLoader.getResource("deployables/war1/"));
-        WARConfiguration config = (WARConfiguration) warFactory.createConfiguration(deployable);
+        WARConfiguration config = new WARConfiguration(deployable);
         assertNotNull(config);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         config.save(baos);
@@ -98,7 +92,7 @@ public class WARConfigurationFactoryTest extends DeployerTestCase {
 
     public void testConfigSet() throws Exception {
         WebDeployable deployable = new WebDeployable(classLoader.getResource("deployables/war1/"));
-        WARConfiguration config = (WARConfiguration) warFactory.createConfiguration(deployable);
+        WARConfiguration config = new WARConfiguration(deployable);
         DConfigBeanRoot configRoot = config.getDConfigBeanRoot(deployable.getDDBeanRoot());
         WebAppDConfigBean contextBean = (WebAppDConfigBean) configRoot.getDConfigBean(deployable.getChildBean("/web-app")[0]);
         contextBean.setContextRoot("/test");
@@ -118,7 +112,7 @@ public class WARConfigurationFactoryTest extends DeployerTestCase {
 
     public void testConfigSaveRestore() throws Exception {
         WebDeployable deployable = new WebDeployable(classLoader.getResource("deployables/war1/"));
-        WARConfiguration config = (WARConfiguration) warFactory.createConfiguration(deployable);
+        WARConfiguration config = new WARConfiguration(deployable);
         DConfigBeanRoot configRoot = config.getDConfigBeanRoot(deployable.getDDBeanRoot());
         WebAppDConfigBean contextBean = (WebAppDConfigBean) configRoot.getDConfigBean(deployable.getChildBean("/web-app")[0]);
         contextBean.setContextRoot("/test");
@@ -131,7 +125,7 @@ public class WARConfigurationFactoryTest extends DeployerTestCase {
         String output = new String(bytes);
         System.out.println(output);
 
-        config = (WARConfiguration) warFactory.createConfiguration(deployable);
+        config = new WARConfiguration(deployable);
         configRoot = config.getDConfigBeanRoot(deployable.getDDBeanRoot());
         contextBean = (WebAppDConfigBean) configRoot.getDConfigBean(deployable.getChildBean("/web-app")[0]);
 

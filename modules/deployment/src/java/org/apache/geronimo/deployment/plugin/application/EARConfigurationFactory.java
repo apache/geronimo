@@ -78,17 +78,11 @@ import org.w3c.dom.Document;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/02/06 08:55:04 $
+ * @version $Revision: 1.6 $ $Date: 2004/02/09 00:01:19 $
  */
 public class EARConfigurationFactory implements DeploymentConfigurationFactory {
 
     private static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
-    public DeploymentConfiguration createConfiguration(DeployableObject deployable) throws InvalidModuleException {
-        if (!ModuleType.EAR.equals(deployable.getType())) {
-            throw new InvalidModuleException("DeployableObject must be an EAR");
-        }
-        return new EARConfiguration(deployable);
-    }
 
     public DeploymentModule createModule(InputStream moduleArchive, XmlObject deploymentPlan, URI configID, boolean isLocal) throws DeploymentException {
         return null;

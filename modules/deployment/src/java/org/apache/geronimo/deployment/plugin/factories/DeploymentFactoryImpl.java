@@ -65,6 +65,7 @@ import org.apache.geronimo.deployment.plugin.DeploymentManagerImpl;
 import org.apache.geronimo.deployment.plugin.DisconnectedServer;
 import org.apache.geronimo.deployment.plugin.local.LocalServer;
 import org.apache.geronimo.deployment.plugin.application.EARConfigurationFactory;
+import org.apache.geronimo.deployment.plugin.application.EARConfigurer;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
@@ -76,7 +77,7 @@ import org.apache.geronimo.kernel.Kernel;
  * to contain the GBeans that are responsible for deploying each module
  * type.
  * 
- * @version $Revision: 1.5 $ $Date: 2004/02/04 05:43:31 $
+ * @version $Revision: 1.6 $ $Date: 2004/02/09 00:01:19 $
  */
 public class DeploymentFactoryImpl implements DeploymentFactory {
     public static final String URI_PREFIX = "deployer:geronimo:";
@@ -136,9 +137,10 @@ public class DeploymentFactoryImpl implements DeploymentFactory {
             ObjectName managerName = new ObjectName("geronimo.deployment:role=DeploymentManager");
             manager = new GBeanMBean(DeploymentManagerImpl.GBEAN_INFO);
             manager.setReferencePatterns("Server", Collections.singleton(serverName));
+            manager.setReferencePatterns("Configurers", Collections.singleton(new ObjectName("geronimo.deployment:role=Configurer,*")));
 
             // @todo for now lets hard code the deployers to use - ultimately this should use a predefined Configuration
-            loadFactory(kernel, manager, "EARFactory", EARConfigurationFactory.class.getName());
+            loadFactory(kernel, manager, "EAR", EARConfigurationFactory.class.getName(), EARConfigurer.class.getName());
 
             kernel.loadGBean(managerName, manager);
             kernel.startGBean(managerName);
@@ -150,11 +152,16 @@ public class DeploymentFactoryImpl implements DeploymentFactory {
         return (DeploymentManager) manager.getTarget();
     }
 
-    private void loadFactory(Kernel kernel, GBeanMBean manager, String factory, String className) throws Exception {
-        ObjectName earFactoryName = new ObjectName("geronimo.deployment:role="+factory);
+    private void loadFactory(Kernel kernel, GBeanMBean manager, String factory, String className, String configurerClassName) throws Exception {
+        ObjectName earFactoryName = new ObjectName("geronimo.deployment:role=Factory,type="+factory);
         GBeanMBean earFactory = new GBeanMBean(className);
         kernel.loadGBean(earFactoryName, earFactory);
         kernel.startGBean(earFactoryName);
-        manager.setReferencePatterns(factory, Collections.singleton(earFactoryName));
+        manager.setReferencePatterns(factory+"Factory", Collections.singleton(earFactoryName));
+
+        ObjectName configurerName = new ObjectName("geronimo.deployment:role=Configurer,type="+factory);
+        GBeanMBean configurer = new GBeanMBean(configurerClassName);
+        kernel.loadGBean(configurerName, configurer);
+        kernel.startGBean(configurerName);
     }
 }

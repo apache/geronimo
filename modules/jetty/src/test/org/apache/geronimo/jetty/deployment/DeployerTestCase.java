@@ -73,7 +73,7 @@ import junit.framework.TestCase;
  * Base class for web deployer test.
  * Handles setting up the deployment environment.
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/04 05:45:11 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/09 00:01:20 $
  */
 public class DeployerTestCase extends TestCase {
     protected File configStore;
@@ -99,13 +99,19 @@ public class DeployerTestCase extends TestCase {
 
         serverName = new ObjectName("geronimo.deployment:role=Server");
 
-        warName = new ObjectName("geronimo.deployment:role=WARFactory");
+        warName = new ObjectName("geronimo.deployment:role=Factory,type=WAR");
         GBeanMBean warFactoryGBean = new GBeanMBean(WARConfigurationFactory.GBEAN_INFO);
+
+        ObjectName warConfigurerName = new ObjectName("geronimo.deployment:role=Configurer,type=WAR");
+        GBeanMBean warConfigurer = new GBeanMBean(WARConfigurer.GBEAN_INFO);
+        kernel.loadGBean(warConfigurerName, warConfigurer);
+        kernel.startGBean(warConfigurerName);
 
         managerName = new ObjectName("geronimo.deployment:role=DeploymentManager");
         managerGBean = new GBeanMBean(DeploymentManagerImpl.GBEAN_INFO);
         managerGBean.setReferencePatterns("WARFactory", Collections.singleton(warName));
         managerGBean.setReferencePatterns("Server", Collections.singleton(serverName));
+        managerGBean.setReferencePatterns("Configurers", Collections.singleton(new ObjectName("geronimo.deployment:role=Configurer,*")));
 
         kernel.loadGBean(warName, warFactoryGBean);
         kernel.startGBean(warName);

@@ -53,62 +53,39 @@
  *
  * ====================================================================
  */
-
-package org.apache.geronimo.connector.deployment;
-
-import java.io.InputStream;
-import java.net.URI;
+package org.apache.geronimo.jetty.deployment;
 
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
-import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
-import javax.management.ObjectName;
 
-import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.deployment.DeploymentModule;
-import org.apache.geronimo.deployment.plugin.factories.DeploymentConfigurationFactory;
-import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.deployment.ModuleConfigurer;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlBeans;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/09 00:01:19 $
- *
- * */
-public abstract class AbstractRARConfigurationFactory implements DeploymentConfigurationFactory {
-    private final ObjectName connectionTrackerNamePattern;
+ * @version $Revision: 1.1 $ $Date: 2004/02/09 00:01:20 $
+ */
+public class WARConfigurer implements ModuleConfigurer {
+    public DeploymentConfiguration createConfiguration(DeployableObject deployable) {
+        if (ModuleType.WAR.equals(deployable.getType())) {
+            return new WARConfiguration(deployable);
+        } else {
+            return null;
+        }
+    }
+
     public static final GBeanInfo GBEAN_INFO;
-    private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
-
-    public AbstractRARConfigurationFactory(ObjectName connectionTrackerNamePattern) {
-        this.connectionTrackerNamePattern = connectionTrackerNamePattern;
-    }
-
-    public ObjectName getConnectionTrackerNamePattern() {
-        return connectionTrackerNamePattern;
-    }
-
-    public abstract DeploymentModule createModule(InputStream moduleArchive, XmlObject geronimoDD, URI configID, boolean isLocal) throws DeploymentException;
-
-    public SchemaTypeLoader getSchemaTypeLoader() {
-        return SCHEMA_TYPE_LOADER;
-    }
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Geronimo RAR Configuration Factory", AbstractRARConfigurationFactory.class.getName());
-        infoFactory.addInterface(DeploymentConfigurationFactory.class);
-        infoFactory.addAttribute(new GAttributeInfo("ConnectionTrackerNamePattern", true));
-        infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"ConnectionTrackerNamePattern"},
-                new Class[]{ObjectName.class}));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(WARConfigurer.class);
+        infoFactory.addInterface(ModuleConfigurer.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
 }

@@ -67,6 +67,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Collection;
 
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.shared.CommandType;
@@ -83,6 +84,7 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentModule;
+import org.apache.geronimo.deployment.ModuleConfigurer;
 import org.apache.geronimo.deployment.plugin.factories.DeploymentConfigurationFactory;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
@@ -101,7 +103,7 @@ import org.w3c.dom.Document;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/02/06 08:55:04 $
+ * @version $Revision: 1.9 $ $Date: 2004/02/09 00:01:19 $
  */
 public class DeploymentManagerImpl implements DeploymentManager, GBean {
     private final DeploymentServer server;
@@ -110,9 +112,11 @@ public class DeploymentManagerImpl implements DeploymentManager, GBean {
     private final SchemaTypeLoader thisTypeLoader = XmlBeans.getContextTypeLoader();
     private SchemaTypeLoader schemaTypeLoader = thisTypeLoader;
     private final Map configurationFactories;
+    private final Collection configurers;
 
     public DeploymentManagerImpl(
             DeploymentServer server,
+            Collection configurers,
             DeploymentConfigurationFactory earFactory,
             DeploymentConfigurationFactory warFactory,
             DeploymentConfigurationFactory ejbFactory,
@@ -120,6 +124,7 @@ public class DeploymentManagerImpl implements DeploymentManager, GBean {
             DeploymentConfigurationFactory carFactory
             ) {
         this.server = server;
+        this.configurers = configurers;
         //make sure context loader is always present
         //todo think if null is a plausible key here.
         schemaTypeToLoaderMap.put(null, thisTypeLoader);
@@ -155,12 +160,14 @@ public class DeploymentManagerImpl implements DeploymentManager, GBean {
     }
 
     public DeploymentConfiguration createConfiguration(DeployableObject deployable) throws InvalidModuleException {
-        ModuleType type = deployable.getType();
-        DeploymentConfigurationFactory factory = (DeploymentConfigurationFactory) configurationFactories.get(type);
-        if (factory == null) {
-            throw new InvalidModuleException("Unable to load DeploymentConfigurationFactory");
+        for (Iterator i = configurers.iterator(); i.hasNext();) {
+            ModuleConfigurer configurer = (ModuleConfigurer) i.next();
+            DeploymentConfiguration config = configurer.createConfiguration(deployable);
+            if (config != null) {
+                return config;
+            }
         }
-        return factory.createConfiguration(deployable);
+        throw new InvalidModuleException("Unable to load DeploymentConfigurationFactory");
     }
 
     public DConfigBeanVersionType getDConfigBeanVersion() {
@@ -355,14 +362,15 @@ public class DeploymentManagerImpl implements DeploymentManager, GBean {
         infoFactory.addOperation(new GOperationInfo("addDeploymentConfigurationFactory", new String[]{SchemaType.class.getName(), SchemaTypeLoader.class.getName(), DeploymentConfigurationFactory.class.getName()}));
         infoFactory.addOperation(new GOperationInfo("removeDeploymentConfigurationFactory", new String[]{SchemaType.class.getName()}));
         infoFactory.addReference(new GReferenceInfo("Server", DeploymentServer.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("Configurers", ModuleConfigurer.class));
         infoFactory.addReference(new GReferenceInfo("EARFactory", DeploymentConfigurationFactory.class.getName()));
         infoFactory.addReference(new GReferenceInfo("WARFactory", DeploymentConfigurationFactory.class.getName()));
         infoFactory.addReference(new GReferenceInfo("EJBFactory", DeploymentConfigurationFactory.class.getName()));
         infoFactory.addReference(new GReferenceInfo("RARFactory", DeploymentConfigurationFactory.class.getName()));
         infoFactory.addReference(new GReferenceInfo("CARFactory", DeploymentConfigurationFactory.class.getName()));
         infoFactory.setConstructor(new GConstructorInfo(
-                Arrays.asList(new Object[]{"Server", "EARFactory", "WARFactory", "EJBFactory", "RARFactory", "CARFactory"}),
-                Arrays.asList(new Object[]{DeploymentServer.class, DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class})
+                Arrays.asList(new Object[]{"Server", "Configurers", "EARFactory", "WARFactory", "EJBFactory", "RARFactory", "CARFactory"}),
+                Arrays.asList(new Object[]{DeploymentServer.class, Collection.class, DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class})
         ));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

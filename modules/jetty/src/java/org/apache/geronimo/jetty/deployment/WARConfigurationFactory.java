@@ -77,17 +77,10 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/02/08 20:19:21 $
+ * @version $Revision: 1.7 $ $Date: 2004/02/09 00:01:20 $
  */
 public class WARConfigurationFactory implements DeploymentConfigurationFactory {
     private static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
-
-    public DeploymentConfiguration createConfiguration(DeployableObject deployable) throws InvalidModuleException {
-        if (!ModuleType.WAR.equals(deployable.getType())) {
-            throw new InvalidModuleException("DeployableObject must be a WAR");
-        }
-        return new WARConfiguration(deployable);
-    }
 
     //TODO a createModule method taking a file/directory for unpacked jsp handling.
     //Should create a UnpackedModule if supplied file is a directory.

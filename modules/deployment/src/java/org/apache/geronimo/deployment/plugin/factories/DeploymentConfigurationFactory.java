@@ -71,10 +71,9 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/02/06 08:55:04 $
+ * @version $Revision: 1.6 $ $Date: 2004/02/09 00:01:19 $
  */
 public interface DeploymentConfigurationFactory {
-    public DeploymentConfiguration createConfiguration(DeployableObject deployable) throws InvalidModuleException;
 
     public DeploymentModule createModule(InputStream moduleArchive, XmlObject deploymentPlan, URI configID, boolean isLocal) throws DeploymentException;
 

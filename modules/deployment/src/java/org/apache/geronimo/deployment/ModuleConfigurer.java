@@ -53,62 +53,22 @@
  *
  * ====================================================================
  */
+package org.apache.geronimo.deployment;
 
-package org.apache.geronimo.connector.deployment;
-
-import java.io.InputStream;
-import java.net.URI;
-
-import javax.enterprise.deploy.model.DeployableObject;
-import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
-import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
-import javax.management.ObjectName;
-
-import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.deployment.DeploymentModule;
-import org.apache.geronimo.deployment.plugin.factories.DeploymentConfigurationFactory;
-import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlBeans;
+import javax.enterprise.deploy.model.DeployableObject;
 
 /**
- *
- *
- * @version $Revision: 1.3 $ $Date: 2004/02/09 00:01:19 $
- *
- * */
-public abstract class AbstractRARConfigurationFactory implements DeploymentConfigurationFactory {
-    private final ObjectName connectionTrackerNamePattern;
-    public static final GBeanInfo GBEAN_INFO;
-    private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
-
-    public AbstractRARConfigurationFactory(ObjectName connectionTrackerNamePattern) {
-        this.connectionTrackerNamePattern = connectionTrackerNamePattern;
-    }
-
-    public ObjectName getConnectionTrackerNamePattern() {
-        return connectionTrackerNamePattern;
-    }
-
-    public abstract DeploymentModule createModule(InputStream moduleArchive, XmlObject geronimoDD, URI configID, boolean isLocal) throws DeploymentException;
-
-    public SchemaTypeLoader getSchemaTypeLoader() {
-        return SCHEMA_TYPE_LOADER;
-    }
-
-    static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Geronimo RAR Configuration Factory", AbstractRARConfigurationFactory.class.getName());
-        infoFactory.addInterface(DeploymentConfigurationFactory.class);
-        infoFactory.addAttribute(new GAttributeInfo("ConnectionTrackerNamePattern", true));
-        infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"ConnectionTrackerNamePattern"},
-                new Class[]{ObjectName.class}));
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
+ * Interface to be implemented by the deployment subsystem for any type
+ * of component (e.g. EAR, WAR, ...) that needs configuration.
+ * 
+ * @version $Revision: 1.1 $ $Date: 2004/02/09 00:01:19 $
+ */
+public interface ModuleConfigurer {
+    /**
+     * JSR88 method for getting the vendor part of the deployment configuration
+     * @param deployable the object the tool is trying to deploy
+     * @return the vendor-specific deployment configuration, or null a configurer cannot handle the DeployableObject
+     */
+    DeploymentConfiguration createConfiguration(DeployableObject deployable);
 }

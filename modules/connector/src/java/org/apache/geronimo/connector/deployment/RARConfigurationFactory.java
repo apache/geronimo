@@ -82,7 +82,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/08 20:21:57 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/09 00:01:19 $
  *
  * */
 public class RARConfigurationFactory implements DeploymentConfigurationFactory {
@@ -96,13 +96,6 @@ public class RARConfigurationFactory implements DeploymentConfigurationFactory {
 
     public ObjectName getConnectionTrackerNamePattern() {
         return connectionTrackerNamePattern;
-    }
-
-    public DeploymentConfiguration createConfiguration(DeployableObject deployable) throws InvalidModuleException {
-        if (!ModuleType.RAR.equals(deployable.getType())) {
-            throw new InvalidModuleException("DeployableObject must be a RAR");
-        }
-        return new RARConfiguration(deployable);
     }
 
     public DeploymentModule createModule(InputStream moduleArchive, XmlObject geronimoDD, URI configID, boolean isLocal) throws DeploymentException {
