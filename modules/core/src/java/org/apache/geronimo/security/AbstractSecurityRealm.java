@@ -62,13 +62,12 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.regexp.RE;
 
 
 /**
  *
- * @version $Revision: 1.8 $ $Date: 2004/01/22 09:14:15 $
+ * @version $Revision: 1.9 $ $Date: 2004/01/22 20:42:12 $
  */
 public abstract class AbstractSecurityRealm  implements SecurityRealm, GBean {
 
@@ -76,9 +75,8 @@ public abstract class AbstractSecurityRealm  implements SecurityRealm, GBean {
 
     private String realmName;
 
-    protected GeronimoMBeanContext context;
-
-    //deprecated, GeronimoMBean only
+    //default constructor for use as endpoint
+    //TODO we probably always use the SecurityRealm interface and don't need this
     public AbstractSecurityRealm() {}
 
 
@@ -92,10 +90,6 @@ public abstract class AbstractSecurityRealm  implements SecurityRealm, GBean {
 
     public void setRealmName(String realmName) {
         this.realmName = realmName;
-    }
-
-    public void setMBeanContext(GeronimoMBeanContext context) {
-        this.context = context;
     }
 
     public void setGBeanContext(GBeanContext context) {
