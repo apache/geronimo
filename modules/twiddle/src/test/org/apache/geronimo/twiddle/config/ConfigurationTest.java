@@ -63,37 +63,16 @@ import java.io.Reader;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.framework.Assert;
 
 /**
  * Tests for <code>Configuration</code>.
  *
- * @version <code>$Revision: 1.7 $ $Date: 2003/08/16 15:14:13 $</code>
+ * @version <code>$Revision: 1.8 $ $Date: 2003/08/24 17:12:38 $</code>
  */
 public class ConfigurationTest
     extends TestCase
 {
-    /**
-     * Return the tests included in this test suite.
-     */
-    public static Test suite()
-    {
-        return new TestSuite(ConfigurationTest.class);
-    }
-    
-    /**
-     * Construct a new instance of this test case.
-     *
-     * @param name  Name of the test case
-     */
-    public ConfigurationTest(final String name)
-    {
-        super(name);
-    }
-    
     protected ConfigurationReader reader;
     
     /**
@@ -153,15 +132,15 @@ public class ConfigurationTest
         Configuration config = read("test1.xml");
         
         PropertiesConfig p = config.getPropertiesConfig();
-        Assert.assertNotNull(p);
+        assertNotNull(p);
         
         PropertyConfig[] props = p.getPropertyConfig();
-        Assert.assertEquals(2, props.length);
+        assertEquals(2, props.length);
         
-        Assert.assertEquals("property1", props[0].getName());
-        Assert.assertEquals("value1", props[0].getContent());
-        Assert.assertEquals("property2", props[1].getName());
-        Assert.assertEquals("value2", props[1].getContent());
+        assertEquals("property1", props[0].getName());
+        assertEquals("value1", props[0].getContent());
+        assertEquals("property2", props[1].getName());
+        assertEquals("value2", props[1].getContent());
     }
     
     /*
@@ -171,13 +150,13 @@ public class ConfigurationTest
         Configuration config = read("test1.xml");
         
         LibrariesConfig l = config.getLibrariesConfig();
-        Assert.assertNotNull(l);
+        assertNotNull(l);
         
         LibraryConfig[] libs = l.getLibraryConfig();
-        Assert.assertEquals(2, libs.length);
+        assertEquals(2, libs.length);
         
-        Assert.assertEquals("library1", libs[0].getContent());
-        Assert.assertEquals("library2", libs[1].getContent());
+        assertEquals("library1", libs[0].getContent());
+        assertEquals("library2", libs[1].getContent());
     }
     
     */
@@ -187,13 +166,13 @@ public class ConfigurationTest
         Configuration config = read("test1.xml");
         
         IncludesConfig i = config.getIncludesConfig();
-        Assert.assertNotNull(i);
+        assertNotNull(i);
         
         String[] incs = i.getInclude();
-        Assert.assertEquals(2, incs.length);
+        assertEquals(2, incs.length);
         
-        Assert.assertEquals("include1", incs[0]);
-        Assert.assertEquals("include2", incs[1]);
+        assertEquals("include1", incs[0]);
+        assertEquals("include2", incs[1]);
     }
     
     /*
@@ -203,14 +182,14 @@ public class ConfigurationTest
         Configuration config = read("test1.xml");
         
         SearchPathConfig s = config.getSearchPathConfig();
-        Assert.assertNotNull(s);
+        assertNotNull(s);
         
         String[] paths = s.getPathElement();
-        Assert.assertEquals(3, paths.length);
+        assertEquals(3, paths.length);
         
-        Assert.assertEquals("path1", paths[0]);
-        Assert.assertEquals("path2", paths[1]);
-        Assert.assertEquals("path3", paths[2]);
+        assertEquals("path1", paths[0]);
+        assertEquals("path2", paths[1]);
+        assertEquals("path3", paths[2]);
     }
     
     */

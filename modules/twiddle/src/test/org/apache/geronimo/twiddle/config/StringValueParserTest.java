@@ -56,37 +56,16 @@
 
 package org.apache.geronimo.twiddle.config;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.framework.Assert;
 
 /**
  * Tests for <code>Configuration</code>.
  *
- * @version <code>$Revision: 1.1 $ $Date: 2003/08/24 16:15:22 $</code>
+ * @version <code>$Revision: 1.2 $ $Date: 2003/08/24 17:12:38 $</code>
  */
 public class StringValueParserTest
     extends TestCase
 {
-    /**
-     * Return the tests included in this test suite.
-     */
-    public static Test suite()
-    {
-        return new TestSuite(StringValueParserTest.class);
-    }
-    
-    /**
-     * Construct a new instance of this test case.
-     *
-     * @param name  Name of the test case
-     */
-    public StringValueParserTest(final String name)
-    {
-        super(name);
-    }
-    
     protected StringValueParser parser;
     
     /**

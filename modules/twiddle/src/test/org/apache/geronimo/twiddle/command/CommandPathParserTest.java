@@ -56,37 +56,16 @@
 
 package org.apache.geronimo.twiddle.command;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.framework.Assert;
 
 /**
  * Tests for <code>CommandPathParser</code>.
  *
- * @version <code>$Revision: 1.4 $ $Date: 2003/08/16 15:14:13 $</code>
+ * @version <code>$Revision: 1.5 $ $Date: 2003/08/24 17:12:38 $</code>
  */
 public class CommandPathParserTest
     extends TestCase
 {
-    /**
-     * Return the tests included in this test suite.
-     */
-    public static Test suite()
-    {
-        return new TestSuite(CommandPathParserTest.class);
-    }
-    
-    /**
-     * Construct a new instance of this test case.
-     *
-     * @param name  Name of the test case
-     */
-    public CommandPathParserTest(final String name)
-    {
-        super(name);
-    }
-    
     /**
      * Set up instance variables required by this test case.
      */
@@ -111,9 +90,9 @@ public class CommandPathParserTest
         CommandPathParser parser = new CommandPathParser("/");
         String[] elements = parser.elements();
         
-        Assert.assertEquals(true, parser.isAbsolute());
-        Assert.assertEquals(1, elements.length);
-        Assert.assertEquals("/", elements[0]);
+        assertEquals(true, parser.isAbsolute());
+        assertEquals(1, elements.length);
+        assertEquals("/", elements[0]);
     }
 
     public void testTrailing()
@@ -121,10 +100,10 @@ public class CommandPathParserTest
         CommandPathParser parser = new CommandPathParser("/one/");
         String[] elements = parser.elements();
         
-        Assert.assertEquals(true, parser.isAbsolute());
-        Assert.assertEquals(2, elements.length);
-        Assert.assertEquals("/", elements[0]);
-        Assert.assertEquals("one", elements[1]);
+        assertEquals(true, parser.isAbsolute());
+        assertEquals(2, elements.length);
+        assertEquals("/", elements[0]);
+        assertEquals("one", elements[1]);
     }
     
     public void testAbsolute2()
@@ -132,10 +111,10 @@ public class CommandPathParserTest
         CommandPathParser parser = new CommandPathParser("/one");
         String[] elements = parser.elements();
         
-        Assert.assertEquals(true, parser.isAbsolute());
-        Assert.assertEquals(2, elements.length);
-        Assert.assertEquals("/", elements[0]);
-        Assert.assertEquals("one", elements[1]);
+        assertEquals(true, parser.isAbsolute());
+        assertEquals(2, elements.length);
+        assertEquals("/", elements[0]);
+        assertEquals("one", elements[1]);
     }
 
     public void testAbsolute3()
@@ -143,11 +122,11 @@ public class CommandPathParserTest
         CommandPathParser parser = new CommandPathParser("/one/two");
         String[] elements = parser.elements();
         
-        Assert.assertEquals(true, parser.isAbsolute());
-        Assert.assertEquals(3, elements.length);
-        Assert.assertEquals("/", elements[0]);
-        Assert.assertEquals("one", elements[1]);
-        Assert.assertEquals("two", elements[2]);
+        assertEquals(true, parser.isAbsolute());
+        assertEquals(3, elements.length);
+        assertEquals("/", elements[0]);
+        assertEquals("one", elements[1]);
+        assertEquals("two", elements[2]);
     }
 
     public void testAbsolute4()
@@ -155,12 +134,12 @@ public class CommandPathParserTest
         CommandPathParser parser = new CommandPathParser("/one/two/three");
         String[] elements = parser.elements();
         
-        Assert.assertEquals(true, parser.isAbsolute());
-        Assert.assertEquals(4, elements.length);
-        Assert.assertEquals("/", elements[0]);
-        Assert.assertEquals("one", elements[1]);
-        Assert.assertEquals("two", elements[2]);
-        Assert.assertEquals("three", elements[3]);
+        assertEquals(true, parser.isAbsolute());
+        assertEquals(4, elements.length);
+        assertEquals("/", elements[0]);
+        assertEquals("one", elements[1]);
+        assertEquals("two", elements[2]);
+        assertEquals("three", elements[3]);
     }
     
     public void testRelative1()
@@ -168,9 +147,9 @@ public class CommandPathParserTest
         CommandPathParser parser = new CommandPathParser("one");
         String[] elements = parser.elements();
         
-        Assert.assertEquals(false, parser.isAbsolute());
-        Assert.assertEquals(1, elements.length);
-        Assert.assertEquals("one", elements[0]);
+        assertEquals(false, parser.isAbsolute());
+        assertEquals(1, elements.length);
+        assertEquals("one", elements[0]);
     }
 
     public void testRelative2()
@@ -178,10 +157,10 @@ public class CommandPathParserTest
         CommandPathParser parser = new CommandPathParser("one/two");
         String[] elements = parser.elements();
         
-        Assert.assertEquals(false, parser.isAbsolute());
-        Assert.assertEquals(2, elements.length);
-        Assert.assertEquals("one", elements[0]);
-        Assert.assertEquals("two", elements[1]);
+        assertEquals(false, parser.isAbsolute());
+        assertEquals(2, elements.length);
+        assertEquals("one", elements[0]);
+        assertEquals("two", elements[1]);
     }
 
     public void testRelative3()
@@ -189,11 +168,11 @@ public class CommandPathParserTest
         CommandPathParser parser = new CommandPathParser("one/two/three");
         String[] elements = parser.elements();
         
-        Assert.assertEquals(false, parser.isAbsolute());
-        Assert.assertEquals(3, elements.length);
-        Assert.assertEquals("one", elements[0]);
-        Assert.assertEquals("two", elements[1]);
-        Assert.assertEquals("three", elements[2]);
+        assertEquals(false, parser.isAbsolute());
+        assertEquals(3, elements.length);
+        assertEquals("one", elements[0]);
+        assertEquals("two", elements[1]);
+        assertEquals("three", elements[2]);
     }
 }
 

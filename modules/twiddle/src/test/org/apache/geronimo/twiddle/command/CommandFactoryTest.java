@@ -56,10 +56,7 @@
 
 package org.apache.geronimo.twiddle.command;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.framework.Assert;
 
 import org.apache.geronimo.twiddle.config.CommandConfig;
 import org.apache.geronimo.twiddle.config.Attribute;
@@ -67,29 +64,11 @@ import org.apache.geronimo.twiddle.config.Attribute;
 /**
  * Tests for <code>CommandFactory</code>.
  *
- * @version <code>$Revision: 1.5 $ $Date: 2003/08/16 15:14:13 $</code>
+ * @version <code>$Revision: 1.6 $ $Date: 2003/08/24 17:12:38 $</code>
  */
 public class CommandFactoryTest
     extends TestCase
 {
-    /**
-     * Return the tests included in this test suite.
-     */
-    public static Test suite()
-    {
-        return new TestSuite(CommandFactoryTest.class);
-    }
-    
-    /**
-     * Construct a new instance of this test case.
-     *
-     * @param name  Name of the test case
-     */
-    public CommandFactoryTest(final String name)
-    {
-        super(name);
-    }
-    
     /**
      * Set up instance variables required by this test case.
      */
@@ -124,12 +103,12 @@ public class CommandFactoryTest
         
         // Verify command info
         CommandInfo info = command.getCommandInfo();
-        Assert.assertNotNull(command.getCommandInfo());
-        Assert.assertEquals(name, info.getName());
-        Assert.assertEquals(desc, info.getDescription());
+        assertNotNull(command.getCommandInfo());
+        assertEquals(name, info.getName());
+        assertEquals(desc, info.getDescription());
         
         // Verify the class type
-        Assert.assertEquals(type, command.getClass().getName());
+        assertEquals(type, command.getClass().getName());
         
         command.execute(new String[0]);
     }
@@ -150,7 +129,7 @@ public class CommandFactoryTest
         Command command = protoInfo.getPrototype();
         
         // Verify that the text attribute was set correctly
-        Assert.assertEquals(text, ((TestCommand)command).getText());
+        assertEquals(text, ((TestCommand)command).getText());
         
         command.execute(new String[0]);
     }
