@@ -56,27 +56,20 @@
 package org.apache.geronimo.xml.deployment;
 
 import org.apache.geronimo.deployment.model.web.WebApp;
-import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
-import org.apache.geronimo.deployment.model.j2ee.EJBRef;
-import org.apache.geronimo.deployment.model.j2ee.EJBLocalRef;
-import org.apache.geronimo.deployment.model.j2ee.ServiceRef;
-import org.apache.geronimo.deployment.model.j2ee.ResourceRef;
-import org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef;
-import org.apache.geronimo.deployment.model.j2ee.MessageDestinationRef;
-import org.apache.geronimo.deployment.model.j2ee.MessageDestination;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/17 01:47:15 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/17 00:19:46 $
  */
 public class WebAppLoader extends AbstractWebAppLoader {
     public WebAppLoader() {
     }
 
-    public WebApp load(Document doc) {
+    public static WebApp load(Document doc) {
         Element root = doc.getDocumentElement();
         if (!"web-app".equals(root.getLocalName())) {
             throw new IllegalArgumentException("Document is not a web-app instance");
