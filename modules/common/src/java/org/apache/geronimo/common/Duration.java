@@ -61,7 +61,7 @@ import org.apache.geronimo.common.mutable.MuLong;
 /**
  * An abstraction of the time during which something exists or lasts.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/24 20:51:22 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/26 18:39:52 $
  */
 public class Duration
    extends MuLong
@@ -94,14 +94,14 @@ public class Duration
         super(time.longValue());
     }
     
-    public static final long ONE_YEAR = 2903040000L;
-    public static final long ONE_MONTH = 241920000;
-    public static final long ONE_WEEK = 60480000;
-    public static final long ONE_DAY = 8640000;
-    public static final long ONE_HOUR = 3600000;
-    public static final long ONE_MINUTE = 600000;
-    public static final long ONE_SECOND = 1000;
-    public static final long ONE_MILLISECOND = 1;
+    public static final long ONE_MILLISECOND =    1L;
+    public static final long ONE_SECOND =      1000L * ONE_MILLISECOND;
+    public static final long ONE_MINUTE =        60L * ONE_SECOND;
+    public static final long ONE_HOUR =          60L * ONE_MINUTE;
+    public static final long ONE_DAY =           24L * ONE_HOUR;
+    public static final long ONE_WEEK =           7L * ONE_DAY;
+    public static final long ONE_MONTH =          4L * ONE_WEEK;
+    public static final long ONE_YEAR =          12L * ONE_MONTH;
     
     public String toString()
     {
