@@ -48,35 +48,4 @@ public class SerializableACE implements Serializable {
     Map getOptions() {
         return options;
     }
-/*
-    public static final class LoginModuleControlFlag implements Serializable {
-
-        // Be careful here.  If you change the ordinals, this class must be changed on evey client.
-        private static int MAX_ORDINAL = 4;
-        private static final LoginModuleControlFlag[] values = new LoginModuleControlFlag[MAX_ORDINAL + 1];
-        public static final LoginModuleControlFlag REQUIRED = new LoginModuleControlFlag("REQUIRED", 0);
-        public static final LoginModuleControlFlag REQUISITE = new LoginModuleControlFlag("REQUISITE", 1);
-        public static final LoginModuleControlFlag SUFFICIENT = new LoginModuleControlFlag("SUFFICIENT", 2);
-        public static final LoginModuleControlFlag OPTIONAL = new LoginModuleControlFlag("OPTIONAL", 3);
-
-        private final transient String name;
-        private final int ordinal;
-
-        private LoginModuleControlFlag(String name, int ordinal) {
-            assert ordinal <= MAX_ORDINAL;
-            assert values[ordinal] == null;
-            this.name = name;
-            this.ordinal = ordinal;
-            values[ordinal] = this;
-        }
-
-        public String toString() {
-            return name;
-        }
-
-        Object readResolve() throws ObjectStreamException {
-            return values[ordinal];
-        }
-    }
-*/
 }
