@@ -56,92 +56,105 @@
 
 package org.apache.geronimo.connector.deployment;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
 import java.net.URI;
+import java.net.URL;
+
+import javax.enterprise.deploy.model.DeployableObject;
+import javax.enterprise.deploy.shared.ModuleType;
+import javax.enterprise.deploy.spi.DeploymentConfiguration;
+import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 import javax.management.ObjectName;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentModule;
-import org.apache.geronimo.deployment.ModuleFactory;
-import org.apache.geronimo.deployment.model.connector.ConnectorDocument;
-import org.apache.geronimo.deployment.model.geronimo.connector.GeronimoConnectorDocument;
-import org.apache.geronimo.deployment.util.DeploymentHelper;
-import org.apache.geronimo.deployment.util.URLInfo;
-import org.apache.geronimo.deployment.xml.ParserFactory;
+import org.apache.geronimo.deployment.plugin.factories.DeploymentConfigurationFactory;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
-import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.xml.deployment.ConnectorLoader;
-import org.apache.geronimo.xml.deployment.GeronimoConnectorLoader;
-
+import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
+import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
+import org.apache.xmlbeans.XmlException;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/02/02 22:10:35 $
+ *
+ *
+ * @version $Revision: 1.1 $ $Date: 2004/02/02 22:10:35 $
  *
  * */
-public class ConnectorDeployer implements ModuleFactory {
-    private final static GBeanInfo GBEAN_INFO;
-
-    private final ParserFactory parserFactory;
+public class RARConfigurationFactory implements DeploymentConfigurationFactory {
 
     private ObjectName connectionTrackerNamePattern;
 
-    public ConnectorDeployer(ObjectName connectionTrackerNamePattern, ParserFactory parserFactory) {
+    public RARConfigurationFactory(ObjectName connectionTrackerNamePattern) {
         this.connectionTrackerNamePattern = connectionTrackerNamePattern;
-        this.parserFactory = parserFactory;
-    }
-
-    public ParserFactory getParserFactory() {
-        return parserFactory;
     }
 
     public ObjectName getConnectionTrackerNamePattern() {
         return connectionTrackerNamePattern;
     }
 
-    public DeploymentModule getModule(URLInfo urlInfo, URI moduleID) throws DeploymentException {
-        DeploymentHelper deploymentHelper = new DeploymentHelper(urlInfo, "ra.xml", "geronimo-ra.xml", "META-INF");
-        //we require both the standard dd and the Geronimo dd.
-        if (deploymentHelper.locateGeronimoDD() == null || deploymentHelper.locateJ2EEDD() == null) {
-            return null;
+    public DeploymentConfiguration createConfiguration(DeployableObject deployable) throws InvalidModuleException {
+        if (!ModuleType.RAR.equals(deployable.getType())) {
+            throw new InvalidModuleException("DeployableObject must be a RAR");
         }
-        DocumentBuilder parser = null;
-        try {
-            parser = parserFactory.getParser();
-        } catch (ParserConfigurationException e) {
-            throw new DeploymentException("Could not configure parser", e);
-        }
-        Document connectorDoc = deploymentHelper.getJ2EEDoc(parser);
-        if (connectorDoc == null) {
-            return null;
-        }
-        ConnectorDocument connectorDocument = ConnectorLoader.load(connectorDoc);
-
-        GeronimoConnectorDocument geronimoConnectorDocument = null;
-        Document geronimoConnectorDoc = deploymentHelper.getGeronimoDoc(parser);
-        if (geronimoConnectorDoc == null) {
-            return null;
-        }
-        geronimoConnectorDocument = GeronimoConnectorLoader.load(geronimoConnectorDoc, connectorDocument);
-
-        return null;//new ConnectorModule(moduleID, geronimoConnectorDocument, this);
+        return new RARConfiguration(deployable);
     }
 
-    static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConnectorDeployer.class.getName());
-        infoFactory.addAttribute(new GAttributeInfo("ConnectionTrackerNamePattern", true));
-        infoFactory.addOperation(new GOperationInfo("getModule", new String[]{URLInfo.class.getName(), URI.class.getName()}));
-        infoFactory.addReference(new GReferenceInfo("ParserFactory", ParserFactory.class.getName()));
-        infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"ConnectionTrackerNamePattern", "ParserFactory"},
-                new Class[]{ObjectName.class, ParserFactory.class}));
-        GBEAN_INFO = infoFactory.getBeanInfo();
+    public DeploymentModule createModule(InputStream moduleArchive, Document deploymentPlan, URI configID) throws DeploymentException {
+        Element root = deploymentPlan.getDocumentElement();
+        if (!"connector".equals(root.getNodeName())) {
+            return null;
+        }
 
+        return new Connector_1_5Module(configID, moduleArchive, deploymentPlan, connectionTrackerNamePattern);
+    }
+
+    public DeploymentModule createModule(File moduleArchive, Document deploymentPlan, URI configID, boolean isLocal) throws DeploymentException {
+        Element root = deploymentPlan.getDocumentElement();
+        if (!"connector".equals(root.getNodeName())) {
+            return null;
+        }
+
+        return new Connector_1_5Module(configID, moduleArchive, deploymentPlan, connectionTrackerNamePattern);
+    }
+
+    public DeploymentModule createModule(URL moduleArchive, InputStream standardDD, InputStream geronimoDD, URI configID, boolean isLocal) throws DeploymentException, XmlException, IOException {
+        GerConnectorDocument geronimoConnectorDocument = GerConnectorDocument.Factory.parse(geronimoDD);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int chunk = standardDD.read(buffer);
+        while (chunk > 0) {
+            baos.write(buffer, 0, chunk);
+            chunk = standardDD.read(buffer);
+        }
+        standardDD.close();
+        try {
+            ConnectorDocument connectorDocument = ConnectorDocument.Factory.parse(new ByteArrayInputStream(baos.toByteArray()));
+            return new Connector_1_5Module(configID, moduleArchive, connectorDocument, geronimoConnectorDocument, connectionTrackerNamePattern);
+        } catch (XmlException e) {
+            org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorDocument connectorDocument = org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorDocument.Factory.parse(new ByteArrayInputStream(baos.toByteArray()));
+            return new Connector_1_0Module(configID, moduleArchive, connectorDocument, geronimoConnectorDocument, connectionTrackerNamePattern);
+        }
+    }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Geronimo RAR Configuration Factory", RARConfigurationFactory.class.getName());
+        infoFactory.addInterface(DeploymentConfigurationFactory.class);
+        infoFactory.addAttribute(new GAttributeInfo("ConnectionTrackerNamePattern", true));
+        infoFactory.setConstructor(new GConstructorInfo(
+                new String[]{"ConnectionTrackerNamePattern"},
+                new Class[]{ObjectName.class}));
+        GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {

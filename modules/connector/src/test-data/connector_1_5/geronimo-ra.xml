@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<connector xmlns="http://org.apache.geronimo/xml/ns/j2ee"
+    version="1.5">
+    <resourceadapter>
+        <config-property-setting name="RAStringProperty">NewStringValue</config-property-setting>
+        <bootstrapcontext-name>geronimo.jca:service=bootstrapcontext</bootstrapcontext-name>
+        <outbound-resourceadapter>
+            <connection-definition>
+                <connectionfactory-interface>javax.resource.cci.ConnectionFactory</connectionfactory-interface>
+                <name>FirstTestOutboundConnectionFactory</name>
+                <config-property-setting name="OutboundStringProperty1">newvalue1</config-property-setting>
+                <config-property-setting name="OutboundStringProperty3">newvalue2</config-property-setting>
+                <connectionmanager>
+                    <realm-bridge>TargetRealm</realm-bridge>
+                    <name>Test</name>
+                    <blockingTimeout>5000</blockingTimeout>
+                    <maxSize>10</maxSize>
+                    <useTransactions>true</useTransactions>
+                    <useLocalTransactions>false</useLocalTransactions>
+                    <useTransactionCaching>true</useTransactionCaching>
+                    <useSubject>true</useSubject>
+                    <useConnectionRequestInfo>false</useConnectionRequestInfo>
+                </connectionmanager>
+                <global-jndi-name>connectionfactories/testcf</global-jndi-name>
+            </connection-definition>
+            <connection-definition>
+                <connectionfactory-interface>javax.resource.cci.ConnectionFactory</connectionfactory-interface>
+                <name>SecondTestOutboundConnectionFactory</name>
+                <config-property-setting name="OutboundStringProperty4">newvalue3</config-property-setting>
+                <config-property-setting name="OutboundStringProperty1">newvalue4</config-property-setting>
+                <connectionmanager>
+                    <realm-bridge>TargetRealm</realm-bridge>
+                    <name>Test</name>
+                    <blockingTimeout>5000</blockingTimeout>
+                    <maxSize>10</maxSize>
+                    <useTransactions>true</useTransactions>
+                    <useLocalTransactions>false</useLocalTransactions>
+                    <useTransactionCaching>true</useTransactionCaching>
+                    <useSubject>true</useSubject>
+                    <useConnectionRequestInfo>false</useConnectionRequestInfo>
+                </connectionmanager>
+                <security-domain>YourSecurityDomain</security-domain>
+            </connection-definition>
+            <connection-definition>
+                <connectionfactory-interface>org.apache.geronimo.connector.mock.MockConnectionFactory</connectionfactory-interface>
+                <name>ThirdTestOutboundConnectionFactory</name>
+                <config-property-setting name="OutboundStringProperty">StringValue3</config-property-setting>
+                <connectionmanager>
+                    <realm-bridge>TargetRealm</realm-bridge>
+                    <name>Test</name>
+                    <blockingTimeout>5000</blockingTimeout>
+                    <maxSize>10</maxSize>
+                    <useTransactions>true</useTransactions>
+                    <useLocalTransactions>false</useLocalTransactions>
+                    <useTransactionCaching>true</useTransactionCaching>
+                    <useSubject>true</useSubject>
+                    <useConnectionRequestInfo>false</useConnectionRequestInfo>
+                </connectionmanager>
+                <security-domain>TheirSecurityDomain</security-domain>
+            </connection-definition>
+            <transaction-support>XATransaction</transaction-support>
+        </outbound-resourceadapter>
+        <inbound-resourceadapter>
+        </inbound-resourceadapter>
+        <adminobject>
+            <adminobject-interface>org.apache.geronimo.connector.mock.MockAdminObject</adminobject-interface>
+            <adminobject-class>org.apache.geronimo.connector.mock.AdminObjectImpl</adminobject-class>
+            <config-property-setting name="Tweedle">Dee-value</config-property-setting>
+        </adminobject>
+        <adminobject>
+            <adminobject-interface>org.apache.geronimo.connector.mock.MockAdminObject</adminobject-interface>
+            <adminobject-class>org.apache.geronimo.connector.mock.AdminObjectImpl</adminobject-class>
+            <config-property-setting name="Tweedle">Dum-value</config-property-setting>
+        </adminobject>
+    </resourceadapter>
+</connector>

@@ -79,11 +79,11 @@ import org.apache.geronimo.security.bridge.RealmBridge;
  * and connection manager stack according to the policies described in the attributes.
  * It's used by deserialized copies of the proxy to get a reference to the actual stack.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/25 21:07:03 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/02 22:10:35 $
  * */
 public class ConnectionManagerDeployment implements ConnectionManagerFactory, GBean {
 
-    private static final GBeanInfo GBEAN_INFO;
+    public static final GBeanInfo GBEAN_INFO;
 
     private final static String MBEAN_SERVER_DELEGATE =
             "JMImplementation:type=MBeanServerDelegate";
@@ -343,13 +343,13 @@ public class ConnectionManagerDeployment implements ConnectionManagerFactory, GB
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConnectionManagerDeployment.class.getName());
 
-        infoFactory.addAttribute(new GAttributeInfo("BlockingTimeout", true));
         infoFactory.addAttribute(new GAttributeInfo("Name", true));
+        infoFactory.addAttribute(new GAttributeInfo("BlockingTimeout", true));
         infoFactory.addAttribute(new GAttributeInfo("MaxSize", true));
-        infoFactory.addAttribute(new GAttributeInfo("UseConnectionRequestInfo", true));
         infoFactory.addAttribute(new GAttributeInfo("UseTransactions", true));
         infoFactory.addAttribute(new GAttributeInfo("UseLocalTransactions", true));
         infoFactory.addAttribute(new GAttributeInfo("UseTransactionCaching", true));
+        infoFactory.addAttribute(new GAttributeInfo("UseConnectionRequestInfo", true));
         infoFactory.addAttribute(new GAttributeInfo("UseSubject", true));
 
         infoFactory.addOperation(new GOperationInfo("getStack"));

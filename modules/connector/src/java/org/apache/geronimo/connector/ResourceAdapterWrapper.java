@@ -77,12 +77,12 @@ import org.apache.geronimo.gbean.WaitingException;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/25 21:07:03 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/02 22:10:35 $
  *
  * */
 public class ResourceAdapterWrapper implements GBean, DynamicGBean {
 
-    private static final GBeanInfo GBEAN_INFO;
+    public static final GBeanInfo GBEAN_INFO;
 
     private final Class resourceAdapterClass;
 
@@ -155,7 +155,7 @@ public class ResourceAdapterWrapper implements GBean, DynamicGBean {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ResourceAdapterWrapper.class.getName());
-        infoFactory.addAttribute(new GAttributeInfo("ResourceAdapterClass"));
+        infoFactory.addAttribute(new GAttributeInfo("ResourceAdapterClass", true));
         infoFactory.addReference(new GReferenceInfo("BootstrapContext", BootstrapContext.class.getName()));
 
         infoFactory.addOperation(new GOperationInfo("registerManagedConnectionFactory", new String[]{ManagedConnectionFactory.class.getName()}));
