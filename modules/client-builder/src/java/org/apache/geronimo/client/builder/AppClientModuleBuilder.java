@@ -83,7 +83,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     private final Repository repository;
     private final ConfigurationStore store;
 
-    private static final URI PARENT_ID = URI.create("org/apache/geronimo/Client");
+    private static final URI CLIENT_PARENT_ID = URI.create("org/apache/geronimo/Client");
     private final String clientDomainName = "geronimo.client";
     private final String clientServerName = "client";
     private final String clientApplicationName = "client-application";
@@ -222,6 +222,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             id = appClient.getId();
         }
         geronimoAppClient.setConfigId(id);
+        geronimoAppClient.setClientConfigId(id + "-client");
         return geronimoAppClient;
     }
 
@@ -314,11 +315,17 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                     }
                 };
 
-                URI configId = URI.create(geronimoAppClient.getConfigId());
+                URI configId = URI.create(geronimoAppClient.getClientConfigId());
+                URI parentId;
+                if (geronimoAppClient.isSetParentId()) {
+                    parentId = URI.create(geronimoAppClient.getParentId());
+                } else {
+                    parentId = CLIENT_PARENT_ID;
+                }
                 appClientDeploymentContext = new EARContext(jos,
                         configId,
                         ConfigurationModuleType.APP_CLIENT,
-                        PARENT_ID,
+                        parentId,
                         kernel,
                         clientDomainName,
                         clientServerName,

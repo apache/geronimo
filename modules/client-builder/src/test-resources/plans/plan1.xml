@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <application-client xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client"
+    clientConfigId="test-client"
     configId="client"
     parentId="org/apache/geronimo/DefaultDatabase">
     <resource-ref>

@@ -25,6 +25,7 @@ public class PlanParsingTest extends TestCase {
     public void testConstructPlan() throws Exception {
         GerApplicationClientDocument appClientDoc = GerApplicationClientDocument.Factory.newInstance();
         GerApplicationClientType appClient = appClientDoc.addNewApplicationClient();
+        appClient.setClientConfigId("clientConfigId");
         appClient.setConfigId("configId");
         appClient.setParentId("parentId");
         GerLocalRefType ref = appClient.addNewResourceRef();
