@@ -46,7 +46,7 @@ import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.jetty.JettyWebAppContext;
 import org.apache.geronimo.xbeans.j2ee.ServiceRefHandlerType;
-import org.openejb.deployment.OpenEJBModuleBuilder;
+//import org.openejb.deployment.OpenEJBModuleBuilder;
 
 /**
  * @version $Rev: $ $Date: $
@@ -129,24 +129,25 @@ public class TestingUtils {
 
     protected static EARConfigBuilder getEARConfigBuilder() throws Exception {
         URI defaultParentId = new URI("org/apache/geronimo/Server");
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, null, null, null);
-
-       EARConfigBuilder earConfigBuilder =
-                new EARConfigBuilder(defaultParentId,
-                        transactionManagerObjectName,
-                        connectionTrackerObjectName,
-                        null,
-                        null,
-                        null,
-                        moduleBuilder,
-                        moduleBuilder,
-                        null,
-                        null,
-                        resourceReferenceBuilder,
-                        null,
-                        serviceReferenceBuilder,
-                        null);
-        return earConfigBuilder;
+//        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, null, null, null);
+//
+//       EARConfigBuilder earConfigBuilder =
+//                new EARConfigBuilder(defaultParentId,
+//                        transactionManagerObjectName,
+//                        connectionTrackerObjectName,
+//                        null,
+//                        null,
+//                        null,
+//                        moduleBuilder,
+//                        moduleBuilder,
+//                        null,
+//                        null,
+//                        resourceReferenceBuilder,
+//                        null,
+//                        serviceReferenceBuilder,
+//                        null);
+//        return earConfigBuilder;
+        return null;
     }
 
     public static void buildConfiguration(File jarfile,

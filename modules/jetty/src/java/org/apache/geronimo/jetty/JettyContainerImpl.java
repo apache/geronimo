@@ -23,18 +23,15 @@ import java.util.Map;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
-import org.apache.geronimo.webservices.WebServiceInvoker;
-import org.mortbay.http.HttpContext;
-import org.mortbay.http.HttpListener;
-import org.mortbay.http.RequestLog;
-import org.mortbay.http.UserRealm;
+import org.mortbay.http.*;
 import org.mortbay.jetty.Server;
 
 /**
  * @version $Rev$ $Date$
  */
-public class JettyContainerImpl implements JettyContainer, WebServiceContainer, GBeanLifecycle {
+public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLifecycle {
     private final Server server;
     private final Map webServices = new HashMap();
 
@@ -135,16 +132,16 @@ public class JettyContainerImpl implements JettyContainer, WebServiceContainer, 
         server.removeRealm(realm.getName());
     }
 
-    public void addWebService(String contextPath, WebServiceInvoker webServiceInvoker) throws Exception {
-        JettyWebServiceHandler webServiceHandler = new JettyWebServiceHandler(contextPath, webServiceInvoker);
-        addContext(webServiceHandler);
-        webServiceHandler.start();
-        webServices.put(contextPath, webServiceHandler);
+    public void addWebService(String contextPath, WebServiceContainer webServiceContainer) throws Exception {
+        JettyEJBWebServiceContext webServiceContext = new JettyEJBWebServiceContext(contextPath, webServiceContainer);
+        addContext(webServiceContext);
+        webServiceContext.start();
+        webServices.put(contextPath, webServiceContext);
     }
 
     public void removeWebService(String contextPath) {
-        JettyWebServiceHandler webServiceHandler = (JettyWebServiceHandler) webServices.get(contextPath);
-        removeContext(webServiceHandler);
+        JettyEJBWebServiceContext webServiceContext = (JettyEJBWebServiceContext) webServices.get(contextPath);
+        removeContext(webServiceContext);
     }
 
     public void setRequestLog(RequestLog log) {
@@ -205,7 +202,7 @@ public class JettyContainerImpl implements JettyContainer, WebServiceContainer, 
         infoBuilder.addOperation("addRealm", new Class[]{UserRealm.class});
         infoBuilder.addOperation("removeRealm", new Class[]{UserRealm.class});
 
-        infoBuilder.addInterface(WebServiceContainer.class);
+        infoBuilder.addInterface(SoapHandler.class);
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
@@ -213,4 +210,5 @@ public class JettyContainerImpl implements JettyContainer, WebServiceContainer, 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
+
 }

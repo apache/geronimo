@@ -297,30 +297,37 @@
                 <module>true</module>
             </properties>
         </dependency>
+
         <dependency>
-            <groupId>axis</groupId>
-            <artifactId>axis-jaxrpc</artifactId>
-            <version>${axis_jaxrpc_version}</version>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-jaxrpc</artifactId>
+            <version>${geronimo_spec_jaxrpc_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-saaj</artifactId>
+            <version>${geronimo_spec_saaj_version}</version>
             <properties>
-                <module>true</module>
+                <runtime>true</runtime>
             </properties>
         </dependency>
+
         <dependency>
-            <groupId>axis</groupId>
-            <artifactId>axis-saaj</artifactId>
-            <version>${axis_saaj_version}</version>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-qname</artifactId>
+            <version>${geronimo_spec_qname_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>wsdl4j</groupId>
+            <artifactId>wsdl4j</artifactId>
+            <version>${wsdl4j_version}</version>
             <properties>
-                <module>true</module>
+                <runtime>true</runtime>
             </properties>
         </dependency>
-        <dependency>
-            <groupId>axis</groupId>
-            <artifactId>axis-wsdl4j</artifactId>
-            <version>${axis_wsdl4j_version}</version>
-            <properties>
-                <module>true</module>
-            </properties>
-        </dependency>
+
         <dependency>
             <groupId>ant</groupId>
             <artifactId>ant</artifactId>
@@ -329,6 +336,7 @@
                 <module>true</module>
             </properties>
         </dependency>
+<!--
         <dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-core</artifactId>
@@ -345,6 +353,7 @@
                 <module>true</module>
             </properties>
         </dependency>
+-->
      </dependencies>
 
 

@@ -29,7 +29,7 @@ import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.openejb.deployment.OpenEJBModuleBuilder;
+//import org.openejb.deployment.OpenEJBModuleBuilder;
 
 /**
  * 

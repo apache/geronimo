@@ -58,7 +58,7 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
-import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.j2ee.deployment.POJOWebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -127,7 +127,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
     private final ObjectName defaultFilterMappings;
     private final ObjectName pojoWebServiceTemplate;
 
-    private final WebServiceBuilder webServiceBuilder;
+    private final POJOWebServiceBuilder pojoWebServiceBuilder;
 
     private final List defaultWelcomeFiles;
     private final Integer defaultSessionTimeoutSeconds;
@@ -143,7 +143,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
                               ObjectName defaultFilters,
                               ObjectName defaultFilterMappings,
                               ObjectName pojoWebServiceTemplate,
-                              WebServiceBuilder webServiceBuilder,
+                              POJOWebServiceBuilder pojoWebServiceBuilder,
                               Repository repository,
                               Kernel kernel) {
         this.defaultParentId = defaultParentId;
@@ -153,7 +153,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         this.defaultFilters = defaultFilters;
         this.defaultFilterMappings = defaultFilterMappings;
         this.pojoWebServiceTemplate = pojoWebServiceTemplate;
-        this.webServiceBuilder = webServiceBuilder;
+        this.pojoWebServiceBuilder = pojoWebServiceBuilder;
         this.repository = repository;
         this.kernel = kernel;
 
@@ -772,7 +772,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 if (portInfo == null) {
                     throw new DeploymentException("No web service deployment info for servlet name " + servletName);
                 }
-                webServiceBuilder.configurePOJO(servletData, portInfo, servletClassName);
+                pojoWebServiceBuilder.configurePOJO(servletData, portInfo, servletClassName);
             }
         } else if (servletType.isSetJspFile()) {
             servletData = new GBeanData(servletObjectName, JettyServletHolder.GBEAN_INFO);
@@ -1115,7 +1115,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         infoBuilder.addAttribute("defaultFilters", ObjectName.class, true);
         infoBuilder.addAttribute("defaultFilterMappings", ObjectName.class, true);
         infoBuilder.addAttribute("pojoWebServiceTemplate", ObjectName.class, true);
-        infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("WebServiceBuilder", POJOWebServiceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addInterface(ModuleBuilder.class);

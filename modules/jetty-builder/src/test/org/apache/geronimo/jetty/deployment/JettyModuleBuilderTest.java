@@ -47,7 +47,7 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
-import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.j2ee.deployment.POJOWebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -241,7 +241,7 @@ public class JettyModuleBuilderTest extends TestCase {
 
         ObjectName defaultServlets = ObjectName.getInstance("test:name=test,type=none,*");
         ObjectName pojoWebServiceTemplate = null;
-        WebServiceBuilder webServiceBuilder = null;
+        POJOWebServiceBuilder pojoWebServiceBuilder = null;
 
         serverInfoName = new ObjectName("geronimo.system:name=ServerInfo");
         serverInfoGBean = new GBeanData(serverInfoName, ServerInfo.GBEAN_INFO);
@@ -257,7 +257,7 @@ public class JettyModuleBuilderTest extends TestCase {
         start(securityServiceGBean);
 
 
-        builder = new JettyModuleBuilder(new URI("null"), new Integer(1800), Collections.EMPTY_LIST, containerName, defaultServlets, null, null, pojoWebServiceTemplate, webServiceBuilder, null, kernel);
+        builder = new JettyModuleBuilder(new URI("null"), new Integer(1800), Collections.EMPTY_LIST, containerName, defaultServlets, null, null, pojoWebServiceTemplate, pojoWebServiceBuilder, null, kernel);
 
         container = new GBeanData(containerName, JettyContainerImpl.GBEAN_INFO);
 

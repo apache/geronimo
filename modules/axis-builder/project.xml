@@ -49,13 +49,13 @@
             <type>plugin</type>
         </dependency>
 
-
+<!--
         <dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-core</artifactId>
             <version>${openejb_version}</version>
         </dependency>
-
+-->
         <!-- needed for xmlbeans runtime-->
         <dependency>
             <groupId>xmlbeans</groupId>

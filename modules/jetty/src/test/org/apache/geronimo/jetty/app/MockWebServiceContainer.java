@@ -23,14 +23,14 @@ import java.net.URI;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.webservices.WebServiceInvoker;
+import org.apache.geronimo.webservices.WebServiceContainer;
 
 /**
  * @version $Rev:  $ $Date:  $
  */
-public class MockWebServiceInvoker implements WebServiceInvoker {
-    public void invoke(InputStream in, OutputStream out, String uri) throws Exception {
-        out.write("Hello World".getBytes());
+public class MockWebServiceContainer implements WebServiceContainer {
+    public void invoke(Request request, Response response) throws Exception {
+        response.getOutputStream().write("Hello World".getBytes());
     }
 
     public void getWsdl(OutputStream out) throws Exception {

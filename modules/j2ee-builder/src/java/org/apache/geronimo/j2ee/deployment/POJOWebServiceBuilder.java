@@ -22,7 +22,7 @@ import org.apache.geronimo.gbean.GBeanData;
 /**
  * @version $Rev:  $ $Date:  $
  */
-public interface WebServiceBuilder {
+public interface POJOWebServiceBuilder {
 
     //obviously these need the deployment descriptors, but I'm not sure in what form yet.
     /**

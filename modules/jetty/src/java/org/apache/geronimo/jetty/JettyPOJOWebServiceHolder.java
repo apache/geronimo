@@ -33,6 +33,7 @@ import javax.servlet.ServletConfig;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.webservices.WebServiceContainer;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.jetty.servlet.ServletHttpRequest;
 
@@ -43,22 +44,25 @@ import org.mortbay.jetty.servlet.ServletHttpRequest;
  *
  * @version $Rev: 154436 $ $Date: 2005-02-19 10:22:02 -0800 (Sat, 19 Feb 2005) $
  */
-public class JettyAxisPOJOWebService extends ServletHolder {
+public class JettyPOJOWebServiceHolder extends ServletHolder {
+    private WebServiceContainer webServiceContainer;
 
     //todo consider interface instead of this constructor for endpoint use.
-    public JettyAxisPOJOWebService() {
+    public JettyPOJOWebServiceHolder() {
 
     }
 
-    public JettyAxisPOJOWebService(String servletName,
+    public JettyPOJOWebServiceHolder(String servletName,
                               Map initParams,
                               Integer loadOnStartup,
                               Set servletMappings,
                               Map webRoleRefPermissions,
+                              WebServiceContainer webServiceContainer,
                               JettyServletRegistration context) throws Exception {
-        super(context == null? null: context.getServletHandler(), servletName, DummyServlet.class.getName(), null);
+        super(context == null? null: context.getServletHandler(), servletName, POJOWebServiceServlet.class.getName(), null);
         //context will be null only for use as "default servlet info holder" in deployer.
 
+        this.webServiceContainer = webServiceContainer;
         if (context != null) {
             putAll(initParams);
             if (loadOnStartup != null) {
@@ -84,46 +88,19 @@ public class JettyAxisPOJOWebService extends ServletHolder {
     public void handle(ServletRequest request, ServletResponse response)
             throws ServletException, UnavailableException, IOException {
 
+        //  TODO There has to be some way to get this in on the Servlet's init method.
+        request.setAttribute(POJOWebServiceServlet.WEBSERVICE_CONTAINER, webServiceContainer);
+
         JettyServletHolder.currentServletHolder.set(this);
         PolicyContext.setHandlerData(ServletHttpRequest.unwrap(request));
 
         super.handle(request, response);
     }
 
-    public static class DummyServlet implements Servlet {
-
-        public void init(ServletConfig config) throws ServletException {
-
-        }
-
-        public ServletConfig getServletConfig() {
-            return null;
-        }
-
-        public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
-           //just for fun, copy input into output
-            InputStream in = req.getInputStream();
-            OutputStream out = res.getOutputStream();
-            byte[] buf = new byte[1024];
-            int i;
-            while ((i = in.read(buf)) > 0) {
-                out.write(buf, 0, i);
-            }
-        }
-
-        public String getServletInfo() {
-            return null;
-        }
-
-        public void destroy() {
-
-        }
-    }
-
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JettyAxisPOJOWebService.class, NameFactory.SERVLET_WEB_SERVICE_TEMPLATE);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JettyPOJOWebServiceHolder.class, NameFactory.SERVLET_WEB_SERVICE_TEMPLATE);
         //todo replace with interface
         infoBuilder.addInterface(ServletHolder.class);
         
@@ -132,13 +109,15 @@ public class JettyAxisPOJOWebService extends ServletHolder {
         infoBuilder.addAttribute("loadOnStartup", Integer.class, true);
         infoBuilder.addAttribute("servletMappings", Set.class, true);
         infoBuilder.addAttribute("webRoleRefPermissions", Map.class, true);
-        infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class, NameFactory.WEB_MODULE);
+        infoBuilder.addAttribute("webServiceContainer", WebServiceContainer.class, true);
+        infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class);
 
         infoBuilder.setConstructor(new String[] {"servletName",
                                                  "initParams",
                                                  "loadOnStartup", 
                                                  "servletMappings",
                                                  "webRoleRefPermissions",
+                                                 "webServiceContainer",
                                                  "JettyServletRegistration"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();

@@ -29,7 +29,7 @@ import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.openejb.deployment.OpenEJBModuleBuilder;
+//import org.openejb.deployment.OpenEJBModuleBuilder;
 
 /**
  * <p>This test case show the infomation about openEJB that we assumed. And the
@@ -71,26 +71,26 @@ public class DynamicEJBDeploymentTest extends AbstractTestCase {
     public void testEJBJarDeploy() throws Exception {
         File jarFile = new File(outDir , "echo-jar/echo-ewsimpl.jar");
         
-        URI defaultParentId = new URI("org/apache/geronimo/Server");
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, null, null, null);
-        
-        
-        EARConfigBuilder earConfigBuilder =
-                new EARConfigBuilder(defaultParentId,
-                        transactionManagerObjectName,
-                        connectionTrackerObjectName,
-                        null,
-                        null,
-                        null,
-                        moduleBuilder,
-                        moduleBuilder,
-                        null,
-                        null,
-                        resourceReferenceBuilder,
-                        null,
-                        null,
-                        null);
-
+//        URI defaultParentId = new URI("org/apache/geronimo/Server");
+//        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, null, null, null);
+//
+//
+//        EARConfigBuilder earConfigBuilder =
+//                new EARConfigBuilder(defaultParentId,
+//                        transactionManagerObjectName,
+//                        connectionTrackerObjectName,
+//                        null,
+//                        null,
+//                        null,
+//                        moduleBuilder,
+//                        moduleBuilder,
+//                        null,
+//                        null,
+//                        resourceReferenceBuilder,
+//                        null,
+//                        null,
+//                        null);
+//
         
 //            ObjectName config = TestingUtils.installAndStartEJB(jarFile,AxisGeronimoConstants.STORE,earConfigBuilder,kernel);
             

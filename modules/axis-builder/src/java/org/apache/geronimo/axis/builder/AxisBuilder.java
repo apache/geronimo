@@ -43,12 +43,16 @@ import net.sf.cglib.reflect.FastConstructor;
 import org.apache.axis.client.Service;
 import org.apache.axis.constants.Style;
 import org.apache.axis.description.TypeDesc;
+import org.apache.axis.description.JavaServiceDesc;
 import org.apache.axis.encoding.ser.ArrayDeserializerFactory;
 import org.apache.axis.encoding.ser.ArraySerializerFactory;
 import org.apache.axis.encoding.ser.BeanDeserializerFactory;
 import org.apache.axis.encoding.ser.BeanSerializerFactory;
 import org.apache.axis.soap.SOAPConstants;
+import org.apache.axis.providers.java.RPCProvider;
+import org.apache.axis.handlers.soap.SOAPService;
 import org.apache.geronimo.axis.client.*;
+import org.apache.geronimo.axis.server.AxisWebServiceContainer;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.GBeanData;
@@ -56,7 +60,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
-import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.j2ee.deployment.POJOWebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.naming.reference.DeserializingReference;
@@ -69,7 +73,7 @@ import org.apache.xmlbeans.SchemaType;
 /**
  * @version $Rev:  $ $Date:  $
  */
-public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
+public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuilder {
     private static final Class[] SERVICE_CONSTRUCTOR_TYPES = new Class[]{Map.class, Map.class};
 
     private static final SOAPConstants SOAP_VERSION = SOAPConstants.SOAP11_CONSTANTS;
@@ -78,7 +82,31 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
     //WebServiceBuilder
     public void configurePOJO(GBeanData targetGBean, Object portInfoObject, String seiClassName) throws DeploymentException {
         PortInfo portInfo = (PortInfo) portInfoObject;
-        System.out.println("NOT CONFIGURING WEB SERVICE " + portInfo.getPortName());
+        System.out.println("NOT CONFIGURING WEB SERVICE " + portInfo.getPortComponentName());
+
+        ClassLoader classLoader = this.getClass().getClassLoader(); // TODO need the actual classloader
+        JavaServiceDesc serviceDesc = AxisServiceBuilder.createServiceDesc(portInfo, classLoader);
+        RPCProvider provider = new RPCProvider();
+        SOAPService service = new SOAPService(null, provider, null);
+        service.setServiceDescription(serviceDesc);
+        service.setOption("className", seiClassName);
+        URL wsdlURL = null;
+        try {
+            wsdlURL = new URL(serviceDesc.getWSDLFile());
+        } catch (MalformedURLException e) {
+            throw new DeploymentException("Invalid URL to the webservice's WSDL file", e);
+        }
+
+
+        URI location = null;
+        try {
+            location = new URI(serviceDesc.getEndpointURL());
+        } catch (URISyntaxException e) {
+            throw new DeploymentException("Invalid webservice endpoint URI", e);
+        }
+
+        AxisWebServiceContainer axisWebServiceContainer = new AxisWebServiceContainer(location, wsdlURL, service);
+        targetGBean.setAttribute("webServiceContainer", axisWebServiceContainer);
     }
 
     public void configureEJB(GBeanData targetGBean, Object portInfoObject, String seiClassName) throws DeploymentException {
@@ -274,7 +302,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         int i = 0;
         for (Iterator ops = operations.iterator(); ops.hasNext();) {
             Operation operation = (Operation) ops.next();
-            Method method = getMethodForOperation(enhancedServiceEndpointClass, operation);
+            Method method = WSDescriptorParser.getMethodForOperation(enhancedServiceEndpointClass, operation);
             BindingOperation bindingOperation = binding.getBindingOperation(operation.getName(), operation.getInput().getName(), operation.getOutput() == null ? null : operation.getOutput().getName());
             OperationInfo operationInfo = buildOperationInfoLightweight(method, bindingOperation, portStyle, soapVersion);
             operationInfos[i++] = operationInfo;
@@ -323,7 +351,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         }
     }
 
-    private void buildTypeInfoHeavyweight(JavaXmlTypeMappingType[] javaXmlTypeMappings, Map schemaTypeKeyToSchemaTypeMap, ClassLoader classLoader, List typeMappings, Map typeDescriptors) throws DeploymentException {
+    public static void buildTypeInfoHeavyweight(JavaXmlTypeMappingType[] javaXmlTypeMappings, Map schemaTypeKeyToSchemaTypeMap, ClassLoader classLoader, List typeMappings, Map typeDescriptors) throws DeploymentException {
         for (int j = 0; j < javaXmlTypeMappings.length; j++) {
             JavaXmlTypeMappingType javaXmlTypeMapping = javaXmlTypeMappings[j];
             //default settings
@@ -345,12 +373,10 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
 
             QName typeName;
             SchemaTypeKey key;
-            TypeMappingInfo typeMappingInfo = null;
             boolean isElement = javaXmlTypeMapping.getQnameScope().getStringValue().equals("element");
             boolean isSimpleType = javaXmlTypeMapping.getQnameScope().getStringValue().equals("simpleType");
             if (javaXmlTypeMapping.isSetRootTypeQname()) {
                 typeName = javaXmlTypeMapping.getRootTypeQname().getQNameValue();
-                typeMappingInfo = new TypeMappingInfo(clazz, typeName, serializerFactoryClass, deserializerFactoryClass);
                 key = new SchemaTypeKey(typeName, isElement, isSimpleType, false);
             } else if (javaXmlTypeMapping.isSetAnonymousTypeQname()) {
                 String anonTypeQNameString = javaXmlTypeMapping.getAnonymousTypeQname().getStringValue();
@@ -360,44 +386,24 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
                 }
                 //this appears to be ignored...
                 typeName = new QName(anonTypeQNameString.substring(0, pos), anonTypeQNameString.substring(pos + 1));
-                typeMappingInfo = new TypeMappingInfo(clazz, typeName, serializerFactoryClass, deserializerFactoryClass);
                 key = new SchemaTypeKey(typeName, isElement, isSimpleType, true);
             } else {
                 throw new DeploymentException("either root type qname or anonymous type qname must be set");
             }
-            typeMappings.add(typeMappingInfo);
             SchemaType schemaType = (SchemaType) schemaTypeKeyToSchemaTypeMap.get(key);
             if (schemaType == null) {
                 throw new DeploymentException("Schema type key " + key + " not found in analyzed schema: " + schemaTypeKeyToSchemaTypeMap);
             }
             TypeDesc typeDesc = getTypeDescriptor(clazz, typeName, javaXmlTypeMapping, schemaType);
+
+            TypeMappingInfo typeMappingInfo = new TypeMappingInfo(clazz, typeName, serializerFactoryClass, deserializerFactoryClass);
+            typeMappings.add(typeMappingInfo);
             typeDescriptors.put(clazz, typeDesc);
-
-
         }
     }
 
-    private TypeDesc getTypeDescriptor(Class javaClass, QName typeQName, JavaXmlTypeMappingType javaXmlTypeMapping, SchemaType schemaType) throws DeploymentException {
+    private static TypeDesc getTypeDescriptor(Class javaClass, QName typeQName, JavaXmlTypeMappingType javaXmlTypeMapping, SchemaType schemaType) throws DeploymentException {
         return TypeDescBuilder.getTypeDescriptor(javaClass, typeQName, javaXmlTypeMapping, schemaType);
-    }
-
-    private Method getMethodForOperation(Class enhancedServiceEndpointClass, Operation operation) throws DeploymentException {
-        Method[] methods = enhancedServiceEndpointClass.getMethods();
-        String opName = operation.getName();
-        Method found = null;
-        for (int i = 0; i < methods.length; i++) {
-            Method method = methods[i];
-            if (method.getName().equals(opName)) {
-                if (found != null) {
-                    throw new DeploymentException("Overloaded methods NYI");
-                }
-                found = method;
-            }
-        }
-        if (found == null) {
-            throw new DeploymentException("No method found for operation named " + opName);
-        }
-        return found;
     }
 
     private Class getServiceEndpointInterfaceLightweight(PortType portType, JavaWsdlMappingType mappings, ClassLoader classLoader) throws DeploymentException {
@@ -413,7 +419,6 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         } catch (ClassNotFoundException e) {
             throw new DeploymentException("Could not load service endpoint interface type", e);
         }
-
     }
 
 
@@ -494,7 +499,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(AxisBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addInterface(ServiceReferenceBuilder.class);
-        infoBuilder.addInterface(WebServiceBuilder.class);
+        infoBuilder.addInterface(POJOWebServiceBuilder.class);
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

@@ -33,7 +33,7 @@ public class J2EEManagerTest extends AbstractTestCase {
         super(testName);
     }
 
-    public void testEcho() throws Exception {
+    public void xtestEcho() throws Exception {
         J2EEManager j2eem = new J2EEManager();
         j2eem.startJ2EEContainer(kernel);
         j2eem.stopJ2EEContainer(kernel);

@@ -16,17 +16,13 @@
  */
 package org.apache.geronimo.webservices;
 
-import java.io.OutputStream;
-import java.io.InputStream;
-import java.net.URI;
-
 /**
  * @version $Rev:  $ $Date:  $
  */
-public interface WebServiceInvoker {
+public interface SoapHandler {
 
-    void invoke(InputStream in, OutputStream out, String uri) throws Exception;
+    void addWebService(String contextPath, WebServiceContainer webServiceContainer) throws Exception;
 
-    void getWsdl(OutputStream out) throws Exception;
+    void removeWebService(String contextPath);
 
 }

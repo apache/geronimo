@@ -28,11 +28,11 @@ import javax.management.ObjectName;
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.jetty.connector.HTTPConnector;
-import org.apache.geronimo.jetty.app.MockWebServiceInvoker;
+import org.apache.geronimo.jetty.app.MockWebServiceContainer;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.registry.BasicGBeanRegistry;
-import org.apache.geronimo.webservices.WebServiceInvoker;
+import org.apache.geronimo.webservices.WebServiceContainer;
 
 /**
  * @version $Rev$ $Date$
@@ -78,8 +78,8 @@ public class ContainerTest extends TestCase {
         assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(connectorName, "state"));
 
         String contextPath = "/foo/webservice.ws";
-        MockWebServiceInvoker webServiceInvoker = new MockWebServiceInvoker();
-        kernel.invoke(containerName, "addWebService", new Object[] {contextPath, webServiceInvoker}, new String[] {String.class.getName(), WebServiceInvoker.class.getName()});
+        MockWebServiceContainer webServiceInvoker = new MockWebServiceContainer();
+        kernel.invoke(containerName, "addWebService", new Object[] {contextPath, webServiceInvoker}, new String[] {String.class.getName(), WebServiceContainer.class.getName()});
 
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678" + contextPath).openConnection();
         try {

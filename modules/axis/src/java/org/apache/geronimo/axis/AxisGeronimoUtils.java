@@ -52,8 +52,8 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.openejb.ContainerIndex;
-import org.openejb.EJBContainer;
+//import org.openejb.ContainerIndex;
+//import org.openejb.EJBContainer;
 
 /**
  * @version $Rev$ $Date$
@@ -68,60 +68,61 @@ public class AxisGeronimoUtils {
                                    String methodName,
                                    Class[] parmClasses,
                                    Object[] parameters) throws AxisFault {
-        try {
-            ContainerIndex index = ContainerIndex.getInstance();
-            int length = index.length();
-            log.info("number of continers " + length);
-            for (int i = 0; i < length; i++) {
-                EJBContainer contianer = index.getContainer(i);
-                if (contianer != null) {
-                    String name = contianer.getEJBName();
-                    log.debug("found the ejb " + name);
-                    if (ejbName.equals(name)) {
-                        EJBHome statelessHome = contianer.getEJBHome();
-                        Object stateless = statelessHome.getClass().getMethod("create", null).invoke(statelessHome, null);
-                        Method[] methods = stateless.getClass().getMethods();
-                        for (int j = 0; j < methods.length; j++) {
-                            if (methods[j].getName().equals(methodName)) {
-                                try {
-                                    return methods[j].invoke(stateless, parameters);
-                                } catch (Exception e) {
-                                    Class[] classes = methods[j].getParameterTypes();
-                                    log.info(methodName + "(");
-                                    if (parameters == null || classes == null) {
-                                        log.debug("both or one is null");
-                                    } else {
-                                        if (parameters.length != classes.length)
-                                            log.debug("parameter length do not match expected parametes");
-                                        for (int k = 0; k < classes.length; k++) {
-                                            Object obj = parameters[k];
-                                            Class theClass = classes[k];
-                                            if (theClass != obj.getClass()) {
-                                                log.debug("calsses are differant");
-                                            }
-                                            log.debug("ejb class loader " + theClass.getClassLoader());
-                                            log.debug("parameter class loader = " + obj.getClass().getClassLoader());
-                                        }
-                                    }
-                                    throw e;
-                                }
-                            }
-                        }
-                        throw new NoSuchMethodException(methodName + " not found");
-                    }
-                } else {
-                    log.debug("Continer is null");
-                }
-            }
-            throw new AxisFault("Dependancy ejb " + ejbName + " not found ");
-        } catch (Throwable e) {
-            if (e instanceof Exception){
-                throw AxisFault.makeFault((Exception) e);                
-            }else{
-                throw AxisFault.makeFault(new Exception(e));
-            }
-
-        }
+//        try {
+//            ContainerIndex index = ContainerIndex.getInstance();
+//            int length = index.length();
+//            log.info("number of continers " + length);
+//            for (int i = 0; i < length; i++) {
+//                EJBContainer contianer = index.getContainer(i);
+//                if (contianer != null) {
+//                    String name = contianer.getEJBName();
+//                    log.debug("found the ejb " + name);
+//                    if (ejbName.equals(name)) {
+//                        EJBHome statelessHome = contianer.getEJBHome();
+//                        Object stateless = statelessHome.getClass().getMethod("create", null).invoke(statelessHome, null);
+//                        Method[] methods = stateless.getClass().getMethods();
+//                        for (int j = 0; j < methods.length; j++) {
+//                            if (methods[j].getName().equals(methodName)) {
+//                                try {
+//                                    return methods[j].invoke(stateless, parameters);
+//                                } catch (Exception e) {
+//                                    Class[] classes = methods[j].getParameterTypes();
+//                                    log.info(methodName + "(");
+//                                    if (parameters == null || classes == null) {
+//                                        log.debug("both or one is null");
+//                                    } else {
+//                                        if (parameters.length != classes.length)
+//                                            log.debug("parameter length do not match expected parametes");
+//                                        for (int k = 0; k < classes.length; k++) {
+//                                            Object obj = parameters[k];
+//                                            Class theClass = classes[k];
+//                                            if (theClass != obj.getClass()) {
+//                                                log.debug("calsses are differant");
+//                                            }
+//                                            log.debug("ejb class loader " + theClass.getClassLoader());
+//                                            log.debug("parameter class loader = " + obj.getClass().getClassLoader());
+//                                        }
+//                                    }
+//                                    throw e;
+//                                }
+//                            }
+//                        }
+//                        throw new NoSuchMethodException(methodName + " not found");
+//                    }
+//                } else {
+//                    log.debug("Continer is null");
+//                }
+//            }
+//            throw new AxisFault("Dependancy ejb " + ejbName + " not found ");
+//        } catch (Throwable e) {
+//            if (e instanceof Exception){
+//                throw AxisFault.makeFault((Exception) e);
+//            }else{
+//                throw AxisFault.makeFault(new Exception(e));
+//            }
+//
+//        }
+        return null;
     }
 
     /**
