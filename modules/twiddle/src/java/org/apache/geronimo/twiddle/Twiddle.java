@@ -57,7 +57,11 @@
 package org.apache.geronimo.twiddle;
 
 import java.net.URL;
+import java.net.URLDecoder;
+import java.net.MalformedURLException;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.io.PrintWriter;
 
@@ -85,10 +89,12 @@ import org.apache.geronimo.twiddle.console.IOContext;
  *    command processor, it serves only to facilitate their operation and to
  *    provide a simple API to execute commands (hence facade).
  *
- * @version <tt>$Revision: 1.8 $ $Date: 2003/08/25 15:49:13 $</tt>
+ * @version <tt>$Revision: 1.9 $ $Date: 2003/08/25 16:07:45 $</tt>
  */
 public class Twiddle
 {
+    public static final String TWIDDLE_HOME = "twiddle.home";
+    
     private static final Log log = LogFactory.getLog(Twiddle.class);
     
     /** The input/output context. */
@@ -230,5 +236,49 @@ public class Twiddle
         out.flush();
         
         return writer.toString();
+    }
+    
+    /**
+     * Get the <em>Twiddle</em> home directory
+     *
+     * @return The <em>Twiddle</em> home directory
+     *
+     * @throws RuntimeException     Unable to determine home dir.
+     */
+    public static File getHomeDir()
+    {
+        // Determine what our home directory is
+        String temp = System.getProperty(TWIDDLE_HOME);
+        if (temp == null) {
+            String path = Twiddle.class.getProtectionDomain().getCodeSource().getLocation().getFile();
+            try {
+                path = URLDecoder.decode(path, "UTF-8");
+                //
+                // jason: home dir is expected to be lib/..
+                //
+                temp = new File(path).getParentFile().getParentFile().getCanonicalPath();
+            }
+            catch (IOException e) {
+                throw new RuntimeException("Unable to determine home dir", e);
+            }
+        }
+        return new File(temp);
+    }
+    
+    /**
+     * Get the <em>Twiddle</em> home URL
+     *
+     * @return The <em>Twiddle</em> home URL
+     *
+     * @throws RuntimeException     Unable to determine home URL.
+     */
+    public static URL getHomeURL()
+    {
+        try {
+            return getHomeDir().toURL();
+        }
+        catch (MalformedURLException e) {
+            throw new RuntimeException("Unable to determine home URL", e);
+        }
     }
 }

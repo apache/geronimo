@@ -56,12 +56,10 @@
 
 package org.apache.geronimo.twiddle.cli;
 
-import java.io.File;
 import java.io.PrintWriter;
 import java.io.OutputStreamWriter;
 
 import java.net.URL;
-import java.net.URLDecoder;
 
 import com.werken.classworlds.ClassWorld;
 
@@ -87,7 +85,7 @@ import org.apache.geronimo.twiddle.util.HelpFormatter;
 /**
  * Command-line interface to <code>Twiddle</code>.
  *
- * @version $Revision: 1.9 $ $Date: 2003/08/25 15:49:13 $
+ * @version $Revision: 1.10 $ $Date: 2003/08/25 16:07:45 $
  */
 public class Main
 {
@@ -189,19 +187,10 @@ public class Main
         // Process command-line options
         args = processCommandLine(args);
         
-        // Determine what our home directory is
-        String temp = System.getProperty("twiddle.home");
-        if (temp == null) {
-            String path = Main.class.getProtectionDomain().getCodeSource().getLocation().getFile();
-            path = URLDecoder.decode(path, "UTF-8");
-            temp = new File(path).getParentFile().getParentFile().getCanonicalPath();
-        }
-        File homeDir = new File(temp);
-        URL homeURL = homeDir.toURL();
+        URL homeURL = Twiddle.getHomeURL();
         URL configURL = new URL(homeURL, filename);
         
         if (log.isDebugEnabled()) {
-            log.debug("Home directory: " + homeDir);
             log.debug("Home URL: " + homeURL);
             log.debug("Configuration URL: " + configURL);
         }
