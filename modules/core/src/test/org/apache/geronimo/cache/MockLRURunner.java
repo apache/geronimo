@@ -60,7 +60,7 @@ import java.util.HashSet;
 
 /**
  * A mock object to test {@link LRUInstanceCache#run(LRURunner)} method
- * @version $Revision: 1.1 $ $Date: 2003/08/13 01:47:12 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/17 10:32:10 $
  */
 public class MockLRURunner implements LRURunner {
     private int maxInvocations = 0;
