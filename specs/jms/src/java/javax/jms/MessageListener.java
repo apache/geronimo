@@ -62,27 +62,9 @@
 
 package javax.jms;
 
-
-/** A <CODE>MessageListener</CODE> object is used to receive asynchronously
- * delivered messages.
- *
- * <P>Each session must insure that it passes messages serially to the
- * listener. This means that a listener assigned to one or more consumers
- * of the same session can assume that the <CODE>onMessage</CODE> method
- * is not called with the next message until the session has completed the
- * last call.
- *
- * @version     $Revision: 1.1 $ $Date: 2003/08/16 02:29:57 $
- * @author      Mark Hapner
- * @author      Rich Burridge
+/**
+ * @version $Revision: 1.2 $ $Date: 2003/08/24 06:26:46 $
  */
-
 public interface MessageListener {
-
-    /** Passes a message to the listener.
-     *
-     * @param message the message passed to the listener
-     */
-
     void onMessage(Message message);
 }

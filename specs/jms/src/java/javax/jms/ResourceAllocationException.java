@@ -63,37 +63,15 @@
 package javax.jms;
 
 /**
- * <P>This exception is thrown when a provider is unable to allocate the
- *    resources required by a method. For example, this exception should be
- *    thrown when a call to
- *    <CODE>TopicConnectionFactory.createTopicConnection</CODE> fails due to a
- *    lack of JMS provider resources.
- *
- * @version     $Revision: 1.1 $ $Date: 2003/08/16 02:29:58 $
- * @author      Rahul Sharma
- **/
-
+ * @version $Revision: 1.2 $ $Date: 2003/08/24 06:26:46 $
+ */
 public class ResourceAllocationException extends JMSException {
-
-    /** Constructs a <CODE>ResourceAllocationException</CODE> with the specified
-     *  reason and error code.
-     *
-     *  @param  reason        a description of the exception
-     *  @param  errorCode     a string specifying the vendor-specific
-     *                        error code
-     *
-     **/
     public ResourceAllocationException(String reason, String errorCode) {
         super(reason, errorCode);
     }
 
-    /** Constructs a <CODE>ResourceAllocationException</CODE> with the specified
-     *  reason. The error code defaults to null.
-     *
-     *  @param  reason        a description of the exception
-     **/
     public ResourceAllocationException(String reason) {
-        super(reason);
+        this(reason, null);
     }
 
 }

@@ -62,39 +62,9 @@
 
 package javax.jms;
 
-/** A <CODE>ServerSessionPool</CODE> object is an object implemented by an
- * application server to provide a pool of <CODE>ServerSession</CODE> objects
- * for processing the messages of a <CODE>ConnectionConsumer</CODE> (optional).
- *
- * <P>Its only method is <CODE>getServerSession</CODE>. The JMS API does not
- * architect how the pool is implemented. It could be a static pool of
- * <CODE>ServerSession</CODE> objects, or it could use a sophisticated
- * algorithm to dynamically create <CODE>ServerSession</CODE> objects as
- * needed.
- *
- * <P>If the <CODE>ServerSessionPool</CODE> is out of
- * <CODE>ServerSession</CODE> objects, the <CODE>getServerSession</CODE> call
- * may block. If a <CODE>ConnectionConsumer</CODE> is blocked, it cannot
- * deliver new messages until a <CODE>ServerSession</CODE> is
- * eventually returned.
- *
- * @version     $Revision: 1.1 $ $Date: 2003/08/16 02:29:58 $
- * @author      Mark Hapner
- * @author      Rich Burridge
- *
- * @see javax.jms.ServerSession
+/**
+ * @version $Revision: 1.2 $ $Date: 2003/08/24 06:26:46 $
  */
-
 public interface ServerSessionPool {
-
-    /** Return a server session from the pool.
-     *
-     * @return a server session from the pool
-     *
-     * @exception JMSException if an application server fails to
-     *                         return a <CODE>ServerSession</CODE> out of its
-     *                         server session pool.
-     */
-
     ServerSession getServerSession() throws JMSException;
 }
