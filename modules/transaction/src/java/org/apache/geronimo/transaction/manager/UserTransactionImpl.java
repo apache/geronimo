@@ -56,7 +56,6 @@
 package org.apache.geronimo.transaction.manager;
 
 import java.io.Serializable;
-
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.NotSupportedException;
@@ -65,18 +64,18 @@ import javax.transaction.SystemException;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
 
-//import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
+import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 
 /**
  * TODO this needs to migrate to using TransactionContext.
  * TODO this needs to notify the TrackedConnectionAssociator when a tx starts.
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 18:54:16 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/23 19:06:56 $
  */
-public class UserTransactionImpl implements UserTransaction, Serializable{
+public class UserTransactionImpl implements UserTransaction, Serializable {
     private transient TransactionManager transactionManager;
-//    private transient TrackedConnectionAssociator trackedConnectionAssociator;
+    private transient TrackedConnectionAssociator trackedConnectionAssociator;
 
     public UserTransactionImpl() {
     }
@@ -89,13 +88,13 @@ public class UserTransactionImpl implements UserTransaction, Serializable{
         this.transactionManager = transactionManager;
     }
 
-//    public TrackedConnectionAssociator getTrackedConnectionAssociator() {
-//        return trackedConnectionAssociator;
-//    }
+    public TrackedConnectionAssociator getTrackedConnectionAssociator() {
+        return trackedConnectionAssociator;
+    }
 
-//    public void setTrackedConnectionAssociator(TrackedConnectionAssociator trackedConnectionAssociator) {
-//        this.trackedConnectionAssociator = trackedConnectionAssociator;
-//    }
+    public void setTrackedConnectionAssociator(TrackedConnectionAssociator trackedConnectionAssociator) {
+        this.trackedConnectionAssociator = trackedConnectionAssociator;
+    }
 
     public void begin() throws NotSupportedException, SystemException {
         checkState();
@@ -128,9 +127,8 @@ public class UserTransactionImpl implements UserTransaction, Serializable{
     }
 
     private void checkState() {
-//        if (transactionManager == null || trackedConnectionAssociator == null) {
-//            throw new IllegalStateException("UserTransaction is disabled");
-//        }
+        if (transactionManager == null || trackedConnectionAssociator == null) {
+            throw new IllegalStateException("UserTransaction is disabled");
+        }
     }
-
 }
