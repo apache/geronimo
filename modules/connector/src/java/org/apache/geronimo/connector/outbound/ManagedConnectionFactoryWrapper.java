@@ -61,7 +61,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
     private String globalJNDIName;
 
     private ResourceAdapterWrapper resourceAdapterWrapper;
-    private ConnectionManagerFactory connectionManagerFactory;
+    private ConnectionManagerContainer connectionManagerContainer;
     private ManagedConnectionFactoryListener managedConnectionFactoryListener;
 
     private ManagedConnectionFactory managedConnectionFactory;
@@ -100,7 +100,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
                                            String connectionImplClass,
                                            String globalJNDIName,
                                            ResourceAdapterWrapper resourceAdapterWrapper,
-                                           ConnectionManagerFactory connectionManagerFactory,
+                                           ConnectionManagerContainer connectionManagerContainer,
                                            ManagedConnectionFactoryListener managedConnectionFactoryListener,
                                            Kernel kernel,
                                            String objectName,
@@ -130,7 +130,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
 
         this.globalJNDIName = globalJNDIName;
         this.resourceAdapterWrapper = resourceAdapterWrapper;
-        this.connectionManagerFactory = connectionManagerFactory;
+        this.connectionManagerContainer = connectionManagerContainer;
 
         //set up that must be done before start
         Class clazz = cl.loadClass(managedConnectionFactoryClass);
@@ -179,12 +179,12 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         this.resourceAdapterWrapper = resourceAdapterWrapper;
     }
 
-    public ConnectionManagerFactory getConnectionManagerFactory() {
-        return connectionManagerFactory;
+    public ConnectionManagerContainer getConnectionManagerFactory() {
+        return connectionManagerContainer;
     }
 
-    public void setConnectionManagerFactory(ConnectionManagerFactory connectionManagerFactory) {
-        this.connectionManagerFactory = connectionManagerFactory;
+    public void setConnectionManagerFactory(ConnectionManagerContainer connectionManagerContainer) {
+        this.connectionManagerContainer = connectionManagerContainer;
     }
 
     public void doStart() throws Exception {
@@ -203,7 +203,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         }
 
         //create a new ConnectionFactory
-        connectionFactory = connectionManagerFactory.createConnectionFactory(managedConnectionFactory);
+        connectionFactory = connectionManagerContainer.createConnectionFactory(managedConnectionFactory);
 
         //build proxy
         if (isProxyable) {
@@ -278,14 +278,14 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
     //ResourceManager implementation
     public NamedXAResource getRecoveryXAResources() throws SystemException {
         try {
-            return connectionManagerFactory.getRecoveryXAResource(managedConnectionFactory);
+            return connectionManagerContainer.getRecoveryXAResource(managedConnectionFactory);
         } catch (ResourceException e) {
             throw (SystemException) new SystemException("Could not obtain recovery XAResource for managedConnectionFactory " + objectName).initCause(e);
         }
     }
 
     public void returnResource(NamedXAResource xaResource) {
-        ((ConnectionManagerFactory.ReturnableXAResource) xaResource).returnConnection();
+        ((ConnectionManagerContainer.ReturnableXAResource) xaResource).returnConnection();
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -310,7 +310,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         infoFactory.addInterface(ResourceManager.class);
 
         infoFactory.addReference("ResourceAdapterWrapper", ResourceAdapterWrapper.class, NameFactory.RESOURCE_ADAPTER);
-        infoFactory.addReference("ConnectionManagerFactory", ConnectionManagerFactory.class, NameFactory.JCA_CONNECTION_MANAGER);
+        infoFactory.addReference("ConnectionManagerContainer", ConnectionManagerContainer.class, NameFactory.JCA_CONNECTION_MANAGER);
         infoFactory.addReference("ManagedConnectionFactoryListener", ManagedConnectionFactoryListener.class, NameFactory.SECURITY_REALM);
 
         infoFactory.setConstructor(new String[]{
@@ -322,7 +322,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
             "connectionImplClass",
             "globalJNDIName",
             "ResourceAdapterWrapper",
-            "ConnectionManagerFactory",
+            "ConnectionManagerContainer",
             "ManagedConnectionFactoryListener",
             "kernel",
             "objectName",

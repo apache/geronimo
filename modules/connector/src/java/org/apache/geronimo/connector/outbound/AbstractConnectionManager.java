@@ -32,7 +32,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 /**
  * @version $Rev$ $Date$
  */
-public abstract class AbstractConnectionManager implements ConnectionManagerFactory, ConnectionManager, LazyAssociatableConnectionManager, PoolingAttributes {
+public abstract class AbstractConnectionManager implements ConnectionManagerContainer, ConnectionManager, LazyAssociatableConnectionManager, PoolingAttributes {
     protected final Interceptors interceptors;
 
     //default constructor for use as endpoint
@@ -81,7 +81,7 @@ public abstract class AbstractConnectionManager implements ConnectionManagerFact
     }
 
 
-    public ConnectionManagerFactory.ReturnableXAResource getRecoveryXAResource(ManagedConnectionFactory managedConnectionFactory) throws ResourceException {
+    public ConnectionManagerContainer.ReturnableXAResource getRecoveryXAResource(ManagedConnectionFactory managedConnectionFactory) throws ResourceException {
         ManagedConnectionInfo mci = new ManagedConnectionInfo(managedConnectionFactory, null);
         NamedXAResource namedXAResource = (NamedXAResource) mci.getXAResource();
         if (namedXAResource == null) {
@@ -90,7 +90,7 @@ public abstract class AbstractConnectionManager implements ConnectionManagerFact
         }
         ConnectionInfo recoveryConnectionInfo = new ConnectionInfo(mci);
         getRecoveryStack().getConnection(recoveryConnectionInfo);
-        return new ConnectionManagerFactory.ReturnableXAResource(namedXAResource, getRecoveryStack(), recoveryConnectionInfo);
+        return new ConnectionManagerContainer.ReturnableXAResource(namedXAResource, getRecoveryStack(), recoveryConnectionInfo);
     }
 
     //statistics
@@ -166,7 +166,7 @@ public abstract class AbstractConnectionManager implements ConnectionManagerFact
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(AbstractConnectionManager.class, NameFactory.JCA_CONNECTION_MANAGER);
 
-        infoBuilder.addInterface(ConnectionManagerFactory.class);
+        infoBuilder.addInterface(ConnectionManagerContainer.class);
         //these attributes are persisted via the pooling state.
         infoBuilder.addInterface(PoolingAttributes.class);
 

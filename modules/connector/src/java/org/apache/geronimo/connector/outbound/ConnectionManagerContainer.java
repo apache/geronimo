@@ -26,11 +26,11 @@ import javax.transaction.xa.Xid;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
 
 /**
- * ConnectionManagerFactory
+ * ConnectionManagerContainer
  *
  * @version $Rev$ $Date$
  */
-public interface ConnectionManagerFactory {
+public interface ConnectionManagerContainer {
 
     Object createConnectionFactory(ManagedConnectionFactory mcf) throws ResourceException;
 

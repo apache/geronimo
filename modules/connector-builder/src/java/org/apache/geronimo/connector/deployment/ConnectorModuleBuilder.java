@@ -758,7 +758,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             if (resourceAdapterObjectName != null) {
                 managedConnectionFactoryInstanceGBeanData.setReferencePattern("ResourceAdapterWrapper", resourceAdapterObjectName);
             }
-            managedConnectionFactoryInstanceGBeanData.setReferencePattern("ConnectionManagerFactory", connectionManagerObjectName);
+            managedConnectionFactoryInstanceGBeanData.setReferencePattern("ConnectionManagerContainer", connectionManagerObjectName);
             if (connectiondefinitionInstance.getCredentialInterface() != null && GerCredentialInterfaceType.Enum.forString("javax.resource.spi.security.PasswordCredential").equals(connectiondefinitionInstance.getCredentialInterface())) {
                 ObjectName realmObjectName = ObjectName.getInstance(BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + connectiondefinitionInstance.getName());
                 GBeanData realmGBean = new GBeanData(realmObjectName, PasswordCredentialRealm.getGBeanInfo());
