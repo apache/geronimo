@@ -56,23 +56,56 @@
 
 package org.apache.geronimo.common.propertyeditor;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 /**
- * A property editor for String[].
+ * Property editor support for array types.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/28 10:16:39 $
+ * @version $Revision: 1.1 $ $Date: 2003/08/28 10:16:39 $
  */
-public class StringArrayEditor
-    extends ArrayPropertyEditorSupport
+public abstract class ArrayPropertyEditorSupport
+    extends TextPropertyEditorSupport
 {
-    protected Object convertValue(final String value) throws Exception
+    protected abstract Object convertValue(final String value) throws Exception;
+    protected abstract Object createArray(final List list);
+    
+    public void setAsText(String text)
     {
-        return value;
+        if (text == null || text.length() == 0) {
+            setValue(null);
+        }
+        else {
+            StringTokenizer stok = new StringTokenizer(text, ",");
+            List list = new LinkedList();
+            
+            try {
+                while (stok.hasMoreTokens()) {
+                    Object obj = convertValue(stok.nextToken());
+                    list.add(obj);
+                }
+            }
+            catch (Exception e) {
+                throw new PropertyEditorException(e);
+            }
+            
+            setValue(createArray(list));
+        }
     }
     
-    protected Object createArray(final List list)
+    public String getAsText()
     {
-        return list.toArray(new String[list.size()]);
+        Object[] objects = (Object[])getValue();
+        if (objects == null || objects.length == 0) {
+            return null; 
+        }
+        
+        StringBuffer result = new StringBuffer(String.valueOf(objects[0]));
+        for (int i = 1; i < objects.length; i++) {
+            result.append(",").append(objects[i]); 
+        }
+        
+        return result.toString();
     }
 }

@@ -58,21 +58,25 @@ package org.apache.geronimo.common.propertyeditor;
 
 import java.util.List;
 
+import java.net.URL;
+
+import org.apache.geronimo.common.Strings;
+
 /**
- * A property editor for String[].
+ * A property editor for URL[].
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/28 10:16:39 $
+ * @version $Revision: 1.1 $ $Date: 2003/08/28 10:16:39 $
  */
-public class StringArrayEditor
+public class URLArrayEditor
     extends ArrayPropertyEditorSupport
 {
     protected Object convertValue(final String value) throws Exception
     {
-        return value;
+        return Strings.toURL(value);
     }
     
     protected Object createArray(final List list)
     {
-        return list.toArray(new String[list.size()]);
+        return list.toArray(new URL[list.size()]);
     }
 }
