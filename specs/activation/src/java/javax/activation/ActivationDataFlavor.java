@@ -18,32 +18,40 @@
 package javax.activation;
 
 import java.awt.datatransfer.DataFlavor;
+import java.io.InputStream;
 
 /**
  * @version $Rev$ $Date$
  */
 public class ActivationDataFlavor extends DataFlavor {
+    private final Class representationClass;
+    private final String mimeType;
     private String humanPresentableName;
 
     public ActivationDataFlavor(Class representationClass, String mimeType, String humanPresentableName) {
+        this.representationClass = representationClass;
+        this.mimeType = mimeType;
         this.humanPresentableName = humanPresentableName;
     }
 
     public ActivationDataFlavor(Class representationClass, String humanPresentableName) {
+        this.representationClass = representationClass;
+        this.mimeType = "application/x-java-serialized-object";
         this.humanPresentableName = humanPresentableName;
     }
 
     public ActivationDataFlavor(String mimeType, String humanPresentableName) {
-        super(mimeType, humanPresentableName);
+        this.mimeType = mimeType;
+        this.representationClass = InputStream.class;
         this.humanPresentableName = humanPresentableName;
     }
 
     public String getMimeType() {
-        return super.getMimeType();
+        return mimeType;
     }
 
     public Class getRepresentationClass() {
-        return super.getRepresentationClass();
+        return representationClass;
     }
 
     public String getHumanPresentableName() {
@@ -55,22 +63,24 @@ public class ActivationDataFlavor extends DataFlavor {
     }
 
     public boolean equals(DataFlavor dataFlavor) {
-        /*@todo implement*/
-        return false;
+        return this.isMimeTypeEqual(dataFlavor) && representationClass == dataFlavor.getRepresentationClass();
     }
 
     public boolean isMimeTypeEqual(String mimeType) {
-        /*@todo implement*/
-        return false;
+        try {
+            MimeType thisType = new MimeType(this.mimeType);
+            MimeType thatType = new MimeType(mimeType);
+            return thisType.match(thatType);
+        } catch (MimeTypeParseException e) {
+            return false;
+        }
     }
 
     protected String normalizeMimeTypeParameter(String parameterName, String parameterValue) {
-        /*@todo implement*/
-        return null;
+        return parameterValue;
     }
 
     protected String normalizeMimeType(String mimeType) {
-        /*@todo implement*/
-        return null;
+        return mimeType;
     }
 }

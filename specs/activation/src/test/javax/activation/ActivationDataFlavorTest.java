@@ -32,14 +32,14 @@ import junit.framework.TestCase;
 public class ActivationDataFlavorTest extends TestCase {
     public void testMimeTypeConstructorWithoutClass() {
         ActivationDataFlavor adf = new ActivationDataFlavor("application/*", null);
-        assertEquals("application/*; class=java.io.InputStream", adf.getMimeType());
+        assertEquals("application/*", adf.getMimeType());
         assertEquals(InputStream.class, adf.getRepresentationClass());
     }
 
     public void testMimeTypeConstructorWithClass() {
         ActivationDataFlavor adf = new ActivationDataFlavor("application/x-java-serialized-object; class=java.lang.Object", null);
         assertEquals("application/x-java-serialized-object; class=java.lang.Object", adf.getMimeType());
-        assertEquals(Object.class, adf.getRepresentationClass());
+        assertEquals(InputStream.class, adf.getRepresentationClass());
     }
 
     public void testHumanName() {
