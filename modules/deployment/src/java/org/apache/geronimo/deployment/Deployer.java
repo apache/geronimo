@@ -356,7 +356,7 @@ public class Deployer {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(Deployer.class);
 
-        infoFactory.addOperation("deploy", new Class[]{String[].class});
+//        infoFactory.addOperation("deploy", new Class[]{String[].class});
         infoFactory.addOperation("deploy", new Class[]{File.class, File.class});
         infoFactory.addOperation("deploy", new Class[]{File.class, File.class, File.class, boolean.class, String.class, String.class});
 
