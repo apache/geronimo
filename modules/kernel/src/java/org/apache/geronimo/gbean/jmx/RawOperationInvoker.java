@@ -19,30 +19,18 @@ package org.apache.geronimo.gbean.jmx;
 import javax.management.ObjectName;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/05/26 03:22:21 $
+ * @version $Revision: 1.1 $ $Date: 2004/06/02 20:40:58 $
  */
-public class RawGBeanInvoker implements GBeanInvoker {
+public final class RawOperationInvoker implements GBeanInvoker {
     private final RawInvoker rawInvoker;
-    private final int methodType;
     private final int methodIndex;
 
-    public RawGBeanInvoker(RawInvoker rawInvoker, int methodIndex, int methodType) {
+    public RawOperationInvoker(RawInvoker rawInvoker, int methodIndex) {
         this.rawInvoker = rawInvoker;
         this.methodIndex = methodIndex;
-        this.methodType = methodType;
     }
 
-    public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
-        switch (methodType) {
-            case GBeanInvoker.OPERATION:
-                return rawInvoker.invoke(methodIndex, arguments);
-            case GBeanInvoker.GETTER:
-                return rawInvoker.getAttribute(methodIndex);
-            case GBeanInvoker.SETTER:
-                rawInvoker.setAttribute(methodIndex, arguments[0]);
-                return null;
-            default:
-                throw new AssertionError();
-        }
+    public Object invoke(final ObjectName objectName, final Object[] arguments) throws Throwable {
+        return rawInvoker.invoke(methodIndex, arguments);
     }
 }

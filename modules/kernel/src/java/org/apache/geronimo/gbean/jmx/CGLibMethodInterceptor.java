@@ -36,7 +36,7 @@ import org.objectweb.asm.Type;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/02 06:49:23 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/02 20:40:58 $
  */
 public class CGLibMethodInterceptor implements ProxyMethodInterceptor, MethodInterceptor {
     /**
@@ -92,7 +92,7 @@ public class CGLibMethodInterceptor implements ProxyMethodInterceptor, MethodInt
         this.stopped = true;
     }
 
-    public Object intercept(Object object, Method method, Object[] args, MethodProxy proxy) throws Throwable {
+    public final Object intercept(final Object object, final Method method, final Object[] args, final MethodProxy proxy) throws Throwable {
         GBeanInvoker gbeanInvoker;
 
         int interfaceIndex = proxy.getSuperIndex();
@@ -154,27 +154,27 @@ public class CGLibMethodInterceptor implements ProxyMethodInterceptor, MethodInt
     private GBeanInvoker createRawGBeanInvoker(RawInvoker rawInvoker, Method method, Map operations, Map attributes) {
         if (operations.containsKey(new GOperationSignature(method))) {
             int methodIndex = ((Integer) operations.get(new GOperationSignature(method))).intValue();
-            return new RawGBeanInvoker(rawInvoker, methodIndex, GBeanInvoker.OPERATION);
+            return new RawOperationInvoker(rawInvoker, methodIndex);
         }
 
         if (method.getName().startsWith("get")) {
             Integer methodIndex = ((Integer) attributes.get(method.getName().substring(3)));
             if (methodIndex != null) {
-                return new RawGBeanInvoker(rawInvoker, methodIndex.intValue(), GBeanInvoker.GETTER);
+                return new RawGetAttributeInvoker(rawInvoker, methodIndex.intValue());
             }
         }
 
         if (method.getName().startsWith("is")) {
             Integer methodIndex = ((Integer) attributes.get(method.getName().substring(2)));
             if (methodIndex != null) {
-                return new RawGBeanInvoker(rawInvoker, methodIndex.intValue(), GBeanInvoker.GETTER);
+                return new RawGetAttributeInvoker(rawInvoker, methodIndex.intValue());
             }
         }
 
         if (method.getName().startsWith("set")) {
             Integer methodIndex = ((Integer) attributes.get(method.getName().substring(3)));
             if (methodIndex != null) {
-                return new RawGBeanInvoker(rawInvoker, methodIndex.intValue(), GBeanInvoker.SETTER);
+                return new RawSetAttributeInvoker(rawInvoker, methodIndex.intValue());
             }
         }
         return null;

@@ -17,7 +17,7 @@
 package org.apache.geronimo.gbean;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/06/02 20:10:08 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/02 20:40:58 $
  */
 import java.lang.reflect.Method;
 
@@ -36,7 +36,7 @@ import org.apache.geronimo.kernel.MockGBean;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/06/02 20:10:08 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/02 20:40:58 $
  */
 public class Speed {
     private static final Object[] NO_ARGS = new Object[0];
@@ -64,8 +64,11 @@ public class Speed {
 
         // normal invoke
         int iterations = 100000000;
-        for (int i = 0; i < iterations; i++) {
-            instance.doNothing();
+        String msg = "hhhh";
+        for (int j=0 ; j < 10; j++) {
+            for (int i = 0; i < iterations; i++) {
+                msg= instance.echo(msg);
+            }
         }
         long start = System.currentTimeMillis();
         for (int i = 0; i < iterations; i++) {
@@ -75,7 +78,7 @@ public class Speed {
         printResults("Normal", end, start, iterations);
 
         // reflection
-        iterations = 1000000;
+        iterations = 100000000;
         for (int i = 0; i < iterations; i++) {
             myMethod.invoke(instance, null);
         }
@@ -87,7 +90,7 @@ public class Speed {
         printResults("Reflection", end, start, iterations);
 
         // fast class
-        iterations = 10000000;
+        iterations = 50000000;
         for (int i = 0; i < iterations; i++) {
             myFastClass.invoke(myMethodIndex, instance, null);
         }
@@ -113,7 +116,7 @@ public class Speed {
         ProxyMethodInterceptor vmMethodInterceptor = vmProxyFactory.getMethodInterceptor();
         MyInterface vmProxy = (MyInterface) vmProxyFactory.create(vmMethodInterceptor);
         vmMethodInterceptor.connect(kernel.getMBeanServer(), objectName);
-        iterations = 50000;
+        iterations = 1000000;
         for (int i = 0; i < iterations; i++) {
             vmProxy.doNothing();
         }
@@ -125,6 +128,7 @@ public class Speed {
         printResults("ReflectionProxy", end, start, iterations);
 
         // cglib proxy (front half)
+/*
         ProxyFactory frontCGLibProxyFactory = new CGLibProxyFactory(MyInterface.class);
         ProxyMethodInterceptor frontCGLibMethodInterceptor = new CGLibMethodInterceptor(MyInterface.class);
         Class enhancedType = frontCGLibProxyFactory.create(frontCGLibMethodInterceptor).getClass();
@@ -135,7 +139,7 @@ public class Speed {
         };
         MyInterface frontCGLibProxy = (MyInterface) frontCGLibProxyFactory.create(frontCGLibMethodInterceptor);
         frontCGLibMethodInterceptor.connect(kernel.getMBeanServer(), objectName);
-        iterations = 10000000;
+        iterations = 100000000;
         for (int i = 0; i < iterations; i++) {
             frontCGLibProxy.doNothing();
         }
@@ -145,6 +149,7 @@ public class Speed {
         }
         end = System.currentTimeMillis();
         printResults("Front CGLibProxy", end, start, iterations);
+*/
 
         // Raw Invoker
         RawInvoker rawInvoker = (RawInvoker) kernel.getAttribute(objectName, "$$RAW_INVOKER$$");
@@ -165,7 +170,7 @@ public class Speed {
         ProxyMethodInterceptor cgLibMethodInterceptor = cgLibProxyFactory.getMethodInterceptor();
         MyInterface cgLibProxy = (MyInterface) cgLibProxyFactory.create(cgLibMethodInterceptor);
         cgLibMethodInterceptor.connect(kernel.getMBeanServer(), objectName);
-        iterations = 1000000;
+        iterations = 10000000;
         for (int i = 0; i < iterations; i++) {
             cgLibProxy.doNothing();
         }
