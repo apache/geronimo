@@ -33,7 +33,7 @@ import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/07/08 05:13:29 $
+ * @version $Revision: 1.8 $ $Date: 2004/08/01 13:03:50 $
  */
 public class ControlServerProtocol extends AbstractControlProtocol {
 
@@ -108,7 +108,7 @@ public class ControlServerProtocol extends AbstractControlProtocol {
     public void drain() throws ProtocolException {
         log.trace("Stopping");
 
-        if (getState() == RUN) {
+        if (state == RUN) {
             getDownProtocol().sendDown(new ShutdownRequestDownPacket());
         }
     }
@@ -117,11 +117,15 @@ public class ControlServerProtocol extends AbstractControlProtocol {
     }
 
     public void sendUp(UpPacket packet) throws ProtocolException {
-        getState().sendUp(packet);
+        state.sendUp(packet);
     }
 
     public void sendDown(DownPacket packet) throws ProtocolException {
-        getState().sendDown(packet);
+        state.sendDown(packet);
+    }
+
+    public void flush() throws ProtocolException {
+        getDownProtocol().flush();
     }
 
     protected DownPacket constructBootPacket() {
@@ -153,7 +157,7 @@ public class ControlServerProtocol extends AbstractControlProtocol {
             } else if (p instanceof BootSuccessUpPacket) {
                 log.trace("BOOT SUCCESS");
                 log.trace("RELEASING " + startupLatch);
-                ((ControlServerProtocol)getParent()).setState(RUN);
+                ((ControlServerProtocol)getParent()). state = RUN;
                 startupLatch.release();
                 log.trace("RELEASED " + startupLatch);
             }
@@ -184,8 +188,7 @@ public class ControlServerProtocol extends AbstractControlProtocol {
                 getUpProtocol().sendUp(packet);
             } else if (p instanceof ShutdownRequestUpPacket) {
                 log.trace("SHUTDOWN_REQ");
-                getDownProtocol().sendDown(new ShutdownAcknowledgeDownPacket());
-                ((ControlServerProtocol)getParent()).setState(START);
+                ((ControlServerProtocol)getParent()).state = START;
                 controlServerListener.shutdown();
             }
         }
@@ -197,14 +200,6 @@ public class ControlServerProtocol extends AbstractControlProtocol {
             getDownProtocol().sendDown(passthtough);
         }
     };
-
-    public State getState() {
-        return state;
-    }
-
-    public void setState(State state) {
-        this.state = state;
-    }
 
     private volatile State state = START;
 }

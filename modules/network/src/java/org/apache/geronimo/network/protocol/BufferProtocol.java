@@ -32,7 +32,7 @@ import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/07/11 21:45:37 $
+ * @version $Revision: 1.7 $ $Date: 2004/08/01 13:03:42 $
  */
 public class BufferProtocol extends AbstractProtocol implements BootstrapCook {
 
@@ -60,7 +60,7 @@ public class BufferProtocol extends AbstractProtocol implements BootstrapCook {
                 public void run() {
                     try {
                         while (running) {
-                            UpPacket packet = (UpPacket) upQueue.poll(500);
+                            UpPacket packet = (UpPacket) upQueue.take();
                             if (packet != null) getUpProtocol().sendUp(packet);
                         }
                     } catch (InterruptedException e) {
@@ -74,7 +74,7 @@ public class BufferProtocol extends AbstractProtocol implements BootstrapCook {
                 public void run() {
                     try {
                         while (running) {
-                            DownPacket packet = (DownPacket) downQueue.poll(500);
+                            DownPacket packet = (DownPacket) downQueue.take();
                             if (packet != null) getDownProtocol().sendDown(packet);
                         }
                     } catch (InterruptedException e) {
@@ -112,6 +112,18 @@ public class BufferProtocol extends AbstractProtocol implements BootstrapCook {
             downQueue.put(packet);
         } catch (InterruptedException e) {
             throw new ProtocolException(e);
+        }
+    }
+
+    public void flush() throws ProtocolException {
+        try {
+            while (running) {
+                // TODO: should subclass off of this queue to avoid sleeping.
+                DownPacket packet = (DownPacket) downQueue.peek();
+                if (packet == null) break;
+                Thread.sleep(50);
+            }
+        } catch (InterruptedException e) {
         }
     }
 

@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/07/22 03:25:30 $
+ * @version $Revision: 1.5 $ $Date: 2004/08/01 13:03:43 $
  */
 public class ProtocolStack extends Stack implements Protocol {
 
@@ -123,5 +123,9 @@ public class ProtocolStack extends Stack implements Protocol {
 
     public void sendDown(DownPacket packet) throws ProtocolException {
         top.sendDown(packet);
+    }
+
+    public void flush() throws ProtocolException {
+        top.flush();
     }
 }

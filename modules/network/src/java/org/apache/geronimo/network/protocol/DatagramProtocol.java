@@ -37,7 +37,7 @@ import org.apache.geronimo.network.SelectorManager;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/05/04 03:05:36 $
+ * @version $Revision: 1.7 $ $Date: 2004/08/01 13:03:42 $
  */
 public class DatagramProtocol implements Protocol, SelectionEventListner {
 
@@ -203,6 +203,9 @@ public class DatagramProtocol implements Protocol, SelectionEventListner {
             state = STOPPED;
             throw new ProtocolException(e);
         }
+    }
+
+    public void flush() throws ProtocolException {
     }
 
     ByteBuffer receiveBuffer = ByteBuffer.allocate(65336);

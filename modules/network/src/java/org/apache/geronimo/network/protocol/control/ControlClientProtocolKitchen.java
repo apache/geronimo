@@ -37,7 +37,7 @@ import EDU.oswego.cs.dl.util.concurrent.Latch;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/07/08 05:13:29 $
+ * @version $Revision: 1.6 $ $Date: 2004/08/01 13:03:50 $
  */
 class ControlClientProtocolKitchen extends ProtocolStack implements ControlClientListener {
 
@@ -154,6 +154,9 @@ class ControlClientProtocolKitchen extends ProtocolStack implements ControlClien
             getDownProtocol().sendDown(packet);
         }
 
+        public void flush() throws ProtocolException {
+            getDownProtocol().flush();
+        }
     }
 
 }

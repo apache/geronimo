@@ -27,7 +27,7 @@ import org.apache.geronimo.network.protocol.UpPacket;
 
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/04/24 22:34:01 $
+ * @version $Revision: 1.8 $ $Date: 2004/08/01 13:03:50 $
  */
 public class ControlClientProtocol extends AbstractControlProtocol {
 
@@ -63,6 +63,7 @@ public class ControlClientProtocol extends AbstractControlProtocol {
         log.trace("Stopping");
         if (state == RUN) {
             getDownProtocol().sendDown(new ShutdownRequestDownPacket());
+            getDownProtocol().flush();
         }
     }
 
@@ -75,6 +76,10 @@ public class ControlClientProtocol extends AbstractControlProtocol {
 
     public void sendDown(DownPacket packet) throws ProtocolException {
         state.sendDown(packet);
+    }
+
+    public void flush() throws ProtocolException {
+        getDownProtocol().flush();
     }
 
     private final State START = new State(this) {
@@ -126,10 +131,6 @@ public class ControlClientProtocol extends AbstractControlProtocol {
             } else if (p instanceof ShutdownRequestUpPacket) {
                 log.trace("SHUTDOWN_REQ");
                 getDownProtocol().sendDown(new ShutdownAcknowledgeDownPacket());
-                listener.shutdown();
-                state = START;
-            } else if (p instanceof ShutdownAcknowledgeUpPacket) {
-                log.trace("SHUTDOWN_ACK");
                 listener.shutdown();
                 state = START;
             }

@@ -24,7 +24,7 @@ import org.apache.geronimo.network.protocol.UpPacket;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/17 03:12:00 $
+ * @version $Revision: 1.4 $ $Date: 2004/08/01 13:03:51 $
  */
 public class SingleTotemRingProtocol implements Protocol {
 
@@ -41,6 +41,9 @@ public class SingleTotemRingProtocol implements Protocol {
     }
 
     public void sendDown(DownPacket packet) throws ProtocolException {
+    }
+
+    public void flush() throws ProtocolException {
     }
 
     public Protocol getUpProtocol() {

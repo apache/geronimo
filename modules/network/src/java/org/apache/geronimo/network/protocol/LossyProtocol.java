@@ -21,7 +21,7 @@ import java.util.Random;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/04/15 23:15:55 $
+ * @version $Revision: 1.5 $ $Date: 2004/08/01 13:03:43 $
  */
 public class LossyProtocol extends AbstractProtocol {
 
@@ -76,4 +76,7 @@ public class LossyProtocol extends AbstractProtocol {
         if (downRandom.nextFloat() > downLoss) getDownProtocol().sendDown(packet);
     }
 
+    public void flush() throws ProtocolException {
+        getDownProtocol().flush();
+    }
 }

@@ -36,7 +36,7 @@ import EDU.oswego.cs.dl.util.concurrent.Latch;
 
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/07/11 21:45:37 $
+ * @version $Revision: 1.8 $ $Date: 2004/08/01 13:03:43 $
  */
 public class GSSAPIClientProtocol extends AbstractProtocol {
 
@@ -211,4 +211,7 @@ public class GSSAPIClientProtocol extends AbstractProtocol {
         }
     }
 
+    public void flush() throws ProtocolException {
+        getDownProtocol().flush();
+    }
 }

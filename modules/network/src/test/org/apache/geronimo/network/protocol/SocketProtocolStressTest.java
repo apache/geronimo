@@ -32,7 +32,7 @@ import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
- * @version $Revision: 1.12 $ $Date: 2004/07/28 17:30:45 $
+ * @version $Revision: 1.13 $ $Date: 2004/08/01 13:03:51 $
  */
 public class SocketProtocolStressTest extends TestCase {
 
@@ -141,6 +141,8 @@ public class SocketProtocolStressTest extends TestCase {
             public void sendDown(DownPacket packet) {
             }
 
+            public void flush() throws ProtocolException {
+            }
         });
 
         pf = new ProtocolFactory();
@@ -197,6 +199,8 @@ public class SocketProtocolStressTest extends TestCase {
             public void sendDown(DownPacket packet) {
             }
 
+            public void flush() throws ProtocolException {
+            }
         });
 
         sp.setTimeout(60 * 1000);

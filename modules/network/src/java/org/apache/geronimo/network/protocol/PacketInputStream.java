@@ -24,7 +24,7 @@ import EDU.oswego.cs.dl.util.concurrent.BoundedLinkedQueue;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/04/22 14:45:45 $
+ * @version $Revision: 1.5 $ $Date: 2004/08/01 13:03:43 $
  */
 public class PacketInputStream extends InputStream {
 
@@ -186,5 +186,7 @@ public class PacketInputStream extends InputStream {
             throw new UnsupportedOperationException("Method not implemented");
         }
 
+        public void flush() throws ProtocolException {
+        }
     }
 }

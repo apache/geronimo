@@ -44,7 +44,7 @@ import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/07/08 05:13:29 $
+ * @version $Revision: 1.6 $ $Date: 2004/08/01 13:03:43 $
  */
 public class GSSAPIServerProtocol extends AbstractProtocol implements BootstrapCook {
 
@@ -197,6 +197,10 @@ public class GSSAPIServerProtocol extends AbstractProtocol implements BootstrapC
         } catch (InterruptedException e) {
             throw new ProtocolException(e);
         }
+    }
+
+    public void flush() throws ProtocolException {
+        getDownProtocol().flush();
     }
 
     public Collection cook(ControlContext context) {

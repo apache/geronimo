@@ -18,7 +18,7 @@
 package org.apache.geronimo.network.protocol;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/06/21 20:40:23 $
+ * @version $Revision: 1.5 $ $Date: 2004/08/01 13:03:43 $
  */
 public class SASLServerProtocol extends AbstractProtocol {
     public void setup() throws ProtocolException {
@@ -36,4 +36,6 @@ public class SASLServerProtocol extends AbstractProtocol {
     public void sendDown(DownPacket packet) throws ProtocolException {
     }
 
+    public void flush() throws ProtocolException {
+    }
 }

@@ -25,7 +25,7 @@ import org.apache.commons.logging.LogFactory;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/17 03:11:59 $
+ * @version $Revision: 1.4 $ $Date: 2004/08/01 13:03:37 $
  */
 public class AcceptableProtocolStack extends Stack implements AcceptableProtocol {
 
@@ -124,6 +124,10 @@ public class AcceptableProtocolStack extends Stack implements AcceptableProtocol
 
     public void sendDown(DownPacket packet) throws ProtocolException {
         top.sendDown(packet);
+    }
+
+    public void flush() throws ProtocolException {
+        top.flush();
     }
 
     public void accept(SocketChannel socketChannel) {

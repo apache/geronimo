@@ -18,7 +18,7 @@
 package org.apache.geronimo.network.protocol;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/17 03:11:59 $
+ * @version $Revision: 1.4 $ $Date: 2004/08/01 13:03:43 $
  */
 public class SSLSocketProtocol implements Protocol {
 
@@ -58,4 +58,6 @@ public class SSLSocketProtocol implements Protocol {
     public void sendDown(DownPacket packet) throws ProtocolException {
     }
 
+    public void flush() throws ProtocolException {
+    }
 }

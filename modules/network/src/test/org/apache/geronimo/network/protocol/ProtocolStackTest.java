@@ -31,7 +31,7 @@ import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/07/08 22:07:54 $
+ * @version $Revision: 1.9 $ $Date: 2004/08/01 13:03:51 $
  */
 public class ProtocolStackTest extends TestCase {
     public void testNothing() {}
@@ -122,6 +122,8 @@ public class ProtocolStackTest extends TestCase {
             public void sendDown(DownPacket packet) {
             }
 
+            public void flush() throws ProtocolException {
+            }
         });
 
         sp.setTimeout(1000 * 1000);  //todo set back to 10s

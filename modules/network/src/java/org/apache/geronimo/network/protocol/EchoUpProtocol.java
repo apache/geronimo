@@ -20,7 +20,7 @@ import org.apache.geronimo.network.protocol.util.PacketUtil;
 
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/03/18 04:05:27 $
+ * @version $Revision: 1.2 $ $Date: 2004/08/01 13:03:43 $
  */
 public class EchoUpProtocol extends AbstractProtocol {
 
@@ -44,4 +44,6 @@ public class EchoUpProtocol extends AbstractProtocol {
         getUpProtocol().sendUp(upPacket);
     }
 
+    public void flush() throws ProtocolException {
+    }
 }

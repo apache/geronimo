@@ -18,7 +18,7 @@
 package org.apache.geronimo.network.protocol;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/17 03:11:59 $
+ * @version $Revision: 1.4 $ $Date: 2004/08/01 13:03:43 $
  */
 public interface Protocol extends Cloneable {
 
@@ -43,4 +43,6 @@ public interface Protocol extends Cloneable {
     void sendUp(UpPacket packet) throws ProtocolException;
 
     void sendDown(DownPacket packet) throws ProtocolException;
+
+    void flush() throws ProtocolException;
 }
