@@ -35,7 +35,6 @@ public class DistributeModule extends AbstractModuleCommand {
 
     private String module;
     private String plan;
-    private String home;
 
     public String getModule() {
         return module;
@@ -53,14 +52,6 @@ public class DistributeModule extends AbstractModuleCommand {
         this.plan = plan;
     }
 
-    public String getHome() {
-        return home;
-    }
-
-    public void setHome(String home) {
-        this.home = home;
-    }
-
     public void execute() throws Exception {
         DeploymentManager manager = getDeploymentManager();
 
@@ -72,20 +63,16 @@ public class DistributeModule extends AbstractModuleCommand {
     }
 
     private File getFile(String location) throws MalformedURLException {
-        File f = new File(location);
-        if (f.exists() && f.canRead()) {
-            try {
-                return f.getCanonicalFile();
-            } catch (IOException e) {
-                throw (MalformedURLException) new MalformedURLException("Invalid location: " + location).initCause(e);
-            }
-        }
-        try {
-            return new File(new File(getHome()).toURI().resolve(location).toURL().getFile());
-        } catch (IllegalArgumentException e) {
-            // thrown by URI.resolve if the location is not valid
-            throw (MalformedURLException) new MalformedURLException("Invalid location: " + location).initCause(e);
-        }
+    	try {
+			File f = new File(location).getCanonicalFile();
+			if (!f.exists() || !f.canRead()) {
+				throw new MalformedURLException("Invalid location: " + location);
+			}
+			return f;
+		} catch (IOException e) {
+			throw (MalformedURLException) new MalformedURLException("Invalid location: " + location).initCause(e);
+		}
+            
     }
 
 }
