@@ -49,6 +49,7 @@
                     <config-property-setting name="Driver">org.axiondb.jdbc.AxionDriver</config-property-setting>
                     <config-property-setting name="ConnectionURL">jdbc:axiondb:DefaultDatabase</config-property-setting>
                     <config-property-setting name="CommitBeforeAutocommit">true</config-property-setting>
+                    <config-property-setting name="ExceptionSorterClass">org.tranql.connector.NoExceptionsAreFatalSorter</config-property-setting>
                     <connectionmanager>
                         <local-transaction/>
                         <single-pool>
