@@ -54,7 +54,7 @@ public class TransactionImpl implements Transaction {
     private List syncList = new ArrayList(5);
     private LinkedList resourceManagers = new LinkedList();
     private Map xaResources = new HashMap(3);
-    private long logMark;
+    private Object logMark;
 
     TransactionImpl(XidFactory xidFactory, TransactionLog txnLog) throws SystemException {
         this(xidFactory.createXid(), xidFactory, txnLog);
@@ -404,15 +404,18 @@ public class TransactionImpl implements Transaction {
         endResources();
         try {
             rollbackResources(rms);
-            try {
-                txnLog.rollback(xid, logMark);
-            } catch (LogException e) {
+            //only write rollback record if we have already written prepare record.
+            if (logMark != null) {
                 try {
-                    rollbackResources(rms);
-                } catch (Exception se) {
-                    log.error("Unable to rollback after failure to log decision", se.getCause());
+                    txnLog.rollback(xid, logMark);
+                } catch (LogException e) {
+                    try {
+                        rollbackResources(rms);
+                    } catch (Exception se) {
+                        log.error("Unable to rollback after failure to log decision", se.getCause());
+                    }
+                    throw (SystemException) new SystemException("Error logging rollback").initCause(e);
                 }
-                throw (SystemException) new SystemException("Error logging rollback").initCause(e);
             }
         } finally {
             afterCompletion();

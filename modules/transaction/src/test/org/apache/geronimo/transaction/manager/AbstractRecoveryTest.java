@@ -37,7 +37,7 @@ public abstract class AbstractRecoveryTest extends TestCase {
 
     protected TransactionLog txLog;
 
-    private final XidFactory xidFactory = new XidFactoryImpl();
+    protected final XidFactory xidFactory = new XidFactoryImpl();
     private static final String RM1 = "rm1";
     private static final String RM2 = "rm2";
     private static final String RM3 = "rm3";

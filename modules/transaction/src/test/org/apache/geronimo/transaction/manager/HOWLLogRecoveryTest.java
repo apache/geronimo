@@ -34,6 +34,8 @@ import junit.extensions.TestSetup;
 public class HOWLLogRecoveryTest extends AbstractRecoveryTest {
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
     private static final String LOG_FILE_NAME = "howl_test_";
+    private static final String logFileDir = "txlog";
+    private String targetDir;
 
     public void test2Again() throws Exception {
         test2ResOnlineAfterRecoveryStart();
@@ -45,13 +47,17 @@ public class HOWLLogRecoveryTest extends AbstractRecoveryTest {
 
     protected void setUp() throws Exception {
         // Deletes the previous transaction log files.
-        String logFileDir = "txlog";
-        File[] files = new File(logFileDir).listFiles();
+        File[] files = new File(targetDir, logFileDir).listFiles();
         if ( null != files ) {
             for (int i = 0; i < files.length; i++) {
                 files[i].delete();
             }
         }
+        setUpHowlLog();
+    }
+
+    private void setUpHowlLog() throws Exception {
+        targetDir = new File(basedir, "target").getAbsolutePath();
         HOWLLog howlLog = new HOWLLog(
                 "org.objectweb.howl.log.BlockLogBuffer", //                "bufferClassName",
                 4, //                "bufferSizeKBytes",
@@ -65,7 +71,8 @@ public class HOWLLogRecoveryTest extends AbstractRecoveryTest {
                 2, //                "maxLogFiles",
                 2, //                "minBuffers",
                 10,//                "threadsWaitingForceThreshold"});
-                new ServerInfo(new File(basedir, "target").getAbsolutePath())
+                xidFactory,
+                new ServerInfo(targetDir)
         );
         howlLog.doStart();
         txLog = howlLog;
@@ -78,7 +85,7 @@ public class HOWLLogRecoveryTest extends AbstractRecoveryTest {
 
     protected void prepareForReplay() throws Exception {
         tearDown();
-        setUp();
+        setUpHowlLog();
     }
 
     public static Test suite() {

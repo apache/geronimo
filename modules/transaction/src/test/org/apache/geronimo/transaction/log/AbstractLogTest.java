@@ -130,7 +130,7 @@ public abstract class AbstractLogTest extends TestCase {
 
                         for (int i = 0; i < xidCount; i++) {
                             // journalize COMMITTING record
-                            long logMark = logger.prepare(xid, names);
+                            Object logMark = logger.prepare(xid, names);
                             //localXidCount++;
 
                             // journalize FORGET record

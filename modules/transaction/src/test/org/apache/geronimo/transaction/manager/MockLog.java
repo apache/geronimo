@@ -40,18 +40,19 @@ public class MockLog implements TransactionLog {
     public void begin(Xid xid) throws LogException {
     }
 
-    public long prepare(Xid xid, List branches) throws LogException {
-        Recovery.XidBranchesPair xidBranchesPair = new Recovery.XidBranchesPair(xid, 0L);
+    public Object prepare(Xid xid, List branches) throws LogException {
+        Object mark = new Object();
+        Recovery.XidBranchesPair xidBranchesPair = new Recovery.XidBranchesPair(xid, mark);
         xidBranchesPair.getBranches().addAll(branches);
         prepared.put(xid, xidBranchesPair);
-        return 0L;
+        return mark;
     }
 
-    public void commit(Xid xid, long logMark) throws LogException {
+    public void commit(Xid xid, Object logMark) throws LogException {
         committed.add(xid);
     }
 
-    public void rollback(Xid xid, long logMark) throws LogException {
+    public void rollback(Xid xid, Object logMark) throws LogException {
         rolledBack.add(xid);
     }
 

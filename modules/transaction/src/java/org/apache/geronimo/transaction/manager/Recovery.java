@@ -55,9 +55,9 @@ public interface Recovery {
         //set of TransactionBranchInfo
         private final Set branches = new HashSet();
 
-        private final long mark;
+        private final Object mark;
 
-        public XidBranchesPair(Xid xid, long mark) {
+        public XidBranchesPair(Xid xid, Object mark) {
             this.xid = xid;
             this.mark = mark;
         }
@@ -70,7 +70,7 @@ public interface Recovery {
             return branches;
         }
 
-        public long getMark() {
+        public Object getMark() {
             return mark;
         }
 

@@ -38,14 +38,14 @@ public class UnrecoverableLog implements TransactionLog {
     public void begin(Xid xid) throws LogException {
     }
 
-    public long prepare(Xid xid, List branches) throws LogException {
-        return 0L;
+    public Object prepare(Xid xid, List branches) throws LogException {
+        return null;
     }
 
-    public void commit(Xid xid, long logMark) throws LogException {
+    public void commit(Xid xid, Object logMark) throws LogException {
     }
 
-    public void rollback(Xid xid, long logMark) throws LogException {
+    public void rollback(Xid xid, Object logMark) throws LogException {
     }
 
     public Collection recover(XidFactory xidFactory) throws LogException {

@@ -38,11 +38,11 @@ public interface TransactionLog {
      * @param branches List of TransactionBranchInfo
      * @throws LogException
      */
-    long prepare(Xid xid, List branches) throws LogException;
+    Object prepare(Xid xid, List branches) throws LogException;
 
-    void commit(Xid xid, long logMark) throws LogException;
+    void commit(Xid xid, Object logMark) throws LogException;
 
-    void rollback(Xid xid, long logMark) throws LogException;
+    void rollback(Xid xid, Object logMark) throws LogException;
 
     /**
      * Recovers the log, returning a map of (top level) xid to List of TransactionBranchInfo for the branches.

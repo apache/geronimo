@@ -82,7 +82,7 @@ public class JDBCLog implements TransactionLog, GBeanLifecycle {
     public void begin(Xid xid) throws LogException {
     }
 
-    public long prepare(Xid xid, List branches) throws LogException {
+    public Object prepare(Xid xid, List branches) throws LogException {
         int formatId = xid.getFormatId();
         byte[] globalTransactionId = xid.getGlobalTransactionId();
         byte[] branchQualifier = xid.getBranchQualifier();
@@ -113,10 +113,10 @@ public class JDBCLog implements TransactionLog, GBeanLifecycle {
         } catch (SQLException e) {
             throw new LogException("Failure during prepare or commit", e);
         }
-        return 0L;
+        return null;
     }
 
-    public void commit(Xid xid, long logMark) throws LogException {
+    public void commit(Xid xid, Object logMark) throws LogException {
         try {
             Connection connection = dataSource.getConnection();
             try {
@@ -141,7 +141,7 @@ public class JDBCLog implements TransactionLog, GBeanLifecycle {
         }
     }
 
-    public void rollback(Xid xid, long logMark) throws LogException {
+    public void rollback(Xid xid, Object logMark) throws LogException {
         throw new LogException("JDBCLog does not support rollback of prepared transactions.  Use it only on servers that do not import transactions");
     }
 
@@ -167,7 +167,7 @@ public class JDBCLog implements TransactionLog, GBeanLifecycle {
                             currentXid = xidFactory.recover(formatId, globalId, globalBranchId);
                             Xid branchXid = xidFactory.recover(formatId, globalId, branchBranchId);
                             if (!currentXid.equals(lastXid)) {
-                                xidBranchesPair = new Recovery.XidBranchesPair(currentXid, 0L);
+                                xidBranchesPair = new Recovery.XidBranchesPair(currentXid, null);
                                 recovered.add(xidBranchesPair);
                                 lastXid = currentXid;
                             }

@@ -23,6 +23,8 @@ import junit.extensions.TestSetup;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.apache.geronimo.transaction.manager.TransactionLog;
+import org.apache.geronimo.transaction.manager.XidFactory;
+import org.apache.geronimo.transaction.manager.XidFactoryImpl;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
@@ -46,6 +48,7 @@ public class HOWLLogTest extends AbstractLogTest {
 
 
     protected TransactionLog createTransactionLog() throws Exception {
+        XidFactory xidFactory = new XidFactoryImpl();
         HOWLLog howlLog = new HOWLLog(
                 "org.objectweb.howl.log.BlockLogBuffer", //                "bufferClassName",
                 4, //                "bufferSizeKBytes",
@@ -59,7 +62,7 @@ public class HOWLLogTest extends AbstractLogTest {
                 2, //                "maxLogFiles",
                 2, //                "minBuffers",
                 10,//                "threadsWaitingForceThreshold"});
-                new ServerInfo(new File(basedir, "target").getAbsolutePath())
+                xidFactory, new ServerInfo(new File(basedir, "target").getAbsolutePath())
         );
         howlLog.doStart();
         return howlLog;
