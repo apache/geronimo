@@ -92,6 +92,29 @@ public class SubjectCarryingChannel extends FilterAsynchChannel {
         super.write(createPassthroughPacket(packet));
     }
 
+    public class SubjectPacketFilter extends FilterPacket {
+
+        SubjectPacketFilter(Packet packet) {
+            super(packet);
+        }
+
+        public Object narrow(Class target) {
+            if( target == SubjectContext.class ) {
+                return new SubjectContext() {
+                    public Subject getSubject() {
+                        return remoteSubject;
+                    }
+                };
+            }
+            return super.narrow(target);
+        }
+
+        public Packet filter(Packet packet) {
+            return new SubjectPacketFilter(packet);
+        }
+
+    }
+
     public void onPacket(Packet packet) {
         
         // Don't take anything to the packet stream if subject reading is not enabled.
@@ -102,29 +125,15 @@ public class SubjectCarryingChannel extends FilterAsynchChannel {
         
         try {
             switch( packet.read() ) {
-            	case CLEAR_SUBJECT:
-            	    localSubject = null;
+                case CLEAR_SUBJECT:
+                    localSubject = null;
                     return;
-            	case SET_SUBJECT:        	    
-            	    SubjectId subjectId = extractSubjectId(packet);
-            	    localSubject = ContextManager.getRegisteredSubject(subjectId);
+                case SET_SUBJECT:               
+                    SubjectId subjectId = extractSubjectId(packet);
+                    localSubject = ContextManager.getRegisteredSubject(subjectId);
                     return;
-            	case PASSTHROUGH:
-                    super.onPacket(new FilterPacket(packet){
-                        public Object narrow(Class target) {
-                            if( target == SubjectContext.class ) {
-                                return new SubjectContext() {
-                                    public Subject getSubject() {
-                                        return remoteSubject;
-                                    }
-                                };
-                            }
-                            return super.narrow(target);
-                        }
-                        public Packet filter(Packet packet) {
-                            return packet;
-                        }
-                    });
+                case PASSTHROUGH:
+                    super.onPacket( new SubjectPacketFilter(packet) );
             }
         } catch (IOException e) {
             super.onPacketError(e);
@@ -139,7 +148,7 @@ public class SubjectCarryingChannel extends FilterAsynchChannel {
         DataInputStream is = new DataInputStream(new PacketInputStream(packet));
         Long id = new Long(is.readLong());
         byte hash[]=  new byte[ is.readInt() ];
-	    return new SubjectId(id, hash);
+        return new SubjectId(id, hash);
     }
 
     private Packet createClearSubjectPackt() {
