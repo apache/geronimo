@@ -99,13 +99,13 @@ public class InternetHeadersTest extends TestCase {
             (toto[0].equals(users) && toto[1].equals(developers))
                 || (toto[1].equals(users) && toto[0].equals(developers)));
 
-        Enumeration enum;
+        Enumeration e;
         boolean to1, to2, from, subject;
 
-        enum = headers.getAllHeaders();
+        e = headers.getAllHeaders();
         to1 = to2 = from = subject = false;
-        while (enum.hasMoreElements()) {
-            Header header = (Header) enum.nextElement();
+        while (e.hasMoreElements()) {
+            Header header = (Header) e.nextElement();
             to1 =
                 to1
                     || (header.getName().equals("To")
@@ -125,10 +125,10 @@ public class InternetHeadersTest extends TestCase {
         }
         assertTrue(to1 && to2 && from && subject);
 
-        enum = headers.getAllHeaderLines();
+        e = headers.getAllHeaderLines();
         to1 = to2 = from = subject = false;
-        while (enum.hasMoreElements()) {
-            String line = (String) enum.nextElement();
+        while (e.hasMoreElements()) {
+            String line = (String) e.nextElement();
             to1 = to1 || line.equals("To: " + users);
             to2 = to2 || line.equals("To: " + developers);
             from = from || line.equals("From: " + announce);
@@ -138,10 +138,10 @@ public class InternetHeadersTest extends TestCase {
 
         String[] fromSubject = new String[] { "From", "Subject" };
 
-        enum = headers.getMatchingHeaders(fromSubject);
+        e = headers.getMatchingHeaders(fromSubject);
         to1 = to2 = from = subject = false;
-        while (enum.hasMoreElements()) {
-            Header header = (Header) enum.nextElement();
+        while (e.hasMoreElements()) {
+            Header header = (Header) e.nextElement();
             to1 =
                 to1
                     || (header.getName().equals("To")
@@ -161,10 +161,10 @@ public class InternetHeadersTest extends TestCase {
         }
         assertTrue(!to1 && !to2 && from && subject);
 
-        enum = headers.getMatchingHeaderLines(fromSubject);
+        e = headers.getMatchingHeaderLines(fromSubject);
         to1 = to2 = from = subject = false;
-        while (enum.hasMoreElements()) {
-            String line = (String) enum.nextElement();
+        while (e.hasMoreElements()) {
+            String line = (String) e.nextElement();
             to1 = to1 || line.equals("To: " + users);
             to2 = to2 || line.equals("To: " + developers);
             from = from || line.equals("From: " + announce);
@@ -172,10 +172,10 @@ public class InternetHeadersTest extends TestCase {
         }
         assertTrue(!to1 && !to2 && from && subject);
 
-        enum = headers.getNonMatchingHeaders(fromSubject);
+        e = headers.getNonMatchingHeaders(fromSubject);
         to1 = to2 = from = subject = false;
-        while (enum.hasMoreElements()) {
-            Header header = (Header) enum.nextElement();
+        while (e.hasMoreElements()) {
+            Header header = (Header) e.nextElement();
             to1 =
                 to1
                     || (header.getName().equals("To")
@@ -195,10 +195,10 @@ public class InternetHeadersTest extends TestCase {
         }
         assertTrue(to1 && to2 && !from && !subject);
 
-        enum = headers.getNonMatchingHeaderLines(fromSubject);
+        e = headers.getNonMatchingHeaderLines(fromSubject);
         to1 = to2 = from = subject = false;
-        while (enum.hasMoreElements()) {
-            String line = (String) enum.nextElement();
+        while (e.hasMoreElements()) {
+            String line = (String) e.nextElement();
             to1 = to1 || line.equals("To: " + users);
             to2 = to2 || line.equals("To: " + developers);
             from = from || line.equals("From: " + announce);

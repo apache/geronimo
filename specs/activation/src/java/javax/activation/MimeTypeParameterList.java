@@ -98,9 +98,9 @@ public class MimeTypeParameterList {
 
     public String toString() {
         StringBuffer buf = new StringBuffer();
-        for (Enumeration enum = getNames(); enum.hasMoreElements();) {
+        for (Enumeration e = getNames(); e.hasMoreElements();) {
             buf.append(PARAMETER_SEPARATOR);
-            String name = (String) enum.nextElement();
+            String name = (String) e.nextElement();
             buf.append(name).append(NAME_VALUE_SEPARATOR).append(get(name));
         }
         return buf.toString();

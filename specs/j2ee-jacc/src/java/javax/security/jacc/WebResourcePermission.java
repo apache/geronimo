@@ -135,10 +135,10 @@ public final class WebResourcePermission extends Permission implements Serializa
             if (!(permission instanceof WebResourcePermission)) return false;
 
             WebResourcePermission p  = (WebResourcePermission)permission;
-            Enumeration enum = permissions.elements();
+            Enumeration e = permissions.elements();
 
-            while (enum.hasMoreElements()) {
-                if (((WebResourcePermission)enum.nextElement()).implies(p)) return true;
+            while (e.hasMoreElements()) {
+                if (((WebResourcePermission)e.nextElement()).implies(p)) return true;
             }
 
             return false;

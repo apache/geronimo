@@ -157,10 +157,10 @@ public final class WebUserDataPermission extends Permission implements Serializa
             if (!(permission instanceof WebUserDataPermission)) return false;
 
             WebUserDataPermission p  = (WebUserDataPermission)permission;
-            Enumeration enum = permissions.elements();
+            Enumeration e = permissions.elements();
 
-            while (enum.hasMoreElements()) {
-                if (((WebUserDataPermission)enum.nextElement()).implies(p)) return true;
+            while (e.hasMoreElements()) {
+                if (((WebUserDataPermission)e.nextElement()).implies(p)) return true;
             }
 
             return false;
