@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.13 $ $Date: 2004/01/19 06:28:05 $ -->
+<!-- $Revision: 1.14 $ $Date: 2004/01/23 01:00:18 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -26,59 +26,7 @@
     <!-- ============ -->
 
     <dependencies>
-        <!-- Plugin Dependencies -->
-
-        <dependency>
-            <id>xdoclet</id>
-            <version>1.2b2</version>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <id>xdoclet+xdoclet-module</id>
-            <version>1.2b2</version>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <id>xdoclet+jmx-module</id>
-            <version>1.2b2</version>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <id>xdoclet+xjavadoc</id>
-            <version>1.2b2</version>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <id>commons-collections</id>
-            <version>SNAPSHOT</version>
-            <url>http://jakarta.apache.org/commons/collections</url>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
-        </dependency>
-
         <!-- Module Dependencies -->
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-tools</artifactId>
-            <version>DEV</version>
-            <properties>
-                <module>true</module>
-            </properties>
-        </dependency>
-
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-management</artifactId>
@@ -130,38 +78,8 @@
         </dependency>
 
         <dependency>
-            <id>commons-httpclient</id>
-            <version>2.0-beta1</version>
-            <url>http://jakarta.apache.org/commons/httpclient/</url>
-            <properties>
-                <runtime>true</runtime>
-                <destinations>bootlib</destinations>
-            </properties>
-        </dependency>
-
-        <dependency>
             <id>mx4j</id>
             <version>SNAPSHOT</version>
-            <properties>
-                <runtime>true</runtime>
-                <destinations>bootlib</destinations>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-            <version>2.6.0</version>
-            <url>http://xml.apache.org</url>
-            <properties>
-                <runtime>true</runtime>
-                <destinations>bootlib</destinations>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <id>xml-apis</id>
-            <version>1.0.b2</version>
             <properties>
                 <runtime>true</runtime>
                 <destinations>bootlib</destinations>
