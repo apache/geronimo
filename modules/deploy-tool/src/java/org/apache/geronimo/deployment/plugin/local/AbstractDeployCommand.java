@@ -18,6 +18,11 @@ package org.apache.geronimo.deployment.plugin.local;
 
 import java.util.Set;
 import java.util.Iterator;
+import java.io.File;
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.FileOutputStream;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.management.ObjectName;
 
@@ -51,5 +56,18 @@ public abstract class AbstractDeployCommand extends CommandSupport {
         }
         return deployer;
 
+    }
+
+    protected void copyTo(File outfile, InputStream is) throws IOException {
+        byte[] buffer = new byte[4096];
+        int count;
+        OutputStream os = new FileOutputStream(outfile);
+        try {
+            while ((count = is.read(buffer)) > 0) {
+                os.write(buffer, 0, count);
+            }
+        } finally {
+            os.close();
+        }
     }
 }

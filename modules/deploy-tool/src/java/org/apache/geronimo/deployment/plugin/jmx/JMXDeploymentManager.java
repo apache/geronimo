@@ -217,7 +217,13 @@ public class JMXDeploymentManager implements DeploymentManager {
     }
 
     public ProgressObject redeploy(TargetModuleID[] moduleIDList, InputStream moduleArchive, InputStream deploymentPlan) {
-        throw new UnsupportedOperationException();
+        if (kernel == null) {
+            throw new IllegalStateException("Disconnected");
+        }
+        RedeployCommand command = new RedeployCommand(kernel, moduleIDList, moduleArchive, deploymentPlan);
+        command.setLogErrors(logErrors);
+        new Thread(command).start();
+        return command;
     }
 
     public Locale[] getSupportedLocales() {

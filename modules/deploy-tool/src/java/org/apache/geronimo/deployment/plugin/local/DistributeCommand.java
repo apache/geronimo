@@ -112,16 +112,4 @@ public class DistributeCommand extends AbstractDeployCommand {
         }
     }
 
-    private void copyTo(File outfile, InputStream is) throws IOException {
-        byte[] buffer = new byte[4096];
-        int count;
-        OutputStream os = new FileOutputStream(outfile);
-        try {
-            while ((count = is.read(buffer)) > 0) {
-                os.write(buffer, 0, count);
-            }
-        } finally {
-            os.close();
-        }
-    }
 }

@@ -17,6 +17,7 @@
 package org.apache.geronimo.deployment.plugin.local;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URI;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.TargetModuleID;
@@ -24,6 +25,7 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.kernel.jmx.KernelMBean;
 
 /**
@@ -33,14 +35,26 @@ public class RedeployCommand extends AbstractDeployCommand {
     private static final String[] DEPLOY_SIG = {File.class.getName(), File.class.getName()};
     private static final String[] UNINSTALL_SIG = {URI.class.getName()};
     private final TargetModuleID[] modules;
-    private final File moduleArchive;
-    private final File deploymentPlan;
+    private File moduleArchive;
+    private File deploymentPlan;
+    private InputStream moduleStream;
+    private InputStream deploymentStream;
+    private final boolean spool;
 
     public RedeployCommand(KernelMBean kernel, TargetModuleID modules[], File moduleArchive, File deploymentPlan) {
         super(CommandType.START, kernel);
         this.modules = modules;
         this.moduleArchive = moduleArchive;
         this.deploymentPlan = deploymentPlan;
+        spool = false;
+    }
+
+    public RedeployCommand(KernelMBean kernel, TargetModuleID[] moduleIDList, InputStream moduleArchive, InputStream deploymentPlan) {
+        super(CommandType.START, kernel);
+        this.modules = moduleIDList;
+        moduleStream = moduleArchive;
+        deploymentStream = deploymentPlan;
+        spool = true;
     }
 
     public void run() {
@@ -50,6 +64,16 @@ public class RedeployCommand extends AbstractDeployCommand {
         }
 
         try {
+            if (spool) {
+                if (moduleStream != null) {
+                    moduleArchive = DeploymentUtil.createTempFile();
+                    copyTo(moduleArchive, moduleStream);
+                }
+                if (deploymentStream != null) {
+                    deploymentPlan = DeploymentUtil.createTempFile();
+                    copyTo(deploymentPlan, deploymentStream);
+                }
+            }
             for (int i = 0; i < modules.length; i++) {
                 TargetModuleIDImpl module = (TargetModuleIDImpl) modules[i];
 
