@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2005 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- $Rev$ $Date$ -->
+
+<project
+    xmlns:artifact="artifact"
+    xmlns:ant="jelly:ant"
+    xmlns:velocity="jelly:velocity"
+    xmlns:define="jelly:define"
+    xmlns:package="geronimo:packaging"
+    >
+    <define:taglib uri="geronimo:packaging">
+        <define:jellybean name="package" className="org.apache.geronimo.plugin.packaging.PackageBuilder" method="execute"/>
+        <define:jellybean name="jmxDistribute" className="org.apache.geronimo.plugin.packaging.JMXDistributor" method="execute"/>
+    </define:taglib>
+
+    <goal name="geronimo" description="Package a Geronimo Configuration" prereqs="geronimo:package"/>
+
+    <goal name="geronimo:prepare-plan" description="Prepare a plan by processing with velocity">
+        <ant:mkdir dir="${geronimo.packaging.buildDir}"/>
+        <velocity:merge basedir="${geronimo.packaging.srcDir}" template="${geronimo.packaging.planFile}" name="${geronimo.packaging.buildFile}"/>
+    </goal>
+
+    <goal name="geronimo:package" prereqs="geronimo:prepare-plan" description="Package a Geronimo Configuration">
+        <package:package
+            repository="${geronimo.packaging.repository}"
+            deploymentConfig="${geronimo.packaging.deploymentConfig}"
+            deployerName="${geronimo.packaging.deployerName}"
+            planFile="${geronimo.packaging.buildFile}"
+            moduleFile="${geronimo.packaging.moduleFile}"
+            packageFile="${maven.build.dir}/${maven.final.name}.car"
+            mainClass="${geronimo.packaging.mainClass}"
+            classPath="${geronimo.packaging.classPath}"
+            endorsedDirs="${geronimo.packaging.endorsedDirs}"
+            />
+    </goal>
+
+    <goal name="geronimo:install" prereqs="geronimo:package" description="Install the package in the local repository">
+        <artifact:install artifact="${maven.build.dir}/${maven.final.name}.car" type="car" project="${pom}"/>
+    </goal>
+
+    <goal name="geronimo:distribute" prereqs="geronimo:package" description="Distribute the package to a server">
+        <package:jmxDistribute
+            user="${geronimo.packaging.user}"
+            password="${geronimo.packaging.password}"
+            url="${geronimo.packaging.url}"
+            storeName="${geronimo.packaging.storeName}"
+            artifact="${maven.build.dir}/${maven.final.name}.car"
+            />
+    </goal>
+</project>
