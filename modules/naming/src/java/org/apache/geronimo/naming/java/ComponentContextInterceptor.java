@@ -17,7 +17,12 @@
 
 package org.apache.geronimo.naming.java;
 
+import java.util.Properties;
+import java.util.Iterator;
+import java.util.Map;
 import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
@@ -38,6 +43,8 @@ public class ComponentContextInterceptor implements Interceptor {
      * @param compContext the component's JNDI Context
      */
     public ComponentContextInterceptor(Interceptor next, Context compContext) {
+        assert next != null;
+        assert compContext != null;
         this.next = next;
         this.compContext = compContext;
     }

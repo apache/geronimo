@@ -55,11 +55,7 @@ public abstract class AbstractThreadPooledTimerTest extends TestCase {
 
     protected void setUp() throws Exception {
         userTaskFactory = new MockUserTaskFactory();
-        threadPool = new ThreadPool();
-        threadPool.setPoolSize(30);
-        threadPool.setKeepAliveTime(10000);
-        threadPool.setPoolName("TestPool");
-        threadPool.doStart();
+        threadPool = new ThreadPool(30, "TestPool", 10000, this.getClass().getClassLoader());
         WorkerPersistence workerPersistence = new VMWorkerPersistence();
         timer = new ThreadPooledTimer(executableWorkFactory, workerPersistence, threadPool, transactionContextManager);
         timer.doStart();

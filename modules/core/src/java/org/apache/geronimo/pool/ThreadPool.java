@@ -18,11 +18,9 @@
 package org.apache.geronimo.pool;
 
 import EDU.oswego.cs.dl.util.concurrent.Executor;
+import EDU.oswego.cs.dl.util.concurrent.LinkedQueue;
 import EDU.oswego.cs.dl.util.concurrent.PooledExecutor;
 import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
-import EDU.oswego.cs.dl.util.concurrent.LinkedQueue;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -34,72 +32,45 @@ import org.apache.geronimo.gbean.WaitingException;
  */
 public class ThreadPool implements Executor, GBeanLifecycle {
 
-    static private final Log log = LogFactory.getLog(ThreadPool.class);
-
     private PooledExecutor executor;
-    private long keepAliveTime;
-    private int poolSize;
-    private String poolName;
 
     private int nextWorkerID = 0;
 
-    public long getKeepAliveTime() {
-        return keepAliveTime;
-    }
-
-    public void setKeepAliveTime(long keepAliveTime) {
-        this.keepAliveTime = keepAliveTime;
-    }
-
-    public int getPoolSize() {
-        return poolSize;
-    }
-
-    public void setPoolSize(int poolSize) {
-        this.poolSize = poolSize;
-    }
-
-    public String getPoolName() {
-        return poolName;
-    }
-
-    public void execute(Runnable command) throws InterruptedException {
-        executor.execute(command);
-    }
-
-    public void setPoolName(String poolName) {
-        this.poolName = poolName;
-    }
-
-    private int getNextWorkerID() {
-        return nextWorkerID++;
-    }
-
-    public void doStart() throws WaitingException, Exception {
+    public ThreadPool(final int poolSize, final String poolName, final long keepAliveTime, final ClassLoader classLoader) {
         PooledExecutor p = new PooledExecutor(new LinkedQueue(), poolSize);
         p.setKeepAliveTime(keepAliveTime);
         p.setMinimumPoolSize(poolSize);
         p.setThreadFactory(new ThreadFactory() {
             public Thread newThread(Runnable arg0) {
-                return new Thread(arg0, poolName + " " + getNextWorkerID());
+                Thread thread = new Thread(arg0, poolName + " " + getNextWorkerID());
+                thread.setContextClassLoader(classLoader);
+                return thread;
             }
         });
 
         executor = p;
+    }
 
-        log.info("Thread pool " + poolName + " started");
+
+    public void execute(Runnable command) throws InterruptedException {
+        executor.execute(command);
+    }
+
+    private synchronized int getNextWorkerID() {
+        return nextWorkerID++;
+    }
+
+    public void doStart() throws WaitingException, Exception {
     }
 
     public void doStop() throws WaitingException, Exception {
         executor.shutdownNow();
-        log.info("Thread pool " + poolName + " stopped");
     }
 
     public void doFail() {
         try {
             doStop();
         } catch (Exception e) {
-            log.error("Failed to shutdown", e);
         }
     }
 
@@ -108,11 +79,15 @@ public class ThreadPool implements Executor, GBeanLifecycle {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ThreadPool.class);
 
-        infoFactory.addAttribute("keepAliveTime", long.class, true);
         infoFactory.addAttribute("poolSize", int.class, true);
         infoFactory.addAttribute("poolName", String.class, true);
+        infoFactory.addAttribute("keepAliveTime", long.class, true);
+
+        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
         infoFactory.addInterface(Executor.class);
+
+        infoFactory.setConstructor(new String[] {"poolSize", "poolName", "keepAliveTime", "classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
