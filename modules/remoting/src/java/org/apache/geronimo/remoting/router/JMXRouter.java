@@ -67,7 +67,7 @@ import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
  * Uses JMX Object names to route the request to a JMX object that implements the 
  * JMXTargetMBean interface.
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/16 06:36:03 $
  */
 public class JMXRouter extends AbstractInterceptorRouter {
     
@@ -92,7 +92,7 @@ public class JMXRouter extends AbstractInterceptorRouter {
      */
     protected Interceptor lookupInterceptorFrom(URI to) throws MalformedObjectNameException {
         ObjectName on = new ObjectName(to.getFragment());
-        JMXTargetMBean bean = (JMXTargetMBean) MBeanProxyFactory.getProxy(JMXTargetMBean.class, geronimoMBeanContext.getServer(), on);
+        JMXTarget bean = (JMXTarget) MBeanProxyFactory.getProxy(JMXTarget.class, geronimoMBeanContext.getServer(), on);
         return bean.getRemotingEndpointInterceptor();
     }
     

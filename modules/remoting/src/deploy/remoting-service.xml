@@ -42,7 +42,7 @@
     <!-- Expose the MBeanServer via remoting URI                      -->
     <!--   async://localhost:3434/JMX#geronimo.jmx:target=MBeanServerStub -->
     <!-- ============================================================ -->
-    <mbean code="org.apache.geronimo.remoting.jmx.MBeanServerStub"
+    <mbean descriptor="org/apache/geronimo/remoting/jmx/MBeanServerStub.xml"
             name="geronimo.remoting:target=MBeanServerStub">
     </mbean>    
 

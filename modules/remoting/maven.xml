@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.1 $ $Date: 2003/11/16 05:27:26 $ -->
+<!-- $Revision: 1.2 $ $Date: 2003/11/16 06:36:02 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -9,17 +9,7 @@
   xmlns:xdoclet="common:xdoclet"
   >
 
- 
-  <preGoal name="test:compile">
-    <attainGoal name="xdoclet:jmxdoclet:test-compile"/>
-  </preGoal>
-  
-  <preGoal name="java:compile">
-    <attainGoal name="xdoclet:jmxdoclet:compile"/>
-  </preGoal>
-
-
- <!-- Set up the test files -->
+  <!-- Set up the test files -->
   <postGoal name="test:test-resources">
     
     <j:jelly xmlns="jelly:ant">

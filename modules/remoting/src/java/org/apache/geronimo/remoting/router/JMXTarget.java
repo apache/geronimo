@@ -58,15 +58,9 @@ package org.apache.geronimo.remoting.router;
 import org.apache.geronimo.core.service.Interceptor;
 
 /**
- *
- * @jmx:mbean
- *
- * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/16 06:36:03 $
  */
 public interface JMXTarget
 {
-    /**
-     * @jmx:managed-attribute
-     */
     Interceptor getRemotingEndpointInterceptor();
 }

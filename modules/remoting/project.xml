@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.1 $ $Date: 2003/11/16 05:27:26 $ -->
+<!-- $Revision: 1.2 $ $Date: 2003/11/16 06:36:02 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -28,46 +28,6 @@
     <dependencies>
 
         <!-- Plugin Dependencies -->
-        <dependency>
-            <id>commons-collections</id>
-            <version>2.1</version>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <id>xdoclet</id>
-            <version>1.2b2</version>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <id>xdoclet+xdoclet-module</id>
-            <version>1.2b2</version>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <id>xdoclet+jmx-module</id>
-            <version>1.2b2</version>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <id>xdoclet+xjavadoc</id>
-            <version>1.2b2</version>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
-        </dependency>
-        
 
         <!-- Module Dependencies -->
         <dependency>

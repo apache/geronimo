@@ -56,35 +56,32 @@
 package org.apache.geronimo.remoting.jmx;
 
 import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
+import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 import org.apache.geronimo.proxy.ProxyContainer;
 import org.apache.geronimo.proxy.ReflexiveInterceptor;
 import org.apache.geronimo.remoting.DeMarshalingInterceptor;
-import org.apache.geronimo.kernel.service.AbstractManagedObject;
 
 /**
- *
- * @jmx:mbean
- *      extends="org.apache.geronimo.kernel.management.ManagedObject,org.apache.geronimo.kernel.management.StateManageable,org.apache.geronimo.remoting.router.JMXTargetMBean"
- *
- * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/16 06:36:03 $
  */
 public class MBeanServerStub
-        extends AbstractManagedObject
-        implements MBeanServerStubMBean {
+        implements GeronimoMBeanTarget {
 
     private ProxyContainer serverContainer;
     private DeMarshalingInterceptor demarshaller;
+    private GeronimoMBeanContext geronimoMBeanContext;
 
     /**
      * @see org.apache.geronimo.kernel.service.AbstractManagedObject#doStart()
      */
-    protected void doStart() throws Exception {
+    public void doStart() {
 
         // Setup the server side contianer..
         serverContainer = new ProxyContainer();
         demarshaller = new DeMarshalingInterceptor();
         serverContainer.addInterceptor(demarshaller);
-        serverContainer.addInterceptor(new ReflexiveInterceptor(server));
+        serverContainer.addInterceptor(new ReflexiveInterceptor(geronimoMBeanContext.getServer()));
 
         // Configure the server side interceptors.
         demarshaller.setClassloader(getClass().getClassLoader());
@@ -93,7 +90,7 @@ public class MBeanServerStub
     /**
      * @see org.apache.geronimo.kernel.service.AbstractManagedObject#doStop()
      */
-    protected void doStop() throws Exception {
+    public void doStop() {
         serverContainer = null;
         demarshaller = null;
     }
@@ -103,5 +100,32 @@ public class MBeanServerStub
      */
     public Interceptor getRemotingEndpointInterceptor() {
         return demarshaller;
+    }
+
+    /**
+     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#setMBeanContext(org.apache.geronimo.kernel.service.GeronimoMBeanContext)
+     */
+    public void setMBeanContext(GeronimoMBeanContext geronimoMBeanContext) {
+        this.geronimoMBeanContext = geronimoMBeanContext;
+    }
+
+    /**
+     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#canStart()
+     */
+    public boolean canStart() {
+        return true;
+    }
+
+    /**
+     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#canStop()
+     */
+    public boolean canStop() {
+        return true;
+    }
+
+    /**
+     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#doFail()
+     */
+    public void doFail() {
     }
 }
