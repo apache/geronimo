@@ -60,14 +60,14 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.security.Principal;
 
-import org.apache.geronimo.common.Invocation;
-import org.apache.geronimo.common.InvocationKey;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationKey;
 
 /**
  *
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/08/28 05:12:10 $
+ * @version $Revision: 1.6 $ $Date: 2003/09/08 04:28:27 $
  */
 public final class EJBContainerUtil implements Serializable, InvocationKey {
     // Be careful here.  If you change the ordinals, this class must be changed on evey client.
@@ -139,7 +139,7 @@ public final class EJBContainerUtil implements Serializable, InvocationKey {
     }
 
     /**
-     * @see org.apache.geronimo.common.InvocationKey#isTransient()
+     * @see org.apache.geronimo.core.service.InvocationKey#isTransient()
      */
     public boolean isTransient() {
         return false;

@@ -72,7 +72,7 @@ import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
 import javax.xml.rpc.handler.MessageContext;
 
-import org.apache.geronimo.common.RPCContainer;
+import org.apache.geronimo.core.service.RPCContainer;
 import org.apache.geronimo.ejb.container.EJBPlugins;
 import org.apache.geronimo.ejb.context.GeronimoUserTransaction;
 import org.apache.geronimo.ejb.metadata.EJBMetadata;
@@ -81,7 +81,7 @@ import org.apache.geronimo.ejb.metadata.EJBMetadata;
  *
  *
  *
- * @version $Revision: 1.6 $ $Date: 2003/08/27 03:43:36 $
+ * @version $Revision: 1.7 $ $Date: 2003/09/08 04:28:26 $
  */
 public class GeronimoSessionContext implements SessionContext {
     private final RPCContainer container;

@@ -68,7 +68,7 @@ import javax.transaction.TransactionManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.common.RPCContainer;
+import org.apache.geronimo.core.service.RPCContainer;
 import org.apache.geronimo.ejb.container.EJBPlugins;
 import org.apache.geronimo.ejb.context.ExecutionContext;
 import org.apache.geronimo.ejb.context.TxExecutionContext;
@@ -77,7 +77,7 @@ import org.apache.geronimo.ejb.metadata.EJBMetadata;
 
 /**
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/15 14:12:19 $
+ * @version $Revision: 1.5 $ $Date: 2003/09/08 04:28:26 $
  */
 public class SynchronizationRegistry {
     private static final String EJB_REGISTRY_KEY = "EJB_REGISTRY_KEY";

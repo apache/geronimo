@@ -66,11 +66,11 @@ import javax.transaction.SystemException;
 import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.cache.InstanceCache;
-import org.apache.geronimo.common.AbstractInterceptor;
-import org.apache.geronimo.common.Invocation;
-import org.apache.geronimo.common.InvocationResult;
-import org.apache.geronimo.common.InvocationType;
-import org.apache.geronimo.common.RPCContainer;
+import org.apache.geronimo.core.service.AbstractInterceptor;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.InvocationType;
+import org.apache.geronimo.core.service.RPCContainer;
 import org.apache.geronimo.ejb.EJBInvocationUtil;
 import org.apache.geronimo.ejb.EnterpriseContext;
 import org.apache.geronimo.ejb.container.EJBPlugins;
@@ -82,7 +82,7 @@ import org.apache.geronimo.ejb.metadata.EJBMetadata;
  *
  *
  *
- * @version $Revision: 1.7 $ $Date: 2003/08/26 22:11:23 $
+ * @version $Revision: 1.8 $ $Date: 2003/09/08 04:28:26 $
  */
 public final class StatefulSessionSynchronizationInterceptor extends AbstractInterceptor {
     protected TransactionManager tm;

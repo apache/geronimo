@@ -62,15 +62,15 @@ import java.util.Set;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 
-import org.apache.geronimo.common.Invocation;
-import org.apache.geronimo.common.InvocationType;
-import org.apache.geronimo.common.StringInvocationKey;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationType;
+import org.apache.geronimo.core.service.StringInvocationKey;
 
 /**
  *
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/28 05:12:10 $
+ * @version $Revision: 1.5 $ $Date: 2003/09/08 04:28:26 $
  */
 public final class Entrancy implements Serializable {
     private static final StringInvocationKey ENTRANCY_KEY = new StringInvocationKey("ENTRANCY_KEY", false);

@@ -55,9 +55,9 @@
  */
 package org.apache.geronimo.ejb.cache;
 
-import org.apache.geronimo.common.AbstractInterceptor;
-import org.apache.geronimo.common.Invocation;
-import org.apache.geronimo.common.InvocationResult;
+import org.apache.geronimo.core.service.AbstractInterceptor;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.ejb.EJBInvocationUtil;
 import org.apache.geronimo.ejb.EnterpriseContext;
 import org.apache.geronimo.ejb.SynchronizationRegistry;
@@ -66,7 +66,7 @@ import org.apache.geronimo.ejb.SynchronizationRegistry;
  *
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/26 22:11:23 $
+ * @version $Revision: 1.5 $ $Date: 2003/09/08 04:28:26 $
  */
 public final class EntitySynchronizationInterceptor extends AbstractInterceptor {
     // todo find a home for me... should be a JMX object

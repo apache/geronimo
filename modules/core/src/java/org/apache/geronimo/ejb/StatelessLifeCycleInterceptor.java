@@ -60,10 +60,10 @@ import java.lang.reflect.Method;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 
-import org.apache.geronimo.common.AbstractInterceptor;
-import org.apache.geronimo.common.Invocation;
-import org.apache.geronimo.common.InvocationResult;
-import org.apache.geronimo.common.SimpleInvocationResult;
+import org.apache.geronimo.core.service.AbstractInterceptor;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.SimpleInvocationResult;
 import org.apache.geronimo.ejb.container.EJBPlugins;
 import org.apache.geronimo.ejb.metadata.EJBMetadata;
 
@@ -71,7 +71,7 @@ import org.apache.geronimo.ejb.metadata.EJBMetadata;
  *
  *
  *
- * @version $Revision: 1.8 $ $Date: 2003/08/27 03:43:36 $
+ * @version $Revision: 1.9 $ $Date: 2003/09/08 04:28:26 $
  */
 public class StatelessLifeCycleInterceptor extends AbstractInterceptor {
     private static final Method removeRemote;

@@ -65,9 +65,9 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionRequiredException;
 
-import org.apache.geronimo.common.Invocation;
-import org.apache.geronimo.common.InvocationResult;
-import org.apache.geronimo.common.InvocationType;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.InvocationType;
 import org.apache.geronimo.ejb.EJBInvocationUtil;
 import org.apache.geronimo.ejb.container.EJBPlugins;
 import org.apache.geronimo.ejb.metadata.EJBMetadata;
@@ -79,7 +79,7 @@ import org.apache.geronimo.transaction.GeronimoTransactionRolledbackLocalExcepti
 
 /**
  *
- * @version $Revision: 1.7 $ $Date: 2003/08/26 22:11:23 $
+ * @version $Revision: 1.8 $ $Date: 2003/09/08 04:28:27 $
  */
 public final class CMTInterceptor extends ExecutionContextInterceptor {
     private EJBMetadata ejbMetadata;

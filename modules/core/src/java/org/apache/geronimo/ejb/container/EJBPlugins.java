@@ -60,7 +60,7 @@ import javax.transaction.TransactionManager;
 import org.apache.geronimo.cache.InstanceCache;
 import org.apache.geronimo.cache.InstanceFactory;
 import org.apache.geronimo.cache.InstancePool;
-import org.apache.geronimo.common.RPCContainer;
+import org.apache.geronimo.core.service.RPCContainer;
 import org.apache.geronimo.ejb.EJBProxyFactoryManager;
 import org.apache.geronimo.ejb.metadata.EJBMetadata;
 import org.apache.geronimo.lock.LockDomain;
@@ -69,7 +69,7 @@ import org.apache.geronimo.lock.LockDomain;
  *
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/15 14:12:19 $
+ * @version $Revision: 1.5 $ $Date: 2003/09/08 04:28:27 $
  */
 public final class EJBPlugins {
     // only static methods are allowed for this class

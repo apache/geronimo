@@ -60,8 +60,8 @@ import java.util.Map;
 import javax.ejb.EJBException;
 import javax.transaction.Transaction;
 
-import org.apache.geronimo.common.Invocation;
-import org.apache.geronimo.common.InvocationResult;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.ejb.EJBInvocationUtil;
 
 /**
@@ -70,7 +70,7 @@ import org.apache.geronimo.ejb.EJBInvocationUtil;
  * re-associated with the invocation the next time the bean is invoked.
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/08/26 22:11:23 $
+ * @version $Revision: 1.6 $ $Date: 2003/09/08 04:28:27 $
  */
 public final class StatefulBMTInterceptor extends ExecutionContextInterceptor {
     private final static Map savedTransactions = new HashMap();

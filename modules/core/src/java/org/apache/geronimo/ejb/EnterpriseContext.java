@@ -57,13 +57,13 @@ package org.apache.geronimo.ejb;
 
 import javax.ejb.EnterpriseBean;
 
-import org.apache.geronimo.common.RPCContainer;
+import org.apache.geronimo.core.service.RPCContainer;
 
 /**
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/15 14:12:19 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/08 04:28:26 $
  */
 public interface EnterpriseContext {
     void clear();

@@ -59,16 +59,16 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 
-import org.apache.geronimo.common.AbstractInterceptor;
-import org.apache.geronimo.common.Invocation;
-import org.apache.geronimo.common.InvocationResult;
+import org.apache.geronimo.core.service.AbstractInterceptor;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.ejb.container.EJBPlugins;
 
 /**
  *
  *
  *
- * @version $Revision: 1.6 $ $Date: 2003/08/26 22:11:23 $
+ * @version $Revision: 1.7 $ $Date: 2003/09/08 04:28:27 $
  */
 public abstract class ExecutionContextInterceptor extends AbstractInterceptor {
     protected TransactionManager tm;

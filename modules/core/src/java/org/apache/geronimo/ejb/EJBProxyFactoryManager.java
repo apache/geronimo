@@ -60,15 +60,15 @@ import java.util.Iterator;
 import java.util.Map;
 import javax.ejb.EJBException;
 
-import org.apache.geronimo.common.AbstractComponent;
-import org.apache.geronimo.common.RPCContainer;
+import org.apache.geronimo.core.service.AbstractComponent;
+import org.apache.geronimo.core.service.RPCContainer;
 import org.apache.geronimo.ejb.container.EJBPlugins;
 
 /**
  *
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/08/15 14:12:19 $
+ * @version $Revision: 1.6 $ $Date: 2003/09/08 04:28:26 $
  */
 public class EJBProxyFactoryManager extends AbstractComponent {
     private Map proxies = new HashMap();

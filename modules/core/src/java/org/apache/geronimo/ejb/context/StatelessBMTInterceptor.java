@@ -62,16 +62,16 @@ import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 
-import org.apache.geronimo.common.Invocation;
-import org.apache.geronimo.common.InvocationResult;
-import org.apache.geronimo.common.InvocationType;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.InvocationType;
 import org.apache.geronimo.ejb.container.EJBPlugins;
 
 /**
  *
  *
  *
- * @version $Revision: 1.9 $ $Date: 2003/08/28 13:32:09 $
+ * @version $Revision: 1.10 $ $Date: 2003/09/08 04:28:27 $
  */
 public final class StatelessBMTInterceptor extends ExecutionContextInterceptor {
     private String ejbName;

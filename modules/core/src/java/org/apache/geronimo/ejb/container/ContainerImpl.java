@@ -55,11 +55,11 @@
  */
 package org.apache.geronimo.ejb.container;
 
-import org.apache.geronimo.common.AbstractRPCContainer;
+import org.apache.geronimo.core.service.AbstractRPCContainer;
 
 /**
  *
- * @version $Revision: 1.7 $ $Date: 2003/08/16 23:16:46 $
+ * @version $Revision: 1.8 $ $Date: 2003/09/08 04:28:27 $
  */
 public class ContainerImpl extends AbstractRPCContainer {
 }

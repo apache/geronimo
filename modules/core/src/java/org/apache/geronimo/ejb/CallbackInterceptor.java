@@ -60,10 +60,10 @@ import java.lang.reflect.Method;
 
 import javax.ejb.EJBException;
 
-import org.apache.geronimo.common.AbstractInterceptor;
-import org.apache.geronimo.common.Invocation;
-import org.apache.geronimo.common.InvocationResult;
-import org.apache.geronimo.common.SimpleInvocationResult;
+import org.apache.geronimo.core.service.AbstractInterceptor;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.SimpleInvocationResult;
 import org.apache.geronimo.ejb.container.EJBPlugins;
 import org.apache.geronimo.ejb.metadata.EJBMetadata;
 import org.apache.geronimo.ejb.metadata.MethodMetadata;
@@ -74,7 +74,7 @@ import org.apache.geronimo.ejb.metadata.MethodMetadata;
  * object.  This should be the last interceptor in the chain.
  *
  *
- * @version $Revision: 1.7 $ $Date: 2003/08/27 03:43:36 $
+ * @version $Revision: 1.8 $ $Date: 2003/09/08 04:28:26 $
  */
 public final class CallbackInterceptor extends AbstractInterceptor {
     public InvocationResult invoke(Invocation invocation) throws Throwable {

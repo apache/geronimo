@@ -62,15 +62,15 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.cache.InstanceCache;
 import org.apache.geronimo.cache.LRUInstanceCache;
 import org.apache.geronimo.cache.LRURunner;
-import org.apache.geronimo.common.AbstractComponent;
-import org.apache.geronimo.common.Container;
-import org.apache.geronimo.common.RPCContainer;
+import org.apache.geronimo.core.service.AbstractComponent;
+import org.apache.geronimo.core.service.Container;
+import org.apache.geronimo.core.service.RPCContainer;
 import org.apache.geronimo.ejb.EnterpriseContext;
 import org.apache.geronimo.ejb.container.EJBPlugins;
 
 /**
  *
- * @version $Revision: 1.6 $ $Date: 2003/08/23 09:07:11 $
+ * @version $Revision: 1.7 $ $Date: 2003/09/08 04:28:26 $
  */
 public final class EnterpriseContextInstanceCache extends AbstractComponent implements InstanceCache {
     private LRUInstanceCache cache;
