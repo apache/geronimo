@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: maven.xml,v 1.12 2003/08/14 17:23:38 jdillon Exp $ -->
+<!-- $Id: maven.xml,v 1.13 2003/08/14 19:41:15 jdillon Exp $ -->
 
 <project default="default"
   xmlns:j="jelly:core" 
@@ -82,36 +82,53 @@
     <attainGoal name="faq"/>
   </preGoal>
   
-  <postGoal name="site">
-    <maven:attainGoal name="modules:site"/>
-    <maven:attainGoal name="modules:copy-site"/>
+  <!-- Turn off reports for the top-level project -->
+  <postGoal name="xdoc:register-reports">
+    <attainGoal name="maven-license-plugin"/>
+    <attainGoal name="maven-checkstyle-plugin"/>
+    <attainGoal name="maven-pmd-plugin"/>
+    <attainGoal name="maven-simian-plugin"/>
+    <attainGoal name="maven-jdepend-plugin"/>
+    <attainGoal name="maven-changelog-plugin"/>
+    <attainGoal name="maven-statcvs-plugin"/>
+    <attainGoal name="maven-file-activity-plugin"/>
+    <attainGoal name="maven-developer-activity-plugin"/>
+    <attainGoal name="maven-jxr-plugin"/>
+    <attainGoal name="maven-javadoc-plugin"/>
+    <attainGoal name="maven-junit-report-plugin"/>
+    <attainGoal name="maven-clover-plugin"/>
   </postGoal>
   
+  <preGoal name="site">
+    <attainGoal name="modules:copy-site"/>
+  </preGoal>
+  
   <goal name="modules:copy-site" prereqs="modules:site"
-  	description="copy the generated websites of all the modules into the root project">
+  	description="Copy the generated websites of all the modules into the root project">
   	
   	<!-- a dummy scope tag to change XML namespace to ant -->
   	<j:scope xmlns="jelly:ant">
       
       <fileScanner var="scanner">
-        <fileset dir="${basedir}/modules" includes="*/project.xml" excludes="xmlbeans/project.xml"/>
+        <fileset dir="${basedir}"
+          includes="${modules.includes}"
+          excludes="${modules.excludes}"/>
       </fileScanner>
       
       <j:forEach var="file" items="${scanner.iterator()}">
         <j:set var="name">${file.parentFile.name}</j:set>
-        <j:set var="outDir">${basedir}/target/docs/modules/${name}</j:set>
+        <j:set var="type">${file.parentFile.parentFile.name}</j:set>
+        <j:set var="outDir">${basedir}/target/docs/${type}/${name}</j:set>
         
-        <echo>Copying module ${name} to ${outDir}</echo>
+        <echo>Copying module ${name} documentation to ${outDir}</echo>
         <mkdir dir="${outDir}"/>
         <copy todir="${outDir}">
-          <fileset dir="${basedir}/modules/${name}/target/docs"/>
+          <fileset dir="${basedir}/${type}/${name}/target/docs"/>
    	    </copy>
       </j:forEach>
       
     </j:scope>
   </goal>
-  
-  <!-- site, modules:copy-site -->
   
   <goal name="site:tocvs" prereqs=""
   	description="Creates the entire website and copies it to the local CVS repository so that it can be checked in to update the Incubator site">
@@ -136,14 +153,10 @@
   <!-- Helpers to run Apache Geronimo -->
   <!-- ============================== -->
   
-  <!-- jason: need to fix this -->
-  
   <goal name="run" description="Runs the Geronimo Server using the current build">
-    
     <j:set var="module" value="core"/>
     <j:set var="goals" value="run"/>
     <attainGoal name="modules:reactor"/>
-    
   </goal>
   
 </project>

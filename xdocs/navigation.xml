@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<project name="Geronimo">
+<project name="Apache Geronimo">
 
-  <title>Geronimo</title>
+  <title>Apache Geronimo</title>
   <organizationLogo href="/images/group-logo.gif">Apache</organizationLogo>
 
   <body>
@@ -19,10 +19,17 @@
 -->      
       <item name="Related Projects"        href="/reuse.html"/>
     </menu>
+    
     <menu name="Modules">
-      <item name="Common"		   		   href="/modules/core/"/>
-      <item name="Core Container"		   href="/modules/core/"/>
-      <item name="Twiddle"		   		   href="/modules/twiddle/"/>
+      <item name="Common"               href="/modules/copmmon/index.html"/>
+      <item name="Core Container"		    href="/modules/core/index.html"/>
+      <item name="Twiddle"		   		    href="/modules/twiddle/index.html"/>
+    </menu>
+    
+    <menu name="Specifications">
+      <item name="J2EE" href="/specs/j2ee/index.html"/>
+      <item name="JSR-77" href="/specs/jsr77/index.html"/>
+      <item name="JSR-88" href="/specs/jsr88/index.html"/>
     </menu>
     
     <menu name="Apache Community">

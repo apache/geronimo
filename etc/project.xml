@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: project.xml,v 1.5 2003/08/14 15:43:25 jstrachan Exp $ -->
+<!-- $Id: project.xml,v 1.6 2003/08/14 19:41:15 jdillon Exp $ -->
 
 <project>
+  
   <pomVersion>3</pomVersion>
-
+  
   <!-- ============== -->
   <!-- Identification -->
   <!-- ============== -->
@@ -85,7 +86,7 @@
   <!-- ========== -->
   <!-- Developers -->
   <!-- ========== -->
-
+  
   <developers>
     <developer>
       <name>Bruce Snyder</name>
@@ -192,12 +193,12 @@
       <organization></organization>
     </developer>
   </developers>
-
-
+  
+  
   <!-- ============ -->
   <!-- Contributors -->
   <!-- ============ -->
-
+  
   <contributors>
     <contributor>
       <name>Ed Letifov</name>
@@ -237,7 +238,7 @@
   <!-- ======= -->
   <!-- Reports -->
   <!-- ======= -->
-
+  
   <reports>
     <report>maven-license-plugin</report>
     <report>maven-checkstyle-plugin</report>
@@ -253,5 +254,5 @@
     <report>maven-junit-report-plugin</report>
     <report>maven-clover-plugin</report>
   </reports>
-
+  
 </project>
