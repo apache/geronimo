@@ -20,6 +20,7 @@ package org.apache.geronimo.system.logging.log4j;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.FileNotFoundException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -34,17 +35,16 @@ import org.apache.log4j.xml.DOMConfigurator;
 /**
  * Handles the details of configuring Log4j from a URL.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:30 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/25 20:48:54 $
  */
-public class URLConfigurator
-        implements Configurator {
+public class URLConfigurator implements Configurator {
     private static final Log log = LogFactory.getLog(URLConfigurator.class);
 
     public static void configure(final URL url) {
         new URLConfigurator().doConfigure(url, LogManager.getLoggerRepository());
     }
 
-    private Configurator getConfigurator(final URL url) {
+    private Configurator getConfigurator(final URL url) throws FileNotFoundException {
         String contentType = null;
 
         // Get the content type to see if it is XML or not
@@ -55,6 +55,8 @@ public class URLConfigurator
             if (log.isTraceEnabled()) {
                 log.trace("Content type: " + contentType);
             }
+        } catch (FileNotFoundException e) {
+            throw e;
         } catch (IOException e) {
             log.warn("Could not determine content type from URL; ignoring", e);
         }
@@ -99,7 +101,12 @@ public class URLConfigurator
         }
 
         // Get the config delegate and target repository to config with
-        Configurator delegate = getConfigurator(url);
+        Configurator delegate = null;
+        try {
+            delegate = getConfigurator(url);
+        } catch (FileNotFoundException e) {
+            return;
+        }
 
         if (log.isTraceEnabled()) {
             log.trace("Configuring Log4j using configurator: " +

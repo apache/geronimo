@@ -57,8 +57,9 @@ specific services - those should be provided by children.
 
     <!-- Logging service -->
     <gbean name="geronimo.system:role=Logger" class="org.apache.geronimo.system.logging.log4j.Log4jService">
-        <attribute name="RefreshPeriod" type="int">60</attribute>
-        <attribute name="ConfigurationURL" type="java.net.URL">log4j.xml</attribute>
+        <attribute name="rootLoggerLevel" type="java.lang.String">DEBUG</attribute>
+        <attribute name="refreshPeriod" type="int">60</attribute>
+        <attribute name="configurationFile" type="java.lang.String">var/log/log4j.xml</attribute>
         <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
     </gbean>
 

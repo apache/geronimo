@@ -29,7 +29,7 @@ import sun.net.www.ParseUtil;
 /**
  * A protocol handler for the 'file' protocol.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:31 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/25 20:48:53 $
  */
 public class Handler extends URLStreamHandler {
     protected void parseURL(final URL url, final String s, final int i, final int j) {
@@ -46,6 +46,9 @@ public class Handler extends URLStreamHandler {
         String path = ParseUtil.decode(url.getPath());
         path = path.replace('/', File.separatorChar).replace('|', ':');
         File file = new File(path);
+        if (!file.exists()) {
+            throw new FileNotFoundException(file.toString());
+        }
 
         // Handle the hostname of the URL if given, puke if not valid
         String hostname = url.getHost();

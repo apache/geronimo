@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 /**
  * Unit test for the 'file' protocol.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:31 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/25 20:48:53 $
  */
 public class FileProtocolTest extends TestCase {
     static {
@@ -61,7 +61,8 @@ public class FileProtocolTest extends TestCase {
     }
 
     public void testURLConnectionType() throws Exception {
-        URL url = new URL("file:/some/file");
+        File tempFile = File.createTempFile("foo", "bar");
+        URL url = new URL(tempFile.toURL().toExternalForm());
         URLConnection c = url.openConnection();
         assertEquals(FileURLConnection.class, c.getClass());
     }

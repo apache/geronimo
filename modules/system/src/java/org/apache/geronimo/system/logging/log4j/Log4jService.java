@@ -37,13 +37,13 @@ import org.apache.log4j.Logger;
 /**
  * A Log4j logging service.
  *
- * @version $Revision: 1.6 $ $Date: 2004/06/05 07:53:22 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/25 20:48:54 $
  */
 public class Log4jService implements GBeanLifecycle {
     /**
      * The URL to the configuration file.
      */
-    private URL configURL;
+    private String configurationFile;
 
     /**
      * The time (in seconds) between checking for new config.
@@ -71,18 +71,56 @@ public class Log4jService implements GBeanLifecycle {
     private long lastChanged = -1;
 
     /**
+     * The level used for the root logger
+     */
+    private Level rootLoggerLevel;
+
+    /**
+     * Is this service running?
+     */
+    private boolean running = false;
+
+    /**
      * Construct a <code>Log4jService</code>.
      *
-     * @param configURL The configuration URL.
+     * @param configurationFile The log4j configuration file.
      * @param refreshPeroid The refresh refreshPeroid (in seconds).
      */
-    public Log4jService(final URL configURL, final int refreshPeroid, ServerInfo serverInfo) {
-        setRefreshPeriod(refreshPeroid);
-        setConfigurationURL(configURL);
-        this.serverInfo = serverInfo;
+    public Log4jService(final String rootLoggerLevel, final String configurationFile, final int refreshPeroid, ServerInfo serverInfo) {
         LogFactory logFactory = LogFactory.getFactory();
         if (!(logFactory instanceof GeronimoLogFactory)) {
             throw new IllegalStateException("Commons log factory is not a GeronimoLogFactory");
+        }
+        this.rootLoggerLevel = XLevel.toLevel(rootLoggerLevel);
+        this.refreshPeriod = refreshPeroid;
+        this.configurationFile = configurationFile;
+        this.serverInfo = serverInfo;
+    }
+
+    /**
+     * Gets the level of the root logger.
+     */
+    public synchronized String getRootLoggerLevel() {
+        if (rootLoggerLevel != null) {
+            return rootLoggerLevel.toString();
+        }
+
+        return null;
+    }
+
+    /**
+     * Sets the level of the root logger.
+     *
+     * @param level The level to change the logger to.
+     */
+    public synchronized void setRootLoggerLevel(final String level) {
+        if (level == null) {
+            rootLoggerLevel = null;
+        } else {
+            rootLoggerLevel = XLevel.toLevel(level);
+            if (running) {
+                Logger.getRootLogger().setLevel(rootLoggerLevel);
+            }
         }
     }
 
@@ -153,58 +191,64 @@ public class Log4jService implements GBeanLifecycle {
      *
      * @return the logging configuration URL
      */
-    public synchronized URL getConfigurationURL() {
-        return configURL;
+    public synchronized String getConfigurationFile() {
+        return configurationFile;
     }
 
     /**
      * Set the logging configuration URL.
      *
-     * @param url the logging configuration URL
+     * @param configurationFile the logging configuration file
      */
-    public synchronized void setConfigurationURL(final URL url) {
-        if (url == null) {
-            throw new IllegalArgumentException("url is null");
+    public synchronized void setConfigurationFile(final String configurationFile) {
+        if (this.configurationFile == null) {
+            throw new IllegalArgumentException("configurationFile is null");
         }
 
-        this.configURL = url;
+        this.configurationFile = configurationFile;
     }
 
     /**
      * Force the logging system to reconfigure.
      */
     public void reconfigure() {
-        URL url;
-        synchronized (this) {
-            url = configURL;
+        URL url = resolveURL();
+        if (url == null) {
+            return;
         }
         URLConfigurator.configure(url);
     }
 
-    private void schedule() {
+    private synchronized void schedule() {
         if (timer != null) {
-            TimerTask task;
-            synchronized (this) {
-                // kill the old monitor
-                if (monitor != null) {
-                    monitor.cancel();
-                }
-
-                // start the new one
-                monitor = new URLMonitorTask();
-                task = monitor;
-                timer.schedule(monitor, 1000 * refreshPeriod, 1000 * refreshPeriod);
+            // kill the old monitor
+            if (monitor != null) {
+                monitor.cancel();
             }
+
+            // start the new one
+            monitor = new URLMonitorTask();
+            TimerTask task = monitor;
+            timer.schedule(monitor, 1000 * refreshPeriod, 1000 * refreshPeriod);
             task.run();
         }
     }
 
     public void doStart() {
-        // Peroidally check the configuration file
-        schedule();
+        synchronized (this) {
+            // Peroidally check the configuration file
+            schedule();
 
-        // Make sure the root Logger has loaded
-        Logger.getRootLogger();
+            // Make sure the root Logger has loaded
+            Logger.getRootLogger();
+
+            // set the root logger level
+            if (rootLoggerLevel != null) {
+                Logger.getRootLogger().setLevel(rootLoggerLevel);
+            }
+
+            reconfigure();
+        }
 
         // Change all of the loggers over to use log4j
         GeronimoLogFactory logFactory = (GeronimoLogFactory) LogFactory.getFactory();
@@ -213,9 +257,14 @@ public class Log4jService implements GBeanLifecycle {
                 logFactory.setLogFactory(new CachingLog4jLogFactory());
             }
         }
+
+        synchronized (this) {
+            running = true;
+        }
     }
 
     public synchronized void doStop() {
+        running = false;
         if (monitor != null) {
             monitor.cancel();
             monitor = null;
@@ -232,9 +281,7 @@ public class Log4jService implements GBeanLifecycle {
 
     private synchronized URL resolveURL() {
         try {
-            URI configURI = null;
-            URI baseURI = new URI(serverInfo.getBaseDirectory());
-            return baseURI.resolve(configURI).toURL();
+            return serverInfo.resolve(URI.create(configurationFile)).toURL();
         } catch (Exception e) {
             return null;
         }
@@ -245,7 +292,15 @@ public class Log4jService implements GBeanLifecycle {
             try {
                 long lastModified;
                 synchronized (this) {
-                    URLConnection connection = resolveURL().openConnection();
+                    if (running == false) {
+                        return;
+                    }
+
+                    URL url = resolveURL();
+                    if (url == null) {
+                        return;
+                    }
+                    URLConnection connection = url.openConnection();
                     lastModified = connection.getLastModified();
                 }
 
@@ -290,8 +345,9 @@ public class Log4jService implements GBeanLifecycle {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(Log4jService.class);
 
-        infoFactory.addAttribute("ConfigurationURL", URL.class, true);
-        infoFactory.addAttribute("RefreshPeriod", int.class, true);
+        infoFactory.addAttribute("rootLoggerLevel", String.class, true);
+        infoFactory.addAttribute("configurationFile", String.class, true);
+        infoFactory.addAttribute("refreshPeriod", int.class, true);
 
         infoFactory.addReference("ServerInfo", ServerInfo.class);
 
@@ -299,7 +355,7 @@ public class Log4jService implements GBeanLifecycle {
         infoFactory.addOperation("setLoggerLevel", new Class[]{String.class, String.class});
         infoFactory.addOperation("getLoggerLevel", new Class[]{String.class});
 
-        infoFactory.setConstructor(new String[]{"ConfigurationURL", "RefreshPeriod", "ServerInfo"});
+        infoFactory.setConstructor(new String[]{"rootLoggerLevel", "configurationFile", "refreshPeriod", "ServerInfo"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
