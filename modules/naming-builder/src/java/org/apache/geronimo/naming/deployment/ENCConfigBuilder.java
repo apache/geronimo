@@ -65,6 +65,8 @@ import org.apache.geronimo.xbeans.j2ee.XsdStringType;
  */
 public class ENCConfigBuilder {
 
+    private static final String JAXR_CONNECTION_FACTORY_CLASS = "javax.xml.registry.ConnectionFactory";
+
     public static ObjectName getGBeanId(String j2eeType, GerGbeanLocatorType gerGbeanLocator, J2eeContext j2eeContext, DeploymentContext context, Kernel kernel) throws DeploymentException {
         ObjectName containerId = null;
         if (gerGbeanLocator.isSetGbeanLink()) {
@@ -180,9 +182,15 @@ public class ENCConfigBuilder {
             } else {
                 //determine jsr-77 type from interface
                 String j2eeType;
+
+
                 if ("javax.mail.Session".equals(type)) {
                     j2eeType = NameFactory.JAVA_MAIL_RESOURCE;
-                } else {
+                }
+                else if (JAXR_CONNECTION_FACTORY_CLASS.equals(type)) {
+                    j2eeType = NameFactory.JAXR_CONNECTION_FACTORY;
+                }
+                else {
                     j2eeType = NameFactory.JCA_MANAGED_CONNECTION_FACTORY;
                 }
                 String containerId = getResourceContainerId(name, j2eeType, uri, gerResourceRef, refContext, j2eeContext, earContext);
@@ -559,10 +567,14 @@ public class ENCConfigBuilder {
             ResourceRefType resourceRefType = resourceRefs[i];
 
             String type = resourceRefType.getResType().getStringValue().trim();
+
             if (!URL.class.getName().equals(type)
-                    && !"javax.mail.Session".equals(type)) {
+                    && !"javax.mail.Session".equals(type)
+                    && !JAXR_CONNECTION_FACTORY_CLASS.equals(type) ) {
+
                 GerResourceRefType gerResourceRef = (GerResourceRefType) refMap.get(resourceRefType.getResRefName().getStringValue());
                 String containerId = getResourceContainerId(getStringValue(resourceRefType.getResRefName()), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, uri, gerResourceRef, refContext, j2eeContext, earContext);
+
                 if ("Unshareable".equals(getStringValue(resourceRefType.getResSharingScope()))) {
                     unshareableResources.add(containerId);
                 }
