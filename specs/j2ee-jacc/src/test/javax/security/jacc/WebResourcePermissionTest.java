@@ -161,9 +161,15 @@ public class WebResourcePermissionTest extends TestCase {
 
         pA = new WebResourcePermission("/foo/bar/*:/foo/bar/cat/dog", "");
         pB = new WebResourcePermission("/foo/bar/*:/foo/bar/cat/*", "");
-        
+
         assertTrue(pA.implies(pB));
         assertFalse(pB.implies(pA));
+
+        pA = new WebResourcePermission("/:/a.jsp:/b.jsp:/c.jsp", "GET,POST,PUT,DELETE,HEAD,OPTIONS,TRACE");
+        pB = new WebResourcePermission("/:/a.jsp:/c.jsp:/b.jsp", (String) null);
+
+        assertTrue(pA.implies(pB));
+        assertTrue(pB.implies(pA));
     }
 
     /*

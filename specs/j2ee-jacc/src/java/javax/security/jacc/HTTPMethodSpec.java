@@ -46,52 +46,51 @@ final class HTTPMethodSpec {
     }
 
     public HTTPMethodSpec(String name, boolean parseTransportType) {
+        if (parseTransportType) {
+            if (name == null || name.length() == 0) {
+                this.transport = NONE;
+            } else {
+                String[] tokens = name.split(":", 2);
+
+                if (tokens.length == 2) {
+                    if (tokens[1].equals("NONE")) {
+                        this.transport = NONE;
+                    } else if (tokens[1].equals("INTEGRAL")) {
+                        this.transport = INTEGRAL;
+                    } else if (tokens[1].equals("CONFIDENTIAL")) {
+                        this.transport = CONFIDENTIAL;
+                    } else {
+                        throw new IllegalArgumentException("Invalid transportType: " + tokens[1]);
+                    }
+                } else {
+                    this.transport = NONE;
+                }
+                name = tokens[0];
+            }
+        } else {
+            this.transport = NA;
+        }
+
         if (name == null || name.length() == 0) {
             this.mask = 0x7F;
-            this.transport = NONE;
         } else {
-            String[] tokens = name.split(":", 2);
+            String[] methods = name.split(",", -1);
+            int tmpMask = 0;
 
-            if (tokens[0].length() == 0) {
-                this.mask = 0x7F;
-            } else {
-                String[] methods = tokens[0].split(",", -1);
-                int tmpMask = 0;
+            for (int i = 0; i < methods.length; i++) {
+                boolean found = false;
 
-                for (int i = 0; i < methods.length; i++) {
-                    boolean found = false;
+                for (int j = 0; j < HTTP_METHODS.length; j++) {
+                    if (methods[i].equals(HTTP_METHODS[j])) {
+                        tmpMask |= HTTP_MASKS[j];
+                        found = true;
 
-                    for (int j = 0; j < HTTP_METHODS.length; j++) {
-                        if (methods[i].equals(HTTP_METHODS[j])) {
-                            tmpMask |= HTTP_MASKS[j];
-                            found = true;
-
-                            break;
-                        }
+                        break;
                     }
-                    if (!found) throw new IllegalArgumentException("Invalid HTTPMethodSpec");
                 }
-                this.mask = tmpMask;
+                if (!found) throw new IllegalArgumentException("Invalid HTTPMethodSpec");
             }
-
-            if (tokens.length == 2) {
-                if (!parseTransportType) throw new IllegalArgumentException("Invalid HTTPMethodSpec");
-
-                if (tokens[1].equals("NONE")) {
-                    this.transport = NONE;
-                } else if (tokens[1].equals("INTEGRAL")) {
-                    this.transport = INTEGRAL;
-                } else if (tokens[1].equals("CONFIDENTIAL")) {
-                    this.transport = CONFIDENTIAL;
-                } else {
-                    throw new IllegalArgumentException("Invalid transportType: " + tokens[1]);
-                }
-            } else {
-                if (parseTransportType)
-                    this.transport = NONE;
-                else
-                    this.transport = NA;
-            }
+            this.mask = tmpMask;
         }
     }
 
