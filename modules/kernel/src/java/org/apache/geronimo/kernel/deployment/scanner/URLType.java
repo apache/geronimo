@@ -65,12 +65,20 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipException;
 
 /**
+ * The URLType class assigns type to resources, i.e. files or URLs.
+ * <p>
+ * The following types are available:
+ * <ul>
+ *  <li><b>UNPACKED_ARCHIVE</b> - directory with META-INF/MANIFEST.MF 
+ *  <li><b>PACKED_ARCHIVE</b> - file with META-INF/MANIFEST.MF
+ *  <li><b>COLLECTION</b> - directory with no META-INF/MANIFEST.MF
+ *  <li><b>RESOURCE</b> -  none of the above
+ * </ul>
  *
- *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:33 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/12 01:31:55 $
  */
 public class URLType {
-    public static final String MANIFEST_LOCATON = "META-INF/MANIFEST.MF";
+    public static final String MANIFEST_LOCATION = "META-INF/MANIFEST.MF";
 
     public static final URLType RESOURCE = new URLType("RESOURCE");
     public static final URLType COLLECTION = new URLType("COLLECTION");
@@ -81,7 +89,7 @@ public class URLType {
         if (file.isDirectory()) {
             // file is a directory - see if it has a manifest
             // we check for an actual manifest file to keep things consistent with a packed archive
-            if (new File(file, MANIFEST_LOCATON).exists()) {
+            if (new File(file, MANIFEST_LOCATION).exists()) {
                 return UNPACKED_ARCHIVE;
             } else {
                 return COLLECTION;
@@ -99,9 +107,16 @@ public class URLType {
         }
     }
 
+    /**
+     * Returns the type of url
+     * 
+     * @param url 
+     * @return type of the url
+     * @throws IOException whenever there're problems with accessing portion of the url
+     */
     public static URLType getType(URL url) throws IOException {
         if (url.toString().endsWith("/")) {
-            URL metaInfURL = new URL(url, MANIFEST_LOCATON);
+            URL metaInfURL = new URL(url, MANIFEST_LOCATION);
             URLConnection urlConnection = metaInfURL.openConnection();
             urlConnection.connect();
             try {
