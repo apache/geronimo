@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Revision: 1.19 $ $Date: 2004/07/25 08:29:05 $ -->
+<!-- $Revision: 1.20 $ $Date: 2004/07/28 02:08:03 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -33,7 +33,7 @@
     <j:set var="project.root" value="${pom.parentBasedir().getParentFile().getCanonicalFile()}"/>
 
     <!-- Determine what the top-level project root is -->
-    <j:set var="distDir" value="${project.root}/target"/>
+    <j:set var="distDir" value="${project.root}/${pom.groupId}-${pom.currentVersion}"/>
 
     <!-- Load the global properties -->
     <ant:property file="${project.root}/etc/global.properties"/>
@@ -129,6 +129,11 @@
                     </j:if>
                 </j:forEach>
             </ant:fileset>
+        </ant:copy>
+
+        <ant:echo message="${project.root}" />
+        <ant:copy todir="${distDir}">
+          <fileset dir="${project.root}" includes="*.txt,STATUS" />
         </ant:copy>
 
         <!-- bootstrap the deployer -->
