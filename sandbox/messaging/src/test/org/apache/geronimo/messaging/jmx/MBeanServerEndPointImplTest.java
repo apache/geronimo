@@ -27,13 +27,14 @@ import junit.framework.TestCase;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/24 12:12:47 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/27 14:31:50 $
  */
 public class MBeanServerEndPointImplTest extends TestCase
 {
 
     public void testMBeanServerType() throws Exception {
         Kernel kernel = new Kernel(); 
+        kernel.boot();
         MBeanServerEndPointImpl serverEndPoint =
             new MBeanServerEndPointImpl(new MockNode(), "", kernel);
         MBeanServer server = serverEndPoint.getMBeanServer();
