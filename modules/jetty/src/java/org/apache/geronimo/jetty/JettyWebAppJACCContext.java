@@ -90,6 +90,8 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
 
     private PathMap _constraintMap = new PathMap();
 
+    private String formLoginPath;
+
     public JettyWebAppJACCContext() {
         this(null, null, null, null, null, null, null, null, null, null, null, null);
     }
@@ -205,6 +207,12 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
      * @throws IOException
      */
     public boolean checkSecurityConstraints(String pathInContext, HttpRequest request, HttpResponse response) throws HttpException, IOException {
+
+        if (formLoginPath != null) {
+            String pathToBeTested = (pathInContext.indexOf('?') > 0 ? pathInContext.substring(0, pathInContext.indexOf('?')) : pathInContext);
+
+            if (pathToBeTested.equals(formLoginPath)) return true;
+        }
 
         try {
             Principal user = obtainUser(pathInContext, request, response);
@@ -366,6 +374,14 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
     public void doStart() throws WaitingException, Exception {
 
         super.doStart();
+
+        Authenticator authenticator = getAuthenticator();
+        if (authenticator instanceof FormAuthenticator) {
+            formLoginPath = ((FormAuthenticator) authenticator).getLoginPage();
+            if (formLoginPath.indexOf('?') > 0) {
+                formLoginPath = formLoginPath.substring(0, formLoginPath.indexOf('?'));
+            }
+        }
 
         /**
          * Register our default principal with the ContextManager
