@@ -19,6 +19,7 @@ package org.apache.geronimo.client;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import javax.management.ObjectName;
+import javax.security.auth.Subject;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -26,6 +27,9 @@ import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.security.util.ConfigurationUtil;
+import org.apache.geronimo.security.ContextManager;
 
 /**
  * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
@@ -36,13 +40,15 @@ public final class AppClientContainer {
     private final String mainClassName;
     private final AppClientPlugin jndiContext;
     private final ObjectName appClientModuleName;
+    private final Subject defaultSubject;
     private final Method mainMethod;
     private final ClassLoader classLoader;
     private final Kernel kernel;
     private final TransactionContextManager transactionContextManager;
 
     public AppClientContainer(String mainClassName, 
-                              ObjectName appClientModuleName, 
+                              ObjectName appClientModuleName,
+                              DefaultPrincipal defaultPrincipal,
                               AppClientPlugin jndiContext,
                               TransactionContextManager transactionContextManager,
                               ClassLoader classLoader,
@@ -50,6 +56,11 @@ public final class AppClientContainer {
                               ) throws Exception {
         this.mainClassName = mainClassName;
         this.appClientModuleName = appClientModuleName;
+        if (defaultPrincipal != null) {
+            defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal);
+        } else {
+            defaultSubject = null;
+        }
         this.classLoader = classLoader;
         this.kernel = kernel;
         this.jndiContext = jndiContext;
@@ -80,7 +91,9 @@ public final class AppClientContainer {
         thread.setContextClassLoader(classLoader);
         TransactionContext oldTransactionContext = transactionContextManager.getContext();
         TransactionContext currentTransactionContext = null;
+        Subject oldCurrentCaller = ContextManager.getCurrentCaller();
         try {
+            ContextManager.setCurrentCaller(defaultSubject);
             jndiContext.startClient(appClientModuleName, kernel, classLoader);
             currentTransactionContext = transactionContextManager.newUnspecifiedTransactionContext();
             mainMethod.invoke(null, new Object[]{args});
@@ -99,6 +112,7 @@ public final class AppClientContainer {
             thread.setContextClassLoader(contextClassLoader);
             transactionContextManager.setContext(oldTransactionContext);
             currentTransactionContext.commit();
+            ContextManager.setCurrentCaller(oldCurrentCaller);
         }
     }
 
@@ -110,6 +124,7 @@ public final class AppClientContainer {
         infoFactory.addOperation("main", new Class[]{String[].class});
         infoFactory.addAttribute("mainClassName", String.class, true);
         infoFactory.addAttribute("appClientModuleName", ObjectName.class, true);
+        infoFactory.addAttribute("defaultPrincipal", DefaultPrincipal.class, true);
         infoFactory.addReference("JNDIContext", AppClientPlugin.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.JTA_RESOURCE);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
@@ -117,8 +132,9 @@ public final class AppClientContainer {
 
 
         infoFactory.setConstructor(new String[]{"mainClassName", 
-                                                "appClientModuleName", 
-                                                "JNDIContext", 
+                                                "appClientModuleName",
+                                                "defaultPrincipal",
+                                                "JNDIContext",
                                                 "TransactionContextManager",
                                                 "classLoader", 
                                                 "kernel"                                   

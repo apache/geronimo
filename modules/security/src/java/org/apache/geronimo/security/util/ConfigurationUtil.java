@@ -21,14 +21,18 @@ import java.lang.reflect.Constructor;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+import java.util.Set;
 import javax.security.jacc.PolicyContext;
 import javax.security.jacc.PolicyContextException;
 import javax.security.jacc.PolicyContextHandler;
 import javax.security.auth.x500.X500Principal;
+import javax.security.auth.Subject;
 
 import org.apache.geronimo.security.PrimaryRealmPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.deploy.Principal;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.common.GeronimoSecurityException;
 
 
 /**
@@ -109,6 +113,40 @@ public class ConfigurationUtil {
             return null;
         }
     }
+
+    /**
+     * Generate the default principal from the security config.
+     *
+     * @param defaultPrincipal
+     * @return the default principal
+     */
+    public static Subject generateDefaultSubject(DefaultPrincipal defaultPrincipal) throws GeronimoSecurityException {
+        if (defaultPrincipal == null) {
+            throw new GeronimoSecurityException("No DefaultPrincipal configuration supplied");
+        }
+        Subject defaultSubject = new Subject();
+
+        RealmPrincipal realmPrincipal = generateRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getRealmName());
+        if (realmPrincipal == null) {
+            throw new GeronimoSecurityException("Unable to create realm principal");
+        }
+        PrimaryRealmPrincipal primaryRealmPrincipal = generatePrimaryRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getRealmName());
+        if (primaryRealmPrincipal == null) {
+            throw new GeronimoSecurityException("Unable to create primary realm principal");
+        }
+
+        defaultSubject.getPrincipals().add(realmPrincipal);
+        defaultSubject.getPrincipals().add(primaryRealmPrincipal);
+
+        Set namedUserPasswordCredentials = defaultPrincipal.getNamedUserPasswordCredentials();
+        if (namedUserPasswordCredentials != null) {
+            defaultSubject.getPrivateCredentials().addAll(namedUserPasswordCredentials);
+        }
+
+        return defaultSubject;
+    }
+
+
 
     /**
      * A simple helper method to register PolicyContextHandlers

@@ -58,10 +58,11 @@ public class SEIFactoryImpl implements SEIFactory, Serializable {
     private final Map typeDescriptors;
     private final URL location;
     private final List handlerInfos;
+    private final String credentialsName;
     private transient HandlerInfoChainFactory handlerInfoChainFactory;
     private transient OperationInfo[] sortedOperationInfos;
 
-    public SEIFactoryImpl(QName serviceName, String portName, Class serviceEndpointClass, OperationInfo[] operationInfos, Object serviceImpl, List typeMappings, Map typeDescriptors, URL location, List handlerInfos, ClassLoader classLoader) throws ClassNotFoundException {
+    public SEIFactoryImpl(QName serviceName, String portName, Class serviceEndpointClass, OperationInfo[] operationInfos, Object serviceImpl, List typeMappings, Map typeDescriptors, URL location, List handlerInfos, ClassLoader classLoader, String credentialsName) throws ClassNotFoundException {
         this.serviceName = serviceName;
         this.portQName = new QName("", portName);
         this.serviceEndpointClass = serviceEndpointClass;
@@ -74,6 +75,7 @@ public class SEIFactoryImpl implements SEIFactory, Serializable {
         this.typeDescriptors = typeDescriptors;
         this.location = location;
         this.handlerInfos = handlerInfos;
+        this.credentialsName = credentialsName;
         this.handlerInfoChainFactory = new HandlerInfoChainFactory(handlerInfos);
         sortedOperationInfos = new OperationInfo[FastClass.create(serviceEndpointClass).getMaxIndex() + 1];
         for (int i = 0; i < operationInfos.length; i++) {
@@ -98,7 +100,7 @@ public class SEIFactoryImpl implements SEIFactory, Serializable {
     public Remote createServiceEndpoint() throws ServiceException {
         Service service = ((ServiceImpl)serviceImpl).getService();
         GenericServiceEndpoint serviceEndpoint = new GenericServiceEndpoint(portQName, service, typeMappings, location);
-        Callback callback = new ServiceEndpointMethodInterceptor(serviceEndpoint, sortedOperationInfos);
+        Callback callback = new ServiceEndpointMethodInterceptor(serviceEndpoint, sortedOperationInfos, credentialsName);
         Callback[] callbacks = new Callback[]{SerializableNoOp.INSTANCE, callback};
         Enhancer.registerCallbacks(serviceEndpointClass, callbacks);
         try {
@@ -116,7 +118,7 @@ public class SEIFactoryImpl implements SEIFactory, Serializable {
 
     private Object readResolve() throws ObjectStreamException {
         try {
-            return new SEIFactoryImpl(serviceName, portQName.getLocalPart(), serviceEndpointClass, operationInfos, serviceImpl, typeMappings, typeDescriptors, location, handlerInfos, null);
+            return new SEIFactoryImpl(serviceName, portQName.getLocalPart(), serviceEndpointClass, operationInfos, serviceImpl, typeMappings, typeDescriptors, location, handlerInfos, null, credentialsName);
         } catch (ClassNotFoundException e) {
             throw new InvalidClassException(GenericServiceEndpoint.class.getName(), "this is impossible");
         }

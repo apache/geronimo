@@ -106,7 +106,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
                                Map rolePermissions) throws PolicyContextException, ClassNotFoundException {
 
         this.policyContextID = policyContextID;
-        this.defaultSubject = generateDefaultSubject(securityConfig);
+        this.defaultSubject = ConfigurationUtil.generateDefaultSubject(securityConfig.getDefaultPrincipal());
 
         /**
          * Register our default subject with the ContextManager
@@ -135,31 +135,6 @@ public class TomcatGeronimoRealm extends JAASRealm {
             checked.add(permission);
         }
     }
-
-    protected Subject generateDefaultSubject(Security securityConfig)
-            throws GeronimoSecurityException {
-        DefaultPrincipal defaultPrincipal = securityConfig.getDefaultPrincipal();
-        if (defaultPrincipal == null) {
-            throw new GeronimoSecurityException("Unable to generate default principal");
-        }
-
-        Subject subject = new Subject();
-
-        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getRealmName());
-        if (realmPrincipal == null) {
-            throw new GeronimoSecurityException("Unable to create realm principal");
-        }
-        PrimaryRealmPrincipal primaryRealmPrincipal = ConfigurationUtil.generatePrimaryRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getRealmName());
-        if (primaryRealmPrincipal == null) {
-            throw new GeronimoSecurityException("Unable to create primary realm principal");
-        }
-
-        subject.getPrincipals().add(realmPrincipal);
-        subject.getPrincipals().add(primaryRealmPrincipal);
-
-        return subject;
-    }
-
 
     /**
      * Enforce any user data constraint required by the security constraint

@@ -17,6 +17,7 @@
 package org.apache.geronimo.security.deploy;
 
 import java.io.Serializable;
+import java.util.Set;
 
 
 /**
@@ -25,6 +26,8 @@ import java.io.Serializable;
 public class DefaultPrincipal implements Serializable {
     private String realmName;
     private Principal principal;
+
+    private Set namedUserPasswordCredentials;
 
     public String getRealmName() {
         return realmName;
@@ -40,5 +43,13 @@ public class DefaultPrincipal implements Serializable {
 
     public void setPrincipal(Principal principal) {
         this.principal = principal;
+    }
+
+    public Set getNamedUserPasswordCredentials() {
+        return namedUserPasswordCredentials;
+    }
+
+    public void setNamedUserPasswordCredentials(Set namedUserPasswordCredentials) {
+        this.namedUserPasswordCredentials = namedUserPasswordCredentials;
     }
 }

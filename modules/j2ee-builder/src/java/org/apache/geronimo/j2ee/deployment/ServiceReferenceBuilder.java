@@ -33,7 +33,7 @@ import org.apache.geronimo.xbeans.j2ee.ServiceRefHandlerType;
 public interface ServiceReferenceBuilder {
 
     //it could return a Service or a Reference, we don't care
-    Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Map portLocationMap, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException;
+    Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Map portLocationMap, Map credentialsNameMap, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException;
 
     //TODO a locate port method for links.
 

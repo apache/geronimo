@@ -17,6 +17,7 @@
 package org.apache.geronimo.security.deployment;
 
 import java.util.Set;
+import java.util.HashSet;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
@@ -25,6 +26,7 @@ import org.apache.geronimo.security.deploy.Principal;
 import org.apache.geronimo.security.deploy.Realm;
 import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
+import org.apache.geronimo.security.jaas.NamedUsernamePasswordCredential;
 import org.apache.geronimo.xbeans.geronimo.security.GerDefaultPrincipalType;
 import org.apache.geronimo.xbeans.geronimo.security.GerDistinguishedNameType;
 import org.apache.geronimo.xbeans.geronimo.security.GerPrincipalType;
@@ -32,6 +34,7 @@ import org.apache.geronimo.xbeans.geronimo.security.GerRealmType;
 import org.apache.geronimo.xbeans.geronimo.security.GerRoleMappingsType;
 import org.apache.geronimo.xbeans.geronimo.security.GerRoleType;
 import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
+import org.apache.geronimo.xbeans.geronimo.security.GerNamedUsernamePasswordCredentialType;
 
 
 /**
@@ -91,19 +94,27 @@ public class SecurityBuilder {
 
         security.getRoleNames().addAll(roleNames);
 
-        DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
-        if (securityType.isSetDefaultPrincipal()) {
-            GerDefaultPrincipalType defaultPrincipalType = securityType.getDefaultPrincipal();
-
-            defaultPrincipal.setRealmName(defaultPrincipalType.getRealmName().trim());
-            defaultPrincipal.setPrincipal(buildPrincipal(defaultPrincipalType.getPrincipal()));
-
-        } else {
-            throw new DeploymentException("No default principal configured");
-        }
-        security.setDefaultPrincipal(defaultPrincipal);
+        security.setDefaultPrincipal(buildDefaultPrincipal(securityType.getDefaultPrincipal()));
 
         return security;
+    }
+
+    public static DefaultPrincipal buildDefaultPrincipal(GerDefaultPrincipalType defaultPrincipalType) {
+        DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
+
+        defaultPrincipal.setRealmName(defaultPrincipalType.getRealmName().trim());
+        defaultPrincipal.setPrincipal(buildPrincipal(defaultPrincipalType.getPrincipal()));
+        GerNamedUsernamePasswordCredentialType[] namedCredentials = defaultPrincipalType.getNamedUsernamePasswordCredentialArray();
+        if (namedCredentials.length > 0) {
+            Set defaultCredentialSet = new HashSet();
+            for (int i = 0; i < namedCredentials.length; i++) {
+                GerNamedUsernamePasswordCredentialType namedCredentialType = namedCredentials[i];
+                NamedUsernamePasswordCredential namedCredential = new NamedUsernamePasswordCredential(namedCredentialType.getUsername(), namedCredentialType.getPassword().toCharArray(), namedCredentialType.getName());
+                defaultCredentialSet.add(namedCredential);
+            }
+            defaultPrincipal.setNamedUserPasswordCredentials(defaultCredentialSet);
+        }
+        return defaultPrincipal;
     }
 
     public static Principal buildPrincipal(GerPrincipalType principalType) {

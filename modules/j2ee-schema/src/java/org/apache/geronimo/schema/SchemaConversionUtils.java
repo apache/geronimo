@@ -373,7 +373,7 @@ public class SchemaConversionUtils {
             while (cursor.hasNextToken()) {
                 if (cursor.isStart()) {
                     String localName = cursor.getName().getLocalPart();
-                    if (localName.equals("security")) {
+                    if (localName.equals("security") || localName.equals("default-principal")) {
                         convertElementToSchema(cursor, end, GERONIMO_SECURITY_NAMESPACE);
                     }
                 }

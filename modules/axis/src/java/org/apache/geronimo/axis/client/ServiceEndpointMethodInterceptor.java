@@ -18,15 +18,15 @@ package org.apache.geronimo.axis.client;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Set;
-
 import javax.security.auth.Subject;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import org.apache.axis.client.Call;
 import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.jaas.UsernamePasswordCredential;
+import org.apache.geronimo.security.jaas.NamedUsernamePasswordCredential;
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -35,10 +35,12 @@ public class ServiceEndpointMethodInterceptor implements MethodInterceptor{
 
     private final GenericServiceEndpoint stub;
     private final OperationInfo[] operations;
+    private final String credentialsName;
 
-    public ServiceEndpointMethodInterceptor(GenericServiceEndpoint stub, OperationInfo[] operations) {
+    public ServiceEndpointMethodInterceptor(GenericServiceEndpoint stub, OperationInfo[] operations, String credentialsName) {
         this.stub = stub;
         this.operations = operations;
+        this.credentialsName = credentialsName;
     }
 
     public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
@@ -54,17 +56,26 @@ public class ServiceEndpointMethodInterceptor implements MethodInterceptor{
         operationInfo.prepareCall(call);
 
         stub.setUpCall(call);
-        Subject subject = ContextManager.getNextCaller();
-        if (subject == null) {
-            //is this an error?
-        } else {
-            Set creds = subject.getPrivateCredentials(UsernamePasswordCredential.class);
-            if (creds.size() != 1) {
-                throw new SecurityException("Non-unique UsernamePasswordCredential, count: " + creds.size());
+        if (credentialsName != null) {
+            Subject subject = ContextManager.getCurrentCaller();
+            if (subject == null) {
+                throw new IllegalStateException("Subject missing but authentication turned on");
+            } else {
+                Set creds = subject.getPrivateCredentials(NamedUsernamePasswordCredential.class);
+                boolean found = false;
+                for (Iterator iterator = creds.iterator(); iterator.hasNext();) {
+                    NamedUsernamePasswordCredential namedUsernamePasswordCredential = (NamedUsernamePasswordCredential) iterator.next();
+                    if (credentialsName.equals(namedUsernamePasswordCredential.getName())) {
+                        call.setUsername(namedUsernamePasswordCredential.getUsername());
+                        call.setPassword(new String(namedUsernamePasswordCredential.getPassword()));
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    throw new IllegalStateException("no NamedUsernamePasswordCredential found for name "  + credentialsName);
+                }
             }
-            UsernamePasswordCredential usernamePasswordCredential = (UsernamePasswordCredential) creds.iterator().next();
-            call.setUsername(usernamePasswordCredential.getUsername());
-            call.setPassword(new String(usernamePasswordCredential.getPassword()));
         }
         java.lang.Object response = call.invoke(objects);
 

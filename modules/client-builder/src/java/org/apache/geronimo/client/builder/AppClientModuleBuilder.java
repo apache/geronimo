@@ -70,6 +70,8 @@ import org.apache.geronimo.xbeans.geronimo.client.GerResourceType;
 import org.apache.geronimo.xbeans.j2ee.ApplicationClientDocument;
 import org.apache.geronimo.xbeans.j2ee.ApplicationClientType;
 import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
@@ -208,6 +210,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
             // if we got one extract the validate it otherwise create a default one
             if (gerAppClient != null) {
+                gerAppClient = (GerApplicationClientType) SchemaConversionUtils.convertToGeronimoSecuritySchema(gerAppClient);
                 gerAppClient = (GerApplicationClientType) SchemaConversionUtils.convertToGeronimoNamingSchema(gerAppClient);
                 gerAppClient = (GerApplicationClientType) SchemaConversionUtils.convertToGeronimoServiceSchema(gerAppClient);
                 SchemaConversionUtils.validateDD(gerAppClient);
@@ -280,7 +283,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         // get the app client main class
         JarFile moduleFile = module.getModuleFile();
         String mainClasss = null;
-        String classPath = null;
+//        String classPath = null;
         try {
             Manifest manifest = moduleFile.getManifest();
             if (manifest == null) {
@@ -290,7 +293,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             if (mainClasss == null) {
                 throw new DeploymentException("App client module jar does not have Main-Class defined in the manifest: " + moduleFile.getName());
             }
-            classPath = manifest.getMainAttributes().getValue(Attributes.Name.CLASS_PATH);
+           String classPath = manifest.getMainAttributes().getValue(Attributes.Name.CLASS_PATH);
             if (module.isStandAlone() && classPath != null) {
                 throw new DeploymentException("Manifest class path entry is not allowed in a standalone jar (J2EE 1.4 Section 8.2)");
             }
@@ -456,12 +459,17 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 }
                 appClientDeploymentContext.addGBean(jndiContextGBeanData);
 
+
                 // finally add the app client container
                 ObjectName appClientContainerName = ObjectName.getInstance("geronimo.client:type=ClientContainer");
                 GBeanData appClientContainerGBeanData = new GBeanData(appClientContainerName, AppClientContainer.GBEAN_INFO);
                 try {
                     appClientContainerGBeanData.setAttribute("mainClassName", mainClasss);
                     appClientContainerGBeanData.setAttribute("appClientModuleName", appClientModuleName);
+                    if (geronimoAppClient.isSetDefaultPrincipal()) {
+                           DefaultPrincipal defaultPrincipal = SecurityBuilder.buildDefaultPrincipal(geronimoAppClient.getDefaultPrincipal());
+                        appClientContainerGBeanData.setAttribute("defaultPrincipal", defaultPrincipal);
+                       }
                     appClientContainerGBeanData.setReferencePattern("JNDIContext", jndiContextName);
                     appClientContainerGBeanData.setReferencePattern("TransactionContextManager", transactionContextManagerObjectName);
                 } catch (Exception e) {

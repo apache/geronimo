@@ -189,6 +189,7 @@
             <xsd:element name="port-name" type="xsd:string"/>
             <xsd:group ref="gernaming:serverGroup" minOccurs="0"/>
             <xsd:element name="uri" type="xsd:string"/>
+            <xsd:element name="credentials-name" type="xsd:string" minOccurs="0"/> 
         </xsd:sequence>
     </xsd:complexType>
 
