@@ -18,6 +18,8 @@
 package org.apache.geronimo.deployment.plugin.local;
 
 import java.net.URI;
+import java.io.StringWriter;
+import java.io.PrintWriter;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.TargetModuleID;
 
@@ -26,7 +28,7 @@ import org.apache.geronimo.kernel.KernelMBean;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/06/02 06:50:41 $
+ * @version $Revision: 1.8 $ $Date: 2004/09/09 14:14:41 $
  */
 public class StopCommand extends CommandSupport {
     private final KernelMBean kernel;
@@ -49,7 +51,10 @@ public class StopCommand extends CommandSupport {
             }
             complete("Completed");
         } catch (Exception e) {
-            fail(e.getMessage());
+            StringWriter writer = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(writer);
+            e.printStackTrace(printWriter);
+            fail(writer.toString());
         }
     }
 }

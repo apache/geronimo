@@ -17,6 +17,8 @@
 package org.apache.geronimo.deployment.plugin.local;
 
 import java.net.URI;
+import java.io.StringWriter;
+import java.io.PrintWriter;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.management.ObjectName;
@@ -26,7 +28,7 @@ import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/06/24 02:50:13 $
+ * @version $Revision: 1.2 $ $Date: 2004/09/09 14:14:41 $
  */
 public class UndeployCommand extends CommandSupport {
     private static final String[] UNINSTALL_SIG = {URI.class.getName()};
@@ -55,7 +57,10 @@ public class UndeployCommand extends CommandSupport {
             }
             complete("Completed");
         } catch (Exception e) {
-            fail(e.getMessage());
+            StringWriter writer = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(writer);
+            e.printStackTrace(printWriter);
+            fail(writer.toString());
         }
     }
 }
