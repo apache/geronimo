@@ -70,7 +70,7 @@ import org.apache.commons.logging.Log;
  * This log wrapper caches the trace, debug and info enabled flags.  The flags are updated
  * by a single timer task for all logs.  The error, warn and fatal levels are always enabled.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 21:54:45 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 22:45:00 $
  */
 public final class CachingLog4jLog implements Log {
     // @todo this need to be moved to a log manager MBean, but this works as a proof of concept
@@ -114,17 +114,15 @@ public final class CachingLog4jLog implements Log {
     private boolean debugEnabled;
     private boolean infoEnabled;
 
-    public CachingLog4jLog() {
-        logger = null;
-    }
-
     public CachingLog4jLog(String name) {
         logger = Logger.getLogger(name);
+        updateLevelInfo();
         addLog(this);
     }
 
     public CachingLog4jLog(Logger logger) {
         this.logger = logger;
+        updateLevelInfo();
         addLog(this);
     }
 
