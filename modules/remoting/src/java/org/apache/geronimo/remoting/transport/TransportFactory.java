@@ -60,7 +60,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/19 11:15:03 $
  */
 public abstract class TransportFactory {
 
@@ -100,6 +100,17 @@ public abstract class TransportFactory {
 
     }
 
+    public static boolean unexport(Object object) {
+        boolean wasExported = false;
+        Iterator iterator = factories.iterator();
+        while (iterator.hasNext()) {
+            TransportFactory i = (TransportFactory) iterator.next();
+            if( i.doUnexport(object) )
+                wasExported = true;
+        }
+        return wasExported;
+    }
+
     static public void addFactory(TransportFactory tf) {
         factories.add(tf);
     }
@@ -111,5 +122,6 @@ public abstract class TransportFactory {
     abstract protected boolean handles(URI uri);
     abstract public TransportClient createClient();
     abstract public TransportServer createSever();
+    abstract public boolean doUnexport(Object object);
 
 }

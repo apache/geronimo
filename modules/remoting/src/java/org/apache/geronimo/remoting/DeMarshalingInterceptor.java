@@ -63,7 +63,7 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/19 11:15:03 $
  */
 public class DeMarshalingInterceptor implements Interceptor {
 
@@ -98,18 +98,25 @@ public class DeMarshalingInterceptor implements Interceptor {
         Thread currentThread = Thread.currentThread();
         ClassLoader orig = currentThread.getContextClassLoader();
         try {
-            currentThread.setContextClassLoader(classloader);
-
-            MarshalledObject mo = InvocationSupport.getMarshaledValue(invocation);
-            Invocation marshalledInvocation = (Invocation) mo.get();
+            Invocation marshalledInvocation;
+            
+            MarshalledObject mo = InvocationSupport.getMarshaledValue(invocation);;
+            try {
+                currentThread.setContextClassLoader(classloader);
+                marshalledInvocation = (Invocation) mo.get();
+            } catch (Throwable e) {
+                // Could not deserialize the invocation...
+                mo.set(new ThrowableWrapper(e));
+                return new SimpleInvocationResult(false, mo);                
+            }
 
             try {
                 InvocationResult rc = getNext().invoke(marshalledInvocation);
                 mo.set(rc.getResult());
-                return new SimpleInvocationResult(mo);
+                return new SimpleInvocationResult(true, mo);
             } catch (Throwable e) {
                 mo.set(new ThrowableWrapper(e));
-                return new SimpleInvocationResult(mo);
+                return new SimpleInvocationResult(true, mo);
             }
 
         } finally {

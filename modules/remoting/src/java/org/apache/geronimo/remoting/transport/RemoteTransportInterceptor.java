@@ -73,7 +73,7 @@ import org.apache.geronimo.remoting.MarshalledObject;
 import org.apache.geronimo.remoting.TransportInterceptor;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/19 11:15:03 $
  */
 public class RemoteTransportInterceptor implements TransportInterceptor, Externalizable {
 
@@ -102,12 +102,12 @@ public class RemoteTransportInterceptor implements TransportInterceptor, Externa
         msg.pushMarshaledObject(mo);
         if (type == InvocationType.REQUEST) {
             msg = transportClient.sendRequest(remoteURI, msg);
-            return new SimpleInvocationResult(msg.popMarshaledObject());
+            return new SimpleInvocationResult(true, msg.popMarshaledObject());
         } else {
             transportClient.sendDatagram(remoteURI, msg);
             MarshalledObject rcmo = transportClient.createMarshalledObject();
             rcmo.set(null);
-            return new SimpleInvocationResult(rcmo);
+            return new SimpleInvocationResult(true, rcmo);
         }
     }
 

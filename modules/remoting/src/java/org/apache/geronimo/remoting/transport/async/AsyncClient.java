@@ -56,11 +56,14 @@
  */
 package org.apache.geronimo.remoting.transport.async;
 
+import java.io.IOException;
 import java.net.URI;
+import java.rmi.Remote;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.remoting.MarshalledObject;
+import org.apache.geronimo.remoting.TransportContext;
 import org.apache.geronimo.remoting.transport.BytesMarshalledObject;
 import org.apache.geronimo.remoting.transport.Msg;
 import org.apache.geronimo.remoting.transport.TransportClient;
@@ -78,7 +81,7 @@ import org.apache.geronimo.remoting.transport.TransportException;
  * transport will take advantage of the NIO 
  * classes to further reduce the resources used on the server.
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/19 11:15:03 $
  */
 public class AsyncClient implements TransportClient {
 
@@ -113,7 +116,14 @@ public class AsyncClient implements TransportClient {
      * @see org.apache.geronimo.remoting.transport.TransportClient#createMarshalledObject()
      */
     public MarshalledObject createMarshalledObject() {
-        return new BytesMarshalledObject();
+        return new BytesMarshalledObject(new TransportContext() {
+            public Object writeReplace(Object proxy) throws IOException {
+                if (proxy instanceof Remote) {
+                    return Registry.instance.exportObject(proxy);
+                }
+                return proxy;
+            }
+        });
     }
 
 }

@@ -63,7 +63,7 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/19 11:15:03 $
  */
 public class MarshalingInterceptor implements Interceptor, Serializable {
     TransportInterceptor next;
@@ -72,24 +72,39 @@ public class MarshalingInterceptor implements Interceptor, Serializable {
      * @see org.apache.geronimo.core.service.AbstractInterceptor#invoke(org.apache.geronimo.core.service.Invocation)
      */
     public InvocationResult invoke(Invocation invocation) throws Throwable {
-        // Marshall the invocation and store it.
-        MarshalledObject mo = next.createMarshalledObject();
-        mo.set(invocation);
-        InvocationSupport.putMarshaledValue(invocation, mo);
 
-        InvocationResult rc = next.invoke(invocation);
+        ClassLoader originalLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            
+            // Marshall the invocation and store it.
+            MarshalledObject mo = next.createMarshalledObject();
+            mo.set(invocation);
+            InvocationSupport.putMarshaledValue(invocation, mo);
 
-        // Demarshal the result.
-        mo = (MarshalledObject) rc.getResult();
-        Object result = mo.get();
+            InvocationResult rc = next.invoke(invocation);
 
-        // Are we demarshalling a thrown exception.
-        if (result instanceof DeMarshalingInterceptor.ThrowableWrapper) {
-            throw ((DeMarshalingInterceptor.ThrowableWrapper) result).exception;
+            // Demarshal the result.
+            mo = (MarshalledObject) rc.getResult();
+            Object result;
+            try {
+            
+                result = mo.get();
+
+            } catch ( ClassNotFoundException e ) {      
+                // Weird.
+                Thread.currentThread().setContextClassLoader(MarshalingInterceptor.class.getClassLoader());
+                result = mo.get();
+            }
+
+            // Are we demarshalling a thrown exception.
+            if (result instanceof DeMarshalingInterceptor.ThrowableWrapper) {
+                throw ((DeMarshalingInterceptor.ThrowableWrapper) result).exception;
+            }
+            return new SimpleInvocationResult(true, result);
+            
+        } finally {
+            Thread.currentThread().setContextClassLoader(originalLoader);
         }
-
-        return new SimpleInvocationResult(result);
-
     }
 
     /**

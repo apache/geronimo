@@ -53,69 +53,24 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.remoting.router;
+package org.apache.geronimo.remoting;
 
-import java.net.URI;
-
-import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.core.service.SimpleInvocation;
-import org.apache.geronimo.remoting.InterceptorRegistry;
-import org.apache.geronimo.remoting.InvocationSupport;
-import org.apache.geronimo.remoting.MarshalledObject;
-import org.apache.geronimo.remoting.transport.Msg;
-import org.apache.geronimo.remoting.transport.TransportException;
+import java.io.IOException;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
+ * @version $Revision: 1.1 $ $Date: 2003/11/19 11:15:03 $
  */
-public class SimpleInterceptorRegistryRouter implements Router {
+abstract public class TransportContext {
 
-    /**
-     * @see org.apache.geronimo.remoting.transport.Router#sendRequest(java.net.URI, org.apache.geronimo.remoting.transport.Msg)
-     */
-    public Msg sendRequest(URI to, Msg msg) throws TransportException {
-        try {
-            Interceptor interceptor = lookupInterceptorFrom(to);
-            
-            SimpleInvocation invocation = new SimpleInvocation();
-            InvocationSupport.putMarshaledValue(invocation, msg.popMarshaledObject());
-            InvocationSupport.putRemoteURI(invocation, to);
-
-            InvocationResult result = interceptor.invoke(invocation);
-
-            msg = msg.createMsg();
-            msg.pushMarshaledObject((MarshalledObject) result.getResult());
-            return msg;
-
-        } catch (Throwable e) {
-            e.printStackTrace();
-            throw new TransportException(e.getMessage());
-        }
+    private static final ThreadLocal context = new  ThreadLocal();
+    
+    public static final TransportContext getTransportContext() {
+        return (TransportContext) context.get();
     }
 
-    /**
-     * @see org.apache.geronimo.remoting.transport.Router#sendDatagram(java.net.URI, org.apache.geronimo.remoting.transport.Msg)
-     */
-    public void sendDatagram(URI to, Msg msg) throws TransportException {
-        try {
-            Interceptor interceptor = lookupInterceptorFrom(to);
-            
-            SimpleInvocation invocation = new SimpleInvocation();
-            InvocationSupport.putMarshaledValue(invocation, msg.popMarshaledObject());
-            InvocationSupport.putRemoteURI(invocation, to);
-
-            InvocationResult result = interceptor.invoke(invocation);
-
-        } catch (Throwable e) {
-            throw new TransportException(e.getMessage());
-        }
+    public static final void setTransportContext(TransportContext c) {
+        context.set(c);
     }
-
-    protected Interceptor lookupInterceptorFrom(URI to) throws Throwable {
-        Long x = new Long(to.getFragment());
-        return InterceptorRegistry.instance.lookup(x);
-    }
-
-
+    
+    public abstract Object writeReplace(Object proxy) throws IOException;
 }

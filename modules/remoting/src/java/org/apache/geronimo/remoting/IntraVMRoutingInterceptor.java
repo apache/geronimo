@@ -66,7 +66,7 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.remoting.transport.NullTransportInterceptor;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/19 11:15:03 $
  */
 public class IntraVMRoutingInterceptor implements Interceptor, Externalizable {
 
@@ -97,6 +97,11 @@ public class IntraVMRoutingInterceptor implements Interceptor, Externalizable {
         // app is in.
         DeMarshalingInterceptor deMarshalingInterceptor =
             (DeMarshalingInterceptor) InterceptorRegistry.instance.lookup(deMarshalingInterceptorID);
+        
+        if( deMarshalingInterceptor==null ) {
+            // Forget it.. we will not be able to route locally.
+            return;
+        }
         ClassLoader parent = deMarshalingInterceptor.getClassloader();
         ClassLoader child = Thread.currentThread().getContextClassLoader();
 

@@ -66,8 +66,13 @@ import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 /**
  * Uses JMX Object names to route the request to a JMX object that implements the 
  * JMXTargetMBean interface.
+ * 
+ * This allows you to route invocations to MBeans using URIs like:
+ * async://localhost:3434/JMX#geronimo.jmx:target=MBeanServerStub
+ * 
+ * The MBean that will receive invocations must implement the JMXTarget interface.
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/16 06:36:03 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/19 11:15:03 $
  */
 public class JMXRouter extends AbstractInterceptorRouter {
     

@@ -66,7 +66,7 @@ import org.apache.geronimo.remoting.transport.async.nio.NonBlockingChannel;
 import org.apache.geronimo.remoting.transport.async.nio.NonBlockingServer;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:33 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/19 11:15:03 $
  */
 public class TransportFactory extends org.apache.geronimo.remoting.transport.TransportFactory {
 
@@ -112,6 +112,13 @@ public class TransportFactory extends org.apache.geronimo.remoting.transport.Tra
         if (USE_BLOCKING_IO)
             return new BlockingChannel();
         return new NonBlockingChannel();
+    }
+
+    /**
+     * @see org.apache.geronimo.remoting.transport.TransportFactory#doUnexport(java.lang.Object)
+     */
+    public boolean doUnexport(Object object) {
+        return Registry.instance.unexportObject(object);
     }
 
 }

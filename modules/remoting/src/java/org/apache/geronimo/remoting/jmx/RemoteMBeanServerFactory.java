@@ -54,7 +54,7 @@ import org.apache.geronimo.remoting.MarshalingInterceptor;
 import org.apache.geronimo.remoting.transport.RemoteTransportInterceptor;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/19 11:15:03 $
  */
 public class RemoteMBeanServerFactory extends org.apache.geronimo.enterprise.deploy.server.RemoteMBeanServerFactory {
 
@@ -93,4 +93,6 @@ public class RemoteMBeanServerFactory extends org.apache.geronimo.enterprise.dep
     protected MBeanServer factoryCreate(String hostname) {
         return RemoteMBeanServerFactory.create(hostname);
     }
+    
+    
 }

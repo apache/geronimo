@@ -56,8 +56,13 @@
 
 package org.apache.geronimo.remoting;
 
-import javax.management.MBeanServer;
+import java.rmi.Remote;
 
+import javax.management.MBeanServer;
+import javax.management.Notification;
+import javax.management.NotificationListener;
+
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory;
 
 /**
@@ -67,15 +72,35 @@ import org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory;
  */
 public class JMXRemotingTestMain {
 
-    public void testCheckClassLoaders() throws Exception {
+    public void XtestCheckClassLoaders() throws Exception {
         MBeanServer server = RemoteMBeanServerFactory.create("localhost");
         String[] strings = server.getDomains();
         for(int i=0; i < strings.length; i++){
             System.out.println("domain: "+strings[i]);
         }
     }
+    
+    class MyListner implements NotificationListener, Remote {
+
+        /**
+         * @see javax.management.NotificationListener#handleNotification(javax.management.Notification, java.lang.Object)
+         */
+        public void handleNotification(Notification arg0, Object arg1) {
+            System.out.println("Got notification: "+arg0);
+            System.out.println("                : "+arg1);            
+        }
+        
+    }
+
+    public void testNotificationListner() throws Exception {
+        System.out.println("adding listner..");
+        MBeanServer server = RemoteMBeanServerFactory.create("localhost");
+        server.addNotificationListener(JMXUtil.getObjectName("geronimo.deployment:role=DeploymentController"),new MyListner(),null,null);
+        Thread.sleep(1000*60*5);
+        System.out.println("done..");
+    }
 
     public static void main(String[] args) throws Exception {
-        new JMXRemotingTestMain().testCheckClassLoaders();
+        new JMXRemotingTestMain().testNotificationListner();
     }
 }

@@ -72,7 +72,7 @@ import EDU.oswego.cs.dl.util.concurrent.Sync;
 import EDU.oswego.cs.dl.util.concurrent.TimeoutSync;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/19 11:15:03 $
  */
 abstract public class AbstractInterceptorRouter
     implements GeronimoMBeanTarget, Router
@@ -131,7 +131,8 @@ abstract public class AbstractInterceptorRouter
             InvocationResult result = interceptor.invoke(invocation);
 
             msg = msg.createMsg();
-            msg.pushMarshaledObject((MarshalledObject) result.getResult());
+            Object rc = result.getResult();
+            msg.pushMarshaledObject((MarshalledObject)rc);
             return msg;
 
         } catch (Throwable e) {

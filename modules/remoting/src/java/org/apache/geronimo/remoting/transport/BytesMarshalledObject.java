@@ -70,9 +70,10 @@ import java.lang.reflect.Proxy;
 
 import org.apache.geronimo.common.Classes;
 import org.apache.geronimo.remoting.MarshalledObject;
+import org.apache.geronimo.remoting.TransportContext;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/19 11:15:03 $
  */
 public class BytesMarshalledObject implements MarshalledObject, Externalizable {
 
@@ -112,18 +113,35 @@ public class BytesMarshalledObject implements MarshalledObject, Externalizable {
 
     static class ObjectOutputStreamExt extends ObjectOutputStream {
 
+        private TransportContext transportContext;
+
         /**
          * @param out
          * @throws IOException
          */
-        public ObjectOutputStreamExt(OutputStream out) throws IOException {
+        public ObjectOutputStreamExt(OutputStream out, TransportContext transportContext) throws IOException {
             super(out);
-            // TODO Auto-generated constructor stub
+            this.transportContext = transportContext;
+            enableReplaceObject(transportContext!=null);
         }
 
+        /**
+         * @see java.io.ObjectOutputStream#replaceObject(java.lang.Object)
+         */
+        protected Object replaceObject(Object obj) throws IOException {
+            return transportContext.writeReplace(obj);
+        }
+        
+    }
+
+    static class NullTransportContext extends TransportContext {
+        public Object writeReplace(Object proxy) throws IOException {
+            return proxy;
+        }
     }
 
     private byte data[];
+    private TransportContext transportContext;
 
     public BytesMarshalledObject() {
     }
@@ -132,15 +150,27 @@ public class BytesMarshalledObject implements MarshalledObject, Externalizable {
         set(value);
     }
 
+    public BytesMarshalledObject(TransportContext transportContext) {
+        this.transportContext = transportContext;
+    }
+
+    public BytesMarshalledObject(TransportContext transportContext, Object value) throws IOException {
+        this.transportContext = transportContext;
+        set(value);
+    }
+
     /**
      * @see org.apache.geronimo.remoting.MarshalledObject#set(java.lang.Object)
      */
     public void set(Object value) throws IOException {
+        // Set the transport context so that objects can write replace them selfs by
+        // delegating to the TranportContext to create remote proxies.
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStreamExt os = new ObjectOutputStreamExt(baos);
+        ObjectOutputStreamExt os = new ObjectOutputStreamExt(baos, transportContext);
         os.writeObject(value);
         os.close();
         data = baos.toByteArray();
+
     }
 
     public byte[] getBytes() {

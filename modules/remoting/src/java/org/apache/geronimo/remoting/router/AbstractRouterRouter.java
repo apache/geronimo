@@ -68,7 +68,7 @@ import EDU.oswego.cs.dl.util.concurrent.TimeoutSync;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/19 11:15:03 $
  */
 abstract public class AbstractRouterRouter
     implements GeronimoMBeanTarget, Router
@@ -80,8 +80,6 @@ abstract public class AbstractRouterRouter
      * Allows us to pause invocations when in the stopped state.
      */
     private Sync routerLock = createNewRouterLock();
-
-    public GeronimoMBeanContext geronimoMBeanContext;
 
     /**
      *
@@ -119,8 +117,6 @@ abstract public class AbstractRouterRouter
     public Msg sendRequest(URI to, Msg msg) throws TransportException {
         try {
             routerLock.acquire();
-
-            routerLock.acquire();
             Router next = lookupRouterFrom(to);
             if( next == null )
                 throw new TransportException("No route is available to: "+to);
@@ -157,7 +153,6 @@ abstract public class AbstractRouterRouter
      * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#setMBeanContext(org.apache.geronimo.kernel.service.GeronimoMBeanContext)
      */
     public void setMBeanContext(GeronimoMBeanContext context) {
-        this.geronimoMBeanContext = context;
     }
 
     /**

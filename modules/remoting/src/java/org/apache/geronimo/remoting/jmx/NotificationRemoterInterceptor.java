@@ -56,7 +56,6 @@
 package org.apache.geronimo.remoting.jmx;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
 
 import javax.management.NotificationFilter;
 import javax.management.NotificationListener;
@@ -66,14 +65,12 @@ import org.apache.geronimo.core.service.AbstractInterceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.proxy.ProxyInvocation;
+import org.apache.geronimo.remoting.transport.TransportFactory;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/19 11:15:03 $
  */
 public class NotificationRemoterInterceptor extends AbstractInterceptor {
-
-    
-    HashMap exportedListners = new HashMap();
 
     /**
      * @see org.apache.geronimo.core.service.AbstractInterceptor#invoke(org.apache.geronimo.core.service.Invocation)
@@ -81,39 +78,23 @@ public class NotificationRemoterInterceptor extends AbstractInterceptor {
     public InvocationResult invoke(Invocation invocation) throws Throwable {
         Method method = ProxyInvocation.getMethod(invocation);
         Object[] args = ProxyInvocation.getArguments(invocation);
-                
-        if ( method.getName().equals("addNotificationListener") && isEquals(method.getParameterTypes(), new Class[]{ObjectName.class, NotificationListener.class, NotificationFilter.class, Object.class}) ) {
-            //public void addNotificationListener(ObjectName arg0, NotificationListener arg1, NotificationFilter arg2, Object arg3)
-            NotificationListener local = (NotificationListener) args[1];
-            NotificationListener proxy = getRemoteProxyOf( local );
 
-            // Switch the object for a remotabable version.
-            args[1] = proxy;
-            try {
-                return getNext().invoke(invocation);
-            } finally {
-                // Undo the switch..
-                args[1] = local;
-            }
-            
-            
-        } else if ( method.getName().equals("removeNotificationListener") && isEquals(method.getParameterTypes(), new Class[]{ObjectName.class, NotificationListener.class}) ) {
+        if (
+            method.getName().equals("removeNotificationListener")
+                && isEquals(method.getParameterTypes(), new Class[] { ObjectName.class, NotificationListener.class })) {
             //public void removeNotificationListener(ObjectName arg0, NotificationListener arg1)
-            
-        } else if (method.equals("removeNotificationListener") && isEquals(method.getParameterTypes(), new Class[]{ObjectName.class, NotificationListener.class, NotificationFilter.class, Object.class})) {
+            NotificationListener nl = (NotificationListener) args[1];
+            TransportFactory.unexport(nl);
+        } else if (
+            method.equals("removeNotificationListener")
+                && isEquals(
+                    method.getParameterTypes(),
+                    new Class[] { ObjectName.class, NotificationListener.class, NotificationFilter.class, Object.class })) {
             //public void removeNotificationListener(ObjectName arg0, NotificationListener arg1, NotificationFilter arg2, Object arg3)
-            
+            NotificationListener nl = (NotificationListener) args[1];
+            TransportFactory.unexport(nl);
         }
         return getNext().invoke(invocation);
-    }
-
-    /**
-     * @param local
-     * @return
-     */
-    private NotificationListener getRemoteProxyOf(NotificationListener local) {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     /**
@@ -122,10 +103,10 @@ public class NotificationRemoterInterceptor extends AbstractInterceptor {
      * @return
      */
     private boolean isEquals(Class[] classes, Class[] classes2) {
-        if( classes.length != classes2.length)
+        if (classes.length != classes2.length)
             return false;
         for (int i = 0; i < classes.length; i++) {
-            if( !classes[i].equals(classes2[i]) )
+            if (!classes[i].equals(classes2[i]))
                 return false;
         }
         return true;
