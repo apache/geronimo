@@ -27,6 +27,8 @@ public class GiopMessage
     public RequestHeader_1_2 request;
     public LocateRequestHeader_1_2 locateRequest;
     public ReplyHeader_1_2 reply;
+    public boolean httpTunneling;
+    public int hiopVersion; //http tunneling version - 1 or 2
 
     public String toString()
     {

@@ -26,10 +26,13 @@ import java.security.*;
 import java.util.*;
 import org.omg.CORBA.TCKind;
 
+/**
+ ** A wrapper over java.lang.Class to help improve performance of using
+ ** the Java reflection API for valuetype marshalling. We keep as much
+ ** derived information as possible for optimal performance.
+ **/
 public class ValueType
 {
-    //public static final Component component = new Component(ValueType.class);
-
     public static ValueType getInstance(Class forClass)
     {
         ValueType vt = (ValueType)_valueTypeMap.get(forClass);
@@ -40,7 +43,6 @@ public class ValueType
                 vt = (ValueType)_valueTypeMap.get(forClass);
                 if (vt == null)
                 {
-                    //vt = (ValueType)component.getInstance();
                     vt = new ValueType();
                     _valueTypeMap.put(forClass, vt);
                     vt.init(forClass);
@@ -524,14 +526,14 @@ public class ValueType
     {
         final String sixteenZeros = "0000000000000000";
         final int requiredLength = 16;
-        if (isAny)
+       /* if (isAny)
         {
             id = "#ANY-TODO#";
             return;
-        }
+        }*/
         if (isArray && primitiveArray != 0)
         {
-            id = "#ARRAY-TODO#";
+            id = "RMI:" + _class.getName() + ":" + sixteenZeros;
             return;
         }
         if (_class == String.class)
@@ -551,8 +553,7 @@ public class ValueType
         }
         if (_class == java.math.BigInteger.class)
         {
-            id = "RMI:java.math.BigInteger:8CAD1A3C6C0A9DF0:8CFC9F1FA93BFB1D";
-            skipCustomFlags = true; // TODO: move this and check usage
+            id = "RMI:java.math.BigInteger:E2F79B6E7A470003:8CFC9F1FA93BFB1D";
             return;
         }
         if (_objectStreamClass == null)
@@ -759,6 +760,11 @@ public class ValueType
         {
             throw new org.omg.CORBA.INV_IDENT(id);
         }
+    }
+
+    public Class getTheClass()
+    {
+        return _class;
     }
 
     static Class loadClass(String className)

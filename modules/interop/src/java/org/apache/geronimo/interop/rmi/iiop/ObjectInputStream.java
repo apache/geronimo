@@ -24,6 +24,7 @@ import org.apache.geronimo.interop.SystemException;
 
 import java.io.IOException;
 import java.io.NotActiveException;
+import java.io.ObjectStreamClass;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.lang.reflect.Array;
@@ -33,13 +34,12 @@ import java.lang.reflect.Array;
  **/
 public class ObjectInputStream extends java.io.ObjectInputStream
 {
-    //public static final Component component = new Component(ObjectInputStream.class);
 
     public static ObjectInputStream getInstance()
     {
         ObjectInputStream ois = null;
         try {
-            ois = new ObjectInputStream(); //getInstance(CdrInputStream.getInstance());
+            ois = new ObjectInputStream();
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             ois = null;
@@ -49,14 +49,14 @@ public class ObjectInputStream extends java.io.ObjectInputStream
 
     public static ObjectInputStream getInstance(org.apache.geronimo.interop.rmi.iiop.CdrInputStream cdrInput)
     {
-        ObjectInputStream input = getInstance(); // (ObjectInputStream)component.getInstance();
+        ObjectInputStream input = getInstance();
         input.init(cdrInput);
         return input;
     }
 
     public static ObjectInputStream getPooledInstance()
     {
-        ObjectInputStream input = null; // (ObjectInputStream)_pool.get();
+        ObjectInputStream input = null;
         if (input == null)
         {
             input = getInstance();
@@ -96,8 +96,6 @@ public class ObjectInputStream extends java.io.ObjectInputStream
     // private data
     // -----------------------------------------------------------------------
 
-    //private static ThreadLocalInstancePool _pool = new ThreadLocalInstancePool(ObjectInputStream.class.getName());
-
     private int _blockLength = MAXIMUM_BLOCK_LENGTH;
 
     private int _endLevel = 0;
@@ -135,7 +133,6 @@ public class ObjectInputStream extends java.io.ObjectInputStream
     public void recycle()
     {
         $reset();
-        //_pool.put(this);
     }
 
     // public methods from java.io.ObjectInputStream
@@ -182,13 +179,35 @@ public class ObjectInputStream extends java.io.ObjectInputStream
 
     public Object readObjectOverride()
     {
-        return readObject(ValueType.OBJECT_VALUE_TYPE, false);
+        return readObject(ValueType.OBJECT_VALUE_TYPE, true);
     }
 
     public void defaultReadObject() throws IOException, ClassNotFoundException, NotActiveException
     {
         StreamState state = top();
         readDeclaredFields(state.type, state.value);
+    }
+
+    public java.io.ObjectInputStream.GetField readFields()
+        throws IOException, ClassNotFoundException
+    {
+        StreamState state = top();
+
+        Class currentClass = state.type.getTheClass();
+        if(currentClass == null)
+        {
+            throw new IOException("readFields: class from ValueType is null");
+        }
+
+        java.io.ObjectStreamClass osc = ObjectStreamClass.lookup(currentClass);
+        if(osc == null)
+        {
+            throw new IOException("readFields: ObjectSteamClass is null");
+        }
+
+        org.apache.geronimo.interop.rmi.iiop.GetField gf = new org.apache.geronimo.interop.rmi.iiop.GetField(osc);
+        gf.readFields(this);
+        return gf;
     }
 
     // -----------------------------------------------------------------------
@@ -228,6 +247,21 @@ public class ObjectInputStream extends java.io.ObjectInputStream
     {
         org.omg.CORBA.TypeCode tc = null;
 
+        if (calledByCustomSerialization)
+        {
+            boolean isObjectRef = _cdrInput.read_boolean();
+            if (isObjectRef)
+            {
+                org.omg.CORBA.Object ref = _cdrInput.read_Object();
+                endBlock();
+                if (_blockLength == MAXIMUM_BLOCK_LENGTH)
+                {
+                    startBlock();
+                }
+                return ref;
+            }
+        }
+        
         int tag = _cdrInput.read_ulong();
         int saveOffset = _cdrInput._offset - 4;
         Object value;
@@ -253,23 +287,8 @@ public class ObjectInputStream extends java.io.ObjectInputStream
             _cdrInput._offset = saveOffset;
         }
 
-        if (calledByCustomSerialization)
+        if(calledByCustomSerialization)
         {
-            boolean isObjectRef = _cdrInput.read_boolean();
-            if (isObjectRef)
-            {
-                org.omg.CORBA.Object ref = _cdrInput.read_Object();
-                endBlock();
-                if (_blockLength == MAXIMUM_BLOCK_LENGTH)
-                {
-                    startBlock();
-                }
-                return ref;
-            }
-            else
-            {
-                _cdrInput._offset = saveOffset;
-            }
         }
         else if (declaredType.isAnyOrObjectRefOrAbstractInterface)
         {
@@ -321,12 +340,20 @@ public class ObjectInputStream extends java.io.ObjectInputStream
             }
         }
 
-        saveOffset = _cdrInput._offset;
         tag = _cdrInput.read_long();
+        saveOffset = _cdrInput._offset - 4;
+        
         if (tag == ValueType.NULL_VALUE_TAG)
         {
             return null;
         }
+        
+        if( ((tag & 0x7F000000) == 0) && tag != ValueType.INDIRECTION_TAG ) //chunk size
+        {   
+            tag = _cdrInput.read_long();
+            saveOffset = _cdrInput._offset - 4;
+        }
+
         if (tag == ValueType.INDIRECTION_TAG)
         {
             // Indirection to value already read (or cyclic value being read).
@@ -490,6 +517,11 @@ public class ObjectInputStream extends java.io.ObjectInputStream
         {
             value = readObjectState(valueType.parent, value, false);
         }
+        if (valueType.hasWriteObject || requiresCustomSerialization)
+        {
+            byte format = _cdrInput.read_octet();
+            boolean defaultWriteObjectCalled = _cdrInput.read_boolean();
+        }
         if (valueType.hasReadObject)
         {
             push(new StreamState(valueType, value, _cdrInput._offset));
@@ -521,12 +553,7 @@ public class ObjectInputStream extends java.io.ObjectInputStream
             else
             */
             {
-                if (valueType.hasWriteObject || requiresCustomSerialization)
-                {
-                    byte format = _cdrInput.read_octet();
-                    boolean defaultWriteObjectCalled = _cdrInput.read_boolean();
-                }
-                valueType.readObject(value, this);
+               valueType.readObject(value, this);
             }
             pop();
         }
@@ -575,7 +602,6 @@ public class ObjectInputStream extends java.io.ObjectInputStream
     {
         Object value = null;
         int primitive = arrayType.primitiveArray;
-        int n = _cdrInput.read_ulong();
         if (primitive != 0)
         {
             value = arrayType.helper.read(this);
@@ -583,6 +609,7 @@ public class ObjectInputStream extends java.io.ObjectInputStream
         }
         else
         {
+            int n = _cdrInput.read_ulong();
             Object[] array;
             try
             {

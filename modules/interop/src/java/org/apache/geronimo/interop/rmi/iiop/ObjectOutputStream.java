@@ -20,17 +20,17 @@ package org.apache.geronimo.interop.rmi.iiop;
 import org.apache.geronimo.interop.*;
 import org.apache.geronimo.interop.util.*;
 import java.io.*;
+import java.lang.reflect.*;
 import java.util.*;
 
 public class ObjectOutputStream extends java.io.ObjectOutputStream
 {
-    //public static final Component component = new Component(ObjectOutputStream.class);
 
     public static ObjectOutputStream getInstance()
     {
         ObjectOutputStream oos = null;
         try {
-            oos = new ObjectOutputStream(); //getInstance(CdrOutputStream.getInstance());
+            oos = new ObjectOutputStream();
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             oos = null;
@@ -40,14 +40,14 @@ public class ObjectOutputStream extends java.io.ObjectOutputStream
 
     public static ObjectOutputStream getInstance(CdrOutputStream cdrOutput)
     {
-        ObjectOutputStream output = getInstance(); // (ObjectOutputStream)component.getInstance();
+        ObjectOutputStream output = getInstance();
         output.init(cdrOutput);
         return output;
     }
 
     public static ObjectOutputStream getPooledInstance()
     {
-        ObjectOutputStream output = null; // (ObjectOutputStream)_pool.get();
+        ObjectOutputStream output = null;
         if (output == null)
         {
             output = getInstance();
@@ -64,6 +64,7 @@ public class ObjectOutputStream extends java.io.ObjectOutputStream
         ValueType type;
         Object value;
         int offset;
+        org.apache.geronimo.interop.rmi.iiop.ObjectOutputStream.PutField putField;
 
         StreamState(ValueType type, Object value, int offset)
         {
@@ -90,8 +91,6 @@ public class ObjectOutputStream extends java.io.ObjectOutputStream
     private static ValueType OBJECT_VALUE_TYPE = ValueType.getInstance(java.lang.Object.class);
 
     private static boolean OBJECT_VALUE_TYPE_INIT = false;
-
-    //private static ThreadLocalInstancePool _pool = new ThreadLocalInstancePool(ObjectOutputStream.class.getName());
 
     private ArrayList _stack = null;
 
@@ -140,7 +139,6 @@ public class ObjectOutputStream extends java.io.ObjectOutputStream
     public void recycle()
     {
         $reset();
-        //_pool.put(this);
     }
 
     // -----------------------------------------------------------------------
@@ -189,7 +187,7 @@ public class ObjectOutputStream extends java.io.ObjectOutputStream
 
     public void writeObjectOverride(Object value)
     {
-        writeObject(OBJECT_VALUE_TYPE, value);
+        writeObject(OBJECT_VALUE_TYPE, value, true);
     }
 
     public void defaultWriteObject() throws IOException
@@ -270,7 +268,7 @@ public class ObjectOutputStream extends java.io.ObjectOutputStream
         {
             if (actualType != null)
             {
-                if (! (declaredType.isAny && actualType.isObjectRef))
+                if (!declaredType.isAny || calledFromCustomSerialization)
                 {
                     endBlock();
                 }
@@ -283,12 +281,12 @@ public class ObjectOutputStream extends java.io.ObjectOutputStream
                 _cdrOutput.write_boolean(actualType.isObjectRef);
                 if(actualType.isObjectRef)
                 {
-                    _cdrOutput.write_Object((org.omg.CORBA.Object)value);
+                    writeObjectRef(value);
                     endBlock();
                 }
                 else
                 {
-                _cdrOutput.write_long(ValueType.NULL_VALUE_TAG);
+                    _cdrOutput.write_long(ValueType.NULL_VALUE_TAG);
                 }
                 return;
             }
@@ -299,7 +297,7 @@ public class ObjectOutputStream extends java.io.ObjectOutputStream
             }
             if (declaredType.isObjectRef)
             {
-                _cdrOutput.write_Object((org.omg.CORBA.Object)value);
+                writeObjectRef(value);
             }
             else
             {
@@ -315,28 +313,23 @@ public class ObjectOutputStream extends java.io.ObjectOutputStream
         {
             org.omg.CORBA.TypeCode tc = actualType.tc;
             _cdrOutput.write_TypeCode(tc);
+            if (!actualType.isAny)
+            {
+                endBlock();
+            }
         }
         else if (declaredType.isAbstractInterface || calledFromCustomSerialization)
         {
             _cdrOutput.write_boolean(actualType.isObjectRef);
             if (actualType.isObjectRef)
             {
-                _cdrOutput.write_Object((org.omg.CORBA.Object)value);
+                writeObjectRef(value);
                 return;
             }
         }
         if (actualType.isObjectRef)
         {
-            if (value instanceof RemoteInterface)
-            {
-                ObjectRef objectRef = ((RemoteInterface)value).getObjectRef();
-                //if (value instanceof AutomaticFailover)
-                //{
-                //    objectRef.$setAutomaticFailover();
-                //}
-                value = objectRef;
-            }
-            _cdrOutput.write_Object((org.omg.CORBA.Object)value);
+            writeObjectRef(value);
             return;
         }
         Integer ref = _indirection == null ? null : (Integer)_indirection.get(value);
@@ -362,6 +355,7 @@ public class ObjectOutputStream extends java.io.ObjectOutputStream
             _cdrOutput.write_long(ValueType.SINGLE_TYPE_VALUE_TAG);
             _isChunked = false;
         }
+
         writeMetaString(actualType.id);
         startBlock();
         switch (actualType.readWriteCase)
@@ -383,7 +377,7 @@ public class ObjectOutputStream extends java.io.ObjectOutputStream
                 writeObjectState(actualType, value);
         }
         endBlock();
-        writeEndTag();
+        writeEndTag(declaredType, actualType, calledFromCustomSerialization);
         _isChunked = saveIsChunked;
     }
 
@@ -415,7 +409,7 @@ public class ObjectOutputStream extends java.io.ObjectOutputStream
         {
             writeObjectState(type.parent, value);
         }
-        if (type.hasWriteObject && type.hasReadObject)
+        if (type.hasWriteObject)
         {
             push(new StreamState(type, value, _cdrOutput._offset));
             if (type.skipCustomFlags)
@@ -563,7 +557,93 @@ public class ObjectOutputStream extends java.io.ObjectOutputStream
         }
     }
 
-    /*
+    protected void writeEndTag(ValueType declaredType, ValueType actualType, 
+                               boolean calledFromCustomSerialization)
+    {
+        if (_isChunked)
+        {
+            if (_endTagIndex == _cdrOutput._offset - 8)
+            {
+                _cdrOutput._offset -= 8;
+            }
+            _cdrOutput.write_long(_endLevel);
+            _endTagIndex = _cdrOutput._offset - 4;
+            if (_endLevel != -1)
+            {
+                if(declaredType.isAny && !actualType.isAny && !calledFromCustomSerialization)
+                {
+                    startBlock();
+                    _endLevel++;
+                }
+                else
+                {
+                    _cdrOutput.write_long(1);
+                }
+            }
+            else // _endLevel == -1
+            {
+                _cdrOutput._offset -=4;
+                _cdrOutput.write_long(-1);
+                _isChunked = false;
+            }
+            _endLevel++;
+        }
+    }
+
+    private void writeObjectRef(java.lang.Object value)
+    {
+        if(value instanceof org.apache.geronimo.interop.rmi.iiop.ObjectRef || value == null)
+        {
+            _cdrOutput.write_Object((org.omg.CORBA.Object)value);
+        }
+        else if (value instanceof RemoteInterface)
+        {
+            ObjectRef objectRef = ((RemoteInterface)value).getObjectRef();
+            value = objectRef;
+            _cdrOutput.write_Object((org.omg.CORBA.Object)value);
+        }
+        else 
+        {
+            writeForeignObjectRef(value);
+        }
+    }
+
+    private void writeForeignObjectRef(java.lang.Object value)
+    {
+        if (value instanceof java.rmi.Remote)
+        {
+            try
+            {
+                value = (org.omg.CORBA.Object)javax.rmi.PortableRemoteObject.toStub((java.rmi.Remote)value);
+            }
+            catch (java.rmi.NoSuchObjectException ex)
+            {
+                throw new org.omg.CORBA.MARSHAL(ExceptionUtil.causedBy(ex));
+            }
+        }
+                
+        if (value instanceof org.omg.CORBA.Object)
+        {
+            try
+            {
+                org.omg.CORBA.Object object = (org.omg.CORBA.Object)value;
+                org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(new String[0], null);
+                orb.create_output_stream().write_Object(object);
+                String ior = orb.object_to_string(object);
+                org.apache.geronimo.interop.rmi.iiop.ObjectRef objectRef = org.apache.geronimo.interop.rmi.iiop.ObjectRef.$getObjectFromIOR(ior);
+                _cdrOutput.write_Object((org.omg.CORBA.Object)objectRef);
+            }
+            catch (Exception ex)
+            {
+                throw new org.omg.CORBA.MARSHAL(ExceptionUtil.causedBy(ex));
+            }
+        }
+        else
+        {
+            throw new org.omg.CORBA.MARSHAL("writeObjectRef: " + value.getClass().getName());
+        }
+    }
+
     public java.io.ObjectOutputStream.PutField putFields() throws IOException
     {
         StreamState state = top();
@@ -579,22 +659,23 @@ public class ObjectOutputStream extends java.io.ObjectOutputStream
         {
             throw new IOException("putFields: ObjectSteamClass is null");
         }
-        state.putField = new com.sybase.CORBA.iiop.PutField(osc);
-        return state.putField;
+        
+        org.apache.geronimo.interop.rmi.iiop.PutField pf = new org.apache.geronimo.interop.rmi.iiop.PutField(osc);
+        state.putField = pf;
+        return pf;
     }
 
     public void writeFields() throws IOException
     {
-
         StreamState state = top();
         if(state.putField == null)
         {
             throw new IOException("writeFields: PutField object is null");
         }
 
-        state.putField.writeFields(this);
+        org.apache.geronimo.interop.rmi.iiop.PutField pf = (org.apache.geronimo.interop.rmi.iiop.PutField)state.putField;
+        pf.writeFields(this);
     }
-    */
 
     protected void push(StreamState state)
     {

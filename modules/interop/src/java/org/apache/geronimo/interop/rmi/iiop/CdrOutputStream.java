@@ -21,32 +21,34 @@ import org.apache.geronimo.interop.rmi.*;
 import org.apache.geronimo.interop.util.*;
 import org.apache.geronimo.interop.IOP.*;
 import org.apache.geronimo.interop.GIOP.*;
+import org.apache.geronimo.interop.SystemException;
 import org.omg.CORBA.TCKind;
+import java.io.*;
 
 /**
  ** CORBA 2.3 / GIOP 1.2 CDR OutputStream.
  **/
 public class CdrOutputStream extends org.omg.CORBA_2_3.portable.OutputStream
 {
-    //public static final Component component = new Component(CdrOutputStream.class);
+    private final String CRLF = "\r\n";
 
     public static CdrOutputStream getInstance()
     {
-        CdrOutputStream output = new CdrOutputStream(); //(CdrOutputStream)component.getInstance();
+        CdrOutputStream output = new CdrOutputStream();
         output.init(new byte[DEFAULT_BUFFER_LENGTH], 0);
         return output;
     }
 
     public static CdrOutputStream getInstance(byte[] buffer)
     {
-        CdrOutputStream output = new CdrOutputStream(); //(CdrOutputStream)component.getInstance();
+        CdrOutputStream output = new CdrOutputStream();
         output.init(buffer, 0);
         return output;
     }
 
     public static CdrOutputStream getInstance(byte[] buffer, int offset)
     {
-        CdrOutputStream output = new CdrOutputStream(); //(CdrOutputStream)component.getInstance();
+        CdrOutputStream output = new CdrOutputStream();
         output.init(buffer, offset);
         return output;
     }
@@ -60,7 +62,7 @@ public class CdrOutputStream extends org.omg.CORBA_2_3.portable.OutputStream
 
     public static CdrOutputStream getPooledInstance()
     {
-        CdrOutputStream output = null; // (CdrOutputStream)_pool.get();
+        CdrOutputStream output = null;
         if (output == null)
         {
             output = getInstance();
@@ -76,7 +78,7 @@ public class CdrOutputStream extends org.omg.CORBA_2_3.portable.OutputStream
 
     private static final int MAXIMUM_POOLED_BUFFER_LENGTH = 1024;
 
-    private static final boolean RMI_TRACE = true; //SystemProperties.rmiTrace();
+    private static final boolean RMI_TRACE = true;
 
     private static IOR NULL_IOR = new IOR("", new TaggedProfile[0]);
 
@@ -87,8 +89,6 @@ public class CdrOutputStream extends org.omg.CORBA_2_3.portable.OutputStream
     private static Version GIOP_VERSION_1_0 = new Version((byte)1, (byte)0);
     private static Version GIOP_VERSION_1_1 = new Version((byte)1, (byte)1);
     private static Version GIOP_VERSION_1_2 = new Version((byte)1, (byte)2);
-
-    //private static ThreadLocalInstancePool _pool = new ThreadLocalInstancePool(CdrOutputStream.class.getName());
 
     private int _giopVersion = GiopVersion.VERSION_1_2;
 
@@ -120,7 +120,6 @@ public class CdrOutputStream extends org.omg.CORBA_2_3.portable.OutputStream
     public void recycle()
     {
         reset();
-        //_pool.put(this);
     }
 
     public void reset()
@@ -409,6 +408,87 @@ public class CdrOutputStream extends org.omg.CORBA_2_3.portable.OutputStream
         }
     }
 
+    public void send_http_response(java.io.OutputStream output, String url)
+    {
+        StringBuffer respHeader = new StringBuffer(256);
+
+        respHeader.append("HTTP/1.1 200 OK\r\n");
+        respHeader.append("Content-Length: ");
+        respHeader.append(java.lang.Integer.toString(_offset));
+        respHeader.append(CRLF + CRLF);
+        
+        byte[] header = null;
+        try
+        {
+            String h = respHeader.toString();
+            header = h.getBytes("ASCII");
+        }
+        catch(Exception e)
+        {
+            throw new SystemException(org.apache.geronimo.interop.util.ExceptionUtil.causedBy(e));
+        }
+
+        byte[] data = new byte[header.length + _offset];
+        System.arraycopy(header, 0, data, 0, header.length);
+        System.arraycopy(_buffer, 0, data, header.length, _offset);
+
+        if (RMI_TRACE)
+        {
+            RmiTrace.send(url, data);
+        }
+        try
+        {
+            output.write(data, 0, data.length);
+            output.flush();
+        }
+        catch (java.io.IOException ex)
+        {
+            throw new org.omg.CORBA.COMM_FAILURE(ex.toString());
+        }
+    }
+
+    /**
+     * We support only POST message
+     */
+    public void send_http_request(java.io.OutputStream output, String url, String httpHeaders)
+    {
+        StringBuffer hdr = new StringBuffer(512);
+        hdr.append("POST /host/port/HIOP/2.0 HTTP/1.1\r\n");
+        hdr.append("Content-Length: ");
+        hdr.append(java.lang.Integer.toString(_offset));
+        hdr.append(CRLF);
+        hdr.append(httpHeaders);
+        hdr.append(CRLF);
+
+        byte[] header = null;
+        try
+        {
+            header = hdr.toString().getBytes("ASCII");
+        }
+        catch(Exception e)
+        {
+            throw new SystemException(org.apache.geronimo.interop.util.ExceptionUtil.causedBy(e));
+        }
+
+        byte[] data = new byte[header.length + _offset];
+        System.arraycopy(header, 0, data, 0, header.length);
+        System.arraycopy(_buffer, 0, data, header.length, _offset);
+        
+        if (RMI_TRACE)
+        {
+            RmiTrace.send(url, data);
+        }
+        try
+        {
+            output.write(data, 0, data.length);
+            output.flush();
+        }
+        catch (java.io.IOException ex)
+        {
+            throw new org.omg.CORBA.COMM_FAILURE(ex.toString());
+        }
+    }
+
     public void send_message(java.io.OutputStream output, String url)
     {
         if (RMI_TRACE)
@@ -685,7 +765,6 @@ public class CdrOutputStream extends org.omg.CORBA_2_3.portable.OutputStream
         write_Any(value.create_input_stream(), tc);
     }
 
-    // Sybase-internal
     public void write_Any(org.omg.CORBA.portable.InputStream is, org.omg.CORBA.TypeCode tc)
     {
         try
@@ -820,27 +899,27 @@ public class CdrOutputStream extends org.omg.CORBA_2_3.portable.OutputStream
     }
 
     public void write_any(org.omg.CORBA.Any value) {
-        throw new org.omg.CORBA.NO_IMPLEMENT("write_any: NOT IMPLMENTED YET");
+        throw new org.omg.CORBA.NO_IMPLEMENT("write_any: NOT IMPLMENTED");
     }
 
     public void write_Principal(org.omg.CORBA.Principal value) {
-        throw new org.omg.CORBA.NO_IMPLEMENT("write_Principal: NOT IMPLMENTED YET");
+        throw new org.omg.CORBA.NO_IMPLEMENT("write_Principal: NOT IMPLMENTED");
     }
 
     public void write(int value) throws java.io.IOException {
-        throw new org.omg.CORBA.NO_IMPLEMENT("write: NOT IMPLMENTED YET");
+        throw new org.omg.CORBA.NO_IMPLEMENT("write: NOT IMPLMENTED");
     }
 
     public void write_fixed(java.math.BigDecimal value) {
-        throw new org.omg.CORBA.NO_IMPLEMENT("write_fixed: NOT IMPLMENTED YET");
+        throw new org.omg.CORBA.NO_IMPLEMENT("write_fixed: NOT IMPLMENTED");
     }
 
     public void write_Context(org.omg.CORBA.Context context, org.omg.CORBA.ContextList list) {
-        throw new org.omg.CORBA.NO_IMPLEMENT("write_Context: NOT IMPLMENTED YET");
+        throw new org.omg.CORBA.NO_IMPLEMENT("write_Context: NOT IMPLMENTED");
     }
 
     public org.omg.CORBA.ORB orb() {
-        throw new org.omg.CORBA.NO_IMPLEMENT("orb: NOT IMPLMENTED YET");
+        throw new org.omg.CORBA.NO_IMPLEMENT("orb: NOT IMPLMENTED");
     }
 
 
@@ -849,23 +928,23 @@ public class CdrOutputStream extends org.omg.CORBA_2_3.portable.OutputStream
     // -----------------------------------------------------------------------
 
     public void write_value(java.io.Serializable value) {
-        throw new org.omg.CORBA.NO_IMPLEMENT("write_value: NOT IMPLMENTED YET");
+        throw new org.omg.CORBA.NO_IMPLEMENT("write_value: NOT IMPLMENTED");
     }
 
     public void write_value(java.io.Serializable value, Class _class) {
-        throw new org.omg.CORBA.NO_IMPLEMENT("write_value: NOT IMPLMENTED YET");
+        throw new org.omg.CORBA.NO_IMPLEMENT("write_value: NOT IMPLMENTED");
     }
 
     public void write_value(java.io.Serializable value, String id) {
-        throw new org.omg.CORBA.NO_IMPLEMENT("write_value: NOT IMPLMENTED YET");
+        throw new org.omg.CORBA.NO_IMPLEMENT("write_value: NOT IMPLMENTED");
     }
 
     public void write_value(java.io.Serializable value, org.omg.CORBA.portable.BoxedValueHelper helper) {
-        throw new org.omg.CORBA.NO_IMPLEMENT("write_value: NOT IMPLMENTED YET");
+        throw new org.omg.CORBA.NO_IMPLEMENT("write_value: NOT IMPLMENTED");
     }
 
     public void write_abstract_interface(java.lang.Object value) {
-        throw new org.omg.CORBA.NO_IMPLEMENT("write_abstract_interface: NOT IMPLMENTED YET");
+        throw new org.omg.CORBA.NO_IMPLEMENT("write_abstract_interface: NOT IMPLMENTED");
     }
 
 

@@ -24,8 +24,6 @@ import java.io.*;
 
 public class SimpleObjectOutputStream extends ObjectOutputStream
 {
-    //public static final Component component = new Component(SimpleObjectOutputStream.class);
-
     public static ObjectOutputStream getInstance()
     {
         ObjectOutputStream oos = null;
@@ -34,19 +32,19 @@ public class SimpleObjectOutputStream extends ObjectOutputStream
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
-        return oos; // getInstance(CdrOutputStream.getInstance());
+        return oos;
     }
 
     public static ObjectOutputStream getInstance(CdrOutputStream cdrOutput)
     {
-        ObjectOutputStream output = getInstance(); // (SimpleObjectOutputStream)component.getInstance();
+        ObjectOutputStream output = getInstance();
         output.init(cdrOutput);
         return output;
     }
 
     public static ObjectOutputStream getPooledInstance()
     {
-        ObjectOutputStream output = null; // (SimpleObjectOutputStream)_pool.get();
+        ObjectOutputStream output = null;
         if (output == null)
         {
             output = getInstance();
@@ -57,8 +55,6 @@ public class SimpleObjectOutputStream extends ObjectOutputStream
     // -----------------------------------------------------------------------
     // private data
     // -----------------------------------------------------------------------
-
-    //private static ThreadLocalInstancePool _pool = new ThreadLocalInstancePool(SimpleObjectOutputStream.class.getName());
 
     // -----------------------------------------------------------------------
     // public methods
@@ -77,7 +73,6 @@ public class SimpleObjectOutputStream extends ObjectOutputStream
     public void recycle()
     {
         $reset();
-        //_pool.put(this);
     }
 
     public void writeException(ValueType type, Exception value)

@@ -27,11 +27,10 @@ import java.util.*;
 
 public class ObjectRef extends CorbaObject
 {
-    //public static final Component $component = new Component(ObjectRef.class);
 
     public static ObjectRef _getInstance()
     {
-        return new ObjectRef(); //(ObjectRef)$component.getInstance();
+        return new ObjectRef();
     }
 
     // -----------------------------------------------------------------------
@@ -61,16 +60,8 @@ public class ObjectRef extends CorbaObject
 
     private static TaggedComponent[] NO_PROFILE_COMPONENTS = {};
 
-    /*
     private static TaggedProfile AUTOMATIC_FAILOVER_PROFILE;
 
-    static
-    {
-        AUTOMATIC_FAILOVER_PROFILE = new TaggedProfile();
-        AUTOMATIC_FAILOVER_PROFILE.tag = AutomaticFailover.PROFILE_TAG;
-        AUTOMATIC_FAILOVER_PROFILE.profile_data = ArrayUtil.EMPTY_BYTE_ARRAY;
-    }
-    */
 
     private int _iiopVersion = IIOP_VERSION_1_2;
 
@@ -78,17 +69,17 @@ public class ObjectRef extends CorbaObject
 
     private ClientNamingContext _namingContext;
 
+    private ObjectRef _forwardingAddress;
+
     private String _repositoryID; // CORBA repository ID e.g. "RMI:xyz:0000000000000000"
 
-    private int _protocol;
+    private int _protocol = Protocol.IIOP;
 
     private String _endpoint;
 
     private String _host;
 
     private int _port = -1;
-
-    //private boolean _automaticFailover;
 
     public byte[] _objectKey;
 
@@ -104,6 +95,10 @@ public class ObjectRef extends CorbaObject
 
     public Connection $connect()
     {
+        if(_forwardingAddress != null)
+        {
+            return _forwardingAddress.$connect();
+        }
         try
         {
             Connection conn = $getNamingContext().getConnectionPool().get(_protocol, $getEndpoint(), this);
@@ -112,30 +107,19 @@ public class ObjectRef extends CorbaObject
         }
         catch (RuntimeException ex)
         {
-            //if (_automaticFailover)
-            //{
-            //    throw new RetryInvokeException(ex);
-            //}
-            //else
-            //{
-                throw ex;
-            //}
+            throw ex;
         }
     }
 
-    /*
-    public boolean $getAutomaticFailover()
+    public ObjectRef $getForwardingAddress()
     {
-        return _automaticFailover;
+        return _forwardingAddress;
     }
-    */
 
-    /*
-    public void $setAutomaticFailover()
+    public void $setForwardingAddress(ObjectRef ref)
     {
-        _automaticFailover = true;
+        _forwardingAddress = ref;
     }
-    */
 
     public int $getIiopVersion()
     {
@@ -319,6 +303,21 @@ public class ObjectRef extends CorbaObject
         return UTF8.toString($getObjectKey());
     }
 
+    public String $getObjectName()
+    {
+        byte[] objectKey = $getObjectKey();
+        int keyLength = objectKey.length;
+
+        for (int colonPos = 0; colonPos < keyLength; colonPos++)
+        {
+            if (objectKey[colonPos] == ':')
+            {
+                return UTF8.toString(objectKey, 0, colonPos);
+            }
+        }
+        return UTF8.toString(objectKey);
+    }
+
     public void $setObjectKey(byte[] objectKey)
     {
         _objectKey = objectKey;
@@ -368,5 +367,40 @@ public class ObjectRef extends CorbaObject
     public Object $getRequestKey()
     {
         return null;
+    }
+
+    public String $getIORString()
+    {
+		org.apache.geronimo.interop.IOP.IOR ior = $getIOR();
+		CdrOutputStream output = CdrOutputStream.getInstanceForEncapsulation();
+		output.setGiopVersion(GiopVersion.VERSION_1_0);
+		output.write_Object(this);
+		byte[] bytes = output.getEncapsulation();
+		String hex = Base16Binary.toString(bytes);
+		String iorString = "IOR:" + hex;
+		return iorString;
+	}
+
+	public void $setIORString(String iorString)
+	{
+		$setIOR($getObjectFromIOR(iorString).$getIOR());
+	}
+
+    public static ObjectRef $getObjectFromIOR(String iorString)
+    {
+		String hex = StringUtil.removePrefix(iorString, "IOR:");
+		byte[] bytes = Base16Binary.fromString(hex);
+		CdrInputStream input = CdrInputStream.getInstanceForEncapsulation();
+		input.setGiopVersion(GiopVersion.VERSION_1_0);
+		input.setEncapsulation(bytes);
+		ObjectRef object = (ObjectRef)input.read_Object();
+        return object;
+    }
+
+    public String toString()
+    {
+        return getClass().getName() + ":protocol=" + Protocol.getName($getProtocol())  
+            + ":host=" + $getHost()  + ":port=" + $getPort() 
+            +  ":key=" + Base16Binary.toString($getObjectKey());
     }
 }

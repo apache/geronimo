@@ -24,8 +24,6 @@ import java.io.*;
 
 public class SimpleObjectInputStream extends ObjectInputStream
 {
-    //public static final Component component = new Component(SimpleObjectInputStream.class);
-
     public static ObjectInputStream getInstance()
     {
         ObjectInputStream ois = null;
@@ -34,7 +32,7 @@ public class SimpleObjectInputStream extends ObjectInputStream
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
-        return ois; // getInstance(CdrInputStream.getInstance());
+        return ois;
     }
 
     public static ObjectInputStream getInstance(byte[] bytes)
@@ -44,14 +42,14 @@ public class SimpleObjectInputStream extends ObjectInputStream
 
     public static ObjectInputStream getInstance(org.apache.geronimo.interop.rmi.iiop.CdrInputStream cdrInput)
     {
-        ObjectInputStream input = getInstance(); // (SimpleObjectInputStream)component.getInstance();
+        ObjectInputStream input = getInstance();
         input.init(cdrInput);
         return input;
     }
 
     public static ObjectInputStream getPooledInstance()
     {
-        ObjectInputStream input = null; // (SimpleObjectInputStream)_pool.get();
+        ObjectInputStream input = null;
         if (input == null)
         {
             input = getInstance();
@@ -62,8 +60,6 @@ public class SimpleObjectInputStream extends ObjectInputStream
     // -----------------------------------------------------------------------
     // private data
     // -----------------------------------------------------------------------
-
-    //private static ThreadLocalInstancePool _pool = new ThreadLocalInstancePool(SimpleObjectInputStream.class.getName());
 
     // -----------------------------------------------------------------------
     // public methods
@@ -82,7 +78,6 @@ public class SimpleObjectInputStream extends ObjectInputStream
     public void recycle()
     {
         $reset();
-        //_pool.put(this);
     }
 
     public Exception readException(ValueType type)

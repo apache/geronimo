@@ -22,15 +22,16 @@ import org.apache.geronimo.interop.adapter.AdapterManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.openejb.server.SocketService;
-import org.openejb.server.ServerService;
-import org.openejb.server.ServiceException;
+//import org.openejb.server.SocketService;
+//import org.openejb.server.ServerService;
+//import org.openejb.server.ServiceException;
 
 import java.util.*;
 import java.net.Socket;
 import java.io.IOException;
 
-public class RmiIiopServerGBean implements ServerService {
+//public class RmiIiopServerGBean implements ServerService {
+public class RmiIiopServerGBean {
 
     private final Log log = LogFactory.getLog(RmiIiopServerGBean.class);
 
@@ -62,7 +63,7 @@ public class RmiIiopServerGBean implements ServerService {
         this.msgHandler = null;
     }
 
-    public void service(Socket socket) throws ServiceException, IOException {
+    public void service(Socket socket) throws Exception {
         log.debug( "RmiIiopServerGBean.service(): socket = " + socket );
         msgHandler.service(socket);
     }
@@ -72,11 +73,11 @@ public class RmiIiopServerGBean implements ServerService {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void start() throws ServiceException {
+    public void start() throws Exception {
         log.debug( "RmiIiopServerGBean.start(): " );
     }
 
-    public void stop() throws ServiceException {
+    public void stop() throws Exception {
         log.debug( "RmiIiopServerGBean.stop(): " );
     }
 
@@ -137,7 +138,7 @@ public class RmiIiopServerGBean implements ServerService {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(RmiIiopServerGBean.class);
 
-        infoFactory.addInterface(SocketService.class);
+        //infoFactory.addInterface(SocketService.class);
 
         infoFactory.addAttribute("args", ArrayList.class, true);
         infoFactory.addAttribute("props", Properties.class, true);

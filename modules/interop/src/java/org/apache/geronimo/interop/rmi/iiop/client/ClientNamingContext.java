@@ -17,9 +17,7 @@
  */
 package org.apache.geronimo.interop.rmi.iiop.client;
 
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Random;
+import java.util.*;
 import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NameNotFoundException;
@@ -36,14 +34,19 @@ import org.apache.geronimo.interop.rmi.iiop.ObjectRef;
 import org.apache.geronimo.interop.rmi.iiop.compiler.StubFactory;
 import org.apache.geronimo.interop.util.ExceptionUtil;
 
-public class ClientNamingContext implements Context, java.io.Serializable {
+public class ClientNamingContext implements Context, java.io.Serializable 
+{
 
-    public static ClientNamingContext getInstance(Hashtable env) {
+    public static ClientNamingContext getInstance(Hashtable env)
+    {
         ClientNamingContext nc = (ClientNamingContext) contextMap.get(env);
-        if (nc == null) {
-            synchronized (contextMap) {
+        if (nc == null)
+        {
+            synchronized (contextMap)
+            {
                 nc = (ClientNamingContext) contextMap.get(env);
-                if (nc == null) {
+                if (nc == null) 
+                {
                     nc = new ClientNamingContext();
                     nc.init(env);
                     contextMap.put(env, nc);
@@ -53,34 +56,48 @@ public class ClientNamingContext implements Context, java.io.Serializable {
         return nc;
     }
 
-    public static final StringProperty usernameProperty =
-            new StringProperty(SystemProperties.class, "java.naming.security.principal");
-
-    public static final StringProperty passwordProperty =
-            new StringProperty(SystemProperties.class, "java.naming.security.credentials");
 
     public static final IntProperty idleConnectionTimeoutProperty =
-            new IntProperty(SystemProperties.class, "org.apache.geronimo.interop.rmi.idleConnectionTimeout")
-            .defaultValue(60); // seconds
+        new IntProperty(SystemProperties.class, "idleConnectionTimeout")
+        .defaultValue(60); // 60 seconds
 
-    private static int idleConnectionTimeout =
-            idleConnectionTimeoutProperty.getInt();
+    public static final IntProperty lookupCacheTimeoutProperty =
+        new IntProperty(SystemProperties.class, "lookupCacheTimeout")
+        .defaultValue(600); // 10 minutes
 
-    private static int namingContextCacheTimeout =
-            SystemProperties.rmiNamingContextCacheTimeoutProperty.getInt();
+    public static final StringProperty usernameSystemProperty =
+        new StringProperty(SystemProperties.class, "java.naming.security.principal");
+
+    public static final StringProperty passwordSystemProperty =
+        new StringProperty(SystemProperties.class, "java.naming.security.credentials");
+
+    private static long     idleConnectionTimeout;
+
+    private static long     lookupCacheTimeout;
+
+    private static int      socketTimeout;
 
     private static HashMap  contextMap = new HashMap();
+
     private static HashMap  hostListCache = new HashMap();
-    private static HashMap  multiHostMap = new HashMap();
-    private static Random   random = new Random();
+
+//    private ArrayList       requestKeys;
+
     private HashMap         cache = new HashMap();
+
     private Hashtable       env;
+
     private ConnectionPool  connectionPool;
+
     private PropertyMap     connectionProperties;
+
     static private HashMap  nameMap = new HashMap();
-    private String          prefix;
+
     private String          username;
+
     private String          password;
+
+    private String          namePrefix;
 
     private org.apache.geronimo.interop.CosNaming.NamingContext serverNamingContext;
 
@@ -88,19 +105,23 @@ public class ClientNamingContext implements Context, java.io.Serializable {
         return connectionPool;
     }
 
-    public PropertyMap getConnectionProperties() {
+    public PropertyMap getConnectionProperties()
+    {
         return connectionProperties;
     }
 
-    public int getIdleConnectionTimeout() {
+    public long getIdleConnectionTimeout()
+    {
         return idleConnectionTimeout;
     }
 
-    public String getUsername() {
+    public String getUsername()
+    {
         return username;
     }
 
-    public String getPassword() {
+    public String getPassword()
+    {
         return password;
     }
 
@@ -268,11 +289,11 @@ public class ClientNamingContext implements Context, java.io.Serializable {
         throw new OperationNotSupportedException();
     }
 
-    protected void init(Hashtable env) {
-        env = env;
+    protected void init(Hashtable env) 
+    {
+        this.env = env;
         Object urlObject = env.get(Context.PROVIDER_URL);
         if (urlObject == null) {
-            System.out.println("ClientNamingContext.init(): TODO: urlObject was null, create one based on the current hostname.");
             urlObject = SystemProperties.getInstance().getProperty("java.naming.provider.url",
                                                                    "iiop://" + "delafran-t30" + ":2000");
         }
@@ -280,59 +301,88 @@ public class ClientNamingContext implements Context, java.io.Serializable {
         UrlInfo urlInfo = UrlInfo.getInstance(url);
         serverNamingContext = (org.apache.geronimo.interop.CosNaming.NamingContext)
                 StubFactory.getInstance().getStub(org.apache.geronimo.interop.CosNaming.NamingContext.class);
+
+        namePrefix = urlInfo.getNamePrefix();
+
         ObjectRef ncRef = (ObjectRef) serverNamingContext;
         ncRef.$setNamingContext(this);
         ncRef.$setProtocol(urlInfo.getProtocol());
         ncRef.$setHost("ns~" + urlInfo.getHost());
         ncRef.$setPort(urlInfo.getPort());
         ncRef.$setObjectKey(urlInfo.getObjectKey());
-        connectionProperties = urlInfo.getProperties();
         connectionPool = ConnectionPool.getInstance(this);
         Object u = env.get(Context.SECURITY_PRINCIPAL);
         Object p = env.get(Context.SECURITY_CREDENTIALS);
-        if (u == null) {
-            u = usernameProperty.getString();
+        if (u == null)
+        {
+            u = usernameSystemProperty.getString();
         }
-        if (p == null) {
-            p = passwordProperty.getString();
+        if (p == null)
+        {
+            p = passwordSystemProperty.getString();
         }
         username = u != null ? u.toString() : null;
         password = p != null ? p.toString() : null;
 
-        /*
-        if (_serverNamingContext._is_a("IDL:org.apache.geronimo.interop/rmi/iiop/NameService:1.0"))
+        PropertyMap props = urlInfo.getProperties();
+        props.putAll(env);
+        PropertyMap copyProps = new PropertyMap();
+        copyProps.putAll(props);
+        for (Iterator i = copyProps.entrySet().iterator(); i.hasNext();)
         {
-            _serverNamingContext = (org.apache.geronimo.interop.rmi.iiop.NameService)
-                StubFactory.getInstance().getStub(org.apache.geronimo.interop.rmi.iiop.NameService.class);
-            ncRef = (ObjectRef)_serverNamingContext;
-            ncRef.$setNamingContext(this);
-            ncRef.$setProtocol(urlInfo.getProtocol());
-            ncRef.$setHost("ns~" + urlInfo.getHost());
-            ncRef.$setPort(urlInfo.getPort());
-            ncRef.$setObjectKey(urlInfo.getObjectKey());
+            Map.Entry entry = (Map.Entry)i.next();
+            String property = (String)entry.getKey();
+            Object value = entry.getValue();
+
+            String startsWith = "org.apache.geronimo.interop.rmi.";
+            if (property.startsWith(startsWith))
+            {
+                int replace = startsWith.length();
+                props.remove(property);
+                props.put(property.substring(replace), value);
+            }
         }
-        */
+        for (Iterator i = SystemProperties.getInstance().entrySet().iterator(); i.hasNext();)
+        {
+            Map.Entry entry = (Map.Entry)i.next();
+            String property = (String)entry.getKey();
+            Object value = entry.getValue();
+            if (property.startsWith("djc."))
+            {
+                props.put(property.substring(4), value);
+            }
+        }
+        connectionProperties = props;
+        idleConnectionTimeout = 1000 * idleConnectionTimeoutProperty.getInt(url, props);
+        lookupCacheTimeout = 1000 * lookupCacheTimeoutProperty.getInt(url, props);
     }
 
-    protected NameBinding resolve(String name) throws NamingException {
+    protected NameBinding resolve(String name) throws NamingException
+    {
         Object value = org.apache.geronimo.interop.naming.NameService.getInitialContext().lookupReturnNullIfNotFound(name);
-        if (value != null) {
+        if (value != null)
+        {
             NameBinding nb = new NameBinding();
             nb.object = value;
-            nb.cacheTimeout = System.currentTimeMillis() + namingContextCacheTimeout;
+            nb.cacheTimeout = System.currentTimeMillis() + lookupCacheTimeout;
             return nb;
         }
-        try {
+        try
+        {
             org.apache.geronimo.interop.CosNaming.NameComponent[] resolveName =
-                    {new org.apache.geronimo.interop.CosNaming.NameComponent(name, "")};
+                { new org.apache.geronimo.interop.CosNaming.NameComponent(namePrefix + name, "") };
             org.omg.CORBA.Object object = serverNamingContext.resolve(resolveName);
             NameBinding nb = new NameBinding();
             nb.object = object;
-            nb.cacheTimeout = System.currentTimeMillis() + namingContextCacheTimeout;
+            nb.cacheTimeout = System.currentTimeMillis() + lookupCacheTimeout;
             return nb;
-        } catch (org.apache.geronimo.interop.CosNaming.NamingContextPackage.NotFound notFound) {
+        }
+        catch (org.apache.geronimo.interop.CosNaming.NamingContextPackage.NotFound notFound)
+        {
             throw new NameNotFoundException(name);
-        } catch (Exception ex) {
+        }
+        catch (Exception ex)
+        {
             throw new javax.naming.NamingException(ExceptionUtil.getStackTrace(ex));
         }
     }

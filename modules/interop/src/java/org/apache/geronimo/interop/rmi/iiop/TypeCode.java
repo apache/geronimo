@@ -281,7 +281,6 @@ public class TypeCode
         return default_id();
     }
 
-    // Sybase-internal
     /**
      * @param id
      */
@@ -338,7 +337,6 @@ public class TypeCode
         return _name;
     }
 
-    // Sybase-internal
     /**
      * @param name
      */
@@ -365,7 +363,6 @@ public class TypeCode
         return _member_name.length;
     }
 
-    // Sybase-internal
     /**
      * @param count
      */
@@ -407,7 +404,6 @@ public class TypeCode
         return _member_name[index];
     }
 
-    // Sybase-internal
     /**
      * @param index
      * @param name
@@ -441,7 +437,6 @@ public class TypeCode
         return _member_type[index];
     }
 
-    // Sybase-internal
     /**
      * @param index
      * @param type
@@ -475,7 +470,6 @@ public class TypeCode
         return _member_label[index];
     }
 
-    // Sybase-internal
     /**
      * @param index
      * @param label
@@ -504,7 +498,6 @@ public class TypeCode
         return _ref;
     }
 
-    // Sybase-internal
     /**
      * @param disc
      */
@@ -531,7 +524,6 @@ public class TypeCode
         return _default;
     }
 
-    // Sybase-internal
     /**
      * @param index
      */
@@ -567,7 +559,6 @@ public class TypeCode
         return _length;
     }
 
-    // Sybase-internal
     /**
      * @param length
      */
@@ -601,7 +592,6 @@ public class TypeCode
         return _ref;
     }
 
-    // Sybase-internal
     /**
      * @param type
      */
@@ -629,7 +619,6 @@ public class TypeCode
         return _digits;
     }
 
-    // Sybase-internal
     /**
      * @param digits
      */
@@ -657,7 +646,6 @@ public class TypeCode
         return _scale;
     }
 
-    // Sybase-internal
     /**
      * @param scale
      */
@@ -691,7 +679,6 @@ public class TypeCode
         return _member_visibility[index];
     }
 
-    // Sybase-internal
     /**
      * @param index
      * @param visibility
@@ -720,7 +707,6 @@ public class TypeCode
         return _type_modifier;
     }
 
-    // Sybase-internal
     /**
      * @param modifier
      */
@@ -748,7 +734,6 @@ public class TypeCode
         return _ref;
     }
 
-    // Sybase-internal
     /**
      * @param base
      */
@@ -757,7 +742,6 @@ public class TypeCode
         _ref = base;
     }
 
-    // Sybase-internal
     /**
      * @param ref
      */
@@ -767,7 +751,6 @@ public class TypeCode
         _indirection = true;
     }
 
-    // Sybase-internal
     /**
      * @param id
      */
@@ -778,7 +761,6 @@ public class TypeCode
         _indirection = true;
     }
 
-    // Sybase-internal
     /**
      *
      */

@@ -88,7 +88,7 @@ public class PrimitiveType
                 return ArrayUtil.EMPTY_CHAR_ARRAY;
             }
             char[] array = new char[n];
-            input._cdrInput.read_char_array(array, 0, n);
+            input._cdrInput.read_wchar_array(array, 0, n);
             return array;
         }
 
@@ -97,7 +97,7 @@ public class PrimitiveType
             char[] array = (char[])value;
             int n = array.length;
             output._cdrOutput.write_long(n);
-            output._cdrOutput.write_char_array(array, 0, n);
+            output._cdrOutput.write_wchar_array(array, 0, n);
         }
     }
     ;

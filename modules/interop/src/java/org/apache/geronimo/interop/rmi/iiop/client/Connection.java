@@ -18,6 +18,8 @@
 package org.apache.geronimo.interop.rmi.iiop.client;
 
 import java.net.Socket;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
 
 import org.apache.geronimo.interop.GIOP.*;
 import org.apache.geronimo.interop.IOP.*;
@@ -26,25 +28,31 @@ import org.apache.geronimo.interop.properties.BooleanProperty;
 import org.apache.geronimo.interop.properties.IntProperty;
 import org.apache.geronimo.interop.properties.PropertyMap;
 import org.apache.geronimo.interop.properties.SystemProperties;
-import org.apache.geronimo.interop.rmi.iiop.BadMagicException;
-import org.apache.geronimo.interop.rmi.iiop.CdrInputStream;
-import org.apache.geronimo.interop.rmi.iiop.CdrOutputStream;
-import org.apache.geronimo.interop.rmi.iiop.GiopMessage;
-import org.apache.geronimo.interop.rmi.iiop.ObjectRef;
-import org.apache.geronimo.interop.rmi.iiop.SecurityInfo;
-import org.apache.geronimo.interop.rmi.iiop.UnsupportedProtocolVersionException;
+import org.apache.geronimo.interop.rmi.iiop.*;
 import org.apache.geronimo.interop.util.ExceptionUtil;
 import org.apache.geronimo.interop.util.InstancePool;
 import org.apache.geronimo.interop.util.StringUtil;
 import org.apache.geronimo.interop.util.ThreadContext;
 import org.apache.geronimo.interop.util.UTF8;
 
-public class Connection {
+public class Connection 
+{
 
-    public Connection() {
+    private static final byte reservedBA[] = new byte[] { 0, 0, 0};
+    private int requestid_ = 0;
+    
+    // http tunnelling related
+    private boolean httpTunnelled;
+    private String  httpHeaders;
+    private String  webProxyHost;
+    private int     webProxyPort;
+
+    public Connection()
+    {
     }
 
-    public static Connection getInstance(String endpoint, ObjectRef objectRef, PropertyMap connProps) {
+    public static Connection getInstance(String endpoint, ObjectRef objectRef, PropertyMap connProps) 
+    {
         Connection conn = new Connection();
         conn.init(endpoint, objectRef, connProps);
         return conn;
@@ -55,40 +63,69 @@ public class Connection {
 
     public static final IntProperty socketTimeoutProperty =
             new IntProperty(Connection.class, "socketTimeout")
-            .defaultValue(SystemProperties.rmiSocketTimeoutProperty.getInt());
+            .defaultValue(600); // 10 minutes
 
-    private static final boolean SIMPLE_IDL = false; // simpleIDLProperty.getBoolean();
-    private ServiceContext[]    EMPTY_SERVICE_CONTEXT = {};
+    private static final boolean SIMPLE_IDL = simpleIDLProperty.getBoolean();
+
+    private static final ServiceContext[] EMPTY_SERVICE_CONTEXT = {};
+
+    private static final byte[] CODE_SET_ENCAPSULATION =
+    {
+        (byte)0, // big endian
+        (byte)0, (byte)0, (byte)0, // padding
+        (byte)0x05, (byte)0x01, (byte)0x00, (byte)0x01, // 0x05010001 = CodeSet ID for UTF-8
+        (byte)0x00, (byte)0x01, (byte)0x01, (byte)0x09, // 0x00010109 = CodeSet ID for UTF-16
+    };
+
+    private static final ServiceContext CODE_SET_SERVICE_CONTEXT = new ServiceContext(1, CODE_SET_ENCAPSULATION);
+
     private String              url;
+
     private boolean             ok;
+
     private InstancePool        pool;
-    private String              serverHost;
+
     private Socket              socket;
+
+    protected org.apache.geronimo.interop.rmi.iiop.ObjectInputStream input;
+
+    protected org.apache.geronimo.interop.rmi.iiop.ObjectOutputStream output;
+
     private CdrOutputStream     parameters;
+
     private CdrOutputStream     requestOut;
+
     private CdrInputStream      results;
+
     private String              exceptionType;
+
     private Exception           exception;
+
     private RequestHeader_1_2   requestHeader;
+
     private int                 callForget;
 
-    private org.apache.geronimo.interop.rmi.iiop.ObjectInputStream  input;
-    private org.apache.geronimo.interop.rmi.iiop.ObjectOutputStream output;
 
     protected java.io.InputStream   socketIn;
+
     protected java.io.OutputStream  socketOut;
 
-    public String getInstanceName() {
+    public String getInstanceName() 
+    {
         return url;
     }
 
-    public void close() {
+    public void close() 
+    {
         parameters = null;
         input = null;
         output = null;
-        if (ok) {
+        if (ok) 
+        {
             pool.put(this);
-        } else {
+        }
+        else
+        {
             shutdown();
         }
     }
@@ -101,62 +138,85 @@ public class Connection {
     public void forget(Object requestKey) {
     }
 
-    public void invoke(ObjectRef object, String method, Object requestKey, int retryCount) {
+    public void invoke(ObjectRef object, String method, Object requestKey, int retryCount)
+    {
+        if(object.$getForwardingAddress() != null)
+        {
+            object = object.$getForwardingAddress();
+        }
+
         RequestHeader_1_2 request = requestHeader;
 
-        System.out.println( "object = " + object );
-        System.out.println( "method = " + method );
-        System.out.println( "requestKey = " + requestKey );
-
-        request.request_id = 0;
+        request.request_id = requestid_++;
         request.response_flags = 3;
         request.target = new TargetAddress();
         request.target.object_key(object.$getObjectKey());
         request.operation = method;
         request.service_context = getServiceContext(object, requestKey, retryCount);
+        request.reserved = reservedBA;  // Sun's generated org.omg.GIOP.RequestHeader_1_2Helper wants this....
 
-        request.reserved = new byte[3];  // Sun's generated org.omg.GIOP.RequestHeader_1_2Helper wants this....
-
-        if (requestOut == null) {
-            System.out.println( "requestOut == null" );
+        if (requestOut == null)
+        {
             requestOut = CdrOutputStream.getInstance();
         }
-        System.out.println( "write_request" );
         requestOut.write_request(request, parameters);
 
-        try {
-            requestOut.send_message(socketOut, url);//_serverHost);
+
+        try 
+        {
+            if(httpTunnelled)
+            {
+                requestOut.send_http_request(socketOut, url, httpHeaders);
+            }
+            else
+            {
+                requestOut.send_message(socketOut, url);
+            }
         } catch (RuntimeException ex) {
-            //if (object.$getAutomaticFailover())
-            //{
-            //    throw new RetryInvokeException(ex);
-            //}
             throw ex;
         }
 
         requestOut.reset();
 
-        if (results == null) {
+        if (results == null)
+        {
             results = CdrInputStream.getInstance();
-        } else {
+        }
+        else
+        {
             results.reset();
         }
 
         results.setNamingContext(object.$getNamingContext());
         GiopMessage message;
-        try {
-            message = results.receive_message(socketIn, url);//_serverHost);
-        } catch (BadMagicException ex) {
+        try
+        {
+            if(httpTunnelled)
+            {
+                message = results.receive_http_response(socketIn, url);
+            }
+            else
+            {
+                message = results.receive_message(socketIn, url);//_serverHost);
+            }
+        }
+        catch (BadMagicException ex)
+        {
             throw new SystemException(ex);
-        } catch (UnsupportedProtocolVersionException ex) {
+        }
+        catch (UnsupportedProtocolVersionException ex)
+        {
             throw new SystemException(ex);
-        } catch (RuntimeException ex) {
+        }
+        catch (RuntimeException ex)
+        {
             throw new RetryInvokeException(ex);
         }
 
-        switch (message.type) {
-            case MsgType_1_1._Reply:
-                processReply(message.reply);
+        switch (message.type)
+        {
+          case MsgType_1_1._Reply:
+                processReply(message.reply, object);
                 break;
 
             default:
@@ -224,23 +284,75 @@ public class Connection {
         }
     }
 
+    public void clearException()
+    {
+        exceptionType = null;
+        exception = null;
+    }
+
     // TODO: check why we have 'objectRef' parameter???
-    protected void init(String endpoint, ObjectRef objectRef, PropertyMap connProps) {
+    protected void init(String endpoint, ObjectRef objectRef, PropertyMap connProps)
+    {
+        setHttpTunnelledPropsIfTrue(connProps);
+
+        if(httpTunnelled)
+        {
+            httpInit(endpoint, connProps);
+            return;
+        }
+
         url = "iiop://" + endpoint;
         UrlInfo urlInfo = UrlInfo.getInstance(url);
         String host = urlInfo.getHost();
         int port = urlInfo.getPort();
         int socketTimeout = socketTimeoutProperty.getInt(endpoint, connProps);
-        try {
+        try
+        {
             socket = new Socket(host, port);
             socketIn = socket.getInputStream();
             socketOut = socket.getOutputStream();
             socket.setSoTimeout(1000 * socketTimeout);
-            serverHost = host;
-        } catch (Exception ex) {
-            throw new SystemException(errorConnectFailed(host, port, ex));
+        }
+        catch (Exception ex) 
+        {
+            throw new SystemException(ex);
         }
         requestHeader = new RequestHeader_1_2();
+        requestHeader.reserved = reservedBA;
+    }
+
+    private void httpInit(String endpoint, PropertyMap connProps)
+    {
+        String host = null;
+        int port;
+        url = "iiop://" + endpoint;
+        int socketTimeout = socketTimeoutProperty.getInt(endpoint, connProps);
+
+        if(webProxyHost != null)
+        {
+            host = webProxyHost;
+            port = webProxyPort;
+        }
+        else
+        {
+            UrlInfo urlInfo = UrlInfo.getInstance(url);
+            host = urlInfo.getHost();
+            port = urlInfo.getPort();
+        }
+
+        try
+        {
+            socket = new Socket(host, port);
+            socketIn = socket.getInputStream();
+            socketOut = socket.getOutputStream();
+            socket.setSoTimeout(1000 * socketTimeout);
+        }
+        catch (IOException ex)
+        {
+            throw new SystemException(ex);
+        }
+        requestHeader = new RequestHeader_1_2();
+        requestHeader.reserved = reservedBA;
     }
 
     public ServiceContext[] getServiceContext(ObjectRef object, Object requestKey, int retryCount) {
@@ -276,51 +388,51 @@ public class Connection {
         if (requestKey != null) {
             count++;
         }
-        if (count == 0) {
-            return EMPTY_SERVICE_CONTEXT; // avoid allocating empty array.
-        }
         ServiceContext[] context = new ServiceContext[count];
         int index = 0;
+        context[index++] = CODE_SET_SERVICE_CONTEXT;
         if (username != null) {
             context[index++] = new ServiceContext(SecurityInfo.TAG_USERNAME, SecurityInfo.encode(username));
         }
         if (password != null) {
             context[index++] = new ServiceContext(SecurityInfo.TAG_PASSWORD, SecurityInfo.encode(password));
         }
-        if (requestKey != null) {
-            if (retryCount == 0) {
-                // 'BF' indicates Before Failure
-                context[index++] = new ServiceContext(0xBFBFBFBF, UTF8.fromString((String) requestKey));
-            } else {
-                // 'AF' indicates After Failure
-                context[index++] = new ServiceContext(0xAFAFAFAF, UTF8.fromString((String) requestKey));
-            }
-        }
         return context;
     }
 
-    protected void processReply(ReplyHeader_1_2 reply) {
+    protected void processReply(ReplyHeader_1_2 reply, ObjectRef object)
+    {
         processReplyServiceContext(reply);
         int status = reply.reply_status.value();
-        switch (status) {
-            case ReplyStatusType_1_2._NO_EXCEPTION:
-                processNormalReply(reply);
-                break;
-            case ReplyStatusType_1_2._USER_EXCEPTION:
-                processUserException(reply);
-                break;
-            case ReplyStatusType_1_2._SYSTEM_EXCEPTION:
-                processSystemException(reply);
-                break;
-            case ReplyStatusType_1_2._LOCATION_FORWARD:
-                throw new SystemException("TODO");
-            case ReplyStatusType_1_2._LOCATION_FORWARD_PERM:
-                throw new SystemException("TODO");
-            case ReplyStatusType_1_2._NEEDS_ADDRESSING_MODE:
-                throw new SystemException("TODO");
-            default:
-                throw new SystemException("reply status = " + status);
+        switch (status)
+        {
+          case ReplyStatusType_1_2._NO_EXCEPTION:
+            processNormalReply(reply);
+            break;
+          case ReplyStatusType_1_2._USER_EXCEPTION:
+            processUserException(reply);
+            break;
+          case ReplyStatusType_1_2._SYSTEM_EXCEPTION:
+            processSystemException(reply);
+            break;
+          case ReplyStatusType_1_2._LOCATION_FORWARD:
+            processLocationForward(reply, object);
+            break;
+          case ReplyStatusType_1_2._LOCATION_FORWARD_PERM:
+            processLocationForward(reply, object);
+            break;
+          case ReplyStatusType_1_2._NEEDS_ADDRESSING_MODE:
+            throw new SystemException("TODO");
+          default:
+            throw new SystemException("reply status = " + status);
         }
+    }
+
+    protected void processLocationForward(ReplyHeader_1_2 reply, ObjectRef object)
+    {
+        ObjectRef ref = (ObjectRef)results.read_Object();
+        object.$setForwardingAddress(ref);
+        throw new RetryInvokeException(new RuntimeException("LOCATION_FORWARD"));
     }
 
     protected void processReplyServiceContext(ReplyHeader_1_2 reply) {
@@ -341,35 +453,126 @@ public class Connection {
         // Intentionally empty.
     }
 
-    protected void processUserException(ReplyHeader_1_2 reply) {
+    protected void processUserException(ReplyHeader_1_2 reply)
+    {
         exception = null;
-        exceptionType = results.read_string();
+        String type = results.read_string();
+        type = StringUtil.removePrefix(type, "IDL:");
+        type = StringUtil.removeSuffix(type, ":1.0");
+        if (! (input instanceof SimpleObjectInputStream))
+        {
+            if (type.endsWith("Ex"))
+            {
+                type = StringUtil.removeSuffix(type, "Ex") + "Exception";
+            }
+        }
+        type = type.replace('/', '.');
+        exceptionType = type;
         ok = true;
     }
 
-    protected void processSystemException(ReplyHeader_1_2 reply) {
+    protected void processSystemException(ReplyHeader_1_2 reply)
+    {
         exceptionType = "???";
         SystemExceptionReplyBody replyBody = SystemExceptionReplyBodyHelper.read(results);
         String id = replyBody.exception_id;
+        id = StringUtil.removePrefix(id, "IDL:CORBA/"); // ancient servers might send this!
         id = StringUtil.removePrefix(id, "IDL:omg.org/CORBA/");
         id = StringUtil.removeSuffix(id, ":1.0");
-        String stackTrace = null;
-        if (results.hasMoreData()) {
-            stackTrace = results.read_string() + ExceptionUtil.getDivider();
+        String causedBy = null;
+        if (results.hasMoreData())
+        {
+            // This is non-standard for IIOP, but if the data isn't present,
+            // we wont try to read it!
+            causedBy = ExceptionUtil.causedBy(results.read_string());
         }
         ok = true;
         String exceptionClassName = "org.omg.CORBA." + id;
-        try {
+        try
+        {
             Class exceptionClass = ThreadContext.loadClass(exceptionClassName);
-            org.omg.CORBA.SystemException corbaException = (org.omg.CORBA.SystemException) exceptionClass.newInstance();
+            Constructor constructor = exceptionClass.getConstructor
+            (
+                new Class[] { String.class }
+            );
+            org.omg.CORBA.SystemException corbaException;
+            corbaException = (org.omg.CORBA.SystemException)constructor.newInstance
+            (
+                new Object[] { causedBy == null ? "" : causedBy }
+            );
             corbaException.minor = replyBody.minor_code_value;
             corbaException.completed = org.omg.CORBA.CompletionStatus.from_int(replyBody.completion_status);
-            exception = new org.apache.geronimo.interop.SystemException(stackTrace, corbaException);
-        } catch (Exception ex) {
-            exception = new org.apache.geronimo.interop.SystemException(stackTrace,
-                                                                         new org.omg.CORBA.UNKNOWN(replyBody.exception_id,
-                                                                                                   replyBody.minor_code_value,
-                                                                                                   org.omg.CORBA.CompletionStatus.from_int(replyBody.completion_status)));
+            exception = corbaException;
+        }
+        catch (Exception ex)
+        {
+            // Shouldn't happen, but just in case
+            ex.printStackTrace();
+            if (causedBy == null)
+            {
+                causedBy = replyBody.exception_id;
+            }
+            else
+            {
+                causedBy = replyBody.exception_id + "\nCaused by: " + causedBy;
+            }
+            exception = new org.omg.CORBA.UNKNOWN(causedBy,
+                replyBody.minor_code_value,
+                org.omg.CORBA.CompletionStatus.from_int(replyBody.completion_status));
+        }
+    }
+
+    private void setHttpTunnelledPropsIfTrue(PropertyMap connprops)
+    {
+        if(connprops.get("http") != null)
+        {
+            httpTunnelled = true;
+        }
+        else
+        {
+            httpTunnelled = false;
+        }
+
+        if(httpTunnelled)
+        {
+            // get http extra headers if present
+            httpHeaders = connprops.getProperty("HttpExtraHeader");
+            
+            if(httpHeaders != null && httpHeaders.toLowerCase().indexOf("user-agent") == -1)
+            {
+                httpHeaders += "User-Agent: Geronimo/1.0\r\n";
+            }
+
+            if(httpHeaders == null)
+            {
+                httpHeaders = "User-Agent: Geronimo/1.0\r\n";
+            }
+
+            //get webproxy host/port if present:
+            webProxyHost = connprops.getProperty("WebProxyHost");
+            String port = connprops.getProperty("WebProxyPort");
+            
+            if(port != null)
+            {
+                try
+                {
+                    webProxyPort = java.lang.Integer.parseInt(port);
+                }
+                catch(java.lang.NumberFormatException e)
+                {
+                    throw new SystemException(org.apache.geronimo.interop.util.ExceptionUtil.causedBy(e));
+                }
+            }
+
+            if(port == null && webProxyHost != null)
+            {
+                webProxyPort = 80;  //default
+            }
+        }
+        else
+        {
+            webProxyHost = null;
+            httpHeaders = null;
         }
     }
 
@@ -395,11 +598,5 @@ public class Connection {
             }
             socket = null;
         }
-    }
-
-    protected String errorConnectFailed(String host, int port, Exception ex) {
-        String msg;
-        msg = "Error: errorConnectFailed: host=" + host + ", port=" + port + ", ex = " + ex;
-        return msg;
     }
 }

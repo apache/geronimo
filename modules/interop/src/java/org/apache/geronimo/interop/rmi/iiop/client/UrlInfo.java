@@ -30,6 +30,14 @@ import org.apache.geronimo.interop.util.NamedValueList;
 import org.apache.geronimo.interop.util.StringUtil;
 
 public class UrlInfo {
+
+    private String namePrefix = "";
+    private int    ver;
+    
+    final static int IIOP_1_0 = 0;
+    final static int IIOP_1_1 = 1;
+    final static int IIOP_1_2 = 2;
+
     public static UrlInfo getInstance(String url) {
         UrlInfo object = new UrlInfo();
         object.init(url);
@@ -46,12 +54,41 @@ public class UrlInfo {
     }
 
     private int         protocol;
+
     private String      host;
+
     private int         port;
+
     private String      objectKey;
+
     private PropertyMap properties;
 
-    protected void init(String urlString) {
+    private boolean handleUrl(String url)
+    {
+        if(!UrlScheme.canProcess(url))
+            return false;
+
+        UrlScheme us = new UrlScheme(url);
+        us.process();
+        
+        host = us.getHost(0);
+        port = us.getPort(0);
+        ver = us.getVersion(0);
+        objectKey = us.getObjectKey();
+        namePrefix = us.getNamePrefix();
+        properties = new PropertyMap();
+        protocol = Protocol.IIOP;
+        
+        return true;
+    }
+
+    protected void init(String urlString)
+    {
+        if(handleUrl(urlString))
+        {
+            return;
+        }
+
         int cssPos = urlString.indexOf("://");
         if (cssPos == -1) {
             throw new IllegalArgumentException(urlString);
@@ -120,6 +157,16 @@ public class UrlInfo {
 
     public PropertyMap getProperties() {
         return properties;
+    }
+
+    public String getNamePrefix()
+    {
+        return namePrefix;
+    }
+
+    public int getVersion()
+    {
+        return ver;
     }
 
     public String toString() {

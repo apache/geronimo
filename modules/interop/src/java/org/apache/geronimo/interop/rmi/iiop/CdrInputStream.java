@@ -23,32 +23,34 @@ import org.apache.geronimo.interop.rmi.iiop.compiler.StubFactory;
 import org.apache.geronimo.interop.util.*;
 import org.apache.geronimo.interop.IOP.*;
 import org.apache.geronimo.interop.GIOP.*;
+import org.apache.geronimo.interop.SystemException;
 import org.omg.CORBA.TCKind;
+import java.io.*;
+import java.util.zip.*;
 
 /**
  ** CORBA 2.3 / GIOP 1.2 CDR InputStream.
  **/
 public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
 {
-    //public static final Component component = new Component(CdrInputStream.class);
 
     public static CdrInputStream getInstance()
     {
-        CdrInputStream input = new CdrInputStream(); //(CdrInputStream)component.getInstance();
+        CdrInputStream input = new CdrInputStream(); 
         input.init(new byte[64], 0, DEFAULT_BUFFER_LENGTH, false);
         return input;
     }
 
     public static CdrInputStream getInstance(byte[] buffer)
     {
-        CdrInputStream input = new CdrInputStream(); //(CdrInputStream)component.getInstance();
+        CdrInputStream input = new CdrInputStream();
         input.init(buffer, 0, buffer.length, false);
         return input;
     }
 
     public static CdrInputStream getInstance(byte[] buffer, int offset, int length, boolean little)
     {
-        CdrInputStream input = new CdrInputStream(); //(CdrInputStream)component.getInstance();
+        CdrInputStream input = new CdrInputStream(); 
         input.init(buffer, offset, length, little);
         return input;
     }
@@ -60,7 +62,7 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
 
     public static CdrInputStream getPooledInstance()
     {
-        CdrInputStream input = null; // (CdrInputStream)_pool.get();
+        CdrInputStream input = null; 
         if (input == null)
         {
             input = getInstance();
@@ -76,19 +78,21 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
 
     private static final int MAXIMUM_POOLED_BUFFER_LENGTH = 1024;
 
-    private static boolean RMI_TRACE = true; //SystemProperties.rmiTrace();
+    private static boolean RMI_TRACE = true; 
 
     private static final byte[] EMPTY_BYTE_ARRAY = {};
 
-    //private static ThreadLocalInstancePool _pool = new ThreadLocalInstancePool(CdrInputStream.class.getName());
-
     private GiopMessage _giopMessage;
+
+    private boolean _moreFragments;
 
     private ClientNamingContext _namingContext;
 
     private boolean _unaligned;
 
     private byte[] _pooledBuffer;
+
+    private boolean _gzip;
 
     // -----------------------------------------------------------------------
     // package-private data
@@ -117,7 +121,6 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
     public void recycle()
     {
         reset();
-        //_pool.put(this);
     }
 
     public void reset()
@@ -166,6 +169,11 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
         }
         return message.giopVersion;
     }
+
+    public void setGiopVersion(int giopVersion)
+    {
+		// TODO!!!
+	}
 
     public void setLength(int length)
     {
@@ -251,6 +259,11 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
 
     public GiopMessage receive_message(java.io.InputStream input, String url)
     {
+        return receive_message(input, url, true);
+    }
+
+    public GiopMessage receive_message(java.io.InputStream input, String url, boolean readFragments)
+    {
         GiopMessage message = _giopMessage;
         if (message == null)
         {
@@ -266,7 +279,28 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
         int m4 = read_octet();
         if (m1 != 'G' || m2 != 'I' || m3 != 'O' || m4 != 'P')
         {
-            throw new BadMagicException(m1 + "," + m2 + "," + m3 + "," + m4);
+            if (m1 == 'G' && m2 == 'Z' && m3 == 'I' && m4 == 'P')
+            {
+                _gzip = true;
+            }
+            else if ((m1 == 'P' || m1 == 'p') && (m2 == 'O' || m2 == 'o') && (m3 == 'S' || m3 == 's') && 
+                    (m4 == 'T' || m4 == 't'))
+            {
+                return receive_http_post_message(input, url);
+            }
+            else if( (m1 == 'G' || m1 == 'g') && (m2 == 'E' || m2 == 'e') && (m3 == 'T' || m3 == 't') && 
+                m4 == ' ')
+            {
+                return receive_http_get_message(input, url);
+            }
+            else
+            {
+                throw new BadMagicException(m1 + "," + m2 + "," + m3 + "," + m4);
+            }
+        }
+        else
+        {
+            _gzip = false;
         }
         int v1 = read_octet();
         int v2 = read_octet();
@@ -278,14 +312,14 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
         message.giopVersion = giopVersion = v2;
         int flags = read_octet();
         _little = (flags & 1) != 0;
-        boolean fragmented = (flags & 2) != 0;
+        _moreFragments = (flags & 2) != 0;
         int messageType = message.type = read_octet();
         int messageSize = message.size = read_ulong();
-        if (fragmented && messageSize % 8 != 0)
+        _length = 12 + messageSize;
+        if (_moreFragments && _length % 8 != 0)
         {
             throw new org.omg.CORBA.MARSHAL("GIOP Fragment: bad message size (not divisible by 8) = " + messageSize);
         }
-        _length = 12 + messageSize;
         if (messageSize > 0 && input != null)
         {
             if (_buffer.length < _length)
@@ -303,13 +337,19 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
             System.arraycopy(_buffer, 0, data, 0, _length);
             RmiTrace.receive(url, data);
         }
+        if (_moreFragments && readFragments)
+        {
+            read_fragments(input, url);
+        }
         switch (messageType)
         {
-          case MsgType_1_1._Request:
+            case MsgType_1_1._Fragment:
+                break;
+            case MsgType_1_1._Request:
             switch (giopVersion)
             {
-              case GiopVersion.VERSION_1_0:
-                {
+                case GiopVersion.VERSION_1_0:
+                    {
                     RequestHeader_1_0 req10 = RequestHeader_1_0Helper.read(this);
                     RequestHeader_1_2 req12 = new RequestHeader_1_2();
                     req12.service_context = req10.service_context;
@@ -319,9 +359,9 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
                     (req12.target = new TargetAddress()).object_key(req10.object_key);
                     message.request = req12;
                 }
-                break;
-              case GiopVersion.VERSION_1_1:
-                {
+                    break;
+                case GiopVersion.VERSION_1_1:
+                    {
                     RequestHeader_1_1 req11 = RequestHeader_1_1Helper.read(this);
                     RequestHeader_1_2 req12 = new RequestHeader_1_2();
                     req12.service_context = req11.service_context;
@@ -331,51 +371,285 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
                     (req12.target = new TargetAddress()).object_key(req11.object_key);
                     message.request = req12;
                 }
-                break;
-              case GiopVersion.VERSION_1_2:
-                message.request = RequestHeader_1_2Helper.read(this);
-                if (_length > _offset)
+                    break;
+                case GiopVersion.VERSION_1_2:
+                    message.request = RequestHeader_1_2Helper.read(this);
+                    if (_length > _offset)
+                    {
+                        read_align(8, 0); // parameters are 8-byte aligned (if present)
+                    }
+                    break;
+            }
+                if (_gzip)
                 {
-                    read_align(8, 0); // parameters are 8-byte aligned (if present)
+                    unzip();
                 }
                 break;
-            }
-            break;
-          case MsgType_1_1._Reply:
-            message.reply = ReplyHeader_1_2Helper.read(this);
-            if (giopVersion >= GiopVersion.VERSION_1_2)
-            {
-                if (_length > _offset)
+            case MsgType_1_1._Reply:
+                message.reply = ReplyHeader_1_2Helper.read(this);
+                if (giopVersion >= GiopVersion.VERSION_1_2)
                 {
-                    read_align(8, 0); // results are 8-byte aligned (if present)
+                    if (_length > _offset)
+                    {
+                        read_align(8, 0); // results are 8-byte aligned (if present)
+                    }
                 }
-            }
-            break;
-          case MsgType_1_1._LocateRequest:
+                if (_gzip)
+                {
+                    unzip();
+                }
+                break;
+            case MsgType_1_1._LocateRequest:
             switch (giopVersion)
             {
-              case GiopVersion.VERSION_1_0:
-              case GiopVersion.VERSION_1_1:
-                {
+                case GiopVersion.VERSION_1_0:
+                case GiopVersion.VERSION_1_1:
+                    {
                     LocateRequestHeader_1_0 req10 = LocateRequestHeader_1_0Helper.read(this);
                     LocateRequestHeader_1_2 req12 = new LocateRequestHeader_1_2();
                     req12.request_id = req10.request_id;
                     (req12.target = new TargetAddress()).object_key(req10.object_key);
                     message.locateRequest = req12;
                 }
-                break;
-              default:
-                message.locateRequest = LocateRequestHeader_1_2Helper.read(this);
+                    break;
+                default:
+                    message.locateRequest = LocateRequestHeader_1_2Helper.read(this);
             }
-            break;
-          case MsgType_1_1._LocateReply:
-            // We never send LocateRequest, so this is unexpected.
-            throw new org.omg.CORBA.MARSHAL("GIOP LocateReply: unexpected");
-          // TODO: CloseConnection messages etc...
-          default:
-            throw new org.omg.CORBA.NO_IMPLEMENT("TODO: message type = " + messageType);
+                break;
+            case MsgType_1_1._LocateReply:
+                // We never send LocateRequest, so this is unexpected.
+                throw new org.omg.CORBA.MARSHAL("GIOP LocateReply: unexpected");
+                // TODO: CloseConnection messages etc...
+            default:
+                throw new org.omg.CORBA.NO_IMPLEMENT("TODO: message type = " + messageType);
         }
         return message;
+    }
+
+    private GiopMessage receive_http_post_message(java.io.InputStream input, String url)
+    {
+        int ver = http_read_hiop_version(input);
+
+        //skip headers and read content length
+        boolean cLenRead = false;
+        int clen = 0, count;
+
+        while( (count = http_read_line(input, 0)) != 0)
+        {
+            if( (_buffer[0] == 'c' || _buffer[0] == 'C'))
+            {
+                String str = new String(_buffer, 0, count).toLowerCase();
+                if(str.startsWith("content-length:"))
+                {
+                    str = str.substring(15).trim();
+                    try
+                    {
+                        clen = java.lang.Integer.parseInt(str);
+                    }
+                    catch(Exception e)
+                    {
+                        throw new SystemException(e.toString());
+                    }
+                    cLenRead = true;
+                }
+            }
+        }
+
+        if(!cLenRead)
+        {
+            throw new SystemException("HTTP Post: Missing content-length");
+        }
+
+        java.io.InputStream msgInput = input;
+        if(ver == 1)
+        {
+            byte[] buffer = new byte[clen];
+            read(input, buffer, 0, clen);
+            String data = new String(buffer, 8, buffer.length - 8); //skip MESSAGE=
+            byte[] giopdata = org.apache.geronimo.interop.util.Base16Binary.fromString(data);
+            ByteArrayInputStream bi = new ByteArrayInputStream(giopdata);
+            msgInput = bi;
+        }
+        _offset = 0;
+        GiopMessage gm = receive_message(msgInput, url, false);
+        gm.httpTunneling = true;
+        gm.hiopVersion = ver;
+        return gm;
+    }
+
+    /**
+     *  Format: Get /host/port/HIOP/1.0/hex-data
+     */
+    protected GiopMessage receive_http_get_message(java.io.InputStream input, String url)
+    {
+        //We have already read first 12 bytes ( = sizeof(GIOP header) )
+        
+        int count = http_read_line(input, 12);
+        String str = new String(_buffer, 0, count);
+        int index = str.indexOf("/HIOP/1.0/");
+        if(index == -1)
+        {
+            throw new SystemException("HTTP Tunnelling: HIOP version error");
+        }
+
+        index += 10;
+        if( index >= count)
+        {
+            throw new SystemException("HTTP Tunneling: GET message error");
+        }
+
+        byte[] giopdata = org.apache.geronimo.interop.util.Base16Binary.fromString(str.substring(index));
+        ByteArrayInputStream bi = new ByteArrayInputStream(giopdata);
+
+        GiopMessage gm = receive_message(bi, url, false);
+        gm.httpTunneling = true;
+        gm.hiopVersion = 1;
+        return gm;
+    }
+
+    /**
+     * Note that we consider that the client always uses HIOP/2.0. Hence, the 
+     * iiop data is binary stream instead of base64 hex string.
+     */
+    public GiopMessage receive_http_response(java.io.InputStream input, String url)
+    {
+        //read status: HTTP/1.1 200 OK
+        int count = http_read_line(input, 0);
+        String status = new String(_buffer, 0, count).toLowerCase();
+        if(!status.startsWith("http/1.1") && !status.startsWith("http/1.0"))
+        {
+            throw new SystemException("HTTP response error");
+        }
+        
+        if(status.indexOf("200") == -1 || status.indexOf("ok") == -1)
+        {
+            throw new SystemException("HTTP response error");
+        }
+
+        //skip headers and read content length
+        boolean cLenRead = false;
+        int clen = 0;
+
+        while( (count = http_read_line(input, 0)) != 0)
+        {
+            if( (_buffer[0] == 'c' || _buffer[0] == 'C'))
+            {
+                String str = new String(_buffer, 0, count).toLowerCase();
+                if(str.startsWith("content-length:"))
+                {
+                    str = str.substring(15).trim();
+                    try
+                    {
+                        clen = java.lang.Integer.parseInt(str);
+                    }
+                    catch(Exception e)
+                    {
+                        throw new SystemException(e.toString());
+                    }
+                    cLenRead = true;
+                }
+            }
+        }
+
+        if(!cLenRead)
+        {
+            throw new SystemException("HTTP Post: Missing Content-Length");
+        }
+
+        //now read the iiop stream
+
+        GiopMessage gm = receive_message(input, url, false);
+        gm.httpTunneling = true;
+        gm.hiopVersion = 2;
+        return gm;
+    }
+
+    /**
+     * Return the HIOP version (1 or 2)
+     */
+    private int http_read_hiop_version(java.io.InputStream input)
+        throws java.lang.NumberFormatException
+    {
+        //We have already read first 12 bytes ( = sizeof(GIOP header) )
+        int count = http_read_line(input, 12);
+        
+        String str = new String(_buffer, 0, count);
+        int index, ver;
+
+        if((index = str.indexOf("HIOP")) == -1)
+        {
+            throw new SystemException("HTTP: Post Message - HIOP Version not specified");
+        }
+        else
+        {
+            //HIOP/1.0 or HIOP/2.0
+
+            if((index + 8) > count)
+            {
+                throw new SystemException("HTTP: Post Message - Incorrect HIOP header");
+            }
+
+            index += 5;
+
+            if(_buffer[index + 1] != '.' && _buffer[index + 2] != '0')
+            {
+                throw new SystemException("HTTP: Incorrect HIOP version");
+            }
+
+            if(_buffer[index] == '1')
+            {
+                ver = 1;
+            }
+            else if (_buffer[index] == '2')
+            {
+                ver = 2;
+            }
+            else
+            {
+                throw new SystemException("HTTP: Incorrect HIOP version");
+            }
+        }
+        return ver;
+    }
+
+    /**
+     * Read the line from input stream terminated by CRLF. 
+     * CRLF is not part of the data in the buffer. Return the number of bytes in the line
+     */
+
+    private int http_read_line(java.io.InputStream input, int offset)  //offset in _buffer
+    {
+        try
+        {
+            int b;
+            while ( (b = input.read()) != '\r' )
+            {
+                if(b == -1) //EOF has been reached
+                {
+                    throw new SystemException("HTTP: read error");
+                }
+                if(_buffer.length <= offset)
+                {
+                    byte[] newbuffer = new byte[offset*2];
+                    System.arraycopy(_buffer, 0, newbuffer, 0, _buffer.length);
+                    _buffer = newbuffer;
+
+                }
+                _buffer[offset++] = (byte)b;
+            }
+
+            // go past the \n character
+            b = input.read();
+            if ( b != '\n' )
+            {
+                throw new SystemException("HTTP CRLF combination missing");
+            }
+        }
+        catch (java.io.IOException ex)
+        {
+            throw new SystemException(ex.toString());
+        }
+        return offset;
     }
 
     // -----------------------------------------------------------------------
@@ -411,6 +685,7 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
         read_align(1, 3);
         int size = (int)read_wchar_size();
         int value = (char)read_ushort_no_align_big_endian();
+        _offset += 2;
         boolean littleEndian = ((value & 0xffff) == 0xFFFE);
         boolean bigEndian = ((value & 0xffff) == 0xFEFF);
         boolean bomPresent = (littleEndian || bigEndian);
@@ -422,12 +697,16 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
         if (littleEndian)
         {
             read_align(1, 2);
-            return (char)read_ushort_no_align_little_endian();
+            char ch = (char)read_ushort_no_align_little_endian();
+            _offset += 2;
+            return ch;
         }
         else if (bigEndian)
         {
             read_align(1, 2);
-            return (char)read_ushort_no_align_big_endian();
+            char ch = (char)read_ushort_no_align_big_endian();
+            _offset += 2;
+            return ch;
         }
         else
         {
@@ -703,16 +982,6 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
             {
                 interfaceName = "org.apache.geronimo.interop" + interfaceName.substring(7);
             }
-            //if(interfaceName.equals("SessionManager.Factory"))
-            //{
-            //    ObjectRef homeRef =
-            //        StubFactory.getInstance().getStub(org.apache.geronimo.interop.rmi.iiop.J40Home.class);
-            //    homeRef.$setIOR(ior);
-            //    homeRef.$setNamingContext(_namingContext);
-            //    org.apache.geronimo.interop.rmi.iiop.J40Home home = (org.apache.geronimo.interop.rmi.iiop.J40Home)homeRef;
-            //    org.apache.geronimo.interop.rmi.iiop.J40MetaData md = home.getJ40MetaData();
-            //    interfaceName = md.ejbHomeInterfaceClass;
-            //}
             Class remoteInterface = ThreadContext.loadClass(interfaceName);
             stub = StubFactory.getInstance().getStub(remoteInterface);
         }
@@ -898,8 +1167,7 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
         value.read_value(os.create_input_stream(), tc);
         return value;
     }
-
-    // Sybase-internal
+    
     public void read_Any(org.omg.CORBA.portable.OutputStream os, org.omg.CORBA.TypeCode tc)
     {
         try
@@ -1037,31 +1305,31 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
     }
 
     public org.omg.CORBA.Any read_any() {
-        throw new org.omg.CORBA.NO_IMPLEMENT("read_any: NOT YET IMPLMENTED");
+        throw new org.omg.CORBA.NO_IMPLEMENT("read_any: NOT IMPLMENTED");
     }
 
     public org.omg.CORBA.Principal read_Principal() {
-        throw new org.omg.CORBA.NO_IMPLEMENT("read_Principal: NOT YET IMPLMENTED");
+        throw new org.omg.CORBA.NO_IMPLEMENT("read_Principal: NOT IMPLMENTED");
     }
 
     public int read() throws java.io.IOException {
-        throw new org.omg.CORBA.NO_IMPLEMENT("read: NOT YET IMPLMENTED");
+        throw new org.omg.CORBA.NO_IMPLEMENT("read: NOT IMPLMENTED");
     }
 
     public java.math.BigDecimal read_fixed() {
-        throw new org.omg.CORBA.NO_IMPLEMENT("read_fixed: NOT YET IMPLMENTED");
+        throw new org.omg.CORBA.NO_IMPLEMENT("read_fixed: NOT IMPLMENTED");
     }
 
     public org.omg.CORBA.Context read_Context() {
-        throw new org.omg.CORBA.NO_IMPLEMENT("read_Context: NOT YET IMPLMENTED");
+        throw new org.omg.CORBA.NO_IMPLEMENT("read_Context: NOT IMPLMENTED");
     }
 
     public org.omg.CORBA.Object read_Object(Class _class) {
-        throw new org.omg.CORBA.NO_IMPLEMENT("read_Object: NOT YET IMPLMENTED");
+        throw new org.omg.CORBA.NO_IMPLEMENT("read_Object: NOT IMPLMENTED");
     }
 
     public org.omg.CORBA.ORB orb() {
-        throw new org.omg.CORBA.NO_IMPLEMENT("orb: NOT YET IMPLMENTED");
+        throw new org.omg.CORBA.NO_IMPLEMENT("orb: NOT IMPLMENTED");
     }
 
 
@@ -1070,31 +1338,31 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
     // -----------------------------------------------------------------------
 
     public java.io.Serializable read_value() {
-        throw new org.omg.CORBA.NO_IMPLEMENT("read_value: NOT YET IMPLMENTED");
+        throw new org.omg.CORBA.NO_IMPLEMENT("read_value: NOT IMPLMENTED");
     }
 
     public java.io.Serializable read_value(Class _class) {
-        throw new org.omg.CORBA.NO_IMPLEMENT("read_value: NOT YET IMPLMENTED");
+        throw new org.omg.CORBA.NO_IMPLEMENT("read_value: NOT IMPLMENTED");
     }
 
     public java.io.Serializable read_value(org.omg.CORBA.portable.BoxedValueHelper helper) {
-        throw new org.omg.CORBA.NO_IMPLEMENT("read_value: NOT YET IMPLMENTED");
+        throw new org.omg.CORBA.NO_IMPLEMENT("read_value: NOT IMPLMENTED");
     }
 
     public java.io.Serializable read_value(java.lang.String id) {
-        throw new org.omg.CORBA.NO_IMPLEMENT("read_value: NOT YET IMPLMENTED");
+        throw new org.omg.CORBA.NO_IMPLEMENT("read_value: NOT IMPLMENTED");
     }
 
     public java.io.Serializable read_value(java.io.Serializable todo) {
-        throw new org.omg.CORBA.NO_IMPLEMENT("read_value: NOT YET IMPLMENTED");
+        throw new org.omg.CORBA.NO_IMPLEMENT("read_value: NOT IMPLMENTED");
     }
 
     public java.lang.Object read_abstract_interface() {
-        throw new org.omg.CORBA.NO_IMPLEMENT("read_abstract_interface: NOT YET IMPLMENTED");
+        throw new org.omg.CORBA.NO_IMPLEMENT("read_abstract_interface: NOT IMPLMENTED");
     }
 
     public java.lang.Object read_abstract_interface(Class _class) {
-        throw new org.omg.CORBA.NO_IMPLEMENT("read_abstract_interface: NOT YET IMPLMENTED");
+        throw new org.omg.CORBA.NO_IMPLEMENT("read_abstract_interface: NOT IMPLMENTED");
     }
 
 
@@ -1152,9 +1420,47 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
         }
     }
 
+    protected void read_fragments(java.io.InputStream input, String url)
+    {
+        int messageType = _giopMessage.type;
+        int length = _giopMessage.size + 12;
+        byte[] fullBuffer = ArrayUtil.getBytes(_buffer, 0, length);
+        do
+        {
+            _offset = 0;
+            receive_message(input, url, false);
+            if (_giopMessage.type != MsgType_1_1._Fragment)
+            {
+                throw new org.omg.CORBA.MARSHAL("GIOP Fragment: bad fragment type = " + _giopMessage.type);
+            }
+            int addSize = _giopMessage.size - 4; //skip fragment structure
+            int needLength = length + addSize;
+            if (needLength > fullBuffer.length)
+            {
+                byte[] newBuffer = new byte[needLength * 2];
+                System.arraycopy(fullBuffer, 0, newBuffer, 0, length);
+                fullBuffer = newBuffer;
+            }
+            System.arraycopy(_buffer, 16, fullBuffer, length, addSize);
+            length += addSize;
+        }
+        while (_moreFragments);
+        _giopMessage.type = messageType;
+        _giopMessage.size = length - 12;
+        _buffer = fullBuffer;
+        _offset = 12;
+        _length = length;
+    }
+
     public boolean begin()
     {
         int length = read_ulong(); // encapsulation length
+        int len2 = read_ulong();   // another chunk length?
+        if( len2 != length - 4)
+        {
+            _offset -= 4;
+        }
+
         boolean saveLittle = _little;
         _little = read_boolean();
         return saveLittle;
@@ -1211,4 +1517,33 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
         }
     }
 
+    protected void unzip()
+    {
+        try
+        {
+            int n = _length - _offset;
+            ByteArrayInputStream bi = new ByteArrayInputStream(_buffer, _offset, n);
+            ByteArrayOutputStream bo = new ByteArrayOutputStream(n * 4);
+            GZIPInputStream gi = new GZIPInputStream(bi);
+            int b;
+            while ((b = gi.read()) != -1)
+            {
+                bo.write(b);
+            }
+            byte[] bytes = bo.toByteArray();
+            int newLength = _offset + bytes.length;
+            if (newLength > _buffer.length)
+            {
+                byte[] newBuffer = new byte[newLength];
+                System.arraycopy(_buffer, 0, newBuffer, 0, _offset);
+                _buffer = newBuffer;
+            }
+            System.arraycopy(bytes, 0, _buffer, _offset, bytes.length);
+            _length = newLength;
+        }
+        catch (Exception ex)
+        {
+            throw new org.omg.CORBA.MARSHAL(ExceptionUtil.getStackTrace(ex));
+        }
+    }
 }

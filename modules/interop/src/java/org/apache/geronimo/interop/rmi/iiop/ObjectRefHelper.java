@@ -42,10 +42,6 @@ public class ObjectRefHelper implements ObjectHelper
         {
             RemoteInterface remote = (RemoteInterface)value;
             ObjectRef objectRef = remote.getObjectRef();
-            //if (value instanceof AutomaticFailover)
-            //{
-            //    objectRef.$setAutomaticFailover();
-            //}
             output._cdrOutput.write_Object(objectRef);
         }
         else

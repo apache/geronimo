@@ -37,7 +37,7 @@ public class Any
     {
         if (_type.kind().value() != tk.value())
         {
-            throw new org.omg.CORBA.BAD_TYPECODE("com.sybase.CORBA.Any.extract_"
+            throw new org.omg.CORBA.BAD_TYPECODE("org.apache.geronimo.interop.rmi.iiop.Any.extract_"
                 + what + ": type = " + _type);
         }
     }
@@ -130,7 +130,7 @@ public class Any
         if (_data == null)
         {
             throw new org.omg.CORBA.BAD_OPERATION(
-                "com.sybase.CORBA.Any.create_input_stream");
+                "org.apache.geronimo.interop.rmi.Any.create_input_stream");
         }
         return CdrInputStream.getInstance();
     }
@@ -532,10 +532,6 @@ public class Any
     {
         throw new org.omg.CORBA.NO_IMPLEMENT();
     }
-
-    // -----------------------------------------------------------------------
-    // Sybase-internal constructors and methods
-    // -----------------------------------------------------------------------
 
     /**
      * * Construct an Any from a TypeCode and a String value

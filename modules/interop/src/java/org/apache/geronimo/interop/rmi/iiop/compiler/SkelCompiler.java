@@ -236,12 +236,12 @@ public class SkelCompiler extends Compiler {
         //            catch (java.lang.Exception $ex_1)
         //            {
         //                Listed here are the individual catches that the method can throw
-        //                if ($ex_1 instanceof com.sybase.djc.org.omg.CosNaming.NamingContextPackage.NotFound)
+        //                if ($ex_1 instanceof org.apache.geronimo.interop.CosNaming.NamingContextPackage.NotFound)
         //                {
         //                    $output.writeException(type$4, $ex_1);
         //                    return;
         //                }
-        //                if ($ex_1 instanceof com.sybase.djc.org.omg.CosNaming.NamingContextPackage.CannotProceed)
+        //                if ($ex_1 instanceof org.apache.geronimo.interop.CosNaming.NamingContextPackage.CannotProceed)
         //                {
         //                    $output.writeException(type$5, $ex_1);
         //                    return;

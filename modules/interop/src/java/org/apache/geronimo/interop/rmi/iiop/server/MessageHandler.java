@@ -26,13 +26,13 @@ import java.io.InputStream;
 import org.apache.geronimo.interop.GIOP.*;
 import org.apache.geronimo.interop.IOP.*;
 import org.apache.geronimo.interop.SystemException;
-import org.apache.geronimo.interop.adapter.HomeAdapter;
+//import org.apache.geronimo.interop.adapter.HomeAdapter;
 import org.apache.geronimo.interop.adapter.AdapterManager;
 import org.apache.geronimo.interop.adapter.Adapter;
 import org.apache.geronimo.interop.naming.NameService;
 import org.apache.geronimo.interop.rmi.iiop.*;
 import org.apache.geronimo.interop.util.UTF8;
-import org.openejb.server.ServiceException;
+//import org.openejb.server.ServiceException;
 
 public class MessageHandler {
 
@@ -49,7 +49,7 @@ public class MessageHandler {
         this.writeSystemExceptionStackTrace = writeSystemExceptionStackTrace;
     }
 
-    public void service(Socket socket) throws ServiceException, IOException {
+    public void service(Socket socket) throws Exception {
 
         InputStream in;
         OutputStream out;
@@ -124,7 +124,14 @@ public class MessageHandler {
 
             if (sendResponse) {
                 try {
-                    output.send_message( out, clientInfo );
+                    if(inputMessage.httpTunneling)
+                    {
+                        output.send_http_response( out, clientInfo );
+                    }
+                    else
+                    {
+                        output.send_message( out, clientInfo );
+                    }
                 } catch (Exception ex) {
                     warnSendFailed(clientInfo, ex);
                     closeStreams( in, out );
