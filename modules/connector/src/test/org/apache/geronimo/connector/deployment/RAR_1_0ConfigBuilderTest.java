@@ -60,10 +60,10 @@ import org.apache.xmlbeans.XmlOptions;
 import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
- * @version $Revision: 1.15 $ $Date: 2004/09/05 21:05:06 $
+ * @version $Revision: 1.16 $ $Date: 2004/09/06 01:38:02 $
  */
 public class RAR_1_0ConfigBuilderTest extends TestCase {
-    private static final File basedir = new File(System.getProperty("geronimo.test.basedir", System.getProperty("user.dir")));
+    private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
     private URL j2eeDD;
     private URL geronimoDD;
     XmlOptions xmlOptions;

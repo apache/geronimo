@@ -52,11 +52,11 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/09/05 21:05:07 $
+ * @version $Revision: 1.6 $ $Date: 2004/09/06 01:38:02 $
  *
  * */
 public class RAR_1_5DConfigBeanTest extends TestCase {
-    private static final File basedir = new File(System.getProperty("geronimo.test.basedir", System.getProperty("user.dir")));
+    private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
     private URL j2eeDD;
     XmlOptions xmlOptions;
     private List errors;
