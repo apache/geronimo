@@ -1132,6 +1132,7 @@
   <xsd:complexType name="web-appType">
 
     <xsd:choice minOccurs="0" maxOccurs="unbounded">
+      <xsd:element name="security" type="ger:securityType"/>
       <xsd:group ref="j2ee:descriptionGroup"/>
       <xsd:element name="distributable"
 		   type="j2ee:emptyType"/>

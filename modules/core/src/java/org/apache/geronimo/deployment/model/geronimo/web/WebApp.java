@@ -63,13 +63,24 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ServiceRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestination;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.Security;
 
 /**
  * JavaBean for the root web.xml tag web-app
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class WebApp extends org.apache.geronimo.deployment.model.web.WebApp implements JNDIEnvironmentRefs {
+    private Security security;
+
+    public Security getSecurity() {
+        return security;
+    }
+
+    public void setSecurity(Security security) {
+        this.security = security;
+    }
+
     public void setEJBLocalRef(org.apache.geronimo.deployment.model.j2ee.EJBLocalRef[] ejbRef) {
         assert (ejbRef instanceof EjbLocalRef[]);
         super.setEJBLocalRef(ejbRef);

@@ -56,15 +56,17 @@
 package org.apache.geronimo.deployment.model.geronimo.ejb;
 
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ClassSpace;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.Security;
 
 /**
  * JavaBean for the geronimo-ejb-jar.xml tag ejb-jar
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/17 02:03:16 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/18 04:16:09 $
  */
 public class EjbJar extends org.apache.geronimo.deployment.model.ejb.EjbJar {
 
     private ClassSpace classSpace;
+    private Security security;
     private String moduleName;
     private String datasourceName;
 
@@ -87,6 +89,14 @@ public class EjbJar extends org.apache.geronimo.deployment.model.ejb.EjbJar {
 
     public void setClassSpace(ClassSpace classSpace) {
         this.classSpace = classSpace;
+    }
+
+    public Security getSecurity() {
+        return security;
+    }
+
+    public void setSecurity(Security security) {
+        this.security = security;
     }
 
     public String getModuleName() {

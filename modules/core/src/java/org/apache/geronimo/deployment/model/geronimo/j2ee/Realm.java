@@ -19,7 +19,7 @@
  * 3. The end-user documentation included with the redistribution,
  *    if any, must include the following acknowledgment:
  *       "This product includes software developed by the
- *        Apache Software Foundation (http://www.apache.org/)."
+ *        Apache Software Foundation (http:www.apache.org/)."
  *    Alternately, this acknowledgment may appear in the software itself,
  *    if and wherever such third-party acknowledgments normally appear.
  *
@@ -49,42 +49,44 @@
  * This software consists of voluntary contributions made by many
  * individuals on behalf of the Apache Software Foundation.  For more
  * information on the Apache Software Foundation, please see
- * <http://www.apache.org/>.
+ * <http:www.apache.org/>.
  *
  * ====================================================================
  */
-package org.apache.geronimo.xml.deployment;
+package org.apache.geronimo.deployment.model.geronimo.j2ee;
 
-import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
-import org.apache.geronimo.deployment.model.geronimo.web.GeronimoWebAppDocument;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.apache.geronimo.deployment.model.j2ee.Describable;
+
 
 /**
  *
- *
- * @version $Revision: 1.4 $ $Date: 2003/11/18 04:16:22 $
+ * @version $Revision: 1.1 $ $Date: 2003/11/18 04:16:09 $
  */
-public class GeronimoWebAppLoader extends AbstractWebAppLoader {
-    public static GeronimoWebAppDocument load(Document doc) {
-        Element root = doc.getDocumentElement();
-        if (!"web-app".equals(root.getLocalName())) {
-            throw new IllegalArgumentException("Document is not a web-app instance");
-        }
+public class Realm extends Describable {
+    private String realmName;
+    private Principal[] principals = new Principal[0];
 
-        WebApp webApp = new WebApp();
-        loadCommonElements(webApp, root);
-        webApp.setSecurity(GeronimoJ2EELoader.loadSecurity(root));
-        webApp.setEnvEntry(J2EELoader.loadEnvEntries(root));
-        webApp.setEJBRef(GeronimoJ2EELoader.loadEJBRefs(root));
-        webApp.setEJBLocalRef(GeronimoJ2EELoader.loadEJBLocalRefs(root));
-        webApp.setServiceRef(GeronimoJ2EELoader.loadServiceRefs(root));
-        webApp.setResourceRef(GeronimoJ2EELoader.loadResourceRefs(root));
-        webApp.setResourceEnvRef(GeronimoJ2EELoader.loadResourceEnvRefs(root));
-        webApp.setMessageDestinationRef(GeronimoJ2EELoader.loadMessageDestinationRefs(root));
-        webApp.setMessageDestination(GeronimoJ2EELoader.loadMessageDestinations(root));
-        GeronimoWebAppDocument result = new GeronimoWebAppDocument();
-        result.setWebApp(webApp);
-        return result;
+    public String getRealmName() {
+        return realmName;
+    }
+
+    public void setRealmName(String realmName) {
+        this.realmName = realmName;
+    }
+
+    public Principal[] getPrincipal() {
+        return principals;
+    }
+
+    public Principal getPrincipal(int i) {
+        return principals[i];
+    }
+
+    public void setPrincipal(Principal[] principals) {
+        this.principals = principals;
+    }
+
+    public void setPrincipal(int i, Principal principal) {
+        this.principals[i] = principal;
     }
 }

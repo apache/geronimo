@@ -72,7 +72,7 @@ import org.apache.geronimo.deployment.model.ejb.AssemblyDescriptor;
 /**
  * Loads a Geronimo ejb-jar.xml file into POJOs
  *
- * @version $Revision: 1.9 $ $Date: 2003/11/18 02:15:13 $
+ * @version $Revision: 1.10 $ $Date: 2003/11/18 04:16:22 $
  */
 public class GeronimoEjbJarLoader {
     public static GeronimoEjbJarDocument load(Document doc) {
@@ -83,6 +83,7 @@ public class GeronimoEjbJarLoader {
         EjbJar jar = new EjbJar();
         jar.setVersion(root.getAttribute("version"));
         jar.setClassSpace(GeronimoJ2EELoader.loadClassSpace(root));
+        jar.setSecurity(GeronimoJ2EELoader.loadSecurity(root));
         J2EELoader.loadDisplayable(root, jar);
         jar.setModuleName(LoaderUtil.getChildContent(root, "module-name"));
         String datasourceName = LoaderUtil.getChildContent(root, "datasource-name");

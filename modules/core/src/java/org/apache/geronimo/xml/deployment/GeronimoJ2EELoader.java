@@ -65,12 +65,17 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestinationRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestination;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.SecurityRoleRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ClassSpace;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.Security;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.RoleMappings;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.Role;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.Realm;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.Principal;
 import org.w3c.dom.Element;
 
 /**
  * Loads common Geronimo DD tags
  *
- * @version $Revision: 1.6 $ $Date: 2003/11/17 02:03:16 $
+ * @version $Revision: 1.7 $ $Date: 2003/11/18 04:16:22 $
  */
 public final class GeronimoJ2EELoader {
     public static EjbRef[] loadEJBRefs(Element e) {
@@ -197,5 +202,79 @@ public final class GeronimoJ2EELoader {
         classSpace.setClassSpace(LoaderUtil.getAttribute(cs, "name"));
         classSpace.setParentClassSpace((LoaderUtil.getAttribute(cs, "parent")));
         return classSpace;
+    }
+
+    public static Security loadSecurity(Element e) {
+        Element s = LoaderUtil.getChild(e, "security");
+        Security security = new Security();
+
+        J2EELoader.loadDescribable(s, security);
+
+        security.setRoleMappings(loadRoleMappings(s));
+
+        return security;
+    }
+
+    public static RoleMappings loadRoleMappings(Element e) {
+        Element rm = LoaderUtil.getChild(e, "role-mappings");
+
+        if (rm == null) return null;
+
+        RoleMappings roleMappings = new RoleMappings();
+        roleMappings.setRole(loadRoles(rm));
+
+        return roleMappings;
+    }
+
+    public static Role[] loadRoles(Element e) {
+        Element[] nodes = LoaderUtil.getChildren(e, "role");
+        Role[] result = new Role[nodes.length];
+        for(int i = 0; i < nodes.length; i++) {
+            result[i] = loadRole(nodes[i], new Role());
+        }
+        return result;
+    }
+
+    public static Role loadRole(Element e, Role role) {
+        J2EELoader.loadDescribable(e, role);
+        role.setRoleName(LoaderUtil.getAttribute(e, "role-name"));
+        role.setRealm(loadRealms(e));
+
+        return role;
+    }
+
+    public static Realm[] loadRealms(Element e) {
+        Element[] nodes = LoaderUtil.getChildren(e, "realm");
+        Realm[] result = new Realm[nodes.length];
+        for(int i = 0; i < nodes.length; i++) {
+            result[i] = loadRealm(nodes[i], new Realm());
+        }
+        return result;
+    }
+
+    public static Realm loadRealm(Element e, Realm realm) {
+        J2EELoader.loadDescribable(e, realm);
+        realm.setRealmName(LoaderUtil.getAttribute(e, "realm-name"));
+        realm.setPrincipal(loadPrincipals(e));
+
+        return realm;
+    }
+
+    public static Principal[] loadPrincipals(Element e) {
+        Element[] nodes = LoaderUtil.getChildren(e, "principal");
+        Principal[] result = new Principal[nodes.length];
+        for(int i = 0; i < nodes.length; i++) {
+            result[i] = loadPrincipal(nodes[i], new Principal());
+        }
+        return result;
+    }
+
+    public static Principal loadPrincipal(Element e, Principal principal) {
+        J2EELoader.loadDescribable(e, principal);
+
+        principal.setName(LoaderUtil.getAttribute(e, "name"));
+        principal.setClassName(LoaderUtil.getAttribute(e, "class"));
+
+        return principal;
     }
 }

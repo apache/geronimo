@@ -17,4 +17,40 @@
         <xsd:attribute name="name" type="xs:string"/>
         <xsd:attribute name="parent" type="xs:string"/>
     </xsd:complexType>
+
+    <xsd:complexType name="securityType">
+        <xsd:annotation>
+            <xsd:documentation>Security entries.</xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="role-mappings" type="role-mappingsType" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="role-mappingsType">
+        <xsd:sequence>
+            <xsd:element name="role" type="roleType" minOccurs="1" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="roleType">
+        <xsd:sequence>
+            <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="realm" type="realmType" minOccurs="1" maxOccurs="unbounded"/>
+        </xsd:sequence>
+        <xsd:attribute name="role-name" type="xs:string"/>
+    </xsd:complexType>
+    <xsd:complexType name="realmType">
+        <xsd:sequence>
+            <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="principal" type="principalType" minOccurs="1" maxOccurs="unbounded"/>
+        </xsd:sequence>
+        <xsd:attribute name="ream-name" type="xs:string"/>
+    </xsd:complexType>
+    <xsd:complexType name="principalType">
+        <xsd:sequence>
+            <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+        <xsd:attribute name="class" type="xs:string"/>
+        <xsd:attribute name="name" type="xs:string"/>
+    </xsd:complexType>
 </xsd:schema>
