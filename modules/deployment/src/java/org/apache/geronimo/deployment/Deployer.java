@@ -19,9 +19,7 @@ package org.apache.geronimo.deployment;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,6 +28,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
+import java.util.jar.JarFile;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -39,15 +38,16 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.geronimo.deployment.util.FileUtil;
+import org.apache.geronimo.deployment.util.JarUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
 
 /**
  * Command line based deployment utility which combines multiple deployable modules
@@ -68,12 +68,9 @@ public class Deployer {
         ConfigurationBuilder builder = null;
 
         XmlObject plan = null;
+        JarFile moduleJarFile = null;
         if (deploymentPlan != null) {
-            try {
-                plan = getPlan(deploymentPlan.toURL());
-            } catch (MalformedURLException e) {
-                throw new DeploymentException(e);
-            }
+            plan = getPlan(deploymentPlan);
             for (Iterator i = builders.iterator(); i.hasNext();) {
                 ConfigurationBuilder candidate = (ConfigurationBuilder) i.next();
                 if (candidate.canConfigure(plan)) {
@@ -85,15 +82,14 @@ public class Deployer {
                 throw new DeploymentException("No deployer found for this plan type: " + deploymentPlan);
             }
         } else if (moduleFile != null) {
-            URL moduleURL;
             try {
-                moduleURL = moduleFile.toURL();
-            } catch (MalformedURLException e) {
-                throw new DeploymentException(e);
+                moduleJarFile = JarUtil.createJarFile(moduleFile);
+            } catch (IOException e) {
+                throw new DeploymentException("Could not open module file: " + moduleFile.getAbsolutePath());
             }
             for (Iterator i = builders.iterator(); i.hasNext();) {
                 ConfigurationBuilder candidate = (ConfigurationBuilder) i.next();
-                plan = candidate.getDeploymentPlan(moduleURL);
+                plan = candidate.getDeploymentPlan(moduleJarFile);
                 if (plan != null) {
                     builder = candidate;
                     break;
@@ -110,7 +106,7 @@ public class Deployer {
                 Manifest manifest = new Manifest();
                 Attributes mainAttributes = manifest.getMainAttributes();
                 mainAttributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
-                builder.buildConfiguration(carfile, manifest, moduleFile, plan);
+                builder.buildConfiguration(carfile, manifest, moduleJarFile, plan);
                 return store.install(carfile.toURL());
             } catch (InvalidConfigException e) {
                 throw new DeploymentException(e);
@@ -122,7 +118,7 @@ public class Deployer {
         }
     }
 
-    private XmlObject getPlan(URL deploymentPlan) throws DeploymentException {
+    private XmlObject getPlan(File deploymentPlan) throws DeploymentException {
         try {
             XmlObject plan = getLoader().parse(deploymentPlan, null, null);
             XmlCursor cursor = plan.newCursor();
@@ -198,16 +194,7 @@ public class Deployer {
 
 
         try {
-            if (cmd.module == null) {
-                builder.buildConfiguration(cmd.carfile, manifest, null, plan);
-            } else if ("file".equals(cmd.module.getProtocol())) {
-                File module = new File(new URI(cmd.module.toString()));
-                builder.buildConfiguration(cmd.carfile, manifest, module, plan);
-            } else if (cmd.module.toString().endsWith("/")) {
-                throw new DeploymentException("Unpacked modules must be files");
-            } else {
-                builder.buildConfiguration(cmd.carfile, manifest, FileUtil.toTempFile(cmd.module.openStream(), true), plan);
-            }
+            builder.buildConfiguration(cmd.carfile, manifest, cmd.module, plan);
 
             try {
                 if (cmd.install) {
@@ -245,7 +232,7 @@ public class Deployer {
         return new ObjectName("geronimo.deployment", props);
     }
 
-    public static Command parseArgs(String[] args) throws ParseException {
+    public static Command parseArgs(String[] args) throws ParseException, DeploymentException {
         Options options = new Options();
         options.addOption("h", "help", false, "print this message");
         options.addOption("I", "install", false, "install configuration in store");
@@ -263,46 +250,57 @@ public class Deployer {
 
         Command command = new Command();
         command.install = cmd.hasOption('I');
-        command.carfile = cmd.hasOption('o') ? new File(cmd.getOptionValue('o')) : null;
-        try {
-            command.plan = cmd.hasOption('p') ? getURL(cmd.getOptionValue('p')) : null;
-        } catch (MalformedURLException e) {
-            System.err.println("Invalid URL for plan: " + cmd.getOptionValue('p'));
-            return null;
+        if (cmd.hasOption('o')) {
+            command.carfile = new File(cmd.getOptionValue('o'));
         }
-        try {
-            command.module = cmd.hasOption('m') ? getURL(cmd.getOptionValue('m')) : null;
-        } catch (MalformedURLException e) {
-            System.err.println("Invalid URL for module: " + cmd.getOptionValue('m'));
-            return null;
+        if (cmd.hasOption('p')) {
+            command.plan = getFile(cmd.getOptionValue('p'));
         }
+        if (cmd.hasOption('m')) {
+            try {
+                 command.module = JarUtil.createJarFile(getFile(cmd.getOptionValue('m')));
+            } catch (IOException e) {
+                throw new DeploymentException("Could not open module file: " + cmd.getOptionValue('m'));
+            }
+        }
+
         if (command.module == null && command.plan == null) {
             System.err.println("No plan or module specified");
             return null;
         }
-        command.mainClass = cmd.hasOption("mainClass") ? cmd.getOptionValue("mainClass") : null;
-        command.classPath = cmd.hasOption("classPath") ? cmd.getOptionValue("classPath") : null;
+        if (cmd.hasOption("mainClass")) {
+            command.mainClass = cmd.getOptionValue("mainClass");
+        }
+        if (cmd.hasOption("classPath")) {
+            command.classPath = cmd.getOptionValue("classPath");
+        }
         return command;
     }
 
-    private static URL getURL(String location) throws MalformedURLException {
+    private static File getFile(String location) throws DeploymentException {
         File f = new File(location);
         if (f.exists() && f.canRead()) {
-            return f.toURI().toURL();
+            return f;
         }
-        try {
-            return new File(".").toURI().resolve(location).toURL();
-        } catch (IllegalArgumentException e) {
-            // thrown by URI.resolve if the location is not valid
-            throw (MalformedURLException) new MalformedURLException("Invalid location: " + location).initCause(e);
-        }
+            URI uri = new File(".").toURI().resolve(location);
+            if ("file".equals(uri.getScheme())) {
+                return new File(uri);
+            } else if (uri.getPath().endsWith("/")) {
+                throw new DeploymentException("Unpacked modules can only be loaded from the local file system");
+            } else {
+                try {
+                    return FileUtil.toTempFile(uri.toURL());
+                } catch (IOException e) {
+                    throw new DeploymentException("Could not open url: " + uri);
+                }
+            }
     }
 
     private static class Command {
         private boolean install;
         private File carfile;
-        private URL module;
-        private URL plan;
+        private JarFile module;
+        private File plan;
         private String mainClass;
         private String classPath;
     }

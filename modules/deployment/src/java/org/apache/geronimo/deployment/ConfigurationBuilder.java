@@ -19,8 +19,8 @@ package org.apache.geronimo.deployment;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.jar.Manifest;
+import java.util.jar.JarFile;
 
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlObject;
@@ -46,7 +46,7 @@ public interface ConfigurationBuilder {
      * @param module the URL of the module to examine
      * @return the deployment plan, or null if this module can not handle it
      */
-    XmlObject getDeploymentPlan(URL module) throws DeploymentException;
+    XmlObject getDeploymentPlan(JarFile module) throws DeploymentException;
 
     /**
      * Build a configuration from a local file
@@ -56,5 +56,5 @@ public interface ConfigurationBuilder {
      * @throws IOException if there was a problem reading or writing the files
      * @throws DeploymentException if there was a problem with the configuration
      */
-    void buildConfiguration(File outfile, Manifest manifest, File module, XmlObject plan) throws IOException, DeploymentException;
+    void buildConfiguration(File outfile, Manifest manifest, JarFile module, XmlObject plan) throws IOException, DeploymentException;
 }

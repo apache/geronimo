@@ -129,7 +129,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
 
         Thread.currentThread().setContextClassLoader(cl);
 
-        XmlObject plan = moduleBuilder.getDeploymentPlan(rarFile.toURL());
+        XmlObject plan = moduleBuilder.getDeploymentPlan(JarUtil.createJarFile(rarFile));
         URI parentId = moduleBuilder.getParentId(plan);
         URI configId = moduleBuilder.getConfigId(plan);
         assertEquals(j2eeModuleName, configId.toString());

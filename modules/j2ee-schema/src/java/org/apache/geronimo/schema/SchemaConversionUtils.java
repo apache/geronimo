@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.net.URL;
 import javax.xml.namespace.QName;
 
 import org.apache.geronimo.xbeans.j2ee.ApplicationDocument;
@@ -46,12 +47,18 @@ public class SchemaConversionUtils {
     private SchemaConversionUtils() {
     }
 
+    public static XmlObject parse(URL url) throws IOException, XmlException {
+        ArrayList errors = new ArrayList();
+        XmlObject parsed = XmlObject.Factory.parse(url, createXmlOptions(errors));
+        if (errors.size() != 0) {
+            throw new XmlException(errors.toArray().toString());
+        }
+        return parsed;
+    }
+
     public static XmlObject parse(InputStream is) throws IOException, XmlException {
         ArrayList errors = new ArrayList();
-        XmlOptions options = new XmlOptions();
-        options.setLoadLineNumbers();
-        options.setErrorListener(errors);
-        XmlObject parsed = XmlObject.Factory.parse(is, options);
+        XmlObject parsed = XmlObject.Factory.parse(is, createXmlOptions(errors));
         if (errors.size() != 0) {
             throw new XmlException(errors.toArray().toString());
         }
@@ -60,14 +67,18 @@ public class SchemaConversionUtils {
 
     public static XmlObject parse(String xml) throws XmlException {
         ArrayList errors = new ArrayList();
-        XmlOptions options = new XmlOptions();
-        options.setLoadLineNumbers();
-        options.setErrorListener(errors);
-        XmlObject parsed = XmlObject.Factory.parse(xml, options);
+        XmlObject parsed = XmlObject.Factory.parse(xml, createXmlOptions(errors));
         if (errors.size() != 0) {
             throw new XmlException(errors.toArray().toString());
         }
         return parsed;
+    }
+
+    private static XmlOptions createXmlOptions(ArrayList errors) {
+        XmlOptions options = new XmlOptions();
+        options.setLoadLineNumbers();
+        options.setErrorListener(errors);
+        return options;
     }
 
     public static ApplicationDocument convertToApplicationSchema(XmlObject xmlObject) throws XmlException {

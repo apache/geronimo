@@ -32,7 +32,7 @@ public interface ModuleBuilder {
 
     XmlObject validateVendorDD(XmlObject vendorDD) throws DeploymentException;
 
-    XmlObject getDeploymentPlan(URL module) throws DeploymentException;
+    XmlObject getDeploymentPlan(JarFile module) throws DeploymentException;
 
     boolean canHandlePlan(XmlObject plan);
 

@@ -283,15 +283,13 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
     public void testBuildEar() throws Exception {
         String j2eeDomainName = "geronimo.server";
         String j2eeServerName = "TestGeronimoServer";
-        String j2eeApplicationName = "TestEar";
-        String j2eeModuleName = "org/apache/geronimo/j2ee/deployment/test";
         ObjectName connectionTrackerName = new ObjectName("geronimo.connector:service=ConnectionTracker");
         ObjectName j2eeServer = new ObjectName(j2eeDomainName + ":name=" + j2eeServerName);
         Kernel kernel = new Kernel("blah");
         kernel.boot();
         try {
             EARConfigBuilder configBuilder = new EARConfigBuilder(j2eeServer, null, connectionTrackerName, null, null, null, null, null, null, new ConnectorModuleBuilder(), null, kernel);
-            File rarFile = new File(basedir, "target/test-ear-noger.ear");
+            JarFile rarFile = JarUtil.createJarFile(new File(basedir, "target/test-ear-noger.ear"));
             File outFile = File.createTempFile("EARTest", ".car");
             try {
                 File planFile = new File(basedir, "src/test-data/data/external-application-plan.xml");

@@ -37,13 +37,12 @@ import java.util.jar.Manifest;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.common.xml.XmlBeansUtil;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
 import org.apache.geronimo.deployment.util.FileUtil;
-import org.apache.geronimo.deployment.util.JarUtil;
 import org.apache.geronimo.deployment.util.IOUtil;
+import org.apache.geronimo.deployment.util.JarUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
@@ -59,7 +58,6 @@ import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientDocument;
 import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientType;
 import org.apache.geronimo.xbeans.geronimo.client.GerDependencyType;
 import org.apache.geronimo.xbeans.geronimo.client.GerGbeanType;
@@ -69,8 +67,8 @@ import org.apache.geronimo.xbeans.j2ee.ApplicationClientType;
 import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 
 
 /**
@@ -79,7 +77,7 @@ import org.apache.xmlbeans.XmlException;
 public class AppClientModuleBuilder implements ModuleBuilder {
     static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[]{
 //        XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.j2ee.String.class.getClassLoader()),
-//        XmlBeans.typeLoaderForClassLoader(GerApplicationClientDocument.class.getClassLoader())
+//        XmlBeans.typeLoaderForClassLoader(GerApplicationClientType.class.getClassLoader())
     });
 
     private final Kernel kernel;
@@ -94,24 +92,12 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     }
 
     public XmlObject parseSpecDD(URL path) throws DeploymentException {
-        InputStream in = null;
         try {
             // check if we have an alt spec dd
-            in = path.openStream();
-//            XmlObject dd = SchemaConversionUtils.parse(in);
-//            ApplicationClientDocument applicationClientDoc = SchemaConversionUtils.convertToApplicationClientSchema(dd);
             ApplicationClientDocument applicationClientDoc = ApplicationClientDocument.Factory.parse(path);
             return applicationClientDoc.getApplicationClient();
         } catch (Exception e) {
             throw new DeploymentException("Unable to parse " + path, e);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
         }
     }
 
@@ -125,20 +111,13 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         }
     }
 
-    public XmlObject getDeploymentPlan(URL module) throws DeploymentException {
+    public XmlObject getDeploymentPlan(JarFile module) throws DeploymentException {
         try {
-            URL moduleBase;
-            if (module.toString().endsWith("/")) {
-                moduleBase = module;
-            } else {
-                moduleBase = new URL("jar:" + module.toString() + "!/");
-            }
-            URL path = new URL(moduleBase, "META-INF/geronimo-application-client.xml");
-            XmlObject dd = SchemaConversionUtils.parse(path.openStream());
-
-            GerApplicationClientDocument plan = (GerApplicationClientDocument) validateVendorDD(dd);
+            URL path = JarUtil.createJarURL(module, "META-INF/geronimo-application-client.xml");
+            XmlObject vendorDD = SchemaConversionUtils.parse(path);
+            GerApplicationClientType plan = (GerApplicationClientType) validateVendorDD(vendorDD);
             if (plan == null) {
-                return createDefaultPlan(moduleBase);
+                return createDefaultPlan(module);
             }
             return plan;
         } catch (MalformedURLException e) {
@@ -152,19 +131,21 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
     public XmlObject validateVendorDD(XmlObject dd) throws DeploymentException {
         try {
+            dd = SchemaConversionUtils.getNestedObjectAsType(dd, "application-client", GerApplicationClientType.type);
             dd = SchemaConversionUtils.convertToGeronimoNamingSchema(dd);
-            return dd.changeType(GerApplicationClientDocument.type);
+            SchemaConversionUtils.validateDD(dd);
+            return dd;
         } catch (Exception e) {
             throw new DeploymentException(e);
         }
     }
 
-    private GerApplicationClientDocument createDefaultPlan(URL moduleBase) {
+    private GerApplicationClientType createDefaultPlan(JarFile module) {
         // load the application-client.xml
         URL appClientXmlUrl = null;
         try {
-            appClientXmlUrl = new URL(moduleBase, "META-INF/application-client.xml");
-        } catch (MalformedURLException e) {
+            appClientXmlUrl = JarUtil.createJarURL(module, "META-INF/application-client.xml");
+        } catch (DeploymentException e) {
             return null;
         }
 
@@ -176,7 +157,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         }
         String id = appClient.getId();
         if (id == null) {
-            id = moduleBase.getFile();
+            // TODO this name is not necessairly the original name specified on the command line which is what we want
+            id = module.getName();
             if (id.endsWith("!/")) {
                 id = id.substring(0, id.length() - 2);
             }
@@ -188,27 +170,26 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             }
             id = id.substring(id.lastIndexOf('/') + 1);
         }
-        return newGerApplicationClientDocument(appClient, id);
+        return newGerApplicationClientType(appClient, id);
     }
 
-    private GerApplicationClientDocument newGerApplicationClientDocument(ApplicationClientType appClient, String id) {
-        GerApplicationClientDocument geronimoAppClientDoc = GerApplicationClientDocument.Factory.newInstance();
-        GerApplicationClientType geronimoAppClient = geronimoAppClientDoc.addNewApplicationClient();
+    private GerApplicationClientType newGerApplicationClientType(ApplicationClientType appClient, String id) {
+        GerApplicationClientType geronimoAppClient = GerApplicationClientType.Factory.newInstance();
 
         // set the parentId, configId and context root
         if (null != appClient.getId()) {
             id = appClient.getId();
         }
         geronimoAppClient.setConfigId(id);
-        return geronimoAppClientDoc;
+        return geronimoAppClient;
     }
 
     public boolean canHandlePlan(XmlObject plan) {
-        return plan instanceof GerApplicationClientDocument;
+        return plan instanceof GerApplicationClientType;
     }
 
     public URI getParentId(XmlObject plan) throws DeploymentException {
-        GerApplicationClientType geronimoAppClient = ((GerApplicationClientDocument) plan).getApplicationClient();
+        GerApplicationClientType geronimoAppClient = (GerApplicationClientType) plan;
         try {
             return new URI(geronimoAppClient.getParentId());
         } catch (URISyntaxException e) {
@@ -217,7 +198,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     }
 
     public URI getConfigId(XmlObject plan) throws DeploymentException {
-        GerApplicationClientType geronimoAppClient = ((GerApplicationClientDocument) plan).getApplicationClient();
+        GerApplicationClientType geronimoAppClient = (GerApplicationClientType) plan;
         try {
             return new URI(geronimoAppClient.getConfigId());
         } catch (URISyntaxException e) {
@@ -253,24 +234,27 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         ApplicationClientType appClient = (ApplicationClientType) parseSpecDD(specDD);
 
         if (vendorDD == null) {
+            InputStream in = null;
             try {
                 JarEntry entry = moduleFile.getJarEntry("META-INF/geronimo-application-client.xml");
                 if (entry != null) {
-                    InputStream in = moduleFile.getInputStream(entry);
+                    in = moduleFile.getInputStream(entry);
                     if (in != null) {
-                        vendorDD = XmlBeansUtil.parse(in, GerApplicationClientDocument.type);
+                        XmlObject dd = SchemaConversionUtils.parse(in);
+                        vendorDD = validateVendorDD(dd);
                     }
                 }
             } catch (Exception e) {
                 throw new DeploymentException("Unable to parse META-INF/geronimo-application-client.xml", e);
+            } finally {
+                IOUtil.close(in);
             }
         }
         if (vendorDD == null) {
-            vendorDD = newGerApplicationClientDocument(appClient, name);
+            vendorDD = newGerApplicationClientType(appClient, name);
         }
 
-        GerApplicationClientDocument geronimoAppClientDoc = (GerApplicationClientDocument) vendorDD;
-        GerApplicationClientType geronimoAppClient = geronimoAppClientDoc.getApplicationClient();
+        GerApplicationClientType geronimoAppClient = (GerApplicationClientType) vendorDD;
 
         return new AppClientModule(name, moduleURI, moduleFile, targetPath, appClient, geronimoAppClient);
     }

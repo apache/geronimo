@@ -35,7 +35,7 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder 
     public Module connectorModule;
     public ClassLoader cl;
 
-    public XmlObject getDeploymentPlan(URL module) {
+    public XmlObject getDeploymentPlan(JarFile module) {
         return null;
     }
 

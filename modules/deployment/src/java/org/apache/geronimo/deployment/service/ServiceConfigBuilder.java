@@ -28,6 +28,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.jar.Attributes;
+import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
@@ -36,7 +37,6 @@ import javax.management.MalformedObjectNameException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
@@ -71,14 +71,14 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     }
 
     public boolean canConfigure(XmlObject plan) {
-        return plan instanceof ConfigurationDocument;
+        return plan instanceof ConfigurationType;
     }
 
-    public XmlObject getDeploymentPlan(URL module) {
+    public XmlObject getDeploymentPlan(JarFile module) {
         return null;
     }
 
-    public void buildConfiguration(File outfile, Manifest manifest, File unused, XmlObject plan) throws IOException, DeploymentException {
+    public void buildConfiguration(File outfile, Manifest manifest, JarFile unused, XmlObject plan) throws IOException, DeploymentException {
         FileOutputStream fos = new FileOutputStream(outfile);
         try {
             JarOutputStream os = new JarOutputStream(new BufferedOutputStream(fos), manifest);
@@ -98,7 +98,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     }
 
     public void buildConfiguration(JarOutputStream os, XmlObject plan) throws DeploymentException, IOException {
-        ConfigurationType configType = ((ConfigurationDocument) plan).getConfiguration();
+        ConfigurationType configType = (ConfigurationType) plan;
         URI configID;
         try {
             configID = new URI(configType.getConfigId());

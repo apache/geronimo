@@ -31,8 +31,6 @@ import org.apache.geronimo.deployment.xbeans.ConfigurationType;
 import org.apache.geronimo.system.configuration.LocalConfigStore;
 import org.apache.geronimo.system.main.CommandLineManifest;
 import org.apache.geronimo.system.repository.ReadOnlyRepository;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * Helper class to bootstrap the Geronimo deployer.
@@ -118,9 +116,8 @@ public class Bootstrap {
         Thread.currentThread().setContextClassLoader(Bootstrap.class.getClassLoader());
         try {
             // parse the deployment-system and j2ee-deployer plans
-            XmlObject deployerSystemXML = XmlBeans.getContextTypeLoader().parse(new File(deployerSystemPlan), null, null);
-            XmlObject j2eeDeployerXML = XmlBeans.getContextTypeLoader().parse(new File(j2eeDeployerPlan), null, null);
-            ConfigurationType j2eeDeployerConfig = ((ConfigurationDocument) j2eeDeployerXML).getConfiguration();
+            ConfigurationType deployerSystemConfig = ConfigurationDocument.Factory.parse(new File(deployerSystemPlan)).getConfiguration();
+            ConfigurationType j2eeDeployerConfig = ConfigurationDocument.Factory.parse(new File(j2eeDeployerPlan)).getConfiguration();
 
             // create the service builder, repository and config store objects
             LocalConfigStore configStore = new LocalConfigStore(new File(storeDir));
@@ -150,7 +147,7 @@ public class Bootstrap {
                 jos.closeEntry();
 
                 // add the deployment system configuration to the jar
-                builder.buildConfiguration(jos, deployerSystemXML);
+                builder.buildConfiguration(jos, deployerSystemConfig);
             } finally {
                 jos.close();
             }
@@ -159,7 +156,7 @@ public class Bootstrap {
             // build and install the j2ee-deployer configuration
             File tempFile = File.createTempFile("j2ee-deployer", ".car");
             try {
-                builder.buildConfiguration(tempFile, manifest, null, j2eeDeployerXML);
+                builder.buildConfiguration(tempFile, manifest, null, j2eeDeployerConfig);
                 configStore.install(tempFile.toURL());
             } finally {
                 tempFile.delete();

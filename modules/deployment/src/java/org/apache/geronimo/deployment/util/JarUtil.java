@@ -104,18 +104,12 @@ public class JarUtil {
                             out.closeEntry();
                         }
                     } finally {
-                        try {
-                            in.close();
-                        } catch (IOException e) {
-                        }
+                        IOUtil.close(in);
                     }
                 }
                 return jarFile;
             } finally {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                }
+                IOUtil.close(out);
             }
         }
     }

@@ -35,7 +35,7 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder {
     public EJBModule ejbModule;
     public ClassLoader cl;
 
-    public XmlObject getDeploymentPlan(URL module) {
+    public XmlObject getDeploymentPlan(JarFile module) {
         return null;
     }
 

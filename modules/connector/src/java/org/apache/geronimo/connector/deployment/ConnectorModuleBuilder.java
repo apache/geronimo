@@ -19,7 +19,6 @@ package org.apache.geronimo.connector.deployment;
 import java.beans.PropertyEditor;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -145,21 +144,14 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         }
     }
 
-    public XmlObject getDeploymentPlan(URL module) throws DeploymentException {
+    public XmlObject getDeploymentPlan(JarFile module) throws DeploymentException {
+        URL path = null;
         try {
-            URL moduleBase;
-            if (module.toString().endsWith("/")) {
-                moduleBase = module;
-            } else {
-                moduleBase = new URL("jar:" + module.toString() + "!/");
-            }
-            URL path = new URL(moduleBase, "META-INF/geronimo-ra.xml");
-            return getGerConnector(path);
-        } catch (MalformedURLException e) {
-            return null;
-        } catch (IOException e) {
+            path = JarUtil.createJarURL(module, "META-INF/geronimo-ra.xml");
+        } catch (DeploymentException e) {
             return null;
         }
+        return getGerConnector(path);
     }
 
     GerConnectorType getGerConnector(URL path) throws DeploymentException {

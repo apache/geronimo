@@ -36,7 +36,7 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
     public ClassLoader cl;
     public String contextRoot;
 
-    public XmlObject getDeploymentPlan(URL module) {
+    public XmlObject getDeploymentPlan(JarFile module) {
         return null;
     }
 

@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.net.URL;
 
 /**
  *
@@ -38,6 +39,16 @@ public class FileUtil {
         File tempFile = File.createTempFile("geronimodeployment" + i++, "tmp");
         tempFile.deleteOnExit();
         return tempFile;
+    }
+
+    public static File toTempFile(URL url) throws IOException {
+        InputStream is = null;
+        try {
+            is = url.openStream();
+            return toTempFile(is, false);
+        } finally {
+            IOUtil.close(is);
+        }
     }
 
     public static File toTempFile(InputStream is) throws IOException {
@@ -59,18 +70,10 @@ public class FileUtil {
             out.flush();
             return tempFile;
         } finally {
-            try {
+            if (close) {
                 in.close();
-            } catch (IOException e) {
-                // ignore
             }
-            if (close && out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
+            out.close();
         }
     }
 

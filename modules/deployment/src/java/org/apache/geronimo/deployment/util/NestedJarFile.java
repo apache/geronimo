@@ -39,7 +39,7 @@ public class NestedJarFile extends JarFile {
     private Manifest manifest;
 
     public NestedJarFile(JarFile jarFile, String path) throws IOException {
-        super(JarUtil.DUMMY_JAR_FILE);
+        super(JarUtil.DUMMY_JAR_FILE);  this.close();
 
         // verify that the jar actually contains that path
         JarEntry targetEntry = jarFile.getJarEntry(path + "/");
