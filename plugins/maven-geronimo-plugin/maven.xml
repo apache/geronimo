@@ -40,6 +40,7 @@
 
     <goal name="default">
         <attainGoal name="plugin:install"/>
+        <attainGoal name="doinstall"/>
     </goal>
 
     <goal name="build">
@@ -49,6 +50,26 @@
     <goal name="rebuild">
         <attainGoal name="clean"/>
         <attainGoal name="build"/>
+    </goal>
+
+    <postGoal name="plugin:install">
+        <attainGoal name="doinstall"/>
+    </postGoal>
+
+    <goal name="doinstall">
+        <!--this seems to be needed for the dependency on the plugin to work-->
+        <ant:property name="pluginsDir" value="${maven.repo.local}/${pom.artifactDirectory}/plugins"/>
+        <ant:mkdir dir="${pluginsDir}"/>
+        <ant:copy
+            file="${basedir}/target/${pom.artifactId}-${pom.currentVersion}.jar"
+            todir="${pluginsDir}"
+            overwrite="true"
+            />
+        <!--actually install the plugin into the cache-->
+        <mkdir dir="${maven.plugin.unpacked.dir}/${pom.artifactId}-${pom.currentVersion}"/>
+        <ant:unjar
+            src="${basedir}/target/${pom.artifactId}-${pom.currentVersion}.jar"
+            dest="${maven.plugin.unpacked.dir}/${pom.artifactId}-${pom.currentVersion}/"/>
     </goal>
 
     <goal name="clover.wrapper">
@@ -86,5 +107,4 @@
     <goal name="jar:deploy">
         <attainGoal name="plugin:repository-deploy"/>
     </goal>
-
 </project>
