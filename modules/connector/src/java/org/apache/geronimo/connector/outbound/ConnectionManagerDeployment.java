@@ -40,7 +40,7 @@ import org.apache.geronimo.security.bridge.RealmBridge;
  * and connection manager stack according to the policies described in the attributes.
  * It's used by deserialized copies of the proxy to get a reference to the actual stack.
  *
- * @version $Revision: 1.8 $ $Date: 2004/04/14 04:01:24 $
+ * @version $Revision: 1.9 $ $Date: 2004/04/14 16:44:39 $
  * */
 public class ConnectionManagerDeployment implements ConnectionManagerFactory, GBean, ConnectionManager, LazyAssociatableConnectionManager {
 
@@ -123,21 +123,21 @@ public class ConnectionManagerDeployment implements ConnectionManagerFactory, GB
                 stack = new XAResourceInsertionInterceptor(stack);
             }
         }
-//        if (useSubject || useConnectionRequestInfo) {
-//            stack = new MultiPoolConnectionInterceptor(
-//                    stack,
-//                    maxSize,
-//                    blockingTimeout,
-//                    useSubject,
-//                    useConnectionRequestInfo);
-//        } else {
-//            stack = new SinglePoolConnectionInterceptor(
-//                    stack,
-//                    null,
-//                    null,
-//                    maxSize,
-//                    blockingTimeout);
-//        }
+        if (useSubject || useConnectionRequestInfo) {
+            stack = new MultiPoolConnectionInterceptor(
+                    stack,
+                    maxSize,
+                    blockingTimeout,
+                    useSubject,
+                    useConnectionRequestInfo);
+        } else {
+            stack = new SinglePoolConnectionInterceptor(
+                    stack,
+                    null,
+                    null,
+                    maxSize,
+                    blockingTimeout);
+        }
         if (realmBridge != null) {
             stack = new SubjectInterceptor(stack, realmBridge);
         }
