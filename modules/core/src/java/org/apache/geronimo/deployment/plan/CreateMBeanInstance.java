@@ -86,7 +86,7 @@ import org.apache.geronimo.jmx.JMXUtil;
 /**
  * Creates an new MBean instance and intializes it according to the specified MBeanMetadata metadata
  *
- * @version $Revision: 1.14 $ $Date: 2003/09/05 04:52:04 $
+ * @version $Revision: 1.15 $ $Date: 2003/09/06 14:30:32 $
  */
 public class CreateMBeanInstance implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
@@ -163,7 +163,7 @@ public class CreateMBeanInstance implements DeploymentTask {
                         // load class code is more friendly then the Sun code
                         constructorTypeStrings.set(i, type.getName());
                     } catch (ClassNotFoundException e) {
-                        throw new DeploymentException(e);
+                        throw new DeploymentException(e,metadata);
                     }
                     constructorTypes.add(type);
 
@@ -217,19 +217,19 @@ public class CreateMBeanInstance implements DeploymentTask {
                 dependencyService.addStartDependency(actualName, metadata.getParentName());
                 dependencyService.addRelationships(actualName, metadata.getRelationships());
             } catch (MalformedObjectNameException e) {
-                throw new DeploymentException(e);
+                throw new DeploymentException(e,metadata);
             } catch (RuntimeException e) {
-                throw new DeploymentException(e);
+                throw new DeploymentException(e,metadata);
             } catch (InstanceNotFoundException e) {
-                throw new DeploymentException(e);
+                throw new DeploymentException(e,metadata);
             } catch (ReflectionException e) {
-                throw new DeploymentException(e);
+                throw new DeploymentException(e,metadata);
             } catch (InstanceAlreadyExistsException e) {
-                throw new DeploymentException(e);
+                throw new DeploymentException(e,metadata);
             } catch (MBeanException e) {
-                throw new DeploymentException(e);
+                throw new DeploymentException(e,metadata);
             } catch (NotCompliantMBeanException e) {
-                throw new DeploymentException(e);
+                throw new DeploymentException(e,metadata);
             }
         } catch (DeploymentException e) {
             undo();

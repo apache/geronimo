@@ -55,24 +55,69 @@
  */
 package org.apache.geronimo.deployment;
 
+import org.apache.geronimo.deployment.service.MBeanMetadata;
+
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/11 17:59:10 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/06 14:30:32 $
  */
 public class DeploymentException extends Exception {
+    
+    private MBeanMetadata metadata;
+
+    /**
+     * @return
+     */
+    public MBeanMetadata getMetadata() {
+        return metadata;
+    }
+
     public DeploymentException() {
+    }
+
+    public DeploymentException(MBeanMetadata metadata) {
+        this.metadata=metadata;
     }
 
     public DeploymentException(Throwable cause) {
         super(cause);
     }
 
+    public DeploymentException(Throwable cause, MBeanMetadata metadata) {
+        super(cause);
+        this.metadata=metadata;
+    }
+
     public DeploymentException(String message) {
         super(message);
     }
 
+    public DeploymentException(String message, MBeanMetadata metadata) {
+        super(message);
+        this.metadata=metadata;
+    }
+
     public DeploymentException(String message, Throwable cause) {
         super(message, cause);
+    }
+
+    public DeploymentException(String message, Throwable cause, MBeanMetadata metadata) {
+        super(message, cause);
+        this.metadata=metadata;
+    }
+    
+    /**
+     * @see java.lang.Throwable#getMessage()
+     */
+    public String getMessage() {
+        if( metadata==null)
+            return super.getMessage();
+        StringBuffer sb = new StringBuffer();
+        sb.append("[");
+        sb.append(metadata.getName());
+        sb.append("] ");
+        sb.append( super.getMessage() );
+        return sb.toString();
     }
 }
