@@ -64,7 +64,8 @@ import javax.management.MBeanParameterInfo;
 
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 
-import net.sf.cglib.MethodProxy;
+import net.sf.cglib.reflect.FastMethod;
+import net.sf.cglib.reflect.FastClass;
 
 /**
  * Describes an operation on a GeronimoMBean.  This extension allows the properties to be mutable during setup,
@@ -72,7 +73,7 @@ import net.sf.cglib.MethodProxy;
  * direct the operation to a specific target in a multi target GeronimoMBean.  It also supports caching of the
  * invocation result, which can reduce the number of calls on the target.
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/24 22:45:01 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/06 19:59:15 $
  */
 public final class GeronimoOperationInfo extends MBeanOperationInfo {
     /**
@@ -138,7 +139,7 @@ public final class GeronimoOperationInfo extends MBeanOperationInfo {
     /**
      * The method that will be called on the target.
      */
-    final MethodProxy methodProxy;
+    final FastMethod method;
 
     /**
      * The cached result of the method.
@@ -154,7 +155,16 @@ public final class GeronimoOperationInfo extends MBeanOperationInfo {
     public GeronimoOperationInfo() {
         super("Ignore", null, null, "Ignore", MBeanOperationInfo.UNKNOWN);
         immutable = false;
-        methodProxy = null;
+        method = null;
+        returnType = null;
+        parameterTypes = null;
+    }
+
+    public GeronimoOperationInfo(String name) {
+        super("Ignore", null, null, "Ignore", MBeanOperationInfo.UNKNOWN);
+        this.name = name;
+        immutable = false;
+        method = null;
         returnType = null;
         parameterTypes = null;
     }
@@ -183,9 +193,10 @@ public final class GeronimoOperationInfo extends MBeanOperationInfo {
         // Optional (derived)
         //
         if (source.target != null) {
-            target = source.target;
             targetName = source.targetName;
+            target = source.target;
         } else if (source.targetName == null) {
+            targetName = GeronimoMBeanInfo.DEFAULT_TARGET_NAME;
             target = parent.getTarget();
         } else {
             targetName = source.targetName;
@@ -211,9 +222,9 @@ public final class GeronimoOperationInfo extends MBeanOperationInfo {
         //
         // Derived
         //
-        Method method = null;
+        Method javaMethod = null;
         try {
-            method = target.getClass().getMethod(targetMethodName, types);
+            javaMethod = target.getClass().getMethod(targetMethodName, types);
         } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException("Target does not have specifed method:" +
                     " target=" + target +
@@ -221,8 +232,8 @@ public final class GeronimoOperationInfo extends MBeanOperationInfo {
         } catch (SecurityException e) {
             e.printStackTrace();  //To change body of catch statement use Options | File Templates.
         }
-        returnType = method.getReturnType().getName();
-        methodProxy = MethodProxy.create(method, method);
+        returnType = javaMethod.getReturnType().getName();
+        method = parent.getTargetFastClass(targetName).getMethod(javaMethod);
     }
 
     public String getName() {

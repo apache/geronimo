@@ -58,7 +58,8 @@ package org.apache.geronimo.kernel.service;
 import java.lang.reflect.Method;
 import javax.management.MBeanAttributeInfo;
 
-import net.sf.cglib.MethodProxy;
+import net.sf.cglib.reflect.FastMethod;
+import net.sf.cglib.reflect.FastClass;
 
 /**
  * Describes an attibute of a GeronimoMBean.  This extension allows the properties to be mutable during setup,
@@ -66,7 +67,7 @@ import net.sf.cglib.MethodProxy;
  * direct the attibute to a specific target in a multi target GeronimoMBean.  It also supports caching of the
  * attribute value, which can reduce the number of calls on the target.
  *
- * @version $Revision: 1.3 $ $Date: 2003/10/27 21:34:28 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/06 19:59:15 $
  */
 public class GeronimoAttributeInfo extends MBeanAttributeInfo {
     /**
@@ -145,30 +146,50 @@ public class GeronimoAttributeInfo extends MBeanAttributeInfo {
      * The method that will be called to get the attribute value.  If null, the cached value will
      * be returned.
      */
-    final MethodProxy getterProxy;
+    final FastMethod getterMethod;
 
     /**
      * The method that will be called to set the attribute value.  If null, the value will only be
      * set into the cache.
      */
-    final MethodProxy setterProxy;
+    final FastMethod setterMethod;
 
     /**
      * Time stamp from when the value field was last updated.
      */
     long lastUpdate;
+
+    /**
+     * The hash code for this instance.  We are using identiy for the hash.
+     */
     private final int hashCode = System.identityHashCode(this);
 
     /**
      * Creates an empty mutable GeronimoAttributeInfo.
      */
     public GeronimoAttributeInfo() {
+        this(null);
+    }
+
+    /**
+     * Creates a mutable GeronimoAttributeInfo with the specified name
+     */
+    public GeronimoAttributeInfo(String name) {
+        this(name, true, true);
+    }
+
+    public GeronimoAttributeInfo(String name, boolean readable, boolean writable) {
         super("Ignore", "Ignore", null, true, true, false);
+        this.name = name;
+        this.readable = readable;
+        this.writable = writable;
+
         immutable = false;
-        getterProxy = null;
-        setterProxy = null;
+        getterMethod = null;
+        setterMethod = null;
         type = null;
     }
+
 
     /**
      * Creates an immutable copy of the source GeronimoAttributeInfo.
@@ -203,9 +224,10 @@ public class GeronimoAttributeInfo extends MBeanAttributeInfo {
         // Optional (derived)
         //
         if (source.target != null) {
-            target = source.target;
             targetName = source.targetName;
+            target = source.target;
         } else if (source.targetName == null) {
+            targetName = GeronimoMBeanInfo.DEFAULT_TARGET_NAME;
             target = parent.getTarget();
         } else {
             targetName = source.targetName;
@@ -218,7 +240,7 @@ public class GeronimoAttributeInfo extends MBeanAttributeInfo {
         Method[] methods = target.getClass().getMethods();
         Class attributeType = null;
         if (readable) {
-            Method getterMethod = null;
+            Method getterJavaMethod = null;
             if (source.getterName == null) {
                 String getterName = "get" + name;
                 String isName = "is" + name;
@@ -227,44 +249,44 @@ public class GeronimoAttributeInfo extends MBeanAttributeInfo {
                     if (method.getParameterTypes().length == 0 &&
                             (getterName.equalsIgnoreCase(method.getName()) ||
                             isName.equalsIgnoreCase(method.getName()))) {
-                        getterMethod = method;
+                        getterJavaMethod = method;
                         break;
                     }
                 }
             } else {
                 try {
                     String methodName = source.getterName;
-                    getterMethod = target.getClass().getMethod(methodName, null);
+                    getterJavaMethod = target.getClass().getMethod(methodName, null);
                 } catch (Exception e) {
                     // we will throw the formatted exception below
                 }
             }
 
-            if (getterMethod == null) {
+            if (getterJavaMethod == null) {
                 throw new IllegalArgumentException("Getter method not found on target:" +
                         " name=" + name +
                         " targetClass=" + target.getClass().getName());
             }
 
-            getterName = getterMethod.getName();
+            getterName = getterJavaMethod.getName();
             is = getterName.startsWith("is");
-            getterProxy = MethodProxy.create(getterMethod, getterMethod);
-            attributeType = getterMethod.getReturnType();
+            getterMethod = parent.getTargetFastClass(targetName).getMethod(getterJavaMethod);
+            attributeType = getterJavaMethod.getReturnType();
         } else {
             getterName = null;
             readable = false;
-            getterProxy = null;
+            getterMethod = null;
         }
 
         if (writable) {
-            Method setterMethod = null;
+            Method setterJavaMethod = null;
             String methodName = null;
             if (source.setterName == null) {
                 methodName = "set" + name;
                 for (int i = 0; i < methods.length; i++) {
                     Method method = methods[i];
                     if (method.getParameterTypes().length == 1 && methodName.equalsIgnoreCase(method.getName())) {
-                        setterMethod = method;
+                        setterJavaMethod = method;
                         break;
                     }
                 }
@@ -274,24 +296,25 @@ public class GeronimoAttributeInfo extends MBeanAttributeInfo {
                 for (int i = 0; i < methods.length; i++) {
                     Method method = methods[i];
                     if (method.getParameterTypes().length == 1 && methodName.equals(method.getName())) {
-                        setterMethod = method;
+                        setterJavaMethod = method;
                         break;
                     }
                 }
             }
 
-            if (setterMethod == null) {
+            if (setterJavaMethod == null) {
                 throw new IllegalArgumentException("Setter method not found on target:" +
                         " setterName=" + methodName +
                         " targetClass=" + target.getClass().getName());
             }
 
-            setterName = setterMethod.getName();
-            setterProxy = MethodProxy.create(setterMethod, setterMethod);
-            attributeType = setterMethod.getParameterTypes()[0];
+            setterName = setterJavaMethod.getName();
+
+            setterMethod = parent.getTargetFastClass(targetName).getMethod(setterJavaMethod);
+            attributeType = setterJavaMethod.getParameterTypes()[0];
         } else {
             setterName = null;
-            setterProxy = null;
+            setterMethod = null;
         }
         type = attributeType.getName();
     }
