@@ -102,7 +102,7 @@ public class JettyXMLConfiguration extends XMLConfiguration {
                     refs = new HashSet();
                     roleRefs.put(roleLink, refs);
                 }
-                refs.add(new WebRoleRefPermission(name, roleName));
+                refs.add(new WebRoleRefPermission(name, roleLink));
             } else {
                 log.warn("Ignored invalid security-role-ref element: " + "servlet-name=" + name + ", " + securityRef);
             }
