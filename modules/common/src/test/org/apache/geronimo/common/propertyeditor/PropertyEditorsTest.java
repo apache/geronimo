@@ -20,6 +20,7 @@ package org.apache.geronimo.common.propertyeditor;
 import java.util.List;
 
 import java.beans.PropertyEditor;
+import java.beans.PropertyEditorManager;
 
 import junit.framework.TestCase;
 
@@ -31,6 +32,8 @@ import junit.framework.TestCase;
 public class PropertyEditorsTest
     extends TestCase
 {
+    private String[] editorSearchPath;
+
     public void testDefaultEditorSearchPath()
     {
         String element = "org.apache.geronimo.common.propertyeditor";
@@ -46,5 +49,13 @@ public class PropertyEditorsTest
         List path = PropertyEditors.getEditorSearchPath();
         assertNotNull(path);
         assertEquals(element, path.get(path.size() - 1));
+    }
+
+    protected void setUp() throws Exception {
+        editorSearchPath = PropertyEditorManager.getEditorSearchPath();
+    }
+
+    protected void tearDown() throws Exception {
+        PropertyEditorManager.setEditorSearchPath(editorSearchPath);
     }
 }
