@@ -46,6 +46,8 @@ import javax.security.jacc.WebUserDataPermission;
 import javax.servlet.Servlet;
 import javax.transaction.UserTransaction;
 
+import org.apache.geronimo.axis.builder.PortInfo;
+import org.apache.geronimo.axis.builder.WSDescriptorParser;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
@@ -57,8 +59,8 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
-import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.POJOWebServiceBuilder;
+import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -67,8 +69,8 @@ import org.apache.geronimo.jetty.JettyFilterHolder;
 import org.apache.geronimo.jetty.JettyFilterMapping;
 import org.apache.geronimo.jetty.JettyServletHolder;
 import org.apache.geronimo.jetty.JettyWebAppContext;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
@@ -76,7 +78,6 @@ import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.security.util.URLPattern;
-import org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
@@ -105,9 +106,6 @@ import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
 import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
 import org.apache.geronimo.xbeans.j2ee.WelcomeFileListType;
-import org.apache.geronimo.xbeans.j2ee.WebservicesDocument;
-import org.apache.geronimo.axis.builder.WSDescriptorParser;
-import org.apache.geronimo.axis.builder.PortInfo;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.mortbay.http.BasicAuthenticator;
@@ -455,7 +453,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 for (int i = 0; i < welcomeFileArray.length; i++) {
                     String[] welcomeFileListType = welcomeFileArray[i].getWelcomeFileArray();
                     for (int j = 0; j < welcomeFileListType.length; j++) {
-                        String welcomeFile = welcomeFileListType[j];
+                        String welcomeFile = welcomeFileListType[j].trim();
                         welcomeFiles.add(welcomeFile);
                     }
                 }
