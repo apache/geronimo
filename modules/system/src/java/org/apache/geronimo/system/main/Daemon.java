@@ -186,12 +186,14 @@ public class Daemon {
                     }
                 }
             } catch (Exception e) {
+                System.err.println("Exception caught when starting configurations, starting kernel shutdown");
+                e.printStackTrace();
                 try {
                     kernel.shutdown();
                 } catch (Exception e1) {
+                    System.err.println("Exception caught during kernel shutdown");
                     e1.printStackTrace();
                 }
-                e.printStackTrace();
                 System.exit(3);
                 throw new AssertionError();
             }
