@@ -57,31 +57,34 @@ package org.apache.geronimo.deployment.scanner;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Set;
 
 /**
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/13 01:56:06 $
  */
 public interface DeploymentScannerMBean {
-    public static final String SCAN_COMPLETE = "org.apache.geronimo.deployment.SCAN_COMPLETE";
+    static final String SCAN_COMPLETE = "org.apache.geronimo.deployment.SCAN_COMPLETE";
 
-    public long getScanInterval();
+    long getScanInterval();
 
-    public void setScanInterval(long interval);
+    void setScanInterval(long interval);
 
-    public void addURL(URL url, boolean recurse);
+    void addURL(URL url, boolean recurse);
 
-    public void addURL(String url, boolean recurse) throws MalformedURLException;
+    void addURL(String url, boolean recurse) throws MalformedURLException;
 
-    public void removeURL(URL url);
+    void removeURL(URL url);
 
-    public void removeURL(String url) throws MalformedURLException;
+    void removeURL(String url) throws MalformedURLException;
 
-    public void scanNow();
+    void scanNow();
 
-    public void start();
+    void start();
 
-    public void stop();
+    void stop();
+
+    Set getWatchedURLs();
 }

@@ -64,6 +64,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Collections;
 import javax.management.MBeanRegistration;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -78,7 +79,7 @@ import org.apache.geronimo.jmx.JMXUtil;
  * to search them for deployments.
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/08/12 23:14:45 $
+ * @version $Revision: 1.6 $ $Date: 2003/08/13 01:56:06 $
  */
 public class DeploymentScanner implements DeploymentScannerMBean, MBeanRegistration {
     private static final Log log = LogFactory.getLog(DeploymentScanner.class);
@@ -115,6 +116,10 @@ public class DeploymentScanner implements DeploymentScannerMBean, MBeanRegistrat
         this.scanInterval = scanInterval;
     }
 
+    public synchronized Set getWatchedURLs() {
+        return Collections.unmodifiableSet(new HashSet(scanners.keySet()));
+    }
+
     public void addURL(String url, boolean recurse) throws MalformedURLException {
         addURL(new URL(url), recurse);
     }
@@ -145,18 +150,20 @@ public class DeploymentScanner implements DeploymentScannerMBean, MBeanRegistrat
         scanners.remove(url);
     }
 
+    private synchronized boolean shouldScannerThreadRun() {
+        return run;
+    }
+
     public synchronized void start() {
         if (scanThread == null) {
             run = true;
-            scanThread = new Thread() {
+            scanThread = new Thread("DeploymentScanner: ObjectName=" + objectName) {
                 public void run() {
-                    synchronized (DeploymentScanner.this) {
-                        while (run) {
-                            scanNow();
-                            try {
-                                DeploymentScanner.this.wait(scanInterval);
-                            } catch (InterruptedException e) {
-                            }
+                    while (shouldScannerThreadRun()) {
+                        scanNow();
+                        try {
+                            Thread.sleep(getScanInterval());
+                        } catch (InterruptedException e) {
                         }
                     }
                 }
@@ -173,11 +180,15 @@ public class DeploymentScanner implements DeploymentScannerMBean, MBeanRegistrat
         }
     }
 
-    public synchronized void scanNow() {
+    public void scanNow() {
         boolean logTrace = log.isTraceEnabled();
 
         Set results = new HashSet();
-        for (Iterator i = scanners.entrySet().iterator(); i.hasNext();) {
+        Set scannersCopy;
+        synchronized(this) {
+            scannersCopy = new HashSet(scanners.entrySet());
+        }
+        for (Iterator i = scannersCopy.iterator(); i.hasNext();) {
             Map.Entry entry = (Map.Entry) i.next();
             URL url = (URL) entry.getKey();
             if (logTrace) {
