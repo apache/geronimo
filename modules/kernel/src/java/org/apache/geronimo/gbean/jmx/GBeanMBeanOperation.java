@@ -33,9 +33,7 @@ import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.ClassLoading;
 
 /**
- *
- *
- * @version $Revision: 1.9 $ $Date: 2004/05/26 03:22:21 $
+ * @version $Revision: 1.10 $ $Date: 2004/05/27 01:05:59 $
  */
 public class GBeanMBeanOperation {
     private final GBeanMBean gmbean;
@@ -52,19 +50,14 @@ public class GBeanMBeanOperation {
 
         MBeanParameterInfo[] signature = new MBeanParameterInfo[parameterTypes.size()];
         for (int i = 0; i < signature.length; i++) {
-            signature[i] = new MBeanParameterInfo(
-                    "arg" + i,
-                    (String) parameterTypes.get(i),
-                    null);
+            signature[i] = new MBeanParameterInfo("arg" + i, (String) parameterTypes.get(i), null);
         }
 
-        mbeanOperationInfo = new MBeanOperationInfo(
-                name,
+        mbeanOperationInfo = new MBeanOperationInfo(name,
                 null,
                 signature,
                 returnType.getName(),
-                MBeanOperationInfo.UNKNOWN
-        );
+                MBeanOperationInfo.UNKNOWN);
 
     }
 
@@ -93,6 +86,7 @@ public class GBeanMBeanOperation {
             returnType = Object.class;
             methodInvoker = new MethodInvoker() {
                 private String[] types = (String[]) parameterTypes.toArray(new String[parameterTypes.size()]);
+
                 public Object invoke(Object target, Object[] arguments) throws Exception {
                     DynamicGBean dynamicGBean = (DynamicGBean) GBeanMBeanOperation.this.gmbean.getTarget();
                     dynamicGBean.invoke(name, arguments, types);
@@ -114,19 +108,16 @@ public class GBeanMBeanOperation {
 
         MBeanParameterInfo[] signature = new MBeanParameterInfo[parameterTypes.size()];
         for (int i = 0; i < signature.length; i++) {
-            signature[i] = new MBeanParameterInfo(
-                    "arg" + i,
+            signature[i] = new MBeanParameterInfo("arg" + i,
                     (String) parameterTypes.get(i),
                     null);
         }
 
-        mbeanOperationInfo = new MBeanOperationInfo(
-                operationInfo.getName(),
+        mbeanOperationInfo = new MBeanOperationInfo(operationInfo.getName(),
                 null,
                 signature,
                 returnType.getName(),
-                MBeanOperationInfo.UNKNOWN
-        );
+                MBeanOperationInfo.UNKNOWN);
     }
 
     public String getName() {

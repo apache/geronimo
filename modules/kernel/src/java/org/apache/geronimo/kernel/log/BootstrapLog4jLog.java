@@ -18,13 +18,13 @@
 package org.apache.geronimo.kernel.log;
 
 import org.apache.commons.logging.Log;
+import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.PatternLayout;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:02 $
+ * @version $Revision: 1.4 $ $Date: 2004/05/27 01:06:00 $
  */
 public class BootstrapLog4jLog implements Log {
     static {
@@ -32,19 +32,19 @@ public class BootstrapLog4jLog implements Log {
         root.addAppender(new ConsoleAppender(new PatternLayout("%d{ABSOLUTE} %-5p [%c{1}] %m%n")));
 
         GeronimoLogging level = GeronimoLogging.getDefaultLevel();
-        if(level == null) {
+        if (level == null) {
             root.setLevel(Level.ERROR);
-        } else if(level == GeronimoLogging.TRACE) {
+        } else if (level == GeronimoLogging.TRACE) {
             root.setLevel(Level.DEBUG);
-        } else if(level == GeronimoLogging.DEBUG) {
+        } else if (level == GeronimoLogging.DEBUG) {
             root.setLevel(Level.DEBUG);
-        } else if(level == GeronimoLogging.INFO) {
+        } else if (level == GeronimoLogging.INFO) {
             root.setLevel(Level.INFO);
-        } else if(level == GeronimoLogging.WARN) {
+        } else if (level == GeronimoLogging.WARN) {
             root.setLevel(Level.WARN);
-        } else if(level == GeronimoLogging.ERROR) {
+        } else if (level == GeronimoLogging.ERROR) {
             root.setLevel(Level.ERROR);
-        } else if(level == GeronimoLogging.FATAL) {
+        } else if (level == GeronimoLogging.FATAL) {
             root.setLevel(Level.FATAL);
         }
 

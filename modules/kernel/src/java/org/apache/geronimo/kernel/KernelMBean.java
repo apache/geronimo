@@ -27,19 +27,19 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 
 /**
- *
- *
- * @version $Revision: 1.7 $ $Date: 2004/03/10 09:59:01 $
+ * @version $Revision: 1.8 $ $Date: 2004/05/27 01:06:00 $
  */
 public interface KernelMBean {
     /**
      * Get the MBeanServer used by this kernel
+     *
      * @return the MBeanServer used by this kernel
      */
     MBeanServer getMBeanServer();
 
     /**
      * Get the name of this kernel
+     *
      * @return the name of this kernel
      */
     String getKernelName();
@@ -47,15 +47,17 @@ public interface KernelMBean {
     /**
      * Load a specific GBean into this kernel.
      * This is intended for applications that are embedding the kernel.
+     *
      * @param name the name to register the GBean under
      * @param gbean the GBean to register
      * @throws InstanceAlreadyExistsException if the name is already used
-     * @throws org.apache.geronimo.kernel.config.InvalidConfigException if there is a problem during registration
+     * @throws InvalidConfigException if there is a problem during registration
      */
     void loadGBean(ObjectName name, GBeanMBean gbean) throws InstanceAlreadyExistsException, InvalidConfigException;
 
     /**
      * Start a specific GBean.
+     *
      * @param name the GBean to start
      * @throws InstanceNotFoundException if the GBean could not be found
      */
@@ -63,23 +65,26 @@ public interface KernelMBean {
 
     /**
      * Start a specific GBean and its children.
+     *
      * @param name the GBean to start
-     * @throws javax.management.InstanceNotFoundException if the GBean could not be found
+     * @throws InstanceNotFoundException if the GBean could not be found
      */
     void startRecursiveGBean(ObjectName name) throws InstanceNotFoundException, InvalidConfigException;
 
     /**
      * Stop a specific GBean.
+     *
      * @param name the GBean to stop
-     * @throws javax.management.InstanceNotFoundException if the GBean could not be found
+     * @throws InstanceNotFoundException if the GBean could not be found
      */
     void stopGBean(ObjectName name) throws InstanceNotFoundException, InvalidConfigException;
 
     /**
      * Unload a specific GBean.
      * This is intended for applications that are embedding the kernel.
+     *
      * @param name the name of the GBean to unregister
-     * @throws javax.management.InstanceNotFoundException if the GBean could not be found
+     * @throws InstanceNotFoundException if the GBean could not be found
      */
     void unloadGBean(ObjectName name) throws InstanceNotFoundException;
 

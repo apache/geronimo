@@ -24,18 +24,20 @@ import javax.management.ObjectName;
 /**
  * Helper class for JMX Operations
  *
- *
- * @version $Revision: 1.6 $ $Date: 2004/05/26 03:22:21 $
+ * @version $Revision: 1.7 $ $Date: 2004/05/27 01:06:00 $
  */
 public final class JMXUtil {
     private JMXUtil() {
     }
 
-    /** the ObjectName of the MBeanServerDelegate */
+    /**
+     * the ObjectName of the MBeanServerDelegate
+     */
     public static final ObjectName DELEGATE_NAME = getObjectName("JMImplementation:type=MBeanServerDelegate");
 
     /**
      * Convert a String to an ObjectName
+     *
      * @param name the name
      * @return the ObjectName from that String
      * @throws java.lang.IllegalArgumentException if the name is malformed

@@ -37,9 +37,7 @@ import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.gbean.WaitingException;
 
 /**
- *
- *
- * @version $Revision: 1.15 $ $Date: 2004/04/23 07:17:33 $
+ * @version $Revision: 1.16 $ $Date: 2004/05/27 01:05:59 $
  */
 public class CollectionProxy implements Proxy {
     private static final Log log = LogFactory.getLog(CollectionProxy.class);
@@ -115,7 +113,7 @@ public class CollectionProxy implements Proxy {
                 ProxyMethodInterceptor interceptor = new ProxyMethodInterceptor(factory.getType());
                 interceptor.connect(gmbean.getServer(), target, proxy.isStopped());
                 interceptors.put(target, interceptor);
-                Object targetProxy = factory.create(interceptor); 
+                Object targetProxy = factory.create(interceptor);
                 proxies.put(target, targetProxy);
                 if (!stopped) {
                     proxy.fireMemberAdddedEvent(targetProxy);

@@ -27,9 +27,7 @@ import net.sf.cglib.reflect.FastMethod;
 
 
 /**
- *
- *
- * @version $Revision: 1.6 $ $Date: 2004/05/26 22:58:30 $
+ * @version $Revision: 1.7 $ $Date: 2004/05/27 01:05:58 $
  */
 public class DynamicGBeanDelegate implements DynamicGBean {
     protected final Map getters = new HashMap();
@@ -119,7 +117,7 @@ public class DynamicGBeanDelegate implements DynamicGBean {
         if (operation == null) {
             throw new IllegalArgumentException("Unknown attribute " + name);
         }
-        operation.invoke(new Object[] {value});
+        operation.invoke(new Object[]{value});
     }
 
     public Object invoke(String name, Object[] arguments, String[] types) throws Exception {

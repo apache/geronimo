@@ -50,18 +50,18 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * Geronimo system and exposing them using JMX. Each Kernel is associated
  * with an MBeanServer that is used to register the Configurations themselves
  * and the MBeans they define.
- *
+ * <p/>
  * Dependencies between MBeans are handled by a dedicated DependencyService
  * that is responsible for tracking those dependencies and ensuring that the
  * dependent objects follow the appropriate lifecycle and receive appropriate
  * notifications.
- *
+ * <p/>
  * The Kernel also provides a ConfigurationStore which is used to stage
  * installed Configurations (providing a local filesystem based classpath) and
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.25 $ $Date: 2004/05/26 03:22:21 $
+ * @version $Revision: 1.26 $ $Date: 2004/05/27 01:06:00 $
  */
 public class Kernel extends NotificationBroadcasterSupport implements Serializable, KernelMBean {
 
@@ -103,6 +103,7 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
 
     /**
      * Construct a Kernel which does not have a config store.
+     *
      * @param domainName the domain name to be used for the JMX MBeanServer
      */
     public Kernel(String domainName) {
@@ -111,6 +112,7 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
 
     /**
      * Construct a Kernel which does not have a config store.
+     *
      * @param kernelName the name of the kernel that uniquely indentifies the kernel in a VM
      * @param domainName the domain name to be used for the JMX MBeanServer
      */
@@ -129,6 +131,7 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
 
     /**
      * Get a particular kernel indexed by a name
+     *
      * @param name the name of the kernel to be obtained
      * @return the kernel that was registered with that name
      */
@@ -145,9 +148,10 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
 
     /**
      * Obtain the single kernel that's registered.
-     *
+     * <p/>
      * <p>This method assumes that there is only one kernel registered and will throw an
      * <code>IllegalStateException</code> if more than one has been registered.
+     *
      * @return the single kernel that's registered
      * @throws IllegalStateException if more than one
      */
@@ -279,6 +283,7 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
     /**
      * Boot this Kernel, triggering the instantiation of the MBeanServer and
      * the registration of the DependencyService and ConfigurationStore
+     *
      * @throws java.lang.Exception if the boot fails
      */
     public void boot() throws Exception {

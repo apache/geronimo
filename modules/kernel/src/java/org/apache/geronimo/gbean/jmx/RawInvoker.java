@@ -17,12 +17,12 @@
 package org.apache.geronimo.gbean.jmx;
 
 import java.util.Map;
-import javax.management.ReflectionException;
 import javax.management.JMException;
 import javax.management.JMRuntimeException;
+import javax.management.ReflectionException;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/05/26 03:22:21 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/27 01:05:59 $
  */
 public final class RawInvoker {
     private GBeanMBean gbean;

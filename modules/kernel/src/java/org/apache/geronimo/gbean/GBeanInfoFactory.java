@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @version $Revision: 1.18 $ $Date: 2004/05/26 22:58:30 $
+ * @version $Revision: 1.19 $ $Date: 2004/05/27 01:05:58 $
  */
 public class GBeanInfoFactory {
 
@@ -182,7 +182,7 @@ public class GBeanInfoFactory {
 
     public void addOperation(GOperationInfo operationInfo) {
         operations.put(new GOperationSignature(operationInfo.getName(), operationInfo.getParameterList()),
-                       operationInfo);
+                operationInfo);
     }
 
     public void addOperation(String name) {

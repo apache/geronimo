@@ -24,18 +24,16 @@ import java.util.Map;
 /**
  * Utilities for loading classes.
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/21 22:24:39 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/27 01:06:00 $
  */
 public class ClassLoading {
     /**
      * Load a class for the given name using the context class loader.
      *
+     * @param className The name of the Class to be loaded.
+     * @return The Class object for the given name.
+     * @throws ClassNotFoundException Failed to load Class object.
      * @see #loadClass(String,ClassLoader)
-     *
-     * @param className    The name of the Class to be loaded.
-     * @return             The Class object for the given name.
-     *
-     * @throws ClassNotFoundException   Failed to load Class object.
      */
     public static Class loadClass(final String className) throws ClassNotFoundException {
         return loadClass(className, getContextClassLoader());
@@ -43,14 +41,13 @@ public class ClassLoading {
 
     /**
      * Load a class for the given name.
-     *
+     * <p/>
      * <p>Handles loading primitive types as well as VM class and array syntax.
      *
-     * @param className     The name of the Class to be loaded.
-     * @param classLoader   The class loader to load the Class object from.
-     * @return              The Class object for the given name.
-     *
-     * @throws ClassNotFoundException   Failed to load Class object.
+     * @param className The name of the Class to be loaded.
+     * @param classLoader The class loader to load the Class object from.
+     * @return The Class object for the given name.
+     * @throws ClassNotFoundException Failed to load Class object.
      */
     public static Class loadClass(final String className, final ClassLoader classLoader) throws ClassNotFoundException {
         if (className == null) {
@@ -142,7 +139,9 @@ public class ClassLoading {
         return Thread.currentThread().getContextClassLoader();
     }
 
-    /** Primitive type name -> class map. */
+    /**
+     * Primitive type name -> class map.
+     */
     private static final Map PRIMITIVES = new HashMap();
 
     /** Setup the primitives map. */
@@ -161,14 +160,16 @@ public class ClassLoading {
     /**
      * Get the primitive type for the given primitive name.
      *
-     * @param name    Primitive type name (boolean, byte, int, ...)
-     * @return        Primitive type or null.
+     * @param name Primitive type name (boolean, byte, int, ...)
+     * @return Primitive type or null.
      */
     private static Class getPrimitiveType(final String name) {
         return (Class) PRIMITIVES.get(name);
     }
 
-    /** VM primitive type name -> primitive type */
+    /**
+     * VM primitive type name -> primitive type
+     */
     private static final HashMap VM_PRIMITIVES = new HashMap();
 
     /** Setup the vm primitives map. */
@@ -184,7 +185,9 @@ public class ClassLoading {
         VM_PRIMITIVES.put("V", void.class);
     }
 
-    /** VM primitive type primitive type ->  name  */
+    /**
+     * VM primitive type primitive type ->  name
+     */
     private static final HashMap VM_PRIMITIVES_REVERSE = new HashMap();
 
     /** Setup the vm primitives reverse map. */
@@ -202,7 +205,7 @@ public class ClassLoading {
 
     /**
      * Get the primitive type for the given VM primitive name.
-     *
+     * <p/>
      * <p>Mapping:
      * <pre>
      *   B - byte
@@ -216,14 +219,16 @@ public class ClassLoading {
      *   V - void
      * </pre>
      *
-     * @param name    VM primitive type name (B, C, J, ...)
-     * @return        Primitive type or null.
+     * @param name VM primitive type name (B, C, J, ...)
+     * @return Primitive type or null.
      */
     private static Class getVMPrimitiveType(final String name) {
         return (Class) VM_PRIMITIVES.get(name);
     }
 
-    /** Map of primitive types to their wrapper classes */
+    /**
+     * Map of primitive types to their wrapper classes
+     */
     private static final Map PRIMITIVE_WRAPPERS = new HashMap();
 
     /** Setup the wrapper map. */

@@ -26,7 +26,7 @@ import javax.management.ObjectName;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/05/26 03:22:21 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/27 01:05:59 $
  */
 public final class DependencyServiceProxy implements DependencyServiceMBean {
     private final MBeanServer server;
@@ -37,62 +37,62 @@ public final class DependencyServiceProxy implements DependencyServiceMBean {
 
     public void addDependency(ObjectName child, ObjectName parent) {
         invoke("addDependency",
-                new Object[] {child, parent},
-                new String[] {ObjectName.class.getName(), ObjectName.class.getName()});
+                new Object[]{child, parent},
+                new String[]{ObjectName.class.getName(), ObjectName.class.getName()});
     }
 
     public void removeDependency(ObjectName child, ObjectName parent) {
         invoke("removeDependency",
-                new Object[] {child, parent},
-                new String[] {ObjectName.class.getName(), ObjectName.class.getName()});
+                new Object[]{child, parent},
+                new String[]{ObjectName.class.getName(), ObjectName.class.getName()});
     }
 
     public void removeAllDependencies(ObjectName child) {
         invoke("removeAllDependencies",
-                new Object[] {child},
-                new String[] {ObjectName.class.getName()});
+                new Object[]{child},
+                new String[]{ObjectName.class.getName()});
     }
 
     public void addDependencies(ObjectName child, Set parents) {
         invoke("addDependencies",
-                new Object[] {child, parents},
-                new String[] {ObjectName.class.getName(), Set.class.getName()});
+                new Object[]{child, parents},
+                new String[]{ObjectName.class.getName(), Set.class.getName()});
     }
 
     public Set getParents(ObjectName child) {
         return (Set) invoke("getParents",
-                new Object[] {child},
-                new String[] {ObjectName.class.getName()});
+                new Object[]{child},
+                new String[]{ObjectName.class.getName()});
     }
 
     public Set getChildren(ObjectName parent) {
         return (Set) invoke("getChildren",
-                new Object[] {parent},
-                new String[] {ObjectName.class.getName()});
+                new Object[]{parent},
+                new String[]{ObjectName.class.getName()});
     }
 
     public void addStartHolds(ObjectName objectName, Collection holds) {
         invoke("addStartHolds",
-                new Object[] {objectName, holds},
-                new String[] {ObjectName.class.getName(), Collection.class.getName()});
+                new Object[]{objectName, holds},
+                new String[]{ObjectName.class.getName(), Collection.class.getName()});
     }
 
     public void removeStartHolds(ObjectName objectName, Collection holds) {
         invoke("removeStartHolds",
-                new Object[] {objectName, holds},
-                new String[] {ObjectName.class.getName(), Collection.class.getName()});
+                new Object[]{objectName, holds},
+                new String[]{ObjectName.class.getName(), Collection.class.getName()});
     }
 
     public void removeAllStartHolds(ObjectName objectName) {
         invoke("removeAllStartHolds",
-                new Object[] {objectName},
-                new String[] {ObjectName.class.getName()});
+                new Object[]{objectName},
+                new String[]{ObjectName.class.getName()});
     }
 
     public ObjectName checkBlocker(ObjectName objectName) {
         return (ObjectName) invoke("checkBlocker",
-                new Object[] {objectName},
-                new String[] {ObjectName.class.getName()});
+                new Object[]{objectName},
+                new String[]{ObjectName.class.getName()});
     }
 
     private Object invoke(String operationName, Object[] params, String[] signature) {

@@ -20,15 +20,15 @@ package org.apache.geronimo.kernel.log;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogConfigurationException;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:59:02 $
+ * @version $Revision: 1.6 $ $Date: 2004/05/27 01:06:00 $
  */
 public class GeronimoLogFactory extends LogFactory {
     private final static Object factoryLock = new Object();
@@ -81,7 +81,7 @@ public class GeronimoLogFactory extends LogFactory {
             // get the instances for the context classloader
             ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
             Map instances = (Map) instancesByClassLoader.get(contextClassLoader);
-            if(instances == null) {
+            if (instances == null) {
                 instances = new HashMap();
                 instancesByClassLoader.put(contextClassLoader, instances);
             }
@@ -122,7 +122,7 @@ public class GeronimoLogFactory extends LogFactory {
         }
     }
 
-    public  void removeAttribute(String name) {
+    public void removeAttribute(String name) {
         synchronized (factoryLock) {
             logFactory.removeAttribute(name);
         }

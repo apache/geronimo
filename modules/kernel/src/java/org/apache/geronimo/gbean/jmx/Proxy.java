@@ -23,9 +23,7 @@ import javax.management.ObjectName;
 import org.apache.geronimo.gbean.WaitingException;
 
 /**
- *
- *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:01 $
+ * @version $Revision: 1.5 $ $Date: 2004/05/27 01:05:59 $
  */
 public interface Proxy {
     void destroy();

@@ -17,17 +17,15 @@
 
 package org.apache.geronimo.kernel.repository;
 
-import java.net.URL;
-import java.net.URI;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 
 /**
- * 
- * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:02 $
+ * @version $Revision: 1.4 $ $Date: 2004/05/27 01:06:00 $
  */
 public interface Repository {
     boolean hasURI(URI uri);
-    
+
     URL getURL(URI uri) throws MalformedURLException;
 }

@@ -24,7 +24,7 @@ import javax.management.ObjectName;
  * Context handle for a GBean which allows the bean to determin the current state, and to change the
  * current state.
  *
- * @version $Revision: 1.4 $ $Date: 2004/05/19 20:54:00 $
+ * @version $Revision: 1.5 $ $Date: 2004/05/27 01:05:58 $
  */
 public interface GBeanContext {
     /**
@@ -38,7 +38,7 @@ public interface GBeanContext {
     /**
      * Attempts to bring the component into the fully running state. If an Exception occurs while
      * starting the component, the component is automaticaly failed.
-     *
+     * <p/>
      * There is no guarantee that the Geronimo MBean will be running when the method returns.
      *
      * @throws Exception if a problem occurs while starting the component
@@ -48,7 +48,7 @@ public interface GBeanContext {
     /**
      * Attempt to bring the component into the fully stopped state. If an exception occurs while
      * stopping the component, tthe component is automaticaly failed.
-     *
+     * <p/>
      * There is no guarantee that the Geronimo MBean will be stopped when the method returns.
      *
      * @throws Exception if a problem occurs while stopping the component
@@ -57,9 +57,8 @@ public interface GBeanContext {
 
     /**
      * Moves this component to the FAILED state.
-     *
+     * <p/>
      * The component is guaranteed to be in the failed state when the method returns.
-     *
      */
     public void fail();
 

@@ -46,10 +46,9 @@ import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
+import org.apache.geronimo.gbean.GOperationSignature;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
-import org.apache.geronimo.gbean.GOperationSignature;
-import org.apache.geronimo.gbean.GOperationSignature;
 import org.apache.geronimo.kernel.management.NotificationType;
 
 /**
@@ -58,7 +57,7 @@ import org.apache.geronimo.kernel.management.NotificationType;
  * {@link GBeanInfo} instance.  The GBeanMBean also supports caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.16 $ $Date: 2004/05/26 22:58:30 $
+ * @version $Revision: 1.17 $ $Date: 2004/05/27 01:05:59 $
  */
 public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     /**
@@ -70,6 +69,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
 
     /**
      * Gets the context class loader from the thread or the system class loader if there is no context class loader.
+     *
      * @return the context class loader or the system classloader
      */
     private static ClassLoader getContextClassLoader() {
@@ -207,8 +207,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         }
 
         // add notification type from the ManagedObject interface
-        notifications.add(new MBeanNotificationInfo(
-                NotificationType.TYPES,
+        notifications.add(new MBeanNotificationInfo(NotificationType.TYPES,
                 "javax.management.Notification",
                 "J2EE Notifications"));
 
@@ -222,8 +221,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
             mbeanOperations[i] = operations[i].getMbeanOperationInfo();
         }
 
-        mbeanInfo = new MBeanInfo(
-                beanInfo.getClassName(),
+        mbeanInfo = new MBeanInfo(beanInfo.getClassName(),
                 null,
                 mbeanAttributes,
                 new MBeanConstructorInfo[0],
@@ -240,6 +238,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
      * "Bootstrapping" constructor.  The class specified is loaded and the static method
      * "getGBeanInfo" is called to get the gbean info.  Usually one will include
      * this static method in the class to be wrapped in the GBeanMBean instance.
+     *
      * @param className name of the class to call getGBeanInfo on
      * @param classLoader the class loader for this GBean
      * @throws java.lang.Exception if an exception occurs while getting the GBeanInfo from the class
@@ -252,6 +251,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
      * "Bootstrapping" constructor.  The class specified is loaded and the static method
      * "getGBeanInfo" is called to get the gbean info.  Usually one will include
      * this static method in the class to be wrapped in the GBeanMBean instance.
+     *
      * @param className name of the class to call getGBeanInfo on
      * @throws java.lang.Exception if an exception occurs while getting the GBeanInfo from the class
      */
@@ -328,14 +328,14 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
             target = constructor.newInstance(parameters);
         } catch (InvocationTargetException e) {
             Throwable targetException = e.getTargetException();
-            if(targetException instanceof Exception) {
-                throw (Exception)targetException;
-            } else if(targetException instanceof Error) {
-                throw (Error)targetException;
+            if (targetException instanceof Exception) {
+                throw (Exception) targetException;
+            } else if (targetException instanceof Error) {
+                throw (Error) targetException;
             }
             throw e;
         } catch (IllegalArgumentException e) {
-            log.warn("Constructor mismatch for "  + returnValue, e);
+            log.warn("Constructor mismatch for " + returnValue, e);
             throw e;
         }
 
@@ -574,8 +574,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
 
     private void addManagedObjectAttributes(Set attributesSet) {
         // todo none of these are going to be handled by the rawInvoker
-        attributesSet.add(new GBeanMBeanAttribute(
-                this,
+        attributesSet.add(new GBeanMBeanAttribute(this,
                 "state",
                 Integer.TYPE,
                 new MethodInvoker() {
@@ -585,8 +584,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                 },
                 null));
 
-        attributesSet.add(new GBeanMBeanAttribute(
-                this,
+        attributesSet.add(new GBeanMBeanAttribute(this,
                 "objectName",
                 String.class,
                 new MethodInvoker() {
@@ -596,8 +594,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                 },
                 null));
 
-        attributesSet.add(new GBeanMBeanAttribute(
-                this,
+        attributesSet.add(new GBeanMBeanAttribute(this,
                 "startTime",
                 Long.TYPE,
                 new MethodInvoker() {
@@ -607,8 +604,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                 },
                 null));
 
-        attributesSet.add(new GBeanMBeanAttribute(
-                this,
+        attributesSet.add(new GBeanMBeanAttribute(this,
                 "stateManageable",
                 Boolean.TYPE,
                 new MethodInvoker() {
@@ -618,8 +614,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                 },
                 null));
 
-        attributesSet.add(new GBeanMBeanAttribute(
-                this,
+        attributesSet.add(new GBeanMBeanAttribute(this,
                 "statisticsProvider",
                 Boolean.TYPE,
                 new MethodInvoker() {
@@ -630,8 +625,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                 null));
 
 
-        attributesSet.add(new GBeanMBeanAttribute(
-                this,
+        attributesSet.add(new GBeanMBeanAttribute(this,
                 "eventProvider",
                 Boolean.TYPE,
                 new MethodInvoker() {
@@ -644,8 +638,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
 
     private void addManagedObjectOperations(Set operationsSet) {
         // todo none of these are going to be handled by the rawInvoker
-        operationsSet.add(new GBeanMBeanOperation(
-                this,
+        operationsSet.add(new GBeanMBeanOperation(this,
                 "start",
                 Collections.EMPTY_LIST,
                 Void.TYPE,
@@ -656,8 +649,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                     }
                 }));
 
-        operationsSet.add(new GBeanMBeanOperation(
-                this,
+        operationsSet.add(new GBeanMBeanOperation(this,
                 "startRecursive",
                 Collections.EMPTY_LIST,
                 Void.TYPE,
@@ -668,8 +660,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                     }
                 }));
 
-        operationsSet.add(new GBeanMBeanOperation(
-                this,
+        operationsSet.add(new GBeanMBeanOperation(this,
                 "stop",
                 Collections.EMPTY_LIST,
                 Void.TYPE,

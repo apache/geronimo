@@ -24,9 +24,7 @@ import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
 
 /**
- *
- *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:00 $
+ * @version $Revision: 1.5 $ $Date: 2004/05/27 01:05:59 $
  */
 public class FastMethodInvoker implements MethodInvoker {
     private FastMethod method;

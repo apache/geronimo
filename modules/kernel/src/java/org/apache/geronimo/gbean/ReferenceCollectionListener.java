@@ -20,11 +20,10 @@ package org.apache.geronimo.gbean;
 import java.util.EventListener;
 
 /**
- * 
- * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:00 $
+ * @version $Revision: 1.4 $ $Date: 2004/05/27 01:05:58 $
  */
 public interface ReferenceCollectionListener extends EventListener {
     void memberAdded(ReferenceCollectionEvent event);
+
     void memberRemoved(ReferenceCollectionEvent event);
 }

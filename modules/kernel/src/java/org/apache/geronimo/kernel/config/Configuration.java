@@ -36,9 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.management.AttributeNotFoundException;
-import javax.management.InvalidAttributeValueException;
 import javax.management.JMRuntimeException;
-import javax.management.MBeanException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
@@ -63,7 +61,7 @@ import org.apache.geronimo.kernel.repository.Repository;
  * a Configuration are a codebase, represented by a collection of URLs that
  * is used to locate classes, and a collection of GBean instances that define
  * its state.
- *
+ * <p/>
  * The persistent attributes of the Configuration are:
  * <ul>
  * <li>its unique configID used to identify this specific config</li>
@@ -78,13 +76,13 @@ import org.apache.geronimo.kernel.repository.Repository;
  * to de-serialize the persisted GBeans, ensuring the GBeans can be recycled
  * as necessary. Once the GBeans have been restored, they are brought online
  * by registering them with the MBeanServer.
- *
+ * <p/>
  * A dependency on the Configuration is created for every GBean it loads. As a
  * result, a startRecursive() operation on the configuration will result in
  * a startRecursive() for all the GBeans it contains. Similarly, if the
  * Configuration is stopped then all of its GBeans will be stopped as well.
  *
- * @version $Revision: 1.18 $ $Date: 2004/04/09 18:46:22 $
+ * @version $Revision: 1.19 $ $Date: 2004/05/27 01:06:00 $
  */
 public class Configuration implements GBean {
     private static final Log log = LogFactory.getLog(Configuration.class);
@@ -107,6 +105,7 @@ public class Configuration implements GBean {
     /**
      * Constructor that can be used to create an offline Configuration, typically
      * only used publically during the deployment process for initial configuration.
+     *
      * @param id the unique ID of this Configuration
      * @param parent the parent Configuration; may be null
      * @param classPath a List<URI> of locations that define the codebase for this Configuration
@@ -233,6 +232,7 @@ public class Configuration implements GBean {
 
     /**
      * Return the unique ID of this Configuration's parent
+     *
      * @return the unique ID of the parent, or null if it does not have one
      */
     public URI getParentID() {
@@ -241,6 +241,7 @@ public class Configuration implements GBean {
 
     /**
      * Return the unique ID
+     *
      * @return the unique ID
      */
     public URI getID() {
@@ -249,6 +250,7 @@ public class Configuration implements GBean {
 
     /**
      * Return the URL that is used to resolve relative classpath locations
+     *
      * @return the base URL for the classpath
      */
     public URL getBaseURL() {
@@ -257,6 +259,7 @@ public class Configuration implements GBean {
 
     /**
      * Set the URL that should be used to resolve relative class locations
+     *
      * @param baseURL the base URL for the classpath
      */
     public void setBaseURL(URL baseURL) {
@@ -291,10 +294,11 @@ public class Configuration implements GBean {
 
     /**
      * Load GBeans from the supplied byte array using the supplied ClassLoader
+     *
      * @param gbeanState the serialized form of the GBeans
      * @param cl the ClassLoader used to locate classes needed during deserialization
      * @return a Map<ObjectName, GBeanMBean> of GBeans loaded from the persisted state
-     * @throws org.apache.geronimo.kernel.config.InvalidConfigException if there is a problem deserializing the state
+     * @throws InvalidConfigException if there is a problem deserializing the state
      */
     public static Map loadGBeans(byte[] gbeanState, ClassLoader cl) throws InvalidConfigException {
         Map gbeans = new HashMap();
@@ -322,7 +326,7 @@ public class Configuration implements GBean {
         }
     }
 
-    public static void loadGMBeanState(GBeanMBean gbean, ObjectInputStream ois) throws IOException, AttributeNotFoundException, InvalidAttributeValueException, MBeanException, ReflectionException, ClassNotFoundException {
+    public static void loadGMBeanState(GBeanMBean gbean, ObjectInputStream ois) throws IOException, AttributeNotFoundException, ReflectionException, ClassNotFoundException {
         int attributeCount = ois.readInt();
         for (int i = 0; i < attributeCount; i++) {
             gbean.setAttribute((String) ois.readObject(), ois.readObject());
@@ -335,6 +339,7 @@ public class Configuration implements GBean {
 
     /**
      * Return a byte array containing the persisted form of the supplied GBeans
+     *
      * @param gbeans a Map<ObjectName, GBeanMBean> of GBeans to store
      * @return the persisted GBeans
      * @throws org.apache.geronimo.kernel.config.InvalidConfigException if there is a problem serializing the state
@@ -359,7 +364,7 @@ public class Configuration implements GBean {
         return baos.toByteArray();
     }
 
-    public static void storeGMBeanState(GBeanMBean gbean, ObjectOutputStream oos) throws IOException, AttributeNotFoundException, MBeanException, ReflectionException {
+    public static void storeGMBeanState(GBeanMBean gbean, ObjectOutputStream oos) throws IOException, AttributeNotFoundException, ReflectionException {
         List persistentAttributes = gbean.getGBeanInfo().getPersistentAttributes();
         oos.writeInt(persistentAttributes.size());
         for (Iterator j = persistentAttributes.iterator(); j.hasNext();) {
@@ -391,10 +396,8 @@ public class Configuration implements GBean {
         infoFactory.addAttribute("SavedState", false); // @todo is this used?
         infoFactory.addReference("Parent", ConfigurationParent.class);
         infoFactory.addReference("Repositories", Repository.class);
-        infoFactory.setConstructor(
-                new String[]{"ID", "ParentID", "Parent", "ClassPath", "GBeanState", "Repositories", "Dependencies"},
-                new Class[]{URI.class, URI.class, ConfigurationParent.class, List.class, byte[].class, Collection.class, List.class}
-        );
+        infoFactory.setConstructor(new String[]{"ID", "ParentID", "Parent", "ClassPath", "GBeanState", "Repositories", "Dependencies"},
+                new Class[]{URI.class, URI.class, ConfigurationParent.class, List.class, byte[].class, Collection.class, List.class});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

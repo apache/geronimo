@@ -20,9 +20,7 @@ package org.apache.geronimo.gbean;
 import java.util.List;
 
 /**
- * 
- * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:00 $
+ * @version $Revision: 1.4 $ $Date: 2004/05/27 01:05:58 $
  */
 public class DynamicGOperationInfo extends GOperationInfo {
     public DynamicGOperationInfo(String name) {

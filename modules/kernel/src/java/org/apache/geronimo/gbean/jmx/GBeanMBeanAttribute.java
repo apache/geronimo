@@ -30,7 +30,7 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 
 /**
- * @version $Revision: 1.11 $ $Date: 2004/04/07 18:40:17 $
+ * @version $Revision: 1.12 $ $Date: 2004/05/27 01:05:59 $
  */
 public class GBeanMBeanAttribute {
 
@@ -170,22 +170,20 @@ public class GBeanMBeanAttribute {
 
             // getter and constructor types are consistent
             if (constructorType != null && getterMethod != null && constructorType != getterMethod.getReturnType()) {
-                throw new InvalidConfigurationException(
-                        "Constructor argument and getter method do not have the same type:" + " name="
-                                + attributeInfo.getName() + " constructorType=" + constructorType.getName()
-                                + " getterMethod=" + getterMethod.getName() + " getterMethod type="
-                                + getterMethod.getReturnType().getName() + " targetClass=" + gmbean.getType().getName());
+                throw new InvalidConfigurationException("Constructor argument and getter method do not have the same type:" + " name="
+                        + attributeInfo.getName() + " constructorType=" + constructorType.getName()
+                        + " getterMethod=" + getterMethod.getName() + " getterMethod type="
+                        + getterMethod.getReturnType().getName() + " targetClass=" + gmbean.getType().getName());
             }
 
             // setter and constructor types are consistent
             if (constructorType != null && setterMethod != null
                     && constructorType != setterMethod.getParameterTypes()[0]) {
-                throw new InvalidConfigurationException(
-                        "Constructor argument and setter method do not have the same type:" + " name="
-                                + attributeInfo.getName() + " constructorType=" + constructorType.getName()
-                                + " setterMethod=" + setterMethod.getName() + " getterMethod type="
-                                + setterMethod.getParameterTypes()[0].getName() + " targetClass="
-                                + gmbean.getType().getName());
+                throw new InvalidConfigurationException("Constructor argument and setter method do not have the same type:" + " name="
+                        + attributeInfo.getName() + " constructorType=" + constructorType.getName()
+                        + " setterMethod=" + setterMethod.getName() + " getterMethod type="
+                        + setterMethod.getParameterTypes()[0].getName() + " targetClass="
+                        + gmbean.getType().getName());
             }
 
             // set the attribute type
@@ -255,8 +253,8 @@ public class GBeanMBeanAttribute {
             try {
                 Thread.currentThread().setContextClassLoader(gmbean.getClassLoader());
                 assert gmbean.getTarget() != null : "online() invoked, however the corresponding GBeanMBean is " +
-                    "not fully initialized (perhaps online() has been called directly instead by a Kernel)";
-                setInvoker.invoke(gmbean.getTarget(), new Object[] { persistentValue});
+                        "not fully initialized (perhaps online() has been called directly instead by a Kernel)";
+                setInvoker.invoke(gmbean.getTarget(), new Object[]{persistentValue});
             } catch (InvocationTargetException e) {
                 Throwable targetException = e.getTargetException();
                 if (targetException instanceof Exception) {
@@ -340,7 +338,7 @@ public class GBeanMBeanAttribute {
             ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
                 Thread.currentThread().setContextClassLoader(gmbean.getClassLoader());
-                setInvoker.invoke(gmbean.getTarget(), new Object[] { value});
+                setInvoker.invoke(gmbean.getTarget(), new Object[]{value});
             } catch (Throwable throwable) {
                 throw new ReflectionException(new InvocationTargetException(throwable));
             } finally {
@@ -350,7 +348,7 @@ public class GBeanMBeanAttribute {
     }
 
     private static Method searchForGetter(GBeanMBean gMBean, GAttributeInfo attributeInfo)
-                                                                                          throws InvalidConfigurationException {
+            throws InvalidConfigurationException {
         if (attributeInfo.getGetterName() == null) {
             // no explicit name give so we must search for a name
             String getterName = "get" + attributeInfo.getName();
@@ -388,7 +386,7 @@ public class GBeanMBeanAttribute {
     }
 
     private static Method searchForSetter(GBeanMBean gMBean, GAttributeInfo attributeInfo)
-                                                                                          throws InvalidConfigurationException {
+            throws InvalidConfigurationException {
         if (attributeInfo.getSetterName() == null) {
             // no explicit name give so we must search for a name
             String setterName = "set" + attributeInfo.getName();

@@ -26,19 +26,21 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 /**
  * Interface to a store for Configurations.
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:59:01 $
+ * @version $Revision: 1.6 $ $Date: 2004/05/27 01:06:00 $
  */
 public interface ConfigurationStore {
     /**
      * Add the CAR at the supplied URL into this store
+     *
      * @param source the URL of a CAR format archive
-     * @throws java.io.IOException if the CAR could not be read
-     * @throws org.apache.geronimo.kernel.config.InvalidConfigException if there is a configuration problem with the CAR
+     * @throws IOException if the CAR could not be read
+     * @throws InvalidConfigException if there is a configuration problem with the CAR
      */
     void install(URL source) throws IOException, InvalidConfigException;
 
     /**
      * Determines if the store contains a configuration with the spedified ID.
+     *
      * @param configID the unique ID of the configuration
      * @return true if the store contains the configuration
      */
@@ -46,19 +48,21 @@ public interface ConfigurationStore {
 
     /**
      * Return the Configuration GBean for the specified ID
+     *
      * @param id the unique ID of a Configuration
      * @return the GBeanMBean for that configuration
-     * @throws org.apache.geronimo.kernel.config.NoSuchConfigException if the store does not contain a Configuration with that id
-     * @throws java.io.IOException if there was a problem loading the Configuration from the store
-     * @throws org.apache.geronimo.kernel.config.InvalidConfigException if the Configuration is invalid
+     * @throws NoSuchConfigException if the store does not contain a Configuration with that id
+     * @throws IOException if there was a problem loading the Configuration from the store
+     * @throws InvalidConfigException if the Configuration is invalid
      */
     GBeanMBean getConfiguration(URI id) throws NoSuchConfigException, IOException, InvalidConfigException;
 
     /**
      * Return the base URL for the specified ID
+     *
      * @param id the unique ID for a Configuration
      * @return the URL of the base location for the Configuration that should be used for resolution
-     * @throws org.apache.geronimo.kernel.config.NoSuchConfigException if the store does not contain a Configuration with that id
+     * @throws NoSuchConfigException if the store does not contain a Configuration with that id
      */
     URL getBaseURL(URI id) throws NoSuchConfigException;
 }

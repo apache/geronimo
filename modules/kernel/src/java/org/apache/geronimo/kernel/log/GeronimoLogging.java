@@ -20,7 +20,7 @@ package org.apache.geronimo.kernel.log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:02 $
+ * @version $Revision: 1.4 $ $Date: 2004/05/27 01:06:00 $
  */
 public class GeronimoLogging {
     public static final GeronimoLogging TRACE = new GeronimoLogging("TRACE");
@@ -38,8 +38,6 @@ public class GeronimoLogging {
      * in the main class used to start the geronimo server.  This method forces
      * commons logging to use GeronimoLogFacotry, starts the initial commons-logging
      * logging system, and forces mx4j to use commons logging.
-     *
-     * @param level
      */
     public static void initialize(GeronimoLogging level) {
         if (!initialized) {

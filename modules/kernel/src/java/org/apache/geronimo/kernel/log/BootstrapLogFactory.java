@@ -20,10 +20,11 @@ package org.apache.geronimo.kernel.log;
 import org.apache.commons.logging.impl.LogFactoryImpl;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:02 $
+ * @version $Revision: 1.4 $ $Date: 2004/05/27 01:06:00 $
  */
 public class BootstrapLogFactory extends LogFactoryImpl {
     private String logClassName;
+
     protected String getLogClassName() {
         if (logClassName != null) {
             return logClassName;

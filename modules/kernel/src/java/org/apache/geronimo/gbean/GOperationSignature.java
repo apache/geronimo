@@ -25,7 +25,7 @@ import javax.management.MBeanParameterInfo;
 /**
  * This is a key class based on a MBean operation name and parameters.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/26 22:58:30 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/27 01:05:58 $
  */
 public final class GOperationSignature {
     private final static String[] NO_TYPES = new String[0];
@@ -109,7 +109,7 @@ public final class GOperationSignature {
     public String toString() {
         StringBuffer buffer = new StringBuffer(name).append("(");
         for (int i = 0; i < argumentTypes.length; i++) {
-            if(i > 0) {
+            if (i > 0) {
                 buffer.append(", ");
             }
             buffer.append(argumentTypes[i]);

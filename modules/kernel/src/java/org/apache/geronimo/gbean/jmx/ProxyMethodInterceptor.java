@@ -18,24 +18,23 @@
 package org.apache.geronimo.gbean.jmx;
 
 import java.lang.reflect.Method;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanInfo;
+import javax.management.MBeanOperationInfo;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import javax.management.MBeanInfo;
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanOperationInfo;
 
 import net.sf.cglib.core.Signature;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import net.sf.cglib.reflect.FastClass;
 import org.apache.geronimo.gbean.GOperationSignature;
-import org.apache.geronimo.gbean.GOperationSignature;
 import org.objectweb.asm.Type;
 
 /**
- * @version $Revision: 1.11 $ $Date: 2004/05/26 22:58:30 $
+ * @version $Revision: 1.12 $ $Date: 2004/05/27 01:05:59 $
  */
 public final class ProxyMethodInterceptor implements MethodInterceptor {
     /**

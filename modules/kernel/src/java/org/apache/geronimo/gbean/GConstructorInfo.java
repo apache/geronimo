@@ -18,17 +18,15 @@
 package org.apache.geronimo.gbean;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Arrays;
 
 /**
- *
- *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:59:00 $
+ * @version $Revision: 1.6 $ $Date: 2004/05/27 01:05:58 $
  */
 public class GConstructorInfo implements Serializable {
     private final List attributeNames;

@@ -35,8 +35,8 @@ import javax.management.NotificationFilterSupport;
 import javax.management.NotificationListener;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
  * DependencyService is the record keeper of the dependencies in Geronimo.  The DependencyService
@@ -44,13 +44,12 @@ import org.apache.geronimo.kernel.Kernel;
  * to be dependent on another component.  Since a JMX Component can pretty much do whatever it wants
  * a component must watch the components it depends on to assure that they are following the
  * J2EE-Management state machine.
- *
+ * <p/>
  * The DependencyService uses the nomenclature of parent-child where a child is dependent on a parent.
  * The names parent and child have no other meaning are just a convience to make the code readable.
  *
+ * @version $Revision: 1.5 $ $Date: 2004/05/27 01:05:59 $
  * @jmx:mbean
- *
- * @version $Revision: 1.4 $ $Date: 2004/05/26 03:22:21 $
  */
 public class DependencyService implements MBeanRegistration, NotificationListener, DependencyServiceMBean {
     /**
@@ -99,7 +98,7 @@ public class DependencyService implements MBeanRegistration, NotificationListene
         } catch (JMException ignored) {
             // no big deal... just good citizen clean up code
         }
-        synchronized(this) {
+        synchronized (this) {
             server = null;
             childToParentMap.clear();
             parentToChildMap.clear();
@@ -109,9 +108,9 @@ public class DependencyService implements MBeanRegistration, NotificationListene
 
     /**
      * Declares a dependency from a child to a parent.
+     *
      * @param child the dependent component
      * @param parent the component the child is depending on
-     *
      * @jmx:managed-operation
      */
     public synchronized void addDependency(ObjectName child, ObjectName parent) {
@@ -132,9 +131,9 @@ public class DependencyService implements MBeanRegistration, NotificationListene
 
     /**
      * Removes a dependency from a child to a parent
+     *
      * @param child the dependnet component
      * @param parent the component that the child wil no longer depend on
-     *
      * @jmx:managed-operation
      */
     public synchronized void removeDependency(ObjectName child, ObjectName parent) {
@@ -151,13 +150,13 @@ public class DependencyService implements MBeanRegistration, NotificationListene
 
     /**
      * Removes all dependencies for a child
-     * @param child the component that will no longer depend on anything
      *
+     * @param child the component that will no longer depend on anything
      * @jmx:managed-operation
      */
     public synchronized void removeAllDependencies(ObjectName child) {
         Set parents = (Set) childToParentMap.remove(child);
-        if(parents == null) {
+        if (parents == null) {
             return;
         }
         for (Iterator iterator = parents.iterator(); iterator.hasNext();) {
@@ -175,7 +174,6 @@ public class DependencyService implements MBeanRegistration, NotificationListene
      *
      * @param child the dependent component
      * @param parents the set of components the child is depending on
-     *
      * @jmx:managed-operation
      */
     public synchronized void addDependencies(ObjectName child, Set parents) {
@@ -203,7 +201,6 @@ public class DependencyService implements MBeanRegistration, NotificationListene
      *
      * @param child the dependent component
      * @return a collection containing all of the components the child depends on; will never be null
-     *
      * @jmx:managed-operation
      */
     public synchronized Set getParents(ObjectName child) {
@@ -219,7 +216,6 @@ public class DependencyService implements MBeanRegistration, NotificationListene
      *
      * @param parent the component the returned childen set depend on
      * @return a collection containing all of the components that depend on the parent; will never be null
-     *
      * @jmx:managed-operation
      */
     public synchronized Set getChildren(ObjectName parent) {
@@ -233,14 +229,14 @@ public class DependencyService implements MBeanRegistration, NotificationListene
     /**
      * Adds a hold on a collection of object name patterns.  If the name of a component matches an object name
      * pattern in the collection, the component should not start.
+     *
      * @param objectName the name of the component placing the holds
      * @param holds a collection of object name patterns which should not start
-     *
      * @jmx:managed-operation
      */
     public synchronized void addStartHolds(ObjectName objectName, java.util.Collection holds) {
-        Collection currentHolds = (Collection)startHoldsMap.get(objectName);
-        if(currentHolds == null) {
+        Collection currentHolds = (Collection) startHoldsMap.get(objectName);
+        if (currentHolds == null) {
             currentHolds = new LinkedList(holds);
             startHoldsMap.put(objectName, currentHolds);
         } else {
@@ -250,22 +246,22 @@ public class DependencyService implements MBeanRegistration, NotificationListene
 
     /**
      * Removes a collection of holds.
+     *
      * @param objectName the object name of the components owning the holds
      * @param holds a collection of the holds to remove
-     *
      * @jmx:managed-operation
      */
     public synchronized void removeStartHolds(ObjectName objectName, java.util.Collection holds) {
-        Collection currentHolds = (Collection)startHoldsMap.get(objectName);
-        if(currentHolds != null) {
+        Collection currentHolds = (Collection) startHoldsMap.get(objectName);
+        if (currentHolds != null) {
             currentHolds.removeAll(holds);
         }
     }
 
     /**
      * Removes all of the holds owned by a component.
-     * @param objectName the object name of the component that will no longer have any holds
      *
+     * @param objectName the object name of the component that will no longer have any holds
      * @jmx:managed-operation
      */
     public synchronized void removeAllStartHolds(ObjectName objectName) {
@@ -274,9 +270,9 @@ public class DependencyService implements MBeanRegistration, NotificationListene
 
     /**
      * Gets the object name of the mbean blocking the start specified mbean.
+     *
      * @param objectName the mbean to check for blockers
      * @return the mbean blocking the specified mbean, or null if there are no blockers
-     *
      * @jmx:managed-operation
      */
     public synchronized ObjectName checkBlocker(ObjectName objectName) {
@@ -286,7 +282,7 @@ public class DependencyService implements MBeanRegistration, NotificationListene
             List holds = (List) startHoldsMap.get(blocker);
             for (Iterator holdsIterator = holds.iterator(); holdsIterator.hasNext();) {
                 ObjectName pattern = (ObjectName) holdsIterator.next();
-                if(pattern.apply(objectName)) {
+                if (pattern.apply(objectName)) {
                     return blocker;
                 }
             }
@@ -299,7 +295,7 @@ public class DependencyService implements MBeanRegistration, NotificationListene
         if (MBeanServerNotification.UNREGISTRATION_NOTIFICATION.equals(type)) {
             MBeanServerNotification notification = (MBeanServerNotification) n;
             ObjectName source = notification.getMBeanName();
-            synchronized(this) {
+            synchronized (this) {
                 removeAllDependencies(source);
                 removeAllStartHolds(source);
             }

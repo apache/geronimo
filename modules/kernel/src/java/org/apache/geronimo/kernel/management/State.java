@@ -17,12 +17,11 @@
 
 package org.apache.geronimo.kernel.management;
 
-import org.apache.geronimo.kernel.management.NotificationType;
 
 /**
  * This class contains a type safe enumeration of the states from the J2EE Management specification.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:02 $
+ * @version $Revision: 1.4 $ $Date: 2004/05/27 01:06:00 $
  */
 public final class State {
     public static final int STARTING_INDEX = 0;
@@ -41,6 +40,7 @@ public final class State {
 
     /**
      * Get a State from an int index
+     *
      * @param index int index of the state
      * @return The State instance or null if no such State.
      */
@@ -74,7 +74,6 @@ public final class State {
 
     /**
      * Gets the integer value of this state as specified in the J2EE Management specification
-     * @return
      */
     public int toInt() {
         return index;
@@ -82,6 +81,7 @@ public final class State {
 
     /**
      * Gets the event type that should be send after changeing to this state.
+     *
      * @return the event type that should be sent after a transistion to this state
      */
     public String getEventTypeValue() {

@@ -18,19 +18,17 @@
 package org.apache.geronimo.gbean.jmx;
 
 import java.lang.reflect.Method;
+import javax.management.Attribute;
+import javax.management.MBeanException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import javax.management.MBeanException;
 import javax.management.ReflectionException;
-import javax.management.RuntimeOperationsException;
-import javax.management.RuntimeMBeanException;
 import javax.management.RuntimeErrorException;
-import javax.management.Attribute;
+import javax.management.RuntimeMBeanException;
+import javax.management.RuntimeOperationsException;
 
 /**
- *
- *
- * @version $Revision: 1.1 $ $Date: 2004/05/26 03:22:21 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/27 01:05:59 $
  */
 public final class JMXGBeanInvoker implements GBeanInvoker {
     private final MBeanServer server;
@@ -47,7 +45,7 @@ public final class JMXGBeanInvoker implements GBeanInvoker {
             name = method.getName();
         } else {
             // strip off the is, get, or set from the method name
-            if(method.getName().startsWith("is")) {
+            if (method.getName().startsWith("is")) {
                 name = method.getName().substring(2);
             } else {
                 name = method.getName().substring(3);

@@ -20,14 +20,12 @@ package org.apache.geronimo.gbean;
 /**
  * Describes an attibute of a GBean.
  * 
- * @version $Revision: 1.5 $ $Date: 2004/03/18 10:04:50 $
+ * @version $Revision: 1.6 $ $Date: 2004/05/27 01:05:58 $
  */
 public class DynamicGAttributeInfo extends GAttributeInfo {
-    
+
     /**
      * Creates a non-persistent, reabable and writable GAttributeInfo
-     * 
-     * @param name
      */
     public DynamicGAttributeInfo(String name) {
         this(name, false, true, true);

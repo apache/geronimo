@@ -28,9 +28,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 
 /**
- *
- *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:59:01 $
+ * @version $Revision: 1.6 $ $Date: 2004/05/27 01:06:00 $
  */
 public class Run {
     static {

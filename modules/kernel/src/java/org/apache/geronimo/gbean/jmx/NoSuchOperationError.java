@@ -17,12 +17,9 @@
 
 package org.apache.geronimo.gbean.jmx;
 
-import java.lang.reflect.Method;
 
 /**
- * 
- * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:01 $
+ * @version $Revision: 1.4 $ $Date: 2004/05/27 01:05:59 $
  */
 public class NoSuchOperationError extends Error {
     public NoSuchOperationError(String message) {

@@ -39,21 +39,20 @@ import javax.management.ReflectionException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 import org.apache.geronimo.kernel.management.EventProvider;
 import org.apache.geronimo.kernel.management.ManagedObject;
 import org.apache.geronimo.kernel.management.NotificationType;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.management.StateManageable;
-import org.apache.geronimo.gbean.WaitingException;
 
 /**
  * Abstract implementation of JSR77 StateManageable.
  * Implementors of StateManageable may use this class and simply provide
  * {@link #doStart()}, {@link #doStop()} and {@link #sendNotification(String)} methods.
  *
- * @version $Revision: 1.9 $ $Date: 2004/05/26 03:22:21 $
+ * @version $Revision: 1.10 $ $Date: 2004/05/27 01:05:59 $
  */
 public abstract class AbstractManagedObject implements ManagedObject, StateManageable, EventProvider, NotificationListener, MBeanRegistration, NotificationEmitter {
     protected final Log log = LogFactory.getLog(getClass());
@@ -112,11 +111,9 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
      * Do the start tasks for the component.  Called in the {@link State#STARTING} state by
      * the {@link #start()} and {@link #startRecursive()} methods to perform the tasks required to
      * start the component.
-     *
+     * <p/>
      * Note: this method is called from within a synchronized block, so be careful what you call as you
      * may create a deadlock.
-     *
-     * @throws java.lang.Exception
      */
     protected void doStart() throws Exception {
     }
@@ -124,11 +121,9 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
     /**
      * Do the stop tasks for the component.  Called in the {@link State#STOPPING} state by
      * the {@link #stop()} method to perform the tasks required to stop the component.
-     *
+     * <p/>
      * Note: this method is called from within a synchronized block, so be careful what you call as you
      * may create a deadlock.
-     *
-     * @throws java.lang.Exception
      */
     protected void doStop() throws Exception {
     }
@@ -136,7 +131,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
     /**
      * Do the failure tasks for the component.  Called in the {@link State#FAILED} state by
      * the {@link #fail()} method to perform the tasks required to cleanup a failed component.
-     *
+     * <p/>
      * Note: this method is called from within a synchronized block, so be careful what you call as you
      * may create a deadlock.
      */
@@ -224,7 +219,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
 
     /**
      * Sends the specified MBean notification.
-     *
+     * <p/>
      * Note:  This method can not be call while the current thread holds a syncronized lock on this MBean,
      * because this method sends JMX notifications.  Sending a general notification from a synchronized block
      * is a bad idea and therefore not allowed.
@@ -250,14 +245,14 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
     }
 
     /**
-     * Moves this MBean to the {@link State#STARTING} state and then attempts to move this MBean immediately 
+     * Moves this MBean to the {@link State#STARTING} state and then attempts to move this MBean immediately
      * to the {@link State#RUNNING} state.
-     *
+     * <p/>
      * Note:  This method cannot be called while the current thread holds a synchronized lock on this MBean,
      * because this method sends JMX notifications. Sending a general notification from a synchronized block
      * is a bad idea and therefore not allowed.
      *
-     * @throws java.lang.Exception  If an exception occurs while starting this MBean
+     * @throws java.lang.Exception If an exception occurs while starting this MBean
      */
     public final void start() throws Exception {
         assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
@@ -277,12 +272,12 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
 
     /**
      * Starts this MBean and then attempts to start all of its start dependent children.
-     *
+     * <p/>
      * Note:  This method cannot be call while the current thread holds a synchronized lock on this MBean,
      * because this method sends JMX notifications.  Sending a general notification from a synchronized block
      * is a bad idea and therefore not allowed.
      *
-     * @throws java.lang.Exception  if a problem occurs will starting this MBean or any child MBean
+     * @throws java.lang.Exception if a problem occurs will starting this MBean or any child MBean
      */
     public final void startRecursive() throws Exception {
         assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
@@ -317,12 +312,12 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
     /**
      * Moves this MBean to the STOPPING state, calls stop on all start dependent children, and then attempt
      * to move this MBean to the STOPPED state.
-     *
+     * <p/>
      * Note:  This method can not be call while the current thread holds a syncronized lock on this MBean,
      * because this method sends JMX notifications.  Sending a general notification from a synchronized block
      * is a bad idea and therefore not allowed.
      *
-     * @throws java.lang.Exception  If an exception occurs while stoping this MBean or any of the childern
+     * @throws java.lang.Exception If an exception occurs while stoping this MBean or any of the childern
      */
     public final void stop() throws Exception {
         assert !Thread.holdsLock(this): "This method cannot be called while holding a syncrhonized lock on this";
@@ -361,7 +356,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
     /**
      * Moves this MBean to the FAILED state.  There are no calls to dependent children, but they will be notified
      * using standard J2EE management notification.
-     *
+     * <p/>
      * Note:  This method can not be call while the current thread holds a syncronized lock on this MBean,
      * because this method sends JMX notifications.  Sending a general notification from a synchronized block
      * is a bad idea and therefore not allowed.
@@ -383,8 +378,9 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
     /**
      * Attempts to bring the component into {@link State#RUNNING} state. If an Exception occurs while
      * starting the component, the component will be failed.
-     * @throws java.lang.Exception if a problem occurs while starting the component
      *
+     * @throws java.lang.Exception if a problem occurs while starting the component
+     * <p/>
      * Note: Do not call this from within a synchronized block as it makes may send a JMX notification
      */
     void attemptFullStart() throws Exception {
@@ -498,8 +494,9 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
     /**
      * Attempt to bring the component into the fully stopped state.
      * If an exception occurs while stopping the component, the component will be failed.
-     * @throws java.lang.Exception if a problem occurs while stopping the component
      *
+     * @throws java.lang.Exception if a problem occurs while stopping the component
+     * <p/>
      * Note: Do not call this from within a synchronized block as it may send a JMX notification
      */
     void attemptFullStop() throws Exception {
@@ -569,7 +566,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
     /**
      * Calls {@link #doFail}, but catches all RutimeExceptions and Errors.
      * These problems are logged but ignored.
-     *
+     * <p/>
      * Note: This must be called while holding a lock on this
      */
     private void doSafeFail() {
@@ -622,75 +619,71 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
 
     /**
      * Set the Component state.
+     *
      * @param newState the target state to transition
      * @throws java.lang.IllegalStateException Thrown if the transition is not supported by the J2EE Management lifecycle.
      */
     private synchronized void setStateInstance(State newState) throws IllegalStateException {
         switch (state.toInt()) {
-        case State.STOPPED_INDEX:
-            switch (newState.toInt()) {
-            case State.STARTING_INDEX:
-                break;
             case State.STOPPED_INDEX:
-            case State.RUNNING_INDEX:
-            case State.STOPPING_INDEX:
-            case State.FAILED_INDEX:
-                throw new IllegalStateException(
-                        "Cannot transition to " + newState + " state from " + state);
-            }
-            break;
+                switch (newState.toInt()) {
+                    case State.STARTING_INDEX:
+                        break;
+                    case State.STOPPED_INDEX:
+                    case State.RUNNING_INDEX:
+                    case State.STOPPING_INDEX:
+                    case State.FAILED_INDEX:
+                        throw new IllegalStateException("Cannot transition to " + newState + " state from " + state);
+                }
+                break;
 
-        case State.STARTING_INDEX:
-            switch (newState.toInt()) {
-            case State.RUNNING_INDEX:
-            case State.FAILED_INDEX:
-            case State.STOPPING_INDEX:
-                break;
-            case State.STOPPED_INDEX:
             case State.STARTING_INDEX:
-                throw new IllegalStateException(
-                        "Cannot transition to " + newState + " state from " + state);
-            }
-            break;
+                switch (newState.toInt()) {
+                    case State.RUNNING_INDEX:
+                    case State.FAILED_INDEX:
+                    case State.STOPPING_INDEX:
+                        break;
+                    case State.STOPPED_INDEX:
+                    case State.STARTING_INDEX:
+                        throw new IllegalStateException("Cannot transition to " + newState + " state from " + state);
+                }
+                break;
 
-        case State.RUNNING_INDEX:
-            switch (newState.toInt()) {
-            case State.STOPPING_INDEX:
-            case State.FAILED_INDEX:
-                break;
-            case State.STOPPED_INDEX:
-            case State.STARTING_INDEX:
             case State.RUNNING_INDEX:
-                throw new IllegalStateException(
-                        "Cannot transition to " + newState + " state from " + state);
-            }
-            break;
+                switch (newState.toInt()) {
+                    case State.STOPPING_INDEX:
+                    case State.FAILED_INDEX:
+                        break;
+                    case State.STOPPED_INDEX:
+                    case State.STARTING_INDEX:
+                    case State.RUNNING_INDEX:
+                        throw new IllegalStateException("Cannot transition to " + newState + " state from " + state);
+                }
+                break;
 
-        case State.STOPPING_INDEX:
-            switch (newState.toInt()) {
-            case State.STOPPED_INDEX:
-            case State.FAILED_INDEX:
-                break;
-            case State.STARTING_INDEX:
-            case State.RUNNING_INDEX:
             case State.STOPPING_INDEX:
-                throw new IllegalStateException(
-                        "Cannot transition to " + newState + " state from " + state);
-            }
-            break;
+                switch (newState.toInt()) {
+                    case State.STOPPED_INDEX:
+                    case State.FAILED_INDEX:
+                        break;
+                    case State.STARTING_INDEX:
+                    case State.RUNNING_INDEX:
+                    case State.STOPPING_INDEX:
+                        throw new IllegalStateException("Cannot transition to " + newState + " state from " + state);
+                }
+                break;
 
-        case State.FAILED_INDEX:
-            switch (newState.toInt()) {
-            case State.STARTING_INDEX:
-            case State.STOPPING_INDEX:
-                break;
-            case State.RUNNING_INDEX:
-            case State.STOPPED_INDEX:
             case State.FAILED_INDEX:
-                throw new IllegalStateException(
-                        "Cannot transition to " + newState + " state from " + state);
-            }
-            break;
+                switch (newState.toInt()) {
+                    case State.STARTING_INDEX:
+                    case State.STOPPING_INDEX:
+                        break;
+                    case State.RUNNING_INDEX:
+                    case State.STOPPED_INDEX:
+                    case State.FAILED_INDEX:
+                        throw new IllegalStateException("Cannot transition to " + newState + " state from " + state);
+                }
+                break;
         }
         log.debug(toString() + " State changed from " + state + " to " + newState);
         if (newState == State.RUNNING) {

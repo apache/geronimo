@@ -21,18 +21,16 @@ import java.util.Collection;
 import java.util.Set;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-
 /**
  * JMX MBean interface for {@link org.apache.geronimo.gbean.jmx.DependencyService}.
  *
- * @version $Revision: 1.4 $ $Date: 2004/05/26 03:22:21 $
+ * @version $Revision: 1.5 $ $Date: 2004/05/27 01:05:59 $
  */
 public interface DependencyServiceMBean {
     /**
      * Declares a dependency from a child to a parent.
      *
-     * @param child  the dependent component
+     * @param child the dependent component
      * @param parent the component the child is depending on
      */
     void addDependency(ObjectName child, ObjectName parent);
@@ -40,7 +38,7 @@ public interface DependencyServiceMBean {
     /**
      * Removes a dependency from a child to a parent
      *
-     * @param child  the dependnet component
+     * @param child the dependnet component
      * @param parent the component that the child wil no longer depend on
      */
     void removeDependency(ObjectName child, ObjectName parent);
@@ -55,7 +53,7 @@ public interface DependencyServiceMBean {
     /**
      * Adds dependencies from the child to every parent in the parents set
      *
-     * @param child   the dependent component
+     * @param child the dependent component
      * @param parents the set of components the child is depending on
      */
     void addDependencies(ObjectName child, Set parents);
@@ -66,7 +64,7 @@ public interface DependencyServiceMBean {
      * @param child the dependent component
      * @return a collection containing all of the components the child depends on; will never be null
      */
-     Set getParents(ObjectName child);
+    Set getParents(ObjectName child);
 
     /**
      * Gets all of the MBeans that have a dependency on the specified startParent.
@@ -80,7 +78,7 @@ public interface DependencyServiceMBean {
      * Adds a hold on a collection of object name patterns. If the name of a component matches an object name pattern in the collection, the component should not start.
      *
      * @param objectName the name of the component placing the holds
-     * @param holds      a collection of object name patterns which should not start
+     * @param holds a collection of object name patterns which should not start
      */
     void addStartHolds(ObjectName objectName, Collection holds);
 
@@ -88,7 +86,7 @@ public interface DependencyServiceMBean {
      * Removes a collection of holds.
      *
      * @param objectName the object name of the components owning the holds
-     * @param holds      a collection of the holds to remove
+     * @param holds a collection of the holds to remove
      */
     void removeStartHolds(ObjectName objectName, Collection holds);
 

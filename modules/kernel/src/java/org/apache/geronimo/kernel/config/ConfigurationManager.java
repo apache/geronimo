@@ -38,9 +38,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
- *
- *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:01 $
+ * @version $Revision: 1.4 $ $Date: 2004/05/27 01:06:00 $
  */
 public class ConfigurationManager {
     private static final Log log = LogFactory.getLog(ConfigurationManager.class);
@@ -101,10 +99,11 @@ public class ConfigurationManager {
      * Load the supplied Configuration into the Kernel and override the default JMX name.
      * This method should be used with discretion as it is possible to create
      * Configurations that cannot be located by management or monitoring tools.
+     *
      * @param config the GBeanMBean representing the Configuration
      * @param rootURL the URL to be used to resolve relative paths in the configuration
      * @param configName the JMX ObjectName to register the Configuration under
-     * @throws org.apache.geronimo.kernel.config.InvalidConfigException if the Configuration is not valid
+     * @throws InvalidConfigException if the Configuration is not valid
      */
     public void load(GBeanMBean config, URL rootURL, ObjectName configName) throws InvalidConfigException {
         try {
@@ -193,8 +192,7 @@ public class ConfigurationManager {
         infoFactory.addOperation("unload", new Class[]{URI.class});
         infoFactory.addOperation("unload", new Class[]{ObjectName.class});
 
-        infoFactory.setConstructor(
-                new String[]{"Kernel", "Stores"},
+        infoFactory.setConstructor(new String[]{"Kernel", "Stores"},
                 new Class[]{Kernel.class, Collection.class});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
