@@ -79,6 +79,8 @@ public class NameFactory {
     public static final String URL_PATTERN = "URLPattern";
     public static final String GERONIMO_SERVICE = "GBean"; //copied in GBeanInfoBuilder to avoid dependencies in the wrong direction.
 
+    public static String JAXR_CONNECTION_FACTORY = "JAXRConnectionFactory";
+    
     public static final String CONFIG_BUILDER = "ConfigBuilder";
     public static final String MODULE_BUILDER = "ModuleBuilder";
     public static final String SECURITY_REALM = "SecurityRealm";
