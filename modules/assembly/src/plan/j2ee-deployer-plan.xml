@@ -75,6 +75,7 @@ Configuration for the Geronimo deployer
     </gbean>
 
     <gbean name="geronimo.deployer:role=Builder,type=RAR_1_5,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.connector.deployment.RAR_1_5ConfigBuilder">
+        <attribute name="ConnectionTrackerNamePattern" type="javax.management.ObjectName">geronimo.server:type=ConnectionTracker</attribute>
         <reference name="Kernel">geronimo.boot:role=Kernel</reference>
         <reference name="Repository">*:role=Repository,*</reference>
     </gbean>
