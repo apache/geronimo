@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gbeans>
+    <path>geronimo-security-DEV.jar</path>
+    <path>geronimo-spec-j2ee-jacc-DEV.jar</path>
+    <path>regexp-1.3-dev.jar</path>
+
+    <!-- security -->
+    <gbean class="org.apache.geronimo.security.SecurityService" objectName="geronimo.security:type=SecurityService">
+        <default attribute="PolicyConfigurationFactory" type="java.lang.String">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</default>
+        <endpoint name="Realms">
+            <pattern>geronimo.security:type=SecurityRealm,*</pattern>
+        </endpoint>
+        <endpoint name="ModuleConfigurations">
+            <pattern>geronimo.security:type=ModuleConfiguration,*</pattern>
+        </endpoint>
+    </gbean>
+
+    <!-- the rest of these are actually examples that should be set up by the security management tool-->
+    <gbean class="org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm" objectName="geronimo.security:type=SecurityRealm,name=Foo">
+        <default attribute="RealmName" type="java.lang.String">Foo</default>
+        <default attribute="UsersURI" type="java.net.URI">file:./core/src/test-data/data/users.properties</default>
+        <default attribute="GroupsURI" type="java.net.URI">file:./core/src/test-data/data/groups.properties</default>
+    </gbean>
+
+    <gbean class="org.apache.geronimo.security.bridge.CallerIdentityUserPasswordRealmBridge" objectName="geronimo.security:service=RealmBridge,type=CallerIdentity">
+        <default attribute="TargetRealm" type="java.lang.String">Foo</default>
+    </gbean>
+
+    <gbean class="org.apache.geronimo.security.bridge.ConfiguredIdentityUserPasswordRealmBridge" objectName="geronimo.security:service=RealmBridge,type=ConfiguredIdentity">
+        <default attribute="TargetRealm" type="java.lang.String">Foo</default>
+        <default attribute="ConfiguredUser" type="java.lang.String">user</default>
+        <default attribute="ConfiguredPassword" type="java.lang.String">password</default>
+    </gbean>
+
+    <!--gbean class="org.apache.geronimo.security.bridge.PropertiesFilePrincipalMappingUserPasswordRealmBridge" objectName="geronimo.security:service=RealmBridge,type=MappedIdentity">
+        <default attribute="TargetRealm" type="java.lang.String">Foo</default>
+        <default attribute="PrincipalSourceType" type="java.lang.Class">org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal</default>
+        <default attribute="PrincipalTargetCallbackName" type="java.lang.String">user name</default>
+        <default attribute="UserNameSourceType" type="java.lang.Class">org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal</default>
+        <default attribute="UserNameTargetCallbackName" type="java.lang.String">user name</default>
+        <default attribute="PasswordSourceType" type="java.lang.Class">org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal</default>
+        <default attribute="PropertyFileURL" type="java.net.URL">file:./core/src/test-data/data/mapping.properties</default>
+    </gbean-->
+
+</gbeans>

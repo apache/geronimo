@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.56 $ $Date: 2004/01/24 19:50:04 $ -->
+<!-- $Revision: 1.57 $ $Date: 2004/01/25 17:55:32 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -14,12 +14,13 @@
 
     <j:set var="release.id" value="${pom.standardToLegacyId(pom.id)}-${pom.currentVersion}"/>
 
-    <goal name="deploy:test">
-        <ant:echo message="in deploy:test"/>
+    <goal name="deploy:server">
+        <j:set var="g.repo" value="${maven.repo.local}/geronimo/jars"/>
+        <ant:echo message="in deploy:server"/>
         <deploy:deploy
-            deployconfigid="org/apache/geronimo/Default"
-            deployoutfile="target/Test.car"
-            deployurl="geronimo-service.xml"/>
+            deployconfigid="org/apache/geronimo/Server"
+            deployoutfile="target/Server.car"
+            deployurl="${g.repo}/geronimo-security-package-DEV.jar,${g.repo}/geronimo-transaction-package-DEV.jar,${g.repo}/geronimo-connector-package-DEV.jar"/>
         <ant:echo message="did deploy:test"/>
     </goal>
     <!-- ======= -->

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.25 $ $Date: 2004/01/24 20:36:52 $ -->
+<!-- $Revision: 1.26 $ $Date: 2004/01/25 17:55:35 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -8,8 +8,7 @@
     xmlns:ant="jelly:ant"
     xmlns:maven="jelly:maven"
     xmlns:define="jelly:define"
-    xmlns:xdoclet="common:xdoclet"
-    xmlns:castor="common:castor">
+    >
 
     <!-- ================= -->
     <!-- Global Properties -->
@@ -188,6 +187,13 @@
             <ant:jar destfile="${basedir}/target/${pom.artifactId}-package-${pom.currentVersion}.jar">
                 <fileset dir="${basedir}/target" includes="${pom.artifactId}-${pom.currentVersion}.jar"/>
                 <fileset dir="${basedir}/src/etc" includes="META-INF/geronimo-service.xml"/>
+                <j:forEach var="artifact" items="${pom.artifacts}">
+                    <j:set var="dependency" value="${artifact.dependency}"/>
+                    <j:if test="${dependency.getProperty('package') == 'true'}">
+                        <ant:echo>Processing dependency: ${dependency.id}</ant:echo>
+                        <fileset file="${artifact.path}"/>
+                    </j:if>
+                </j:forEach>
             </ant:jar>
         </j:if>
     </postGoal>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gbeans>
+    <path>geronimo-transaction-DEV.jar</path>
+    <path>geronimo-spec-jta-DEV.jar</path>
+    <path>geronimo-spec-j2ee-connector-DEV.jar</path>
+
+    <!-- transaction -->
+    <gbean class="org.apache.geronimo.transaction.TransactionManagerProxy" objectName="geronimo.transaction:service=TransactionManager"/>
+
+</gbeans>

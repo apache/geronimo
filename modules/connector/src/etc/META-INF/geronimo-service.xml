@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gbeans>
+    <path>geronimo-connector-DEV.jar</path>
+
+    <!-- connector -->
+    <gbean class="org.apache.geronimo.connector.work.GeronimoWorkManager" objectName="geronimo.connector:service=WorkManager">
+        <default attribute="SyncMinimumPoolSize" type="int">0</default>
+        <default attribute="SyncMaximumPoolSize" type="int">10</default>
+        <default attribute="StartMinimumPoolSize" type="int">0</default>
+        <default attribute="StartMaximumPoolSize" type="int">10</default>
+        <default attribute="ScheduledMinimumPoolSize" type="int">0</default>
+        <default attribute="ScheduledMaximumPoolSize" type="int">10</default>
+    </gbean>
+
+    <gbean class="org.apache.geronimo.connector.BootstrapContext" objectName="geronimo.connector:role=BootstrapContext">
+        <endpoint name="WorkManager">
+            <pattern>geronimo.connector:service=WorkManager</pattern>
+        </endpoint>
+        <endpoint name="XATerminator">
+            <pattern>geronimo.transaction:service=TransactionManager</pattern>
+        </endpoint>
+    </gbean>
+
+    <gbean class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator" objectName="geronimo.connector:service=ConnectionTrackingCoordinator"/>
+
+    <!-- test to see if ConnectionManagerDeployment actually deploys.  Normally set up by deployer. -->
+    <!--gbean class="org.apache.geronimo.connector.outbound.ConnectionManagerDeployment" objectName="geronimo.management:j2eeType=ConnectionManager,name=test">
+        <default attribute="UseConnectionRequestInfo" type="boolean">false</default>
+        <default attribute="UseSubject" type="boolean">false</default>
+        <default attribute="UseTransactionCaching" type="boolean">true</default>
+        <default attribute="UseLocalTransactions" type="boolean">true</default>
+        <default attribute="UseTransactions" type="boolean">true</default>
+        <default attribute="MaxSize" type="int">10</default>
+        <default attribute="BlockingTimeout" type="int">1000</default>
+        <default attribute="Name" type="java.lang.String">test</default>
+        <endpoint name="RealmBridge">
+            <pattern>geronimo.security:service=RealmBridge,type=CallerIdentity</pattern>
+        </endpoint>
+        <endpoint name="ConnectionTracker">
+            <pattern>geronimo.connector:service=ConnectionTrackingCoordinator</pattern>
+        </endpoint>
+        <endpoint name="Kernel">
+            <pattern>geronimo.boot:role=Kernel</pattern>
+        </endpoint>
+    </gbean-->
+
+    <gbean class="org.apache.geronimo.connector.deployment.ConnectorDeployer" objectName="geronimo.deployment:type=connector">
+        <default attribute="ConnectionTrackerNamePattern" type="javax.management.ObjectName">geronimo.connector:service=ConnectionTrackingCoordinator</default>
+        <endpoint name="ParserFactory">
+            <pattern>geronimo.system:type=ParserFactory</pattern>
+        </endpoint>
+    </gbean>
+
+</gbeans>
