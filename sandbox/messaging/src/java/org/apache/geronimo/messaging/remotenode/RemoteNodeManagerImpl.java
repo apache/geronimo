@@ -44,7 +44,7 @@ import org.apache.geronimo.pool.ClockPool;
 /**
  * RemoteNode implementation.
  *
- * @version $Revision: 1.6 $ $Date: 2004/07/08 05:13:29 $
+ * @version $Revision: 1.7 $ $Date: 2004/07/17 03:49:29 $
  */
 public class RemoteNodeManagerImpl
     implements RemoteNodeManager
@@ -89,6 +89,7 @@ public class RemoteNodeManagerImpl
     }
 
     public void start() throws NodeException {
+        log.info("Starting RemoteNodeManager for node {" + nodeInfo + "}");
         try {
             server = factory.factoryServer(nodeInfo, ioContext);
             server.setRemoteNodeManager(this);
@@ -102,6 +103,7 @@ public class RemoteNodeManagerImpl
     }
     
     public void stop() throws NodeException {
+        log.info("Stopping RemoteNodeManager for node {" + nodeInfo + "}");
         remoteNodeMonitor.stop();
         synchronized(remoteNodes) {
             for (Iterator iter = remoteNodes.values().iterator(); iter.hasNext();) {
@@ -152,6 +154,9 @@ public class RemoteNodeManagerImpl
                 } catch (NodeException e) {
                     log.error("Can not apply topology change", e);
                     break;
+                } catch (CommunicationException e) {
+                    log.error("Can not apply topology change", e);
+                    break;
                 }
             }
             iter.remove();
@@ -165,10 +170,12 @@ public class RemoteNodeManagerImpl
                 try {
                     leaveRemoteNode(node);
                 } catch (NodeException e) {
-                    log.error("Error roll-backing topology change", e);
+                    log.error("Error rolling-back topology change", e);
+                } catch (CommunicationException e) {
+                    log.error("Error rolling-back topology change", e);
                 }
             }
-            return;
+            throw new CommunicationException("Can not apply topology.");
         }
 
         // Schedules the deletion of the old neighbours.
@@ -218,6 +225,7 @@ public class RemoteNodeManagerImpl
             if ( null != remoteNode ) {
                 return remoteNode;
             }
+            log.debug("Joining node {" + aNodeInfo + "}");
             remoteNode = factory.factoryRemoteNode(aNodeInfo, ioContext);
             RemoteNodeConnection connection;
             try {
@@ -244,6 +252,7 @@ public class RemoteNodeManagerImpl
     }
 
     public void registerRemoteNode(RemoteNode aRemoteNode) {
+        log.info("Node {" + aRemoteNode.getNodeInfo() + "} has joined.");
         synchronized(remoteNodes) {
             remoteNodes.put(aRemoteNode.getNodeInfo(), aRemoteNode);
         }
@@ -252,6 +261,7 @@ public class RemoteNodeManagerImpl
     }
 
     public void unregisterRemoteNode(RemoteNode aRemoteNode) {
+        log.info("Node {" + aRemoteNode.getNodeInfo() + "} has left.");
         synchronized(remoteNodes) {
             remoteNodes.remove(aRemoteNode.getNodeInfo());
         }

@@ -27,7 +27,7 @@ import org.apache.geronimo.messaging.NodeTopology;
 /**
  * RemoteNode manager.
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/10 23:12:25 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/17 03:49:29 $
  */
 public interface RemoteNodeManager
     extends MsgConsumer
@@ -90,6 +90,8 @@ public interface RemoteNodeManager
      * @param aNodeInfo Remote node.
      * @return RemoteNode.
      * @throws NodeException
+     * @exception CommunicationException Indicates that the specified node
+     * can not be joined. 
      */
     public RemoteNode findOrJoinRemoteNode(NodeInfo aNodeInfo)
         throws NodeException;
