@@ -1,0 +1,359 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>JBoss 20031031</title>
+</head>
+<body>
+<h3>Summary of Investigation</h3>
+This document summarizes the results of the investigation into the
+allegations of similarity between JBoss code and Geronimo
+code.&nbsp;&nbsp; The original allegations are detailed in the <a
+ href="http://incubator.apache.org/projects/geronimo/20031031_jboss.pdf">letter</a>
+dated October 31, 2003.<br>
+<br>
+This document attempts to describe and characterize the technical
+issues surrounding the allegations.&nbsp; This is not a formal response
+by the Apache Software Foundation.<br>
+<br>
+In the letter there are three named exhibits, A, B and C, and a fourth
+similarity that for the purposes of this discussion we will refer to as
+Assertion D.<br>
+<br>
+Specifically, the exhibits :<br>
+<ul>
+  <li>Exhibit A :&nbsp; The source file
+org.apache.geronimo.core.log.XLevel is similar to
+org.jboss.logging.XLevel</li>
+  <li>Exhibit B : The source file
+org.apache.geronimo.core.log.PatternParser is similar to
+org.jboss.logging.layout.PatternParserX<br>
+  </li>
+  <li>Exhibit C : The source file
+org.apache.geronimo.common.InvocationType is similar to
+org.jboss.invocation.InvocationType.<br>
+  </li>
+  <li>Assertion D : The source files org.jboss.invocation.Invocation
+and org.apache.geronimo.common.Invocation are simliar.&nbsp; Further,
+the architectural concepts of "AsIs", "Transient" and "Marshalled" are
+present because of copying of the JBoss code,&nbsp; and that these
+concepts are central to the architecture of both JBoss and Geronimo.\</li>
+</ul>
+<h3>Notes</h3>
+<ol>
+  <li>The source code for Apache Geronimo is accessible via CVS at <a
+ href="http://cvs.apache.org/viewcvs/incubator-geronimo/">http://cvs.apache.org/view.cvs/incubator-geronimo/</a>&nbsp;
+and all Geronimo code references are relative to this root.</li>
+  <li>The source code for JBoss is accessible via CVS at <a
+ href="http://cvs.sourceforge.net/viewcvs.py/*checkout*/jboss/jboss/src/main/">http://cvs.sourceforge.net/viewcvs.py/*checkout*/jboss/jboss/src/main/</a>
+and all JBoss code references are relative to this root.</li>
+  <li>The <a href="http://www.apache.org/licenses/LICENSE">Apache
+Software License</a> is a business-friendly license that allows others
+to take our software and use it as they please, as long as they respect
+the terms of our license.&nbsp; This will be important for Exhibits A
+and B - the license clearly states that <br>
+  </li>
+</ol>
+<div style="margin-left: 80px;">&nbsp;* 1. Redistributions of source
+code must retain the above copyright<br>
+&nbsp;*&nbsp;&nbsp;&nbsp; notice, this list of conditions and the
+following disclaimer.<br>
+</div>
+&nbsp; <br>
+<br>
+<h3>Summary for Exhibit A</h3>
+Exhibit A is concerned with similarity between <a
+ href="http://cvs.apache.org/viewcvs/incubator-geronimo/modules/core/src/java/org/apache/geronimo/core/log/Attic/XLevel.java">org.apache.geronimo.core.log.XLevel</a>
+and <a
+ href="http://cvs.sourceforge.net/viewcvs.py/jboss/jboss-common/src/main/org/jboss/logging/XLevel.java">org.jboss.logging.XLevel</a>
+rev 1.3.2.1.<br>
+<br>
+This issue has been <a href="http://www.qos.ch/logging/jboss.html">exhaustively
+researched</a> (http://www.qos.ch/logging/jboss.html) by the founder of
+the log4j project, Ceki G&uuml;lc&uuml;.&nbsp; His summary :<br>
+<br>
+<div style="margin-left: 40px;">"In summary, the source code
+incriminated by Exhibit A existed at the Apache Software Foundation at
+least 6 months before it made its first appearance at JBoss. Thus, in
+relation to this exhibit, I cannot see how JBoss LLC has any valid
+claims against the ASF for this particular code. In fact, it appears
+that by neglecting to attribute the code and follow the Apache License
+for this example, the violation of copyright would be the exact
+reverse. "<br>
+</div>
+<br>
+Ceiki has traced back the history of the XLevel class, and thus we
+claim that the XLevel code originated at the ASF as part of the log4j
+project. Thus, we believe that Exhibit A is invalid due to the code in
+question being copyrighted by the ASF in the first place.&nbsp; <br>
+<br>
+<h3>Summary for Exhibit B</h3>
+Exhibit B in concerned with similarity between <a
+ href="http://cvs.apache.org/viewcvs/incubator-geronimo/modules/core/src/java/org/apache/geronimo/core/log/Attic/PatternParser.java?rev=1.1&amp;content-type=text/vnd.viewcvs-markup">org.apache.geronimo.core.log.PatternParser</a>
+and&nbsp; <a
+ href="http://cvs.sourceforge.net/viewcvs.py/jboss/jboss-common/src/main/org/jboss/logging/layout/PatternParserEx.java?rev=1.1.2.1&amp;view=markup">org.jboss.logging.layout.PatternParserX</a><br>
+<br>
+According to the same research for Exhibit A by Ceki G&uuml;lc&uuml; :<br>
+<br>
+<div style="margin-left: 40px;">"The PatternParserEx class, cited in
+Mr. David J. Byer's letter to the ASF, very closely follows the pattern
+established MyPatternParser and AppServerPatternParser classes. The
+earliest record of this class in Jboss source code repository dates to
+September 15th, 2002. Unless JBoss LLC claims thatPatternParserEx
+predates MyPatternParser or AppServerPatternParser classes found in
+log4j, it looks like the JBoss LLC removed the existing Apache
+copyright when it based PatternParserExclass on modified versions of
+PatternParserEx and AppServerPatternParser. This is prohibited by the
+first clause of the Apache Software License.<br>
+</div>
+<br>
+We believe that the claims in Exhibit B is invalud due to the code in
+question being based on the same code in the Apache log4j codebase.<br>
+<h3>Summary for Exhibit C</h3>
+Exhibit C is concerned with the similarity between
+org.apache.geronimo.common.InvocationType and
+org.jboss.invocation.InvocationType.&nbsp; The following summary is
+based on discussion from the geronimo-dev list.<br>
+<br>
+The initial version of org.jboss.invocation.InvocationType in the JBoss
+CVS repository can be found at the following location:<br>
+<br>
+http://cvs.sourceforge.net/viewcvs.py/jboss/jboss/src/main/org/jboss/invocation/InvocationType.java?rev=1.1&amp;view=markup<br>
+<br>
+This contains a very similar code excerpt to that cited in the letter
+from JBoss Group LLC:<br>
+<br>
+&nbsp;&nbsp; public static final InvocationType REMOTE =<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new
+InvocationType("REMOTE");<br>
+&nbsp;&nbsp; public static final InvocationType LOCAL =<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new
+InvocationType("LOCAL");<br>
+&nbsp;&nbsp; public static final InvocationType HOME =<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new
+InvocationType("HOME");<br>
+&nbsp;&nbsp; public static final InvocationType LOCALHOME =<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new
+InvocationType("LOCALHOME");<br>
+<br>
+This code was contributed to the JBoss project by dsundstrom (Dain
+Sundstrom) on 7/14/2002. As the original copyright holder, Dain would
+be free to contribute this code to Geronimo as well.<br>
+<br>
+The JBoss version of this code was modified exclusively by dsundstrom
+up to and including the 1.3 revision (dated 10/30/2002) in the JBoss
+CVS, where the code had evolved to the following:<br>
+<br>
+&nbsp;&nbsp; public static final InvocationType REMOTE =<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new
+InvocationType("REMOTE", false, false);<br>
+&nbsp;&nbsp; public static final InvocationType LOCAL =<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new
+InvocationType("LOCAL", false, true);<br>
+&nbsp;&nbsp; public static final InvocationType HOME =<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new
+InvocationType("HOME", true, false);<br>
+&nbsp;&nbsp; public static final InvocationType LOCALHOME =<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new
+InvocationType("LOCALHOME", true, true);<br>
+<br>
+<br>
+Dain had the right to contribute to Geronimo the code up to (but not
+including) the changes made by Scott or anyone else<br>
+<br>
+Dain's last rev is<br>
+<br>
+http://cvs.sourceforge.net/viewcvs.py/*checkout*/jboss/jboss/src/main/org/jboss/invocation/InvocationType.java?content-type=text%2Fplain&amp;rev=1.3<br>
+<br>
+The latest rev in JBoss is v 1.5, so we need to figure out what
+happened between v1.3, which Dain had the right to contribute to the ASF<br>
+<br>
+JBoss 1.3 :<br>
+&nbsp;&nbsp;&nbsp; committed by Dain, for which he has the rights to
+contribute and re-license here in Geronimo under the ASL<br>
+<br>
+JBoss v1.3 -&gt; v1.4 :<br>
+&nbsp;&nbsp;&nbsp; a) Switched from using a static int to a final
+static int as the max value for the InvocationType array.&nbsp; We see
+the same in the Geronimo code. This is common, accepted practice for
+creating constants in Java, and would be suggested by any code
+inspector (like Idea or Eclipse).&nbsp; In my opinion, Dain should have
+his hand slapped for not doing it this way in the first place.<br>
+&nbsp;&nbsp;&nbsp; b) Switched to a statically allocated array []
+rather than an ArrayList for holding the invocationType objects.&nbsp;
+This change is in the Geronimo code.<br>
+&nbsp;&nbsp;&nbsp; c) Changed the signature of the InvocationType from
+the Dain way (new InvocationType("LOCAL", false, true)) that is in
+Geronimo now, to a different way ( new InvocationType("HOME",
+2)).&nbsp; Clearly the Geronimo code didn't copy this change.<br>
+&nbsp;&nbsp;&nbsp; d) Removed&nbsp; two booleans isLocal and isHome,
+present in the Dain-contributed 1.3.&nbsp; These variables persist in
+the Geronimo version as local and home.&nbsp; This change was not
+adopted by Dain for Geronimo.<br>
+<br>
+Jboss v1.4 -&gt; v1.5 :<br>
+&nbsp;&nbsp; Added a new invocation type 'SERVICE_ENDPOINT', which is
+not present in the Geronimo code.&nbsp; I conclude that any changes
+between v1.4 and 1.5 of the JBoss code were not co-opted into the
+geronimo codebase.<br>
+<br>
+<br>
+Here's my conclusion.&nbsp; I would appreciate commentary :<br>
+<br>
+Conclusion<br>
+==========<br>
+<br>
+Dain contributed the same code to Geronimo that he contributed to JBoss.<br>
+<br>
+The only difference between his JBoss contributions, for which he has
+complete rights to contribute and relicense elsehwere, is that he
+changed the Geronimo implementation to use an array of rather than an
+ArrayList to hold the InvocationType objects, and a static final int
+'constant' to keep the size of that array rather than a static int
+field.<br>
+<br>
+<h3>Summary of Assertion D</h3>
+Assertion D is concerned with the similarity between
+org.apache.geronimo.common.Invocation and
+org.jboss.invocation.Invocation.&nbsp; Further, the claim is that both
+files contain "AsIs", "Transient" and "Marhsalled", which are believed
+to be JBoss-specific payloads, and thus could only be there via
+copying. Further, the Invocation file is central to the JBoss
+architecture, and thus copying could have great impact throughout
+Geronimo.<br>
+<br>
+The file org.apache.geronimo.core.service.Invocation currently is a
+riff on java.util.Map, namely :<br>
+<br>
+public interface Invocation {<br>
+<br>
+&nbsp;&nbsp;&nbsp; Object get(InvocationKey key);<br>
+&nbsp;&nbsp;&nbsp; void put(InvocationKey key, Object value);<br>
+}<br>
+<br>
+Clearly this can't be what the lawyers are talking about.&nbsp;
+However, it used to be, when the code first placed into Geronimo,
+slightly different :<br>
+<br>
+http://cvs.apache.org/viewcvs/incubator-geronimo/modules/core/src/java/org/apache/geronimo/common/Attic/Invocation.java?rev=1.1&amp;content-type=text/vnd.viewcvs-markup<br>
+<br>
+public interface Invocation {<br>
+&nbsp;&nbsp;&nbsp; Object getMarshal(Object key);<br>
+<br>
+&nbsp;&nbsp;&nbsp; void putMarshal(Object key, Object value);<br>
+<br>
+&nbsp;&nbsp;&nbsp; Object getAsIs(Object key);<br>
+<br>
+&nbsp;&nbsp;&nbsp; void putAsIs(Object key, Object value);<br>
+<br>
+&nbsp;&nbsp;&nbsp; Object getTransient(Object key);<br>
+<br>
+&nbsp;&nbsp;&nbsp; void putTransient(Object key, Object value);<br>
+}<br>
+<br>
+This is still an interface, but dealing with the three notions of
+'Marshal', 'AsIs', and 'Transient'.&nbsp; This is what the JBoss Group
+LLCs lawyers are referring to.&nbsp; Now, looking at the Invocation
+class in JBoss, and looking at the version in their CVS at the time of
+the import into Geronimo, 1.10.2.6, there is an implementation of the
+same notion in a method - following snipped out for brevity :<br>
+<br>
+/**<br>
+&nbsp;&nbsp;&nbsp; * Advanced store<br>
+&nbsp;&nbsp;&nbsp; * Here you can pass a TYPE that indicates where to
+put the value.<br>
+&nbsp;&nbsp;&nbsp; * TRANSIENT: the value is put in a map that WON'T be
+passed<br>
+&nbsp;&nbsp;&nbsp; * AS_IS: no need to marshall the value when passed
+(use for all JDK<br>
+&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp; java types)<br>
+&nbsp;&nbsp;&nbsp; * PAYLOAD: we need to marshall the value as its type
+is application specific<br>
+&nbsp;&nbsp;&nbsp; */<br>
+&nbsp;&nbsp; public void setValue(Object key, Object value, PayloadKey
+type)<br>
+&nbsp;&nbsp; {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(type == PayloadKey.TRANSIENT)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+transient_payload.put(key,value);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else if(type == PayloadKey.AS_IS)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+as_is_payload.put(key,value);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else if(type == PayloadKey.PAYLOAD)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+payload.put(key,value);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new
+IllegalArgumentException("Unknown PayloadKey: " + type);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+&nbsp;&nbsp; }<br>
+<br>
+It appears that this is a storage class for moving bits through their
+invocation/interceptor mechanism, and that they are doing what appears
+to be an early optimization by having the caller define via the keytype
+if a) the data doesn't need to be marshalled as it's staying put on
+this side of the wire (TRANSIENT), b) the data doesn't need to have any
+special care and feeding as it's a JDK data type (ASIS), or c) it will
+need to be marshalled (PAYLOAD).<br>
+<br>
+So it's clear to me that the code originally in Geronimo (and now in
+the Attic) implemented this *idea* in their interface, moving it
+outside of the Invocation implementation and into the interface.&nbsp;
+This is an implementation of the idea.<br>
+<br>
+Now, I guess we have to come back to the code as it exists today in the
+o.a.g.core.service package.&nbsp; Repeating for Invocation.java, it is
+now much simpler - the Geronimo developers got rid of the 'Asis',
+'Marshal' and 'Transient' 'modifiers' on the methods and reduced it to<br>
+<br>
+public interface Invocation {<br>
+<br>
+&nbsp;&nbsp;&nbsp; Object get(InvocationKey key);<br>
+&nbsp;&nbsp;&nbsp; void put(InvocationKey key, Object value);<br>
+}<br>
+<br>
+where<br>
+<br>
+public interface InvocationKey {<br>
+<br>
+&nbsp;&nbsp;&nbsp; boolean isTransient();<br>
+}<br>
+<br>
+so now the idea of declaring something as not going over the wire (my
+assumption) is taken care of in the key itself into this map, letting
+(I assume again) the endpoint doing the serialzation decide if the
+element in the map needs to go based on the isTransient() method, and
+how marshalled based on the class. <br>
+<br>
+Summary so far : the original code had an expression of the idea of
+'Marshall', 'AsIs' and 'Transient'.&nbsp; Most of the idea was
+dropped.&nbsp; All that remains of the idea is letting the caller
+declare the data as transient.<br>
+<br>
+Here's the kicker.&nbsp; The JBoss lawyers assert that "the Invocation
+file is central to the architecture of both JBoss and Geronimo".&nbsp;
+We believe that this claim is invalid because if this notion of AsIs,
+Transient and Marshalled was 'central to the architecture', it couldn't
+be dropped to the degree that the Geronimo developers did.&nbsp; IOW,
+the notions of AsIs and Marshalled are NOT central to the architecture
+at all - they don't exist anymore.&nbsp; So to summarize :<br>
+<br>
+1) The original code in Geronimo (w/ getAsIs()) is not a copy of JBoss
+code&nbsp; - it's a different implementation of an idea in the JBoss
+implementation.<br>
+<br>
+2) The current code has thrown out all but the idea that the user of an
+Invocation implementation declare that data placed into that
+implementation is transient.<br>
+<br>
+<br>
+</body>
+</html>
