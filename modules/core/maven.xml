@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.7 $ $Date: 2003/08/22 19:03:37 $ -->
+<!-- $Revision: 1.8 $ $Date: 2003/08/22 19:16:34 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
   xmlns:ant="jelly:ant"
   xmlns:maven="jelly:maven">
-  
+
   <preGoal name="xdoc:jelly-transform">
     <attainGoal name="html2xdoc"/>
   </preGoal>
@@ -36,6 +36,14 @@
     </ant:java>
   </preGoal>
 
+  <postGoal name="java:compile">
+    <ant:echo message="Generating a JSR-88 Product Provider JAR" />
+    <ant:jar destfile="${basedir}/target/jsr88-geronimo-plugin.jar"
+             basedir="${basedir}/target/classes"
+             includes="org/apache/geronimo/enterprise/deploy/provider/**/*.class"
+             manifest="${basedir}/src/conf/jsr88-product-provider-manifest.mf" />
+  </postGoal>
+
   <preGoal name="java:compile">
     <!--
     <j:set var="maven.javacc.compile.src" value="target/gen-src"/>
@@ -50,26 +58,26 @@
                 javacchome="${maven.repo.local}/javacc/jars"/>
     -->
   </preGoal>
-  
+
   <!-- ============================== -->
   <!-- Helpers to run Apache Geronimo -->
   <!-- ============================== -->
-  
+
   <!-- jason: need to fix this -->
-  
+
   <goal name="run" description="Runs the Geronimo Server using the current build">
-  
+
     <ant:path id="test.classpath">
       <ant:pathelement path="target/test-classes"/>
       <ant:pathelement path="src/conf/"/>
       <ant:pathelement path="${maven.build.dest}"/>
       <ant:path refid="maven.dependency.classpath"/>
     </ant:path>
-    
+
     <ant:java classname="org.apache.geronimo.Main" fork="yes">
       <ant:classpath refid="test.classpath"/>
     </ant:java>
-    
+
   </goal>
-  
+
 </project>

@@ -69,7 +69,7 @@ import javax.enterprise.deploy.shared.ModuleType;
  * call, which is the prescribed behavior when one of these methods is called
  * on a disconnected DeploymentManager.
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class NoServerConnection implements ServerConnection {
     /**
@@ -159,6 +159,20 @@ public class NoServerConnection implements ServerConnection {
      * @throws IllegalStateException Always thrown, as there is no server available.
      */
     public ProgressObject redeploy(TargetModuleID[] moduleIDList, InputStream moduleArchive, InputStream deploymentPlan) throws UnsupportedOperationException, IllegalStateException {
+        return null;
+    }
+
+    /**
+     * @return null (there is no server available)
+     */
+    public String[] getSecurityRoleOptions(String securityRealm) {
+        return null;
+    }
+
+    /**
+     * @return null (there is no server available)
+     */
+    public String[] getResourceJndiNames(String resourceClassName) {
         return null;
     }
 }

@@ -69,6 +69,7 @@ import javax.enterprise.deploy.spi.exceptions.DConfigBeanVersionUnsupportedExcep
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.shared.DConfigBeanVersionType;
 import javax.enterprise.deploy.model.DeployableObject;
+
 import org.apache.geronimo.enterprise.deploy.provider.jar.EjbJarRoot;
 
 /**
@@ -76,7 +77,7 @@ import org.apache.geronimo.enterprise.deploy.provider.jar.EjbJarRoot;
  * This same class is used for both connected mode and disconnected mode.
  * It uses a plugin to manage that.  Currently only J2EE 1.4 is supported.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/22 19:03:37 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/22 19:16:34 $
  */
 public class GeronimoDeploymentManager implements DeploymentManager {
     private ServerConnection server; // a connection to an application server
@@ -86,10 +87,10 @@ public class GeronimoDeploymentManager implements DeploymentManager {
     }
 
     public DeploymentConfiguration createConfiguration(DeployableObject dObj) throws InvalidModuleException {
-        if(dObj.getType().getValue() == ModuleType.EJB.getValue()) {
+        if (dObj.getType().getValue() == ModuleType.EJB.getValue()) {
             return new EjbJarDeploymentConfiguration(dObj, new EjbJarRoot(dObj.getDDBeanRoot()));
         } else {
-            throw new InvalidModuleException("Can't handle modules of type "+dObj.getType());
+            throw new InvalidModuleException("Can't handle modules of type " + dObj.getType());
         }
     }
 
@@ -123,7 +124,7 @@ public class GeronimoDeploymentManager implements DeploymentManager {
      *         not the default locale, as changing Locales is not supported.
      */
     public void setLocale(Locale locale) throws UnsupportedOperationException {
-        if(!locale.equals(Locale.getDefault())) {
+        if (!locale.equals(Locale.getDefault())) {
             throw new UnsupportedOperationException();
         }
     }
@@ -163,7 +164,7 @@ public class GeronimoDeploymentManager implements DeploymentManager {
      *         version is not 1.4.
      */
     public void setDConfigBeanVersion(DConfigBeanVersionType version) throws DConfigBeanVersionUnsupportedException {
-        if(version.getValue() != DConfigBeanVersionType.V1_4.getValue()) {
+        if (version.getValue() != DConfigBeanVersionType.V1_4.getValue()) {
             throw new DConfigBeanVersionUnsupportedException("This implementation only supports J2EE 1.4");
         }
     }

@@ -70,9 +70,11 @@ import javax.enterprise.deploy.shared.ModuleType;
  * information from the server (such as getting a list of EJBs deployed
  * to provide as options when resolving an EJB reference).
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public interface ServerConnection {
+    // ---------------------- Methods required by DeploymentManager ----------------------
+
     /**
      * Releases any server resources and closes the connection to the server.
      */
@@ -137,4 +139,33 @@ public interface ServerConnection {
      * @see javax.enterprise.deploy.spi.DeploymentManager#redeploy(javax.enterprise.deploy.spi.TargetModuleID[], java.io.InputStream, java.io.InputStream)
      */
     public ProgressObject redeploy(TargetModuleID[] moduleIDList, InputStream moduleArchive, InputStream deploymentPlan) throws UnsupportedOperationException, IllegalStateException;
+
+    // ---------------------- Methods required to populate Property Editors ----------------------
+
+    /**
+     * Used to provide a list of security users/groups/roles that the deployer
+     * can map a J2EE security role to.
+     *
+     * @param securityRealm The security realm in use by the application
+     *
+     * @return A list of security mapping options, or null if the current user
+     *         is not authorized to retrieve that information, or the
+     *         information is not available.
+     */
+    public String[] getSecurityRoleOptions(String securityRealm);
+
+    /**
+     * Gets a list of the JNDI names of global resources of a particular type
+     * defined in the server.  For example, a list of all javax.sql.DataSource
+     * resources.  Note that any resources tied to a particular application
+     * will not be included.
+     *
+     * @param resourceClassName The name of the interface that the resource
+     *                          should implement (e.g. javax.sql.DataSource).
+     *
+     * @return A list of the JNDI names of the available resources.  Returns
+     *         null of no such resources are available, the current user is
+     *         not authorized to retrieve the list, etc.
+     */
+    public String[] getResourceJndiNames(String resourceClassName);
 }
