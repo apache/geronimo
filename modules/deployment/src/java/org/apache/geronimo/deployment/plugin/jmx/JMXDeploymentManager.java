@@ -61,6 +61,7 @@ public class JMXDeploymentManager implements DeploymentManager {
     private JMXConnector jmxConnector;
     private MBeanServerConnection mbServerConnection;
     private KernelMBean kernel;
+	private boolean logErrors;
 
     public JMXDeploymentManager(JMXConnector jmxConnector) throws IOException {
         this.jmxConnector = jmxConnector;
@@ -157,6 +158,7 @@ public class JMXDeploymentManager implements DeploymentManager {
             throw new IllegalStateException("Disconnected");
         }
         DistributeCommand command = new DistributeCommand(kernel, targetList, moduleArchive, deploymentPlan);
+        command.setLogErrors(logErrors);
         new Thread(command).start();
         return command;
     }
@@ -166,6 +168,7 @@ public class JMXDeploymentManager implements DeploymentManager {
             throw new IllegalStateException("Disconnected");
         }
         DistributeCommand command = new DistributeCommand(kernel, targetList, moduleArchive, deploymentPlan);
+        command.setLogErrors(logErrors);
         new Thread(command).start();
         return command;
     }
@@ -175,6 +178,7 @@ public class JMXDeploymentManager implements DeploymentManager {
             throw new IllegalStateException("Disconnected");
         }
         StartCommand command = new StartCommand(kernel, moduleIDList);
+        command.setLogErrors(logErrors);
         new Thread(command).start();
         return command;
     }
@@ -184,6 +188,7 @@ public class JMXDeploymentManager implements DeploymentManager {
             throw new IllegalStateException("Disconnected");
         }
         StopCommand command = new StopCommand(kernel, moduleIDList);
+        command.setLogErrors(logErrors);
         new Thread(command).start();
         return command;
     }
@@ -193,6 +198,7 @@ public class JMXDeploymentManager implements DeploymentManager {
             throw new IllegalStateException("Disconnected");
         }
         UndeployCommand command = new UndeployCommand(kernel, moduleIDList);
+        command.setLogErrors(logErrors);
         new Thread(command).start();
         return command;
     }
@@ -206,6 +212,7 @@ public class JMXDeploymentManager implements DeploymentManager {
             throw new IllegalStateException("Disconnected");
         }
         RedeployCommand command = new RedeployCommand(kernel, moduleIDList, moduleArchive, deploymentPlan);
+        command.setLogErrors(logErrors);
         new Thread(command).start();
         return command;
     }
@@ -251,4 +258,8 @@ public class JMXDeploymentManager implements DeploymentManager {
     public DeploymentConfiguration createConfiguration(DeployableObject dObj) throws InvalidModuleException {
         throw new InvalidModuleException("Not supported");
     }
+
+	public void setLogErrors(boolean logErrors) {
+		this.logErrors = logErrors;
+	}
 }

@@ -18,6 +18,8 @@
 package org.apache.geronimo.deployment.plugin.factories;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
@@ -75,11 +77,19 @@ public class DeploymentFactoryImpl implements DeploymentFactory {
                 Map environment = new HashMap();
                 String[] credentials = new String[]{username, password};
                 environment.put(JMXConnector.CREDENTIALS, credentials);
+                
+                boolean logErrors=false;
+				if( uri.endsWith("/debug") ) {
+					logErrors=true;
+					uri = uri.substring(0, uri.length() - "/debug".length());
+				}
 
                 try {
                     JMXServiceURL address = new JMXServiceURL("service:" + uri);
                     JMXConnector jmxConnector = JMXConnectorFactory.connect(address, environment);
-                    return new JMXDeploymentManager(jmxConnector);
+                    JMXDeploymentManager manager = new JMXDeploymentManager(jmxConnector);
+                    manager.setLogErrors(logErrors);
+                    return manager;
                 } catch (IOException e) {
                     throw (DeploymentManagerCreationException)new DeploymentManagerCreationException(e.getMessage()).initCause(e);
                 }
@@ -97,7 +107,7 @@ public class DeploymentFactoryImpl implements DeploymentFactory {
         }
     }
 
-    static {
+	static {
         DeploymentFactoryManager manager = DeploymentFactoryManager.getInstance();
         manager.registerDeploymentFactory(new DeploymentFactoryImpl());
     }

@@ -47,6 +47,7 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
     private String message;
     private final Set listeners = new HashSet();
     private final List moduleIDs = new ArrayList();
+    private boolean logErrors;
 
     protected CommandSupport(CommandType command) {
         this.command = command;
@@ -107,6 +108,12 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
         if (e instanceof MBeanException) {
             e = ((MBeanException)e).getTargetException();
         }
+        
+        if( logErrors ) {
+        	System.err.println("Deployer operation failed: "+e.getMessage());
+        	e.printStackTrace(System.err);
+        }
+        
         StringWriter writer = new StringWriter();
          PrintWriter printWriter = new PrintWriter(writer);
          printWriter.println(e.getMessage());
@@ -185,4 +192,12 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
             return buf.toString();
         }
     }
+    
+	public boolean isLogErrors() {
+		return logErrors;
+	}
+
+	public void setLogErrors(boolean logErrors) {
+		this.logErrors = logErrors;
+	}
 }
