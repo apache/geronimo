@@ -432,7 +432,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             Module module = builder.createModule(altVendorDDs.get(modulePath),
                     new NestedJarFile(earFile, modulePath),
                     modulePath,
-                    altSpecDD);
+                    altSpecDD,
+                    URI.create(gerApplication.getConfigId()));
 
             if (module == null) {
                 throw new DeploymentException("Module was not " + moduleTypeName + ": " + modulePath);

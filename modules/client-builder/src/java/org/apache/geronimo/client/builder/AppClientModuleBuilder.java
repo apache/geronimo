@@ -101,14 +101,14 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     }
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
-        return createModule(plan, moduleFile, "app-client", null, true);
+        return createModule(plan, moduleFile, "app-client", null, null, true);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl) throws DeploymentException {
-        return createModule(plan, moduleFile, targetPath, specDDUrl, false);
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId) throws DeploymentException {
+        return createModule(plan, moduleFile, targetPath, specDDUrl, earConfigId, false);
     }
 
-    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone) throws DeploymentException {
+    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId, boolean standAlone) throws DeploymentException {
         assert moduleFile != null: "moduleFile is null";
         assert targetPath != null: "targetPath is null";
         assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
@@ -135,7 +135,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         }
 
         // parse vendor dd
-        GerApplicationClientType gerAppClient = getGeronimoAppClient(plan, moduleFile, standAlone, targetPath, appClient);
+        GerApplicationClientType gerAppClient = getGeronimoAppClient(plan, moduleFile, standAlone, targetPath, appClient, earConfigId);
 
         // get the ids from either the application plan or for a stand alone module from the specific deployer
         URI configId = null;
@@ -157,7 +157,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         return new AppClientModule(standAlone, configId, parentId, moduleFile, targetPath, appClient, gerAppClient, specDD);
     }
 
-    GerApplicationClientType getGeronimoAppClient(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, ApplicationClientType appClient) throws DeploymentException {
+    GerApplicationClientType getGeronimoAppClient(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, ApplicationClientType appClient, URI earConfigId) throws DeploymentException {
         GerApplicationClientType gerAppClient = null;
         try {
             // load the geronimo-application-client.xml from either the supplied plan or from the earFile
@@ -195,7 +195,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                     // default configId is based on the module uri from the application.xml
                     path = targetPath;
                 }
-                gerAppClient = createDefaultPlan(path, appClient);
+                gerAppClient = createDefaultPlan(path, appClient, standAlone, earConfigId);
             }
         } catch (XmlException e) {
             throw new DeploymentException(e);
@@ -203,7 +203,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         return gerAppClient;
     }
 
-    private GerApplicationClientType createDefaultPlan(String name, ApplicationClientType appClient) {
+    private GerApplicationClientType createDefaultPlan(String name, ApplicationClientType appClient, boolean standAlone, URI earConfigId) {
         String id = appClient.getId();
         if (id == null) {
             id = name;
@@ -217,12 +217,15 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
         GerApplicationClientType geronimoAppClient = GerApplicationClientType.Factory.newInstance();
 
-        // set the parentId, configId and context root
-        if (null != appClient.getId()) {
-            id = appClient.getId();
+        // set the parentId and configId
+        if (standAlone) {
+            geronimoAppClient.setClientConfigId(id);
+            geronimoAppClient.setConfigId(id + "/server");
+        } else {
+            geronimoAppClient.setClientConfigId(earConfigId.getPath() + "/" + id);
+            // not used but we need to have a value
+            geronimoAppClient.setConfigId(id);
         }
-        geronimoAppClient.setConfigId(id);
-        geronimoAppClient.setClientConfigId(id + "-client");
         return geronimoAppClient;
     }
 
@@ -411,7 +414,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                         connectorFile = new NestedJarFile(appClientModule.getEarFile(), path);
                     }
                     XmlObject connectorPlan = resource.getConnector();
-                    Module connectorModule = connectorModuleBuilder.createModule(connectorPlan, connectorFile, path, null);
+                    Module connectorModule = connectorModuleBuilder.createModule(connectorPlan, connectorFile, path, null, null);
                     resourceModules.add(connectorModule);
                     connectorModuleBuilder.installModule(connectorFile, appClientDeploymentContext, connectorModule);
                 }

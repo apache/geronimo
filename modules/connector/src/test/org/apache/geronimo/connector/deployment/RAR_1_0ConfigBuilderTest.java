@@ -181,7 +181,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
         Thread.currentThread().setContextClassLoader(cl);
 
         JarFile rarJarFile = JarUtil.createJarFile(rarFile);
-        Module module = moduleBuilder.createModule(action.getVendorDD(), rarJarFile, j2eeModuleName, action.getSpecDD());
+        Module module = moduleBuilder.createModule(action.getVendorDD(), rarJarFile, j2eeModuleName, action.getSpecDD(), null);
         if (module == null) {
             throw new DeploymentException("Was not a connector module");
         }

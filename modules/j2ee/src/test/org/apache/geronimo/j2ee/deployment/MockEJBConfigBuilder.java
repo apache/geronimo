@@ -18,6 +18,7 @@ package org.apache.geronimo.j2ee.deployment;
 
 import java.io.File;
 import java.net.URL;
+import java.net.URI;
 import java.util.jar.JarFile;
 
 import junit.framework.Assert;
@@ -35,7 +36,7 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder {
         return new EJBModule(true, null, null, moduleFile, "ejb.jar", null, null, null);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl) throws DeploymentException {
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId) throws DeploymentException {
         return new EJBModule(false, null, null, moduleFile, targetPath, null, null, null);
     }
 

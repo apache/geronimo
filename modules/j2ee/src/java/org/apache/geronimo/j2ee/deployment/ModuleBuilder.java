@@ -18,6 +18,7 @@ package org.apache.geronimo.j2ee.deployment;
 
 import java.io.File;
 import java.net.URL;
+import java.net.URI;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.deployment.DeploymentException;
@@ -28,7 +29,7 @@ import org.apache.geronimo.deployment.DeploymentException;
 public interface ModuleBuilder {
     Module createModule(File plan, JarFile moduleFile) throws DeploymentException;
 
-    Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl) throws DeploymentException;
+    Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId) throws DeploymentException;
 
     void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException;
 

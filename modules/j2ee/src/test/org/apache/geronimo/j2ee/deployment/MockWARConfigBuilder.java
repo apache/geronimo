@@ -18,6 +18,7 @@ package org.apache.geronimo.j2ee.deployment;
 
 import java.io.File;
 import java.net.URL;
+import java.net.URI;
 import java.util.jar.JarFile;
 
 import javax.management.ObjectName;
@@ -38,7 +39,7 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
         return new WebModule(true, null, null, moduleFile, "war", null, null, null);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl) throws DeploymentException {
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId) throws DeploymentException {
         return new WebModule(false, null, null, moduleFile, targetPath, null, null, null);
     }
 
