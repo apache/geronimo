@@ -102,6 +102,8 @@ public class DeployTool {
         } else {
             DeployCommand dc = getCommand(command);
             if(dc == null) {
+                out.println();
+                processException(out, new DeploymentSyntaxException("No such command: '"+command+"'"));
                 showHelp(out, new String[0]);
             } else {
                 ServerConnection con = null;

@@ -83,21 +83,29 @@ public class ServerConnection {
             if(arg.equals("--uri") || arg.equals("--url")) {
                 if(uri != null) {
                     throw new DeploymentSyntaxException("Cannot specify more than one URI");
+                } else if(i >= args.length-1) {
+                    throw new DeploymentSyntaxException("Must specify a URI (--uri deployer:...)");
                 }
                 uri = args[++i];
             } else if(arg.equals("--driver")) {
                 if(driver != null) {
                     throw new DeploymentSyntaxException("Cannot specify more than one driver");
+                } else if(i >= args.length-1) {
+                    throw new DeploymentSyntaxException("Must specify a driver JAR (--driver jarfile)");
                 }
                 driver = args[++i];
             } else if(arg.equals("--user")) {
                 if(user != null) {
                     throw new DeploymentSyntaxException("Cannot specify more than one user name");
+                } else if(i >= args.length-1) {
+                    throw new DeploymentSyntaxException("Must specify a username (--user username)");
                 }
                 user = args[++i];
             } else if(arg.equals("--password")) {
                 if(password != null) {
                     throw new DeploymentSyntaxException("Cannot specify more than one password");
+                } else if(i >= args.length-1) {
+                    throw new DeploymentSyntaxException("Must specify a password (--password password)");
                 }
                 password = args[++i];
             } else {
