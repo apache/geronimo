@@ -18,10 +18,7 @@ To build Geronimo running all of the unit test cases:
 
 To do a clean rebuild of Geronimo type
 
-	maven clean
-    maven build
-
-NOTE: maven rebuild currently has some problems due to a bug in the reactor.
+    maven rebuild
 
 To only build select modules (assumes that depends are installed already):
 
