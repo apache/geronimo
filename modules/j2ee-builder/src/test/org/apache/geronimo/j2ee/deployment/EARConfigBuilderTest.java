@@ -24,9 +24,11 @@ import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 import java.util.jar.JarFile;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.xml.namespace.QName;
 
 import junit.extensions.TestSetup;
 import junit.framework.Test;
@@ -34,6 +36,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -56,9 +59,15 @@ public class EARConfigBuilderTest extends TestCase {
     private static MockEJBConfigBuilder ejbConfigBuilder = new MockEJBConfigBuilder();
     private static MockWARConfigBuilder webConfigBuilder = new MockWARConfigBuilder();
     private static MockConnectorConfigBuilder connectorConfigBuilder = new MockConnectorConfigBuilder();
-    private static ResourceReferenceBuilder resourceReferenceBuilder = null;
+    private static ResourceReferenceBuilder resourceReferenceBuilder = connectorConfigBuilder;
     private static ModuleBuilder appClientConfigBuilder = null;
-    private static ServiceReferenceBuilder serviceReferenceBuilder = null;
+    private static ServiceReferenceBuilder serviceReferenceBuilder = new ServiceReferenceBuilder() {
+
+        //it could return a Service or a Reference, we don't care
+        public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
+            return null;
+        }
+    };
 
     private static final String j2eeServerName = "someDomain";
     private static final ObjectName transactionManagerObjectName = JMXUtil.getObjectName(j2eeServerName + ":type=TransactionManager");
@@ -230,7 +239,7 @@ public class EARConfigBuilderTest extends TestCase {
         kernel.loadGBean(store, this.getClass().getClassLoader());
         kernel.startGBean(store.getName());
 
-        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, ejbConfigBuilder, null, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, kernel);
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, ejbConfigBuilder, ejbConfigBuilder, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, kernel);
 
 
         File tempDir = null;

@@ -21,13 +21,17 @@ import java.net.URL;
 import java.net.URI;
 import java.util.jar.JarFile;
 
+import javax.naming.Reference;
+import javax.management.ObjectName;
+
 import junit.framework.Assert;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.gbean.GBeanData;
 
 /**
  * @version $Rev$ $Date$
  */
-public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder {
+public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder, ResourceReferenceBuilder{
     public EARContext earContext;
     public Module connectorModule;
     public ClassLoader cl;
@@ -67,4 +71,31 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder 
         return null;
     }
 
+    public Reference createResourceRef(String containerId, Class iface) throws DeploymentException {
+        return null;
+    }
+
+    public Reference createAdminObjectRef(String containerId, Class iface) throws DeploymentException {
+        return null;
+    }
+
+    public ObjectName locateResourceName(ObjectName query) throws DeploymentException {
+        return null;
+    }
+
+    public GBeanData locateActivationSpecInfo(ObjectName resourceAdapterName, String messageListenerInterface) throws DeploymentException {
+        return null;
+    }
+
+    public GBeanData locateResourceAdapterGBeanData(ObjectName resourceAdapterModuleName) throws DeploymentException {
+        return null;
+    }
+
+    public GBeanData locateAdminObjectInfo(ObjectName resourceAdapterModuleName, String adminObjectInterfaceName) throws DeploymentException {
+        return null;
+    }
+
+    public GBeanData locateConnectionFactoryInfo(ObjectName resourceAdapterModuleName, String connectionFactoryInterfaceName) throws DeploymentException {
+        return null;
+    }
 }

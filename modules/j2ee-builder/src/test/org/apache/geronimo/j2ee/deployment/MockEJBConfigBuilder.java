@@ -21,13 +21,15 @@ import java.net.URL;
 import java.net.URI;
 import java.util.jar.JarFile;
 
+import javax.naming.Reference;
+
 import junit.framework.Assert;
 import org.apache.geronimo.common.DeploymentException;
 
 /**
  * @version $Rev$ $Date$
  */
-public class MockEJBConfigBuilder extends Assert implements ModuleBuilder {
+public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBReferenceBuilder {
     public EARContext earContext;
     public EJBModule ejbModule;
     public ClassLoader cl;
@@ -67,4 +69,11 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder {
         return null;
     }
 
+    public Reference createEJBLocalReference(String objectName, boolean isSession, String localHome, String local) throws DeploymentException {
+        return null;
+    }
+
+    public Reference createEJBRemoteReference(String objectName, boolean isSession, String home, String remote) throws DeploymentException {
+        return null;
+    }
 }
