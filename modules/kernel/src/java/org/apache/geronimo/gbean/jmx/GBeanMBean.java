@@ -663,21 +663,20 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
      * @throws AttributeNotFoundException if the attribute name is not found in the map
      */
     public Object getAttribute(String attributeName) throws ReflectionException, AttributeNotFoundException {
-        GBeanMBeanAttribute attribute = getAttributeByName(attributeName);
-        if (attribute != null) {
-            return attribute.getValue();
+        try {
+            return getAttributeByName(attributeName).getValue();
+        } catch (AttributeNotFoundException e) {
+            if (attributeName.equals(RAW_INVOKER)) {
+                return rawInvoker;
+            }
+
+            if (attributeName.equals(GBEAN_DATA)) {
+                return getGBeanData();
+
+            }
+
+            throw e;
         }
-
-        if (attributeName.equals(RAW_INVOKER)) {
-            return rawInvoker;
-        }
-
-        if (attributeName.equals(GBEAN_DATA)) {
-            return getGBeanData();
-
-        }
-
-        throw new AttributeNotFoundException(attributeName);
     }
 
     /**
@@ -936,28 +935,6 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                         this,
                         "kernel",
                         Kernel.class,
-                        null));
-
-        attributesMap.put(RAW_INVOKER,
-                new GBeanMBeanAttribute(this,
-                        RAW_INVOKER,
-                        RawInvoker.class,
-                        new MethodInvoker() {
-                            public Object invoke(Object target, Object[] arguments) {
-                                return rawInvoker;
-                            }
-                        },
-                        null));
-
-        attributesMap.put(GBEAN_DATA,
-                new GBeanMBeanAttribute(this,
-                        GBEAN_DATA,
-                        GBeanData.class,
-                        new MethodInvoker() {
-                            public Object invoke(Object target, Object[] arguments) {
-                                return getGBeanData();
-                            }
-                        },
                         null));
 
         //
