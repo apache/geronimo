@@ -39,7 +39,13 @@ public class JettyClassLoader extends URLClassLoader {
     }
 
     public Class loadClass(String name) throws ClassNotFoundException {
-        if (!contextPriorityClassLoader) {
+        if (!contextPriorityClassLoader ||
+                name.startsWith("java.") ||
+                name.startsWith("javax.") ||
+                name.startsWith("org.apache.geronimo.") ||
+                name.startsWith("org.mortbay.") ||
+                name.startsWith("org.xml.") ||
+                name.startsWith("org.w3c.")) {
             return super.loadClass(name);
         }
 
@@ -63,7 +69,13 @@ public class JettyClassLoader extends URLClassLoader {
     }
 
     public URL getResource(String name) {
-        if (!contextPriorityClassLoader) {
+        if (!contextPriorityClassLoader ||
+                name.startsWith("java.") ||
+                name.startsWith("javax.") ||
+                name.startsWith("org.apache.geronimo.") ||
+                name.startsWith("org.mortbay.") ||
+                name.startsWith("org.xml.") ||
+                name.startsWith("org.w3c.")) {
             return super.getResource(name);
         }
 
@@ -75,31 +87,5 @@ public class JettyClassLoader extends URLClassLoader {
 
         // that didn't work... try the parent
         return parent.getResource(name);
-    }
-
-    protected Class findClass(String name) throws ClassNotFoundException {
-        if (name.startsWith("java.") ||
-                name.startsWith("javax.") ||
-                // todo we can't enable this because geronimo demo and tools are in this package
-                // name.startsWith("org.apache.geronimo.") ||
-                name.startsWith("org.mortbay.") ||
-                name.startsWith("org.xml.") ||
-                name.startsWith("org.w3c.")) {
-            throw new ClassNotFoundException(name);
-        }
-        return super.findClass(name);
-    }
-
-    public URL findResource(String name) {
-        if (name.startsWith("java/") ||
-                name.startsWith("javax/") ||
-                // todo we can't enable this because geronimo demo and tools are in this package
-                // name.startsWith("org/apache/geronimo/") ||
-                name.startsWith("org/mortbay/") ||
-                name.startsWith("org/xml/") ||
-                name.startsWith("org/w3c/")) {
-            return null;
-        }
-        return super.findResource(name);
     }
 }
