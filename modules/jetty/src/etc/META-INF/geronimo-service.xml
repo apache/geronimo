@@ -1,23 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gbeans>
-    <path>geronimo-jetty-DEV.jar</path>
-    <path>org.mortbay.jetty-5.0.beta0.jar</path>
-    <path>geronimo-spec-servlet-DEV.jar</path>
-    <path>geronimo-spec-jsp-DEV.jar</path>
-    <path>jasper-compiler-5.0.16.jar</path>
-    <path>jasper-runtime-5.0.16.jar</path>
-    <path>commons-el-1.0.jar</path>
-    <path>ant-1.5.jar</path>
-
-    <gbean class="org.apache.geronimo.jetty.JettyContainerImpl" objectName="geronimo.web:type=WebContainer,container=Jetty">
-    </gbean>
-
-    <gbean class="org.apache.geronimo.jetty.connector.HTTPConnector" objectName="geronimo.web:type=WebConnector,container=Jetty,port=8080">
-        <default attribute="Port" type="int">8080</default>
-        <endpoint name="JettyContainer">
-            <pattern>geronimo.web:type=WebContainer,container=Jetty</pattern>
-        </endpoint>
-<!--        <default attribute="MaxConnections" type="int">10</default>-->
-<!--        <default attribute="MaxIdleTime" type="int">10</default>-->
-    </gbean>
-</gbeans>
+<service xmlns="http://geronimo.apache.org/xml/ns/deployment">
+    <dependency>
+        <uri>jetty/jars/org.mortbay.jetty-5.0.beta0.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/jasper-compiler-5.0.16.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/jasper-runtime-5.0.16.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>commons-el/jars/commons-el-1.0.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>ant/jars/ant-1.5.jar</uri>
+    </dependency>
+</service>
