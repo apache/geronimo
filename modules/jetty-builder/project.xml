@@ -32,7 +32,7 @@
     <!-- Module Identification -->
     <!-- ===================== -->
 
-    <name>Geronimo :: Jetty</name>
+    <name>Geronimo :: Jetty :: Builder</name>
     <id>geronimo-jetty-builder</id>
     <shortDescription>Jetty Deployer</shortDescription>
     <description>Geronimo Jetty Deployer</description>
