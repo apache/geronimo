@@ -64,7 +64,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/14 20:39:56 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/16 02:17:39 $
  */
 public class GBeanInfoFactory {
     private final String name;
@@ -82,20 +82,22 @@ public class GBeanInfoFactory {
         this.className = className;
     }
 
-    public GBeanInfoFactory(String name, String description, String className, GBeanInfoFactory source) {
+    public GBeanInfoFactory(String name, String description, String className, GBeanInfo source) {
         this(name, description, className);
         assert source != null;
-        attributes.addAll(source.attributes);
-        operations.addAll(source.operations);
-        endpoints.addAll(source.endpoints);
-        notifications.addAll(source.notifications);
+        attributes.addAll(source.getAttributeSet());
+        operations.addAll(source.getOperationsSet());
+        endpoints.addAll(source.getEndpointsSet());
+        notifications.addAll(source.getNotificationsSet());
+        //in case subclass constructor has same parameters as superclass.
+        constructor = source.getConstructor();
     }
 
     public GBeanInfoFactory(String className) {
         this(className, null, className);
     }
 
-    public GBeanInfoFactory(String className, GBeanInfoFactory source) {
+    public GBeanInfoFactory(String className, GBeanInfo source) {
         this(className, null, className, source);
     }
 
