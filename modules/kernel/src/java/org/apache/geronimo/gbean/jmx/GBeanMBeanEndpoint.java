@@ -79,14 +79,11 @@ import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.gbean.GEndpointInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.gbean.jmx.CollectionProxy;
-import org.apache.geronimo.gbean.jmx.FastMethodInvoker;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/15 05:36:53 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/17 16:58:40 $
  */
 public class GBeanMBeanEndpoint implements NotificationListener {
     /**
