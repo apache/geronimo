@@ -1,0 +1,5 @@
+target
+.classpath
+.project
+maven.log
+junit*.properties
