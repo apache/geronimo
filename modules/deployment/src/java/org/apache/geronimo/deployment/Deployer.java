@@ -103,8 +103,20 @@ public class Deployer {
             throw new DeploymentException("No plan or module specified");
         }
 
+        if (planFile != null) {
+            if (!planFile.exists()) {
+                throw new DeploymentException("Plan file does not exist: " + planFile.getAbsolutePath());
+            }
+            if (!planFile.isFile()) {
+                throw new DeploymentException("Plan file is not a regular file: " + planFile.getAbsolutePath());
+            }
+        }
+
         JarFile module = null;
         if (moduleFile != null) {
+            if (!moduleFile.exists()) {
+                throw new DeploymentException("Module file does not exist: " + moduleFile.getAbsolutePath());
+            }
             try {
                 module = DeploymentUtil.createJarFile(moduleFile);
             } catch (IOException e) {
@@ -125,7 +137,9 @@ public class Deployer {
                 }
             }
             if (builder == null) {
-                throw new DeploymentException("No deployer found for this plan type: " + planFile);
+                throw new DeploymentException("No deployer found:" +
+                        (planFile == null ? "" : " planFile=" + planFile.getAbsolutePath()) +
+                        (moduleFile == null ? "" : ", moduleFile" + moduleFile.getAbsolutePath()));
             }
 
             // create a configuration dir to write the configuration during the building proces
