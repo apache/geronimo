@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Id: maven.xml,v 1.1 2003/08/14 11:06:52 jdillon Exp $ -->
+
+<project default="build"
+  xmlns:j="jelly:core"
+  xmlns:u="jelly:util"
+  xmlns:ant="jelly:ant">
+  
+  <goal name="build">
+    <attainGoal name="jar:install"/>
+  </goal>
+  
+</project>
