@@ -83,9 +83,12 @@ import net.sf.cglib.reflect.FastClass;
  * and once the MBean is deployed an imutable copy of will be made.  This class also adds support for multi target
  * POJOs under the MBean.
  *
- * @version $Revision: 1.6 $ $Date: 2003/11/13 02:49:26 $
+ * @version $Revision: 1.7 $ $Date: 2003/11/14 16:15:37 $
  */
 public final class GeronimoMBeanInfo extends MBeanInfo {
+
+    public static final String ALWAYS = "always";
+    public static final String NEVER = "never";
     /**
      * The key for the default target
      */
@@ -97,6 +100,8 @@ public final class GeronimoMBeanInfo extends MBeanInfo {
     final static String GERONIMO_MBEAN_TARGET_NAME = "___Geronimo___MBean___";
 
     private static final MBeanConstructorInfo[] NO_CONSTRUCTORS = new MBeanConstructorInfo[0];
+
+    private boolean autostart = false;
     private final boolean immutable;
     private final int hashCode = System.identityHashCode(this);
     private String name;
@@ -108,8 +113,6 @@ public final class GeronimoMBeanInfo extends MBeanInfo {
     private final Set endpoints = new HashSet();
     final Map targets = new HashMap();
     final Map targetFastClasses = new HashMap();
-    public static final String ALWAYS = "always";
-    public static final String NEVER = "never";
 
     public GeronimoMBeanInfo() {
         // first aregument must be non-nul until MX4J snapshot is updated
@@ -120,6 +123,7 @@ public final class GeronimoMBeanInfo extends MBeanInfo {
     GeronimoMBeanInfo(GeronimoMBeanInfo source) throws Exception {
         super("Ignore", null, null, null, null, null);
         immutable = true;
+        autostart = source.autostart;
 
         //
         // Required
@@ -331,6 +335,18 @@ public final class GeronimoMBeanInfo extends MBeanInfo {
         }
         endpoints.add(endpoint);
     }
+
+    public boolean isAutostart() {
+        return autostart;
+    }
+
+    public void setAutostart(boolean autostart) {
+        if (immutable) {
+            throw new IllegalStateException("Data is no longer mutable");
+        }
+        this.autostart = autostart;
+    }
+
 
     private GeronimoMBeanTarget createTarget(Class superClass) {
         Enhancer enhancer = new Enhancer();
