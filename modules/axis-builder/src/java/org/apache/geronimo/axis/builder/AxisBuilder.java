@@ -36,12 +36,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Arrays;
 import java.util.jar.JarFile;
 import javax.wsdl.Binding;
 import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOperation;
 import javax.wsdl.Definition;
+import javax.wsdl.Fault;
 import javax.wsdl.Message;
 import javax.wsdl.Operation;
 import javax.wsdl.Part;
@@ -49,7 +49,6 @@ import javax.wsdl.Port;
 import javax.wsdl.PortType;
 import javax.wsdl.Types;
 import javax.wsdl.WSDLException;
-import javax.wsdl.Fault;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.UnknownExtensibilityElement;
 import javax.wsdl.extensions.soap.SOAPAddress;
@@ -60,6 +59,7 @@ import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLLocator;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
+import javax.xml.rpc.handler.HandlerInfo;
 import javax.xml.rpc.holders.BigDecimalHolder;
 import javax.xml.rpc.holders.BigIntegerHolder;
 import javax.xml.rpc.holders.BooleanHolder;
@@ -81,7 +81,6 @@ import javax.xml.rpc.holders.QNameHolder;
 import javax.xml.rpc.holders.ShortHolder;
 import javax.xml.rpc.holders.ShortWrapperHolder;
 import javax.xml.rpc.holders.StringHolder;
-import javax.xml.rpc.handler.HandlerInfo;
 
 import net.sf.cglib.core.DefaultGeneratorStrategy;
 import net.sf.cglib.proxy.Callback;
@@ -91,17 +90,16 @@ import net.sf.cglib.proxy.NoOp;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastConstructor;
 import org.apache.axis.client.Service;
+import org.apache.axis.constants.Style;
+import org.apache.axis.constants.Use;
+import org.apache.axis.description.FaultDesc;
 import org.apache.axis.description.OperationDesc;
 import org.apache.axis.description.ParameterDesc;
-import org.apache.axis.description.FaultDesc;
 import org.apache.axis.encoding.ser.ArrayDeserializerFactory;
 import org.apache.axis.encoding.ser.ArraySerializerFactory;
 import org.apache.axis.encoding.ser.BeanDeserializerFactory;
 import org.apache.axis.encoding.ser.BeanSerializerFactory;
 import org.apache.axis.soap.SOAPConstants;
-import org.apache.axis.constants.Style;
-import org.apache.axis.constants.Use;
-import org.apache.axis.handlers.HandlerInfoChainFactory;
 import org.apache.geronimo.axis.client.GenericServiceEndpointWrapper;
 import org.apache.geronimo.axis.client.NoOverrideCallbackFilter;
 import org.apache.geronimo.axis.client.OperationInfo;
@@ -121,6 +119,9 @@ import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.naming.reference.DeserializingReference;
+import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.xbeans.j2ee.ConstructorParameterOrderType;
+import org.apache.geronimo.xbeans.j2ee.ExceptionMappingType;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingDocument;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
 import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
@@ -130,20 +131,14 @@ import org.apache.geronimo.xbeans.j2ee.ServiceEndpointInterfaceMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointMethodMappingType;
 import org.apache.geronimo.xbeans.j2ee.WsdlMessageMappingType;
 import org.apache.geronimo.xbeans.j2ee.WsdlReturnValueMappingType;
-import org.apache.geronimo.xbeans.j2ee.ExceptionMappingType;
-import org.apache.geronimo.xbeans.j2ee.ConstructorParameterOrderType;
-import org.apache.geronimo.xbeans.j2ee.ServiceRefHandlerType;
-import org.apache.geronimo.xbeans.j2ee.ParamValueType;
-import org.apache.geronimo.xbeans.j2ee.XsdQNameType;
-import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
 import org.objectweb.asm.Type;
-import org.w3.x2001.xmlSchema.SchemaDocument;
 import org.w3.x2001.xmlSchema.ComplexType;
 import org.w3.x2001.xmlSchema.ExplicitGroup;
 import org.w3.x2001.xmlSchema.LocalElement;
+import org.w3.x2001.xmlSchema.SchemaDocument;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 
@@ -218,7 +213,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
             oos.writeObject(service);
             oos.flush();
         } catch (IOException e) {
-            throw new DeploymentException("Could not create serialize service", e);
+            throw new DeploymentException("Could not serialize service instance", e);
         }
         byte[] bytes = baos.toByteArray();
         DeserializingReference reference = new DeserializingReference(bytes);
@@ -491,17 +486,17 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         throw new DeploymentException("Namespace " + namespace + " was not mapped in jaxrpc mapping file");
     }
 
-    public SEIFactory createSEIFactory(String portName, Class enhancedServiceEndpointClass, Object serviceImpl, List typeMappings, URL location, OperationInfo[] operationInfos, List handlerInfos, DeploymentContext deploymentContext, ClassLoader classLoader) throws DeploymentException {
-        HandlerInfoChainFactory handlerInfoChainFactory = buildHandlerInfosForPort(portName, handlerInfos);
+    public SEIFactory createSEIFactory(String portName, Class enhancedServiceEndpointClass, Object serviceImpl, List typeMappings, URL location, OperationInfo[] operationInfos, List handlerInfoInfos, DeploymentContext deploymentContext, ClassLoader classLoader) throws DeploymentException {
+        List handlerInfos = buildHandlerInfosForPort(portName, handlerInfoInfos);
         try {
-            SEIFactory factory = new SEIFactoryImpl(portName, enhancedServiceEndpointClass, operationInfos, serviceImpl, typeMappings, location, handlerInfoChainFactory, classLoader);
+            SEIFactory factory = new SEIFactoryImpl(portName, enhancedServiceEndpointClass, operationInfos, serviceImpl, typeMappings, location, handlerInfos, classLoader);
             return factory;
         } catch (ClassNotFoundException e) {
             throw new DeploymentException("Could not load GenericServiceEndpoint from application classloader", e);
         }
     }
 
-    private HandlerInfoChainFactory buildHandlerInfosForPort(String portName, List handlerInfoInfos) {
+    private List buildHandlerInfosForPort(String portName, List handlerInfoInfos) {
         List handlerInfos = new ArrayList();
         for (Iterator iterator = handlerInfoInfos.iterator(); iterator.hasNext();) {
             HandlerInfoInfo handlerInfoInfo = (HandlerInfoInfo) iterator.next();
@@ -513,8 +508,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
                 //TODO what about the soap roles??
             }
         }
-        HandlerInfoChainFactory handlerInfoChainFactory = new HandlerInfoChainFactory(handlerInfos);
-        return handlerInfoChainFactory;
+        return handlerInfos;
     }
 
     public Class enhanceServiceEndpointInterface(Class serviceEndpointInterface, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {

@@ -49,10 +49,11 @@ public class SEIFactoryImpl implements SEIFactory, Serializable {
     private final Object serviceImpl;
     private final List typeMappings;
     private final URL location;
-    private final HandlerInfoChainFactory handlerInfoChainFactory;
+    private final List handlerInfos;
+    private transient HandlerInfoChainFactory handlerInfoChainFactory;
     private transient OperationInfo[] sortedOperationInfos;
 
-    public SEIFactoryImpl(String portName, Class serviceEndpointClass, OperationInfo[] operationInfos, Object serviceImpl, List typeMappings, URL location, HandlerInfoChainFactory handlerInfoChainFactory, ClassLoader classLoader) throws ClassNotFoundException {
+    public SEIFactoryImpl(String portName, Class serviceEndpointClass, OperationInfo[] operationInfos, Object serviceImpl, List typeMappings, URL location, List handlerInfos, ClassLoader classLoader) throws ClassNotFoundException {
         this.portQName = new QName("", portName);
         this.serviceEndpointClass = serviceEndpointClass;
         this.operationInfos = operationInfos;
@@ -62,7 +63,8 @@ public class SEIFactoryImpl implements SEIFactory, Serializable {
         this.serviceImpl = serviceImpl;
         this.typeMappings = typeMappings;
         this.location = location;
-        this.handlerInfoChainFactory = handlerInfoChainFactory;
+        this.handlerInfos = handlerInfos;
+        this.handlerInfoChainFactory = new HandlerInfoChainFactory(handlerInfos);
         sortedOperationInfos = new OperationInfo[FastClass.create(serviceEndpointClass).getMaxIndex() + 1];
         for (int i = 0; i < operationInfos.length; i++) {
             OperationInfo operationInfo = operationInfos[i];
@@ -97,7 +99,7 @@ public class SEIFactoryImpl implements SEIFactory, Serializable {
 
     private Object readResolve() throws ObjectStreamException {
         try {
-            return new SEIFactoryImpl(portQName.getLocalPart(), serviceEndpointClass, operationInfos, serviceImpl, typeMappings, location, handlerInfoChainFactory, null);
+            return new SEIFactoryImpl(portQName.getLocalPart(), serviceEndpointClass, operationInfos, serviceImpl, typeMappings, location, handlerInfos, null);
         } catch (ClassNotFoundException e) {
             throw new InvalidClassException(GenericServiceEndpoint.class.getName(), "this is impossible");
         }
