@@ -99,7 +99,7 @@ import net.sf.cglib.reflect.FastClass;
  * GeronimoMBeanInfo instance.  The GeronimoMBean also support caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/16 23:31:21 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/20 22:39:05 $
  */
 public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     public static final FastClass fastClass = FastClass.create(GBeanMBean.class);
@@ -304,6 +304,10 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
 
         if (registrationDone.booleanValue()) {
             // we're now offically on line
+            if (target instanceof GBean) {
+                GBean gbean = (GBean) target;
+//                gbean.setGBeanContext(new GBeanMBeanContext(server, this, objectName));
+            }
             offline = false;
         } else {
             // we need to bring the endpoints back off line
@@ -328,6 +332,11 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         for (Iterator iterator = endpointMap.values().iterator(); iterator.hasNext();) {
             GBeanMBeanEndpoint endpoint = (GBeanMBeanEndpoint) iterator.next();
             endpoint.offline();
+        }
+
+        if (target instanceof GBean) {
+            GBean gbean = (GBean) target;
+//            gbean.setGBeanContext(null);
         }
 
         offline = true;

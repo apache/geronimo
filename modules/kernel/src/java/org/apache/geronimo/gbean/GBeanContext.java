@@ -55,37 +55,47 @@
  */
 package org.apache.geronimo.gbean;
 
-import org.apache.geronimo.gbean.WaitingException;
-
 
 /**
- * An optional interface for a GBean.  When a GBean implements this interface, the implementation
- * will get life-cycle callbacks.
+ * Context handle for a GBean which allows the bean to determin the current state, and to change the
+ * current state.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/20 22:39:04 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/20 22:39:04 $
  */
-public interface GBean {
+public interface GBeanContext {
     /**
-     * Sets the operating context for the GBean.
-     * @param context the context object or null
+     * Gets the state of this component as an int.
+     * The int return is required by the JSR77 specification.
+     *
+     * @return the current state of this component
      */
-//    void setGBeanContext(GBeanContext context);
+    public int getState();
 
     /**
-     * Starts the GBean.  This informs the GBean that it is about to transition to the running state.
-     * @throws org.apache.geronimo.gbean.WaitingException if the target is waiting for an external condition before it can fully start
-     * @throws java.lang.Exception if the target failed to start; this will cause a transition to the failed state
+     * Attempts to bring the component into the fully running state. If an Exception occurs while
+     * starting the component, the component is automaticaly failed.
+     *
+     * There is no guarantee that the Geronimo MBean will be running when the method returns.
+     *
+     * @throws Exception if a problem occurs while starting the component
      */
-    void doStart() throws WaitingException, Exception;
+    public void start() throws Exception;
 
     /**
-     * Stops the target.  This informs the GBean that it is about to transition to the stopped state.
-     * @throws org.apache.geronimo.gbean.WaitingException if the target is waiting for an external condition before it can fully stop
+     * Attempt to bring the component into the fully stopped state. If an exception occurs while
+     * stopping the component, tthe component is automaticaly failed.
+     *
+     * There is no guarantee that the Geronimo MBean will be stopped when the method returns.
+     *
+     * @throws Exception if a problem occurs while stopping the component
      */
-    void doStop() throws WaitingException;
+    public void stop() throws Exception;
 
     /**
-     * Fails the GBean.  This informs the GBean that it is about to transition to the failed state.
+     * Moves this component to the FAILED state.
+     *
+     * The component is guaranteed to be in the failed state when the method returns.
+     *
      */
-    void doFail();
+    public void fail();
 }
