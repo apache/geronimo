@@ -66,7 +66,7 @@ import net.sf.cglib.MethodProxy;
  * direct the attibute to a specific target in a multi target GeronimoMBean.  It also supports caching of the
  * attribute value, which can reduce the number of calls on the target.
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/24 22:45:01 $
+ * @version $Revision: 1.3 $ $Date: 2003/10/27 21:34:28 $
  */
 public class GeronimoAttributeInfo extends MBeanAttributeInfo {
     /**
@@ -283,7 +283,7 @@ public class GeronimoAttributeInfo extends MBeanAttributeInfo {
             if (setterMethod == null) {
                 throw new IllegalArgumentException("Setter method not found on target:" +
                         " setterName=" + methodName +
-                        " targetClass=" + source.target.getClass().getName());
+                        " targetClass=" + target.getClass().getName());
             }
 
             setterName = setterMethod.getName();
