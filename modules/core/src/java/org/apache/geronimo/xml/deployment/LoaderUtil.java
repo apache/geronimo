@@ -56,14 +56,12 @@
 package org.apache.geronimo.xml.deployment;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.LinkedList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
@@ -76,7 +74,7 @@ import org.xml.sax.SAXException;
 /**
  * Holds utility methods for parsing a DOM tree.
  *
- * @version $Revision: 1.7 $ $Date: 2003/09/29 19:34:10 $
+ * @version $Revision: 1.8 $ $Date: 2003/10/01 19:02:05 $
  */
 public final class LoaderUtil {
     private static final Log log = LogFactory.getLog(LoaderUtil.class);
