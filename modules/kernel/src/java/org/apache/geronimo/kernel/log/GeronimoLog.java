@@ -55,171 +55,104 @@
  */
 package org.apache.geronimo.kernel.log;
 
-import java.lang.ref.WeakReference;
-
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import org.apache.commons.logging.Log;
-
-import org.apache.log4j.Logger;
-import org.apache.log4j.Level;
 
 /**
  * This log wrapper caches the trace, debug and info enabled flags.  The flags are updated
  * by a single timer task for all logs.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:34 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/11 03:14:11 $
  */
-public final class CachingLog4jLog implements Log
-{
-    // @todo this need to be moved to a log manager MBean, but this works as a proof of concept
-    private static final Set logs = new HashSet();
-    private static final Timer timer = new Timer();
-    private static final TimerTask task = new TimerTask() {
-        public void run() {
-            HashSet logSnapshot;
-            synchronized (logs) {
-                logSnapshot = new HashSet(logs);
-            }
+public final class GeronimoLog implements Log {
+    private final String name;
+    private Log log;
 
-            for (Iterator i = logSnapshot.iterator(); i.hasNext();) {
-                WeakReference weakReference = (WeakReference) i.next();
-                CachingLog4jLog log = (CachingLog4jLog) weakReference.get();
-                if (log == null) {
-                    synchronized (logs) {
-                        logs.remove(log);
-                    }
-                } else {
-                    log.updateLevelInfo();
-                }
-            }
-
-        }
-    };
-
-    static {
-        timer.schedule(task, 3 * 60 * 1000, 3 * 60 * 1000);
+    public GeronimoLog(String name, Log log) {
+        this.name = name;
+        this.log = log;
     }
 
-    private static void addLog(CachingLog4jLog log) {
-        synchronized (logs) {
-            logs.add(new WeakReference(log));
-        }
+    public String getName() {
+        return name;
     }
 
-    private final String FQCN = getClass().getName();
-    private Logger logger;
-    private boolean traceEnabled;
-    private boolean debugEnabled;
-    private boolean infoEnabled;
-
-    public CachingLog4jLog(String name) {
-        logger = Logger.getLogger(name);
-        updateLevelInfo();
-        addLog(this);
+    public Log getLog() {
+        return log;
     }
 
-    public CachingLog4jLog(Logger logger) {
-        this.logger = logger;
-        updateLevelInfo();
-        addLog(this);
+    public void setLog(Log log) {
+        this.log = log;
     }
 
     public boolean isTraceEnabled() {
-        return traceEnabled;
+        return log.isTraceEnabled();
     }
 
     public void trace(Object message) {
-        if (traceEnabled) {
-            logger.log(FQCN, XLevel.TRACE, message, null);
-        }
+        log.trace(message);
     }
 
     public void trace(Object message, Throwable throwable) {
-        if (traceEnabled) {
-            logger.log(FQCN, XLevel.TRACE, message, throwable);
-        }
+        log.trace(message, throwable);
     }
 
     public boolean isDebugEnabled() {
-        return debugEnabled;
+        return log.isDebugEnabled();
     }
 
     public void debug(Object message) {
-        if (debugEnabled) {
-            logger.log(FQCN, Level.DEBUG, message, null);
-        }
+        log.debug(message);
     }
 
     public void debug(Object message, Throwable throwable) {
-        if (debugEnabled) {
-            logger.log(FQCN, Level.DEBUG, message, throwable);
-        }
+        log.debug(message, throwable);
     }
 
     public boolean isInfoEnabled() {
-        return infoEnabled;
+        return log.isInfoEnabled();
     }
 
     public void info(Object message) {
-        if (infoEnabled) {
-            logger.log(FQCN, Level.INFO, message, null);
-        }
+        log.info(message);
     }
 
     public void info(Object message, Throwable throwable) {
-        if (infoEnabled) {
-            logger.log(FQCN, Level.INFO, message, throwable);
-        }
+        log.info(message, throwable);
     }
 
     public boolean isWarnEnabled() {
-        return logger.isEnabledFor(Level.WARN);
+        return log.isWarnEnabled();
     }
 
     public void warn(Object message) {
-        logger.log(FQCN, Level.WARN, message, null);
+        log.warn(message);
     }
 
     public void warn(Object message, Throwable throwable) {
-        logger.log(FQCN, Level.WARN, message, throwable);
+        log.warn(message, throwable);
     }
 
     public boolean isErrorEnabled() {
-        return logger.isEnabledFor(Level.ERROR);
+        return log.isErrorEnabled();
     }
 
     public void error(Object message) {
-        logger.log(FQCN, Level.ERROR, message, null);
+        log.error(message);
     }
 
     public void error(Object message, Throwable throwable) {
-        logger.log(FQCN, Level.ERROR, message, throwable);
+        log.error(message, throwable);
     }
 
     public boolean isFatalEnabled() {
-        return logger.isEnabledFor(Level.FATAL);
+        return log.isFatalEnabled();
     }
 
     public void fatal(Object message) {
-        logger.log(FQCN, Level.FATAL, message, null);
+        log.fatal(message);
     }
 
     public void fatal(Object message, Throwable throwable) {
-        logger.log(FQCN, Level.FATAL, message, throwable);
-    }
-
-    private void updateLevelInfo() {
-        // This method is proposely not synchronized.
-        // The setting of a boolean is atomic so we don't have to worry about inconsistent state.
-        // Normally we would have to worry about an out of date cache running threads (SMP boxes),
-        // but this cache is not time critical (so don't worry about it).
-        traceEnabled = logger.isEnabledFor(XLevel.TRACE);
-        debugEnabled = logger.isDebugEnabled();
-        infoEnabled = logger.isInfoEnabled();
+        log.fatal(message, throwable);
     }
 }

@@ -53,66 +53,95 @@
  *
  * ====================================================================
  */
+package org.apache.geronimo.core.logging.log4j.appender;
 
-package org.apache.geronimo.core.logging;
-
-import java.net.URL;
+import org.apache.geronimo.core.logging.log4j.PatternLayout;
+import org.apache.geronimo.core.logging.log4j.XLevel;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanContext;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.log4j.Logger;
+import org.apache.log4j.WriterAppender;
 
 /**
- * Interface for the logging services.
- *
- * <p>Currently assumes URL based configuration.
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/12/30 21:17:14 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/11 03:14:11 $
  */
-public interface LoggingService
-{
-    /**
-     * Get the refresh period.
-     *
-     * @return The refresh period (in seconds).
-     *
-     */
-    int getRefreshPeriod();
+public abstract class AbstractAppenderService implements GBean {
+    protected final WriterAppender appender;
 
-    /**
-     * Set the refresh period.
-     *
-     * @param period    The refresh period (in seconds).
-     *
-     * @throws IllegalArgumentException     Refresh period must be > 0
-     *
-     */
-    void setRefreshPeriod(int period);
+    public AbstractAppenderService(WriterAppender appender) {
+        this.appender = appender;
+        appender.setLayout(new PatternLayout());
+    }
 
-    /**
-     * Get the logging configuration URL.
-     *
-     * @return The logging configuration URL.
-     *
-     */
-    URL getConfigurationURL();
+    public void setGBeanContext(GBeanContext context) {
+    }
 
-    /**
-     * Set the logging configuration URL.
-     *
-     * @param url   The logging configuration URL.
-     *
-     */
-    void setConfigurationURL(URL url);
+    public void doStart() {
+        appender.activateOptions();
+        Logger root = Logger.getRootLogger();
+        root.addAppender(appender);
+    }
 
-    /**
-     * Force the logging system to reconfigure.
-     *
-     */
-    void reconfigure();
+    public void doStop() {
+        Logger root = Logger.getRootLogger();
+        root.removeAppender(appender);
+    }
 
-    /**
-     * Force the logging system to configure from the given URL.
-     *
-     * @param url   The URL to configure the logging system from.
-     *
-     */
-    void configure(URL url);
+    public void doFail() {
+        doStop();
+    }
+
+    public String getLayoutPattern() {
+        PatternLayout layout = (PatternLayout) appender.getLayout();
+        return layout.getConversionPattern();
+    }
+
+    public void setLayoutPattern(String pattern) {
+        PatternLayout layout = (PatternLayout) appender.getLayout();
+        layout.setConversionPattern(pattern);
+    }
+
+    public String getThreshold() {
+        return appender.getThreshold().toString();
+    }
+
+    public void setThreshold(String threshold) {
+        appender.setThreshold(XLevel.toLevel(threshold));
+    }
+
+    public String getEncoding() {
+        return appender.getEncoding();
+    }
+
+    public void setEncoding(String value) {
+        appender.setEncoding(value);
+    }
+
+    public void setImmediateFlush(boolean value) {
+        appender.setImmediateFlush(value);
+    }
+
+    public boolean getImmediateFlush() {
+        return appender.getImmediateFlush();
+    }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractAppenderService.class.getName());
+        infoFactory.addAttribute(new GAttributeInfo("LayoutPattern", true));
+        infoFactory.addAttribute(new GAttributeInfo("Threshold", true));
+        infoFactory.addAttribute(new GAttributeInfo("Encoding", true));
+        infoFactory.addAttribute(new GAttributeInfo("ImmedateFlush", true));
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
 }

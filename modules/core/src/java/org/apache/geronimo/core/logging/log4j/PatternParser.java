@@ -53,18 +53,34 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.common.log.log4j;
+package org.apache.geronimo.core.logging.log4j;
 
+import org.apache.log4j.helpers.PatternConverter;
 
 /**
- * An extension to the standard log4j PatternLayout for printing a NamedNDC.
+ * A simple extension of the log4j pattern parser which adds support for the
+ * 'a' letter for a NamedNDC.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/27 10:08:45 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/11 03:14:11 $
  */
-public class PatternLayout
-    extends org.apache.log4j.PatternLayout
-{
-    protected org.apache.log4j.helpers.PatternParser createPatternParser(String pattern) {
-        return new PatternParser(pattern);
+public class PatternParser
+        extends org.apache.log4j.helpers.PatternParser {
+    public PatternParser(String pattern) {
+        super(pattern);
+    }
+
+    protected void finalizeConverter(char c) {
+        PatternConverter pc = null;
+        switch (c) {
+        case 'a':
+            String key = extractOption();
+            pc = new NamedNDCConverter(formattingInfo, key);
+            currentLiteral.setLength(0);
+            break;
+        default:
+            super.finalizeConverter(c);
+            return;
+        }
+        addConverter(pc);
     }
 }

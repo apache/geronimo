@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gbeans>
+    <path>..</path>
+    <path>log4j-1.2.8.jar</path>
+
+    <gbean class="org.apache.geronimo.core.logging.log4j.Log4jService" objectName="geronimo:role=logging">
+        <default attribute="RefreshPeriod" type="int">60</default>
+        <default attribute="ConfigurationURL" type="java.net.URL">log4j.xml</default>
+        <endpoint name="ServerInfo">
+            <pattern>geronimo:role=ServerInfo</pattern>
+        </endpoint>
+    </gbean>
+
+    <gbean class="org.apache.geronimo.core.logging.log4j.appender.ConsoleAppenderService" objectName="geronimo:role=appender,type=ConsoleAppender">
+        <default attribute="Threshold" type="java.lang.String">INFO</default>
+        <default attribute="LayoutPattern" type="java.lang.String">%d{ABSOLUTE} %-5p [%c{1}] %m%n</default>
+        <default attribute="Target" type="java.lang.String">System.out</default>
+    </gbean>
+
+    <gbean class="org.apache.geronimo.core.logging.log4j.appender.RollingFileAppenderService" objectName="geronimo:role=appender,type=DailyRollingFileAppender">
+        <default attribute="Threshold" type="java.lang.String">DEBUG</default>
+        <default attribute="LayoutPattern" type="java.lang.String">%d{ABSOLUTE} %-5p [%c{1}] %m%n</default>
+        <default attribute="Append" type="boolean">true</default>
+        <default attribute="File" type="java.lang.String">log/geronimo.log</default>
+        <default attribute="BufferedIO" type="boolean">false</default>
+        <default attribute="BufferedSize" type="int">8192</default>
+        <default attribute="MaxBackupIndex" type="int">1</default>
+        <default attribute="MaxFileSize" type="java.lang.String">10MB</default>
+        <endpoint name="ServerInfo"><pattern>geronimo:role=ServerInfo</pattern></endpoint>
+    </gbean>
+
+<!--    <gbean class="org.apache.geronimo.core.logging.log4j.appender.DailyRollingFileAppenderService" objectName="geronimo:role=appender,type=DailyRollingFileAppender">-->
+<!--        <default attribute="Threshold" type="java.lang.String">DEBUG</default>-->
+<!--        <default attribute="LayoutPattern" type="java.lang.String">%d{ABSOLUTE} %-5p [%c{1}] %m%n</default>-->
+<!--        <default attribute="Append" type="boolean">true</default>-->
+<!--        <default attribute="File" type="java.lang.String">log/geronimo.log</default>-->
+<!--        <default attribute="BufferedIO" type="boolean">false</default>-->
+<!--        <default attribute="BufferedSize" type="int">8192</default>-->
+<!--        <default attribute="DatePattern" type="java.lang.String">'.'yyyy-MM-dd</default>-->
+<!--        <endpoint name="ServerInfo"><pattern>geronimo:role=ServerInfo</pattern></endpoint>-->
+<!--    </gbean>-->
+</gbeans>

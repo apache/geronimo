@@ -53,21 +53,87 @@
  *
  * ====================================================================
  */
+package org.apache.geronimo.kernel.log;
 
-package org.apache.geronimo.common.log.log4j.appender;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
-/** 
- * An extention of the default Log4j DailyRollingFileAppender 
- * which will make the directory structure for the set log file. 
- *
- * @version $Revision: 1.1 $ $Date: 2003/08/24 20:33:37 $
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogConfigurationException;
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.impl.LogFactoryImpl;
+
+/**
+ * @version $Revision: 1.1 $ $Date: 2004/02/11 03:14:11 $
  */
-public class DailyRollingFileAppender
-    extends org.apache.log4j.DailyRollingFileAppender
-{
-    public void setFile(final String filename)
-    {
-        FileAppender.Helper.makePath(filename);
-        super.setFile(filename);
+public class GeronimoLogFactory extends LogFactory {
+    private LogFactory logFactory = new LogFactoryImpl();
+    private final HashMap instances = new HashMap();
+
+    public synchronized LogFactory getLogFactory() {
+        return logFactory;
+    }
+
+    public void setLogFactory(LogFactory logFactory) {
+        Set logs;
+        synchronized (this) {
+            this.logFactory = logFactory;
+            logs = new HashSet(instances.values());
+        }
+
+        for (Iterator iterator = logs.iterator(); iterator.hasNext();) {
+            GeronimoLog log = (GeronimoLog) iterator.next();
+            log.setLog(logFactory.getInstance(log.getName()));
+        }
+    }
+
+    public synchronized Set getInstances() {
+        return new HashSet(instances.values());
+    }
+
+    public synchronized Log getInstance(Class clazz) throws LogConfigurationException {
+        return getInstance(clazz.getName());
+    }
+
+    public synchronized Log getInstance(String name) throws LogConfigurationException {
+        ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+            Log instance = (Log) instances.get(name);
+            if (instance == null) {
+                instance = new GeronimoLog(name, logFactory.getInstance(name));
+                instances.put(name, instance);
+            }
+            return instance;
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldCL);
+        }
+    }
+
+    public synchronized void release() {
+        for (Iterator iterator = instances.values().iterator(); iterator.hasNext();) {
+            GeronimoLog log = (GeronimoLog) iterator.next();
+            log.setLog(null);
+        }
+        instances.clear();
+    }
+
+    public synchronized Object getAttribute(String name) {
+        return logFactory.getAttribute(name);
+    }
+
+    public synchronized String[] getAttributeNames() {
+        return logFactory.getAttributeNames();
+    }
+
+    public synchronized void removeAttribute(String name) {
+        logFactory.removeAttribute(name);
+    }
+
+    public synchronized void setAttribute(String name, Object value) {
+        logFactory.setAttribute(name, value);
     }
 }
+

@@ -53,21 +53,42 @@
  *
  * ====================================================================
  */
+package org.apache.geronimo.core.logging.log4j;
 
-package org.apache.geronimo.common.log.log4j.appender;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
-/** 
- * An extention of the default Log4j RollingFileAppender which
- * will make the directory structure for the set log file. 
+import org.apache.log4j.helpers.FormattingInfo;
+import org.apache.log4j.helpers.PatternConverter;
+import org.apache.log4j.spi.LoggingEvent;
+
+/**
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/24 20:33:37 $
+ *
+ * @version $Revision: 1.1 $ $Date: 2004/02/11 03:14:11 $
  */
-public class RollingFileAppender
-    extends org.apache.log4j.RollingFileAppender
-{
-    public void setFile(final String filename)
-    {
-        FileAppender.Helper.makePath(filename);
-        super.setFile(filename);
+public final class NamedNDCConverter
+        extends PatternConverter {
+    private final NamedNDC namedNDC;
+
+    public NamedNDCConverter(FormattingInfo formattingInfo, String key) {
+        super(formattingInfo);
+        namedNDC = NamedNDC.getNamedNDC(key);
+        assert namedNDC != null;
+    }
+
+    protected String convert(LoggingEvent loggingEvent) {
+        try {
+            Object value = namedNDC.get();
+            if (value == null) {
+                return null;
+            }
+            return value.toString();
+        } catch (Exception e) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            return sw.toString();
+        }
     }
 }

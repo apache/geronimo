@@ -58,23 +58,20 @@ package org.apache.geronimo.common.task;
 
 import java.net.URL;
 import java.net.URLConnection;
-
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EventObject;
+import java.util.List;
+import java.util.TimerTask;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.geronimo.common.NullArgumentException;
 
 /**
  * A timer task to monitor a URL.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/29 21:13:16 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/11 03:14:10 $
  */
 public class URLMonitorTask
     extends TimerTask

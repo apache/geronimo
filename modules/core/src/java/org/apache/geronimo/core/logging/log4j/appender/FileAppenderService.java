@@ -54,133 +54,105 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.core.logging;
+package org.apache.geronimo.core.logging.log4j.appender;
 
-import java.net.URL;
-import java.util.Timer;
-
-import org.apache.geronimo.common.NullArgumentException;
-import org.apache.geronimo.common.task.URLMonitorTask;
+import org.apache.geronimo.core.serverinfo.ServerInfo;
 import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GOperationInfo;
+import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.log4j.FileAppender;
+
 
 /**
- * An abstract logging service.
+ * An extention of the default Log4j FileAppenderService which
+ * will make the directory structure for the set log file.
  *
- * <p>Sub-classes only need to provide a {@link #configure(URL)}.
- *
- * @version $Revision: 1.5 $ $Date: 2004/01/22 04:24:57 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/11 03:14:11 $
  */
-public abstract class AbstractLoggingService
-        implements LoggingService, GBean {
+public class FileAppenderService extends AbstractAppenderService {
+    private final ServerInfo serverInfo;
+    private String file;
+    private boolean running = false;
 
-    private static final GBeanInfo GBEAN_INFO;
-
-    /** The default refresh period (60 seconds) */
-    public static final int DEFAULT_REFRESH_PERIOD = 60;
-
-    /** The URL to the configuration file. */
-    protected URL configURL;
-
-    /** The time (in seconds) between checking for new config. */
-    protected int refreshPeriod;
-
-    /** The URL watch timer (in daemon mode). */
-    protected Timer timer = new Timer(true);
-
-    /** A monitor to check when the config URL changes. */
-    protected URLMonitorTask monitor;
-
-    /**
-     * Initialize <code>AbstractLoggingService</code>.
-     *
-     * @param url       The configuration URL.
-     * @param period    The refresh period (in seconds).
-     */
-    protected AbstractLoggingService(final URL url, final int period) {
-        setRefreshPeriod(period);
-        setConfigurationURL(url);
+    public FileAppenderService(ServerInfo serverInfo) {
+        this(serverInfo, new FileAppender());
     }
 
-    /**
-     * Initialize <code>AbstractLoggingService</code> using the default
-     * refresh period.
-     *
-     * @param url   The configuration URL.
-     */
-    protected AbstractLoggingService(final URL url) {
-        this(url, DEFAULT_REFRESH_PERIOD);
+    public FileAppenderService(ServerInfo serverInfo, FileAppender appender) {
+        super(appender);
+        this.serverInfo = serverInfo;
     }
 
-    public int getRefreshPeriod() {
-        return refreshPeriod;
+    public boolean getAppend() {
+        return ((FileAppender) appender).getAppend();
     }
 
-    public void setRefreshPeriod(final int period) {
-        if (period < 1) {
-            throw new IllegalArgumentException("Refresh period must be > 0");
+    public void setAppend(boolean append) {
+        ((FileAppender) appender).setAppend(append);
+    }
+
+    public String getFile() {
+        return file;
+    }
+
+    public void setFile(String file) {
+        this.file = file;
+        if (running) {
+            setAppenderFile(file);
         }
-
-        this.refreshPeriod = period;
-    }
-
-    public URL getConfigurationURL() {
-        return configURL;
-    }
-
-    public void setConfigurationURL(final URL url) {
-        if (url == null) {
-            throw new NullArgumentException("url");
-        }
-
-        this.configURL = url;
-    }
-
-    public void reconfigure() {
-        configure(configURL);
-    }
-
-
-    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() {
-        monitor = new URLMonitorTask(configURL);
-        monitor.addListener(new URLMonitorTask.Listener() {
-            public void doURLChanged(final URLMonitorTask.Event event) {
-                configure(event.getURL());
-            }
-        });
-        monitor.run();
-        timer.schedule(monitor, 1000 * refreshPeriod, 1000 * refreshPeriod);
+        running = true;
+        setAppenderFile(file);
+        super.doStart();
     }
 
     public void doStop() {
-        monitor.cancel();
-        monitor = null;
+        super.doStop();
+        running = false;
     }
 
-    public void doFail() {
+    private void setAppenderFile(String file) {
+        file = serverInfo.resolvePath(file);
+        ((FileAppender) appender).setFile(file);
     }
+
+    public boolean getBufferedIO() {
+        return ((FileAppender) appender).getBufferedIO();
+    }
+
+    public void setBufferedIO(boolean bufferedIO) {
+        ((FileAppender) appender).setBufferedIO(bufferedIO);
+    }
+
+    public int getBufferSize() {
+        return ((FileAppender) appender).getBufferSize();
+    }
+
+    public void setBufferSize(int bufferSize) {
+        ((FileAppender) appender).setBufferSize(bufferSize);
+    }
+
+    public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractLoggingService.class.getName());
-        infoFactory.addAttribute(new GAttributeInfo("RefreshPeriod", true));
-        infoFactory.addAttribute(new GAttributeInfo("ConfigurationURL", true));
-        infoFactory.addOperation(new GOperationInfo("reconfigure"));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(FileAppenderService.class.getName(), AbstractAppenderService.GBEAN_INFO);
         infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"ConfigurationURL", "RefreshPeriod"},
-                new Class[]{URL.class, int.class}));
+                new String[]{"ServerInfo"},
+                new Class[]{ServerInfo.class}
+        ));
+        infoFactory.addReference(new GReferenceInfo("ServerInfo", ServerInfo.class.getName()));
+        infoFactory.addAttribute(new GAttributeInfo("Append", true));
+        infoFactory.addAttribute(new GAttributeInfo("File", true));
+        infoFactory.addAttribute(new GAttributeInfo("BufferedIO", true));
+        infoFactory.addAttribute(new GAttributeInfo("BufferedSize", true));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
-
 }

@@ -56,19 +56,25 @@
 
 package org.apache.geronimo.core.logging.log4j;
 
+import java.net.URI;
 import java.net.URL;
+import java.net.URLConnection;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogConfigurationException;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.common.NullArgumentException;
-import org.apache.geronimo.common.log.log4j.URLConfigurator;
-import org.apache.geronimo.common.propertyeditor.PropertyEditors;
-import org.apache.geronimo.common.propertyeditor.TextPropertyEditorSupport;
-import org.apache.geronimo.core.logging.AbstractLoggingService;
+import org.apache.geronimo.core.serverinfo.ServerInfo;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.kernel.log.XLevel;
+import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.kernel.log.GeronimoLogFactory;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -76,77 +82,74 @@ import org.apache.log4j.Logger;
  * A Log4j logging service.
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/22 04:24:57 $
+ * @version $Revision: 1.6 $ $Date: 2004/02/11 03:14:11 $
  */
-public class Log4jService extends AbstractLoggingService {
+public class Log4jService implements GBean {
+    /**
+     * The URL to the configuration file.
+     */
+    private URL configURL;
 
-    private static final GBeanInfo GBEAN_INFO;
+    /**
+     * The time (in seconds) between checking for new config.
+     */
+    private int refreshPeriod;
 
-    private static final Log log = LogFactory.getLog(Log4jService.class);
+    /**
+     * The properties service
+     */
+    private ServerInfo serverInfo;
+
+    /**
+     * The URL watch timer (in daemon mode).
+     */
+    private Timer timer = new Timer(true);
+
+    /**
+     * A monitor to check when the config URL changes.
+     */
+    private TimerTask monitor;
+
+    /**
+     * Last time the file was changed.
+     */
+    private long lastChanged = -1;
 
     /**
      * Construct a <code>Log4jService</code>.
      *
-     * @param url       The configuration URL.
-     * @param period    The refresh period (in seconds).
+     * @param configURL       The configuration URL.
+     * @param refreshPeroid    The refresh refreshPeroid (in seconds).
      *
      */
-    public Log4jService(final URL url, final int period) {
-        super(url, period);
-    }
-
-    /**
-     * Construct a <code>Log4jService</code>.
-     *
-     * @param url   The configuration URL.
-     *
-     */
-    public Log4jService(final URL url) {
-        super(url);
-    }
-
-    /**
-     * Force the logging system to configure from the given URL.
-     *
-     * @param url   The URL to configure from.
-     */
-    public void configure(final URL url) {
-        if (url == null) {
-            throw new NullArgumentException("url");
-        }
-
-        URLConfigurator.configure(url);
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    //                    Log4j Level Accessors & Mutators                   //
-    ///////////////////////////////////////////////////////////////////////////
-
-    /**
-     * A property editor for Log4j Levels.
-     */
-    public static class LevelEditor
-        extends TextPropertyEditorSupport {
-        public Object getValue() {
-            return XLevel.toLevel(getAsText().trim());
+    public Log4jService(final URL configURL, final int refreshPeroid, ServerInfo serverInfo) {
+        setRefreshPeriod(refreshPeroid);
+        setConfigurationURL(configURL);
+        this.serverInfo = serverInfo;
+        LogFactory logFactory = LogFactory.getFactory();
+        if (!(logFactory instanceof GeronimoLogFactory)) {
+            throw new IllegalStateException("Commons log factory is not a GeronimoLogFactory");
         }
     }
 
     /**
-     * A property editor for Log4j Loggers.
+     * Gets the level of the logger of the give name.
+     *
+     * @param logger    The logger to inspect.
+     *
      */
-    public static class LoggerEditor
-        extends TextPropertyEditorSupport {
-        public Object getValue() {
-            return Logger.getLogger(getAsText().trim());
+    public String getLoggerLevel(final String logger) {
+        if (logger == null) {
+            throw new IllegalArgumentException("logger is null");
         }
-    }
 
-    /** Install property editors for Logger and Level. */
-    static {
-        PropertyEditors.registerEditor(Logger.class, LoggerEditor.class);
-        PropertyEditors.registerEditor(Level.class, LevelEditor.class);
+        Level level = Logger.getLogger(logger).getLevel();
+
+        if (level != null) {
+            return level.toString();
+        }
+
+        return null;
     }
 
     /**
@@ -156,56 +159,200 @@ public class Log4jService extends AbstractLoggingService {
      * @param level     The level to change the logger to.
      *
      */
-    public void setLoggerLevel(final Logger logger, final Level level) {
+    public void setLoggerLevel(final String logger, final String level) {
         if (logger == null) {
-            throw new NullArgumentException("logger");
+            throw new IllegalArgumentException("logger is null");
         }
         if (level == null) {
-            throw new NullArgumentException("level");
+            throw new IllegalArgumentException("level is null");
         }
 
-        logger.setLevel(level);
-        log.info("Changed logger '" + logger.getName() + "' level: " + level);
+        Logger.getLogger(logger).setLevel(XLevel.toLevel(level));
     }
 
     /**
-     * Gets the level of the logger of the give name.
+     * Get the refresh period.
      *
-     * @param logger    The logger to inspect.
-     *
+     * @return the refresh period (in seconds)
      */
-    public String getLoggerLevel(final Logger logger) {
-        if (logger == null) {
-            throw new NullArgumentException("logger");
-        }
-
-        Level level = logger.getLevel();
-
-        if (level != null) {
-            return level.toString();
-        }
-
-        return null;
+    public synchronized int getRefreshPeriod() {
+        return refreshPeriod;
     }
 
+    /**
+     * Set the refresh period.
+     *
+     * @param period the refresh period (in seconds)
+     * @throws IllegalArgumentException if refresh period is <= 0
+     */
+    public synchronized void setRefreshPeriod(final int period) {
+        if (period < 1) {
+            throw new IllegalArgumentException("Refresh period must be > 0");
+        }
 
-    //GBean
+        if (this.refreshPeriod != period) {
+            this.refreshPeriod = period;
+            schedule();
+        }
+    }
+
+    /**
+     * Get the logging configuration URL.
+     *
+     * @return the logging configuration URL
+     */
+    public synchronized URL getConfigurationURL() {
+        return configURL;
+    }
+
+    /**
+     * Set the logging configuration URL.
+     *
+     * @param url the logging configuration URL
+     */
+    public synchronized void setConfigurationURL(final URL url) {
+        if (url == null) {
+            throw new IllegalArgumentException("url is null");
+        }
+
+        this.configURL = url;
+    }
+
+    /**
+     * Force the logging system to reconfigure.
+     */
+    public void reconfigure() {
+        URL url;
+        synchronized (this) {
+            url = configURL;
+        }
+        URLConfigurator.configure(url);
+    }
+
+    private void schedule() {
+        if (timer != null) {
+            TimerTask task;
+            synchronized (this) {
+                // kill the old monitor
+                if (monitor != null) {
+                    monitor.cancel();
+                }
+
+                // start the new one
+                monitor = new URLMonitorTask();
+                task = monitor;
+                timer.schedule(monitor, 1000 * refreshPeriod, 1000 * refreshPeriod);
+            }
+            task.run();
+        }
+    }
+
+    public void setGBeanContext(GBeanContext context) {
+    }
+
     public void doStart() {
-        super.doStart();
+        // Peroidally check the configuration file
+        schedule();
 
         // Make sure the root Logger has loaded
         Logger.getRootLogger();
+
+        // Change all of the loggers over to use log4j
+        GeronimoLogFactory logFactory = (GeronimoLogFactory) LogFactory.getFactory();
+        synchronized (logFactory) {
+            if (!(logFactory.getLogFactory() instanceof CachingLog4jLogFactory)) {
+                logFactory.setLogFactory(new CachingLog4jLogFactory());
+            }
+        }
     }
 
+    public synchronized void doStop() {
+        if (monitor != null) {
+            monitor.cancel();
+            monitor = null;
+        }
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
+    }
+
+    public void doFail() {
+        doStop();
+    }
+
+    private synchronized URL resolveURL() {
+        try {
+            URI configURI = null;
+            URI baseURI = new URI(serverInfo.getBaseDirectory());
+            return baseURI.resolve(configURI).toURL();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private class URLMonitorTask extends TimerTask {
+        public void run() {
+            try {
+                long lastModified;
+                synchronized (this) {
+                    URLConnection connection = resolveURL().openConnection();
+                    lastModified = connection.getLastModified();
+                }
+
+                if (lastChanged < lastModified) {
+                    lastChanged = lastModified;
+                    reconfigure();
+                }
+            } catch (Exception e) {
+            }
+        }
+    }
+
+    private static class CachingLog4jLogFactory extends LogFactory {
+        public Log getInstance(Class clazz) throws LogConfigurationException {
+            return getInstance(clazz.getName());
+        }
+
+        public Log getInstance(String name) throws LogConfigurationException {
+            return new CachingLog4jLog(name);
+        }
+
+        public Object getAttribute(String name) {
+            return null;
+        }
+
+        public String[] getAttributeNames() {
+            return new String[0];
+        }
+
+        public void release() {
+        }
+
+        public void removeAttribute(String name) {
+        }
+
+        public void setAttribute(String name, Object value) {
+        }
+    }
+
+    public static final GBeanInfo GBEAN_INFO;
+
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(Log4jService.class.getName(), AbstractLoggingService.getGBeanInfo());
-        infoFactory.addOperation(new GOperationInfo("setLoggerLevel", new String[] {Logger.class.getName(), Level.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("getLoggerLevel", new String[] {Logger.class.getName()}));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(Log4jService.class.getName());
+        infoFactory.setConstructor(new GConstructorInfo(
+                new String[]{"ConfigurationURL", "RefreshPeriod", "ServerInfo"},
+                new Class[]{URL.class, int.class, ServerInfo.class}));
+        infoFactory.addAttribute(new GAttributeInfo("ConfigurationURL", true));
+        infoFactory.addAttribute(new GAttributeInfo("RefreshPeriod", true));
+        infoFactory.addReference(new GReferenceInfo("ServerInfo", ServerInfo.class.getName()));
+        infoFactory.addOperation(new GOperationInfo("reconfigure"));
+        infoFactory.addOperation(new GOperationInfo("setLoggerLevel", new String[]{String.class.getName(), String.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("getLoggerLevel", new String[]{String.class.getName()}));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
-
 }

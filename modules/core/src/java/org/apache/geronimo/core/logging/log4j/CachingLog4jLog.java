@@ -53,79 +53,33 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.common.log.log4j;
-
-import java.lang.ref.WeakReference;
-
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
+package org.apache.geronimo.core.logging.log4j;
 
 import org.apache.commons.logging.Log;
-
-import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /**
  * This log wrapper caches the trace, debug and info enabled flags.  The flags are updated
  * by a single timer task for all logs.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/27 11:15:27 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/11 03:14:11 $
  */
-public final class CachingLog4jLog
-    extends Log4jLog
-{
-    // @todo this need to be moved to a log manager MBean, but this works as a proof of concept
-    private static final Set logs = new HashSet();
-    private static final Timer timer = new Timer();
-    private static final TimerTask task = new TimerTask() {
-        public void run() {
-            HashSet logSnapshot;
-            synchronized (logs) {
-                logSnapshot = new HashSet(logs);
-            }
-
-            for (Iterator i = logSnapshot.iterator(); i.hasNext();) {
-                WeakReference weakReference = (WeakReference) i.next();
-                CachingLog4jLog log = (CachingLog4jLog) weakReference.get();
-                if (log == null) {
-                    synchronized (logs) {
-                        logs.remove(log);
-                    }
-                } else {
-                    log.updateLevelInfo();
-                }
-            }
-
-        }
-    };
-
-    static {
-        timer.schedule(task, 3 * 60 * 1000, 3 * 60 * 1000);
-    }
-
-    private static void addLog(CachingLog4jLog log) {
-        synchronized (logs) {
-            logs.add(new WeakReference(log));
-        }
-    }
-
+public final class CachingLog4jLog implements Log {
+    private final String FQCN = getClass().getName();
+    private Logger logger;
     private boolean traceEnabled;
     private boolean debugEnabled;
     private boolean infoEnabled;
 
     public CachingLog4jLog(String name) {
-        super(name);
+        logger = Logger.getLogger(name);
         updateLevelInfo();
-        addLog(this);
     }
 
     public CachingLog4jLog(Logger logger) {
-        super(logger);
+        this.logger = logger;
         updateLevelInfo();
-        addLog(this);
     }
 
     public boolean isTraceEnabled() {
@@ -176,7 +130,43 @@ public final class CachingLog4jLog
         }
     }
 
-    private void updateLevelInfo() {
+    public boolean isWarnEnabled() {
+        return logger.isEnabledFor(Level.WARN);
+    }
+
+    public void warn(Object message) {
+        logger.log(FQCN, Level.WARN, message, null);
+    }
+
+    public void warn(Object message, Throwable throwable) {
+        logger.log(FQCN, Level.WARN, message, throwable);
+    }
+
+    public boolean isErrorEnabled() {
+        return logger.isEnabledFor(Level.ERROR);
+    }
+
+    public void error(Object message) {
+        logger.log(FQCN, Level.ERROR, message, null);
+    }
+
+    public void error(Object message, Throwable throwable) {
+        logger.log(FQCN, Level.ERROR, message, throwable);
+    }
+
+    public boolean isFatalEnabled() {
+        return logger.isEnabledFor(Level.FATAL);
+    }
+
+    public void fatal(Object message) {
+        logger.log(FQCN, Level.FATAL, message, null);
+    }
+
+    public void fatal(Object message, Throwable throwable) {
+        logger.log(FQCN, Level.FATAL, message, throwable);
+    }
+
+    public void updateLevelInfo() {
         // This method is proposely not synchronized.
         // The setting of a boolean is atomic so we don't have to worry about inconsistent state.
         // Normally we would have to worry about an out of date cache running threads (SMP boxes),

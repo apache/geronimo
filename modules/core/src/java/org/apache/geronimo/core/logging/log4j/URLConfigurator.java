@@ -54,45 +54,38 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.common.log.log4j;
+package org.apache.geronimo.core.logging.log4j;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.BufferedReader;
-
 import java.net.URL;
 import java.net.URLConnection;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.PropertyConfigurator;
-import org.apache.log4j.xml.DOMConfigurator;
-import org.apache.log4j.spi.Configurator;
-import org.apache.log4j.spi.LoggerRepository;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.apache.geronimo.common.NullArgumentException;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.PropertyConfigurator;
+import org.apache.log4j.spi.Configurator;
+import org.apache.log4j.spi.LoggerRepository;
+import org.apache.log4j.xml.DOMConfigurator;
 
 /**
  * Handles the details of configuring Log4j from a URL.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/29 20:33:00 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/11 03:14:11 $
  */
 public class URLConfigurator
-    implements Configurator
-{
+        implements Configurator {
     private static final Log log = LogFactory.getLog(URLConfigurator.class);
-    
-    public static void configure(final URL url)
-    {
+
+    public static void configure(final URL url) {
         new URLConfigurator().doConfigure(url, LogManager.getLoggerRepository());
     }
-    
-    private Configurator getConfigurator(final URL url)
-    {
+
+    private Configurator getConfigurator(final URL url) {
         String contentType = null;
-        
+
         // Get the content type to see if it is XML or not
         URLConnection connection = null;
         try {
@@ -101,8 +94,7 @@ public class URLConfigurator
             if (log.isTraceEnabled()) {
                 log.trace("Content type: " + contentType);
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             log.warn("Could not determine content type from URL; ignoring", e);
         }
         if (contentType != null) {
@@ -110,16 +102,15 @@ public class URLConfigurator
                 return new DOMConfigurator();
             }
         }
-        
+
         // Check thr file name
         String filename = url.getFile().toLowerCase();
         if (filename.endsWith(".xml")) {
             return new DOMConfigurator();
-        }
-        else if (filename.endsWith(".properties")) {
+        } else if (filename.endsWith(".properties")) {
             return new PropertyConfigurator();
         }
-        
+
         // Check for <?xml in content
         if (connection != null) {
             try {
@@ -129,34 +120,31 @@ public class URLConfigurator
                     if (head.startsWith("<?xml")) {
                         return new DOMConfigurator();
                     }
-                }
-                finally {
+                } finally {
                     reader.close();
                 }
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 log.warn("Failed to check content header; ignoring", e);
             }
         }
-        
+
         log.warn("Unable to determine content type, using property configurator");
         return new PropertyConfigurator();
     }
-    
-    public void doConfigure(final URL url, final LoggerRepository repo)
-    {
+
+    public void doConfigure(final URL url, final LoggerRepository repo) {
         if (log.isDebugEnabled()) {
             log.debug("Configuring from URL: " + url);
         }
-        
+
         // Get the config delegate and target repository to config with
         Configurator delegate = getConfigurator(url);
-        
+
         if (log.isTraceEnabled()) {
-            log.trace("Configuring Log4j using configurator: " + 
-                      delegate + ", repository: " + repo);
+            log.trace("Configuring Log4j using configurator: " +
+                    delegate + ", repository: " + repo);
         }
-        
+
         // Now actually configure Log4j
         delegate.doConfigure(url, repo);
     }

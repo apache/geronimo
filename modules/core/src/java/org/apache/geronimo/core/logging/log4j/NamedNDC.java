@@ -53,105 +53,78 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.kernel.log;
+package org.apache.geronimo.core.logging.log4j;
 
-import org.apache.commons.logging.Log;
-
-import org.apache.log4j.Logger;
-import org.apache.log4j.Level;
-import org.apache.geronimo.kernel.log.XLevel;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
 
 /**
- * A Commons <code>Log</code> implementation for Log4j which supports
- * real <em>trace</em> levels.
+ * Provides named nested diagnotic contexts.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:34 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/11 03:14:11 $
  */
-public class Log4jLog implements Log
-{
-    protected final String FQCN = getClass().getName();
-    protected Logger logger;
+public final class NamedNDC {
+    /**
+     * Mapping from names to NamedNDCs.
+     * Currently there is no way to remove a NamedNCD once created, so be sure you really
+     * want a new NDC before creating one.
+     * @todo make this a weak-valued map
+     */
+    private static final Map contexts = new HashMap();
 
-    public Log4jLog() {
+    /**
+     * Gets the NamedNDC by name, or creates a new one of one does not already exist.
+     * @param name the name of the desired NamedNDC
+     * @return the existing NamedNDC or a new one
+     */
+    public static NamedNDC getNamedNDC(String name) {
+        synchronized (contexts) {
+            NamedNDC context = (NamedNDC) contexts.get(name);
+            if (context == null) {
+                context = new NamedNDC();
+                contexts.put(name, context);
+            }
+            return context;
+        }
     }
 
-    public Log4jLog(Logger logger) {
-        this.logger = logger;
+    private final ListThreadLocal listThreadLocal = new ListThreadLocal();
+
+    private NamedNDC() {
     }
 
-    public Log4jLog(String name) {
-        logger = Logger.getLogger(name);
-    }
-    
-    public boolean isTraceEnabled() {
-        return logger.isEnabledFor(XLevel.TRACE);
+    public void push(Object value) {
+        listThreadLocal.getList().addLast(value);
     }
 
-    public void trace(Object message) {
-        logger.log(FQCN, XLevel.TRACE, message, null);
+    public Object get() {
+        LinkedList list = listThreadLocal.getList();
+        if (list.isEmpty()) {
+            return null;
+        }
+        return list.getLast();
     }
 
-    public void trace(Object message, Throwable throwable) {
-        logger.log(FQCN, XLevel.TRACE, message, throwable);
+    public Object pop() {
+        LinkedList list = listThreadLocal.getList();
+        if (list.isEmpty()) {
+            return null;
+        }
+        return list.removeLast();
     }
 
-    public boolean isDebugEnabled() {
-        return logger.isDebugEnabled();
+    public void clear() {
+        listThreadLocal.getList().clear();
     }
 
-    public void debug(Object message) {
-        logger.log(FQCN, Level.DEBUG, message, null);
-    }
+    private final static class ListThreadLocal extends ThreadLocal {
+        public LinkedList getList() {
+            return (LinkedList) get();
+        }
 
-    public void debug(Object message, Throwable throwable) {
-        logger.log(FQCN, Level.DEBUG, message, throwable);
-    }
-
-    public boolean isInfoEnabled() {
-        return logger.isInfoEnabled();
-    }
-
-    public void info(Object message) {
-        logger.log(FQCN, Level.INFO, message, null);
-    }
-
-    public void info(Object message, Throwable throwable) {
-        logger.log(FQCN, Level.INFO, message, throwable);
-    }
-
-    public boolean isWarnEnabled() {
-        return logger.isEnabledFor(Level.WARN);
-    }
-
-    public void warn(Object message) {
-        logger.log(FQCN, Level.WARN, message, null);
-    }
-
-    public void warn(Object message, Throwable throwable) {
-        logger.log(FQCN, Level.WARN, message, throwable);
-    }
-
-    public boolean isErrorEnabled() {
-        return logger.isEnabledFor(Level.ERROR);
-    }
-
-    public void error(Object message) {
-        logger.log(FQCN, Level.ERROR, message, null);
-    }
-
-    public void error(Object message, Throwable throwable) {
-        logger.log(FQCN, Level.ERROR, message, throwable);
-    }
-
-    public boolean isFatalEnabled() {
-        return logger.isEnabledFor(Level.FATAL);
-    }
-
-    public void fatal(Object message) {
-        logger.log(FQCN, Level.FATAL, message, null);
-    }
-
-    public void fatal(Object message, Throwable throwable) {
-        logger.log(FQCN, Level.FATAL, message, throwable);
+        protected Object initialValue() {
+            return new LinkedList();
+        }
     }
 }

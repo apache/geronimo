@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gbeans>
+    <path>..</path>
+
+    <gbean class="org.apache.geronimo.core.serverinfo.ServerInfo" objectName="geronimo:role=ServerInfo"/>
+</gbeans>

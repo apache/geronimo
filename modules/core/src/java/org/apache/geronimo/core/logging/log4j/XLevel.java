@@ -53,105 +53,60 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.common.log.log4j;
+package org.apache.geronimo.core.logging.log4j;
 
-import org.apache.commons.logging.Log;
-
-import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
 
 /**
- * A Commons <code>Log</code> implementation for Log4j which supports
- * real <em>trace</em> levels.
+ * Extention levels for Log4j
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/27 11:15:27 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/11 03:14:11 $
  */
-public class Log4jLog
-    implements Log
-{
-    protected final String FQCN = getClass().getName();
-    protected Logger logger;
+public final class XLevel extends Level {
+    public static final int TRACE_INT = Level.DEBUG_INT - 1;
+    private static String TRACE_NAME = "TRACE";
 
-    public Log4jLog() {
+    /**
+     * The Log4j Level Object to use for trace level messages
+     */
+    public static final XLevel TRACE = new XLevel(TRACE_INT, TRACE_NAME, 7);
+
+    protected XLevel(int level, String name, int syslogEquiv) {
+        super(level, name, syslogEquiv);
     }
 
-    public Log4jLog(Logger logger) {
-        this.logger = logger;
+    /**
+     * Convert the String argument to a level. If the conversion
+     * fails then this method returns {@link #TRACE}.
+     */
+    public static Level toLevel(String name) {
+        return toLevel(name, XLevel.TRACE);
     }
 
-    public Log4jLog(String name) {
-        logger = Logger.getLogger(name);
-    }
-    
-    public boolean isTraceEnabled() {
-        return logger.isEnabledFor(XLevel.TRACE);
-    }
-
-    public void trace(Object message) {
-        logger.log(FQCN, XLevel.TRACE, message, null);
-    }
-
-    public void trace(Object message, Throwable throwable) {
-        logger.log(FQCN, XLevel.TRACE, message, throwable);
-    }
-
-    public boolean isDebugEnabled() {
-        return logger.isDebugEnabled();
+    /**
+     * Convert the String argument to a level. If the conversion
+     * fails, return the level specified by the second argument,
+     * i.e. defaultValue.
+     */
+    public static Level toLevel(String name, Level defaultValue) {
+        if (name == null) {
+            return defaultValue;
+        }
+        if (name.toUpperCase().equals(TRACE_NAME)) {
+            return XLevel.TRACE;
+        }
+        return Level.toLevel(name, defaultValue);
     }
 
-    public void debug(Object message) {
-        logger.log(FQCN, Level.DEBUG, message, null);
-    }
-
-    public void debug(Object message, Throwable throwable) {
-        logger.log(FQCN, Level.DEBUG, message, throwable);
-    }
-
-    public boolean isInfoEnabled() {
-        return logger.isInfoEnabled();
-    }
-
-    public void info(Object message) {
-        logger.log(FQCN, Level.INFO, message, null);
-    }
-
-    public void info(Object message, Throwable throwable) {
-        logger.log(FQCN, Level.INFO, message, throwable);
-    }
-
-    public boolean isWarnEnabled() {
-        return logger.isEnabledFor(Level.WARN);
-    }
-
-    public void warn(Object message) {
-        logger.log(FQCN, Level.WARN, message, null);
-    }
-
-    public void warn(Object message, Throwable throwable) {
-        logger.log(FQCN, Level.WARN, message, throwable);
-    }
-
-    public boolean isErrorEnabled() {
-        return logger.isEnabledFor(Level.ERROR);
-    }
-
-    public void error(Object message) {
-        logger.log(FQCN, Level.ERROR, message, null);
-    }
-
-    public void error(Object message, Throwable throwable) {
-        logger.log(FQCN, Level.ERROR, message, throwable);
-    }
-
-    public boolean isFatalEnabled() {
-        return logger.isEnabledFor(Level.FATAL);
-    }
-
-    public void fatal(Object message) {
-        logger.log(FQCN, Level.FATAL, message, null);
-    }
-
-    public void fatal(Object message, Throwable throwable) {
-        logger.log(FQCN, Level.FATAL, message, throwable);
+    /**
+     * Convert an integer passed as argument to a level. If the
+     * conversion fails, then this method returns {@link #DEBUG}.
+     */
+    public static Level toLevel(int level) throws IllegalArgumentException {
+        if (level == TRACE_INT) {
+            return XLevel.TRACE;
+        } else {
+            return Level.toLevel(level);
+        }
     }
 }

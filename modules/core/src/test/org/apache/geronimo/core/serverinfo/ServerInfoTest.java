@@ -53,39 +53,43 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.common.log.log4j;
 
-import org.apache.log4j.helpers.FormattingInfo;
-import org.apache.log4j.helpers.PatternConverter;
-import org.apache.log4j.spi.LoggingEvent;
+package org.apache.geronimo.core.serverinfo;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import javax.management.ObjectName;
+
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.kernel.Kernel;
+
+import junit.framework.TestCase;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/27 10:08:45 $
- */
-public final class NamedNDCConverter
-    extends PatternConverter 
-{
-    private final NamedNDC namedNDC;
+ * @version $Revision: 1.1 $ $Date: 2004/02/11 03:14:11 $
+ *
+ * */
+public class ServerInfoTest extends TestCase {
+    private ObjectName serverInfoName;
+    private GBeanMBean serverInfoService;
+    private Kernel kernel;
 
-    public NamedNDCConverter(FormattingInfo formattingInfo, String key) {
-        super(formattingInfo);
-        namedNDC = NamedNDC.getNamedNDC(key);
-        assert namedNDC != null;
+    protected void setUp() throws Exception {
+        serverInfoName = new ObjectName("test:name=Log4jService");
+        serverInfoService = new GBeanMBean(ServerInfo.getGBeanInfo());
+        serverInfoService.setAttribute("BaseDirectory", System.getProperty("java.io.tmpdir"));
+        kernel = new Kernel("test.kernel", "test");
+        kernel.boot();
     }
 
-    protected String convert(LoggingEvent loggingEvent) {
-        try {
-            Object value = namedNDC.get();
-            if (value == null) {
-                return null;
-            }
-            return value.toString();
-        } catch (Exception e) {
-            return ExceptionUtils.getStackTrace(e);
-        }
+    protected void tearDown() throws Exception {
+        kernel.shutdown();
+     }
+
+    public void testLog4jService() throws Exception {
+        kernel.loadGBean(serverInfoName, serverInfoService);
+        kernel.startGBean(serverInfoName);
+        kernel.stopGBean(serverInfoName);
+        kernel.unloadGBean(serverInfoName);
     }
 }

@@ -53,64 +53,49 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.common.log.log4j;
 
-import org.apache.log4j.spi.Filter;
-import org.apache.log4j.spi.LoggingEvent;
+package org.apache.geronimo.core.logging.log4j.appender;
+
+import org.apache.geronimo.core.serverinfo.ServerInfo;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.log4j.RollingFileAppender;
 
 /**
- *
- *
- * @version $Revision: 1.1 $ $Date: 2003/08/27 10:08:45 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/11 03:14:11 $
  */
-public class NamedNDCFilter extends Filter {
-    private NamedNDC namedNDC;
-    private String name;
-    private String value;
-    private boolean acceptOnMatch = true;
-
-    public String getName() {
-        return name;
+public class RollingFileAppenderService extends FileAppenderService {
+    public RollingFileAppenderService(ServerInfo serverInfo) {
+        super(serverInfo, new RollingFileAppender());
     }
 
-    public void setName(final String name) {
-        this.name = name;
-        namedNDC = NamedNDC.getNamedNDC(name);
+    public int getMaxBackupIndex() {
+        return ((RollingFileAppender) appender).getMaxBackupIndex();
     }
 
-    public String getValue() {
-        return value;
+    public void setMaxBackupIndex(int maxBackupIndex) {
+        ((RollingFileAppender) appender).setMaxBackupIndex(maxBackupIndex);
     }
 
-    public void setValue(final String value) {
-        this.value = value;
+    public String getMaximumFileSize() {
+        return "" + ((RollingFileAppender) appender).getMaximumFileSize();
     }
 
-    public boolean getAcceptOnMatch() {
-        return acceptOnMatch;
+    public void setMaxFileSize(String maxFileSize) {
+        ((RollingFileAppender) appender).setMaxFileSize(maxFileSize);
     }
 
-    public void setAcceptOnMatch(final boolean acceptOnMatch) {
-        this.acceptOnMatch = acceptOnMatch;
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(RollingFileAppenderService.class.getName(), FileAppenderService.GBEAN_INFO);
+        infoFactory.addAttribute(new GAttributeInfo("MaxBackupIndex", true));
+        infoFactory.addAttribute(new GAttributeInfo("MaxFileSize", true));
+        GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
-    public int decide(LoggingEvent event) {
-        if (value == null) {
-            return Filter.NEUTRAL;
-        }
-
-        Object ndcValue = namedNDC.get();
-        if (ndcValue == null) {
-            return Filter.NEUTRAL;
-        }
-
-        if (value.equals(ndcValue.toString())) {
-            if (acceptOnMatch) {
-                return Filter.ACCEPT;
-            } else {
-                return Filter.DENY;
-            }
-        }
-        return Filter.NEUTRAL;
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
 }

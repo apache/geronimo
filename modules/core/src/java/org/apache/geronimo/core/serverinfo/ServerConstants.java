@@ -53,54 +53,81 @@
  *
  * ====================================================================
  */
+package org.apache.geronimo.core.serverinfo;
 
-package org.apache.geronimo.common.log.log4j.appender;
+import java.util.Properties;
 
-import java.io.File;
-
-import java.net.URL;
-import java.net.MalformedURLException;
-
-import org.apache.log4j.helpers.LogLog;
-
-/** 
- * An extention of the default Log4j FileAppender which
- * will make the directory structure for the set log file. 
+/**
+ * Information about this build of the server.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/24 20:33:37 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/11 03:14:11 $
  */
-public class FileAppender
-    extends org.apache.log4j.FileAppender
-{
-    public void setFile(final String filename)
-    {
-        FileAppender.Helper.makePath(filename);
-        super.setFile(filename);
-    }
-    
-    /**
-     * A helper for FileAppenders.
-     */
-    public static class Helper
-    {
-        public static void makePath(final String filename)
-        {
-            File dir;
+public class ServerConstants {
+    private static final String VERSION;
+    private static final String BUILD_DATE;
+    private static final String BUILD_TIME;
+    private static final String COPYRIGHT;
 
-            try {
-                URL url = new URL(filename.trim());
-                dir = new File(url.getFile()).getParentFile();
-            }
-            catch (MalformedURLException e) {
-                dir = new File(filename.trim()).getParentFile();
-            }
-            
-            if (!dir.exists()) {
-                boolean success = dir.mkdirs();
-                if (!success) {
-                    LogLog.error("Failed to create directory structure: " + dir);
-                }
-            }
+    /**
+     * Gets the server version
+     * @return version of the server
+     */
+    public static String getVersion() {
+        return VERSION;
+    }
+
+    /**
+     * Gets the date the server was built
+     * @return date of the server build
+     */
+    public static String getBuildDate() {
+        return BUILD_DATE;
+    }
+
+    /**
+     * Gets the time the server was built
+     * @return time of the server build
+     */
+    public static String getBuildTime() {
+        return BUILD_TIME;
+    }
+
+    /**
+     * Gets the copyright message for the server
+     * @return
+     */
+    public static String getCopyright() {
+        return COPYRIGHT;
+    }
+
+    /**
+     * load all of the properties from the geronimo-version.properties file, which is generated during the build
+     */
+    static {
+        Properties versionInfo = new Properties();
+        try {
+            versionInfo.load(ServerConstants.class.getClassLoader().getResourceAsStream("org/apache/geronimo/core/serverinfo/geronimo-version.properties"));
+        } catch (java.io.IOException e) {
+            throw new ExceptionInInitializerError(new Exception("Could not load geronim-version.properties", e));
+        }
+        VERSION = versionInfo.getProperty("version");
+        if (VERSION == null || VERSION.length() == 0) {
+            throw new ExceptionInInitializerError("geronimo-version.properties does not contain a 'version' property");
+        }
+
+        BUILD_DATE = versionInfo.getProperty("build.date");
+        if (BUILD_DATE == null || BUILD_DATE.length() == 0) {
+            throw new ExceptionInInitializerError("geronimo-version.properties does not contain a 'build.date' property");
+        }
+
+        BUILD_TIME = versionInfo.getProperty("build.time");
+        if (BUILD_TIME == null || BUILD_TIME.length() == 0) {
+            throw new ExceptionInInitializerError("geronimo-version.properties does not contain a 'build.time' property");
+        }
+
+        COPYRIGHT = versionInfo.getProperty("copyright");
+        if (COPYRIGHT == null || COPYRIGHT.length() == 0) {
+            throw new ExceptionInInitializerError("geronimo-version.properties does not contain a 'copyright' property");
         }
     }
 }

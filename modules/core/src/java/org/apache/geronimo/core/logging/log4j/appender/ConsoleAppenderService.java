@@ -53,35 +53,42 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.common.log.log4j;
 
-import org.apache.log4j.helpers.PatternConverter;
+package org.apache.geronimo.core.logging.log4j.appender;
+
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.log4j.ConsoleAppender;
 
 /**
- * A simple extension of the log4j pattern parser which adds support for the
- * 'a' letter for a NamedNDC.
+ * An extention of the default Log4j DailyRollingFileAppender
+ * which will make the directory structure for the set log file.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/27 10:08:45 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/11 03:14:11 $
  */
-public class PatternParser
-    extends org.apache.log4j.helpers.PatternParser
-{
-    public PatternParser(String pattern) {
-        super(pattern);
+public class ConsoleAppenderService extends AbstractAppenderService {
+    public ConsoleAppenderService() {
+        super(new ConsoleAppender());
     }
 
-    protected void finalizeConverter(char c) {
-        PatternConverter pc = null;
-        switch (c) {
-        case 'a':
-            String key = extractOption();
-            pc = new NamedNDCConverter(formattingInfo, key);
-            currentLiteral.setLength(0);
-            break;
-        default:
-            super.finalizeConverter(c);
-            return;
-        }
-        addConverter(pc);
+    public String getTarget() {
+        return ((ConsoleAppender) appender).getTarget();
+    }
+
+    public void setTarget(String target) {
+        ((ConsoleAppender) appender).setTarget(target);
+    }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConsoleAppenderService.class.getName(), AbstractAppenderService.GBEAN_INFO);
+        infoFactory.addAttribute(new GAttributeInfo("Target", true));
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
 }

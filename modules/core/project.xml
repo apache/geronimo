@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.41 $ $Date: 2004/01/26 06:50:46 $ -->
+<!-- $Revision: 1.42 $ $Date: 2004/02/11 03:14:10 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -25,6 +25,15 @@
     <!-- ============ -->
 
     <dependencies>
+
+        <dependency>
+            <id>commons-logging</id>
+            <version>1.0.3</version>
+            <url>http://jakarta.apache.org/commons/logging/</url>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
 
         <!-- Module Dependencies -->
 
@@ -126,6 +135,7 @@
             <url>http://jakarta.apache.org/log4j</url>
             <properties>
                 <runtime>false</runtime>
+                <log4j-service>true</log4j-service>
             </properties>
         </dependency>
 
@@ -198,14 +208,14 @@
     <!-- =================== -->
 
     <build>
-        <resources>
-            <resource>
-                <directory>${basedir}/src/conf</directory>
-                <includes>
-                    <include>*.properties</include>
-                </includes>
-            </resource>
-        </resources>
+<!--        <resources>-->
+<!--            <resource>-->
+<!--                <directory>${basedir}/src/conf</directory>-->
+<!--                <includes>-->
+<!--                    <include>*.properties</include>-->
+<!--                </includes>-->
+<!--            </resource>-->
+<!--        </resources>-->
         <unitTest>
             <includes>
                 <include>**/*Test.java</include>
@@ -214,6 +224,12 @@
                 <exclude>**/Abstract*.java</exclude>
             </excludes>
             <resources>
+                <resource>
+                    <directory>${basedir}/src/test-data</directory>
+                    <includes>
+                        <include>*.properties</include>
+                    </includes>
+                </resource>
                 <resource>
                     <directory>${basedir}/src/schema</directory>
                     <includes>

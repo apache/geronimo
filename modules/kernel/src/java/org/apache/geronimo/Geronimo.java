@@ -56,26 +56,29 @@
 
 package org.apache.geronimo;
 
-import javax.management.ObjectName;
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.io.File;
+import javax.management.ObjectName;
 
-import org.apache.geronimo.kernel.config.LocalConfigStore;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.log.GeronimoLogFactory;
+import org.apache.geronimo.kernel.config.LocalConfigStore;
+import org.apache.commons.logging.LogFactory;
 
 /**
- *
- *
- * @version $Revision: 1.6 $ $Date: 2004/02/04 05:42:57 $
- *
- * */
+ * @version $Revision: 1.7 $ $Date: 2004/02/11 03:14:11 $
+ */
 public class Geronimo {
+    static {
+        // This MUST be done before the first log is acquired
+        System.setProperty(LogFactory.FACTORY_PROPERTY, GeronimoLogFactory.class.getName());
+    }
 
     private Geronimo() {
+    }
 
-     }
     /**
      * Static entry point allowing a Kernel to be run from the command line.
      * Arguments are:

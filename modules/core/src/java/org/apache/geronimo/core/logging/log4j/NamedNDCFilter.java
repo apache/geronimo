@@ -53,60 +53,64 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.kernel.log;
+package org.apache.geronimo.core.logging.log4j;
 
-import org.apache.log4j.Level;
+import org.apache.log4j.spi.Filter;
+import org.apache.log4j.spi.LoggingEvent;
 
 /**
- * Extention levels for Log4j
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:34 $
+ *
+ * @version $Revision: 1.1 $ $Date: 2004/02/11 03:14:11 $
  */
-public final class XLevel extends Level {
-    public static final int TRACE_INT = Level.DEBUG_INT - 1;
-    private static String TRACE_NAME = "TRACE";
+public class NamedNDCFilter extends Filter {
+    private NamedNDC namedNDC;
+    private String name;
+    private String value;
+    private boolean acceptOnMatch = true;
 
-    /**
-     * The Log4j Level Object to use for trace level messages
-     */
-    public static final XLevel TRACE = new XLevel(TRACE_INT, TRACE_NAME, 7);
-
-    protected XLevel(int level, String name, int syslogEquiv) {
-        super(level, name, syslogEquiv);
+    public String getName() {
+        return name;
     }
 
-    /**
-     * Convert the String argument to a level. If the conversion
-     * fails then this method returns {@link #TRACE}.
-     */
-    public static Level toLevel(String name) {
-        return toLevel(name, XLevel.TRACE);
+    public void setName(final String name) {
+        this.name = name;
+        namedNDC = NamedNDC.getNamedNDC(name);
     }
 
-    /**
-     * Convert the String argument to a level. If the conversion
-     * fails, return the level specified by the second argument,
-     * i.e. defaultValue.
-     */
-    public static Level toLevel(String name, Level defaultValue) {
-        if (name == null) {
-            return defaultValue;
-        }
-        if (name.toUpperCase().equals(TRACE_NAME)) {
-            return XLevel.TRACE;
-        }
-        return Level.toLevel(name, defaultValue);
+    public String getValue() {
+        return value;
     }
 
-    /**
-     * Convert an integer passed as argument to a level. If the
-     * conversion fails, then this method returns {@link #DEBUG}.
-     */
-    public static Level toLevel(int level) throws IllegalArgumentException {
-        if (level == TRACE_INT) {
-            return XLevel.TRACE;
-        } else {
-            return Level.toLevel(level);
+    public void setValue(final String value) {
+        this.value = value;
+    }
+
+    public boolean getAcceptOnMatch() {
+        return acceptOnMatch;
+    }
+
+    public void setAcceptOnMatch(final boolean acceptOnMatch) {
+        this.acceptOnMatch = acceptOnMatch;
+    }
+
+    public int decide(LoggingEvent event) {
+        if (value == null) {
+            return Filter.NEUTRAL;
         }
+
+        Object ndcValue = namedNDC.get();
+        if (ndcValue == null) {
+            return Filter.NEUTRAL;
+        }
+
+        if (value.equals(ndcValue.toString())) {
+            if (acceptOnMatch) {
+                return Filter.ACCEPT;
+            } else {
+                return Filter.DENY;
+            }
+        }
+        return Filter.NEUTRAL;
     }
 }

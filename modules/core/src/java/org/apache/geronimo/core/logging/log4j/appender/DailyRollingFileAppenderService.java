@@ -53,79 +53,43 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.common.log.log4j;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+package org.apache.geronimo.core.logging.log4j.appender;
+
+import org.apache.geronimo.core.serverinfo.ServerInfo;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.log4j.DailyRollingFileAppender;
 
 /**
- * Provides named nested diagnotic contexts.
+ * An extention of the default Log4j DailyRollingFileAppender
+ * which will make the directory structure for the set log file.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/27 10:08:45 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/11 03:14:11 $
  */
-public final class NamedNDC
-{
-    /**
-     * Mapping from names to NamedNDCs.
-     * Currently there is no way to remove a NamedNCD once created, so be sure you really
-     * want a new NDC before creating one.
-     * @todo make this a weak-valued map
-     */
-    private static final Map contexts = new HashMap();
-
-    /**
-     * Gets the NamedNDC by name, or creates a new one of one does not already exist.
-     * @param name the name of the desired NamedNDC
-     * @return the existing NamedNDC or a new one
-     */
-    public static NamedNDC getNamedNDC(String name) {
-        synchronized (contexts) {
-            NamedNDC context = (NamedNDC) contexts.get(name);
-            if (context == null) {
-                context = new NamedNDC();
-                contexts.put(name, context);
-            }
-            return context;
-        }
+public class DailyRollingFileAppenderService extends FileAppenderService {
+    public DailyRollingFileAppenderService(ServerInfo serverInfo) {
+        super(serverInfo, new DailyRollingFileAppender());
     }
 
-    private final ListThreadLocal listThreadLocal = new ListThreadLocal();
-
-    private NamedNDC() {
+    public String getDatePattern() {
+        return ((DailyRollingFileAppender) appender).getDatePattern();
     }
 
-    public void push(Object value) {
-        listThreadLocal.getList().addLast(value);
+    public void setDatePattern(String pattern) {
+        ((DailyRollingFileAppender) appender).setDatePattern(pattern);
     }
 
-    public Object get() {
-        LinkedList list = listThreadLocal.getList();
-        if (list.isEmpty()) {
-            return null;
-        }
-        return list.getLast();
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(DailyRollingFileAppenderService.class.getName(), FileAppenderService.GBEAN_INFO);
+        infoFactory.addAttribute(new GAttributeInfo("DatePattern", true));
+        GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
-    public Object pop() {
-        LinkedList list = listThreadLocal.getList();
-        if (list.isEmpty()) {
-            return null;
-        }
-        return list.removeLast();
-    }
-
-    public void clear() {
-        listThreadLocal.getList().clear();
-    }
-
-    private final static class ListThreadLocal extends ThreadLocal {
-        public LinkedList getList() {
-            return (LinkedList) get();
-        }
-
-        protected Object initialValue() {
-            return new LinkedList();
-        }
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
 }
