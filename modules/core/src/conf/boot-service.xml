@@ -16,6 +16,10 @@
     <mbean code="org.apache.geronimo.deployment.scanner.DeploymentScanner" name="geronimo.deployment:role=DeploymentScanner">
         <attribute name="ScanInterval">5000</attribute>
         <relationship type="DeploymentController-DeploymentScanner" name="DeploymentController-DeploymentScanner" role="DeploymentScanner"/>
+        <invoke operation="addURL">
+            <arg type="java.lang.String">file:/D:/temp/deploy/</arg>
+            <arg type="boolean">false</arg>
+        </invoke>
     </mbean>
 
 </components>

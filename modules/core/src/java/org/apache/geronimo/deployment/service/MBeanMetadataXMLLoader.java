@@ -58,6 +58,7 @@ package org.apache.geronimo.deployment.service;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.ArrayList;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -69,7 +70,7 @@ import org.w3c.dom.NodeList;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/11 17:59:11 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 19:46:28 $
  */
 public class MBeanMetadataXMLLoader {
     public MBeanMetadata loadXML(Element element) throws DeploymentException {
@@ -116,6 +117,23 @@ public class MBeanMetadataXMLLoader {
             String target = argElement.getAttribute("target");
             MBeanRelationship relationship = new MBeanRelationship(name, type, role, target);
             relationships.add(relationship);
+        }
+
+        nl = element.getElementsByTagName("invoke");
+        List operations = md.getOperations();
+        for (int i = 0; i < nl.getLength(); i++) {
+            Element invokeElement = (Element) nl.item(i);
+            String operation = invokeElement.getAttribute("operation");
+            NodeList argList = invokeElement.getElementsByTagName("arg");
+            List types = new ArrayList(argList.getLength());
+            List args = new ArrayList(argList.getLength());
+            for (int j=0; j < argList.getLength(); j++) {
+                Element argElement = (Element) argList.item(j);
+                String type = argElement.getAttribute("type");
+                types.add(type);
+                args.add(getValue(argElement));
+            }
+            operations.add(new MBeanOperation(operation, types, args));
         }
 
         return md;

@@ -84,12 +84,13 @@ import org.apache.geronimo.core.util.ClassUtil;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.MBeanMetadata;
 import org.apache.geronimo.deployment.service.MBeanRelationship;
+import org.apache.geronimo.deployment.service.MBeanOperation;
 import org.apache.geronimo.jmx.JMXUtil;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/11 17:59:10 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 19:46:28 $
  */
 public class CreateMBeanInstance extends DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
@@ -237,6 +238,22 @@ public class CreateMBeanInstance extends DeploymentTask {
 
             DeploymentPlan startPlan = new DeploymentPlan();
             startPlan.addTask(new StartMBeanInstance(server, actualName));
+            List operations = metadata.getOperations();
+            for (Iterator i = operations.iterator(); i.hasNext();) {
+                MBeanOperation operation = (MBeanOperation) i.next();
+                int argCount = operation.getTypes().size();
+                String[] argTypes = (String[]) operation.getTypes().toArray(new String[argCount]);
+                List values = operation.getArgs();
+                Object[] args = new Object[argCount];
+                for (int j=0; j < argCount; j++) {
+                    Object value = values.get(j);
+                    if (value instanceof String) {
+                        value = getValue(newCL, argTypes[j], (String) value);
+                    }
+                    args[j] = value;
+                }
+                startPlan.addTask(new InvokeMBeanOperation(server, actualName, operation.getOperation(), argTypes, args));
+            }
             plans.add(startPlan);
         } catch (DeploymentException e) {
             undo();

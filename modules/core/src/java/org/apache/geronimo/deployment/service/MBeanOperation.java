@@ -55,61 +55,33 @@
  */
 package org.apache.geronimo.deployment.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.management.ObjectName;
 
 /**
- *
- *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 19:46:28 $
+ * 
+ * 
+ * @version $Revision: 1.1 $ $Date: 2003/08/11 19:46:28 $
  */
-public class MBeanMetadata {
-    private String code;
-    private ObjectName name;
-    private final List constructorTypes = new ArrayList();
-    private final List constructorArgs = new ArrayList();
-    private final Map attributeValues = new HashMap();
-    private final Set relationships = new HashSet();
-    private final List operations = new ArrayList();
+public class MBeanOperation {
+    private final String operation;
+    private final List types;
+    private final List args;
 
-    public String getCode() {
-        return code;
+    public MBeanOperation(String operation, List types, List args) {
+        this.operation = operation;
+        this.types = types;
+        this.args = args;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public String getOperation() {
+        return operation;
     }
 
-    public ObjectName getName() {
-        return name;
+    public List getTypes() {
+        return types;
     }
 
-    public void setName(ObjectName name) {
-        this.name = name;
-    }
-
-    public Map getAttributeValues() {
-        return attributeValues;
-    }
-
-    public List getConstructorArgs() {
-        return constructorArgs;
-    }
-
-    public List getConstructorTypes() {
-        return constructorTypes;
-    }
-
-    public Set getRelationships() {
-        return relationships;
-    }
-
-    public List getOperations() {
-        return operations;
+    public List getArgs() {
+        return args;
     }
 }

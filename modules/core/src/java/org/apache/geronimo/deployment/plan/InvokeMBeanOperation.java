@@ -53,63 +53,48 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.service;
+package org.apache.geronimo.deployment.plan;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
+import javax.management.ReflectionException;
+
+import org.apache.geronimo.deployment.DeploymentException;
 
 /**
- *
- *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 19:46:28 $
+ * 
+ * 
+ * @version $Revision: 1.1 $ $Date: 2003/08/11 19:46:28 $
  */
-public class MBeanMetadata {
-    private String code;
-    private ObjectName name;
-    private final List constructorTypes = new ArrayList();
-    private final List constructorArgs = new ArrayList();
-    private final Map attributeValues = new HashMap();
-    private final Set relationships = new HashSet();
-    private final List operations = new ArrayList();
+public class InvokeMBeanOperation extends DeploymentTask {
+    private final MBeanServer server;
+    private final ObjectName name;
+    private final String operation;
+    private final String[] argTypes;
+    private final Object[] args;
 
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public ObjectName getName() {
-        return name;
-    }
-
-    public void setName(ObjectName name) {
+    public InvokeMBeanOperation(MBeanServer server, ObjectName name, String operation, String[] argTypes, Object[] args) {
+        this.server = server;
         this.name = name;
+        this.operation = operation;
+        this.argTypes = argTypes;
+        this.args = args;
     }
 
-    public Map getAttributeValues() {
-        return attributeValues;
+    public void perform() throws DeploymentException {
+        try {
+            server.invoke(name, operation, args, argTypes);
+        } catch (InstanceNotFoundException e) {
+            throw new DeploymentException(e);
+        } catch (MBeanException e) {
+            throw new DeploymentException(e);
+        } catch (ReflectionException e) {
+            throw new DeploymentException(e);
+        }
     }
 
-    public List getConstructorArgs() {
-        return constructorArgs;
-    }
-
-    public List getConstructorTypes() {
-        return constructorTypes;
-    }
-
-    public Set getRelationships() {
-        return relationships;
-    }
-
-    public List getOperations() {
-        return operations;
+    public void undo() {
     }
 }
