@@ -209,11 +209,9 @@ public class DataHandler implements Transferable {
         }
     }
 
-    public void setCommandMap(CommandMap commandMap) {
-        synchronized(this) {
-            this.commandMap = commandMap;
-            this.dch = null;
-        }
+    public synchronized void setCommandMap(CommandMap commandMap) {
+        this.commandMap = commandMap;
+        this.dch = null;
     }
 
     private synchronized CommandMap getCommandMap() {
@@ -222,23 +220,36 @@ public class DataHandler implements Transferable {
 
     /**
      * Search for a DataContentHandler for our mime type.
-     * If a commandMap has been set, then use it to create the handler.
-     * Otherwise, if a global factory has been set, use it.
-     * If neither has been set, use the default CommandMap from CommandMap.getDefaultCommandMap() to create it.
+     * The search is performed by first checking if a global factory has been set using
+     * {@link #setDataContentHandlerFactory(DataContentHandlerFactory)};
+     * if found then it is called to attempt to create a handler.
+     * If this attempt fails, we then call the command map set using {@link #setCommandMap(CommandMap)}
+     * (or if that has not been set, the default map returned by {@link CommandMap#getDefaultCommandMap()})
+     * to create the handler.
+     *
+     * The resulting handler is cached until the global factory is changed.
+     *
      * @return
      */
     private synchronized DataContentHandler getDataContentHandler() {
+        DataContentHandlerFactory localFactory;
+        synchronized (DataHandler.class) {
+            if (factory != originalFactory) {
+                // setDCHF was called - clear our cached copy of the DCH and DCHF
+                dch = null;
+                originalFactory = factory;
+            }
+            localFactory = originalFactory;
+        }
         if (dch == null) {
             String contentType = ds.getContentType();
-            if (commandMap != null) {
-                dch = commandMap.createDataContentHandler(contentType);
-            } else {
-                synchronized(DataHandler.class) {
-                    if (factory != null) {
-                        dch = factory.createDataContentHandler(contentType);
-                    }
-                }
-                if (dch == null) {
+            if (localFactory != null) {
+                dch = localFactory.createDataContentHandler(contentType);
+            }
+            if (dch == null) {
+                if (commandMap != null) {
+                    dch = commandMap.createDataContentHandler(contentType);
+                } else {
                     dch = CommandMap.getDefaultCommandMap().createDataContentHandler(contentType);
                 }
             }
@@ -246,17 +257,30 @@ public class DataHandler implements Transferable {
         return dch;
     }
 
+    /**
+     * This is used to check if the DataContentHandlerFactory has been changed.
+     * This is not specified behaviour but this check is required to make this work like the RI.
+     */
+    private DataContentHandlerFactory originalFactory;
+
+    {
+        synchronized (DataHandler.class) {
+            originalFactory = factory;
+        }
+    }
+
     private static DataContentHandlerFactory factory;
 
     /**
      * Set the DataContentHandlerFactory to use.
      * If this method has already been called then an Error is raised.
+     *
      * @param newFactory the new factory
      * @throws SecurityException if the caller does not have "SetFactory" RuntimePermission
      */
     public static synchronized void setDataContentHandlerFactory(DataContentHandlerFactory newFactory) {
         if (factory != null) {
-            throw new Error("javax.activation.DataHandler.setDataContentHandlerFactory has already been called");
+            throw new Error("javax.activation.DataHandler.setDataContentHandlerFactory has already been defined");
         }
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
