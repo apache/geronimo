@@ -63,7 +63,7 @@ import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.Transport;
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/16 01:55:48 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/10 23:43:04 $
  */
 public class TransportEvent extends MailEvent {
     public static final int MESSAGE_DELIVERED = 1;
@@ -117,7 +117,7 @@ public class TransportEvent extends MailEvent {
         } else if (type == MESSAGE_PARTIALLY_DELIVERED) {
             l.messagePartiallyDelivered(this);
         } else {
-            throw new RuntimeException("Unknown type " + type);
+            throw new IllegalArgumentException("Unknown type " + type);
         }
     }
 }

@@ -60,7 +60,7 @@
 //
 package javax.mail.event;
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/16 01:55:48 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/10 23:43:04 $
  */
 public class ConnectionEvent extends MailEvent {
     public static final int CLOSED = 3;
@@ -84,7 +84,7 @@ public class ConnectionEvent extends MailEvent {
         } else if (type == CLOSED) {
             l.closed(this);
         } else {
-            throw new RuntimeException("Unknown type " + type);
+            throw new IllegalArgumentException("Unknown type " + type);
         }
     }
     public int getType() {

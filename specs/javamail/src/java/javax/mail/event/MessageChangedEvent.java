@@ -59,9 +59,9 @@
 // DO NOT add / change / or delete method signatures!
 //
 package javax.mail.event;
-import javax.mail.*;
+import javax.mail.Message;
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/16 01:55:48 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/10 23:43:04 $
  */
 public class MessageChangedEvent extends MailEvent {
     public static final int ENVELOPE_CHANGED = 2;

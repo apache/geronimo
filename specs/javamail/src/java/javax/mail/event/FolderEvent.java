@@ -59,9 +59,9 @@
 // DO NOT add / change / or delete method signatures!
 //
 package javax.mail.event;
-import javax.mail.*;
+import javax.mail.Folder;
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/16 01:55:48 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/10 23:43:04 $
  */
 public class FolderEvent extends MailEvent {
     public static final int CREATED = 1;
@@ -96,7 +96,7 @@ public class FolderEvent extends MailEvent {
         } else if (type == RENAMED) {
             l.folderRenamed(this);
         } else {
-            throw new RuntimeException("Unknown type " + type);
+            throw new IllegalArgumentException("Unknown type " + type);
         }
     }
     public Folder getFolder() {
