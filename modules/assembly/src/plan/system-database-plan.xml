@@ -27,6 +27,9 @@
         <uri>derby/jars/derby-${derby_version}.jar</uri>
     </dependency>
     <dependency>
+        <uri>derby/jars/derbynet-${derby_version}.jar</uri>
+    </dependency>
+    <dependency>
         <uri>geronimo/jars/geronimo-derby-${geronimo_version}.jar</uri>
     </dependency>
 
@@ -55,11 +58,17 @@
         </outbound-resourceadapter>
     </resourceadapter>
 
-    <gbean name="geronimo.server:type=DerbyDatabase,role=SystemDatabase" class="org.apache.geronimo.derby.DerbySystemGBean">
+    <gbean name="geronimo.server:role=DerbySystem" class="org.apache.geronimo.derby.DerbySystemGBean">
         <reference name="serverInfo">geronimo.system:role=ServerInfo</reference>
         <attribute name="derbySystemHome" type="java.lang.String">var/derby</attribute>
     </gbean>
-<!--
+    <gbean name="geronimo.server:role=DerbyNetwork" class="org.apache.geronimo.derby.DerbyNetworkGBean">
+        <reference name="derbySystem">geronimo.server:role=DerbySystem</reference>
+        <attribute name="host" type="java.lang.String">127.0.0.1</attribute>
+        <attribute name="port" type="int">1527</attribute>
+    </gbean>
+
+    <!--
     <gbean name="geronimo.server:type=ThreadPooledTimer,name=JDBCTransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledTransactionalTimer">
         <attribute name="repeatCount" type="int">5</attribute>
         <reference name="TransactionContextManager">geronimo.server:type=TransactionContextManager</reference>

@@ -22,6 +22,8 @@ import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
 import java.sql.DriverManager;
@@ -33,7 +35,8 @@ import java.sql.SQLException;
  *
  * @version $Rev: 47413 $ $Date: 2004-09-28 11:46:39 -0700 (Tue, 28 Sep 2004) $
  */
-public class DerbySystemGBean implements GBeanLifecycle {
+public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
+    private static final Log log = LogFactory.getLog("DerbySystem");
     private static final String SYSTEM_HOME = "derby.system.home";
     private static final String SHUTDOWN_ALL = "jdbc:derby:;shutdown=true";
 
@@ -54,10 +57,16 @@ public class DerbySystemGBean implements GBeanLifecycle {
         System.setProperty(SYSTEM_HOME, actualHome);
         // load the Embedded driver to initialize the home
         new org.apache.derby.jdbc.EmbeddedDriver();
+        log.info("Started in " + actualHome);
     }
 
     public void doStop() throws WaitingException, Exception {
-        doFail();
+        try {
+            DriverManager.getConnection(SHUTDOWN_ALL, null, null);
+        } catch (SQLException e) {
+            // SQLException gets thrown on successful shutdown so ignore
+        }
+        log.info("Stopped");
     }
 
     public void doFail() {
@@ -66,6 +75,7 @@ public class DerbySystemGBean implements GBeanLifecycle {
         } catch (SQLException e) {
             // SQLException gets thrown on successful shutdown so ignore
         }
+        log.info("Failed");
     }
 
     public static final GBeanInfo GBEAN_INFO;

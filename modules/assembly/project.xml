@@ -338,6 +338,15 @@
         </dependency>
 
         <dependency>
+            <groupId>derby</groupId>
+            <artifactId>derbynet</artifactId>
+            <version>&derby-version;</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
             <groupId>castor</groupId>
             <artifactId>castor</artifactId>
             <version>&castor-version;</version>
