@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.15 $ $Date: 2004/01/10 22:49:49 $ -->
+<!-- $Revision: 1.16 $ $Date: 2004/01/19 14:05:52 $ -->
 
 <project name="Apache Geronimo">
 
@@ -35,6 +35,7 @@
       <item name="Common"                   href="/modules/common/index.html"/>
       <item name="Web Console"              href="/modules/console-web/index.html"/>
       <item name="Core Container"           href="/modules/core/index.html"/>
+      <item name="Deployment"               href="/modules/deployment/index.html"/>
       <item name="Explorer"                 href="/modules/explorer/index.html"/>
       <item name="Kernel"                   href="/modules/kernel/index.html"/>
       <item name="Mail"                     href="/modules/mail/index.html"/>
