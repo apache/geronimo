@@ -58,11 +58,12 @@ package org.apache.geronimo.deployment.model.j2ee;
 /**
  * JavaBean for the common J2EE tag message-destination-ref
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:20 $
+ * @version $Revision: 1.3 $ $Date: 2003/10/01 18:58:42 $
  */
 public class MessageDestinationRef extends Describable {
     private String messageDestinationRefName;
     private String messageDestinationType;
+    private String messageDestinationUsage;
     private String messageDestinationLink;
 
     public String getMessageDestinationLink() {
@@ -79,6 +80,14 @@ public class MessageDestinationRef extends Describable {
 
     public void setMessageDestinationRefName(String messageDestinationRefName) {
         this.messageDestinationRefName = messageDestinationRefName;
+    }
+
+    public String getMessageDestinationUsage() {
+        return messageDestinationUsage;
+    }
+
+    public void setMessageDestinationUsage(String messageDestinationUsage) {
+        this.messageDestinationUsage = messageDestinationUsage;
     }
 
     public String getMessageDestinationType() {

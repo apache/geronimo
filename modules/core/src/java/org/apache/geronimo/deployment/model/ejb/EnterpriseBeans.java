@@ -55,13 +55,10 @@
  */
 package org.apache.geronimo.deployment.model.ejb;
 
-import java.util.List;
-import java.util.ArrayList;
-
 /**
  *  JavaBean for the ejb-jar.xml tag enterprise-beans
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:19 $
+ * @version $Revision: 1.3 $ $Date: 2003/10/01 18:58:42 $
  */
 public class EnterpriseBeans {
     private Session[] session = new Session[0];
@@ -114,5 +111,9 @@ public class EnterpriseBeans {
 
     public void setMessageDriven(int i, MessageDriven messageDriven) {
         this.messageDriven[i] = messageDriven;
+    }
+
+    public boolean hasBeans() {
+        return session.length > 0 || entity.length > 0 || messageDriven.length > 0;
     }
 }

@@ -58,9 +58,9 @@ package org.apache.geronimo.deployment.model.j2ee;
 /**
  * JavaBean for the common Web Services tag handler
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:20 $
+ * @version $Revision: 1.3 $ $Date: 2003/10/01 18:58:42 $
  */
-public class Handler extends Describable {
+public class Handler extends Displayable {
     private String handlerName;
     private String handlerClass;
     private ParamValue[] initParam;
@@ -88,31 +88,63 @@ public class Handler extends Describable {
         return initParam;
     }
 
+    public ParamValue getInitParam(int i) {
+        return initParam[i];
+    }
+
     public void setInitParam(ParamValue[] initParam) {
         this.initParam = initParam;
+    }
+
+    public void setInitParam(int i, ParamValue initParam) {
+        this.initParam[i] = initParam;
     }
 
     public String[] getPortName() {
         return portName;
     }
 
+    public String getPortName(int i) {
+        return portName[i];
+    }
+
     public void setPortName(String[] portName) {
         this.portName = portName;
+    }
+
+    public void setPortName(int i, String portName) {
+        this.portName[i] = portName;
     }
 
     public String[] getSoapHeader() {
         return soapHeader;
     }
 
+    public String getSoapHeader(int i) {
+        return soapHeader[i];
+    }
+
     public void setSoapHeader(String[] soapHeader) {
         this.soapHeader = soapHeader;
+    }
+
+    public void setSoapHeader(int i, String soapHeader) {
+        this.soapHeader[i] = soapHeader;
     }
 
     public String[] getSoapRole() {
         return soapRole;
     }
 
+    public String getSoapRole(int i) {
+        return soapRole[i];
+    }
+
     public void setSoapRole(String[] soapRole) {
         this.soapRole = soapRole;
+    }
+
+    public void setSoapRole(int i, String soapRole) {
+        this.soapRole[i] = soapRole;
     }
 }
