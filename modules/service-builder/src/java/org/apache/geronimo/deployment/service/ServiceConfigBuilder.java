@@ -64,6 +64,7 @@ import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
@@ -103,8 +104,9 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         }
 
         try {
-            ConfigurationDocument configurationDoc = ConfigurationDocument.Factory.parse(planFile);
-            XmlCursor cursor = configurationDoc.newCursor();
+            XmlObject xmlObject = XmlObject.Factory.parse(planFile);
+//            ConfigurationDocument configurationDoc = ConfigurationDocument.Factory.parse(planFile);
+            XmlCursor cursor = xmlObject.newCursor();
             try {
                 cursor.toFirstChild();
                 if (!SERVICE_QNAME.equals(cursor.getName())) {
@@ -112,6 +114,12 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
                 }
             } finally {
                 cursor.dispose();
+            }
+            ConfigurationDocument configurationDoc;
+            if (xmlObject instanceof ConfigurationDocument) {
+                configurationDoc = (ConfigurationDocument) xmlObject;
+            } else {
+                configurationDoc = (ConfigurationDocument) xmlObject.changeType(ConfigurationDocument.type);
             }
             XmlOptions xmlOptions = new XmlOptions();
             xmlOptions.setLoadLineNumbers();
