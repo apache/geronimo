@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,15 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.gbean.jmx;
+
+package org.apache.geronimo.kernel.proxy;
+
+import javax.management.ObjectName;
+
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 71492 $ $Date: 2004-11-14 21:31:50 -0800 (Sun, 14 Nov 2004) $
  */
-public class DeadProxyException extends IllegalStateException {
-    public DeadProxyException(String s) {
-        super(s);
-    }
+public interface ProxyFactory {
+    Object createProxy(ObjectName target);
 }

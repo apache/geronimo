@@ -70,8 +70,9 @@ import org.apache.geronimo.kernel.management.NotificationType;
 public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     /**
      * Attribute name used to retrieve the RawInvoker for the GBean
+     * @deprecated DO NOT USE THIS... THIS WILL BE REMOVED!!!!!!
      */
-    static final String RAW_INVOKER = "$$RAW_INVOKER$$";
+    public static final String RAW_INVOKER = "$$RAW_INVOKER$$";
 
     /**
      * Attribute name used to retrieve the GBeanData for the GBean
@@ -661,17 +662,19 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
             references[i].stop();
         }
 
-        // stop all of the attributes
-        for (int i = 0; i < attributes.length; i++) {
-            GBeanMBeanAttribute attribute = attributes[i];
-            if (attribute.isPersistent() && attribute.isReadable()) {
-                // copy the current attribute value to the persistent value
-                Object value = attribute.getValue();
-                attribute.setPersistentValue(value);
+        if (target != null) {
+            // stop all of the attributes
+            for (int i = 0; i < attributes.length; i++) {
+                GBeanMBeanAttribute attribute = attributes[i];
+                if (attribute.isPersistent() && attribute.isReadable()) {
+                    // copy the current attribute value to the persistent value
+                    Object value = attribute.getValue();
+                    attribute.setPersistentValue(value);
+                }
             }
-        }
 
-        target = null;
+            target = null;
+        }
     }
 
     protected void doFail() {

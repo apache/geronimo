@@ -17,18 +17,15 @@
 
 package org.apache.geronimo.remoting;
 
-import javax.management.ObjectName;
-import javax.management.MBeanServer;
 import java.net.URI;
 import java.util.Collections;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
-import org.apache.geronimo.remoting.MarshalledObject;
 import org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory;
-import org.apache.geronimo.remoting.transport.TransportLoader;
 import org.apache.geronimo.remoting.transport.BytesMarshalledObject;
 
 
@@ -78,8 +75,7 @@ public class JMXRemotingTest extends TestCase {
         kernel.startGBean(jmxRouter);
         kernel.startGBean(serverStub);
 
-        TransportLoader bean = (TransportLoader) MBeanProxyFactory.getProxy(TransportLoader.class, kernel.getMBeanServer(), asyncTransport);
-        connectURI = bean.getClientConnectURI();
+        connectURI = (URI) kernel.getAttribute(asyncTransport, "clientConnectURI"); 
 
         // simulate remote copy of handle
         MarshalledObject mo = new BytesMarshalledObject(RemoteMBeanServerFactory.create(connectURI.getHost(), connectURI.getPort()));

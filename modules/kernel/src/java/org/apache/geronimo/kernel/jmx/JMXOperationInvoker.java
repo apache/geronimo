@@ -15,12 +15,11 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.gbean.jmx;
+package org.apache.geronimo.kernel.jmx;
 
 import java.lang.reflect.Method;
-import javax.management.Attribute;
 import javax.management.MBeanException;
-import javax.management.MBeanServer;
+import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 import javax.management.RuntimeErrorException;
@@ -30,27 +29,15 @@ import javax.management.RuntimeOperationsException;
 /**
  * @version $Rev$ $Date$
  */
-public final class JMXGBeanInvoker implements GBeanInvoker {
-    private final MBeanServer server;
-    private final int methodType;
+public final class JMXOperationInvoker implements JMXInvoker {
+    private final MBeanServerConnection server;
     private final String name;
     private final String[] argumentTypes;
     private final Class[] declaredExceptions;
 
-    public JMXGBeanInvoker(MBeanServer server, Method method, int methodType) {
+    public JMXOperationInvoker(MBeanServerConnection server, Method method) {
         this.server = server;
-        this.methodType = methodType;
-
-        if (methodType == GBeanInvoker.OPERATION) {
-            name = method.getName();
-        } else {
-            // strip off the is, get, or set from the method name
-            if (method.getName().startsWith("is")) {
-                name = method.getName().substring(2);
-            } else {
-                name = method.getName().substring(3);
-            }
-        }
+        name = method.getName();
 
         // convert the parameters to a MBeanServer friendly string array
         Class[] parameters = method.getParameterTypes();
@@ -64,17 +51,7 @@ public final class JMXGBeanInvoker implements GBeanInvoker {
 
     public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
         try {
-            switch (methodType) {
-                case GBeanInvoker.OPERATION:
-                    return server.invoke(objectName, name, arguments, argumentTypes);
-                case GBeanInvoker.GETTER:
-                    return server.getAttribute(objectName, name);
-                case GBeanInvoker.SETTER:
-                    server.setAttribute(objectName, new Attribute(name, arguments[0]));
-                    return null;
-                default:
-                    throw new AssertionError();
-            }
+            return server.invoke(objectName, name, arguments, argumentTypes);
         } catch (Throwable t) {
             Throwable throwable = t;
             while (true) {

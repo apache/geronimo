@@ -40,9 +40,9 @@ public class GBeanSingleReference extends AbstractGBeanReference {
     private boolean waitingForMe = false;
 
     /**
-     * Proxy to the to this connection.
+     * The object to which the proxy is bound
      */
-    private GBeanSingleProxy proxy;
+    private ObjectName proxyTarget;
 
     public GBeanSingleReference(GBeanMBean gmbean, GReferenceInfo referenceInfo, Class constructorType) throws InvalidConfigurationException {
         super(gmbean, referenceInfo, constructorType);
@@ -55,7 +55,7 @@ public class GBeanSingleReference extends AbstractGBeanReference {
         }
 
         // if we already have a proxy then we have already been started
-        if (proxy != null) {
+        if (getProxy() != null) {
             return;
         }
 
@@ -79,8 +79,9 @@ public class GBeanSingleReference extends AbstractGBeanReference {
 
         // add a dependency on our target and create the proxy
         ObjectName target = (ObjectName) targets.iterator().next();
+        setProxy(kernel.getProxyManager().createProxy(target, getType()));
+        proxyTarget = target;
         kernel.getDependencyManager().addDependency(objectName, target);
-        proxy = new GBeanSingleProxy(kernel, getType(), target);
     }
 
     public synchronized void stop() {
@@ -92,18 +93,12 @@ public class GBeanSingleReference extends AbstractGBeanReference {
             kernel.getDependencyManager().removeStartHolds(objectName, patterns);
         }
 
+        Object proxy = getProxy();
         if (proxy != null) {
-            kernel.getDependencyManager().removeDependency(objectName, proxy.getTarget());
-            proxy.destroy();
-            proxy = null;
-        }
-    }
-
-    public Object getProxy() {
-        if (proxy == null) {
-            return null;
-        } else {
-            return proxy.getProxy();
+            kernel.getDependencyManager().removeDependency(objectName, proxyTarget);
+            kernel.getProxyManager().destroyProxy(proxy);
+            setProxy(null);
+            proxyTarget = null;
         }
     }
 

@@ -34,8 +34,6 @@ import javax.security.auth.login.LoginContext;
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
-import org.apache.geronimo.remoting.transport.TransportLoader;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.jaas.JaasLoginServiceMBean;
@@ -182,16 +180,13 @@ public class RemoteLoginTest extends TestCase {
         kernel.startGBean(secureJmxRouter);
         kernel.startGBean(serverStub);
 
-        TransportLoader bean = (TransportLoader) MBeanProxyFactory.getProxy(TransportLoader.class, kernel.getMBeanServer(), asyncTransport);
-        URI connectURI = bean.getClientConnectURI();
+        URI connectURI = (URI) kernel.getAttribute(asyncTransport, "clientConnectURI");
         asyncRemoteProxy = JaasLoginServiceRemotingClient.create(connectURI.getHost(), connectURI.getPort());
 
-        bean = (TransportLoader) MBeanProxyFactory.getProxy(TransportLoader.class, kernel.getMBeanServer(), saslTransport);
-        connectURI = bean.getClientConnectURI();
+        connectURI = (URI) kernel.getAttribute(saslTransport, "clientConnectURI");
         saslRemoteProxy = JaasLoginServiceRemotingClient.create(connectURI.getHost(), connectURI.getPort());
 
-        bean = (TransportLoader) MBeanProxyFactory.getProxy(TransportLoader.class, kernel.getMBeanServer(), gssapiTransport);
-        connectURI = bean.getClientConnectURI();
+        connectURI = (URI) kernel.getAttribute(gssapiTransport, "clientConnectURI");
         gssapiRemoteProxy = JaasLoginServiceRemotingClient.create(connectURI.getHost(), connectURI.getPort());
     }
 

@@ -14,17 +14,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.gbean.jmx;
+package org.apache.geronimo.kernel.jmx;
 
 import javax.management.ObjectName;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
  */
-public interface GBeanInvoker {
-    int OPERATION = 1;
-    int GETTER = 2;
-    int SETTER = 3;
-
+public interface JMXInvoker {
     Object invoke(ObjectName objectName, Object[] arguments) throws Throwable;
 }

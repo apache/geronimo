@@ -244,7 +244,8 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
             try {
                 GeronimoContextManager.unbind(globalJNDIName);
             } catch (NamingException e) {
-                throw new RuntimeException(e);
+                // this will happen on failure since doStop is called twice
+                // the error is not important
             }
         }
     }

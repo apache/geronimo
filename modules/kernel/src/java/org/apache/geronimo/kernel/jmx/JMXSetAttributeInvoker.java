@@ -15,9 +15,10 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.gbean.jmx;
+package org.apache.geronimo.kernel.jmx;
 
 import java.lang.reflect.Method;
+import javax.management.Attribute;
 import javax.management.MBeanException;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
@@ -29,21 +30,22 @@ import javax.management.RuntimeOperationsException;
 /**
  * @version $Rev$ $Date$
  */
-public final class JMXGetAttributeInvoker implements GBeanInvoker {
+public final class JMXSetAttributeInvoker implements JMXInvoker {
     private final MBeanServerConnection server;
     private final String name;
     private final Class[] declaredExceptions;
 
-    public JMXGetAttributeInvoker(MBeanServerConnection server, Method method, String name) {
+    public JMXSetAttributeInvoker(MBeanServerConnection server, Method method, String name) {
         this.server = server;
         this.name = name;
-        
+
         declaredExceptions = method.getExceptionTypes();
     }
 
     public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
         try {
-            return server.getAttribute(objectName, name);
+            server.setAttribute(objectName, new Attribute(name, arguments[0]));
+            return null;
         } catch (Throwable t) {
             // todo do we need all this?
             Throwable throwable = t;

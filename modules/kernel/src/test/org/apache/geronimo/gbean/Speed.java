@@ -20,20 +20,13 @@ package org.apache.geronimo.gbean;
  * @version $Rev$ $Date$
  */
 import java.lang.reflect.Method;
-
 import javax.management.ObjectName;
 
 import net.sf.cglib.reflect.FastClass;
-import net.sf.cglib.proxy.MethodProxy;
-import org.apache.geronimo.gbean.jmx.CGLibProxyFactory;
-import org.apache.geronimo.gbean.jmx.ProxyFactory;
-import org.apache.geronimo.gbean.jmx.ProxyMethodInterceptor;
-import org.apache.geronimo.gbean.jmx.VMProxyFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.gbean.jmx.CGLibMethodInterceptor;
-import org.apache.geronimo.gbean.jmx.RawInvoker;
-import org.apache.geronimo.kernel.MockGBean;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.MockGBean;
+import org.apache.geronimo.gbean.jmx.RawInvoker;
 
 /**
  * @version $Rev$ $Date$
@@ -112,27 +105,27 @@ public class Speed {
         kernel.startGBean(objectName);
 
         // reflect proxy
-        ProxyFactory vmProxyFactory = new VMProxyFactory(MyInterface.class);
-        ProxyMethodInterceptor vmMethodInterceptor = vmProxyFactory.getMethodInterceptor();
-        MyInterface vmProxy = (MyInterface) vmProxyFactory.create(vmMethodInterceptor);
-        vmMethodInterceptor.connect(kernel.getMBeanServer(), objectName);
-        iterations = 50000;
-        for (int i = 0; i < iterations; i++) {
-            vmProxy.doNothing();
-        }
-        start = System.currentTimeMillis();
-        for (int i = 0; i < iterations; i++) {
-            vmProxy.doNothing();
-        }
-        end = System.currentTimeMillis();
-        printResults("ReflectionProxy", end, start, iterations);
+//        ProxyFactory vmProxyFactory = new VMProxyFactory(MyInterface.class);
+//        ProxyMethodInterceptor vmMethodInterceptor = vmProxyFactory.getMethodInterceptor();
+//        MyInterface vmProxy = (MyInterface) vmProxyFactory.create(vmMethodInterceptor);
+//        vmMethodInterceptor.connect(kernel.getMBeanServer(), objectName);
+//        iterations = 50000;
+//        for (int i = 0; i < iterations; i++) {
+//            vmProxy.doNothing();
+//        }
+//        start = System.currentTimeMillis();
+//        for (int i = 0; i < iterations; i++) {
+//            vmProxy.doNothing();
+//        }
+//        end = System.currentTimeMillis();
+//        printResults("ReflectionProxy", end, start, iterations);
 
         // cglib proxy (front half)
 /*
         ProxyFactory frontCGLibProxyFactory = new CGLibProxyFactory(MyInterface.class);
-        ProxyMethodInterceptor frontCGLibMethodInterceptor = new CGLibMethodInterceptor(MyInterface.class);
+        ProxyMethodInterceptor frontCGLibMethodInterceptor = new ProxyMethodInterceptor(MyInterface.class);
         Class enhancedType = frontCGLibProxyFactory.create(frontCGLibMethodInterceptor).getClass();
-        frontCGLibMethodInterceptor = new CGLibMethodInterceptor(enhancedType) {
+        frontCGLibMethodInterceptor = new ProxyMethodInterceptor(enhancedType) {
             public Object intercept(Object object, Method method, Object[] args, MethodProxy proxy) throws Throwable {
                 return null;
             }
@@ -165,21 +158,21 @@ public class Speed {
         end = System.currentTimeMillis();
         printResults("Raw Invoker", end, start, iterations);
 
-        // cglib proxy
-        ProxyFactory cgLibProxyFactory = new CGLibProxyFactory(MyInterface.class);
-        ProxyMethodInterceptor cgLibMethodInterceptor = cgLibProxyFactory.getMethodInterceptor();
-        MyInterface cgLibProxy = (MyInterface) cgLibProxyFactory.create(cgLibMethodInterceptor);
-        cgLibMethodInterceptor.connect(kernel.getMBeanServer(), objectName);
-        iterations = 1000000;
-        for (int i = 0; i < iterations; i++) {
-            cgLibProxy.doNothing();
-        }
-        start = System.currentTimeMillis();
-        for (int i = 0; i < iterations; i++) {
-            cgLibProxy.doNothing();
-        }
-        end = System.currentTimeMillis();
-        printResults("CGLibProxy", end, start, iterations);
+//        // cglib proxy
+//        ProxyFactory cgLibProxyFactory = new CGLibProxyFactory(MyInterface.class);
+//        ProxyMethodInterceptor cgLibMethodInterceptor = cgLibProxyFactory.getMethodInterceptor();
+//        MyInterface cgLibProxy = (MyInterface) cgLibProxyFactory.create(cgLibMethodInterceptor);
+//        cgLibMethodInterceptor.connect(kernel.getMBeanServer(), objectName);
+//        iterations = 1000000;
+//        for (int i = 0; i < iterations; i++) {
+//            cgLibProxy.doNothing();
+//        }
+//        start = System.currentTimeMillis();
+//        for (int i = 0; i < iterations; i++) {
+//            cgLibProxy.doNothing();
+//        }
+//        end = System.currentTimeMillis();
+//        printResults("CGLibProxy", end, start, iterations);
     }
 
 
@@ -242,36 +235,36 @@ public class Speed {
         kernel.startGBean(objectName);
 
         // reflect proxy
-        ProxyFactory vmProxyFactory = new VMProxyFactory(MyInterface.class);
-        ProxyMethodInterceptor vmMethodInterceptor = vmProxyFactory.getMethodInterceptor();
-        MyInterface vmProxy = (MyInterface) vmProxyFactory.create(vmMethodInterceptor);
-        vmMethodInterceptor.connect(kernel.getMBeanServer(), objectName);
-        iterations = 50000;
-        for (int i = 0; i < iterations; i++) {
-            result = vmProxy.echo(msg);
-        }
-        start = System.currentTimeMillis();
-        for (int i = 0; i < iterations; i++) {
-            result = vmProxy.echo(msg);
-        }
-        end = System.currentTimeMillis();
-        printResults("ReflectionProxy", end, start, iterations);
+//        ProxyFactory vmProxyFactory = new VMProxyFactory(MyInterface.class);
+//        ProxyMethodInterceptor vmMethodInterceptor = vmProxyFactory.getMethodInterceptor();
+//        MyInterface vmProxy = (MyInterface) vmProxyFactory.create(vmMethodInterceptor);
+//        vmMethodInterceptor.connect(kernel.getMBeanServer(), objectName);
+//        iterations = 50000;
+//        for (int i = 0; i < iterations; i++) {
+//            result = vmProxy.echo(msg);
+//        }
+//        start = System.currentTimeMillis();
+//        for (int i = 0; i < iterations; i++) {
+//            result = vmProxy.echo(msg);
+//        }
+//        end = System.currentTimeMillis();
+//        printResults("ReflectionProxy", end, start, iterations);
 
-        // cglib proxy
-        ProxyFactory cgLibProxyFactory = new CGLibProxyFactory(MyInterface.class);
-        ProxyMethodInterceptor cgLibMethodInterceptor = cgLibProxyFactory.getMethodInterceptor();
-        MyInterface cgLibProxy = (MyInterface) cgLibProxyFactory.create(cgLibMethodInterceptor);
-        cgLibMethodInterceptor.connect(kernel.getMBeanServer(), objectName);
-        iterations = 1000000;
-        for (int i = 0; i < iterations; i++) {
-            result = cgLibProxy.echo(msg);
-        }
-        start = System.currentTimeMillis();
-        for (int i = 0; i < iterations; i++) {
-            result = cgLibProxy.echo(msg);
-        }
-        end = System.currentTimeMillis();
-        printResults("CGLibProxy", end, start, iterations);
+//        // cglib proxy
+//        ProxyFactory cgLibProxyFactory = new CGLibProxyFactory(MyInterface.class);
+//        ProxyMethodInterceptor cgLibMethodInterceptor = cgLibProxyFactory.getMethodInterceptor();
+//        MyInterface cgLibProxy = (MyInterface) cgLibProxyFactory.create(cgLibMethodInterceptor);
+//        cgLibMethodInterceptor.connect(kernel.getMBeanServer(), objectName);
+//        iterations = 1000000;
+//        for (int i = 0; i < iterations; i++) {
+//            result = cgLibProxy.echo(msg);
+//        }
+//        start = System.currentTimeMillis();
+//        for (int i = 0; i < iterations; i++) {
+//            result = cgLibProxy.echo(msg);
+//        }
+//        end = System.currentTimeMillis();
+//        printResults("CGLibProxy", end, start, iterations);
     }
 
     private static void printResults(String invocationType, long end, long start, int iterations) {

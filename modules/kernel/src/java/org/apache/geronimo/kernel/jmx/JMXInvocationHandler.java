@@ -14,11 +14,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.gbean.jmx;
+package org.apache.geronimo.kernel.jmx;
 
 import java.beans.Introspector;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
 import javax.management.MBeanAttributeInfo;
@@ -30,48 +31,33 @@ import javax.management.ObjectName;
 import org.apache.geronimo.gbean.GOperationSignature;
 
 /**
- *
- *
  * @version $Rev$ $Date$
  */
-public class VMMethodInterceptor implements ProxyMethodInterceptor, InvocationHandler {
+public class JMXInvocationHandler implements InvocationHandler {
     private final Class proxyType;
-    private ObjectName objectName;
-    private boolean stopped;
-    private Map gbeanInvokers;
+    private final ObjectName objectName;
+    private final Map gbeanInvokers;
 
-    public VMMethodInterceptor(Class proxyType) {
-        this.proxyType = proxyType;
-    }
-
-    public void connect(MBeanServerConnection server, ObjectName objectName) {
-        assert server != null && objectName != null;
+    public JMXInvocationHandler(Class type, MBeanServerConnection server, ObjectName objectName) {
+        assert type != null;
+        assert server != null;
+        assert objectName != null;
+        this.proxyType = type;
         this.objectName = objectName;
-        stopped = false;
         gbeanInvokers = createGBeanInvokers(server, objectName);
     }
 
-    public void disconnect() {
-        stopped = true;
-        objectName = null;
-        gbeanInvokers = null;
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        JMXInvoker jmxInvoker = (JMXInvoker) gbeanInvokers.get(method);
+        if (jmxInvoker == null) {
+            throw new UnsupportedOperationException("No implementation method: objectName=" + objectName + ", method=" + method);
+        }
+
+        return jmxInvoker.invoke(objectName, args);
     }
 
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        GBeanInvoker gbeanInvoker;
-
-        synchronized (this) {
-            if (stopped) {
-                throw new DeadProxyException("Proxy is no longer valid");
-            }
-            gbeanInvoker = (GBeanInvoker) gbeanInvokers.get(method);
-        }
-
-        if (gbeanInvoker == null) {
-            throw new NoSuchOperationError("No implementation method: objectName=" + objectName + ", method=" + method);
-        }
-
-        return gbeanInvoker.invoke(objectName, args);
+    public ObjectName getObjectName() {
+        return objectName;
     }
 
     private Map createGBeanInvokers(MBeanServerConnection server, ObjectName objectName) {
@@ -125,7 +111,7 @@ public class VMMethodInterceptor implements ProxyMethodInterceptor, InvocationHa
         return invokers;
     }
 
-    private GBeanInvoker createJMXGBeanInvoker(MBeanServerConnection server, Method method, Map operations, Map attributes) {
+    private JMXInvoker createJMXGBeanInvoker(MBeanServerConnection server, Method method, Map operations, Map attributes) {
         if (operations.containsKey(new GOperationSignature(method))) {
             return new JMXOperationInvoker(server, method);
         }
@@ -160,5 +146,36 @@ public class VMMethodInterceptor implements ProxyMethodInterceptor, InvocationHa
             }
         }
         return null;
+    }
+    private static final class HashCodeInvoke implements JMXInvoker {
+        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
+            return new Integer(objectName.hashCode());
+        }
+    }
+
+    private static final class EqualsInvoke implements JMXInvoker {
+        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
+            try {
+                InvocationHandler handler = Proxy.getInvocationHandler(arguments[0]);
+                if (handler instanceof JMXInvocationHandler) {
+                    ObjectName otherObjectName = ((JMXInvocationHandler) handler).getObjectName();
+                    return Boolean.valueOf(objectName.equals(otherObjectName));
+                }
+            } catch (IllegalArgumentException e) {
+            }
+            return Boolean.FALSE;
+        }
+    }
+
+    private static final class ToStringInvoke implements JMXInvoker {
+        private final String interfaceName;
+
+        public ToStringInvoke(String interfaceName) {
+            this.interfaceName = "[" + interfaceName + ": ";
+        }
+
+        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
+            return interfaceName + objectName + "]";
+        }
     }
 }

@@ -14,23 +14,26 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.gbean.jmx;
+package org.apache.geronimo.kernel.proxy;
 
 import javax.management.ObjectName;
 
+import org.apache.geronimo.gbean.jmx.RawInvoker;
+
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
  */
-public final class RawOperationInvoker implements GBeanInvoker {
+public final class RawSetAttributeInvoker implements ProxyInvoker {
     private final RawInvoker rawInvoker;
     private final int methodIndex;
 
-    public RawOperationInvoker(RawInvoker rawInvoker, int methodIndex) {
+    public RawSetAttributeInvoker(RawInvoker rawInvoker, int methodIndex) {
         this.rawInvoker = rawInvoker;
         this.methodIndex = methodIndex;
     }
 
     public Object invoke(final ObjectName objectName, final Object[] arguments) throws Throwable {
-        return rawInvoker.invoke(methodIndex, arguments);
+        rawInvoker.setAttribute(methodIndex, arguments[0]);
+        return null;
     }
 }

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,24 +14,27 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.gbean.jmx;
+
+package org.apache.geronimo.kernel.proxy;
 
 import javax.management.ObjectName;
 
-/**
- * @version $Rev$ $Date$
- */
-public final class RawSetAttributeInvoker implements GBeanInvoker {
-    private final RawInvoker rawInvoker;
-    private final int methodIndex;
+import org.apache.geronimo.kernel.Kernel;
 
-    public RawSetAttributeInvoker(RawInvoker rawInvoker, int methodIndex) {
-        this.rawInvoker = rawInvoker;
-        this.methodIndex = methodIndex;
+/**
+ * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
+ */
+public final class KernelSetAttributeInvoker implements ProxyInvoker {
+    private final Kernel kernel;
+    private final String name;
+
+    public KernelSetAttributeInvoker(Kernel kernel, String name) {
+        this.kernel = kernel;
+        this.name = name;
     }
 
-    public Object invoke(final ObjectName objectName, final Object[] arguments) throws Throwable {
-        rawInvoker.setAttribute(methodIndex, arguments[0]);
+    public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
+        kernel.setAttribute(objectName, name, arguments[0]);
         return null;
     }
 }

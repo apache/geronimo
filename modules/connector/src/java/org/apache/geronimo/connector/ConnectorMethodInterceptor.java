@@ -24,7 +24,8 @@ import javax.management.ObjectName;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.gbean.jmx.DeadProxyException;
+import org.apache.geronimo.kernel.proxy.DeadProxyException;
+import org.apache.geronimo.kernel.proxy.DeadProxyException;
 
 /**
  * MethodInterceptor used by various Proxies.  The important part of this class is the

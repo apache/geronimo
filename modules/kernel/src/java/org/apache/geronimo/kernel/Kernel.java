@@ -53,6 +53,7 @@ import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.proxy.ProxyManager;
 
 
 /**
@@ -166,6 +167,12 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
     private LifecycleMonitor lifecycleMonitor;
 
     /**
+     * This factory gbean proxies, and tracks all proxies in the system
+     * @deprecated don't use this yet... it may go away
+     */
+    private ProxyManager proxyManager;
+
+    /**
      * No-arg constructor allowing this class to be used as a GBean reference.
      */
     public Kernel() {
@@ -263,6 +270,14 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
      */
     public LifecycleMonitor getLifecycleMonitor() {
         return lifecycleMonitor;
+    }
+
+    /**
+     * Gets the proxy manager.
+     * @deprecated don't use this yet... it may change or go away
+     */
+    public ProxyManager getProxyManager() {
+        return proxyManager;
     }
 
     public Object getAttribute(ObjectName objectName, String attributeName) throws Exception {
@@ -503,8 +518,8 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
         mbServer = MBeanServerFactory.createMBeanServer(domainName);
         mbServer.registerMBean(this, KERNEL);
         dependencyManager = new DependencyManager(mbServer);
-
         lifecycleMonitor = new LifecycleMonitor(mbServer);
+        proxyManager = new ProxyManager(this);
 
         configurationManagerGBean = new GBeanMBean(ConfigurationManagerImpl.GBEAN_INFO);
         configurationManagerGBean.setReferencePatterns("Stores", Collections.singleton(CONFIGURATION_STORE_PATTERN));

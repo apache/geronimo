@@ -14,23 +14,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.gbean.jmx;
-
-import javax.management.ObjectName;
+package org.apache.geronimo.kernel.proxy;
 
 /**
  * @version $Rev$ $Date$
  */
-public final class RawGetAttributeInvoker implements GBeanInvoker {
-    private final RawInvoker rawInvoker;
-    private final int methodIndex;
-
-    public RawGetAttributeInvoker(RawInvoker rawInvoker, int methodIndex) {
-        this.rawInvoker = rawInvoker;
-        this.methodIndex = methodIndex;
-    }
-
-    public Object invoke(final ObjectName objectName, final Object[] arguments) throws Throwable {
-        return rawInvoker.getAttribute(methodIndex);
+public class DeadProxyException extends IllegalStateException {
+    public DeadProxyException(String s) {
+        super(s);
     }
 }

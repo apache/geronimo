@@ -16,26 +16,25 @@
  */
 package org.apache.geronimo.security.realm;
 
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Collections;
-import java.util.Iterator;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.security.auth.spi.LoginModule;
+
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
+import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.security.deploy.Principal;
 import org.apache.geronimo.security.jaas.ConfigurationEntryFactory;
 import org.apache.geronimo.security.jaas.JaasLoginCoordinator;
@@ -221,6 +220,7 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
         Set domains = new HashSet();
         List list = new ArrayList();
         LoginModuleControlFlagEditor editor = new LoginModuleControlFlagEditor();
+        ProxyManager proxyManager = kernel.getProxyManager();
         while (true) {
             boolean found = false;
             String prefix = "LoginModule." + i + ".";
@@ -230,31 +230,36 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
                     String flagName = key.substring(prefix.length()).toUpperCase();
                     editor.setAsText(flagName);
                     LoginModuleControlFlag flag = (LoginModuleControlFlag) editor.getValue();
-                    LoginModuleGBean module = (LoginModuleGBean) MBeanProxyFactory.getProxy(LoginModuleGBean.class, kernel.getMBeanServer(), new ObjectName(props.getProperty(key)));
-                    Map options = module.getOptions();
-                    if (options != null) {
-                        options = new HashMap(options);
-                    } else {
-                        options = new HashMap();
-                    }
-                    if (kernel != null && !options.containsKey(KERNEL_LM_OPTION)) {
-                        options.put(KERNEL_LM_OPTION, kernel.getKernelName());
-                    }
-                    if (serverInfo != null && !options.containsKey(SERVERINFO_LM_OPTION)) {
-                        options.put(SERVERINFO_LM_OPTION, serverInfo);
-                    }
-                    if (classLoader != null && !options.containsKey(CLASSLOADER_LM_OPTION)) {
-                        options.put(CLASSLOADER_LM_OPTION, classLoader);
-                    }
-                    if(module.getLoginDomainName() != null) {
-                        if(domains.contains(module.getLoginDomainName())) {
-                            throw new IllegalStateException("Error in "+realmName+": one security realm cannot contain multiple login modules for the same login domain");
+                    LoginModuleGBean module = null;
+                    try {
+                        module = (LoginModuleGBean) proxyManager.createProxy(new ObjectName(props.getProperty(key)), LoginModuleGBean.class);
+                        Map options = module.getOptions();
+                        if (options != null) {
+                            options = new HashMap(options);
                         } else {
-                            domains.add(module.getLoginDomainName());
+                            options = new HashMap();
                         }
+                        if (kernel != null && !options.containsKey(KERNEL_LM_OPTION)) {
+                            options.put(KERNEL_LM_OPTION, kernel.getKernelName());
+                        }
+                        if (serverInfo != null && !options.containsKey(SERVERINFO_LM_OPTION)) {
+                            options.put(SERVERINFO_LM_OPTION, serverInfo);
+                        }
+                        if (classLoader != null && !options.containsKey(CLASSLOADER_LM_OPTION)) {
+                            options.put(CLASSLOADER_LM_OPTION, classLoader);
+                        }
+                        if(module.getLoginDomainName() != null) {
+                            if(domains.contains(module.getLoginDomainName())) {
+                                throw new IllegalStateException("Error in "+realmName+": one security realm cannot contain multiple login modules for the same login domain");
+                            } else {
+                                domains.add(module.getLoginDomainName());
+                            }
+                        }
+                        JaasLoginModuleConfiguration config = new JaasLoginModuleConfiguration(module.getLoginModuleClass(), flag, options, module.isServerSide(), module.getLoginDomainName());
+                        list.add(config);
+                    } finally {
+                        proxyManager.destroyProxy(module);
                     }
-                    JaasLoginModuleConfiguration config = new JaasLoginModuleConfiguration(module.getLoginModuleClass(), flag, options, module.isServerSide(), module.getLoginDomainName());
-                    list.add(config);
                     ++i;
                     found = true;
                     break;

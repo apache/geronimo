@@ -25,7 +25,6 @@ import java.net.URI;
 import java.net.URL;
 
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 import org.apache.geronimo.security.SecurityService;
 import org.apache.geronimo.security.deploy.AutoMapAssistant;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
@@ -156,73 +155,79 @@ public class SecurityTest extends BaseSecurityTest {
         securityConfig.getRoleNames().add("content-administrator");
         securityConfig.getRoleNames().add("auto-administrator");
 
-        securityConfig.autoGenerate((SecurityService) MBeanProxyFactory.getProxy(SecurityService.class, kernel.getMBeanServer(), securityServiceName));
-
-        startWebApp(securityConfig);
-
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678/test/protected/hello.txt").openConnection();
-        connection.setInstanceFollowRedirects(false);
-        assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());
-
-        String cookie = connection.getHeaderField("Set-Cookie");
-        cookie = cookie.substring(0, cookie.lastIndexOf(';'));
-        String location = connection.getHeaderField("Location");
-
-        connection = (HttpURLConnection) new URL(location).openConnection();
-        connection.setInstanceFollowRedirects(false);
-        assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
-
-        location = location.substring(0, location.lastIndexOf('/')) + "/j_security_check?j_username=izumi&j_password=violin";
-
-        connection = (HttpURLConnection) new URL(location).openConnection();
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Cookie", cookie);
-        connection.setInstanceFollowRedirects(false);
-        assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());
-
-        connection = (HttpURLConnection) new URL("http://localhost:5678/test/protected/hello.txt").openConnection();
-        connection.setRequestProperty("Cookie", cookie);
-        connection.setInstanceFollowRedirects(false);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-
-        assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
-        assertEquals("Hello World", reader.readLine());
-        connection.disconnect();
-
-
-        connection = (HttpURLConnection) new URL("http://localhost:5678/test/protected/hello.txt").openConnection();
-        connection.setInstanceFollowRedirects(false);
-        assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());
-
-        cookie = connection.getHeaderField("Set-Cookie");
-        cookie = cookie.substring(0, cookie.lastIndexOf(';'));
-        location = connection.getHeaderField("Location");
-
-        connection = (HttpURLConnection) new URL(location).openConnection();
-        connection.setInstanceFollowRedirects(false);
-        assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
-
-        location = location.substring(0, location.lastIndexOf('/')) + "/j_security_check?j_username=alan&j_password=starcraft";
-
-        connection = (HttpURLConnection) new URL(location).openConnection();
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Cookie", cookie);
-        connection.setInstanceFollowRedirects(false);
-        assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());
-
+        SecurityService securityService = null;
         try {
+            securityService = (SecurityService) kernel.getProxyManager().createProxy(securityServiceName, SecurityService.class);
+            securityConfig.autoGenerate(securityService);
+
+            startWebApp(securityConfig);
+
+            HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678/test/protected/hello.txt").openConnection();
+            connection.setInstanceFollowRedirects(false);
+            assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());
+
+            String cookie = connection.getHeaderField("Set-Cookie");
+            cookie = cookie.substring(0, cookie.lastIndexOf(';'));
+            String location = connection.getHeaderField("Location");
+
+            connection = (HttpURLConnection) new URL(location).openConnection();
+            connection.setInstanceFollowRedirects(false);
+            assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
+
+            location = location.substring(0, location.lastIndexOf('/')) + "/j_security_check?j_username=izumi&j_password=violin";
+
+            connection = (HttpURLConnection) new URL(location).openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Cookie", cookie);
+            connection.setInstanceFollowRedirects(false);
+            assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());
+
             connection = (HttpURLConnection) new URL("http://localhost:5678/test/protected/hello.txt").openConnection();
             connection.setRequestProperty("Cookie", cookie);
             connection.setInstanceFollowRedirects(false);
-            reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
-            fail("Should throw an IOException for HTTP 403 response");
-        } catch (IOException e) {
+            assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
+            assertEquals("Hello World", reader.readLine());
+            connection.disconnect();
+
+
+            connection = (HttpURLConnection) new URL("http://localhost:5678/test/protected/hello.txt").openConnection();
+            connection.setInstanceFollowRedirects(false);
+            assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());
+
+            cookie = connection.getHeaderField("Set-Cookie");
+            cookie = cookie.substring(0, cookie.lastIndexOf(';'));
+            location = connection.getHeaderField("Location");
+
+            connection = (HttpURLConnection) new URL(location).openConnection();
+            connection.setInstanceFollowRedirects(false);
+            assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
+
+            location = location.substring(0, location.lastIndexOf('/')) + "/j_security_check?j_username=alan&j_password=starcraft";
+
+            connection = (HttpURLConnection) new URL(location).openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Cookie", cookie);
+            connection.setInstanceFollowRedirects(false);
+            assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());
+
+            try {
+                connection = (HttpURLConnection) new URL("http://localhost:5678/test/protected/hello.txt").openConnection();
+                connection.setRequestProperty("Cookie", cookie);
+                connection.setInstanceFollowRedirects(false);
+                reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+
+                fail("Should throw an IOException for HTTP 403 response");
+            } catch (IOException e) {
+            }
+
+            assertEquals(HttpURLConnection.HTTP_FORBIDDEN, connection.getResponseCode());
+            connection.disconnect();
+            stopWebApp();
+        } finally {
+            kernel.getProxyManager().destroyProxy(securityService);
         }
-
-        assertEquals(HttpURLConnection.HTTP_FORBIDDEN, connection.getResponseCode());
-        connection.disconnect();
-        stopWebApp();
     }
 
     /**
@@ -242,91 +247,97 @@ public class SecurityTest extends BaseSecurityTest {
         securityConfig.getRoleNames().add("content-administrator");
         securityConfig.getRoleNames().add("auto-administrator");
 
-        securityConfig.autoGenerate((SecurityService) MBeanProxyFactory.getProxy(SecurityService.class, kernel.getMBeanServer(), securityServiceName));
+        SecurityService securityService = null;
+        try {
+            securityService = (SecurityService) kernel.getProxyManager().createProxy(securityServiceName, SecurityService.class);
+            securityConfig.autoGenerate(securityService);
 
-        DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
-        defaultPrincipal.setRealmName("demo-properties-realm");
-        Principal principal = new Principal();
-        principal.setClassName("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
-        principal.setPrincipalName("izumi");
-        defaultPrincipal.setPrincipal(principal);
+            DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
+            defaultPrincipal.setRealmName("demo-properties-realm");
+            Principal principal = new Principal();
+            principal.setClassName("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
+            principal.setPrincipalName("izumi");
+            defaultPrincipal.setPrincipal(principal);
 
-        securityConfig.setDefaultPrincipal(defaultPrincipal);
+            securityConfig.setDefaultPrincipal(defaultPrincipal);
 
-        Role role = new Role();
-        role.setRoleName("content-administrator");
-        principal = new Principal();
-        principal.setClassName("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
-        principal.setPrincipalName("it");
-        Realm realm = new Realm();
-        realm.setRealmName("demo-properties-realm");
-        realm.getPrincipals().add(principal);
-        role.getRealms().put(realm.getRealmName(), realm);
+            Role role = new Role();
+            role.setRoleName("content-administrator");
+            principal = new Principal();
+            principal.setClassName("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
+            principal.setPrincipalName("it");
+            Realm realm = new Realm();
+            realm.setRealmName("demo-properties-realm");
+            realm.getPrincipals().add(principal);
+            role.getRealms().put(realm.getRealmName(), realm);
 
-        securityConfig.append(role);
+            securityConfig.append(role);
 
-        startWebApp(securityConfig);
+            startWebApp(securityConfig);
 
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678/test/protected/hello.txt").openConnection();
-        connection.setInstanceFollowRedirects(false);
-        assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());
+            HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678/test/protected/hello.txt").openConnection();
+            connection.setInstanceFollowRedirects(false);
+            assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());
 
-        String cookie = connection.getHeaderField("Set-Cookie");
-        cookie = cookie.substring(0, cookie.lastIndexOf(';'));
-        String location = connection.getHeaderField("Location");
+            String cookie = connection.getHeaderField("Set-Cookie");
+            cookie = cookie.substring(0, cookie.lastIndexOf(';'));
+            String location = connection.getHeaderField("Location");
 
-        connection = (HttpURLConnection) new URL(location).openConnection();
-        connection.setInstanceFollowRedirects(false);
-        assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
+            connection = (HttpURLConnection) new URL(location).openConnection();
+            connection.setInstanceFollowRedirects(false);
+            assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
 
-        location = location.substring(0, location.lastIndexOf('/')) + "/j_security_check?j_username=izumi&j_password=violin";
+            location = location.substring(0, location.lastIndexOf('/')) + "/j_security_check?j_username=izumi&j_password=violin";
 
-        connection = (HttpURLConnection) new URL(location).openConnection();
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Cookie", cookie);
-        connection.setInstanceFollowRedirects(false);
-        assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());
+            connection = (HttpURLConnection) new URL(location).openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Cookie", cookie);
+            connection.setInstanceFollowRedirects(false);
+            assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());
 
-        connection = (HttpURLConnection) new URL("http://localhost:5678/test/protected/hello.txt").openConnection();
-        connection.setRequestProperty("Cookie", cookie);
-        connection.setInstanceFollowRedirects(false);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            connection = (HttpURLConnection) new URL("http://localhost:5678/test/protected/hello.txt").openConnection();
+            connection.setRequestProperty("Cookie", cookie);
+            connection.setInstanceFollowRedirects(false);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
-        assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
-        assertEquals("Hello World", reader.readLine());
-        connection.disconnect();
+            assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
+            assertEquals("Hello World", reader.readLine());
+            connection.disconnect();
 
 
-        connection = (HttpURLConnection) new URL("http://localhost:5678/test/protected/hello.txt").openConnection();
-        connection.setInstanceFollowRedirects(false);
-        assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());
+            connection = (HttpURLConnection) new URL("http://localhost:5678/test/protected/hello.txt").openConnection();
+            connection.setInstanceFollowRedirects(false);
+            assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());
 
-        cookie = connection.getHeaderField("Set-Cookie");
-        cookie = cookie.substring(0, cookie.lastIndexOf(';'));
-        location = connection.getHeaderField("Location");
+            cookie = connection.getHeaderField("Set-Cookie");
+            cookie = cookie.substring(0, cookie.lastIndexOf(';'));
+            location = connection.getHeaderField("Location");
 
-        connection = (HttpURLConnection) new URL(location).openConnection();
-        connection.setInstanceFollowRedirects(false);
-        assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
+            connection = (HttpURLConnection) new URL(location).openConnection();
+            connection.setInstanceFollowRedirects(false);
+            assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
 
-        location = location.substring(0, location.lastIndexOf('/')) + "/j_security_check?j_username=alan&j_password=starcraft";
+            location = location.substring(0, location.lastIndexOf('/')) + "/j_security_check?j_username=alan&j_password=starcraft";
 
-        connection = (HttpURLConnection) new URL(location).openConnection();
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Cookie", cookie);
-        connection.setInstanceFollowRedirects(false);
-        assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());
+            connection = (HttpURLConnection) new URL(location).openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Cookie", cookie);
+            connection.setInstanceFollowRedirects(false);
+            assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());
 
-        connection = (HttpURLConnection) new URL("http://localhost:5678/test/protected/hello.txt").openConnection();
-        connection.setRequestProperty("Cookie", cookie);
-        connection.setInstanceFollowRedirects(false);
-        reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            connection = (HttpURLConnection) new URL("http://localhost:5678/test/protected/hello.txt").openConnection();
+            connection.setRequestProperty("Cookie", cookie);
+            connection.setInstanceFollowRedirects(false);
+            reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
-        assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
-        assertEquals("Hello World", reader.readLine());
-        connection.disconnect();
+            assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
+            assertEquals("Hello World", reader.readLine());
+            connection.disconnect();
 
-        stopWebApp();
+            stopWebApp();
+        } finally {
+            kernel.getProxyManager().destroyProxy(securityService);
+        }
     }
 
     protected void startWebApp(Security securityConfig) throws Exception {

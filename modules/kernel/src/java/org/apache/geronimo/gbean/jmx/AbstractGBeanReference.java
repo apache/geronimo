@@ -26,14 +26,12 @@ import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.kernel.LifecycleAdapter;
-import org.apache.geronimo.kernel.LifecycleListener;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.LifecycleListener;
 import org.apache.geronimo.kernel.LifecycleAdapter;
+import org.apache.geronimo.kernel.LifecycleListener;
 import org.apache.geronimo.kernel.management.State;
 
 /**
@@ -80,6 +78,11 @@ public abstract class AbstractGBeanReference implements GBeanReference {
      * The kernel to which the reference is bound.
      */
     private Kernel kernel;
+
+    /**
+     * Proxy for this reference
+     */
+    private Object proxy;
 
     public AbstractGBeanReference(GBeanMBean gmbean, GReferenceInfo referenceInfo, Class constructorType) throws InvalidConfigurationException {
         this.gmbean = gmbean;
@@ -133,6 +136,15 @@ public abstract class AbstractGBeanReference implements GBeanReference {
 
     public final Class getType() {
         return type;
+    }
+
+
+    public Object getProxy() {
+        return proxy;
+    }
+
+    protected void setProxy(Object proxy) {
+        this.proxy = proxy;
     }
 
     public final Set getPatterns() {

@@ -26,11 +26,6 @@ import org.apache.geronimo.gbean.InvalidConfigurationException;
  * @version $Rev: 71492 $ $Date: 2004-11-14 21:31:50 -0800 (Sun, 14 Nov 2004) $
  */
 public class GBeanCollectionReference extends AbstractGBeanReference {
-    /**
-     * Proxy to the to this connection.
-     */
-    private GBeanCollectionProxy proxy;
-
     public GBeanCollectionReference(GBeanMBean gmbean, GReferenceInfo referenceInfo, Class constructorType) throws InvalidConfigurationException {
         super(gmbean, referenceInfo, constructorType);
     }
@@ -42,36 +37,31 @@ public class GBeanCollectionReference extends AbstractGBeanReference {
         }
 
         // if we already have a proxy then we have already been started
-        if (proxy != null) {
+        if (getProxy() != null) {
             return;
         }
 
         // add a dependency on our target and create the proxy
-        proxy = new GBeanCollectionProxy(getKernel(), getName(), getType(), getTargets());
+        setProxy(new ProxyCollection(getName(), getType(), getKernel().getProxyManager(), getTargets()));
     }
 
     public synchronized void stop() {
+        ProxyCollection proxy = (ProxyCollection) getProxy();
         if (proxy != null) {
             proxy.destroy();
-            proxy = null;
-        }
-    }
-
-    public Object getProxy() {
-        if (proxy == null) {
-            return null;
-        } else {
-            return proxy.getProxy();
+            setProxy(null);
         }
     }
 
     public synchronized void targetAdded(ObjectName target) {
+        ProxyCollection proxy = (ProxyCollection) getProxy();
         if (proxy != null) {
             proxy.addTarget(target);
         }
     }
 
     public synchronized void targetRemoved(ObjectName target) {
+        ProxyCollection proxy = (ProxyCollection) getProxy();
         if (proxy != null) {
             proxy.removeTarget(target);
         }

@@ -17,12 +17,9 @@
 
 package org.apache.geronimo.kernel.jmx;
 
-import java.util.Set;
+import java.lang.reflect.Proxy;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
-
-import org.apache.geronimo.gbean.jmx.ProxyFactory;
-import org.apache.geronimo.gbean.jmx.ProxyMethodInterceptor;
 
 /**
  * MBeanProxyFactory creates a dynamic proxy to an MBean by ObjectName.
@@ -31,7 +28,6 @@ import org.apache.geronimo.gbean.jmx.ProxyMethodInterceptor;
  * @version $Rev$ $Date$
  */
 public final class MBeanProxyFactory {
-
     /**
      * Creates an MBean proxy using the specified interface to the objectName.
      *
@@ -39,6 +35,7 @@ public final class MBeanProxyFactory {
      * @param server the MBeanServer in which the object is registered
      * @param objectName the objectName of the MBean to proxy
      * @return the new MBean proxy, which implemnts the specified interface
+     *
      */
     public static Object getProxy(Class type, MBeanServerConnection server, ObjectName objectName) {
         assert type != null;
@@ -46,18 +43,9 @@ public final class MBeanProxyFactory {
 
         if (objectName.isPattern()) {
             throw new UnsupportedOperationException();
-/*
-            Set names = server.queryNames(objectName, null);
-            if (names.isEmpty()) {
-                throw new IllegalArgumentException("No names mbeans registered that match object name pattern: " + objectName);
-            }
-            objectName = (ObjectName) names.iterator().next();
-*/
         }
 
-        ProxyFactory factory = ProxyFactory.newProxyFactory(type);
-        ProxyMethodInterceptor methodInterceptor = factory.getMethodInterceptor();
-        methodInterceptor.connect(server, objectName);
-        return factory.create(methodInterceptor);
+        JMXInvocationHandler interceptor = new JMXInvocationHandler(type, server, objectName);
+        return Proxy.newProxyInstance(type.getClassLoader(), new Class[]{type}, interceptor);
     }
 }

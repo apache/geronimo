@@ -16,17 +16,23 @@
  */
 package org.apache.geronimo.security.jaas;
 
-import org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingClient;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
+
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
-
-import javax.security.auth.spi.LoginModule;
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.Callback;
-import java.util.*;
-import java.security.Principal;
+import org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingClient;
 
 /**
  * A LoginModule implementation which connects to a Geronimo server under

@@ -14,33 +14,32 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.gbean.jmx;
+package org.apache.geronimo.kernel.proxy;
 
 import java.beans.Introspector;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Iterator;
+import java.util.Map;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanInfo;
 import javax.management.MBeanOperationInfo;
-import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
-
-import org.apache.geronimo.gbean.GOperationSignature;
 
 import net.sf.cglib.core.Signature;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import net.sf.cglib.reflect.FastClass;
+import org.apache.geronimo.gbean.GOperationSignature;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.jmx.RawInvoker;
+import org.apache.geronimo.kernel.Kernel;
 import org.objectweb.asm.Type;
 
 /**
- *
- *
- * @version $Rev$ $Date$
+ * @version $Rev: 106345 $ $Date: 2004-11-23 12:37:03 -0800 (Tue, 23 Nov 2004) $
  */
-public class CGLibMethodInterceptor implements ProxyMethodInterceptor, MethodInterceptor {
+public class ProxyMethodInterceptor implements MethodInterceptor {
     /**
      * Type of the proxy interface
      */
@@ -49,66 +48,61 @@ public class CGLibMethodInterceptor implements ProxyMethodInterceptor, MethodInt
     /**
      * The object name to which we are connected.
      */
-    private ObjectName objectName;
+    private final ObjectName objectName;
 
     /**
      * GBeanInvokers keyed on the proxy interface method index
      */
-    private GBeanInvoker[] gbeanInvokers;
+    private ProxyInvoker[] gbeanInvokers;
 
-    /**
-     * Is this proxy currently stopped.  If it is invocations will not be allowed.
-     */
-    protected boolean stopped;
+    public ProxyMethodInterceptor(Class proxyType, Kernel kernel, ObjectName objectName) {
+        assert proxyType != null;
+        assert kernel != null;
+        assert objectName != null;
 
-    public CGLibMethodInterceptor(Class proxyType) {
         this.proxyType = proxyType;
-        stopped = true;
-    }
-
-    public synchronized void connect(MBeanServerConnection server, ObjectName objectName) {
-        assert server != null && objectName != null;
         this.objectName = objectName;
-        stopped = false;
-        gbeanInvokers = createGBeanInvokers(server, objectName);
+        gbeanInvokers = createGBeanInvokers(kernel, objectName);
     }
 
-    public synchronized void disconnect() {
-        stopped = true;
-        objectName = null;
+    public synchronized void destroy() {
         gbeanInvokers = null;
     }
 
+    public ObjectName getObjectName() {
+        return objectName;
+    }
+
     public final Object intercept(final Object object, final Method method, final Object[] args, final MethodProxy proxy) throws Throwable {
-        GBeanInvoker gbeanInvoker;
+        ProxyInvoker gbeanInvoker;
 
         int interfaceIndex = proxy.getSuperIndex();
         synchronized (this) {
-            if (stopped) {
+            if (gbeanInvokers == null) {
                 throw new DeadProxyException("Proxy is no longer valid");
             }
             gbeanInvoker = gbeanInvokers[interfaceIndex];
         }
 
         if (gbeanInvoker == null) {
-            throw new NoSuchOperationError("No implementation method: objectName=" + objectName + ", method=" + method);
+            throw new UnsupportedOperationException("No implementation method: objectName=" + objectName + ", method=" + method);
         }
 
         return gbeanInvoker.invoke(objectName, args);
     }
 
-    private GBeanInvoker[] createGBeanInvokers(MBeanServerConnection server, ObjectName objectName) {
-        GBeanInvoker[] invokers;
+    private ProxyInvoker[] createGBeanInvokers(Kernel kernel, ObjectName objectName) {
+        ProxyInvoker[] invokers;
         try {
-            RawInvoker rawInvoker = (RawInvoker) server.getAttribute(objectName, GBeanMBean.RAW_INVOKER);
+            RawInvoker rawInvoker = (RawInvoker) kernel.getAttribute(objectName, GBeanMBean.RAW_INVOKER);
             invokers = createRawGBeanInvokers(rawInvoker, proxyType);
         } catch (Exception e) {
-            invokers = createJMXGBeanInvokers(server, objectName, proxyType);
+            invokers = createKernelGBeanInvokers(kernel, objectName, proxyType);
         }
 
         // handle equals, hashCode and toString directly here
         try {
-            invokers[getSuperIndex(proxyType, proxyType.getMethod("equals", new Class[]{Object.class}))] = new EqualsInvoke();
+            invokers[getSuperIndex(proxyType, proxyType.getMethod("equals", new Class[]{Object.class}))] = new EqualsInvoke(kernel.getProxyManager());
             invokers[getSuperIndex(proxyType, proxyType.getMethod("hashCode", null))] = new HashCodeInvoke();
             invokers[getSuperIndex(proxyType, proxyType.getMethod("toString", null))] = new ToStringInvoke(proxyType.getName());
         } catch (Exception e) {
@@ -119,13 +113,13 @@ public class CGLibMethodInterceptor implements ProxyMethodInterceptor, MethodInt
         return invokers;
     }
 
-    private GBeanInvoker[] createRawGBeanInvokers(RawInvoker rawInvoker, Class proxyType) {
+    private ProxyInvoker[] createRawGBeanInvokers(RawInvoker rawInvoker, Class proxyType) {
         Map operations = rawInvoker.getOperationIndex();
         Map attributes = rawInvoker.getAttributeIndex();
 
         // build the method lookup table
         FastClass fastClass = FastClass.create(proxyType);
-        GBeanInvoker[] invokers = new GBeanInvoker[fastClass.getMaxIndex() + 1];
+        ProxyInvoker[] invokers = new ProxyInvoker[fastClass.getMaxIndex() + 1];
         Method[] methods = proxyType.getMethods();
         for (int i = 0; i < methods.length; i++) {
             Method method = methods[i];
@@ -138,7 +132,7 @@ public class CGLibMethodInterceptor implements ProxyMethodInterceptor, MethodInt
         return invokers;
     }
 
-    private GBeanInvoker createRawGBeanInvoker(RawInvoker rawInvoker, Method method, Map operations, Map attributes) {
+    private ProxyInvoker createRawGBeanInvoker(RawInvoker rawInvoker, Method method, Map operations, Map attributes) {
         if (operations.containsKey(new GOperationSignature(method))) {
             int methodIndex = ((Integer) operations.get(new GOperationSignature(method))).intValue();
             return new RawOperationInvoker(rawInvoker, methodIndex);
@@ -182,10 +176,11 @@ public class CGLibMethodInterceptor implements ProxyMethodInterceptor, MethodInt
         return null;
     }
 
-    private GBeanInvoker[] createJMXGBeanInvokers(MBeanServerConnection server, ObjectName objectName, Class proxyType) {
+    private ProxyInvoker[] createKernelGBeanInvokers(Kernel kernel, ObjectName objectName, Class proxyType) {
         MBeanInfo info;
         try {
-            info = server.getMBeanInfo(objectName);
+            // todo convert this over to gbean info
+            info = kernel.getMBeanServer().getMBeanInfo(objectName);
         } catch (Exception e) {
             throw new IllegalArgumentException("Could not get MBeanInfo for target object: " + objectName);
         }
@@ -208,51 +203,51 @@ public class CGLibMethodInterceptor implements ProxyMethodInterceptor, MethodInt
 
         // build the method lookup table
         FastClass fastClass = FastClass.create(proxyType);
-        GBeanInvoker[] invokers = new GBeanInvoker[fastClass.getMaxIndex() + 1];
+        ProxyInvoker[] invokers = new ProxyInvoker[fastClass.getMaxIndex() + 1];
         Method[] methods = proxyType.getMethods();
         for (int i = 0; i < methods.length; i++) {
             Method method = methods[i];
             int interfaceIndex = getSuperIndex(proxyType, method);
             if (interfaceIndex >= 0) {
-                invokers[interfaceIndex] = createJMXGBeanInvoker(server, method, operations, attributes);
+                invokers[interfaceIndex] = createJMXGBeanInvoker(kernel, method, operations, attributes);
             }
         }
 
         return invokers;
     }
 
-    private GBeanInvoker createJMXGBeanInvoker(MBeanServerConnection server, Method method, Map operations, Map attributes) {
+    private ProxyInvoker createJMXGBeanInvoker(Kernel kernel, Method method, Map operations, Map attributes) {
         if (operations.containsKey(new GOperationSignature(method))) {
-            return new JMXOperationInvoker(server, method);
+            return new KernelOperationInvoker(kernel, method);
         }
 
         String name = method.getName();
         if (name.startsWith("get")) {
             String attrName = method.getName().substring(3);
             if (attributes.containsKey(attrName)) {
-                return new JMXGetAttributeInvoker(server, method, attrName);
+                return new KernelGetAttributeInvoker(kernel, attrName);
             }
             attrName = Introspector.decapitalize(attrName);
             if (attributes.containsKey(attrName)) {
-                return new JMXGetAttributeInvoker(server, method, attrName);
+                return new KernelGetAttributeInvoker(kernel, attrName);
             }
         } else if (name.startsWith("is")) {
             String attrName = method.getName().substring(2);
             if (attributes.containsKey(attrName)) {
-                return new JMXGetAttributeInvoker(server, method, attrName);
+                return new KernelGetAttributeInvoker(kernel, attrName);
             }
             attrName = Introspector.decapitalize(attrName);
             if (attributes.containsKey(attrName)) {
-                return new JMXGetAttributeInvoker(server, method, attrName);
+                return new KernelGetAttributeInvoker(kernel, attrName);
             }
         } else if (name.startsWith("set")) {
             String attrName = method.getName().substring(3);
             if (attributes.containsKey(attrName)) {
-                return new JMXSetAttributeInvoker(server, method, attrName);
+                return new KernelSetAttributeInvoker(kernel, attrName);
             }
             attrName = Introspector.decapitalize(attrName);
             if (attributes.containsKey(attrName)) {
-                return new JMXSetAttributeInvoker(server, method, attrName);
+                return new KernelSetAttributeInvoker(kernel, attrName);
             }
         }
         return null;
@@ -276,5 +271,36 @@ public class CGLibMethodInterceptor implements ProxyMethodInterceptor, MethodInt
             }
         }
         return null;
+    }
+
+    static final class HashCodeInvoke implements ProxyInvoker {
+        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
+            return new Integer(objectName.hashCode());
+        }
+    }
+
+    static final class EqualsInvoke implements ProxyInvoker {
+        private final ProxyManager proxyManager;
+
+        public EqualsInvoke(ProxyManager proxyManager) {
+            this.proxyManager = proxyManager;
+        }
+
+        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
+            ObjectName proxyTarget = proxyManager.getProxyTarget(arguments[0]);
+            return Boolean.valueOf(objectName.equals(proxyTarget));
+        }
+    }
+
+    static final class ToStringInvoke implements ProxyInvoker {
+        private final String interfaceName;
+
+        public ToStringInvoke(String interfaceName) {
+            this.interfaceName = "[" + interfaceName + ": ";
+        }
+
+        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
+            return interfaceName + objectName + "]";
+        }
     }
 }
