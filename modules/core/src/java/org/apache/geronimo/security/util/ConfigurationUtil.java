@@ -55,12 +55,12 @@
  */
 package org.apache.geronimo.security.util;
 
-import org.apache.geronimo.deployment.model.web.WebApp;
+import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
 import org.apache.geronimo.deployment.model.web.SecurityConstraint;
 import org.apache.geronimo.deployment.model.web.WebResourceCollection;
 import org.apache.geronimo.deployment.model.j2ee.SecurityRole;
 import org.apache.geronimo.deployment.model.j2ee.SecurityRoleRef;
-import org.apache.geronimo.deployment.model.ejb.EjbJar;
+import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
 import org.apache.geronimo.deployment.model.ejb.EnterpriseBeans;
 import org.apache.geronimo.deployment.model.ejb.Entity;
 import org.apache.geronimo.deployment.model.ejb.Session;
@@ -88,7 +88,7 @@ import java.util.Iterator;
  * A collection of utility functions that assist with the configuration of
  * <code>PolicyConfiguration</code>s.
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/08 05:57:07 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/18 05:17:18 $
  * @see javax.security.jacc.PolicyConfiguration
  *  @see "JSR 115" Java Authorization Contract for Containers
  */

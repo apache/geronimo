@@ -53,62 +53,76 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.security;
+package org.apache.geronimo.security.providers;
 
-import javax.security.jacc.PolicyConfigurationFactory;
-import javax.security.jacc.PolicyContextException;
-import javax.security.jacc.PolicyConfiguration;
+import javax.security.auth.Subject;
+import javax.security.auth.spi.LoginModule;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
 import java.util.Map;
-import java.util.HashMap;
+import java.io.IOException;
 
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/18 05:17:17 $
+ * @version $Revision: 1.1 $ $Date: 2003/11/18 05:17:18 $
  */
-public class GeronimoPolicyConfigurationFactory extends PolicyConfigurationFactory {
-    private Map configurations = new HashMap();
 
-    public final static int GENERICFACTORY = 0;
-    public final static int EJBFACTORY = 1;
-    public final static int WEBFACTORY = 2;
-    private static int factoryType = EJBFACTORY;
+public class SQLLoginModule implements LoginModule {
+    SQLSecurityRealm realm;
+    Subject subject;
+    CallbackHandler handler;
+    String username;
+    String password;
 
-    public static void setFactoryType(int type) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) sm.checkPermission(new GeronimoSecurityPermission("setFactoryType"));
+    public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
+        realm = (SQLSecurityRealm) options.get(SQLSecurityRealm.REALM);
 
-        factoryType = type;
+        this.subject = subject;
+        this.handler = callbackHandler;
     }
 
-    public PolicyConfiguration getPolicyConfiguration(String contextID, boolean remove) throws PolicyContextException {
-        PolicyConfiguration configuration = (PolicyConfiguration) configurations.get(contextID);
+    public boolean login() throws LoginException {
+        Callback[] callbacks = new Callback[2];
 
-        if (configuration == null || remove) {
-            switch (factoryType) {
-                case EJBFACTORY:
-                    configuration = new PolicyConfigurationEJB(contextID);
-                    break;
-                case WEBFACTORY:
-                    configuration = new PolicyConfigurationWeb(contextID);
-                    break;
-                case GENERICFACTORY:
-                    configuration = new PolicyConfigurationGeneric(contextID);
-                    break;
-                default:
-                    configuration = new PolicyConfigurationGeneric(contextID);
-                    break;
-            }
-            configurations.put(contextID, configuration);
+        callbacks[0] = new NameCallback("User name");
+        callbacks[1] = new PasswordCallback("Password", false);
+        try {
+            handler.handle(callbacks);
+        } catch (IOException ioe) {
+            throw (LoginException) new LoginException().initCause(ioe);
+        } catch (UnsupportedCallbackException uce) {
+            throw (LoginException) new LoginException().initCause(uce);
         }
+        username = ((NameCallback) callbacks[0]).getName();
+        password = realm.obfuscate((String) realm.users.get(username));
 
-        return configuration;
+        return new String(((PasswordCallback) callbacks[1]).getPassword()).equals(password);
     }
 
-    public boolean inService(String contextID) throws PolicyContextException {
-        javax.security.jacc.PolicyConfiguration configuration = getPolicyConfiguration(contextID, false);
+    public boolean commit() throws LoginException {
+        subject.getPrincipals().add(new PropertiesFileUserPrincipal(username));
 
-        return configuration.inService();
+        return true;
     }
 
+    public boolean abort() throws LoginException {
+        subject = null;
+        username = null;
+        password = null;
+
+        return true;
+    }
+
+    public boolean logout() throws LoginException {
+        subject = null;
+        username = null;
+        password = null;
+
+        return true;
+    }
 }

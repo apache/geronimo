@@ -55,7 +55,7 @@
  */
 package org.apache.geronimo.security;
 
-import org.apache.geronimo.core.service.AbstractManagedContainer;
+import org.apache.geronimo.core.service.AbstractManagedComponent;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 import javax.management.ObjectName;
@@ -64,10 +64,10 @@ import javax.management.MBeanServer;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/08 06:12:35 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/18 05:17:17 $
  * @jmx:mbean extends="org.apache.geronimo.security.SecurityRealm, org.apache.geronimo.kernel.management.StateManageable"
  */
-public abstract class AbstractSecurityRealm extends AbstractManagedContainer implements SecurityRealm, AbstractSecurityRealmMBean {
+public abstract class AbstractSecurityRealm extends AbstractManagedComponent implements SecurityRealm, AbstractSecurityRealmMBean {
     private String realmName;
 
     public ObjectName preRegister(MBeanServer mBeanServer, ObjectName objectName) throws Exception {

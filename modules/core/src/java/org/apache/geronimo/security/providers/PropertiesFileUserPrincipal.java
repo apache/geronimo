@@ -53,62 +53,63 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.security;
+package org.apache.geronimo.security.providers;
 
-import javax.security.jacc.PolicyConfigurationFactory;
-import javax.security.jacc.PolicyContextException;
-import javax.security.jacc.PolicyConfiguration;
-import java.util.Map;
-import java.util.HashMap;
+import java.security.Principal;
 
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/18 05:17:17 $
+ * @version $Revision: 1.1 $ $Date: 2003/11/18 05:17:18 $
  */
-public class GeronimoPolicyConfigurationFactory extends PolicyConfigurationFactory {
-    private Map configurations = new HashMap();
+public class PropertiesFileUserPrincipal implements Principal {
+    private final String name;
 
-    public final static int GENERICFACTORY = 0;
-    public final static int EJBFACTORY = 1;
-    public final static int WEBFACTORY = 2;
-    private static int factoryType = EJBFACTORY;
-
-    public static void setFactoryType(int type) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) sm.checkPermission(new GeronimoSecurityPermission("setFactoryType"));
-
-        factoryType = type;
+    public PropertiesFileUserPrincipal(String name) {
+        this.name = name;
     }
 
-    public PolicyConfiguration getPolicyConfiguration(String contextID, boolean remove) throws PolicyContextException {
-        PolicyConfiguration configuration = (PolicyConfiguration) configurations.get(contextID);
+    /**
+     * Compares this principal to the specified object.  Returns true
+     * if the object passed in matches the principal represented by
+     * the implementation of this interface.
+     *
+     * @param another principal to compare with.
+     *
+     * @return true if the principal passed in is the same as that
+     * encapsulated by this principal, and false otherwise.
 
-        if (configuration == null || remove) {
-            switch (factoryType) {
-                case EJBFACTORY:
-                    configuration = new PolicyConfigurationEJB(contextID);
-                    break;
-                case WEBFACTORY:
-                    configuration = new PolicyConfigurationWeb(contextID);
-                    break;
-                case GENERICFACTORY:
-                    configuration = new PolicyConfigurationGeneric(contextID);
-                    break;
-                default:
-                    configuration = new PolicyConfigurationGeneric(contextID);
-                    break;
-            }
-            configurations.put(contextID, configuration);
-        }
+     */
+    public boolean equals(Object another) {
+        if (!(another instanceof PropertiesFileUserPrincipal)) return false;
 
-        return configuration;
+        return ((PropertiesFileUserPrincipal) another).name.equals(name);
     }
 
-    public boolean inService(String contextID) throws PolicyContextException {
-        javax.security.jacc.PolicyConfiguration configuration = getPolicyConfiguration(contextID, false);
-
-        return configuration.inService();
+    /**
+     * Returns a string representation of this principal.
+     *
+     * @return a string representation of this principal.
+     */
+    public String toString() {
+        return name;
     }
 
+    /**
+     * Returns a hashcode for this principal.
+     *
+     * @return a hashcode for this principal.
+     */
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    /**
+     * Returns the name of this principal.
+     *
+     * @return the name of this principal.
+     */
+    public String getName() {
+        return name;
+    }
 }

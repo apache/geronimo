@@ -53,62 +53,45 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.security;
+package org.apache.geronimo.security.providers;
 
-import javax.security.jacc.PolicyConfigurationFactory;
-import javax.security.jacc.PolicyContextException;
-import javax.security.jacc.PolicyConfiguration;
-import java.util.Map;
-import java.util.HashMap;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+import mx4j.util.Base64Codec;
 
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/18 05:17:17 $
+ * @version $Revision: 1.1 $ $Date: 2003/11/18 05:17:18 $
  */
-public class GeronimoPolicyConfigurationFactory extends PolicyConfigurationFactory {
-    private Map configurations = new HashMap();
 
-    public final static int GENERICFACTORY = 0;
-    public final static int EJBFACTORY = 1;
-    public final static int WEBFACTORY = 2;
-    private static int factoryType = EJBFACTORY;
+public class SQLSecurityRealmPasswordDigested extends SQLSecurityRealm {
+    String algorithm;
+    MessageDigest digest;
 
-    public static void setFactoryType(int type) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) sm.checkPermission(new GeronimoSecurityPermission("setFactoryType"));
-
-        factoryType = type;
+    public SQLSecurityRealmPasswordDigested() {
+        setAlgorithm("MD5");
     }
 
-    public PolicyConfiguration getPolicyConfiguration(String contextID, boolean remove) throws PolicyContextException {
-        PolicyConfiguration configuration = (PolicyConfiguration) configurations.get(contextID);
+    public String getAlgorithm() {
+        return algorithm;
+    }
 
-        if (configuration == null || remove) {
-            switch (factoryType) {
-                case EJBFACTORY:
-                    configuration = new PolicyConfigurationEJB(contextID);
-                    break;
-                case WEBFACTORY:
-                    configuration = new PolicyConfigurationWeb(contextID);
-                    break;
-                case GENERICFACTORY:
-                    configuration = new PolicyConfigurationGeneric(contextID);
-                    break;
-                default:
-                    configuration = new PolicyConfigurationGeneric(contextID);
-                    break;
-            }
-            configurations.put(contextID, configuration);
+    public void setAlgorithm(String algorithm) {
+        this.algorithm = algorithm;
+        try {
+            digest = MessageDigest.getInstance(algorithm);
+        } catch (NoSuchAlgorithmException e) {
         }
-
-        return configuration;
     }
 
-    public boolean inService(String contextID) throws PolicyContextException {
-        javax.security.jacc.PolicyConfiguration configuration = getPolicyConfiguration(contextID, false);
-
-        return configuration.inService();
+    String obfuscate(String password) {
+        if (digest != null) {
+            byte[] digestedBytes = digest.digest(password.getBytes());
+            byte[] obfuscatedBytes = Base64Codec.encodeBase64(digestedBytes);
+            password = new String(obfuscatedBytes);
+        }
+        return password;
     }
-
 }

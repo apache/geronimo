@@ -55,6 +55,8 @@
  */
 package org.apache.geronimo.security;
 
+import org.apache.geronimo.security.util.ContextManager;
+
 import javax.security.jacc.PolicyConfigurationFactory;
 import javax.security.jacc.PolicyContextException;
 import javax.security.jacc.PolicyContext;
@@ -67,7 +69,7 @@ import java.security.Permission;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/08 06:22:52 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/18 05:17:17 $
  */
 public class GeronimoPolicy extends Policy {
     private final Policy root;
@@ -93,7 +95,7 @@ public class GeronimoPolicy extends Policy {
         String contextID = PolicyContext.getContextID();
         if (contextID != null) {
             try {
-                GeronimoPolicyConfiguration configuration = (GeronimoPolicyConfiguration) factory.getPolicyConfiguration(contextID, false);
+                GeronimoPolicyConfiguration configuration = (GeronimoPolicyConfiguration)factory.getPolicyConfiguration(contextID, false);
 
                 if (configuration.inService()) {
                     if (configuration.implies(domain, permission)) return true;
