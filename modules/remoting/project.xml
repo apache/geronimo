@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.12 $ $Date: 2004/04/22 00:05:49 $ -->
+<!-- $Revision: 1.13 $ $Date: 2004/04/27 00:45:45 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -61,13 +61,6 @@
             <artifactId>commons-logging</artifactId>
             <version>1.0.3</version>
             <url>http://jakarta.apache.org/commons/logging/</url>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>SNAPSHOT</version>
-            <url>http://jakarta.apache.org/commons/lang</url>
         </dependency>
 
         <dependency>

@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.25 $ $Date: 2004/04/22 00:05:48 $ -->
+<!-- $Revision: 1.26 $ $Date: 2004/04/27 00:45:44 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -55,27 +55,6 @@
             <artifactId>commons-logging</artifactId>
             <version>1.0.3</version>
             <url>http://jakarta.apache.org/commons/logging</url>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>SNAPSHOT</version>
-            <url>http://jakarta.apache.org/commons/lang</url>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-            <version>SNAPSHOT</version>
-            <url>http://jakarta.apache.org/commons/collections</url>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-jexl</groupId>
-            <artifactId>commons-jexl</artifactId>
-            <version>SNAPSHOT</version>
-            <url>http://jakarta.apache.org/commons/jexl</url>
         </dependency>
 
         <dependency>
