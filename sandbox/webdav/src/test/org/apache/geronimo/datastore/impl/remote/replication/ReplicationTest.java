@@ -25,11 +25,14 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.apache.geronimo.datastore.impl.remote.messaging.NodeInfo;
+import org.apache.geronimo.datastore.impl.remote.messaging.Topology;
 import org.apache.geronimo.datastore.impl.remote.messaging.ServerNode;
+import org.apache.geronimo.datastore.impl.remote.messaging.Topology.NodePath;
+import org.apache.geronimo.datastore.impl.remote.messaging.Topology.PathWeight;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/03 15:27:32 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/11 15:36:15 $
  */
 public class ReplicationTest extends TestCase {
 
@@ -38,23 +41,33 @@ public class ReplicationTest extends TestCase {
     ReplicationMember replication2;
     
     protected void setUp() throws Exception {
-        replicant1 = new SimpleReplicatedMap();
-        replication1 = new ReplicationMember("Replication1", new String[] {"Node2"});
         InetAddress address = InetAddress.getLocalHost();
         NodeInfo nodeInfo1 = new NodeInfo("Node1", address, 8080);
+        NodeInfo nodeInfo2 = new NodeInfo("Node2", address, 8082);
+        
+        replicant1 = new SimpleReplicatedMap();
+        replication1 = new ReplicationMember("Replication1",
+            new NodeInfo[] {nodeInfo2});
         ServerNode server1 = new ServerNode(nodeInfo1,
             Collections.singleton(replication1));
         server1.doStart();
         replication1.doStart();
 
-        replication2 = new ReplicationMember("Replication1", new String[] {"Node1"});
-        NodeInfo nodeInfo2 = new NodeInfo("Node2", address, 8082);
+        replication2 = new ReplicationMember("Replication1",
+            new NodeInfo[] {nodeInfo1});
         ServerNode server2 = new ServerNode(nodeInfo2,
             Collections.singleton(replication2));
         server2.doStart();
         replication2.doStart();
         
         server2.join(nodeInfo1);
+        
+        Topology topology = new Topology();
+        PathWeight weight = new PathWeight(10);
+        NodePath path = new NodePath(nodeInfo1, nodeInfo2, weight, weight);
+        topology.addPath(path);
+        server2.setTopology(topology);
+        server1.setTopology(topology);
     }
 
     public void testUseCase() {

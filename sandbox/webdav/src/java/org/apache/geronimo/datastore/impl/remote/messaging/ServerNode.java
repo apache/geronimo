@@ -47,11 +47,11 @@ import org.mortbay.util.ThreadedServer;
  * The following diagram shows how ServantNode and Connectors are combined
  * together:
  * 
- * Connector -- MTO -- ServerNode -- MTO -- ServerNode -- OTM -- Connector
+ * Connector -- MTO -- ServerNode -- MTM -- ServerNode -- OTM -- Connector
  *
  * Connector communicates with each other by sending Msgs.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/03 13:10:07 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/11 15:36:14 $
  */
 public class ServerNode
     implements GBean
@@ -59,6 +59,9 @@ public class ServerNode
 
     private static final Log log = LogFactory.getLog(ServerNode.class);
 
+    private static final ServerNodeContext NULL_CONTEXT =
+        new ServerNodeContext(null, null);
+    
     /**
      * Node meta-data.
      */
@@ -112,6 +115,8 @@ public class ServerNode
      * MetaConnection to other nodes.
      */
     final MetaConnection metaConnection;
+
+    private final RequestSender sender;
     
     private GBeanContext context;
 
@@ -123,12 +128,18 @@ public class ServerNode
      * this server.
      */
     public ServerNode(NodeInfo aNodeInfo, Collection aCollOfConnectors) {
+        if ( null == aNodeInfo ) {
+            throw new IllegalArgumentException("NodeInfo is required.");
+        } else if ( null == aCollOfConnectors ) {
+            throw new IllegalArgumentException("Connectors is required.");
+        }
         nodeInfo = aNodeInfo;
+        sender = new RequestSender(nodeInfo);
         server = new InternalServer();
         
         metaConnection = new MetaConnection(this);
         
-        streamManager = new StreamManagerImpl(nodeInfo.getName());
+        streamManager = new StreamManagerImpl(nodeInfo);
         
         processors = new ServerProcessors(this);
         
@@ -146,12 +157,15 @@ public class ServerNode
         
         inReactor.register(StreamManager.NAME, streamManager);
         // The stream manager writes to the output queue of the server.
-        streamManager.setOutput(
+        ServerNodeContext nodeContext = new ServerNodeContext(
             new HeaderOutInterceptor(
                 MsgHeaderConstants.SRC_CONNECTOR,
                 StreamManager.NAME,
-                new QueueOutInterceptor(queueOut)));
-        
+                new QueueOutInterceptor(queueOut)),
+            sender
+            );
+        streamManager.setContext(nodeContext);
+                
         connectors = new HashMap();
         // Registers the Connectors.
         for (Iterator iter = aCollOfConnectors.iterator();
@@ -168,6 +182,15 @@ public class ServerNode
      */
     public NodeInfo getNodeInfo() {
         return nodeInfo;
+    }
+    
+    /**
+     * Sets the node topology in which this instance is operating. 
+     * 
+     * @param aTopology Topology of the nodes constituting the network layout.
+     */
+    public void setTopology(Topology aTopology) {
+        metaConnection.setTopology(aTopology);
     }
     
     /**
@@ -207,13 +230,29 @@ public class ServerNode
 
     /**
      * Gets the Output to be used to communicate with the specified node.
+     * <BR>
+     * aNode must be a node directly connected to this instance.
      * 
-     * @param aServantName Node name.
+     * @param aNode Node.
+     * @return Output to be used to communicate with the specified node.
+     * @throws CommunicationException
+     */
+    public MsgOutInterceptor getRawOutForNode(NodeInfo aNode)
+        throws CommunicationException {
+        return metaConnection.getRawOutForNode(aNode);
+    }
+        
+    /**
+     * Gets the Output to be used to communicate with the specified node.
+     * <BR>
+     * aNode can be a node anywhere in the topology.
+     * 
+     * @param aNode Node.
      * @return Output to be used to communicate with the specified node.
      */
-    protected MsgOutInterceptor getOutForNode(String aNodeName)
+    protected MsgOutInterceptor getOutForNode(NodeInfo aNode)
         throws CommunicationException {
-        return metaConnection.getOutForNode(aNodeName);
+        return metaConnection.getOutForNode(aNode);
     }
     
     /**
@@ -224,12 +263,13 @@ public class ServerNode
     private void addConnector(Connector aConnector) {
         String pName = aConnector.getName();
         // Connectors write to the outbound Msg queue.
-        aConnector.setOutput(
+        ServerNodeContext nodeContext = new ServerNodeContext(
             new HeaderOutInterceptor(
                 MsgHeaderConstants.SRC_CONNECTOR,
                 pName,
-                new QueueOutInterceptor(queueOut)
-                ));
+                new QueueOutInterceptor(queueOut)),
+                sender);
+        aConnector.setContext(nodeContext);
         inReactor.register(pName, aConnector);
         synchronized (connectors) {
             connectors.put(pName, aConnector);
@@ -243,7 +283,7 @@ public class ServerNode
      */
     private void removeConnector(Connector aConnector) {
         String pName = aConnector.getName();
-        aConnector.setOutput(null);
+        aConnector.setContext(NULL_CONTEXT);
         inReactor.unregister(pName);
         synchronized (connectors) {
             connectors.remove(pName);

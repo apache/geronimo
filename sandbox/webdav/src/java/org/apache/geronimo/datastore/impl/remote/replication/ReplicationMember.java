@@ -17,7 +17,10 @@
 
 package org.apache.geronimo.datastore.impl.remote.replication;
 
-import java.io.Serializable;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,7 +33,9 @@ import org.apache.geronimo.datastore.impl.remote.messaging.MsgBody;
 import org.apache.geronimo.datastore.impl.remote.messaging.MsgHeader;
 import org.apache.geronimo.datastore.impl.remote.messaging.MsgHeaderConstants;
 import org.apache.geronimo.datastore.impl.remote.messaging.MsgOutInterceptor;
+import org.apache.geronimo.datastore.impl.remote.messaging.NodeInfo;
 import org.apache.geronimo.datastore.impl.remote.messaging.RequestSender;
+import org.apache.geronimo.datastore.impl.remote.messaging.ServerNodeContext;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.WaitingException;
@@ -46,7 +51,7 @@ import org.apache.geronimo.gbean.WaitingException;
  * ReplicationMember -- MTO -- ServerNode -- MTM -- ServerNode -- OTM -- ReplicationMember
  * </pre>
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/03 15:27:32 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/11 15:36:14 $
  */
 public class ReplicationMember
     implements UpdateListener, Connector, GBean
@@ -63,10 +68,15 @@ public class ReplicationMember
     private final Map idToReplicant;
     
     /**
-     * Names of the nodes hosting the other members of the replication group
+     * Nodes hosting the other members of the replication group
      * of this member.
      */
-    private String[] targetNodes;
+    private NodeInfo[] targetNodes;
+    
+    /**
+     * Context of the ServerNode which has mounted this instance.
+     */
+    protected ServerNodeContext serverNodeContext;
     
     /**
      * Output to be used to send requests.
@@ -81,16 +91,16 @@ public class ReplicationMember
     /**
      * Requests sender.
      */
-    private final RequestSender sender;
+    private RequestSender sender;
     
     /**
      * Creates a replication group member.
      * 
      * @param aName Name of the replication group owning this member.
-     * @param aTargetNodes Names of the nodes hosting the other members of the
+     * @param aTargetNodes Nodes hosting the other members of the
      * replication group containing this member.
      */
-    public ReplicationMember(String aName, String[] aTargetNodes) {
+    public ReplicationMember(String aName, NodeInfo[] aTargetNodes) {
         if ( null == aName ) {
             throw new IllegalArgumentException("Name is required");
         } else if ( null == aTargetNodes ) {
@@ -99,7 +109,6 @@ public class ReplicationMember
         name = aName;
         targetNodes = aTargetNodes;
         idToReplicant = new HashMap();
-        sender = new RequestSender();
     }
     
     public String getName() {
@@ -113,7 +122,7 @@ public class ReplicationMember
         anEvent.setTarget(target.getID());
         sender.sendSyncRequest(
             new CommandRequest("mergeWithUpdate", new Object[] {anEvent}),
-            requestOut);
+            requestOut, targetNodes);
     }
 
     /**
@@ -150,7 +159,7 @@ public class ReplicationMember
         sender.sendSyncRequest(
             new CommandRequest("registerLocalReplicantCapable",
                 new Object[] {aReplicant}),
-            requestOut);
+            requestOut, targetNodes);
         synchronized(idToReplicant) {
             idToReplicant.put(id, aReplicant);
             aReplicant.addUpdateListener(this);
@@ -185,16 +194,16 @@ public class ReplicationMember
         }
     }
     
-    public void setOutput(MsgOutInterceptor anOut) {
-        if ( null != anOut ) {
-            MsgOutInterceptor out =
+    public void setContext(ServerNodeContext aContext) {
+        serverNodeContext = aContext;
+        sender = aContext.getRequestSender();
+        MsgOutInterceptor out = aContext.getOutput();
+        if ( null != out ) {
+            out =
                 new HeaderOutInterceptor(
                     MsgHeaderConstants.DEST_CONNECTOR,
                     name,
-                    new HeaderOutInterceptor(
-                        MsgHeaderConstants.DEST_NODE,
-                        targetNodes,
-                        anOut));
+                    out);
             requestOut =
                 new HeaderOutInterceptor(
                     MsgHeaderConstants.BODY_TYPE,
@@ -245,7 +254,7 @@ public class ReplicationMember
                 MsgHeaderConstants.CORRELATION_ID,
                 id,
                 new HeaderOutInterceptor(
-                    MsgHeaderConstants.DEST_NODE,
+                    MsgHeaderConstants.DEST_NODES,
                     targetNodes,
                     new HeaderOutInterceptor(
                         MsgHeaderConstants.DEST_CONNECTOR,
@@ -265,7 +274,7 @@ public class ReplicationMember
         CommandResult result;
         result = (CommandResult) body.getContent();
         sender.setResponse(
-            (Integer) header.getHeader(MsgHeaderConstants.CORRELATION_ID),
+            header.getHeader(MsgHeaderConstants.CORRELATION_ID),
             result);
     }
     
@@ -284,14 +293,13 @@ public class ReplicationMember
     /**
      * ReplicantCapable identifier. 
      */
-    private static class ReplicantID implements Serializable {
+    private static class ReplicantID implements Externalizable {
         private static volatile int seqId = 0;
-        private final int id;
-        private ReplicantID() {
+        private int id;
+        public ReplicantID() {
             id = seqId++;
         }
         public int hashCode() {
-            // TODO improve me.
             return id;
         }
         public boolean equals(Object obj) {
@@ -300,6 +308,12 @@ public class ReplicationMember
             }
             ReplicantID replicantID = (ReplicantID) obj;
             return id == replicantID.id;
+        }
+        public void writeExternal(ObjectOutput out) throws IOException {
+            out.writeInt(id);
+        }
+        public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+            id = in.readInt();
         }
     }
 

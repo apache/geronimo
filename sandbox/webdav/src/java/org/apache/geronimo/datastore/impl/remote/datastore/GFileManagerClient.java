@@ -31,7 +31,9 @@ import org.apache.geronimo.datastore.impl.remote.messaging.MsgBody;
 import org.apache.geronimo.datastore.impl.remote.messaging.MsgHeader;
 import org.apache.geronimo.datastore.impl.remote.messaging.MsgHeaderConstants;
 import org.apache.geronimo.datastore.impl.remote.messaging.MsgOutInterceptor;
+import org.apache.geronimo.datastore.impl.remote.messaging.NodeInfo;
 import org.apache.geronimo.datastore.impl.remote.messaging.RequestSender;
+import org.apache.geronimo.datastore.impl.remote.messaging.ServerNodeContext;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -39,8 +41,12 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
 
 /**
+ * GFileManager mirroring a GFileManagerProxy mounted by a remote node.
+ * <BR>
+ * Operations peformed against this instance are actually executed against the
+ * remote GFileManagerProxy having the same name than this instance. 
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/03 13:10:06 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/11 15:36:13 $
  */
 public class GFileManagerClient
     implements GBean, GFileManager, Connector
@@ -54,9 +60,14 @@ public class GFileManagerClient
     private final String name;
     
     /**
-     * Name of the node hosting the proxy to be mirrored.
+     * Node hosting the proxy to be mirrored.
      */
-    private final String nodeName; 
+    private final NodeInfo node; 
+
+    /**
+     * Context of the ServerNode which has mounted this instance.
+     */
+    protected ServerNodeContext serverNodeContext;
     
     /**
      * Msg output to be used by this client to communicate with its proxy.
@@ -77,54 +88,62 @@ public class GFileManagerClient
      * @param aName Name of the proxy to be mirrored.
      * @param aNodeName Name of the node hosting the proxy.
      */
-    public GFileManagerClient(String aName, String aNodeName) {
+    public GFileManagerClient(String aName, NodeInfo aNode) {
         if ( null == aName ) {
             throw new IllegalArgumentException("Name is required.");
-        } else if ( null == aNodeName ) {
-            throw new IllegalArgumentException("NodeName is required.");
+        } else if ( null == aNode ) {
+            throw new IllegalArgumentException("Node is required.");
         }
         name = aName;
-        nodeName = aNodeName;
-        sender = new RequestSender();
+        node = aNode;
     }
     
     public String getName() {
         return name;
     }
     
-    public String getNodeName() {
-        return nodeName;
+    /**
+     * Gets the NodeInfo of the node hosting the GFileManagerProxy mirrored by
+     * this instance.
+     * 
+     * @return Hosting node info.
+     */
+    public NodeInfo getHostingNode() {
+        return node;
     }
     
     public void start() {
-        sender.sendSyncRequest(new CommandRequest("start", null), out);
+        sender.sendSyncRequest(new CommandRequest("start", null), out, node);
     }
 
     public GFile factoryGFile(String aPath) {
         GFileStub result = (GFileStub)
             sender.sendSyncRequest(
-                new CommandRequest("factoryGFile", new Object[] {aPath}), out);
+                new CommandRequest("factoryGFile", new Object[] {aPath}), out,
+                    node);
         result.setGFileManagerClient(this);
         return result;
     }
     
     public void persistNew(GFile aFile) {
         sender.sendSyncRequest(
-            new CommandRequest("persistNew", new Object[] {aFile}), out);
+            new CommandRequest("persistNew", new Object[] {aFile}), out, node);
     }
 
     public void persistUpdate(GFile aFile) {
         sender.sendSyncRequest(
-            new CommandRequest("persistUpdate", new Object[] {aFile}), out);
+            new CommandRequest("persistUpdate", new Object[] {aFile}), out,
+                node);
     }
 
     public void persistDelete(GFile aFile) {
         sender.sendSyncRequest(
-            new CommandRequest("persistDelete", new Object[] {aFile}), out);
+            new CommandRequest("persistDelete", new Object[] {aFile}), out,
+                node);
     }
 
     public void end() throws GFileManagerException {
-        sender.sendSyncRequest(new CommandRequest("end", null), out);
+        sender.sendSyncRequest(new CommandRequest("end", null), out, node);
     }
     
     public void setGBeanContext(GBeanContext aContext) {
@@ -140,18 +159,15 @@ public class GFileManagerClient
     public void doFail() {
     }
 
-    public void setOutput(MsgOutInterceptor anOut) {
-        if ( null != anOut ) {
+    public void setContext(ServerNodeContext aContext) {
+        serverNodeContext = aContext;
+        sender = aContext.getRequestSender();
+        out = aContext.getOutput();
+        if ( null != out ) {
             out =
                 new HeaderOutInterceptor(
                     MsgHeaderConstants.DEST_CONNECTOR,
-                    name,
-                    new HeaderOutInterceptor(
-                        MsgHeaderConstants.DEST_NODE,
-                        nodeName,
-                        anOut));
-        } else {
-            out = null;
+                    name, out);
         }
     }
     
@@ -175,7 +191,7 @@ public class GFileManagerClient
     protected Object sendGFileRequest(GFileStub aStub, CommandRequest aRequest) {
         CommandResult result = (CommandResult) 
             sender.sendSyncRequest(new CommandRequest("executeOnGFile",
-                new Object[] {aStub.getID(), aRequest}), out);
+                new Object[] {aStub.getID(), aRequest}), out, node);
         if ( result.isSuccess() ) {
             return result.getResult();
         }

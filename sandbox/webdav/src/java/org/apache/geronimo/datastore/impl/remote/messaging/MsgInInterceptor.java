@@ -18,13 +18,13 @@
 package org.apache.geronimo.datastore.impl.remote.messaging;
 
 /**
- * Inbound Msg interceptor. It allows to pop Msg from a data source, which can
+ * Inbound Msg interceptor. It allows to pop Msgs from a data source, which can
  * be various thing: a queue, an InputStream, another inbound Msg interceptor
  * et cetera.
  * <BR>
  * It is also in charge of adding various specificities to Msg to be popped.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/11 15:36:14 $
  */
 public interface MsgInInterceptor {
   

@@ -17,7 +17,10 @@
 
 package org.apache.geronimo.datastore.impl.remote.messaging;
 
-import java.io.Serializable;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.net.InetAddress;
 
 /**
@@ -27,24 +30,46 @@ import java.net.InetAddress;
  * order to notify the availability of a new node to other nodes. These other
  * nodes could then decide to join it or not.
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/01 13:16:35 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/11 15:36:14 $
  */
-public class NodeInfo implements Serializable
+public class NodeInfo implements Externalizable
 {
 
     /**
      * Name.
      */
-    private final String name;
+    private String name;
     /**
      * Listening address.
      */
-    private final InetAddress address;
+    private InetAddress address;
     /**
      * Listening port.
      */
-    private final int port;
+    private int port;
+
+    /**
+     * Pops the first element of the array and returns the resulting array.
+     * 
+     * @param aNodeInfo Array whose first element is to be poped.
+     * @return New array.
+     */
+    public static NodeInfo[] pop(NodeInfo[] aNodeInfo) {
+        if ( null == aNodeInfo || 0 == aNodeInfo.length) {
+            throw new IllegalArgumentException("NodeInfo array is required.");
+        }
+        NodeInfo[] returned = new NodeInfo[aNodeInfo.length-1];
+        for (int i = 1; i < aNodeInfo.length; i++) {
+            returned[i-1] = aNodeInfo[i];
+        }
+        return returned;
+    }
     
+    /**
+     * Required for Externalization.
+     */
+    public NodeInfo() {}
+        
     /**
      * Creates a NodeInfo defining uniquely a node on a network.
      * 
@@ -92,6 +117,11 @@ public class NodeInfo implements Serializable
         return port;
     }
     
+    public int hashCode() {
+        return name.hashCode() * address.hashCode() *
+            (new Integer(port)).hashCode();
+    }
+    
     public boolean equals(Object obj) {
         if ( false == obj instanceof NodeInfo ) {
             return false;
@@ -100,10 +130,22 @@ public class NodeInfo implements Serializable
         return name.equals(other.name) && address.equals(other.address) &&
             port == other.port;
     }
-    
-    public String toString() {
-        return "NodeInfo: node name = {" + name + "}; address = {" + address +
-            "}; port = {" + port + "}";
+
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeUTF(name);
+        out.writeObject(address);
+        out.writeInt(port);
     }
 
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        name = in.readUTF();
+        address = (InetAddress) in.readObject();
+        port = in.readInt();
+    }
+
+    public String toString() {
+        return "NodeInfo: node name = {" + name + "}; address = {" + address +
+        "}; port = {" + port + "}";
+    }
+    
 }

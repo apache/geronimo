@@ -29,18 +29,18 @@ import org.apache.geronimo.datastore.impl.local.LocalGFileManager;
 import org.apache.geronimo.datastore.impl.remote.datastore.GFileManagerClient;
 import org.apache.geronimo.datastore.impl.remote.datastore.GFileManagerProxy;
 import org.apache.geronimo.datastore.impl.remote.messaging.NodeInfo;
+import org.apache.geronimo.datastore.impl.remote.messaging.Topology;
 import org.apache.geronimo.datastore.impl.remote.messaging.ServerNode;
-import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.datastore.impl.remote.messaging.Topology.NodePath;
+import org.apache.geronimo.datastore.impl.remote.messaging.Topology.PathWeight;
 
 /**
  * This is a remote use-case.
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/03 15:19:01 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/11 15:36:13 $
  */
 public class RemoteUseCaseTest extends AbstractUseCaseTest {
 
-    private Kernel kernel;
-    
     /**
      * In this set-up one initializes two nodes, namely Node1 and Node2. A
      * local GFileManager is mounted by Node1. A client GFileManager is mounted
@@ -64,7 +64,7 @@ public class RemoteUseCaseTest extends AbstractUseCaseTest {
         server1.doStart();
         proxy.doStart();
 
-        fileManager = new GFileManagerClient("test", "Node1");
+        fileManager = new GFileManagerClient("test", nodeInfo1);
         NodeInfo nodeInfo2 = new NodeInfo("Node2", address, 8082);
         ServerNode server2 = new ServerNode(nodeInfo2,
             Collections.singleton(fileManager));
@@ -72,6 +72,13 @@ public class RemoteUseCaseTest extends AbstractUseCaseTest {
         ((GFileManagerClient) fileManager).doStart();
         
         server2.join(nodeInfo1);
+        
+        Topology topology = new Topology();
+        PathWeight weight = new PathWeight(10);
+        NodePath path = new NodePath(nodeInfo1, nodeInfo2, weight, weight);
+        topology.addPath(path);
+        server2.setTopology(topology);
+        server1.setTopology(topology);
     }
     
 }

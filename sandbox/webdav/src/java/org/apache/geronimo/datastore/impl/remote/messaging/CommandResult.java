@@ -17,19 +17,42 @@
 
 package org.apache.geronimo.datastore.impl.remote.messaging;
 
-import java.io.Serializable;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 /**
+ * Encapsulates the result of a CommandRequest.
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/03 13:10:07 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/11 15:36:14 $
  */
-public class CommandResult implements Serializable
+public class CommandResult
+    implements Externalizable
 {
 
-    private final boolean isSuccess;
+    /**
+     * Indicates if the request has been successful.
+     */
+    private boolean isSuccess;
     
-    private final Object opaque;
+    /**
+     * CommandRequest result.
+     */
+    private Object opaque;
     
+    /**
+     * Required for Externalization.
+     */
+    public CommandResult() {}
+    
+    /**
+     * Creates a result of a CommandRequest.
+     * 
+     * @param anIsSuccess true if the request has been successful - no 
+     * exception has been raised. 
+     * @param anOpaque Result of the invocation.
+     */
     public CommandResult(boolean anIsSuccess, Object anOpaque) {
         isSuccess = anIsSuccess;
         if ( !isSuccess && !(anOpaque instanceof Exception) ) {
@@ -38,7 +61,7 @@ public class CommandResult implements Serializable
         }
         opaque = anOpaque;
     }
-    
+
     public boolean isSuccess() {
         return isSuccess;
     }
@@ -49,6 +72,16 @@ public class CommandResult implements Serializable
     
     public Object getResult() {
         return opaque;
+    }
+
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeBoolean(isSuccess);
+        out.writeObject(opaque);
+    }
+
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        isSuccess = in.readBoolean();
+        opaque = in.readObject();
     }
     
 }

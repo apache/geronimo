@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -31,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * This is a connection of connections.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/03 13:10:07 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/11 15:36:14 $
  */
 public class MetaConnection
 {
@@ -49,6 +48,12 @@ public class MetaConnection
     private Map connections;
     
     /**
+     * Node topology to be used to derive the most appropriate path to reach
+     * a node.
+     */
+    private Topology topology;
+    
+    /**
      * Creates a meta-connection for the specified node.
      * 
      * @param aNode Node.
@@ -62,36 +67,76 @@ public class MetaConnection
     }
     
     /**
+     * Sets the node topology to be used in order to resolve the nodes to be
+     * traversed to reach a specific node.  
+     * 
+     * @param aTopology Node topology.
+     */
+    public void setTopology(Topology aTopology) {
+        topology = aTopology;
+    }
+    
+    /**
      * Gets the Msg output to be used to communicate with the node aNodeName.
+     * <BR>
+     * This node MUST be a node directly connected to the node owning this
+     * meta-connection.
      * 
      * @param aNodeName Node name.
      * @return Msg output.
      * @throws CommunicationException Indicates that the node aNodeName is not
      * registered by this connection.
      */
-    public MsgOutInterceptor getOutForNode(String aNodeName)
+    public MsgOutInterceptor getRawOutForNode(NodeInfo aNode)
         throws CommunicationException {
-        Map tmpConnections;
+        Connection connection;
         synchronized(connections) {
-            tmpConnections = new HashMap(connections);
+            connection = (Connection) connections.get(aNode);
         }
-        Connection connection = null;
-        for (Iterator iter = tmpConnections.entrySet().iterator();
-            iter.hasNext();) {
-            Map.Entry entry = (Map.Entry) iter.next();
-            NodeInfo nodeInfo = (NodeInfo) entry.getKey();
-            if ( nodeInfo.getName().equals(aNodeName) ) {
-                connection = (Connection) entry.getValue();
-                break;
-            }
-        }
-        
         if ( null == connection ) {
-            throw new CommunicationException("Node {" + aNodeName +
-                "} is not know by {" + node.getNodeInfo().getName() + "}");
+            throw new CommunicationException("{" + aNode +
+                "} is not reachable by {" + node.getNodeInfo() + "}");
         }
-        
         return connection.out;
+    }
+    
+    /**
+     * Gets the Msg output to be used to communicate with the node aNodeName.
+     * <BR>
+     * The specified node can be anywhere in the current node topology.
+     * Moreover, the returned Msg output automatically adds the information
+     * required to reach the node aNode.
+     * 
+     * @param aNodeName Node name.
+     * @return Msg output.
+     * @throws CommunicationException Indicates that the node aNodeName is not
+     * registered by this connection.
+     */
+    public MsgOutInterceptor getOutForNode(NodeInfo aNode)
+        throws CommunicationException {
+        NodeInfo[] path = topology.getPath(node.getNodeInfo(), aNode);
+        if ( null == path ) {
+            throw new CommunicationException("{" + aNode +
+                "} is not reachable by {" + node.getNodeInfo() + "}");
+        }
+        NodeInfo tmpNode = path[0];
+        NodeInfo[] newPath = NodeInfo.pop(path);
+        Connection connection;
+        synchronized(connections) {
+            connection = (Connection) connections.get(tmpNode);
+        }
+        if ( null == connection ) {
+            throw new CommunicationException("{" + aNode +
+                "} is not reachable by {" + node.getNodeInfo() + "}");
+        }
+        return
+            new HeaderOutInterceptor(
+                MsgHeaderConstants.DEST_NODES,
+                aNode,
+                new HeaderOutInterceptor(
+                    MsgHeaderConstants.DEST_NODE_PATH,
+                    newPath,
+                    connection.out));
     }
     
     /**
@@ -146,12 +191,7 @@ public class MetaConnection
         }
         body.setContent(Boolean.TRUE);
         connection.out.push(msg);
-        // Pops the input stream of the connection and fills in the inbound
-        // Msg queue.
-        QueueOutInterceptor out = new QueueOutInterceptor(node.queueIn);
-        MsgCopier copier = new MsgCopier(
-            connection.in, out, connection.listener);
-        node.processors.execute(copier);
+        popConnection(connection);
         connection.waitForEnd();
     }
     
@@ -190,12 +230,7 @@ public class MetaConnection
         synchronized (connections) {
             connections.put(aNodeInfo, connection);
         }
-        // Pops the input stream of the connection and fills in the inbound
-        // Msg queue.
-        QueueOutInterceptor out = new QueueOutInterceptor(node.queueIn);
-        MsgCopier copier = new MsgCopier(
-            connection.in, out, connection.listener);
-        node.processors.execute(copier);
+        popConnection(connection);
     }
     
     /**
@@ -208,9 +243,9 @@ public class MetaConnection
      */
     public void leave(NodeInfo aNodeInfo)
         throws IOException, CommunicationException {
-        if ( isRegistered(aNodeInfo) ) {
+        if ( !isRegistered(aNodeInfo) ) {
             throw new IllegalArgumentException("{" + aNodeInfo +
-                "} is already registered by {" + node + "}");
+                "} is not registered by {" + node + "}");
         }
         
         Connection connection;
@@ -220,6 +255,35 @@ public class MetaConnection
         connection.close();
     }
 
+    /**
+     * Pops the input stream of the connection and fills in the inbound
+     * Msg queue with Msgs sent to this node. Otherwise, fills in the
+     * outbound queue with Msgs sent to other nodes, which are proxied by this
+     * node.
+     * 
+     * @param aConnection Connection to be polled.
+     */
+    private void popConnection(Connection aConnection) {
+        final QueueOutInterceptor inboundOut =
+        new QueueOutInterceptor(node.queueIn);
+        final QueueOutInterceptor outboundOut =
+        new QueueOutInterceptor(node.queueOut);
+        MsgOutInterceptor out = new MsgOutInterceptor() {
+            public void push(Msg aMsg) {
+                MsgHeader header = aMsg.getHeader();
+                if ( node.getNodeInfo().equals(
+                    header.getHeader(MsgHeaderConstants.DEST_NODES)) ) {
+                    inboundOut.push(aMsg);
+                } else {
+                    outboundOut.push(aMsg);
+                }
+            }
+        };
+        MsgCopier copier = new MsgCopier(
+                aConnection.in, out, aConnection.listener);
+        node.processors.execute(copier);
+    }
+    
     /**
      * Logical connection.
      */
@@ -268,12 +332,7 @@ public class MetaConnection
             rawIn = anIn;
             in = new StreamInInterceptor(rawIn, node.getStreamManager());
             rawOut = anOut;
-            // One adds the name of this node on exit.
-            out =
-                new HeaderOutInterceptor(
-                    MsgHeaderConstants.SRC_NODE,
-                    node.getNodeInfo().getName(),
-                    new StreamOutInterceptor(rawOut, node.getStreamManager()));
+            out = new StreamOutInterceptor(rawOut, node.getStreamManager());
             listener = new MsgCopier.NullCopierListener() {
                 public void onFailure() {
                     close();
@@ -297,12 +356,7 @@ public class MetaConnection
             rawIn = socket.getInputStream();
             in = new StreamInInterceptor(rawIn, node.getStreamManager());
             rawOut = socket.getOutputStream();
-            // One adds the name of this node on exit.
-            out =
-                new HeaderOutInterceptor(
-                    MsgHeaderConstants.SRC_NODE,
-                    node.getNodeInfo().getName(),
-                    new StreamOutInterceptor(rawOut, node.getStreamManager()));
+            out = new StreamOutInterceptor(rawOut, node.getStreamManager());
             listener = new MsgCopier.NullCopierListener() {
                 public void onFailure() {
                     close();

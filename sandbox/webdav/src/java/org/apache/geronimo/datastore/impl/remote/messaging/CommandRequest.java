@@ -17,38 +17,73 @@
 
 package org.apache.geronimo.datastore.impl.remote.messaging;
 
-import java.io.Serializable;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
-import javax.naming.OperationNotSupportedException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
+ * Encapsulates a method invocation.
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/03 13:10:07 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/11 15:36:14 $
  */
 public class CommandRequest
-    implements Serializable
+    implements Externalizable
 {
 
     private static final Log log = LogFactory.getLog(CommandRequest.class);
     
+    /**
+     * Target of the invocation.
+     */
     private transient Object target;
-    private final String methodName;
-    private final Object[] parameters;
     
+    /**
+     * Name of the method defined by target to be executed.
+     */
+    private String methodName;
+    
+    /**
+     * Parameters of methodName. 
+     */
+    private Object[] parameters;
+    
+    /**
+     * Required for Externalization.
+     */
+    public CommandRequest(){}
+    
+    /**
+     * Wraps a method having the specified name and parameters.
+     * 
+     * @param aMethodName Method name.
+     * @param anArrOfParams Parameters.
+     */
     public CommandRequest(String aMethodName, Object[] anArrOfParams) {
         methodName = aMethodName;
         parameters = anArrOfParams;
     }
     
+    /**
+     * Sets the target against which the method is to be executed.
+     * @param aTarget
+     */
     public void setTarget(Object aTarget) {
         target = aTarget;
     }
     
+    /**
+     * Executes the command against the specified target.
+     * 
+     * @return CommandResult wrapping the invocation result. if the command
+     * does not exist for the specified target, then the CommandResult instance
+     * contains a NoSuchMethodException exception.
+     */
     public CommandResult execute() {
         Class clazz = target.getClass();
         Method[] methods = clazz.getMethods();
@@ -59,7 +94,7 @@ public class CommandRequest
             }
         }
         return new CommandResult(false,
-            new OperationNotSupportedException("Method {" + methodName + 
+            new NoSuchMethodException("Method {" + methodName + 
                 "} does not exist."));
     }
     
@@ -68,13 +103,21 @@ public class CommandRequest
         try {
             Object opaque = aMethod.invoke(target, parameters);
             return new CommandResult(true, opaque);
-        } catch (IllegalArgumentException e) {
-            return new CommandResult(false, e);
-        } catch (IllegalAccessException e) {
-            return new CommandResult(false, e);
         } catch (InvocationTargetException e) {
+            return new CommandResult(false, e.getCause());
+        } catch (Throwable e) {
             return new CommandResult(false, e);
         }
+    }
+
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeUTF(methodName);
+        out.writeObject(parameters);
+    }
+
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        methodName = in.readUTF();
+        parameters = (Object[]) in.readObject();
     }
 
 }

@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.datastore.impl.remote.messaging;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -26,12 +28,18 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Counterpart of StreamInInterceptor. It allows to push Msg to an OutputStream.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/11 15:36:14 $
  */
 public class StreamOutInterceptor
     implements MsgOutInterceptor
 {
 
+    /**
+     * Buffer size to be applied on top of the OutputStream when writting.
+     */
+    private static final int BUFFER_SIZE = 2048; 
+    
+    
     private static final Log log = LogFactory.getLog(StreamOutInterceptor.class);
     
     /**
@@ -43,6 +51,13 @@ public class StreamOutInterceptor
      * Used to serialize the Msgs to be pushed.
      */
     private final StreamOutputStream streamOutputStream;
+    
+    /**
+     * Memory buffer used to serialize the Msgs prior to write them to the
+     * actual OutputStream.
+     */
+    private final ByteArrayOutputStream memOut;
+    
     
     /**
      * Pushes Msgs to an OutputStream. Msgs are written by a StreamOutputStream
@@ -58,19 +73,29 @@ public class StreamOutInterceptor
         } else if ( null == aManager ) {
             throw new IllegalArgumentException("StreamManager is required.");
         }
-        out = anOut;
-        streamOutputStream = new StreamOutputStream(anOut, aManager);
+        out = new BufferedOutputStream(anOut, BUFFER_SIZE);
+        memOut = new ByteArrayOutputStream();
+        streamOutputStream = new StreamOutputStream(memOut, aManager);
     }
     
     public void push(Msg aMessage) {
+        try {
+            streamOutputStream.writeObject(aMessage);
+            streamOutputStream.flush();
+        } catch (IOException e) {
+            log.error(e);
+            throw new RuntimeException(e);
+        }
         synchronized(out) {
             try {
-                streamOutputStream.writeObject(aMessage);
+                out.write(memOut.toByteArray());
+                out.flush();
             } catch (IOException e) {
                 log.error(e);
                 throw new RuntimeException(e);
             }
         }
+        memOut.reset();
     }
 
 }

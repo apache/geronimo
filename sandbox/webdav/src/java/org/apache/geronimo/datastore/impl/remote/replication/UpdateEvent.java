@@ -17,14 +17,14 @@
 
 package org.apache.geronimo.datastore.impl.remote.replication;
 
-import java.io.Serializable;
+import java.io.Externalizable;
 
 /**
  * Event to be multicasted by a ReplicationCapable upon modification.
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/03 15:27:32 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/11 15:36:14 $
  */
-public interface UpdateEvent extends Serializable
+public interface UpdateEvent extends Externalizable
 {
 
     /**

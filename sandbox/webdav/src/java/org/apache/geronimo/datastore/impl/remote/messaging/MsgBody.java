@@ -17,15 +17,18 @@
 
 package org.apache.geronimo.datastore.impl.remote.messaging;
 
-import java.io.Serializable;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 /**
  * Msg body.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/11 15:36:14 $
  */
 public class MsgBody
-    implements Serializable
+    implements Externalizable
 {
 
     /**
@@ -68,8 +71,12 @@ public class MsgBody
     /**
      * Type-safe enumeration of body types.
      */
-    public static class Type implements Serializable {
-        private final int code;
+    public static class Type implements Externalizable {
+        private int code;
+        /**
+         * Required for Externalization.
+         */
+        public Type() {}
         private Type(int aCode) {code = aCode;}
         public boolean equals(Object obj) {
             if ( !(obj instanceof Type) ) {
@@ -78,7 +85,6 @@ public class MsgBody
             Type type = (Type) obj;
             return type.code == code;
         }
-        
         /**
          * The content is a request.
          */
@@ -88,6 +94,20 @@ public class MsgBody
          * The content is a response.
          */
         public static final Type RESPONSE = new Type(1);
+        public void writeExternal(ObjectOutput out) throws IOException {
+            out.write(code);
+        }
+        public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+            code = in.read();
+        }
+    }
+
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeObject(content);
+    }
+
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        content = in.readObject();
     }
     
 }

@@ -17,6 +17,10 @@
 
 package org.apache.geronimo.datastore.impl.remote.messaging;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,8 +33,11 @@ import EDU.oswego.cs.dl.util.concurrent.TimeoutException;
 
 /**
  * Request Msgs sender.
+ * <BR>
+ * It is provided by a ServerNode to its Connectors in order to send Msgs to
+ * remote Connectors.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/03 13:10:07 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/11 15:36:14 $
  */
 public class RequestSender {
 
@@ -50,30 +57,65 @@ public class RequestSender {
      * Request id to FuturResult map.
      */
     private final Map responses;
+
+    /**
+     * Node using this sender.
+     */
+    private final NodeInfo srcNode;
     
-    public RequestSender() {
+    /**
+     * Creates a request sender for the node aSrcNode.
+     * <BR>
+     * A request sender adds automatically to the sent messages the required
+     * information to find in a Topology the node, which has emitted the
+     * request.
+     * 
+     * @param aSrcNode Node which is emitting the request.
+     */
+    public RequestSender(NodeInfo aSrcNode) {
+        if ( null == aSrcNode ) {
+            throw new IllegalArgumentException("Node is required.");
+        }
+        srcNode = aSrcNode;
         responses = new HashMap();
     }
 
     /**
-     * Sends a synchronous request Msg.
+     * Sends a synchronous request Msg to the specified node.
      * 
      * @param anOpaque Request to be sent.
      * @param anOut Transport bus.
+     * @param aTargetNodes Target node.
      * @return Request result.
      */
-    public Object sendSyncRequest(Object anOpaque, MsgOutInterceptor anOut) {
+    public Object sendSyncRequest(Object anOpaque, MsgOutInterceptor anOut,
+        NodeInfo aTargetNodes) {
+        return sendSyncRequest(anOpaque, anOut, new NodeInfo[] {aTargetNodes});
+    }
+        
+    /**
+     * Sends a synchronous request Msg to the specified nodes.
+     * 
+     * @param anOpaque Request to be sent.
+     * @param anOut Transport bus.
+     * @param aTargetNodes Nodes to which the request is to be sent.
+     * @return Request result.
+     */
+    public Object sendSyncRequest(Object anOpaque, MsgOutInterceptor anOut,
+        NodeInfo[] aTargetNodes) {
         Msg msg = new Msg();
         
         MsgHeader header = msg.getHeader();
-        Object id = createID();
+        Object id = createID(aTargetNodes);
         header.addHeader(MsgHeaderConstants.CORRELATION_ID, id);
+        header.addHeader(MsgHeaderConstants.SRC_NODE, srcNode);
+        header.addHeader(MsgHeaderConstants.DEST_NODES, aTargetNodes);
         
         MsgBody body = msg.getBody();
         body.setContent(anOpaque);
         
         anOut.push(msg);
-        
+
         CommandResult result = waitResponse(id, WAIT_RESPONSE);
         if ( !result.isSuccess() ) {
             throw new RuntimeException(result.getException());
@@ -85,13 +127,18 @@ public class RequestSender {
      * Creates a slot for a new request/response and returns a request
      * identifier for this slot.
      * 
+     * @param aTargetNodes Nodes to which the request is to be sent.
      * @return Request identifier.
      */
-    private Object createID() {
-        Integer id;
+    private Object createID(NodeInfo[] aTargetNodes) {
+        RequestID id;
         synchronized (responses) {
-            id = new Integer(requestIDSeq++);
-            responses.put(id, new FutureResult());
+            id = new RequestID(requestIDSeq++);
+            FutureResult[] results = new FutureResult[aTargetNodes.length];
+            for (int i = 0; i < results.length; i++) {
+                results[i] = new FutureResult();
+            }
+            responses.put(id, results);
         }
         return id;
     }
@@ -104,15 +151,18 @@ public class RequestSender {
      * @return Result of the request.
      */
     private CommandResult waitResponse(Object anID, long aWaitTime) {
-        FutureResult result;
+        FutureResult[] results;
         synchronized(responses) {
-            result = (FutureResult) responses.get(anID);
+            results = (FutureResult[]) responses.get(anID);
         }
         Exception ex;
         try {
-            // TODO swap comment. Only used during debugging. 
-            CommandResult returned = (CommandResult) result.get();
-            // CommandResult returned = (CommandResult) result.timedGet(aWaitTime);
+            CommandResult returned = null;
+            for (int i = 0; i < results.length; i++) {
+                // TODO swap comment. Only used during debugging.
+                returned = (CommandResult) results[i].get();
+                // CommandResult returned = (CommandResult) result.timedGet(aWaitTime);
+            }
             synchronized(responses) {
                 responses.remove(anID);
             }
@@ -137,11 +187,46 @@ public class RequestSender {
      * @param aResult Response
      */
     public void setResponse(Object anID, CommandResult aResult) {
-        FutureResult result;
+        FutureResult[] results;
         synchronized(responses) {
-            result = (FutureResult) responses.get(anID);
+            results = (FutureResult[]) responses.get(anID);
         }
-        result.set(aResult);
+        for (int i = 0; i < results.length; i++) {
+            FutureResult result = results[i];
+            if ( null == result.peek() ) {
+                result.set(aResult);
+                break;
+            }
+        }
+    }
+    
+    /**
+     * Request identifier.
+     */
+    private static class RequestID implements Externalizable {
+        private int id;
+        /**
+         * Required for Externalization.
+         */
+        public RequestID() {}
+        public RequestID(int anId) {
+            id = anId;
+        }
+        public void writeExternal(ObjectOutput out) throws IOException {
+            out.writeInt(id);
+        }
+        public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+            id = in.readInt();
+        }
+        public boolean equals(Object obj) {
+            if ( false == obj instanceof RequestID ) {
+                return false;
+            }
+            return id == ((RequestID)obj).id;
+        }
+        public int hashCode() {
+            return id;
+        }
     }
     
 }

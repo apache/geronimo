@@ -17,26 +17,37 @@
 
 package org.apache.geronimo.datastore.impl.remote.messaging;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 /**
  * Msg header.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/11 15:36:14 $
  */
 public class MsgHeader
-    implements Serializable
+    implements Externalizable
 {
 
+    private static final Object[] headerConstants = {
+        MsgHeaderConstants.BODY_TYPE,
+        MsgHeaderConstants.CORRELATION_ID,
+        MsgHeaderConstants.DEST_CONNECTOR,
+        MsgHeaderConstants.DEST_NODE,
+        MsgHeaderConstants.DEST_NODE_PATH,
+        MsgHeaderConstants.DEST_NODES,
+        MsgHeaderConstants.SRC_CONNECTOR,
+        MsgHeaderConstants.SRC_NODE};
+    
     /**
      * Header maps.
      */
-    private final Map headers;
+    private Object[] headers;
     
     public MsgHeader() {
-        headers = new HashMap();
+        headers = new Object[headerConstants.length];
     }
 
     /**
@@ -45,7 +56,10 @@ public class MsgHeader
      * TODO This prototype is broken.
      */
     public MsgHeader(MsgHeader aHeader) {
-        headers = new HashMap(aHeader.headers);
+        headers = new Object[headerConstants.length];
+        for (int i = 0; i < aHeader.headers.length; i++) {
+            headers[i] = aHeader.headers[i];
+        }
     }
     
     /**
@@ -55,13 +69,18 @@ public class MsgHeader
      * @param aValue Header value.
      */
     public void addHeader(Object aKey, Object aValue) {
-        synchronized(headers) {
-            headers.put(aKey, aValue);
+        for (int i = 0; i < headerConstants.length; i++) {
+            if ( aKey == headerConstants[i] ) {
+                headers[i] = aValue;
+                return;
+            }
         }
+        throw new IllegalArgumentException("Header {" + aKey +
+            "} is not supported.");
     }
 
     /**
-     * Gets a header.
+     * Gets a required header.
      *  
      * @param aKey Header key.
      * @return Header value.
@@ -69,15 +88,43 @@ public class MsgHeader
      * does not exist.
      */
     public Object getHeader(Object aKey) {
-        Object value;
-        synchronized(headers) {
-            value = headers.get(aKey);
+        for (int i = 0; i < headerConstants.length; i++) {
+            if ( aKey == headerConstants[i] ) {
+                Object value = headers[i];
+                if ( null == value ) {
+                    throw new IllegalArgumentException("Header {" + aKey +
+                        "} is not set.");
+                }
+                return value;
+            }
         }
-        if ( null == value ) {
-            throw new IllegalArgumentException("Header {" + aKey +
-                "} does not exits.");
-        }
-        return value;
+        throw new IllegalArgumentException("Header {" + aKey +
+            "} is not supported.");
     }
 
+    /**
+     * Gets an optional header.
+     *  
+     * @param aKey Header key.
+     * @return Header value.
+     */
+    public Object getOptionalHeader(Object aKey) {
+        Object value;
+        for (int i = 0; i < headerConstants.length; i++) {
+            if ( aKey == headerConstants[i] ) {
+                return headers[i];
+            }
+        }
+        throw new IllegalArgumentException("Header {" + aKey +
+            "} is not supported.");
+    }
+
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeObject(headers);
+    }
+
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        headers = (Object[]) in.readObject();        
+    }
+    
 }

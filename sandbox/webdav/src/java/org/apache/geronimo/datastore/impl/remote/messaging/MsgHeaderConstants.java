@@ -18,9 +18,9 @@
 package org.apache.geronimo.datastore.impl.remote.messaging;
 
 /**
- * Msh header keys.
+ * Msg header keys.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/11 15:36:14 $
  */
 public interface MsgHeaderConstants
 {
@@ -28,31 +28,41 @@ public interface MsgHeaderConstants
     /**
      * Source node.
      */
-    public static final String SRC_NODE = "SrcNodeName";
-
+    public static final Object SRC_NODE = "SrcNode";
+    
+    /**
+     * Destination node.
+     */
+    public static final Object DEST_NODE = "DestNode";
+    
     /**
      * Destination nodes.
      */
-    public static final String DEST_NODE = "DestNodeName";
-
+    public static final Object DEST_NODES = "DestNodes";
+    
+    /**
+     * Path - list of nodes - to be traversed to reach DEST_NODE.
+     */
+    public static final Object DEST_NODE_PATH = "DestNodePath";
+    
     /**
      * Source Connector.
      */
-    public static final String SRC_CONNECTOR = "ConnectorName";
+    public static final Object SRC_CONNECTOR = "ConnectorName";
     
     /**
-     * Destination Connectors.
+     * Destination Connector.
      */
-    public static final String DEST_CONNECTOR = "DestConnectorName";
+    public static final Object DEST_CONNECTOR = "DestConnectorName";
 
     /**
      * Msg identifier.
      */
-    public static final String CORRELATION_ID = "CorrelationID";
+    public static final Object CORRELATION_ID = "CorrelationID";
 
     /**
      * Body type.
      */
-    public static final String BODY_TYPE = "BodyType";
+    public static final Object BODY_TYPE = "BodyType";
     
 }

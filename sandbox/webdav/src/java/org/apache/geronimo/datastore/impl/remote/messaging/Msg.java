@@ -17,31 +17,34 @@
 
 package org.apache.geronimo.datastore.impl.remote.messaging;
 
-import java.io.Serializable;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 /**
  * Message.
  * <BR>
- * Messages are exchanges between ServantNode and ServerNode in a bi-directional
+ * Messages are exchanges between ServerNodes in a bi-directional
  * direction to wrap various information.
  * <BR>
- * Msg are Serializable are they are send across the wire.
+ * Msgs are Serializable as they are sent across the wire.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/11 15:36:14 $
  */
 public class Msg
-    implements Serializable
+    implements Externalizable
 {
 
     /**
      * Header.
      */
-    private final MsgHeader header;
+    private MsgHeader header;
     
     /**
      * Body.
      */
-    private final MsgBody body;
+    private MsgBody body;
 
     /**
      * Creates a new Msg.
@@ -75,6 +78,16 @@ public class Msg
      */
     public MsgBody getBody() {
         return body;
+    }
+
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeObject(header);
+        out.writeObject(body);
+    }
+
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        header = (MsgHeader) in.readObject();
+        body = (MsgBody) in.readObject();
     }
     
 }

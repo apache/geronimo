@@ -18,9 +18,9 @@
 package org.apache.geronimo.datastore.impl.remote.messaging;
 
 /**
- * Used to pop Msg from a MsgQueue.
+ * Used to pop Msgs from a MsgQueue.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/11 15:36:14 $
  */
 public class QueueInInterceptor
     implements MsgInInterceptor

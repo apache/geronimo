@@ -18,12 +18,12 @@
 package org.apache.geronimo.datastore.impl.remote.messaging;
 
 /**
- * Outbound Msg interceptor. It allows to push Msg to various target: a queue,
+ * Outbound Msg interceptor. It allows to push Msg to various targets: a queue,
  * an OutputStream, another outbound Msg interceptor et cetera.
  * <BR>
  * It is also in charge of adding various specificities to Msg to be pushed.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/11 15:36:14 $
  */
 public interface MsgOutInterceptor
 {

@@ -18,33 +18,33 @@
 package org.apache.geronimo.datastore.impl.remote.messaging;
 
 /**
- * Used to push Msgs to a MsgQueue.
- * 
- * @version $Revision: 1.2 $ $Date: 2004/03/11 15:36:14 $
+ * Context provided by a ServerNode to its Connectors when they are registered.
+ *
+ * @version $Revision: 1.1 $ $Date: 2004/03/11 15:36:14 $
  */
-public class QueueOutInterceptor
-    implements MsgOutInterceptor
-{
+public class ServerNodeContext {
 
-    /**
-     * Target MsgQueue.
-     */
-    private final MsgQueue queue;
+    private final MsgOutInterceptor out;
+    private final RequestSender sender;
     
-    /**
-     * Pushes Msgs to the specified queue.
-     * 
-     * @param aQueue Target queue.
-     */
-    public QueueOutInterceptor(MsgQueue aQueue) {
-        if ( null == aQueue ) {
-            throw new IllegalArgumentException("Queue is required.");
-        }
-        queue = aQueue;
+    public ServerNodeContext(MsgOutInterceptor anOut, RequestSender aSender) {
+        out = anOut;
+        sender = aSender;
     }
     
-    public void push(Msg aMessage) {
-        queue.add(aMessage);
+    /**
+     * Gets the Msg outbound interceptor to be used to contact remote
+     * Connectors.
+     */
+    public MsgOutInterceptor getOutput() {
+        return out;
     }
 
+    /**
+     * Gets the RequestSender to be used to send requests to remote Connectors.
+     */
+    public RequestSender getRequestSender() {
+        return sender;
+    }
+    
 }

@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.datastore.impl.remote.messaging;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -24,18 +25,23 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Allows popping Msg from an InputStream.
+ * Allows popping Msgs from an InputStream.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/11 15:36:14 $
  */
 public class StreamInInterceptor
     implements MsgInInterceptor
 {
 
+    /**
+     * Buffer size to be applied on top of the InputStream when reading.
+     */
+    private static final int BUFFER_SIZE = 2048; 
+    
     private static final Log log = LogFactory.getLog(StreamInInterceptor.class);
     
     /**
-     * InputStream to pop Msg from.
+     * InputStream to pop Msgs from.
      */
     private final InputStream in;
     
@@ -58,7 +64,7 @@ public class StreamInInterceptor
         } else if ( null == aManager ) {
             throw new IllegalArgumentException("StreamManager is required.");
         }
-        in = anIn;
+        in = new BufferedInputStream(anIn, BUFFER_SIZE);
         streamInputStream = new StreamInputStream(in, aManager);
     }
     

@@ -26,7 +26,7 @@ import java.io.OutputStream;
 /**
  * This is the counterpart of StreamInputStream.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/03 13:10:07 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/11 15:36:14 $
  */
 public class StreamOutputStream
     extends DataOutputStream
@@ -50,7 +50,6 @@ public class StreamOutputStream
     public void writeObject(Object anObject) throws IOException {
         CustomObjectOutputStream objOut = new CustomObjectOutputStream();
         objOut.writeObject(anObject);
-        objOut.flush();
     }
     
     /**

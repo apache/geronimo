@@ -25,28 +25,27 @@ package org.apache.geronimo.datastore.impl.remote.messaging;
  * <BR>
  * See ServerNode for more details.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/11 15:36:14 $
  */
 public interface Connector
 {
  
     /**
-     * Gets the name of this Connector. This name is exposed by a ServerNode
-     * or ServantNode to expose this Connector to other components. 
+     * Gets the name of this Connector. This name is used by a ServerNode
+     * to expose this Connector to other components. 
      * 
      * @return Name of this Connector.
      */
     public String getName();
 
     /**
-     * Sets the outbound interceptor message to be used by this Connector to 
-     * contact remote Connectors.
+     * Sets the ServerNode context of this Connector.
      */
-    public void setOutput(MsgOutInterceptor anOut);
-    
+    public void setContext(ServerNodeContext aContext);
+
     /**
-     * When a ServerNode or ServantNode receive a Msg to be delivered to a 
-     * Connector, it invokes this method on it.
+     * When a ServerNode receives a Msg to be delivered to a Connector, it
+     * invokes this method on it.
      * <BR>
      * This method MUST be thread-safe as a Thread could be dispatched to
      * perform the invocation.

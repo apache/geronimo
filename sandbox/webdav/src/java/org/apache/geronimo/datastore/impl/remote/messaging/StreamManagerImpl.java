@@ -17,9 +17,11 @@
 
 package org.apache.geronimo.datastore.impl.remote.messaging;
 
+import java.io.Externalizable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +31,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * StreamManager implementation.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/03 13:10:07 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/11 15:36:14 $
  */
 public class StreamManagerImpl
     implements Connector, StreamManager
@@ -50,12 +52,12 @@ public class StreamManagerImpl
     /**
      * Null input stream identifier.
      */
-    private static final ID NULL_INPUT_STREAM = new ID("NULL");
+    private static final ID NULL_INPUT_STREAM = new ID(null);
     
     /**
-     * Name of this manager.
+     * Node owning this manager.
      */
-    protected final String name; 
+    protected final NodeInfo owningNode; 
     
     /**
      * Number of milliseconds to wait for a response.
@@ -66,6 +68,11 @@ public class StreamManagerImpl
      * identifier to input stream map.
      */
     private final Map inputStreams;
+
+    /**
+     * Context of the ServerNode which has mounted this instance.
+     */
+    protected ServerNodeContext serverNodeContext;
     
     /**
      * To send requests.
@@ -78,32 +85,33 @@ public class StreamManagerImpl
     protected MsgOutInterceptor out;
     
     /**
-     * Creates a manager having the specified name.
+     * Creates a manager owned by the specified node.
      * 
-     * @param aName Manager name.
+     * @param aNode Node owning this manager.
      */
-    public StreamManagerImpl(String aName) {
-        if ( null == aName ) {
-            throw new IllegalArgumentException("Name is required.");
+    public StreamManagerImpl(NodeInfo aNode) {
+        if ( null == aNode ) {
+            throw new IllegalArgumentException("Node is required.");
         }
-        name = aName;
+        owningNode = aNode;
         inputStreams = new HashMap();
-        sender = new RequestSender();
     }
     
     public String getName() {
-        return name;
+        return owningNode.getName();
     }
     
-    public void setOutput(MsgOutInterceptor anOut) {
-        out = anOut;
+    public void setContext(ServerNodeContext aContext) {
+        serverNodeContext = aContext;
+        sender = aContext.getRequestSender();
+        out = aContext.getOutput();
     }
     
     public Object register(InputStream anIn) {
         if ( null == anIn ) {
             return NULL_INPUT_STREAM;
         }
-        Object id = new ID(name);
+        Object id = new ID(owningNode);
         synchronized(inputStreams) {
             inputStreams.put(id, anIn);
         }
@@ -156,16 +164,13 @@ public class StreamManagerImpl
                 MsgHeaderConstants.BODY_TYPE,
                 MsgBody.Type.REQUEST,
                 new HeaderOutInterceptor(
-                    MsgHeaderConstants.DEST_NODE,
-                    id.managerName,
-                    new HeaderOutInterceptor(
-                        MsgHeaderConstants.DEST_CONNECTOR,
-                        StreamManager.NAME,
-                        out)));
+                    MsgHeaderConstants.DEST_CONNECTOR,
+                    StreamManager.NAME,
+                    out));
         byte[] result = (byte[])
             sender.sendSyncRequest(
                 new CommandRequest("retrieveLocalNext", new Object[] {anID}),
-                reqOut); 
+                reqOut, id.node); 
         return result;
         
     }
@@ -207,7 +212,7 @@ public class StreamManagerImpl
                     MsgHeaderConstants.BODY_TYPE,
                     MsgBody.Type.RESPONSE,
                     new HeaderOutInterceptor(
-                        MsgHeaderConstants.DEST_NODE,
+                        MsgHeaderConstants.DEST_NODES,
                         sourceNode,
                         new HeaderOutInterceptor(
                             MsgHeaderConstants.DEST_CONNECTOR,
@@ -227,7 +232,7 @@ public class StreamManagerImpl
         CommandResult result;
         result = (CommandResult) body.getContent();
         sender.setResponse(
-            (Integer) header.getHeader(MsgHeaderConstants.CORRELATION_ID),
+            header.getHeader(MsgHeaderConstants.CORRELATION_ID),
             result);
     }
     
@@ -236,7 +241,7 @@ public class StreamManagerImpl
      * InputStream calls back its StreamManager when its internal buffer is
      * empty. 
      *
-     * @version $Revision: 1.2 $ $Date: 2004/03/03 13:10:07 $
+     * @version $Revision: 1.3 $ $Date: 2004/03/11 15:36:14 $
      */
     private class ProxyInputStream extends InputStream {
         /**
@@ -290,24 +295,35 @@ public class StreamManagerImpl
      * node when a StreamManager on another node needs to pull the content of 
      * an InputStream.
      */
-    protected static class ID implements Serializable {
+    protected static class ID implements Externalizable {
         private static volatile int idSeq = 0;
-        protected int sequence;
-        protected String managerName;
-        private ID(String aName) {
+        private int sequence;
+        private NodeInfo node;
+        /**
+         * Required for Externalization.
+         */
+        public ID() {}
+        private ID(NodeInfo aNode) {
             sequence = ++idSeq;
-            managerName = aName;
+            node = aNode;
         }
         public int hashCode() {
-            return managerName.hashCode() + new Integer(sequence).hashCode();
+            return node.hashCode() * new Integer(sequence).hashCode();
         }
         public boolean equals(Object obj) {
-            if ( !(obj instanceof ID) ) {
+            if ( false == obj instanceof ID ) {
                 return false;
             }
             ID id = (ID) obj;
-            return id.sequence == sequence &&
-            managerName.equals(id.managerName) ;
+            return id.sequence == sequence && node.equals(id.node) ;
+        }
+        public void writeExternal(ObjectOutput out) throws IOException {
+            out.writeInt(sequence);
+            out.writeObject(node);
+        }
+        public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+            sequence = in.readInt();
+            node = (NodeInfo) in.readObject();
         }
     }
     

@@ -28,13 +28,10 @@ import java.util.Map;
 
 import org.apache.geronimo.datastore.GFile;
 import org.apache.geronimo.datastore.impl.remote.messaging.CommandRequest;
-import org.apache.geronimo.datastore.impl.remote.messaging.GInputStream;
-import org.apache.geronimo.datastore.impl.remote.messaging.StreamInputStream;
-import org.apache.geronimo.datastore.impl.remote.messaging.StreamOutputStream;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/03 13:10:06 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/11 15:36:13 $
  */
 public class GFileStub
     implements GFile, Externalizable
@@ -150,8 +147,7 @@ public class GFileStub
 
     public void setContent(InputStream anIn) {
         client.sendGFileRequest(this,
-                new CommandRequest("setContent",
-                    new Object[]{new GInputStream(anIn)}));
+                new CommandRequest("setContent", new Object[]{anIn}));
     }
 
     public InputStream getContent() {
@@ -189,12 +185,10 @@ public class GFileStub
      * ObjectOutput.
      */
     public void writeExternal(ObjectOutput out) throws IOException {
-        StreamOutputStream.CustomObjectOutputStream objOut =
-            (StreamOutputStream.CustomObjectOutputStream) out;
-        objOut.writeObject(id);
-        objOut.writeUTF(path);
-        objOut.writeObject(properties);
-        objOut.writeObject(content);
+        out.writeObject(id);
+        out.writeUTF(path);
+        out.writeObject(properties);
+        out.writeObject(content);
     }
 
     /**
@@ -202,12 +196,10 @@ public class GFileStub
      */
     public void readExternal(ObjectInput in) throws IOException,
         ClassNotFoundException {
-        StreamInputStream.CustomObjectInputStream objIn =
-            (StreamInputStream.CustomObjectInputStream) in;
-        id = (Integer) objIn.readObject();
-        path = objIn.readUTF();
-        properties = (Map) objIn.readObject();
-        content = (InputStream) objIn.readObject();
+        id = (Integer) in.readObject();
+        path = in.readUTF();
+        properties = (Map) in.readObject();
+        content = (InputStream) in.readObject();
     }
     
 }

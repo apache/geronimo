@@ -26,10 +26,10 @@ import java.io.ObjectOutput;
 /**
  * An Externalizable InputStream Wrapper.
  * <BR>
- * The Externalization MUST be performed by the 
- * StreamOutputStream/StreamInputStream pair.
+ * The serialization MUST be performed by a StreamOutputStream, which knows 
+ * how to encode a stream into an OutputStream.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/11 15:36:14 $
  */
 public class GInputStream
     extends InputStream
@@ -69,14 +69,9 @@ public class GInputStream
     }
 
     /**
-     * Serializes the wrapped InputStream. The serialization MUST be performed
-     * by a StreamOutputStream, which knows how to encode a stream into an
-     * OutputStream.
+     * Serializes the wrapped InputStream.
      */
     public void writeExternal(ObjectOutput anOut) throws IOException {
-        if ( !(anOut instanceof StreamOutputStream.CustomObjectOutputStream) ) {
-            throw new IOException("Must be serialized by a StreamOutputStream.");
-        }
         StreamOutputStream.CustomObjectOutputStream objOut =
             (StreamOutputStream.CustomObjectOutputStream) anOut;
         objOut.writeStream(content);
@@ -84,12 +79,9 @@ public class GInputStream
     }
 
     public void readExternal(ObjectInput anIn) throws IOException, ClassNotFoundException {
-        if ( !(anIn instanceof StreamInputStream.CustomObjectInputStream) ) {
-            throw new IOException("Must be deserialized by a StreamInputStream.");
-        }
         StreamInputStream.CustomObjectInputStream objIn =
             (StreamInputStream.CustomObjectInputStream) anIn;
-        content = objIn.readInputStream();
+        content = objIn.readStream();
     }
 
 }

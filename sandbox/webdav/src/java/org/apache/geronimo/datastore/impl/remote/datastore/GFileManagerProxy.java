@@ -34,6 +34,7 @@ import org.apache.geronimo.datastore.impl.remote.messaging.MsgBody;
 import org.apache.geronimo.datastore.impl.remote.messaging.MsgHeader;
 import org.apache.geronimo.datastore.impl.remote.messaging.MsgHeaderConstants;
 import org.apache.geronimo.datastore.impl.remote.messaging.MsgOutInterceptor;
+import org.apache.geronimo.datastore.impl.remote.messaging.ServerNodeContext;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -44,7 +45,7 @@ import org.apache.geronimo.gbean.WaitingException;
  * It is a wrapper/proxy for a GFileManager, whose services need to be exposed
  * via a ServerNode.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/03 13:10:06 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/11 15:36:13 $
  */
 public class GFileManagerProxy
     implements GBean, GFileManager, Connector
@@ -62,6 +63,11 @@ public class GFileManagerProxy
      */
     private final GFileManager fileManager;
 
+    /**
+     * Context of the ServerNode which has mounted this instance.
+     */
+    protected ServerNodeContext serverNodeContext;
+    
     /**
      * Output to be used by the proxy to communicate with the clients mirroring
      * this proxy. 
@@ -135,8 +141,9 @@ public class GFileManagerProxy
         fileManager.end();
     }
     
-    public void setOutput(MsgOutInterceptor anOut) {
-        out = anOut;
+    public void setContext(ServerNodeContext aContext) {
+        serverNodeContext = aContext;
+        out = aContext.getOutput();
     }
     
     /**
@@ -176,7 +183,7 @@ public class GFileManagerProxy
                     MsgHeaderConstants.DEST_CONNECTOR,
                     getName(),
                     new HeaderOutInterceptor(
-                        MsgHeaderConstants.DEST_NODE,
+                        MsgHeaderConstants.DEST_NODES,
                         node,
                         out)));
         reqOut.push(msg);

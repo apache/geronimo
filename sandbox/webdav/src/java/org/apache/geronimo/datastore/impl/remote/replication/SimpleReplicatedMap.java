@@ -17,6 +17,9 @@
 
 package org.apache.geronimo.datastore.impl.remote.replication;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,7 +30,7 @@ import java.util.Set;
 /**
  * A simple Map, which is ReplicationCapable aware.
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/03 15:27:32 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/11 15:36:14 $
  */
 public class SimpleReplicatedMap
     implements Map, ReplicationCapable
@@ -162,11 +165,15 @@ public class SimpleReplicatedMap
         public static final int PUTALL = 3 + BASE;
         public static final int REMOVE = 4 + BASE;
         
-        private final int id;
+        private int id;
         private Object target;
-        private final Object key;
-        private final Object value;
+        private Object key;
+        private Object value;
         private Map map;
+        /**
+         * Required for Externalization. 
+         */
+        public MapUpdateEvent() {}
         public MapUpdateEvent(int anId, Object aTarget) {
             this(anId, aTarget, null, null);
         }
@@ -190,6 +197,20 @@ public class SimpleReplicatedMap
         }
         public void setTarget(Object aTarget) {
             target = aTarget;
+        }
+        public void writeExternal(ObjectOutput out) throws IOException {
+            out.writeInt(id);
+            out.writeObject(target);
+            out.writeObject(key);
+            out.writeObject(value);
+            out.writeObject(map);
+        }
+        public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+            id = in.readInt();
+            target = in.readObject();
+            key = in.readObject();
+            value = in.readObject();
+            map = (Map) in.readObject();
         }
     }
     

@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Processors associated to a server.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/03 15:27:33 $
+ * @version $Revision: 1.5 $ $Date: 2004/03/11 15:36:14 $
  */
 class ServerProcessors
 {
@@ -96,23 +96,37 @@ class ServerProcessors
             HeaderInInterceptor in =
                 new HeaderInInterceptor(
                     new QueueInInterceptor(server.queueOut),
-                    MsgHeaderConstants.DEST_NODE);
+                    MsgHeaderConstants.DEST_NODES);
             while ( isStarted ) {
                 Msg msg = in.pop();
                 Object destNode = in.getHeader();
                 MsgOutInterceptor out;
-                if ( destNode instanceof String ) {
-                    destNode = new String[] {(String) destNode};
+                if ( destNode instanceof NodeInfo ) {
+                    destNode = new NodeInfo[] {(NodeInfo) destNode};
                 }
-                String[] dests = (String[]) destNode;
+                NodeInfo[] dests = (NodeInfo[]) destNode;
                 for (int i = 0; i < dests.length; i++) {
+                    NodeInfo target = dests[i];
+                    Msg msg2 = new Msg(msg);
+                    MsgHeader header = msg2.getHeader();
+                    // A path is defined if this Msg is routed via the node 
+                    // owning this instance.
+                    NodeInfo[] path = (NodeInfo[])
+                        header.getOptionalHeader(MsgHeaderConstants.DEST_NODE_PATH);
                     try {
-                        out = server.getOutForNode(dests[i]);
+                        if ( null != path ) {
+                            target = path[0];
+                            header.addHeader(MsgHeaderConstants.DEST_NODE_PATH,
+                                NodeInfo.pop(path));
+                            out = server.getRawOutForNode(target);
+                        } else {
+                            out = server.getOutForNode(target);
+                        }
                     } catch (CommunicationException e) {
                         log.error(e);
                         continue;
                     }
-                    out.push(msg);
+                    out.push(msg2);
                 }
             }
         }

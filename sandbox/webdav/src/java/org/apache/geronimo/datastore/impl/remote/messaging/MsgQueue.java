@@ -17,16 +17,15 @@
 
 package org.apache.geronimo.datastore.impl.remote.messaging;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import EDU.oswego.cs.dl.util.concurrent.LinkedQueue;
 
 /**
  * A named queue. It is a staging repository for Msgs.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/03 15:27:33 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/11 15:36:14 $
  */
 public class MsgQueue
 {
@@ -36,7 +35,7 @@ public class MsgQueue
     /**
      * Actual queue.
      */
-    private final List queue;
+    private final LinkedQueue queue;
     
     /**
      * Name of this queue.
@@ -53,7 +52,7 @@ public class MsgQueue
             throw new IllegalArgumentException("Name is required.");
         }
         name = aName;
-        queue = new ArrayList();
+        queue = new LinkedQueue();
     }
     
     /**
@@ -65,9 +64,11 @@ public class MsgQueue
         if ( null == aMessage ) {
             throw new IllegalArgumentException("Message must be defined.");
         }
-        synchronized(queue) {
-            queue.add(aMessage);
-            queue.notify();
+        try {
+            queue.put(aMessage);
+        } catch (InterruptedException e) {
+            log.error(e);
+            throw new RuntimeException(e);
         }
         log.trace("Message added to queue {" + name + "}");
     }
@@ -79,15 +80,11 @@ public class MsgQueue
      */
     public Msg remove() {
         Msg message;
-        synchronized (queue) {
-            while ( queue.isEmpty() ) {
-                try {
-                    queue.wait();
-                } catch (InterruptedException e) {
-                    log.error(e);
-                }
-            }
-            message = (Msg) queue.remove(0);
+        try {
+            message = (Msg) queue.take();
+        } catch (InterruptedException e) {
+            log.error(e);
+            throw new RuntimeException(e);
         }
         log.trace("Message removed from queue {" + name + "}");
         return message;
