@@ -1,5 +1,5 @@
 ##
-## $Revision: 1.25 $ $Date: 2004/02/25 15:55:31 $
+## $Revision: 1.25 $ $Date$
 ##
 
 Exit Criteria
@@ -111,10 +111,10 @@ Exit Milestone:
 
 organisational acceptance:
 
-  -- Has the board accepted moving to a existing/new PMC?
+X  -- Has the board accepted moving to a existing/new PMC?
 
 
 Incubator sign-off:
 
- -- Has the Incubator decided that the project has accomplished all
+X -- Has the Incubator decided that the project has accomplished all
     of the above tasks?
