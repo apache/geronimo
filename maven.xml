@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: maven.xml,v 1.7 2003/08/13 08:57:00 jstrachan Exp $ -->
+<!-- $Id: maven.xml,v 1.8 2003/08/13 11:55:59 jdillon Exp $ -->
 
 <project default="modules:build" 
          xmlns:j="jelly:core" 
@@ -57,6 +57,11 @@
     <attainGoal name="modules:reactor"/>
   </goal>
    
+  <goal name="modules:rebuild">
+    <j:set var="goals" value="clean, jar:install"/>
+    <attainGoal name="modules:reactor"/>
+  </goal>
+  
   <goal name="modules:site">
     <j:set var="goals" value="site"/>
     <attainGoal name="modules:reactor"/>
@@ -70,5 +75,13 @@
   <preGoal name="clean">
     <attainGoal name="modules:clean"/>
   </preGoal>
+  
+  <goal name="build">
+    <attainGoal name="modules:build"/>
+  </goal>
+  
+  <goal name="rebuild">
+    <attainGoal name="modules:rebuild"/>
+  </goal>
   
 </project>
