@@ -77,7 +77,7 @@ public class ActivationDataFlavor extends DataFlavor {
     }
 
     protected String normalizeMimeTypeParameter(String parameterName, String parameterValue) {
-        return parameterValue;
+        return parameterName + "=" + parameterValue;
     }
 
     protected String normalizeMimeType(String mimeType) {
