@@ -76,7 +76,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/05/24 19:12:55 $
+ * @version $Revision: 1.3 $ $Date: 2004/05/24 19:40:12 $
  */
 public class JettyModuleBuilder implements ModuleBuilder {
     public XmlObject getDeploymentPlan(URL module) throws XmlException {
@@ -352,7 +352,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         for (int i = 0; i < resourceRefArray.length; i++) {
             ResourceRefType resourceRefType = resourceRefArray[i];
             String name = (String)openejbNames.get(resourceRefType.getResRefName().getStringValue());
-            if ("Unshareable".equals(resourceRefType.getResSharingScope().getStringValue())) {
+            if ("Unshareable".equals(getJ2eeStringValue(resourceRefType.getResSharingScope()))) {
                 unshareableResources.add(name);
             }
             if ("Application".equals(resourceRefType.getResAuth().getStringValue())) {
