@@ -422,7 +422,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
 
                 // set the standard properties
                 try {
-//                    adminObjectGBean.setAttribute("adminObjectInterface", cl.loadClass(adminObjectInterface));
+                    adminObjectGBean.setAttribute("adminObjectInterface", cl.loadClass(adminObjectInterface));
                     adminObjectGBean.setAttribute("adminObjectClass", cl.loadClass(adminObject.getAdminobjectClass().getStringValue()));
                 } catch (Exception e) {
                     throw new DeploymentException("Could not initialize AdminObject", e);

@@ -36,35 +36,52 @@ import org.apache.geronimo.kernel.Kernel;
  *
  * @version $Rev$ $Date$
  */
-public class AdminObjectWrapper implements DynamicGBean {
+public class AdminObjectWrapper implements GBeanLifecycle, DynamicGBean {
 
+    private final Class adminObjectInterface;
     private final Class adminObjectClass;
 
     private final DynamicGBeanDelegate delegate;
     private final Object adminObject;
+    private final Kernel kernel;
+    private final String objectName;
 
+    private ConnectorMethodInterceptor interceptor;
+    private Object proxy;
 
     /**
      * Default constructor required when a class is used as a GBean Endpoint.
      */
     public AdminObjectWrapper() {
+        adminObjectInterface = null;
         adminObjectClass = null;
         adminObject = null;
         delegate = null;
+        kernel = null;
+        objectName = null;
     }
 
     /**
      * Normal managed constructor.
      *
+     * @param adminObjectInterface Interface the proxy will implement.
      * @param adminObjectClass Class of admin object to be wrapped.
+     * @param kernel name is used so proxy can find correct kernel.
+     * @param objectName is used by proxy to find this gbean to reconnect to.
      * @throws IllegalAccessException
      * @throws InstantiationException
      */
-    public AdminObjectWrapper(final Class adminObjectClass) throws IllegalAccessException, InstantiationException {
+    public AdminObjectWrapper(final Class adminObjectInterface,
+                              final Class adminObjectClass,
+                              final Kernel kernel,
+                              final String objectName) throws IllegalAccessException, InstantiationException {
+        this.adminObjectInterface = adminObjectInterface;
         this.adminObjectClass = adminObjectClass;
         adminObject = adminObjectClass.newInstance();
         delegate = new DynamicGBeanDelegate();
         delegate.addAll(adminObject);
+        this.kernel = kernel;
+        this.objectName = objectName;
     }
 
     /**
@@ -80,10 +97,53 @@ public class AdminObjectWrapper implements DynamicGBean {
      * @return proxy implementing adminObjectInterface.
      */
     public Object getProxy() {
-        return adminObject;
+        return proxy;
     }
 
+    /**
+     * Returns the MethodInterceptor the proxy communicates with when connected.
+     * @return MethodInterceptor the proxy calls.
+     */
+    public Object getMethodInterceptor() {
+        return interceptor;
+    }
 
+    /**
+     * GBean start method.
+     * @throws WaitingException
+     * @throws Exception
+     */
+    public void doStart() throws WaitingException, Exception {
+        if (proxy == null) {
+            //build proxy
+            Enhancer enhancer = new Enhancer();
+            enhancer.setSuperclass(adminObjectClass);
+            enhancer.setCallbackType(MethodInterceptor.class);
+            //TODO is this correct?
+            enhancer.setUseFactory(false);
+            interceptor = new ConnectorMethodInterceptor(kernel.getKernelName(), ObjectName.getInstance(objectName));
+            enhancer.setCallbacks(new Callback[]{interceptor});
+            proxy = enhancer.create(new Class[0], new Object[0]);
+        }
+        //connect proxy
+        interceptor.setInternalProxy(adminObject);
+    }
+
+    /**
+     * GBean stop method.
+     * @throws WaitingException
+     * @throws Exception
+     */
+    public void doStop() throws WaitingException, Exception {
+        //disconnect proxy
+        interceptor.setInternalProxy(null);
+    }
+
+    /**
+     * GBean fail method.
+     */
+    public void doFail() {
+    }
 
     //DynamicGBean implementation
 
@@ -124,12 +184,20 @@ public class AdminObjectWrapper implements DynamicGBean {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(AdminObjectWrapper.class);
+        infoFactory.addAttribute("adminObjectInterface", Class.class, true);
         infoFactory.addAttribute("adminObjectClass", Class.class, true);
+        infoFactory.addAttribute("kernel", Kernel.class, false);
+        infoFactory.addAttribute("objectName", String.class, false);
 
         infoFactory.addOperation("getProxy");
+        infoFactory.addOperation("getMethodInterceptor");
 
 
-        infoFactory.setConstructor(new String[]{"adminObjectClass"});
+        infoFactory.setConstructor(new String[]{
+            "adminObjectInterface",
+            "adminObjectClass",
+            "kernel",
+            "objectName"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
