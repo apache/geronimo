@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.26 $ $Date: 2004/06/10 23:31:22 $ -->
+<!-- $Revision: 1.27 $ $Date: 2004/07/14 00:36:43 $ -->
 
 <project name="Apache Geronimo">
 
@@ -51,6 +51,7 @@
     </menu>
 
     <menu name="Modules">
+      <item name="Axis"                     href="/modules/axis/index.html"/>
       <item name="Clustering"               href="/modules/clustering/index.html"/>
       <item name="Common"                   href="/modules/common/index.html"/>
       <item name="Connector"                href="/modules/connector/index.html"/>
@@ -64,6 +65,7 @@
       <item name="Network"                  href="/modules/network/index.html"/>
       <item name="Remoting"                 href="/modules/remoting/index.html"/>
       <item name="Security"                 href="/modules/security/index.html"/>
+      <item name="Spring"                   href="/modules/spring/index.html"/>
       <item name="System"                   href="/modules/system/index.html"/>
       <item name="Transaction"              href="/modules/transaction/index.html"/>
     </menu>
