@@ -644,6 +644,34 @@
             <version>${pom.currentVersion}</version>
             <type>war</type>
         </dependency>
+        
+        <!-- JavaMail -->
+	<dependency>
+	    <groupId>geronimo</groupId>
+	    <artifactId>geronimo-mail</artifactId>
+	    <version>${pom.currentVersion}</version>
+	    <properties>
+		<repository>true</repository>
+	    </properties>
+	</dependency>
+
+	<dependency>
+	    <groupId>geronimo-spec</groupId>
+	    <artifactId>geronimo-spec-activation</artifactId>
+	    <version>&geronimo-spec-activation-version;</version>
+	    <properties>
+		<repository>true</repository>
+	    </properties>
+	</dependency>
+
+	<dependency>
+	    <groupId>geronimo-spec</groupId>
+	    <artifactId>geronimo-spec-javamail</artifactId>
+	    <version>&geronimo-spec-javamail-version;</version>
+	    <properties>
+		<repository>true</repository>
+	    </properties>
+	</dependency>
 
     </dependencies>
 
