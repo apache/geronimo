@@ -4,7 +4,7 @@
     <div class="leftNav">
         <h2>Managed Resources</h2>
         <div class="links">
-            <a href="/console/index.jsp">MBean Stack</a>
+            <a href="/geronimo-web-console/index.jsp">MBean Stack</a>
             <br/>Relationships
             <br/>Dependencies
             <br/>Deployments
@@ -21,7 +21,7 @@
         <h2> Help </h2>
         <div class="links">
             Managing Geronimo
-            <br/><a href="/console/faq.jsp">JMX-Console FAQ</a>
+            <br/><a href="/geronimo-web-console/faq.jsp">JMX-Console FAQ</a>
             <br/>Contact us
         </div>
     </div>

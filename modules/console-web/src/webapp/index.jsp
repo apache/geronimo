@@ -4,7 +4,7 @@
 <html>
 <head>
     <title>Geronimo Management Console</title>
-    <link rel="stylesheet" href="/console/style.css"/>
+    <link rel="stylesheet" href="/geronimo-web-console/style.css"/>
 </head>
 
 <body>
@@ -21,7 +21,7 @@
 <input class="textInput" type="text" size="30" name="ObjectNameFilter" value="<jmx:MBeanServerContextValue type='ObjectNameFilter'/>"/>
 <input class="submit" type="submit" tabindex="1" value="Filter Output"/>
 <jmx:ClearFilter/>
-(<a href="/console/faq.jsp#objectName"/>help</a>)
+(<a href="/geronimo-web-console/faq.jsp#objectName"/>help</a>)
 </form>
 
 <jmx:MBeanServerContents/>

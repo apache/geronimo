@@ -4,7 +4,7 @@
 <html>
 <head>
     <title>Geronimo Management Console -- Frequently Asked Questions</title>
-    <link rel="stylesheet" href="/console/style.css"/>
+    <link rel="stylesheet" href="/geronimo-web-console/style.css"/>
 </head>
 
 <body>
