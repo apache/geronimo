@@ -58,6 +58,7 @@ package org.apache.geronimo.deployment;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Iterator;
@@ -76,8 +77,8 @@ import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.kernel.config.LocalConfigStore;
+import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
@@ -86,7 +87,7 @@ import org.apache.xmlbeans.XmlObject;
  * Command line based deployment utility which combines multiple deployable modules
  * into a single configuration.
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/13 07:22:22 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/13 15:48:26 $
  */
 public class Deployer {
     static {
@@ -102,8 +103,8 @@ public class Deployer {
         this.builders = builders;
     }
 
-    public void deploy(CommandLine cmd) throws Exception {
-        URL planURL = getURL(cmd.getOptionValue('p'));
+    public void deploy(Command cmd) throws Exception {
+        URL planURL = cmd.plan;
         XmlObject plan = getLoader().parse(planURL, null, null);
         ConfigurationBuilder builder = null;
         for (Iterator i = builders.iterator(); i.hasNext();) {
@@ -118,28 +119,19 @@ public class Deployer {
         }
 
         boolean saveOutput;
-        File outfile;
-        if (cmd.hasOption('o')) {
-            saveOutput = true;
-            outfile = new File(cmd.getOptionValue('o'));
-        } else {
+        if (cmd.carfile == null) {
             saveOutput = false;
-            outfile = File.createTempFile("deployer", ".car");
+            cmd.carfile = File.createTempFile("deployer", ".car");
+        } else {
+            saveOutput = true;
         }
-
-        builder.buildConfiguration(outfile, plan, cmd.hasOption('I'));
-
-        if (!saveOutput) {
-            outfile.delete();
+        try {
+            builder.buildConfiguration(cmd.carfile, plan, cmd.install);
+        } finally {
+            if (!saveOutput) {
+                cmd.carfile.delete();
+            }
         }
-    }
-
-    private URL getURL(String location) throws MalformedURLException {
-        File f = new File(location);
-        if (f.exists() && f.canRead()) {
-            return f.toURL();
-        }
-        return new URL(new File(".").toURL(), location);
     }
 
     private SchemaTypeLoader getLoader() {
@@ -153,26 +145,19 @@ public class Deployer {
      */
     public static void main(String[] args) {
         try {
-            CommandLine cmd = parseArgs(args);
+            Command cmd = parseArgs(args);
             if (cmd == null) {
                 return;
             }
-            URI deployerID = cmd.hasOption('d') ? new URI(cmd.getOptionValue('d')) : DEFAULT_CONFIG;
-            File configStore = cmd.hasOption('s') ? new File(cmd.getOptionValue('s')) : new File("../config-store");
-            if (!configStore.isDirectory()) {
-                System.err.println("Store does not exist or is not a directory: " + configStore);
-                System.exit(2);
-                throw new AssertionError();
-            }
 
-            Kernel kernel = new Kernel("geronimo.deployment", LocalConfigStore.GBEAN_INFO, configStore);
+            Kernel kernel = new Kernel("geronimo.deployment", LocalConfigStore.GBEAN_INFO, cmd.store);
             kernel.boot();
 
-            ObjectName configName = kernel.load(deployerID);
+            ObjectName configName = kernel.load(cmd.deployer);
             kernel.startRecursiveGBean(configName);
 
-            ObjectName deployerName = getDeployerName(deployerID);
-            kernel.getMBeanServer().invoke(deployerName, "deploy", new Object[]{cmd}, new String[]{CommandLine.class.getName()});
+            ObjectName deployerName = getDeployerName(cmd.deployer);
+            kernel.getMBeanServer().invoke(deployerName, "deploy", new Object[]{cmd}, new String[]{Command.class.getName()});
 
             kernel.stopGBean(configName);
             kernel.shutdown();
@@ -187,6 +172,18 @@ public class Deployer {
         }
     }
 
+    /**
+     * GBean entry point invoked from an executable CAR.
+     * @param args command line args
+     */
+    public void deploy(String[] args) throws Exception {
+        Command cmd = parseArgs(args);
+        if (cmd == null) {
+            return;
+        }
+        deploy(cmd);
+    }
+
     public static ObjectName getDeployerName(URI configID) throws MalformedObjectNameException {
         Properties props = new Properties();
         props.put("role", "Deployer");
@@ -194,7 +191,7 @@ public class Deployer {
         return new ObjectName("geronimo.deployment", props);
     }
 
-    public static CommandLine parseArgs(String[] args) throws ParseException {
+    public static Command parseArgs(String[] args) throws ParseException {
         Options options = new Options();
         options.addOption("h", "help", false, "print this message");
         options.addOption("I", "install", false, "install configuration in store");
@@ -208,19 +205,47 @@ public class Deployer {
             new HelpFormatter().printHelp("deploy.jar [OPTIONS] <module>...", options);
             return null;
         }
-        return cmd;
+
+        Command command = new Command();
+        command.install = cmd.hasOption('I');
+        command.carfile = cmd.hasOption('o') ? new File(cmd.getOptionValue('o')) : null;
+        try {
+            command.plan = cmd.hasOption('p') ? getURL(cmd.getOptionValue('p')) : null;
+        } catch (MalformedURLException e) {
+            System.err.println("Invalid URL for plan: "+cmd.getOptionValue('p'));
+            return null;
+        }
+        try {
+            command.module = cmd.hasOption('m') ? getURL(cmd.getOptionValue('m')) : null;
+        } catch (MalformedURLException e) {
+            System.err.println("Invalid URL for module: "+cmd.getOptionValue('m'));
+            return null;
+        }
+        try {
+            command.deployer = cmd.hasOption('d') ? new URI(cmd.getOptionValue('d')) : DEFAULT_CONFIG;
+        } catch (URISyntaxException e) {
+            System.err.println("Invalid URI for deployer: "+cmd.getOptionValue('d'));
+            return null;
+        }
+        command.store = cmd.hasOption('s') ? new File(cmd.getOptionValue('s')) : new File("../config-store");
+        return command;
     }
 
-    /**
-     * GBean entry point invoked from an executable CAR.
-     * @param args command line args
-     */
-    public void deploy(String[] args) throws Exception {
-        CommandLine cmd = parseArgs(args);
-        if (cmd == null) {
-            return;
+    private static URL getURL(String location) throws MalformedURLException {
+        File f = new File(location);
+        if (f.exists() && f.canRead()) {
+            return f.toURL();
         }
-        deploy(cmd);
+        return new URL(new File(".").toURL(), location);
+    }
+
+    private static class Command {
+        private boolean install;
+        private File carfile;
+        private URL module;
+        private URL plan;
+        private URI deployer;
+        private File store;
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -228,7 +253,7 @@ public class Deployer {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(Deployer.class);
         infoFactory.addOperation(new GOperationInfo("deploy", new Class[]{String[].class}));
-        infoFactory.addOperation(new GOperationInfo("deploy", new Class[]{CommandLine.class}));
+        infoFactory.addOperation(new GOperationInfo("deploy", new Class[]{Command.class}));
         infoFactory.addReference(new GReferenceInfo("Builders", ConfigurationBuilder.class));
         infoFactory.setConstructor(new GConstructorInfo(
                 new String[]{"Builders"},
