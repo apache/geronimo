@@ -58,7 +58,7 @@ package org.apache.geronimo.deployment.model.geronimo.j2ee;
 /**
  * JavaBean for the Geronimo DD tag resource-ref
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/05 20:18:03 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/09 03:47:10 $
  */
 public class ResourceRef extends org.apache.geronimo.deployment.model.j2ee.ResourceRef {
     private String jndiName;
@@ -86,5 +86,9 @@ public class ResourceRef extends org.apache.geronimo.deployment.model.j2ee.Resou
 
     public void setJndiContextParam(int i, JndiContextParam jndiContextParam) {
         this.jndiContextParam[i] = jndiContextParam;
+    }
+
+    public String getURLRef() {
+        return jndiName; //@todo use a proper property
     }
 }

@@ -55,17 +55,19 @@
  */
 package org.apache.geronimo.naming.java;
 
+import java.net.URL;
 import javax.naming.Context;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.deployment.model.geronimo.appclient.ApplicationClient;
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/09/05 20:47:15 $
+ * @version $Revision: 1.5 $ $Date: 2003/09/09 03:47:10 $
  */
 public class ContextBuilderTest extends TestCase {
     private ApplicationClient client;
@@ -80,13 +82,20 @@ public class ContextBuilderTest extends TestCase {
         intEntry.setEnvEntryName("int");
         intEntry.setEnvEntryType("java.lang.Integer");
         intEntry.setEnvEntryValue("12345");
+
+        ResourceRef urlRef = new ResourceRef();
+        urlRef.setResRefName("url/testURL");
+        urlRef.setResType(URL.class.getName());
+        urlRef.setJndiName("http://localhost/path");
         client.setEnvEntry(new EnvEntry[] { stringEntry, intEntry });
         client.setEJBRef(new EjbRef[0]);
+        client.setResourceRef(new ResourceRef[] { urlRef });
     }
 
     public void testEnvEntries() throws Exception {
         Context compCtx = ComponentContextBuilder.buildContext(client);
         assertEquals("Hello World", compCtx.lookup("env/string"));
         assertEquals(new Integer(12345), compCtx.lookup("env/int"));
+        assertEquals(new URL("http://localhost/path"), compCtx.lookup("env/url/testURL"));
     }
 }

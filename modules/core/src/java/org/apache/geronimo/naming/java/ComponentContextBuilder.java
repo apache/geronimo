@@ -55,20 +55,23 @@
  */
 package org.apache.geronimo.naming.java;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import javax.naming.Context;
 import javax.naming.LinkRef;
 
-import org.apache.geronimo.kernel.deployment.DeploymentException;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDIEnvironmentRefs;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
+import org.apache.geronimo.kernel.deployment.DeploymentException;
 
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/09/08 04:30:29 $
+ * @version $Revision: 1.6 $ $Date: 2003/09/09 03:47:10 $
  */
 public class ComponentContextBuilder {
     /**
@@ -81,6 +84,7 @@ public class ComponentContextBuilder {
         Map envMap = new HashMap();
         buildEnvEntries(envMap, refs.getEnvEntry());
         buildEJBRefs(envMap, refs.getEJBRef());
+        buildResourceRefs(envMap, refs.getResourceRef());
 
         Map compMap = new HashMap();
         compMap.put("env", new ReadOnlyContext(envMap));
@@ -135,6 +139,27 @@ public class ComponentContextBuilder {
             LinkRef ref = new LinkRef(jndiName);
             if (envMap.put(name, ref) != null) {
                 throw new AssertionError("Duplicate entry for env-entry " + name);
+            }
+        }
+    }
+
+    private static void buildResourceRefs(Map envMap, ResourceRef[] resRefs) throws DeploymentException {
+        for (int i=0; i < resRefs.length; i++) {
+            ResourceRef resRef = resRefs[i];
+            String name = resRef.getResRefName();
+            String type = resRef.getResType();
+            Object ref;
+            if ("java.net.URL".equals(type)) {
+                try {
+                    ref = new URL(resRef.getURLRef());
+                } catch (MalformedURLException e) {
+                    throw new DeploymentException("Invalid URL for resource-ref "+name, e);
+                }
+            } else {
+                throw new DeploymentException("Cannot create resource-ref for "+name+", unknown type "+type);
+            }
+            if (envMap.put(name, ref) != null) {
+                throw new AssertionError("Duplicate entry for resource-ref " + name);
             }
         }
     }
