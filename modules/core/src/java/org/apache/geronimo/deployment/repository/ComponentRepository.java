@@ -76,8 +76,8 @@ import javax.management.ReflectionException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.jmx.JMXUtil;
+import org.apache.geronimo.kernel.deployment.DeploymentException;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
  * A proxy for a repository of components that can accessed remotely and
@@ -85,7 +85,7 @@ import org.apache.geronimo.jmx.JMXUtil;
  *
  * @jmx:mbean
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/01 20:38:49 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/08 04:26:07 $
  */
 public class ComponentRepository
     implements ComponentRepositoryMBean,MBeanRegistration
