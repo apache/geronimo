@@ -33,12 +33,11 @@ import javax.transaction.xa.Xid;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.transaction.ExtendedTransactionManager;
 import org.apache.geronimo.transaction.ImportedTransactionActiveException;
 import org.apache.geronimo.transaction.XAWork;
-import org.apache.geronimo.transaction.manager.Recovery;
 import org.apache.geronimo.transaction.manager.XidImporter;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -137,7 +136,7 @@ public class TransactionContextManager implements XATerminator, XAWork {
 
         try {
             int status = containerTransactionContext.getTransaction().getStatus();
-            assert status == Status.STATUS_ACTIVE || status == Status.STATUS_PREPARED;
+            assert status == Status.STATUS_ACTIVE || status == Status.STATUS_PREPARED: "invalid status: " + status;
         } catch (SystemException e) {
             throw new XAException();
         }

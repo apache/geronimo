@@ -18,6 +18,7 @@
 package org.apache.geronimo.transaction.context;
 
 import javax.transaction.xa.Xid;
+import javax.transaction.xa.XAResource;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.transaction.ImportedTransactionActiveException;
@@ -51,8 +52,9 @@ public class TransactionContextManagerTest extends TestCase {
         transactionContextManager.end(xid);
         transactionContextManager.begin(xid, 1000);
         transactionContextManager.end(xid);
-        transactionContextManager.prepare(xid);
-        transactionContextManager.commit(xid, false);
+        int readOnly = transactionContextManager.prepare(xid);
+        assertEquals(XAResource.XA_RDONLY, readOnly);
+//        transactionContextManager.commit(xid, false);
     }
 
     public void testNoConcurrentWorkSameXid() throws Exception {
