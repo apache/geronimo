@@ -92,7 +92,7 @@
     <xsd:complexType name="ejb-jarType">
         <xsd:sequence>
             <xsd:element name="class-space" type="ger:class-spaceType"/>
-            <xsd:element name="security" type="ger:securityType"/>
+            <xsd:element name="security" type="ger:securityType" minOccurs="0"/>
             <xsd:group ref="j2ee:descriptionGroup"/>
             <xsd:element name="module-name" type="j2ee:string" minOccurs="0"/>
             <xsd:element name="datasource-name" type="j2ee:string"/>
