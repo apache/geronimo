@@ -80,7 +80,7 @@ import org.apache.naming.resources.FileDirContext;
  * DAVRepository implementation using the Tomcat WebDAV servlet as the
  * processing servlet.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 02:25:51 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/24 15:39:17 $
  */
 public class CatalinaDAVRepository implements DAVRepository, GBean {
 
@@ -186,7 +186,7 @@ public class CatalinaDAVRepository implements DAVRepository, GBean {
         return Collections.unmodifiableMap(servletInitParam);
     }
 
-    public void setGBeanContext(GBeanContext context) {
+    public void setGBeanContext(GBeanContext aContext) {
     }
 
     public void doStart() throws WaitingException, Exception {
@@ -208,9 +208,9 @@ public class CatalinaDAVRepository implements DAVRepository, GBean {
         infoFactory.addAttribute(new GAttributeInfo("Root", true));
         infoFactory.addAttribute(new GAttributeInfo("Context", true));
         infoFactory.addAttribute(new GAttributeInfo("Host", true));
-        infoFactory.addAttribute(new GAttributeInfo("HandlingServlet"));
-        infoFactory.addAttribute(new GAttributeInfo("ServletContextAttr"));
-        infoFactory.addAttribute(new GAttributeInfo("ServletInitParam"));
+        infoFactory.addAttribute(new GAttributeInfo("HandlingServlet", false));
+        infoFactory.addAttribute(new GAttributeInfo("ServletContextAttr", false));
+        infoFactory.addAttribute(new GAttributeInfo("ServletInitParam", false));
         infoFactory.setConstructor(new GConstructorInfo(
                 Arrays.asList(new Object[]{"Root", "Context", "Host"}),
                 Arrays.asList(new Object[]{File.class, String.class, String.class})));

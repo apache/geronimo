@@ -63,14 +63,15 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.EndpointCollection;
-import org.apache.geronimo.gbean.EndpointCollectionEvent;
-import org.apache.geronimo.gbean.EndpointCollectionListener;
+import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.gbean.ReferenceCollection;
+import org.apache.geronimo.gbean.ReferenceCollectionEvent;
+import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.webdav.DAVRepository;
 import org.apache.geronimo.webdav.DAVServer;
@@ -83,11 +84,16 @@ import org.mortbay.jetty.servlet.ServletHttpContext;
 /**
  * DAVServer using under the cover a light Jetty servlet container.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 02:25:51 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/24 15:39:17 $
  */
 public class JettyDAVServer implements DAVServer, GBean {
     private static final Log log = LogFactory.getLog(JettyDAVServer.class);
 
+    /**
+     * Context callback.
+     */
+    private GBeanContext context;
+    
     /**
      * Jetty Server doing the actual work.
      */
@@ -106,27 +112,27 @@ public class JettyDAVServer implements DAVServer, GBean {
     /**
      * Repositories served by this server.
      */
-    private EndpointCollection repositories;
-    private final EndpointCollectionListener repositoryListener = new EndpointCollectionListener() {
-        public void memberAdded(EndpointCollectionEvent event) {
+    private ReferenceCollection repositories;
+    private final ReferenceCollectionListener repositoryListener = new ReferenceCollectionListener() {
+        public void memberAdded(ReferenceCollectionEvent event) {
             addRepository((DAVRepository) event.getMember());
-        }
-
-        public void memberRemoved(EndpointCollectionEvent event) {
+		}
+        
+		public void memberRemoved(ReferenceCollectionEvent event) {
             removeRepository((DAVRepository) event.getMember());
-        }
+		}
     };
 
     /**
      * Connectors injecting requests to this server.
      */
-    private EndpointCollection connectors;
-    private final EndpointCollectionListener connectorListener = new EndpointCollectionListener() {
-        public void memberAdded(EndpointCollectionEvent event) {
+    private ReferenceCollection connectors;
+    private final ReferenceCollectionListener connectorListener = new ReferenceCollectionListener() {
+        public void memberAdded(ReferenceCollectionEvent event) {
             addConnector((JettyConnector) event.getMember());
         }
 
-        public void memberRemoved(EndpointCollectionEvent event) {
+        public void memberRemoved(ReferenceCollectionEvent event) {
             removeConnector((JettyConnector) event.getMember());
         }
     };
@@ -139,14 +145,14 @@ public class JettyDAVServer implements DAVServer, GBean {
 
     public void setConnectors(Collection aCollOfConnectors) {
         if (null == aCollOfConnectors) {
-            connectors.removeEndpointCollectionListener(connectorListener);
+            connectors.removeReferenceCollectionListener(connectorListener);
             for (Iterator iter = connectors.iterator(); iter.hasNext();) {
                 removeConnector((JettyConnector) iter.next());
             }
         }
-        connectors = (EndpointCollection) aCollOfConnectors;
+        connectors = (ReferenceCollection) aCollOfConnectors;
         if (null != connectors) {
-            connectors.addEndpointCollectionListener(connectorListener);
+            connectors.addReferenceCollectionListener(connectorListener);
             for (Iterator iter = connectors.iterator(); iter.hasNext();) {
                 addConnector((JettyConnector) iter.next());
             }
@@ -155,8 +161,8 @@ public class JettyDAVServer implements DAVServer, GBean {
 
     public void addConnector(JettyConnector aConnector) {
         // The Connector MUST be running at this stage, otherwise a null
-        // listener is returned. This is enforced by the endpoint mechanism,
-        // which publishes only running endpoints.
+        // listener is returned. This is enforced by the Reference mechanism,
+        // which publishes only running References.
         if (null == aConnector.getListener()) {
             throw new IllegalStateException("No defined listener.");
         }
@@ -182,14 +188,14 @@ public class JettyDAVServer implements DAVServer, GBean {
 
     public void setRepositories(Collection aCollOfRepositories) {
         if (null == aCollOfRepositories) {
-            repositories.removeEndpointCollectionListener(repositoryListener);
+            repositories.removeReferenceCollectionListener(repositoryListener);
             for (Iterator iter = repositories.iterator(); iter.hasNext();) {
                 removeRepository((DAVRepository) iter.next());
             }
         }
-        repositories = (EndpointCollection) aCollOfRepositories;
+        repositories = (ReferenceCollection) aCollOfRepositories;
         if (null != repositories) {
-            repositories.addEndpointCollectionListener(repositoryListener);
+            repositories.addReferenceCollectionListener(repositoryListener);
             for (Iterator iter = repositories.iterator(); iter.hasNext();) {
                 addRepository((DAVRepository) iter.next());
             }
@@ -203,19 +209,22 @@ public class JettyDAVServer implements DAVServer, GBean {
      */
     public void addRepository(DAVRepository aRepository) {
         // Gets the context associated to this repository.
-        ServletHttpContext context = (ServletHttpContext) server.getContext(aRepository.getHost(), aRepository.getContext());
-
+        ServletHttpContext servletContext =
+            (ServletHttpContext) server.getContext(aRepository.getHost(),
+                aRepository.getContext());
+        
         // Defines the servlet context attributes.
         Map attributes = aRepository.getServletContextAttr();
         for (Iterator iter = attributes.entrySet().iterator(); iter.hasNext();) {
             Map.Entry attribute = (Map.Entry) iter.next();
-            context.setAttribute((String) attribute.getKey(), attribute.getValue());
+            servletContext.setAttribute((String) attribute.getKey(),
+                attribute.getValue());
         }
 
         ServletHolder holder = null;
         try {
             // Defines the WebDAV servlet.
-            holder = context.addServlet("DAVRepository", "/*", aRepository.getHandlingServlet().getName());
+            holder = servletContext.addServlet("DAVRepository", "/*", aRepository.getHandlingServlet().getName());
 
             // Defines the servlet init parameters.
             attributes = aRepository.getServletInitParam();
@@ -223,7 +232,7 @@ public class JettyDAVServer implements DAVServer, GBean {
                 Map.Entry attribute = (Map.Entry) iter.next();
                 holder.setInitParameter((String) attribute.getKey(), (String) attribute.getValue());
             }
-            context.start();
+            servletContext.start();
         } catch (Exception e) {
             log.error(e);
             throw new RuntimeException(e);
@@ -260,7 +269,8 @@ public class JettyDAVServer implements DAVServer, GBean {
         return connectors;
     }
 
-    public void setGBeanContext(GBeanContext context) {
+    public void setGBeanContext(GBeanContext aContext) {
+        context = aContext;        
     }
 
     public void doStart() throws WaitingException, Exception {
@@ -297,8 +307,10 @@ public class JettyDAVServer implements DAVServer, GBean {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("DAV Server - Jetty", JettyDAVServer.class.getName());
-        infoFactory.addEndpoint(new GEndpointInfo("Connectors", JettyConnector.class.getName()));
-        infoFactory.addEndpoint(new GEndpointInfo("Repositories", DAVRepository.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("Connectors", JettyConnector.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("Repositories", DAVRepository.class.getName()));
+        infoFactory.addAttribute(new GAttributeInfo("Connectors", false, Boolean.TRUE, Boolean.TRUE, null, null));
+        infoFactory.addAttribute(new GAttributeInfo("Repositories", false, Boolean.TRUE, Boolean.TRUE, null, null));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

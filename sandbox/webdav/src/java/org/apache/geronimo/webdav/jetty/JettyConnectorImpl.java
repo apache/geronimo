@@ -75,7 +75,7 @@ import org.mortbay.util.ThreadedServer;
 /**
  * Connector using under the cover a Jetty HttpListener.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 02:25:51 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/24 15:39:17 $
  */
 public class JettyConnectorImpl extends AbstractConnector implements GBean, JettyConnector {
     private static final String HTTP_PROTOCOL = "http";
@@ -146,7 +146,7 @@ public class JettyConnectorImpl extends AbstractConnector implements GBean, Jett
                 new GBeanInfoFactory("Connector - Jetty",
                         JettyConnectorImpl.class.getName(),
                         AbstractConnector.getGBeanInfo());
-        infoFactory.addAttribute(new GAttributeInfo("Listener"));
+        infoFactory.addAttribute(new GAttributeInfo("Listener", false));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
