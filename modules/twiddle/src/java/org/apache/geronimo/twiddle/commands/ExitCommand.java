@@ -67,7 +67,6 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.ParseException;
 
 import org.apache.geronimo.common.NullArgumentException;
-import org.apache.geronimo.common.UnreachableStatementException;
 
 import org.apache.geronimo.twiddle.command.Command;
 import org.apache.geronimo.twiddle.command.CommandInfo;
@@ -79,7 +78,7 @@ import org.apache.geronimo.twiddle.util.HelpFormatter;
 /**
  * Exit command... terminates the virtual machine.
  *
- * @version <code>$Revision: 1.5 $ $Date: 2003/08/16 15:14:12 $</code>
+ * @version <code>$Revision: 1.6 $ $Date: 2003/08/24 09:26:29 $</code>
  */
 public class ExitCommand
     extends AbstractCommand
@@ -137,6 +136,9 @@ public class ExitCommand
         out.println("Exiting with status code: " + statusCode);
         System.exit(statusCode);
         
-        throw new UnreachableStatementException();
+        // Will never reach here
+        assert false;
+        
+        return Command.FAILURE;
     }
 }
