@@ -57,14 +57,14 @@ package org.apache.geronimo.gbean;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 /**
  * Describes an operation on a GBean.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/14 22:16:37 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/16 23:31:21 $
  */
 public final class GOperationInfo implements Serializable {
     /**
@@ -78,58 +78,30 @@ public final class GOperationInfo implements Serializable {
     private final List parameters;
 
     /**
-     * A user displayable description of this method.
-     */
-    private final String description;
-
-    /**
      * Target method name.
      */
     private final String methodName;
 
     public GOperationInfo(String name) {
-        this(name, name, Collections.EMPTY_LIST, null);
+        this(name, name, Collections.EMPTY_LIST);
     }
 
-    public GOperationInfo(String name, String[] paramNames, String[] paramTypes) {
-        this(name, name, buildParams(paramNames, paramTypes), null);
-    }
-
-    private static List buildParams(String[] paramNames, String[] paramTypes) {
-        List params = new ArrayList(paramNames.length);
-        for (int i = 0; i < paramNames.length; i++) {
-            GParameterInfo info = new GParameterInfo(paramNames[i], paramTypes[i], null);
-            params.add(info);
-        }
-        return params;
+    public GOperationInfo(String name, String[] paramTypes) {
+        this(name, name, Arrays.asList(paramTypes));
     }
 
     public GOperationInfo(String name, List parameters) {
-        this(name, name, parameters, null);
+        this(name, name, parameters);
     }
 
     public GOperationInfo(String name, String methodName, List parameters) {
-        this(name, methodName, parameters, null);
-    }
-
-    public GOperationInfo(String name, String methodName, List parameters, String description) {
         this.name = name;
         this.methodName = methodName;
-        List p = new ArrayList(parameters.size());
-        for (Iterator iterator = parameters.iterator(); iterator.hasNext();) {
-            GParameterInfo parameter = (GParameterInfo) iterator.next();
-            p.add(parameter);
-        }
-        this.parameters = Collections.unmodifiableList(p);
-        this.description = description;
+        this.parameters = Collections.unmodifiableList(new ArrayList(parameters));
     }
 
     public String getName() {
         return name;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public String getMethodName() {
@@ -141,6 +113,6 @@ public final class GOperationInfo implements Serializable {
     }
 
     public String toString() {
-        return "[GOperationInfo: name=" + name + " description=" + description + "]";
+        return "[GOperationInfo: name=" + name + " parameters=" + parameters + "]";
     }
 }

@@ -64,11 +64,10 @@ import org.apache.geronimo.gbean.GBeanInfo;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/16 02:17:39 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/16 23:31:21 $
  */
 public class GBeanInfoFactory {
     private final String name;
-    private final String description;
     private final String className;
     private final Set attributes = new HashSet();
     private GConstructorInfo constructor;
@@ -76,29 +75,29 @@ public class GBeanInfoFactory {
     private final Set endpoints = new HashSet();
     private final Set notifications = new HashSet();
 
-    public GBeanInfoFactory(String name, String description, String className) {
+    public GBeanInfoFactory(String name) {
+        this(name, name);
+    }
+
+    public GBeanInfoFactory(String name, String className) {
         this.name = name;
-        this.description = description;
         this.className = className;
     }
 
-    public GBeanInfoFactory(String name, String description, String className, GBeanInfo source) {
-        this(name, description, className);
-        assert source != null;
+    public GBeanInfoFactory(String className, GBeanInfo source) {
+        this(className, className, source);
+    }
+
+    public GBeanInfoFactory(String name, String className, GBeanInfo source) {
+        assert name != null && className != null && source != null;
+        this.name = name;
+        this.className = className;
         attributes.addAll(source.getAttributeSet());
         operations.addAll(source.getOperationsSet());
         endpoints.addAll(source.getEndpointsSet());
         notifications.addAll(source.getNotificationsSet());
         //in case subclass constructor has same parameters as superclass.
         constructor = source.getConstructor();
-    }
-
-    public GBeanInfoFactory(String className) {
-        this(className, null, className);
-    }
-
-    public GBeanInfoFactory(String className, GBeanInfo source) {
-        this(className, null, className, source);
     }
 
     public void addAttribute(GAttributeInfo info) {
@@ -122,6 +121,6 @@ public class GBeanInfoFactory {
     }
 
     public GBeanInfo getBeanInfo() {
-        return new GBeanInfo(name, description, className, attributes, constructor, operations, endpoints, notifications);
+        return new GBeanInfo(name, className, attributes, constructor, operations, endpoints, notifications);
     }
 }

@@ -85,7 +85,7 @@ import org.mortbay.jetty.Server;
 /**
  * JettyWebAccessLog
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/16 23:10:14 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/16 23:31:21 $
  */
 public class JettyWebAccessLog extends AbstractWebAccessLog implements GeronimoMBeanTarget {
 
@@ -256,10 +256,10 @@ public class JettyWebAccessLog extends AbstractWebAccessLog implements GeronimoM
     }
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty Web Access Log", "Wrapped Jetty access log", JettyWebAccessLog.class.getName(), AbstractWebAccessLog.getGBeanInfo());
-        infoFactory.addAttribute(new GAttributeInfo("Buffering", true, "Should log buffer"));
-        infoFactory.addOperation(new GOperationInfo("registerLog", new String[]{"Jetty Server"}, new String[]{Server.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("unregisterLog", new String[]{"Jetty Server"}, new String[]{Server.class.getName()}));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty Web Access Log", JettyWebAccessLog.class.getName(), AbstractWebAccessLog.getGBeanInfo());
+        infoFactory.addAttribute(new GAttributeInfo("Buffering", true));
+        infoFactory.addOperation(new GOperationInfo("registerLog", new String[]{Server.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("unregisterLog", new String[]{Server.class.getName()}));
         infoFactory.setConstructor(new GConstructorInfo(
                 Arrays.asList(new Object[]{"LogImplementationClass", "LogLocation", "LogPattern",
                                            "LogRetentionDays", "LogRolloverIntervalHrs", "LogPrefix",

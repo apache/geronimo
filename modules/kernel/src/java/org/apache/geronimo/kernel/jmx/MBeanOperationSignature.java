@@ -63,7 +63,7 @@ import javax.management.MBeanParameterInfo;
 /**
  * This is a key class based on a MBean operation name and parameters.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/04 23:42:58 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/16 23:31:21 $
  */
 public final class MBeanOperationSignature {
     private final static String[] NO_TYPES = new String[0];
@@ -102,16 +102,7 @@ public final class MBeanOperationSignature {
         if (argumentTypes != null) {
             this.argumentTypes = new String[argumentTypes.size()];
             for (int i = 0; i < argumentTypes.size(); i++) {
-                Object type = argumentTypes.get(i);
-                if(type instanceof String) {
-                    this.argumentTypes[i] = (String) type;
-                } else if (type instanceof Class) {
-                    this.argumentTypes[i] = ((Class)type).getName();
-                } else {
-                    throw new IllegalArgumentException("Parameter is not instance of String or Class:" +
-                            " index=" + i +
-                            " value=" + type);
-                }
+                this.argumentTypes[i] = (String) argumentTypes.get(i);
             }
         } else {
             this.argumentTypes = NO_TYPES;
@@ -154,10 +145,13 @@ public final class MBeanOperationSignature {
     }
 
     public String toString() {
-        StringBuffer buffer = new StringBuffer(name);
+        StringBuffer buffer = new StringBuffer(name).append("(");
         for (int i = 0; i < argumentTypes.length; i++) {
+            if(i > 0) {
+                buffer.append(", ");
+            }
             buffer.append(argumentTypes[i]);
         }
-        return buffer.toString();
+        return buffer.append(")").toString();
     }
 }

@@ -67,7 +67,7 @@ import org.apache.geronimo.gbean.GOperationInfo;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/15 00:45:55 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/16 23:31:21 $
  */
 public class MockGBean implements MockEndpoint {
     private static final GBeanInfo GBEAN_INFO;
@@ -81,12 +81,12 @@ public class MockGBean implements MockEndpoint {
     }
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("MockGBean", "test description", MockGBean.class.getName());
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("MockGBean", MockGBean.class.getName());
         infoFactory.addAttribute(new GAttributeInfo("Name", true));
         infoFactory.addAttribute(new GAttributeInfo("Value", true));
-        infoFactory.addOperation(new GOperationInfo("checkResource", new String[]{"name"}, new String[]{"java.lang.String"}));
+        infoFactory.addOperation(new GOperationInfo("checkResource", new String[]{"java.lang.String"}));
         infoFactory.addOperation(new GOperationInfo("checkEndpoint"));
-        infoFactory.addOperation(new GOperationInfo("doSomething", new String[]{"name"}, new String[]{"java.lang.String"}));
+        infoFactory.addOperation(new GOperationInfo("doSomething", new String[]{"java.lang.String"}));
         infoFactory.addEndpoint(new GEndpointInfo("MockEndpoint", MockEndpoint.class.getName()));
         infoFactory.setConstructor(new GConstructorInfo(Collections.singletonList("Name"), Collections.singletonList(String.class)));
         GBEAN_INFO = infoFactory.getBeanInfo();

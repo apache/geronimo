@@ -55,50 +55,21 @@
  */
 package org.apache.geronimo.gbean;
 
-import java.io.Serializable;
-
-
 /**
- * Describes a parameter of an operation.  This extension allows the properties to be mutable during setup,
- * and once the GBean is deployed an imutable copy of will be made.
- *
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:38:55 $
+ * 
+ * 
+ * @version $Revision: 1.1 $ $Date: 2004/01/16 23:31:21 $
  */
-public final class GParameterInfo implements Serializable {
-    /**
-     * Name of this parameter.
-     */
-    private final String name;
-
-    /**
-     * A user displayable descrption of this parameter.
-     */
-    private final String description;
-
-    /**
-     * Type of this parameter.
-     */
-    private final String type;
-
-    public GParameterInfo(String name, String type, String description) {
-        this.name = name;
-        this.type = type;
-        this.description = description;
+public class DynamicGAttributeInfo extends GAttributeInfo {
+    public DynamicGAttributeInfo(String name) {
+        this(name, false, true, true);
     }
 
-    public String getName() {
-        return name;
+    public DynamicGAttributeInfo(String name, boolean persistent) {
+        this(name, persistent, true, true);
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String toString() {
-        return "[GParameterInfo: name=" + name + " type=" + type + " description=" + description + "]";
+    public DynamicGAttributeInfo(String name, boolean persistent, boolean readable, boolean writable) {
+        super(name, persistent, new Boolean(readable), new Boolean(writable), null, null);
     }
 }

@@ -17,7 +17,7 @@ import org.apache.geronimo.gbean.GConstructorInfo;
  *
  * Created: Mon Sep  8 20:39:02 2003
  *
- * @version $Revision: 1.7 $ $Date: 2004/01/16 23:00:19 $
+ * @version $Revision: 1.8 $ $Date: 2004/01/16 23:31:21 $
  */
 public abstract class AbstractWebConnector implements WebConnector {
 
@@ -148,12 +148,12 @@ public abstract class AbstractWebConnector implements WebConnector {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractWebConnector.class.getName());
-        infoFactory.addAttribute(new GAttributeInfo("Port", true, "port to listen on"));
-        infoFactory.addAttribute(new GAttributeInfo("Protocol", true, "Protocol (hhtp, https, ftp etc) to use"));
-        infoFactory.addAttribute(new GAttributeInfo("Interface", true, "Interface to listen on"));
-        infoFactory.addAttribute(new GAttributeInfo("MaxConnections", true, "Maximum number of connections"));
-        infoFactory.addAttribute(new GAttributeInfo("MaxIdleTime", true, "Maximum idle time (ms??) a connection can be idle before being closed"));
-        infoFactory.addAttribute(new GAttributeInfo("Contexts", true, "Contexts that must be registered in the web container before this connector will start accepting connections"));
+        infoFactory.addAttribute(new GAttributeInfo("Port", true));
+        infoFactory.addAttribute(new GAttributeInfo("Protocol", true));
+        infoFactory.addAttribute(new GAttributeInfo("Interface", true));
+        infoFactory.addAttribute(new GAttributeInfo("MaxConnections", true));
+        infoFactory.addAttribute(new GAttributeInfo("MaxIdleTime", true));
+        infoFactory.addAttribute(new GAttributeInfo("Contexts", true));
         infoFactory.setConstructor(new GConstructorInfo(
                 Arrays.asList(new Object[] {"Protocol", "Interface", "Port", "MaxConnections", "MaxIdleTime", "Contexts"}),
                 Arrays.asList(new Object[] {String.class, String.class, Integer.TYPE, Integer.TYPE, Integer.TYPE, String[].class})

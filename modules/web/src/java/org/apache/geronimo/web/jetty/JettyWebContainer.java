@@ -81,7 +81,7 @@ import org.w3c.dom.Document;
  * Base class for jetty web containers.
  *
  *
- * @version $Revision: 1.12 $ $Date: 2004/01/16 23:00:19 $
+ * @version $Revision: 1.13 $ $Date: 2004/01/16 23:31:21 $
  */
 public class JettyWebContainer extends AbstractWebContainer {
     private final static GBeanInfo GBEAN_INFO;
@@ -219,7 +219,7 @@ public class JettyWebContainer extends AbstractWebContainer {
     }
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty Web Container", "Geronimo integrated Jetty Server", JettyWebContainer.class.getName(), AbstractWebContainer.getGBeanInfo());
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty Web Container", JettyWebContainer.class.getName(), AbstractWebContainer.getGBeanInfo());
         infoFactory.addEndpoint(new GEndpointInfo("WebApplications", JettyWebApplication.class.getName()));
         infoFactory.addEndpoint(new GEndpointInfo("WebConnectors", JettyWebConnector.class.getName()));
         infoFactory.addEndpoint(new GEndpointInfo("WebAccessLogs", JettyWebAccessLog.class.getName()));

@@ -85,7 +85,7 @@ import org.w3c.dom.Document;
  * Instances are created by a deployer. The deployer finds the
  * WebContainer and associates it with the WebApplication.
  *
- * @version $Revision: 1.14 $ $Date: 2004/01/16 23:10:14 $
+ * @version $Revision: 1.15 $ $Date: 2004/01/16 23:31:21 $
  */
 public abstract class AbstractWebApplication implements WebApplication {
 
@@ -282,14 +282,14 @@ public abstract class AbstractWebApplication implements WebApplication {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractWebApplication.class.getName());
-        infoFactory.addAttribute(new GAttributeInfo("URI", true, "URI of this web application", Boolean.TRUE, Boolean.FALSE));
-        infoFactory.addAttribute(new GAttributeInfo("ParentClassLoader", true, "Parent ClassLoader for this web application", Boolean.TRUE, Boolean.FALSE));
-        infoFactory.addAttribute(new GAttributeInfo("ContextPath", true, "Context path for this web application", Boolean.TRUE, Boolean.FALSE));
-        infoFactory.addAttribute(new GAttributeInfo("DeploymentDescriptor", true, "Deployment descriptor of this web application as a String", Boolean.TRUE, Boolean.FALSE));
-        infoFactory.addAttribute(new GAttributeInfo("GeronimoWebAppDoc", true, "Geronimo deployment descriptor of this web application as a POJO", Boolean.TRUE, Boolean.FALSE));
-        infoFactory.addAttribute(new GAttributeInfo("Java2ClassloadingCompliance", true, "Does this web application follow Java2 class loading semantics or the servlet spec", Boolean.TRUE, Boolean.FALSE));
-        infoFactory.addAttribute(new GAttributeInfo("ComponentContext", true, "Read only jndi context for this web application", Boolean.TRUE, Boolean.FALSE));
-        infoFactory.addAttribute(new GAttributeInfo("Servlets", false, "Array of servlet names in this web application", Boolean.TRUE, Boolean.FALSE));
+        infoFactory.addAttribute(new GAttributeInfo("URI", true));
+        infoFactory.addAttribute(new GAttributeInfo("ParentClassLoader", true));
+        infoFactory.addAttribute(new GAttributeInfo("ContextPath", true));
+        infoFactory.addAttribute(new GAttributeInfo("DeploymentDescriptor", true));
+        infoFactory.addAttribute(new GAttributeInfo("GeronimoWebAppDoc", true));
+        infoFactory.addAttribute(new GAttributeInfo("Java2ClassloadingCompliance", true));
+        infoFactory.addAttribute(new GAttributeInfo("ComponentContext", true));
+        infoFactory.addAttribute(new GAttributeInfo("Servlets", false));
         infoFactory.addEndpoint(new GEndpointInfo("TransactionManager", TransactionManager.class.getName()));
         infoFactory.addEndpoint(new GEndpointInfo("TrackedConnectionAssociator", TrackedConnectionAssociator.class.getName()));
         infoFactory.setConstructor(new GConstructorInfo(

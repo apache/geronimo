@@ -61,7 +61,7 @@ import java.io.Serializable;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:38:55 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/16 23:31:21 $
  */
 public class GEndpointInfo implements Serializable {
     /**
@@ -80,24 +80,18 @@ public class GEndpointInfo implements Serializable {
      */
     private final String setterName;
 
-    /**
-     * A user displayable descrption of this endpoint.
-     */
-    private final String description;
-
     public GEndpointInfo() {
-        this(null, null, null, null);
+        this(null, null, null);
     }
 
     public GEndpointInfo(String name, String type) {
-        this(name, type, null, null);
+        this(name, type, null);
     }
 
-    public GEndpointInfo(String name, String type, String setterName, String description) {
+    public GEndpointInfo(String name, String type, String setterName) {
         this.name = name;
         this.type = type;
         this.setterName = setterName;
-        this.description = description;
     }
 
     public String getName() {
@@ -112,15 +106,10 @@ public class GEndpointInfo implements Serializable {
         return setterName;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
     public String toString() {
         return "[GEndpointInfo: name=" + name +
                 " type=" + type +
                 " setterName=" + setterName +
-                " description=" + description +
                 "]";
     }
 }

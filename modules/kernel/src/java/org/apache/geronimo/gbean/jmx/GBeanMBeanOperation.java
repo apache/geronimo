@@ -57,25 +57,21 @@ package org.apache.geronimo.gbean.jmx;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
+import java.util.ArrayList;
 import javax.management.MBeanException;
 import javax.management.MBeanOperationInfo;
 import javax.management.MBeanParameterInfo;
 import javax.management.ReflectionException;
 
 import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.gbean.GParameterInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
-import org.apache.geronimo.gbean.jmx.FastMethodInvoker;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/14 22:16:38 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/16 23:31:21 $
  */
 public class GBeanMBeanOperation {
     private final GBeanMBean gMBean;
@@ -84,24 +80,23 @@ public class GBeanMBeanOperation {
     private final MBeanOperationInfo mbeanOperationInfo;
     private final MethodInvoker methodInvoker;
 
-    public GBeanMBeanOperation(GBeanMBean gMBean, String name, String description, List parameterTypes, Class returnType, MethodInvoker methodInvoker) {
+    public GBeanMBeanOperation(GBeanMBean gMBean, String name, List parameterTypes, Class returnType, MethodInvoker methodInvoker) {
         this.gMBean = gMBean;
         this.name = name;
-        this.parameterTypes = parameterTypes;
+        this.parameterTypes = Collections.unmodifiableList(new ArrayList(parameterTypes));
         this.methodInvoker = methodInvoker;
 
         MBeanParameterInfo[] signature = new MBeanParameterInfo[parameterTypes.size()];
         for (int i = 0; i < signature.length; i++) {
-            Class parameterType = (Class) parameterTypes.get(i);
             signature[i] = new MBeanParameterInfo(
                     "arg" + i,
-                    parameterType.getName(),
+                    (String) parameterTypes.get(i),
                     null);
         }
 
         mbeanOperationInfo = new MBeanOperationInfo(
                 name,
-                description,
+                null,
                 signature,
                 returnType.getName(),
                 MBeanOperationInfo.UNKNOWN
@@ -112,26 +107,25 @@ public class GBeanMBeanOperation {
     public GBeanMBeanOperation(GBeanMBean gMBean, GOperationInfo operationInfo) throws InvalidConfigurationException {
         this.gMBean = gMBean;
         this.name = operationInfo.getName();
-        ClassLoader classLoader = gMBean.getClassLoader();
 
         // get an array of the parameter classes
-        List parameterList = operationInfo.getParameterList();
-        parameterTypes = new ArrayList(parameterList.size());
-        for (Iterator iterator = parameterList.iterator(); iterator.hasNext();) {
-            GParameterInfo parameterInfo = (GParameterInfo) iterator.next();
+        this.parameterTypes = Collections.unmodifiableList(new ArrayList(operationInfo.getParameterList()));
+        Class[] types = new Class[parameterTypes.size()];
+        ClassLoader classLoader = gMBean.getClassLoader();
+        for (int i = 0; i < types.length; i++) {
+            String type = (String) parameterTypes.get(i);
             try {
-                parameterTypes.add(classLoader.loadClass(parameterInfo.getType()));
+                types[i] = classLoader.loadClass((String)parameterTypes.get(i));
             } catch (ClassNotFoundException e) {
                 throw new InvalidConfigurationException("Could not load operation parameter class:" +
                         " name=" + operationInfo.getName() +
-                        " class=" + parameterInfo.getType());
+                        " class=" + type);
             }
         }
 
         // get a method invoker for the operation
         Class returnType;
         try {
-            Class[] types = (Class[]) parameterTypes.toArray(new Class[parameterTypes.size()]);
             Method javaMethod = gMBean.getType().getMethod(operationInfo.getMethodName(), types);
             returnType = javaMethod.getReturnType();
             methodInvoker = new FastMethodInvoker(javaMethod);
@@ -142,18 +136,17 @@ public class GBeanMBeanOperation {
                     " targetClass=" + gMBean.getType().getName());
         }
 
-        MBeanParameterInfo[] signature = new MBeanParameterInfo[parameterList.size()];
+        MBeanParameterInfo[] signature = new MBeanParameterInfo[parameterTypes.size()];
         for (int i = 0; i < signature.length; i++) {
-            GParameterInfo parameterInfo = (GParameterInfo) parameterList.get(i);
             signature[i] = new MBeanParameterInfo(
-                    parameterInfo.getName(),
-                    parameterInfo.getType(),
-                    parameterInfo.getDescription());
+                    "arg" + i,
+                    (String) parameterTypes.get(i),
+                    null);
         }
 
         mbeanOperationInfo = new MBeanOperationInfo(
                 operationInfo.getName(),
-                operationInfo.getDescription(),
+                null,
                 signature,
                 returnType.getName(),
                 MBeanOperationInfo.UNKNOWN
@@ -165,7 +158,7 @@ public class GBeanMBeanOperation {
     }
 
     public List getParameterTypes() {
-        return Collections.unmodifiableList(parameterTypes);
+        return parameterTypes;
     }
 
     public MBeanOperationInfo getMbeanOperationInfo() {

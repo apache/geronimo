@@ -94,7 +94,7 @@ import org.w3c.dom.Document;
  * or
  * 2. the url is a directory which contains a WEB-INF/web.xml file
  *
- * @version $Revision: 1.27 $ $Date: 2004/01/16 02:19:23 $
+ * @version $Revision: 1.28 $ $Date: 2004/01/16 23:31:21 $
  */
 public abstract class AbstractWebContainer implements WebContainer {
 
@@ -294,8 +294,8 @@ public abstract class AbstractWebContainer implements WebContainer {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractWebContainer.class.getName());
-        infoFactory.addAttribute(new GAttributeInfo("DefaultWebXmlURI", true, "Location of web.xml defaults"));
-        infoFactory.addAttribute(new GAttributeInfo("DefaultWebXmlDoc", true, "Parsed web defaults xml document"));
+        infoFactory.addAttribute(new GAttributeInfo("DefaultWebXmlURI", true));
+        infoFactory.addAttribute(new GAttributeInfo("DefaultWebXmlDoc", true));
         infoFactory.setConstructor(new GConstructorInfo(Arrays.asList(new Object[] {"DefaultWebXmlURI", "DefaultWebXmlDoc"}),
                 Arrays.asList(new Object[] {URI.class, Document.class})));
         GBEAN_INFO = infoFactory.getBeanInfo();

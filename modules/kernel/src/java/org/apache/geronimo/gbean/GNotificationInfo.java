@@ -62,25 +62,19 @@ import java.util.Set;
 /**
  * Describes a notification of a GBean.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/14 22:16:37 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/16 23:31:21 $
  */
 public final class GNotificationInfo implements Serializable {
     private final String name;
-    private final String description;
     private final Set notificationTypes;
 
-    public GNotificationInfo(String name, String description, Set notificationTypes) {
+    public GNotificationInfo(String name, Set notificationTypes) {
         this.name = name;
-        this.description = description;
         this.notificationTypes = Collections.unmodifiableSet(notificationTypes);
     }
 
     public String getName() {
         return name;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public Set getNotificationTypes() {
@@ -90,7 +84,6 @@ public final class GNotificationInfo implements Serializable {
     public String toString() {
         return "[GNotificationInfo:" +
                 " name=" + name +
-                " description=" + description +
                 " notificationTypes=" + notificationTypes +
                 "]";
     }

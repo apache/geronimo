@@ -68,7 +68,7 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 /**
  * Describes a GBean.
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/14 22:16:37 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/16 23:31:21 $
  */
 public final class GBeanInfo implements Serializable {
     /**
@@ -99,7 +99,6 @@ public final class GBeanInfo implements Serializable {
     }
 
     private final String name;
-    private final String description;
     private final String className;
     private final Set attributes;
     private final GConstructorInfo constructor;
@@ -108,12 +107,11 @@ public final class GBeanInfo implements Serializable {
     private final Set endpoints;
 
     public GBeanInfo(String className, Set attributes, GConstructorInfo constructor, Set operations, Set endpoints, Set notifications) {
-        this(className, null, className, attributes, constructor, operations, endpoints, notifications);
+        this(className, className, attributes, constructor, operations, endpoints, notifications);
     }
 
-    public GBeanInfo(String name, String description, String className, Set attributes, GConstructorInfo constructor, Set operations, Set endpoints, Set notifications) {
+    public GBeanInfo(String name, String className, Set attributes, GConstructorInfo constructor, Set operations, Set endpoints, Set notifications) {
         this.name = name;
-        this.description = description;
         this.className = className;
         this.attributes = Collections.unmodifiableSet(attributes);
         if (constructor != null) {
@@ -129,10 +127,6 @@ public final class GBeanInfo implements Serializable {
 
     public String getName() {
         return name;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public String getClassName() {
@@ -171,7 +165,7 @@ public final class GBeanInfo implements Serializable {
     }
 
     public String toString() {
-        StringBuffer result = new StringBuffer("[GBeanInfo: id=").append(super.toString()).append(" name=").append(name).append(" description=").append(description);
+        StringBuffer result = new StringBuffer("[GBeanInfo: id=").append(super.toString()).append(" name=").append(name);
         for (Iterator iterator = attributes.iterator(); iterator.hasNext();) {
             GAttributeInfo geronimoAttributeInfo = (GAttributeInfo) iterator.next();
             result.append("\n    attribute: ").append(geronimoAttributeInfo);

@@ -53,82 +53,17 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment;
-
-import java.util.Collections;
-
-import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GEndpointInfo;
-import org.apache.geronimo.gbean.GOperationInfo;
+package org.apache.geronimo.gbean;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/16 23:31:21 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/16 23:31:21 $
  */
-public class MockGBean implements MockEndpoint {
-    private static final GBeanInfo GBEAN_INFO;
-    private final String name;
-    private String value;
+public interface DynamicGBean {
+    Object getAttribute(String name) throws Exception;
 
-    private MockEndpoint endpoint;
+    void setAttribute(String name, Object value) throws Exception;
 
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
-    static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("MockGBean", MockGBean.class.getName());
-        infoFactory.addAttribute(new GAttributeInfo("Name", true));
-        infoFactory.addAttribute(new GAttributeInfo("Value", true));
-        infoFactory.addOperation(new GOperationInfo("checkResource", new String[]{"java.lang.String"}));
-        infoFactory.addOperation(new GOperationInfo("checkEndpoint"));
-        infoFactory.addOperation(new GOperationInfo("doSomething", new String[]{"java.lang.String"}));
-        infoFactory.addEndpoint(new GEndpointInfo("MockEndpoint", MockEndpoint.class.getName()));
-        infoFactory.setConstructor(new GConstructorInfo(Collections.singletonList("Name"), Collections.singletonList(String.class)));
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public MockGBean(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public MockEndpoint getMockEndpoint() {
-        return endpoint;
-    }
-
-    public void setMockEndpoint(MockEndpoint endpoint) {
-        this.endpoint = endpoint;
-    }
-
-    public boolean checkResource(String name) {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        return cl.getResource(name) != null;
-    }
-
-    public String doSomething(String name) {
-        return name;
-    }
-
-    public String checkEndpoint() {
-        if (endpoint == null) {
-            return "no endpoint";
-        }
-        return endpoint.doSomething("endpointCheck");
-    }
+    Object invoke(String name, Object[] arguments, String[] types) throws Exception;
 }

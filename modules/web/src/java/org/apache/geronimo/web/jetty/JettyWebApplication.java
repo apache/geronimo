@@ -32,7 +32,7 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
  *
  * Created: Sun Sep 14 16:40:17 2003
  *
- * @version $Revision: 1.11 $ $Date: 2004/01/16 23:10:14 $
+ * @version $Revision: 1.12 $ $Date: 2004/01/16 23:31:21 $
  */
 public class JettyWebApplication extends AbstractWebApplication {
 
@@ -131,7 +131,7 @@ public class JettyWebApplication extends AbstractWebApplication {
     }
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty Web Application", "Wrapped Jetty application", JettyWebApplication.class.getName(), AbstractWebApplication.getGBeanInfo());
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty Web Application", JettyWebApplication.class.getName(), AbstractWebApplication.getGBeanInfo());
         infoFactory.addOperation(new GOperationInfo("getJettyContext", Collections.EMPTY_LIST));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

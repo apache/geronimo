@@ -99,7 +99,7 @@ import net.sf.cglib.reflect.FastClass;
  * GeronimoMBeanInfo instance.  The GeronimoMBean also support caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/14 22:16:38 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/16 23:31:21 $
  */
 public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     public static final FastClass fastClass = FastClass.create(GBeanMBean.class);
@@ -145,7 +145,6 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     private final GBeanInfo gbeanInfo;
     private final MBeanInfo mbeanInfo;
     private final String name;
-    private final String description;
     private final Class type;
 
     private boolean offline = true;
@@ -162,7 +161,6 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         }
 
         name = beanInfo.getName();
-        description = beanInfo.getDescription();
 
         // attributes
         Map constructorTypes = gbeanInfo.getConstructor().getAttributeTypeMap();
@@ -203,7 +201,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
 
         mbeanInfo = new MBeanInfo(
                 beanInfo.getClassName(),
-                description,
+                null,
                 mbeanAttrs,
                 new MBeanConstructorInfo[0],
                 mbeanOps,
@@ -519,7 +517,6 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         addAttribute(new GBeanMBeanAttribute(
                 this,
                 "state",
-                "J2EE Management State",
                 Integer.TYPE,
                 new MethodInvoker() {
                     public Object invoke(Object target, Object[] arguments) throws Exception {
@@ -531,7 +528,6 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         addAttribute(new GBeanMBeanAttribute(
                 this,
                 "objectName",
-                "JMX Object Name",
                 String.class,
                 new MethodInvoker() {
                     public Object invoke(Object target, Object[] arguments) throws Exception {
@@ -543,7 +539,6 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         addAttribute(new GBeanMBeanAttribute(
                 this,
                 "startTime",
-                "Time the MBean started",
                 Long.TYPE,
                 new MethodInvoker() {
                     public Object invoke(Object target, Object[] arguments) throws Exception {
@@ -555,7 +550,6 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         addAttribute(new GBeanMBeanAttribute(
                 this,
                 "stateManageable",
-                "Is this MBean state manageable?",
                 Boolean.TYPE,
                 new MethodInvoker() {
                     public Object invoke(Object target, Object[] arguments) throws Exception {
@@ -567,7 +561,6 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         addAttribute(new GBeanMBeanAttribute(
                 this,
                 "statisticsProvider",
-                "Does this MBean provide statistics?",
                 Boolean.TYPE,
                 new MethodInvoker() {
                     public Object invoke(Object target, Object[] arguments) throws Exception {
@@ -580,7 +573,6 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         addAttribute(new GBeanMBeanAttribute(
                 this,
                 "eventProvider",
-                "Does this MBean provide events?",
                 Boolean.TYPE,
                 new MethodInvoker() {
                     public Object invoke(Object target, Object[] arguments) throws Exception {
@@ -592,7 +584,6 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         addOperation(new GBeanMBeanOperation(
                 this,
                 "start",
-                "Starts the MBean",
                 Collections.EMPTY_LIST,
                 Void.TYPE,
                 new MethodInvoker() {
@@ -605,7 +596,6 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         addOperation(new GBeanMBeanOperation(
                 this,
                 "startRecursive",
-                "Starts the MBean and then starts all the dependent MBeans",
                 Collections.EMPTY_LIST,
                 Void.TYPE,
                 new MethodInvoker() {
@@ -618,7 +608,6 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         addOperation(new GBeanMBeanOperation(
                 this,
                 "stop",
-                "Stops the MBean",
                 Collections.EMPTY_LIST,
                 Void.TYPE,
                 new MethodInvoker() {

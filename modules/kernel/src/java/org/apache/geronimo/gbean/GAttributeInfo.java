@@ -60,7 +60,7 @@ import java.io.Serializable;
 /**
  * Describes an attibute of a GBean.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/14 22:16:37 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/16 23:31:21 $
  */
 public class GAttributeInfo implements Serializable {
     /**
@@ -72,11 +72,6 @@ public class GAttributeInfo implements Serializable {
      * Is this attribute persistent?
      */
     private final boolean persistent;
-
-    /**
-     * A user displayable descrption of this attribute.
-     */
-    private final String description;
 
     /**
      * Is this attribute readable?
@@ -101,25 +96,24 @@ public class GAttributeInfo implements Serializable {
     private final String setterName;
 
     public GAttributeInfo(String name) {
-        this(name, false, null, null, null, null, null);
+        this(name, false, null, null, null, null);
+    }
+
+    public GAttributeInfo(String name, String getterName, String setterName) {
+        this(name, false, new Boolean(getterName != null), new Boolean(setterName != null), getterName, setterName);
     }
 
     public GAttributeInfo(String name, boolean persistent) {
-        this(name, persistent, null, null, null, null, null);
+        this(name, persistent, null, null, null, null);
     }
 
-    public GAttributeInfo(String name, boolean persistent, String description) {
-        this(name, persistent, description, null, null, null, null);
+    public GAttributeInfo(String name, boolean persistent, String getterName, String setterName) {
+        this(name, persistent, new Boolean(getterName != null), new Boolean(setterName != null), getterName, setterName);
     }
 
-    public GAttributeInfo(String name, boolean persistent, String description, Boolean readable, Boolean writable) {
-        this(name, persistent, description, readable, writable, null, null);
-    }
-
-    public GAttributeInfo(String name, boolean persistent, String description, Boolean readable, Boolean writable, String getterName, String setterName) {
+    public GAttributeInfo(String name, boolean persistent, Boolean readable, Boolean writable, String getterName, String setterName) {
         this.name = name;
         this.persistent = persistent;
-        this.description = description;
         this.readable = readable;
         this.writable = writable;
         this.getterName = getterName;
@@ -133,11 +127,6 @@ public class GAttributeInfo implements Serializable {
     public boolean isPersistent() {
         return persistent;
     }
-
-    public String getDescription() {
-        return description;
-    }
-
 
     public Boolean isReadable() {
         return readable;
@@ -158,7 +147,6 @@ public class GAttributeInfo implements Serializable {
     public String toString() {
         return "[GAttributeInfo: name=" + name +
                 " persistent=" + persistent +
-                " description=" + description +
                 " readable=" + readable +
                 " writable=" + writable +
                 " getterName=" + getterName +

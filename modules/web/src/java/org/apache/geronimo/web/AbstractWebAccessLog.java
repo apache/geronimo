@@ -73,7 +73,7 @@ import org.apache.geronimo.gbean.GConstructorInfo;
 /**
  * AbstractWebAccessLog
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/16 23:10:14 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/16 23:31:21 $
  */
 public abstract class AbstractWebAccessLog implements WebAccessLog {
 
@@ -297,16 +297,16 @@ public abstract class AbstractWebAccessLog implements WebAccessLog {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractWebAccessLog.class.getName());
-        infoFactory.addAttribute(new GAttributeInfo("LogImplementationClass", true, "class of log implementation. I think this is speculative"));
-        infoFactory.addAttribute(new GAttributeInfo("LogLocation", true, "URI indicating where to put the log"));
-        infoFactory.addAttribute(new GAttributeInfo("LogPattern", true, "NCSA log pattern spec"));
-        infoFactory.addAttribute(new GAttributeInfo("LogRetentionDays", true, "Number of days to retain logs"));
-        infoFactory.addAttribute(new GAttributeInfo("LogRolloverIntervalHrs", true, "Hours between log rollovers"));
-        infoFactory.addAttribute(new GAttributeInfo("LogPrefix", true, "file name prefix for log files"));
-        infoFactory.addAttribute(new GAttributeInfo("LogSuffix", true, "file name suffix for log files"));
-        infoFactory.addAttribute(new GAttributeInfo("LogDateFormat", true, "Date format to use in logs, following java.text.DateFormat (??)"));
-        infoFactory.addAttribute(new GAttributeInfo("ResolveHostNames", true, "Should host names be resolved"));
-        infoFactory.addAttribute(new GAttributeInfo("Append", true, "Should logs be appended or overwritten (? rolled over)"));
+        infoFactory.addAttribute(new GAttributeInfo("LogImplementationClass", true));
+        infoFactory.addAttribute(new GAttributeInfo("LogLocation", true));
+        infoFactory.addAttribute(new GAttributeInfo("LogPattern", true));
+        infoFactory.addAttribute(new GAttributeInfo("LogRetentionDays", true));
+        infoFactory.addAttribute(new GAttributeInfo("LogRolloverIntervalHrs", true));
+        infoFactory.addAttribute(new GAttributeInfo("LogPrefix", true));
+        infoFactory.addAttribute(new GAttributeInfo("LogSuffix", true));
+        infoFactory.addAttribute(new GAttributeInfo("LogDateFormat", true));
+        infoFactory.addAttribute(new GAttributeInfo("ResolveHostNames", true));
+        infoFactory.addAttribute(new GAttributeInfo("Append", true));
         infoFactory.setConstructor(new GConstructorInfo(
                 Arrays.asList(new Object[] {"LogImplementationClass", "LogLocation", "LogPattern", "LogRetentionDays", "LogRolloverIntervalHrs", "LogPrefix",
                 "LogSuffix", "LogDateFormat", "ResolveHostNames", "Append"}),
