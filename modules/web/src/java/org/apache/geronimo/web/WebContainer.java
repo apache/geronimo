@@ -66,7 +66,7 @@ import org.w3c.dom.Document;
  * WebContainer
  *
  *
- * @version $Revision: 1.5 $  $Date: 2003/09/08 04:51:14 $
+ * @version $Revision: 1.6 $  $Date: 2003/09/14 12:09:43 $
  */
 
 public interface WebContainer extends Container {
@@ -97,17 +97,4 @@ public interface WebContainer extends Container {
      */
     public Document getDefaultWebXmlDoc();
 
-    /**
-     * Control if wars will be unpacked to temporary location or not
-     * @param state
-     * @todo this might be handled by the deployer instead
-     */
-    //public void setUnpackWars (boolean state);
-
-    /**
-     * Getter for whether wars will be unpacked to temporary location or not
-     * @return
-     * @todo this might be handled by the deployer instead
-     */
-    //public boolean getUnpackWars ();
 }

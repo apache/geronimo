@@ -67,7 +67,7 @@ import org.w3c.dom.Document;
  *
  * It supports the J2EE Management WebModule attribute servlets[]
  *
- * @version  $Revision: 1.6 $ $Date: 2003/09/08 04:51:14 $
+ * @version  $Revision: 1.7 $ $Date: 2003/09/14 12:09:43 $
  */
 public interface WebApplication extends Component {
     /**
@@ -77,8 +77,12 @@ public interface WebApplication extends Component {
     public URI getURI();
 
     public void setURI(URI uri);
+    
+    public void setParentClassLoader (ClassLoader loader);
 
+    public ClassLoader getParentClassLoader ();
 
+    /*-------------------------------------------------------------------------------- */
     /**
      * JSR077 WebModule method to expose the
      * names of all servlets contained within this webapp.
@@ -92,23 +96,14 @@ public interface WebApplication extends Component {
     public void setContextPath(String path);
 
     public String getDeploymentDescriptor();
-
-    public URI getDeploymentDescriptorURI();
-
-    public Document getDeploymentDescriptorDocument();
-
-    public String getGeronimoDeploymentDescriptor();
-
-    public URI getGeronimoDeploymentDescriptorURI();
-
-    public Document getGeronimoDeploymentDescriptorDocument();
-
-    /**
-     * Getter for the class loader delegation model for this webapp
-     * @return
-     */
-    public boolean getJava2ClassloadingCompliance();
-
+    
+    /* -------------------------------------------------------------------------------------- */
+     /**Getter for the class loader delegation model for this webapp
+      * @return
+      */
+     public boolean getJava2ClassloadingCompliance ();
+     
+    /* -------------------------------------------------------------------------------------- */
     /**
      * Set the class loading delegation model for this web application
      * @param state

@@ -56,18 +56,112 @@
 
 package org.apache.geronimo.web.jetty;
 
+import java.net.URI;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.core.service.Container;
+import org.apache.geronimo.kernel.management.StateManageable;
 import org.apache.geronimo.web.AbstractWebContainer;
 import org.apache.geronimo.web.WebApplication;
+import org.apache.geronimo.web.WebConnector;
+import org.mortbay.jetty.Server;
+import org.mortbay.http.SocketListener;
 
 /**
  * Base class for jetty web containers.
+ * @jmx:mbean extends="org.apache.geronimo.web.AbstractWebContainerMBean"
  *
- * @version $Revision: 1.4 $ $Date: 2003/09/08 04:51:14 $
+ *
+ * @version $Revision: 1.5 $ $Date: 2003/09/14 12:09:44 $
  */
-public class JettyWebContainer extends AbstractWebContainer {
+public class JettyWebContainer extends AbstractWebContainer implements JettyWebContainerMBean {
+  
+    private final Log _log = LogFactory.getLog(JettyWebContainer.class);
 
-    public WebApplication createWebApplication() {
-        //TODO
-        return null;
+    private Server _jettyServer = null;
+
+
+    public JettyWebContainer ()
+    {
+        _jettyServer = new Server();
     }
+
+
+    /**
+     * Start the Jetty server
+     *
+     * @exception Exception if an error occurs
+     */
+    public void doStart() throws Exception
+    {
+        try
+        {
+            _log.debug ("Jetty Server starting");
+            
+            _jettyServer.start();
+
+            _log.debug ("Jetty Server started");
+        }
+        catch (Exception e)
+        {
+            _log.error ("Exception in doStart()", e);
+        }
+    }
+
+ 
+    public WebApplication createWebApplication ()
+    { 
+        return new JettyWebApplication();
+    }
+
+ 
+
+    /**
+     * Get the Jetty server delegate
+     *
+     * @return the Jetty server
+     */
+    Server getJettyServer ()
+    {
+        return _jettyServer;
+    }
+
+
+    
+    /**
+     * Handle addition of a web connector.
+     *
+     * @param connector a <code>WebConnector</code> value
+     */
+    protected void webConnectorAdded(WebConnector connector)
+    {
+        _log.debug ("Web connector="+connector.getObjectName()+" added");
+        super.webConnectorAdded(connector);
+    }
+
+
+
+
+    /**
+     * Handle removal of a web connector
+     *
+     * @param connector a <code>WebConnector</code> value
+     */
+    protected void webConnectorRemoved (WebConnector connector)
+    {
+        try
+        {
+            //stop the connector
+            if (connector instanceof StateManageable)
+                ((StateManageable)connector).stop();
+        }
+        catch (Exception e)
+        {
+            _log.warn("Ignoring exception on stopping connector", e);
+        }
+
+        //remove the listener
+        _jettyServer.removeListener (((JettyWebConnector)connector).getListener());
+    }
+
 }

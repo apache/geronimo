@@ -56,110 +56,191 @@
 
 package org.apache.geronimo.web.jetty;
 
+import java.lang.reflect.Constructor;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.core.service.AbstractComponent;
+import org.apache.geronimo.core.service.Container;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.web.AbstractWebConnector;
 import org.apache.geronimo.web.WebConnector;
-
 import org.mortbay.http.HttpListener;
+import org.mortbay.http.SocketListener;
+import org.mortbay.http.SunJsseListener;
+import org.mortbay.http.ajp.AJP13Listener;
+import org.mortbay.util.ThreadedServer;
+import org.mortbay.jetty.Server;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2003/09/08 04:51:14 $
+ * @jmx:mbean extends="org.apache.geronimo.web.AbstractWebConnectorMBean"
+ * @version $Revision: 1.4 $ $Date: 2003/09/14 12:09:44 $
  */
-public class JettyWebConnector extends AbstractComponent implements WebConnector {
-    private HttpListener listener;
+public class JettyWebConnector extends AbstractWebConnector implements JettyWebConnectorMBean
+{
+    private final static Log log = LogFactory.getLog(JettyWebConnector.class);
+    private final static Class[] _defaultConstructorSignature = new Class[]{};
+    private final static Object[] _defaultConstructorArgs = new Object[]{};
+    private HttpListener _listener = null;
+    private Server _jetty = null;
 
-    /* (non-Javadoc)
-     * @see org.apache.geronimo.web.WebConnector#setPort(int)
+
+
+    /**
+     * Set the parent Container for this  component
+     *
+     * @param container a <code>Container</code> value
      */
-    public void setPort(int port) {
-        listener.setPort(port);
+    public void setContainer (Container container)
+    {
+        super.setContainer(container);
+
+        //get the Jetty instance
+        if (! (container instanceof JettyWebContainer))
+            throw new IllegalStateException ("Non Jetty container set as parent on connector");
+
+        _jetty = ((JettyWebContainer)container).getJettyServer();
     }
 
-    /* (non-Javadoc)
-     * @see org.apache.geronimo.web.WebConnector#getPort()
+
+    /**
+     * Set up the port for the Connector to listen on.
+     * It is not permitted to change the port if the
+     * connector is in operation.
+     *
+     * @param port an <code>int</code> value
      */
-    public int getPort() {
-        return listener.getPort();
+    public void setPort (int port)
+    {
+        if (getStateInstance() != State.STOPPED) 
+            throw new IllegalStateException ("Cannot change the connector port after the connector is started");
+
+        super.setPort(port);
     }
 
-    /* (non-Javadoc)
-     * @see org.apache.geronimo.web.WebConnector#setProtocol(java.lang.String)
+
+    /**
+     *  Set up the protocol for the connector.
+     * It is not permitted to change the protocol if
+     * the connector is operating.
+     *
+     * @param protocol a <code>String</code> value
      */
-    public void setProtocol(String protocol) {
-        // TODO. We have a choice here - if the protocol changes then create a new listener
-        // and copy over all the parameters from the old listener  OR this class can store all the
-        // parameters and only create a listener when it is started.
+    public void setProtocol (String protocol)
+    {
+         if (getStateInstance() != State.STOPPED) 
+            throw new IllegalStateException ("Cannot change protocol after connector has started");
+
+        super.setProtocol(protocol);
     }
 
-    /* (non-Javadoc)
-     * @see org.apache.geronimo.web.WebConnector#getProtocol()
+
+    /**
+     * Set up the host/interface to listen on.
+     * It is not permitted to change this once the
+     * connector has started.
+     *
+     * @param iface a <code>String</code> value
      */
-    public String getProtocol() {
-        // TODO Auto-generated method stub
-        return null;
+    public void setInterface (String iface)
+    {     
+        if (getStateInstance() != State.STOPPED) 
+            throw new IllegalStateException ("Cannot change interface after connector has started");
+        super.setInterface(iface);
     }
 
-    /* (non-Javadoc)
-     * @see org.apache.geronimo.web.WebConnector#setInterface(java.lang.String)
+    /**
+     * Start the connector
+     *
+     * @exception Exception if an error occurs
      */
-    public void setInterface(String iface) {
-        // TODO Auto-generated method stub
+    public void doStart() throws Exception
+    {
+        try
+        {
+        if (getContainer() == null)
+            throw new IllegalStateException ("Container not set on connector");
 
+        //configure the listener 
+        if ((getProtocol() == null) || (getProtocol().equalsIgnoreCase(HTTP_PROTOCOL)))
+        {
+            _listener = new SocketListener();
+        }      
+        else if (getProtocol().equalsIgnoreCase (AJP13_PROTOCOL))
+        {
+            _listener = new AJP13Listener();
+        }
+        else if (getProtocol().equalsIgnoreCase (HTTPS_PROTOCOL))
+        {
+            _listener = new SunJsseListener();
+        }
+        else
+        {
+            //maybe the protocol is a classname of a listener 
+            //implementing a particular protocol
+            Class listenerClass = Thread.currentThread().getContextClassLoader().loadClass(getProtocol());
+            //get the default constructor, if it has one
+            Constructor constructor = listenerClass.getConstructor (_defaultConstructorSignature);
+            _listener = (HttpListener)constructor.newInstance (_defaultConstructorArgs);
+        }
+
+        log.debug ("About to start WebConnector: "+getObjectName());
+        //NB: need to check if port is set - what to use instead of 0?
+        _listener.setPort(getPort());
+
+        if (getInterface() != null)
+            _listener.setHost(getInterface());
+
+        //take the listener default unless connections have been set
+        //what to use instead of 0?
+        if (getMaxConnections() > 0)
+            ((ThreadedServer)_listener).setMaxThreads(getMaxConnections());
+
+        //take the listener default unless idle time has been set
+        //what to use instead of 0?
+        if (getMaxIdleTime() > 0)
+            ((ThreadedServer)_listener).setMaxIdleTimeMs (getMaxIdleTime());
+
+        //open the underlying Jetty socket, if these calls fail,
+        //the connector will not transit to STARTED
+        ((ThreadedServer)_listener).open();
+        ((ThreadedServer)_listener).start();
+        log.debug ("Listener on port="+getPort()+" started.");
+
+        //at this point, when the method returns, the WebConnector will be STARTED
+        //even though the underlying socket may not be handling
+        //connections because it's criteria to listen may not
+        //be met etc
+        
+        //if the start succeeded, set up the listener on the
+        //Jetty instance
+        _jetty.addListener(_listener);
+        log.debug ("Listener on port="+getPort()+" added to Jetty");
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
-    /* (non-Javadoc)
-     * @see org.apache.geronimo.web.WebConnector#getInterface()
+  
+    /**
+     * Stop the connector
+     *
+     * @exception Exception if an error occurs
      */
-    public String getInterface() {
-        // TODO Auto-generated method stub
-        return null;
+    public void doStop () throws Exception
+    {
+        _listener.stop();
     }
 
-    /* (non-Javadoc)
-     * @see org.apache.geronimo.web.WebConnector#setMaxConnections(int)
+    /**
+     * Get the underlying Jetty listener
+     *
+     * @return the Jetty listener
      */
-    public void setMaxConnections(int maxConnects) {
-        // TODO Auto-generated method stub
-
+    HttpListener getListener ()
+    {
+        return _listener;
     }
-
-    /* (non-Javadoc)
-     * @see org.apache.geronimo.web.WebConnector#getMaxConnections()
-     */
-    public int getMaxConnections() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    /* (non-Javadoc)
-     * @see org.apache.geronimo.web.WebConnector#setMaxIdleTime(int)
-     */
-    public void setMaxIdleTime(int maxIdleTime) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /* (non-Javadoc)
-     * @see org.apache.geronimo.web.WebConnector#getMaxIdleTime()
-     */
-    public int getMaxIdleTime() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    /* (non-Javadoc)
-     * @see org.apache.geronimo.web.WebConnector#setContexts(java.lang.String[])
-     */
-    public void setContexts(String[] contexts) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /* (non-Javadoc)
-     * @see org.apache.geronimo.web.WebConnector#getContexts()
-     */
-    public String[] getContexts() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
 }

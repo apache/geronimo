@@ -61,7 +61,7 @@ import org.apache.geronimo.core.service.Component;
 /**
  * WebConnector
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/08 04:51:14 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/14 12:09:43 $
  */
 public interface WebConnector extends Component {
     /**
@@ -113,4 +113,10 @@ public interface WebConnector extends Component {
     public void setContexts(String[] contexts);
 
     public String[] getContexts();
+
+/*
+  Report the state of the listener: handling connections, bleeding connections etc
+    public HandlingState getHandlingState ();
+
+*/
 }
