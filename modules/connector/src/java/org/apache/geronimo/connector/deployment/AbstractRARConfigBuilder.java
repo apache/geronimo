@@ -59,7 +59,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.13 $ $Date: 2004/04/14 04:01:24 $
+ * @version $Revision: 1.14 $ $Date: 2004/04/17 20:34:24 $
  *
  * */
 public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
@@ -118,7 +118,7 @@ public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
 
     protected abstract XmlObject getConnectorDocument(JarInputStream jarInputStream) throws XmlException, IOException, DeploymentException;
 
-    public XmlObject getDeploymentPlan(URL module) {
+    public XmlObject getDeploymentPlan(URL module) throws XmlException {
          try {
             URL moduleBase = new URL("jar:" + module.toString() + "!/");
             XmlObject plan = XmlBeansUtil.getXmlObject(new URL(moduleBase, "META-INF/geronimo-ra.xml"), GerConnectorDocument.type);

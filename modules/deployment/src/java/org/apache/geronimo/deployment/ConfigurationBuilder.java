@@ -26,11 +26,12 @@ import java.util.List;
 
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlException;
 
 /**
- * 
- * 
- * @version $Revision: 1.7 $ $Date: 2004/04/03 22:37:57 $
+ *
+ *
+ * @version $Revision: 1.8 $ $Date: 2004/04/17 20:34:24 $
  */
 public interface ConfigurationBuilder {
     SchemaTypeLoader[] getTypeLoaders();
@@ -48,7 +49,7 @@ public interface ConfigurationBuilder {
      * @param module the URL of the module to examine
      * @return the deployment plan, or null if this module can not handle it
      */
-    XmlObject getDeploymentPlan(URL module);
+    XmlObject getDeploymentPlan(URL module) throws XmlException;
 
     /**
      * Build a configuration from a local file

@@ -77,7 +77,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.17 $ $Date: 2004/04/07 19:22:15 $
+ * @version $Revision: 1.18 $ $Date: 2004/04/17 20:34:24 $
  */
 public class WARConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
@@ -96,7 +96,7 @@ public class WARConfigBuilder implements ConfigurationBuilder {
         return new SchemaTypeLoader[]{XmlBeans.getContextTypeLoader()};
     }
 
-    public XmlObject getDeploymentPlan(URL module) {
+    public XmlObject getDeploymentPlan(URL module) throws XmlException {
         try {
             URL moduleBase;
             if (module.toString().endsWith("/")) {

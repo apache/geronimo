@@ -17,29 +17,29 @@
 
 package org.apache.geronimo.common.xml;
 
-import java.io.InputStream;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/21 18:11:11 $
+ * @version $Revision: 1.3 $ $Date: 2004/04/17 20:34:24 $
  *
  * */
 public class XmlBeansUtil {
 
     private XmlBeansUtil() {}
 
-    public static XmlObject getXmlObject(URL url, SchemaType type) {
+    public static XmlObject getXmlObject(URL url, SchemaType type) throws XmlException {
         InputStream is;
         try {
             is = url.openStream();
@@ -50,8 +50,6 @@ public class XmlBeansUtil {
             }
         } catch (IOException e) {
             return null;
-        } catch (XmlException e) {
-            return null;
         }
     }
 
@@ -61,7 +59,11 @@ public class XmlBeansUtil {
         XmlOptions options = new XmlOptions();
         options.setLoadLineNumbers();
         options.setErrorListener(errors);
-        return loader.parse(is, type, options);
+        XmlObject parsed = loader.parse(is, type, options);
+        if (errors.size() != 0) {
+            throw new XmlException(errors.toArray().toString());
+        }
+        return parsed;
     }
 
 }
