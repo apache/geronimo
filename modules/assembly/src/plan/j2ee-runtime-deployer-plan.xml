@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2004-2005 The Apache Software Foundation
+Copyright 2004-2005 The Apache Software Foundation
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+http://www.apache.org/licenses/LICENSE-2.0
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 -->
 
 <!-- $Rev: 57116 $ $Date: 2004-11-09 17:34:38 -0800 (Tue, 09 Nov 2004) $ -->
@@ -61,7 +61,7 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
         <uri>xmlbeans/jars/xbean-apache-${xmlbeans_version}.jar</uri>
     </dependency>
     <dependency>
-         <uri>geronimo/jars/geronimo-axis-builder-${geronimo_version}.jar</uri>
+        <uri>geronimo/jars/geronimo-axis-builder-${geronimo_version}.jar</uri>
     </dependency>
 
     <!-- deployer gbeans -->
@@ -91,6 +91,33 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
         <reference name="ServiceReferenceBuilder">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/RuntimeDeployer,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=WebServiceBuilder</reference>
     </gbean>
 
+    <!--
+    - Uncomment this section to deploy webapps to Apache Tomcat
+    -
+
+    <dependency>
+        <uri>geronimo/jars/geronimo-tomcat-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/catalina-${tomcat_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/naming-resources-${tomcat_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/tomcat-coyote-${tomcat_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/tomcat-util-${tomcat_version}.jar</uri>
+    </dependency>
+    <gbean namePart="WebBuilder" class="org.apache.geronimo.tomcat.deployment.TomcatModuleBuilder">
+        <attribute name="defaultParentId">org/apache/geronimo/Tomcat</attribute>
+        <attribute name="tomcatContainerObjectName">geronimo.server:name=TomcatWebContainer,*</attribute>
+    </gbean>
+    -->
+
+    <!-- Comment out the next WebBuilder gbean to enable Tomcat deployer
+    -->
     <gbean namePart="WebBuilder" class="org.apache.geronimo.jetty.deployment.JettyModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
         <attribute name="defaultSessionTimeoutSeconds">1800</attribute>
@@ -99,18 +126,18 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
         <attribute name="defaultServlets">geronimo.server:j2eeType=Servlet,J2EEModule=org/apache/geronimo/RuntimeDeployer,*</attribute>
         <reference name="Repository">*:name=Repository,*</reference>
     </gbean>
-
+    
     <gbean namePart="StaticContent" class="org.apache.geronimo.jetty.JettyServletHolder">
         <attribute name="servletName">default</attribute>
         <attribute name="servletClass">org.mortbay.jetty.servlet.Default</attribute>
         <attribute name="loadOnStartup">0</attribute>
         <attribute name="initParams">
- acceptRanges=true
- dirAllowed=true
- putAllowed=false
- delAllowed=false
- redirectWelcome=false
- minGzipLength=8192</attribute>
+            acceptRanges=true
+            dirAllowed=true
+            putAllowed=false
+            delAllowed=false
+            redirectWelcome=false
+            minGzipLength=8192</attribute>
         <attribute name="servletMappings">/</attribute>
     </gbean>
 
@@ -119,15 +146,15 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
         <attribute name="servletClass">org.apache.jasper.servlet.JspServlet</attribute>
         <attribute name="loadOnStartup">0</attribute>
         <attribute name="initParams">
- logVerbosityLevel=DEBUG
- fork=false
- xpoweredBy=false</attribute>
+            logVerbosityLevel=DEBUG
+            fork=false
+            xpoweredBy=false</attribute>
         <attribute name="servletMappings">*.jsp,*.jspf,*.jspx,*.xsp</attribute>
     </gbean>
 
     <gbean namePart="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
-<!--        <reference name="SkeletonGenerator">openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB</reference>-->
+        <!--        <reference name="SkeletonGenerator">openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB</reference>-->
         <reference name="Repository">*:name=Repository,*</reference>
     </gbean>
 
@@ -159,14 +186,14 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
 
     <gbean namePart="WebServiceBuilder" class="org.apache.geronimo.axis.builder.AxisBuilder">
     </gbean>
-<!--    <gbean name="openejb.CORBA:type=Compiler,vendor=Ant" class="org.openejb.corba.compiler.AntCompiler"/>-->
-<!---->
-<!--    <gbean name="openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB" class="org.openejb.corba.compiler.OpenORBSkeletonGenerator">-->
-<!--        <attribute name="props">-->
-<!--        </attribute>-->
-<!--        <reference name="Compiler">openejb.CORBA:type=Compiler,vendor=Ant</reference>-->
-<!--    </gbean>-->
-<!---->
+    <!--    <gbean name="openejb.CORBA:type=Compiler,vendor=Ant" class="org.openejb.corba.compiler.AntCompiler"/>-->
+    <!---->
+    <!--    <gbean name="openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB" class="org.openejb.corba.compiler.OpenORBSkeletonGenerator">-->
+        <!--        <attribute name="props">-->
+            <!--        </attribute>-->
+        <!--        <reference name="Compiler">openejb.CORBA:type=Compiler,vendor=Ant</reference>-->
+        <!--    </gbean>-->
+    <!---->
     <!-- end deployment block -->
 
 </configuration>
