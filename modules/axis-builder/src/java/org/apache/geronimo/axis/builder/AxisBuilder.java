@@ -133,7 +133,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
 
 
     //ServicereferenceBuilder
-    public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
+    public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Map portLocationMap, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
         JarFile moduleFile = module.getModuleFile();
         Definition definition = null;
         JavaWsdlMappingType mapping = null;
@@ -143,7 +143,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
             mapping = WSDescriptorParser.readJaxrpcMapping(moduleFile, jaxrpcMappingURI);
         }
 
-        Object service = createService(serviceInterface, definition, mapping, serviceQName, SOAP_VERSION, handlerInfos, deploymentContext, module, classLoader);
+        Object service = createService(serviceInterface, definition, mapping, serviceQName, SOAP_VERSION, handlerInfos, portLocationMap, deploymentContext, module, classLoader);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = null;
         try {
@@ -158,12 +158,12 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         return reference;
     }
 
-    public Object createService(Class serviceInterface, Definition definition, JavaWsdlMappingType mapping, QName serviceQName, SOAPConstants soapVersion, List handlerInfos, DeploymentContext context, Module module, ClassLoader classloader) throws DeploymentException {
+    public Object createService(Class serviceInterface, Definition definition, JavaWsdlMappingType mapping, QName serviceQName, SOAPConstants soapVersion, List handlerInfos, Map portLocationMap, DeploymentContext context, Module module, ClassLoader classloader) throws DeploymentException {
         Map seiPortNameToFactoryMap = new HashMap();
         Map seiClassNameToFactoryMap = new HashMap();
         Object serviceInstance = createService(serviceInterface, seiPortNameToFactoryMap, seiClassNameToFactoryMap, context, module, classloader);
         if (definition != null) {
-            buildSEIFactoryMap(serviceInterface, definition, mapping, handlerInfos, serviceQName, soapVersion, seiPortNameToFactoryMap, seiClassNameToFactoryMap, serviceInstance, context, module, classloader);
+            buildSEIFactoryMap(serviceInterface, definition, portLocationMap, mapping, handlerInfos, serviceQName, soapVersion, seiPortNameToFactoryMap, seiClassNameToFactoryMap, serviceInstance, context, module, classloader);
         }
         return serviceInstance;
     }
@@ -200,7 +200,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         }
     }
 
-    public void buildSEIFactoryMap(Class serviceInterface, Definition definition, JavaWsdlMappingType mapping, List handlerInfos, QName serviceQName, SOAPConstants soapVersion, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, Object serviceImpl, DeploymentContext context, Module module, ClassLoader classLoader) throws DeploymentException {
+    public void buildSEIFactoryMap(Class serviceInterface, Definition definition, Map portLocationMap, JavaWsdlMappingType mapping, List handlerInfos, QName serviceQName, SOAPConstants soapVersion, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, Object serviceImpl, DeploymentContext context, Module module, ClassLoader classLoader) throws DeploymentException {
 
         //find the service we are working with
         javax.wsdl.Service service;
@@ -215,6 +215,9 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         }
         if (service == null) {
             throw new DeploymentException("No service wsdl for supplied service qname " + serviceQName);
+        }
+        if (portLocationMap != null) {
+            WSDescriptorParser.updatePortLocations(service, portLocationMap);
         }
 
         Map wsdlPortMap = service.getPorts();

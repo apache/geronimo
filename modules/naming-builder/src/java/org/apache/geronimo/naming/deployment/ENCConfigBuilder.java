@@ -52,6 +52,8 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanLocatorType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerPortType;
 import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.j2ee.EjbRefType;
 import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
@@ -443,12 +445,14 @@ public class ENCConfigBuilder {
     }
 
     //TODO current implementation does not deal with portComponentRefs.
-    public static void addServiceRefs(EARContext earContext, Module module, ServiceRefType[] serviceRefs, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+    public static void addServiceRefs(EARContext earContext, Module module, ServiceRefType[] serviceRefs, Map serviceRefMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+
         RefContext refContext = earContext.getRefContext();
 
         for (int i = 0; i < serviceRefs.length; i++) {
             ServiceRefType serviceRef = serviceRefs[i];
             String name = getStringValue(serviceRef.getServiceRefName());
+            Map portLocationMap = (Map) serviceRefMap.get(name);
             String serviceInterfaceName = getStringValue(serviceRef.getServiceInterface());
             assureInterface(serviceInterfaceName, "javax.xml.rpc.Service", "[Web]Service", cl);
             Class serviceInterface = null;
@@ -498,7 +502,7 @@ public class ENCConfigBuilder {
             List handlerInfos = buildHandlerInfoList(handlers, cl);
 
             //we could get a Reference or the actual serializable Service back.
-            Object ref = refContext.getServiceReference(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlerInfos, earContext, module, cl);
+            Object ref = refContext.getServiceReference(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlerInfos, portLocationMap, earContext, module, cl);
             try {
                 builder.bind(name, ref);
             } catch (NamingException e) {
@@ -633,7 +637,22 @@ public class ENCConfigBuilder {
         builder.setApplicationManagedSecurityResources(applicationManagedSecurityResources);
     }
 
-    public static Map buildComponentContext(EARContext earContext, Module module, UserTransaction userTransaction, EnvEntryType[] envEntries, EjbRefType[] ejbRefs, GerEjbRefType[] gerEjbRefs, EjbLocalRefType[] ejbLocalRefs, GerEjbLocalRefType[] gerEjbLocalRef, ResourceRefType[] resourceRefs, GerResourceRefType[] gerResourceRef, ResourceEnvRefType[] resourceEnvRefs, GerResourceEnvRefType[] gerResourceEnvRef, MessageDestinationRefType[] messageDestinationRefs, ServiceRefType[] serviceRefs, ClassLoader cl) throws DeploymentException {
+    public static Map buildComponentContext(EARContext earContext,
+                                            Module module,
+                                            UserTransaction userTransaction,
+                                            EnvEntryType[] envEntries,
+                                            EjbRefType[] ejbRefs,
+                                            GerEjbRefType[] gerEjbRefs,
+                                            EjbLocalRefType[] ejbLocalRefs,
+                                            GerEjbLocalRefType[] gerEjbLocalRef,
+                                            ResourceRefType[] resourceRefs,
+                                            GerResourceRefType[] gerResourceRef,
+                                            ResourceEnvRefType[] resourceEnvRefs,
+                                            GerResourceEnvRefType[] gerResourceEnvRef,
+                                            MessageDestinationRefType[] messageDestinationRefs,
+                                            ServiceRefType[] serviceRefs,
+                                            GerServiceRefType[] gerServiceRefs,
+                                            ClassLoader cl) throws DeploymentException {
         ComponentContextBuilder builder = new ComponentContextBuilder();
 
         if (userTransaction != null) {
@@ -662,7 +681,7 @@ public class ENCConfigBuilder {
 
         addMessageDestinationRefs(earContext, uri, messageDestinationRefs, cl, builder);
 
-        addServiceRefs(earContext, module, serviceRefs, cl, builder);
+        addServiceRefs(earContext, module, serviceRefs, mapServiceRefs(gerServiceRefs), cl, builder);
 
         return builder.getContext();
     }
@@ -672,7 +691,7 @@ public class ENCConfigBuilder {
         if (refs != null) {
             for (int i = 0; i < refs.length; i++) {
                 GerEjbRefType ref = refs[i];
-                refMap.put(ref.getRefName(), ref);
+                refMap.put(ref.getRefName().trim(), ref);
             }
         }
         return refMap;
@@ -683,7 +702,7 @@ public class ENCConfigBuilder {
         if (refs != null) {
             for (int i = 0; i < refs.length; i++) {
                 GerEjbLocalRefType ref = refs[i];
-                refMap.put(ref.getRefName(), ref);
+                refMap.put(ref.getRefName().trim(), ref);
             }
         }
         return refMap;
@@ -694,7 +713,7 @@ public class ENCConfigBuilder {
         if (refs != null) {
             for (int i = 0; i < refs.length; i++) {
                 GerResourceRefType ref = refs[i];
-                refMap.put(ref.getRefName(), ref);
+                refMap.put(ref.getRefName().trim(), ref);
             }
         }
         return refMap;
@@ -705,7 +724,31 @@ public class ENCConfigBuilder {
         if (refs != null) {
             for (int i = 0; i < refs.length; i++) {
                 GerResourceEnvRefType ref = refs[i];
-                refMap.put(ref.getRefName(), ref);
+                refMap.put(ref.getRefName().trim(), ref);
+            }
+        }
+        return refMap;
+    }
+
+    private static Map mapServiceRefs(GerServiceRefType[] refs) {
+        Map refMap = new HashMap();
+        if (refs != null) {
+            for (int i = 0; i < refs.length; i++) {
+                GerServiceRefType ref = refs[i];
+                String serviceRefName = ref.getServiceRefName().trim();
+                Map portMap = new HashMap();
+                GerPortType[] ports = ref.getPortArray();
+                for (int j = 0; j < ports.length; j++) {
+                    GerPortType port = ports[j];
+                    String portName = port.getPortName().trim();
+                    String protocol = port.getProtocol().trim();
+                    String host = port.getHost().trim();
+                    int portNum = port.getPort();
+                    String uri = port.getUri().trim();
+                    String location = protocol + "://" + host + ":" + portNum + uri;
+                    portMap.put(portName, location);
+                }
+                refMap.put(serviceRefName, portMap);
             }
         }
         return refMap;

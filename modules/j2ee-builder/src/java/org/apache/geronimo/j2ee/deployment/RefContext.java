@@ -302,8 +302,8 @@ public class RefContext {
         }
     }
 
-    public Object getServiceReference(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
-        return serviceReferenceBuilder.createService(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlerInfos, deploymentContext, module, classLoader);
+    public Object getServiceReference(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Map portLocationMap, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
+        return serviceReferenceBuilder.createService(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlerInfos, portLocationMap, deploymentContext, module, classLoader);
     }
 
     private String getContainerId(URI module, String ejbLink, Map references) throws AmbiguousEJBRefException, UnknownEJBRefException {

@@ -348,6 +348,7 @@ public class SchemaConversionUtils {
                     String localName = cursor.getName().getLocalPart();
                     if (localName.equals("ejb-ref")
                             || localName.equals("ejb-local-ref")
+                            || localName.equals("service-ref")
                             || localName.equals("resource-ref")
                             || localName.equals("resource-env-ref")
                             || localName.equals("cmp-connection-factory")

@@ -93,7 +93,7 @@ public class TestingUtils {
     private static ServiceReferenceBuilder serviceReferenceBuilder = new ServiceReferenceBuilder() {
 
         //it could return a Service or a Reference, we don't care
-        public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
+        public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Map portLocationMap, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
             return null;
         }
     };

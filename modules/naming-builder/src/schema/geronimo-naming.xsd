@@ -15,7 +15,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-  
+
 <xsd:schema
     targetNamespace="http://geronimo.apache.org/xml/ns/naming"
     xmlns:gernaming="http://geronimo.apache.org/xml/ns/naming"
@@ -38,11 +38,10 @@
 
     <xsd:element name="ejb-ref" type="gernaming:ejb-refType"/>
     <xsd:element name="ejb-local-ref" type="gernaming:ejb-local-refType"/>
-    <!-- leave web services out until I know what they do -->
-    <!--xsd:group ref="service-refGroup"/-->
+    <xsd:element name="service-ref" type="gernaming:service-refType"/>
     <xsd:element name="resource-ref" type="gernaming:resource-refType"/>
     <xsd:element name="resource-env-ref" type="gernaming:resource-env-refType"/>
-    
+
     <xsd:group name="jndiEnvironmentRefsGroup">
         <xsd:annotation>
             <xsd:documentation>
@@ -56,8 +55,7 @@
             <xsd:element name="gbean-ref" type="gernaming:gbean-refType" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="ejb-ref" type="gernaming:ejb-refType" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="ejb-local-ref" type="gernaming:ejb-local-refType" minOccurs="0" maxOccurs="unbounded"/>
-            <!-- leave web services out until I know what they do -->
-            <!--xsd:group ref="service-refGroup"/-->
+            <xsd:element name="service-ref" type="gernaming:service-refType" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="resource-ref" type="gernaming:resource-refType" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="resource-env-ref" type="gernaming:resource-env-refType" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
@@ -161,17 +159,43 @@
     </xsd:complexType>
 
     <xsd:group name="objectNameGroup">
-         <xsd:annotation>
-             <xsd:documentation>This group contains the components of a jsr-77 object name</xsd:documentation>
-         </xsd:annotation>
-         <xsd:sequence>
-             <xsd:element name="domain" type="xsd:string" minOccurs="0"/>
-             <xsd:element name="server" type="xsd:string" minOccurs="0"/>
-             <xsd:element name="application" type="xsd:string" minOccurs="0"/>
-             <xsd:element name="module" type="xsd:string" minOccurs="0"/>
-             <xsd:element name="type" type="xsd:string" minOccurs="0"/>
-             <xsd:element name="name" type="xsd:string"/>
-         </xsd:sequence>
-     </xsd:group>
+        <xsd:annotation>
+            <xsd:documentation>This group contains the components of a jsr-77 object name</xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="domain" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="server" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="application" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="module" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="type" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="name" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:group>
+
+    <xsd:group name="serverGroup">
+        <xsd:annotation>
+            <xsd:documentation>This group contains the protocol, address, and port for a server</xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="protocol" type="xsd:string"/>
+            <xsd:element name="host" type="xsd:string"/>
+            <xsd:element name="port" type="xsd:int"/>
+        </xsd:sequence>
+    </xsd:group>
+
+    <xsd:complexType name="portType">
+        <xsd:sequence>
+            <xsd:element name="port-name" type="xsd:string"/>
+            <xsd:group ref="gernaming:serverGroup" minOccurs="0"/>
+            <xsd:element name="uri" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="service-refType">
+        <xsd:sequence>
+            <xsd:element name="service-ref-name" type="xsd:string"/>
+            <xsd:element name="port" type="gernaming:portType" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
 
 </xsd:schema>

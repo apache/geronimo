@@ -34,7 +34,10 @@ import java.util.jar.JarFile;
 import javax.wsdl.Definition;
 import javax.wsdl.Types;
 import javax.wsdl.WSDLException;
+import javax.wsdl.Service;
+import javax.wsdl.Port;
 import javax.wsdl.extensions.ExtensibilityElement;
+import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.schema.Schema;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLLocator;
@@ -543,6 +546,20 @@ public class WSDescriptorParser {
             }
         }
         throw new DeploymentException("No element of class " + clazz.getName() + " found");
+    }
+
+    public static void updatePortLocations(Service service, Map portLocations) throws DeploymentException {
+        for (Iterator iterator = portLocations.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            String portName = (String) entry.getKey();
+            String location = (String) entry.getValue();
+            Port port = service.getPort(portName);
+            if (port == null) {
+                throw new DeploymentException("No port named " + portName + " found in service " + service.getQName());
+            }
+            SOAPAddress soapAddress = (SOAPAddress) WSDescriptorParser.getExtensibilityElement(SOAPAddress.class, port.getExtensibilityElements());
+            soapAddress.setLocationURI(location);
+        }
     }
 
     static class JarWSDLLocator implements WSDLLocator {
