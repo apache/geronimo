@@ -409,7 +409,7 @@ public class Kernel {
 
     /**
      * Boot this Kernel, triggering the instantiation of the MBeanServer and DependencyManager,
-     * and the registration ConfigurationStore
+     * and the registration of ConfigurationStore
      *
      * @throws java.lang.Exception if the boot fails
      */
