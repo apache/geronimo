@@ -22,6 +22,8 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.FileOutputStream;
+import java.io.StringWriter;
+import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.Set;
 import java.net.URI;
@@ -34,7 +36,7 @@ import org.apache.geronimo.kernel.KernelMBean;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 
 /**
- * @version $Revision: 1.12 $ $Date: 2004/07/06 05:36:12 $
+ * @version $Revision: 1.13 $ $Date: 2004/09/01 16:35:25 $
  */
 public class DistributeCommand extends CommandSupport {
     private static final String[] DEPLOY_SIG = {File.class.getName(), File.class.getName()};
@@ -95,7 +97,10 @@ public class DistributeCommand extends CommandSupport {
             addModule(moduleID);
             complete("Completed");
         } catch (Exception e) {
-            fail(e.getMessage());
+            StringWriter writer = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(writer);
+            e.printStackTrace(printWriter);
+            fail(writer.toString());
         } finally {
             if (spool) {
                 if (moduleArchive != null) {
