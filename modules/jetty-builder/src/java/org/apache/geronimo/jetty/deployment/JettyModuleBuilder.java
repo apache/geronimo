@@ -76,6 +76,7 @@ import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.security.util.URLPattern;
+import org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
@@ -388,7 +389,11 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 webModuleData.setAttribute("securityRealmName", securityRealmName);
                 webModuleData.setAttribute("securityConfig", security);
 
-                String policyContextID = webModuleName.getCanonicalName();
+                /**
+                 * TODO - go back to commented version when possible.
+                 */
+                String policyContextID = webModuleName.getCanonicalName().replaceAll("[, ]","_");
+                //String policyContextID = webModuleName.getCanonicalName();
                 webModuleData.setAttribute("policyContextID", policyContextID);
                 buildSpecSecurityConfig(webApp, webModuleData, securityRoles);
             }
