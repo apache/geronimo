@@ -25,15 +25,13 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 /**
- *
- *
- * @version $Revision: 1.1 $ $Date: 2004/08/01 02:09:06 $
- *
- * */
+ * @version $Revision: 1.2 $ $Date: 2004/09/01 16:38:14 $
+ */
 public class StartRemoteServer {
 
     private String geronimoTarget;
     private String configs;
+    private String debugPort;
 
     public String getGeronimoTarget() {
         return geronimoTarget;
@@ -51,25 +49,41 @@ public class StartRemoteServer {
         this.configs = configs;
     }
 
+    public String getDebugPort() {
+        return debugPort;
+    }
+
+    public void setDebugPort(String debugPort) {
+        this.debugPort = debugPort;
+    }
+
     public void execute() throws Exception {
         ArrayList cmd = new ArrayList();
         File root = new File(getGeronimoTarget());
         File systemFile = new File(root, "bin/server.jar");
         String s = java.io.File.separator;
-        String java = System.getProperty("java.home")+s+"bin"+s+"java";
+        String java = System.getProperty("java.home") + s + "bin" + s + "java";
 
         cmd.add(java);
 
+        if (debugPort != null) {
+            cmd.add("-Xdebug");
+            cmd.add("-Xnoagent");
+            cmd.add("-Djava.compiler=NONE");
+            cmd.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=" + debugPort);
+        }
+
+        cmd.add("-ea");
         cmd.add("-jar");
         cmd.add(systemFile.getCanonicalPath());
 
-        for (StringTokenizer st = new StringTokenizer(getConfigs()); st.hasMoreTokens(); ) {
+        for (StringTokenizer st = new StringTokenizer(getConfigs()); st.hasMoreTokens();) {
             cmd.add(st.nextToken());
         }
         String[] command = (String[]) cmd.toArray(new String[0]);
 
         Runtime runtime = Runtime.getRuntime();
-        Process server = runtime.exec( command );
+        Process server = runtime.exec(command);
 
 
         // Pipe the processes STDOUT to ours
