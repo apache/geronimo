@@ -73,13 +73,14 @@ import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.Def
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.bridge.RealmBridge;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.transaction.InstanceContext;
 
 import junit.framework.TestCase;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 05:56:11 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/31 19:27:16 $
  *
  * */
 public class ConnectionManagerTest extends TestCase implements DefaultInterceptor, RealmBridge {
@@ -174,7 +175,7 @@ public class ConnectionManagerTest extends TestCase implements DefaultIntercepto
         assertTrue("Should be committed", mockXAResource.getCommitted() != null);
     }
 
-    public Object invoke(ConnectorComponentContext newConnectorComponentContext) throws Throwable {
+    public Object invoke(InstanceContext newInstanceContext) throws Throwable {
         MockConnection mockConnection = (MockConnection) connectionFactory.getConnection();
         mockManagedConnection = mockConnection.getManagedConnection();
         mockConnection.close();

@@ -77,7 +77,7 @@ import org.apache.geronimo.security.ContextManager;
  * a connection the CachedConnectionManager is notified.
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/23 06:47:05 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/31 19:27:16 $
  */
 public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
 
@@ -108,7 +108,7 @@ public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
      */
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
         ManagedConnectionInfo managedConnectionInfo = connectionInfo.getManagedConnectionInfo();
-        managedConnectionInfo.setTransactionContext(connectionTracker.getConnectorTransactionContext());
+        managedConnectionInfo.setTransactionContext(connectionTracker.getTransactionContext());
         next.getConnection(connectionInfo);
         connectionTracker.handleObtained(this, connectionInfo);
     }

@@ -64,18 +64,22 @@ import javax.transaction.Status;
 import javax.transaction.Synchronization;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
+import javax.transaction.NotSupportedException;
+import javax.transaction.InvalidTransactionException;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
 
-import org.apache.geronimo.connector.outbound.ConnectionReleaser;
-import org.apache.geronimo.connector.outbound.ConnectorTransactionContext;
+import org.apache.geronimo.transaction.ConnectionReleaser;
+import org.apache.geronimo.transaction.TransactionContext;
 import org.apache.geronimo.connector.outbound.ManagedConnectionInfo;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 05:56:10 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/31 19:27:16 $
  *
  * */
-public class DefaultTransactionContext implements ConnectorTransactionContext, Synchronization {
+public class DefaultTransactionContext extends TransactionContext implements Synchronization {
 
     private Map managedConnections;
 
@@ -89,13 +93,28 @@ public class DefaultTransactionContext implements ConnectorTransactionContext, S
         }
     }
 
+    public void begin() throws SystemException, NotSupportedException {
+    }
+
+    public void suspend() throws SystemException {
+    }
+
+    public void resume() throws SystemException, InvalidTransactionException {
+    }
+
+    public void commit() throws HeuristicMixedException, HeuristicRollbackException, RollbackException, SystemException {
+    }
+
+    public void rollback() throws SystemException {
+    }
+
     /**
      * Don't try to cache connections if there is no transaction, since there is no
      * event that tells us to release the connection.
      * @param key
      * @param info
      */
-    public void setManagedConnectionInfo(ConnectionReleaser key, ManagedConnectionInfo info) {
+    public void setManagedConnectionInfo(ConnectionReleaser key, Object info) {
         if (isActive()) {
             if (managedConnections == null) {
                 managedConnections = new HashMap();
@@ -104,7 +123,7 @@ public class DefaultTransactionContext implements ConnectorTransactionContext, S
         }
     }
 
-    public ManagedConnectionInfo getManagedConnectionInfo(ConnectionReleaser key) {
+    public Object getManagedConnectionInfo(ConnectionReleaser key) {
         if (managedConnections == null) {
             return null;
         }
@@ -135,7 +154,7 @@ public class DefaultTransactionContext implements ConnectorTransactionContext, S
             for (Iterator entries = managedConnections.entrySet().iterator(); entries.hasNext();) {
                 Map.Entry entry = (Map.Entry) entries.next();
                 ConnectionReleaser key = (ConnectionReleaser) entry.getKey();
-                key.afterCompletion((ManagedConnectionInfo) entry.getValue());
+                key.afterCompletion(entry.getValue());
             }
             //should we clear managedConnections?  might be less work for garbage collector.  any other reason?
         }

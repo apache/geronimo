@@ -63,14 +63,14 @@ import javax.transaction.Status;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 
-import org.apache.geronimo.connector.outbound.ConnectorComponentContext;
-import org.apache.geronimo.connector.outbound.ConnectorTransactionContext;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
+import org.apache.geronimo.transaction.TransactionContext;
+import org.apache.geronimo.transaction.InstanceContext;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 05:56:10 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/31 19:27:16 $
  *
  * */
 public class DefaultComponentInterceptor implements DefaultInterceptor {
@@ -91,26 +91,26 @@ public class DefaultComponentInterceptor implements DefaultInterceptor {
         this.transactionManager = transactionManager;
     }
 
-    public Object invoke(ConnectorComponentContext newConnectorComponentContext) throws Throwable {
+    public Object invoke(InstanceContext newInstanceContext) throws Throwable {
         Transaction transaction = transactionManager.getTransaction();
-        ConnectorTransactionContext newConnectorTransactionContext;
+        TransactionContext newTransactionContext;
         if (transaction == null || transaction.getStatus() == Status.STATUS_COMMITTED || transaction.getStatus() == Status.STATUS_ROLLEDBACK) {
-            newConnectorTransactionContext = new DefaultTransactionContext(null);
+            newTransactionContext = new DefaultTransactionContext(null);
         } else {
-            newConnectorTransactionContext = (ConnectorTransactionContext) transactionToTransactionContextMap.get(transaction);
-            if (newConnectorTransactionContext == null) {
-                newConnectorTransactionContext = new DefaultTransactionContext(transaction);
-                transactionToTransactionContextMap.put(transaction, newConnectorTransactionContext);
+            newTransactionContext = (TransactionContext) transactionToTransactionContextMap.get(transaction);
+            if (newTransactionContext == null) {
+                newTransactionContext = new DefaultTransactionContext(transaction);
+                transactionToTransactionContextMap.put(transaction, newTransactionContext);
             }
         }
         Set oldUnshareableResources = cachedConnectionAssociator.setUnshareableResources(unshareableResources);
-        ConnectorComponentContext oldConnectorComponentContext = cachedConnectionAssociator.enter(newConnectorComponentContext);
-        ConnectorTransactionContext oldConnectorTransactionContext = cachedConnectionAssociator.setConnectorTransactionContext(newConnectorTransactionContext);
+        InstanceContext oldInstanceContext = cachedConnectionAssociator.enter(newInstanceContext);
+        TransactionContext oldTransactionContext = cachedConnectionAssociator.setTransactionContext(newTransactionContext);
         try {
-            return next.invoke(newConnectorComponentContext);
+            return next.invoke(newInstanceContext);
         } finally {
-            cachedConnectionAssociator.exit(oldConnectorComponentContext, unshareableResources);
-            cachedConnectionAssociator.resetConnectorTransactionContext(oldConnectorTransactionContext);
+            cachedConnectionAssociator.exit(oldInstanceContext, unshareableResources);
+            cachedConnectionAssociator.resetTransactionContext(oldTransactionContext);
             cachedConnectionAssociator.setUnshareableResources(oldUnshareableResources);
         }
     }

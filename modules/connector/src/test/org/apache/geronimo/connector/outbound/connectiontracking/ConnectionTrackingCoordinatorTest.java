@@ -65,20 +65,20 @@ import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.connector.outbound.ConnectionInfo;
 import org.apache.geronimo.connector.outbound.ConnectionTrackingInterceptor;
-import org.apache.geronimo.connector.outbound.ConnectorComponentContext;
-import org.apache.geronimo.connector.outbound.ConnectorTransactionContext;
 import org.apache.geronimo.connector.outbound.ManagedConnectionInfo;
 import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultComponentContext;
 import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultTransactionContext;
 import org.apache.geronimo.security.bridge.RealmBridge;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.transaction.InstanceContext;
+import org.apache.geronimo.transaction.TransactionContext;
 
 import junit.framework.TestCase;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 05:56:11 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/31 19:27:17 $
  *
  * */
 public class ConnectionTrackingCoordinatorTest extends TestCase
@@ -112,7 +112,7 @@ public class ConnectionTrackingCoordinatorTest extends TestCase
 
     public void testSimpleComponentContextLifecyle() throws Exception {
         DefaultComponentContext componentContext = new DefaultComponentContext();
-        ConnectorComponentContext oldComponentContext = connectionTrackingCoordinator.enter(componentContext);
+        InstanceContext oldComponentContext = connectionTrackingCoordinator.enter(componentContext);
         assertNull("Expected old component context to be null", oldComponentContext);
         //give the context a ConnectionInfo
         ManagedConnectionInfo managedConnectionInfo = new ManagedConnectionInfo(null, null);
@@ -136,7 +136,7 @@ public class ConnectionTrackingCoordinatorTest extends TestCase
 
     public void testNestedComponentContextLifecyle() throws Exception {
         DefaultComponentContext componentContext1 = new DefaultComponentContext();
-        ConnectorComponentContext oldComponentContext1 = connectionTrackingCoordinator.enter(componentContext1);
+        InstanceContext oldComponentContext1 = connectionTrackingCoordinator.enter(componentContext1);
         assertNull("Expected old component context to be null", oldComponentContext1);
         //give the context a ConnectionInfo
         ManagedConnectionInfo managedConnectionInfo1 = new ManagedConnectionInfo(null, null);
@@ -145,7 +145,7 @@ public class ConnectionTrackingCoordinatorTest extends TestCase
 
         //Simulate calling another component
         DefaultComponentContext componentContext2 = new DefaultComponentContext();
-        ConnectorComponentContext oldComponentContext2 = connectionTrackingCoordinator.enter(componentContext2);
+        InstanceContext oldComponentContext2 = connectionTrackingCoordinator.enter(componentContext2);
         assertTrue("Expected returned component context to be componentContext1", oldComponentContext2 == componentContext1);
         //give the context a ConnectionInfo
         ManagedConnectionInfo managedConnectionInfo2 = new ManagedConnectionInfo(null, null);
@@ -179,18 +179,18 @@ public class ConnectionTrackingCoordinatorTest extends TestCase
 
     public void testSimpleTransactionContextLifecycle() throws Exception {
         DefaultComponentContext componentContext = new DefaultComponentContext();
-        ConnectorComponentContext oldComponentContext = connectionTrackingCoordinator.enter(componentContext);
+        InstanceContext oldComponentContext = connectionTrackingCoordinator.enter(componentContext);
         transactionManager.begin();
         Transaction transaction = transactionManager.getTransaction();
         DefaultTransactionContext transactionContext = new DefaultTransactionContext(transaction);
-        ConnectorTransactionContext oldTransactionContext = connectionTrackingCoordinator.setConnectorTransactionContext(transactionContext);
+        TransactionContext oldTransactionContext = connectionTrackingCoordinator.setTransactionContext(transactionContext);
         assertNull("Expected no old transactionContext", oldTransactionContext);
-        ConnectorTransactionContext availableTransactionContext = connectionTrackingCoordinator.getConnectorTransactionContext();
+        TransactionContext availableTransactionContext = connectionTrackingCoordinator.getTransactionContext();
         assertTrue("Expected the same transactionContext as we sent in", transactionContext == availableTransactionContext);
 
-        ConnectorTransactionContext exitingTransactionContext = connectionTrackingCoordinator.setConnectorTransactionContext(null);
+        TransactionContext exitingTransactionContext = connectionTrackingCoordinator.setTransactionContext(null);
         assertTrue("Expected the same transactionContext as we sent in", transactionContext == exitingTransactionContext);
-        ConnectorTransactionContext availableTransactionContext2 = connectionTrackingCoordinator.getConnectorTransactionContext();
+        TransactionContext availableTransactionContext2 = connectionTrackingCoordinator.getTransactionContext();
         assertNull("Expected no transactionContext", availableTransactionContext2);
     }
 

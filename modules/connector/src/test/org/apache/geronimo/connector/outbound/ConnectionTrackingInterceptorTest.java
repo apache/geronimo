@@ -62,12 +62,13 @@ import java.util.Set;
 import javax.resource.ResourceException;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
+import org.apache.geronimo.transaction.TransactionContext;
 
 /**
  * TODO test unshareable resources.
  * TODO test repeat calls with null/non-null Subject
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 05:56:11 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/31 19:27:16 $
  *
  * */
 public class ConnectionTrackingInterceptorTest extends ConnectionManagerTestUtils
@@ -185,7 +186,7 @@ public class ConnectionTrackingInterceptorTest extends ConnectionManagerTestUtil
         releasedTrackedConnectionInfo = connectionInfo;
     }
 
-    public ConnectorTransactionContext getConnectorTransactionContext() {
+    public TransactionContext getTransactionContext() {
         return null;
     }
 

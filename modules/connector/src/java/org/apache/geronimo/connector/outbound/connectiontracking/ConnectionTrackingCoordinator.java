@@ -64,11 +64,11 @@ import javax.resource.ResourceException;
 
 import org.apache.geronimo.connector.outbound.ConnectionInfo;
 import org.apache.geronimo.connector.outbound.ConnectionTrackingInterceptor;
-import org.apache.geronimo.connector.outbound.ConnectorComponentContext;
-import org.apache.geronimo.connector.outbound.ConnectorTransactionContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GOperationInfo;
+import org.apache.geronimo.transaction.TransactionContext;
+import org.apache.geronimo.transaction.InstanceContext;
 
 /**
  * ConnectionTrackingCoordinator tracks connections that are in use by
@@ -84,28 +84,28 @@ import org.apache.geronimo.gbean.GOperationInfo;
  * ConnectionManager stacks so the existing ManagedConnections can be
  * enrolled properly.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/30 05:29:41 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/31 19:27:16 $
  */
 public class ConnectionTrackingCoordinator implements TrackedConnectionAssociator, ConnectionTracker {
 
     public final static GBeanInfo GBEAN_INFO;
 
-    private final ThreadLocal currentConnectorComponentContexts = new ThreadLocal();
+    private final ThreadLocal currentInstanceContexts = new ThreadLocal();
     private final ThreadLocal currentConnectorTransactionContexts = new ThreadLocal();
     private final ThreadLocal currentUnshareableResources = new ThreadLocal();
 
-    public ConnectorComponentContext enter(ConnectorComponentContext newConnectorComponentContext)
+    public InstanceContext enter(InstanceContext newInstanceContext)
             throws ResourceException {
-        ConnectorComponentContext oldConnectorComponentContext = (ConnectorComponentContext) currentConnectorComponentContexts.get();
-        currentConnectorComponentContexts.set(newConnectorComponentContext);
-        return oldConnectorComponentContext;
+        InstanceContext oldInstanceContext = (InstanceContext) currentInstanceContexts.get();
+        currentInstanceContexts.set(newInstanceContext);
+        return oldInstanceContext;
     }
 
-    public void exit(ConnectorComponentContext reenteringConnectorComponentContext,
+    public void exit(InstanceContext reenteringInstanceContext,
             Set unshareableResources)
             throws ResourceException {
-        ConnectorComponentContext oldConnectorComponentContext = (ConnectorComponentContext) currentConnectorComponentContexts.get();
-        Map resources = oldConnectorComponentContext.getConnectionManagerMap();
+        InstanceContext oldInstanceContext = (InstanceContext) currentInstanceContexts.get();
+        Map resources = oldInstanceContext.getConnectionManagerMap();
         for (Iterator i = resources.entrySet().iterator(); i.hasNext();) {
             Map.Entry entry = (Map.Entry) i.next();
             ConnectionTrackingInterceptor mcci =
@@ -116,7 +116,7 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
                 i.remove();
             }
         }
-        currentConnectorComponentContexts.set(reenteringConnectorComponentContext);
+        currentInstanceContexts.set(reenteringInstanceContext);
     }
 
     public Set setUnshareableResources(Set unshareableResources) {
@@ -125,12 +125,12 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
         return oldUnshareableResources;
     }
 
-    public ConnectorTransactionContext setConnectorTransactionContext(ConnectorTransactionContext newConnectorTransactionContext) throws ResourceException {
-        ConnectorTransactionContext oldConnectorTransactionContext = (ConnectorTransactionContext) currentConnectorTransactionContexts.get();
-        currentConnectorTransactionContexts.set(newConnectorTransactionContext);
-        ConnectorComponentContext connectorComponentContext = (ConnectorComponentContext) currentConnectorComponentContexts.get();
+    public TransactionContext setTransactionContext(TransactionContext newTransactionContext) throws ResourceException {
+        TransactionContext oldConnectorTransactionContext = (TransactionContext) currentConnectorTransactionContexts.get();
+        currentConnectorTransactionContexts.set(newTransactionContext);
+        InstanceContext instanceContext = (InstanceContext) currentInstanceContexts.get();
         Set unshareableResources = (Set) currentUnshareableResources.get();
-        Map connectionManagerToManagedConnectionInfoMap = connectorComponentContext.getConnectionManagerMap();
+        Map connectionManagerToManagedConnectionInfoMap = instanceContext.getConnectionManagerMap();
         for (Iterator i = connectionManagerToManagedConnectionInfoMap.entrySet().iterator(); i.hasNext();) {
             Map.Entry entry = (Map.Entry) i.next();
             ConnectionTrackingInterceptor mcci =
@@ -141,18 +141,18 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
         return oldConnectorTransactionContext;
     }
 
-    public void resetConnectorTransactionContext(ConnectorTransactionContext connectorTransactionContext) {
-        currentConnectorTransactionContexts.set(connectorTransactionContext);
+    public void resetTransactionContext(TransactionContext transactionContext) {
+        currentConnectorTransactionContexts.set(transactionContext);
     }
 
     public void handleObtained(
             ConnectionTrackingInterceptor connectionTrackingInterceptor,
             ConnectionInfo connectionInfo) {
-        ConnectorComponentContext connectorComponentContext = (ConnectorComponentContext) currentConnectorComponentContexts.get();
-        if (connectorComponentContext == null) {
+        InstanceContext instanceContext = (InstanceContext) currentInstanceContexts.get();
+        if (instanceContext == null) {
             return;
         }
-        Map resources = connectorComponentContext.getConnectionManagerMap();
+        Map resources = instanceContext.getConnectionManagerMap();
         Set infos = (Set) resources.get(connectionTrackingInterceptor);
         if (infos == null) {
             infos = new HashSet();
@@ -164,30 +164,30 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
     public void handleReleased(
             ConnectionTrackingInterceptor connectionTrackingInterceptor,
             ConnectionInfo connectionInfo) {
-        ConnectorComponentContext connectorComponentContext = (ConnectorComponentContext) currentConnectorComponentContexts.get();
-        if (connectorComponentContext == null) {
+        InstanceContext instanceContext = (InstanceContext) currentInstanceContexts.get();
+        if (instanceContext == null) {
             return;
         }
-        Map resources = connectorComponentContext.getConnectionManagerMap();
+        Map resources = instanceContext.getConnectionManagerMap();
         Set infos = (Set) resources.get(connectionTrackingInterceptor);
         //It's not at all clear that an equal ci will be supplied here
         infos.remove(connectionInfo);
     }
 
-    public ConnectorTransactionContext getConnectorTransactionContext() {
-        return (ConnectorTransactionContext) currentConnectorTransactionContexts.get();
+    public TransactionContext getTransactionContext() {
+        return (TransactionContext) currentConnectorTransactionContexts.get();
     }
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConnectionTrackingCoordinator.class.getName());
-        infoFactory.addOperation(new GOperationInfo("enter", new String[]{ConnectorComponentContext.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("exit", new String[]{ConnectorComponentContext.class.getName(), Set.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("setConnectorTransactionContext", new String[]{ConnectorTransactionContext.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("enter", new String[]{InstanceContext.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("exit", new String[]{InstanceContext.class.getName(), Set.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("setTransactionContext", new String[]{TransactionContext.class.getName()}));
         infoFactory.addOperation(new GOperationInfo("setUnshareableResources", new String[]{Set.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("resetConnectorTransactionContext", new String[]{ConnectorTransactionContext.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("resetTransactionContext", new String[]{TransactionContext.class.getName()}));
         infoFactory.addOperation(new GOperationInfo("handleObtained", new String[]{ConnectionTrackingInterceptor.class.getName(), ConnectionInfo.class.getName()}));
         infoFactory.addOperation(new GOperationInfo("handleReleased", new String[]{ConnectionTrackingInterceptor.class.getName(), ConnectionInfo.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("getConnectorTransactionContext"));
+        infoFactory.addOperation(new GOperationInfo("getTransactionContext"));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -54,49 +54,64 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl;
+package org.apache.geronimo.transaction;
 
-import java.util.HashMap;
 import java.util.Map;
-
-import org.apache.geronimo.transaction.InstanceContext;
-
+import java.util.HashMap;
+import java.util.Collection;
 
 /**
- * Simple implementation of ComponentContext satisfying invariant.
+ * <b>Really</b> stupid implementation of a double keyed map.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/31 19:27:16 $
- *
- * */
-public class DefaultComponentContext implements InstanceContext {
+ * @version $Revision: 1.1 $ $Date: 2004/01/31 19:27:17 $
+ */
+public final class DoubleKeyedHashMap {
+    private final Map map = new HashMap();
 
-    private final Map connectionManagerMap = new HashMap();
-
-    public Object getId() {
-        return null;
+    public Object put(Object key1, Object key2, Object value) {
+        return map.put(new Key(key1, key2), value);
     }
 
-    public void setId(Object id) {
+    public Object get(Object key1, Object key2) {
+        return map.get(new Key(key1, key2));
     }
 
-    public Object getContainer() {
-        return null;
+    public Object remove(Object key1, Object key2) {
+        return map.remove(new Key(key1, key2));
     }
 
-    public void associate() throws Exception {
+    public Collection values() {
+        return map.values();
     }
 
-    public void flush() throws Exception {
+    public void clear() {
+        map.clear();
     }
 
-    public void beforeCommit() throws Exception {
+    public boolean isEmpty() {
+        return map.isEmpty();
     }
 
-    public void afterCommit(boolean status) throws Exception {
-    }
+    private final static class Key {
+        private final Object part1;
+        private final Object part2;
 
-    public Map getConnectionManagerMap() {
-        return connectionManagerMap;
-    }
+        public Key(Object part1, Object part2) {
+            this.part1 = part1;
+            this.part2 = part2;
+        }
 
+        public int hashCode() {
+            return part1.hashCode() ^ part2.hashCode();
+        }
+
+        public boolean equals(Object obj) {
+            if (obj instanceof Key) {
+                Key other = (Key) obj;
+                return this.part1.equals(other.part1) && this.part2.equals(other.part2);
+            } else {
+                return false;
+            }
+        }
+    }
 }

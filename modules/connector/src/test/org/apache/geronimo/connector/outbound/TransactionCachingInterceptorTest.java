@@ -63,11 +63,12 @@ import javax.transaction.TransactionManager;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
 import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultTransactionContext;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.transaction.TransactionContext;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 05:56:11 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/31 19:27:16 $
  *
  * */
 public class TransactionCachingInterceptorTest extends ConnectionManagerTestUtils
@@ -202,7 +203,7 @@ public class TransactionCachingInterceptorTest extends ConnectionManagerTestUtil
             ConnectionInfo connectionInfo) {
     }
 
-    public ConnectorTransactionContext getConnectorTransactionContext() {
+    public TransactionContext getTransactionContext() {
         return defaultTransactionContext;
     }
 

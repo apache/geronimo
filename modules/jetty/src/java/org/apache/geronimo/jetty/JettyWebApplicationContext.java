@@ -70,8 +70,6 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 
-import org.apache.geronimo.connector.outbound.ConnectorComponentContext;
-import org.apache.geronimo.connector.outbound.ConnectorTransactionContext;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultComponentContext;
 import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultTransactionContext;
@@ -86,6 +84,8 @@ import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.config.ConfigurationParent;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
+import org.apache.geronimo.transaction.TransactionContext;
+import org.apache.geronimo.transaction.InstanceContext;
 import org.mortbay.http.HttpException;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
@@ -94,7 +94,7 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/26 05:55:26 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/31 19:27:17 $
  */
 public class JettyWebApplicationContext extends WebApplicationContext implements GBean {
     private final ConfigurationParent config;
@@ -141,8 +141,8 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
         ReadOnlyContext oldComponentContext = RootContext.getComponentContext();
         String oldPolicyContextID = PolicyContext.getContextID();
         Set oldUnshareableResources = null;
-        ConnectorComponentContext oldConnectorComponentContext = null;
-        ConnectorTransactionContext oldConnectorTransactionContext = null;
+        InstanceContext oldInstanceContext = null;
+        TransactionContext oldTransactionContext = null;
 
         try {
             // set up java:comp JNDI Context
@@ -153,7 +153,7 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
 
             // set up Transaction Context
             if (txManager != null) {
-                ConnectorTransactionContext newTxContext;
+                TransactionContext newTxContext;
 
                 // @todo this will not clean up properly if an exception occurs - we need to fix this API
                 try {
@@ -161,15 +161,15 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
                     if (tx == null) {
                         newTxContext = new DefaultTransactionContext(null);
                     } else {
-                        newTxContext = (ConnectorTransactionContext) transactionContextMap.get(tx);
+                        newTxContext = (TransactionContext) transactionContextMap.get(tx);
                         if (newTxContext == null) {
                             newTxContext = new DefaultTransactionContext(tx);
                             transactionContextMap.put(tx, newTxContext);
                         }
                     }
                     oldUnshareableResources = associator.setUnshareableResources(unshareableResources);
-                    oldConnectorComponentContext = associator.enter(new DefaultComponentContext());
-                    oldConnectorTransactionContext = associator.setConnectorTransactionContext(newTxContext);
+                    oldInstanceContext = associator.enter(new DefaultComponentContext());
+                    oldTransactionContext = associator.setTransactionContext(newTxContext);
                 } catch (SystemException e) {
                     throw new RuntimeException(e);
                 } catch (RollbackException e) {
@@ -183,8 +183,8 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
         } finally {
             try {
                 if (txManager != null) {
-                    associator.exit(oldConnectorComponentContext, unshareableResources);
-                    associator.resetConnectorTransactionContext(oldConnectorTransactionContext);
+                    associator.exit(oldInstanceContext, unshareableResources);
+                    associator.resetTransactionContext(oldTransactionContext);
                     associator.setUnshareableResources(oldUnshareableResources);
                 }
             } catch (ResourceException e) {

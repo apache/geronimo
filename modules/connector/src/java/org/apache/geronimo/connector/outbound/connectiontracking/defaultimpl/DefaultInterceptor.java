@@ -56,15 +56,16 @@
 
 package org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl;
 
-import org.apache.geronimo.connector.outbound.ConnectorComponentContext;
+import org.apache.geronimo.transaction.InstanceContext;
+
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 05:56:10 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/31 19:27:16 $
  *
  * */
 public interface DefaultInterceptor {
 
-    Object invoke(ConnectorComponentContext newConnectorComponentContext) throws Throwable;
+    Object invoke(InstanceContext newInstanceContext) throws Throwable;
 }

@@ -54,49 +54,14 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl;
+package org.apache.geronimo.transaction;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.geronimo.transaction.InstanceContext;
-
+import org.apache.geronimo.transaction.TransactionContext;
 
 /**
- * Simple implementation of ComponentContext satisfying invariant.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/31 19:27:16 $
  *
- * */
-public class DefaultComponentContext implements InstanceContext {
-
-    private final Map connectionManagerMap = new HashMap();
-
-    public Object getId() {
-        return null;
-    }
-
-    public void setId(Object id) {
-    }
-
-    public Object getContainer() {
-        return null;
-    }
-
-    public void associate() throws Exception {
-    }
-
-    public void flush() throws Exception {
-    }
-
-    public void beforeCommit() throws Exception {
-    }
-
-    public void afterCommit(boolean status) throws Exception {
-    }
-
-    public Map getConnectionManagerMap() {
-        return connectionManagerMap;
-    }
-
+ * @version $Revision: 1.1 $ $Date: 2004/01/31 19:27:17 $
+ */
+public abstract class InheritableTransactionContext extends TransactionContext {
 }

@@ -1,29 +1,31 @@
 package org.apache.geronimo.connector.outbound.connectiontracking;
 
 import java.util.Set;
+
 import javax.resource.ResourceException;
 
-import org.apache.geronimo.connector.outbound.ConnectorComponentContext;
-import org.apache.geronimo.connector.outbound.ConnectorTransactionContext;
+import org.apache.geronimo.transaction.InstanceContext;
+import org.apache.geronimo.transaction.TransactionContext;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 05:56:10 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/31 19:27:16 $
  *
  * */
 public interface TrackedConnectionAssociator {
-    ConnectorComponentContext enter(ConnectorComponentContext newConnectorComponentContext
+
+    InstanceContext enter(InstanceContext newInstanceContext
             )
             throws ResourceException;
 
-    void exit(ConnectorComponentContext reenteringConnectorComponentContext,
+    void exit(InstanceContext reenteringInstanceContext,
             Set unshareableResources)
             throws ResourceException;
 
-    ConnectorTransactionContext setConnectorTransactionContext(ConnectorTransactionContext newConnectorTransactionContext) throws ResourceException;
+    TransactionContext setTransactionContext(TransactionContext newTransactionContext) throws ResourceException;
 
     Set setUnshareableResources(Set unshareableResources);
 
-    void resetConnectorTransactionContext(ConnectorTransactionContext connectorTransactionContext);
+    void resetTransactionContext(TransactionContext transactionContext);
 }

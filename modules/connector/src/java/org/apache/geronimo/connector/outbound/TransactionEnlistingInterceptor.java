@@ -61,6 +61,8 @@ import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.xa.XAResource;
 
+import org.apache.geronimo.transaction.TransactionContext;
+
 /**
  * TransactionEnlistingInterceptor.java
  *
@@ -83,7 +85,7 @@ public class TransactionEnlistingInterceptor implements ConnectionInterceptor {
         next.getConnection(connectionInfo);
         try {
             ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
-            ConnectorTransactionContext transactionContext = mci.getTransactionContext();
+            TransactionContext transactionContext = mci.getTransactionContext();
             if (transactionContext.isActive()) {
                 XAResource xares = mci.getXAResource();
                 transactionContext.getTransaction().enlistResource(xares);
@@ -112,7 +114,7 @@ public class TransactionEnlistingInterceptor implements ConnectionInterceptor {
             ConnectionReturnAction connectionReturnAction) {
         try {
             ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
-            ConnectorTransactionContext transactionContext = mci.getTransactionContext();
+            TransactionContext transactionContext = mci.getTransactionContext();
             if (transactionContext.isActive()) {
                 XAResource xares = mci.getXAResource();
                 transactionContext.getTransaction().delistResource(xares, XAResource.TMSUSPEND);

@@ -54,49 +54,53 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl;
+package org.apache.geronimo.transaction;
 
-import java.util.HashMap;
-import java.util.Map;
+import javax.transaction.Transaction;
 
-import org.apache.geronimo.transaction.InstanceContext;
+import org.apache.geronimo.transaction.ConnectionReleaser;
+import org.apache.geronimo.transaction.TransactionContext;
 
 
 /**
- * Simple implementation of ComponentContext satisfying invariant.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/31 19:27:16 $
  *
- * */
-public class DefaultComponentContext implements InstanceContext {
+ * @version $Revision: 1.1 $ $Date: 2004/01/31 19:27:17 $
+ */
+public class UnspecifiedTransactionContext extends TransactionContext {
+    public void begin() {
+    }
 
-    private final Map connectionManagerMap = new HashMap();
+    public void suspend() {
+    }
 
-    public Object getId() {
+    public void resume() {
+    }
+
+    public void commit() {
+        try {
+            flushState();
+        } catch (Exception e) {
+            log.error("Unable to flush state, continuing", e);
+        }
+    }
+
+    public void rollback() {
+    }
+
+    //Geronimo connector framework support
+    public void setManagedConnectionInfo(ConnectionReleaser key, Object info) {
+    }
+
+    public Object getManagedConnectionInfo(ConnectionReleaser key) {
         return null;
     }
 
-    public void setId(Object id) {
+    public boolean isActive() {
+        return false;
     }
 
-    public Object getContainer() {
+    public Transaction getTransaction() {
         return null;
     }
-
-    public void associate() throws Exception {
-    }
-
-    public void flush() throws Exception {
-    }
-
-    public void beforeCommit() throws Exception {
-    }
-
-    public void afterCommit(boolean status) throws Exception {
-    }
-
-    public Map getConnectionManagerMap() {
-        return connectionManagerMap;
-    }
-
 }

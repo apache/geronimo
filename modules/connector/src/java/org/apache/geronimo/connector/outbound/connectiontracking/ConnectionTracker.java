@@ -2,12 +2,12 @@ package org.apache.geronimo.connector.outbound.connectiontracking;
 
 import org.apache.geronimo.connector.outbound.ConnectionInfo;
 import org.apache.geronimo.connector.outbound.ConnectionTrackingInterceptor;
-import org.apache.geronimo.connector.outbound.ConnectorTransactionContext;
+import org.apache.geronimo.transaction.TransactionContext;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 05:56:10 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/31 19:27:16 $
  *
  * */
 public interface ConnectionTracker {
@@ -19,5 +19,5 @@ public interface ConnectionTracker {
             ConnectionTrackingInterceptor connectionTrackingInterceptor,
             ConnectionInfo connectionInfo);
 
-    ConnectorTransactionContext getConnectorTransactionContext();
+    TransactionContext getTransactionContext();
 }

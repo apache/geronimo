@@ -59,6 +59,8 @@ package org.apache.geronimo.connector.outbound;
 import javax.resource.ResourceException;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
+import org.apache.geronimo.transaction.ConnectionReleaser;
+import org.apache.geronimo.transaction.TransactionContext;
 
 /**
  * TransactionCachingInterceptor.java
@@ -91,14 +93,14 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor, Con
     }
 
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
-        ConnectorTransactionContext connectorTransactionContext = connectionTracker.getConnectorTransactionContext();
-        ManagedConnectionInfo managedConnectionInfo = connectorTransactionContext.getManagedConnectionInfo(this);
+        TransactionContext transactionContext = connectionTracker.getTransactionContext();
+        ManagedConnectionInfo managedConnectionInfo = (ManagedConnectionInfo)transactionContext.getManagedConnectionInfo(this);
         if (managedConnectionInfo != null) {
             connectionInfo.setManagedConnectionInfo(managedConnectionInfo);
             return;
         } else {
             next.getConnection(connectionInfo);
-            connectorTransactionContext.setManagedConnectionInfo(this, connectionInfo.getManagedConnectionInfo());
+            transactionContext.setManagedConnectionInfo(this, connectionInfo.getManagedConnectionInfo());
         }
     }
 
@@ -108,8 +110,8 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor, Con
             next.returnConnection(connectionInfo, connectionReturnAction);
         }
 
-        ConnectorTransactionContext connectorTransactionContext = connectionTracker.getConnectorTransactionContext();
-        if (connectorTransactionContext.isActive()) {
+        TransactionContext transactionContext = connectionTracker.getTransactionContext();
+        if (transactionContext.isActive()) {
             return;
         }
         if (connectionInfo.getManagedConnectionInfo().hasConnectionHandles()) {
@@ -119,9 +121,9 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor, Con
         next.returnConnection(connectionInfo, connectionReturnAction);
     }
 
-    public void afterCompletion(ManagedConnectionInfo managedConnectionInfo) {
+    public void afterCompletion(Object managedConnectionInfo) {
         ConnectionInfo connectionInfo = new ConnectionInfo();
-        connectionInfo.setManagedConnectionInfo(managedConnectionInfo);
+        connectionInfo.setManagedConnectionInfo((ManagedConnectionInfo)managedConnectionInfo);
         returnConnection(connectionInfo, ConnectionReturnAction.RETURN_HANDLE);
     }
 
