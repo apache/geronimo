@@ -219,7 +219,7 @@
         <unitTestSourceDirectory>${basedir}/modules/core/src/test</unitTestSourceDirectory>
         <unitTest>
             <includes>
-                <include>**/*TestCase.java</include>
+                <include>**/*Test.java</include>
             </includes>
             <excludes>
                 <exclude>**/Abstract*.java</exclude>
