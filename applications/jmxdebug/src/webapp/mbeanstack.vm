@@ -1,0 +1,49 @@
+<h3>MBean List</h3>
+
+<hr/>
+
+<form method="GET" action="index.vm">
+  <input class="textInput" type="text" size="30" name="ObjectNameFilter" value="$!ObjectNameFilter"/>
+  <input class="submit" type="submit" tabindex="1" value="Filter Output"/>
+
+  (<a href="/geronimo-web-console/faq.jsp#objectName"/>help</a>)
+</form>
+
+#set($currentDomain = "")
+#set($i = 0)
+#set($mbeanList = $mbctx.getMBeans($ObjectNameFilter))
+
+<hr/>
+
+<b>Number of MBeans : </b> $mbeanList.size()
+
+<hr/>
+
+#foreach($instance in $mbeanList)
+
+   #set($name = $instance.getObjectName())
+
+   #if (!($name.getDomain().equals($currentDomain)))
+
+       #if ($i != 0)
+         </ul>
+       #end
+
+       #set($currentDomain = $name.getDomain())
+       <div class='paragraphHead'>$currentDomain</div>
+       <ul class='mbeanList'>
+   #end
+
+   #set($cName = $name.getCanonicalName())
+   #set($encodedName = $encoder.encode($cName, "UTF-8"))
+   #set($where = $cName.indexOf(":") + 1)
+   #set($output = $cName.substring($where))
+
+   <li>
+     <a href="index.vm?ObjectNameFilter=$encoder.encode($ObjectNameFilter, "UTF-8")&MBeanName=$encodedName">$output</a>
+   </li>
+
+   #set($i = $i + 1)
+#end
+
+</ul>

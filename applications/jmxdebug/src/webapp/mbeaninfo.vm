@@ -1,0 +1,83 @@
+
+<b>Info for :</b> $beanInfo.getCanonicalName()
+<hr/>
+
+<table>
+<tr>
+  <td>
+    <b>Description : </b>
+  </td>
+  <td>
+    $!beanInfo.getDescription()
+  </td>
+</tr>
+<tr>
+  <td>
+    <b>ClassName : </b>
+  </td>
+  <td>
+    $!beanInfo.getClassName()
+  </td>
+</tr>
+<tr>
+  <td>
+    <b>Domain : </b>
+  </td>
+  <td>
+    $!beanInfo.getDomain()
+  </td>
+</tr>
+</table>
+
+<h3>Key Properties</h3>
+
+#foreach($i in $beanInfo.getKeyProperties())
+$i.key = $i.value
+<br/>
+#end
+
+<h3>MBean Attributes</h3>
+
+<table>
+
+<tr>
+  <th>Name</th>
+  <th>Value</th>
+  <th>Type</th>
+  <th>R</th>
+  <th>W</th>
+  <th>Is</th>
+  <th>Desc</th>
+</tr>
+
+#foreach($i in $beanInfo.getAttributes())
+
+<tr>
+  <td>$i.info.getName()</td>
+   <td>$i.value</td>
+   <td>$i.info.getType()</td>
+   <td>$i.info.isReadable()</td>
+   <td>$i.info.isWritable()</td>
+   <td>$i.info.isIs()</td>
+   <td>$!i.info.getDescription()</td>
+</tr>
+#end
+</table>
+
+<h3>MBean Operations</h3>
+
+
+<table>
+
+<tr>
+  <th>Name</th>
+  <th>Return Type</th>
+</tr>
+
+#foreach($i in $beanInfo.getOperationInfo())
+<tr>
+  <td>$i.getName()</td>
+  <td>$i.getReturnType()</td>
+</tr>
+#end
+</table>

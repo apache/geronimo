@@ -1,0 +1,23 @@
+<html>
+<head>
+    <title>Geronimo Debug Console</title>
+</head>
+
+<body>
+
+<img src="images/geronimo_logo_console.gif" border="0" alt="geronimo debug console"/>
+
+
+<table border="1" width="100%">
+<tr>
+  <td valign="top" width="20%">
+  #parse('mbeanstack.vm')
+  </td>
+  <td valign="top">
+  #parse($template)
+  </td>
+</tr>
+</table>
+
+</body>
+</html>
