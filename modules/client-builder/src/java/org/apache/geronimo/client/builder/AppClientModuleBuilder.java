@@ -416,11 +416,10 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         }
 
         try {
-            store.install(appClientConfiguration.toURL());
+            return store.install(appClientConfiguration.toURL()).toString();
         } catch (Exception e) {
             throw new DeploymentException(e);
         }
-        return appClientModuleName.getCanonicalName();
     }
 
     private ReadOnlyContext buildComponentContext(EARContext earContext, AppClientModule appClientModule, ApplicationClientType appClient, GerApplicationClientType geronimoAppClient, ClassLoader cl) throws DeploymentException {

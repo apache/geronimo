@@ -316,7 +316,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("Unable to initialize webapp GBean", e);
         }
         earContext.addGBean(webModuleName, gbean);
-        return webModuleName.getCanonicalName();
+        return null;
     }
 
     private ReadOnlyContext buildComponentContext(EARContext earContext, WebModule webModule, WebAppType webApp, JettyWebAppType jettyWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {

@@ -245,7 +245,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
             GBeanHelper.addGbean(new RARGBeanAdapter(gbeans[i]), cl, earContext);
         }
 
-        return resourceAdapterModuleName.getCanonicalName();
+        return null;
     }
 
     private ObjectName addResourceAdapterModuleGBean(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {

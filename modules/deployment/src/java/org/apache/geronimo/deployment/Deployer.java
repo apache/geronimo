@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Collections;
+import java.util.ArrayList;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -140,12 +141,16 @@ public class Deployer {
 
 
         try {
-            List objectNames = builder.buildConfiguration(carfile, manifest, plan, module);
+            // this is a bit weird and should be rethougth but it works
+            List childURIs = builder.buildConfiguration(carfile, manifest, plan, module);
 
             try {
                 if (install) {
-                    store.install(carfile.toURL());
-                    return objectNames;
+                    URI uri = store.install(carfile.toURL());
+                    List deployedURIs = new ArrayList(childURIs.size() + 1);
+                    deployedURIs.add(uri);
+                    deployedURIs.addAll(childURIs);
+                    return childURIs;
                 }
                 return Collections.EMPTY_LIST;
             } catch (InvalidConfigException e) {

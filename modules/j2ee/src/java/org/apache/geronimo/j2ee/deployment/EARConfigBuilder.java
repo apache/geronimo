@@ -323,14 +323,17 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 gbean.setReferencePatterns("j2eeServer", Collections.singleton(j2eeServer));
                 ObjectName applicationName = earContext.getApplicationObjectName();
                 earContext.addGBean(applicationName, gbean);
-                moduleIDs.add(applicationName.getCanonicalName());
             }
 
             // each module can now add it's GBeans
             for (Iterator iterator = modules.iterator(); iterator.hasNext();) {
                 Module module = (Module) iterator.next();
                 String moduleID = getBuilder(module).addGBeans(earContext, module, cl);
-                moduleIDs.add(moduleID);
+
+                // this is a bit weird and should be rethougth but it works
+                if (moduleID != null) {
+                    moduleIDs.add(moduleID);
+                }
             }
 
             earContext.close();
