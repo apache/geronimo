@@ -64,7 +64,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:38:55 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/14 20:39:56 $
  */
 public class GBeanInfoFactory {
     private final String name;
@@ -82,8 +82,21 @@ public class GBeanInfoFactory {
         this.className = className;
     }
 
+    public GBeanInfoFactory(String name, String description, String className, GBeanInfoFactory source) {
+        this(name, description, className);
+        assert source != null;
+        attributes.addAll(source.attributes);
+        operations.addAll(source.operations);
+        endpoints.addAll(source.endpoints);
+        notifications.addAll(source.notifications);
+    }
+
     public GBeanInfoFactory(String className) {
         this(className, null, className);
+    }
+
+    public GBeanInfoFactory(String className, GBeanInfoFactory source) {
+        this(className, null, className, source);
     }
 
     public void addAttribute(GAttributeInfo info) {
