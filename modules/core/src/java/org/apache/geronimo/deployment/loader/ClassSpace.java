@@ -60,14 +60,24 @@ import java.net.URLClassLoader;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/11 17:59:10 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/20 22:36:35 $
  */
 public class ClassSpace extends URLClassLoader implements ClassSpaceMBean {
-    public ClassSpace(URL[] urls) {
+    private final Log log = LogFactory.getLog(getClass());
+    private final String name;
+    public ClassSpace(String name, URL[] urls) {
         super(urls);
+        this.name = name;
+        for (int i = 0; i < urls.length; i++) {
+            URL url = urls[i];
+            log.debug("Added url to class-space: name=" + name + " url=" +url);
+        }
     }
 
     public void addURLs(List urls) {
@@ -75,5 +85,9 @@ public class ClassSpace extends URLClassLoader implements ClassSpaceMBean {
             URL url = (URL) i.next();
             addURL(url);
         }
+    }
+
+    public String getName() {
+        return name;
     }
 }
