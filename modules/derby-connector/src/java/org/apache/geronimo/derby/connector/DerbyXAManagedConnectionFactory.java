@@ -10,9 +10,8 @@ import org.tranql.connector.NoExceptionsAreFatalSorter;
  */
 public class DerbyXAManagedConnectionFactory extends AbstractXADataSourceMCF{
 
-    public DerbyXAManagedConnectionFactory() throws IllegalAccessException, InstantiationException, ClassNotFoundException {
-        super(new EmbeddedXADataSource());
-        setExceptionSorterClass(NoExceptionsAreFatalSorter.class.getName());
+    public DerbyXAManagedConnectionFactory() {
+        super(new EmbeddedXADataSource(), new NoExceptionsAreFatalSorter());
     }
 
     EmbeddedXADataSource getDerbyXADS() {
