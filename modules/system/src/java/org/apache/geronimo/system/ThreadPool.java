@@ -31,7 +31,7 @@ import org.apache.geronimo.gbean.WaitingException;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:58:14 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/10 01:06:05 $
  */
 public class ThreadPool implements GBean {
 
@@ -41,18 +41,9 @@ public class ThreadPool implements GBean {
     private long keepAliveTime;
     private int minimumPoolSize;
     private int maximumPoolSize;
-    private long maxDrainTime;
     private String poolName;
 
     private int nextWorkerID = 0;
-
-    public long getMaxDrainTime() {
-        return maxDrainTime;
-    }
-
-    public void setMaxDrainTime(long maxDrainTime) {
-        this.maxDrainTime = maxDrainTime;
-    }
 
     public Executor getWorkManager() {
         return workManager;
@@ -114,8 +105,7 @@ public class ThreadPool implements GBean {
     }
 
     public void doStop() throws WaitingException, Exception {
-        workManager.shutdownAfterProcessingCurrentlyQueuedTasks();
-        workManager.awaitTerminationAfterShutdown(maxDrainTime);
+        workManager.shutdownNow();
         log.info("Thread pool " + poolName + " stopped");
     }
 
@@ -127,7 +117,6 @@ public class ThreadPool implements GBean {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ThreadPool.class.getName());
 
-        infoFactory.addAttribute("maxDrainTime", true);
         infoFactory.addAttribute("keepAliveTime", true);
         infoFactory.addAttribute("minimumPoolSize", true);
         infoFactory.addAttribute("maximumPoolSize", true);
