@@ -70,7 +70,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.33 $ $Date: 2004/06/04 22:29:14 $
+ * @version $Revision: 1.34 $ $Date: 2004/06/05 00:37:16 $
  */
 public class Kernel extends NotificationBroadcasterSupport implements Serializable, KernelMBean {
 
@@ -344,14 +344,12 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
         log = LogFactory.getLog(Kernel.class.getName());
         log.info("Starting boot");
 
-//        if (kernelName != null) {
         synchronized (kernels) {
             if (kernels.containsKey(kernelName)) {
                 throw new IllegalStateException("A kernel is already running this kernel name: " + kernelName);
             }
             kernels.put(kernelName, new KernelReference(kernelName, this));
         }
-//        }
 
         mbServer = MBeanServerFactory.createMBeanServer(domainName);
         mbServer.registerMBean(this, KERNEL);
@@ -444,11 +442,9 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
             notify();
         }
 
-//        if (kernelName != null) {
         synchronized (kernels) {
             kernels.remove(kernelName);
         }
-//        }
 
         log.info("Kernel shutdown complete");
     }

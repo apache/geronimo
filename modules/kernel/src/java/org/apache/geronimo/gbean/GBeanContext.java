@@ -17,14 +17,11 @@
 
 package org.apache.geronimo.gbean;
 
-import javax.management.ObjectName;
-
-
 /**
  * Context handle for a GBean which allows the bean to determin the current state, and to change the
  * current state.
  *
- * @version $Revision: 1.6 $ $Date: 2004/06/04 22:31:56 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/05 00:37:15 $
  */
 public interface GBeanContext {
     /**
@@ -61,12 +58,4 @@ public interface GBeanContext {
      * The component is guaranteed to be in the failed state when the method returns.
      */
     void fail();
-
-    /**
-     * Gets the object name of the gbean
-     *
-     * @return the objec name of the gbean
-     * @deprecated use an objectName GBeanAttribute instead
-     */
-    ObjectName getObjectName();
 }

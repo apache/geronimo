@@ -24,12 +24,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.Properties;
 import javax.management.InstanceNotFoundException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.management.MBeanServer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,7 +38,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/06/04 04:33:58 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/05 00:37:16 $
  */
 public class ConfigurationManagerImpl implements ConfigurationManager {
     private static final Log log = LogFactory.getLog(ConfigurationManagerImpl.class);
@@ -56,18 +53,18 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
     public List listStores() {
         List storeSnapshot = getStores();
         List result = new ArrayList(storeSnapshot.size());
-        for (int i=0; i < storeSnapshot.size(); i++) {
+        for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
-            result.add(store.getObjectName());
+            result.add(JMXUtil.getObjectName(store.getObjectName()));
         }
         return result;
     }
 
     public List listConfigurations(ObjectName storeName) throws NoSuchStoreException {
         List storeSnapshot = getStores();
-        for (int i=0; i < storeSnapshot.size(); i++) {
+        for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
-            if (storeName.equals(store.getObjectName())) {
+            if (storeName.equals(JMXUtil.getObjectName(store.getObjectName()))) {
                 List ids = store.listConfiguations();
                 List result = new ArrayList(ids.size());
                 for (int j = 0; j < ids.size(); j++) {
@@ -81,7 +78,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
                     State state;
                     if (kernel.isLoaded(configName)) {
                         try {
-                            state = State.fromInteger((Integer)kernel.getAttribute(configName, "state"));
+                            state = State.fromInteger((Integer) kernel.getAttribute(configName, "state"));
                         } catch (Exception e) {
                             state = null;
                         }
@@ -108,7 +105,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
     public ObjectName load(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
         List storeSnapshot = getStores();
 
-        for (int i=0; i < storeSnapshot.size(); i++) {
+        for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
             if (store.containsConfiguration(configID)) {
                 GBeanMBean config = store.getConfiguration(configID);

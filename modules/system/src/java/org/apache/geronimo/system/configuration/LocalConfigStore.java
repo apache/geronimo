@@ -30,14 +30,12 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.Iterator;
-import java.util.Properties;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
-import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
@@ -55,38 +53,38 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 /**
  * Implementation of ConfigurationStore using the local filesystem.
  *
- * @version $Revision: 1.6 $ $Date: 2004/06/03 07:24:21 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/05 00:37:16 $
  */
 public class LocalConfigStore implements ConfigurationStore, GBean {
     private static final String INDEX_NAME = "index.properties";
+    private final String objectName;
     private final URI root;
     private final ServerInfo serverInfo;
     private File rootDir;
     private final Properties index = new Properties();
     private int maxId;
-    private GBeanContext context;
 
     /**
      * Constructor is only used for direct testing with out a kernel.
-     * @param rootDir
      */
     public LocalConfigStore(File rootDir) {
+        objectName = null;
         serverInfo = null;
         this.root = null;
         this.rootDir = rootDir;
     }
 
-    public LocalConfigStore(URI root, ServerInfo serverInfo) {
+    public LocalConfigStore(String objectName, URI root, ServerInfo serverInfo) {
+        this.objectName = objectName;
         this.root = root;
         this.serverInfo = serverInfo;
     }
 
     public void setGBeanContext(GBeanContext context) {
-        this.context = context;
     }
 
-    public ObjectName getObjectName() {
-        return context.getObjectName();
+    public String getObjectName() {
+        return objectName;
     }
 
     public void doStart() throws WaitingException, FileNotFoundException, IOException {
@@ -273,12 +271,12 @@ public class LocalConfigStore implements ConfigurationStore, GBean {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(LocalConfigStore.class);
 
+        infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("root", URI.class, true);
+        infoFactory.addReference("ServerInfo", ServerInfo.class);
         infoFactory.addInterface(ConfigurationStore.class);
 
-        infoFactory.addReference("ServerInfo", ServerInfo.class);
-
-        infoFactory.setConstructor(new String[]{"root", "ServerInfo"});
+        infoFactory.setConstructor(new String[]{"objectName", "root", "ServerInfo"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

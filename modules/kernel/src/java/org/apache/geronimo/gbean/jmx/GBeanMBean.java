@@ -62,7 +62,7 @@ import org.apache.geronimo.kernel.management.NotificationType;
  * {@link GBeanInfo} instance.  The GBeanMBean also supports caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.21 $ $Date: 2004/06/04 22:31:56 $
+ * @version $Revision: 1.22 $ $Date: 2004/06/05 00:37:16 $
  */
 public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     /**
@@ -476,7 +476,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     public synchronized ObjectName preRegister(MBeanServer server, ObjectName objectName) throws Exception {
         ObjectName returnValue = super.preRegister(server, objectName);
 
-        gbeanContext = new GBeanMBeanContext(server, this, objectName);
+        gbeanContext = new GBeanMBeanContext(this);
         setAttribute("objectName", getObjectName());
         setAttribute("gbeanContext", gbeanContext);
         setAttribute("classLoader", classLoader);

@@ -17,62 +17,25 @@
 
 package org.apache.geronimo.gbean.jmx;
 
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.kernel.management.State;
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/06/04 23:05:25 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/05 00:37:16 $
  */
 public final class GBeanMBeanContext implements GBeanContext {
-    /**
-     * The MBean server in which the Geronimo MBean is registered.
-     */
-    private final MBeanServer server;
-
     /**
      * The GeronimoMBean which owns the target.
      */
     private final GBeanMBean gmbean;
 
     /**
-     * The object name of the Geronimo MBean.
-     */
-    private final ObjectName objectName;
-
-    /**
      * Creates a new context for a target.
      *
-     * @param server a reference to the mbean server in which the Geronimo Mbean is registered
      * @param gmbean the Geronimo Mbean the contains the target
-     * @param objectName the registered name of the Geronimo MBean
      */
-    public GBeanMBeanContext(MBeanServer server, GBeanMBean gmbean, ObjectName objectName) {
-        this.server = server;
+    public GBeanMBeanContext(GBeanMBean gmbean) {
         this.gmbean = gmbean;
-        this.objectName = objectName;
-    }
-
-    /**
-     * Gets a reference to the MBean server in which the Geronimo MBean is registered.
-     *
-     * @return a reference to the MBean server in which the Geronimo MBean is registered
-     * @deprecated use a kernel GBeanAttribute instead
-     */
-    public MBeanServer getServer() {
-        return server;
-    }
-
-    /**
-     * Gets the registered name of the Geronimo MBean
-     *
-     * @return the registered name of the Geronimo MBean
-     * @deprecated use an objectName GBeanAttribute instead
-     */
-    public ObjectName getObjectName() {
-        return objectName;
     }
 
     /**

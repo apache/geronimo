@@ -50,8 +50,8 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
 
@@ -82,11 +82,13 @@ import org.apache.geronimo.kernel.repository.Repository;
  * a startRecursive() for all the GBeans it contains. Similarly, if the
  * Configuration is stopped then all of its GBeans will be stopped as well.
  *
- * @version $Revision: 1.20 $ $Date: 2004/06/02 05:33:03 $
+ * @version $Revision: 1.21 $ $Date: 2004/06/05 00:37:16 $
  */
 public class Configuration implements GBean {
     private static final Log log = LogFactory.getLog(Configuration.class);
 
+    private final Kernel kernel;
+    private final ObjectName objectName;
     private final URI id;
     private final URI parentID;
     private final ConfigurationParent parent;
@@ -95,7 +97,6 @@ public class Configuration implements GBean {
     private final byte[] gbeanState;
     private final Collection repositories;
 
-    private GBeanMBeanContext context;
     private URL baseURL;
     private Map gbeans;
 
@@ -113,7 +114,9 @@ public class Configuration implements GBean {
      * @param repositories a Collection<Repository> of repositories used to resolve dependencies
      * @param dependencies a List<URI> of dependencies
      */
-    public Configuration(URI id, URI parentID, ConfigurationParent parent, List classPath, byte[] gbeanState, Collection repositories, List dependencies) {
+    public Configuration(Kernel kernel, String objectName, URI id, URI parentID, ConfigurationParent parent, List classPath, byte[] gbeanState, Collection repositories, List dependencies) {
+        this.kernel = kernel;
+        this.objectName = JMXUtil.getObjectName(objectName);
         this.id = id;
         this.parentID = parentID;
         this.parent = parent;
@@ -124,7 +127,6 @@ public class Configuration implements GBean {
     }
 
     public void setGBeanContext(GBeanContext context) {
-        this.context = (GBeanMBeanContext) context;
     }
 
     public void doStart() throws Exception {
@@ -170,7 +172,7 @@ public class Configuration implements GBean {
             gbeans = loadGBeans(gbeanState, classLoader);
 
             // register all the GBeans
-            MBeanServer mbServer = context.getServer();
+            MBeanServer mbServer = kernel.getMBeanServer();
             for (Iterator i = gbeans.entrySet().iterator(); i.hasNext();) {
                 Map.Entry entry = (Map.Entry) i.next();
                 ObjectName name = (ObjectName) entry.getKey();
@@ -187,7 +189,7 @@ public class Configuration implements GBean {
                     }
                     throw e;
                 }
-                mbServer.invoke(Kernel.DEPENDENCY_SERVICE, "addDependency", new Object[]{name, context.getObjectName()}, new String[]{ObjectName.class.getName(), ObjectName.class.getName()});
+                mbServer.invoke(Kernel.DEPENDENCY_SERVICE, "addDependency", new Object[]{name, objectName}, new String[]{ObjectName.class.getName(), ObjectName.class.getName()});
             }
         } finally {
             Thread.currentThread().setContextClassLoader(oldCl);
@@ -200,11 +202,11 @@ public class Configuration implements GBean {
         log.info("Stopping configuration " + id);
 
         // unregister all GBeans
-        MBeanServer mbServer = context.getServer();
+        MBeanServer mbServer = kernel.getMBeanServer();
         for (Iterator i = gbeans.keySet().iterator(); i.hasNext();) {
             ObjectName name = (ObjectName) i.next();
             try {
-                mbServer.invoke(Kernel.DEPENDENCY_SERVICE, "removeDependency", new Object[]{name, context.getObjectName()}, new String[]{ObjectName.class.getName(), ObjectName.class.getName()});
+                mbServer.invoke(Kernel.DEPENDENCY_SERVICE, "removeDependency", new Object[]{name, objectName}, new String[]{ObjectName.class.getName(), ObjectName.class.getName()});
             } catch (Exception e) {
                 // ignore
                 log.warn("Could not remove dependency for child " + name, e);
@@ -385,6 +387,8 @@ public class Configuration implements GBean {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(Configuration.class);
+        infoFactory.addAttribute("kernel", Kernel.class, false);
+        infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("ID", URI.class, true);
         infoFactory.addAttribute("ParentID", URI.class, true);
         infoFactory.addAttribute("ClassPath", List.class, true);
@@ -397,6 +401,8 @@ public class Configuration implements GBean {
         infoFactory.addReference("Repositories", Repository.class);
 
         infoFactory.setConstructor(new String[]{
+            "kernel",
+            "objectName",
             "ID",
             "ParentID",
             "Parent",

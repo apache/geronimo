@@ -22,14 +22,12 @@ import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
-import javax.management.ObjectName;
-
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 
 /**
  * Interface to a store for Configurations.
  *
- * @version $Revision: 1.7 $ $Date: 2004/06/02 19:50:41 $
+ * @version $Revision: 1.8 $ $Date: 2004/06/05 00:37:16 $
  */
 public interface ConfigurationStore {
     /**
@@ -71,12 +69,14 @@ public interface ConfigurationStore {
 
     /**
      * Return the object name for the store.
+     *
      * @return the object name for the store
      */
-    ObjectName getObjectName();
+    String getObjectName();
 
     /**
      * Return the configurations in the store
+     *
      * @return a List<URI> of configurations in the store
      */
     List listConfiguations();
