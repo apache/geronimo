@@ -57,43 +57,66 @@
 package org.apache.geronimo.web;
 
 import java.net.URI;
-
 import org.apache.geronimo.core.service.Component;
 
-import org.w3c.dom.Document;
+
 
 /**
  * The WebApplication interface represents a web application deployable within a WebContainer.
  *
- * It supports the J2EE Management WebModule attribute servlets[]
+ * It supports the J2EE Management WebModule attributes 
  *
- * @version  $Revision: 1.8 $ $Date: 2003/09/28 22:30:58 $
+ * @version  $Revision: 1.9 $ $Date: 2003/10/05 01:38:21 $
  */
 public interface WebApplication extends Component {
-    /**
-     * Get the url of the webapp
-     * @return
+ 
+    /*-------------------------------------------------------------------------------- */
+    /**Get the uri of the webapp
+     * @return the URI of the webapp deployment
      */
     public URI getURI();
 
     
+    /* -------------------------------------------------------------------------------------- */
+    /** Setter for the parent classloader for this webapp
+     * @param loader
+     */
     public void setParentClassLoader (ClassLoader loader);
 
+    /* -------------------------------------------------------------------------------------- */
+    /** Getter for the parent classloader for this webapp
+     * @param loader
+     */
     public ClassLoader getParentClassLoader ();
 
     /*-------------------------------------------------------------------------------- */
-    /**
-     * JSR077 WebModule method to expose the
+    /** JSR077 WebModule method to expose the
      * names of all servlets contained within this webapp.
-     *
      * @return Names of all servlets contained by this webapp
      */
     public String[] getServlets();
 
+
+    /* -------------------------------------------------------------------------------------- */
+    /**Get the context path for the webapp
+     * @return 
+     */
     public String getContextPath();
 
+
+    /* -------------------------------------------------------------------------------------- */
+    /**Set the context path for the webapp
+     * @return 
+     */
     public void setContextPath(String path);
 
+
+    /*-------------------------------------------------------------------------------- */
+     /** JSR077 WebModule method to expose the
+      *  contents of the webapp's web.xml file
+      *
+      * @return the contents of the web.xml as a string
+      */
     public String getDeploymentDescriptor();
     
     /* -------------------------------------------------------------------------------------- */
@@ -103,8 +126,7 @@ public interface WebApplication extends Component {
      public boolean getJava2ClassloadingCompliance ();
      
     /* -------------------------------------------------------------------------------------- */
-    /**
-     * Set the class loading delegation model for this web application
+    /**Set the class loading delegation model for this web application
      * @param state
      */
     public void setJava2ClassloadingCompliance(boolean state);

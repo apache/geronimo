@@ -57,15 +57,17 @@
 package org.apache.geronimo.web;
 
 import java.net.URI;
-
 import org.apache.geronimo.core.service.Component;
 
 /**
  * WebAccessLog
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/08 04:51:14 $
+ * Log for web hits.
+ * 
+ * @version $Revision: 1.4 $ $Date: 2003/10/05 01:38:21 $
  */
 public interface WebAccessLog extends Component {
+    
     public void setLogLocation(URI uri);
 
     public URI getLogLocation();

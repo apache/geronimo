@@ -56,23 +56,21 @@
 
 package org.apache.geronimo.web;
 
-
 import java.io.InputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import javax.management.Attribute;
-import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
-import javax.management.MBeanInfo;
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanOperationInfo;
 import javax.management.MBeanRegistration;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerNotification;
@@ -80,7 +78,6 @@ import javax.management.MalformedObjectNameException;
 import javax.management.Notification;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
-import javax.management.relation.RelationServiceMBean;
 import javax.management.relation.Role;
 import org.apache.geronimo.core.service.AbstractContainer;
 import org.apache.geronimo.core.service.Component;
@@ -93,27 +90,41 @@ import org.apache.geronimo.kernel.deployment.goal.UndeployURL;
 import org.apache.geronimo.kernel.deployment.DeploymentPlan;
 import org.apache.geronimo.kernel.deployment.scanner.URLType;
 import org.apache.geronimo.kernel.deployment.service.MBeanMetadata;
+import org.apache.geronimo.kernel.deployment.task.DestroyMBeanInstance;
 import org.apache.geronimo.kernel.deployment.task.RegisterMBeanInstance;
 import org.apache.geronimo.kernel.deployment.task.StartMBeanInstance;
+import org.apache.geronimo.kernel.deployment.task.StopMBeanInstance;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.web.deploy.RemoveWebApplication;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-
 /**
  * AbstractWebContainer
  *
- * Base class for web containers.
+ * Base class for web containers in Geronimo.  Integrations of existing web containers
+ * such as Jetty, Tomcat et al need, in general, to subclass this class. 
+ * 
+ * The AbstractWebContainer provides the ability for concrete subclasses to
+ * able to deploy web applications by registering as a DeploymentPlanner
+ * with the Relationship service. This causes the DeploymentController to pass
+ * the AbstractWebContainer the urls of deployments to be performed, which
+ * the AbstractWebContainer accepts iff:
+ * 1. the url is a packed jar whose name ends in .war and contains a WEB-INF/web.xml file
+ * or
+ * 2. the url is a directory which contains a WEB-INF/web.xml file
+ * 
  * @jmx:mbean extends="org.apache.geronimo.kernel.deployment.DeploymentPlanner, org.apache.geronimo.web.WebContainer, org.apache.geronimo.kernel.management.StateManageable, javax.management.MBeanRegistration" 
- * @version $Revision: 1.9 $ $Date: 2003/09/28 22:30:58 $
+ * @version $Revision: 1.10 $ $Date: 2003/10/05 01:38:21 $
  */
 public abstract class AbstractWebContainer
     extends AbstractContainer
     implements WebContainer, AbstractWebContainerMBean, MBeanRegistration
 {
-    private final static Log log = LogFactory.getLog(AbstractWebContainer.class);
+    private final static Log log =
+        LogFactory.getLog(AbstractWebContainer.class);
 
     /**
      * Location of the default web.xml file
@@ -124,153 +135,146 @@ public abstract class AbstractWebContainer
      * Parsed default web.xml
      */
     private Document defaultWebXmlDoc = null;
-
     
-   
+    //this should move down to AbstractContainer
+    private Map webAppMap = new HashMap();
+    
+
 
     /* -------------------------------------------------------------------------------------- */
-    /**
-     *  Constructor
+    /**Constructor
      */
     public AbstractWebContainer()
-    {   
+    {
     }
 
-
-    /**
-     * Get our mbean name from a pre-registration call.
-     *
+    /* -------------------------------------------------------------------------------------- */
+    /** Get our mbean name from a pre-registration call.
      * @param mBeanServer a <code>MBeanServer</code> value
      * @param objectName an <code>ObjectName</code> value
      * @return an <code>ObjectName</code> value
      * @exception Exception if an error occurs
      */
-   public ObjectName preRegister(MBeanServer server, ObjectName objectName) 
-       throws Exception 
-    
+    public ObjectName preRegister(MBeanServer server, ObjectName objectName)
+        throws Exception
     {
         return super.preRegister(server, objectName);
     }
 
-
-    /**
-     * Establish this webcontainer as a deployment planner
+    /* -------------------------------------------------------------------------------------- */
+    /**Establish this webcontainer as a deployment planner.
      *
      * @param aBoolean a <code>Boolean</code> value
      */
-    public void postRegister(Boolean aBoolean) {
-        try {
+    public void postRegister(Boolean aBoolean)
+    {
+        try
+        {
             super.postRegister(aBoolean);
-            List planners = relationService.getRole("DeploymentController-DeploymentPlanner", "DeploymentPlanner");
+            List planners =
+                relationService.getRole(
+                    "DeploymentController-DeploymentPlanner",
+                    "DeploymentPlanner");
 
             planners.add(objectName);
-            relationService.setRole("DeploymentController-DeploymentPlanner",
-                                    new Role("DeploymentPlanner", planners));
-            log.trace ("Registered WebContainer as a DeploymentPlanner");
-        } catch (Exception e) {
+            relationService.setRole(
+                "DeploymentController-DeploymentPlanner",
+                new Role("DeploymentPlanner", planners));
+            log.trace(
+                "Registered WebContainer  "
+                    + getObjectName()
+                    + " as a DeploymentPlanner");
+        }
+        catch (Exception e)
+        {
             IllegalStateException e1 = new IllegalStateException();
             e1.initCause(e);
             throw e1;
         }
     }
 
-
-    /**
-     * Do nothing for now
-     *
+    /* -------------------------------------------------------------------------------------- */
+    /**Webcontainer is about to be deregistered from the mbean server.
+     * 
      * @exception Exception if an error occurs
      */
-    public void preDeregister() throws Exception {
+    public void preDeregister() throws Exception
+    {
     }
 
-
-
-    /**
-     * Do nothing for now
-     *
+    /* -------------------------------------------------------------------------------------- */
+    /**Webcontainer has been deregistered from mbean server
      */
-    public void postDeregister() {
+    public void postDeregister()
+    {
     }
 
-
-    /**
-     * Monitor JMX notifications to find Web components
-     *
+    /* -------------------------------------------------------------------------------------- */
+    /**Monitor JMX notifications
+     * When a web layer object such as a WebConnector, a WebAccessLog
+     * or a WebApplication is registered in JMX, then set up the containment
+     * relationship with it so that it becomes one of our components.
      * @param n a <code>Notification</code> value
      * @param o an <code>Object</code> value
      */
-    public void handleNotification(Notification n, Object o) 
+    public void handleNotification(Notification n, Object o)
     {
         ObjectName source = null;
 
         try
-        {       
-
-            //check for registrations of web connectors and web logs
-            if (MBeanServerNotification.REGISTRATION_NOTIFICATION.equals(n.getType())) 
+        {
+            //Respond to registrations of WebConnectors, WebAccessLogs and WebApplications
+            //Call  setContainer() on them which causes them to call addComponent() on us and
+            //thus maintain the component/container hierarchy.
+            if (MBeanServerNotification .REGISTRATION_NOTIFICATION.equals(n.getType()))
             {
-                MBeanServerNotification notification = (MBeanServerNotification) n;
+                MBeanServerNotification notification =
+                    (MBeanServerNotification) n;
                 source = notification.getMBeanName();
-                if (server.isInstanceOf (source, WebConnector.class.getName()))
+                if (server.isInstanceOf(source, WebConnector.class.getName()))
                 {
-                    log.debug ("Received registration notification for webconnecter="+source);
-
-                    // set up the Container on the Connector to be us
-                    // this will result in the Connector adding itself to
-                    // our containment hierarchy
-                    server.setAttribute (source, 
-                                         new Attribute ("Container",
-                                                        (Container)this));
-                   
+                    log.debug( "Received registration notification for webconnecter="+ source);
+                    server.setAttribute(source, new Attribute("Container",  (Container) this));
                 }
-                else if (server.isInstanceOf (source, WebAccessLog.class.getName()))
+                else if (server.isInstanceOf(source, WebAccessLog.class.getName()))
                 {
-                    // set up the Container on the WebAccessLog to be us
-                    // this will result in the WebAccessLog adding itself to
-                    // our containment hierarchy 
-                    log.debug ("Received registration notification for weblog="+source);
-                    server.setAttribute (source, 
-                                   new Attribute ("Container",
-                                                  (Container)this));
+                    log.debug("Received registration notification for weblog="+ source);
+                    server.setAttribute(source, new Attribute("Container",  (Container) this));
                 }
-                else if (server.isInstanceOf (source, WebApplication.class.getName()))
+                else if ( server.isInstanceOf(source, WebApplication.class.getName()))
                 {
-                    //add the webapp as a component of the container 
-                    log.debug ("Received registration notification for webapplication="+source);
-                    server.setAttribute (source, 
-                                         new Attribute ("Container",
-                                                        (Container)this));
+                    log.debug( "Received registration notification for webapplication="+ source);
+                    server.setAttribute(source, new Attribute("Container", (Container) this));
                 }
                 else
-                    log.debug ("Ignoring registration of mbean="+source);
+                    log.debug("Ignoring registration of mbean=" + source);
             }
         }
         catch (InstanceNotFoundException e)
         {
-            log.debug ("Registration notification received for non-existant object: "+ source);
+            log.debug( "Registration notification received for non-existant object: " + source);
         }
         catch (MBeanException e)
         {
-            throw new IllegalStateException (e.toString());
+            throw new IllegalStateException(e.toString());
         }
         catch (ReflectionException e)
         {
-            throw new IllegalStateException (e.toString());
+            throw new IllegalStateException(e.toString());
         }
         catch (Exception e)
         {
-            throw new IllegalStateException (e.toString());
+            throw new IllegalStateException(e.toString());
         }
 
-        super.handleNotification (n, o);
+        super.handleNotification(n, o);
     }
-
-
-
-
-
-    /**
-     * Deploy/redeploy/undeploy a webapplication
+    
+    
+    /* -------------------------------------------------------------------------------------- */
+    /**Plan a deployment
+     * This is called by the DeploymentController when there is
+     * something to be deployed/redeployed/undeployed.
      *
      * @param goals a <code>Set</code> value
      * @param plans a <code>Set</code> value
@@ -281,13 +285,19 @@ public abstract class AbstractWebContainer
     {
         boolean progress = false;
         Set x = new HashSet(goals);
-        for (Iterator i = x.iterator(); i.hasNext();) {
+        for (Iterator i = x.iterator(); i.hasNext();)
+        {
             DeploymentGoal goal = (DeploymentGoal) i.next();
-            if (goal instanceof DeployURL) {
+            if (goal instanceof DeployURL)
+            {
                 progress = deploy((DeployURL) goal, goals, plans);
-            } else if (goal instanceof RedeployURL) {
+            }
+            else if (goal instanceof RedeployURL)
+            {
                 progress = redeploy((RedeployURL) goal, goals);
-            } else if (goal instanceof UndeployURL) {
+            }
+            else if (goal instanceof UndeployURL)
+            {
                 progress = remove((UndeployURL) goal, goals, plans);
             }
         }
@@ -295,9 +305,11 @@ public abstract class AbstractWebContainer
     }
 
 
-
-    /**
-     * Fresh deployment to handle
+    /* -------------------------------------------------------------------------------------- */ 
+    /**Something to be deployed.
+     * We will deploy it if it looks and smells like a webapp. That is, it
+     * is either a packed war with a ".war" suffix or a directory, and
+     * in either case contains a WEB-INF/web.xml file.
      *
      * @param goal a <code>DeployURL</code> value
      * @param goals a <code>Set</code> value
@@ -305,22 +317,22 @@ public abstract class AbstractWebContainer
      * @return a <code>boolean</code> value
      * @exception DeploymentException if an error occurs
      */
-    public  boolean deploy (DeployURL goal, Set goals, Set plans) throws DeploymentException {
+    public boolean deploy(DeployURL goal, Set goals, Set plans)
+        throws DeploymentException
+    {
 
         if (getStateInstance() != State.RUNNING)
-            throw new DeploymentException ("WebContainer is not in RUNNING state");
+            throw new DeploymentException("WebContainer "+getObjectName()+" cannot deploy as it is not RUNNING");
 
         InputStream is;
         URL url = goal.getUrl();
-        URI baseURI = URI.create(url.toString()).normalize();;
-
+        URI baseURI = URI.create(url.toString()).normalize();
         URLType type = goal.getType();
         URL webXmlURL = null;
- 
 
         //check if this is a deployable webapp. This is either a directory or a
         //war file that contains a WEB-INF directory
-        if (type == URLType.PACKED_ARCHIVE) 
+        if (type == URLType.PACKED_ARCHIVE)
         {
             //check it ends with ".war" 
             if (!url.getPath().endsWith(".war"))
@@ -329,12 +341,13 @@ public abstract class AbstractWebContainer
             InputStream stream = null;
             try
             {
-                URL webInfURL = new URL ("jar:"+url.toExternalForm()+"!/WEB-INF/web.xml");
+                URL webInfURL =
+                    new URL( "jar:" + url.toExternalForm() + "!/WEB-INF/web.xml");
                 stream = webInfURL.openStream();
             }
-            catch (IOException e) 
+            catch (IOException e)
             {
-                throw new DeploymentException("Failed to open stream for URL: " + url, e);
+                throw new DeploymentException( "Failed to open stream for URL: " + url, e);
             }
             finally
             {
@@ -345,22 +358,22 @@ public abstract class AbstractWebContainer
                 }
                 catch (IOException iox)
                 {
-                    throw new DeploymentException ("Failed to close stream for URL: "+url, iox);
+                    throw new DeploymentException("Failed to close stream for URL: " + url, iox);
                 }
             }
         }
-        else if (type == URLType.UNPACKED_ARCHIVE) 
+        else if (type == URLType.UNPACKED_ARCHIVE)
         {
             // check if there is a WEB-INF
             InputStream stream = null;
             try
             {
-                URL webInfURL = new URL (url, "WEB-INF/web.xml");
+                URL webInfURL = new URL(url, "WEB-INF/web.xml");
                 stream = webInfURL.openStream();
             }
-            catch (IOException e) 
+            catch (IOException e)
             {
-                throw new DeploymentException("Failed to open stream for URL: " + url, e);
+                throw new DeploymentException( "Failed to open stream for URL: " + url,e);
             }
             finally
             {
@@ -371,172 +384,318 @@ public abstract class AbstractWebContainer
                 }
                 catch (IOException iox)
                 {
-                    throw new DeploymentException ("Failed to close stream for URL: "+url, iox);
+                    throw new DeploymentException( "Failed to close stream for URL: " + url, iox);
                 }
             }
-        } 
-        else 
+        }
+        else
         {
             //we can't deploy any other structure
             return false;
         }
 
-        log.debug (Thread.currentThread()+":Identified webapp to deploy");
+        log.debug("Identified webapp to deploy");
 
         //check to see if there is already a deployment for the  webapp 
         ObjectName deploymentName = null;
-        try 
+        try
         {
-            deploymentName = new ObjectName("geronimo.deployment:role=DeploymentUnit,url=" 
-                                            + ObjectName.quote(url.toString())+",type=WebApplication");
-        } 
-        catch (MalformedObjectNameException e) 
+            deploymentName =
+                new ObjectName( "geronimo.deployment:role=DeploymentUnit,url="
+                        + ObjectName.quote(url.toString())
+                        + ",type=WebApplication");
+        }
+        catch (MalformedObjectNameException e)
         {
             throw new DeploymentException(e);
         }
 
         if (server.isRegistered(deploymentName))
-            throw new DeploymentException ("A web application deployment is already registered at:"+deploymentName.toString());
-        
-        //Set up the deployment itself in JMX
+            throw new DeploymentException( "A web application deployment is already registered at:"
+                                                                      + deploymentName.toString());
+
+        //Deploy the deployment unit itself. This registers an mbean for the deployment unit, 
+        //so we wind up with an mbean for the deployment of the webapp, as well as one for
+        //the webapp itself.
         DeploymentPlan deploymentUnitPlan = new DeploymentPlan();
-        WebDeployment deploymentInfo = new WebDeployment (deploymentName, null, url);
-        deploymentUnitPlan.addTask (new RegisterMBeanInstance(server, deploymentName, deploymentInfo));
-        MBeanMetadata deploymentUnitMetadata = new MBeanMetadata (deploymentName);
-        deploymentUnitPlan.addTask (new StartMBeanInstance (server, deploymentUnitMetadata));
-        plans.add (deploymentUnitPlan);
+        WebDeployment deploymentInfo =
+            new WebDeployment(deploymentName, null, url);
+        deploymentUnitPlan.addTask(
+            new RegisterMBeanInstance(server, deploymentName, deploymentInfo));
+        MBeanMetadata deploymentUnitMetadata =
+            new MBeanMetadata(deploymentName);
+        deploymentUnitPlan.addTask(
+            new StartMBeanInstance(server, deploymentUnitMetadata));
+        plans.add(deploymentUnitPlan);
+
         
-        
-        //Deploy the webapp itself
-        // create a webapp typed to the concrete type of the web container
-        WebApplication webapp = createWebApplication (baseURI);
+        //Create a webapp typed to the concrete type of the web container
+        WebApplication webapp = createWebApplication(baseURI);
         ObjectName webappName;
         try
         {
-            webappName = new ObjectName (webapp.getObjectName());
+            webappName = new ObjectName(webapp.getObjectName());
         }
         catch (MalformedObjectNameException e)
         {
-            throw new DeploymentException (e);
+            throw new DeploymentException(e);
         }
-      
+
         // Create a deployment plan for the webapp
         DeploymentPlan webappPlan = new DeploymentPlan();
-        webappPlan.addTask (new RegisterMBeanInstance(server, webappName, webapp));
-     
-        MBeanMetadata webappMetadata = new MBeanMetadata (webappName);
-        webappMetadata.setParentName (deploymentName);                
+        webappPlan.addTask( new RegisterMBeanInstance(server, webappName, webapp));
+
+        //Set up a start dependency between the webapp and the deployment unit as a whole.
+        //Thus, when the deployer starts the deployment, the webapp itself will be started. This
+        //works better for the ServiceDeploymentPlanner, where one deployment unit can contain
+        //many services to be deployed, but the Scanner is only ever going to give us individual
+        //webapps
+        MBeanMetadata webappMetadata = new MBeanMetadata(webappName);
+        webappMetadata.setParentName(deploymentName);
         dependencyService.addStartDependency(webappName, deploymentName);
 
         // crack open the war and read the web.xml and geronimo-web.xml into the POJOs
-        //TBD
+        //TODO
 
-
-        //contextPath can come from:
+        //Set up the ContextPath, which can come from:
         //  application.xml
         //  geronimo-web.xml
         //  name of the war (without .war extension) or webapp dir
-        //For now, only support the name of the webapp
-        webapp.setContextPath(extractContextPath (baseURI));
+        //
+        //As we don't have any ear deployers (yet), so therefore no application.xml files,
+        //nor any geronimo-web.xml files, then we will only support using the name of the
+        //webapp.
+        webapp.setContextPath(extractContextPath(baseURI));
 
         // Set up the parent classloader for the webapp
-        webapp.setParentClassLoader (getClass().getClassLoader());
-
-
+        webapp.setParentClassLoader(getClass().getClassLoader());
 
         //Set up the ENC etc
-        //TBD
+        //TODO
 
-        
         //Add a task to start the webapp which will finish configuring it
-        //NOTE: the class loader will be null, which will cause the
-        //mbean server's class loader to be used for the start call.
-        //Is this going to be a problem? 
-        webappPlan.addTask (new StartMBeanInstance (server, webappMetadata));
-        plans.add (webappPlan);
+        webappPlan.addTask(new StartMBeanInstance(server, webappMetadata));
+        plans.add(webappPlan);
+
+        goals.remove(goal);
+        return true;
+    }
+
+
+    /* -------------------------------------------------------------------------------------- */
+    /**Remove the deployment of a webapp.
+     * 
+     * @param goal
+     * @param goals
+     * @param plans
+     * @return
+     * @throws DeploymentException
+     */
+    private boolean remove(UndeployURL goal, Set goals, Set plans)
+        throws DeploymentException
+    {
+        //work out what the name of the deployment would be, assuming it is a webapp
+        URL url = goal.getUrl();
         
+        log.debug ("WebContainer "+getObjectName()+" checking for removal of "+url);
+       
+        ObjectName deploymentName = null;
+         try
+         {
+             deploymentName = new ObjectName( "geronimo.deployment:role=DeploymentUnit,url="
+                                                                               + ObjectName.quote(url.toString())
+                                                                               + ",type=WebApplication");
+         }
+         catch (MalformedObjectNameException e)
+         {
+             throw new DeploymentException(e);
+         }
+
+        //check to see if it is registered - if it isn't then either it isn't registered anymore, or
+        //it wasn't a webapp, so in either case there is nothing
+        //for us to do - let one of the other deployers try and handle it
+        if (!server.isRegistered(deploymentName))
+        {
+            log.debug ("No deployment registered at: "+deploymentName);
+            return false;
+        }
+            
+        log.debug ("Deployment is registered");
+        
+        //It is a webapp, and it is registered, so we should maybe undeploy it
+        //so find out if it was in fact us that deployed it (could have been a different web container)
+        Collection deploymentChildren = null;
+      
+        deploymentChildren = dependencyService.getStartChildren(deploymentName);
+         
+        List webapps = new ArrayList();
+        
+        log.debug ("there are "+deploymentChildren.size()+" children" );
+        
+        Iterator itor = deploymentChildren.iterator();
+        try
+        {
+            while (itor.hasNext())
+            {
+                ObjectName childName = (ObjectName) itor.next();
+           
+                    if (server.isInstanceOf(childName, WebApplication.class.getName())
+                         && 
+                         (server.getAttribute(childName, "Container") == this))
+                    {
+                        log.debug ("Adding webapp for removal: "+ childName);
+                        webapps.add(childName);
+                    }
+                    else
+                    {
+                        log.debug ("Skipping "+childName);
+                        log.debug ("Container="+server.getAttribute(childName, "Container") +"this="+this);
+                        log.debug ("Webapp="+server.isInstanceOf(childName, WebApplication.class.getName()));
+                    }
+                }
+        }
+        catch (Exception e)
+        {
+            throw new DeploymentException (e);
+        }
+              
+
+        if (webapps.isEmpty())
+        {
+            //we didn't deploy anything so nothing for us to do
+            return false;
+        }
+     
+        //we have webapps to undeploy, so check if we are able to
+        if (getStateInstance() != State.RUNNING)
+           throw new DeploymentException ("WebContainer "+getObjectName()+" cannot undeploy webapps because it is not RUNNING");
+    
+        //put in a stoptask for the deployment unit, which will also stop the webapp(s) 
+        //because of the dependency between them
+        DeploymentPlan stopPlan = new DeploymentPlan();
+        stopPlan.addTask(new StopMBeanInstance(server, deploymentName));
+        plans.add(stopPlan);
+                                      
+        //destroy each of the webapps
+        DeploymentPlan removePlan = new DeploymentPlan();       
+        
+        itor = webapps.iterator();
+        while (itor.hasNext())
+        {
+            //unregister it
+            ObjectName webappName = (ObjectName)itor.next();
+            removePlan.addTask (new DestroyMBeanInstance (server, webappName));
+            
+            //now remove it from the container          
+            removePlan.addTask (new RemoveWebApplication (server, this, (WebApplication)webAppMap.get(webappName.toString())));          
+        }
+
+        //unregister the deployment itself
+        removePlan.addTask(new DestroyMBeanInstance(server, deploymentName));
+        
+        plans.add (removePlan);
         goals.remove(goal);
         return true;
     }
 
 
-    // TODO
-    private boolean remove(UndeployURL goal, Set goals, Set plans) throws DeploymentException { 
+
+
+    /* -------------------------------------------------------------------------------------- */
+    /**Handle a redeployment.
+     * 
+     * This is going to be tricky, as I believe the Scanner just always
+     * inserts a redeploy goal if it scans the directory and finds the same
+     * url as was there previously - I don't think it is checking the timestamps.
+     * @param goal
+     * @param goals
+     * @return
+     * @throws DeploymentException
+     */
+    private boolean redeploy(RedeployURL goal, Set goals)
+        throws DeploymentException
+    {
+        //TODO
         goals.remove(goal);
         return true;
     }
 
-    // TODO
-    private boolean redeploy(RedeployURL goal, Set goals) throws DeploymentException {
-        goals.remove(goal);
-        return true;
-    }
 
-
-    /**
-     * Create a WebApplication suitable to the container's type.
+    /* -------------------------------------------------------------------------------------- */ 
+    /**Create a WebApplication suitable to the container's type.
      * @return WebApplication instance, preferably derived from AbstractWebApplication suitable to the container
      */
     public abstract WebApplication createWebApplication(URI baseURI);
 
-    /**
-     * Get the URI of the web defaults.
+
+
+
+    /* -------------------------------------------------------------------------------------- */ 
+    /**Get the URI of the web defaults.
      * @return the location of the default web.xml file for this container
      */
-    public URI getDefaultWebXmlURI() {
+    public URI getDefaultWebXmlURI()
+    {
         return defaultWebXmlURI;
     }
 
-    /**
-     * Set a uri of a web.xml containing defaults for this container.
-     * @param uri the location of the default web.xml file
+
+
+    /* -------------------------------------------------------------------------------------- */ 
+    /** Set a uri of a web.xml containing defaults for this container.
+      * @param uri the location of the default web.xml file
      */
     public void setDefaultWebXmlURI(URI uri)
     {
-        log.debug ("DefaultWebXmlURI="+(uri==null?"null":uri.toString()));
+        log.debug( "DefaultWebXmlURI=" + (uri == null ? "null" : uri.toString()));
         defaultWebXmlURI = uri;
-        
     }
 
-    /**
-     * Get the parsed web defaults
+
+    /* -------------------------------------------------------------------------------------- */ 
+    /** Get the parsed web defaults
+     *
      * @return
      */
-    public Document getDefaultWebXmlDoc() {
+    public Document getDefaultWebXmlDoc()
+    {
         return defaultWebXmlDoc;
     }
 
 
+
+    /* -------------------------------------------------------------------------------------- */ 
     /**
      * Get a webapp context path from its uri
      *
      * @param uri an <code>URI</code> value
      * @return a <code>String</code> value
      */
-    public String extractContextPath (URI uri)
+    public String extractContextPath(URI uri)
     {
-
         String path = uri.getPath();
-        
-        if (path.endsWith("/"))
-            path = path.substring (0, path.length() - 1);
 
-        int sepIndex = path.lastIndexOf ('/');
+        if (path.endsWith("/"))
+            path = path.substring(0, path.length() - 1);
+
+        int sepIndex = path.lastIndexOf('/');
         if (sepIndex > 0)
-            path = path.substring (sepIndex+1);
+            path = path.substring(sepIndex + 1);
 
         if (path.endsWith(".war"))
-            path = path.substring (0, path.length()-4);
+            path = path.substring(0, path.length() - 4);
 
-        return "/"+path;
+        return "/" + path;
     }
 
 
+    /* -------------------------------------------------------------------------------------- */ 
     /**
      * Parse the web defaults descriptor
      * @throws Exception
      */
-    protected void parseWebDefaults() throws Exception {
+    protected void parseWebDefaults() throws Exception
+    {
         if (defaultWebXmlURI == null)
             return;
 
@@ -544,76 +703,102 @@ public abstract class AbstractWebContainer
     }
 
 
-
+    /* -------------------------------------------------------------------------------------- */ 
     /**
      * Add a component to this container's containment hierarchy
      * @see org.apache.geronimo.core.service.Container#addComponent(org.apache.geronimo.core.service.Component)
      */
-    public void addComponent(Component component) {
+    public void addComponent(Component component)
+    {
         super.addComponent(component);
 
-        if (component instanceof WebConnector) {
+        if (component instanceof WebConnector)
+        {
             webConnectorAdded((WebConnector) component);
-        } else if (component instanceof WebApplication) {
+        }
+        else if (component instanceof WebApplication)
+        {
             webApplicationAdded((WebApplication) component);
-        } else if (component instanceof WebAccessLog) {
+        }
+        else if (component instanceof WebAccessLog)
+        {
             webAccessLogAdded((WebAccessLog) component);
         }
     }
 
+    /* -------------------------------------------------------------------------------------- */ 
     /**
      *  Remove a component from this container's hierarchy
      * @see org.apache.geronimo.core.service.Container#removeComponent(org.apache.geronimo.core.service.Component)
      */
-    public void removeComponent(Component component) {
-        if (component instanceof WebConnector) {
+    public void removeComponent(Component component)
+    {
+        if (component instanceof WebConnector)
+        {
             webConnectorRemoval((WebConnector) component);
-        } else if (component instanceof WebApplication) {
+        }
+        else if (component instanceof WebApplication)
+        {
             webApplicationRemoval((WebApplication) component);
         }
 
         super.removeComponent(component);
     }
 
+
+    /* -------------------------------------------------------------------------------------- */ 
     /**
      * Method called by addComponent after a WebConnector has been added.
      * @param connector
      */
-    protected void webConnectorAdded(WebConnector connector) {
-     
+    protected void webConnectorAdded(WebConnector connector)
+    {
+
     }
 
+    /* -------------------------------------------------------------------------------------- */ 
     /**
      * Method called by addComponment after a WebApplication has been added.
-     * @param connector
+     * @param app
      */
-    protected void webApplicationAdded(WebApplication connector) {
+    protected void webApplicationAdded(WebApplication app)
+    {
+        webAppMap.put(((AbstractWebApplication)app).getObjectName(), app);
     }
 
+    /* -------------------------------------------------------------------------------------- */ 
     /**
      * @param log
      */
-    protected void webAccessLogAdded(WebAccessLog log) {
+    protected void webAccessLogAdded(WebAccessLog log)
+    {
     }
 
+    /* -------------------------------------------------------------------------------------- */ 
     /**
      * Method called by removeComponent before a WebConnector has been removed.
      * @param connector
      */
-    protected void webConnectorRemoval(WebConnector connector) {
+    protected void webConnectorRemoval(WebConnector connector)
+    {
     }
 
+    /* -------------------------------------------------------------------------------------- */ 
     /**
      * Method called by removeComponment before a WebApplication has been removed.
-     * @param connector
+     * @param app
      */
-    protected void webApplicationRemoval(WebApplication connector) {
+    protected void webApplicationRemoval(WebApplication app)
+    {
+        webAppMap.remove (((AbstractWebApplication)app).getObjectName());
     }
 
+    /* -------------------------------------------------------------------------------------- */ 
     /**
      * Remove an access log service from the container
      * @param log
      */
-    protected void webAccessLogRemoval(WebAccessLog log) {
+    protected void webAccessLogRemoval(WebAccessLog log)
+    {
     }
 }

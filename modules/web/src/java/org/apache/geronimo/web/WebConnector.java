@@ -60,8 +60,11 @@ import org.apache.geronimo.core.service.Component;
 
 /**
  * WebConnector
- *
- * @version $Revision: 1.4 $ $Date: 2003/09/14 12:09:43 $
+ * 
+ * A WebConnector serves web content on a given
+ * interface and port number.
+ * 
+ * @version $Revision: 1.5 $ $Date: 2003/10/05 01:38:21 $
  */
 public interface WebConnector extends Component {
     /**

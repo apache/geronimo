@@ -72,7 +72,7 @@ import org.mortbay.http.SocketListener;
  * @jmx:mbean extends="org.apache.geronimo.web.AbstractWebContainerMBean"
  *
  *
- * @version $Revision: 1.6 $ $Date: 2003/09/28 22:30:58 $
+ * @version $Revision: 1.7 $ $Date: 2003/10/05 01:38:21 $
  */
 public class JettyWebContainer extends AbstractWebContainer implements JettyWebContainerMBean {
   
@@ -165,11 +165,30 @@ public class JettyWebContainer extends AbstractWebContainer implements JettyWebC
     }
 
 
+    /* -------------------------------------------------------------------------------------- */
+    /* Add a webapp to the underlying Jetty delegate.
+     * Called when a webapp's war or dir is deployed.
+     * @param webapp
+     * @see org.apache.geronimo.web.AbstractWebContainer#webApplicationAdded(org.apache.geronimo.web.WebApplication)
+     */
     protected void webApplicationAdded (WebApplication webapp)
     {
         _log.debug ("Web application="+webapp.getObjectName()+" added to Jetty");
         _jettyServer.addContext (((JettyWebApplication)webapp).getJettyContext());
         ((JettyWebApplication)webapp).getJettyContext().setExtractWAR(true);
         super.webApplicationAdded (webapp);
+    }
+    
+    
+    /* -------------------------------------------------------------------------------------- */
+    /**Remove a web app from the underlying Jetty delegate. 
+     * Called when the web app's war or dir is undeployed.
+     * @param webapp
+     */
+    protected void webApplicationRemoval (WebApplication webapp)
+    {
+        _log.debug ("Web application="+webapp.getObjectName()+" removed from Jetty");
+        _jettyServer.removeContext (((JettyWebApplication)webapp).getJettyContext());
+        super.webApplicationRemoval (webapp);
     }
 }
