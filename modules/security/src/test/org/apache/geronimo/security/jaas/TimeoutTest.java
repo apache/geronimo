@@ -161,7 +161,7 @@ public class TimeoutTest extends AbstractTest {
     public void testNothing() {
     }
 
-    public void XtestTimeout() throws Exception {
+    public void testTimeout() throws Exception {
 
         LoginContext context = new LoginContext("properties-client", new AbstractTest.UsernamePasswordCallback("alan", "starcraft"));
 
