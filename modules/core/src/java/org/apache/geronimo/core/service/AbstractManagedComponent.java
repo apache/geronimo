@@ -63,7 +63,7 @@ import org.apache.geronimo.kernel.service.AbstractManagedObject;
  *
  * @todo this is broken because name is required but there is no way to set it
  *
- * @version $Revision: 1.1 $ $Date: 2003/10/30 07:47:04 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/20 09:15:29 $
  */
 public class AbstractManagedComponent extends AbstractManagedObject implements ManagedComponent {
     /**
@@ -119,35 +119,4 @@ public class AbstractManagedComponent extends AbstractManagedObject implements M
 
 
   
-
-
-
-    /**
-     * Two Components are equal if they have the same name;
-     *
-     * @param component to test
-     * @return true if the names are the same, false otherwise
-     */
-    public boolean equals(Object o) {
-        if (o instanceof AbstractManagedComponent) {
-            AbstractManagedComponent component = (AbstractManagedComponent)o;
-            return component.getObjectName().equals(objectName);
-        }
-        return false;
-    }
-
-
-    /**
-     * Get a hash value for this Component.
-     * This is the hash of the unique name of
-     * the Component.
-     *
-     * @return hash of Component name
-     */
-    public int hashCode() {
-        if (objectName == null) {
-            return 0;
-        }
-        return objectName.toString().hashCode();
-    }
 }
