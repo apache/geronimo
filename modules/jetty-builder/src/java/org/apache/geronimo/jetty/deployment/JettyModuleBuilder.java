@@ -317,7 +317,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             Enumeration entries = warFile.entries();
             while (entries.hasMoreElements()) {
                 ZipEntry entry = (ZipEntry) entries.nextElement();
-                URI targetPath = baseDir.resolve(entry.getName());
+                URI targetPath = baseDir.resolve(new URI(null, entry.getName(), null));
                 if (entry.getName().equals("WEB-INF/web.xml")) {
                     earContext.addFile(targetPath, module.getOriginalSpecDD());
                 } else {
@@ -336,6 +336,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
             ServiceConfigBuilder.addDependencies(earContext, dependencies, repository);
         } catch (IOException e) {
             throw new DeploymentException("Problem deploying war", e);
+        } catch (URISyntaxException e) {
+            throw new DeploymentException("Could not construct URI for location of war entry", e);
         }
     }
 
