@@ -67,25 +67,25 @@ import org.apache.geronimo.remoting.transport.TransportClient;
 import org.apache.geronimo.remoting.transport.TransportException;
 
 /**
- * AsyncClientInvoker uses sockets to remotely connect to the 
- * a remote AsyncServerInvoker.  Requests are sent asynchronously 
+ * AsyncClientInvoker uses sockets to remotely connect to the
+ * a remote AsyncServerInvoker.  Requests are sent asynchronously
  * to allow more concurrent requests to be sent to the server
  * while using fewer sockets.  This is also known as the 'async'
  * protocol.
- * 
+ *
  * TODO:
  * If you are running on Java 1.4, this transport
- * transport will take advantage of the NIO 
+ * transport will take advantage of the NIO
  * classes to further reduce the resources used on the server.
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/23 10:56:35 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/08 18:25:46 $
  */
 public class AsyncClient implements TransportClient {
 
     static final Log log = LogFactory.getLog(AsyncClient.class);
 
     /**
-     * @see org.apache.j2ee.remoting.transport.TransportClient#sendRequest(org.apache.j2ee.remoting.URI, byte[])
+     * @see org.apache.geronimo.remoting.transport.TransportClient#sendRequest(org.apache.geronimo.remoting.URI, byte[])
      */
     public Msg sendRequest(URI to, Msg request) throws TransportException {
         AbstractServer server = Registry.instance.getServerForClientRequest();
