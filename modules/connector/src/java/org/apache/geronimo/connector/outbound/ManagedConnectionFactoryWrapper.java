@@ -262,11 +262,11 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         return null;
     }
 
-    public Object getProxy() {
+    public Object $getResource() {
         return proxy;
     }
 
-    public Object getMethodInterceptor() {
+    public Object $getMethodInterceptor() {
         return interceptor;
     }
 
@@ -297,8 +297,8 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
 
-        infoFactory.addOperation("getProxy");
-        infoFactory.addOperation("getMethodInterceptor");
+        infoFactory.addOperation("$getResource");
+        infoFactory.addOperation("$getMethodInterceptor");
 
         infoFactory.addInterface(ResourceManager.class);
 

@@ -44,6 +44,10 @@ import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
+import org.apache.geronimo.j2ee.deployment.RefContext;
+import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContextImpl;
+import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -64,6 +68,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
     XmlOptions xmlOptions;
     private List errors;
 
+
     public void testLoadJ2eeDeploymentDescriptor() throws Exception {
         InputStream j2eeInputStream = j2eeDD.openStream();
         ConnectorDocument10 connectorDocument = ConnectorDocument10.Factory.parse(j2eeInputStream);
@@ -76,7 +81,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
     public void testLoadGeronimoDeploymentDescriptor() throws Exception {
         InputStream geronimoInputStream = geronimoDD.openStream();
         GerConnectorDocument connectorDocument = GerConnectorDocument.Factory.parse(geronimoInputStream);
-        assertNotNull(connectorDocument.getConnector().getResourceadapter());
+        assertEquals(1, connectorDocument.getConnector().getResourceadapterArray().length);
         if (!connectorDocument.validate(xmlOptions)) {
             fail(errors.toString());
         }
@@ -163,13 +168,15 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
     }
 
     private void executeTestBuildModule(InstallAction action) throws Exception {
-        String j2eeDomainName = "geronimo.server";
-        String j2eeServerName = "TestGeronimoServer";
-        String j2eeModuleName = "org/apache/geronimo/j2ee/deployment/test";
-        String j2eeApplicationName = "null";
+//        String j2eeDomainName = "geronimo.server";
+//        String j2eeServerName = "TestGeronimoServer";
+//        String j2eeModuleName = "org/apache/geronimo/j2ee/deployment/test";
+//        String j2eeApplicationName = "null";
+        J2eeContext j2eeContext = new J2eeContextImpl("test.domain", "testServer", "null", "org/apache/geronimo/j2ee/deployment/test", null, null);
         ObjectName connectionTrackerName = new ObjectName("geronimo.connector:service=ConnectionTracker");
 
-        ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder();
+        Kernel kernel = new Kernel("testServer");
+        ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(kernel);
         File rarFile = action.getRARFile();
 
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
@@ -178,7 +185,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
         Thread.currentThread().setContextClassLoader(cl);
 
         JarFile rarJarFile = DeploymentUtil.createJarFile(rarFile);
-        Module module = moduleBuilder.createModule(action.getVendorDD(), rarJarFile, j2eeModuleName, action.getSpecDD(), null);
+        Module module = moduleBuilder.createModule(action.getVendorDD(), rarJarFile, j2eeContext.getJ2eeModuleName(), action.getSpecDD(), null);
         if (module == null) {
             throw new DeploymentException("Was not a connector module");
         }
@@ -191,14 +198,14 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
                     module.getType(),
                     module.getParentId(),
                     null,
-                    j2eeDomainName,
-                    j2eeServerName,
-                    j2eeApplicationName,
+                    j2eeContext.getJ2eeDomainName(),
+                    j2eeContext.getJ2eeServerName(),
+                    j2eeContext.getJ2eeApplicationName(),
                     null,
                     connectionTrackerName,
                     null,
                     null,
-                    null);
+                    new RefContext(null, moduleBuilder));
 
             action.install(moduleBuilder, earContext, module);
             earContext.getClassLoader(null);
@@ -206,7 +213,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
             moduleBuilder.addGBeans(earContext, module, cl);
             earContext.close();
 
-            verifyDeployment(tempDir, oldCl, j2eeDomainName, j2eeServerName, j2eeApplicationName, j2eeModuleName);
+            verifyDeployment(tempDir, j2eeContext, oldCl);
         } finally {
             module.close();
             DeploymentUtil.recursiveDelete(tempDir);
@@ -223,7 +230,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
         JarFile rarFile = null;
         try {
             rarFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear-noger.ear"));
-            EARConfigBuilder configBuilder = new EARConfigBuilder(j2eeServer, null, connectionTrackerName, null, null, null, null, null, null, new ConnectorModuleBuilder(), null, kernel);
+            EARConfigBuilder configBuilder = new EARConfigBuilder(j2eeServer, null, connectionTrackerName, null, null, null, null, null, null, new ConnectorModuleBuilder(kernel), null, null, kernel);
             File tempDir = null;
             try {
                 tempDir = DeploymentUtil.createTempDir();
@@ -240,7 +247,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
     }
 
 
-    private void verifyDeployment(File unpackedDir, ClassLoader cl, String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName) throws Exception {
+    private void verifyDeployment(File unpackedDir, J2eeContext j2eeContext, ClassLoader cl) throws Exception {
         DataSource ds = null;
         Kernel kernel = null;
         try {
@@ -251,14 +258,14 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
 
             GBeanMBean serverInfoGBean = new GBeanMBean(ServerInfo.GBEAN_INFO);
             serverInfoGBean.setAttribute("baseDirectory", ".");
-            ObjectName serverInfoObjectName = ObjectName.getInstance(j2eeDomainName + ":type=ServerInfo");
+            ObjectName serverInfoObjectName = ObjectName.getInstance(j2eeContext.getJ2eeDomainName() + ":type=ServerInfo");
             kernel.loadGBean(serverInfoObjectName, serverInfoGBean);
             kernel.startGBean(serverInfoObjectName);
             assertRunning(kernel, serverInfoObjectName);
 
             GBeanMBean j2eeServerGBean = new GBeanMBean(J2EEServerImpl.GBEAN_INFO);
             j2eeServerGBean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfoObjectName));
-            ObjectName j2eeServerObjectName = ObjectName.getInstance(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName);
+            ObjectName j2eeServerObjectName = NameFactory.getServerName(null, null, j2eeContext);
             kernel.loadGBean(j2eeServerObjectName, j2eeServerGBean);
             kernel.startGBean(j2eeServerObjectName);
             assertRunning(kernel, j2eeServerObjectName);
@@ -272,81 +279,91 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
             kernel.startRecursiveGBean(objectName);
             assertRunning(kernel, objectName);
 
-            ObjectName applicationObjectName = ObjectName.getInstance(j2eeDomainName + ":j2eeType=J2EEApplication,name=" + j2eeApplicationName + ",J2EEServer=" + j2eeServerName);
-            if (!j2eeApplicationName.equals("null")) {
+            ObjectName applicationObjectName = NameFactory.getApplicationName(null, null, null, j2eeContext);
+            if (!j2eeContext.getJ2eeApplicationName().equals("null")) {
                 assertRunning(kernel, applicationObjectName);
             } else {
                 Set applications = kernel.getMBeanServer().queryNames(applicationObjectName, null);
                 assertTrue("No application object should be registered for a standalone module", applications.isEmpty());
             }
 
-            ObjectName moduleName = ObjectName.getInstance(j2eeDomainName + ":j2eeType=ResourceAdapterModule,J2EEServer=" + j2eeServerName + ",J2EEApplication=" + j2eeApplicationName + ",name=" + j2eeModuleName);
+            ObjectName moduleName = NameFactory.getModuleName(null, null, null, null, NameFactory.RESOURCE_ADAPTER_MODULE, j2eeContext);
+//                    ObjectName.getInstance(j2eeDomainName + ":j2eeType=ResourceAdapterModule,J2EEServer=" + j2eeServerName + ",J2EEApplication=" + j2eeApplicationName + ",name=" + j2eeModuleName);
             assertRunning(kernel, moduleName);
 
             // FirstTestOutboundConnectionFactory
-            ObjectName firstConnectionManagerFactory = new ObjectName(j2eeDomainName +
-                    ":j2eeType=ConnectionManager" +
-                    ",J2EEServer=" + j2eeServerName +
-                    ",name=FirstTestOutboundConnectionFactory");
+            ObjectName firstConnectionManagerFactory = NameFactory.getResourceComponentName(null, null, null, null, "FirstTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_MANAGER, j2eeContext);
+//                    new ObjectName(j2eeDomainName +
+//                    ":j2eeType=ConnectionManager" +
+//                    ",J2EEServer=" + j2eeServerName +
+//                    ",name=FirstTestOutboundConnectionFactory");
             assertRunning(kernel, firstConnectionManagerFactory);
 
 
-            ObjectName firstOutCF = new ObjectName(j2eeDomainName +
-                    ":j2eeType=JCAConnectionFactory" +
-                    ",J2EEServer=" + j2eeServerName +
-                    ",JCAResource=null" +
-                    ",name=FirstTestOutboundConnectionFactory");
+            ObjectName firstOutCF = NameFactory.getResourceComponentName(null, null, null, null, "FirstTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
+//                    new ObjectName(j2eeDomainName +
+//                    ":j2eeType=JCAConnectionFactory" +
+//                    ",J2EEServer=" + j2eeServerName +
+//                    ",JCAResource=null" +
+//                    ",name=FirstTestOutboundConnectionFactory");
             assertRunning(kernel, firstOutCF);
 
             ObjectName firstOutSecurity = new ObjectName("geronimo.security:service=Realm,type=PasswordCredential,name=FirstTestOutboundConnectionFactory");
             assertRunning(kernel, firstOutSecurity);
 
-            ObjectName firstOutMCF = new ObjectName(j2eeDomainName +
-                    ":j2eeType=JCAManagedConnectionFactory" +
-                    ",J2EEServer=" + j2eeServerName +
-                    ",name=FirstTestOutboundConnectionFactory");
+            ObjectName firstOutMCF = NameFactory.getResourceComponentName(null, null, null, null, "FirstTestOutboundConnectionFactory", NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
+//                    new ObjectName(j2eeDomainName +
+//                    ":j2eeType=JCAManagedConnectionFactory" +
+//                    ",J2EEServer=" + j2eeServerName +
+//                    ",name=FirstTestOutboundConnectionFactory");
             assertRunning(kernel, firstOutMCF);
 
             // SecondTestOutboundConnectionFactory
-            ObjectName secondConnectionManagerFactory = new ObjectName(j2eeDomainName +
-                    ":j2eeType=ConnectionManager" +
-                    ",J2EEServer=" + j2eeServerName +
-                    ",name=SecondTestOutboundConnectionFactory");
+            ObjectName secondConnectionManagerFactory = NameFactory.getResourceComponentName(null, null, null, null, "SecondTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_MANAGER, j2eeContext);
+// new ObjectName(j2eeDomainName +
+//                    ":j2eeType=ConnectionManager" +
+//                    ",J2EEServer=" + j2eeServerName +
+//                    ",name=SecondTestOutboundConnectionFactory");
             assertRunning(kernel, secondConnectionManagerFactory);
 
 
-            ObjectName secondOutCF = new ObjectName(j2eeDomainName +
-                    ":j2eeType=JCAConnectionFactory" +
-                    ",J2EEServer=" + j2eeServerName +
-                    ",JCAResource=null" +
-                    ",name=SecondTestOutboundConnectionFactory");
+            ObjectName secondOutCF = NameFactory.getResourceComponentName(null, null, null, null, "SecondTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
+//new ObjectName(j2eeDomainName +
+//                    ":j2eeType=JCAConnectionFactory" +
+//                    ",J2EEServer=" + j2eeServerName +
+//                    ",JCAResource=null" +
+//                    ",name=SecondTestOutboundConnectionFactory");
             assertRunning(kernel, secondOutCF);
 
-            ObjectName secondOutMCF = new ObjectName(j2eeDomainName +
-                    ":j2eeType=JCAManagedConnectionFactory" +
-                    ",J2EEServer=" + j2eeServerName +
-                    ",name=SecondTestOutboundConnectionFactory");
+            ObjectName secondOutMCF = NameFactory.getResourceComponentName(null, null, null, null, "SecondTestOutboundConnectionFactory", NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
+//                    new ObjectName(j2eeDomainName +
+//                    ":j2eeType=JCAManagedConnectionFactory" +
+//                    ",J2EEServer=" + j2eeServerName +
+//                    ",name=SecondTestOutboundConnectionFactory");
             assertRunning(kernel, secondOutMCF);
 
             // ThirdTestOutboundConnectionFactory
-            ObjectName thirdConnectionManagerFactory = new ObjectName(j2eeDomainName +
-                    ":j2eeType=ConnectionManager" +
-                    ",J2EEServer=" + j2eeServerName +
-                    ",name=ThirdTestOutboundConnectionFactory");
+            ObjectName thirdConnectionManagerFactory = NameFactory.getResourceComponentName(null, null, null, null, "ThirdTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_MANAGER, j2eeContext);
+//new ObjectName(j2eeDomainName +
+//                    ":j2eeType=ConnectionManager" +
+//                    ",J2EEServer=" + j2eeServerName +
+//                    ",name=ThirdTestOutboundConnectionFactory");
             assertRunning(kernel, thirdConnectionManagerFactory);
 
 
-            ObjectName thirdOutCF = new ObjectName(j2eeDomainName +
-                    ":j2eeType=JCAConnectionFactory" +
-                    ",J2EEServer=" + j2eeServerName +
-                    ",JCAResource=null" +
-                    ",name=ThirdTestOutboundConnectionFactory");
+            ObjectName thirdOutCF = NameFactory.getResourceComponentName(null, null, null, null, "ThirdTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
+//new ObjectName(j2eeDomainName +
+//                    ":j2eeType=JCAConnectionFactory" +
+//                    ",J2EEServer=" + j2eeServerName +
+//                    ",JCAResource=null" +
+//                    ",name=ThirdTestOutboundConnectionFactory");
             assertRunning(kernel, thirdOutCF);
 
-            ObjectName thirdOutMCF = new ObjectName(j2eeDomainName +
-                    ":j2eeType=JCAManagedConnectionFactory" +
-                    ",J2EEServer=" + j2eeServerName +
-                    ",name=ThirdTestOutboundConnectionFactory");
+            ObjectName thirdOutMCF = NameFactory.getResourceComponentName(null, null, null, null, "ThirdTestOutboundConnectionFactory", NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
+//                    new ObjectName(j2eeDomainName +
+//                    ":j2eeType=JCAManagedConnectionFactory" +
+//                    ",J2EEServer=" + j2eeServerName +
+//                    ",name=ThirdTestOutboundConnectionFactory");
             assertRunning(kernel, thirdOutMCF);
 
             kernel.stopGBean(objectName);

@@ -6,7 +6,7 @@ import junit.framework.TestCase;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 
 /**
  */
@@ -27,7 +27,7 @@ public class PlanParsingTest extends TestCase {
         jettyWebAppType.setConfigId("configId");
         jettyWebAppType.setParentId("parentId");
         jettyWebAppType.setContextPriorityClassloader(false);
-        GerLocalRefType ref = jettyWebAppType.addNewResourceRef();
+        GerResourceRefType ref = jettyWebAppType.addNewResourceRef();
         ref.setRefName("ref");
         ref.setTargetName("target");
 

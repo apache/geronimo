@@ -54,9 +54,6 @@ public class ResourceAdapterDConfigBean extends DConfigBeanSupport {
         if (getResourceadapterInstance() == null) {
             resourceadapter.addNewResourceadapterInstance();
         }
-        if (getResourceadapterInstance().getWorkmanagerName() == null) {
-            getResourceadapterInstance().addNewWorkmanagerName();
-        }
         ConfigPropertiesHelper.initializeConfigSettings(ddBean, new ConfigPropertiesHelper.ConfigPropertiesSource() {
             public GerConfigPropertySettingType[] getConfigPropertySettingArray() {
                 return getResourceadapterInstance().getConfigPropertySettingArray();
@@ -108,34 +105,34 @@ public class ResourceAdapterDConfigBean extends DConfigBeanSupport {
         }
 
         //admin objects
-        DDBean[] adminObjecDdBeans = ddBean.getChildBean(getXpaths()[2]);
-        GerAdminobjectType[] adminobjectTypes = getResourceadapter().getAdminobjectArray();
-
-        if (adminobjectTypes.length == 0) {
-            //we are new
-            for (int i = 0; i < adminObjecDdBeans.length; i++) {
-                DDBean adminObjectDdBean = adminObjecDdBeans[i];
-                GerAdminobjectType adminobjectType = getResourceadapter().addNewAdminobject();
-                String adminObjectInterface = adminObjectDdBean.getText("adminobject-interface")[0];
-                String adminObjectClass = adminObjectDdBean.getText("adminobject-class")[0];
-                AdminObjectDConfigBean adminObjectDConfigBean = new AdminObjectDConfigBean(adminObjectDdBean, adminobjectType);
-                adminObjectsMap.put(new Key(adminObjectInterface, adminObjectClass), adminObjectDConfigBean);
-            }
-        } else {
-            //we are read in from xml.  Check correct length
-            assert adminObjecDdBeans.length == adminobjectTypes.length;
-            for (int i = 0; i < adminObjecDdBeans.length; i++) {
-                DDBean adminObjectDdBean = adminObjecDdBeans[i];
-                GerAdminobjectType adminobjectType = adminobjectTypes[i];
-                String adminObjectInterface = adminObjectDdBean.getText("adminobject-interface")[0];
-                assert(adminObjectInterface.equals(adminobjectType.getAdminobjectInterface().getStringValue()));
-                String adminObjectClass = adminObjectDdBean.getText("adminobject-class")[0];
-                assert(adminObjectClass.equals(adminobjectType.getAdminobjectClass().getStringValue()));
-                AdminObjectDConfigBean adminObjectDConfigBean = new AdminObjectDConfigBean(adminObjectDdBean, adminobjectType);
-                adminObjectsMap.put(new Key(adminObjectInterface, adminObjectClass), adminObjectDConfigBean);
-
-            }
-        }
+//        DDBean[] adminObjecDdBeans = ddBean.getChildBean(getXpaths()[2]);
+//        GerAdminobjectType[] adminobjectTypes = getResourceadapter().getAdminobjectArray();
+//
+//        if (adminobjectTypes.length == 0) {
+//            //we are new
+//            for (int i = 0; i < adminObjecDdBeans.length; i++) {
+//                DDBean adminObjectDdBean = adminObjecDdBeans[i];
+//                GerAdminobjectType adminobjectType = getResourceadapter().addNewAdminobject();
+//                String adminObjectInterface = adminObjectDdBean.getText("adminobject-interface")[0];
+//                String adminObjectClass = adminObjectDdBean.getText("adminobject-class")[0];
+//                AdminObjectDConfigBean adminObjectDConfigBean = new AdminObjectDConfigBean(adminObjectDdBean, adminobjectType);
+//                adminObjectsMap.put(new Key(adminObjectInterface, adminObjectClass), adminObjectDConfigBean);
+//            }
+//        } else {
+//            //we are read in from xml.  Check correct length
+//            assert adminObjecDdBeans.length == adminobjectTypes.length;
+//            for (int i = 0; i < adminObjecDdBeans.length; i++) {
+//                DDBean adminObjectDdBean = adminObjecDdBeans[i];
+//                GerAdminobjectType adminobjectType = adminobjectTypes[i];
+//                String adminObjectInterface = adminObjectDdBean.getText("adminobject-interface")[0];
+//                assert(adminObjectInterface.equals(adminobjectType.getAdminobjectInterface().getStringValue()));
+//                String adminObjectClass = adminObjectDdBean.getText("adminobject-class")[0];
+//                assert(adminObjectClass.equals(adminobjectType.getAdminobjectClass().getStringValue()));
+//                AdminObjectDConfigBean adminObjectDConfigBean = new AdminObjectDConfigBean(adminObjectDdBean, adminobjectType);
+//                adminObjectsMap.put(new Key(adminObjectInterface, adminObjectClass), adminObjectDConfigBean);
+//
+//            }
+//        }
 
     }
 
@@ -156,11 +153,11 @@ public class ResourceAdapterDConfigBean extends DConfigBeanSupport {
     }
 
     public String getWorkManager() {
-        return getResourceadapterInstance().getWorkmanagerName().getStringValue();
+        return getResourceadapterInstance().getWorkmanagerName();
     }
 
     public void setWorkManager(String workManager) {
-        getResourceadapterInstance().getWorkmanagerName().setStringValue(workManager);
+        getResourceadapterInstance().setWorkmanagerName(workManager);
     }
 
     public DConfigBean getDConfigBean(DDBean bean) throws ConfigurationException {

@@ -86,25 +86,26 @@
                 </connectiondefinition-instance>
             </connection-definition>
         </outbound-resourceadapter>
-        <adminobject>
-            <adminobject-interface>org.apache.geronimo.connector.mock.MockAdminObject</adminobject-interface>
-            <adminobject-class>org.apache.geronimo.connector.mock.MockAdminObjectImpl</adminobject-class>
-            <adminobject-instance>
-                <message-destination-name>tweedledee</message-destination-name>
-                <config-property-setting name="Tweedle">Dee-value</config-property-setting>
-            </adminobject-instance>
-            <adminobject-instance>
-                <message-destination-name>tweedledum</message-destination-name>
-                <config-property-setting name="Tweedle">Dum-value</config-property-setting>
-            </adminobject-instance>
-        </adminobject>
     </resourceadapter>
+
+    <adminobject>
+        <adminobject-interface>org.apache.geronimo.connector.mock.MockAdminObject</adminobject-interface>
+        <adminobject-class>org.apache.geronimo.connector.mock.MockAdminObjectImpl</adminobject-class>
+        <adminobject-instance>
+            <message-destination-name>tweedledee</message-destination-name>
+            <config-property-setting name="Tweedle">Dee-value</config-property-setting>
+        </adminobject-instance>
+        <adminobject-instance>
+            <message-destination-name>tweedledum</message-destination-name>
+            <config-property-setting name="Tweedle">Dum-value</config-property-setting>
+        </adminobject-instance>
+    </adminobject>
 
     <!--normally this is in the j2ee-server-plan.xml.  It is included here so the gbeans can start in unit tests-->
     <gbean name="geronimo.connector:service=ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
     </gbean>
 
-    <gbean name="geronimo.server:type=WorkManager,name=DefaultWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManager">
+    <gbean name="test.domain:J2EEServer=testServer,j2eeType=JCAWorkManager,name=DefaultWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManager">
         <attribute name="syncMaximumPoolSize" type="int">10</attribute>
         <attribute name="startMaximumPoolSize" type="int">10</attribute>
         <attribute name="scheduledMaximumPoolSize" type="int">10</attribute>

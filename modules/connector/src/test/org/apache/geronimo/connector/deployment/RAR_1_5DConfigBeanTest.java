@@ -81,21 +81,21 @@ public class RAR_1_5DConfigBeanTest extends TestCase {
         assertEquals("StringValue", resourceAdapterSetting.getConfigPropertyValue());
         resourceAdapterSetting.setConfigPropertyValue("TestRAValue");
 
-        //admin objects
-        DDBean[] adminObjectdds = resourceAdapterdd.getChildBean(resourceAdapterDConfigBean.getXpaths()[2]);
-        assertEquals(1, adminObjectdds.length);
-        AdminObjectDConfigBean adminObjectDConfigBean = (AdminObjectDConfigBean)resourceAdapterDConfigBean.getDConfigBean(adminObjectdds[0]);
-        assertNotNull(adminObjectDConfigBean);
-        AdminObjectInstance adminObjectInstance1 = new AdminObjectInstance();
-        adminObjectDConfigBean.setAdminObjectInstance(new AdminObjectInstance[] {adminObjectInstance1});
-        ConfigPropertySettings adminObjectSetting1 = adminObjectInstance1.getConfigProperty()[0];
-        adminObjectSetting1.setConfigPropertyValue("TestAOValue1");
-
-        //add a second admin object in first position
-        AdminObjectInstance adminObjectInstance2 = new AdminObjectInstance();
-        adminObjectDConfigBean.setAdminObjectInstance(new AdminObjectInstance[] {adminObjectInstance2, adminObjectInstance1});
-        ConfigPropertySettings adminObjectSetting2 = adminObjectInstance2.getConfigProperty()[0];
-        adminObjectSetting2.setConfigPropertyValue("TestAOValue2");
+//        //admin objects
+//        DDBean[] adminObjectdds = resourceAdapterdd.getChildBean(resourceAdapterDConfigBean.getXpaths()[2]);
+//        assertEquals(1, adminObjectdds.length);
+//        AdminObjectDConfigBean adminObjectDConfigBean = (AdminObjectDConfigBean)resourceAdapterDConfigBean.getDConfigBean(adminObjectdds[0]);
+//        assertNotNull(adminObjectDConfigBean);
+//        AdminObjectInstance adminObjectInstance1 = new AdminObjectInstance();
+//        adminObjectDConfigBean.setAdminObjectInstance(new AdminObjectInstance[] {adminObjectInstance1});
+//        ConfigPropertySettings adminObjectSetting1 = adminObjectInstance1.getConfigProperty()[0];
+//        adminObjectSetting1.setConfigPropertyValue("TestAOValue1");
+//
+//        //add a second admin object in first position
+//        AdminObjectInstance adminObjectInstance2 = new AdminObjectInstance();
+//        adminObjectDConfigBean.setAdminObjectInstance(new AdminObjectInstance[] {adminObjectInstance2, adminObjectInstance1});
+//        ConfigPropertySettings adminObjectSetting2 = adminObjectInstance2.getConfigProperty()[0];
+//        adminObjectSetting2.setConfigPropertyValue("TestAOValue2");
 
         //outbound
         DDBean[] connectionDefinitiondds = resourceAdapterdd.getChildBean(resourceAdapterDConfigBean.getXpaths()[1]);
@@ -119,18 +119,18 @@ public class RAR_1_5DConfigBeanTest extends TestCase {
         baos.close();
         InputStream is = new ByteArrayInputStream(bytes);
         GerConnectorDocument gcDoc = GerConnectorDocument.Factory.parse(is);
-        GerResourceadapterType ra = gcDoc.getConnector().getResourceadapter();
+        GerResourceadapterType ra = gcDoc.getConnector().getResourceadapterArray()[0];
         GerResourceadapterInstanceType rai = ra.getResourceadapterInstance();
         assertEquals("TestRAName", rai.getResourceadapterName());
         GerConfigPropertySettingType rasetting = rai.getConfigPropertySettingArray(0);
         assertEquals("TestRAValue", rasetting.getStringValue());
 
         //admin object
-        GerAdminobjectType adminobjectType1 = ra.getAdminobjectArray(0);
-        GerAdminobjectInstanceType adminobjectInstanceType2 = adminobjectType1.getAdminobjectInstanceArray(0);
-        assertEquals("TestAOValue1", adminobjectInstanceType2.getConfigPropertySettingArray(0).getStringValue());
-        GerAdminobjectInstanceType adminobjectInstanceType1 = adminobjectType1.getAdminobjectInstanceArray(1);
-        assertEquals("TestAOValue2", adminobjectInstanceType1.getConfigPropertySettingArray(0).getStringValue());
+//        GerAdminobjectType adminobjectType1 = ra.getAdminobjectArray(0);
+//        GerAdminobjectInstanceType adminobjectInstanceType2 = adminobjectType1.getAdminobjectInstanceArray(0);
+//        assertEquals("TestAOValue1", adminobjectInstanceType2.getConfigPropertySettingArray(0).getStringValue());
+//        GerAdminobjectInstanceType adminobjectInstanceType1 = adminobjectType1.getAdminobjectInstanceArray(1);
+//        assertEquals("TestAOValue2", adminobjectInstanceType1.getConfigPropertySettingArray(0).getStringValue());
 
         //connection definition
         GerConnectionDefinitionType connectionDefinitionType = ra.getOutboundResourceadapter().getConnectionDefinitionArray(0);
@@ -150,17 +150,17 @@ public class RAR_1_5DConfigBeanTest extends TestCase {
         assertNotNull(resourceAdapterSetting);
         assertEquals("TestRAValue", resourceAdapterSetting.getConfigPropertyValue());
 
-        //admin objects
-        adminObjectDConfigBean = (AdminObjectDConfigBean)resourceAdapterDConfigBean.getDConfigBean(adminObjectdds[0]);
-        assertNotNull(adminObjectDConfigBean);
-        AdminObjectInstance[] adminObjectInstances = adminObjectDConfigBean.getAdminObjectInstance();
-        assertEquals(2, adminObjectInstances.length);
-        adminObjectSetting1 = adminObjectInstances[1].getConfigProperty()[0];
-        assertEquals("TestAOValue2", adminObjectSetting1.getConfigPropertyValue());
-
-        //second admin object is in first position ..not any longer:-(((
-        adminObjectSetting2 = adminObjectInstances[0].getConfigProperty()[0];
-        assertEquals("TestAOValue1", adminObjectSetting2.getConfigPropertyValue());
+//        //admin objects
+//        adminObjectDConfigBean = (AdminObjectDConfigBean)resourceAdapterDConfigBean.getDConfigBean(adminObjectdds[0]);
+//        assertNotNull(adminObjectDConfigBean);
+//        AdminObjectInstance[] adminObjectInstances = adminObjectDConfigBean.getAdminObjectInstance();
+//        assertEquals(2, adminObjectInstances.length);
+//        adminObjectSetting1 = adminObjectInstances[1].getConfigProperty()[0];
+//        assertEquals("TestAOValue2", adminObjectSetting1.getConfigPropertyValue());
+//
+//        //second admin object is in first position ..not any longer:-(((
+//        adminObjectSetting2 = adminObjectInstances[0].getConfigProperty()[0];
+//        assertEquals("TestAOValue1", adminObjectSetting2.getConfigPropertyValue());
 
         //outbound
         connectionDefinitionDConfigBean = (ConnectionDefinitionDConfigBean)resourceAdapterDConfigBean.getDConfigBean(connectionDefinitiondds[0]);

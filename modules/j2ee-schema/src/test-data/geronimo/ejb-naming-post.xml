@@ -4,7 +4,11 @@
   <dependency>
     <uri>junit/jars/junit-3.8.jar</uri>
   </dependency>
-  <cmp-connection-factory>DefaultDatasource</cmp-connection-factory>
+    <nam:cmp-connection-factory>
+        <nam:application>null</nam:application>
+        <nam:module>org/apache/geronimo/DefaultDatabase</nam:module>
+        <nam:name>DefaultDatasource</nam:name>
+    </nam:cmp-connection-factory>
   <enterprise-beans>
     <!--
         ########################################################

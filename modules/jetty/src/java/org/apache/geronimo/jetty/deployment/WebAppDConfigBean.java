@@ -25,8 +25,6 @@ import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
 import org.apache.geronimo.naming.deployment.ENCHelper;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
@@ -38,76 +36,8 @@ public class WebAppDConfigBean extends DConfigBeanSupport {
     WebAppDConfigBean(DDBean ddBean, JettyWebAppType webApp) {
         super(ddBean, webApp);
 
-        ENCHelper.XmlEnvRefs envRefs = new ENCHelper.XmlEnvRefs() {
-            public GerRemoteRefType[] getEjbRefs() {
-                return getWebApp().getEjbRefArray();
-            }
+        ENCHelper.XmlEnvRefs envRefs = new ENCHelper.XmlEnvRefs(webApp.getEjbRefArray(), webApp.getEjbLocalRefArray(), webApp.getResourceRefArray(), webApp.getResourceEnvRefArray()); 
 
-            public GerRemoteRefType addNewEjbRef() {
-                return getWebApp().addNewEjbRef();
-            }
-
-            public GerRemoteRefType setEjbRef(int i, GerRemoteRefType remoteRef) {
-                getWebApp().setEjbRefArray(i, remoteRef);
-                return getWebApp().getEjbRefArray(i);
-            }
-
-            public void removeEjbRef(int i) {
-                getWebApp().removeEjbRef(i);
-            }
-
-            public GerLocalRefType[] getEjbLocalRefs() {
-                return getWebApp().getEjbLocalRefArray();
-            }
-
-            public GerLocalRefType addNewEjbLocalRef() {
-                return getWebApp().addNewEjbLocalRef();
-            }
-
-            public GerLocalRefType setEjbLocalRef(int i, GerLocalRefType localRef) {
-                getWebApp().setEjbLocalRefArray(i, localRef);
-                return getWebApp().getEjbLocalRefArray(i);
-            }
-
-            public void removeEjbLocalRef(int i) {
-                getWebApp().removeEjbLocalRef(i);
-            }
-
-            public GerLocalRefType[] getResourceEnvRefs() {
-                return getWebApp().getResourceEnvRefArray();
-            }
-
-            public GerLocalRefType addNewResourceEnvRef() {
-                return getWebApp().addNewResourceEnvRef();
-            }
-
-            public GerLocalRefType setResourceEnvRef(int i, GerLocalRefType localRef) {
-                getWebApp().setResourceEnvRefArray(i, localRef);
-                return getWebApp().getResourceEnvRefArray(i);
-            }
-
-            public void removeResourceEnvRef(int i) {
-                getWebApp().removeResourceEnvRef(i);
-            }
-
-            public GerLocalRefType[] getResourceRefs() {
-                return getWebApp().getResourceRefArray();
-            }
-
-            public GerLocalRefType addNewResourceRef() {
-                return getWebApp().addNewResourceRef();
-            }
-
-            public GerLocalRefType setResourceRef(int i, GerLocalRefType localRef) {
-                getWebApp().setResourceRefArray(i, localRef);
-                return getWebApp().getResourceRefArray(i);
-            }
-
-            public void removeResourceRef(int i) {
-                getWebApp().removeResourceRef(i);
-            }
-
-        };
         //which version are we dealing with?
         String version = ddBean.getRoot().getAttributeValue("version");
         if ("2.4".equals(version)) {

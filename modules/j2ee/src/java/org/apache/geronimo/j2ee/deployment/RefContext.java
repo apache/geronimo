@@ -20,37 +20,64 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
-
+import javax.management.ObjectName;
 import javax.naming.Reference;
 
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.NameFactory;
 
 /**
  * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
  */
-public class EJBRefContext {
+public class RefContext {
+
     private final EJBReferenceBuilder ejbReferenceBuilder;
+    private final ResourceReferenceBuilder resourceReferenceBuilder;
+
     private final Map ejbRemoteIndex;
     private final Map ejbLocalIndex;
     private final Map ejbInterfaceIndex;
 
-    public EJBRefContext(EJBReferenceBuilder ejbReferenceBuilder) {
+    private final Map resourceAdapterIndex;
+    private final Map connectionFactoryIndex;
+    private final Map adminObjectIndex;
+
+    private final Map activationSpecInfos;
+
+    public RefContext(EJBReferenceBuilder ejbReferenceBuilder, ResourceReferenceBuilder resourceReferenceBuilder) {
         assert ejbReferenceBuilder != null: "ejbReferenceBuilder is null";
+        assert resourceReferenceBuilder != null: "resourceReferenceBuilder is null";
 
         ejbRemoteIndex = new HashMap();
         ejbLocalIndex = new HashMap();
         ejbInterfaceIndex = new HashMap();
+        resourceAdapterIndex = new HashMap();
+        connectionFactoryIndex = new HashMap();
+        adminObjectIndex = new HashMap();
+        activationSpecInfos = new HashMap();
         this.ejbReferenceBuilder = ejbReferenceBuilder;
+        this.resourceReferenceBuilder = resourceReferenceBuilder;
     }
 
-    public EJBRefContext(EJBRefContext ejbRefContext, EJBReferenceBuilder ejbReferenceBuilder) {
+    public static RefContext derivedClientRefContext(RefContext refContext, EJBReferenceBuilder ejbReferenceBuilder, ResourceReferenceBuilder resourceReferenceBuilder) {
+        return new RefContext(refContext, ejbReferenceBuilder, resourceReferenceBuilder);
+    }
+
+    private RefContext(RefContext refContext, EJBReferenceBuilder ejbReferenceBuilder, ResourceReferenceBuilder resourceReferenceBuilder) {
         assert ejbReferenceBuilder != null: "ejbReferenceBuilder is null";
-        assert ejbRefContext != null: "ejbRefContext is null";
+        assert resourceReferenceBuilder != null: "resourceReferenceBuilder is null";
+        assert refContext != null: "ejbRefContext is null";
 
         this.ejbReferenceBuilder = ejbReferenceBuilder;
-        this.ejbRemoteIndex = ejbRefContext.ejbRemoteIndex;
-        this.ejbLocalIndex = ejbRefContext.ejbLocalIndex;
-        this.ejbInterfaceIndex = ejbRefContext.ejbInterfaceIndex;
+        this.resourceReferenceBuilder = resourceReferenceBuilder;
+        this.ejbRemoteIndex = refContext.ejbRemoteIndex;
+        this.ejbLocalIndex = new HashMap();//no local ejb refs
+        this.ejbInterfaceIndex = refContext.ejbInterfaceIndex;
+        resourceAdapterIndex = new HashMap();
+        this.connectionFactoryIndex = new HashMap();
+        this.adminObjectIndex = new HashMap();
+        this.activationSpecInfos = new HashMap();
     }
 
     public EJBReferenceBuilder getEjbReferenceBuilder() {
@@ -63,6 +90,14 @@ public class EJBRefContext {
 
     public Map getEJBLocalIndex() {
         return ejbLocalIndex;
+    }
+
+    public Map getConnectionFactoryIndex() {
+        return connectionFactoryIndex;
+    }
+
+    public Map getAdminObjectIndex() {
+        return adminObjectIndex;
     }
 
     public void addEJBRemoteId(URI modulePath, String name, String containerId, boolean isSession, String home, String remote) throws DeploymentException {
@@ -103,24 +138,68 @@ public class EJBRefContext {
         try {
             URI ejbURI = new URI(null, null, modulePath.getPath(), name);
             references.put(ejbURI, containerId);
-            URI moduelURI = new URI(null, null, modulePath.getPath(), null);
-            interfacesReferences.put(moduelURI, containerId);
+            URI moduleURI = new URI(null, null, modulePath.getPath(), null);
+            interfacesReferences.put(moduleURI, containerId);
         } catch (URISyntaxException e) {
             throw new DeploymentException(e);
         }
     }
 
-    public Reference getEJBRemoteRef(String objectName, boolean isSession, String home, String remote) throws DeploymentException {
-        if (ejbReferenceBuilder == null) {
-            throw new DeploymentException("No ejb reference builder");
+    public void addResourceAdapterId(URI modulePath, String name, String containerId) throws DeploymentException {
+        Map references = (Map) connectionFactoryIndex.get(name);
+        if (references == null || references.isEmpty()) {
+            references = new HashMap();
+            resourceAdapterIndex.put(name, references);
         }
+
+        try {
+            URI cfURI = new URI(null, null, modulePath.getPath(), name);
+            references.put(cfURI, containerId);
+        } catch (URISyntaxException e) {
+            throw new DeploymentException(e);
+        }
+    }
+
+    public void addConnectionFactoryId(URI modulePath, String name, String containerId) throws DeploymentException {
+        Map references = (Map) connectionFactoryIndex.get(name);
+        if (references == null || references.isEmpty()) {
+            references = new HashMap();
+            connectionFactoryIndex.put(name, references);
+        }
+
+        try {
+            URI cfURI = new URI(null, null, modulePath.getPath(), name);
+            references.put(cfURI, containerId);
+        } catch (URISyntaxException e) {
+            throw new DeploymentException(e);
+        }
+    }
+
+
+    public void addAdminObjectId(URI modulePath, String name, String containerId) throws DeploymentException {
+        Map references = (Map) adminObjectIndex.get(name);
+        if (references == null || references.isEmpty()) {
+            references = new HashMap();
+            adminObjectIndex.put(name, references);
+        }
+
+        try {
+            URI cfURI = new URI(null, null, modulePath.getPath(), name);
+            references.put(cfURI, containerId);
+        } catch (URISyntaxException e) {
+            throw new DeploymentException(e);
+        }
+    }
+
+
+
+    //lookup methods
+
+    public Reference getEJBRemoteRef(String objectName, boolean isSession, String home, String remote) throws DeploymentException {
         return ejbReferenceBuilder.createEJBRemoteReference(objectName, isSession, home, remote);
     }
 
     public Reference getEJBLocalRef(String objectName, boolean isSession, String localHome, String local) throws DeploymentException {
-        if (ejbReferenceBuilder == null) {
-            throw new DeploymentException("No ejb reference builder");
-        }
         return ejbReferenceBuilder.createEJBLocalReference(objectName, isSession, localHome, local);
     }
 
@@ -134,6 +213,47 @@ public class EJBRefContext {
         String name = ejbLink.substring(ejbLink.lastIndexOf('#') + 1);
         String containerId = getContainerId(module, ejbLink, (Map) ejbLocalIndex.get(name));
         return getEJBLocalRef(containerId, isSession, localHome, local);
+    }
+
+    public Reference getConnectionFactoryRef(String containerId, Class iface) throws DeploymentException {
+        return resourceReferenceBuilder.createResourceRef(containerId, iface);
+    }
+
+    public String getResourceAdapterContainerId(URI module, String resourceLink, J2eeContext j2eeContext) throws DeploymentException, UnknownEJBRefException {
+        String name = resourceLink.substring(resourceLink.lastIndexOf('#') + 1);
+        try {
+            return getContainerId(module, resourceLink, (Map) connectionFactoryIndex.get(name));
+        } catch (UnknownEJBRefException e) {
+            ObjectName query = NameFactory.getComponentRestrictedQueryName(null, null, name, NameFactory.JCA_RESOURCE_ADAPTER, j2eeContext);
+            ObjectName containerName = resourceReferenceBuilder.locateResourceName(query);
+            return containerName.getCanonicalName();
+        }
+    }
+
+    public String getConnectionFactoryContainerId(URI module, String resourceLink, J2eeContext j2eeContext) throws DeploymentException, UnknownEJBRefException {
+        String name = resourceLink.substring(resourceLink.lastIndexOf('#') + 1);
+        try {
+            return getContainerId(module, resourceLink, (Map) connectionFactoryIndex.get(name));
+        } catch (UnknownEJBRefException e) {
+            ObjectName query = NameFactory.getComponentRestrictedQueryName(null, null, name, NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
+            ObjectName containerName = resourceReferenceBuilder.locateResourceName(query);
+            return containerName.getCanonicalName();
+        }
+    }
+
+    public Reference getAdminObjectRef(String containerId, Class iface) throws DeploymentException {
+        return resourceReferenceBuilder.createAdminObjectRef(containerId, iface);
+    }
+
+    public String getAdminObjectContainerId(URI module, String resourceLink, J2eeContext j2eeContext) throws DeploymentException, UnknownEJBRefException {
+        String name = resourceLink.substring(resourceLink.lastIndexOf('#') + 1);
+        try {
+            return getContainerId(module, resourceLink, (Map) adminObjectIndex.get(name));
+        } catch (UnknownEJBRefException e) {
+            ObjectName query = NameFactory.getComponentRestrictedQueryName(null, null, name, NameFactory.JCA_ADMIN_OBJECT, j2eeContext);
+            ObjectName containerName = resourceReferenceBuilder.locateResourceName(query);
+            return containerName.getCanonicalName();
+        }
     }
 
     private String getContainerId(URI module, String ejbLink, Map references) throws AmbiguousEJBRefException, UnknownEJBRefException {
@@ -207,6 +327,23 @@ public class EJBRefContext {
 
         // there is more then one ejb that implements that interface... give up
         throw new UnresolvedEJBRefException(refName, ejbRefInfo, true);
+    }
+
+    //Resource adapter/activationspec support
+
+    public void addActivationSpecInfos(ObjectName resourceAdapterName, Map activationSpecInfoMap) throws DeploymentException {
+        Object old = activationSpecInfos.put(resourceAdapterName, activationSpecInfoMap);
+        if (old != null) {
+            throw new DeploymentException("Duplicate resource adapter name: " + resourceAdapterName);
+        }
+    }
+
+    public Object getActivationSpecInfo(ObjectName resourceAdapterName, String messageListenerInterfaceName) throws DeploymentException {
+        Map activationSpecInfoMap = (Map) activationSpecInfos.get(resourceAdapterName);
+        if (activationSpecInfoMap != null) {
+            return activationSpecInfoMap.get(messageListenerInterfaceName);
+        }
+        return resourceReferenceBuilder.locateActivationSpecInfo(resourceAdapterName, messageListenerInterfaceName);
     }
 
 }

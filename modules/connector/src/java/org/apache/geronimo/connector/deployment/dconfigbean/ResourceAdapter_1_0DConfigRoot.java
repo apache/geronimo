@@ -79,7 +79,8 @@ public class ResourceAdapter_1_0DConfigRoot extends DConfigBeanRootSupport {
         if (!getConnectorDocument().getConnector().getVersion().equals(GerVersionType.X_1_0)) {
             throw new IllegalStateException("Wrong version, expected 1.0");
         }
-        replaceConnectionDefinitionDConfigBean(getConnectorDocument().getConnector().getResourceadapter().getOutboundResourceadapter().getConnectionDefinitionArray(0));
+        //TODO this is so totally wrong...
+        replaceConnectionDefinitionDConfigBean(getConnectorDocument().getConnector().getResourceadapterArray()[0].getOutboundResourceadapter().getConnectionDefinitionArray(0));
     }
 
     protected SchemaTypeLoader getSchemaTypeLoader() {

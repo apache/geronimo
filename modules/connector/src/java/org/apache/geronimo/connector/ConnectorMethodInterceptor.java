@@ -68,7 +68,7 @@ public class ConnectorMethodInterceptor implements MethodInterceptor, Serializab
     private Object readResolve() throws ObjectStreamException {
         Kernel kernel = Kernel.getKernel(kernelName);
         try {
-            return kernel.invoke(targetName, "getMethodInterceptor");
+            return kernel.invoke(targetName, "$getMethodInterceptor");
         } catch (Exception e) {
             throw (InvalidObjectException)new InvalidObjectException("could not get method interceptor from ManagedConnectionFactoryWrapper").initCause(e);
         }

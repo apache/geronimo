@@ -3,16 +3,16 @@ package org.apache.geronimo.client.builder;
 import java.io.File;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
-import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientType;
-import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientDocument;
 import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientDocument;
+import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 
 /**
  */
 public class PlanParsingTest extends TestCase {
 
-    private AppClientModuleBuilder builder = new AppClientModuleBuilder(null, null,null, null, null, null);
+    private AppClientModuleBuilder builder = new AppClientModuleBuilder(null, null,null, null, null, null, null, null);
     File basedir = new File(System.getProperty("basedir", "."));
 
     public void testResourceRef() throws Exception {
@@ -28,7 +28,7 @@ public class PlanParsingTest extends TestCase {
         appClient.setClientConfigId("clientConfigId");
         appClient.setConfigId("configId");
         appClient.setParentId("parentId");
-        GerLocalRefType ref = appClient.addNewResourceRef();
+        GerResourceRefType ref = appClient.addNewResourceRef();
         ref.setRefName("ref");
         ref.setTargetName("target");
 

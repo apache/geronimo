@@ -24,15 +24,14 @@ import javax.naming.Name;
 import javax.naming.RefAddr;
 import javax.naming.Reference;
 import javax.naming.spi.ObjectFactory;
+import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 
 import org.apache.geronimo.kernel.Kernel;
 
 /**
- *
- *
  * @version $Rev$ $Date$
- *
- * */
+ */
 public class JMXObjectFactory implements ObjectFactory {
 
     public Object getObjectInstance(Object obj, Name name, Context nameCtx,
@@ -43,16 +42,24 @@ public class JMXObjectFactory implements ObjectFactory {
             if (!(refAddr instanceof JMXRefAddr)) {
                 throw new IllegalStateException("Invalid ref addr in a Connectionfactory ref: " + refAddr);
             }
-            JMXRefAddr jmxRefAddr = (JMXRefAddr)refAddr;
+            JMXRefAddr jmxRefAddr = (JMXRefAddr) refAddr;
             Kernel kernel;
             if (jmxRefAddr.getKernelName() == null) {
                 kernel = Kernel.getSingleKernel();
             } else {
                 kernel = Kernel.getKernel(jmxRefAddr.getKernelName());
             }
-            Object proxy = kernel.invoke(jmxRefAddr.getTargetName(), "getProxy");
+
+            ObjectName target = null;
+            try {
+                target = ObjectName.getInstance(jmxRefAddr.getContainerId());
+            } catch (MalformedObjectNameException e) {
+                throw (IllegalArgumentException) new IllegalArgumentException("Invalid object name in jmxRefAddr: " + jmxRefAddr.getContainerId()).initCause(e);
+            }
+            
+            Object proxy = kernel.invoke(target, "$getResource");
             if (proxy == null) {
-                throw new IllegalStateException("Proxy not returned. Target " + jmxRefAddr.getTargetName() + " not started");
+                throw new IllegalStateException("Proxy not returned. Target " + jmxRefAddr.getContainerId() + " not started");
             }
             if (!jmxRefAddr.getInterface().isAssignableFrom(proxy.getClass())) {
                 throw new ClassCastException("Proxy does not implement expected interface " + jmxRefAddr.getInterface());

@@ -320,9 +320,10 @@
         <xsd:sequence>
             <xsd:element name="dependency" type="ger:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
 
-            <!--TODO make this maxOccurs=unbounded-->
-            <xsd:element name="resourceadapter" type="ger:resourceadapterType"/>
+            <xsd:element name="resourceadapter" type="ger:resourceadapterType" maxOccurs="unbounded"/>
 
+            <xsd:element name="adminobject" type="ger:adminobjectType" minOccurs="0" maxOccurs="unbounded"/>
+            
             <xsd:element name="gbean" type="ger:gbeanType" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
 
@@ -416,10 +417,6 @@
                 type="ger:outbound-resourceadapterType"
                 minOccurs="0">
             </xsd:element>
-            <xsd:element name="adminobject"
-                type="ger:adminobjectType"
-                minOccurs="0"
-                maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:complexType>
 
@@ -437,7 +434,7 @@
                 minOccurs="0"
                 maxOccurs="unbounded"/>
             <xsd:element name="workmanager-name"
-                type="j2ee:string"/>
+                type="xsd:string"/>
         </xsd:sequence>
     </xsd:complexType>
 

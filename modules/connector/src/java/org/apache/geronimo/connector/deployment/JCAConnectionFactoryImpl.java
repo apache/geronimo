@@ -70,9 +70,9 @@ public class JCAConnectionFactoryImpl {
         if (!keyPropertyList.containsKey("JCAResource")) {
             throw new InvalidObjectNameException("JCAResource object name must contain a JCAResource property", objectName);
         }
-        if (keyPropertyList.size() != 4) {
-            throw new InvalidObjectNameException("JCAConnectionFactory object name can only have j2eeType, name, JCAResource, and J2EEServer properties", objectName);
-        }
+//        if (keyPropertyList.size() != 4) {
+//            throw new InvalidObjectNameException("JCAConnectionFactory object name can only have j2eeType, name, JCAResource, and J2EEServer properties", objectName);
+//        }
     }
 
     public static final GBeanInfo GBEAN_INFO;

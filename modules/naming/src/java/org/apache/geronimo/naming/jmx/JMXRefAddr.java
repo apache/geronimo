@@ -19,9 +19,7 @@ package org.apache.geronimo.naming.jmx;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-
 import javax.naming.RefAddr;
-import javax.management.ObjectName;
 
 /**
  *
@@ -33,30 +31,25 @@ public class JMXRefAddr extends RefAddr {
 
     private final static String TYPE = "org.apache.geronimo.naming.jmx.RefType";
 
-    private final String serverName;
     private final String kernelName;
-    private final ObjectName targetName;
+    private final String containerId;
     private final static String SCHEME = "geronimo";
     private final Class iface;
 
-    public JMXRefAddr(String serverName, String kernelName, ObjectName targetname, Class iface) {
+    public JMXRefAddr(String kernelName, String containerId, Class iface) {
         super(TYPE);
-        this.serverName = serverName;
         this.kernelName = kernelName;
-        this.targetName = targetname;
+        this.containerId = containerId;
         this.iface = iface;
     }
 
-    public String getServerName() {
-        return serverName;
-    }
 
     public String getKernelName() {
         return kernelName;
     }
 
-    public ObjectName getTargetName() {
-        return targetName;
+    public String getContainerId() {
+        return containerId;
     }
 
     public Class getInterface() {
@@ -65,7 +58,7 @@ public class JMXRefAddr extends RefAddr {
 
     public Object getContent() {
         try {
-            return new URI(SCHEME, kernelName, targetName.toString(), null);
+            return new URI(SCHEME, kernelName, containerId, null);
         } catch (URISyntaxException e) {
             throw (IllegalStateException)new IllegalStateException("invalid jmx ref addr").initCause(e);
         }

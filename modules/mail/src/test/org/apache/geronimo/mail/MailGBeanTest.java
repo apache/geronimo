@@ -37,7 +37,7 @@ public class MailGBeanTest extends TestCase {
     private static final String KERNEL_NAME = "testKernel";
 
     public void testProxy() throws Exception {
-        Object proxy = kernel.invoke(mailName, "getProxy");
+        Object proxy = kernel.invoke(mailName, "$getResource");
 
         assertNotNull(proxy);
         assertTrue(proxy instanceof Session);
@@ -55,7 +55,7 @@ public class MailGBeanTest extends TestCase {
         GBeanMBean cmf = new GBeanMBean(MailGBean.getGBeanInfo());
         cmf.setAttribute("useDefault", new Boolean(true));
         cmf.setAttribute("properties", new Properties());
-        mailName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEType=JavaMailResource,name=default");
+        mailName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,J2EEType=JavaMailResource,name=default");
         kernel.loadGBean(mailName, cmf);
 
         kernel.startGBean(mailName);

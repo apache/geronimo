@@ -237,7 +237,9 @@ public class SchemaConversionUtils {
                     if (localName.equals("ejb-ref")
                             || localName.equals("ejb-local-ref")
                             || localName.equals("resource-ref")
-                            || localName.equals("resource-env-ref")) {
+                            || localName.equals("resource-env-ref")
+                            || localName.equals("cmp-connection-factory")
+                            || localName.equals("resource-adapter")) {
                         convertElementToSchema(cursor, end, GERONIMO_NAMING_NAMESPACE);
                     }
                 }

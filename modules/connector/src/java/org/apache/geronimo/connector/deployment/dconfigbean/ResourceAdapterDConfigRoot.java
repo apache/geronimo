@@ -84,7 +84,8 @@ public class ResourceAdapterDConfigRoot extends DConfigBeanRootSupport {
         if (!getConnectorDocument().getConnector().getVersion().equals(GerVersionType.X_1_5)) {
             throw new IllegalStateException("Wrong version, expected 1.5");
         }
-        replaceResourceAdapterDConfigBean(getConnectorDocument().getConnector().getResourceadapter());
+        //TODO this is so totally wrong...
+        replaceResourceAdapterDConfigBean(getConnectorDocument().getConnector().getResourceadapterArray()[0]);
     }
 
     protected SchemaTypeLoader getSchemaTypeLoader() {

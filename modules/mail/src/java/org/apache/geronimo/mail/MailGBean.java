@@ -67,7 +67,7 @@ public class MailGBean implements GBeanLifecycle {
         this.authenticator = authenticator;
     }
 
-    public Object getProxy() {
+    public Object $getResource() {
         if (useDefault) {
             if (authenticator == null) {
                 return Session.getDefaultInstance(properties);
@@ -107,7 +107,7 @@ public class MailGBean implements GBeanLifecycle {
         infoFactory.addAttribute("useDefault", Boolean.TYPE, true);
         infoFactory.addAttribute("properties", Properties.class, true);
         infoFactory.addReference("Authenticator", Authenticator.class);
-        infoFactory.addOperation("getProxy");
+        infoFactory.addOperation("$getResource");
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

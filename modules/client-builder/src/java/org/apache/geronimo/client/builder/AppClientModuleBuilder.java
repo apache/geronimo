@@ -24,18 +24,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.naming.Reference;
 
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
@@ -47,10 +42,13 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.AppClientModule;
 import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.apache.geronimo.j2ee.deployment.EJBRefContext;
 import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
+import org.apache.geronimo.j2ee.deployment.RefContext;
+import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
+import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEAppClientModuleImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
@@ -64,15 +62,11 @@ import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientType;
 import org.apache.geronimo.xbeans.geronimo.client.GerDependencyType;
 import org.apache.geronimo.xbeans.geronimo.client.GerGbeanType;
 import org.apache.geronimo.xbeans.geronimo.client.GerResourceType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
 import org.apache.geronimo.xbeans.j2ee.ApplicationClientDocument;
 import org.apache.geronimo.xbeans.j2ee.ApplicationClientType;
 import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.openejb.client.naming.RemoteEJBObjectFactory;
-import org.openejb.client.naming.RemoteEJBRefAddr;
 
 
 /**
@@ -89,15 +83,26 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     private final String clientApplicationName = "client-application";
     private final ObjectName transactionContextManagerObjectName;
     private final ObjectName connectionTrackerObjectName;
+    private final EJBReferenceBuilder ejbReferenceBuilder;
     private final ModuleBuilder connectorModuleBuilder;
+    private final ResourceReferenceBuilder resourceReferenceBuilder;
 
-    public AppClientModuleBuilder(ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ModuleBuilder connectorModuleBuilder, ConfigurationStore store, Repository repository, Kernel kernel) {
+    public AppClientModuleBuilder(ObjectName transactionContextManagerObjectName,
+                                  ObjectName connectionTrackerObjectName,
+                                  EJBReferenceBuilder ejbReferenceBuilder,
+                                  ModuleBuilder connectorModuleBuilder,
+                                  ResourceReferenceBuilder resourceReferenceBuilder,
+                                  ConfigurationStore store,
+                                  Repository repository,
+                                  Kernel kernel) {
         this.kernel = kernel;
         this.repository = repository;
         this.store = store;
         this.transactionContextManagerObjectName = transactionContextManagerObjectName;
         this.connectionTrackerObjectName = connectionTrackerObjectName;
+        this.ejbReferenceBuilder = ejbReferenceBuilder;
         this.connectorModuleBuilder = connectorModuleBuilder;
+        this.resourceReferenceBuilder = resourceReferenceBuilder;
     }
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
@@ -163,14 +168,13 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             // load the geronimo-application-client.xml from either the supplied plan or from the earFile
             try {
                 if (plan instanceof XmlObject) {
-                    gerAppClient = (GerApplicationClientType) SchemaConversionUtils.getNestedObjectAsType(
-                            (XmlObject) plan,
+                    gerAppClient = (GerApplicationClientType) SchemaConversionUtils.getNestedObjectAsType((XmlObject) plan,
                             "application-client",
                             GerApplicationClientType.type);
                 } else {
                     GerApplicationClientDocument gerAppClientDoc = null;
                     if (plan != null) {
-                        gerAppClientDoc = GerApplicationClientDocument.Factory.parse((File)plan);
+                        gerAppClientDoc = GerApplicationClientDocument.Factory.parse((File) plan);
                     } else {
                         URL path = DeploymentUtil.createJarURL(moduleFile, "META-INF/geronimo-application-client.xml");
                         gerAppClientDoc = GerApplicationClientDocument.Factory.parse(path);
@@ -237,7 +241,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         } catch (IOException e) {
             throw new DeploymentException("Unable to copy app client module jar into configuration: " + moduleFile.getName());
         }
-        ((AppClientModule)module).setEarFile(earFile);
+        ((AppClientModule) module).setEarFile(earFile);
     }
 
     public void initContext(EARContext earContext, Module clientModule, ClassLoader cl) {
@@ -245,6 +249,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     }
 
     public String addGBeans(EARContext earContext, Module module, ClassLoader earClassLoader) throws DeploymentException {
+        J2eeContext earJ2eeContext = earContext.getJ2eeContext();
+
         AppClientModule appClientModule = (AppClientModule) module;
 
         ApplicationClientType appClient = (ApplicationClientType) appClientModule.getSpecDD();
@@ -272,17 +278,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         }
 
         // generate the object name for the app client
-        Properties nameProps = new Properties();
-        nameProps.put("J2EEServer", earContext.getJ2EEServerName());
-        nameProps.put("J2EEApplication", earContext.getJ2EEApplicationName());
-        nameProps.put("j2eeType", "AppClientModule");
-        nameProps.put("name", appClientModule.getName());
-        ObjectName appClientModuleName;
-        try {
-            appClientModuleName = new ObjectName(earContext.getJ2EEDomainName(), nameProps);
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Unable to construct ObjectName", e);
-        }
+        ObjectName appClientModuleName = NameFactory.getModuleName(null, null, null, appClientModule.getName(), NameFactory.APP_CLIENT_MODULE, earJ2eeContext);
 
         // create a gbean for the app client module and add it to the ear
         ReadOnlyContext componentContext;
@@ -310,17 +306,6 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
                 // construct the app client deployment context... this is the same class used by the ear context
                 try {
-                    EJBReferenceBuilder ejbReferenceBuilder = new EJBReferenceBuilder() {
-                        public Reference createEJBLocalReference(String objectName, boolean isSession, String localHome, String local) {
-                            throw new UnsupportedOperationException("Application client cannot have a local ejb ref");
-                        }
-
-                        public Reference createEJBRemoteReference(String objectName, boolean isSession, String home, String remote) {
-                            RemoteEJBRefAddr addr = new RemoteEJBRefAddr(objectName);
-                            Reference reference = new Reference(null, addr, RemoteEJBObjectFactory.class.getName(), null);
-                            return reference;
-                        }
-                    };
 
                     URI clientConfigId = URI.create(geronimoAppClient.getClientConfigId());
                     URI clientParentId;
@@ -341,7 +326,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                             connectionTrackerObjectName,
                             null,
                             null,
-                            new EJBRefContext(earContext.getEJBRefContext(), ejbReferenceBuilder));
+                            RefContext.derivedClientRefContext(earContext.getRefContext(), ejbReferenceBuilder, resourceReferenceBuilder));
                 } catch (Exception e) {
                     throw new DeploymentException("Could not create a deployment context for the app client", e);
                 }
@@ -477,12 +462,12 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             } catch (Exception e) {
                 throw new DeploymentException(e);
             }
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             DeploymentUtil.recursiveDelete(appClientConfiguration);
             if (e instanceof Error) {
-                throw (Error)e;
+                throw (Error) e;
             } else if (e instanceof DeploymentException) {
-                throw (DeploymentException)e;
+                throw (DeploymentException) e;
             } else if (e instanceof Exception) {
                 throw new DeploymentException(e);
             }
@@ -558,44 +543,20 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     }
 
     private ReadOnlyContext buildComponentContext(EARContext earContext, AppClientModule appClientModule, ApplicationClientType appClient, GerApplicationClientType geronimoAppClient, ClassLoader cl) throws DeploymentException {
-        Map ejbRefMap = mapRefs(geronimoAppClient.getEjbRefArray());
-        Map resourceRefMap = mapRefs(geronimoAppClient.getResourceRefArray());
-        Map resourceEnvRefMap = mapRefs(geronimoAppClient.getResourceEnvRefArray());
 
         return ENCConfigBuilder.buildComponentContext(earContext,
                 appClientModule.getModuleURI(),
                 null,
                 appClient.getEnvEntryArray(),
-                appClient.getEjbRefArray(), ejbRefMap,
-                new EjbLocalRefType[0], Collections.EMPTY_MAP,
-                appClient.getResourceRefArray(), resourceRefMap,
-                appClient.getResourceEnvRefArray(), resourceEnvRefMap,
+                appClient.getEjbRefArray(), geronimoAppClient.getEjbRefArray(),
+                new EjbLocalRefType[0], null,
+                appClient.getResourceRefArray(), geronimoAppClient.getResourceRefArray(),
+                appClient.getResourceEnvRefArray(), geronimoAppClient.getResourceEnvRefArray(),
                 appClient.getMessageDestinationRefArray(),
                 cl);
 
     }
 
-    private static Map mapRefs(GerRemoteRefType[] refs) {
-        Map refMap = new HashMap();
-        if (refs != null) {
-            for (int i = 0; i < refs.length; i++) {
-                GerRemoteRefType ref = refs[i];
-                refMap.put(ref.getRefName(), ref);
-            }
-        }
-        return refMap;
-    }
-
-    private static Map mapRefs(GerLocalRefType[] refs) {
-        Map refMap = new HashMap();
-        if (refs != null) {
-            for (int i = 0; i < refs.length; i++) {
-                GerLocalRefType ref = refs[i];
-                refMap.put(ref.getRefName(), ref);
-            }
-        }
-        return refMap;
-    }
 
     private URI getDependencyURI(GerDependencyType dep) throws DeploymentException {
         URI uri;
@@ -623,7 +584,9 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(AppClientModuleBuilder.class);
         infoFactory.addAttribute("transactionContextManagerObjectName", ObjectName.class, true);
         infoFactory.addAttribute("connectionTrackerObjectName", ObjectName.class, true);
+        infoFactory.addReference("EJBReferenceBuilder", EJBReferenceBuilder.class);
         infoFactory.addReference("ConnectorModuleBuilder", ModuleBuilder.class);
+        infoFactory.addReference("ResourceReferenceBuilder", ResourceReferenceBuilder.class);
         infoFactory.addReference("Store", ConfigurationStore.class);
         infoFactory.addReference("Repository", Repository.class);
 
@@ -631,7 +594,14 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
         infoFactory.addInterface(ModuleBuilder.class);
 
-        infoFactory.setConstructor(new String[] {"transactionContextManagerObjectName", "connectionTrackerObjectName", "ConnectorModuleBuilder", "Store", "Repository", "kernel"});
+        infoFactory.setConstructor(new String[]{"transactionContextManagerObjectName",
+                                                "connectionTrackerObjectName",
+                                                "EJBReferenceBuilder",
+                                                "ConnectorModuleBuilder",
+                                                "ResourceReferenceBuilder",
+                                                "Store",
+                                                "Repository",
+                                                "kernel"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

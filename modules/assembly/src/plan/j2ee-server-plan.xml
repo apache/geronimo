@@ -146,7 +146,7 @@ by the server.
     <gbean name="geronimo.server:type=ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
     </gbean>
 
-    <gbean name="geronimo.server:type=WorkManager,name=DefaultWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManager">
+    <gbean name="geronimo.server:J2EEServer=geronimo,j2eeType=JCAWorkManager,name=DefaultWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManager">
         <attribute name="syncMaximumPoolSize" type="int">10</attribute>
         <attribute name="startMaximumPoolSize" type="int">10</attribute>
         <attribute name="scheduledMaximumPoolSize" type="int">10</attribute>
@@ -252,6 +252,7 @@ by the server.
         <reference name="EJBReferenceBuilder">geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/Server</reference>
         <reference name="WebConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=Web,config=org/apache/geronimo/Server</reference>
         <reference name="ConnectorConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=Connector,config=org/apache/geronimo/Server</reference>
+        <reference name="ResourceReferenceBuilder">geronimo.deployer:role=ModuleBuilder,type=Connector,config=org/apache/geronimo/Server</reference>
         <reference name="AppClientConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=AppClient,config=org/apache/geronimo/Server</reference>
     </gbean>
 
@@ -259,12 +260,16 @@ by the server.
 
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/Server" class="org.openejb.deployment.OpenEJBModuleBuilder"/>
 
+    <gbean name="geronimo.deployer:role=ClientEJBReferenceBuilder,config=org/apache/geronimo/Server" class="org.openejb.deployment.RemoteEJBReferenceBuilder"/>
+
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=Connector,config=org/apache/geronimo/Server" class="org.apache.geronimo.connector.deployment.ConnectorModuleBuilder"/>
 
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=AppClient,config=org/apache/geronimo/Server" class="org.apache.geronimo.client.builder.AppClientModuleBuilder">
         <attribute name="transactionContextManagerObjectName" type="javax.management.ObjectName">geronimo.client:type=TransactionContextManager</attribute>
         <attribute name="connectionTrackerObjectName" type="javax.management.ObjectName">geronimo.client:type=ConnectionTracker</attribute>
+        <reference name="EJBReferenceBuilder">geronimo.deployer:role=ClientEJBReferenceBuilder,config=org/apache/geronimo/Server</reference>
         <reference name="ConnectorModuleBuilder">geronimo.deployer:role=ModuleBuilder,type=Connector,config=org/apache/geronimo/Server</reference>
+        <reference name="ResourceReferenceBuilder">geronimo.deployer:role=ModuleBuilder,type=Connector,config=org/apache/geronimo/Server</reference>
         <reference name="Store">*:role=ConfigurationStore,type=Local</reference>
         <reference name="Repository">*:role=Repository,*</reference>
     </gbean>

@@ -17,28 +17,19 @@
 
 package org.apache.geronimo.naming.java;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import javax.management.MalformedObjectNameException;
 import javax.naming.NamingException;
 import javax.transaction.UserTransaction;
 
-import org.apache.geronimo.naming.ReferenceFactory;
-import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
-
 /**
- *
+ * TODO consider removing this class. The only purpose is to slightly hide the internalBind method.
  *
  * @version $Rev$ $Date$
  */
 public class ComponentContextBuilder {
     private static final String ENV = "env/";
-    private final ReferenceFactory referenceFactory;
     private final ReadOnlyContext context;
 
-    public ComponentContextBuilder(ReferenceFactory referenceFactory) {
-        this.referenceFactory = referenceFactory;
+    public ComponentContextBuilder() {
         this.context = new ReadOnlyContext();
         try {
             context.internalBind("env", new ReadOnlyContext());
@@ -98,61 +89,6 @@ public class ComponentContextBuilder {
             throw new IllegalArgumentException("Invalid class for env-entry " + name + ", " + type);
         }
         context.internalBind(ENV + name, value);
-    }
-
-    public void addResourceRef(String name, Class iface, GerLocalRefType localRef) throws NamingException {
-        if (localRef.isSetExternalUri()) {
-            try {
-                context.internalBind(ENV + name, new URL(localRef.getExternalUri()));
-            } catch (MalformedURLException e) {
-                throw (NamingException) new NamingException("Could not convert " + localRef + " to URL").initCause(e);
-            }
-        } else if (localRef.isSetResourceLink()) {
-            try {
-                bind(name, referenceFactory.buildResourceLinkReference(localRef, iface));
-            } catch (MalformedObjectNameException e) {
-                throw (NamingException) new NamingException("invalid object name").initCause(e);
-            }
-        } else if (localRef.isSetTargetName()) {
-            try {
-                bind(name, referenceFactory.buildConnectionFactoryReference(localRef, iface));
-            } catch (MalformedObjectNameException e) {
-                throw (NamingException) new NamingException("invalid object name").initCause(e);
-            }
-        }
-    }
-
-    public void addResourceEnvRef(String name, Class iface, GerLocalRefType localRef) throws NamingException {
-        try {
-            bind(name, referenceFactory.buildAdminObjectReference(localRef, iface));
-        } catch (MalformedObjectNameException e) {
-            throw (NamingException) new NamingException("invalid object name").initCause(e);
-        }
-    }
-
-    //TODO this works only if there is only one kernel running.
-    public void addMessageDestinationRef(String name, String linkName, Class iface) throws NamingException {
-        try {
-            bind(name, referenceFactory.buildMessageDestinationReference(linkName, iface));
-        } catch (MalformedObjectNameException e) {
-            throw (NamingException) new NamingException("invalid object name").initCause(e);
-        }
-    }
-
-    public void addEjbRef(String name, Class iface, GerRemoteRefType remoteRef) throws NamingException {
-        try {
-            bind(name, referenceFactory.buildEjbReference(remoteRef, iface));
-        } catch (MalformedObjectNameException e) {
-            throw (NamingException) new NamingException("invalid object name").initCause(e);
-        }
-    }
-
-    public void addEjbLocalRef(String name, Class iface, GerLocalRefType localRef) throws NamingException {
-        try {
-            bind(name, referenceFactory.buildEjbLocalReference(localRef, iface));
-        } catch (MalformedObjectNameException e) {
-            throw (NamingException) new NamingException("invalid object name").initCause(e);
-        }
     }
 
 }

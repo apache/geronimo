@@ -83,7 +83,7 @@ public class RAR_1_0DConfigBeanTest extends TestCase  {
         baos.close();
         InputStream is = new ByteArrayInputStream(bytes);
         GerConnectorDocument gcDoc = GerConnectorDocument.Factory.parse(is);
-        GerResourceadapterType ra = gcDoc.getConnector().getResourceadapter();
+        GerResourceadapterType ra = gcDoc.getConnector().getResourceadapterArray()[0];
 
         //connection definition
         GerConnectionDefinitionType connectionDefinitionType = ra.getOutboundResourceadapter().getConnectionDefinitionArray(0);

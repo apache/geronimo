@@ -282,7 +282,7 @@ public class JDBCWorkerPersistence implements WorkerPersistence, GBeanLifecycle 
 
     public void doStart() throws WaitingException, Exception {
         if (managedConnectionFactoryWrapper != null) {
-            dataSource = (DataSource) managedConnectionFactoryWrapper.getProxy();
+            dataSource = (DataSource) managedConnectionFactoryWrapper.$getResource();
         }
         if (createSequenceSQL != null && !createSequenceSQL.equals("")) {
             execSQL(createSequenceSQL);

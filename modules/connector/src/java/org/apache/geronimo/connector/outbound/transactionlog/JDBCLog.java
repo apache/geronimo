@@ -69,7 +69,7 @@ public class JDBCLog implements TransactionLog, GBeanLifecycle {
     }
 
     public void doStart() throws WaitingException, Exception {
-        dataSource = (DataSource) managedConnectionFactoryWrapper.getProxy();
+        dataSource = (DataSource) managedConnectionFactoryWrapper.$getResource();
     }
 
     public void doStop() throws WaitingException, Exception {

@@ -18,8 +18,10 @@ package org.apache.geronimo.j2ee.deployment;
 
 import java.net.URI;
 import javax.naming.Reference;
+import javax.management.ObjectName;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.deployment.DeploymentException;
 
 /**
  * @version $Rev$ $Date$
@@ -43,27 +45,27 @@ public class EJBRefContextTest extends TestCase {
     private final String car_gt_local = "car_gt_local";
     private final String car_enzo = "car_enzo";
     private final String car_enzo_local = "car_enzo_local";
-    private EJBRefContext ejbRefContext;
+    private RefContext refContext;
 
     public void testSimpleRefs() throws Exception {
-        assertReferenceEqual(coffee_peaberry, ejbRefContext.getEJBRemoteRef(coffee, "peaberry", true, null, null));
-        assertReferenceEqual(coffee_peaberry_local, ejbRefContext.getEJBLocalRef(coffee, "peaberry", true, null, null));
+        assertReferenceEqual(coffee_peaberry, refContext.getEJBRemoteRef(coffee, "peaberry", true, null, null));
+        assertReferenceEqual(coffee_peaberry_local, refContext.getEJBLocalRef(coffee, "peaberry", true, null, null));
     }
 
     public void testAmbiguousRefs() throws Exception {
-        assertReferenceEqual(coffee_java, ejbRefContext.getEJBRemoteRef(coffee, "java", true, null, null));
-        assertReferenceEqual(coffee_java_local, ejbRefContext.getEJBLocalRef(coffee, "java", true, null, null));
-        assertReferenceEqual(language_java, ejbRefContext.getEJBRemoteRef(language, "java", true, null, null));
-        assertReferenceEqual(language_java_local, ejbRefContext.getEJBLocalRef(language, "java", true, null, null));
+        assertReferenceEqual(coffee_java, refContext.getEJBRemoteRef(coffee, "java", true, null, null));
+        assertReferenceEqual(coffee_java_local, refContext.getEJBLocalRef(coffee, "java", true, null, null));
+        assertReferenceEqual(language_java, refContext.getEJBRemoteRef(language, "java", true, null, null));
+        assertReferenceEqual(language_java_local, refContext.getEJBLocalRef(language, "java", true, null, null));
 
         try {
-            ejbRefContext.getEJBRemoteRef(car, "java", true, null, null);
+            refContext.getEJBRemoteRef(car, "java", true, null, null);
             fail("should have thrown an AmbiguousEJBRefException");
         } catch (AmbiguousEJBRefException e) {
             // good
         }
         try {
-            ejbRefContext.getEJBLocalRef(car, "java", true, null, null);
+            refContext.getEJBLocalRef(car, "java", true, null, null);
             fail("should have thrown an AmbiguousEJBRefException");
         } catch (AmbiguousEJBRefException e) {
             // good
@@ -71,51 +73,51 @@ public class EJBRefContextTest extends TestCase {
     }
 
     public void testRelativeRefs() throws Exception {
-        assertReferenceEqual(car_enzo, ejbRefContext.getEJBRemoteRef(coffee, "../../foo/bar/car.jar#enzo", true, null, null));
-        assertReferenceEqual(car_enzo_local, ejbRefContext.getEJBLocalRef(coffee, "../../foo/bar/car.jar#enzo", true, null, null));
-        assertReferenceEqual(car_enzo, ejbRefContext.getEJBRemoteRef(coffee, "./../funk/../../foo/bar/car.jar#enzo", true, null, null));
-        assertReferenceEqual(car_enzo_local, ejbRefContext.getEJBLocalRef(coffee, "./../funk/../../foo/bar/car.jar#enzo", true, null, null));
-        assertReferenceEqual(coffee_java, ejbRefContext.getEJBRemoteRef(coffee, "./coffee.jar#java", true, null, null));
-        assertReferenceEqual(coffee_java_local, ejbRefContext.getEJBLocalRef(coffee, "./coffee.jar#java", true, null, null));
-        assertReferenceEqual(coffee_java, ejbRefContext.getEJBRemoteRef(coffee, "coffee.jar#java", true, null, null));
-        assertReferenceEqual(coffee_java_local, ejbRefContext.getEJBLocalRef(coffee, "coffee.jar#java", true, null, null));
+        assertReferenceEqual(car_enzo, refContext.getEJBRemoteRef(coffee, "../../foo/bar/car.jar#enzo", true, null, null));
+        assertReferenceEqual(car_enzo_local, refContext.getEJBLocalRef(coffee, "../../foo/bar/car.jar#enzo", true, null, null));
+        assertReferenceEqual(car_enzo, refContext.getEJBRemoteRef(coffee, "./../funk/../../foo/bar/car.jar#enzo", true, null, null));
+        assertReferenceEqual(car_enzo_local, refContext.getEJBLocalRef(coffee, "./../funk/../../foo/bar/car.jar#enzo", true, null, null));
+        assertReferenceEqual(coffee_java, refContext.getEJBRemoteRef(coffee, "./coffee.jar#java", true, null, null));
+        assertReferenceEqual(coffee_java_local, refContext.getEJBLocalRef(coffee, "./coffee.jar#java", true, null, null));
+        assertReferenceEqual(coffee_java, refContext.getEJBRemoteRef(coffee, "coffee.jar#java", true, null, null));
+        assertReferenceEqual(coffee_java_local, refContext.getEJBLocalRef(coffee, "coffee.jar#java", true, null, null));
 
         try {
-            ejbRefContext.getEJBRemoteRef(coffee, "not_exist.jar#blah", true, null, null);
+            refContext.getEJBRemoteRef(coffee, "not_exist.jar#blah", true, null, null);
             fail("should have thrown an UnknownEJBRefException");
         } catch (UnknownEJBRefException e) {
             // good
         }
 
         try {
-            ejbRefContext.getEJBLocalRef(coffee, "not_exist.jar#blah", true, null, null);
+            refContext.getEJBLocalRef(coffee, "not_exist.jar#blah", true, null, null);
             fail("should have thrown an UnknownEJBRefException");
         } catch (UnknownEJBRefException e) {
             // good
         }
 
         try {
-            ejbRefContext.getEJBRemoteRef(coffee, "coffee.jar#blah", true, null, null);
+            refContext.getEJBRemoteRef(coffee, "coffee.jar#blah", true, null, null);
             fail("should have thrown an UnknownEJBRefException");
         } catch (UnknownEJBRefException e) {
             // good
         }
 
         try {
-            ejbRefContext.getEJBLocalRef(coffee, "coffee.jar#blah", true, null, null);
+            refContext.getEJBLocalRef(coffee, "coffee.jar#blah", true, null, null);
             fail("should have thrown an UnknownEJBRefException");
         } catch (UnknownEJBRefException e) {
             // good
         }
 
         try {
-            ejbRefContext.getEJBRemoteRef(coffee, "../../../../foo/bar/car.jar#enzo", true, null, null);
+            refContext.getEJBRemoteRef(coffee, "../../../../foo/bar/car.jar#enzo", true, null, null);
             fail("should have thrown an UnknownEJBRefException");
         } catch (UnknownEJBRefException e) {
             // good
         }
         try {
-            ejbRefContext.getEJBLocalRef(coffee, "../../../../foo/bar/car.jar#enzo", true, null, null);
+            refContext.getEJBLocalRef(coffee, "../../../../foo/bar/car.jar#enzo", true, null, null);
             fail("should have thrown an UnknownEJBRefException");
         } catch (UnknownEJBRefException e) {
             // good
@@ -123,18 +125,18 @@ public class EJBRefContextTest extends TestCase {
     }
 
     public void testBasicImplicitRefs() throws Exception {
-        assertReferenceEqual(language_lisp, ejbRefContext.getImplicitEJBRemoteRef(coffee, "blah", true, "LispHome", "LispRemote"));
-        assertReferenceEqual(language_lisp_local, ejbRefContext.getImplicitEJBLocalRef(coffee, "blah", true, "LispLocalHome", "LispLocal"));
+        assertReferenceEqual(language_lisp, refContext.getImplicitEJBRemoteRef(coffee, "blah", true, "LispHome", "LispRemote"));
+        assertReferenceEqual(language_lisp_local, refContext.getImplicitEJBLocalRef(coffee, "blah", true, "LispLocalHome", "LispLocal"));
     }
 
     public void testInModuleImplicitRefs() throws Exception {
-        assertReferenceEqual(coffee_java_local, ejbRefContext.getImplicitEJBLocalRef(coffee, "blah", true, "LocalHome", "Local"));
-        assertReferenceEqual(car_enzo_local, ejbRefContext.getImplicitEJBLocalRef(car, "blah", true, "LocalHome", "Local"));
+        assertReferenceEqual(coffee_java_local, refContext.getImplicitEJBLocalRef(coffee, "blah", true, "LocalHome", "Local"));
+        assertReferenceEqual(car_enzo_local, refContext.getImplicitEJBLocalRef(car, "blah", true, "LocalHome", "Local"));
     }
 
     public void testAmbiguousModuleImplicitRefs() throws Exception {
         try {
-            ejbRefContext.getImplicitEJBLocalRef(language, "blah", true, "LocalHome", "Local");
+            refContext.getImplicitEJBLocalRef(language, "blah", true, "LocalHome", "Local");
             fail("should have thrown an UnresolvedEJBRefException");
         } catch (UnresolvedEJBRefException e) {
             // good
@@ -143,7 +145,7 @@ public class EJBRefContextTest extends TestCase {
 
     public void testNoMatchImplicitRefs() throws Exception {
         try {
-            ejbRefContext.getImplicitEJBLocalRef(language, "blah", true, "foo", "bar");
+            refContext.getImplicitEJBLocalRef(language, "blah", true, "foo", "bar");
             fail("should have thrown an UnresolvedEJBRefException");
         } catch (UnresolvedEJBRefException e) {
             // good
@@ -151,7 +153,7 @@ public class EJBRefContextTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
-        ejbRefContext = new EJBRefContext(new EJBReferenceBuilder() {
+        refContext = new RefContext(new EJBReferenceBuilder() {
             public Reference createEJBLocalReference(String objectName, boolean isSession, String localHome, String local) {
                 return new FakeReference(objectName);
             }
@@ -159,22 +161,39 @@ public class EJBRefContextTest extends TestCase {
             public Reference createEJBRemoteReference(String objectName, boolean isSession, String home, String remote) {
                 return new FakeReference(objectName);
             }
+        }, new ResourceReferenceBuilder() {
+
+            public Reference createResourceRef(String containerId, Class iface) {
+                return null;
+            }
+
+            public Reference createAdminObjectRef(String containerId, Class iface) {
+                return null;
+            }
+
+            public ObjectName locateResourceName(ObjectName query) throws DeploymentException {
+                return null;
+            }
+
+            public Object locateActivationSpecInfo(ObjectName resourceAdapterName, String messageListenerInterface) throws DeploymentException {
+                return null;
+            }
         });
 
-        ejbRefContext.addEJBRemoteId(coffee, "peaberry", coffee_peaberry, true, "CoffeeHome", "CoffeeRemote");
-        ejbRefContext.addEJBLocalId(coffee, "peaberry", coffee_peaberry_local, true, "CoffeeLocalHome", "CoffeeLocal");
-        ejbRefContext.addEJBRemoteId(coffee, "java", coffee_java, true, "CoffeeHome", "CoffeeRemote");
-        ejbRefContext.addEJBLocalId(coffee, "java", coffee_java_local, true, "LocalHome", "Local");
+        refContext.addEJBRemoteId(coffee, "peaberry", coffee_peaberry, true, "CoffeeHome", "CoffeeRemote");
+        refContext.addEJBLocalId(coffee, "peaberry", coffee_peaberry_local, true, "CoffeeLocalHome", "CoffeeLocal");
+        refContext.addEJBRemoteId(coffee, "java", coffee_java, true, "CoffeeHome", "CoffeeRemote");
+        refContext.addEJBLocalId(coffee, "java", coffee_java_local, true, "LocalHome", "Local");
 
-        ejbRefContext.addEJBRemoteId(language, "lisp", language_lisp, true, "LispHome", "LispRemote");
-        ejbRefContext.addEJBLocalId(language, "lisp", language_lisp_local, true, "LispLocalHome", "LispLocal");
-        ejbRefContext.addEJBRemoteId(language, "java", language_java, true, "JavaHome", "JavaRemote");
-        ejbRefContext.addEJBLocalId(language, "java", language_java_local, true, "JavaLocalHome", "JavaLocal");
+        refContext.addEJBRemoteId(language, "lisp", language_lisp, true, "LispHome", "LispRemote");
+        refContext.addEJBLocalId(language, "lisp", language_lisp_local, true, "LispLocalHome", "LispLocal");
+        refContext.addEJBRemoteId(language, "java", language_java, true, "JavaHome", "JavaRemote");
+        refContext.addEJBLocalId(language, "java", language_java_local, true, "JavaLocalHome", "JavaLocal");
 
-        ejbRefContext.addEJBRemoteId(car, "gt", car_gt, true, "GTHome", "GTRemote");
-        ejbRefContext.addEJBLocalId(car, "gt", car_gt_local, true, "GTLocalHome", "GTLocalRemote");
-        ejbRefContext.addEJBRemoteId(car, "enzo", car_enzo, true, "EnzoHome", "EnzoRemote");
-        ejbRefContext.addEJBLocalId(car, "enzo", car_enzo_local, true, "LocalHome", "Local");
+        refContext.addEJBRemoteId(car, "gt", car_gt, true, "GTHome", "GTRemote");
+        refContext.addEJBLocalId(car, "gt", car_gt_local, true, "GTLocalHome", "GTLocalRemote");
+        refContext.addEJBRemoteId(car, "enzo", car_enzo, true, "EnzoHome", "EnzoRemote");
+        refContext.addEJBLocalId(car, "enzo", car_enzo_local, true, "LocalHome", "Local");
     }
 
     private void assertReferenceEqual(String expected, Reference reference) {

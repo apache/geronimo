@@ -20,9 +20,9 @@ package org.apache.geronimo.naming.deployment;
 import javax.enterprise.deploy.model.DDBean;
 
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
-import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
 
 import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  *
@@ -31,9 +31,9 @@ import org.apache.xmlbeans.SchemaTypeLoader;
  */
 public class LocalRefDConfigBean extends DConfigBeanSupport {
 
-    protected final GerLocalRefType ref;
+    protected final XmlObject ref;
 
-    public LocalRefDConfigBean(DDBean ddBean, GerLocalRefType ref, String namePath) {
+    public LocalRefDConfigBean(DDBean ddBean, XmlObject ref, String namePath) {
         super(ddBean, ref);
         this.ref = ref;
 
@@ -41,32 +41,36 @@ public class LocalRefDConfigBean extends DConfigBeanSupport {
     }
 
     String getRefName() {
-        return ref.getRefName();
+//        return ref.getRefName();
+        return null;
     }
 
     public String getExternalUri() {
-        return ref.getExternalUri();
+        return null;
+//        return ref.getExternalUri();
     }
 
     public void setExternalUri(String targetURI) {
-        ref.setExternalUri(targetURI);
+//        ref.setExternalUri(targetURI);
     }
 
 
     public String getKernelName() {
-        return ref.getKernelName();
+        return null;
+//        return ref.getKernelName();
     }
 
     public void setKernelName(String kernelName) {
-        ref.setKernelName(kernelName);
+//        ref.setKernelName(kernelName);
     }
 
     public String getTargetName() {
-        return ref.getTargetName();
+        return null;
+//        return ref.getTargetName();
     }
 
     public void setTargetName(String targetName) {
-        ref.setTargetName(targetName);
+//        ref.setTargetName(targetName);
     }
 
     protected SchemaTypeLoader getSchemaTypeLoader() {

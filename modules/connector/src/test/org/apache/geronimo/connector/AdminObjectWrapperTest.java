@@ -27,12 +27,10 @@ import junit.framework.TestCase;
 import org.apache.geronimo.connector.mock.MockAdminObject;
 import org.apache.geronimo.connector.mock.MockAdminObjectImpl;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContextImpl;
+import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.naming.java.ComponentContextBuilder;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
-import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
-import org.apache.geronimo.naming.ReferenceFactory;
-import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
 
 /**
  * @version $Rev$ $Date$
@@ -41,11 +39,10 @@ public class AdminObjectWrapperTest extends TestCase {
 
     private Kernel kernel;
     private ObjectName selfName;
-    private static final String KERNEL_NAME = "testKernel";
     private static final String TARGET_NAME = "testAOName";
 
     public void testProxy() throws Exception {
-        Object proxy = kernel.invoke(selfName, "getProxy");
+        Object proxy = kernel.invoke(selfName, "$getResource");
         assertNotNull(proxy);
         assertTrue(proxy instanceof MockAdminObject);
         MockAdminObject mockAdminObject = ((MockAdminObject) proxy).getSomething();
@@ -61,7 +58,7 @@ public class AdminObjectWrapperTest extends TestCase {
     }
 
     public void testSerialization() throws Exception {
-        MockAdminObject proxy = (MockAdminObject) kernel.invoke(selfName, "getProxy");
+        MockAdminObject proxy = (MockAdminObject) kernel.invoke(selfName, "$getResource");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
         oos.writeObject(proxy);
@@ -87,26 +84,27 @@ public class AdminObjectWrapperTest extends TestCase {
 
     }
 
-
-    public void testLocalLookup() throws Exception {
-        ReferenceFactory referenceFactory = new JMXReferenceFactory("geronimo.server", "geronimo");
-        ComponentContextBuilder builder = new ComponentContextBuilder(referenceFactory);
-        GerLocalRefType localRef = GerLocalRefType.Factory.newInstance();
-        localRef.setRefName("resourceenvref");
-        localRef.setKernelName(KERNEL_NAME);
-        localRef.setTargetName(TARGET_NAME);
-        builder.addResourceEnvRef("resourceenvref", MockAdminObject.class, localRef);
-        ReadOnlyContext roc = builder.getContext();
-        Object o = roc.lookup("env/resourceenvref");
-        assertNotNull(o);
-        assertTrue(o instanceof MockAdminObject);
-    }
+//this should be in ENCConfigBuilder tests.
+//    public void testLocalLookup() throws Exception {
+//        ComponentContextBuilder builder = new ComponentContextBuilder();
+//        ENCConfigBuilder.addResourceEnvRefs(earContext, uri, resEnvRefs, cl, refMap, builder);
+//        GerLocalRefType localRef = GerLocalRefType.Factory.newInstance();
+//        localRef.setRefName("resourceenvref");
+//        localRef.setKernelName(KERNEL_NAME);
+//        localRef.setTargetName(TARGET_NAME);
+//        builder.
+//                addResourceEnvRef("resourceenvref", MockAdminObject.class, localRef);
+//        ReadOnlyContext roc = builder.getContext();
+//        Object o = roc.lookup("env/resourceenvref");
+//        assertNotNull(o);
+//        assertTrue(o instanceof MockAdminObject);
+//    }
 
     protected void setUp() throws Exception {
-        kernel = new Kernel(KERNEL_NAME, "test.domain");
+        J2eeContext j2eeContext = new J2eeContextImpl("test.domain", "geronimo.server", "testapp", "testmodule", TARGET_NAME, NameFactory.JMS_RESOURCE);
+        kernel = new Kernel(j2eeContext.getJ2eeServerName(), j2eeContext.getJ2eeDomainName());
         kernel.boot();
-        JMXReferenceFactory refFactory = new JMXReferenceFactory("geronimo.server", "geronimo");
-        selfName = refFactory.createAdminObjectObjectName(TARGET_NAME);
+        selfName = NameFactory.getResourceComponentName(null, null, null, null, null, null, j2eeContext);
 
         GBeanMBean aow = new GBeanMBean(AdminObjectWrapper.getGBeanInfo());
         aow.setAttribute("adminObjectInterface", MockAdminObject.class);

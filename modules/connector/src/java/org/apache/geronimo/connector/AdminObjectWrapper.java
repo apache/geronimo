@@ -79,7 +79,7 @@ public class AdminObjectWrapper implements DynamicGBean {
      * Returns disconnectable proxy for binding in jndi.
      * @return proxy implementing adminObjectInterface.
      */
-    public Object getProxy() {
+    public Object $getResource() {
         return adminObject;
     }
 
@@ -126,7 +126,7 @@ public class AdminObjectWrapper implements DynamicGBean {
         infoFactory.addAttribute("adminObjectInterface", Class.class, true);
         infoFactory.addAttribute("adminObjectClass", Class.class, true);
 
-        infoFactory.addOperation("getProxy");
+        infoFactory.addOperation("$getResource");
 
         infoFactory.setConstructor(new String[]{
             "adminObjectInterface",

@@ -38,12 +38,12 @@
  temporary (I hope) individual elements while xmlbeans group handling is straightened out
  -->
 
-    <xsd:element name="ejb-ref" type="gernaming:remote-refType"/>
-    <xsd:element name="ejb-local-ref" type="gernaming:local-refType"/>
+    <xsd:element name="ejb-ref" type="gernaming:ejb-refType"/>
+    <xsd:element name="ejb-local-ref" type="gernaming:ejb-local-refType"/>
     <!-- leave web services out until I know what they do -->
     <!--xsd:group ref="service-refGroup"/-->
-    <xsd:element name="resource-ref" type="gernaming:local-refType"/>
-    <xsd:element name="resource-env-ref" type="gernaming:local-refType"/>
+    <xsd:element name="resource-ref" type="gernaming:resource-refType"/>
+    <xsd:element name="resource-env-ref" type="gernaming:resource-env-refType"/>
     
     <xsd:group name="jndiEnvironmentRefsGroup">
         <xsd:annotation>
@@ -55,43 +55,99 @@
             </xsd:documentation>
         </xsd:annotation>
         <xsd:sequence>
-            <xsd:element name="ejb-ref" type="gernaming:remote-refType" minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="ejb-local-ref" type="gernaming:local-refType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="ejb-ref" type="gernaming:ejb-refType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="ejb-local-ref" type="gernaming:ejb-local-refType" minOccurs="0" maxOccurs="unbounded"/>
             <!-- leave web services out until I know what they do -->
             <!--xsd:group ref="service-refGroup"/-->
-            <xsd:element name="resource-ref" type="gernaming:local-refType" minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="resource-env-ref" type="gernaming:local-refType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="resource-ref" type="gernaming:resource-refType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="resource-env-ref" type="gernaming:resource-env-refType" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:group>
 
-    <xsd:complexType name="remote-refType">
+    <!--target-name is the entire object name of the gbean to get the bound object from by calling $getResource-->
+    <!--ejb-link acts like ejb-link in spec descriptors-->
+    <!--resource-link contains the name of the outbound-connectionfactory-instance -->
+    <!--message-destination-link acts like message-destination-link in spec descriptors-->
+    <!--url in resource-ref contains the url for URL typed resource refs-->
+    <!--Possibly the external-uri element should be revived to connect to other naming systems-->
+    <!--when server to server communication exists we will need an element in ejb-ref to specify the geronimo server
+    we wish to talk to.  It might be possible to use the objectName server element for this depending on what we decide it means-->
+    <!--otherwise you can supply the entire object name using the objectNameGroup-->
+
+    <xsd:complexType name="ejb-refType">
         <xsd:sequence>
             <xsd:element name="ref-name" type="xsd:string"/>
             <xsd:choice>
-                <xsd:sequence>
-                    <xsd:element name="server" type="xsd:string" minOccurs="0"/>
-                    <xsd:element name="kernel-name" type="xsd:string" minOccurs="0"/>
-                    <xsd:element name="target-name" type="xsd:string"/>
-                </xsd:sequence>
-                <xsd:element name="external-uri" type="xsd:string"/>
+                <xsd:group ref="gernaming:objectNameGroup"/>
                 <xsd:element name="ejb-link" type="xsd:string"/>
+                <xsd:element name="target-name" type="xsd:string"/>
             </xsd:choice>
         </xsd:sequence>
     </xsd:complexType>
 
-    <xsd:complexType name="local-refType">
+    <xsd:complexType name="ejb-local-refType">
         <xsd:sequence>
             <xsd:element name="ref-name" type="xsd:string"/>
             <xsd:choice>
-                <xsd:sequence>
-                    <xsd:element name="kernel-name" type="xsd:string" minOccurs="0"/>
-                    <xsd:element name="target-name" type="xsd:string"/>
-                </xsd:sequence>
-                <xsd:element name="external-uri" type="xsd:string"/>
+                <xsd:group ref="gernaming:objectNameGroup"/>
                 <xsd:element name="ejb-link" type="xsd:string"/>
-                <xsd:element name="resource-link" type="xsd:string"/>
+                <xsd:element name="target-name" type="xsd:string"/>
             </xsd:choice>
         </xsd:sequence>
     </xsd:complexType>
+
+    <xsd:complexType name="resource-refType">
+        <xsd:sequence>
+            <xsd:element name="ref-name" type="xsd:string"/>
+            <xsd:choice>
+                <xsd:group ref="gernaming:objectNameGroup"/>
+                <xsd:element name="resource-link" type="xsd:string"/>
+                <xsd:element name="target-name" type="xsd:string"/>
+                <xsd:element name="url" type="xsd:string"/>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <!--used by openejb cmp datasource specification -->
+    <xsd:element name="cmp-connection-factory" type="gernaming:resource-locatorType"/>
+
+    <!--used by openejb mdb resource adapter specification -->
+    <xsd:element name="resource-adapter" type="gernaming:resource-locatorType"/>
+
+    <xsd:complexType name="resource-locatorType">
+        <xsd:sequence>
+            <xsd:choice>
+                <xsd:group ref="gernaming:objectNameGroup"/>
+                <xsd:element name="resource-link" type="xsd:string"/>
+                <xsd:element name="target-name" type="xsd:string"/>
+                <xsd:element name="url" type="xsd:string"/>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="resource-env-refType">
+        <xsd:sequence>
+            <xsd:element name="ref-name" type="xsd:string"/>
+            <xsd:choice>
+                <xsd:group ref="gernaming:objectNameGroup"/>
+                <xsd:element name="message-destination-link" type="xsd:string"/>
+                <xsd:element name="target-name" type="xsd:string"/>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:group name="objectNameGroup">
+         <xsd:annotation>
+             <xsd:documentation>This group contains the components of a jsr-77 object name</xsd:documentation>
+         </xsd:annotation>
+         <xsd:sequence>
+             <xsd:element name="domain" type="xsd:string" minOccurs="0"/>
+             <xsd:element name="server" type="xsd:string" minOccurs="0"/>
+             <xsd:element name="application" type="xsd:string" minOccurs="0"/>
+             <xsd:element name="module" type="xsd:string" minOccurs="0"/>
+             <xsd:element name="type" type="xsd:string" minOccurs="0"/>
+             <xsd:element name="name" type="xsd:string"/>
+         </xsd:sequence>
+     </xsd:group>
 
 </xsd:schema>

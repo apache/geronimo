@@ -31,15 +31,15 @@ import org.apache.geronimo.gbean.GBeanInfo;
  * */
 public class ActivationSpecInfo implements Serializable {
 
-    private final Class activationSpecClass;
+    private final String activationSpecClass;
     private final GBeanInfo activationSpecGBeanInfo;
 
-    public ActivationSpecInfo(Class activationSpecClass, GBeanInfo activationSpecGBeanInfo) {
+    public ActivationSpecInfo(String activationSpecClass, GBeanInfo activationSpecGBeanInfo) {
         this.activationSpecClass = activationSpecClass;
         this.activationSpecGBeanInfo = activationSpecGBeanInfo;
     }
 
-    public Class getActivationSpecClass() {
+    public String getActivationSpecClass() {
         return activationSpecClass;
     }
 

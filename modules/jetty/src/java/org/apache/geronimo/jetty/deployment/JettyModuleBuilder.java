@@ -25,18 +25,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
-import javax.management.AttributeNotFoundException;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.management.ReflectionException;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.deployment.DeploymentException;
@@ -49,10 +41,14 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
+import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContextImpl;
+import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty.JettyClassLoader;
 import org.apache.geronimo.jetty.JettyWebAppContext;
 import org.apache.geronimo.jetty.JettyWebAppJACCContext;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
+import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
@@ -71,17 +67,13 @@ import org.apache.geronimo.xbeans.geronimo.jetty.JettyRoleType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettySecurityType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
-import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
-import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
-import org.apache.geronimo.xbeans.j2ee.WebAppType;
-import org.apache.geronimo.xbeans.j2ee.ServletMappingType;
 import org.apache.geronimo.xbeans.j2ee.FilterMappingType;
 import org.apache.geronimo.xbeans.j2ee.SecurityConstraintType;
-import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
+import org.apache.geronimo.xbeans.j2ee.ServletMappingType;
 import org.apache.geronimo.xbeans.j2ee.UrlPatternType;
-
+import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
+import org.apache.geronimo.xbeans.j2ee.WebAppType;
+import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
@@ -262,6 +254,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
     }
 
     public String addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+        J2eeContext earJ2eeContext = earContext.getJ2eeContext();
+        J2eeContext moduleJ2eeContext = new J2eeContextImpl(earJ2eeContext.getJ2eeDomainName(), earJ2eeContext.getJ2eeServerName(), earJ2eeContext.getJ2eeApplicationName(), module.getName(), null, null);
         WebModule webModule = (WebModule) module;
 
         WebAppType webApp = (WebAppType) webModule.getSpecDD();
@@ -293,17 +287,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             }
         }
 
-        Properties nameProps = new Properties();
-        nameProps.put("J2EEServer", earContext.getJ2EEServerName());
-        nameProps.put("J2EEApplication", earContext.getJ2EEApplicationName());
-        nameProps.put("j2eeType", "WebModule");
-        nameProps.put("name", webModule.getName());
-        ObjectName webModuleName;
-        try {
-            webModuleName = new ObjectName(earContext.getJ2EEDomainName(), nameProps);
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Unable to construct ObjectName", e);
-        }
+        ObjectName webModuleName = NameFactory.getModuleName(null, null, null, null, NameFactory.WEB_MODULE, moduleJ2eeContext);
 
         UserTransaction userTransaction = new OnlineUserTransaction();
         ReadOnlyContext compContext = buildComponentContext(earContext, webModule, webApp, jettyWebApp, userTransaction, webClassLoader);
@@ -332,7 +316,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
             gbean.setAttribute("userTransaction", userTransaction);
             gbean.setAttribute("webClassPath", webClassPath);
             // unsharableResources, applicationManagedSecurityResources
-            setResourceEnvironment(gbean, webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray());
+            GBeanResourceEnvironmentBuilder rebuilder = new GBeanResourceEnvironmentBuilder(gbean);
+            ENCConfigBuilder.setResourceEnvironment(earContext, webModule.getModuleURI(), rebuilder, webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray());
 
             gbean.setAttribute("contextPath", webModule.getContextRoot());
             gbean.setAttribute("contextPriorityClassLoader", Boolean.valueOf(contextPriorityClassLoader));
@@ -378,44 +363,19 @@ public class JettyModuleBuilder implements ModuleBuilder {
     }
 
     private ReadOnlyContext buildComponentContext(EARContext earContext, WebModule webModule, WebAppType webApp, JettyWebAppType jettyWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
-        Map ejbRefMap = mapRefs(jettyWebApp.getEjbRefArray());
-        Map ejbLocalRefMap = mapRefs(jettyWebApp.getEjbLocalRefArray());
-        Map resourceRefMap = mapRefs(jettyWebApp.getResourceRefArray());
-        Map resourceEnvRefMap = mapRefs(jettyWebApp.getResourceEnvRefArray());
 
         return ENCConfigBuilder.buildComponentContext(earContext,
                 webModule.getModuleURI(),
                 userTransaction,
                 webApp.getEnvEntryArray(),
-                webApp.getEjbRefArray(), ejbRefMap,
-                webApp.getEjbLocalRefArray(), ejbLocalRefMap,
-                webApp.getResourceRefArray(), resourceRefMap,
-                webApp.getResourceEnvRefArray(), resourceEnvRefMap,
+                webApp.getEjbRefArray(), jettyWebApp.getEjbRefArray(),
+                webApp.getEjbLocalRefArray(), jettyWebApp.getEjbLocalRefArray(),
+                webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray(),
+                webApp.getResourceEnvRefArray(), jettyWebApp.getResourceEnvRefArray(),
                 webApp.getMessageDestinationRefArray(),
                 cl);
     }
 
-    private static Map mapRefs(GerLocalRefType[] refs) {
-        Map refMap = new HashMap();
-        if (refs != null) {
-            for (int i = 0; i < refs.length; i++) {
-                GerLocalRefType ref = refs[i];
-                refMap.put(ref.getRefName(), ref);
-            }
-        }
-        return refMap;
-    }
-
-    private static Map mapRefs(GerRemoteRefType[] refs) {
-        Map refMap = new HashMap();
-        if (refs != null) {
-            for (int i = 0; i < refs.length; i++) {
-                GerRemoteRefType ref = refs[i];
-                refMap.put(ref.getRefName(), ref);
-            }
-        }
-        return refMap;
-    }
 
     private static Security buildSecurityConfig(JettyWebAppType jettyWebApp) {
         Security security = null;
@@ -473,34 +433,6 @@ public class JettyModuleBuilder implements ModuleBuilder {
         return principal;
     }
 
-    private void setResourceEnvironment(GBeanMBean bean, ResourceRefType[] resourceRefArray, GerLocalRefType[] jettyResourceRefArray) throws AttributeNotFoundException, ReflectionException {
-        Map openejbNames = new HashMap();
-        for (int i = 0; i < jettyResourceRefArray.length; i++) {
-            GerLocalRefType jettyLocalRefType = jettyResourceRefArray[i];
-            openejbNames.put(jettyLocalRefType.getRefName(), jettyLocalRefType.getTargetName());
-        }
-        Set unshareableResources = new HashSet();
-        Set applicationManagedSecurityResources = new HashSet();
-        for (int i = 0; i < resourceRefArray.length; i++) {
-            ResourceRefType resourceRefType = resourceRefArray[i];
-            String name = (String) openejbNames.get(resourceRefType.getResRefName().getStringValue());
-            if ("Unshareable".equals(getJ2eeStringValue(resourceRefType.getResSharingScope()))) {
-                unshareableResources.add(name);
-            }
-            if ("Application".equals(resourceRefType.getResAuth().getStringValue())) {
-                applicationManagedSecurityResources.add(name);
-            }
-        }
-        bean.setAttribute("unshareableResources", unshareableResources);
-        bean.setAttribute("applicationManagedSecurityResources", applicationManagedSecurityResources);
-    }
-
-    private static String getJ2eeStringValue(org.apache.geronimo.xbeans.j2ee.String string) {
-        if (string == null) {
-            return null;
-        }
-        return string.getStringValue();
-    }
 
     private URI getDependencyURI(JettyDependencyType dep) throws DeploymentException {
         URI uri;
