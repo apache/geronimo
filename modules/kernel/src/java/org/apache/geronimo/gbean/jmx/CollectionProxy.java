@@ -81,7 +81,7 @@ import net.sf.cglib.proxy.SimpleCallbacks;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/17 01:07:33 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/17 16:59:20 $
  */
 public class CollectionProxy implements Proxy {
     private static final Log log = LogFactory.getLog(CollectionProxy.class);
@@ -167,9 +167,10 @@ public class CollectionProxy implements Proxy {
             ProxyMethodInterceptor interceptor = new ProxyMethodInterceptor(factory.getClass());
             interceptor.connect(gmbean.getServer(), target, proxy.isStopped());
             interceptors.put(target, interceptor);
-            proxies.put(target, factory.newInstance(interceptor));
+            Factory targetProxy = factory.newInstance(interceptor);
+            proxies.put(target, targetProxy);
             if (!stopped) {
-                proxy.fireMemberAdddedEvent(target);
+                proxy.fireMemberAdddedEvent(targetProxy);
             }
         }
     }
@@ -182,7 +183,7 @@ public class CollectionProxy implements Proxy {
                 interceptor.disconnect();
             }
             if (!stopped) {
-                proxy.fireMemberRemovedEvent(target);
+                proxy.fireMemberRemovedEvent(targetProxy);
             }
         }
     }
