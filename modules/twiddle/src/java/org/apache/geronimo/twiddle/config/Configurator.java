@@ -70,6 +70,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.geronimo.common.NullArgumentException;
 import org.apache.geronimo.common.Strings;
+import org.apache.geronimo.common.StringValueParser;
 
 import org.apache.geronimo.twiddle.Twiddle;
 
@@ -80,7 +81,7 @@ import org.apache.geronimo.twiddle.command.CommandException;
 /**
  * Handles the details of Twiddle configuration.
  *
- * @version <code>$Revision: 1.7 $ $Date: 2003/08/24 13:57:19 $</code>
+ * @version <code>$Revision: 1.8 $ $Date: 2003/08/24 20:09:25 $</code>
  */
 public class Configurator
 {

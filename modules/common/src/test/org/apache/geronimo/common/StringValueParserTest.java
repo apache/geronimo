@@ -54,14 +54,14 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.twiddle.config;
+package org.apache.geronimo.common;
 
 import junit.framework.TestCase;
 
 /**
  * Tests for <code>Configuration</code>.
  *
- * @version <code>$Revision: 1.2 $ $Date: 2003/08/24 17:12:38 $</code>
+ * @version <code>$Revision: 1.1 $ $Date: 2003/08/24 20:09:25 $</code>
  */
 public class StringValueParserTest
     extends TestCase
