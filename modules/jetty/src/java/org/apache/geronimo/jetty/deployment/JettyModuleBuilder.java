@@ -87,7 +87,7 @@ import org.apache.xmlbeans.XmlObject;
 
 
 /**
- * @version $Revision: 1.12 $ $Date: 2004/06/27 20:37:38 $
+ * @version $Revision: 1.13 $ $Date: 2004/07/11 20:54:55 $
  */
 public class JettyModuleBuilder implements ModuleBuilder {
     private static final String PARENT_ID = "org/apache/geronimo/Server";
@@ -118,7 +118,13 @@ public class JettyModuleBuilder implements ModuleBuilder {
         } catch (MalformedURLException e) {
             return null;
         }
-        WebAppDocument webAppDoc = (WebAppDocument) XmlBeansUtil.getXmlObject(webXmlUrl, WebAppDocument.type);
+        XmlObject dd = null;
+        try {
+            dd = SchemaConversionUtils.parse(webXmlUrl.openStream());
+        } catch (IOException e) {
+            return null;
+        }
+        WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(dd);
         if (webAppDoc == null) {
             return null;
         }
