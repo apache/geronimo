@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: maven.xml,v 1.3 2003/08/14 19:25:21 jdillon Exp $ -->
+<!-- $Id: maven.xml,v 1.4 2003/08/16 09:04:34 jdillon Exp $ -->
 
 <project
   xmlns:j="jelly:core"
@@ -39,5 +39,27 @@
   <goal name="hello">
     <ant:echo>H E L L O</ant:echo>
   </goal>
+  
+  <!-- Remove classes which depend on changed files, so they will rebuild. -->
+  <preGoal name="java:compile">
+    <j:if test="${sourcesPresent}">
+      <ant:depend srcdir="${maven.compile.source}"
+                  destdir="${maven.build.dest}"
+                  dump="false"
+                  closure="false">
+        <j:forEach var="sm" items="${pom.build.sourceModifications}">
+          <ant:available property="classPresent" classname="${sm.className}"/>
+          <j:if test="${classPresent != 'true'}">
+            <j:forEach var="exclude" items="${sm.excludes}">
+              <ant:exclude name="${exclude}"/>
+            </j:forEach>
+            <j:forEach var="include" items="${sm.includes}">
+              <ant:include name="${include}"/>
+            </j:forEach>
+          </j:if>
+        </j:forEach>
+      </ant:depend>
+    </j:if>
+  </preGoal>
   
 </project>
