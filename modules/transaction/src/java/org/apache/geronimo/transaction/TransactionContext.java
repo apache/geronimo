@@ -33,12 +33,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.tranql.cache.InTxCache;
+import org.tranql.cache.SimpleFlushStrategy;
 
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/21 22:24:39 $
+ * @version $Revision: 1.5 $ $Date: 2004/03/22 00:30:19 $
  */
 public abstract class TransactionContext {
     protected static final Log log = LogFactory.getLog(TransactionContext.class);
@@ -130,7 +131,7 @@ public abstract class TransactionContext {
 
     public final InTxCache getInTxCache() {
         if (inTxCache == null) {
-            inTxCache = new InTxCache();
+            inTxCache = new InTxCache(new SimpleFlushStrategy());
         }
         return inTxCache;
     }

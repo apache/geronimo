@@ -17,7 +17,7 @@
 -->
 
 
-<!-- $Revision: 1.7 $ $Date: 2004/03/12 17:59:37 $ -->
+<!-- $Revision: 1.8 $ $Date: 2004/03/22 00:30:19 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -311,6 +311,15 @@
             <properties>
                 <lib>true</lib>
                 <deploy>true</deploy>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>tranql</groupId>
+            <artifactId>tranql</artifactId>
+            <version>SNAPSHOT</version>
+            <properties>
+                <repository>true</repository>
             </properties>
         </dependency>
     </dependencies>

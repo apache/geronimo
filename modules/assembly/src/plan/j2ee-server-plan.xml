@@ -53,6 +53,9 @@ by the server.
     <dependency>
         <uri>geronimo/jars/geronimo-security-DEV.jar</uri>
     </dependency>
+    <dependency>
+        <uri>tranql/jars/tranql-SNAPSHOT.jar</uri>
+    </dependency>
 
     <gbean name="geronimo.server:type=ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
     </gbean>

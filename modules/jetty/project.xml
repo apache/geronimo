@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.24 $ $Date: 2004/03/21 23:57:14 $ -->
+<!-- $Revision: 1.25 $ $Date: 2004/03/22 00:30:19 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -211,6 +211,13 @@
             <artifactId>cglib-full</artifactId>
             <version>2.0-RC2</version>
             <url>http://cglib.sf.net/</url>
+        </dependency>
+
+        <dependency>
+            <groupId>tranql</groupId>
+            <artifactId>tranql</artifactId>
+            <version>SNAPSHOT</version>
+            <url>http://tranql.codehaus.org</url>
         </dependency>
     </dependencies>
 

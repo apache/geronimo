@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.9 $ $Date: 2004/03/21 22:24:39 $ -->
+<!-- $Revision: 1.10 $ $Date: 2004/03/22 00:30:19 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -79,7 +79,8 @@
         <dependency>
             <groupId>tranql</groupId>
             <artifactId>tranql</artifactId>
-            <version>DEV</version>
+            <version>SNAPSHOT</version>
+            <url>http://tranql.codehaus.org</url>
         </dependency>
     </dependencies>
 </project>
