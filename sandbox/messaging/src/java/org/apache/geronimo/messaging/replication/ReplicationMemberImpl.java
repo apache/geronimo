@@ -41,7 +41,7 @@ import org.apache.geronimo.messaging.proxy.HOPPFilter;
 /**
  * ReplicationMember implementation.
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/10 23:12:24 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/17 03:50:27 $
  */
 public class ReplicationMemberImpl
     extends GBeanBaseEndPoint
@@ -227,10 +227,10 @@ public class ReplicationMemberImpl
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("Replication Member", ReplicationMemberImpl.class.getName(), GBeanBaseEndPoint.GBEAN_INFO);
-        infoFactory.addAttribute("TargetNodes",  NodeInfo[].class, true);
+        infoFactory.addAttribute("targetNodes",  NodeInfo[].class, true);
         infoFactory.addOperation("registerReplicantCapable", new Class[] {ReplicationCapable.class});
         infoFactory.addOperation("retrieveReplicantCapable", new Class[] {Object.class});
-        infoFactory.setConstructor(new String[]{"Node", "ID", "TargetNodes"});
+        infoFactory.setConstructor(new String[]{"Node", "ID", "targetNodes"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -26,7 +26,7 @@ import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 /**
  * Based implementation for EndPoints to be exposed as GBeans.
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/10 23:12:24 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/17 03:50:27 $
  */
 public abstract class GBeanBaseEndPoint
     extends BaseEndPoint
@@ -62,8 +62,8 @@ public abstract class GBeanBaseEndPoint
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("Abstract EndPoint", GBeanBaseEndPoint.class.getName());
         infoFactory.addReference("Node", Node.class);
         infoFactory.addAttribute("ID", Object.class, true);
-        infoFactory.addAttribute("MsgConsumerOut", MsgOutInterceptor.class, false);
-        infoFactory.addAttribute("MsgProducerOut", MsgOutInterceptor.class, false);
+        infoFactory.addAttribute("msgConsumerOut", MsgOutInterceptor.class, false);
+        infoFactory.addAttribute("msgProducerOut", MsgOutInterceptor.class, false);
         infoFactory.setConstructor(new String[]{"Node", "ID"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
