@@ -60,7 +60,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/06/21 20:29:00 $
+ * @version $Revision: 1.9 $ $Date: 2004/06/22 04:47:47 $
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
     private final Kernel kernel;
@@ -250,7 +250,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 ApplicationDocument doc = (ApplicationDocument) XmlBeansUtil.parse(earFile.getInputStream(appXMLEntry), ApplicationDocument.type);
                 application = doc.getApplication();
             } catch (XmlException e) {
-                throw new DeploymentException("Unable to parse web.xml");
+                throw new DeploymentException("Unable to parse application.xml");
             }
 
             // get a set contianing all of the files in the ear that are actually modules
