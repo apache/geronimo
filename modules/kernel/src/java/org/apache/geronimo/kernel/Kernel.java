@@ -108,7 +108,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.15 $ $Date: 2004/02/05 05:26:33 $
+ * @version $Revision: 1.16 $ $Date: 2004/02/08 21:53:20 $
  */
 public class Kernel implements Serializable, KernelMBean, NotificationBroadcaster {
 
@@ -388,6 +388,22 @@ public class Kernel implements Serializable, KernelMBean, NotificationBroadcaste
     public void startGBean(ObjectName name) throws InstanceNotFoundException, InvalidConfigException {
         try {
             mbServer.invoke(name, "start", null, null);
+        } catch (MBeanException e) {
+            // start is not supposed to throw anything
+            throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
+        } catch (ReflectionException e) {
+            throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
+        }
+    }
+
+    /**
+     * Start a specific GBean and its children.
+     * @param name the GBean to start
+     * @throws InstanceNotFoundException if the GBean could not be found
+     */
+    public void startRecursiveGBean(ObjectName name) throws InstanceNotFoundException, InvalidConfigException {
+        try {
+            mbServer.invoke(name, "startRecursive", null, null);
         } catch (MBeanException e) {
             // start is not supposed to throw anything
             throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
