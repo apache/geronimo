@@ -41,7 +41,7 @@ import org.apache.geronimo.pool.ThreadPool;
  * The SelectorManager will manage one Selector and the thread that checks
  * the selector.
  *
- * @version $Revision: 1.19 $ $Date: 2004/08/03 20:09:27 $
+ * @version $Revision: 1.20 $ $Date: 2004/08/21 15:59:02 $
  */
 public class SelectorManager implements Runnable, GBeanLifecycle {
 
@@ -241,6 +241,8 @@ public class SelectorManager implements Runnable, GBeanLifecycle {
             log.warn("IOException occured.", e);
         } catch (InterruptedException e) {
             log.debug("Selector Work thread has been interrupted.");
+        } catch (Throwable t) {
+            log.error("Throwable occured.", t);
         } finally {
             log.debug("Selector Work thread has stopped.");
         }
