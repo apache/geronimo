@@ -72,7 +72,7 @@ import org.apache.geronimo.common.NullArgumentException;
 /**
  * Handles pasring expressions from a string.
  *
- * @version <code>$Revision: 1.6 $ $Date: 2003/08/24 15:06:02 $</code>
+ * @version <code>$Revision: 1.7 $ $Date: 2003/08/24 16:15:22 $</code>
  */
 public class StringValueParser
 {
@@ -82,6 +82,10 @@ public class StringValueParser
     
     public StringValueParser(final Map vars)
     {
+        if (vars == null) {
+            throw new NullArgumentException("vars");
+        }
+        
         context = JexlHelper.createContext();
         context.setVars(vars);
         
@@ -100,10 +104,47 @@ public class StringValueParser
         return context.getVars();
     }
     
+    public Object getVariable(final Object name)
+    {
+        if (name == null) {
+            throw new NullArgumentException("name");
+        }
+        
+        return getVariables().get(name);
+    }
+    
+    public Object setVariable(final Object name, final Object value)
+    {
+        if (name == null) {
+            throw new NullArgumentException("name");
+        }
+        
+        return getVariables().put(name, value);
+    }
+    
+    public Object unsetVariable(final Object name)
+    {
+        if (name == null) {
+            throw new NullArgumentException("name");
+        }
+        
+        return getVariables().remove(name);
+    }
+    
+    public void addVariables(final Map map)
+    {
+        if (map == null) {
+            throw new NullArgumentException("map");
+        }
+        
+        getVariables().putAll(map);
+    }
+    
     private FlatResolver resolver = new FlatResolver(true);
     
     protected Expression createExpression(final String expression) throws Exception
     {
+        assert expression != null;
         Expression expr = ExpressionFactory.createExpression(expression);
         expr.addPreResolver(resolver);
         return expr;
@@ -111,6 +152,10 @@ public class StringValueParser
     
     public Object evaluate(final String expression) throws Exception
     {
+        if (expression == null) {
+            throw new NullArgumentException("expression");
+        }
+        
         boolean trace = log.isTraceEnabled();
         if (trace) {
             log.trace("Evaluating expression: " + expression);
@@ -127,6 +172,10 @@ public class StringValueParser
     
     public String parse(final String input)
     {
+        if (input == null) {
+            throw new NullArgumentException("input");
+        }
+        
         boolean trace = log.isTraceEnabled();
         if (trace) {
             log.trace("Parsing input: " + input);
