@@ -48,7 +48,11 @@ public class UndeployCommand extends CommandSupport {
                 URI moduleID = URI.create(module.getModuleID());
                 try {
                     kernel.stopConfiguration(moduleID);
+                } catch (NoSuchConfigException e) {
+                    // module was already undeployed - just continue
+                }
 
+                try {
                     TargetImpl target = (TargetImpl) module.getTarget();
                     ObjectName storeName = target.getObjectName();
                     URI configID = URI.create(module.getModuleID());
