@@ -60,9 +60,9 @@ public class AxisWebServiceContainer implements WebServiceContainer {
     protected final URI location;
     protected final URL wsdlURL;
     protected final SOAPService service;  //TODO why did i make these protected?
+    
     private final ClassLoader classLoader;
-    private final Object wsdlMutext = new Object();
-
+    private final Byte wsdlMutext = new Byte((byte)0);
     private transient Definition definition;
     private transient WSDLWriter wsdlWriter;
 
