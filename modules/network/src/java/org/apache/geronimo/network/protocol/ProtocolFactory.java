@@ -30,7 +30,7 @@ import org.apache.geronimo.system.ClockPool;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/04/19 16:34:06 $
+ * @version $Revision: 1.6 $ $Date: 2004/04/25 06:37:12 $
  */
 public class ProtocolFactory implements ServerSocketAcceptorListener {
 
@@ -188,7 +188,7 @@ public class ProtocolFactory implements ServerSocketAcceptorListener {
                             || (currentTime - connection.getLastUsed()) > maxInactivity) {
                         log.trace("Connection [" + key + "] reclaimed");
 
-                        connection.drain();
+                        if (!connection.isDone()) connection.drain();
 
                         ClockDaemon.cancel(clockTicket);
                         connectionCache.remove(key);
