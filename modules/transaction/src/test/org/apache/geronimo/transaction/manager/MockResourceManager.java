@@ -28,7 +28,7 @@ import javax.transaction.xa.Xid;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:37 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/08 20:14:39 $
  */
 public class MockResourceManager {
     private boolean willCommit;
@@ -38,8 +38,8 @@ public class MockResourceManager {
         this.willCommit = willCommit;
     }
 
-    public MockResource getResource() {
-        return new MockResource(this);
+    public MockResource getResource(String xaResourceName) {
+        return new MockResource(this, xaResourceName);
     }
 
     public void join(Xid xid, XAResource xaRes) throws XAException {

@@ -27,7 +27,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:37 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/08 20:14:39 $
  */
 public class TestTransactionManager extends TestCase {
     TransactionManager tm;
@@ -94,7 +94,7 @@ public class TestTransactionManager extends TestCase {
 
     public void testOneResource() throws Exception {
         Transaction tx;
-        MockResource res1 = rm1.getResource();
+        MockResource res1 = rm1.getResource("rm1");
         tm.begin();
         tx = tm.getTransaction();
         assertNull(res1.getXid());

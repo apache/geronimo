@@ -29,17 +29,17 @@ import org.apache.geronimo.transaction.manager.MockResourceManager;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 18:05:51 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/08 20:14:39 $
  *
  * */
 public class TransactionManagerProxyTest extends TestCase {
 
     MockResourceManager rm1 = new MockResourceManager(true);
-    MockResource r1_1 = new MockResource(rm1);
-    MockResource r1_2 = new MockResource(rm1);
+    MockResource r1_1 = new MockResource(rm1, "rm1");
+    MockResource r1_2 = new MockResource(rm1, "rm1");
     MockResourceManager rm2 = new MockResourceManager(true);
-    MockResource r2_1 = new MockResource(rm2);
-    MockResource r2_2 = new MockResource(rm2);
+    MockResource r2_1 = new MockResource(rm2, "rm2");
+    MockResource r2_2 = new MockResource(rm2, "rm2");
 
     TransactionManagerProxy tm = new TransactionManagerProxy();
 

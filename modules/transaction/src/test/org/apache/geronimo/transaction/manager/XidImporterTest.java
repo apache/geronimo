@@ -28,17 +28,17 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/06 04:00:51 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/08 20:14:39 $
  *
  * */
 public class XidImporterTest extends TestCase{
 
     MockResourceManager rm1 = new MockResourceManager(true);
-    MockResource r1_1 = new MockResource(rm1);
-    MockResource r1_2 = new MockResource(rm1);
+    MockResource r1_1 = new MockResource(rm1, "rm1");
+    MockResource r1_2 = new MockResource(rm1, "rm1");
     MockResourceManager rm2 = new MockResourceManager(true);
-    MockResource r2_1 = new MockResource(rm2);
-    MockResource r2_2 = new MockResource(rm2);
+    MockResource r2_1 = new MockResource(rm2, "rm2");
+    MockResource r2_2 = new MockResource(rm2, "rm2");
 
     XidImporter tm = new TransactionManagerImpl();
     XidFactory xidFactory = new XidFactoryImpl();

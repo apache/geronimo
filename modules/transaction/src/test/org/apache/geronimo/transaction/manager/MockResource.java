@@ -24,10 +24,10 @@ import javax.transaction.xa.Xid;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/08 17:33:43 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/08 20:14:39 $
  */
 public class MockResource implements NamedXAResource {
-    private String name = "mockResource";
+    private String xaResourceName = "mockResource";
     private Xid xid;
     private MockResourceManager manager;
     private int timeout = 0;
@@ -35,8 +35,9 @@ public class MockResource implements NamedXAResource {
     private boolean committed;
     private boolean rolledback;
 
-    public MockResource(MockResourceManager manager) {
+    public MockResource(MockResourceManager manager, String xaResourceName) {
         this.manager = manager;
+        this.xaResourceName = xaResourceName;
     }
 
     public int getTransactionTimeout() throws XAException {
@@ -112,7 +113,7 @@ public class MockResource implements NamedXAResource {
     }
 
     public String getName() {
-        return name;
+        return xaResourceName;
     }
 
 }
