@@ -73,14 +73,10 @@ import javax.management.ObjectName;
  *
  *
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
-public class ListenerRegistration implements Serializable {
-    public void addNotificationListener(ObjectName name, NotificationListener listener, NotificationFilter filter, Object handback) throws InstanceNotFoundException, RemoteException {
-        /*@todo implement*/
-    }
+public interface ListenerRegistration extends Serializable {
+    public void addNotificationListener(ObjectName name, NotificationListener listener, NotificationFilter filter, Object handback) throws InstanceNotFoundException, RemoteException;
 
-    public void removeNotificationListener(ObjectName name, NotificationListener listener) throws InstanceNotFoundException, ListenerNotFoundException, RemoteException {
-        /*@todo implement*/
-    }
+    public void removeNotificationListener(ObjectName name, NotificationListener listener) throws InstanceNotFoundException, ListenerNotFoundException, RemoteException;
 }
