@@ -74,7 +74,7 @@ import junit.framework.TestCase;
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2003/08/20 23:28:53 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/23 22:13:15 $
  */
 public class BasicContextTest extends TestCase {
     private Properties syntax;
@@ -207,6 +207,6 @@ public class BasicContextTest extends TestCase {
         compContext = new ReadOnlyContext(compBinding);
 
         syntax = new Properties();
-        RootContext.setThreadContext(compContext);
+        RootContext.setComponentContext(compContext);
     }
 }

@@ -55,63 +55,36 @@
  */
 package org.apache.geronimo.naming.java;
 
-import java.util.Collections;
 import javax.naming.Context;
-import javax.naming.NameNotFoundException;
-import javax.naming.NamingException;
+
+import org.apache.geronimo.common.AbstractInterceptor;
+import org.apache.geronimo.common.Invocation;
+import org.apache.geronimo.common.InvocationResult;
 
 /**
- * The root context for the java: namespace.
- * Automatically handles switching the "java:comp" sub-context to the
- * appropriate one for the current thread.
- *
- * @version $Revision: 1.2 $ $Date: 2003/08/23 22:13:15 $
+ * An interceptor that pushes the current component's java:comp context into
+ * the java: JNDI namespace
+ * 
+ * @version $Revision: 1.1 $ $Date: 2003/08/23 22:13:15 $
  */
-public class RootContext extends ReadOnlyContext {
-    private static ThreadLocal compContext = new ThreadLocal();
+public class ComponentContextInterceptor extends AbstractInterceptor {
+    private final Context compContext;
 
-    public RootContext() {
-        super(Collections.EMPTY_MAP);
+    /**
+     * Constructor specifying the components JNDI Context (java:comp)
+     * @param compContext the component's JNDI Context
+     */
+    public ComponentContextInterceptor(Context compContext) {
+        this.compContext = compContext;
     }
 
-    public Object lookup(String name) throws NamingException {
-        if (name.startsWith("java:")) {
-            name = name.substring(5);
-            if (name.length() == 0) {
-                return this;
-            }
-
-            Context compCtx = (Context) compContext.get();
-            if (compCtx == null) {
-                // the component context was not set for this thread
-                throw new NameNotFoundException();
-            }
-
-            if ("comp".equals(name)) {
-                return compCtx;
-            } else if (name.startsWith("comp/")) {
-                return compCtx.lookup(name.substring(5));
-            } else {
-                throw new NameNotFoundException();
-            }
+    public InvocationResult invoke(Invocation invocation) throws Exception {
+        Context oldContext = RootContext.getComponentContext();
+        try {
+            RootContext.setComponentContext(compContext);
+            return getNext().invoke(invocation);
+        } finally {
+            RootContext.setComponentContext(oldContext);
         }
-        return super.lookup(name);
-    }
-
-    /**
-     * Set the component context for the current thread. This will be returned
-     * for all lookups of "java:comp"
-     * @param ctx the current components context
-     */
-    public static void setComponentContext(Context ctx) {
-        compContext.set(ctx);
-    }
-
-    /**
-     * Get the component context for the current thread.
-     * @return the current components context
-     */
-    public static Context getComponentContext() {
-        return (Context) compContext.get();
     }
 }

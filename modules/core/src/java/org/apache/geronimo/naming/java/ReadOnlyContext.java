@@ -59,7 +59,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.LinkedList;
 import javax.naming.Binding;
 import javax.naming.CompositeName;
 import javax.naming.Context;
@@ -91,7 +90,7 @@ import javax.naming.spi.NamingManager;
  *   String envEntry2 = (String) componentContext.lookup("env/myEntry2");
  * </code>
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/20 23:28:53 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/23 22:13:15 $
  */
 public class ReadOnlyContext implements Context {
     private static final Hashtable ENVIRONMENT = new Hashtable();
