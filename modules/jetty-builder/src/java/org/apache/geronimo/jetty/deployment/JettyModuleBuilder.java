@@ -53,12 +53,21 @@ import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deploy.Security;
-import org.apache.geronimo.security.deployment.SecurityBuilder;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.security.deploy.Role;
+import org.apache.geronimo.security.deploy.Realm;
+import org.apache.geronimo.security.deploy.Principal;
 import org.apache.geronimo.transaction.OnlineUserTransaction;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyDependencyType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyGbeanType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
+import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
+import org.apache.geronimo.xbeans.geronimo.security.GerDefaultPrincipalType;
+import org.apache.geronimo.xbeans.geronimo.security.GerRoleMappingsType;
+import org.apache.geronimo.xbeans.geronimo.security.GerRoleType;
+import org.apache.geronimo.xbeans.geronimo.security.GerRealmType;
+import org.apache.geronimo.xbeans.geronimo.security.GerPrincipalType;
 import org.apache.geronimo.xbeans.j2ee.FilterMappingType;
 import org.apache.geronimo.xbeans.j2ee.SecurityConstraintType;
 import org.apache.geronimo.xbeans.j2ee.ServletMappingType;
@@ -296,7 +305,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         UserTransaction userTransaction = new OnlineUserTransaction();
         ReadOnlyContext compContext = buildComponentContext(earContext, webModule, webApp, jettyWebApp, userTransaction, webClassLoader);
 
-        Security security = SecurityBuilder.buildSecurityConfig(jettyWebApp.getSecurity());
+        Security security = buildSecurityConfig(jettyWebApp);
 
         GBeanMBean gbean;
         try {
@@ -442,6 +451,62 @@ public class JettyModuleBuilder implements ModuleBuilder {
         if (webApp.getSessionConfigArray().length > 1) throw new DeploymentException("Multiple <session-config> elements found");
         if (webApp.getJspConfigArray().length > 1) throw new DeploymentException("Multiple <jsp-config> elements found");
         if (webApp.getLoginConfigArray().length > 1) throw new DeploymentException("Multiple <login-config> elements found");
+    }
+
+    private static Security buildSecurityConfig(JettyWebAppType jettyWebApp) {
+        Security security = null;
+
+        GerSecurityType securityType = jettyWebApp.getSecurity();
+        if (securityType != null) {
+            security = new Security();
+
+            security.setUseContextHandler(securityType.getUseContextHandler());
+
+            GerDefaultPrincipalType defaultPrincipalType = securityType.getDefaultPrincipal();
+            DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
+
+            defaultPrincipal.setRealmName(defaultPrincipalType.getRealmName());
+            defaultPrincipal.setPrincipal(buildPrincipal(defaultPrincipalType.getPrincipal()));
+
+            security.setDefaultPrincipal(defaultPrincipal);
+
+            GerRoleMappingsType roleMappingsType = securityType.getRoleMappings();
+            if (roleMappingsType != null) {
+                for (int i = 0; i < roleMappingsType.sizeOfRoleArray(); i++) {
+                    GerRoleType roleType = roleMappingsType.getRoleArray(i);
+                    Role role = new Role();
+
+                    role.setRoleName(roleType.getRoleName());
+
+                    for (int j = 0; j < roleType.sizeOfRealmArray(); j++) {
+                        GerRealmType realmType = roleType.getRealmArray(j);
+                        Realm realm = new Realm();
+
+                        realm.setRealmName(realmType.getRealmName());
+
+                        for (int k = 0; k < realmType.sizeOfPrincipalArray(); k++) {
+                            realm.getPrincipals().add(buildPrincipal(realmType.getPrincipalArray(k)));
+                        }
+
+                        role.getRealms().add(realm);
+                    }
+
+                    security.getRoleMappings().add(role);
+                }
+            }
+        }
+
+        return security;
+    }
+
+    private static Principal buildPrincipal(GerPrincipalType principalType) {
+        Principal principal = new Principal();
+
+        principal.setClassName(principalType.getClass1());
+        principal.setPrincipalName(principalType.getName());
+        principal.setDesignatedRunAs(principalType.isSetDesignatedRunAs());
+
+        return principal;
     }
 
     public static final GBeanInfo GBEAN_INFO;
