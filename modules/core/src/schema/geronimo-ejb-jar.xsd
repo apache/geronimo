@@ -364,6 +364,7 @@
         <xsd:sequence>
             <xsd:element name="abstract-schema-name" type="j2ee:java-identifierType"/>
             <xsd:element name="binding" type="ger:bindingType"/>
+            <xsd:element name="multivalue" type="xds:boolean"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="bindingType">

@@ -59,7 +59,7 @@ package org.apache.geronimo.deployment.model.geronimo.ejb;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/17 03:27:55 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/17 17:29:09 $
  *
  * */
 public class Query extends org.apache.geronimo.deployment.model.ejb.Query {
@@ -68,6 +68,7 @@ public class Query extends org.apache.geronimo.deployment.model.ejb.Query {
     private Binding[] inputBinding;
     private Binding outputBinding;
     private String abstractSchemaName;
+    private boolean multivalue;
 
     public String getSql() {
         return sql;
@@ -99,5 +100,13 @@ public class Query extends org.apache.geronimo.deployment.model.ejb.Query {
 
     public void setAbstractSchemaName(String abstractSchemaName) {
         this.abstractSchemaName = abstractSchemaName;
+    }
+
+    public boolean isMultivalue() {
+        return multivalue;
+    }
+
+    public void setMultivalue(boolean multivalue) {
+        this.multivalue = multivalue;
     }
 }

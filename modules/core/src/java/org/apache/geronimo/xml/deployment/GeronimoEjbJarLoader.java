@@ -72,7 +72,7 @@ import org.apache.geronimo.deployment.model.ejb.AssemblyDescriptor;
 /**
  * Loads a Geronimo ejb-jar.xml file into POJOs
  *
- * @version $Revision: 1.7 $ $Date: 2003/11/17 03:27:56 $
+ * @version $Revision: 1.8 $ $Date: 2003/11/17 17:29:09 $
  */
 public class GeronimoEjbJarLoader {
     public static GeronimoEjbJarDocument load(Document doc) {
@@ -189,6 +189,7 @@ public class GeronimoEjbJarLoader {
             Element outputBinding = LoaderUtil.getChild(root, "output-binding");
             query.setAbstractSchemaName(LoaderUtil.getChildContent(outputBinding, "abstract-schema-name"));
             query.setOutputBinding(loadBinding(outputBinding));
+            query.setMultivalue(Boolean.getBoolean(LoaderUtil.getChildContent(outputBinding, "multivalue")));
             queries[i] = query;
         }
         return queries;
