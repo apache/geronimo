@@ -60,9 +60,11 @@ import junit.framework.TestCase;
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2003/12/11 22:11:47 $
+ * @version $Revision: 1.4 $ $Date: 2003/12/13 08:27:53 $
  */
 public class StopWatchTest extends TestCase {
+    private static long TIME = 100L;
+    private static long EPSILON = TIME /10;
 
     public void testConstructor() {
         StopWatch sw = new StopWatch();
@@ -83,15 +85,15 @@ public class StopWatchTest extends TestCase {
         sw.start();
         assertTrue(sw.isRunning());
         try {
-            Thread.sleep(1000);
+            Thread.sleep(TIME);
         } catch (Exception ex) {
         }
         sw.stop();
         assertFalse(sw.isRunning());
 
         assertEquals(1, sw.getLapCount());
-        assertTrue("Expected more than one second, not " + sw.getLapTime(), sw.getLapTime() >= 1000L);
-        assertTrue(sw.getTime() >= 1000L);
+        assertTrue("Expected more than one second, not " + sw.getLapTime(), sw.getLapTime() >= TIME - EPSILON);
+        assertTrue(sw.getTime() >= TIME - EPSILON);
         assertEquals(sw.getLapTime(), sw.getAverageLapTime());
     }
 
@@ -103,26 +105,25 @@ public class StopWatchTest extends TestCase {
         sw.start();
         assertTrue(sw.isRunning());
         try {
-            Thread.sleep(1000);
+            Thread.sleep(TIME);
         } catch (Exception ex) {
         }
         sw.stop();
         assertFalse(sw.isRunning());
 
         assertEquals(1, sw.getLapCount());
-        assertTrue("Expected more than one second, not " + sw.getLapTime(), sw.getLapTime() >= 1000L);
-        assertTrue(sw.getTime() >= 1000L);
+        assertTrue("Expected more than one second, not " + sw.getLapTime(), sw.getLapTime() >= TIME - EPSILON);
+        assertTrue(sw.getTime() >= TIME - EPSILON);
         assertEquals(sw.getLapTime(), sw.getAverageLapTime());
     }
 
-    /*  BAD TEST:  sleep is not an accurate measure of time
     public void testTwoStops() {
         StopWatch sw = new StopWatch();
 
         sw.start();
         assertTrue(sw.isRunning());
         try {
-            Thread.sleep(1000);
+            Thread.sleep(TIME);
         } catch (Exception ex) {
         }
         sw.stop();
@@ -131,37 +132,36 @@ public class StopWatchTest extends TestCase {
         assertFalse(sw.isRunning());
 
         assertEquals(1, sw.getLapCount());
-        assertTrue("Expected more than one second, not " + sw.getLapTime(), sw.getLapTime() >= 1000L);
-        assertTrue(sw.getTime() >= 1000L);
+        assertTrue("Expected more than one second, not " + sw.getLapTime(), sw.getLapTime() >= TIME - EPSILON);
+        assertTrue(sw.getTime() >= TIME - EPSILON);
         assertEquals(sw.getLapTime(), sw.getAverageLapTime());
     }
-    */
 
     public void testTwoLaps() {
         StopWatch sw = new StopWatch();
 
         sw.start();
         try {
-            Thread.sleep(1000);
+            Thread.sleep(TIME);
         } catch (Exception ex) {
         }
         sw.stop();
 
         assertEquals(1, sw.getLapCount());
-        assertTrue("Expected more than one second, not " + sw.getLapTime(), sw.getLapTime() >= 1000L);
-        assertTrue(sw.getTime() >= 1000L);
+        assertTrue("Expected more than one second, not " + sw.getLapTime(), sw.getLapTime() >= TIME - EPSILON);
+        assertTrue(sw.getTime() >= TIME - EPSILON);
         assertEquals(sw.getLapTime(), sw.getAverageLapTime());
 
         sw.start();
         try {
-            Thread.sleep(1000);
+            Thread.sleep(TIME);
         } catch (Exception ex) {
         }
         sw.stop();
 
         assertEquals(2, sw.getLapCount());
-        assertTrue("Expected more than one second, not " + sw.getLapTime(), sw.getLapTime() >= 1000L);
-        assertTrue("Expected more than two seconds, not " + sw.getTime(), sw.getTime() >= 2000L);
+        assertTrue("Expected  more than one second, not " + sw.getLapTime(), sw.getLapTime() >= TIME - EPSILON);
+        assertTrue("Expected more than two seconds, not " + sw.getTime(), sw.getTime() >= 2 * (TIME - EPSILON));
         assertEquals(sw.getTime() / 2, sw.getAverageLapTime());
     }
 
@@ -170,14 +170,14 @@ public class StopWatchTest extends TestCase {
 
         sw.start();
         try {
-            Thread.sleep(1000);
+            Thread.sleep(TIME);
         } catch (Exception ex) {
         }
         sw.stop();
 
         assertEquals(1, sw.getLapCount());
-        assertTrue(sw.getLapTime() >= 1000L);
-        assertTrue(sw.getTime() >= 1000L);
+        assertTrue(sw.getLapTime() >= TIME - EPSILON);
+        assertTrue(sw.getTime() >= TIME - EPSILON);
         assertEquals(sw.getLapTime(), sw.getAverageLapTime());
 
         sw.reset();
@@ -192,12 +192,12 @@ public class StopWatchTest extends TestCase {
 
         sw.start();
         try {
-            Thread.sleep(1000);
+            Thread.sleep(TIME);
         } catch (Exception ex) {
         }
         sw.stop();
 
         Duration d = sw.toDuration();
-        assertTrue(d.compareTo(1000) >= 0);
+        assertTrue(d.compareTo(1000) >= 0 - EPSILON);
     }
 }
