@@ -15,23 +15,19 @@
  */
 package org.apache.geronimo.axis;
 
+import org.apache.axis.utils.ClassUtils;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.kernel.Kernel;
 
+import javax.management.ObjectName;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import javax.management.ObjectName;
-
-import org.apache.axis.utils.ClassUtils;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.kernel.Kernel;
-
 public class ComplexTypeWebServiceTest extends AbstractTestCase {
     private ObjectName axisname;
-    private ObjectName deployGbeanName;
     private Kernel kernel;
-    private JettyServiceWrapper jettyService;
 
     /**
      * @param testName
@@ -42,33 +38,24 @@ public class ComplexTypeWebServiceTest extends AbstractTestCase {
 
     public void testLoad() throws Exception {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
-		ClassLoader myCl =   new URLClassLoader(new URL[]{}, cl);
+        ClassLoader myCl = new URLClassLoader(new URL[]{}, cl);
   
         //axis gbean        
         GBeanMBean axisgbean = new GBeanMBean(AxisGbean.getGBeanInfo(), myCl);
         kernel.loadGBean(axisname, axisgbean);
         kernel.startGBean(axisname);
 
-        GBeanMBean deploygbean =
-          new GBeanMBean(WebServiceDeployerGbean.getGBeanInfo(), cl);
-        kernel.loadGBean(deployGbeanName, deploygbean);
-        kernel.startGBean(deployGbeanName);
-        System.out.println(
-            kernel.getMBeanServer().getAttribute(deployGbeanName, "state"));
-        File jarfile = new File(getTestFile("target/generated/samples/echo-ewsimpl.jar"));    
-        kernel.getMBeanServer().invoke(
-            deployGbeanName,
-            "deployEWSModule",
-            new Object[] {
-                jarfile.getAbsolutePath(),
-                null,
-                "ws/apache/axis/echo" },
-            new String[] {
-                String.class.getName(),
-                String.class.getName(),
-                String.class.getName()});
-        kernel.stopGBean(deployGbeanName);
-        kernel.unloadGBean(deployGbeanName);
+        File jarfile = new File(getTestFile("target/generated/samples/echo-ewsimpl.jar"));
+        kernel.getMBeanServer().invoke(axisname,
+                "deployEWSModule",
+                new Object[]{
+                    jarfile.getAbsolutePath(),
+                    null,
+                    "ws/apache/axis/echo"},
+                new String[]{
+                    String.class.getName(),
+                    String.class.getName(),
+                    String.class.getName()});
 
 //      //try invoke from this java
 //          ContainerIndex index = ContainerIndex.getInstance();
@@ -103,26 +90,25 @@ public class ComplexTypeWebServiceTest extends AbstractTestCase {
         
 //        Class echoLoacaterClass =  Class.forName("org.apache.ws.echosample.EchoServiceLocator",true,jarclassloder);
 //        Class structClass = Class.forName("org.apache.ws.echosample.EchoStruct",true,jarclassloder);
-          Class echoLoacaterClass =  ClassUtils.forName("org.apache.ws.echosample.EchoServiceLocator");
-          Class structClass = ClassUtils.forName("org.apache.ws.echosample.EchoStruct");
-
+        Class echoLoacaterClass = ClassUtils.forName("org.apache.ws.echosample.EchoServiceLocator");
+        Class structClass = ClassUtils.forName("org.apache.ws.echosample.EchoStruct");
 
         Object echoLoacater = echoLoacaterClass.newInstance();
-        Method getportMethod = echoLoacaterClass.getMethod("getechoPort",new Class[]{URL.class});
-        
+        Method getportMethod = echoLoacaterClass.getMethod("getechoPort", new Class[]{URL.class});
+
         URL serviceURL = new URL("http://localhost:"
-                +AxisGeronimoConstants.AXIS_SERVICE_PORT
-               // + 5679
-                +"/axis/services/echoPort");
-        Object echoPort = getportMethod.invoke(echoLoacater,new Object[]{serviceURL});        
+                + AxisGeronimoConstants.AXIS_SERVICE_PORT
+                // + 5679
+                + "/axis/services/echoPort");
+        Object echoPort = getportMethod.invoke(echoLoacater, new Object[]{serviceURL});
         Class echoClass = echoPort.getClass();
-        
-        Method echostuctMethod = echoClass.getMethod("echoStruct",new Class[]{structClass});
+
+        Method echostuctMethod = echoClass.getMethod("echoStruct", new Class[]{structClass});
         Object structval = structClass.newInstance();
-        
-        Object structret = echostuctMethod.invoke(echoPort,new Object[]{null});
-        structret = echostuctMethod.invoke(echoPort,new Object[]{structval});
-        assertEquals(structval,structret);
+
+        Object structret = echostuctMethod.invoke(echoPort, new Object[]{null});
+        structret = echostuctMethod.invoke(echoPort, new Object[]{structval});
+        assertEquals(structval, structret);
         //Thread.currentThread().setContextClassLoader(ocl); 
          
         kernel.stopGBean(axisname);
@@ -130,19 +116,15 @@ public class ComplexTypeWebServiceTest extends AbstractTestCase {
     }
 
     protected void setUp() throws Exception {
-		File file = new File(AxisGeronimoConstants.AXIS_CONFIG_STORE);
+        File file = new File(AxisGeronimoConstants.AXIS_CONFIG_STORE);
         axisname = new ObjectName("test:name=AxisGBean");
-        deployGbeanName = new ObjectName("test:name=WebServiceDeployerGbean");
         kernel = new Kernel("test.kernel", "test");
         kernel.boot();
-        jettyService = new JettyServiceWrapper(kernel);
-        jettyService.doStart();
         AxisGeronimoUtils.delete(file);
         file.getParentFile().mkdirs();
     }
 
     protected void tearDown() throws Exception {
-        jettyService.doStop();
         kernel.shutdown();
         File file = new File(AxisGeronimoConstants.AXIS_CONFIG_STORE);
         AxisGeronimoUtils.delete(file);

@@ -15,80 +15,38 @@
  */
 package org.apache.geronimo.axis;
 
-import javax.management.ObjectName;
-
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
-/**
- * Class AxisGeronimoConstants
- */
+import javax.management.ObjectName;
+
 public class AxisGeronimoConstants {
-
-    /**
-     * Field J2EE_DOMAIN_NAME
-     */
     public static final String J2EE_DOMAIN_NAME = "openejb.server";
-
-    /**
-     * Field J2EE_SERVER_NAME
-     */
-    public static final String J2EE_SERVER_NAME = "TestOpenEJBServer";
-
-    /**
-     * Field WEB_CONTANER_NAME
-     */
-    public static final String WEB_CONTANER_NAME =
-            "geronimo.jetty:role=Container";
-
-    /**
-     * Field WEB_CONNECTOR_NAME
-     */
-    public static final String WEB_CONNECTOR_NAME =
-            "geronimo.jetty:role=Connector";
-
-    /**
-     * Field APPLICATION_NAME
-     */
-    public static final String APPLICATION_NAME = "geronimo.jetty:app=test";
-
-    /**
-     * Field TRANSACTION_MANAGER_NAME
-     */
-    public static final String TRANSACTION_MANAGER_NAME =
-            "geronimo.test:role=TransactionManager";
-    public static final String TRANSACTION_CONTEXT_MANAGER_NAME = "geronimo.test:role=TransactionContextManager";
-    /**
-     * Field CONNTECTION_TRACKING_COORDINATOR
-     */
-    public static final String CONNTECTION_TRACKING_COORDINATOR =
-            "geronimo.test:role=ConnectionTrackingCoordinator";
-
-    /**
-     * Field AXIS_CONFIG_STORE
-     */
+    public static final String J2EE_SERVER_PREFIX = "TestOpenEJBServer";
+    public static final ObjectName APPLICATION_NAME
+            = JMXUtil.getObjectName("geronimo.jetty:app=test");
     public static final String AXIS_CONFIG_STORE = "target/config-store";
-
-    /**
-     * Field TEMP_OUTPUT
-     */
     public static final String TEMP_OUTPUT = "target/temp";
-
-    /**
-     * Field AXIS_SERVICE_PORT
-     */
     public static final int AXIS_SERVICE_PORT = 5678;
+    public static final ObjectName J2EE_SERVER_INFO = JMXUtil.getObjectName(J2EE_DOMAIN_NAME + ":type=ServerInfo");
+    public static final ObjectName J2EE_SERVER_NAME = JMXUtil.getObjectName(J2EE_DOMAIN_NAME + ":j2eeType=J2EEServer,name=" + J2EE_SERVER_PREFIX);
+
+    ////////////
+    public static final ObjectName CONNTECTION_TRACKING_COORDINATOR = JMXUtil.getObjectName("geronimo.test:role=ConnectionTrackingCoordinator");
+    ////////////
     
-    public static final String J2EE_SERVER_OBJECT_NAME  = J2EE_DOMAIN_NAME + ":j2eeType=J2EEServer,name=" + J2EE_SERVER_NAME;
-    
-    public static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
-    public static final ObjectName TRANSACTIONMANAGER_NAME = JMXUtil.getObjectName(J2EE_DOMAIN_NAME + ":type=TransactionManager");
-    public static final ObjectName TRANSACTIONCONTEXTMANAGER_NAME = JMXUtil.getObjectName(J2EE_SERVER_NAME + ":type=TransactionContextManager");
-    public static final ObjectName TRACKEDCONNECTIONASSOCIATOR_NAME = JMXUtil.getObjectName("geronimo.test:role=TrackedConnectionAssociator");
+    public static final ObjectName WEB_CONTAINER_NAME = JMXUtil.getObjectName("geronimo.jetty:role=Container");
+    public static final ObjectName WEB_CONNECTOR_NAME = JMXUtil.getObjectName("geronimo.jetty:role=Connector");
+
+    public static final ObjectName EJB_CONTAINER_NAME = JMXUtil.getObjectName(J2EE_DOMAIN_NAME + ":type=ContainerIndex");
+
+    public static final ObjectName TRANSACTION_MANAGER_NAME = JMXUtil.getObjectName(J2EE_DOMAIN_NAME + ":type=TransactionManager");
+    public static final ObjectName TRANSACTION_CONTEXT_MANAGER_NAME = JMXUtil.getObjectName(J2EE_SERVER_PREFIX + ":type=TransactionContextManager");
+    public static final ObjectName TRACKED_CONNECTION_ASSOCIATOR_NAME = JMXUtil.getObjectName("geronimo.test:role=TrackedConnectionAssociator");
     public static final ObjectName WORKMANAGER_NAME = JMXUtil.getObjectName("geronimo.server:type=WorkManager,name=DefaultWorkManager");
     public static final ObjectName RESOURCE_ADAPTER_NAME = JMXUtil.getObjectName("openejb.server:j2eeType=ResourceAdapter,J2EEServer=TestOpenEJBServer,name=MockRA");
     public static final ObjectName ACTIVATIONSPEC_NAME = JMXUtil.getObjectName("geronimo.server:j2eeType=ActivationSpec,name=MockMDB");
-    public static final ObjectName THREADPOOL_NAME = JMXUtil.getObjectName(J2EE_SERVER_NAME + ":type=ThreadPool,name=DefaultThreadPool");
-    public static final ObjectName TRANSACTIONALTIMER_NAME = JMXUtil.getObjectName(J2EE_SERVER_NAME + ":type=ThreadPooledTimer,name=TransactionalThreaPooledTimer");
-    public static final ObjectName NONTRANSACTIONALTIMER_NAME = JMXUtil.getObjectName(J2EE_SERVER_NAME + ":type=ThreadPooledTimer,name=NonTransactionalThreaPooledTimer");
+    public static final ObjectName THREADPOOL_NAME = JMXUtil.getObjectName(J2EE_SERVER_PREFIX + ":type=ThreadPool,name=DefaultThreadPool");
+    public static final ObjectName TRANSACTIONAL_TIMER_NAME = JMXUtil.getObjectName(J2EE_SERVER_PREFIX + ":type=ThreadPooledTimer,name=TransactionalThreaPooledTimer");
+    public static final ObjectName NONTRANSACTIONAL_TIMER_NAME = JMXUtil.getObjectName(J2EE_SERVER_PREFIX + ":type=ThreadPooledTimer,name=NonTransactionalThreaPooledTimer");
 
 }

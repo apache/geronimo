@@ -117,7 +117,8 @@ public class GeronimoWsDeployContext implements Ws4J2eeDeployContext {
     public String getOutPutLocation() {
         return outputLocation;
     }
-    public boolean isCompile(){
+
+    public boolean isCompile() {
         return true;
     }
 }

@@ -15,16 +15,6 @@
  */
 package org.apache.geronimo.axis;
 
-import java.io.File;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
-import javax.ejb.EJBHome;
-import javax.management.ObjectName;
-
 import org.apache.axis.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,74 +24,85 @@ import org.apache.geronimo.kernel.Kernel;
 import org.openejb.ContainerIndex;
 import org.openejb.EJBContainer;
 
+import javax.ejb.EJBHome;
+import javax.management.ObjectName;
+import java.io.File;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
 /**
  * Class AxisGeronimoUtils
  */
 public class AxisGeronimoUtils {
-    
+    public static HashSet startedGbeans = new HashSet();
     public static final Log log = LogFactory.getLog(AxisGeronimoUtils.class);
-    public static Object invokeEJB(
-        String ejbName,
-        String methodName,
-        Class[] parmClasses,
-        Object[] parameters)throws AxisFault{
-            try {
-                ContainerIndex index = ContainerIndex.getInstance();
-                int length = index.length();
-                System.out.println("number of continers "+length);
-                for(int i = 0;i<length;i++){
-                    EJBContainer contianer = index.getContainer(i);
-                    if(contianer!= null){
-                        String name = contianer.getEJBName();
-                        System.out.println("found the ejb "+name);
-                        log.debug("found the ejb "+name);
-                        if(ejbName.equals(name)){
-                            EJBHome statelessHome = contianer.getEJBHome();
-                            Object stateless = statelessHome.getClass().getMethod("create", null).invoke(statelessHome, null);
-                            Method[] methods = stateless.getClass().getMethods();
-                            for(int j = 0;j< methods.length;j++){
-                                if(methods[j].getName().equals(methodName)){
-                                    try{
-                                        return methods[j].invoke(stateless, parameters);
-                                    }catch(Exception e){
-                                        Class[] classes = methods[j].getParameterTypes();
-                                        System.out.print(methodName+"("); 
-                                        if(parameters == null || classes== null){
-                                            System.out.println("both or one is null");
-                                        }else{
-                                            if(parameters.length != classes.length)
-                                                System.out.println("parameter length do not match expected parametes");
-                                            for(int k = 0;k<classes.length;k++){
-                                                Object obj = parameters[k];
-                                                Class theClass = classes[k];
-                                                if(theClass != obj.getClass()){
-                                                    System.out.println("calsses are differant");
-                                                }
-                                                System.out.println("ejb class loader "+theClass.getClassLoader());                                                        
-                                                System.out.println("parameter class loader = "+obj.getClass().getClassLoader());
-                                            }
-                                        }
-                                        throw e;                         
-                                    }
 
+    public static Object invokeEJB(String ejbName,
+                                   String methodName,
+                                   Class[] parmClasses,
+                                   Object[] parameters) throws AxisFault {
+        try {
+            ContainerIndex index = ContainerIndex.getInstance();
+            int length = index.length();
+            System.out.println("number of continers " + length);
+            for (int i = 0; i < length; i++) {
+                EJBContainer contianer = index.getContainer(i);
+                if (contianer != null) {
+                    String name = contianer.getEJBName();
+                    System.out.println("found the ejb " + name);
+                    log.debug("found the ejb " + name);
+                    if (ejbName.equals(name)) {
+                        EJBHome statelessHome = contianer.getEJBHome();
+                        Object stateless = statelessHome.getClass().getMethod("create", null).invoke(statelessHome, null);
+                        Method[] methods = stateless.getClass().getMethods();
+                        for (int j = 0; j < methods.length; j++) {
+                            if (methods[j].getName().equals(methodName)) {
+                                try {
+                                    return methods[j].invoke(stateless, parameters);
+                                } catch (Exception e) {
+                                    Class[] classes = methods[j].getParameterTypes();
+                                    System.out.print(methodName + "(");
+                                    if (parameters == null || classes == null) {
+                                        System.out.println("both or one is null");
+                                    } else {
+                                        if (parameters.length != classes.length)
+                                            System.out.println("parameter length do not match expected parametes");
+                                        for (int k = 0; k < classes.length; k++) {
+                                            Object obj = parameters[k];
+                                            Class theClass = classes[k];
+                                            if (theClass != obj.getClass()) {
+                                                System.out.println("calsses are differant");
+                                            }
+                                            System.out.println("ejb class loader " + theClass.getClassLoader());
+                                            System.out.println("parameter class loader = " + obj.getClass().getClassLoader());
+                                        }
+                                    }
+                                    throw e;
                                 }
+
                             }
-                            throw new NoSuchMethodException(methodName+" not found");
-                        }           
-                    }else{
-                        System.out.println("Continer is null");
-                        log.debug("Continer is null");
+                        }
+                        throw new NoSuchMethodException(methodName + " not found");
                     }
+                } else {
+                    System.out.println("Continer is null");
+                    log.debug("Continer is null");
                 }
-                throw new AxisFault("Dependancy ejb "+ejbName+" not found ");
-            } catch (Throwable e) {
-                e.printStackTrace();
-                if(e instanceof Exception)
-                    throw AxisFault.makeFault((Exception)e);
-                else
-                    throw AxisFault.makeFault(new Exception(e));    
-            } 
-    
+            }
+            throw new AxisFault("Dependancy ejb " + ejbName + " not found ");
+        } catch (Throwable e) {
+            e.printStackTrace();
+            if (e instanceof Exception)
+                throw AxisFault.makeFault((Exception) e);
+            else
+                throw AxisFault.makeFault(new Exception(e));
+        }
+
     }
 
     /**
@@ -115,8 +116,23 @@ public class AxisGeronimoUtils {
     public static void startGBean(ObjectName objectName, GBeanMBean gbean, Kernel kernel)
             throws DeploymentException {
         try {
+            startedGbeans.add(objectName);
             kernel.loadGBean(objectName, gbean);
             kernel.startGBean(objectName);
+        } catch (Exception e) {
+            throw new DeploymentException(e);
+        }
+    }
+
+    public static void startGBeanOnlyIfNotStarted(ObjectName objectName, GBeanMBean gbean, Kernel kernel)
+            throws DeploymentException {
+        try {
+            if (!checkAlreadyStarted(objectName, kernel)) {
+                startGBean(objectName, gbean, kernel);
+                System.out.println("Started .. " + objectName);
+            } else {
+                System.out.println(objectName + " GBean already started");
+            }
         } catch (Exception e) {
             throw new DeploymentException(e);
         }
@@ -132,8 +148,14 @@ public class AxisGeronimoUtils {
     public static void stopGBean(ObjectName objectName, Kernel kernel)
             throws DeploymentException {
         try {
-            kernel.unloadGBean(objectName);
-            kernel.stopGBean(objectName);
+            if (startedGbeans.contains(objectName)) {
+                kernel.stopGBean(objectName);
+                kernel.unloadGBean(objectName);
+                System.out.println("stoped .. " + objectName);
+            } else {
+                System.out.println(objectName + " was runing when axis start it "
+                        + "Axis will not stop it");
+            }
         } catch (Exception e) {
             throw new DeploymentException(e);
         }
@@ -158,20 +180,32 @@ public class AxisGeronimoUtils {
             file.delete();
         }
     }
-    
-    public static ArrayList getClassFileList(ZipFile file){
+
+    public static ArrayList getClassFileList(ZipFile file) {
         ArrayList list = new ArrayList();
-        if(file != null){
+        if (file != null) {
             Enumeration entires = file.entries();
-            while(entires.hasMoreElements()){
-                ZipEntry zipe = (ZipEntry)entires.nextElement();
+            while (entires.hasMoreElements()) {
+                ZipEntry zipe = (ZipEntry) entires.nextElement();
                 String name = zipe.getName();
-                if(name.endsWith(".class")){
+                if (name.endsWith(".class")) {
                     int index = name.lastIndexOf('.');
-                    list.add(name.substring(0,index).replace('/','.'));
-               } 
-           }
+                    list.add(name.substring(0, index).replace('/', '.'));
+                }
+            }
         }
-        return list;    
+        return list;
+    }
+
+    public static boolean checkAlreadyStarted(ObjectName name, Kernel kernel) {
+        Set set = kernel.listGBeans(name);
+        System.out.println(name + " = " + set);
+        if (set == null)
+            return false;
+        if (set.isEmpty()) {
+            return false;
+        }
+        return true;
+
     }
 }

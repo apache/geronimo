@@ -16,14 +16,14 @@
 
 package org.apache.geronimo.axis;
 
-import javax.management.ObjectName;
-
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+
+import javax.management.ObjectName;
 
 /**
  * Class AxisGbean
@@ -53,7 +53,11 @@ public class AxisGbean implements GBeanLifecycle {
     /**
      * Field wscontiner
      */
-    private WebServiceContainer wscontiner;
+    private WebServiceManager wscontiner;
+
+    private WebServiceDeployer wsdeployer;
+
+    private J2EEManager j2eeManager;
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("AxisGbean",
@@ -67,7 +71,14 @@ public class AxisGbean implements GBeanLifecycle {
         // operations
         infoFactory.setConstructor(new String[]{"kernel", "Name",
                                                 "objectName"});
-
+        infoFactory.addOperation("deploy", new Class[]{String.class,
+                                                       String.class,
+                                                       String.class});
+        infoFactory.addOperation("unDeploy", new Class[]{String.class,
+                                                         String.class});
+        infoFactory.addOperation("deployEWSModule", new Class[]{String.class,
+                                                                String.class,
+                                                                String.class});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
@@ -82,7 +93,8 @@ public class AxisGbean implements GBeanLifecycle {
         this.name = name;
         this.kernel = kernel;
         this.objectName = JMXUtil.getObjectName(objectName);
-        wscontiner = new WebServiceContainer(kernel);
+        wscontiner = new WebServiceManager(kernel);
+        j2eeManager = new J2EEManager();
     }
 
     /**
@@ -102,7 +114,11 @@ public class AxisGbean implements GBeanLifecycle {
         System.out.println("Axis GBean has started");
         System.out.println(kernel);
         System.out.println(objectName);
+        j2eeManager.startJ2EEContainer(kernel);
         wscontiner.doStart();
+        wsdeployer = new WebServiceDeployer(AxisGeronimoConstants.TEMP_OUTPUT,
+                kernel);
+
     }
 
     /**
@@ -114,6 +130,7 @@ public class AxisGbean implements GBeanLifecycle {
     public void doStop() throws WaitingException, Exception {
         System.out.println("Axis GBean has stoped");
         wscontiner.doStop();
+        j2eeManager.stopJ2EEContainer(kernel);
     }
 
     /**
@@ -142,4 +159,20 @@ public class AxisGbean implements GBeanLifecycle {
     public String getName() {
         return name;
     }
+
+    public void deploy(String module, String j2eeApplicationName, String j2eeModuleName)
+            throws Exception {
+        wsdeployer.deploy(module, j2eeApplicationName, j2eeModuleName);
+    }
+
+    public void deployEWSModule(String module, String j2eeApplicationName, String j2eeModuleName)
+            throws Exception {
+        wsdeployer.deployEWSModule(module, j2eeApplicationName, j2eeModuleName);
+    }
+
+    public void unDeploy(String j2eeApplicationName, String j2eeModuleName)
+            throws Exception {
+        wsdeployer.unDeploy(j2eeApplicationName, j2eeModuleName);
+    }
+
 }
