@@ -53,34 +53,30 @@
  *
  * ====================================================================
  */
-//
-// This source code implements specifications defined by the Java
-// Community Process. In order to remain compliant with the specification
-// DO NOT add / change / or delete method signatures!
-//
-// All rights reserved
-// www.ioshq.com
-package javax.mail;
-import javax.mail.event.AllEventTests;
-import javax.mail.internet.AllInternetTests;
+package javax.mail.internet;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import java.text.ParseException;
+import java.util.Calendar;
+import java.util.Date;
+
+import junit.framework.TestCase;
+
 /**
- * @version $Revision $ $Date: 2003/09/04 01:31:41 $
+ * @version $Revision: 1.1 $ $Date: 2003/09/04 01:31:41 $
  */
-public class AllTests {
-    public static Test suite() {
-        TestSuite suite = new TestSuite("Test for javax.mail");
-        //$JUnit-BEGIN$
-        suite.addTest(new TestSuite(FlagsTest.class));
-        suite.addTest(new TestSuite(HeaderTest.class));
-        suite.addTest(new TestSuite(MessagingExceptionTest.class));
-        suite.addTest(new TestSuite(URLNameTest.class));
-        suite.addTest(new TestSuite(PasswordAuthenticationTest.class));
-        suite.addTest(AllEventTests.suite());
-        suite.addTest(AllInternetTests.suite());
-        //$JUnit-END$
-        return suite;
+public class MailDateFormatTest extends TestCase {
+    public void testMailDateFormat() throws ParseException {
+        MailDateFormat mdf = new MailDateFormat();
+        Date date = mdf.parse("Wed, 27 Aug 2003 13:43:38 +0100 (BST)");
+        // don't we just love the Date class?
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        assertEquals(2003, cal.get(Calendar.YEAR));
+        assertEquals(Calendar.AUGUST, cal.get(Calendar.MONTH));
+        assertEquals(27, cal.get(Calendar.DAY_OF_MONTH));
+        assertEquals(Calendar.WEDNESDAY, cal.get(Calendar.DAY_OF_WEEK));
+        assertEquals(13, cal.get(Calendar.HOUR_OF_DAY));
+        assertEquals(43, cal.get(Calendar.MINUTE));
+        assertEquals(38, cal.get(Calendar.SECOND));
     }
 }

@@ -53,34 +53,27 @@
  *
  * ====================================================================
  */
-//
-// This source code implements specifications defined by the Java
-// Community Process. In order to remain compliant with the specification
-// DO NOT add / change / or delete method signatures!
-//
-// All rights reserved
-// www.ioshq.com
-package javax.mail;
-import javax.mail.event.AllEventTests;
-import javax.mail.internet.AllInternetTests;
+package javax.mail.internet;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import junit.framework.TestCase;
+
 /**
- * @version $Revision $ $Date: 2003/09/04 01:31:41 $
+ * @version $Revision: 1.1 $ $Date: 2003/09/04 01:31:41 $
  */
-public class AllTests {
-    public static Test suite() {
-        TestSuite suite = new TestSuite("Test for javax.mail");
-        //$JUnit-BEGIN$
-        suite.addTest(new TestSuite(FlagsTest.class));
-        suite.addTest(new TestSuite(HeaderTest.class));
-        suite.addTest(new TestSuite(MessagingExceptionTest.class));
-        suite.addTest(new TestSuite(URLNameTest.class));
-        suite.addTest(new TestSuite(PasswordAuthenticationTest.class));
-        suite.addTest(AllEventTests.suite());
-        suite.addTest(AllInternetTests.suite());
-        //$JUnit-END$
-        return suite;
+public class NewsAddressTest extends TestCase {
+    public void testNewsAddress() throws AddressException {
+        NewsAddress na = new NewsAddress("geronimo-dev", "news.apache.org");
+        assertEquals("geronimo-dev", na.getNewsgroup());
+        assertEquals("news.apache.org", na.getHost());
+        assertEquals("news", na.getType());
+        assertEquals("geronimo-dev@news.apache.org", na.toString());
+        NewsAddress[] nas =
+            NewsAddress.parse(
+                "geronimo-dev@news.apache.org, geronimo-user@news.apache.org");
+        assertEquals(2, nas.length);
+        assertEquals("geronimo-dev", nas[0].getNewsgroup());
+        assertEquals("news.apache.org", nas[0].getHost());
+        assertEquals("geronimo-user", nas[1].getNewsgroup());
+        assertEquals("news.apache.org", nas[1].getHost());
     }
 }

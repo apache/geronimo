@@ -53,34 +53,41 @@
  *
  * ====================================================================
  */
-//
-// This source code implements specifications defined by the Java
-// Community Process. In order to remain compliant with the specification
-// DO NOT add / change / or delete method signatures!
-//
-// All rights reserved
-// www.ioshq.com
-package javax.mail;
-import javax.mail.event.AllEventTests;
-import javax.mail.internet.AllInternetTests;
+package javax.mail.internet;
+import junit.framework.TestCase;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 /**
- * @version $Revision $ $Date: 2003/09/04 01:31:41 $
+ * @version $Revision: 1.1 $ $Date: 2003/09/04 01:31:41 $
  */
-public class AllTests {
-    public static Test suite() {
-        TestSuite suite = new TestSuite("Test for javax.mail");
-        //$JUnit-BEGIN$
-        suite.addTest(new TestSuite(FlagsTest.class));
-        suite.addTest(new TestSuite(HeaderTest.class));
-        suite.addTest(new TestSuite(MessagingExceptionTest.class));
-        suite.addTest(new TestSuite(URLNameTest.class));
-        suite.addTest(new TestSuite(PasswordAuthenticationTest.class));
-        suite.addTest(AllEventTests.suite());
-        suite.addTest(AllInternetTests.suite());
-        //$JUnit-END$
-        return suite;
+public class ContentDispositionTest extends TestCase {
+
+    public ContentDispositionTest(String name) {
+        super(name);
     }
+    
+    public void testContentDisposition() throws ParseException {
+        ContentDisposition c;
+        c = new ContentDisposition();
+        assertNotNull(c.getParameterList());
+        assertNull(c.getParameterList().get("nothing"));
+        assertNull(c.getDisposition());
+        assertNull(c.toString());
+        c.setDisposition("inline");
+        assertEquals("inline",c.getDisposition());
+        c.setParameter("file","file.txt");
+        assertEquals("file.txt",c.getParameterList().get("file"));
+        assertEquals("inline;file=file.txt",c.toString());
+        c = new ContentDisposition("inline");
+        assertEquals(0,c.getParameterList().size());
+        assertEquals("inline",c.getDisposition());
+        c = new ContentDisposition("inline",new ParameterList("charset=us-ascii;content-type=text/plain"));
+        assertEquals("inline",c.getDisposition());
+        assertEquals("us-ascii",c.getParameter("charset"));
+        assertEquals("text/plain",c.getParameter("content-type"));
+        c = new ContentDisposition("attachment;content-type=text/html;charset=UTF-8");
+        assertEquals("attachment",c.getDisposition());
+        assertEquals("UTF-8",c.getParameter("charset"));
+        assertEquals("text/html",c.getParameter("content-type"));
+    }
+
 }
