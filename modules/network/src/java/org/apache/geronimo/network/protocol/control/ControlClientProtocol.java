@@ -28,7 +28,7 @@ import org.apache.geronimo.network.protocol.UpPacket;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/17 03:11:59 $
+ * @version $Revision: 1.4 $ $Date: 2004/04/08 05:22:15 $
  */
 public class ControlClientProtocol extends AbstractControlProtocol {
 
@@ -131,7 +131,7 @@ public class ControlClientProtocol extends AbstractControlProtocol {
 
     public void sendDown(DownPacket packet) throws ProtocolException {
         try {
-            if (!sendMutex.attempt(timeout)) throw new ProtocolException("Send timeout.");
+            if (!sendMutex.attempt(timeout)) throw new ProtocolException("Send timeout");
             PassthroughDownPacket passthtough = new PassthroughDownPacket();
             passthtough.setBuffers(packet.getBuffers());
 

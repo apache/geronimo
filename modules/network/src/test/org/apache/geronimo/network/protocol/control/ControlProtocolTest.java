@@ -38,7 +38,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/04/03 22:57:42 $
+ * @version $Revision: 1.7 $ $Date: 2004/04/08 05:22:15 $
  */
 public class ControlProtocolTest extends TestCase {
 
@@ -119,7 +119,7 @@ public class ControlProtocolTest extends TestCase {
         clientStack.setSelectorManager(sm);
 
         SocketProtocol sp = new SocketProtocol();
-        sp.setTimeout(10 * 1000);
+        sp.setTimeout(15 * 1000);
         sp.setInterface(new InetSocketAddress(ssa.getConnectURI().getHost(), 0));
         sp.setAddress(new InetSocketAddress(ssa.getConnectURI().getHost(), ssa.getConnectURI().getPort()));
         sp.setSelectorManager(sm);
@@ -127,7 +127,7 @@ public class ControlProtocolTest extends TestCase {
         clientStack.push(sp);
 
         ControlClientProtocol ccp = new ControlClientProtocol();
-        ccp.setTimeout(10 * 1000);
+        ccp.setTimeout(15 * 1000);
 
         clientStack.push(ccp);
 

@@ -37,7 +37,7 @@ import org.apache.geronimo.transaction.BeanTransactionContext;
  * This adds the ability to enable or disable the operations depending on
  * the lifecycle of the EJB instance.
  *
- * @version $Revision: 1.3 $ $Date: 2004/04/07 23:38:18 $
+ * @version $Revision: 1.4 $ $Date: 2004/04/08 05:22:15 $
  */
 public class UserTransactionImpl implements UserTransaction, Serializable {
     private transient TransactionManager txnManager;
@@ -67,7 +67,7 @@ public class UserTransactionImpl implements UserTransaction, Serializable {
     public void setOnline(boolean online) {
         //too bad there's no implies operation
         // online implies transactionManager != null
-        assert !online & txnManager != null : "online requires a tx manager";
+        assert !online || txnManager != null : "online requires a tx manager";
         state.set(online ? ONLINE : OFFLINE);
     }
 

@@ -19,8 +19,6 @@ package org.apache.geronimo.gbean.jmx;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import junit.framework.TestCase;
-
 import org.apache.geronimo.gbean.DynamicGAttributeInfo;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
@@ -28,16 +26,16 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.MockDynamicGBean;
 import org.apache.geronimo.kernel.MockGBean;
 
+import junit.framework.TestCase;
+
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/18 10:04:50 $
+ * @version $Revision: 1.3 $ $Date: 2004/04/08 05:22:15 $
  */
 public class GBeanMBeanAttributeTest extends TestCase {
 
     private static final String attributeName = "Name";
 
     private static final String persistentPrimitiveAttributeName = "MutableInt";
-
-    private static final String attributeValue = "Value";
 
     private static ObjectName name;
     static {
@@ -227,7 +225,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
             final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", true,
                     "getVoidGetterOfFinalInt", null);
             try {
-                GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, attributeInfo, null);
+                new GBeanMBeanAttribute(gmbean, attributeInfo, null);
                 fail("Getter method not found on target; InvalidConfigurationException expected");
             } catch (InvalidConfigurationException expected) {
             }
@@ -237,7 +235,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
             final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", true, null,
                     "setThatDoesntExist");
             try {
-                GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, attributeInfo, null);
+                new GBeanMBeanAttribute(gmbean, attributeInfo, null);
                 fail("Setter method not found on target; InvalidConfigurationException expected");
             } catch (InvalidConfigurationException expected) {
             }
@@ -366,6 +364,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
                 attribute2.online();
                 fail("AssertionError or NullPointerException expected");
             } catch (Exception expected) {
+            } catch (AssertionError expected) {
             }
         }
     }
