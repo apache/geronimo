@@ -17,21 +17,19 @@
 
 package org.apache.geronimo.deployment;
 
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.jar.JarInputStream;
-import java.util.List;
 
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/04/17 20:34:24 $
+ * @version $Revision: 1.9 $ $Date: 2004/04/23 03:08:28 $
  */
 public interface ConfigurationBuilder {
     SchemaTypeLoader[] getTypeLoaders();
@@ -59,7 +57,7 @@ public interface ConfigurationBuilder {
      * @throws IOException if there was a problem reading or writing the files
      * @throws DeploymentException if there was a problem with the configuration
      */
-    void buildConfiguration(File outfile, File module, XmlObject plan) throws IOException, DeploymentException;
+    void buildConfiguration(File outfile, java.util.jar.Manifest manifest, File module, XmlObject plan) throws IOException, DeploymentException;
 
     /**
      * Build a configuration from an arbitrary input stream
@@ -69,5 +67,5 @@ public interface ConfigurationBuilder {
      * @throws IOException if there was a problem reading or writing the files
      * @throws DeploymentException if there was a problem with the configuration
      */
-    void buildConfiguration(File outfile, InputStream module, XmlObject plan) throws IOException, DeploymentException;
+    void buildConfiguration(File outfile, java.util.jar.Manifest manifest, InputStream module, XmlObject plan) throws IOException, DeploymentException;
 }

@@ -16,7 +16,7 @@
     limitations under the License.
 -->
   
-<!-- $Revision: 1.8 $ $Date: 2004/04/16 05:57:21 $ -->
+<!-- $Revision: 1.9 $ $Date: 2004/04/23 03:08:28 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -155,6 +155,10 @@
             <ant:arg value="src/plan/system-plan.xml"/>
             <ant:arg value="--outfile"/>
             <ant:arg value="${distDir}/bin/server.jar"/>
+            <ant:arg value="--mainClass"/>
+            <ant:arg value="org.apache.geronimo.system.main.Daemon"/>
+            <ant:arg value="--classPath"/>
+            <ant:arg value="${server.classpath}"/>
         </ant:java>
 
         <!-- build the J2EEServer configuration -->

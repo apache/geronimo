@@ -38,7 +38,6 @@
 
     <xs:complexType name="configurationType">
         <xs:sequence>
-            <xs:element name="executable" type="executableType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="include" type="dependencyType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="dependency" type="dependencyType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="gbean" type="gbeanType" minOccurs="1" maxOccurs="unbounded"/>

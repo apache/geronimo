@@ -29,6 +29,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.jar.Manifest;
+import java.util.jar.Attributes;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -50,7 +52,7 @@ import org.apache.xmlbeans.XmlObject;
  * Command line based deployment utility which combines multiple deployable modules
  * into a single configuration.
  *
- * @version $Revision: 1.17 $ $Date: 2004/04/03 22:37:57 $
+ * @version $Revision: 1.18 $ $Date: 2004/04/23 03:08:28 $
  */
 public class Deployer {
     private final Collection builders;
@@ -111,18 +113,29 @@ public class Deployer {
             saveOutput = true;
         }
 
+        Manifest manifest = new Manifest();
+        Attributes mainAttributes = manifest.getMainAttributes();
+        mainAttributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
+        if(cmd.mainClass != null) {
+            mainAttributes.putValue(Attributes.Name.MAIN_CLASS.toString(), cmd.mainClass);
+        }
+        if(cmd.classPath != null) {
+            mainAttributes.putValue(Attributes.Name.CLASS_PATH.toString(), cmd.classPath);
+        }
+
+
         try {
             if (cmd.module == null) {
-                builder.buildConfiguration(cmd.carfile, (InputStream) null, plan);
+                builder.buildConfiguration(cmd.carfile, manifest, (InputStream) null, plan);
             } else if ("file".equals(cmd.module.getProtocol())) {
                 File module = new File(new URI(cmd.module.toString()));
-                builder.buildConfiguration(cmd.carfile, module, plan);
+                builder.buildConfiguration(cmd.carfile, manifest, module, plan);
             } else if (cmd.module.toString().endsWith("/")) {
                 throw new DeploymentException("Unpacked modules must be files");
             } else {
                 InputStream moduleStream = cmd.module.openStream();
                 try {
-                    builder.buildConfiguration(cmd.carfile, moduleStream, plan);
+                    builder.buildConfiguration(cmd.carfile, manifest, moduleStream, plan);
                 } finally {
                     try {
                         moduleStream.close();
@@ -175,6 +188,8 @@ public class Deployer {
         options.addOption("o", "outfile", true, "output file to generate");
         options.addOption("m", "module", true, "module to deploy");
         options.addOption("p", "plan", true, "deployment plan");
+        options.addOption(null, "mainClass", true, "deployment plan");
+        options.addOption(null, "classPath", true, "deployment plan");
 
         CommandLine cmd = new PosixParser().parse(options, args);
         if (cmd.hasOption("h")) {
@@ -201,6 +216,8 @@ public class Deployer {
             System.err.println("No plan or module specified");
             return null;
         }
+        command.mainClass = cmd.hasOption("mainClass") ? cmd.getOptionValue("mainClass") : null;
+        command.classPath = cmd.hasOption("classPath") ? cmd.getOptionValue("classPath") : null;
         return command;
     }
 
@@ -222,6 +239,8 @@ public class Deployer {
         private File carfile;
         private URL module;
         private URL plan;
+        private String mainClass;
+        private String classPath;
     }
 
     public static final GBeanInfo GBEAN_INFO;

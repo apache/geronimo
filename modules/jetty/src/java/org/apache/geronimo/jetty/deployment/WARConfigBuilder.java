@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 import javax.management.MalformedObjectNameException;
@@ -77,7 +78,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.18 $ $Date: 2004/04/17 20:34:24 $
+ * @version $Revision: 1.19 $ $Date: 2004/04/23 03:08:28 $
  */
 public class WARConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
@@ -120,11 +121,11 @@ public class WARConfigBuilder implements ConfigurationBuilder {
     }
 
 
-    public void buildConfiguration(File outfile, File module, XmlObject plan) throws IOException, DeploymentException {
+    public void buildConfiguration(File outfile, Manifest manifest, File module, XmlObject plan) throws IOException, DeploymentException {
         if (!module.isDirectory()) {
             FileInputStream in = new FileInputStream(module);
             try {
-                buildConfiguration(outfile, in, plan);
+                buildConfiguration(outfile, manifest, in, plan);
                 return;
             } finally {
                 try {
@@ -180,7 +181,7 @@ public class WARConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    public void buildConfiguration(File outfile, InputStream in, XmlObject plan) throws IOException, DeploymentException {
+    public void buildConfiguration(File outfile, Manifest manifest, InputStream in, XmlObject plan) throws IOException, DeploymentException {
         WebAppType webApp = null;
         JettyWebAppType jettyWebApp = ((JettyWebAppDocument) plan).getWebApp();
         URI configID = getConfigID(jettyWebApp);

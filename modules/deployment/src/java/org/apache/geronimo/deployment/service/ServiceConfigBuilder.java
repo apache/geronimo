@@ -39,7 +39,6 @@ import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
-import org.apache.geronimo.deployment.xbeans.ExecutableType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xbeans.ServiceDocument;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -55,7 +54,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.12 $ $Date: 2004/04/03 22:37:58 $
+ * @version $Revision: 1.13 $ $Date: 2004/04/23 03:08:28 $
  */
 public class ServiceConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
@@ -82,32 +81,17 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         return null;
     }
 
-    public void buildConfiguration(File outfile, File module, XmlObject plan) throws IOException, DeploymentException {
-        buildConfiguration(outfile, (InputStream)null, plan);
+    public void buildConfiguration(File outfile, Manifest manifest, File module, XmlObject plan) throws IOException, DeploymentException {
+        buildConfiguration(outfile, manifest, (InputStream)null, plan);
     }
 
-    public void buildConfiguration(File outfile, InputStream ignored, XmlObject plan) throws IOException, DeploymentException {
-        // create the manifext
-        Manifest manifest = new Manifest();
-        Attributes mainAttributes = manifest.getMainAttributes();
-        mainAttributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
-
-        // add the manifest entries to make the archive executable
-        ConfigurationType configType = ((ConfigurationDocument) plan).getConfiguration();
-        ExecutableType executable = configType.getExecutable();
-        if(executable != null) {
-            mainAttributes.putValue(Attributes.Name.MAIN_CLASS.toString(), executable.getMainClass());
-            if(executable.getClassPath() != null) {
-                mainAttributes.putValue(Attributes.Name.CLASS_PATH.toString(), executable.getClassPath());
-            }
-        }
-
+    public void buildConfiguration(File outfile, Manifest manifest, InputStream ignored, XmlObject plan) throws IOException, DeploymentException {
         FileOutputStream fos = new FileOutputStream(outfile);
         try {
             JarOutputStream os = new JarOutputStream(new BufferedOutputStream(fos), manifest);
 
             // if this is an executable jar add the startup jar finder file
-            if(executable != null) {
+            if (manifest.getMainAttributes().containsKey(Attributes.Name.MAIN_CLASS)) {
                 os.putNextEntry(new ZipEntry("META-INF/startup-jar"));
                 os.closeEntry();
             }

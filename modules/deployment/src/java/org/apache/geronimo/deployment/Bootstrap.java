@@ -38,7 +38,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * Helper class to bootstrap the Geronimo deployer.
  *
- * @version $Revision: 1.14 $ $Date: 2004/04/05 05:54:11 $
+ * @version $Revision: 1.15 $ $Date: 2004/04/23 03:08:28 $
  */
 public class Bootstrap {
     private String deployerJar;
@@ -148,7 +148,7 @@ public class Bootstrap {
             // build and install the j2ee-deployer configuration
             File tempFile = File.createTempFile("j2ee-deployer", ".car");
             try {
-                builder.buildConfiguration(tempFile, (InputStream)null, j2eeDeployerXML);
+                builder.buildConfiguration(tempFile, manifest, (InputStream)null, j2eeDeployerXML);
                 configStore.install(tempFile.toURL());
             } finally {
                 tempFile.delete();

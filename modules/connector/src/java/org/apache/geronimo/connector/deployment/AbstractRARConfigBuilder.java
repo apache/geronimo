@@ -31,6 +31,7 @@ import java.net.URL;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -59,7 +60,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.14 $ $Date: 2004/04/17 20:34:24 $
+ * @version $Revision: 1.15 $ $Date: 2004/04/23 03:08:28 $
  *
  * */
 public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
@@ -132,13 +133,13 @@ public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    public void buildConfiguration(File outfile, File module, XmlObject plan) throws IOException, DeploymentException {
+    public void buildConfiguration(File outfile, Manifest manifest, File module, XmlObject plan) throws IOException, DeploymentException {
         if (module.isDirectory()) {
             throw new DeploymentException("Cannot deploy an unpacked RAR");
         }
         FileInputStream is = new FileInputStream(module);
         try {
-            buildConfiguration(outfile, is, plan);
+            buildConfiguration(outfile, manifest, is, plan);
         } finally {
             try {
                 is.close();
@@ -148,7 +149,7 @@ public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    public void buildConfiguration(File outfile, InputStream in, XmlObject plan) throws IOException, DeploymentException {
+    public void buildConfiguration(File outfile, Manifest manifest, InputStream in, XmlObject plan) throws IOException, DeploymentException {
         GerConnectorType geronimoConnector = ((GerConnectorDocument) plan).getConnector();
         URI configID;
         try {

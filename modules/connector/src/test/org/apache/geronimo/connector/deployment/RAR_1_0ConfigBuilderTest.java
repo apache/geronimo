@@ -47,7 +47,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/04/03 22:37:57 $
+ * @version $Revision: 1.7 $ $Date: 2004/04/23 03:08:28 $
  *
  * */
 public class RAR_1_0ConfigBuilderTest extends TestCase {
@@ -118,7 +118,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
         kernel.boot();
         try {
             RAR_1_0ConfigBuilder configBuilder = new RAR_1_0ConfigBuilder(kernel, null, new ObjectName("geronimo.connector:service=ConnectionTracker"));
-            configBuilder.buildConfiguration(outfile, getRARInputStream(), geronimoConnectorDocument);
+            configBuilder.buildConfiguration(outfile, null, getRARInputStream(), geronimoConnectorDocument);
         } finally {
             kernel.shutdown();
             outfile.delete();

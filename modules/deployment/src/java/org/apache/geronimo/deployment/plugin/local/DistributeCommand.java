@@ -28,7 +28,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.9 $ $Date: 2004/04/03 22:37:58 $
+ * @version $Revision: 1.10 $ $Date: 2004/04/23 03:08:28 $
  */
 public class DistributeCommand extends CommandSupport {
     private final ConfigurationStore store;
@@ -49,7 +49,7 @@ public class DistributeCommand extends CommandSupport {
         try {
             // create some working space
             configFile = File.createTempFile("deploy", ".car");
-            builder.buildConfiguration(configFile, in, plan);
+            builder.buildConfiguration(configFile, null, in, plan);
 
             // install in our local server
             store.install(configFile.toURL());
