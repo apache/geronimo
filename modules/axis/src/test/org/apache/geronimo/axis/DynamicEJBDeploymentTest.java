@@ -48,6 +48,7 @@ public class DynamicEJBDeploymentTest extends AbstractTestCase {
     private static final ObjectName transactionManagerObjectName = JMXUtil.getObjectName(j2eeDomainName + ":type=TransactionManager");
     private static final ObjectName connectionTrackerObjectName = JMXUtil.getObjectName(j2eeDomainName + ":type=ConnectionTracker");
     private Kernel kernel;
+    private J2EEManager j2eeManager;
 
     /**
      * @param testName
@@ -57,7 +58,6 @@ public class DynamicEJBDeploymentTest extends AbstractTestCase {
     }
 
     protected void setUp() throws Exception {
-        super.setUp();
         String str = System.getProperty(javax.naming.Context.URL_PKG_PREFIXES);
         if (str == null) {
             str = ":org.apache.geronimo.naming";
@@ -67,39 +67,40 @@ public class DynamicEJBDeploymentTest extends AbstractTestCase {
         System.setProperty(javax.naming.Context.URL_PKG_PREFIXES, str);
         kernel = new Kernel("blah");
         kernel.boot();
-
-        GBeanMBean serverInfoGBean = new GBeanMBean(ServerInfo.GBEAN_INFO);
-        serverInfoGBean.setAttribute("baseDirectory", ".");
-        ObjectName serverInfoObjectName = ObjectName.getInstance(j2eeDomainName + ":type=ServerInfo");
-        kernel.loadGBean(serverInfoObjectName, serverInfoGBean);
-        kernel.startGBean(serverInfoObjectName);
-        assertRunning(kernel, serverInfoObjectName);
-
-        GBeanMBean j2eeServerGBean = new GBeanMBean(J2EEServerImpl.GBEAN_INFO);
-        j2eeServerGBean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfoObjectName));
-        ObjectName j2eeServerObjectName = ObjectName.getInstance(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName);
-        kernel.loadGBean(j2eeServerObjectName, j2eeServerGBean);
-        kernel.startGBean(j2eeServerObjectName);
-        assertRunning(kernel, j2eeServerObjectName);
-
-        GBeanMBean tmGBean = new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
-        Set patterns = new HashSet();
-        patterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
-        patterns.add(ObjectName.getInstance("geronimo.server:j2eeType=ActivationSpec,*"));
-        tmGBean.setReferencePatterns("ResourceManagers", patterns);
-        kernel.loadGBean(transactionManagerObjectName, tmGBean);
-        kernel.startGBean(transactionManagerObjectName);
-        assertRunning(kernel, transactionManagerObjectName);
-
-        GBeanMBean connectionTrackerGBean = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
-        ObjectName connectionTrackerObjectName = ObjectName.getInstance(j2eeDomainName + ":type=ConnectionTracker");
-        kernel.loadGBean(connectionTrackerObjectName, connectionTrackerGBean);
-        kernel.startGBean(connectionTrackerObjectName);
-        assertRunning(kernel, connectionTrackerObjectName);
-
-        //load mock resource adapter for mdb
-//		DeploymentHelper.setUpResourceAdapter(kernel);
-
+//
+//        GBeanMBean serverInfoGBean = new GBeanMBean(ServerInfo.GBEAN_INFO);
+//        serverInfoGBean.setAttribute("baseDirectory", ".");
+//        ObjectName serverInfoObjectName = ObjectName.getInstance(j2eeDomainName + ":type=ServerInfo");
+//        kernel.loadGBean(serverInfoObjectName, serverInfoGBean);
+//        kernel.startGBean(serverInfoObjectName);
+//        assertRunning(kernel, serverInfoObjectName);
+//
+//        GBeanMBean j2eeServerGBean = new GBeanMBean(J2EEServerImpl.GBEAN_INFO);
+//        j2eeServerGBean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfoObjectName));
+//        ObjectName j2eeServerObjectName = ObjectName.getInstance(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName);
+//        kernel.loadGBean(j2eeServerObjectName, j2eeServerGBean);
+//        kernel.startGBean(j2eeServerObjectName);
+//        assertRunning(kernel, j2eeServerObjectName);
+//
+//        GBeanMBean tmGBean = new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
+//        Set patterns = new HashSet();
+//        patterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
+//        patterns.add(ObjectName.getInstance("geronimo.server:j2eeType=ActivationSpec,*"));
+//        tmGBean.setReferencePatterns("ResourceManagers", patterns);
+//        kernel.loadGBean(transactionManagerObjectName, tmGBean);
+//        kernel.startGBean(transactionManagerObjectName);
+//        assertRunning(kernel, transactionManagerObjectName);
+//
+//        GBeanMBean connectionTrackerGBean = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
+//        ObjectName connectionTrackerObjectName = ObjectName.getInstance(j2eeDomainName + ":type=ConnectionTracker");
+//        kernel.loadGBean(connectionTrackerObjectName, connectionTrackerGBean);
+//        kernel.startGBean(connectionTrackerObjectName);
+//        assertRunning(kernel, connectionTrackerObjectName);
+//
+//        //load mock resource adapter for mdb
+////		DeploymentHelper.setUpResourceAdapter(kernel);
+          j2eeManager = new J2EEManager();
+          j2eeManager.startJ2EEContainer(kernel);
     }
 
     public void testEJBJarDeploy() throws Exception {
@@ -154,9 +155,10 @@ public class DynamicEJBDeploymentTest extends AbstractTestCase {
     }
 
     protected void tearDown() throws Exception {
-        kernel.stopGBean(connectionTrackerObjectName);
-        kernel.stopGBean(transactionManagerObjectName);
-        kernel.shutdown();
+        j2eeManager.stopJ2EEContainer(kernel);
+//        kernel.stopGBean(connectionTrackerObjectName);
+//        kernel.stopGBean(transactionManagerObjectName);
+//        kernel.shutdown();
     }
 
     private void assertRunning(Kernel kernel, ObjectName objectName) throws Exception {

@@ -173,25 +173,16 @@ public class WebServiceDeployer {
         if (packageModule.getEjbJarfile() != null) {
             this.hasEJB = true;
 
-            System.out.println("the web service is based on a ejb.");
-            //log.info("the web service is based on a ejb.");
+
+            log.info("the web service is based on a ejb.");
         } else if (packageModule.getWebddfile() != null) {
             this.hasEJB = false;
-
-            System.out.println("the web service is based on a java class.");
-            //log.info("the web service is based on a java class.");
+            log.info("the web service is based on a java class.");
         } else {
             throw new DeploymentException("the module must have web.xml or ejb-jar.xml file");
         }
 
         File file = findTheImpl();
-        
-//        ZipFile zipfile = new ZipFile(module);
-//        ZipEntry pentry = new ZipEntry("ws.properties");
-//        Properties p = new Properties();
-//        InputStream in = zipfile.getInputStream(pentry);
-//        p.load(in);
-//        in.close();
         deployTheWebService(file);
     }
 
@@ -311,11 +302,8 @@ public class WebServiceDeployer {
             ArrayList classList = AxisGeronimoUtils.getClassFileList(new ZipFile(module));
             for (int i = 0; i < classList.size(); i++) {
                 String className = (String) classList.get(i);
-                System.out.println(className);
                 ClassUtils.setClassLoader(className, classloader);
             }
-
-            System.out.println("Calss Utils class lader set at deployment =" + classloader);
 
             //This must come after the Classloader set as axis try to load the
             //Classes at the deployment 
@@ -465,7 +453,7 @@ public class WebServiceDeployer {
                 Call call = adminClient.getCall();
                 call.setTargetEndpointAddress(requestUrl);
                 String result = adminClient.process(null, deplydd);
-                System.out.println(result);
+                log.info(result);
             } else {
                 throw new DeploymentException("the deploy.wsdd can not be found");
             }

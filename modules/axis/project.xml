@@ -295,6 +295,7 @@
                 <module>true</module>
             </properties>
         </dependency>
+        <!--
         <dependency>
             <groupId>jaxb-ri</groupId>
             <artifactId>jaxb-api</artifactId>
@@ -343,6 +344,17 @@
                 <module>true</module>
             </properties>
         </dependency>
+        -->
+        
+		<dependency>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xbean-apache-1.0</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+        
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis</artifactId>
@@ -430,8 +442,8 @@
                 <exclude>**/Abstract*.java</exclude>
                 <exclude>**/EWSTest.java</exclude>
                 <exclude>**/ComplexTypeWebServiceTest.java</exclude>
-                <!-- Temporary ignore for all tests -->
-                <exclude>**/*.java</exclude>
+                <!-- Temporary ignore for all tests 
+                <exclude>**/*.java</exclude> -->
             </excludes>
 
             <resources>

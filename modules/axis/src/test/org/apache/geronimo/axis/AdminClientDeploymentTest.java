@@ -87,7 +87,6 @@ public class AdminClientDeploymentTest extends AbstractTestCase {
         Call call = adminClient.getCall();
         call.setTargetEndpointAddress(requestUrl);
         String result = adminClient.process(null, deplydd);
-        System.out.println(result);
 
         URL wsdlrequestUrl = new URL("http://localhost:"
                 + AxisGeronimoConstants.AXIS_SERVICE_PORT

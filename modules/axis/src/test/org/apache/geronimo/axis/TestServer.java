@@ -54,7 +54,7 @@ public class TestServer {
     }
     
     public void stop()throws Exception{
-        System.out.println("Shutting down the kernel");
+        //System.out.println("Shutting down the kernel");
         kernel.stopGBean(name);
         kernel.unloadGBean(name);
         

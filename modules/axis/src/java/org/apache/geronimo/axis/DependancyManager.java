@@ -41,7 +41,7 @@ import java.util.Vector;
  * Class DependancyEJBManager
  */
 public class DependancyManager {
-    protected final Log log = LogFactory.getLog(getClass());
+    protected static final Log log = LogFactory.getLog(DependancyManager.class);
     /**
      * Field j2eeServerObjectName
      */
@@ -118,7 +118,6 @@ public class DependancyManager {
         for (int i = 0; i < dependedEJBs.size(); i++) {
             ObjectName gbeanName = (ObjectName) dependedEJBs.get(i);
             AxisGeronimoUtils.stopGBean(gbeanName, kernel);
-            System.out.println("stop the dependent EJB name=" + gbeanName);
             log.debug("stop the dependent EJB name=" + gbeanName);
         }
     }
@@ -138,7 +137,6 @@ public class DependancyManager {
         try {
             // load the configuration
             GBeanMBean config = loadConfig(unpackedDir);
-            System.out.println("Context Loader " + Thread.currentThread().getContextClassLoader());
             ObjectName objectName = service;
 
             dependedEJBs.add(objectName);
@@ -150,7 +148,7 @@ public class DependancyManager {
 
             ClassLoader cl = (ClassLoader) kernel.getAttribute(objectName, "classLoader");
 
-            System.out.println("start dependent EJB name=" + objectName
+            log.info("start dependent EJB name=" + objectName
                     + " dir=" + unpackedDir.getAbsolutePath() + "the config CL =" + cl);
             return cl;
         } catch (DeploymentException e) {

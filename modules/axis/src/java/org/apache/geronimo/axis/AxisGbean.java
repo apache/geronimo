@@ -16,6 +16,10 @@
 
 package org.apache.geronimo.axis;
 
+import javax.management.ObjectName;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -23,13 +27,11 @@ import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
-import javax.management.ObjectName;
-
 /**
  * Class AxisGbean
  */
 public class AxisGbean implements GBeanLifecycle {
-
+    private static Log log = LogFactory.getLog(AxisGbean.class);
     /**
      * Field name
      */
@@ -101,7 +103,7 @@ public class AxisGbean implements GBeanLifecycle {
      * Method doFail
      */
     public void doFail() {
-        System.out.println("Axis GBean has failed");
+        log.info("Axis GBean has failed");
     }
 
     /**
@@ -111,9 +113,9 @@ public class AxisGbean implements GBeanLifecycle {
      * @throws Exception
      */
     public void doStart() throws WaitingException, Exception {
-        System.out.println("Axis GBean has started");
-        System.out.println(kernel);
-        System.out.println(objectName);
+        log.info("Axis GBean has started");
+        log.info(kernel);
+        log.info(objectName);
         j2eeManager.startJ2EEContainer(kernel);
         wscontiner.doStart();
         wsdeployer = new WebServiceDeployer(AxisGeronimoConstants.TEMP_OUTPUT,
@@ -128,7 +130,7 @@ public class AxisGbean implements GBeanLifecycle {
      * @throws Exception
      */
     public void doStop() throws WaitingException, Exception {
-        System.out.println("Axis GBean has stoped");
+        log.info("Axis GBean has stoped");
         wscontiner.doStop();
         j2eeManager.stopJ2EEContainer(kernel);
     }

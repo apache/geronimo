@@ -40,6 +40,23 @@ public class J2EEManager {
 
     public void init() throws AxisFault {
     }
+    
+//    containerName = new ObjectName("geronimo.jetty:role=Container");
+//    containerPatterns = Collections.singleton(containerName);
+//    connectorName = new ObjectName("geronimo.jetty:role=Connector");
+//    appName = new ObjectName("geronimo.jetty:app=test");
+//
+//    tmName = new ObjectName("geronimo.test:role=TransactionManager");
+//    tcmName = new ObjectName("geronimo.test:role=TransactionContextManager");
+//    tcaName = new ObjectName("geronimo.test:role=ConnectionTrackingCoordinator");
+//
+//    kernel = new Kernel("test.kernel", "test");
+//    kernel.boot();
+//    mbServer = kernel.getMBeanServer();
+//    container = new GBeanMBean(JettyContainerImpl.GBEAN_INFO);
+//
+//
+
 
     public void startJ2EEContainer(Kernel kernel) throws AxisFault {
         try {
@@ -95,6 +112,7 @@ public class J2EEManager {
             GBeanMBean tmGBean = new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
             Set rmpatterns = new HashSet();
             rmpatterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
+            tmGBean.setAttribute("defaultTransactionTimeoutSeconds", new Integer(10));
             tmGBean.setReferencePatterns("ResourceManagers", rmpatterns);
             AxisGeronimoUtils.startGBeanOnlyIfNotStarted(AxisGeronimoConstants.TRANSACTION_MANAGER_NAME, tmGBean, kernel);
 

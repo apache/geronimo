@@ -36,12 +36,10 @@
 		 word is used in the source code being compiled. 
 		 The generated ANT file might need to pass the
 		 -source 1.4 option to the java compiler -->
-	    <!--
             <ant:ant antfile="build.xml"
                 inheritall="true"
                 inheritrefs="true"
                 dir="target/generated/samples"/>
-	    -->
         </j:jelly>
     </preGoal>
 </project>

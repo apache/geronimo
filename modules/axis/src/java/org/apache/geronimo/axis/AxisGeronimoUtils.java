@@ -49,12 +49,11 @@ public class AxisGeronimoUtils {
         try {
             ContainerIndex index = ContainerIndex.getInstance();
             int length = index.length();
-            System.out.println("number of continers " + length);
+            log.info("number of continers " + length);
             for (int i = 0; i < length; i++) {
                 EJBContainer contianer = index.getContainer(i);
                 if (contianer != null) {
                     String name = contianer.getEJBName();
-                    System.out.println("found the ejb " + name);
                     log.debug("found the ejb " + name);
                     if (ejbName.equals(name)) {
                         EJBHome statelessHome = contianer.getEJBHome();
@@ -66,20 +65,20 @@ public class AxisGeronimoUtils {
                                     return methods[j].invoke(stateless, parameters);
                                 } catch (Exception e) {
                                     Class[] classes = methods[j].getParameterTypes();
-                                    System.out.print(methodName + "(");
+                                    log.info(methodName + "(");
                                     if (parameters == null || classes == null) {
-                                        System.out.println("both or one is null");
+                                        log.debug("both or one is null");
                                     } else {
                                         if (parameters.length != classes.length)
-                                            System.out.println("parameter length do not match expected parametes");
+                                            log.debug("parameter length do not match expected parametes");
                                         for (int k = 0; k < classes.length; k++) {
                                             Object obj = parameters[k];
                                             Class theClass = classes[k];
                                             if (theClass != obj.getClass()) {
-                                                System.out.println("calsses are differant");
+                                                log.debug("calsses are differant");
                                             }
-                                            System.out.println("ejb class loader " + theClass.getClassLoader());
-                                            System.out.println("parameter class loader = " + obj.getClass().getClassLoader());
+                                            log.debug("ejb class loader " + theClass.getClassLoader());
+                                            log.debug("parameter class loader = " + obj.getClass().getClassLoader());
                                         }
                                     }
                                     throw e;
@@ -90,7 +89,6 @@ public class AxisGeronimoUtils {
                         throw new NoSuchMethodException(methodName + " not found");
                     }
                 } else {
-                    System.out.println("Continer is null");
                     log.debug("Continer is null");
                 }
             }
@@ -129,9 +127,9 @@ public class AxisGeronimoUtils {
         try {
             if (!checkAlreadyStarted(objectName, kernel)) {
                 startGBean(objectName, gbean, kernel);
-                System.out.println("Started .. " + objectName);
+                log.info("Started .. " + objectName);
             } else {
-                System.out.println(objectName + " GBean already started");
+                log.info(objectName + " GBean already started");
             }
         } catch (Exception e) {
             throw new DeploymentException(e);
@@ -151,9 +149,9 @@ public class AxisGeronimoUtils {
             if (startedGbeans.contains(objectName)) {
                 kernel.stopGBean(objectName);
                 kernel.unloadGBean(objectName);
-                System.out.println("stoped .. " + objectName);
+                log.info("stoped .. " + objectName);
             } else {
-                System.out.println(objectName + " was runing when axis start it "
+                log.info(objectName + " was runing when axis start it "
                         + "Axis will not stop it");
             }
         } catch (Exception e) {
@@ -199,7 +197,7 @@ public class AxisGeronimoUtils {
 
     public static boolean checkAlreadyStarted(ObjectName name, Kernel kernel) {
         Set set = kernel.listGBeans(name);
-        System.out.println(name + " = " + set);
+        log.info(name + " = " + set);
         if (set == null)
             return false;
         if (set.isEmpty()) {

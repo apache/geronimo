@@ -15,16 +15,6 @@
  */
 package org.apache.geronimo.axis;
 
-import org.apache.axis.utils.ClassUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.transaction.UserTransactionImpl;
-
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.MalformedURLException;
@@ -36,6 +26,17 @@ import java.util.Collections;
 import java.util.Properties;
 import java.util.Set;
 import java.util.zip.ZipFile;
+
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+
+import org.apache.axis.utils.ClassUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.transaction.OnlineUserTransaction;
 
 /**
  * Class WebServiceContainer
@@ -104,6 +105,8 @@ public class WebServiceManager {
         //test has changed
         ClassUtils.setDefaultClassLoader(Thread.currentThread().getContextClassLoader());
         loadDeployedWebservices();
+        
+        org.apache.geronimo.jetty.JettyWebAppContext c = null;
 
         GBeanMBean app = new GBeanMBean("org.apache.geronimo.jetty.JettyWebAppContext");
         URL url =
@@ -112,14 +115,17 @@ public class WebServiceManager {
         app.setAttribute("uri", URI.create(url.toString()));
         app.setAttribute("contextPath", "/axis");
         app.setAttribute("componentContext", null);
-        UserTransactionImpl userTransaction = new UserTransactionImpl();
+        OnlineUserTransaction userTransaction = new OnlineUserTransaction();
         app.setAttribute("userTransaction", userTransaction);
-        app.setReferencePatterns("Configuration", Collections.EMPTY_SET);
+//        app.setReferencePatterns("Configuration", Collections.EMPTY_SET);
+        app.setAttribute("webClassPath", new URI[0]);
+        app.setAttribute("contextPriorityClassLoader", Boolean.FALSE);
         app.setReferencePatterns("JettyContainer", containerPatterns);
+        app.setAttribute("configurationBaseUrl", Thread.currentThread().getContextClassLoader().getResource("deployables/"));
         app.setReferencePattern("TransactionContextManager", AxisGeronimoConstants.TRANSACTION_CONTEXT_MANAGER_NAME);
         app.setReferencePattern("TrackedConnectionAssociator", AxisGeronimoConstants.TRACKED_CONNECTION_ASSOCIATOR_NAME);
 
-        start(appName, app);
+        AxisGeronimoUtils.startGBean(appName, app,kernel);
         log.debug("Axis started as a web application inside Jetty");
     }
 
@@ -132,28 +138,28 @@ public class WebServiceManager {
         ejbManager.stopDependancies();
     }
 
-    /**
-     * Method start
-     *
-     * @param name
-     * @param instance
-     * @throws Exception
-     */
-    private void start(ObjectName name, Object instance) throws Exception {
-        mbServer.registerMBean(instance, name);
-        mbServer.invoke(name, "start", null, null);
-    }
-
-    /**
-     * Method stop
-     *
-     * @param name
-     * @throws Exception
-     */
-    private void stop(ObjectName name) throws Exception {
-        mbServer.invoke(name, "stop", null, null);
-        mbServer.unregisterMBean(name);
-    }
+//    /**
+//     * Method start
+//     *
+//     * @param name
+//     * @param instance
+//     * @throws Exception
+//     */
+//    private void start(ObjectName name, Object instance) throws Exception {
+//        mbServer.registerMBean(instance, name);
+//        mbServer.invoke(name, "start", null, null);
+//    }
+//
+//    /**
+//     * Method stop
+//     *
+//     * @param name
+//     * @throws Exception
+//     */
+//    private void stop(ObjectName name) throws Exception {
+//        mbServer.invoke(name, "stop", null, null);
+//        mbServer.unregisterMBean(name);
+//    }
 
     /**
      * Method loadDeployedWebservices
@@ -202,7 +208,6 @@ public class WebServiceManager {
                         ArrayList classList = AxisGeronimoUtils.getClassFileList(new ZipFile(module));
                         for (int j = 0; j < classList.size(); j++) {
                             String className = (String) classList.get(i);
-                            System.out.println(className);
                             ClassUtils.setClassLoader(className, classloader);
                         }
                     }
