@@ -24,6 +24,7 @@ import javax.enterprise.deploy.shared.CommandType;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.KernelMBean;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 
@@ -47,12 +48,17 @@ public class UndeployCommand extends CommandSupport {
                 TargetModuleIDImpl module = (TargetModuleIDImpl) modules[i];
 
                 URI moduleID = URI.create(module.getModuleID());
-                kernel.stopConfiguration(moduleID);
+                try {
+                    kernel.stopConfiguration(moduleID);
 
-                TargetImpl target = (TargetImpl) module.getTarget();
-                ObjectName storeName = target.getObjectName();
-                URI configID = URI.create(module.getModuleID());
-                kernel.invoke(storeName, "uninstall", new Object[]{configID}, UNINSTALL_SIG);
+                    TargetImpl target = (TargetImpl) module.getTarget();
+                    ObjectName storeName = target.getObjectName();
+                    URI configID = URI.create(module.getModuleID());
+                    kernel.invoke(storeName, "uninstall", new Object[]{configID}, UNINSTALL_SIG);
+                } catch (NoSuchConfigException e) {
+                    // module was already undeployed - just continue
+                }
+
                 addModule(module);
             }
             complete("Completed");

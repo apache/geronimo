@@ -278,6 +278,10 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
     public void stopGBean(ObjectName name) throws InstanceNotFoundException, InvalidConfigException {
         try {
             invoke(name, "stop");
+        } catch (InstanceNotFoundException e) {
+            throw e;
+        } catch (InvalidConfigException e) {
+            throw e;
         } catch (Exception e) {
             throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
         }
