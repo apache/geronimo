@@ -33,7 +33,7 @@ import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
 /**
  * RemoteNode monitor.
  *
- * @version $Revision: 1.2 $ $Date: 2004/07/08 05:13:29 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/17 03:48:57 $
  */
 public class RemoteNodeMonitor
 {
@@ -43,13 +43,13 @@ public class RemoteNodeMonitor
     /**
      * Number of milliseconds between two scans.
      */
-    public static final long MONITOR_PERIOD = 2000l;
+    public static final long MONITOR_PERIOD = 500l;
 
     /**
      * Nodes which have been idle for more than this number of milliseconds
      * are left.
      */
-    public static final long IDLE_TIME = 10000l;
+    public static final long IDLE_TIME = 1000l;
 
     /**
      * Manager whose RemoteNodes are monitored.
@@ -142,15 +142,15 @@ public class RemoteNodeMonitor
                 Map.Entry entry = (Map.Entry) iter.next();
                 NodeInfo node = (NodeInfo) entry.getKey();
                 Long lastActivity = (Long)entry.getValue();
-                if ( lastActivity.longValue() >
+                if ( lastActivity.longValue() <
                     System.currentTimeMillis() + IDLE_TIME ) {
                     try {
                         manager.leaveRemoteNode(node);
                     } catch (NodeException e) {
                         log.error("Can not leave " + node, e);
                     }
+                    iter.remove();
                 }
-                iter.remove();
             }
         }
     }
