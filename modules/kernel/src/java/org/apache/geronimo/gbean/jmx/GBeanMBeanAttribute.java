@@ -70,7 +70,7 @@ import org.apache.geronimo.gbean.InvalidConfigurationException;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/16 23:31:21 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/20 06:09:42 $
  */
 public class GBeanMBeanAttribute {
     private static final Log log = LogFactory.getLog(GBeanMBeanAttribute.class);
@@ -179,8 +179,8 @@ public class GBeanMBeanAttribute {
                     getterMethod.getReturnType() != setterMethod.getParameterTypes()[0]) {
                 throw new InvalidConfigurationException("Getter and setter methods do not have the same types:" +
                         " name=" + attributeInfo.getName() +
-                        " geterMethod=" + getterMethod.getName() +
-                        " seterMethod=" + setterMethod.getName() +
+                        " getterMethod=" + getterMethod.getName() +
+                        " setterMethod=" + setterMethod.getName() +
                         " targetClass=" + gMBean.getType().getName());
             }
 
@@ -191,6 +191,7 @@ public class GBeanMBeanAttribute {
                         " name=" + attributeInfo.getName() +
                         " constructorType=" + constructorType.getName() +
                         " getterMethod=" + getterMethod.getName() +
+                        " getterMethod type=" + getterMethod.getReturnType().getName() +
                         " targetClass=" + gMBean.getType().getName());
             }
 
@@ -201,6 +202,7 @@ public class GBeanMBeanAttribute {
                         " name=" + attributeInfo.getName() +
                         " constructorType=" + constructorType.getName() +
                         " setterMethod=" + setterMethod.getName() +
+                        " getterMethod type=" + setterMethod.getParameterTypes()[0].getName() +
                         " targetClass=" + gMBean.getType().getName());
             }
 

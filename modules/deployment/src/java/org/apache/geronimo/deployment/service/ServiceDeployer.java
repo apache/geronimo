@@ -85,7 +85,7 @@ import org.w3c.dom.NodeList;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/19 06:40:07 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/20 06:10:29 $
  */
 public class ServiceDeployer implements ModuleFactory {
     private final DocumentBuilder parser;
@@ -147,7 +147,7 @@ public class ServiceDeployer implements ModuleFactory {
                     value = editor.getValue();
                 }
             } catch (ClassNotFoundException e) {
-                throw new DeploymentException("Could not load attribute class", e);
+                throw new DeploymentException("Could not load attribute class: attribute: " + attr + ", type: " + type + " for component: " + objectName, e);
             }
             values.put(attr, value);
         }
