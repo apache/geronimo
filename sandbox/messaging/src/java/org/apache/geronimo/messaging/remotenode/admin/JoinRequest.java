@@ -34,7 +34,7 @@ import EDU.oswego.cs.dl.util.concurrent.TimeoutException;
 /**
  * Join request.
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/03 14:39:44 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/03 14:51:16 $
  */
 public class JoinRequest
     implements RemoteNodeConnectionCommand
@@ -64,7 +64,7 @@ public class JoinRequest
         joined = aJoined;
     }
     
-	public void execute(RemoteNodeConnection aConnection) {
+    public void execute(RemoteNodeConnection aConnection) {
         Msg msg = new Msg();
         MsgHeader header = msg.getHeader();
         header.addHeader(MsgHeaderConstants.SRC_NODE, joiner);
@@ -80,16 +80,15 @@ public class JoinRequest
 
         final FutureResult result = new FutureResult();
         aConnection.setMsgProducerOut(new MsgOutInterceptor() {
-			public void push(Msg aMsg) {
+            public void push(Msg aMsg) {
                 result.set(aMsg);
-			}
+            }
         });
         aConnection.getMsgConsumerOut().push(msg);
         Msg reply;
         try {
-			// waits 3 seconds for a reply.
-            reply = (Msg) result.get();
-//			reply = (Msg) result.timedGet(3000);
+            // waits 3 seconds for a reply.
+            reply = (Msg) result.timedGet(3000);
         } catch (TimeoutException e) {
             throw new CommunicationException("Join request submitted by " +
                 joiner + " to " + joined + " has timed out.");

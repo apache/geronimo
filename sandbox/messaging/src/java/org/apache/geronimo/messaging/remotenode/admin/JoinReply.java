@@ -23,7 +23,7 @@ import org.apache.geronimo.messaging.remotenode.RemoteNodeConnection;
 /**
  * Join command reply.
  * 
- * @version $Revision: 1.1 $ $Date: 2004/06/03 14:39:44 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/03 14:51:16 $
  */
 public class JoinReply
     implements RemoteNodeConnectionCommand
@@ -41,10 +41,10 @@ public class JoinReply
         request = aRequest;
     }
     
-	public void execute(RemoteNodeConnection aConnection) {
+    public void execute(RemoteNodeConnection aConnection) {
         Msg msg = request.reply();
         msg.getBody().setContent(Boolean.TRUE);
         aConnection.getMsgConsumerOut().push(msg);
-	}
+    }
 
 }

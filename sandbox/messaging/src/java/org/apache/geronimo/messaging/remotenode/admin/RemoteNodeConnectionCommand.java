@@ -22,7 +22,7 @@ import org.apache.geronimo.messaging.remotenode.RemoteNodeConnection;
 /**
  * Command for a RemoteNodeConnection.
  * 
- * @version $Revision: 1.1 $ $Date: 2004/06/03 14:39:44 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/03 14:51:16 $
  */
 public interface RemoteNodeConnectionCommand
 {
@@ -32,6 +32,6 @@ public interface RemoteNodeConnectionCommand
      * 
      * @param aConnection Connection.
      */
-	public void execute(RemoteNodeConnection aConnection);
+    public void execute(RemoteNodeConnection aConnection);
 
 }
