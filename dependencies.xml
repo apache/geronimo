@@ -79,7 +79,12 @@
             <artifactId>axis-wsdl4j</artifactId>
             <version>&axis-wsdl4j-version;</version>
         </dependency>
-        <dependency>
+         <dependency>
+            <groupId>bouncycastle</groupId>
+            <artifactId>bcprov</artifactId>
+            <version>&bouncycastle-bcprov-version;</version>
+        </dependency>
+         <dependency>
             <groupId>castor</groupId>
             <artifactId>castor</artifactId>
             <version>&castor-version;</version>
@@ -372,6 +377,36 @@
             <groupId>mx4j</groupId>
             <artifactId>mx4j-remote</artifactId>
             <version>&mx4j-version;</version>
+        </dependency>
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-orb</artifactId>
+            <version>&openorb-version;</version>
+        </dependency>
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-ins</artifactId>
+            <version>&openorb-version;</version>
+        </dependency>
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-pss</artifactId>
+            <version>&openorb-version;</version>
+        </dependency>
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-orb-tools</artifactId>
+            <version>&openorb-version;</version>
+        </dependency>
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-orb-omg</artifactId>
+            <version>&openorb-version;</version>
+        </dependency>
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-tools</artifactId>
+            <version>&openorb-version;</version>
         </dependency>
         <dependency>
             <groupId>p2psockets</groupId>
