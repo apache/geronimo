@@ -125,8 +125,18 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
             index.store(os, null);
             os.close();
             fos = null;
-            indexFile.delete();
-            tmpFile.renameTo(indexFile);
+            if ( indexFile.exists() && false == indexFile.delete() ) {
+                throw new IOException("Can not delete file " + indexFile);
+            }
+            if ( false == tmpFile.renameTo(indexFile) ) {
+                fos = new FileOutputStream(indexFile);
+                os = new BufferedOutputStream(fos);
+                index.store(os, null);
+                os.close();
+                if ( false == tmpFile.delete() ) {
+                    log.warn("Can not delete temporary file " + tmpFile);
+                }
+            }
         } catch (IOException e) {
             if (fos != null) {
                 fos.close();
