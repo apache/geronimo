@@ -2,7 +2,7 @@
 
 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee"
     version="1.5"
-    configId="org/tranql/connector/axion"
+    configId="org/apache/geronimo/DefaultDatabase"
     parentId="org/apache/geronimo/Server">
     <resourceadapter>
         <outbound-resourceadapter>

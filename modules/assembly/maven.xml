@@ -16,12 +16,13 @@
     limitations under the License.
 -->
 
-<!-- $Revision: 1.18 $ $Date: 2004/07/18 22:18:59 $ -->
+<!-- $Revision: 1.19 $ $Date: 2004/07/25 08:29:05 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
     xmlns:ant="jelly:ant"
     xmlns:define="jelly:define"
+    xmlns:deploy="geronimo:deploy"
     xmlns:bootstrap="geronimo:bootstrap">
 
     <!-- ================= -->
@@ -113,10 +114,10 @@
             </ant:fileset>
         </ant:copy>
 
-<!--        <ant:mkdirs dir="${distDir}/repository/jdk/jars"/>-->
-<!--        <ant:copy file="${java.home}/../lib/tools.jar" todir="${distDir}/repository/jdk/jars">-->
-<!---->
-<!--        </ant:copy>-->
+        <!--        <ant:mkdirs dir="${distDir}/repository/jdk/jars"/>-->
+        <!--        <ant:copy file="${java.home}/../lib/tools.jar" todir="${distDir}/repository/jdk/jars">-->
+        <!---->
+        <!--        </ant:copy>-->
 
         <ant:copy todir="${distDir}/repository">
             <mapper type="glob" from="${maven.repo.local}*" to="*"/>
@@ -235,10 +236,49 @@
             <ant:attribute name="Main-Class" value="org.apache.geronimo.console.cli.Deployer"/>
             <ant:attribute name="Class-Path" value="${clideployer.classpath}"/>
         </ant:manifest>
-        <ant:jar basedir="${cliDeployer}/jar" 
+        <ant:jar basedir="${cliDeployer}/jar"
             destfile="${distDir}/bin/cli-deployer.jar"
             manifest="${cliDeployer}/MANIFEST.MF"/>
 
+    </goal>
+
+    <goal name="startdb">
+
+        <!--deploy:startServer
+            geronimoHome="${distDir}"
+            kernelName="geronimo.deployer"
+            domainName="geronimo"
+            configs="org/apache/geronimo/Server"
+            /-->
+        <deploy:distribute
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            home="${basedir}"
+            module="${maven.repo.local}/tranql/rars/tranql-connector-SNAPSHOT.rar"
+            plan="src/plan/default-database-plan.xml"
+            />
+        <deploy:start
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/apache/geronimo/DefaultDatabase"/>
+    </goal>
+    <goal name="stopdb">
+        <deploy:stop
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/apache/geronimo/DefaultDatabase"/>
+        <ant:echo>undeploy</ant:echo>
+        <deploy:undeploy
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/apache/geronimo/DefaultDatabase"/>
+        <!--deploy:stopServer
+            kernelName="geronimo.deployer"
+            /-->
     </goal>
 
 </project>
