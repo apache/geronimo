@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <components>
-    <class-space name="geronimo.system:role=ClassSpace,name=Jetty">
+    <class-space name="geronimo.system:role=ClassSpace,name=Jetty"
+        create="true" parent="geronimo.system:role=ClassSpace,name=System">
         <codebase url="file:lib/">
             <archive name="*"/>
         </codebase>

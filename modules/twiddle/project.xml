@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.12 $ $Date: 2003/09/03 13:53:04 $ -->
+<!-- $Revision: 1.13 $ $Date: 2003/10/22 02:27:45 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -74,7 +74,7 @@
       <version>2.4.0</version>
       <url>http://xml.apache.org</url>
       <properties>
-        <runtime>true</runtime>
+        <runtime>false</runtime>
       </properties>
     </dependency>
     
@@ -91,7 +91,7 @@
       <version>1.2.8</version>
       <url>http://jakarta.apache.org/log4j</url>
       <properties>
-        <runtime>true</runtime>
+        <runtime>false</runtime>
       </properties>
     </dependency>
     
@@ -109,7 +109,7 @@
       <version>SNAPSHOT</version>
       <url>http://jakarta.apache.org/commons/collections</url>
       <properties>
-        <runtime>true</runtime>
+        <runtime>false</runtime>
       </properties>
     </dependency>
     
@@ -118,7 +118,7 @@
       <version>SNAPSHOT</version>
       <url>http://jakarta.apache.org/commons/lang</url>
       <properties>
-        <runtime>true</runtime>
+        <runtime>false</runtime>
       </properties>
     </dependency>
     
@@ -127,7 +127,7 @@
       <version>1.0.3</version>
       <url>http://jakarta.apache.org/commons/logging</url>
       <properties>
-        <runtime>true</runtime>
+        <runtime>false</runtime>
       </properties>
     </dependency>
     

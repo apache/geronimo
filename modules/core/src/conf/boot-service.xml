@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.15 $ $Date: 2003/10/01 04:46:41 $ -->
+<!-- $Revision: 1.16 $ $Date: 2003/10/22 02:27:45 $ -->
 
 <components>
     <class-space name="geronimo.system:role=ClassSpace,name=System">
@@ -13,11 +13,11 @@
     <!-- Log4j Logging Service -->
     <!--
     <mbean code="org.apache.geronimo.core.logging.log4j.Log4jService" name="geronimo.core:role=Logging">
-      <constructor>
-        <arg type="java.net.URL">
-          ${geronimo.home}/etc/log4j.xml
-        </arg>
-      </constructor>
+        <constructor>
+            <arg type="java.net.URL">
+                ${geronimo.home}/etc/log4j.xml
+            </arg>
+        </constructor>
     </mbean>
     -->
 
