@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Revision: 1.1 $ $Date: 2004/01/21 20:01:52 $ -->
+
+<project>
+    <pomVersion>3</pomVersion>
+    <extend>${basedir}/../../etc/project.xml</extend>
+
+    <!-- ===================== -->
+    <!-- Module Identification -->
+    <!-- ===================== -->
+
+    <name>Geronimo :: Jetty</name>
+    <id>geronimo-deployment</id>
+    <shortDescription>Jetty Integration</shortDescription>
+    <description>Geronimo Jetty Integration</description>
+    <url>http://incubator.apache.org/projects/geronimo/jetty/</url>
+    <siteDirectory>/www/incubator.apache.org/projects/geronimo/jetty</siteDirectory>
+    <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/jetty</distributionDirectory>
+
+    <currentVersion>DEV</currentVersion>
+
+    <!-- ============ -->
+    <!-- Dependencies -->
+    <!-- ============ -->
+
+    <dependencies>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-core</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-jta</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee-jacc</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee-connector</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>jetty</id>
+            <version>SNAPSHOT</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>mx4j</id>
+            <version>SNAPSHOT</version>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
+
+        <!-- these are just needed to run the unit tests -->
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-servlet</artifactId>
+            <version>DEV</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-jsp</artifactId>
+            <version>DEV</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>commons-logging</id>
+            <version>1.0.3</version>
+            <url>http://jakarta.apache.org/commons/logging/</url>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>xerces</id>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.6.0</version>
+        </dependency>
+        <dependency>
+            <id>xerces</id>
+            <artifactId>xmlParserAPIs</artifactId>
+            <version>2.2.1</version>
+        </dependency>
+
+        <dependency>
+            <id>tomcat</id>
+            <artifactId>jasper-compiler</artifactId>
+            <version>4.0.4</version>
+        </dependency>
+        <dependency>
+            <id>tomcat</id>
+            <artifactId>jasper-runtime</artifactId>
+            <version>4.0.4</version>
+        </dependency>
+
+        <dependency>
+            <id>cglib</id>
+            <version>HEAD-20031111</version>
+            <url>http://cglib.sf.net/</url>
+            <properties>
+                <runtime>true</runtime>
+                <destinations>bootlib</destinations>
+            </properties>
+        </dependency>
+    </dependencies>
+
+
+    <!-- =================== -->
+    <!-- Build Specification -->
+    <!-- =================== -->
+
+    <build>
+        <unitTest>
+            <includes>
+                <include>**/*Test.java</include>
+            </includes>
+            <excludes>
+                <exclude>**/Abstract*.java</exclude>
+            </excludes>
+            <resources>
+                <resource>
+                    <directory>${basedir}/src/schema</directory>
+                    <includes>
+                        <include>*.xsd</include>
+                    </includes>
+                </resource>
+                <resource>
+                    <directory>${basedir}/src/test-resources</directory>
+                </resource>
+            </resources>
+        </unitTest>
+    </build>
+</project>
