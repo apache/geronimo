@@ -69,7 +69,7 @@ import org.apache.geronimo.gbean.GOperationInfo;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/01/22 18:34:13 $
+ * @version $Revision: 1.9 $ $Date: 2004/01/22 20:10:33 $
  */
 public class MockGBean implements MockEndpoint {
     private static final GBeanInfo GBEAN_INFO;
@@ -91,13 +91,12 @@ public class MockGBean implements MockEndpoint {
         infoFactory.addAttribute(new GAttributeInfo("Name", true));
         infoFactory.addAttribute(new GAttributeInfo("Value", true));
         infoFactory.addAttribute(new GAttributeInfo("FinalInt", true));
-        infoFactory.addAttribute(new GAttributeInfo("MutableInt", true));
         infoFactory.addAttribute(new GAttributeInfo("EndpointMutableInt"));
         infoFactory.addOperation(new GOperationInfo("checkResource", new String[]{"java.lang.String"}));
         infoFactory.addOperation(new GOperationInfo("checkEndpoint"));
         infoFactory.addOperation(new GOperationInfo("checkEndpointCollection"));
         infoFactory.addOperation(new GOperationInfo("doSomething", new String[]{"java.lang.String"}));
-        infoFactory.addOperation(new GOperationInfo("doSetMutableInt", new String[] {"int"}));
+        infoFactory.addInterface(MockEndpoint.class, new String[] {"MutableInt"});
         infoFactory.addEndpoint(new GEndpointInfo("MockEndpoint", MockEndpoint.class.getName()));
         infoFactory.addEndpoint(new GEndpointInfo("EndpointCollection", MockEndpoint.class.getName()));
         infoFactory.setConstructor(new GConstructorInfo(new String[]{"Name", "FinalInt"}, new Class[]{String.class, Integer.TYPE}));

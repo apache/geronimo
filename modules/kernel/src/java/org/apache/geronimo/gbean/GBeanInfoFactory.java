@@ -55,16 +55,19 @@
  */
 package org.apache.geronimo.gbean;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
-
-import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GBeanInfo;
+import java.util.Arrays;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/16 23:31:21 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/22 20:10:33 $
  */
 public class GBeanInfoFactory {
     private final String name;
@@ -98,6 +101,46 @@ public class GBeanInfoFactory {
         notifications.addAll(source.getNotificationsSet());
         //in case subclass constructor has same parameters as superclass.
         constructor = source.getConstructor();
+    }
+
+    public void addInterface(Class intf) {
+        addInterface(intf, new String[0]);
+    }
+
+    public void addInterface(Class intf, String[] persistentAttriubtes) {
+        Set persistentName = new HashSet(Arrays.asList(persistentAttriubtes));
+        Map tempAttributes = new HashMap();
+
+        Method[] methods = intf.getMethods();
+        for (int i = 0; i < methods.length; i++) {
+            Method method = methods[i];
+            String name = method.getName();
+            if (name.startsWith("get") || name.startsWith("is")) {
+                String attributeName = (name.startsWith("get")) ? name.substring(3) : name.substring(2);
+                GAttributeInfo attribute = (GAttributeInfo) tempAttributes.get(attributeName);
+                if (attribute == null) {
+                    tempAttributes.put(attributeName, new GAttributeInfo(attributeName, persistentName.contains(attributeName), name, null));
+                } else {
+                    tempAttributes.put(attributeName, new GAttributeInfo(attributeName, persistentName.contains(attributeName), name, attribute.getSetterName()));
+                }
+            } else if (name.startsWith("set")) {
+                String attributeName = name.substring(3);
+                GAttributeInfo attribute = (GAttributeInfo) tempAttributes.get(attributeName);
+                if (attribute == null) {
+                    tempAttributes.put(attributeName, new GAttributeInfo(attributeName, persistentName.contains(attributeName), null, name));
+                } else {
+                    tempAttributes.put(attributeName, new GAttributeInfo(attributeName, persistentName.contains(attributeName), attribute.getSetterName(), name));
+                }
+            } else {
+                Class[] parameterTypes = method.getParameterTypes();
+                List parameters = new ArrayList(parameterTypes.length);
+                for (int j = 0; j < parameterTypes.length; j++) {
+                    parameters.add(parameterTypes[j].getName());
+                }
+                operations.add(new GOperationInfo(name, name, parameters));
+            }
+        }
+        attributes.addAll(tempAttributes.values());
     }
 
     public void addAttribute(GAttributeInfo info) {
