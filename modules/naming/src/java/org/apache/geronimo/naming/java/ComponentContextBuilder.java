@@ -19,7 +19,6 @@ package org.apache.geronimo.naming.java;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-
 import javax.management.MalformedObjectNameException;
 import javax.naming.NamingException;
 import javax.naming.Reference;
@@ -31,7 +30,7 @@ import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/03/10 09:59:08 $
+ * @version $Revision: 1.8 $ $Date: 2004/04/13 19:57:18 $
  */
 public class ComponentContextBuilder {
     private static final String ENV = "env/";
@@ -53,6 +52,14 @@ public class ComponentContextBuilder {
             throw new IllegalStateException("Context has been frozen");
         }
         context.internalBind("UserTransaction", userTransaction);
+    }
+
+
+    public void bind(String name, Object value) throws NamingException {
+        if (context.isFrozen()) {
+            throw new IllegalStateException("Context has been frozen");
+        }
+        context.internalBind(ENV + name, value);
     }
 
 
