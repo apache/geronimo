@@ -63,6 +63,7 @@
 <!ENTITY junit-version "3.8.1">
 <!ENTITY jxta-version "2.0">
 <!ENTITY log4j-version "1.2.8">
+<!ENTITY maven-itest-plugin-version "1.0">
 <!ENTITY maven-version "1.0">
 <!ENTITY mockobjects-version "0.09">
 <!ENTITY mx4j-version "2.0.1">
