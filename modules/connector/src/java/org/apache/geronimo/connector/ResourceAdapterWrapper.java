@@ -31,7 +31,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 
 /**
- * @version $Revision: 1.10 $ $Date: 2004/06/05 07:53:21 $
+ * @version $Revision: 1.11 $ $Date: 2004/06/11 19:22:04 $
  */
 public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean {
 
@@ -121,4 +121,5 @@ public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean {
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
+
 }

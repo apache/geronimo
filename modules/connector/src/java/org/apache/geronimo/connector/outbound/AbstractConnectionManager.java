@@ -27,22 +27,29 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.transaction.manager.NamedXAResource;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/06/08 17:38:00 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/11 19:22:04 $
  */
 public abstract class AbstractConnectionManager implements ConnectionManagerFactory, GBeanLifecycle, ConnectionManager, LazyAssociatableConnectionManager {
 
-    protected ConnectionInterceptor stack;
+    private ConnectionInterceptor stack;
+
+    private ConnectionInterceptor recoveryStack;
+
 
     public AbstractConnectionManager() {
     }
 
     public void doStart() throws WaitingException, Exception {
-        setUpConnectionManager();
+        ConnectionInterceptor[] stacks = setUpConnectionManager();
+        assert stacks.length == 2;
+        stack = stacks[0];
+        recoveryStack = stacks[1];
     }
 
-    protected abstract void setUpConnectionManager() throws IllegalStateException;
+    protected abstract ConnectionInterceptor[] setUpConnectionManager() throws IllegalStateException;
 
     public void doStop() {
         stack = null;
@@ -60,7 +67,7 @@ public abstract class AbstractConnectionManager implements ConnectionManagerFact
      * out: useable connection object.
      */
     public Object allocateConnection(ManagedConnectionFactory managedConnectionFactory,
-            ConnectionRequestInfo connectionRequestInfo)
+                                     ConnectionRequestInfo connectionRequestInfo)
             throws ResourceException {
         ManagedConnectionInfo mci = new ManagedConnectionInfo(managedConnectionFactory, connectionRequestInfo);
         ConnectionInfo ci = new ConnectionInfo(mci);
@@ -74,8 +81,8 @@ public abstract class AbstractConnectionManager implements ConnectionManagerFact
      * out: supplied connection object is assiciated with a non-null ManagedConnection from mcf.
      */
     public void associateConnection(Object connection,
-            ManagedConnectionFactory managedConnectionFactory,
-            ConnectionRequestInfo connectionRequestInfo)
+                                    ManagedConnectionFactory managedConnectionFactory,
+                                    ConnectionRequestInfo connectionRequestInfo)
             throws ResourceException {
         ManagedConnectionInfo mci = new ManagedConnectionInfo(managedConnectionFactory, connectionRequestInfo);
         ConnectionInfo ci = new ConnectionInfo(mci);
@@ -87,13 +94,22 @@ public abstract class AbstractConnectionManager implements ConnectionManagerFact
         return stack;
     }
 
+
+    public ConnectionManagerFactory.ReturnableXAResource getRecoveryXAResource(ManagedConnectionFactory managedConnectionFactory) throws ResourceException {
+        ManagedConnectionInfo mci = new ManagedConnectionInfo(managedConnectionFactory, null);
+        ConnectionInfo recoveryConnectionInfo = new ConnectionInfo(mci);
+        recoveryStack.getConnection(recoveryConnectionInfo);
+        return new ConnectionManagerFactory.ReturnableXAResource((NamedXAResource) mci.getXAResource(), recoveryStack, recoveryConnectionInfo);
+    }
+
+
     protected static final GBeanInfo GBEAN_INFO;
 
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractConnectionManager.class);
 
-        infoFactory.addOperation("createConnectionFactory", new Class[]{ManagedConnectionFactory.class});
+        infoFactory.addInterface(ConnectionManagerFactory.class);
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

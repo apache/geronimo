@@ -31,7 +31,7 @@ import org.apache.geronimo.transaction.manager.NamedXAResource;
  * semantics.
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/08 17:38:00 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/11 19:22:04 $
  */
 public class LocalXAResource implements NamedXAResource {
 
@@ -75,7 +75,7 @@ public class LocalXAResource implements NamedXAResource {
     }
 
     public Xid[] recover(int n) throws XAException {
-        return null;
+        return new Xid[0];
     }
 
     public void rollback(Xid xid) throws XAException {

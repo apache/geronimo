@@ -19,8 +19,10 @@ package org.apache.geronimo.connector.outbound;
 
 import javax.management.ObjectName;
 import javax.naming.NamingException;
+import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnectionFactory;
 import javax.resource.spi.ResourceAdapterAssociation;
+import javax.transaction.SystemException;
 
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
@@ -37,11 +39,13 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.geronimo.GeronimoContextManager;
+import org.apache.geronimo.transaction.manager.NamedXAResource;
+import org.apache.geronimo.transaction.manager.ResourceManager;
 
 /**
- * @version $Revision: 1.14 $ $Date: 2004/06/08 17:38:00 $
+ * @version $Revision: 1.15 $ $Date: 2004/06/11 19:22:04 $
  */
-public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicGBean {
+public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicGBean, ResourceManager {
 
     private static final GBeanInfo GBEAN_INFO;
     private static final Log log = LogFactory.getLog(ManagedConnectionFactoryWrapper.class);
@@ -232,6 +236,20 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         return interceptor;
     }
 
+    //ResourceManager implementation
+    public NamedXAResource getRecoveryXAResources() throws SystemException {
+        try {
+            return connectionManagerFactory.getRecoveryXAResource(managedConnectionFactory);
+        } catch (ResourceException e) {
+            throw (SystemException)new SystemException("Could not obtain recovery XAResource for managedConnectionFactory " + objectName).initCause(e);
+        }
+    }
+
+    public void returnResource(NamedXAResource xaResource) {
+        ((ConnectionManagerFactory.ReturnableXAResource)xaResource).returnConnection();
+    }
+
+
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ManagedConnectionFactoryWrapper.class);
 
@@ -246,6 +264,8 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
 
         infoFactory.addOperation("getProxy");
         infoFactory.addOperation("getMethodInterceptor");
+
+        infoFactory.addInterface(ResourceManager.class);
 
         infoFactory.addReference("ResourceAdapterWrapper", ResourceAdapterWrapper.class);
         infoFactory.addReference("ConnectionManagerFactory", ConnectionManagerFactory.class);
@@ -270,6 +290,5 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
-
 
 }

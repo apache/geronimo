@@ -17,6 +17,9 @@
 
 package org.apache.geronimo.connector.outbound;
 
+import javax.resource.spi.ManagedConnectionFactory;
+import javax.resource.ResourceException;
+
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PartitionedPool;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
@@ -29,7 +32,7 @@ import org.apache.geronimo.security.bridge.RealmBridge;
  * GenericConnectionManager sets up a connection manager stack according to the
  * policies described in the attributes.
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/08 17:38:00 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/11 19:22:04 $
  */
 public class GenericConnectionManager extends AbstractConnectionManager {
 
@@ -71,7 +74,7 @@ public class GenericConnectionManager extends AbstractConnectionManager {
      * LocalXAResourceInsertionInterceptor or XAResourceInsertionInterceptor (useTransactions (&localTransactions))
      * MCFConnectionInterceptor
      */
-    protected void setUpConnectionManager() throws IllegalStateException {
+    protected ConnectionInterceptor[] setUpConnectionManager() throws IllegalStateException {
         //check for consistency between attributes
         if (realmBridge == null && pooling instanceof PartitionedPool && ((PartitionedPool) pooling).isPartitionBySubject()) {
             throw new IllegalStateException("To use Subject in pooling, you need a SecurityDomain");
@@ -94,6 +97,8 @@ public class GenericConnectionManager extends AbstractConnectionManager {
             stack = new SubjectInterceptor(stack, realmBridge);
         }
 
+        ConnectionInterceptor recoveryStack = stack;
+
         stack = new ConnectionHandleInterceptor(stack);
         if (connectionTracker != null) {
             stack = new ConnectionTrackingInterceptor(stack,
@@ -101,7 +106,7 @@ public class GenericConnectionManager extends AbstractConnectionManager {
                     connectionTracker);
         }
         tail.setStack(stack);
-        this.stack = stack;
+        return new ConnectionInterceptor[] {stack, recoveryStack};
     }
 
     public TransactionSupport getTransactionSupport() {
@@ -162,6 +167,5 @@ public class GenericConnectionManager extends AbstractConnectionManager {
     public static GBeanInfo getGBeanInfo() {
         return GenericConnectionManager.GBEAN_INFO;
     }
-
 
 }

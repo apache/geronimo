@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Iterator;
 
 import javax.sql.DataSource;
 import javax.transaction.xa.Xid;
@@ -37,18 +38,20 @@ import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.transaction.manager.LogException;
 import org.apache.geronimo.transaction.manager.TransactionLog;
 import org.apache.geronimo.transaction.manager.XidFactory;
+import org.apache.geronimo.transaction.manager.TransactionBranchInfo;
+import org.apache.geronimo.transaction.manager.TransactionBranchInfoImpl;
 
 /**
  * "Last Resource optimization" for single servers wishing to have valid xa transactions with
  * a single 1-pc datasource.  The database is used for the log, and the database work is
  * committed when the log writes its prepare record.
  *
- * @version $Revision: 1.6 $ $Date: 2004/06/08 17:38:01 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/11 19:22:05 $
  */
 public class JDBCLog implements TransactionLog, GBeanLifecycle {
-    private final static String INSERT_XID = "INSERT INTO TXLOG (SYSTEMID, FORMATID, GLOBALID, BRANCHID, NAME) VALUES (?, ?, ?, ?, ?)";
-    private final static String DELETE_XID = "DELETE FROM TXLOG WHERE SYSTEMID = ? AND FORMATID = ? AND GLOBALID = ? BRANCHID = ?";
-    private final static String RECOVER = "SELECT FORMATID, GLOBALID, BRANCHID, NAME FROM TXLOG WHERE SYSTEMID = ? ORDER BY FORMATID, GLOBALID, BRANCHID, NAME";
+    private final static String INSERT_XID = "INSERT INTO TXLOG (SYSTEMID, FORMATID, GLOBALID, GLOBALBRANCHID, BRANCHBRANCHID, NAME) VALUES (?, ?, ?, ?, ?)";
+    private final static String DELETE_XID = "DELETE FROM TXLOG WHERE SYSTEMID = ? AND FORMATID = ? AND GLOBALID = ?  AND GLOBALBRANCHID = ?";
+    private final static String RECOVER = "SELECT FORMATID, GLOBALID, GLOBALBRANCHID, BRANCHBRANCHID, NAME FROM TXLOG WHERE SYSTEMID = ? ORDER BY FORMATID, GLOBALID, GLOBALBRANCHID, BRANCHBRANCHID, NAME";
 
     private DataSource dataSource;
     private final String systemId;
@@ -73,7 +76,7 @@ public class JDBCLog implements TransactionLog, GBeanLifecycle {
     public void begin(Xid xid) throws LogException {
     }
 
-    public void prepare(Xid xid, String[] names) throws LogException {
+    public void prepare(Xid xid, List branches) throws LogException {
         int formatId = xid.getFormatId();
         byte[] globalTransactionId = xid.getGlobalTransactionId();
         byte[] branchQualifier = xid.getBranchQualifier();
@@ -82,12 +85,14 @@ public class JDBCLog implements TransactionLog, GBeanLifecycle {
             try {
                 PreparedStatement ps = connection.prepareStatement(INSERT_XID);
                 try {
-                    for (int i = 0; i < names.length; i++ ) {
+                    for (Iterator iterator = branches.iterator(); iterator.hasNext();) {
+                        TransactionBranchInfo branch = (TransactionBranchInfo) iterator.next();
                         ps.setString(0, systemId);
                         ps.setInt(1, formatId);
                         ps.setBytes(2, globalTransactionId);
                         ps.setBytes(3, branchQualifier);
-                        ps.setString(4, names[i]);
+                        ps.setBytes(4, branch.getBranchXid().getBranchQualifier());
+                        ps.setString(5, branch.getResourceName());
                         ps.execute();
                     }
                 } finally {
@@ -143,22 +148,24 @@ public class JDBCLog implements TransactionLog, GBeanLifecycle {
                 ResultSet rs = ps.executeQuery();
                 Xid lastXid = null;
                 Xid currentXid = null;
-                List names = new ArrayList();
+                List branches = new ArrayList();
                 while (rs.next()) {
                     int formatId = rs.getInt(0);
                     byte[] globalId = rs.getBytes(1);
-                    byte[] branchId = rs.getBytes(2);
-                    String name = rs.getString(3);
-                    currentXid = xidFactory.recover(formatId, globalId, branchId);
+                    byte[] globalBranchId = rs.getBytes(2);
+                    byte[] branchBranchId = rs.getBytes(3);
+                    String name = rs.getString(4);
+                    currentXid = xidFactory.recover(formatId, globalId, globalBranchId);
+                    Xid branchXid = xidFactory.recover(formatId, globalId, branchBranchId);
                     if (!currentXid.equals(lastXid) && lastXid != null) {
-                        addRecoveredXid(xids, lastXid, names);
-                        names.clear();
+                        addRecoveredXid(xids, lastXid, branches);
+                        branches.clear();
                         lastXid = currentXid;
                     }
-                    names.add(name);
+                    branches.add(new TransactionBranchInfoImpl(branchXid, name));
                 }
                 if (currentXid != null) {
-                    addRecoveredXid(xids, currentXid, names);
+                    addRecoveredXid(xids, currentXid, branches);
                 }
                 return xids;
             } finally {
