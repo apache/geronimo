@@ -61,7 +61,7 @@ import java.io.Serializable;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/25 21:07:04 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/06 22:16:00 $
  */
 public class GReferenceInfo implements Serializable {
     /**
@@ -86,6 +86,10 @@ public class GReferenceInfo implements Serializable {
 
     public GReferenceInfo(String name, String type) {
         this(name, type, null);
+    }
+
+    public GReferenceInfo(String name, Class type) {
+        this(name, type.getName(), null);
     }
 
     public GReferenceInfo(String name, String type, String setterName) {
