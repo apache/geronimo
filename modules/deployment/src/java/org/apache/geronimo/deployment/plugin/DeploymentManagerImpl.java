@@ -20,17 +20,14 @@ package org.apache.geronimo.deployment.plugin;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Collection;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.jar.JarInputStream;
 
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.shared.CommandType;
@@ -45,82 +42,63 @@ import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 
-import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.deployment.DeploymentModule;
+import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.ModuleConfigurer;
-import org.apache.geronimo.deployment.plugin.factories.DeploymentConfigurationFactory;
-import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
-import org.apache.geronimo.gbean.WaitingException;
-import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.w3c.dom.Document;
 
 /**
  *
  *
- * @version $Revision: 1.13 $ $Date: 2004/02/25 09:57:36 $
+ * @version $Revision: 1.14 $ $Date: 2004/02/28 10:08:47 $
  */
-public class DeploymentManagerImpl implements DeploymentManager, GBean {
+public class DeploymentManagerImpl implements DeploymentManager {
     private final DeploymentServer server;
-    private final Map schemaTypeToFactoryMap = new HashMap();
-    private final Map schemaTypeToLoaderMap = new LinkedHashMap();
+    private final Collection typeLoaders = new ArrayList();
     private final SchemaTypeLoader thisTypeLoader = XmlBeans.getContextTypeLoader();
     private SchemaTypeLoader schemaTypeLoader = thisTypeLoader;
-    private final Map configurationFactories;
     private final Collection configurers;
+    private final Collection builders = new ArrayList();
 
     public DeploymentManagerImpl(
             DeploymentServer server,
-            Collection configurers,
-            DeploymentConfigurationFactory earFactory,
-            DeploymentConfigurationFactory warFactory,
-            DeploymentConfigurationFactory ejbFactory,
-            DeploymentConfigurationFactory rarFactory,
-            DeploymentConfigurationFactory carFactory
-            ) {
+            Collection configurers) {
         this.server = server;
         this.configurers = configurers;
         //make sure context loader is always present
-        //todo think if null is a plausible key here.
-        schemaTypeToLoaderMap.put(null, thisTypeLoader);
-        configurationFactories = new HashMap(5);
-        addFactory(ModuleType.EAR, earFactory);
-        addFactory(ModuleType.WAR, warFactory);
-        addFactory(ModuleType.EJB, ejbFactory);
-        addFactory(ModuleType.RAR, rarFactory);
-        addFactory(ModuleType.CAR, carFactory);
+        typeLoaders.add(thisTypeLoader);
     }
 
-    public synchronized void addDeploymentConfigurationFactory(SchemaType schemaType, SchemaTypeLoader schemaTypeLoader, DeploymentConfigurationFactory factory) {
-        schemaTypeToFactoryMap.put(schemaType, factory);
-        schemaTypeToLoaderMap.put(schemaType, schemaTypeLoader);
+    public synchronized void addConfigurationBuilder(ConfigurationBuilder builder) {
+        builders.add(builder);
+        SchemaTypeLoader[] loaders = builder.getTypeLoaders();
+        for (int i = 0; i < loaders.length; i++) {
+            typeLoaders.add(loaders[i]);
+
+        }
         rebuildSchemaTypeLoader();
     }
 
-    public synchronized void removeDeploymentConfigurationFactory(SchemaType schemaType) {
-        schemaTypeToFactoryMap.remove(schemaType);
-        schemaTypeToLoaderMap.remove(schemaType);
+    public synchronized void removeConfigurationBuilder(ConfigurationBuilder builder) {
+        builders.remove(builder);
+        SchemaTypeLoader[] loaders = builder.getTypeLoaders();
+        for (int i = 0; i < loaders.length; i++) {
+            typeLoaders.remove(loaders[i]);
+
+        }
         rebuildSchemaTypeLoader();
     }
 
     private void rebuildSchemaTypeLoader() {
-        SchemaTypeLoader[] loaders = (SchemaTypeLoader[]) schemaTypeToLoaderMap.values().toArray(new SchemaTypeLoader[schemaTypeToLoaderMap.size()]);
+        SchemaTypeLoader[] loaders = (SchemaTypeLoader[]) typeLoaders.toArray(new SchemaTypeLoader[typeLoaders.size()]);
         schemaTypeLoader = XmlBeans.typeLoaderUnion(loaders);
-    }
-
-    private void addFactory(ModuleType type, DeploymentConfigurationFactory factory) {
-        if (factory != null) {
-            configurationFactories.put(type, factory);
-        }
     }
 
     public DeploymentConfiguration createConfiguration(DeployableObject deployable) throws InvalidModuleException {
@@ -202,7 +180,6 @@ public class DeploymentManagerImpl implements DeploymentManager, GBean {
 
     public ProgressObject distribute(Target[] targetList, InputStream moduleArchive, InputStream deploymentPlan) throws IllegalStateException {
         XmlObject plan;
-        URI configId;
         try {
             plan = schemaTypeLoader.parse(deploymentPlan, null, null);
             //validate
@@ -213,57 +190,22 @@ public class DeploymentManagerImpl implements DeploymentManager, GBean {
             if (!plan.validate(xmlOptions)) {
                 return new FailedProgressObject(CommandType.DISTRIBUTE, "Invalid deployment plan: errors: " + errors);
             }
-            configId = getConfigID(null);
         } catch (org.apache.xmlbeans.XmlException e) {
             return new FailedProgressObject(CommandType.DISTRIBUTE, "Could not parse deployment plan");
         } catch (java.io.IOException e) {
             return new FailedProgressObject(CommandType.DISTRIBUTE, "Could not read deployment plan");
-        } catch (URISyntaxException e) {
-            return new FailedProgressObject(CommandType.DISTRIBUTE, "Could not read construct configId URI");
         }
-        SchemaType planType = plan.schemaType();
-        DeploymentConfigurationFactory factory = (DeploymentConfigurationFactory) schemaTypeToFactoryMap.get(planType);
-        DeploymentModule module = null;
-        try {
-            module = factory.createModule(moduleArchive, plan, configId, server.isLocal());
-        } catch (DeploymentException e) {
-            return new FailedProgressObject(CommandType.DISTRIBUTE, e.getMessage());
-        }
-        if (module == null) {
-            return new FailedProgressObject(CommandType.DISTRIBUTE, "No deployer found for supplied plan");
-        }
-        return server.distribute(targetList, module, configId);
-
-
-        //this won't get called.
-        /*
-        Document doc;
-        try {
-            DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            doc = parser.parse(deploymentPlan);
-        } catch (Exception e) {
-            return new FailedProgressObject(CommandType.DISTRIBUTE, e.getMessage());
-        }
-        URI configID;
-        try {
-            configID = getConfigID(doc);
-        } catch (URISyntaxException e) {
-            return new FailedProgressObject(CommandType.DISTRIBUTE, e.getMessage());
-        }
-        DeploymentModule module = null;
-        for (Iterator i = configurationFactories.values().iterator(); i.hasNext();) {
-            DeploymentConfigurationFactory factory = (DeploymentConfigurationFactory) i.next();
-            try {
-                module = factory.createModule(moduleArchive, doc, configID);
-            } catch (DeploymentException e) {
-                return new FailedProgressObject(CommandType.DISTRIBUTE, e.getMessage());
+        for (Iterator iterator = builders.iterator(); iterator.hasNext();) {
+            ConfigurationBuilder configurationBuilder = (ConfigurationBuilder) iterator.next();
+            if (configurationBuilder.canConfigure(plan)) {
+                try {
+                    return server.distribute(targetList, configurationBuilder, new JarInputStream(moduleArchive), plan);
+                } catch (IOException e) {
+                    return new FailedProgressObject(CommandType.DISTRIBUTE, e.getMessage());
+                }
             }
         }
-        if (module == null) {
-            return new FailedProgressObject(CommandType.DISTRIBUTE, "No deployer found for supplied plan");
-        }
-        return server.distribute(targetList, module, configID);
-        */
+        return new FailedProgressObject(CommandType.DISTRIBUTE, "No configuration builder found for module");
     }
 
     public ProgressObject start(TargetModuleID[] moduleIDList) throws IllegalStateException {
@@ -300,48 +242,17 @@ public class DeploymentManagerImpl implements DeploymentManager, GBean {
         // @todo shut down the deployment kernel
     }
 
-    //should we be using this or reading configID from deploymentplan?
-    private URI getConfigID(Document doc) throws URISyntaxException {
-        String id = Long.toString(System.currentTimeMillis()); // unique enough one hopes
-        return new URI(id);
-    }
-
     public static final GBeanInfo GBEAN_INFO;
-
-    public void setGBeanContext(GBeanContext context) {
-    }
-
-    public void doStart() throws WaitingException, Exception {
-        for (Iterator iterator = configurationFactories.values().iterator(); iterator.hasNext();) {
-            DeploymentConfigurationFactory factory = (DeploymentConfigurationFactory) iterator.next();
-            addDeploymentConfigurationFactory(factory.getSchemaType(), factory.getSchemaTypeLoader(), factory);
-        }
-    }
-
-    public void doStop() throws WaitingException, Exception {
-        for (Iterator iterator = configurationFactories.values().iterator(); iterator.hasNext();) {
-            DeploymentConfigurationFactory factory = (DeploymentConfigurationFactory) iterator.next();
-            removeDeploymentConfigurationFactory(factory.getSchemaType());
-        }
-    }
-
-    public void doFail() {
-    }
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("JSR88 Deployment Manager", DeploymentManagerImpl.class.getName());
-        infoFactory.addOperation(new GOperationInfo("addDeploymentConfigurationFactory", new String[]{SchemaType.class.getName(), SchemaTypeLoader.class.getName(), DeploymentConfigurationFactory.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("removeDeploymentConfigurationFactory", new String[]{SchemaType.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("addConfigurationBuilder", new String[]{ConfigurationBuilder.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("removeConfigurationBuilder", new String[]{ConfigurationBuilder.class.getName()}));
         infoFactory.addReference(new GReferenceInfo("Server", DeploymentServer.class.getName()));
         infoFactory.addReference(new GReferenceInfo("Configurers", ModuleConfigurer.class));
-        infoFactory.addReference(new GReferenceInfo("EARFactory", DeploymentConfigurationFactory.class.getName()));
-        infoFactory.addReference(new GReferenceInfo("WARFactory", DeploymentConfigurationFactory.class.getName()));
-        infoFactory.addReference(new GReferenceInfo("EJBFactory", DeploymentConfigurationFactory.class.getName()));
-        infoFactory.addReference(new GReferenceInfo("RARFactory", DeploymentConfigurationFactory.class.getName()));
-        infoFactory.addReference(new GReferenceInfo("CARFactory", DeploymentConfigurationFactory.class.getName()));
         infoFactory.setConstructor(new GConstructorInfo(
-                Arrays.asList(new Object[]{"Server", "Configurers", "EARFactory", "WARFactory", "EJBFactory", "RARFactory", "CARFactory"}),
-                Arrays.asList(new Object[]{DeploymentServer.class, Collection.class, DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class})
+                Arrays.asList(new Object[]{"Server", "Configurers"}),
+                Arrays.asList(new Object[]{DeploymentServer.class, Collection.class})
         ));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

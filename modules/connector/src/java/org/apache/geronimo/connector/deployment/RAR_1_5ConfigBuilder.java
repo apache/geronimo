@@ -71,7 +71,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:57:09 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/28 10:08:47 $
  *
  * */
 public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
@@ -147,14 +147,14 @@ public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
                 GerConnectionmanagerType connectionManagerFactory = connectionfactoryInstance.getConnectionmanager();
                 GBeanInfo connectionManagerFactoryGBeanInfo;
                 try {
-                    connectionManagerFactoryGBeanInfo = GBeanInfo.getGBeanInfo(ConnectionManagerDeployment.class.getName(), cl);
+                    connectionManagerFactoryGBeanInfo = GBeanInfo.getGBeanInfo(ConnectionManagerDeployment.class.getName(), ConnectionManagerDeployment.class.getClassLoader());
                 } catch (InvalidConfigurationException e) {
                     throw new DeploymentException("Unable to get GBeanInfo from ConnectionManagerDeployment", e);
                 }
 
                 GBeanMBean connectionManagerFactoryGBean;
                 try {
-                    connectionManagerFactoryGBean = new GBeanMBean(connectionManagerFactoryGBeanInfo, cl);
+                    connectionManagerFactoryGBean = new GBeanMBean(connectionManagerFactoryGBeanInfo, ConnectionManagerDeployment.class.getClassLoader());
                 } catch (InvalidConfigurationException e) {
                     throw new DeploymentException("Unable to create GMBean", e);
                 }

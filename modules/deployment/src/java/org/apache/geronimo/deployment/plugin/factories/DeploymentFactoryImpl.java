@@ -18,6 +18,7 @@
 package org.apache.geronimo.deployment.plugin.factories;
 
 import java.util.Collections;
+
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
 import javax.enterprise.deploy.spi.factories.DeploymentFactory;
@@ -26,8 +27,6 @@ import javax.management.ObjectName;
 import org.apache.geronimo.deployment.plugin.DeploymentManagerImpl;
 import org.apache.geronimo.deployment.plugin.DisconnectedServer;
 import org.apache.geronimo.deployment.plugin.local.LocalServer;
-import org.apache.geronimo.deployment.plugin.application.EARConfigurationFactory;
-import org.apache.geronimo.deployment.plugin.application.EARConfigurer;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
@@ -38,8 +37,8 @@ import org.apache.geronimo.kernel.Kernel;
  * This will create a DeploymentManager using a local Geronimo kernel
  * to contain the GBeans that are responsible for deploying each module
  * type.
- * 
- * @version $Revision: 1.7 $ $Date: 2004/02/25 09:57:38 $
+ *
+ * @version $Revision: 1.8 $ $Date: 2004/02/28 10:08:47 $
  */
 public class DeploymentFactoryImpl implements DeploymentFactory {
     public static final String URI_PREFIX = "deployer:geronimo:";
@@ -102,7 +101,6 @@ public class DeploymentFactoryImpl implements DeploymentFactory {
             manager.setReferencePatterns("Configurers", Collections.singleton(new ObjectName("geronimo.deployment:role=Configurer,*")));
 
             // @todo for now lets hard code the deployers to use - ultimately this should use a predefined Configuration
-            loadFactory(kernel, manager, "EAR", EARConfigurationFactory.class.getName(), EARConfigurer.class.getName());
 
             kernel.loadGBean(managerName, manager);
             kernel.startGBean(managerName);

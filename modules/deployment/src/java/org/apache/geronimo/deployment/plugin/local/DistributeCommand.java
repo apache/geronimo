@@ -17,79 +17,50 @@
 
 package org.apache.geronimo.deployment.plugin.local;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.net.URI;
-import java.util.jar.JarOutputStream;
+import java.util.jar.JarInputStream;
+
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.Target;
-import javax.enterprise.deploy.spi.TargetModuleID;
 
-import org.apache.geronimo.deployment.DeploymentModule;
-import org.apache.geronimo.deployment.ModuleDeployer;
-import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
-import org.apache.geronimo.deployment.util.FileUtil;
+import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.kernel.config.ConfigurationParent;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/02/25 09:57:38 $
+ * @version $Revision: 1.6 $ $Date: 2004/02/28 10:08:47 $
  */
 public class DistributeCommand extends CommandSupport {
-    private final Target target;
-    private final ConfigurationParent parent;
-    private final URI configID;
     private final ConfigurationStore store;
-    private final DeploymentModule module;
+    private final ConfigurationBuilder builder;
+    private final JarInputStream jis;
+    private final XmlObject plan;
 
-    public DistributeCommand(Target target, ConfigurationParent parent, URI configID, ConfigurationStore store, DeploymentModule module) {
+    public DistributeCommand(ConfigurationStore store, ConfigurationBuilder builder, JarInputStream jis, XmlObject plan) {
         super(CommandType.DISTRIBUTE);
-        this.target = target;
-        this.parent = parent;
-        this.configID = configID;
         this.store = store;
-        this.module = module;
+        this.builder = builder;
+        this.jis = jis;
+        this.plan = plan;
     }
 
     public void run() {
         File configFile = null;
-        File workDir = null;
         try {
             // create some working space
             configFile = File.createTempFile("deploy", ".car");
-            workDir = File.createTempFile("deploy", "");
-            workDir.delete();
-            workDir.mkdir();
-
-            // convert the module to a Configuration
-            TargetModuleID targetID = new TargetModuleIDImpl(target, configID.toString());
-            ModuleDeployer deployer = new ModuleDeployer(parent, configID, workDir);
-            deployer.addModule(module);
-            deployer.deploy();
-
-            // Save the Configuration into a CAR
-            FileOutputStream os = new FileOutputStream(configFile);
-            try {
-                JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(os));
-                deployer.saveConfiguration(jos);
-                jos.flush();
-            } finally {
-                os.close();
-            }
+            builder.buildConfiguration(configFile, jis, plan);
 
             // install in our local server
             store.install(configFile.toURL());
-            addModule(targetID);
+            //addModule(targetID);
             complete("Completed");
         } catch (Exception e) {
             fail(e.getMessage());
         } finally {
-            if (workDir != null) {
-                FileUtil.recursiveDelete(workDir);
-            }
             if (configFile != null) {
                 configFile.delete();
             }

@@ -17,8 +17,10 @@
 
 package org.apache.geronimo.deployment.plugin;
 
+import java.io.File;
 import java.io.InputStream;
-import java.net.URI;
+import java.util.jar.JarInputStream;
+
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
@@ -27,12 +29,13 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.deployment.DeploymentModule;
+import org.apache.geronimo.deployment.ConfigurationBuilder;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/25 09:57:36 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/28 10:08:47 $
  */
 public class DisconnectedServer implements DeploymentServer {
     public boolean isLocal() {
@@ -55,7 +58,7 @@ public class DisconnectedServer implements DeploymentServer {
         throw new IllegalStateException("Disconnected");
     }
 
-    public ProgressObject distribute(Target[] targetList, DeploymentModule module, URI configID) throws IllegalStateException {
+    public ProgressObject distribute(Target[] targetList, ConfigurationBuilder builder, JarInputStream jis, XmlObject plan) throws IllegalStateException {
         throw new IllegalStateException("Disconnected");
     }
 

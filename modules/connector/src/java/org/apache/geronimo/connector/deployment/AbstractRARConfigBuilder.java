@@ -56,7 +56,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/27 07:35:03 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/28 10:08:47 $
  *
  * */
 public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
@@ -101,7 +101,8 @@ public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
                 if (name.endsWith(".jar")) {
                     URI uri = moduleBase.resolve(name);
                     context.addFile(uri, jarInputStream);
-                    context.addToClassPath(uri);
+                    //URL rarPath = entry.
+                    context.addToClassPath(uri, null);
                 }
                 //native libraries?
             }
@@ -179,7 +180,6 @@ public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
 
             XmlObject genericConnectorDocument = generateClassPath(configID, module, context);
             ClassLoader cl = context.getClassLoader(repository);
-            //addGBeans(context, geronimoConnector.getGbeanArray(), cl);
 
             addConnectorGBeans(context, genericConnectorDocument, geronimoConnector, cl);
 

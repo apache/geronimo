@@ -20,6 +20,8 @@ package org.apache.geronimo.deployment.plugin.local;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.jar.JarInputStream;
+
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.Target;
@@ -28,7 +30,7 @@ import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.deployment.DeploymentModule;
+import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.plugin.DeploymentServer;
 import org.apache.geronimo.deployment.plugin.FailedProgressObject;
 import org.apache.geronimo.deployment.plugin.TargetImpl;
@@ -42,15 +44,16 @@ import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationParent;
-import org.apache.geronimo.system.configuration.LocalConfigStore;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
+import org.apache.geronimo.system.configuration.LocalConfigStore;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/02/25 09:57:38 $
+ * @version $Revision: 1.7 $ $Date: 2004/02/28 10:08:47 $
  */
 public class LocalServer implements DeploymentServer, GBean {
     private final URI rootConfigID;
@@ -97,11 +100,11 @@ public class LocalServer implements DeploymentServer, GBean {
         return null;
     }
 
-    public ProgressObject distribute(Target[] targetList, DeploymentModule module, URI configID) throws IllegalStateException {
+    public ProgressObject distribute(Target[] targetList, ConfigurationBuilder builder, JarInputStream jis, XmlObject plan) throws IllegalStateException {
         if (targetList.length != 1 || !target.equals(targetList[0])) {
             return new FailedProgressObject(CommandType.DISTRIBUTE, "Invalid Target");
         }
-        DistributeCommand command = new DistributeCommand(target, parent, configID, store, module);
+        DistributeCommand command = new DistributeCommand(store, builder, jis, plan);
         new Thread(command).start();
         return command;
     }

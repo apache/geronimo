@@ -13,6 +13,9 @@ Configuration for the Geronimo deployer
     <include>
         <uri>geronimo/jars/geronimo-connector-DEV.jar</uri>
     </include>
+    <include>
+        <uri>geronimo/jars/geronimo-security-DEV.jar</uri>
+    </include>
     <dependency>
         <uri>geronimo/jars/geronimo-jetty-DEV.jar</uri>
     </dependency>

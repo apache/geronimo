@@ -47,7 +47,7 @@ import org.apache.geronimo.kernel.repository.Repository;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/02/25 09:57:35 $
+ * @version $Revision: 1.7 $ $Date: 2004/02/28 10:08:47 $
  */
 public class DeploymentContext {
     private final URI configID;
@@ -129,8 +129,7 @@ public class DeploymentContext {
         } finally {
             is.close();
         }
-        classPath.add(path);
-        includes.put(path, url);
+        addToClassPath(path, url);
     }
 
     public void addArchive(URI path, ZipInputStream archive) throws IOException {
@@ -141,8 +140,9 @@ public class DeploymentContext {
         }
     }
 
-    public void addToClassPath(URI path) {
+    public void addToClassPath(URI path, URL url) {
         classPath.add(path);
+        includes.put(path, url);
     }
 
     public ClassLoader getClassLoader(Repository repository) throws DeploymentException {
@@ -165,6 +165,7 @@ public class DeploymentContext {
                 throw new DeploymentException(e);
             }
         }
+
         for (Iterator i = classPath.iterator(); i.hasNext();) {
             URI uri = (URI) i.next();
             urls[j++] = (URL) includes.get(uri);
