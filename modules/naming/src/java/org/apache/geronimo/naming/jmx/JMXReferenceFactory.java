@@ -47,7 +47,7 @@ public class JMXReferenceFactory implements ReferenceFactory {
         Reference ref = new Reference(null, JMXObjectFactory.class.getName(), null);
 
         String targetName = localRef.getTargetName();
-        ref.add(new JMXRefAddr(localRef.getServer(), localRef.getKernelName(), createManagedConnectionFactoryObjectName(targetName), iface));
+        ref.add(new JMXRefAddr(null, localRef.getKernelName(), createManagedConnectionFactoryObjectName(targetName), iface));
         return ref;
     }
 
@@ -58,7 +58,7 @@ public class JMXReferenceFactory implements ReferenceFactory {
     public Reference buildAdminObjectReference(GerLocalRefType localRef, Class iface) throws MalformedObjectNameException {
         Reference ref = new Reference(null, JMXObjectFactory.class.getName(), null);
         String targetName = localRef.getTargetName();
-        ref.add(new JMXRefAddr(localRef.getServer(), localRef.getKernelName(), createAdminObjectObjectName(targetName), iface));
+        ref.add(new JMXRefAddr(null, localRef.getKernelName(), createAdminObjectObjectName(targetName), iface));
         return ref;
     }
 
@@ -81,7 +81,7 @@ public class JMXReferenceFactory implements ReferenceFactory {
 
     public Reference buildEjbLocalReference(GerLocalRefType localRef, Class iface) throws MalformedObjectNameException {
         Reference ref = new Reference(null, JMXObjectFactory.class.getName(), null);
-        ref.add(new JMXRefAddr(localRef.getServer(), localRef.getKernelName(), ObjectName.getInstance(localRef.getTargetName()), iface));
+        ref.add(new JMXRefAddr(null, localRef.getKernelName(), ObjectName.getInstance(localRef.getTargetName()), iface));
         return ref;
     }
 

@@ -385,6 +385,17 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 cl);
     }
 
+    private static Map mapRefs(GerLocalRefType[] refs) {
+        Map refMap = new HashMap();
+        if (refs != null) {
+            for (int i = 0; i < refs.length; i++) {
+                GerLocalRefType ref = refs[i];
+                refMap.put(ref.getRefName(), ref);
+            }
+        }
+        return refMap;
+    }
+
     private static Map mapRefs(GerRemoteRefType[] refs) {
         Map refMap = new HashMap();
         if (refs != null) {

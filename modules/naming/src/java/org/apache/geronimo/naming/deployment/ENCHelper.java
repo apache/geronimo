@@ -58,7 +58,7 @@ public class ENCHelper {
     private final String[] xpaths;
     private final String[] namePaths;
 
-    private LocalRefDConfigBean[] ejbRefs;
+    private RemoteRefDConfigBean[] ejbRefs;
 
     private LocalRefDConfigBean[] ejbLocalRefs;
     private LocalRefDConfigBean[] resourceEnvRefs;
@@ -179,7 +179,7 @@ public class ENCHelper {
         if (xpath.equals(xpaths[0])) {
             String name = ddBean.getText(namePaths[0])[0];
             for (int i = 0; i < ejbRefs.length; i++) {
-                LocalRefDConfigBean ejbRef = ejbRefs[i];
+                RemoteRefDConfigBean ejbRef = ejbRefs[i];
                 if (ejbRef.getRefName().equals(name)) {
                     return ejbRef;
                 }

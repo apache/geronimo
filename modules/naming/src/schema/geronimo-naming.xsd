@@ -80,22 +80,18 @@
     </xsd:complexType>
 
     <xsd:complexType name="local-refType">
-        <xsd:complexContent>
-            <xsd:restriction base="gernaming:remote-refType">
+        <xsd:sequence>
+            <xsd:element name="ref-name" type="xsd:string"/>
+            <xsd:choice>
                 <xsd:sequence>
-                    <xsd:element name="ref-name" type="xsd:string"/>
-                    <xsd:choice>
-                        <xsd:sequence>
-                            <xsd:element name="server" type="xsd:string" minOccurs="0" maxOccurs="0"/>
-                            <xsd:element name="kernel-name" type="xsd:string" minOccurs="0"/>
-                            <xsd:element name="target-name" type="xsd:string"/>
-                        </xsd:sequence>
-                        <xsd:element name="external-uri" type="xsd:string"/>
-                        <xsd:element name="ejb-link" type="xsd:string"/>
-                    </xsd:choice>
+                    <xsd:element name="kernel-name" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="target-name" type="xsd:string"/>
                 </xsd:sequence>
-            </xsd:restriction>
-        </xsd:complexContent>
+                <xsd:element name="external-uri" type="xsd:string"/>
+                <xsd:element name="ejb-link" type="xsd:string"/>
+                <xsd:element name="resource-link" type="xsd:string"/>
+            </xsd:choice>
+        </xsd:sequence>
     </xsd:complexType>
 
 </xsd:schema>

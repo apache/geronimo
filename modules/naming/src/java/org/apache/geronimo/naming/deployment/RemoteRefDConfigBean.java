@@ -19,7 +19,11 @@ package org.apache.geronimo.naming.deployment;
 
 import javax.enterprise.deploy.model.DDBean;
 
+import org.apache.xmlbeans.SchemaTypeLoader;
+
 import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
+import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
+
 
 /**
  *
@@ -27,17 +31,47 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
  * @version $Rev$ $Date$
  *
  * */
-public class RemoteRefDConfigBean extends LocalRefDConfigBean {
+public class RemoteRefDConfigBean extends DConfigBeanSupport {
+
+    protected final GerRemoteRefType ref;
 
     public RemoteRefDConfigBean(DDBean ddBean, GerRemoteRefType ref, String namePath) {
-        super (ddBean, ref, namePath);
+        super(ddBean, ref);
+        this.ref = ref;
+
+        assert ddBean.getChildBean(namePath)[0].getText().equals(getRefName());
     }
 
-    public String getServerName() {
-        return ref.getServer();
+    String getRefName() {
+        return ref.getRefName();
     }
 
-    public void setServerName(String serverName) {
-        ref.setServer(serverName);
+    public String getExternalUri() {
+        return ref.getExternalUri();
+    }
+
+    public void setExternalUri(String targetURI) {
+        ref.setExternalUri(targetURI);
+    }
+
+
+    public String getKernelName() {
+        return ref.getKernelName();
+    }
+
+    public void setKernelName(String kernelName) {
+        ref.setKernelName(kernelName);
+    }
+
+    public String getTargetName() {
+        return ref.getTargetName();
+    }
+
+    public void setTargetName(String targetName) {
+        ref.setTargetName(targetName);
+    }
+
+    protected SchemaTypeLoader getSchemaTypeLoader() {
+        return ENCHelper.SCHEMA_TYPE_LOADER;
     }
 }

@@ -64,6 +64,7 @@ import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientType;
 import org.apache.geronimo.xbeans.geronimo.client.GerDependencyType;
 import org.apache.geronimo.xbeans.geronimo.client.GerGbeanType;
 import org.apache.geronimo.xbeans.geronimo.client.GerResourceType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
 import org.apache.geronimo.xbeans.j2ee.ApplicationClientDocument;
 import org.apache.geronimo.xbeans.j2ee.ApplicationClientType;
@@ -579,6 +580,17 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         if (refs != null) {
             for (int i = 0; i < refs.length; i++) {
                 GerRemoteRefType ref = refs[i];
+                refMap.put(ref.getRefName(), ref);
+            }
+        }
+        return refMap;
+    }
+
+    private static Map mapRefs(GerLocalRefType[] refs) {
+        Map refMap = new HashMap();
+        if (refs != null) {
+            for (int i = 0; i < refs.length; i++) {
+                GerLocalRefType ref = refs[i];
                 refMap.put(ref.getRefName(), ref);
             }
         }
