@@ -25,7 +25,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.datastore.GFile;
 import org.apache.geronimo.datastore.GFileManager;
 import org.apache.geronimo.datastore.GFileManagerException;
-import org.apache.geronimo.datastore.impl.AbstractGFileManager;
+import org.apache.geronimo.datastore.impl.remote.messaging.CommandRequest;
+import org.apache.geronimo.datastore.impl.remote.messaging.CommandResult;
 import org.apache.geronimo.datastore.impl.remote.messaging.Connector;
 import org.apache.geronimo.datastore.impl.remote.messaging.HeaderOutInterceptor;
 import org.apache.geronimo.datastore.impl.remote.messaging.Msg;
@@ -35,13 +36,15 @@ import org.apache.geronimo.datastore.impl.remote.messaging.MsgHeaderConstants;
 import org.apache.geronimo.datastore.impl.remote.messaging.MsgOutInterceptor;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
 
 /**
  * It is a wrapper/proxy for a GFileManager, whose services need to be exposed
  * via a ServerNode.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/03 13:10:06 $
  */
 public class GFileManagerProxy
     implements GBean, GFileManager, Connector
@@ -57,7 +60,7 @@ public class GFileManagerProxy
     /**
      * Proxied GFileManager.
      */
-    private final AbstractGFileManager fileManager;
+    private final GFileManager fileManager;
 
     /**
      * Output to be used by the proxy to communicate with the clients mirroring
@@ -78,8 +81,7 @@ public class GFileManagerProxy
      * @param aFileManager GFileManager to be proxied by this instance.
      */
     public GFileManagerProxy(GFileManager aFileManager) {
-        // TODO refactor to avoid a cast.
-        fileManager = (AbstractGFileManager) aFileManager;
+        fileManager = aFileManager;
         gFiles = new HashMap();
         gFileSeq = 0;
     }
@@ -132,9 +134,23 @@ public class GFileManagerProxy
     public void end() throws GFileManagerException {
         fileManager.end();
     }
-
+    
     public void setOutput(MsgOutInterceptor anOut) {
         out = anOut;
+    }
+    
+    /**
+     * Execute a request on the GFile identified by anID.
+     * 
+     * @param anID GFile identifier.
+     * @param aRequest Request to be executed against the GFile identified by
+     * anID.
+     * @return Request result. 
+     */
+    public CommandResult executeOnGFile(Integer anID, CommandRequest aRequest) {
+        GFile gFile = retrieveGFile(anID);
+        aRequest.setTarget(gFile);
+        return aRequest.execute();
     }
     
     public void deliver(Msg aMsg) {
@@ -144,9 +160,9 @@ public class GFileManagerProxy
         Object id = header.getHeader(MsgHeaderConstants.CORRELATION_ID);
         Object node = header.getHeader(MsgHeaderConstants.SRC_NODE);
 
-        CommandWithProxy command = (CommandWithProxy) body.getContent();
+        CommandRequest command = (CommandRequest) body.getContent();
 
-        command.setProxyGFileManager(this);
+        command.setTarget(this);
         
         CommandResult result = command.execute();
         Msg msg = new Msg();
@@ -197,6 +213,22 @@ public class GFileManagerProxy
                 "} is not registered.");
         }
         return gFile;
+    }
+    
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoFactory factory = new GBeanInfoFactory(GFileManagerProxy.class);
+        factory.setConstructor(
+            new String[] {"Client"},
+            new Class[] {GFileManager.class});
+        factory.addReference("Client", GFileManager.class);
+        factory.addAttribute("Name", true);
+        GBEAN_INFO = factory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
     
 }

@@ -15,13 +15,13 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.datastore.impl.remote.datastore;
+package org.apache.geronimo.datastore.impl.remote.messaging;
 
 import java.io.Serializable;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Revision: 1.1 $ $Date: 2004/03/03 13:10:07 $
  */
 public class CommandResult implements Serializable
 {
@@ -39,7 +39,7 @@ public class CommandResult implements Serializable
         opaque = anOpaque;
     }
     
-    public boolean isSucess() {
+    public boolean isSuccess() {
         return isSuccess;
     }
     

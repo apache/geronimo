@@ -27,6 +27,10 @@ import java.util.Set;
 import org.apache.geronimo.datastore.GFile;
 import org.apache.geronimo.datastore.GFileManager;
 import org.apache.geronimo.datastore.GFileManagerException;
+import org.apache.geronimo.gbean.GBeanContext;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.WaitingException;
 
 
 /**
@@ -36,7 +40,7 @@ import org.apache.geronimo.datastore.GFileManagerException;
  * Indeed, a full GFileManager just have to provide its own GFileDAO
  * implementation in order to support all the GFileManager contract.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:16 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/03 13:10:07 $
  */
 public abstract class AbstractGFileManager
     implements GFileManager
@@ -138,7 +142,7 @@ public abstract class AbstractGFileManager
     public void end() throws GFileManagerException {
         checkState(true);
         try {
-            doEnd();
+            doInternalEnd();
         } finally {
             synchronized(stateManagers) {
                 stateManagers.clear();
@@ -166,7 +170,7 @@ public abstract class AbstractGFileManager
      * @throws GFileManagerException Indicates that a StateManager is not able
      * to flush its state.
      */
-    private void doEnd() throws GFileManagerException {
+    private void doInternalEnd() throws GFileManagerException {
         List flushedManagers = new ArrayList();
         try {
             // Prepare all the state to be flushed.
@@ -237,4 +241,31 @@ public abstract class AbstractGFileManager
         }
     }
 
+    public void setGBeanContext(GBeanContext context) {}
+
+    public void doStart() throws WaitingException, Exception{}
+
+    public void doStop() throws WaitingException, Exception {}
+
+    public void doFail() {};
+    
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoFactory factory = new GBeanInfoFactory(AbstractGFileManager.class);
+        factory.addAttribute("Name", true);
+        factory.addAttribute("LockManager", true);
+        factory.addOperation("start");
+        factory.addOperation("factoryGFile", new Class[]{String.class});
+        factory.addOperation("persistNew", new Class[]{GFile.class});
+        factory.addOperation("persistUpdate", new Class[]{GFile.class});
+        factory.addOperation("persistDelete", new Class[]{GFile.class});
+        factory.addOperation("end");
+        GBEAN_INFO = factory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+    
 }

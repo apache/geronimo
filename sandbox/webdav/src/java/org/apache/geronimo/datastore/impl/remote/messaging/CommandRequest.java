@@ -15,13 +15,11 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.datastore.impl.remote.datastore;
+package org.apache.geronimo.datastore.impl.remote.messaging;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.naming.OperationNotSupportedException;
 
@@ -30,56 +28,45 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Revision: 1.1 $ $Date: 2004/03/03 13:10:07 $
  */
-public class ProxyCommand
-    implements Serializable, CommandWithProxy
+public class CommandRequest
+    implements Serializable
 {
 
-    private static final Log log = LogFactory.getLog(CommandWithProxy.class);
+    private static final Log log = LogFactory.getLog(CommandRequest.class);
     
-    private static final Map PROXY_METHODS;
-    
-    static {
-        Map tmpMethods = new HashMap();
-        Class clazz = GFileManagerProxy.class;
-        Method[] methods = clazz.getMethods();
-        for (int i = 0; i < methods.length; i++) {
-            Method method = methods[i];
-            tmpMethods.put(method.getName(), method);
-        }
-        PROXY_METHODS = tmpMethods;
-    }
-    
-    private transient GFileManagerProxy proxy;
-
+    private transient Object target;
     private final String methodName;
     private final Object[] parameters;
     
-    public ProxyCommand(String aMethodName, Object[] anArrOfParams) {
+    public CommandRequest(String aMethodName, Object[] anArrOfParams) {
         methodName = aMethodName;
         parameters = anArrOfParams;
     }
     
+    public void setTarget(Object aTarget) {
+        target = aTarget;
+    }
+    
     public CommandResult execute() {
-        Class clazz = proxy.getClass();
-        Method method = (Method) PROXY_METHODS.get(methodName);
-        if ( null != method ) {
-            return invokeMethod(method);
+        Class clazz = target.getClass();
+        Method[] methods = clazz.getMethods();
+        for (int i = 0; i < methods.length; i++) {
+            Method method = methods[i];
+            if ( method.getName().equals(methodName) ) {
+                return invokeMethod(method);
+            }
         }
         return new CommandResult(false,
             new OperationNotSupportedException("Method {" + methodName + 
                 "} does not exist."));
     }
     
-    public void setProxyGFileManager(GFileManagerProxy aProxy) {
-        proxy = aProxy;
-    }
-
     private CommandResult invokeMethod(Method aMethod) {
         CommandResult result;
         try {
-            Object opaque = aMethod.invoke(proxy, parameters);
+            Object opaque = aMethod.invoke(target, parameters);
             return new CommandResult(true, opaque);
         } catch (IllegalArgumentException e) {
             return new CommandResult(false, e);

@@ -17,15 +17,17 @@
 
 package org.apache.geronimo.datastore;
 
+import org.apache.geronimo.gbean.GBean;
+
 /**
  * GFile manager. It allows to retrieve files from the data store and perform
  * CRUD operations against them in the context of a single interaction.
  * <BR>
  * An interaction is delimited by a start and an end invocations. 
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:16 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/03 13:10:07 $
  */
-public interface GFileManager
+public interface GFileManager extends GBean
 {
 
     /**

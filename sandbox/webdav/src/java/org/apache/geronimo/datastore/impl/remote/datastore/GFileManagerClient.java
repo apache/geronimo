@@ -22,6 +22,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.datastore.GFile;
 import org.apache.geronimo.datastore.GFileManager;
 import org.apache.geronimo.datastore.GFileManagerException;
+import org.apache.geronimo.datastore.impl.remote.messaging.CommandRequest;
+import org.apache.geronimo.datastore.impl.remote.messaging.CommandResult;
 import org.apache.geronimo.datastore.impl.remote.messaging.Connector;
 import org.apache.geronimo.datastore.impl.remote.messaging.HeaderOutInterceptor;
 import org.apache.geronimo.datastore.impl.remote.messaging.Msg;
@@ -32,11 +34,13 @@ import org.apache.geronimo.datastore.impl.remote.messaging.MsgOutInterceptor;
 import org.apache.geronimo.datastore.impl.remote.messaging.RequestSender;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/01 13:20:18 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/03 13:10:06 $
  */
 public class GFileManagerClient
     implements GBean, GFileManager, Connector
@@ -45,7 +49,7 @@ public class GFileManagerClient
     private static final Log log = LogFactory.getLog(GFileManagerClient.class);
 
     /**
-     * Name of the proxy to be mirrorer. 
+     * Name of the proxy to be mirrored. 
      */
     private final String name;
     
@@ -93,34 +97,34 @@ public class GFileManagerClient
     }
     
     public void start() {
-        sender.sendSyncRequest(new ProxyCommand("start", null), out);
+        sender.sendSyncRequest(new CommandRequest("start", null), out);
     }
 
     public GFile factoryGFile(String aPath) {
         GFileStub result = (GFileStub)
             sender.sendSyncRequest(
-                new ProxyCommand("factoryGFile", new Object[] {aPath}), out);
+                new CommandRequest("factoryGFile", new Object[] {aPath}), out);
         result.setGFileManagerClient(this);
         return result;
     }
     
     public void persistNew(GFile aFile) {
         sender.sendSyncRequest(
-            new ProxyCommand("persistNew", new Object[] {aFile}), out);
+            new CommandRequest("persistNew", new Object[] {aFile}), out);
     }
 
     public void persistUpdate(GFile aFile) {
         sender.sendSyncRequest(
-            new ProxyCommand("persistUpdate", new Object[] {aFile}), out);
+            new CommandRequest("persistUpdate", new Object[] {aFile}), out);
     }
 
     public void persistDelete(GFile aFile) {
         sender.sendSyncRequest(
-            new ProxyCommand("persistDelete", new Object[] {aFile}), out);
+            new CommandRequest("persistDelete", new Object[] {aFile}), out);
     }
 
     public void end() throws GFileManagerException {
-        sender.sendSyncRequest(new ProxyCommand("end", null), out);
+        sender.sendSyncRequest(new CommandRequest("end", null), out);
     }
     
     public void setGBeanContext(GBeanContext aContext) {
@@ -160,8 +164,44 @@ public class GFileManagerClient
             header.getHeader(MsgHeaderConstants.CORRELATION_ID), result);
     }
     
-    protected Object sendSyncRequest(Object anOpaque) {
-        return sender.sendSyncRequest(anOpaque, out);
+    /**
+     * Used by GFileStubs to send request to their corresponding GFile on the
+     * proxy side.
+     * 
+     * @param aStub GFileStub sending the request.
+     * @param aRequest Request.
+     * @return Request result.
+     */
+    protected Object sendGFileRequest(GFileStub aStub, CommandRequest aRequest) {
+        CommandResult result = (CommandResult) 
+            sender.sendSyncRequest(new CommandRequest("executeOnGFile",
+                new Object[] {aStub.getID(), aRequest}), out);
+        if ( result.isSuccess() ) {
+            return result.getResult();
+        }
+        throw new RuntimeException(result.getException());
+    }
+    
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoFactory factory = new GBeanInfoFactory(GFileManagerClient.class);
+        factory.setConstructor(
+            new String[] {"Name", "NodeName"},
+            new Class[] {String.class, String.class});
+        factory.addAttribute("Name", true);
+        factory.addAttribute("NodeName", true);
+        factory.addOperation("start");
+        factory.addOperation("factoryGFile", new Class[]{String.class});
+        factory.addOperation("persistNew", new Class[]{GFile.class});
+        factory.addOperation("persistUpdate", new Class[]{GFile.class});
+        factory.addOperation("persistDelete", new Class[]{GFile.class});
+        factory.addOperation("end");
+        GBEAN_INFO = factory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
     
 }

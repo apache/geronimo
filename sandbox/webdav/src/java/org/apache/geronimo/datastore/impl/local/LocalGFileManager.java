@@ -28,11 +28,13 @@ import org.apache.geronimo.datastore.impl.AbstractGFileManager;
 import org.apache.geronimo.datastore.impl.DAOException;
 import org.apache.geronimo.datastore.impl.GFileDAO;
 import org.apache.geronimo.datastore.impl.LockManager;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
 
 /**
  * GFileManager using a LocalGFileDAO to interact with the data store.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/03 13:10:07 $
  */
 public class LocalGFileManager
     extends AbstractGFileManager
@@ -89,6 +91,15 @@ public class LocalGFileManager
     public void writeRoot(Writer aWriter) throws IOException {
         aWriter.write(IDENTIFIER + ":");
     }
+
+    /**
+     * Gets the root of this local filesystem manager.
+     * 
+     * @return Root. Path are resolved based on this root.
+     */
+    public File getRoot() {
+        return root;
+    }
     
     /**
      * Plug-in the LocalGFileDAO implementation.
@@ -139,6 +150,22 @@ public class LocalGFileManager
         FileWriter writer = new FileWriter(rootFile);
         writeRoot(writer);
         writer.close();
+    }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoFactory factory =
+            new GBeanInfoFactory(LocalGFileManager.class.getName(), AbstractGFileManager.GBEAN_INFO);
+        factory.setConstructor(
+            new String[] {"Name", "Root", "LockManager"},
+            new Class[] {String.class, File.class, LockManager.class});
+        factory.addAttribute("Root", true);
+        GBEAN_INFO = factory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
     
 }

@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.datastore.impl.remote.datastore.CommandResult;
 
 import EDU.oswego.cs.dl.util.concurrent.FutureResult;
 import EDU.oswego.cs.dl.util.concurrent.TimeoutException;
@@ -31,7 +30,7 @@ import EDU.oswego.cs.dl.util.concurrent.TimeoutException;
 /**
  * Request Msgs sender.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/03 13:10:07 $
  */
 public class RequestSender {
 
@@ -76,7 +75,7 @@ public class RequestSender {
         anOut.push(msg);
         
         CommandResult result = waitResponse(id, WAIT_RESPONSE);
-        if ( !result.isSucess() ) {
+        if ( !result.isSuccess() ) {
             throw new RuntimeException(result.getException());
         }
         return result.getResult();

@@ -29,7 +29,7 @@ import java.io.ObjectInputStream;
  * underlying InputStream. This identifier is then passed to the StreamManager,
  * which returns the InputStream having the provided identifier.
  * 
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/03 13:10:07 $
  */
 public class StreamInputStream
     extends DataInputStream
@@ -98,12 +98,19 @@ public class StreamInputStream
 
         public CustomObjectInputStream() throws IOException, SecurityException {
             super(StreamInputStream.this);
+            enableResolveObject(true);
         }
         
         public InputStream readInputStream() throws IOException {
             return StreamInputStream.this.readInputStream();
         }
         
+        protected Object resolveObject(Object obj) throws IOException {
+            if ( obj instanceof GInputStream ) {
+                return ((GInputStream)obj).getRawInputStream();
+            }
+            return obj;
+        }
     }
     
 }

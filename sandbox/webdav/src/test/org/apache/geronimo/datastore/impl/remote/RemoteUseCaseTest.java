@@ -21,7 +21,6 @@ import java.io.File;
 import java.net.InetAddress;
 import java.util.Collections;
 
-
 import org.apache.geronimo.datastore.GFileManager;
 import org.apache.geronimo.datastore.Util;
 import org.apache.geronimo.datastore.impl.LockManager;
@@ -31,40 +30,44 @@ import org.apache.geronimo.datastore.impl.remote.datastore.GFileManagerClient;
 import org.apache.geronimo.datastore.impl.remote.datastore.GFileManagerProxy;
 import org.apache.geronimo.datastore.impl.remote.messaging.NodeInfo;
 import org.apache.geronimo.datastore.impl.remote.messaging.ServerNode;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  * This is a remote use-case.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/01 13:16:36 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/03 13:10:07 $
  */
 public class RemoteUseCaseTest extends AbstractUseCaseTest {
 
+    private Kernel kernel;
+    
     /**
      * In this set-up one initializes two nodes, namely Node1 and Node2. A
      * local GFileManager is mounted by Node1. A client GFileManager is mounted
      * by Node2. Node2 joins Node1.
      */
     protected void setUp() throws Exception {
-        LockManager lockManager = new LockManager();
         File root = new File(System.getProperty("java.io.tmpdir"),
                 "GFileManager");
         Util.recursiveDelete(root);
         root.mkdir();
         
+        LockManager lockManager = new LockManager();
+
         GFileManager delegate;
         delegate = new LocalGFileManager("test", root, lockManager);
         InetAddress address = InetAddress.getLocalHost();
         GFileManagerProxy proxy = new GFileManagerProxy(delegate);
         NodeInfo nodeInfo1 = new NodeInfo("Node1", address, 8080);
         ServerNode server1 = new ServerNode(nodeInfo1,
-            Collections.singleton(proxy), 10);
+            Collections.singleton(proxy));
         server1.doStart();
         proxy.doStart();
 
         fileManager = new GFileManagerClient("test", "Node1");
         NodeInfo nodeInfo2 = new NodeInfo("Node2", address, 8082);
         ServerNode server2 = new ServerNode(nodeInfo2,
-            Collections.singleton(fileManager), 10);
+            Collections.singleton(fileManager));
         server2.doStart();
         ((GFileManagerClient) fileManager).doStart();
         

@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Processors associated to a server.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/01 13:16:35 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/03 13:10:07 $
  */
 class ServerProcessors
 {
@@ -52,7 +52,7 @@ class ServerProcessors
      */
     public ServerProcessors(ServerNode aServer) {
         server = aServer;
-        processors = new Processors(aServer.getName(), 2, 10);
+        processors = new Processors(aServer.getNodeInfo().getName(), 2, 10);
         streamManager = aServer.getStreamManager();
     }
     

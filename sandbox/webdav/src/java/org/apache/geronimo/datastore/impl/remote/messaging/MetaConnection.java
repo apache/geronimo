@@ -31,7 +31,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * This is a connection of connections.
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/01 13:16:35 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/03 13:10:07 $
  */
 public class MetaConnection
 {
@@ -88,7 +88,7 @@ public class MetaConnection
         
         if ( null == connection ) {
             throw new CommunicationException("Node {" + aNodeName +
-                "} is not know by {" + node.getName() + "}");
+                "} is not know by {" + node.getNodeInfo().getName() + "}");
         }
         
         return connection.out;
@@ -272,7 +272,7 @@ public class MetaConnection
             out =
                 new HeaderOutInterceptor(
                     MsgHeaderConstants.SRC_NODE,
-                    node.getName(),
+                    node.getNodeInfo().getName(),
                     new StreamOutInterceptor(rawOut, node.getStreamManager()));
             listener = new MsgCopier.NullCopierListener() {
                 public void onFailure() {
@@ -301,7 +301,7 @@ public class MetaConnection
             out =
                 new HeaderOutInterceptor(
                     MsgHeaderConstants.SRC_NODE,
-                    node.getName(),
+                    node.getNodeInfo().getName(),
                     new StreamOutInterceptor(rawOut, node.getStreamManager()));
             listener = new MsgCopier.NullCopierListener() {
                 public void onFailure() {

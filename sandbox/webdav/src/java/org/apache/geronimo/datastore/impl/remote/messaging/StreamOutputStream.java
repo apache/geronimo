@@ -26,7 +26,7 @@ import java.io.OutputStream;
 /**
  * This is the counterpart of StreamInputStream.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/03 13:10:07 $
  */
 public class StreamOutputStream
     extends DataOutputStream
@@ -66,10 +66,18 @@ public class StreamOutputStream
 
         public CustomObjectOutputStream() throws IOException, SecurityException {
             super(StreamOutputStream.this);
+            enableReplaceObject(true);
         }
 
         public void writeStream(InputStream aStream) throws IOException {
             StreamOutputStream.this.writeStream(aStream);
+        }
+        
+        protected Object replaceObject(Object obj) throws IOException {
+            if ( obj instanceof InputStream ) {
+                return new GInputStream((InputStream) obj);
+            }
+            return obj;
         }
         
     }

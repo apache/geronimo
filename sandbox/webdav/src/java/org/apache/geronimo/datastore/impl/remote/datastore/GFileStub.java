@@ -27,13 +27,14 @@ import java.util.Map;
 
 
 import org.apache.geronimo.datastore.GFile;
+import org.apache.geronimo.datastore.impl.remote.messaging.CommandRequest;
 import org.apache.geronimo.datastore.impl.remote.messaging.GInputStream;
 import org.apache.geronimo.datastore.impl.remote.messaging.StreamInputStream;
 import org.apache.geronimo.datastore.impl.remote.messaging.StreamOutputStream;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/03 13:10:06 $
  */
 public class GFileStub
     implements GFile, Externalizable
@@ -113,26 +114,26 @@ public class GFileStub
 
     public boolean exists() throws IOException {
         return ((Boolean)
-            client.sendSyncRequest(
-                new GFileCommand(id, "exists", null))).booleanValue();
+            client.sendGFileRequest(this,
+                new CommandRequest("exists", null))).booleanValue();
     }
 
     public boolean isDirectory() throws IOException {
         return ((Boolean)
-            client.sendSyncRequest(
-                new GFileCommand(id, "isDirectory", null))).booleanValue();
+            client.sendGFileRequest(this,
+                new CommandRequest("isDirectory", null))).booleanValue();
     }
 
     public boolean isFile() throws IOException {
         return ((Boolean)
-            client.sendSyncRequest(
-                new GFileCommand(id, "isFile", null))).booleanValue();
+            client.sendGFileRequest(this,
+                new CommandRequest("isFile", null))).booleanValue();
     }
 
     public String[] listFiles() throws IOException {
         return (String[])
-            client.sendSyncRequest(
-                new GFileCommand(id, "listFiles", null));
+            client.sendGFileRequest(this,
+                new CommandRequest("listFiles", null));
     }
 
     public void lock() throws IOException {
@@ -143,43 +144,43 @@ public class GFileStub
 
     public Map getProperties() throws IOException {
         return (Map)
-            client.sendSyncRequest(
-                new GFileCommand(id, "getProperties", null));
+            client.sendGFileRequest(this,
+                new CommandRequest("getProperties", null));
     }
 
     public void setContent(InputStream anIn) {
-        client.sendSyncRequest(
-                new GFileCommand(id, "setContent",
+        client.sendGFileRequest(this,
+                new CommandRequest("setContent",
                     new Object[]{new GInputStream(anIn)}));
     }
 
     public InputStream getContent() {
-        return (InputStream) client.sendSyncRequest(
-                new GFileCommand(id, "getContent", null));
+        return (InputStream) client.sendGFileRequest(this, 
+                new CommandRequest("getContent", null));
     }
 
     public InputStream getInputStream() throws IOException {
-        return (InputStream) client.sendSyncRequest(
-                new GFileCommand(id, "getInputStream", null));
+        return (InputStream) client.sendGFileRequest(this,
+                new CommandRequest("getInputStream", null));
     }
 
     public Map getPropertiesByName(Collection aCollOfNames) throws IOException {
         return (Map)
-            client.sendSyncRequest(
-                new GFileCommand(id, "getPropertiesByName",
-                new Object[] {aCollOfNames}));
+            client.sendGFileRequest(this,
+                new CommandRequest("getPropertiesByName",
+                    new Object[] {aCollOfNames}));
     }
 
     public void addProperty(String aName, String aValue) throws IOException {
-        client.sendSyncRequest(
-            new GFileCommand(id, "addProperty",
-            new Object[] {aName, aValue}));
+        client.sendGFileRequest(this,
+            new CommandRequest("addProperty",
+                new Object[] {aName, aValue}));
     }
 
     public void removeProperty(String aName) throws IOException {
-        client.sendSyncRequest(
-            new GFileCommand(id, "removeProperty",
-            new Object[] {aName}));
+        client.sendGFileRequest(this,
+            new CommandRequest("removeProperty",
+                new Object[] {aName}));
     }
 
     /**
@@ -188,15 +189,12 @@ public class GFileStub
      * ObjectOutput.
      */
     public void writeExternal(ObjectOutput out) throws IOException {
-        if ( !(out instanceof StreamOutputStream.CustomObjectOutputStream) ) {
-            throw new IOException("Must be serialized by a StreamOutputStream.");
-        }
         StreamOutputStream.CustomObjectOutputStream objOut =
             (StreamOutputStream.CustomObjectOutputStream) out;
         objOut.writeObject(id);
         objOut.writeUTF(path);
         objOut.writeObject(properties);
-        objOut.writeObject(new GInputStream(content));
+        objOut.writeObject(content);
     }
 
     /**
@@ -204,16 +202,12 @@ public class GFileStub
      */
     public void readExternal(ObjectInput in) throws IOException,
         ClassNotFoundException {
-        if ( !(in instanceof StreamInputStream.CustomObjectInputStream) ) {
-            throw new IOException("Must be deserialized by a StreamInputStream.");
-        }
         StreamInputStream.CustomObjectInputStream objIn =
             (StreamInputStream.CustomObjectInputStream) in;
         id = (Integer) objIn.readObject();
         path = objIn.readUTF();
         properties = (Map) objIn.readObject();
-        GInputStream stream = (GInputStream) objIn.readObject();
-        content = stream.getRawInputStream();
+        content = (InputStream) objIn.readObject();
     }
     
 }

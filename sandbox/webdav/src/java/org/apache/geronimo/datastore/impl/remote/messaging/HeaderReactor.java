@@ -26,7 +26,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Reactor in charge of dispatching Msgs to Connectors based on their headers.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/03 13:10:07 $
  */
 public class HeaderReactor
     implements Processor
@@ -110,7 +110,7 @@ public class HeaderReactor
     /**
      * Dispatches Msgs to the relevant Connector.
      */
-    public void dispatch() {
+    private void dispatch() {
         final Msg msg = actualIn.pop();
         Object opaque = actualIn.getHeader();
         final Connector connector;

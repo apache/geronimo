@@ -29,6 +29,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
 import org.mortbay.util.ThreadedServer;
 
@@ -49,13 +51,12 @@ import org.mortbay.util.ThreadedServer;
  *
  * Connector communicates with each other by sending Msgs.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/01 13:16:35 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/03 13:10:07 $
  */
 public class ServerNode
-    extends ThreadedServer
     implements GBean
 {
-    
+
     private static final Log log = LogFactory.getLog(ServerNode.class);
 
     /**
@@ -72,6 +73,11 @@ public class ServerNode
      * StreamManager to register/retrieve distributed InputStream.
      */
     private final StreamManager streamManager;
+    
+    /**
+     * Server listening for connections to be made.
+     */
+    private final InternalServer server;
     
     /**
      * Inbound Msg queue. This queue is filled by Msgs coming directly
@@ -112,30 +118,22 @@ public class ServerNode
     /**
      * Creates a server.
      * 
-     * @param aName Name of this server.
+     * @param aNodeInfo NodeInfo identifying uniquely this node on the network.
      * @param aCollOfConnectors Collection of Connectors to be registered by 
      * this server.
-     * @param anAddress Listening address of this server.
-     * @param aPort Listening port of this server.
-     * @param aMaxRequest Maximum number of concurrent requests, which can be
-     * processed by this server.
      */
-    public ServerNode(NodeInfo aNodeInfo, Collection aCollOfConnectors,
-        int aMaxRequest) {
-        super(aNodeInfo.getAddress(), aNodeInfo.getPort());
-        
+    public ServerNode(NodeInfo aNodeInfo, Collection aCollOfConnectors) {
         nodeInfo = aNodeInfo;
+        server = new InternalServer();
+        
         metaConnection = new MetaConnection(this);
         
-        // No socket timeout.
-        setMaxIdleTimeMs(0);
-        
-        streamManager = new StreamManagerImpl(getName());
+        streamManager = new StreamManagerImpl(nodeInfo.getName());
         
         processors = new ServerProcessors(this);
         
-        queueIn = new MsgQueue(getName() + " Inbound");
-        queueOut = new MsgQueue(getName() + " Outbound");
+        queueIn = new MsgQueue(nodeInfo.getName() + " Inbound");
+        queueOut = new MsgQueue(nodeInfo.getName() + " Outbound");
         
         connections = new HashMap();
         
@@ -152,8 +150,7 @@ public class ServerNode
             new HeaderOutInterceptor(
                 MsgHeaderConstants.SRC_CONNECTOR,
                 StreamManager.NAME,
-                new QueueOutInterceptor(queueOut)
-                ));
+                new QueueOutInterceptor(queueOut)));
         
         connectors = new HashMap();
         // Registers the Connectors.
@@ -164,13 +161,6 @@ public class ServerNode
         }
     }
 
-    /**
-     * Gets the name of this node.
-     */
-    public String getName() {
-        return nodeInfo.getName();
-    }
-    
     /**
      * Gets the NodeInfo of this node.
      * 
@@ -221,7 +211,7 @@ public class ServerNode
      * @param aServantName Node name.
      * @return Output to be used to communicate with the specified node.
      */
-    public MsgOutInterceptor getOutForNode(String aNodeName)
+    protected MsgOutInterceptor getOutForNode(String aNodeName)
         throws CommunicationException {
         return metaConnection.getOutForNode(aNodeName);
     }
@@ -231,7 +221,7 @@ public class ServerNode
      * 
      * @param aConnector Connector to be registered.
      */
-    public void addConnector(Connector aConnector) {
+    private void addConnector(Connector aConnector) {
         String pName = aConnector.getName();
         // Connectors write to the outbound Msg queue.
         aConnector.setOutput(
@@ -251,7 +241,7 @@ public class ServerNode
      * 
      * @param aConnector Connector to be deregistered.
      */
-    public void removeConnector(Connector aConnector) {
+    private void removeConnector(Connector aConnector) {
         String pName = aConnector.getName();
         aConnector.setOutput(null);
         inReactor.unregister(pName);
@@ -260,43 +250,22 @@ public class ServerNode
         }
     }
     
-    /**
-     * Handles a new connection.
-     */
-    protected void handleConnection(InputStream anIn,OutputStream anOut) {
-        try {
-            metaConnection.joined(anIn, anOut);
-        } catch (IOException e) {
-            log.error(e);
-        } catch (CommunicationException e) {
-            log.error(e);
-        }
-    }
-    
     public void setGBeanContext(GBeanContext aContext) {
         context = aContext;
     }
 
     public void doStart() throws WaitingException, Exception {
-        // Start the thread pool.
-        start();
-        
+        server.start();
         processors.start();
     }
 
     public void doStop() throws WaitingException, Exception {
-        stop();
-        
+        server.stop();
         processors.stop();
     }
 
     public void doFail() {
-        try {
-            stop();
-        } catch (InterruptedException e) {
-            log.error("Exception when stopping server", e);
-        }
-
+        server.stop();
         processors.stop();
     }
     
@@ -304,4 +273,74 @@ public class ServerNode
         return "Node {" + nodeInfo + "}";
     }
 
+    /**
+     * Socket server listening for connections to be made to this node.
+     */
+    private class InternalServer extends ThreadedServer {
+        
+        public InternalServer() {
+            super(nodeInfo.getAddress(), nodeInfo.getPort());
+            // No socket timeout.
+            setMaxIdleTimeMs(0);
+        }
+        
+        /**
+         * Handles a new connection.
+         */
+        protected void handleConnection(InputStream anIn,OutputStream anOut) {
+            try {
+                metaConnection.joined(anIn, anOut);
+            } catch (IOException e) {
+                log.error(e);
+            } catch (CommunicationException e) {
+                log.error(e);
+            }
+        }
+        
+        public void start() {
+            try {
+                super.start();
+            } catch (Exception e) {
+                log.error(e);
+                context.fail();
+            }
+        }
+        
+        public void stop() {
+            try {
+                super.stop();
+            } catch (InterruptedException e) {
+                log.error(e);
+                context.fail();
+            }
+        }
+        
+        public void fail() {
+            try {
+                super.stop();
+            } catch (InterruptedException e) {
+                log.error(e);
+            }
+        }
+    }
+    
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoFactory factory = new GBeanInfoFactory(ServerNode.class);
+        factory.setConstructor(
+            new String[] {"NodeInfo", "Connectors"},
+            new Class[] {NodeInfo.class, Collection.class});
+        factory.addAttribute("NodeInfo", true);
+        factory.addReference("Connectors", Connector.class);
+        factory.addAttribute("StreamManager", false);
+        factory.addOperation("join", new Class[]{NodeInfo.class});
+        factory.addOperation("leave", new Class[]{NodeInfo.class});
+        GBEAN_INFO = factory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+    
 }

@@ -25,12 +25,11 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.datastore.impl.remote.datastore.CommandResult;
 
 /**
  * StreamManager implementation.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/03 13:10:07 $
  */
 public class StreamManagerImpl
     implements Connector, StreamManager
@@ -164,7 +163,9 @@ public class StreamManagerImpl
                         StreamManager.NAME,
                         out)));
         byte[] result = (byte[])
-            sender.sendSyncRequest(new CommandWithStreamManager(anID), reqOut); 
+            sender.sendSyncRequest(
+                new CommandRequest("retrieveLocalNext", new Object[] {anID}),
+                reqOut); 
         return result;
         
     }
@@ -190,10 +191,10 @@ public class StreamManagerImpl
         MsgHeader header = aMsg.getHeader();
         Object sourceNode = header.getHeader(MsgHeaderConstants.SRC_NODE);
         Object id = header.getHeader(MsgHeaderConstants.CORRELATION_ID);
-        CommandWithStreamManager command;
+        CommandRequest command;
         String gateway;
-        command = (CommandWithStreamManager) body.getContent();
-        command.setStreamManager(this);
+        command = (CommandRequest) body.getContent();
+        command.setTarget(this);
         CommandResult result = command.execute();
         Msg msg = new Msg();
         body = msg.getBody();
@@ -235,7 +236,7 @@ public class StreamManagerImpl
      * InputStream calls back its StreamManager when its internal buffer is
      * empty. 
      *
-     * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+     * @version $Revision: 1.2 $ $Date: 2004/03/03 13:10:07 $
      */
     private class ProxyInputStream extends InputStream {
         /**
@@ -308,32 +309,6 @@ public class StreamManagerImpl
             return id.sequence == sequence &&
             managerName.equals(id.managerName) ;
         }
-    }
-
-    public static class CommandWithStreamManager
-        implements Serializable {
-
-        private final Object id;
-        private byte[] content;
-        private StreamManager streamManager;
-
-        public CommandWithStreamManager(Object anId) {
-            id = anId;
-        }
-        
-        public void setStreamManager(StreamManager aManager) {
-            streamManager = aManager;
-        }
-        
-        public CommandResult execute() {
-            try {
-                content = streamManager.retrieveLocalNext(id);
-            } catch (IOException e) {
-                return new CommandResult(false, e);
-            }
-            return new CommandResult(true, content);
-        }
-        
     }
     
 }
