@@ -17,17 +17,17 @@
 
 package org.apache.geronimo.connector.outbound;
 
+import javax.management.ObjectName;
 import javax.naming.NamingException;
 import javax.resource.spi.ManagedConnectionFactory;
 import javax.resource.spi.ResourceAdapterAssociation;
-import javax.management.ObjectName;
 
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.connector.ResourceAdapterWrapper;
 import org.apache.geronimo.connector.ConnectorMethodInterceptor;
+import org.apache.geronimo.connector.ResourceAdapterWrapper;
 import org.apache.geronimo.connector.outbound.security.ManagedConnectionFactoryListener;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
@@ -37,13 +37,13 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.naming.geronimo.GeronimoContextManager;
 import org.apache.geronimo.kernel.KernelMBean;
+import org.apache.geronimo.naming.geronimo.GeronimoContextManager;
 
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/04/07 06:54:57 $
+ * @version $Revision: 1.9 $ $Date: 2004/05/30 19:03:36 $
  *
  * */
 public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {

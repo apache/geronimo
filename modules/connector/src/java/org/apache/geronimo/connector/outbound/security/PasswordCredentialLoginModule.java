@@ -19,6 +19,7 @@ package org.apache.geronimo.connector.outbound.security;
 
 import java.io.IOException;
 import java.util.Map;
+
 import javax.resource.spi.security.PasswordCredential;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -32,7 +33,7 @@ import javax.security.auth.spi.LoginModule;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:33 $
+ * @version $Revision: 1.4 $ $Date: 2004/05/30 19:03:36 $
  *
  * */
 public class PasswordCredentialLoginModule implements LoginModule {

@@ -19,6 +19,7 @@ package org.apache.geronimo.connector.outbound;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.resource.spi.ConnectionEvent;
 import javax.resource.spi.ConnectionEventListener;
 

@@ -19,7 +19,6 @@ package org.apache.geronimo.connector.outbound;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
 
 import javax.resource.ResourceException;
 import javax.resource.spi.DissociatableManagedConnection;
@@ -35,7 +34,7 @@ import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrack
  * a connection the CachedConnectionManager is notified.
  *
  *
- * @version $Revision: 1.9 $ $Date: 2004/05/24 19:10:34 $
+ * @version $Revision: 1.10 $ $Date: 2004/05/30 19:03:36 $
  */
 public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
 

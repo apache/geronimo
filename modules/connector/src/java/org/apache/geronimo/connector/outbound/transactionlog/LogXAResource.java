@@ -17,16 +17,16 @@
 
 package org.apache.geronimo.connector.outbound.transactionlog;
 
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
-import javax.transaction.xa.XAException;
 import javax.resource.ResourceException;
 import javax.resource.spi.LocalTransaction;
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/06 03:58:23 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/30 19:03:36 $
  *
  * */
 public class LogXAResource implements XAResource {

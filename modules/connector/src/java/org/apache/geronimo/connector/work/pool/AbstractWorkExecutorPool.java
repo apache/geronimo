@@ -20,16 +20,15 @@ package org.apache.geronimo.connector.work.pool;
 import javax.resource.spi.work.WorkCompletedException;
 import javax.resource.spi.work.WorkException;
 
-import org.apache.geronimo.connector.work.WorkerContext;
-
 import EDU.oswego.cs.dl.util.concurrent.Channel;
+import org.apache.geronimo.connector.work.WorkerContext;
 
 /**
  * Based class for WorkExecutorPool. Sub-classes define the synchronization
  * policy (should the call block until the end of the work; or when it starts
  * et cetera).
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:33 $
+ * @version $Revision: 1.4 $ $Date: 2004/05/30 19:03:36 $
  */
 public abstract class AbstractWorkExecutorPool implements WorkExecutorPool {
 

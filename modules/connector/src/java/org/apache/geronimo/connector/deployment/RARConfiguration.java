@@ -18,16 +18,14 @@
 package org.apache.geronimo.connector.deployment;
 
 import javax.enterprise.deploy.model.DeployableObject;
-import javax.enterprise.deploy.spi.DConfigBeanRoot;
 
-import org.apache.geronimo.deployment.plugin.DeploymentConfigurationSupport;
 import org.apache.geronimo.deployment.plugin.DConfigBeanRootSupport;
-import org.apache.geronimo.connector.deployment.dconfigbean.ResourceAdapterDConfigRoot;
+import org.apache.geronimo.deployment.plugin.DeploymentConfigurationSupport;
 
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/03/10 09:58:31 $
+ * @version $Revision: 1.7 $ $Date: 2004/05/30 19:03:36 $
  *
  * */
 public class RARConfiguration extends DeploymentConfigurationSupport {

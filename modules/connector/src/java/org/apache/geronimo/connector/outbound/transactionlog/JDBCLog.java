@@ -27,20 +27,20 @@ import java.util.List;
 import javax.sql.DataSource;
 import javax.transaction.xa.Xid;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.transaction.manager.LogException;
 import org.apache.geronimo.transaction.manager.TransactionLog;
 import org.apache.geronimo.transaction.manager.XidImpl;
-import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/06 03:58:23 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/30 19:03:36 $
  *
  * */
 public class JDBCLog implements TransactionLog, GBean {

@@ -31,12 +31,11 @@ import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.geronimo.GerVersionType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlBeans;
 
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:31 $
+ * @version $Revision: 1.6 $ $Date: 2004/05/30 19:03:36 $
  *
  * */
 public class ResourceAdapter_1_0DConfigRoot extends DConfigBeanRootSupport {

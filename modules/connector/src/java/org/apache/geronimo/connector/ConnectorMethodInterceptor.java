@@ -17,10 +17,10 @@
 
 package org.apache.geronimo.connector;
 
-import java.lang.reflect.Method;
-import java.io.Serializable;
-import java.io.ObjectStreamException;
 import java.io.InvalidObjectException;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+import java.lang.reflect.Method;
 
 import javax.management.ObjectName;
 
@@ -31,7 +31,7 @@ import org.apache.geronimo.kernel.Kernel;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/09 20:15:43 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/30 19:03:36 $
  *
  * */
 public class ConnectorMethodInterceptor implements MethodInterceptor, Serializable {

@@ -17,11 +17,11 @@
 
 package org.apache.geronimo.connector.deployment.dconfigbean;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
-import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.model.DDBean;
+import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.spi.DConfigBean;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 
@@ -36,7 +36,7 @@ import org.apache.xmlbeans.XmlException;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/03/10 09:58:31 $
+ * @version $Revision: 1.9 $ $Date: 2004/05/30 19:03:36 $
  *
  * */
 public class ResourceAdapterDConfigRoot extends DConfigBeanRootSupport {

@@ -20,6 +20,7 @@ package org.apache.geronimo.connector.outbound.security;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
 import javax.resource.spi.ManagedConnectionFactory;
 import javax.security.auth.login.AppConfigurationEntry;
 
@@ -33,7 +34,7 @@ import org.apache.regexp.RE;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/03/10 19:21:17 $
+ * @version $Revision: 1.7 $ $Date: 2004/05/30 19:03:36 $
  *
  * */
 public class PasswordCredentialRealm extends AbstractSecurityRealm implements SecurityRealm, ManagedConnectionFactoryListener {

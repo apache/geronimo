@@ -18,10 +18,8 @@
 package org.apache.geronimo.connector.outbound;
 
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PartitionedPool;
-import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
-import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransactions;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
-import org.apache.geronimo.connector.outbound.connectionmanagerconfig.SinglePool;
+import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -31,7 +29,7 @@ import org.apache.geronimo.security.bridge.RealmBridge;
  * GenericConnectionManager sets up a connection manager stack according to the
  *  policies described in the attributes.
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/24 19:10:34 $
+ * @version $Revision: 1.3 $ $Date: 2004/05/30 19:03:36 $
  * */
 public class GenericConnectionManager extends AbstractConnectionManager {
 

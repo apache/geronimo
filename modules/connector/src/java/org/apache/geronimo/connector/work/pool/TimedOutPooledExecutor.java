@@ -17,16 +17,15 @@
 
 package org.apache.geronimo.connector.work.pool;
 
-import org.apache.geronimo.connector.work.WorkerContext;
-
 import EDU.oswego.cs.dl.util.concurrent.Channel;
 import EDU.oswego.cs.dl.util.concurrent.PooledExecutor;
+import org.apache.geronimo.connector.work.WorkerContext;
 
 /**
  * PooledExecutor enforcing a timed out "blocked execution policy". The works
  * submitted to this pooled executor MUST be a WorkWrapper.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:33 $
+ * @version $Revision: 1.4 $ $Date: 2004/05/30 19:03:36 $
  */
 public class TimedOutPooledExecutor extends PooledExecutor {
 
@@ -67,7 +66,7 @@ public class TimedOutPooledExecutor extends PooledExecutor {
      * This class implements a time out policy when a work is blocked: it offers
      * the task to the pool until the work has timed out.
      *
-     * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:33 $
+     * @version $Revision: 1.4 $ $Date: 2004/05/30 19:03:36 $
      */
     private class TimedOutSpinHandler
             implements PooledExecutor.BlockedExecutionHandler {

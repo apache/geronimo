@@ -19,12 +19,11 @@ package org.apache.geronimo.connector.outbound.connectiontracking;
 
 import org.apache.geronimo.connector.outbound.ConnectionInfo;
 import org.apache.geronimo.connector.outbound.ConnectionTrackingInterceptor;
-import org.apache.geronimo.transaction.TransactionContext;
 
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/05/24 19:10:34 $
+ * @version $Revision: 1.6 $ $Date: 2004/05/30 19:03:36 $
  *
  * */
 public interface ConnectionTracker {

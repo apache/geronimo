@@ -18,14 +18,14 @@
 package org.apache.geronimo.connector.outbound.connectionmanagerconfig;
 
 import org.apache.geronimo.connector.outbound.ConnectionInterceptor;
-import org.apache.geronimo.connector.outbound.TransactionEnlistingInterceptor;
 import org.apache.geronimo.connector.outbound.TransactionCachingInterceptor;
+import org.apache.geronimo.connector.outbound.TransactionEnlistingInterceptor;
 import org.apache.geronimo.connector.outbound.transactionlog.LogXAResourceInsertionInterceptor;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/06 03:58:22 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/30 19:03:36 $
  *
  * */
 public class TransactionLog extends TransactionSupport

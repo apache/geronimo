@@ -17,8 +17,6 @@
 
 package org.apache.geronimo.connector.deployment.dconfigbean;
 
-import java.math.BigInteger;
-
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.XpathListener;
 
@@ -30,7 +28,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 
 /**
- * @version $Revision 1.0$  $Date: 2004/05/06 03:58:22 $
+ * @version $Revision 1.0$  $Date: 2004/05/30 19:03:36 $
  */
 public class ConnectionDefinitionInstance extends XmlBeanSupport {
     private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();

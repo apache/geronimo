@@ -26,16 +26,15 @@ import javax.resource.spi.work.WorkException;
 import javax.resource.spi.work.WorkListener;
 import javax.resource.spi.work.WorkRejectedException;
 
+import EDU.oswego.cs.dl.util.concurrent.Latch;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.transaction.XAWork;
 
-import EDU.oswego.cs.dl.util.concurrent.Latch;
-
 /**
  * Work wrapper providing an execution context to a Work instance.
  *
- * @version $Revision: 1.5 $ $Date: 2004/04/08 20:35:32 $
+ * @version $Revision: 1.6 $ $Date: 2004/05/30 19:03:36 $
  */
 public class WorkerContext implements Work {
 

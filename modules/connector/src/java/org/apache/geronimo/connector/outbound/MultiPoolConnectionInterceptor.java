@@ -21,6 +21,7 @@ package org.apache.geronimo.connector.outbound;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionRequestInfo;
 import javax.security.auth.Subject;
@@ -34,7 +35,7 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSup
  *
  * Created: Fri Oct 10 12:53:11 2003
  *
- * @version $Revision: 1.4 $ $Date: 2004/05/06 03:58:22 $
+ * @version $Revision: 1.5 $ $Date: 2004/05/30 19:03:36 $
  */
 public class MultiPoolConnectionInterceptor implements ConnectionInterceptor {
 

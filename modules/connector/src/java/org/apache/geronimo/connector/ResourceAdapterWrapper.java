@@ -19,7 +19,6 @@ package org.apache.geronimo.connector;
 
 import javax.resource.ResourceException;
 import javax.resource.spi.ActivationSpec;
-import javax.resource.spi.ManagedConnectionFactory;
 import javax.resource.spi.ResourceAdapter;
 import javax.resource.spi.ResourceAdapterAssociation;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
@@ -32,14 +31,14 @@ import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
+import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.WaitingException;
 
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/04/07 06:54:57 $
+ * @version $Revision: 1.7 $ $Date: 2004/05/30 19:03:36 $
  *
  * */
 public class ResourceAdapterWrapper implements GBean, DynamicGBean {

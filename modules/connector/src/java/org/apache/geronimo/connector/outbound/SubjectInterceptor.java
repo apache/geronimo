@@ -22,8 +22,8 @@ import javax.resource.spi.ApplicationServerInternalException;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 
-import org.apache.geronimo.security.bridge.RealmBridge;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.bridge.RealmBridge;
 
 /**
  * SubjectInterceptor.java
@@ -31,7 +31,7 @@ import org.apache.geronimo.security.ContextManager;
  *
  * Created: Mon Oct  6 14:31:56 2003
  *
- * @version $Revision: 1.5 $ $Date: 2004/05/24 19:10:34 $
+ * @version $Revision: 1.6 $ $Date: 2004/05/30 19:03:36 $
  */
 public class SubjectInterceptor implements ConnectionInterceptor {
 

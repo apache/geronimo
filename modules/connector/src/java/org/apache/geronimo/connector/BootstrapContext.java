@@ -18,6 +18,7 @@
 package org.apache.geronimo.connector;
 
 import java.util.Timer;
+
 import javax.resource.spi.UnavailableException;
 import javax.resource.spi.XATerminator;
 import javax.resource.spi.work.WorkManager;
@@ -25,11 +26,11 @@ import javax.resource.spi.work.WorkManager;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
+import org.apache.geronimo.gbean.GReferenceInfo;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:31 $
+ * @version $Revision: 1.5 $ $Date: 2004/05/30 19:03:36 $
  */
 public class BootstrapContext implements javax.resource.spi.BootstrapContext {
 

@@ -19,10 +19,9 @@ package org.apache.geronimo.connector.work.pool;
 
 import javax.resource.spi.work.WorkException;
 
-import org.apache.geronimo.connector.work.WorkerContext;
-
 import EDU.oswego.cs.dl.util.concurrent.Latch;
 import EDU.oswego.cs.dl.util.concurrent.LinkedQueue;
+import org.apache.geronimo.connector.work.WorkerContext;
 
 /**
  * WorkExecutorPool handling the submitted Work instances synchronously
@@ -30,7 +29,7 @@ import EDU.oswego.cs.dl.util.concurrent.LinkedQueue;
  * work is started.
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:33 $
+ * @version $Revision: 1.4 $ $Date: 2004/05/30 19:03:36 $
  */
 public class StartWorkExecutorPool
         extends AbstractWorkExecutorPool {

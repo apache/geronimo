@@ -17,17 +17,17 @@
 
 package org.apache.geronimo.connector.deployment.dconfigbean;
 
+import javax.enterprise.deploy.model.DDBean;
+import javax.enterprise.deploy.model.XpathEvent;
+import javax.enterprise.deploy.model.XpathListener;
+
 import org.apache.geronimo.deployment.plugin.XmlBeanSupport;
 import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 
-import javax.enterprise.deploy.model.DDBean;
-import javax.enterprise.deploy.model.XpathListener;
-import javax.enterprise.deploy.model.XpathEvent;
-
 /**
- * @version $Revision 1.0$  $Date: 2004/03/10 09:58:31 $
+ * @version $Revision 1.0$  $Date: 2004/05/30 19:03:36 $
  */
 public class ConfigPropertySettings extends XmlBeanSupport {
     private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();

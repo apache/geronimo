@@ -18,15 +18,15 @@
 package org.apache.geronimo.connector.outbound.connectionmanagerconfig;
 
 import org.apache.geronimo.connector.outbound.ConnectionInterceptor;
-import org.apache.geronimo.connector.outbound.XAResourceInsertionInterceptor;
-import org.apache.geronimo.connector.outbound.TransactionEnlistingInterceptor;
-import org.apache.geronimo.connector.outbound.TransactionCachingInterceptor;
 import org.apache.geronimo.connector.outbound.ThreadLocalCachingConnectionInterceptor;
+import org.apache.geronimo.connector.outbound.TransactionCachingInterceptor;
+import org.apache.geronimo.connector.outbound.TransactionEnlistingInterceptor;
+import org.apache.geronimo.connector.outbound.XAResourceInsertionInterceptor;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/24 19:10:34 $
+ * @version $Revision: 1.3 $ $Date: 2004/05/30 19:03:36 $
  *
  * */
 public class XATransactions extends TransactionSupport {
