@@ -51,6 +51,7 @@ import javax.wsdl.Types;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.UnknownExtensibilityElement;
+import javax.wsdl.extensions.schema.Schema;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.soap.SOAPBinding;
 import javax.wsdl.extensions.soap.SOAPBody;
@@ -784,7 +785,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
 
         Map faultMap = operation.getFaults();
         for (Iterator iterator = faultMap.entrySet().iterator(); iterator.hasNext();) {
-              Map.Entry entry =  (Map.Entry) iterator.next();
+            Map.Entry entry = (Map.Entry) iterator.next();
             String faultName = (String) entry.getKey();
             Fault fault = (Fault) entry.getValue();
             Message message = fault.getMessage();
@@ -802,9 +803,9 @@ public class AxisBuilder implements ServiceReferenceBuilder {
                 String headerFaultMessagePartName = exceptionMapping.getWsdlMessagePartName().getStringValue();
                 part = message.getPart(headerFaultMessagePartName);
             } else {
-                part= (Part) message.getOrderedParts(null).iterator().next();
+                part = (Part) message.getOrderedParts(null).iterator().next();
             }
-            QName faultTypeQName = part.getElementName() == null? part.getTypeName(): part.getElementName();
+            QName faultTypeQName = part.getElementName() == null ? part.getTypeName() : part.getElementName();
             boolean isComplex = part.getTypeName() != null && complexTypeMap.containsKey(part.getTypeName());
             FaultDesc faultDesc = new FaultDesc(faultQName, className, faultTypeQName, isComplex);
 
@@ -882,7 +883,43 @@ public class AxisBuilder implements ServiceReferenceBuilder {
             List schemas = types.getExtensibilityElements();
             for (Iterator iterator = schemas.iterator(); iterator.hasNext();) {
                 Object o = iterator.next();
-                if (o instanceof UnknownExtensibilityElement) {
+                if (o instanceof Schema) {
+                    Schema unknownExtensibilityElement = (Schema) o;
+                    QName elementType = unknownExtensibilityElement.getElementType();
+                    if (new QName("http://www.w3.org/2001/XMLSchema", "schema").equals(elementType)) {
+                        Element element = unknownExtensibilityElement.getElement();
+                        try {
+                            XmlObject xmlObject = SchemaConversionUtils.parse(element);
+                            XmlCursor cursor = xmlObject.newCursor();
+                            try {
+                                cursor.toFirstContentToken();
+                                for (Iterator namespaces = namespaceMap.entrySet().iterator(); namespaces.hasNext();) {
+                                    Map.Entry entry = (Map.Entry) namespaces.next();
+                                    cursor.insertNamespace((String) entry.getKey(), (String) entry.getValue());
+                                }
+                            } finally {
+                                cursor.dispose();
+                            }
+                            SchemaDocument schemaDoc = (SchemaDocument) xmlObject.changeType(SchemaDocument.type);
+                            SchemaConversionUtils.validateDD(schemaDoc);
+                            SchemaDocument.Schema schema = schemaDoc.getSchema();
+                            String targetNamespace = schema.getTargetNamespace();
+                            ComplexType[] complexTypes = schema.getComplexTypeArray();
+                            for (int j = 0; j < complexTypes.length; j++) {
+                                ComplexType complexType = complexTypes[j];
+                                String complexTypeName = complexType.getName();
+                                QName complexTypeQName = new QName(targetNamespace, complexTypeName);
+                                complexTypeMap.put(complexTypeQName, complexType);
+                            }
+                        } catch (XmlException e) {
+                            throw new DeploymentException("Invalid schema in wsdl", e);
+                        }
+                    } else {
+                        //problems??
+                    }
+                } else if (o instanceof UnknownExtensibilityElement) {
+                    //This is apparently obsolete as of axis-wsdl4j-1.2-RC3.jar which includes the Schema extension above.
+                    //I'm leaving this in in case this Schema class is not really part of a spec, even though its in javax.
                     UnknownExtensibilityElement unknownExtensibilityElement = (UnknownExtensibilityElement) o;
                     QName elementType = unknownExtensibilityElement.getElementType();
                     if (new QName("http://www.w3.org/2001/XMLSchema", "schema").equals(elementType)) {
