@@ -117,7 +117,9 @@ public class JettyModuleBuilder implements ModuleBuilder {
             specDD = DeploymentUtil.readAll(specDDUrl);
 
             // parse it
-            WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(SchemaConversionUtils.parse(specDD));
+            XmlObject parsed = SchemaConversionUtils.parse(specDD);
+            SchemaConversionUtils.validateDD(parsed);
+            WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(parsed);
             webApp = webAppDoc.getWebApp();
         } catch (XmlException xmle) {
             throw new DeploymentException("Error parsing web.xml", xmle);
@@ -125,7 +127,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             return null;
         }
 
-        checkURLPattern(webApp);
+        check(webApp);
 
         // parse vendor dd
         JettyWebAppType jettyWebApp = getJettyWebApp(plan, moduleFile, standAlone, targetPath, webApp);
@@ -520,6 +522,11 @@ public class JettyModuleBuilder implements ModuleBuilder {
         return uri;
     }
 
+    private static void check(WebAppType webApp) throws DeploymentException {
+        checkURLPattern(webApp);
+        checkMultiplicities(webApp);
+    }
+
     private static void checkURLPattern(WebAppType webApp) throws DeploymentException {
 
         FilterMappingType[] filterMappings = webApp.getFilterMappingArray();
@@ -536,16 +543,22 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
         SecurityConstraintType[] constraints = webApp.getSecurityConstraintArray();
         for (int i = 0; i < constraints.length; i++) {
-            WebResourceCollectionType[] collections  = constraints[i].getWebResourceCollectionArray();
+            WebResourceCollectionType[] collections = constraints[i].getWebResourceCollectionArray();
             for (int j = 0; j < collections.length; j++) {
                 checkString(collections[j].addNewUrlPattern().getStringValue());
             }
         }
     }
 
-    private static void checkString(String pattern)throws DeploymentException {
+    private static void checkString(String pattern) throws DeploymentException {
         if (pattern.indexOf(0x0D) >= 0) throw new DeploymentException("<url-pattern> must not contain CR(#xD)");
         if (pattern.indexOf(0x0A) >= 0) throw new DeploymentException("<url-pattern> must not contain LF(#xA)");
+    }
+
+    private static void checkMultiplicities(WebAppType webApp) throws DeploymentException {
+        if (webApp.getSessionConfigArray().length > 1) throw new DeploymentException("Multiple <session-config> elements found");
+        if (webApp.getJspConfigArray().length > 1) throw new DeploymentException("Multiple <jsp-config> elements found");
+        if (webApp.getLoginConfigArray().length > 1) throw new DeploymentException("Multiple <login-config> elements found");
     }
 
     public static final GBeanInfo GBEAN_INFO;

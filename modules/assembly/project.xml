@@ -275,6 +275,9 @@
             <artifactId>geronimo-j2ee-schema</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
+                <deploy>true</deploy><!-- TODO REMOVE WHEN XMLBEANS CL IS FIXED -->
+                <server>true</server><!-- TODO REMOVE WHEN XMLBEANS CL IS FIXED -->
+                <lib>true</lib><!-- TODO REMOVE WHEN XMLBEANS CL IS FIXED -->
                 <repository>true</repository>
             </properties>
         </dependency>
@@ -588,6 +591,7 @@
             <properties>
                 <lib>true</lib>
                 <deploy>true</deploy>
+                <server>true</server><!-- TODO REMOVE WHEN XMLBEANS CL IS FIXED -->
                 <repository>true</repository>
             </properties>
         </dependency>
