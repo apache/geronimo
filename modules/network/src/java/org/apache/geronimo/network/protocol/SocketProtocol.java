@@ -37,7 +37,7 @@ import org.apache.geronimo.network.SelectorManager;
 
 
 /**
- * @version $Revision: 1.13 $ $Date: 2004/05/04 03:05:36 $
+ * @version $Revision: 1.14 $ $Date: 2004/06/27 18:29:07 $
  */
 public class SocketProtocol implements AcceptableProtocol, SelectionEventListner {
 
@@ -265,7 +265,7 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
             selectorManager.addInterestOps(selectionKey, SelectionKey.OP_WRITE);
 
         } catch (InterruptedException e) {
-            log.debug("Communications error, closing connection: ", e);
+            log.trace("Communications error, closing connection: ", e);
             close();
             throw new ProtocolException(e);
         }
@@ -320,8 +320,13 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
             log.trace("RELEASED " + sendMutex);
 
         } catch (IOException e) {
-            log.debug("Communications error, closing connection: ", e);
-            close();
+            /**
+             * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4854354
+             */
+            if (!"A non-blocking socket operation could not be completed immediately".equals(e.getMessage())) {
+                log.warn("Communications error, closing connection: ", e);
+                close();
+            }
         } finally {
             log.trace("serviceWrite() done.");
         }
@@ -409,13 +414,13 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
             // who knows, by the time we get here,
             // the channel could have been closed.
         } catch (IOException e) {
-            log.debug("Communications error, closing connection: ", e);
+            log.trace("Communications error, closing connection: ", e);
             close();
         } catch (ProtocolException e) {
-            log.debug("Communications error, closing connection: ", e);
+            log.trace("Communications error, closing connection: ", e);
             close();
         } catch (Throwable e) {
-            log.debug("Unhandled error, closing connection: ", e);
+            log.trace("Unhandled error, closing connection: ", e);
             close();
         } finally {
             if (tracing) log.trace("serviceRead() done.");
