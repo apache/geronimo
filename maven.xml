@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.75 $ $Date: 2004/05/27 05:20:24 $ -->
+<!-- $Revision: 1.76 $ $Date: 2004/06/17 02:23:14 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -302,7 +302,6 @@
         <attainGoal name="maven-pmd-plugin:deregister"/>
         <attainGoal name="maven-simian-plugin:deregister"/>
         <attainGoal name="maven-jdepend-plugin:deregister"/>
-        <attainGoal name="maven-statcvs-plugin:deregister"/>
         <attainGoal name="maven-jxr-plugin:deregister"/>
         <attainGoal name="maven-javadoc-plugin:deregister"/>
         <attainGoal name="maven-junit-report-plugin:deregister"/>
