@@ -72,7 +72,7 @@ import org.mortbay.http.SocketListener;
  * @jmx:mbean extends="org.apache.geronimo.web.AbstractWebContainerMBean"
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/09/14 12:09:44 $
+ * @version $Revision: 1.6 $ $Date: 2003/09/28 22:30:58 $
  */
 public class JettyWebContainer extends AbstractWebContainer implements JettyWebContainerMBean {
   
@@ -109,9 +109,9 @@ public class JettyWebContainer extends AbstractWebContainer implements JettyWebC
     }
 
  
-    public WebApplication createWebApplication ()
+    public WebApplication createWebApplication (URI uri)
     { 
-        return new JettyWebApplication();
+        return new JettyWebApplication(uri);
     }
 
  
@@ -164,4 +164,12 @@ public class JettyWebContainer extends AbstractWebContainer implements JettyWebC
         _jettyServer.removeListener (((JettyWebConnector)connector).getListener());
     }
 
+
+    protected void webApplicationAdded (WebApplication webapp)
+    {
+        _log.debug ("Web application="+webapp.getObjectName()+" added to Jetty");
+        _jettyServer.addContext (((JettyWebApplication)webapp).getJettyContext());
+        ((JettyWebApplication)webapp).getJettyContext().setExtractWAR(true);
+        super.webApplicationAdded (webapp);
+    }
 }

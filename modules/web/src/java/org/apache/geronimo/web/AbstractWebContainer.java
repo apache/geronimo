@@ -61,6 +61,7 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Iterator;
 import java.util.List;
 import java.util.HashSet;
@@ -91,6 +92,10 @@ import org.apache.geronimo.kernel.deployment.goal.RedeployURL;
 import org.apache.geronimo.kernel.deployment.goal.UndeployURL;
 import org.apache.geronimo.kernel.deployment.DeploymentPlan;
 import org.apache.geronimo.kernel.deployment.scanner.URLType;
+import org.apache.geronimo.kernel.deployment.service.MBeanMetadata;
+import org.apache.geronimo.kernel.deployment.task.RegisterMBeanInstance;
+import org.apache.geronimo.kernel.deployment.task.StartMBeanInstance;
+import org.apache.geronimo.kernel.management.State;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
@@ -102,7 +107,7 @@ import org.w3c.dom.Node;
  *
  * Base class for web containers.
  * @jmx:mbean extends="org.apache.geronimo.kernel.deployment.DeploymentPlanner, org.apache.geronimo.web.WebContainer, org.apache.geronimo.kernel.management.StateManageable, javax.management.MBeanRegistration" 
- * @version $Revision: 1.8 $ $Date: 2003/09/14 12:09:43 $
+ * @version $Revision: 1.9 $ $Date: 2003/09/28 22:30:58 $
  */
 public abstract class AbstractWebContainer
     extends AbstractContainer
@@ -163,9 +168,6 @@ public abstract class AbstractWebContainer
                                     new Role("DeploymentPlanner", planners));
             log.trace ("Registered WebContainer as a DeploymentPlanner");
         } catch (Exception e) {
-
-            log.error ("XX: ", e);
-
             IllegalStateException e1 = new IllegalStateException();
             e1.initCause(e);
             throw e1;
@@ -202,7 +204,8 @@ public abstract class AbstractWebContainer
         ObjectName source = null;
 
         try
-        {        
+        {       
+
             //check for registrations of web connectors and web logs
             if (MBeanServerNotification.REGISTRATION_NOTIFICATION.equals(n.getType())) 
             {
@@ -212,24 +215,34 @@ public abstract class AbstractWebContainer
                 {
                     log.debug ("Received registration notification for webconnecter="+source);
 
-      
-
                     // set up the Container on the Connector to be us
                     // this will result in the Connector adding itself to
                     // our containment hierarchy
                     server.setAttribute (source, 
                                          new Attribute ("Container",
                                                         (Container)this));
+                   
                 }
                 else if (server.isInstanceOf (source, WebAccessLog.class.getName()))
                 {
                     // set up the Container on the WebAccessLog to be us
                     // this will result in the WebAccessLog adding itself to
-                    // our containment hierarchy
-                    server.invoke (source, 
-                                   "setContainer", new Object[]{this},
-                                   new String[]{"org.apache.geronimo.core.service.Container" });
+                    // our containment hierarchy 
+                    log.debug ("Received registration notification for weblog="+source);
+                    server.setAttribute (source, 
+                                   new Attribute ("Container",
+                                                  (Container)this));
                 }
+                else if (server.isInstanceOf (source, WebApplication.class.getName()))
+                {
+                    //add the webapp as a component of the container 
+                    log.debug ("Received registration notification for webapplication="+source);
+                    server.setAttribute (source, 
+                                         new Attribute ("Container",
+                                                        (Container)this));
+                }
+                else
+                    log.debug ("Ignoring registration of mbean="+source);
             }
         }
         catch (InstanceNotFoundException e)
@@ -293,6 +306,10 @@ public abstract class AbstractWebContainer
      * @exception DeploymentException if an error occurs
      */
     public  boolean deploy (DeployURL goal, Set goals, Set plans) throws DeploymentException {
+
+        if (getStateInstance() != State.RUNNING)
+            throw new DeploymentException ("WebContainer is not in RUNNING state");
+
         InputStream is;
         URL url = goal.getUrl();
         URI baseURI = URI.create(url.toString()).normalize();;
@@ -301,9 +318,8 @@ public abstract class AbstractWebContainer
         URL webXmlURL = null;
  
 
-        // this won't work for ear deployments where the application.xml
-        // specifies a contextpath - how do we get it?
-
+        //check if this is a deployable webapp. This is either a directory or a
+        //war file that contains a WEB-INF directory
         if (type == URLType.PACKED_ARCHIVE) 
         {
             //check it ends with ".war" 
@@ -313,7 +329,7 @@ public abstract class AbstractWebContainer
             InputStream stream = null;
             try
             {
-                URL webInfURL = new URL (url, "WEB-INF");
+                URL webInfURL = new URL ("jar:"+url.toExternalForm()+"!/WEB-INF/web.xml");
                 stream = webInfURL.openStream();
             }
             catch (IOException e) 
@@ -339,7 +355,7 @@ public abstract class AbstractWebContainer
             InputStream stream = null;
             try
             {
-                URL webInfURL = new URL (url, "WEB-INF");
+                URL webInfURL = new URL (url, "WEB-INF/web.xml");
                 stream = webInfURL.openStream();
             }
             catch (IOException e) 
@@ -365,12 +381,14 @@ public abstract class AbstractWebContainer
             return false;
         }
 
-        //check to see if the webapp has already been deployed
+        log.debug (Thread.currentThread()+":Identified webapp to deploy");
+
+        //check to see if there is already a deployment for the  webapp 
         ObjectName deploymentName = null;
         try 
         {
-            deploymentName = new ObjectName("geronimo.deployment:role=DeploymentUnit,type=WebApplication,url=" 
-                                            + ObjectName.quote(url.toString()));
+            deploymentName = new ObjectName("geronimo.deployment:role=DeploymentUnit,url=" 
+                                            + ObjectName.quote(url.toString())+",type=WebApplication");
         } 
         catch (MalformedObjectNameException e) 
         {
@@ -378,51 +396,64 @@ public abstract class AbstractWebContainer
         }
 
         if (server.isRegistered(deploymentName))
-            throw new DeploymentException ("Web app already deployed at URL:"+url);
-
-        // steps in the deployment plan for a web container are:
-        //   1. create web app
-        //   2. create class loader and set it for the webapp
-        //   3. setup enc and set it for the webapp
-        //   4. start the webapp?
-      
-     
-        // create a webapp typed to the concrete type of the web container
-        WebApplication webapp = createWebApplication ();
-
-
-        //do the config setup of the webapp
-        //NB. it would be nice to use the ServiceDeploymentPlanner to
-        //do these - look into setting up appropriate MetaData etc
-        //to call it on the fly
+            throw new DeploymentException ("A web application deployment is already registered at:"+deploymentName.toString());
         
-        //need to set the URI on the webapp
-        URI webappURI = null;
-        webapp.setURI (webappURI);
+        //Set up the deployment itself in JMX
+        DeploymentPlan deploymentUnitPlan = new DeploymentPlan();
+        WebDeployment deploymentInfo = new WebDeployment (deploymentName, null, url);
+        deploymentUnitPlan.addTask (new RegisterMBeanInstance(server, deploymentName, deploymentInfo));
+        MBeanMetadata deploymentUnitMetadata = new MBeanMetadata (deploymentName);
+        deploymentUnitPlan.addTask (new StartMBeanInstance (server, deploymentUnitMetadata));
+        plans.add (deploymentUnitPlan);
+        
+        
+        //Deploy the webapp itself
+        // create a webapp typed to the concrete type of the web container
+        WebApplication webapp = createWebApplication (baseURI);
+        ObjectName webappName;
+        try
+        {
+            webappName = new ObjectName (webapp.getObjectName());
+        }
+        catch (MalformedObjectNameException e)
+        {
+            throw new DeploymentException (e);
+        }
+      
+        // Create a deployment plan for the webapp
+        DeploymentPlan webappPlan = new DeploymentPlan();
+        webappPlan.addTask (new RegisterMBeanInstance(server, webappName, webapp));
+     
+        MBeanMetadata webappMetadata = new MBeanMetadata (webappName);
+        webappMetadata.setParentName (deploymentName);                
+        dependencyService.addStartDependency(webappName, deploymentName);
+
+        // crack open the war and read the web.xml and geronimo-web.xml into the POJOs
+        //TBD
 
 
         //contextPath can come from:
         //  application.xml
         //  geronimo-web.xml
         //  name of the war (without .war extension) or webapp dir
+        //For now, only support the name of the webapp
+        webapp.setContextPath(extractContextPath (baseURI));
 
-        String contextPath = null;
-        webapp.setContextPath(contextPath);
-
-        // How do we identify which is the parent classloader???
-        webapp.setParentClassLoader (Thread.currentThread().getContextClassLoader());
-
-        //when to add the webapp??
-        addComponent (webapp);
+        // Set up the parent classloader for the webapp
+        webapp.setParentClassLoader (getClass().getClassLoader());
 
 
-        // Create a deployment plan
-        DeploymentPlan deploymentUnitPlan = new DeploymentPlan();
 
-        // add a task to start the webapp which will finish configuring it
-        //NB: is this OK? What happens if start task gets called after webapp already started?
-        //deploymentUnitPlan.addTask (new StartWebAppTask (server, this, webapp, deploymentName));
-        plans.add (deploymentUnitPlan);
+        //Set up the ENC etc
+        //TBD
+
+        
+        //Add a task to start the webapp which will finish configuring it
+        //NOTE: the class loader will be null, which will cause the
+        //mbean server's class loader to be used for the start call.
+        //Is this going to be a problem? 
+        webappPlan.addTask (new StartMBeanInstance (server, webappMetadata));
+        plans.add (webappPlan);
         
         goals.remove(goal);
         return true;
@@ -430,48 +461,23 @@ public abstract class AbstractWebContainer
 
 
     // TODO
-    private boolean remove(UndeployURL goal, Set goals, Set plans) throws DeploymentException {
+    private boolean remove(UndeployURL goal, Set goals, Set plans) throws DeploymentException { 
+        goals.remove(goal);
         return true;
     }
 
     // TODO
     private boolean redeploy(RedeployURL goal, Set goals) throws DeploymentException {
-      
+        goals.remove(goal);
         return true;
     }
 
-
-    /* -------------------------------------------------------------------------------------- */
-    /**
-     * Creates a WebApplication from the url and associates it with this container.
-     * @param url the location of the web application to deploy
-     * @throws Exception
-     * @see org.apache.geronimo.web.WebContainer#deploy(java.lang.String)
-     * @todo this is likely to change when the deployment interface becomes available
-     */
-    public void deploy(String uri) throws Exception {
-        //TODO what will be the interface to the deployer?
-
-        //sort out the contextPath  - if the geronimo web descriptor doesn't
-        //provide one, and there is no application descriptor, then it will be
-        //the name of the webapp. NOTE, we need to somehow access
-        //these descriptors - is it by JSR88 beans or by xml?
-        String contextPath = null;
-
-        //this is only necessary for compilation, the interface to the deployer will change
-        URI location = new URI(uri);
-
-        WebApplication webapp = createWebApplication();
-        webapp.setURI(location);
-        webapp.setContextPath(contextPath);
-        addComponent(webapp);
-    }
 
     /**
      * Create a WebApplication suitable to the container's type.
      * @return WebApplication instance, preferably derived from AbstractWebApplication suitable to the container
      */
-    public abstract WebApplication createWebApplication();
+    public abstract WebApplication createWebApplication(URI baseURI);
 
     /**
      * Get the URI of the web defaults.
@@ -500,6 +506,32 @@ public abstract class AbstractWebContainer
         return defaultWebXmlDoc;
     }
 
+
+    /**
+     * Get a webapp context path from its uri
+     *
+     * @param uri an <code>URI</code> value
+     * @return a <code>String</code> value
+     */
+    public String extractContextPath (URI uri)
+    {
+
+        String path = uri.getPath();
+        
+        if (path.endsWith("/"))
+            path = path.substring (0, path.length() - 1);
+
+        int sepIndex = path.lastIndexOf ('/');
+        if (sepIndex > 0)
+            path = path.substring (sepIndex+1);
+
+        if (path.endsWith(".war"))
+            path = path.substring (0, path.length()-4);
+
+        return "/"+path;
+    }
+
+
     /**
      * Parse the web defaults descriptor
      * @throws Exception
@@ -508,7 +540,7 @@ public abstract class AbstractWebContainer
         if (defaultWebXmlURI == null)
             return;
 
-        //defaultWebXmlDoc = parser.parse(defaultWebXmlURI.toString());
+        //TODO
     }
 
 

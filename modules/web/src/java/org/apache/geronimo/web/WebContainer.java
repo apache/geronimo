@@ -66,17 +66,11 @@ import org.w3c.dom.Document;
  * WebContainer
  *
  *
- * @version $Revision: 1.6 $  $Date: 2003/09/14 12:09:43 $
+ * @version $Revision: 1.7 $  $Date: 2003/09/28 22:30:58 $
  */
 
 public interface WebContainer extends Container {
-    /**
-     * Deploy a web application. Convenience method to
-     * have the container create the WebApplication and add it to itself.
-     * @param uri
-     * @throws Exception
-     */
-    public void deploy(String uri) throws Exception;
+    
 
     /**
      * Set up a web.xml descriptor for the Container to use as defaults.

@@ -56,12 +56,12 @@
 
 package org.apache.geronimo.web;
 
-import java.net.URI;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import org.apache.geronimo.core.service.AbstractComponent;
 
+import java.net.URI;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.core.service.AbstractComponent;
+import org.apache.geronimo.core.service.Container;
 
 
 /**
@@ -69,20 +69,44 @@ import org.apache.geronimo.core.service.AbstractComponent;
  *
  * Instances are created by a deployer. The deployer finds the
  * WebContainer and associates it with the WebApplication.
- *
- * @version $Revision: 1.7 $ $Date: 2003/09/14 12:09:43 $
+ * 
+ * @jmx:mbean extends="org.apache.geronimo.web.WebApplication, org.apache.geronimo.kernel.management.StateManageable, javax.management.MBeanRegistration" 
+ * @version $Revision: 1.8 $ $Date: 2003/09/28 22:30:58 $
  */
 public abstract class AbstractWebApplication extends AbstractComponent implements WebApplication {
-    /**
+
+     private final static Log log = LogFactory.getLog(AbstractWebApplication.class);
+
+    protected URI uri; 
+
+
+   /**
      * Class loading delegation model
      */
     private boolean java2ClassloadingCompliance = false;
 
-    private Context initialContext = null;
-
+   
+    /**
+     * Creates a new <code>AbstractWebApplication</code> instance.
+     *
+     */
     public AbstractWebApplication() {
-       
+    
     }
+    
+
+    /**
+     * Creates a new <code>AbstractWebApplication</code> instance.
+     *
+     * @param uri uri of the webapp
+     */
+    public AbstractWebApplication(URI uri) {
+        this.uri = uri;
+    }
+
+
+    
+  
 
     /**
      * Start the webapp. Called by the container or management interface
@@ -90,17 +114,23 @@ public abstract class AbstractWebApplication extends AbstractComponent implement
      * @throws IllegalStateException
      */
     public void doStart() throws Exception {
-        if (getContainer() == null)
-            throw new IllegalStateException("WebApplication must have a container set before START can be called");
-
-        //setup the webapp
+       
     }
 
     /**
      * Stop the webapp. Called by the container, or by mangement
      * interface
      */
-    public void doStop() {
+    public void doStop() throws Exception {
+    }
+
+
+  
+
+    
+    public URI getURI ()
+    {
+        return uri;
     }
 
     /**
@@ -142,6 +172,13 @@ public abstract class AbstractWebApplication extends AbstractComponent implement
     }
 
 
+    public void setContainer (Container container)
+    {
+        super.setContainer(container);
+        
+        container.addComponent (this);
+    }
+  
 
   
 }

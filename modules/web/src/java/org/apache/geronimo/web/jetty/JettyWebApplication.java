@@ -1,9 +1,15 @@
 package org.apache.geronimo.web.jetty;
 
 import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.core.service.AbstractComponent;
 import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.web.WebApplication;
+import org.apache.geronimo.web.AbstractWebApplication;
 import org.mortbay.jetty.servlet.WebApplicationContext;
 
 
@@ -14,57 +20,71 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
  *
  * Created: Sun Sep 14 16:40:17 2003
  *
- * @author <a href="mailto:janb@mortbay.com">Jan Bartel</a>
- * @version 1.0
+ * @jmx:mbean extends="org.apache.geronimo.web.AbstractWebApplicationMBean
+ * @version $Revision: 1.2 $ $Date: 2003/09/28 22:30:58 $
  */
-public class JettyWebApplication extends AbstractComponent implements WebApplication
+public class JettyWebApplication extends AbstractWebApplication implements JettyWebApplicationMBean 
 {
-    private WebApplicationContext _jettyContext = null;
-    private URI _uri = null;
+    private WebApplicationContext jettyContext = null;
+    private final Log log = LogFactory.getLog(getClass());
 
-
-    public JettyWebApplication() 
+    public JettyWebApplication ()
     {
-        _jettyContext = new WebApplicationContext();
+        super();
+        jettyContext = new WebApplicationContext ();
+        
+        try
+        {
+            objectName = new ObjectName ("jetty:role=WebApplication, instance="+hashCode());
+        }
+        catch (Exception e)
+        {
+            log.warn (e.getMessage());
+        }
+    }
+
+    public JettyWebApplication(URI uri) 
+    {
+        super(uri);
+        jettyContext = new WebApplicationContext(uri.toString());
+        
+        try
+        {
+            objectName = new ObjectName ("jetty:role=WebApplication, uri="+ObjectName.quote(uri.toString()));
+        }
+        catch (Exception e)
+        {
+            throw new IllegalStateException (e.getMessage());
+        }
     }
     
-    
-    public void setURI (URI uri)
-    {
-        _uri = uri;
-        _jettyContext.setWAR (_uri.toString());
-    }
-    
-    public URI getURI ()
-    {
-        return _uri;
+  
+    public ObjectName preRegister (MBeanServer server,  ObjectName objectName) throws Exception 
+    {       
+        return super.preRegister (server,objectName); 
     }
 
     public void setParentClassLoader (ClassLoader loader)
     {
-        _jettyContext.setParentClassLoader (loader);
+        jettyContext.setParentClassLoader (loader);
     }
 
     public ClassLoader getParentClassLoader()
     {
-        return _jettyContext.getParentClassLoader();
+        return jettyContext.getParentClassLoader();
     }
 
 
-    public String[] getServlets ()
-    {
-        //TODO
-        return null;
-    }
+   
 
     public void setContextPath (String path)
     {
-        _jettyContext.setContextPath(path);
+        jettyContext.setContextPath(path);
     }
 
     public String getContextPath ()
     {
-        return _jettyContext.getContextPath();
+        return jettyContext.getContextPath();
     }
 
 
@@ -78,17 +98,33 @@ public class JettyWebApplication extends AbstractComponent implements WebApplica
 
     public boolean getJava2ClassloadingCompliance ()
     {
-        return _jettyContext.isClassLoaderJava2Compliant();
+        return jettyContext.isClassLoaderJava2Compliant();
     }
 
     public void setJava2ClassloadingCompliance (boolean state)
     {
-        _jettyContext.setClassLoaderJava2Compliant(state);
+        jettyContext.setClassLoaderJava2Compliant(state);
     }
 
 
     WebApplicationContext getJettyContext ()
     {
-        return _jettyContext;
+        return jettyContext;
+    }
+
+
+    public void doStart () throws Exception
+    {
+        super.doStart();
+        jettyContext.start();
+        
+        log.debug (jettyContext.getFileClassPath());
+    }
+
+
+    public void doStop () throws Exception 
+    {
+        super.doStop();
+        jettyContext.stop();
     }
 } 

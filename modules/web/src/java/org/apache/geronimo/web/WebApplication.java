@@ -67,7 +67,7 @@ import org.w3c.dom.Document;
  *
  * It supports the J2EE Management WebModule attribute servlets[]
  *
- * @version  $Revision: 1.7 $ $Date: 2003/09/14 12:09:43 $
+ * @version  $Revision: 1.8 $ $Date: 2003/09/28 22:30:58 $
  */
 public interface WebApplication extends Component {
     /**
@@ -76,7 +76,6 @@ public interface WebApplication extends Component {
      */
     public URI getURI();
 
-    public void setURI(URI uri);
     
     public void setParentClassLoader (ClassLoader loader);
 
