@@ -341,7 +341,7 @@ public class GBeanInstanceState {
             lifecycleBroadcaster.fireFailedEvent();
 
             if (t instanceof Exception) {
-                log.error("Error while starting; GBean is not in the FAILED state: objectName=\"" + objectName + "\"", t);
+                log.error("Error while starting; GBean is now in the FAILED state: objectName=\"" + objectName + "\"", t);
             } else if (t instanceof Error) {
                 throw (Error) t;
             } else {
@@ -409,7 +409,7 @@ public class GBeanInstanceState {
             lifecycleBroadcaster.fireFailedEvent();
 
             if (t instanceof Exception) {
-                log.error("Error while stopping; GBean is not in the FAILED state: objectName=\"" + objectName + "\"", t);
+                log.error("Error while stopping; GBean is now in the FAILED state: objectName=\"" + objectName + "\"", t);
             } else if (t instanceof Error) {
                 throw (Error) t;
             } else {
