@@ -17,27 +17,25 @@
 
 package org.apache.geronimo.console.cli.controller;
 
-import java.io.IOException;
-import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.OutputStream;
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+
+import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import javax.enterprise.deploy.spi.TargetModuleID;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.console.cli.TextController;
 import org.apache.geronimo.console.cli.DeploymentContext;
+import org.apache.geronimo.console.cli.TextController;
 
 /**
  * The screen that lets you distribute, deploy, or redeploy the current module.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:41 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/16 04:09:04 $
  */
 public class DeploymentOptions extends TextController {
     private static final Log log = LogFactory.getLog(DeploymentOptions.class);
