@@ -25,7 +25,7 @@ import org.apache.geronimo.gbean.GBean;
  * <BR>
  * An interaction is delimited by a start and an end invocations. 
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/03 13:10:07 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/24 11:42:57 $
  */
 public interface GFileManager extends GBean
 {
@@ -40,53 +40,64 @@ public interface GFileManager extends GBean
     /**
      * Builds a GFile.
      * 
+     * @param anOpaque An opaque object identifying the interaction.
      * @param aPath Path of the GFile.
      * @return A GFile managed by this GFileManager.
      * @throws GFileManagerException Indicates that the resource can not be
      * created.
      */
-    public GFile factoryGFile(String aPath) throws GFileManagerException;
+    public GFile factoryGFile(Object anOpaque, String aPath)
+        throws GFileManagerException;
         
     /**
      * Flags the provided GFile as new.
      * <BR>
      * This operation must be performed in the scope of a start/stop sequence.
      * 
+     * @param anOpaque An opaque object identifying the interaction.
      * @param aFile GFile to be created.
      */
-    public void persistNew(GFile aFile);
+    public void persistNew(Object anOpaque, GFile aFile);
     
     /**
      * Flags the provided GFile as updated.
      * <BR>
      * This operation must be performed in the scope of a start/stop sequence.
      * 
+     * @param anOpaque An opaque object identifying the interaction.
      * @param aFile GFile to be updated.
      */
-    public void persistUpdate(GFile aFile);
+    public void persistUpdate(Object anOpaque, GFile aFile);
     
     /**
      * Flags the provided GFile as deleted.
      * <BR>
      * This operation must be performed in the scope of a start/stop sequence.
      * 
+     * @param anOpaque An opaque object identifying the interaction.
      * @param aFile GFile to be deleted.
      */
-    public void persistDelete(GFile aFile);
+    public void persistDelete(Object anOpaque, GFile aFile);
     
     /**
      * Starts an interaction with this manager. persistXXX operations must
      * be performed in the scope of a start/end sequence.
+     * 
+     * @return An opaque object identifying the interaction. This object must
+     * be provided to the persistXXX operations in order to relate an operation
+     * to an interaction.
      */
-    public void start();
+    public Object startInteraction();
     
     /**
      * Ends the interaction and "commits" all the updates performed between
-     * the last start call and now to the underlying data store. 
+     * the last startInteraction call and now to the underlying data store. 
+     * 
+     * @param anOpaque An opaque object identifying the interaction.
      * 
      * @throws GFileManagerException Indicates a problem when "commiting" the
-     * operations. 
+     * operations.
      */
-    public void end() throws GFileManagerException;
+    public void endInteraction(Object anOpaque) throws GFileManagerException;
 
 }

@@ -19,9 +19,11 @@ package org.apache.geronimo.datastore.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.geronimo.datastore.GFile;
@@ -40,7 +42,7 @@ import org.apache.geronimo.gbean.WaitingException;
  * Indeed, a full GFileManager just have to provide its own GFileDAO
  * implementation in order to support all the GFileManager contract.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/03 13:10:07 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/24 11:42:57 $
  */
 public abstract class AbstractGFileManager
     implements GFileManager
@@ -52,9 +54,14 @@ public abstract class AbstractGFileManager
     private final LockManager lockManager;
     
     /**
-     * State managers currently registered by this instance.
+     * Used to create interaction identifiers.
      */
-    private final Set stateManagers;
+    private volatile int seqInterac = 0;
+    
+    /**
+     * Interaction identifier to Set of StateManagers. 
+     */
+    private final Map interToStateManagers;
     
     /**
      * Indicates if an interaction is started. We are between a start and a
@@ -86,7 +93,7 @@ public abstract class AbstractGFileManager
         }
         name = aName;
         lockManager = aLockManager;
-        stateManagers = new HashSet();
+        interToStateManagers = new HashMap();
     }
 
     /**
@@ -98,7 +105,9 @@ public abstract class AbstractGFileManager
         return name;
     }
     
-    public GFile factoryGFile(String aPath) throws GFileManagerException {
+    public GFile factoryGFile(Object anOpaque, String aPath)
+        throws GFileManagerException {
+        retrieveStateManagers(anOpaque);
         GFileImpl gFile;
         try {
             // TODO Refactor; this is too intertwined.
@@ -114,40 +123,43 @@ public abstract class AbstractGFileManager
         return gFile;
     }
     
-    public void persistNew(GFile aFile) {
-        checkState(true);
+    public void persistNew(Object anOpaque, GFile aFile) {
+        Set stateManagers = retrieveStateManagers(anOpaque);
         StateManager stateManager = ((GFileImpl)aFile).getStateManager(); 
         stateManager.setIsNew(true);
         stateManagers.add(stateManager);
     }
     
-    public void persistUpdate(GFile aFile) {
-        checkState(true);
+    public void persistUpdate(Object anOpaque, GFile aFile) {
+        Set stateManagers = retrieveStateManagers(anOpaque);
         StateManager stateManager = ((GFileImpl)aFile).getStateManager(); 
         stateManager.setIsDirty(true);
         stateManagers.add(stateManager);
     }
 
-    public void persistDelete(GFile aFile) {
-        checkState(true);
+    public void persistDelete(Object anOpaque, GFile aFile) {
+        Set stateManagers = retrieveStateManagers(anOpaque);
         StateManager stateManager = ((GFileImpl)aFile).getStateManager(); 
         stateManager.setIsDelete(true);
         stateManagers.add(stateManager);
     }
 
-    public void start() {
-        switchState(true);
+    public Object startInteraction() {
+        Integer id = new Integer(seqInterac++);
+        synchronized (interToStateManagers) {
+            interToStateManagers.put(id, new HashSet());
+        }
+        return id;
     }
 
-    public void end() throws GFileManagerException {
-        checkState(true);
+    public void endInteraction(Object anOpaque) throws GFileManagerException {
+        Set stateManagers = retrieveStateManagers(anOpaque);
         try {
-            doInternalEnd();
+            doInteractionEnd(stateManagers);
         } finally {
-            synchronized(stateManagers) {
-                stateManagers.clear();
+            synchronized(interToStateManagers) {
+                interToStateManagers.remove(anOpaque);
             }
-            switchState(false);
         }
     }
 
@@ -167,14 +179,17 @@ public abstract class AbstractGFileManager
      * If a StateManager is not able to prepare its state, all the previously
      * StateManagers are unflushed.
      * 
+     * @param aStateManagers StateManagers related to the interaction 
+     * being completed.
      * @throws GFileManagerException Indicates that a StateManager is not able
      * to flush its state.
      */
-    private void doInternalEnd() throws GFileManagerException {
+    private void doInteractionEnd(Set aStateManagers)
+        throws GFileManagerException {
         List flushedManagers = new ArrayList();
         try {
             // Prepare all the state to be flushed.
-            for (Iterator iter = stateManagers.iterator(); iter.hasNext();) {
+            for (Iterator iter = aStateManagers.iterator(); iter.hasNext();) {
                 StateManager stateManager = (StateManager) iter.next();
                 flushedManagers.add(stateManager);
                 stateManager.prepare();
@@ -189,7 +204,7 @@ public abstract class AbstractGFileManager
             throw new GFileManagerException("Can not flush GFile", e);
         }
         // One can flush all the states.
-        for (Iterator iter = stateManagers.iterator(); iter.hasNext();) {
+        for (Iterator iter = aStateManagers.iterator(); iter.hasNext();) {
             StateManager stateManager = (StateManager) iter.next();
             flushedManagers.add(stateManager);
             stateManager.flush();
@@ -197,50 +212,26 @@ public abstract class AbstractGFileManager
     }
 
     /**
-     * Registers a new StateManagers for the current interaction.
+     * Retrieves the StateManagers related to the interaction identified by
+     * anOpaque.
      * 
-     * @param aStateManager StateManager to be registered.
+     * @param anOpaque An opaque object identifying the interaction whose
+     * StateManagers need to be retrieved.
+     * @throws IllegalStateException Indicates that the provided identifier
+     * does not define an interaction.
      */
-    protected void registerStateManager(StateManager aStateManager) {
-        synchronized (stateManagers) {
-            stateManagers.add(aStateManager);
-        }
-    }
-
-    /**
-     * Checks the state (inside a start/end call or not) of this instance.
-     * 
-     * @param anExpectedState Expected state.
-     * @throws IllegalStateException Indicates that the current state is not
-     * the expected one.
-     */
-    private final void checkState(boolean anExpectedState) {
-        synchronized (stateLock) {
-            if ( isStarted == anExpectedState ) {
-                return;
+    private final Set retrieveStateManagers(Object anOpaque) {
+        Set stateManagers;
+        synchronized (interToStateManagers) {
+            stateManagers = (Set) interToStateManagers.get(anOpaque);
+            if ( null == stateManagers ) {
+                throw new IllegalStateException(
+                    "Unknow interaction identifier.");
             }
-            throw new IllegalStateException(
-                    anExpectedState?"Already started":"Not yet started");
         }
+        return stateManagers;
     }
     
-    /**
-     * Switches the state of this instance.
-     * 
-     * @param anExpectedState New state.
-     * @throws IllegalStateException Indicates that the current state is not
-     * compliant with the new state.
-     */
-    private final void switchState(boolean aTargetState) {
-        synchronized (stateLock) {
-            if ( isStarted == aTargetState ) {
-                throw new IllegalStateException(
-                     isStarted?"Already started":"Not yet started");
-            }
-            isStarted = aTargetState;
-        }
-    }
-
     public void setGBeanContext(GBeanContext context) {}
 
     public void doStart() throws WaitingException, Exception{}
@@ -248,19 +239,19 @@ public abstract class AbstractGFileManager
     public void doStop() throws WaitingException, Exception {}
 
     public void doFail() {};
-    
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoFactory factory = new GBeanInfoFactory(AbstractGFileManager.class);
         factory.addAttribute("Name", true);
         factory.addAttribute("LockManager", true);
-        factory.addOperation("start");
-        factory.addOperation("factoryGFile", new Class[]{String.class});
-        factory.addOperation("persistNew", new Class[]{GFile.class});
-        factory.addOperation("persistUpdate", new Class[]{GFile.class});
-        factory.addOperation("persistDelete", new Class[]{GFile.class});
-        factory.addOperation("end");
+        factory.addOperation("startInteraction");
+        factory.addOperation("factoryGFile", new Class[]{Object.class, String.class});
+        factory.addOperation("persistNew", new Class[]{Object.class, GFile.class});
+        factory.addOperation("persistUpdate", new Class[]{Object.class, GFile.class});
+        factory.addOperation("persistDelete", new Class[]{Object.class, GFile.class});
+        factory.addOperation("endInteraction", new Class[]{Object.class});
         GBEAN_INFO = factory.getBeanInfo();
     }
 

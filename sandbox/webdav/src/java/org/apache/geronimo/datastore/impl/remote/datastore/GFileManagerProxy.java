@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.datastore.GFile;
 import org.apache.geronimo.datastore.GFileManager;
 import org.apache.geronimo.datastore.GFileManagerException;
+import org.apache.geronimo.datastore.impl.remote.messaging.AbstractConnector;
 import org.apache.geronimo.datastore.impl.remote.messaging.CommandRequest;
 import org.apache.geronimo.datastore.impl.remote.messaging.CommandResult;
 import org.apache.geronimo.datastore.impl.remote.messaging.Connector;
@@ -34,20 +35,19 @@ import org.apache.geronimo.datastore.impl.remote.messaging.MsgBody;
 import org.apache.geronimo.datastore.impl.remote.messaging.MsgHeader;
 import org.apache.geronimo.datastore.impl.remote.messaging.MsgHeaderConstants;
 import org.apache.geronimo.datastore.impl.remote.messaging.MsgOutInterceptor;
-import org.apache.geronimo.datastore.impl.remote.messaging.ServerNodeContext;
+import org.apache.geronimo.datastore.impl.remote.messaging.Node;
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.WaitingException;
 
 /**
  * It is a wrapper/proxy for a GFileManager, whose services need to be exposed
  * via a ServerNode.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/11 15:36:13 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/24 11:42:57 $
  */
 public class GFileManagerProxy
+    extends AbstractConnector
     implements GBean, GFileManager, Connector
 {
 
@@ -64,86 +64,62 @@ public class GFileManagerProxy
     private final GFileManager fileManager;
 
     /**
-     * Context of the ServerNode which has mounted this instance.
-     */
-    protected ServerNodeContext serverNodeContext;
-    
-    /**
-     * Output to be used by the proxy to communicate with the clients mirroring
-     * this proxy. 
-     */
-    private MsgOutInterceptor out;
-
-    /**
      * It is a mapping of GFileStub identifiers to actual GFiles.
      */
     private Map gFiles;
     
-    private GBeanContext context;
-
     /**
      * Builds a proxy for the provided GFileManager.
      * 
+     * @param aNode Node containing this instance.
      * @param aFileManager GFileManager to be proxied by this instance.
      */
-    public GFileManagerProxy(GFileManager aFileManager) {
+    public GFileManagerProxy(Node aNode,
+        GFileManager aFileManager) {
+        super(aNode);
+        if ( null == aFileManager ) {
+            throw new IllegalArgumentException("GFileManager is required.");
+        }
         fileManager = aFileManager;
         gFiles = new HashMap();
         gFileSeq = 0;
     }
     
-    public void setGBeanContext(GBeanContext aContext) {
-        context = aContext;
-    }
-
-    public void doStart() throws WaitingException, Exception {
-    }
-
-    public void doStop() throws WaitingException, Exception {
-    }
-
-    public void doFail() {
-    }
-
     public String getName() {
         return fileManager.getName();
     }
 
-    public GFile factoryGFile(String aPath) throws GFileManagerException {
-        GFile gFile = fileManager.factoryGFile(aPath);
+    public GFile factoryGFile(Object anOpaque, String aPath)
+        throws GFileManagerException {
+        GFile gFile = fileManager.factoryGFile(anOpaque, aPath);
         Integer id = registerGFile(gFile);
         return new GFileStub(aPath, id);
     }
     
-    public void persistNew(GFile aFile) {
+    public void persistNew(Object anOpaque, GFile aFile) {
         GFileStub stub = (GFileStub) aFile;
         GFile actualGFile = retrieveGFile(stub.getID());
-        fileManager.persistNew(actualGFile);
+        fileManager.persistNew(anOpaque, actualGFile);
     }
 
-    public void persistUpdate(GFile aFile) {
+    public void persistUpdate(Object anOpaque, GFile aFile) {
         GFileStub stub = (GFileStub) aFile;
         GFile actualGFile = retrieveGFile(stub.getID());
-        fileManager.persistUpdate(actualGFile);
+        fileManager.persistUpdate(anOpaque, actualGFile);
     }
 
-    public void persistDelete(GFile aFile) {
+    public void persistDelete(Object anOpaque, GFile aFile) {
         GFileStub stub = (GFileStub) aFile;
         GFile actualGFile = retrieveGFile(stub.getID());
-        fileManager.persistDelete(actualGFile);
+        fileManager.persistDelete(anOpaque, actualGFile);
     }
 
-    public void start() {
-        fileManager.start();
+    public Object startInteraction() {
+        return fileManager.startInteraction();
     }
 
-    public void end() throws GFileManagerException {
-        fileManager.end();
-    }
-    
-    public void setContext(ServerNodeContext aContext) {
-        serverNodeContext = aContext;
-        out = aContext.getOutput();
+    public void endInteraction(Object anOpaque) throws GFileManagerException {
+        fileManager.endInteraction(anOpaque);
     }
     
     /**
@@ -160,12 +136,12 @@ public class GFileManagerProxy
         return aRequest.execute();
     }
     
-    public void deliver(Msg aMsg) {
+    protected void handleRequest(Msg aMsg) {
         MsgHeader header = aMsg.getHeader();
         MsgBody body = aMsg.getBody();
         
         Object id = header.getHeader(MsgHeaderConstants.CORRELATION_ID);
-        Object node = header.getHeader(MsgHeaderConstants.SRC_NODE);
+        Object srcNode = header.getHeader(MsgHeaderConstants.SRC_NODE);
 
         CommandRequest command = (CommandRequest) body.getContent();
 
@@ -184,11 +160,12 @@ public class GFileManagerProxy
                     getName(),
                     new HeaderOutInterceptor(
                         MsgHeaderConstants.DEST_NODES,
-                        node,
+                        srcNode,
                         out)));
         reqOut.push(msg);
     }
-
+    
+    
     /**
      * Registers a GFile.
      * 
@@ -225,12 +202,11 @@ public class GFileManagerProxy
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory factory = new GBeanInfoFactory(GFileManagerProxy.class);
+        GBeanInfoFactory factory = new GBeanInfoFactory(GFileManagerProxy.class, AbstractConnector.GBEAN_INFO);
         factory.setConstructor(
-            new String[] {"Client"},
-            new Class[] {GFileManager.class});
-        factory.addReference("Client", GFileManager.class);
-        factory.addAttribute("Name", true);
+            new String[] {"Node", "Delegate"},
+            new Class[] {Node.class, GFileManager.class});
+        factory.addReference("Delegate", GFileManager.class);
         GBEAN_INFO = factory.getBeanInfo();
     }
 

@@ -22,23 +22,19 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.datastore.GFile;
 import org.apache.geronimo.datastore.GFileManager;
 import org.apache.geronimo.datastore.GFileManagerException;
+import org.apache.geronimo.datastore.impl.remote.messaging.AbstractConnector;
 import org.apache.geronimo.datastore.impl.remote.messaging.CommandRequest;
 import org.apache.geronimo.datastore.impl.remote.messaging.CommandResult;
 import org.apache.geronimo.datastore.impl.remote.messaging.Connector;
 import org.apache.geronimo.datastore.impl.remote.messaging.HeaderOutInterceptor;
 import org.apache.geronimo.datastore.impl.remote.messaging.Msg;
-import org.apache.geronimo.datastore.impl.remote.messaging.MsgBody;
-import org.apache.geronimo.datastore.impl.remote.messaging.MsgHeader;
 import org.apache.geronimo.datastore.impl.remote.messaging.MsgHeaderConstants;
-import org.apache.geronimo.datastore.impl.remote.messaging.MsgOutInterceptor;
+import org.apache.geronimo.datastore.impl.remote.messaging.Node;
 import org.apache.geronimo.datastore.impl.remote.messaging.NodeInfo;
-import org.apache.geronimo.datastore.impl.remote.messaging.RequestSender;
-import org.apache.geronimo.datastore.impl.remote.messaging.ServerNodeContext;
+import org.apache.geronimo.datastore.impl.remote.messaging.NodeContext;
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.WaitingException;
 
 /**
  * GFileManager mirroring a GFileManagerProxy mounted by a remote node.
@@ -46,9 +42,10 @@ import org.apache.geronimo.gbean.WaitingException;
  * Operations peformed against this instance are actually executed against the
  * remote GFileManagerProxy having the same name than this instance. 
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/11 15:36:13 $
+ * @version $Revision: 1.5 $ $Date: 2004/03/24 11:42:57 $
  */
 public class GFileManagerClient
+    extends AbstractConnector
     implements GBean, GFileManager, Connector
 {
 
@@ -65,37 +62,22 @@ public class GFileManagerClient
     private final NodeInfo node; 
 
     /**
-     * Context of the ServerNode which has mounted this instance.
-     */
-    protected ServerNodeContext serverNodeContext;
-    
-    /**
-     * Msg output to be used by this client to communicate with its proxy.
-     */
-    private MsgOutInterceptor out;
-    
-    /**
-     * Requests sender.
-     */
-    private RequestSender sender;
-
-    private GBeanContext context;
-    
-    /**
      * Creates a client having the specified name. The name MUST be the name
      * of the proxy to be mirrored.
      * 
      * @param aName Name of the proxy to be mirrored.
-     * @param aNodeName Name of the node hosting the proxy.
+     * @param aNode Node hosting the proxy.
      */
-    public GFileManagerClient(String aName, NodeInfo aNode) {
+    public GFileManagerClient(Node aNode,
+        String aName, NodeInfo aNodeInfo) {
+        super(aNode);
         if ( null == aName ) {
             throw new IllegalArgumentException("Name is required.");
         } else if ( null == aNode ) {
             throw new IllegalArgumentException("Node is required.");
         }
         name = aName;
-        node = aNode;
+        node = aNodeInfo;
     }
     
     public String getName() {
@@ -112,57 +94,48 @@ public class GFileManagerClient
         return node;
     }
     
-    public void start() {
-        sender.sendSyncRequest(new CommandRequest("start", null), out, node);
+    public Object startInteraction() {
+        return sender.sendSyncRequest(
+            new CommandRequest("startInteraction", null), out, node);
     }
 
-    public GFile factoryGFile(String aPath) {
+    public GFile factoryGFile(Object anOpaque, String aPath) {
         GFileStub result = (GFileStub)
             sender.sendSyncRequest(
-                new CommandRequest("factoryGFile", new Object[] {aPath}), out,
+                new CommandRequest("factoryGFile",
+                    new Object[] {anOpaque, aPath}), out,
                     node);
         result.setGFileManagerClient(this);
         return result;
     }
     
-    public void persistNew(GFile aFile) {
+    public void persistNew(Object anOpaque, GFile aFile) {
         sender.sendSyncRequest(
-            new CommandRequest("persistNew", new Object[] {aFile}), out, node);
+            new CommandRequest("persistNew",
+                new Object[] {anOpaque, aFile}), out, node);
     }
 
-    public void persistUpdate(GFile aFile) {
+    public void persistUpdate(Object anOpaque, GFile aFile) {
         sender.sendSyncRequest(
-            new CommandRequest("persistUpdate", new Object[] {aFile}), out,
+            new CommandRequest("persistUpdate",
+                new Object[] {anOpaque, aFile}), out,
                 node);
     }
 
-    public void persistDelete(GFile aFile) {
+    public void persistDelete(Object anOpaque, GFile aFile) {
         sender.sendSyncRequest(
-            new CommandRequest("persistDelete", new Object[] {aFile}), out,
+            new CommandRequest("persistDelete",
+                new Object[] {anOpaque, aFile}), out,
                 node);
     }
 
-    public void end() throws GFileManagerException {
-        sender.sendSyncRequest(new CommandRequest("end", null), out, node);
+    public void endInteraction(Object anOpaque) throws GFileManagerException {
+        sender.sendSyncRequest(new CommandRequest("endInteraction",
+            new Object[] {anOpaque}), out, node);
     }
     
-    public void setGBeanContext(GBeanContext aContext) {
-        context = aContext;
-    }
-
-    public void doStart() throws WaitingException, Exception {
-    }
-
-    public void doStop() throws WaitingException, Exception {
-    }
-
-    public void doFail() {
-    }
-
-    public void setContext(ServerNodeContext aContext) {
-        serverNodeContext = aContext;
-        sender = aContext.getRequestSender();
-        out = aContext.getOutput();
+    public void setContext(NodeContext aContext) {
+        super.setContext(aContext);
         if ( null != out ) {
             out =
                 new HeaderOutInterceptor(
@@ -171,13 +144,8 @@ public class GFileManagerClient
         }
     }
     
-    public void deliver(Msg aMsg) {
-        MsgHeader header = aMsg.getHeader();
-        MsgBody body = aMsg.getBody();
-        
-        CommandResult result = (CommandResult) body.getContent();
-        sender.setResponse(
-            header.getHeader(MsgHeaderConstants.CORRELATION_ID), result);
+    protected void handleRequest(Msg aMsg) {
+        throw new IllegalArgumentException("Client-side does not handle requests.");
     }
     
     /**
@@ -201,18 +169,11 @@ public class GFileManagerClient
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory factory = new GBeanInfoFactory(GFileManagerClient.class);
+        GBeanInfoFactory factory = new GBeanInfoFactory(GFileManagerClient.class, AbstractConnector.GBEAN_INFO);
         factory.setConstructor(
-            new String[] {"Name", "NodeName"},
-            new Class[] {String.class, String.class});
-        factory.addAttribute("Name", true);
-        factory.addAttribute("NodeName", true);
-        factory.addOperation("start");
-        factory.addOperation("factoryGFile", new Class[]{String.class});
-        factory.addOperation("persistNew", new Class[]{GFile.class});
-        factory.addOperation("persistUpdate", new Class[]{GFile.class});
-        factory.addOperation("persistDelete", new Class[]{GFile.class});
-        factory.addOperation("end");
+            new String[] {"Node", "Name", "HostingNode"},
+            new Class[] {Node.class, String.class, NodeInfo.class});
+        factory.addAttribute("HostingNode", true);
         GBEAN_INFO = factory.getBeanInfo();
     }
 

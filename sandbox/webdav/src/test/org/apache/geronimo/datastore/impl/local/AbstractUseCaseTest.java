@@ -28,7 +28,7 @@ import junit.framework.TestCase;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/29 13:14:11 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/24 11:42:57 $
  */
 public class AbstractUseCaseTest
     extends TestCase
@@ -40,16 +40,16 @@ public class AbstractUseCaseTest
 
         byte[] content = "Dummy content".getBytes();
         
-        fileManager.start();
-        GFile file = fileManager.factoryGFile("test");
-        fileManager.persistNew(file);
+        Object interactId = fileManager.startInteraction();
+        GFile file = fileManager.factoryGFile(interactId, "test");
+        fileManager.persistNew(interactId, file);
         file.addProperty("name1", "value1");
         file.addProperty("name2", "value2");
         file.addProperty("name3", "value3");
         file.setContent(new ByteArrayInputStream(content));
-        fileManager.end();
+        fileManager.endInteraction(interactId);
         
-        fileManager.start();
+        interactId = fileManager.startInteraction();
         InputStream in = file.getInputStream();
         int read;
         int nbRead = 0;
@@ -64,17 +64,17 @@ public class AbstractUseCaseTest
         assertEquals("Properties issue", "value3", properties.get("name3"));
         file.addProperty("name4", "value4");
         file.removeProperty("name3");
-        fileManager.persistUpdate(file);
-        fileManager.end();
+        fileManager.persistUpdate(interactId, file);
+        fileManager.endInteraction(interactId);
         
-        fileManager.start();
+        interactId = fileManager.startInteraction();
         properties = file.getProperties();
         assertEquals("Properties issue", 3, properties.size());
         assertEquals("Properties issue", "value1", properties.get("name1"));
         assertEquals("Properties issue", "value2", properties.get("name2"));
         assertEquals("Properties issue", "value4", properties.get("name4"));
-        fileManager.persistDelete(file);
-        fileManager.end();
+        fileManager.persistDelete(interactId, file);
+        fileManager.endInteraction(interactId);
     }
     
 }
