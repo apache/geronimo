@@ -141,7 +141,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
     }
 
     public int getBufferSizeKBytes() {
-        return configuration.getBufferSize()/1024;
+        return configuration.getBufferSize();
     }
 
     public void setBufferSizeKBytes(int bufferSize) throws LogConfigurationException {

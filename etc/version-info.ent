@@ -56,7 +56,7 @@
 <!ENTITY drools-version "2.0-beta-13">
 <!ENTITY emberio-version "0.3-alpha">
 <!ENTITY ews-version "SNAPSHOT">
-<!ENTITY howl-version "0.1.7-SNAPSHOT">
+<!ENTITY howl-version "0.1.8-SNAPSHOT">
 <!ENTITY hsqldb-version "1.7.2.2">
 <!ENTITY javacc-version "2.1">
 <!ENTITY jaxb-ri-version "SNAPSHOT">
