@@ -33,6 +33,12 @@ import org.apache.geronimo.security.deploy.Principal;
 public interface AutoMapAssistant {
 
     /**
+     * Provides the realm name of the auto map assistant.
+     * @return the realm name of the auto map assistant
+     */
+    public String getRealmName();
+
+    /**
      * Provides the default principal to be used when an unauthenticated
      * subject uses a container.
      *

@@ -39,6 +39,7 @@ import org.apache.geronimo.security.jacc.PolicyContextHandlerHttpServletRequest;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerSOAPMessage;
 import org.apache.geronimo.security.jacc.GeronimoPolicy;
 import org.apache.geronimo.security.realm.SecurityRealm;
+import org.apache.geronimo.security.realm.AutoMapAssistant;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 
 
@@ -57,6 +58,7 @@ public class SecurityService implements SecurityServiceMBean, GBeanLifecycle {
 
     private String policyConfigurationFactory;
     private Collection realms = Collections.EMPTY_SET;
+    private Collection mappers = Collections.EMPTY_SET;
     private Collection moduleConfigurations = Collections.EMPTY_SET;
 
 
@@ -117,6 +119,19 @@ public class SecurityService implements SecurityServiceMBean, GBeanLifecycle {
         this.realms = realms;
     }
 
+    public Collection getMappers() throws GeronimoSecurityException {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(CONFIGURE);
+        return mappers;
+    }
+
+
+    public void setMappers(Collection mappers) {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(CONFIGURE);
+        this.mappers = mappers;
+    }
+
     public Collection getModuleConfigurations() {
         return moduleConfigurations;
     }
@@ -130,6 +145,16 @@ public class SecurityService implements SecurityServiceMBean, GBeanLifecycle {
             SecurityRealm realm = (SecurityRealm) iter.next();
             if (name.equals(realm.getRealmName())) {
                 return realm;
+            }
+        }
+        return null;
+    }
+
+    public AutoMapAssistant getMapper(String name) {
+        for (Iterator iter = mappers.iterator(); iter.hasNext();) {
+            AutoMapAssistant mapper = (AutoMapAssistant) iter.next();
+            if (name.equals(mapper.getRealmName())) {
+                return mapper;
             }
         }
         return null;
@@ -158,8 +183,10 @@ public class SecurityService implements SecurityServiceMBean, GBeanLifecycle {
         infoFactory.addAttribute("policyConfigurationFactory", String.class, true);
 
         infoFactory.addReference("Realms", SecurityRealm.class);
+        infoFactory.addReference("Mappers", AutoMapAssistant.class);
         infoFactory.addReference("ModuleConfigurations", ModuleConfiguration.class);
         infoFactory.addOperation("getRealm", new Class[]{String.class});
+        infoFactory.addOperation("getMapper", new Class[]{String.class});
 
         infoFactory.setConstructor(new String[]{"policyConfigurationFactory"});
 

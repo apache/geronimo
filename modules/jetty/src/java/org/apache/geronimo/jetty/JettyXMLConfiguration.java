@@ -23,8 +23,6 @@ import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebRoleRefPermission;
 import javax.security.jacc.WebUserDataPermission;
 import javax.servlet.UnavailableException;
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.HashMap;
@@ -40,13 +38,11 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.RealmPrincipal;
-import org.apache.geronimo.security.deploy.AutoMapAssistant;
 import org.apache.geronimo.security.deploy.Principal;
 import org.apache.geronimo.security.deploy.Realm;
 import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.jacc.RoleMappingConfiguration;
-import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.security.util.URLPattern;
 
@@ -125,10 +121,6 @@ public class JettyXMLConfiguration extends XMLConfiguration {
      *
      * @param node deployment descriptor from which to obtain the
      *             security constraints that are to be translated.
-     * @throws org.apache.geronimo.security.GeronimoSecurityException
-     *          if there
-     *          is any violation of the semantics of the security descriptor or the state
-     *          of the module configuration.
      * @see javax.security.jacc.PolicyConfiguration
      * @see "Java Authorization Contract for Containers", section 3.1.3
      */
@@ -330,57 +322,6 @@ public class JettyXMLConfiguration extends XMLConfiguration {
     }
 
     protected void addRoleMappings(RoleMappingConfiguration roleMapper, Security security) throws PolicyContextException, GeronimoSecurityException {
-        autoMapRoles(roleMapper, security);
-        addExplicitMappings(roleMapper, security);
-    }
-
-    protected void autoMapRoles(RoleMappingConfiguration roleMapper, Security security) throws PolicyContextException, GeronimoSecurityException {
-
-        JettyWebAppJACCContext context = (JettyWebAppJACCContext) getWebApplicationContext();
-        AutoMapAssistant config = security.getAssistant();
-        try {
-            if (config != null) {
-                ObjectName assistantName = new ObjectName("geronimo.security:type=SecurityRealm,realm=" + config.getSecurityRealm());
-                Set assistants = context.getKernel().listGBeans(assistantName);
-                if (assistants.size() < 1 || assistants.size() > 1) throw new GeronimoSecurityException("Only one auto mapping assistant should match " + assistantName);
-
-                org.apache.geronimo.security.realm.AutoMapAssistant assistant = (org.apache.geronimo.security.realm.AutoMapAssistant) assistants.iterator().next();
-                String realmName = ((SecurityRealm) assistant).getRealmName();
-                Iterator principalClasses = null;
-                if (config.getClassOverrides().size() > 0) {
-                    principalClasses = config.getClassOverrides().iterator();
-                } else {
-                    principalClasses = assistant.obtainRolePrincipalClasses().iterator();
-                }
-
-                Iterator roles = securityRoles.iterator();
-                while (roles.hasNext()) {
-                    String roleName = (String) roles.next();
-                    Set principalSet = new HashSet();
-                    Subject roleDesignate = new Subject();
-
-                    while (principalClasses.hasNext()) {
-                        Principal principal = new Principal();
-                        principal.setClassName((String) principalClasses.next());
-                        principal.setPrincipalName(roleName);
-
-                        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, realmName);
-                        if (realmPrincipal == null) throw new GeronimoSecurityException("Unable to create realm principal");
-
-                        principalSet.add(realmPrincipal);
-                        roleDesignate.getPrincipals().add(realmPrincipal);
-                    }
-                    roleMapper.addRoleMapping(roleName, principalSet);
-                    if (roleDesignate.getPrincipals().size() > 0) context.setRoleDesignate(roleName, roleDesignate);
-                }
-            }
-        } catch (MalformedObjectNameException e) {
-            throw new GeronimoSecurityException("Bad object name geronimo.security:type=SecurityRealm,realm=" + config.getSecurityRealm());
-        }
-    }
-
-    protected void addExplicitMappings(RoleMappingConfiguration roleMapper, Security security) throws PolicyContextException, GeronimoSecurityException {
-
         JettyWebAppJACCContext context = (JettyWebAppJACCContext) getWebApplicationContext();
 
         Iterator rollMappings = security.getRoleMappings().values().iterator();

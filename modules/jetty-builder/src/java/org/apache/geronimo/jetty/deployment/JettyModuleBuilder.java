@@ -59,6 +59,7 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
+import org.apache.geronimo.security.SecurityService;
 import org.apache.geronimo.transaction.OnlineUserTransaction;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyDependencyType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyGbeanType;
@@ -79,9 +80,11 @@ import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
  */
 public class JettyModuleBuilder implements ModuleBuilder {
     private final URI defaultParentId;
+    private final SecurityService securityService;
 
-    public JettyModuleBuilder(URI defaultParentId) {
+    public JettyModuleBuilder(URI defaultParentId, SecurityService securityService) {
         this.defaultParentId = defaultParentId;
+        this.securityService = securityService;
     }
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
@@ -300,7 +303,11 @@ public class JettyModuleBuilder implements ModuleBuilder {
         UserTransaction userTransaction = new OnlineUserTransaction();
         ReadOnlyContext compContext = buildComponentContext(earContext, webModule, webApp, jettyWebApp, userTransaction, webClassLoader);
 
+        /**
+         * Build the security configuration.  Attempt to auto generate role mappings.
+         */
         Security security = SecurityBuilder.buildSecurityConfig(jettyWebApp.getSecurity(), collectRoleNames(webApp));
+        if (security != null) security.autoGenerate(securityService);
 
         GBeanMBean gbean;
         try {
@@ -464,9 +471,10 @@ public class JettyModuleBuilder implements ModuleBuilder {
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JettyModuleBuilder.class);
         infoBuilder.addAttribute("defaultParentId", URI.class, true);
+        infoBuilder.addReference("SecurityService", SecurityService.class);
         infoBuilder.addInterface(ModuleBuilder.class);
 
-        infoBuilder.setConstructor(new String[] {"defaultParentId"});
+        infoBuilder.setConstructor(new String[] {"defaultParentId", "SecurityService"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.geronimo.security.SecurityService;
-import org.apache.geronimo.security.realm.SecurityRealm;
 
 
 /**
@@ -95,21 +94,27 @@ public class Security implements Serializable {
         if (roleMappings.containsKey(role.getRoleName())) {
             Role existing = (Role) roleMappings.get(role.getRoleName());
             for (Iterator iter = role.getRealms().keySet().iterator(); iter.hasNext();) {
-                existing.append((Realm) iter.next());
+                existing.append((Realm) role.getRealms().get(iter.next()));
             }
         } else {
             roleMappings.put(role.getRoleName(), role);
         }
     }
 
-    public void autoGenerate(SecurityService secyrityService) {
-        if (secyrityService == null) return;
+    /**
+     * Automatically generate role mappings and add them to the existing role mappings.
+     * <p/>
+     * NOTE: This method should be called during deployment.
+     *
+     * @param securityService used to obtain the configured auto map assistant.
+     */
+    public void autoGenerate(SecurityService securityService) {
+        if (securityService == null) return;
         if (assistant == null) return;
 
         String realmName = assistant.getSecurityRealm();
-        SecurityRealm securityRealm = secyrityService.getRealm(realmName);
-        if (securityRealm == null || !(securityRealm instanceof AutoMapAssistant)) return;
-        org.apache.geronimo.security.realm.AutoMapAssistant autoMapAssistant = (org.apache.geronimo.security.realm.AutoMapAssistant) securityRealm;
+        org.apache.geronimo.security.realm.AutoMapAssistant autoMapAssistant = securityService.getMapper(realmName);
+        if (autoMapAssistant == null) return;
 
         /**
          * Append roles

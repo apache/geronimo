@@ -88,6 +88,7 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
 
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=Web,config=org/apache/geronimo/Server" class="org.apache.geronimo.jetty.deployment.JettyModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
+        <reference name="SecurityService">geronimo.security:type=SecurityService</reference>
     </gbean>
 
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/Server" class="org.openejb.deployment.OpenEJBModuleBuilder">

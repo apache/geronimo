@@ -87,7 +87,7 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
     private final Kernel kernel;
     private final String policyContextID;
     private final Security securityConfig;
-    private SecurityService securityService;
+    private final SecurityService securityService;
     private final JAASJettyPrincipal defaultPrincipal;
 
     private PolicyConfigurationFactory factory;
@@ -102,6 +102,7 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
         kernel = null;
         policyContextID = null;
         securityConfig = null;
+        securityService = null;
         defaultPrincipal = null;
     }
 
@@ -118,6 +119,7 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
             Set applicationManagedSecurityResources,
             String policyContextID,
             Security securityConfig,
+            SecurityService securityService,
             TransactionContextManager transactionContextManager,
             TrackedConnectionAssociator trackedConnectionAssociator,
             JettyContainer jettyContainer) throws MalformedURLException {
@@ -138,7 +140,8 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
         this.kernel = kernel;
         this.policyContextID = policyContextID;
         this.securityConfig = securityConfig;
-        defaultPrincipal = generateDefaultPrincipal(securityConfig);
+        this.securityService = securityService;
+        this.defaultPrincipal = generateDefaultPrincipal(securityConfig);
 
         /**
          * We want to use our own web-app handler.
@@ -160,10 +163,6 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
 
     public SecurityService getSecurityService() {
         return securityService;
-    }
-
-    public void setSecurityService(SecurityService securityService) {
-        this.securityService = securityService;
     }
 
     public Subject getRoleDesignate(String roleName) {
@@ -562,6 +561,7 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
             "applicationManagedSecurityResources",
             "policyContextID",
             "securityConfig",
+            "SecurityService",
             "TransactionContextManager",
             "TrackedConnectionAssociator",
             "JettyContainer",
