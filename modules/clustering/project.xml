@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.7 $ $Date: 2004/03/10 09:58:21 $ -->
+<!-- $Revision: 1.8 $ $Date: 2004/04/06 17:18:53 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -51,31 +51,10 @@
 
         <dependency>
             <groupId>mx4j</groupId>
-            <artifactId>mx4j</artifactId>
+            <artifactId>mx4j-jmx</artifactId>
             <version>SNAPSHOT</version>
+            <url>http://mx4j.sourceforge.net</url>
         </dependency>
 
     </dependencies>
-
-    <!-- =================== -->
-    <!-- Build Specification -->
-    <!-- =================== -->
-
-    <build>
-        <unitTest>
-            <includes>
-                <include>**/*Test.java</include>
-            </includes>
-        </unitTest>
-        <resources>
-            <resource>
-                <directory>${basedir}/src/java</directory>
-                <includes>
-                    <include>**/*.xml</include>
-                    <include>**/*.properties</include>
-                </includes>
-            </resource>
-        </resources>
-    </build>
-
 </project>
