@@ -56,46 +56,52 @@
 
 package org.apache.geronimo.explorer;
 
-import groovy.lang.GroovyObject;
-
-import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import javax.management.MBeanServer;
-
-import org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory;
-import org.codehaus.groovy.runtime.InvokerHelper;
+import javax.management.MBeanServerFactory;
+import javax.management.ObjectName;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
- * A temporary bootstap mechanism for the Groovy script until
- * Groovy reaches beta-1 and can support static main(String[]) methods
- * 
- * @version <code>$Revision: 1.2 $ $Date: 2003/11/11 21:55:16 $</code>
+ * Tree model for MBeans
+ *
+ * @version <code>$Revision: 1.1 $ $Date: 2004/01/23 03:47:02 $</code>
  */
-public class ExplorerMain {
-    public static void main(String[] args) {
-        
-        String host="localhost";
-        if( args.length > 0 )
-            host = args[0];
-        
-        try {
-            GroovyObject explorer = (GroovyObject) ExplorerMain.class.getClassLoader().loadClass("org.apache.geronimo.explorer.Explorer").newInstance();
-            InvokerHelper.setProperty(explorer, "treeModel", getMBeanTreeModel(host));
-            explorer.invokeMethod("run", null);
-        }
-        catch (Exception e) {
-            System.out.println("Caught: " + e);
-            e.printStackTrace();
-        }
+public class MBeanServerNode extends DefaultMutableTreeNode {
+
+    private MBeanServer server;
+    private Map domains = new HashMap();
+
+    public MBeanServerNode() {
+        this(MBeanServerFactory.createMBeanServer());
     }
 
-    public static MBeanTreeModel getMBeanTreeModel(String host)
-        throws Exception {
-        return new MBeanTreeModel(getMBeanServer(host));
+    public MBeanServerNode(MBeanServer server) {
+        super("Server");
+        this.server = server;
+        createDomains();
     }
     
-    public static MBeanServer getMBeanServer(String host) throws URISyntaxException {
-        return RemoteMBeanServerFactory.create(host);
-        //return MBeanServerFactory.createMBeanServer();
+    public MBeanServer getMBeanServer() {
+        return server;
+    }
+    
+    protected void createDomains() {
+        Set names = server.queryNames(null, null);
+        for (Iterator iter = names.iterator(); iter.hasNext();) {
+            ObjectName name = (ObjectName) iter.next();
+            String domain = name.getDomain();
+            DefaultMutableTreeNode domainNode = (DefaultMutableTreeNode) domains.get(domain);
+            if (domainNode == null) {
+                domainNode = new DefaultMutableTreeNode(domain);
+                domains.put(domain, domainNode);
+                add(domainNode);
+            }
+            domainNode.add(new MBeanNode(name));
+        }
     }
 }

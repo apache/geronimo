@@ -56,30 +56,26 @@
 
 package org.apache.geronimo.explorer;
 
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-import javax.swing.tree.DefaultTreeModel;
+import javax.management.ObjectName;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
  * Tree model for MBeans
  *
- * @version <code>$Revision: 1.1 $ $Date: 2003/10/29 09:01:53 $</code>
+ * @version <code>$Revision: 1.1 $ $Date: 2004/01/23 03:47:02 $</code>
  */
-public class MBeanTreeModel extends DefaultTreeModel {
+public class MBeanNode extends DefaultMutableTreeNode {
 
-    public MBeanTreeModel() {
-        this(MBeanServerFactory.createMBeanServer());
-    }
-
-    public MBeanTreeModel(MBeanServer server) {
-        super(new MBeanServerNode(server));
+    public MBeanNode(ObjectName name) {
+        super(name);
     }
 
-    public MBeanServer getMBeanServer() {
-        return getRootNode().getMBeanServer();
+    public ObjectName getObjectName() {
+        return (ObjectName) getUserObject();
+    }    
+
+    public String toString() {
+        return getObjectName().getKeyPropertyListString();
     }
-    
-    public MBeanServerNode getRootNode() {
-        return (MBeanServerNode) getRoot();
-    }
+
 }

@@ -56,52 +56,63 @@
 
 package org.apache.geronimo.explorer;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.awt.BorderLayout;
+import java.awt.Component;
 
 import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
-import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.JPanel;
+
+import org.codehaus.groovy.runtime.InvokerHelper;
 
 /**
- * Tree model for MBeans
+ * Manages views of selected tree nodes
  *
- * @version <code>$Revision: 1.1 $ $Date: 2003/10/29 09:01:53 $</code>
+ * @version <code>$Revision: 1.1 $ $Date: 2004/01/23 03:47:02 $</code>
  */
-public class MBeanServerNode extends DefaultMutableTreeNode {
+public class ViewManager {
 
+    private JPanel panel;
+    private Object explorer;
     private MBeanServer server;
-    private Map domains = new HashMap();
 
-    public MBeanServerNode() {
-        this(MBeanServerFactory.createMBeanServer());
+    public ViewManager(Object explorer) {
+        this.explorer = explorer;
+        this.server = (MBeanServer) InvokerHelper.getProperty(explorer, "MBeanServer");
     }
 
-    public MBeanServerNode(MBeanServer server) {
-        super("Server");
-        this.server = server;
-        createDomains();
-    }
-    
-    public MBeanServer getMBeanServer() {
-        return server;
-    }
-    
-    protected void createDomains() {
-        Set names = server.queryNames(null, null);
-        for (Iterator iter = names.iterator(); iter.hasNext();) {
-            ObjectName name = (ObjectName) iter.next();
-            String domain = name.getDomain();
-            DefaultMutableTreeNode domainNode = (DefaultMutableTreeNode) domains.get(domain);
-            if (domainNode == null) {
-                domainNode = new DefaultMutableTreeNode(domain);
-                domains.put(domain, domainNode);
-                add(domainNode);
-            }
-            domainNode.add(new MBeanNode(name));
+    public void setSelectedTreeNode(Object node) {
+        if (node instanceof MBeanNode) {
+            MBeanNode mbeanNode = (MBeanNode) node;
+
+            // lets make the mbean view
+            ObjectName name = mbeanNode.getObjectName();
+            System.out.println("About to call method: createMBeanView");
+            
+            Component component = (Component) InvokerHelper.invokeMethod(explorer, "createMBeanView", name);
+            setViewComponent(component);
         }
+        else {
+            setViewComponent(null);
+        }
+    }
+
+    public JPanel getPanel() {
+        return panel;
+    }
+
+    public void setPanel(JPanel panel) {
+        this.panel = panel;
+        panel.setLayout(new BorderLayout());
+    }
+
+    protected void setViewComponent(Component component) {
+        panel.removeAll();
+        if (component != null) {
+            panel.add(component, BorderLayout.CENTER);
+        }
+        panel.invalidate();
+        panel.revalidate();
+        panel.repaint();
     }
 }

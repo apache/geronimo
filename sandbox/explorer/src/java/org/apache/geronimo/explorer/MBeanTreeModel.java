@@ -56,63 +56,30 @@
 
 package org.apache.geronimo.explorer;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-
 import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import javax.swing.JPanel;
-
-import org.codehaus.groovy.runtime.InvokerHelper;
+import javax.management.MBeanServerFactory;
+import javax.swing.tree.DefaultTreeModel;
 
 /**
- * Manages views of selected tree nodes
+ * Tree model for MBeans
  *
- * @version <code>$Revision: 1.1 $ $Date: 2003/10/29 09:01:53 $</code>
+ * @version <code>$Revision: 1.1 $ $Date: 2004/01/23 03:47:02 $</code>
  */
-public class ViewManager {
+public class MBeanTreeModel extends DefaultTreeModel {
 
-    private JPanel panel;
-    private Object explorer;
-    private MBeanServer server;
-
-    public ViewManager(Object explorer) {
-        this.explorer = explorer;
-        this.server = (MBeanServer) InvokerHelper.getProperty(explorer, "MBeanServer");
+    public MBeanTreeModel() {
+        this(MBeanServerFactory.createMBeanServer());
     }
 
-    public void setSelectedTreeNode(Object node) {
-        if (node instanceof MBeanNode) {
-            MBeanNode mbeanNode = (MBeanNode) node;
-
-            // lets make the mbean view
-            ObjectName name = mbeanNode.getObjectName();
-            System.out.println("About to call method: createMBeanView");
-            
-            Component component = (Component) InvokerHelper.invokeMethod(explorer, "createMBeanView", name);
-            setViewComponent(component);
-        }
-        else {
-            setViewComponent(null);
-        }
+    public MBeanTreeModel(MBeanServer server) {
+        super(new MBeanServerNode(server));
     }
 
-    public JPanel getPanel() {
-        return panel;
+    public MBeanServer getMBeanServer() {
+        return getRootNode().getMBeanServer();
     }
-
-    public void setPanel(JPanel panel) {
-        this.panel = panel;
-        panel.setLayout(new BorderLayout());
-    }
-
-    protected void setViewComponent(Component component) {
-        panel.removeAll();
-        if (component != null) {
-            panel.add(component, BorderLayout.CENTER);
-        }
-        panel.invalidate();
-        panel.revalidate();
-        panel.repaint();
+    
+    public MBeanServerNode getRootNode() {
+        return (MBeanServerNode) getRoot();
     }
 }

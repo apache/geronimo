@@ -56,26 +56,46 @@
 
 package org.apache.geronimo.explorer;
 
-import javax.management.ObjectName;
-import javax.swing.tree.DefaultMutableTreeNode;
+import groovy.lang.GroovyObject;
+
+import java.net.URISyntaxException;
+
+import javax.management.MBeanServer;
+
+import org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory;
+import org.codehaus.groovy.runtime.InvokerHelper;
 
 /**
- * Tree model for MBeans
- *
- * @version <code>$Revision: 1.1 $ $Date: 2003/10/29 09:01:53 $</code>
+ * A temporary bootstap mechanism for the Groovy script until
+ * Groovy reaches beta-1 and can support static main(String[]) methods
+ * 
+ * @version <code>$Revision: 1.1 $ $Date: 2004/01/23 03:47:02 $</code>
  */
-public class MBeanNode extends DefaultMutableTreeNode {
-
-    public MBeanNode(ObjectName name) {
-        super(name);
+public class ExplorerMain {
+    public static void main(String[] args) {
+        
+        String host="localhost";
+        if( args.length > 0 )
+            host = args[0];
+        
+        try {
+            GroovyObject explorer = (GroovyObject) ExplorerMain.class.getClassLoader().loadClass("org.apache.geronimo.explorer.Explorer").newInstance();
+            InvokerHelper.setProperty(explorer, "treeModel", getMBeanTreeModel(host));
+            explorer.invokeMethod("run", null);
+        }
+        catch (Exception e) {
+            System.out.println("Caught: " + e);
+            e.printStackTrace();
+        }
     }
 
-    public ObjectName getObjectName() {
-        return (ObjectName) getUserObject();
-    }    
-
-    public String toString() {
-        return getObjectName().getKeyPropertyListString();
+    public static MBeanTreeModel getMBeanTreeModel(String host)
+        throws Exception {
+        return new MBeanTreeModel(getMBeanServer(host));
     }
-
+    
+    public static MBeanServer getMBeanServer(String host) throws URISyntaxException {
+        return RemoteMBeanServerFactory.create(host);
+        //return MBeanServerFactory.createMBeanServer();
+    }
 }
