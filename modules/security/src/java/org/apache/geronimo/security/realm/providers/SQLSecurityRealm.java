@@ -38,15 +38,18 @@ import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.security.GeronimoSecurityException;
 import org.apache.regexp.RE;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:26 $
+ * @version $Revision: 1.5 $ $Date: 2004/05/22 15:25:13 $
  */
 
 public class SQLSecurityRealm extends AbstractSecurityRealm {
 
     private static final GBeanInfo GBEAN_INFO;
+    private static Log log = LogFactory.getLog(SQLSecurityRealm.class);
     public final static String USER_SELECT = "org.apache.geronimo.security.realm.providers.SQLSecurityRealm.USER_SELECT";
     public final static String GROUP_SELECT = "org.apache.geronimo.security.realm.providers.SQLSecurityRealm.GROUP_SELECT";
     public final static String CONNECTION_URL = "org.apache.geronimo.security.realm.providers.SQLSecurityRealm.CONNECTION_URL";
@@ -82,6 +85,8 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
 
         refresh();
         running = true;
+
+        log.info("SQL Realm - " + getRealmName() + " - started");
     }
 
     public void doStop() {
@@ -89,6 +94,8 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
 
         users.clear();
         groups.clear();
+
+        log.info("SQL Realm - " + getRealmName() + " - stopped");
     }
 
     public String getConnectionURL() {
@@ -255,7 +262,9 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
             this.users.putAll(users);
             this.groups.putAll(groups);
 
+            log.info("SQL Realm - " + getRealmName() + " - refresh");
         } catch (SQLException sqle) {
+            log.info("SQL Realm - " + getRealmName() + " - refresh failed");
             throw new GeronimoSecurityException(sqle);
         }
     }

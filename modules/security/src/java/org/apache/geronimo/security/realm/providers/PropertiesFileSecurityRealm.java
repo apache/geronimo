@@ -34,15 +34,19 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.security.GeronimoSecurityException;
+
 import org.apache.regexp.RE;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:26 $
+ * @version $Revision: 1.5 $ $Date: 2004/05/22 15:25:13 $
  */
 public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
 
     private static final GBeanInfo GBEAN_INFO;
+    private static Log log = LogFactory.getLog(PropertiesFileSecurityRealm.class);
 
     private boolean running = false;
     private URI usersURI;
@@ -68,12 +72,16 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
 
         refresh();
         running = true;
+
+        log.info("Properties File Realm - " + getRealmName() + " - started");
     }
 
     public void doStop() {
         users.clear();
         groups.clear();
         running = false;
+
+        log.info("Properties File Realm - " + getRealmName() + " - stopped");
     }
 
     public URI getUsersURI() {
@@ -171,7 +179,9 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
                 }
             }
 
+            log.info("Properties File Realm - " + getRealmName() + " - refresh");
         } catch (IOException e) {
+            log.info("Properties File Realm - " + getRealmName() + " - refresh failed");
             throw new GeronimoSecurityException(e);
         }
     }

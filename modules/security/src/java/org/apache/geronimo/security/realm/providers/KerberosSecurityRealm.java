@@ -29,14 +29,17 @@ import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.security.GeronimoSecurityException;
 import org.apache.regexp.RE;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:58:09 $
+ * @version $Revision: 1.3 $ $Date: 2004/05/22 15:25:13 $
  */
 public class KerberosSecurityRealm extends AbstractSecurityRealm {
 
     private static final GBeanInfo GBEAN_INFO;
+    private static Log log = LogFactory.getLog(KerberosSecurityRealm.class);
 
     private boolean running = false;
     private boolean debug;
@@ -64,10 +67,14 @@ public class KerberosSecurityRealm extends AbstractSecurityRealm {
     public void doStart() {
         refresh();
         running = true;
+
+        log.info("Kerberos Realm - " + getRealmName() + " - started");
     }
 
     public void doStop() {
         running = false;
+
+        log.info("Kerberos Realm - " + getRealmName() + " - stopped");
     }
 
     public boolean isDebug() {
@@ -203,6 +210,7 @@ public class KerberosSecurityRealm extends AbstractSecurityRealm {
     }
 
     public void refresh() throws GeronimoSecurityException {
+        log.info("Kerberos Realm - " + getRealmName() + " - refresh");
     }
 
     public javax.security.auth.login.AppConfigurationEntry getAppConfigurationEntry() {
