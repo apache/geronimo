@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Rev$ $Date$ -->
+
+<project default="itest"
+    xmlns:j="jelly:core"
+    xmlns:ant="jelly:ant"
+    xmlns:maven="jelly:maven"
+    xmlns:u="jelly:util"
+    >
+
+
+    <goal name="itest"
+        description="Run Application Integration Tests"
+        prereqs="itest:itest"/>
+
+    <goal name="itest:prepare-filesystem"
+        description="Create the needed directory structure">
+        <mkdir dir="${maven.itest.dest}"/>
+        <mkdir dir="${maven.itest.reportsDirectory}"/>
+    </goal>
+
+    <goal name="itest:compile"
+        description="Compile the Integration Tests"
+        prereqs="java:compile,java:jar-resources,itest:prepare-filesystem,itest:test-resources">
+
+        <j:if test="${maven.itest.skip != 'true'}">
+
+            <javac
+                destdir="${maven.itest.dest}"
+                srcdir="${maven.itest.src}"
+                excludes="**/package.html"
+                debug="${maven.compile.debug}"
+                deprecation="${maven.compile.deprecation}"
+                optimize="${maven.compile.optimize}">
+
+                <classpath>
+                    <pathelement path="${maven.itest.dest}"/>
+                    <pathelement path="${maven.build.dest}"/>
+                    <path refid="maven.dependency.classpath"/>
+                    <!-- use this when we turn this into a plugin -->
+                    <pathelement path="${plugin.getDependencyPath('junit')}"/>
+                    <j:if test="${!context.getVariable('maven.itest.fork').toString().trim().equalsIgnoreCase('no')}">
+                        <pathelement path="${plugin.getDependencyPath('xml-apis')}"/>
+                        <pathelement path="${plugin.getDependencyPath('xerces')}"/>
+                    </j:if>
+                </classpath>
+
+                <!--
+                  |
+                  | Source Modifications
+                  |
+                 -->
+                <u:tokenize var="excludes" delim=",">${maven.itest.src.excludes}</u:tokenize>
+                <j:forEach var="exclude" items="${excludes}">
+                    <ant:exclude name="${exclude}"/>
+                </j:forEach>
+
+                <u:tokenize var="includes" delim=",">${maven.itest.src.includes}</u:tokenize>
+                <j:forEach var="include" items="${includes}">
+                    <ant:include name="${include}"/>
+                </j:forEach>
+
+
+                <!--
+                  |
+                  | Standard compile properties
+                  |
+                 -->
+                <j:if test="${context.getVariable('maven.compile.compilerargs') != null}">
+                    <compilerarg line="${maven.compile.compilerargs}"/>
+                </j:if>
+
+                <j:if test="${context.getVariable('maven.compile.encoding') != null}">
+                    <setProperty name="encoding" value="${maven.compile.encoding}"/>
+                </j:if>
+
+                <j:if test="${context.getVariable('maven.compile.executable') != null}">
+                    <setProperty name="executable" value="${maven.compile.executable}"/>
+                </j:if>
+
+                <j:if test="${context.getVariable('maven.compile.fork') != null}">
+                    <setProperty name="fork" value="${maven.compile.fork}"/>
+                </j:if>
+
+                <j:if test="${context.getVariable('maven.compile.source') != null}">
+                    <setProperty name="source" value="${maven.compile.source}"/>
+                </j:if>
+
+                <j:if test="${context.getVariable('maven.compile.verbose') != null}">
+                    <setProperty name="verbose" value="${maven.compile.verbose}"/>
+                </j:if>
+            </javac>
+        </j:if>
+
+    </goal>
+    <goal name="itest:itest"
+        description="Run Application Integration Tests"
+        prereqs="itest:compile">
+
+        <j:if test="${maven.itest.skip != 'true'}">
+
+            <!-- call our setup code -->
+            <attainGoal name="itest:setup"/>
+
+            <taskdef
+                name="junit"
+                classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"/>
+
+            <j:catch var="exception">
+                <junit printSummary="${maven.itest.printSummary}"
+                    failureProperty="maven.itest.failure"
+                    fork="${maven.itest.fork}">
+
+                    <j:if test="${context.getVariable('maven.itest.jvm') != null}">
+                        <setProperty name="jvm" value="${maven.itest.jvm}"/>
+                    </j:if>
+                    <j:if test="${!context.getVariable('maven.itest.fork').toString().trim().equalsIgnoreCase('no')}">
+                        <setProperty name="dir" value="${maven.itest.dir}"/>
+                    </j:if>
+                    <sysproperty key="basedir" value="${basedir}"/>
+                    <u:tokenize var="listOfProperties" delim=" ">${maven.itest.sysproperties}</u:tokenize>
+                    <j:forEach var="someProperty" items="${listOfProperties}">
+                        <sysproperty key="${someProperty}" value="${context.getVariable(someProperty)}"/>
+                    </j:forEach>
+                    <u:tokenize var="listOfEnv" delim=" ">${maven.itest.envvars}</u:tokenize>
+                    <j:forEach var="someEnv" items="${listOfEnv}">
+                        <env key="${someEnv}" value="${context.getVariable(someEnv)}"/>
+                    </j:forEach>
+                    <u:tokenize var="listOfJvmArgs" delim=" ">${maven.itest.jvmargs}</u:tokenize>
+                    <j:forEach var="somejvmarg" items="${listOfJvmArgs}">
+                        <jvmarg value="${somejvmarg}"/>
+                    </j:forEach>
+                    <formatter type="xml"/>
+                    <formatter type="${maven.itest.format}" usefile="${maven.itest.usefile}"/>
+                    <classpath>
+                        <pathelement location="${maven.itest.dest}"/>
+                        <pathelement location="${maven.build.dest}"/>
+                        <path refid="maven.dependency.classpath"/>
+                        <pathelement path="${plugin.getDependencyPath('junit')}"/>
+                        <j:if test="${!context.getVariable('maven.itest.fork').toString().trim().equalsIgnoreCase('no')}">
+                            <pathelement path="${plugin.getDependencyPath('xml-apis')}"/>
+                            <pathelement path="${plugin.getDependencyPath('xerces')}"/>
+                        </j:if>
+                    </classpath>
+                    <batchtest todir="${maven.itest.reportsDirectory}">
+                        <fileset dir="${maven.itest.src}" includes="${maven.itest.includes}" excludes="{maven.itest.excludes}"/>
+                    </batchtest>
+                </junit>
+            </j:catch>
+            <j:if test="${exception != null}">
+                ${exception.printStackTrace()}
+            </j:if>
+
+            <!-- call our teardown code -->
+            <attainGoal name="itest:teardown"/>
+
+            <j:if test="${exception != null}">
+                <j:if test="${context.getVariable('maven.itest.failure.ignore') != 'true'}">
+                    <fail message="There was an exception from the tests."/>
+                </j:if>
+            </j:if>
+
+            <j:if test="${maven.itest.failure}">
+                <j:if test="${context.getVariable('maven.itest.failure.ignore') != 'true'}">
+                    <fail message="There were test failures."/>
+                </j:if>
+            </j:if>
+
+        </j:if>
+
+    </goal>
+
+    <goal name="itest:setup">
+        <!--hook, customize by including a preGoal for itest:setup-->
+    </goal>
+
+    <goal name="itest:teardown">
+        <!--hook, customize by including a preGoal for itest:teardown-->
+    </goal>
+
+    <goal name="itest:test-resources"
+        description="Copy any resources that must be present for the integration tests to run"
+        prereqs="itest:prepare-filesystem">
+
+        <j:if test="${maven.itest.skip != 'true' and context.getVariable('maven.itest.resources') != null}">
+            <ant:copy todir="${maven.itest.dest}">
+                <u:tokenize var="resources" delim=", ">${maven.itest.resources}</u:tokenize>
+                <j:forEach var="resource" items="${resources}">
+                    <j:set var="dirProperty" value="${resource}.dir"/>
+                    <j:set var="includesProperty" value="${resource}.includes"/>
+                    <j:set var="excludesProperty" value="${resource}.excludes"/>
+                    <ant:fileset
+                        dir="${context.getVariable(dirProperty)}"
+                        includes="${context.getVariable(includesProperty)}"
+                        excludes="${context.getVariable(excludesProperty)}"
+                        />
+                </j:forEach>
+            </ant:copy>
+        </j:if>
+    </goal>
+
+
+
+
+</project>
