@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.18 $ $Date: 2003/08/16 19:18:32 $ -->
+<!-- $Revision: 1.19 $ $Date: 2003/08/16 19:57:47 $ -->
 
 <project default="default"
   xmlns:j="jelly:core" 
@@ -137,14 +137,16 @@
     <attainGoal name="maven-pmd-plugin:deregister"/>
     <attainGoal name="maven-simian-plugin:deregister"/>
     <attainGoal name="maven-jdepend-plugin:deregister"/>
-    <attainGoal name="maven-changelog-plugin:deregister"/>
     <attainGoal name="maven-statcvs-plugin:deregister"/>
-    <attainGoal name="maven-file-activity-plugin:deregister"/>
-    <attainGoal name="maven-developer-activity-plugin:deregister"/>
     <attainGoal name="maven-jxr-plugin:deregister"/>
     <attainGoal name="maven-javadoc-plugin:deregister"/>
     <attainGoal name="maven-junit-report-plugin:deregister"/>
     <attainGoal name="maven-clover-plugin:deregister"/>
+    
+    <!-- Run some useful top-level reports -->
+    <!--<attainGoal name="maven-changelog-plugin:deregister"/>-->
+    <!--<attainGoal name="maven-file-activity-plugin:deregister"/>-->
+    <!--<attainGoal name="maven-developer-activity-plugin:deregister"/>-->
   </postGoal>
   
   <preGoal name="site">
