@@ -66,7 +66,7 @@ import java.io.PrintWriter;
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/16 10:27:14 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/06 03:57:33 $
  */
 public class EJBException extends RuntimeException {
     public EJBException() {
@@ -94,7 +94,7 @@ public class EJBException extends RuntimeException {
     }
 
     public String getMessage() {
-        return getMessage() + "todo";
+        return super.getMessage() + ": todo";
     }
 
 
