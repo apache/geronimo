@@ -22,6 +22,9 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.management.ObjectName;
 
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.Log;
+
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -35,9 +38,10 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
  * <p/>
  * The MBean that will receive invocations must implement the JMXTarget interface.
  *
- * @version $Revision: 1.12 $ $Date: 2004/06/04 22:31:56 $
+ * @version $Revision: 1.13 $ $Date: 2004/09/08 12:26:23 $
  */
 public class JMXRouter extends AbstractInterceptorRouter {
+    private static final Log log = LogFactory.getLog(JMXRouter.class);
     private SubsystemRouter subsystemRouter;
     private Map registered = new HashMap();
 
@@ -69,11 +73,13 @@ public class JMXRouter extends AbstractInterceptorRouter {
     public void doStart() {
         subsystemRouter.addRoute("/JMX", this);
         super.doStart();
+        log.info("Started JMX Router");
     }
 
     public void doStop() {
         super.doStop();
         subsystemRouter.removeRoute("/JMX");
+        log.info("Stopped JMX Router");
     }
 
     public static final GBeanInfo GBEAN_INFO;
