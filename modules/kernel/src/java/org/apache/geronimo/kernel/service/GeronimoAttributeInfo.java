@@ -67,7 +67,7 @@ import net.sf.cglib.reflect.FastClass;
  * direct the attibute to a specific target in a multi target GeronimoMBean.  It also supports caching of the
  * attribute value, which can reduce the number of calls on the target.
  *
- * @version $Revision: 1.8 $ $Date: 2003/11/16 00:45:01 $
+ * @version $Revision: 1.9 $ $Date: 2003/11/18 02:20:38 $
  */
 public class GeronimoAttributeInfo extends MBeanAttributeInfo {
     /**
@@ -126,7 +126,7 @@ public class GeronimoAttributeInfo extends MBeanAttributeInfo {
     /**
      * The maximum ammount ot time in seconds that a cached value is valid.
      */
-    long cacheTimeLimit;
+    long cacheTimeLimit = -1L;
 
     /**
      * The initial value that will be set into the attribute.
