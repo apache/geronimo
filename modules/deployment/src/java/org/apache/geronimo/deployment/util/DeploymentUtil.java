@@ -70,6 +70,11 @@ public final class DeploymentUtil {
     }
 
     public static void copyFile(File source, File destination) throws IOException {
+        File destinationDir = destination.getParentFile();
+        if (false == destinationDir.exists() && false == destinationDir.mkdirs()) {
+            throw new java.io.IOException("Cannot create directory : " + destinationDir);
+        }
+        
         InputStream in = null;
         OutputStream out = null;
         try {
