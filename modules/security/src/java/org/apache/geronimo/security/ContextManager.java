@@ -22,7 +22,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.security.auth.Subject;
 import javax.security.jacc.EJBRoleRefPermission;
-
 import java.io.Serializable;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
@@ -34,10 +33,11 @@ import java.security.PrivilegedAction;
 import java.util.Hashtable;
 import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/03/10 09:59:25 $
+ * @version $Revision: 1.8 $ $Date: 2004/07/29 20:54:43 $
  */
 public class ContextManager {
     private static ThreadLocal currentCallerId = new ThreadLocal();
@@ -245,6 +245,53 @@ public class ContextManager {
         }
 
         return result;
+    }
+
+    /**
+     * Obtain the thread's identifying principal.
+     * <p/>
+     * Clients should use <code>Subject.doAs*</code> to associate a Subject
+     * with the thread's call stack.  It is this Subject that will be used for
+     * authentication checks.
+     * <p/>
+     * It will first attempt to return a <code>IdentificationPrincipal</code>.
+     * This kind of principal is inserted into a subject if one uses one of
+     * the Geronimo LoginModules.  It is a secure id that identifies the Subject.
+     * <p/>
+     * If there is no <code>IdentificationPrincipal</code>, it will attempt to
+     * return an instance <code>PrimaryRealmPrincipal</code>.
+     * <p/>
+     * If there is no <code>PrimaryRealmPrincipal</code>, it will attempt to
+     * return an instance <code>RealmPrincipal</code>.
+     * <p/>
+     * If there is no <code>RealmPrincipal</code>, it will attempt to
+     * return an instance <code>Principal</code>.
+     *
+     * @return the principal that identifies the Subject of this thread.
+     * @see Subject#doAs(javax.security.auth.Subject, java.security.PrivilegedAction)
+     * @see Subject#doAs(javax.security.auth.Subject, java.security.PrivilegedExceptionAction)
+     * @see Subject#doAsPrivileged(javax.security.auth.Subject, java.security.PrivilegedAction, java.security.AccessControlContext)
+     * @see Subject#doAsPrivileged(javax.security.auth.Subject, java.security.PrivilegedExceptionAction, java.security.AccessControlContext)
+     */
+    public static Principal getThreadPrincipal() {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(GET_CONTEXT);
+
+        Subject subject = Subject.getSubject(AccessController.getContext());
+        if (subject != null) {
+            Set set = subject.getPrincipals(IdentificationPrincipal.class);
+            if (!set.isEmpty()) return (Principal) set.iterator().next();
+
+            set = subject.getPrincipals(PrimaryRealmPrincipal.class);
+            if (!set.isEmpty()) return (Principal) set.iterator().next();
+
+            set = subject.getPrincipals(RealmPrincipal.class);
+            if (!set.isEmpty()) return (Principal) set.iterator().next();
+
+            set = subject.getPrincipals();
+            if (!set.isEmpty()) return (Principal) set.iterator().next();
+        }
+        return null;
     }
 
     public static String getAlgorithm() {
