@@ -45,7 +45,6 @@ specific services - those should be provided by children.
 
     <!-- Persistent List of running Configurations service -->
     <gbean name="geronimo.boot:role=PersistentConfigurationList" class="org.apache.geronimo.system.configuration.FileConfigurationList">
-        <reference name="Kernel">geronimo.boot:role=Kernel</reference>
         <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
         <attribute name="ConfigFile" type="java.lang.String">var/config/config.list</attribute>
     </gbean>

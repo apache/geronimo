@@ -19,21 +19,20 @@ package org.apache.geronimo.system.configuration;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.FileNotFoundException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Collections;
 import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -49,7 +48,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  * GBean that saves a list of configurations, for example to allow
  * a server to restart automatically.
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/05 14:38:00 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/05 16:29:29 $
  */
 public class FileConfigurationList implements GBeanLifecycle, PersistentConfigurationList {
     private static final Log log = LogFactory.getLog(PersistentConfigurationList.class);
@@ -63,9 +62,6 @@ public class FileConfigurationList implements GBeanLifecycle, PersistentConfigur
         this.kernel = kernel;
         this.serverInfo = serverInfo;
         this.configFile = configDir;
-    }
-
-    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws WaitingException, Exception {
@@ -150,10 +146,10 @@ public class FileConfigurationList implements GBeanLifecycle, PersistentConfigur
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(FileConfigurationList.class);
         infoFactory.addInterface(PersistentConfigurationList.class);
-        infoFactory.addReference("Kernel", Kernel.class);
+        infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addReference("ServerInfo", ServerInfo.class);
         infoFactory.addAttribute("ConfigFile", String.class, true);
-        infoFactory.setConstructor(new String[]{"Kernel", "ServerInfo", "ConfigFile"});
+        infoFactory.setConstructor(new String[]{"kernel", "ServerInfo", "ConfigFile"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
