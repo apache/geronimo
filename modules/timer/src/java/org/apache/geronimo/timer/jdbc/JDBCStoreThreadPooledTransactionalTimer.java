@@ -17,6 +17,10 @@
 
 package org.apache.geronimo.timer.jdbc;
 
+import java.sql.SQLException;
+
+import javax.sql.DataSource;
+
 import EDU.oswego.cs.dl.util.concurrent.Executor;
 import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -39,9 +43,9 @@ public class JDBCStoreThreadPooledTransactionalTimer extends ThreadPooledTimer {
             TransactionContextManager transactionContextManager,
             ManagedConnectionFactoryWrapper managedConnectionFactoryWrapper,
             Executor threadPool,
-            Kernel kernel) {
+            Kernel kernel) throws SQLException {
         super(new TransactionalExecutorTaskFactory(transactionContextManager, repeatCount),
-                new JDBCWorkerPersistence(kernel, managedConnectionFactoryWrapper), threadPool, transactionContextManager);
+                new JDBCWorkerPersistence(kernel.getKernelName(), (DataSource)managedConnectionFactoryWrapper.$getResource(), false), threadPool, transactionContextManager);
     }
 
 

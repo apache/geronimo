@@ -21,15 +21,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.Date;
 import java.util.Collection;
-
+import java.util.Date;
 import javax.sql.DataSource;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.timer.Playback;
 import org.apache.geronimo.timer.WorkInfo;
-import org.apache.geronimo.timer.jdbc.JDBCWorkerPersistence;
 import org.axiondb.jdbc.AxionDataSource;
 
 /**
@@ -38,7 +36,7 @@ import org.axiondb.jdbc.AxionDataSource;
  * @version $Rev$ $Date$
  *
  * */
-public class JDBCWorkerPersistenceTest extends TestCase {
+public class JDBCWorkerPersistenceTestAbstract extends TestCase {
 
 
     private final String countSQL = "select count(*) from timertasks";
@@ -49,7 +47,8 @@ public class JDBCWorkerPersistenceTest extends TestCase {
     private Object userId = null;
 
     private JDBCWorkerPersistence jdbcWorkerPersistence;
-    private DataSource datasource;
+    protected DataSource datasource;
+    protected boolean useSequence;
 
 
     private WorkInfo workInfo;
@@ -57,22 +56,12 @@ public class JDBCWorkerPersistenceTest extends TestCase {
     protected Long period;
 
     protected void setUp() throws Exception {
-        datasource = new AxionDataSource("jdbc:axiondb:testdb");
-        jdbcWorkerPersistence = new JDBCWorkerPersistence(serverUniqueId, datasource);
-        jdbcWorkerPersistence.doStart();
+        jdbcWorkerPersistence = new JDBCWorkerPersistence(serverUniqueId, datasource, useSequence);
         time = new Date(System.currentTimeMillis());
         period = new Long(1000);
         workInfo = new WorkInfo(key, userId, userInfo, time, period, true);
     }
 
-    protected void tearDown() throws Exception {
-        jdbcWorkerPersistence.doStop();
-        Connection c = datasource.getConnection();
-        Statement s = c.createStatement();
-        s.execute("SHUTDOWN");
-        s.close();
-        c.close();
-    }
 
     public void testSaveCancel() throws Exception {
         assertEquals(0, countRows());

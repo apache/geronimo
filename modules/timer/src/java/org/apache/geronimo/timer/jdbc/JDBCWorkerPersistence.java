@@ -22,19 +22,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.Date;
-import java.util.Collection;
 import java.util.ArrayList;
-
+import java.util.Collection;
+import java.util.Date;
 import javax.sql.DataSource;
 
 import com.thoughtworks.xstream.XStream;
-import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.timer.PersistenceException;
 import org.apache.geronimo.timer.Playback;
 import org.apache.geronimo.timer.WorkInfo;
@@ -44,14 +37,17 @@ import org.apache.geronimo.timer.WorkerPersistence;
  * TODO use an insert returning or stored procedure to insert.
  *
  * @version $Rev$ $Date$
- *
- * */
-public class JDBCWorkerPersistence implements WorkerPersistence, GBeanLifecycle {
+ */
+public class JDBCWorkerPersistence implements WorkerPersistence {
 
     private static final String createSequenceSQL = "create sequence timertasks_seq";
-    private static final String createTableSQL = "create table timertasks (id long primary key, serverid varchar(256) not null, timerkey varchar(256) not null, userid varchar(4096), userinfo varchar(4096), firsttime long not null, period long, atfixedrate boolean not null)";
+    private static final String createTableSQLWithSequence = "create table timertasks (id long primary key, serverid varchar(256) not null, timerkey varchar(256) not null, userid varchar(4096), userinfo varchar(4096), firsttime long not null, period long, atfixedrate boolean not null)";
+    private static final String createTableSQLWithIdentity =
+"create table timertasks (id INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), serverid varchar(256) not null, timerkey varchar(256) not null, userid varchar(4096), userinfo varchar(4096), firsttime NUMERIC(18,0) not null, period NUMERIC(18, 0), atfixedrate CHAR(1))";
     private static final String sequenceSQL = "select timertasks_seq.nextval";
-    private static final String insertSQL = "insert into timertasks (id, serverid, timerkey, userid, userinfo, firsttime, period, atfixedrate) values (?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String identitySQL = "values IDENTITY_VAL_LOCAL()";
+    private static final String insertSQLWithSequence = "insert into timertasks (id, serverid, timerkey, userid, userinfo, firsttime, period, atfixedrate) values (?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String insertSQLWithIdentity = "insert into timertasks (serverid, timerkey, userid, userinfo, firsttime, period, atfixedrate) values (?, ?, ?, ?, ?, ?, ?)";
     private static final String deleteSQL = "delete from timertasks where id=?";
     private static final String selectSQL = "select id, userid, userinfo, firsttime, period, atfixedrate from timertasks where serverid = ? and timerkey=?";
     private static final String fixedRateUpdateSQL = "update timertasks set firsttime = firsttime + period where id = ?";
@@ -59,24 +55,19 @@ public class JDBCWorkerPersistence implements WorkerPersistence, GBeanLifecycle 
     private static final String selectByKeySQL = "select id from timertasks where serverid = ? and timerkey = ? and (userid = ? or ? is null)";
 
     private final String serverUniqueId;
-    private final ManagedConnectionFactoryWrapper managedConnectionFactoryWrapper;
-    private DataSource dataSource;
+    private final DataSource dataSource;
+    private boolean useSequence = false;
 
-    public JDBCWorkerPersistence(Kernel kernel, ManagedConnectionFactoryWrapper managedConnectionFactoryWrapper) {
-        assert managedConnectionFactoryWrapper != null;
-        //TODO construct a unique name.
-        this.serverUniqueId = kernel.getKernelName();
-        this.managedConnectionFactoryWrapper = managedConnectionFactoryWrapper;
-    }
-
-    protected JDBCWorkerPersistence(String serverUniqueId, DataSource datasource) {
+    protected JDBCWorkerPersistence(String serverUniqueId, DataSource datasource, boolean useSequence) throws SQLException {
         this.serverUniqueId = serverUniqueId;
-        this.managedConnectionFactoryWrapper = null;
         this.dataSource = datasource;
-    }
-
-    public ManagedConnectionFactoryWrapper getManagedConnectionFactoryWrapper() {
-        return managedConnectionFactoryWrapper;
+        this.useSequence = useSequence;
+        if (this.useSequence) {
+            execSQL(createSequenceSQL);
+            execSQL(createTableSQLWithSequence);
+        } else {
+            execSQL(createTableSQLWithIdentity);
+        }
     }
 
 
@@ -84,42 +75,81 @@ public class JDBCWorkerPersistence implements WorkerPersistence, GBeanLifecycle 
         try {
             Connection c = dataSource.getConnection();
             try {
-                long id;
-                PreparedStatement seqStatement = c.prepareStatement(sequenceSQL);
-                try {
-                    ResultSet seqRS = seqStatement.executeQuery();
+                if (useSequence) {
+                    long id;
+                    PreparedStatement seqStatement = c.prepareStatement(sequenceSQL);
                     try {
-                        seqRS.next();
-                        id = seqRS.getLong(1);
+                        ResultSet seqRS = seqStatement.executeQuery();
+                        try {
+                            seqRS.next();
+                            id = seqRS.getLong(1);
+                        } finally {
+                            seqRS.close();
+                        }
                     } finally {
-                        seqRS.close();
+                        seqStatement.close();
                     }
-                } finally {
-                    seqStatement.close();
-                }
-                workInfo.setId(id);
-                PreparedStatement insertStatement = c.prepareStatement(insertSQL);
-                try {
-                    String serializedUserId = serialize(workInfo.getUserId());
-                     String serializedUserKey = serialize(workInfo.getUserInfo());
-                    insertStatement.setLong(1, id);
-                    insertStatement.setString(2, serverUniqueId);
-                    insertStatement.setString(3, workInfo.getKey());
-                    insertStatement.setString(4, serializedUserId);
-                    insertStatement.setString(5, serializedUserKey);
-                      insertStatement.setLong(6, workInfo.getTime().getTime());
-                    if (workInfo.getPeriod() == null) {
-                        insertStatement.setNull(7, Types.NUMERIC);
-                    } else {
-                        insertStatement.setLong(7, workInfo.getPeriod().longValue());
+                    workInfo.setId(id);
+                    PreparedStatement insertStatement = c.prepareStatement(insertSQLWithSequence);
+                    try {
+                        String serializedUserId = serialize(workInfo.getUserId());
+                        String serializedUserKey = serialize(workInfo.getUserInfo());
+                        insertStatement.setLong(1, id);
+                        insertStatement.setString(2, serverUniqueId);
+                        insertStatement.setString(3, workInfo.getKey());
+                        insertStatement.setString(4, serializedUserId);
+                        insertStatement.setString(5, serializedUserKey);
+                        insertStatement.setLong(6, workInfo.getTime().getTime());
+                        if (workInfo.getPeriod() == null) {
+                            insertStatement.setNull(7, Types.NUMERIC);
+                        } else {
+                            insertStatement.setLong(7, workInfo.getPeriod().longValue());
+                        }
+                        insertStatement.setBoolean(8, workInfo.getAtFixedRate());
+                        int result = insertStatement.executeUpdate();
+                        if (result != 1) {
+                            throw new PersistenceException("Could not insert!");
+                        }
+                    } finally {
+                        insertStatement.close();
                     }
-                    insertStatement.setBoolean(8, workInfo.getAtFixedRate());
-                    int result = insertStatement.executeUpdate();
-                    if (result != 1) {
-                        throw new PersistenceException("Could not insert!");
+                } else {
+                    PreparedStatement insertStatement = c.prepareStatement(insertSQLWithIdentity);
+                    try {
+                        String serializedUserId = serialize(workInfo.getUserId());
+                        String serializedUserKey = serialize(workInfo.getUserInfo());
+                        insertStatement.setString(1, serverUniqueId);
+                        insertStatement.setString(2, workInfo.getKey());
+                        insertStatement.setString(3, serializedUserId);
+                        insertStatement.setString(4, serializedUserKey);
+                        insertStatement.setLong(5, workInfo.getTime().getTime());
+                        if (workInfo.getPeriod() == null) {
+                            insertStatement.setNull(6, Types.NUMERIC);
+                        } else {
+                            insertStatement.setLong(6, workInfo.getPeriod().longValue());
+                        }
+                        insertStatement.setBoolean(7, workInfo.getAtFixedRate());
+                        int result = insertStatement.executeUpdate();
+                        if (result != 1) {
+                            throw new PersistenceException("Could not insert!");
+                        }
+                    } finally {
+                        insertStatement.close();
                     }
-                } finally {
-                    insertStatement.close();
+                    long id;
+                    PreparedStatement identityStatement = c.prepareStatement(identitySQL);
+                    try {
+                        ResultSet seqRS = identityStatement.executeQuery();
+                        try {
+                            seqRS.next();
+                            id = seqRS.getLong(1);
+                        } finally {
+                            seqRS.close();
+                        }
+                    } finally {
+                        identityStatement.close();
+                    }
+                    workInfo.setId(id);
                 }
             } finally {
                 c.close();
@@ -280,26 +310,6 @@ public class JDBCWorkerPersistence implements WorkerPersistence, GBeanLifecycle 
         return xStream.fromXML(serializedRunnable);
     }
 
-    public void doStart() throws WaitingException, Exception {
-        if (managedConnectionFactoryWrapper != null) {
-            dataSource = (DataSource) managedConnectionFactoryWrapper.$getResource();
-        }
-        if (createSequenceSQL != null && !createSequenceSQL.equals("")) {
-            execSQL(createSequenceSQL);
-        }
-        if (createTableSQL != null && !createTableSQL.equals("")) {
-            execSQL(createTableSQL);
-        }
-    }
-
-    public void doStop() throws WaitingException, Exception {
-        dataSource = null;
-    }
-
-    public void doFail() {
-        dataSource = null;
-    }
-
     private void execSQL(String sql) throws SQLException {
         Connection c = dataSource.getConnection();
         try {
@@ -314,33 +324,6 @@ public class JDBCWorkerPersistence implements WorkerPersistence, GBeanLifecycle 
         } finally {
             c.close();
         }
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JDBCWorkerPersistence.class);
-//        infoFactory.addAttribute("sequenceSQL", String.class, true);
-//        infoFactory.addAttribute("insertSQL", String.class, true);
-//        infoFactory.addAttribute("deleteSQL", String.class, true);
-//        infoFactory.addAttribute("fixedRateUpdateSQL", String.class, true);
-//        infoFactory.addAttribute("selectSQL", String.class, true);
-
-        infoFactory.addAttribute("createSequenceSQL", String.class, true);
-        infoFactory.addAttribute("createTableSQL", String.class, true);
-
-        infoFactory.addAttribute("kernel", Kernel.class, false);
-
-        infoFactory.addReference("managedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class);
-
-//        infoFactory.setConstructor(new String[]{"kernel", "managedConnectionFactoryWrapper", "sequenceSQL", "insertSQL", "deleteSQL", "fixedRateUpdateSQL", "selectSQL"});
-        infoFactory.setConstructor(new String[]{"kernel", "managedConnectionFactoryWrapper"});
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 
 }
