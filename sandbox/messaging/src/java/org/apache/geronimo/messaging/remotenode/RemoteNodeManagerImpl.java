@@ -44,7 +44,7 @@ import org.apache.geronimo.system.ClockPool;
 /**
  * RemoteNode implementation.
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/10 23:12:25 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/24 23:39:03 $
  */
 public class RemoteNodeManagerImpl
     implements RemoteNodeManager
@@ -218,7 +218,7 @@ public class RemoteNodeManagerImpl
             if ( null != remoteNode ) {
                 return remoteNode;
             }
-            remoteNode = factory.factoryNode(aNodeInfo, ioContext);
+            remoteNode = factory.factoryRemoteNode(aNodeInfo, ioContext);
             RemoteNodeConnection connection;
             try {
                 connection = remoteNode.newConnection();

@@ -28,7 +28,7 @@ import org.apache.geronimo.messaging.remotenode.RemoteNodeConnection;
 
 /**
  * 
- * @version $Revision: 1.2 $ $Date: 2004/06/03 14:39:44 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/24 23:39:03 $
  */
 public class RemoteNodeJoiner
     extends AbstractRemoteNode
@@ -48,7 +48,7 @@ public class RemoteNodeJoiner
 
     public RemoteNodeConnection newConnection()
         throws IOException, CommunicationException {
-        return connFactory.factoryNodeConnection(nodeInfo, ioContext);
+        return connFactory.factoryRemoteNodeConnection(nodeInfo, ioContext);
     }
     
 }

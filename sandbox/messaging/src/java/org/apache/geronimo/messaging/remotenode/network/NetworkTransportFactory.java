@@ -31,7 +31,7 @@ import org.apache.geronimo.system.ClockPool;
 /**
  * MessagingTransportFactory using Geronimo network as the transport layer.
  * 
- * @version $Revision: 1.2 $ $Date: 2004/06/10 23:12:25 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/24 23:39:03 $
  */
 public class NetworkTransportFactory
     implements GBeanLifecycle, MessagingTransportFactory
@@ -62,11 +62,11 @@ public class NetworkTransportFactory
         return new NodeServerImpl(aNodeInfo, anIOContext, sm, cp);
     }
     
-    public RemoteNode factoryNode(NodeInfo aNodeInfo, IOContext anIOContext) {
+    public RemoteNode factoryRemoteNode(NodeInfo aNodeInfo, IOContext anIOContext) {
         return new RemoteNodeJoiner(aNodeInfo, anIOContext, this);
     }
 
-    public RemoteNodeConnection factoryNodeConnection(
+    public RemoteNodeConnection factoryRemoteNodeConnection(
         NodeInfo aNodeInfo, IOContext anIOContext) {
         return new RemoteNodeJoinerConnection(aNodeInfo, anIOContext, sm);
     }

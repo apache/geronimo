@@ -24,7 +24,7 @@ import org.apache.geronimo.messaging.io.IOContext;
 /**
  * Transport layer factory.
  * 
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:42 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/24 23:39:03 $
  */
 public interface MessagingTransportFactory
 {
@@ -47,7 +47,7 @@ public interface MessagingTransportFactory
      * communicate with the remote node.
      * @return RemoteNode.
      */
-    public RemoteNode factoryNode(
+    public RemoteNode factoryRemoteNode(
         NodeInfo aNodeInfo, IOContext anIOContext);
 
     /**
@@ -58,7 +58,7 @@ public interface MessagingTransportFactory
      * communicate with the remote node.
      * @return RemoteNodeConnection.
      */
-    public RemoteNodeConnection factoryNodeConnection(
+    public RemoteNodeConnection factoryRemoteNodeConnection(
         NodeInfo aNodeInfo, IOContext anIOContext);
     
 }

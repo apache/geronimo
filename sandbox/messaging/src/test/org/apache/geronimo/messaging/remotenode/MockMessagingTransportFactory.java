@@ -19,11 +19,11 @@ public class MockMessagingTransportFactory
         return server;
     }
 
-    public RemoteNode factoryNode(NodeInfo aNodeInfo, IOContext anIOContext) {
+    public RemoteNode factoryRemoteNode(NodeInfo aNodeInfo, IOContext anIOContext) {
         return null;
     }
 
-    public RemoteNodeConnection factoryNodeConnection(
+    public RemoteNodeConnection factoryRemoteNodeConnection(
         NodeInfo aNodeInfo,
         IOContext anIOContext) {
         return null;
