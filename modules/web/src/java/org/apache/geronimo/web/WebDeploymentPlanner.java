@@ -70,6 +70,7 @@ import java.util.Set;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.transaction.UserTransaction;
+import javax.transaction.TransactionManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -94,6 +95,7 @@ import org.apache.geronimo.kernel.deployment.task.StopMBeanInstance;
 import org.apache.geronimo.kernel.jmx.JMXKernel;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.ReferenceFactory;
@@ -102,13 +104,14 @@ import org.apache.geronimo.transaction.manager.UserTransactionImpl;
 import org.apache.geronimo.xml.deployment.GeronimoWebAppLoader;
 import org.apache.geronimo.xml.deployment.LoaderUtil;
 import org.apache.geronimo.xml.deployment.WebAppLoader;
+import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/12/30 08:28:57 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/19 06:38:23 $
  *
  * */
 public class WebDeploymentPlanner extends AbstractDeploymentPlanner {
@@ -121,11 +124,16 @@ public class WebDeploymentPlanner extends AbstractDeploymentPlanner {
     private String webApplicationClass;
     private String containerName;
 
+    private TransactionManager transactionManager;
+    private TrackedConnectionAssociator trackedConnectionAssociator;
+
 
     public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
         GeronimoMBeanInfo mbeanInfo = AbstractDeploymentPlanner.getGeronimoMBeanInfo(WebDeploymentPlanner.class.getName());
         mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("WebApplicationClass", true, true, "Name of the class of WebApplications"));
         mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ContainerName", true, true, "Name of the Web Container"));
+        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("TransactionManager", TransactionManager.class, ObjectName.getInstance("geronimo.transaction:role=TransactionManager"), true));
+        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("TrackedConnectionAssociator", TrackedConnectionAssociator.class, ObjectName.getInstance("geronimo.connector:role=ConnectionTrackingCoordinator"), true));
         return mbeanInfo;
     }
 
@@ -143,6 +151,22 @@ public class WebDeploymentPlanner extends AbstractDeploymentPlanner {
 
     public void setContainerName(String containerName) {
         this.containerName = containerName;
+    }
+
+    public TransactionManager getTransactionManager() {
+        return transactionManager;
+    }
+
+    public void setTransactionManager(TransactionManager transactionManager) {
+        this.transactionManager = transactionManager;
+    }
+
+    public TrackedConnectionAssociator getTrackedConnectionAssociator() {
+        return trackedConnectionAssociator;
+    }
+
+    public void setTrackedConnectionAssociator(TrackedConnectionAssociator trackedConnectionAssociator) {
+        this.trackedConnectionAssociator = trackedConnectionAssociator;
     }
 
     /**
@@ -225,6 +249,8 @@ public class WebDeploymentPlanner extends AbstractDeploymentPlanner {
         webApplicationContext.geronimoWebAppDoc = geronimoWebAppDoc;
         webApplicationContext.contextPath = getContextPath(baseURI);
         webApplicationContext.userTransaction = new UserTransactionImpl();
+        webApplicationContext.userTransaction.setTransactionManager(transactionManager);
+        webApplicationContext.userTransaction.setTrackedConnectionAssociator(trackedConnectionAssociator);
         webApplicationContext.context = getComponentContext(geronimoWebAppDoc, webApplicationContext.userTransaction);
 
         MBeanMetadata metadata = new MBeanMetadata(webApplicationName,

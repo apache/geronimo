@@ -67,15 +67,24 @@ import java.util.Map;
 import javax.management.ObjectName;
 import javax.transaction.UserTransaction;
 import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.deployment.DeploymentModule;
 import org.apache.geronimo.deployment.ModuleFactory;
 import org.apache.geronimo.deployment.model.geronimo.web.GeronimoWebAppDocument;
 import org.apache.geronimo.deployment.service.GBeanDefault;
 import org.apache.geronimo.deployment.util.DeploymentHelper;
+import org.apache.geronimo.deployment.xml.ParserFactory;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
 import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
-import org.apache.geronimo.kernel.jmx.JMXKernel;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.ReferenceFactory;
@@ -93,25 +102,68 @@ import org.w3c.dom.Document;
  * --java2classloading compliance should be loaded from GeronimoWebDoc??
  * --we are using the Jetty classloader at the moment.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/17 01:32:38 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/19 06:38:23 $
  *
  * */
 public class WebDeployer implements ModuleFactory {
 
-    private final DocumentBuilder parser;
+    private static final Log log = LogFactory.getLog(WebDeployer.class);
+
+    private final static GBeanInfo GBEAN_INFO;
+
+    private final ParserFactory parserFactory;
 
     private final String type;//"Jetty"
-    private ObjectName transactionManager;
-    private ObjectName trackedConnectionAssociator;
-    private String webApplicationClass;
+    private ObjectName transactionManagerNamePattern;
+    private ObjectName trackedConnectionAssociatorNamePattern;
+    private final String webApplicationClass;
+    private boolean java2ClassLoadingCompliance;
 
 
-    public WebDeployer(DocumentBuilder parser, String type, String webApplicationClass, ObjectName transactionManager, ObjectName trackedConnectionAssociator) {
-        this.parser = parser;
+    public WebDeployer(ParserFactory parserFactory, String type, String webApplicationClass, boolean java2ClassLoadingCompliance, ObjectName transactionManagerNamePattern, ObjectName trackedConnectionAssociatorNamePattern) {
+        this.parserFactory = parserFactory;
         this.type = type;
         this.webApplicationClass = webApplicationClass;
-        this.transactionManager = transactionManager;
-        this.trackedConnectionAssociator = trackedConnectionAssociator;
+        this.java2ClassLoadingCompliance = java2ClassLoadingCompliance;
+        this.transactionManagerNamePattern = transactionManagerNamePattern;
+        this.trackedConnectionAssociatorNamePattern = trackedConnectionAssociatorNamePattern;
+    }
+
+    public ObjectName getTransactionManagerNamePattern() {
+        return transactionManagerNamePattern;
+    }
+
+    public void setTransactionManagerNamePattern(ObjectName transactionManagerNamePattern) {
+        this.transactionManagerNamePattern = transactionManagerNamePattern;
+    }
+
+    public ObjectName getTrackedConnectionAssociatorNamePattern() {
+        return trackedConnectionAssociatorNamePattern;
+    }
+
+    public void setTrackedConnectionAssociatorNamePattern(ObjectName trackedConnectionAssociatorNamePattern) {
+        this.trackedConnectionAssociatorNamePattern = trackedConnectionAssociatorNamePattern;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getWebApplicationClass() {
+        return webApplicationClass;
+    }
+
+    public boolean isJava2ClassLoadingCompliance() {
+        return java2ClassLoadingCompliance;
+    }
+
+    public void setJava2ClassLoadingCompliance(boolean java2ClassLoadingCompliance) {
+        this.java2ClassLoadingCompliance = java2ClassLoadingCompliance;
+    }
+
+    //endpoint
+    public ParserFactory getParserFactory() {
+        return parserFactory;
     }
 
     public DeploymentModule getModule(URLInfo urlInfo, URI moduleID) throws DeploymentException {
@@ -121,75 +173,44 @@ public class WebDeployer implements ModuleFactory {
         if (deploymentHelper.locateGeronimoDD() == null || deploymentHelper.locateJ2EEDD() == null) {
             return null;
         }
+        DocumentBuilder parser = null;
+        try {
+            parser = parserFactory.getParser();
+        } catch (ParserConfigurationException e) {
+            throw new DeploymentException("Could not configure parser", e);
+        }
         Document webAppDoc = deploymentHelper.getJ2EEDoc(parser);
         if (webAppDoc == null) {
             return null;
         }
+        GeronimoWebAppDocument geronimoWebAppDoc = null;
         Document geronimoWebAppDocument = deploymentHelper.getGeronimoDoc(parser);
         if (geronimoWebAppDocument == null) {
-            return null;
-        }
-        GeronimoWebAppDocument geronimoWebAppDoc = GeronimoWebAppLoader.load(geronimoWebAppDocument);
-
-        LinkedHashSet path = new LinkedHashSet();
-        //for now we rely on the Jetty/whatever classloader.
-
-        //I wonder what this does
-        URI baseURI = URI.create(urlInfo.getUrl().toString()).normalize();
-
-        Map values = new HashMap(8);
-        values.put("URI", baseURI);
-        values.put("ParentClassLoader", null);//What do we put here?
-        values.put("ContextPath", getContextPath(baseURI));
-        values.put("DeploymentDescriptor", webAppDoc);
-        values.put("GeronimoWebAppDoc", geronimoWebAppDoc);
-        values.put("Java2ClassloadingCompliance", Boolean.FALSE);
-        UserTransactionImpl userTransaction = new UserTransactionImpl();
-        values.put("ComponentContext", getComponentContext(geronimoWebAppDoc, userTransaction));
-        values.put("UserTransaction", userTransaction);
-
-        Map endpoints = new HashMap(2);
-        endpoints.put("TransactionManager", Collections.singleton(transactionManager));
-        endpoints.put("TrackedConnectionAssociator", Collections.singleton(trackedConnectionAssociator));
-
-        List gbeanDefaults = Collections.singletonList(new GBeanDefault(webApplicationClass, getWebApplicationObjectName(baseURI), values, endpoints));
-        return new WebModule(moduleID, urlInfo, new ArrayList(path), gbeanDefaults);
-
-    }
-
-    private String getContextPath(URI baseURI) {
-        String path = baseURI.getPath();
-
-        if (path.endsWith("/")) {
-            path = path.substring(0, path.length() - 1);
-        }
-
-        int sepIndex = path.lastIndexOf('/');
-        if (sepIndex > 0) {
-            path = path.substring(sepIndex + 1);
-        }
-
-        if (path.endsWith(".war")) {
-            path = path.substring(0, path.length() - 4);
-        }
-
-        return "/" + path;
-    }
-
-
-    private ReadOnlyContext getComponentContext(GeronimoWebAppDocument geronimoWebAppDoc, UserTransaction userTransaction) throws DeploymentException {
-        if (geronimoWebAppDoc != null) {
-            ReferenceFactory referenceFactory = new JMXReferenceFactory(null);//JMXKernel.getMBeanServerId(getServer()));
-            ComponentContextBuilder builder = new ComponentContextBuilder(referenceFactory, userTransaction);
-            ReadOnlyContext context = builder.buildContext(geronimoWebAppDoc.getWebApp());
-            return context;
+            log.info("No Geronimo dd found, no local jndi context will be available");
         } else {
-            return null;
+            geronimoWebAppDoc = GeronimoWebAppLoader.load(geronimoWebAppDocument);
         }
+
+        return new WebModule(moduleID, urlInfo, webAppDoc, geronimoWebAppDoc, this);
     }
 
-    private String getWebApplicationObjectName(URI baseURI) {
-        return AbstractWebContainer.BASE_WEB_APPLICATION_NAME + AbstractWebContainer.CONTAINER_CLAUSE + type + ",module=" + ObjectName.quote(baseURI.toString());
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(WebDeployer.class.getName());
+        infoFactory.addAttribute(new GAttributeInfo("Type", true));
+        infoFactory.addAttribute(new GAttributeInfo("WebApplicationClass", true));
+        infoFactory.addAttribute(new GAttributeInfo("Java2ClassLoadingCompliance", true));
+        infoFactory.addAttribute(new GAttributeInfo("TransactionManagerNamePattern", true));
+        infoFactory.addAttribute(new GAttributeInfo("TrackedConnectionAssociatorNamePattern", true));
+        infoFactory.addOperation(new GOperationInfo("getModule", new String[]{URLInfo.class.getName(), URI.class.getName()}));
+        infoFactory.addEndpoint(new GEndpointInfo("ParserFactory", ParserFactory.class.getName()));
+        infoFactory.setConstructor(new GConstructorInfo(new String[]{"ParserFactory", "Type", "WebApplicationClass", "Java2ClassLoadingCompliance", "TransactionManagerNamePattern", "TrackedConnectionAssociatorNamePattern"},
+                new Class[]{ParserFactory.class, String.class, String.class, Boolean.TYPE, ObjectName.class, ObjectName.class}));
+        GBEAN_INFO = infoFactory.getBeanInfo();
+
     }
 
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
 }

@@ -24,6 +24,7 @@ import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
 import org.apache.geronimo.web.AbstractWebApplication;
 import org.apache.geronimo.transaction.manager.UserTransactionImpl;
 import org.mortbay.jetty.servlet.WebApplicationContext;
+import org.w3c.dom.Document;
 
 
 /**
@@ -32,7 +33,7 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
  *
  * Created: Sun Sep 14 16:40:17 2003
  *
- * @version $Revision: 1.12 $ $Date: 2004/01/16 23:31:21 $
+ * @version $Revision: 1.13 $ $Date: 2004/01/19 06:38:23 $
  */
 public class JettyWebApplication extends AbstractWebApplication {
 
@@ -48,21 +49,20 @@ public class JettyWebApplication extends AbstractWebApplication {
         super(new org.apache.geronimo.web.WebApplicationContext());
     }
 
-    public JettyWebApplication(URI uri, ClassLoader parentClassLoader, WebApp webApp, GeronimoWebAppDocument geronimoWebAppDocument, String contextPath,
-                               Context context, boolean java2ClassLoadingCompliance, UserTransactionImpl userTransaction, TransactionManager transactionManager, TrackedConnectionAssociator trackedConnectionAssociator) {
-        super(uri, parentClassLoader, webApp, geronimoWebAppDocument, contextPath, context,
+    public JettyWebApplication(URI uri, String contextID, ClassLoader parentClassLoader, Document deploymentDescriptorDoc, GeronimoWebAppDocument geronimoWebAppDocument, String contextPath,
+                               Context componentContext, boolean java2ClassLoadingCompliance, UserTransactionImpl userTransaction, TransactionManager transactionManager, TrackedConnectionAssociator trackedConnectionAssociator) {
+        super(uri, contextID, parentClassLoader, deploymentDescriptorDoc, geronimoWebAppDocument, contextPath, componentContext,
                 java2ClassLoadingCompliance, userTransaction, transactionManager, trackedConnectionAssociator);
         if (uri == null) {
             jettyContext = new JettyWebApplicationContext();
         } else {
-            jettyContext = new JettyWebApplicationContext(uri.toString());
+            jettyContext = new JettyWebApplicationContext(uri.toString(), contextID, componentContext, transactionManager, trackedConnectionAssociator);
         }
         //we could perhaps use geronimo classloading
         //jettyContext.setClassLoader(classLoader);
         jettyContext.setParentClassLoader(parentClassLoader);
         jettyContext.setContextPath(contextPath);
         jettyContext.setClassLoaderJava2Compliant(java2ClassLoadingCompliance);
-        jettyContext.setComponentContext(context);
     }
 
     /**
@@ -75,14 +75,17 @@ public class JettyWebApplication extends AbstractWebApplication {
         if (uri == null) {
             jettyContext = new JettyWebApplicationContext();
         } else {
-            jettyContext = new JettyWebApplicationContext(uri.toString());
+            jettyContext = new JettyWebApplicationContext(uri.toString(),
+                    null,
+                    webApplicationContext.context,
+                    webApplicationContext.userTransaction.getTransactionManager(),
+                    webApplicationContext.userTransaction.getTrackedConnectionAssociator());
         }
         //we could perhaps use geronimo classloading
         //jettyContext.setClassLoader(webApplicationContext.classLoader);
         jettyContext.setParentClassLoader(webApplicationContext.parentClassLoader);
         jettyContext.setContextPath(webApplicationContext.contextPath);
         jettyContext.setClassLoaderJava2Compliant(webApplicationContext.java2ClassLoadingCompliance);
-        jettyContext.setComponentContext(webApplicationContext.context);
 
     }
 

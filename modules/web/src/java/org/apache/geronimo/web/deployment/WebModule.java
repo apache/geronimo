@@ -57,40 +57,49 @@
 package org.apache.geronimo.web.deployment;
 
 import java.net.URI;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.net.URLClassLoader;
+import java.util.Arrays;
+import java.util.Collections;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.deployment.ConfigurationCallback;
 import org.apache.geronimo.deployment.DeploymentModule;
-import org.apache.geronimo.deployment.service.GBeanDefault;
+import org.apache.geronimo.deployment.model.geronimo.web.GeronimoWebAppDocument;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
 import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
+import org.apache.geronimo.naming.java.ComponentContextBuilder;
+import org.apache.geronimo.naming.java.ReadOnlyContext;
+import org.apache.geronimo.naming.java.ReferenceFactory;
+import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
+import org.apache.geronimo.transaction.manager.UserTransactionImpl;
+import org.apache.geronimo.web.AbstractWebContainer;
+import org.w3c.dom.Document;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/16 23:42:54 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/19 06:38:23 $
  *
  * */
 public class WebModule implements DeploymentModule {
     private final URI moduleID;
     private final URLInfo urlInfo;
-    private final List pathURIs;
-    private final List gbeanDefaults;
+    private Document deploymentDescriptorDoc;
+    private GeronimoWebAppDocument geronimoWebAppDoc;
+    private WebDeployer webDeployer;
 
-    public WebModule(URI moduleID, URLInfo urlInfo, List urls, List gbeanDefaults) {
+    public WebModule(URI moduleID, URLInfo urlInfo, Document webAppDoc, GeronimoWebAppDocument geronimoWebAppDoc, WebDeployer webDeployer) {
         this.moduleID = moduleID;
         this.urlInfo = urlInfo;
-        this.pathURIs = urls;
-        this.gbeanDefaults = gbeanDefaults;
+        this.deploymentDescriptorDoc = webAppDoc;
+        this.geronimoWebAppDoc = geronimoWebAppDoc;
+        this.webDeployer = webDeployer;
     }
 
 
@@ -102,47 +111,94 @@ public class WebModule implements DeploymentModule {
     }
 
     public void defineGBeans(ConfigurationCallback callback, ClassLoader cl) throws DeploymentException {
-        for (Iterator i = gbeanDefaults.iterator(); i.hasNext();) {
-            GBeanDefault defs = (GBeanDefault) i.next();
-            ObjectName name;
-            try {
-                name = new ObjectName(defs.getObjectName());
-            } catch (MalformedObjectNameException e) {
-                throw new DeploymentException("Invalid JMX ObjectName: " + defs.getObjectName(), e);
-            }
-
-            GBeanInfo gbeanInfo = defs.getGBeanInfo();
-            if (gbeanInfo == null) {
-                String className = defs.getClassName();
-                try {
-                    gbeanInfo = GBeanInfo.getGBeanInfo(className, cl);
-                } catch (InvalidConfigurationException e) {
-                    throw new DeploymentException("Unable to get GBeanInfo from class " + className, e);
-                }
-            }
-
-            GBeanMBean gbean;
-            try {
-                gbean = new GBeanMBean(gbeanInfo);
-            } catch (InvalidConfigurationException e) {
-                throw new DeploymentException("Unable to create GMBean", e);
-            }
-            for (Iterator j = defs.getValues().entrySet().iterator(); j.hasNext();) {
-                Map.Entry entry = (Map.Entry) j.next();
-                try {
-                    gbean.setAttribute((String) entry.getKey(), entry.getValue());
-                } catch (Exception e) {
-                    throw new DeploymentException("Unable to set GMBean attribute " + entry.getKey(), e);
-                }
-            }
-            for (Iterator iterator = defs.getEndpoints().entrySet().iterator(); iterator.hasNext();) {
-                Map.Entry entry = (Map.Entry) iterator.next();
-                gbean.setEndpointPatterns((String) entry.getKey(), (Set) entry.getValue());
-            }
-            callback.addGBean(name, gbean);
+        GBeanInfo gbeanInfo;
+        try {
+            gbeanInfo = GBeanInfo.getGBeanInfo(webDeployer.getWebApplicationClass(), cl);
+        } catch (InvalidConfigurationException e) {
+            throw new DeploymentException("Unable to get GBeanInfo from class " + webDeployer.getWebApplicationClass(), e);
         }
+
+        GBeanMBean gbean;
+        try {
+            gbean = new GBeanMBean(gbeanInfo);
+        } catch (InvalidConfigurationException e) {
+            throw new DeploymentException("Unable to create GMBean", e);
+        }
+
+        try {
+            getClass().getClassLoader().loadClass("org.apache.jasper.servlet.JspServlet");
+        } catch (ClassNotFoundException e) {
+            throw new DeploymentException("Could not load jsp servlet class: urls: " + Arrays.asList(((URLClassLoader)getClass().getClassLoader()).getURLs()), e);
+        }
+
+        //I wonder what this does
+        URI baseURI = URI.create(urlInfo.getUrl().toString()).normalize();
+
+        try {
+            gbean.setAttribute("URI", baseURI);
+            //this needs to be an endpoint to ConfigurationParent
+            gbean.setAttribute("ParentClassLoader", null);//What do we put here?
+            gbean.setAttribute("ContextPath", getContextPath(baseURI));
+            gbean.setAttribute("DeploymentDescriptorDoc", deploymentDescriptorDoc);
+            gbean.setAttribute("GeronimoWebAppDoc", geronimoWebAppDoc);
+            gbean.setAttribute("Java2ClassLoadingCompliance", Boolean.valueOf(webDeployer.isJava2ClassLoadingCompliance()));
+            UserTransactionImpl userTransaction = new UserTransactionImpl();
+            gbean.setAttribute("ComponentContext", getComponentContext(geronimoWebAppDoc, userTransaction));
+            gbean.setAttribute("UserTransaction", userTransaction);
+        } catch (Exception e) {
+            throw new DeploymentException("Unable to set WebApplication attribute", e);
+        }
+
+        gbean.setEndpointPatterns("TransactionManager", Collections.singleton(webDeployer.getTransactionManagerNamePattern()));
+        gbean.setEndpointPatterns("TrackedConnectionAssociator", Collections.singleton(webDeployer.getTrackedConnectionAssociatorNamePattern()));
+
+
+        ObjectName name;
+        try {
+            name = ObjectName.getInstance(getWebApplicationObjectName());
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Invalid JMX ObjectName: " + getWebApplicationObjectName(), e);
+        }
+
+        callback.addGBean(name, gbean);
     }
 
     public void complete() {
     }
+
+    private String getContextPath(URI baseURI) {
+        String path = baseURI.getPath();
+
+        if (path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
+
+        int sepIndex = path.lastIndexOf('/');
+        if (sepIndex > 0) {
+            path = path.substring(sepIndex + 1);
+        }
+
+        if (path.endsWith(".war")) {
+            path = path.substring(0, path.length() - 4);
+        }
+
+        return "/" + path;
+    }
+
+
+    private ReadOnlyContext getComponentContext(GeronimoWebAppDocument geronimoWebAppDoc, UserTransaction userTransaction) throws DeploymentException {
+        if (geronimoWebAppDoc != null) {
+            ReferenceFactory referenceFactory = new JMXReferenceFactory(null);//JMXKernel.getMBeanServerId(getServer()));
+            ComponentContextBuilder builder = new ComponentContextBuilder(referenceFactory, userTransaction);
+            ReadOnlyContext context = builder.buildContext(geronimoWebAppDoc.getWebApp());
+            return context;
+        } else {
+            return null;
+        }
+    }
+
+    private String getWebApplicationObjectName() {
+        return AbstractWebContainer.BASE_WEB_APPLICATION_NAME + AbstractWebContainer.CONTAINER_CLAUSE + webDeployer.getType() + ",module=" + ObjectName.quote(moduleID.toString());
+    }
+
 }

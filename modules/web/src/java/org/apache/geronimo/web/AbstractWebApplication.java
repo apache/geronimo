@@ -85,7 +85,7 @@ import org.w3c.dom.Document;
  * Instances are created by a deployer. The deployer finds the
  * WebContainer and associates it with the WebApplication.
  *
- * @version $Revision: 1.15 $ $Date: 2004/01/16 23:31:21 $
+ * @version $Revision: 1.16 $ $Date: 2004/01/19 06:38:23 $
  */
 public abstract class AbstractWebApplication implements WebApplication {
 
@@ -107,40 +107,42 @@ public abstract class AbstractWebApplication implements WebApplication {
     protected String deploymentDescriptorStr;
 
     //jndi context for webapp
-    protected Context context;
+    private Context componentContext;
 
     //servlet definitions
     protected String[] servlets;
 
-    // context path of webapp
+    // componentContext path of webapp
     protected String contextPath;
 
     //class loading delegation model. Default to web-app scope
     private boolean java2ClassLoadingCompliance;
     private ClassLoader parentClassLoader;
     private UserTransactionImpl userTransaction;
+    private String contextID;
 
     /**
      * User transaction must be a parameter since it is also possibly already included in the ReadOnlyContext
      * @param uri
      * @param parentClassLoader
-     * @param webApp
+     * @param deploymentDescriptorDoc
      * @param geronimoWebAppDocument
      * @param contextPath
-     * @param context
+     * @param componentContext
      * @param java2ClassLoadingCompliance
      * @param userTransaction
      * @param transactionManager
      * @param trackedConnectionAssociator
      */
-    public AbstractWebApplication(URI uri, ClassLoader parentClassLoader, WebApp webApp, GeronimoWebAppDocument geronimoWebAppDocument, String contextPath,
-                                  Context context, boolean java2ClassLoadingCompliance, UserTransactionImpl userTransaction, TransactionManager transactionManager, TrackedConnectionAssociator trackedConnectionAssociator) {
+    public AbstractWebApplication(URI uri, String contextID, ClassLoader parentClassLoader, Document deploymentDescriptorDoc, GeronimoWebAppDocument geronimoWebAppDocument, String contextPath,
+                                  Context componentContext, boolean java2ClassLoadingCompliance, UserTransactionImpl userTransaction, TransactionManager transactionManager, TrackedConnectionAssociator trackedConnectionAssociator) {
         this.uri = uri;
+        this.contextID = contextID;
         this.parentClassLoader = parentClassLoader;
-        this.webApp = webApp;
+        this.deploymentDescriptorDoc = deploymentDescriptorDoc;
         this.geronimoWebAppDoc = geronimoWebAppDocument;
         this.contextPath = contextPath;
-        this.context = context;
+        this.componentContext = componentContext;
         this.java2ClassLoadingCompliance = java2ClassLoadingCompliance;
         this.userTransaction = userTransaction;
         userTransaction.setTransactionManager(transactionManager);
@@ -156,9 +158,17 @@ public abstract class AbstractWebApplication implements WebApplication {
         webApp = webApplicationContext.webApp;
         geronimoWebAppDoc = webApplicationContext.geronimoWebAppDoc;
         contextPath = webApplicationContext.contextPath;
-        context = webApplicationContext.context;
+        componentContext = webApplicationContext.context;
         userTransaction = webApplicationContext.userTransaction;
         java2ClassLoadingCompliance = webApplicationContext.java2ClassLoadingCompliance;
+    }
+
+    public UserTransactionImpl getUserTransaction() {
+        return userTransaction;
+    }
+
+    public void setUserTransaction(UserTransactionImpl userTransaction) {
+        this.userTransaction = userTransaction;
     }
 
     public TransactionManager getTransactionManager() {
@@ -177,6 +187,22 @@ public abstract class AbstractWebApplication implements WebApplication {
         userTransaction.setTrackedConnectionAssociator(trackedConnectionAssociator);
     }
 
+    public Document getDeploymentDescriptorDoc() {
+        return deploymentDescriptorDoc;
+    }
+
+    public void setDeploymentDescriptorDoc(Document deploymentDescriptorDoc) {
+        this.deploymentDescriptorDoc = deploymentDescriptorDoc;
+    }
+
+    public String getContextID() {
+        return contextID;
+    }
+
+    public void setContextID(String contextID) {
+        this.contextID = contextID;
+    }
+
     /** Get the URI of this webapp
      * @return the URI of the webapp
      * @see org.apache.geronimo.web.WebApplication#getURI()
@@ -188,7 +214,7 @@ public abstract class AbstractWebApplication implements WebApplication {
     /**
      * Getter for classloading compliance. If true, then classloading will
      * delegate first to parent classloader a la Java2 spec. If false, then
-     * webapps wanting to load class will try their own context class loader first.
+     * webapps wanting to load class will try their own componentContext class loader first.
      * @return true if application is using Java 2 compliant class loading
      */
     public boolean getJava2ClassLoadingCompliance() {
@@ -201,7 +227,7 @@ public abstract class AbstractWebApplication implements WebApplication {
      * @see org.apache.geronimo.web.WebApplication#getComponentContext()
      */
     public Context getComponentContext() {
-        return context;
+        return componentContext;
     }
 
     /*
@@ -283,19 +309,21 @@ public abstract class AbstractWebApplication implements WebApplication {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractWebApplication.class.getName());
         infoFactory.addAttribute(new GAttributeInfo("URI", true));
+        infoFactory.addAttribute(new GAttributeInfo("ContextID", true));
         infoFactory.addAttribute(new GAttributeInfo("ParentClassLoader", true));
         infoFactory.addAttribute(new GAttributeInfo("ContextPath", true));
-        infoFactory.addAttribute(new GAttributeInfo("DeploymentDescriptor", true));
+        infoFactory.addAttribute(new GAttributeInfo("DeploymentDescriptorDoc", true));
         infoFactory.addAttribute(new GAttributeInfo("GeronimoWebAppDoc", true));
-        infoFactory.addAttribute(new GAttributeInfo("Java2ClassloadingCompliance", true));
+        infoFactory.addAttribute(new GAttributeInfo("Java2ClassLoadingCompliance", true));
         infoFactory.addAttribute(new GAttributeInfo("ComponentContext", true));
         infoFactory.addAttribute(new GAttributeInfo("Servlets", false));
+        infoFactory.addAttribute(new GAttributeInfo("UserTransaction", true));
         infoFactory.addEndpoint(new GEndpointInfo("TransactionManager", TransactionManager.class.getName()));
         infoFactory.addEndpoint(new GEndpointInfo("TrackedConnectionAssociator", TrackedConnectionAssociator.class.getName()));
         infoFactory.setConstructor(new GConstructorInfo(
-                Arrays.asList(new Object[]{"URI", "ParentClassLoader", "WebApp", "GeronimoWebAppDoc", "ContextPath",
-                                  "Context", "Java2ClassLoadingCompliance", "UserTransaction",  "TransactionManager", "TrackedConnectionAssociator"}),
-                Arrays.asList(new Object[]{URI.class, ClassLoader.class, WebApp.class, GeronimoWebAppDocument.class, String.class,
+                Arrays.asList(new Object[]{"URI", "ContextID", "ParentClassLoader", "DeploymentDescriptorDoc", "GeronimoWebAppDoc", "ContextPath",
+                                  "ComponentContext", "Java2ClassLoadingCompliance", "UserTransaction",  "TransactionManager", "TrackedConnectionAssociator"}),
+                Arrays.asList(new Object[]{URI.class, String.class, ClassLoader.class, Document.class, GeronimoWebAppDocument.class, String.class,
                                   Context.class, Boolean.TYPE, UserTransactionImpl.class, TransactionManager.class, TrackedConnectionAssociator.class})
         ));
 
