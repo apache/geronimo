@@ -224,11 +224,7 @@ public class Deployer {
         try {
             command.install = cmd.hasOption('I');
             if (cmd.hasOption('o')) {
-                URI uri = getURI(cmd.getOptionValue('o'));
-                if (!"file".equals(uri.getScheme())) {
-                    throw new DeploymentException("Output file can only be written to the local file system");
-                }
-                command.carFile = new File(uri);
+                command.carFile = new File(cmd.getOptionValue('o'));
             }
             if (cmd.hasOption('p')) {
                 URI uri = getURI(cmd.getOptionValue('p'));
@@ -290,6 +286,14 @@ public class Deployer {
     }
 
     private static URI getURI(String location) throws DeploymentException {
+		// on windows the location may be an absolute path including a drive letter
+		// this will cause uri.resolve to fail because of the presence of a ':' character
+		// to stop this we first try locating the uri using a File object
+		File file = new File(location);
+		if (file.exists() && file.canRead()) {
+			return file.toURI();
+		}
+
         URI uri = new File(".").toURI().resolve(location);
         if (!"file".equals(uri.getScheme()) && uri.getPath().endsWith("/")) {
             throw new DeploymentException("Unpacked modules can only be loaded from the local file system");
