@@ -55,6 +55,9 @@
  */
 package org.apache.geronimo.security;
 
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import javax.security.auth.Subject;
 import javax.security.jacc.EJBRoleRefPermission;
 
@@ -62,6 +65,8 @@ import java.io.Serializable;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
 import java.security.AccessController;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.PrivilegedAction;
 import java.util.Hashtable;
@@ -70,8 +75,7 @@ import java.util.Map;
 
 
 /**
- *
- * @version $Revision: 1.4 $ $Date: 2004/02/17 00:05:39 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/18 03:54:21 $
  */
 public class ContextManager {
     private static ThreadLocal currentCallerId = new ThreadLocal();
@@ -83,6 +87,15 @@ public class ContextManager {
     private static Map principals = new Hashtable();
 
     private static long nextPrincipalId = System.currentTimeMillis();
+
+    private static SecretKey key;
+    private static String algorithm;
+    private static String password;
+
+    static {
+        password = "secret";
+        ContextManager.setAlgorithm("HmacSHA1");
+    }
 
 
     public static final GeronimoSecurityPermission GET_CONTEXT = new GeronimoSecurityPermission("getContext");
@@ -147,9 +160,11 @@ public class ContextManager {
         if (sm != null) sm.checkPermission(GET_CONTEXT);
 
         Object caller = currentCaller.get();
-        if (caller == null){
-            return new Principal(){
-                public String getName(){return "";}
+        if (caller == null) {
+            return new Principal() {
+                public String getName() {
+                    return "";
+                }
             };
         }
         Context context = (Context) subjectContexts.get(currentCaller.get());
@@ -159,7 +174,7 @@ public class ContextManager {
         return context.principal;
     }
 
-    public static Long getCurrentId() {
+    public static SubjectId getCurrentId() {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(GET_CONTEXT);
 
@@ -170,7 +185,7 @@ public class ContextManager {
         return context.id;
     }
 
-    public static Long getSubjectId(Subject subject) {
+    public static SubjectId getSubjectId(Subject subject) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(GET_CONTEXT);
 
@@ -186,7 +201,7 @@ public class ContextManager {
         try {
             Object caller = currentCaller.get();
             if (caller == null) return false;
-            
+
             Context context = (Context) subjectContexts.get(currentCaller.get());
 
             assert context != null : "No registered context";
@@ -198,11 +213,11 @@ public class ContextManager {
         return true;
     }
 
-    public static Subject getRegisteredSubject(Long id) {
+    public static Subject getRegisteredSubject(SubjectId id) {
         return (Subject) subjectIds.get(id);
     }
 
-    public static synchronized Long registerSubject(Subject subject) {
+    public static synchronized SubjectId registerSubject(Subject subject) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(SET_CONTEXT);
 
@@ -225,7 +240,8 @@ public class ContextManager {
             context.principal = (Principal) subject.getPrincipals().iterator().next();
         }
 
-        context.id = new Long(nextSubjectId++);
+        Long id = new Long(nextSubjectId++);
+        context.id = new SubjectId(id, hash(id));
 
         subjectIds.put(context.id, subject);
         subjectContexts.put(subject, context);
@@ -269,12 +285,76 @@ public class ContextManager {
         return result;
     }
 
+    public static String getAlgorithm() {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(GET_CONTEXT);
+
+        return algorithm;
+    }
+
+    public static void setAlgorithm(String algorithm) {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(SET_CONTEXT);
+
+        ContextManager.algorithm = algorithm;
+
+        key = new SecretKeySpec(password.getBytes(), algorithm);
+
+        /**
+         * Make sure that we can generate the  Mac.
+         */
+        try {
+            Mac mac = Mac.getInstance(algorithm);
+            mac.init(key);
+        } catch (NoSuchAlgorithmException e) {
+            assert false : "Should never have reached here";
+        } catch (InvalidKeyException e) {
+            assert false : "Should never have reached here";
+        }
+    }
+
+    public static String getPassword() {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(GET_CONTEXT);
+
+        return password;
+    }
+
+    public static void setPassword(String password) {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(SET_CONTEXT);
+
+        ContextManager.password = password;
+
+        key = new SecretKeySpec(password.getBytes(), algorithm);
+    }
+
+    private static byte[] hash(Long id) {
+        long n = id.longValue();
+        byte[] bytes = new byte[8];
+        for (int i = 7; i >= 0; i--) {
+            bytes[i] = (byte) (n);
+            n >>>= 8;
+        }
+
+        try {
+            Mac mac = Mac.getInstance(algorithm);
+            mac.init(key);
+            mac.update(bytes);
+
+            return mac.doFinal();
+        } catch (NoSuchAlgorithmException e) {
+        } catch (InvalidKeyException e) {
+        }
+        assert false : "Should never have reached here";
+        return null;
+    }
 
     private static class Context {
-        Long id;
+        SubjectId id;
         AccessControlContext context;
         Subject subject;
         Principal principal;
     }
-    
+
 }

@@ -70,7 +70,7 @@ import org.apache.geronimo.security.RealmPrincipal;
 
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/02/17 00:05:40 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/18 03:54:21 $
  */
 public class LoginSQLTest extends AbstractTest {
 
@@ -157,7 +157,7 @@ public class LoginSQLTest extends AbstractTest {
         assertEquals("subject should have two realm principals", 2, subject.getPrincipals(RealmPrincipal.class).size());
         assertEquals("subject should have one remote principal", 1, subject.getPrincipals(IdentificationPrincipal.class).size());
         IdentificationPrincipal principal = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
-        assertTrue("id of principal should be non-zero", principal.getId().longValue() != 0);
+        assertTrue("id of principal should be non-zero", principal.getId().getSubjectId().longValue() != 0);
 
         context.logout();
     }
@@ -173,7 +173,7 @@ public class LoginSQLTest extends AbstractTest {
         assertEquals("subject should have two realm principals", 2, subject.getPrincipals(RealmPrincipal.class).size());
         assertEquals("subject should have one remote principal", 1, subject.getPrincipals(IdentificationPrincipal.class).size());
         IdentificationPrincipal principal = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
-        assertTrue("id of principal should be non-zero", principal.getId().longValue() != 0);
+        assertTrue("id of principal should be non-zero", principal.getId().getSubjectId().longValue() != 0);
 
         Thread.sleep(2 * 1000);
 
@@ -190,7 +190,7 @@ public class LoginSQLTest extends AbstractTest {
             assertEquals("subject should have two realm principals", 2, subject.getPrincipals(RealmPrincipal.class).size());
             assertEquals("subject should have one remote principal", 1, subject.getPrincipals(IdentificationPrincipal.class).size());
             principal = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
-            assertTrue("id of principal should be non-zero", principal.getId().longValue() != 0);
+            assertTrue("id of principal should be non-zero", principal.getId().getSubjectId().longValue() != 0);
 
             context.logout();
         }
@@ -207,7 +207,7 @@ public class LoginSQLTest extends AbstractTest {
         assertEquals("subject should have two realm principals", 2, subject.getPrincipals(RealmPrincipal.class).size());
         assertEquals("subject should have one remote principal", 1, subject.getPrincipals(IdentificationPrincipal.class).size());
         IdentificationPrincipal principal = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
-        assertTrue("id of principal should be non-zero", principal.getId().longValue() != 0);
+        assertTrue("id of principal should be non-zero", principal.getId().getSubjectId().longValue() != 0);
 
         context.logout();
         context.login();
@@ -229,7 +229,7 @@ public class LoginSQLTest extends AbstractTest {
         assertEquals("subject should have two realm principals", 2, subject.getPrincipals(RealmPrincipal.class).size());
         assertEquals("subject should have one remote principal", 1, subject.getPrincipals(IdentificationPrincipal.class).size());
         principal = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
-        assertTrue("id of principal should be non-zero", principal.getId().longValue() != 0);
+        assertTrue("id of principal should be non-zero", principal.getId().getSubjectId().longValue() != 0);
 
         context.logout();
     }

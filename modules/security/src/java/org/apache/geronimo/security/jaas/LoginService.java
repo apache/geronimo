@@ -69,9 +69,9 @@ import javax.security.auth.spi.LoginModule;
 
 import java.io.IOException;
 import java.security.AccessController;
-import java.security.Principal;
-import java.security.NoSuchAlgorithmException;
 import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -101,13 +101,14 @@ import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.GeronimoSecurityException;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
+import org.apache.geronimo.security.SubjectId;
 import org.apache.geronimo.security.realm.SecurityRealm;
 
 
 /**
  * An MBean that maintains a list of security realms.
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/17 04:30:29 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/18 03:54:21 $
  */
 public class LoginService implements LoginServiceMBean, GBean {
 
@@ -355,9 +356,9 @@ public class LoginService implements LoginServiceMBean, GBean {
 
         ContextManager.registerSubject(subject);
 
-        Long id = ContextManager.getSubjectId(lm.getSubject());
+        SubjectId id = ContextManager.getSubjectId(lm.getSubject());
 
-        subject.getPrincipals().add(new IdentificationPrincipal(id, hash(id)));
+        subject.getPrincipals().add(new IdentificationPrincipal(id));
 
         return true;
     }

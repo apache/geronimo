@@ -81,10 +81,11 @@ import org.apache.geronimo.security.jaas.LoginServiceMBean;
 
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/02/17 00:05:40 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/18 03:54:21 $
  */
 public class RemoteLoginTest extends TestCase {
     Kernel kernel;
+    ObjectName gssapiRegistration;
     ObjectName loginService;
     ObjectName kerberosRealm;
     ObjectName subsystemRouter;
@@ -109,7 +110,7 @@ public class RemoteLoginTest extends TestCase {
         assertTrue("expected non-null subject", subject != null);
         assertTrue("subject should have one remote principal", subject.getPrincipals(IdentificationPrincipal.class).size() == 1);
         IdentificationPrincipal principal = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
-        assertTrue("id of principal should be non-zero", principal.getId().longValue() != 0);
+        assertTrue("id of principal should be non-zero", principal.getId().getSubjectId().longValue() != 0);
         assertTrue("subject should have five principals", subject.getPrincipals().size() == 5);
         assertTrue("subject should have two realm principal", subject.getPrincipals(RealmPrincipal.class).size() == 2);
 
@@ -123,6 +124,12 @@ public class RemoteLoginTest extends TestCase {
         GBeanMBean gbean;
 
         // Create all the parts
+        gbean = new GBeanMBean("org.apache.geronimo.remoting.transport.TransportRegistration");
+        gssapiRegistration = new ObjectName("geronimo.remoting:registration=gssapi");
+        gbean.setAttribute("TransportFactory", "org.apache.geronimo.remoting.transport.async.TransportFactory");
+        gbean.setAttribute("TransportName", "gssapi");
+        kernel.loadGBean(gssapiRegistration, gbean);
+
         gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginService");
         loginService = new ObjectName("geronimo.security:type=LoginService");
         gbean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
@@ -181,6 +188,7 @@ public class RemoteLoginTest extends TestCase {
         serverStub = new ObjectName("geronimo.remoting:target=LoginServiceStub");
         kernel.loadGBean(serverStub, gbean);
 
+        kernel.startGBean(gssapiRegistration);
         kernel.startGBean(loginService);
         kernel.startGBean(kerberosRealm);
         kernel.startGBean(subsystemRouter);
@@ -216,7 +224,9 @@ public class RemoteLoginTest extends TestCase {
         kernel.stopGBean(subsystemRouter);
         kernel.stopGBean(kerberosRealm);
         kernel.stopGBean(loginService);
+        kernel.stopGBean(gssapiRegistration);
 
+        kernel.unloadGBean(gssapiRegistration);
         kernel.unloadGBean(loginService);
         kernel.unloadGBean(kerberosRealm);
         kernel.unloadGBean(subsystemRouter);

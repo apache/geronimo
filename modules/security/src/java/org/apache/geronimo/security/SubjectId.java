@@ -56,75 +56,74 @@
 package org.apache.geronimo.security;
 
 import java.io.Serializable;
-import java.security.Principal;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/02/18 03:54:21 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/18 03:54:21 $
  */
-public class IdentificationPrincipal implements Principal, Serializable {
-    private final SubjectId id;
+public class SubjectId implements Serializable {
+    private final Long subjectId;
+    private final byte[] hash;
+    private transient int hashCode;
     private transient String name;
 
-    public IdentificationPrincipal(SubjectId id) {
-        this.id = id;
+    public SubjectId(Long subjectId, byte[] hash) {
+        this.subjectId = subjectId;
+        this.hash = hash;
     }
 
-    public SubjectId getId() {
-        return id;
+    public Long getSubjectId() {
+        return subjectId;
     }
 
-    /**
-     * Compares this principal to the specified object.  Returns true
-     * if the object passed in matches the principal represented by
-     * the implementation of this interface.
-     *
-     * @param another principal to compare with.
-     * @return true if the principal passed in is the same as that
-     *         encapsulated by this principal, and false otherwise.
-     */
-    public boolean equals(Object another) {
-        if (!(another instanceof IdentificationPrincipal)) return false;
-
-        IdentificationPrincipal idPrincipal = (IdentificationPrincipal) another;
-
-        return id == idPrincipal.id;
+    public byte[] getHash() {
+        return hash;
     }
 
-    /**
-     * Returns a string representation of this principal.
-     *
-     * @return a string representation of this principal.
-     */
+    public boolean equals(Object obj) {
+        if (!(obj instanceof SubjectId)) return false;
+
+        SubjectId another = (SubjectId) obj;
+        if (!another.subjectId.equals(subjectId)) return false;
+        for (int i = 0; i < hash.length; i++) {
+            if (another.hash[i] != hash[i]) return false;
+        }
+        return true;
+    }
+
     public String toString() {
-        return getName();
-    }
-
-    /**
-     * Returns a hashcode for this principal.
-     *
-     * @return a hashcode for this principal.
-     */
-    public int hashCode() {
-        return getName().hashCode();
-    }
-
-    /**
-     * Returns the name of this principal.
-     *
-     * @return the name of this principal.
-     */
-    public String getName() {
         if (name == null) {
-
-            StringBuffer buffer = new StringBuffer("");
-            buffer.append(getClass().getName());
-            buffer.append("[");
-            buffer.append(id);
-            buffer.append("]");
-
+            StringBuffer buffer = new StringBuffer();
+            buffer.append('[');
+            buffer.append(subjectId);
+            buffer.append(":0x");
+            for (int i = 0; i < hash.length; i++) {
+                buffer.append(HEXCHAR[(hash[i]>>>4)&0x0F]);
+                buffer.append(HEXCHAR[(hash[i]    )&0x0F]);
+            }
+            buffer.append(']');
             name = buffer.toString();
         }
         return name;
     }
+
+    /**
+     * Returns a hashcode for this LoginModuleId.
+     *
+     * @return a hashcode for this LoginModuleId.
+     */
+    public int hashCode() {
+        if (hashCode == 0) {
+            for (int i = 0; i < hash.length; i++) {
+                hashCode ^= hash[i];
+            }
+            hashCode ^= subjectId.hashCode();
+        }
+        return hashCode;
+    }
+
+    private static final char[] HEXCHAR = {
+        '0', '1', '2', '3', '4', '5', '6', '7',
+        '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+    };
 }
