@@ -62,7 +62,11 @@ by the app client.
     <dependency>
         <uri>tranql/jars/tranql-${tranql_version}.jar</uri>
     </dependency>
- 
+    <!--connector deploys some jsr 77 beans... maybe this shoult be turned off-->
+    <dependency>
+        <uri>geronimo/jars/geronimo-j2ee-${geronimo_version}.jar</uri>
+    </dependency>
+
 <!--    <gbean name="geronimo.client:type=JNDIContext" class="org.openejb.client.AppClientJNDIContext">-->
 <!--        <attribute name="host" type="java.lang.String">localhost</attribute>-->
 <!--        <attribute name="port" type="int">4201</attribute>-->
