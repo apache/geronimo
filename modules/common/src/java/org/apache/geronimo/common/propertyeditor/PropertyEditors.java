@@ -64,13 +64,14 @@ import java.beans.PropertyEditorManager;
 
 import org.apache.geronimo.common.Classes;
 import org.apache.geronimo.common.NullArgumentException;
+import org.apache.geronimo.kernel.service.ArrayPropertyEditorAdapter;
 
 /**
  * A collection of PropertyEditor utilities.
  *
  * <p>Allows editors to be nested sub-classes named PropertyEditor.
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/30 21:08:08 $
+ * @version $Revision: 1.5 $ $Date: 2003/09/08 04:08:10 $
  */
 public class PropertyEditors
 {
