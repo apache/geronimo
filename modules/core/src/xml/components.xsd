@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+  <xs:element name="components">
+    <xs:annotation>
+      <xs:documentation>Components to be deployed</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="class-space" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence minOccurs="0" maxOccurs="unbounded">
+              <xs:element name="codebase" type="codebaseType"/>
+            </xs:sequence>
+            <xs:attribute name="name" type="objectName" use="required"/>
+            <xs:attribute name="dependencyType" type="dependencyType" use="optional" default="create"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="mbean" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="constructor" minOccurs="0">
+                <xs:complexType>
+                  <xs:sequence minOccurs="0" maxOccurs="unbounded">
+                    <xs:element name="arg">
+                      <xs:complexType mixed="true">
+                        <xs:sequence minOccurs="0">
+                          <xs:any/>
+                        </xs:sequence>
+                        <xs:attribute name="type" type="xs:string" use="required"/>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="attribute" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType mixed="true">
+                  <xs:sequence minOccurs="0">
+                    <xs:any/>
+                  </xs:sequence>
+                  <xs:attribute name="name" type="xs:string" use="required"/>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="relationship" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:attribute name="name" type="xs:string" use="required"/>
+                  <xs:attribute name="type" type="xs:string" use="required"/>
+                  <xs:attribute name="role" type="xs:string" use="required"/>
+                  <xs:attribute name="target" type="objectName" use="optional"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="code" type="className" use="required"/>
+            <xs:attribute name="name" type="objectName" use="optional"/>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="codebaseType">
+    <xs:sequence minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="archive">
+        <xs:complexType>
+          <xs:attribute name="name" type="xs:string" use="required"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="url" type="xs:anyURI" use="optional"/>
+  </xs:complexType>
+  <xs:simpleType name="objectName">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+  <xs:simpleType name="className">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+  <xs:simpleType name="dependencyType">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+</xs:schema>
