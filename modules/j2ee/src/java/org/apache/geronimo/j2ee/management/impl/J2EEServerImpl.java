@@ -29,7 +29,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/05/19 20:53:59 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/02 05:33:02 $
  */
 public class J2EEServerImpl implements GBean {
     private static final String SERVER_VENDOR = "The Apache Software Foundation";
@@ -117,14 +117,17 @@ public class J2EEServerImpl implements GBean {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(J2EEServerImpl.class);
-        infoFactory.addAttribute("deployedObjects", false);
-        infoFactory.addAttribute("resources", false);
-        infoFactory.addAttribute("javaVMs", false);
-        infoFactory.addAttribute("serverVendor", false);
-        infoFactory.addAttribute("serverVersion", false);
+
+        infoFactory.addAttribute("deployedObjects", String[].class, false);
+        infoFactory.addAttribute("resources", String[].class, false);
+        infoFactory.addAttribute("javaVMs", String[].class, false);
+        infoFactory.addAttribute("serverVendor", String.class, false);
+        infoFactory.addAttribute("serverVersion", String.class, false);
+
         infoFactory.addReference("ServerInfo", ServerInfo.class);
-        infoFactory.setConstructor(new String[]{"ServerInfo"},
-                new Class[]{ServerInfo.class});
+
+        infoFactory.setConstructor(new String[]{"ServerInfo"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

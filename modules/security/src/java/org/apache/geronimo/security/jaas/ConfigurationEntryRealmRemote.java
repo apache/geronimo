@@ -36,16 +36,12 @@ import org.apache.geronimo.gbean.WaitingException;
  * <p>More specifically, you can only use this method or Sun's JAAS config
  * file.
  *
- * @version $Revision: 1.3 $ $Date: 2004/05/30 01:27:35 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:04 $
  * @see GeronimoLoginConfiguration
  * @see javax.security.auth.login.Configuration
  */
 public class ConfigurationEntryRealmRemote extends ConfigurationEntryRealmLocal {
-
-    private static final GBeanInfo GBEAN_INFO;
-
     private String URI;
-
 
     public String getURI() {
         return URI;
@@ -76,9 +72,11 @@ public class ConfigurationEntryRealmRemote extends ConfigurationEntryRealmLocal 
         super.doStop();
     }
 
+    private static final GBeanInfo GBEAN_INFO;
+
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConfigurationEntryRealmRemote.class.getName(), ConfigurationEntryRealmLocal.getGBeanInfo());
-        infoFactory.addAttribute(new GAttributeInfo("URI", true));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConfigurationEntryRealmRemote.class, ConfigurationEntryRealmLocal.GBEAN_INFO);
+        infoFactory.addAttribute("URI", String.class, true);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

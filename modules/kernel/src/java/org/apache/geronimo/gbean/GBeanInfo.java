@@ -30,7 +30,7 @@ import java.util.Set;
 /**
  * Describes a GBean.
  *
- * @version $Revision: 1.11 $ $Date: 2004/05/27 01:05:58 $
+ * @version $Revision: 1.12 $ $Date: 2004/06/02 05:33:03 $
  */
 public final class GBeanInfo implements Serializable {
     /**
@@ -82,7 +82,7 @@ public final class GBeanInfo implements Serializable {
             this.attributes = Collections.unmodifiableSet(new HashSet(attributes));
         }
         if (constructor == null) {
-            this.constructor = new GConstructorInfo(Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+            this.constructor = new GConstructorInfo(Collections.EMPTY_LIST);
         } else {
             this.constructor = constructor;
         }

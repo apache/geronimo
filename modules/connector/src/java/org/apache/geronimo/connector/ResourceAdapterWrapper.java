@@ -25,20 +25,16 @@ import javax.resource.spi.endpoint.MessageEndpointFactory;
 
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.WaitingException;
 
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/05/30 19:03:36 $
+ * @version $Revision: 1.8 $ $Date: 2004/06/02 05:33:01 $
  *
  * */
 public class ResourceAdapterWrapper implements GBean, DynamicGBean {
@@ -115,16 +111,17 @@ public class ResourceAdapterWrapper implements GBean, DynamicGBean {
     }
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ResourceAdapterWrapper.class.getName());
-        infoFactory.addAttribute(new GAttributeInfo("ResourceAdapterClass", true));
-        infoFactory.addReference(new GReferenceInfo("BootstrapContext", BootstrapContext.class.getName()));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ResourceAdapterWrapper.class);
+        infoFactory.addAttribute("ResourceAdapterClass", Class.class, true);
 
-        infoFactory.addOperation(new GOperationInfo("registerManagedConnectionFactory", new String[]{ResourceAdapterAssociation.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("endpointActivation", new String[]{MessageEndpointFactory.class.getName(), ActivationSpec.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("endpointDeactivation", new String[]{MessageEndpointFactory.class.getName(), ActivationSpec.class.getName()}));
-        infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"ResourceAdapterClass", "BootstrapContext"},
-                new Class[]{Class.class, BootstrapContext.class}));
+        infoFactory.addReference("BootstrapContext", BootstrapContext.class);
+
+        infoFactory.addOperation("registerManagedConnectionFactory", new Class[]{ResourceAdapterAssociation.class});
+        infoFactory.addOperation("endpointActivation", new Class[]{MessageEndpointFactory.class, ActivationSpec.class});
+        infoFactory.addOperation("endpointDeactivation", new Class[]{MessageEndpointFactory.class, ActivationSpec.class});
+
+        infoFactory.setConstructor(new String[]{"ResourceAdapterClass", "BootstrapContext"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

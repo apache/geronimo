@@ -32,7 +32,7 @@ import org.apache.geronimo.gbean.WaitingException;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/06 03:58:22 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/02 05:33:02 $
  *
  * */
 public abstract class AbstractConnectionManager implements ConnectionManagerFactory, GBean, ConnectionManager, LazyAssociatableConnectionManager {
@@ -107,10 +107,9 @@ public abstract class AbstractConnectionManager implements ConnectionManagerFact
 
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractConnectionManager.class.getName());
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractConnectionManager.class);
 
         infoFactory.addOperation("createConnectionFactory", new Class[]{ManagedConnectionFactory.class});
-
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -23,10 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.jar.JarInputStream;
-
 import javax.management.AttributeNotFoundException;
-import javax.management.InvalidAttributeValueException;
-import javax.management.MBeanException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
@@ -63,7 +60,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/05/30 18:14:55 $
+ * @version $Revision: 1.9 $ $Date: 2004/06/02 05:33:02 $
  *
  * */
 public class RAR_1_0ConfigBuilder extends AbstractRARConfigBuilder {
@@ -111,7 +108,7 @@ public class RAR_1_0ConfigBuilder extends AbstractRARConfigBuilder {
                 } catch (MalformedObjectNameException e) {
                     throw new DeploymentException("Could not construct ManagedConnectionFactory object name", e);
                 }
-                GBeanInfoFactory managedConnectionFactoryInfoFactory = new GBeanInfoFactory(ManagedConnectionFactoryWrapper.class.getName(), ManagedConnectionFactoryWrapper.getGBeanInfo());
+                GBeanInfoFactory managedConnectionFactoryInfoFactory = new GBeanInfoFactory(ManagedConnectionFactoryWrapper.class, ManagedConnectionFactoryWrapper.getGBeanInfo());
                 GBeanMBean managedConnectionFactoryGBean = setUpDynamicGBean(managedConnectionFactoryInfoFactory, resourceAdapter.getConfigPropertyArray(), connectionfactoryInstance.getConfigPropertySettingArray());
                 try {
                     managedConnectionFactoryGBean.setAttribute("ManagedConnectionFactoryClass", cl.loadClass(resourceAdapter.getManagedconnectionfactoryClass().getStringValue()));
@@ -160,7 +157,7 @@ public class RAR_1_0ConfigBuilder extends AbstractRARConfigBuilder {
     }
 
     //ManagedConnectionFactories are extremely restricted as to the attribute types.
-    private void setDynamicAttributes(GBeanMBean gBean, ConfigPropertyType[] configProperties, GerConfigPropertySettingType[] configPropertySettings) throws DeploymentException, ReflectionException, MBeanException, InvalidAttributeValueException, AttributeNotFoundException {
+    private void setDynamicAttributes(GBeanMBean gBean, ConfigPropertyType[] configProperties, GerConfigPropertySettingType[] configPropertySettings) throws DeploymentException, ReflectionException, AttributeNotFoundException {
         for (int i = 0; i < configProperties.length; i++) {
             ConfigPropertyType configProperty = configProperties[i];
             Object value;
@@ -197,7 +194,7 @@ public class RAR_1_0ConfigBuilder extends AbstractRARConfigBuilder {
         }
     }
 
-    void addDynamicAttributes(GBeanInfoFactory infoFactory, ConfigPropertyType[] configProperties) {
+    private void addDynamicAttributes(GBeanInfoFactory infoFactory, ConfigPropertyType[] configProperties) {
         for (int i = 0; i < configProperties.length; i++) {
             ConfigPropertyType configProperty = configProperties[i];
             infoFactory.addAttribute(new DynamicGAttributeInfo(configProperty.getConfigPropertyName().getStringValue(), true));
@@ -207,7 +204,8 @@ public class RAR_1_0ConfigBuilder extends AbstractRARConfigBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Geronimo RAR 1.0 Configuration Builder", RAR_1_0ConfigBuilder.class.getName(), AbstractRARConfigBuilder.GBEAN_INFO);
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Geronimo RAR 1.0 Configuration Builder", RAR_1_0ConfigBuilder.class, AbstractRARConfigBuilder.GBEAN_INFO);
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

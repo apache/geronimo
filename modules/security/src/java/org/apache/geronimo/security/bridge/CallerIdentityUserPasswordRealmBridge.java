@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.security.bridge;
 
+import java.util.Set;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -24,16 +25,13 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
-import java.io.IOException;
-import java.util.Set;
-
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.security.realm.providers.GeronimoPasswordCredential;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:25 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/02 05:33:04 $
  */
 public class CallerIdentityUserPasswordRealmBridge extends AbstractRealmBridge {
 
@@ -49,8 +47,7 @@ public class CallerIdentityUserPasswordRealmBridge extends AbstractRealmBridge {
 
     protected CallbackHandler getCallbackHandler(final Subject sourceSubject) {
         return new CallbackHandler() {
-            public void handle(Callback[] callbacks)
-                    throws IOException, UnsupportedCallbackException {
+            public void handle(Callback[] callbacks) throws UnsupportedCallbackException {
                 Set credentials = sourceSubject.getPrivateCredentials(GeronimoPasswordCredential.class);
                 if (credentials == null || credentials.size() != 1) {
                     throw new UnsupportedCallbackException(null, "No GeronimoPasswordCredential to read");
@@ -73,7 +70,7 @@ public class CallerIdentityUserPasswordRealmBridge extends AbstractRealmBridge {
     }
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(CallerIdentityUserPasswordRealmBridge.class.getName(), AbstractRealmBridge.getGBeanInfo());
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(CallerIdentityUserPasswordRealmBridge.class, AbstractRealmBridge.GBEAN_INFO);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -34,7 +34,7 @@ import org.apache.regexp.RE;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/05/30 19:03:36 $
+ * @version $Revision: 1.8 $ $Date: 2004/06/02 05:33:02 $
  *
  * */
 public class PasswordCredentialRealm extends AbstractSecurityRealm implements SecurityRealm, ManagedConnectionFactoryListener {
@@ -93,7 +93,7 @@ public class PasswordCredentialRealm extends AbstractSecurityRealm implements Se
     }
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(PasswordCredentialRealm.class.getName(), AbstractSecurityRealm.getGBeanInfo());
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(PasswordCredentialRealm.class, AbstractSecurityRealm.getGBeanInfo());
         infoFactory.addInterface(ManagedConnectionFactoryListener.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

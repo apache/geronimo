@@ -20,32 +20,18 @@ package org.apache.geronimo.gbean;
 /**
  * Describes an attibute of a GBean.
  * 
- * @version $Revision: 1.6 $ $Date: 2004/05/27 01:05:58 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/02 05:33:03 $
  */
 public class DynamicGAttributeInfo extends GAttributeInfo {
-
-    /**
-     * Creates a non-persistent, reabable and writable GAttributeInfo
-     */
     public DynamicGAttributeInfo(String name) {
         this(name, false, true, true);
     }
 
-    /**
-     * @param name
-     * @param persistent
-     */
     public DynamicGAttributeInfo(String name, boolean persistent) {
         this(name, persistent, true, true);
     }
 
-    /**
-     * @param name
-     * @param persistent
-     * @param readable
-     * @param writable
-     */
     public DynamicGAttributeInfo(String name, boolean persistent, boolean readable, boolean writable) {
-        super(name, persistent, Boolean.valueOf(readable), Boolean.valueOf(writable), null, null);
+        super(name, Object.class.getName(), persistent, Boolean.valueOf(readable), Boolean.valueOf(writable), null, null);
     }
 }

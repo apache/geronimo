@@ -19,6 +19,7 @@ package org.apache.geronimo.gbean.jmx;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
+import junit.framework.TestCase;
 import org.apache.geronimo.gbean.DynamicGAttributeInfo;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
@@ -26,10 +27,8 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.MockDynamicGBean;
 import org.apache.geronimo.kernel.MockGBean;
 
-import junit.framework.TestCase;
-
 /**
- * @version $Revision: 1.3 $ $Date: 2004/04/08 05:22:15 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:03 $
  */
 public class GBeanMBeanAttributeTest extends TestCase {
 
@@ -96,7 +95,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
 
     public final void testGBeanMBeanAttributeGBeanMBeanGAttributeInfoClass() {
         try {
-            new GBeanMBeanAttribute(null, null, null);
+            new GBeanMBeanAttribute(null, null);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException expected) {
         }
@@ -105,60 +104,39 @@ public class GBeanMBeanAttributeTest extends TestCase {
         // GBeanMBeanAttribute ctor doesn't check if readable/writable are
         // null's
         try {
-            new GBeanMBeanAttribute(gmbean, attributeInfo, null);
+            new GBeanMBeanAttribute(gmbean, attributeInfo);
             // till Dain sorts out the question of ctor
             // fail("InvalidConfigurationException expected");
         } catch (InvalidConfigurationException expected) {
         }
 
         try {
-            GAttributeInfo invalidAttributeInfo = new GAttributeInfo(attributeName, false, null, null);
+            GAttributeInfo invalidAttributeInfo = new GAttributeInfo(attributeName, String.class.getName(), false, null, null);
 
-            new GBeanMBeanAttribute(gmbean, invalidAttributeInfo, null);
+            new GBeanMBeanAttribute(gmbean, invalidAttributeInfo);
             fail("InvalidConfigurationException expected");
         } catch (InvalidConfigurationException expected) {
         }
 
         {
-            final GAttributeInfo attributeInfo = new GAttributeInfo(attributeName, false, Boolean.TRUE, Boolean.FALSE,
-                    null, null);
-            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, attributeInfo, null);
+            final GAttributeInfo attributeInfo = new GAttributeInfo(attributeName, String.class.getName(), false, Boolean.TRUE, Boolean.FALSE, null, null);
+            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, attributeInfo);
             assertTrue(attribute.isReadable());
             assertFalse(attribute.isWritable());
         }
 
         {
-            final GAttributeInfo attributeInfo = new GAttributeInfo(persistentPrimitiveAttributeName, false,
-                    Boolean.FALSE, Boolean.TRUE, null, null);
-            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, attributeInfo, null);
+            final GAttributeInfo attributeInfo = new GAttributeInfo(persistentPrimitiveAttributeName, int.class.getName(), false, Boolean.FALSE, Boolean.TRUE, null, null);
+            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, attributeInfo);
             assertFalse(attribute.isReadable());
             assertTrue(attribute.isWritable());
         }
 
         {
-            final GAttributeInfo attributeInfo = new GAttributeInfo("AnotherFinalInt", false, Boolean.TRUE,
-                    Boolean.TRUE, null, null);
+            final GAttributeInfo attributeInfo = new GAttributeInfo("AnotherFinalInt", int.class.getName(), false, Boolean.TRUE, Boolean.TRUE, null, null);
             try {
-                new GBeanMBeanAttribute(gmbean, attributeInfo, null);
+                new GBeanMBeanAttribute(gmbean, attributeInfo);
                 fail("Getter and setter methods do not have the same types; InvalidConfigurationException expected");
-            } catch (InvalidConfigurationException expected) {
-            }
-        }
-
-        {
-            final GAttributeInfo attributeInfo = new GAttributeInfo("FinalInt", false);
-            try {
-                new GBeanMBeanAttribute(gmbean, attributeInfo, String.class);
-                fail("Constructor argument and getter method do not have the same type; InvalidConfigurationException expected");
-            } catch (InvalidConfigurationException expected) {
-            }
-        }
-
-        {
-            final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", false);
-            try {
-                new GBeanMBeanAttribute(gmbean, attributeInfo, String.class);
-                fail("Constructor argument and setter method do not have the same type; InvalidConfigurationException expected");
             } catch (InvalidConfigurationException expected) {
             }
         }
@@ -167,75 +145,87 @@ public class GBeanMBeanAttributeTest extends TestCase {
             // the attribute name and getter name are different, yet both
             // exist.
             // getYetAnotherFinalInt doesn't exist
-            final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", true, "getFinalInt", null);
-            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, attributeInfo, null);
+            final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, "getFinalInt", null);
+            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, attributeInfo);
             assertNotNull(attribute);
         }
 
         {
-            final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", true, null,
-                    "setCharAsYetAnotherFinalInt");
-            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, attributeInfo, null);
-            assertNotNull(attribute);
-        }
-
-        {
-            final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", true, null,
-                    "setBooleanAsYetAnotherFinalInt");
-            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, attributeInfo, null);
-            assertNotNull(attribute);
-        }
-
-        {
-            final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", true, null,
-                    "setByteAsYetAnotherFinalInt");
-            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, attributeInfo, null);
-            assertNotNull(attribute);
-        }
-
-        {
-            final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", true, null,
-                    "setShortAsYetAnotherFinalInt");
-            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, attributeInfo, null);
-            assertNotNull(attribute);
-        }
-
-        {
-            final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", true, null,
-                    "setLongAsYetAnotherFinalInt");
-            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, attributeInfo, null);
-            assertNotNull(attribute);
-        }
-
-        {
-            final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", true, null,
-                    "setFloatAsYetAnotherFinalInt");
-            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, attributeInfo, null);
-            assertNotNull(attribute);
-        }
-
-        {
-            final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", true, null,
-                    "setDoubleAsYetAnotherFinalInt");
-            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, attributeInfo, null);
-            assertNotNull(attribute);
-        }
-
-        {
-            final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", true,
-                    "getVoidGetterOfFinalInt", null);
+            final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, null, "setCharAsYetAnotherFinalInt");
             try {
-                new GBeanMBeanAttribute(gmbean, attributeInfo, null);
+                new GBeanMBeanAttribute(gmbean, attributeInfo);
+                fail("Expected InvalidConfigurationException due to invalid setter parameter type");
+            } catch (InvalidConfigurationException expected) {
+            }
+        }
+
+        {
+            final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, null, "setBooleanAsYetAnotherFinalInt");
+            try {
+                new GBeanMBeanAttribute(gmbean, attributeInfo);
+                fail("Expected InvalidConfigurationException due to invalid setter parameter type");
+            } catch (InvalidConfigurationException expected) {
+            }
+        }
+
+        {
+            final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, null, "setByteAsYetAnotherFinalInt");
+            try {
+                new GBeanMBeanAttribute(gmbean, attributeInfo);
+                fail("Expected InvalidConfigurationException due to invalid setter parameter type");
+            } catch (InvalidConfigurationException expected) {
+            }
+        }
+
+        {
+            final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, null, "setShortAsYetAnotherFinalInt");
+            try {
+                new GBeanMBeanAttribute(gmbean, attributeInfo);
+                fail("Expected InvalidConfigurationException due to invalid setter parameter type");
+            } catch (InvalidConfigurationException expected) {
+            }
+        }
+
+        {
+            final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, null, "setLongAsYetAnotherFinalInt");
+            try {
+                new GBeanMBeanAttribute(gmbean, attributeInfo);
+                fail("Expected InvalidConfigurationException due to invalid setter parameter type");
+            } catch (InvalidConfigurationException expected) {
+            }
+        }
+
+        {
+            final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, null, "setFloatAsYetAnotherFinalInt");
+            try {
+                new GBeanMBeanAttribute(gmbean, attributeInfo);
+                fail("Expected InvalidConfigurationException due to invalid setter parameter type");
+            } catch (InvalidConfigurationException expected) {
+            }
+        }
+
+        {
+            final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, null, "setDoubleAsYetAnotherFinalInt");
+            try {
+                new GBeanMBeanAttribute(gmbean, attributeInfo);
+                fail("Expected InvalidConfigurationException due to invalid setter parameter type");
+            } catch (InvalidConfigurationException expected) {
+            }
+        }
+
+        {
+            final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, "getVoidGetterOfFinalInt", null);
+            try {
+                new GBeanMBeanAttribute(gmbean, attributeInfo);
                 fail("Getter method not found on target; InvalidConfigurationException expected");
             } catch (InvalidConfigurationException expected) {
             }
         }
 
         {
-            final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", true, null,
-                    "setThatDoesntExist");
+            final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, null, "setThatDoesntExist");
             try {
-                new GBeanMBeanAttribute(gmbean, attributeInfo, null);
+                new GBeanMBeanAttribute(gmbean, attributeInfo);
                 fail("Setter method not found on target; InvalidConfigurationException expected");
             } catch (InvalidConfigurationException expected) {
             }
@@ -243,7 +233,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
 
         {
             final DynamicGAttributeInfo dynamicAttributeInfo = new DynamicGAttributeInfo(attributeName);
-            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, dynamicAttributeInfo, null);
+            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, dynamicAttributeInfo);
             assertFalse(attribute.isPersistent());
             assertEquals(dynamicAttributeInfo.isPersistent(), attribute.isPersistent());
             assertTrue(attribute.isReadable());
@@ -255,7 +245,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
 
         {
             final DynamicGAttributeInfo dynamicAttributeInfo = new DynamicGAttributeInfo(attributeName, true);
-            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, dynamicAttributeInfo, null);
+            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, dynamicAttributeInfo);
             assertTrue(attribute.isPersistent());
             assertEquals(dynamicAttributeInfo.isPersistent(), attribute.isPersistent());
             assertTrue(attribute.isReadable());
@@ -268,7 +258,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
         {
             final DynamicGAttributeInfo dynamicAttributeInfo = new DynamicGAttributeInfo(attributeName, true, false,
                     true);
-            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, dynamicAttributeInfo, null);
+            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, dynamicAttributeInfo);
             assertTrue(attribute.isPersistent());
             assertEquals(dynamicAttributeInfo.isPersistent(), attribute.isPersistent());
             assertFalse(attribute.isReadable());
@@ -281,7 +271,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
         {
             final DynamicGAttributeInfo dynamicAttributeInfo = new DynamicGAttributeInfo(attributeName, true, false,
                     false);
-            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, dynamicAttributeInfo, null);
+            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, dynamicAttributeInfo);
             assertTrue(attribute.isPersistent());
             assertEquals(dynamicAttributeInfo.isPersistent(), attribute.isPersistent());
             assertFalse(attribute.isReadable());
@@ -298,7 +288,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
         {
             final Integer valueThatCausesException = new Integer(-1);
 
-            final GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, throwingExceptionAttributeInfo, null);
+            final GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, throwingExceptionAttributeInfo);
             attribute.setValue(valueThatCausesException);
 
             final Kernel kernel = new Kernel("test.kernel", "test");
@@ -321,7 +311,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
         {
             final Integer valueThatCausesError = new Integer(-2);
 
-            final GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, throwingExceptionAttributeInfo, null);
+            final GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, throwingExceptionAttributeInfo);
             attribute.setValue(valueThatCausesError);
 
             final Kernel kernel = new Kernel("test.kernel", "test");
@@ -342,7 +332,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
         {
             final Integer valueThatCausesThrowable = new Integer(-3);
 
-            final GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, throwingExceptionAttributeInfo, null);
+            final GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, throwingExceptionAttributeInfo);
             attribute.setValue(valueThatCausesThrowable);
 
             final Kernel kernel = new Kernel("test.kernel", "test");
@@ -360,7 +350,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
         {
             try {
                 GBeanMBean gmbean2 = new GBeanMBean(MockGBean.getGBeanInfo());
-                GBeanMBeanAttribute attribute2 = new GBeanMBeanAttribute(gmbean2, throwingExceptionAttributeInfo, null);
+                GBeanMBeanAttribute attribute2 = new GBeanMBeanAttribute(gmbean2, throwingExceptionAttributeInfo);
                 attribute2.online();
                 fail("AssertionError or NullPointerException expected");
             } catch (Exception expected) {
@@ -408,7 +398,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
         {
             final DynamicGAttributeInfo dynamicAttributeInfo = new DynamicGAttributeInfo(
                     MockDynamicGBean.MUTABLE_INT_ATTRIBUTE_NAME, true, true, true);
-            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(dynamicGmbean, dynamicAttributeInfo, null);
+            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(dynamicGmbean, dynamicAttributeInfo);
             final ObjectName name = new ObjectName("test:name=MyMockDynamicGBean");
 
             final Kernel kernel = new Kernel("test.kernel", "test");
@@ -446,8 +436,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
         // 2. (offline) attribute that is of primitive type, writable and
         // persistent, but not readable
         {
-            final GBeanMBeanAttribute persistentAttribute = new GBeanMBeanAttribute(gmbean,
-                    persistentPrimitiveAttributeInfo, int.class);
+            final GBeanMBeanAttribute persistentAttribute = new GBeanMBeanAttribute(gmbean, persistentPrimitiveAttributeInfo, true);
             try {
                 persistentAttribute.setValue(null);
                 fail("Cannot assign null to a primitive attribute; exception expected");
@@ -457,8 +446,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
 
         // 3. (online) attribute that is immutable and not persistent
         {
-            final GBeanMBeanAttribute immutableAttribute = new GBeanMBeanAttribute(gmbean, attributeName, String.class,
-                    getInvoker, null);
+            final GBeanMBeanAttribute immutableAttribute = new GBeanMBeanAttribute(gmbean, attributeName, String.class, getInvoker, null);
 
             final Kernel kernel = new Kernel("test.kernel", "test");
             try {
@@ -476,8 +464,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
 
         // 4. (online) attribute that is mutable and of primitive type
         {
-            final GBeanMBeanAttribute mutablePersistentAttribute = new GBeanMBeanAttribute(gmbean,
-                    persistentPrimitiveAttributeInfo, null);
+            final GBeanMBeanAttribute mutablePersistentAttribute = new GBeanMBeanAttribute(gmbean, persistentPrimitiveAttributeInfo);
 
             final Kernel kernel = new Kernel("test.kernel", "test");
             try {
@@ -496,8 +483,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
         // 4a. @todo BUG: It's possible to set a value to a persistent
         // attribute while online; IllegalStateException expected
         {
-            final GBeanMBeanAttribute mutablePersistentAttribute = new GBeanMBeanAttribute(gmbean,
-                    persistentPrimitiveAttributeInfo, null);
+            final GBeanMBeanAttribute mutablePersistentAttribute = new GBeanMBeanAttribute(gmbean, persistentPrimitiveAttributeInfo);
 
             final Kernel kernel = new Kernel("test.kernel", "test");
             try {
@@ -549,9 +535,9 @@ public class GBeanMBeanAttributeTest extends TestCase {
                 throw new UnsupportedOperationException("Throws exception to rise test coverage");
             }
         };
-        attributeInfo = new GAttributeInfo(attributeName, false);
-        throwingExceptionAttributeInfo = new GAttributeInfo("ExceptionMutableInt", true);
-        persistentPrimitiveAttributeInfo = new GAttributeInfo(persistentPrimitiveAttributeName, true);
+        attributeInfo = new GAttributeInfo(attributeName, String.class.getName(), false);
+        throwingExceptionAttributeInfo = new GAttributeInfo("ExceptionMutableInt", int.class.getName(), true);
+        persistentPrimitiveAttributeInfo = new GAttributeInfo(persistentPrimitiveAttributeName, int.class.getName(), true);
     }
 
     protected void tearDown() throws Exception {

@@ -29,7 +29,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Properties;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -45,7 +44,6 @@ import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.util.FileUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.management.impl.J2EEApplicationImpl;
 import org.apache.geronimo.kernel.Kernel;
@@ -61,7 +59,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/05/26 03:20:49 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/02 05:33:02 $
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
     private final Kernel kernel;
@@ -371,13 +369,21 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(EARConfigBuilder.class);
         infoFactory.addReference("Kernel", Kernel.class);
         infoFactory.addReference("Repository", Repository.class);
-        infoFactory.addAttribute("j2eeServer", true);
+        infoFactory.addAttribute("j2eeServer", ObjectName.class, true);
         infoFactory.addReference("EJBConfigBuilder", ModuleBuilder.class);
         infoFactory.addReference("WebConfigBuilder", ModuleBuilder.class);
         infoFactory.addReference("ConnectorConfigBuilder", ModuleBuilder.class);
-        infoFactory.setConstructor(new GConstructorInfo(new String[]{"Kernel", "Repository", "j2eeServer", "EJBConfigBuilder", "WebConfigBuilder", "ConnectorConfigBuilder"},
-                new Class[]{Kernel.class, Repository.class, ObjectName.class, ModuleBuilder.class, ModuleBuilder.class, ModuleBuilder.class}));
+
         infoFactory.addInterface(ConfigurationBuilder.class);
+
+        infoFactory.setConstructor(new String[]{
+            "Kernel",
+            "Repository",
+            "j2eeServer",
+            "EJBConfigBuilder",
+            "WebConfigBuilder",
+            "ConnectorConfigBuilder"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -41,7 +41,6 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.xmlbeans.SchemaTypeLoader;
@@ -52,7 +51,7 @@ import org.apache.xmlbeans.XmlObject;
  * Command line based deployment utility which combines multiple deployable modules
  * into a single configuration.
  *
- * @version $Revision: 1.19 $ $Date: 2004/05/19 20:53:59 $
+ * @version $Revision: 1.20 $ $Date: 2004/06/02 05:33:02 $
  */
 public class Deployer {
     private final Collection builders;
@@ -248,11 +247,14 @@ public class Deployer {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(Deployer.class);
+
         infoFactory.addOperation("deploy", new Class[]{String[].class});
+
         infoFactory.addReference("Builders", ConfigurationBuilder.class);
         infoFactory.addReference("Store", ConfigurationStore.class);
-        infoFactory.setConstructor(new GConstructorInfo(new String[]{"Builders", "Store"},
-                new Class[]{Collection.class, ConfigurationStore.class}));
+
+        infoFactory.setConstructor(new String[]{"Builders", "Store"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

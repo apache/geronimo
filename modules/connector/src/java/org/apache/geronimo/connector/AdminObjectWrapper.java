@@ -34,7 +34,7 @@ import org.apache.geronimo.kernel.KernelMBean;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:31 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/02 05:33:01 $
  *
  * */
 public class AdminObjectWrapper implements GBean, DynamicGBean {
@@ -126,18 +126,22 @@ public class AdminObjectWrapper implements GBean, DynamicGBean {
     }
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AdminObjectWrapper.class.getName());
-        infoFactory.addAttribute("AdminObjectInterface", true);
-        infoFactory.addAttribute("AdminObjectClass", true);
-        infoFactory.addAttribute("SelfName", true);
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AdminObjectWrapper.class);
+        infoFactory.addAttribute("AdminObjectInterface", Class.class, true);
+        infoFactory.addAttribute("AdminObjectClass", Class.class, true);
+        infoFactory.addAttribute("SelfName", ObjectName.class, true);
 
         infoFactory.addOperation("getProxy");
         infoFactory.addOperation("getMethodInterceptor");
 
         infoFactory.addReference("Kernel", KernelMBean.class);
 
-        infoFactory.setConstructor(new String[] {"AdminObjectInterface", "AdminObjectClass", "Kernel", "SelfName"},
-                new Class[] {Class.class, Class.class, KernelMBean.class, ObjectName.class});
+        infoFactory.setConstructor(new String[] {
+            "AdminObjectInterface",
+            "AdminObjectClass",
+            "Kernel",
+            "SelfName"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

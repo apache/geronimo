@@ -17,11 +17,10 @@
 
 package org.apache.geronimo.security.jaas;
 
+import java.util.Properties;
 import javax.management.MBeanServer;
 import javax.security.auth.login.AppConfigurationEntry;
-import java.util.Properties;
 
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -41,14 +40,11 @@ import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
  * <p>More specifically, you can only use this method or Sun's JAAS config
  * file.
  *
- * @version $Revision: 1.6 $ $Date: 2004/05/31 00:05:24 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/02 05:33:04 $
  * @see org.apache.geronimo.security.jaas.GeronimoLoginConfiguration
  * @see javax.security.auth.login.Configuration
  */
 public abstract class ConfigurationEntry implements GBean {
-
-    private static final GBeanInfo GBEAN_INFO;
-
     protected GBeanMBeanContext context;
     protected String applicationConfigName;
     protected LoginModuleControlFlag controlFlag;
@@ -109,11 +105,14 @@ public abstract class ConfigurationEntry implements GBean {
     public void doFail() {
     }
 
+    public static final GBeanInfo GBEAN_INFO;
+
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConfigurationEntry.class.getName());
-        infoFactory.addAttribute(new GAttributeInfo("ApplicationConfigName", true));
-        infoFactory.addAttribute(new GAttributeInfo("ControlFlag", true));
-        infoFactory.addAttribute(new GAttributeInfo("Options", true));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConfigurationEntry.class);
+        infoFactory.addAttribute("ApplicationConfigName", String.class, true);
+        infoFactory.addAttribute("ControlFlag", LoginModuleControlFlag.class, true);
+        infoFactory.addAttribute("Options", Properties.class, true);
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

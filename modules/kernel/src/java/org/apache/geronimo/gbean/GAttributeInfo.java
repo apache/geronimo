@@ -22,13 +22,18 @@ import java.io.Serializable;
 /**
  * Describes an attibute of a GBean.
  *
- * @version $Revision: 1.6 $ $Date: 2004/03/10 09:59:00 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/02 05:33:03 $
  */
 public class GAttributeInfo implements Serializable {
     /**
      * Name of this attribute.
      */
     private final String name;
+
+    /**
+     * Type of this attribute.
+     */
+    private final String type;
 
     /**
      * Is this attribute persistent?
@@ -57,16 +62,17 @@ public class GAttributeInfo implements Serializable {
      */
     private final String setterName;
 
-    public GAttributeInfo(String name, boolean persistent) {
-        this(name, persistent, null, null, null, null);
+    public GAttributeInfo(String name, String type, boolean persistent) {
+        this(name, type, persistent, null, null, null, null);
     }
 
-    public GAttributeInfo(String name, boolean persistent, String getterName, String setterName) {
-        this(name, persistent, Boolean.valueOf(getterName != null), Boolean.valueOf(setterName != null), getterName, setterName);
+    public GAttributeInfo(String name, String type, boolean persistent, String getterName, String setterName) {
+        this(name, type, persistent, Boolean.valueOf(getterName != null), Boolean.valueOf(setterName != null), getterName, setterName);
     }
 
-    public GAttributeInfo(String name, boolean persistent, Boolean readable, Boolean writable, String getterName, String setterName) {
+    public GAttributeInfo(String name, String type, boolean persistent, Boolean readable, Boolean writable, String getterName, String setterName) {
         this.name = name;
+        this.type = type;
         this.persistent = persistent;
         this.readable = readable;
         this.writable = writable;
@@ -76,6 +82,10 @@ public class GAttributeInfo implements Serializable {
 
     public String getName() {
         return name;
+    }
+
+    public String getType() {
+        return type;
     }
 
     public boolean isPersistent() {
@@ -100,6 +110,7 @@ public class GAttributeInfo implements Serializable {
 
     public String toString() {
         return "[GAttributeInfo: name=" + name +
+                " type=" + type +
                 " persistent=" + persistent +
                 " readable=" + readable +
                 " writable=" + writable +

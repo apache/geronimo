@@ -32,12 +32,10 @@ import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.plugin.DeploymentServer;
 import org.apache.geronimo.deployment.plugin.FailedProgressObject;
 import org.apache.geronimo.deployment.plugin.TargetImpl;
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
@@ -51,7 +49,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.9 $ $Date: 2004/04/03 22:37:58 $
+ * @version $Revision: 1.10 $ $Date: 2004/06/02 05:33:02 $
  */
 public class LocalServer implements DeploymentServer, GBean {
     private final URI rootConfigID;
@@ -164,14 +162,15 @@ public class LocalServer implements DeploymentServer, GBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("JSR88 Local Server", LocalServer.class.getName());
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("JSR88 Local Server", LocalServer.class);
+
         infoFactory.addInterface(DeploymentServer.class);
-        infoFactory.addAttribute(new GAttributeInfo("ConfigID", true));
-        infoFactory.addAttribute(new GAttributeInfo("ConfigStore", true));
-        infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"ConfigID", "ConfigStore"},
-                new Class[]{URI.class, File.class}
-        ));
+
+        infoFactory.addAttribute("ConfigID", URI.class, true);
+        infoFactory.addAttribute("ConfigStore", File.class, true);
+
+        infoFactory.setConstructor(new String[]{"ConfigID", "ConfigStore"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 }

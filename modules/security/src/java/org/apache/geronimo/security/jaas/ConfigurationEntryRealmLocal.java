@@ -19,10 +19,8 @@ package org.apache.geronimo.security.jaas;
 
 import javax.security.auth.login.AppConfigurationEntry;
 
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
 
@@ -38,16 +36,12 @@ import org.apache.geronimo.kernel.Kernel;
  * <p>More specifically, you can only use this method or Sun's JAAS config
  * file.
  *
- * @version $Revision: 1.3 $ $Date: 2004/05/30 01:27:35 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:04 $
  * @see GeronimoLoginConfiguration
  * @see javax.security.auth.login.Configuration
  */
 public class ConfigurationEntryRealmLocal extends ConfigurationEntry {
-
-    private static final GBeanInfo GBEAN_INFO;
-
     private String realmName;
-
 
     public String getKernelName() {
         try {
@@ -87,10 +81,13 @@ public class ConfigurationEntryRealmLocal extends ConfigurationEntry {
         super.doStop();
     }
 
+    public static final GBeanInfo GBEAN_INFO;
+
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConfigurationEntryRealmLocal.class.getName(), ConfigurationEntry.getGBeanInfo());
-        infoFactory.addAttribute(new GAttributeInfo("RealmName", true));
-        infoFactory.addOperation(new GOperationInfo("getKernelName"));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConfigurationEntryRealmLocal.class, ConfigurationEntry.GBEAN_INFO);
+        infoFactory.addAttribute("RealmName", String.class, true);
+        infoFactory.addOperation("getKernelName");
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -82,7 +82,7 @@ import org.apache.geronimo.kernel.repository.Repository;
  * a startRecursive() for all the GBeans it contains. Similarly, if the
  * Configuration is stopped then all of its GBeans will be stopped as well.
  *
- * @version $Revision: 1.19 $ $Date: 2004/05/27 01:06:00 $
+ * @version $Revision: 1.20 $ $Date: 2004/06/02 05:33:03 $
  */
 public class Configuration implements GBean {
     private static final Log log = LogFactory.getLog(Configuration.class);
@@ -385,19 +385,26 @@ public class Configuration implements GBean {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(Configuration.class);
-        infoFactory.addAttribute("ID", true);
-        infoFactory.addAttribute("ParentID", true);
-        infoFactory.addAttribute("ClassPath", true);
-        infoFactory.addAttribute("Dependencies", true);
-        infoFactory.addAttribute("GBeanState", true);
-        infoFactory.addAttribute("BaseURL", false);
-        infoFactory.addAttribute("ObjectName", false);
-        infoFactory.addAttribute("ClassLoader", false);
-        infoFactory.addAttribute("SavedState", false); // @todo is this used?
+        infoFactory.addAttribute("ID", URI.class, true);
+        infoFactory.addAttribute("ParentID", URI.class, true);
+        infoFactory.addAttribute("ClassPath", List.class, true);
+        infoFactory.addAttribute("Dependencies", List.class, true);
+        infoFactory.addAttribute("GBeanState", byte[].class, true);
+        infoFactory.addAttribute("BaseURL", URL.class, false);
+        infoFactory.addAttribute("ClassLoader", ClassLoader.class, false);
+
         infoFactory.addReference("Parent", ConfigurationParent.class);
         infoFactory.addReference("Repositories", Repository.class);
-        infoFactory.setConstructor(new String[]{"ID", "ParentID", "Parent", "ClassPath", "GBeanState", "Repositories", "Dependencies"},
-                new Class[]{URI.class, URI.class, ConfigurationParent.class, List.class, byte[].class, Collection.class, List.class});
+
+        infoFactory.setConstructor(new String[]{
+            "ID",
+            "ParentID",
+            "Parent",
+            "ClassPath",
+            "GBeanState",
+            "Repositories",
+            "Dependencies"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

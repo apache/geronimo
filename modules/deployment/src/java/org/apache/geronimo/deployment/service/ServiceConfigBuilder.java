@@ -43,8 +43,6 @@ import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xbeans.ServiceDocument;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.xmlbeans.SchemaTypeLoader;
@@ -54,7 +52,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.13 $ $Date: 2004/04/23 03:08:28 $
+ * @version $Revision: 1.14 $ $Date: 2004/06/02 05:33:02 $
  */
 public class ServiceConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
@@ -221,13 +219,14 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ServiceConfigBuilder.class);
+
         infoFactory.addInterface(ConfigurationBuilder.class);
-        infoFactory.addReference(new GReferenceInfo("Repository", Repository.class));
-        infoFactory.addReference(new GReferenceInfo("Kernel", Kernel.class));
-        infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"Repository", "Kernel"},
-                new Class[]{Repository.class, Kernel.class}
-        ));
+
+        infoFactory.addReference("Repository", Repository.class);
+        infoFactory.addReference("Kernel", Kernel.class);
+
+        infoFactory.setConstructor(new String[]{"Repository", "Kernel"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

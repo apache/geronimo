@@ -17,8 +17,6 @@
 
 package org.apache.geronimo.security.realm.providers;
 
-import javax.security.auth.login.AppConfigurationEntry;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -30,25 +28,21 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import javax.security.auth.login.AppConfigurationEntry;
 
-import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.security.GeronimoSecurityException;
-import org.apache.regexp.RE;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.regexp.RE;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/05/22 15:25:13 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/02 05:33:04 $
  */
 
 public class SQLSecurityRealm extends AbstractSecurityRealm {
-
-    private static final GBeanInfo GBEAN_INFO;
     private static Log log = LogFactory.getLog(SQLSecurityRealm.class);
     public final static String USER_SELECT = "org.apache.geronimo.security.realm.providers.SQLSecurityRealm.USER_SELECT";
     public final static String GROUP_SELECT = "org.apache.geronimo.security.realm.providers.SQLSecurityRealm.GROUP_SELECT";
@@ -283,8 +277,8 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
         options.put(PASSWORD, password);
 
         AppConfigurationEntry entry = new AppConfigurationEntry("org.apache.geronimo.security.realm.providers.SQLLoginModule",
-                                                                AppConfigurationEntry.LoginModuleControlFlag.SUFFICIENT,
-                                                                options);
+                AppConfigurationEntry.LoginModuleControlFlag.SUFFICIENT,
+                options);
 
         return entry;
     }
@@ -293,21 +287,31 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
         return true;
     }
 
+    public static final GBeanInfo GBEAN_INFO;
+
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(SQLSecurityRealm.class.getName(), AbstractSecurityRealm.getGBeanInfo());
-        infoFactory.addAttribute(new GAttributeInfo("ConnectionURL", true));
-        infoFactory.addAttribute(new GAttributeInfo("User", true));
-        infoFactory.addAttribute(new GAttributeInfo("Password", true));
-        infoFactory.addAttribute(new GAttributeInfo("UserSelect", true));
-        infoFactory.addAttribute(new GAttributeInfo("GroupSelect", true));
-        infoFactory.addOperation(new GOperationInfo("isLoginModuleLocal"));
-        infoFactory.setConstructor(new GConstructorInfo(new String[]{"RealmName", "ConnectionURL", "User", "Password", "UserSelect", "GroupSelect"},
-                                                        new Class[]{String.class, String.class, String.class, String.class, String.class, String.class}));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(SQLSecurityRealm.class, AbstractSecurityRealm.GBEAN_INFO);
+
+        infoFactory.addAttribute("ConnectionURL", String.class, true);
+        infoFactory.addAttribute("User", String.class, true);
+        infoFactory.addAttribute("Password", String.class, true);
+        infoFactory.addAttribute("UserSelect", String.class, true);
+        infoFactory.addAttribute("GroupSelect", String.class, true);
+
+        infoFactory.addOperation("isLoginModuleLocal");
+
+        infoFactory.setConstructor(new String[]{
+            "RealmName",
+            "ConnectionURL",
+            "User",
+            "Password",
+            "UserSelect",
+            "GroupSelect"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
-
 }

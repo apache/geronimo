@@ -45,7 +45,7 @@ import org.apache.geronimo.transaction.TrackedConnectionAssociator;
  * ConnectionManager stacks so the existing ManagedConnections can be
  * enrolled properly.
  *
- * @version $Revision: 1.10 $ $Date: 2004/05/31 23:37:06 $
+ * @version $Revision: 1.11 $ $Date: 2004/06/02 05:33:02 $
  */
 public class ConnectionTrackingCoordinator implements TrackedConnectionAssociator, ConnectionTracker {
 
@@ -137,7 +137,7 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
     }
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConnectionTrackingCoordinator.class.getName());
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConnectionTrackingCoordinator.class);
         infoFactory.addInterface(TrackedConnectionAssociator.class);
         infoFactory.addInterface(ConnectionTracker.class);
         GBEAN_INFO = infoFactory.getBeanInfo();

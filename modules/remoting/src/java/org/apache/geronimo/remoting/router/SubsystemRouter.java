@@ -26,10 +26,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GOperationInfo;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:59:19 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/02 05:33:04 $
  */
 public class SubsystemRouter extends AbstractRouterRouter {
     Log log = LogFactory.getLog(SubsystemRouter.class);
@@ -61,9 +60,9 @@ public class SubsystemRouter extends AbstractRouterRouter {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(SubsystemRouter.class.getName(), AbstractInterceptorRouter.GBEAN_INFO);
-        infoFactory.addOperation(new GOperationInfo("addRoute", new String[]{"java.lang.String", "org.apache.geronimo.remoting.router.Router"}));
-        infoFactory.addOperation(new GOperationInfo("removeRoute", new String[]{"java.lang.String"}));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(SubsystemRouter.class, AbstractInterceptorRouter.GBEAN_INFO);
+        infoFactory.addOperation("addRoute", new Class[]{String.class, Router.class});
+        infoFactory.addOperation("removeRoute", new Class[]{String.class});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

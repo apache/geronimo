@@ -17,26 +17,18 @@
 
 package org.apache.geronimo.jetty;
 
-import java.security.Principal;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.mortbay.http.HttpContext;
-import org.mortbay.http.HttpListener;
-import org.mortbay.http.HttpRequest;
-import org.mortbay.http.UserRealm;
-import org.mortbay.jetty.Server;
-
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.WaitingException;
-
+import org.mortbay.http.HttpContext;
+import org.mortbay.http.HttpListener;
+import org.mortbay.http.UserRealm;
+import org.mortbay.jetty.Server;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/05/30 19:09:57 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/02 05:33:03 $
  */
 public class JettyContainerImpl implements JettyContainer, GBean {
 
@@ -95,13 +87,14 @@ public class JettyContainerImpl implements JettyContainer, GBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty Web Container", JettyContainerImpl.class.getName());
-        infoFactory.addOperation(new GOperationInfo("addListener", new String[]{HttpListener.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("removeListener", new String[]{HttpListener.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("addContext", new String[]{HttpContext.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("removeContext", new String[]{HttpContext.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("addRealm", new String[]{UserRealm.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("removeRealm", new String[]{UserRealm.class.getName()}));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty Web Container", JettyContainerImpl.class);
+        infoFactory.addOperation("addListener", new Class[]{HttpListener.class});
+        infoFactory.addOperation("removeListener", new Class[]{HttpListener.class});
+        infoFactory.addOperation("addContext", new Class[]{HttpContext.class});
+        infoFactory.addOperation("removeContext", new Class[]{HttpContext.class});
+        infoFactory.addOperation("addRealm", new Class[]{UserRealm.class});
+        infoFactory.addOperation("removeRealm", new Class[]{UserRealm.class});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

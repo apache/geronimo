@@ -40,7 +40,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:09 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/02 05:33:04 $
  */
 public class ContextBuilderTest extends TestCase {
     private ComponentContextBuilder builder;
@@ -192,9 +192,9 @@ public class ContextBuilderTest extends TestCase {
 
     public GBeanInfo getGbeanInfo() {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(TestProxyFactory.class);
-        infoFactory.addAttribute("Content", true);
+        infoFactory.addAttribute("Content", Object.class, true);
         infoFactory.addOperation("getProxy");
-        infoFactory.setConstructor(new String[] {"Content"}, new Class[] {Object.class});
+        infoFactory.setConstructor(new String[] {"Content"});
         return infoFactory.getBeanInfo();
     }
 }

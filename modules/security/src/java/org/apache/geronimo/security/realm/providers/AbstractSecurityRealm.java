@@ -17,24 +17,18 @@
 
 package org.apache.geronimo.security.realm.providers;
 
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.regexp.RE;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/03/10 19:21:17 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/02 05:33:04 $
  */
 public abstract class AbstractSecurityRealm implements SecurityRealm, GBean {
-
-    private static final GBeanInfo GBEAN_INFO;
-
     private String realmName;
     private long maxLoginModuleAge;
 
@@ -76,17 +70,24 @@ public abstract class AbstractSecurityRealm implements SecurityRealm, GBean {
     public void doFail() {
     }
 
+
+    public static final GBeanInfo GBEAN_INFO;
+
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractSecurityRealm.class.getName());
-        infoFactory.addAttribute(new GAttributeInfo("RealmName", true));
-        infoFactory.addAttribute(new GAttributeInfo("MaxLoginModuleAge", true));
-        infoFactory.addOperation(new GOperationInfo("getGroupPrincipals"));
-        infoFactory.addOperation(new GOperationInfo("getGroupPrincipals", new String[]{RE.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("getUserPrincipals"));
-        infoFactory.addOperation(new GOperationInfo("getUserPrincipals", new String[]{RE.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("refresh"));
-        infoFactory.addOperation(new GOperationInfo("getAppConfigurationEntry"));
-        infoFactory.setConstructor(new GConstructorInfo(new String[]{"RealmName"}, new Class[]{String.class}));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractSecurityRealm.class);
+
+        infoFactory.addAttribute("RealmName", String.class, true);
+        infoFactory.addAttribute("MaxLoginModuleAge", long.class, true);
+
+        infoFactory.addOperation("getGroupPrincipals");
+        infoFactory.addOperation("getGroupPrincipals", new Class[]{RE.class});
+        infoFactory.addOperation("getUserPrincipals");
+        infoFactory.addOperation("getUserPrincipals", new Class[]{RE.class});
+        infoFactory.addOperation("refresh");
+        infoFactory.addOperation("getAppConfigurationEntry");
+
+        infoFactory.setConstructor(new String[]{"RealmName"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

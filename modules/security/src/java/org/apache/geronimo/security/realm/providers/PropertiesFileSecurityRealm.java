@@ -17,8 +17,6 @@
 
 package org.apache.geronimo.security.realm.providers;
 
-import javax.security.auth.login.AppConfigurationEntry;
-
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
@@ -27,26 +25,21 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+import javax.security.auth.login.AppConfigurationEntry;
 
-import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.security.GeronimoSecurityException;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
-
-import org.apache.regexp.RE;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.regexp.RE;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/05/28 22:22:40 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/02 05:33:04 $
  */
 public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
-
-    private static final GBeanInfo GBEAN_INFO;
     private static Log log = LogFactory.getLog(PropertiesFileSecurityRealm.class);
 
     private final ServerInfo serverInfo;
@@ -191,8 +184,8 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
 
         options.put(REALM_INSTANCE, this);
         AppConfigurationEntry entry = new AppConfigurationEntry("org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule",
-                                                                AppConfigurationEntry.LoginModuleControlFlag.SUFFICIENT,
-                                                                options);
+                AppConfigurationEntry.LoginModuleControlFlag.SUFFICIENT,
+                options);
 
         return entry;
     }
@@ -201,19 +194,24 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
         return true;
     }
 
+    public static final GBeanInfo GBEAN_INFO;
+
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(PropertiesFileSecurityRealm.class.getName(), AbstractSecurityRealm.getGBeanInfo());
-        infoFactory.addAttribute(new GAttributeInfo("UsersURI", true));
-        infoFactory.addAttribute(new GAttributeInfo("GroupsURI", true));
-        infoFactory.addOperation(new GOperationInfo("isLoginModuleLocal"));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(PropertiesFileSecurityRealm.class, AbstractSecurityRealm.GBEAN_INFO);
+
+        infoFactory.addAttribute("UsersURI", URI.class, true);
+        infoFactory.addAttribute("GroupsURI", URI.class, true);
+
         infoFactory.addReference("ServerInfo", ServerInfo.class);
-        infoFactory.setConstructor(new GConstructorInfo(new String[]{"RealmName", "UsersURI", "GroupsURI", "ServerInfo"},
-                                                        new Class[]{String.class, URI.class, URI.class, ServerInfo.class}));
+
+        infoFactory.addOperation("isLoginModuleLocal");
+
+        infoFactory.setConstructor(new String[]{"RealmName", "UsersURI", "GroupsURI", "ServerInfo"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
-
 }

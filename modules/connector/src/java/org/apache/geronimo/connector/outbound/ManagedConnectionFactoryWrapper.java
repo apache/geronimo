@@ -35,17 +35,13 @@ import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.KernelMBean;
 import org.apache.geronimo.naming.geronimo.GeronimoContextManager;
 
 /**
- *
- *
- * @version $Revision: 1.9 $ $Date: 2004/05/30 19:03:36 $
- *
- * */
+ * @version $Revision: 1.10 $ $Date: 2004/06/02 05:33:02 $
+ */
 public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
 
     private static final GBeanInfo GBEAN_INFO;
@@ -242,16 +238,15 @@ public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
     }
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ManagedConnectionFactoryWrapper.class.getName());
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ManagedConnectionFactoryWrapper.class);
 
-        infoFactory.addAttribute("ManagedConnectionFactoryClass", true);
-        infoFactory.addAttribute("ConnectionFactoryInterface", true);
-        infoFactory.addAttribute("ConnectionFactoryImplClass", true);
-        infoFactory.addAttribute("ConnectionInterface", true);
-        infoFactory.addAttribute("ConnectionImplClass", true);
-        infoFactory.addAttribute("SelfName", true);
-
-        infoFactory.addAttribute("GlobalJNDIName", true);
+        infoFactory.addAttribute("ManagedConnectionFactoryClass", Class.class, true);
+        infoFactory.addAttribute("ConnectionFactoryInterface", Class.class, true);
+        infoFactory.addAttribute("ConnectionFactoryImplClass", Class.class, true);
+        infoFactory.addAttribute("ConnectionInterface", Class.class, true);
+        infoFactory.addAttribute("ConnectionImplClass", Class.class, true);
+        infoFactory.addAttribute("SelfName", ObjectName.class, true);
+        infoFactory.addAttribute("GlobalJNDIName", String.class, true);
 
         infoFactory.addOperation("getProxy");
         infoFactory.addOperation("getMethodInterceptor");
@@ -260,11 +255,19 @@ public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
         infoFactory.addReference("ConnectionManagerFactory", ConnectionManagerFactory.class);
         infoFactory.addReference("ManagedConnectionFactoryListener", ManagedConnectionFactoryListener.class);
         infoFactory.addReference("Kernel", KernelMBean.class);
-        infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"ManagedConnectionFactoryClass", "ConnectionFactoryInterface", "ConnectionFactoryImplClass", "ConnectionInterface", "ConnectionImplClass",
-                             "GlobalJNDIName", "ResourceAdapterWrapper", "ConnectionManagerFactory", "ManagedConnectionFactoryListener", "Kernel", "SelfName"},
-                new Class[]{Class.class, Class.class, Class.class, Class.class, Class.class,
-                            String.class, ResourceAdapterWrapper.class, ConnectionManagerFactory.class, ManagedConnectionFactoryListener.class, KernelMBean.class, ObjectName.class}));
+
+        infoFactory.setConstructor(new String[]{
+            "ManagedConnectionFactoryClass",
+            "ConnectionFactoryInterface",
+            "ConnectionFactoryImplClass",
+            "ConnectionInterface",
+            "ConnectionImplClass",
+            "GlobalJNDIName",
+            "ResourceAdapterWrapper",
+            "ConnectionManagerFactory",
+            "ManagedConnectionFactoryListener",
+            "Kernel",
+            "SelfName"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

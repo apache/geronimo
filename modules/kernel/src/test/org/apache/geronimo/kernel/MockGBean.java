@@ -26,7 +26,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 
 /**
- * @version $Revision: 1.15 $ $Date: 2004/03/18 10:04:50 $
+ * @version $Revision: 1.16 $ $Date: 2004/06/02 05:33:03 $
  */
 public class MockGBean implements MockEndpoint {
 
@@ -51,21 +51,26 @@ public class MockGBean implements MockEndpoint {
     }
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("MockGBean", MockGBean.class.getName());
-        infoFactory.addAttribute("Name", true);
-        infoFactory.addAttribute("Value", true);
-        infoFactory.addAttribute("FinalInt", true);
-        infoFactory.addAttribute("MutableInt", false);
-        infoFactory.addAttribute("ExceptionMutableInt", true);
-        infoFactory.addAttribute("EndpointMutableInt", false);
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("MockGBean", MockGBean.class);
+        infoFactory.addAttribute("Name", String.class, true);
+        infoFactory.addAttribute("Value", String.class, true);
+        infoFactory.addAttribute("FinalInt", Integer.TYPE, true);
+        infoFactory.addAttribute("MutableInt", Integer.TYPE, false);
+        infoFactory.addAttribute("ExceptionMutableInt", Integer.TYPE, true);
+        infoFactory.addAttribute("EndpointMutableInt", Integer.TYPE, false);
+
         infoFactory.addOperation("checkResource", new Class[] { String.class});
         infoFactory.addOperation("checkEndpoint");
         infoFactory.addOperation("checkEndpointCollection");
         infoFactory.addOperation("doSomething", new Class[] { String.class});
+
         infoFactory.addInterface(MockEndpoint.class, new String[] { "MutableInt"});
+
         infoFactory.addReference("MockEndpoint", MockEndpoint.class);
         infoFactory.addReference("EndpointCollection", MockEndpoint.class);
-        infoFactory.setConstructor(new String[] { "Name", "FinalInt"}, new Class[] { String.class, Integer.TYPE});
+
+        infoFactory.setConstructor(new String[] { "Name", "FinalInt"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

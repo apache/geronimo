@@ -28,7 +28,7 @@ import org.mortbay.http.SocketListener;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:56 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:03 $
  */
 public class HTTPConnector extends JettyConnector {
     public HTTPConnector(JettyContainer container) {
@@ -38,10 +38,8 @@ public class HTTPConnector extends JettyConnector {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty HTTP Connector", HTTPConnector.class.getName(), JettyConnector.GBEAN_INFO);
-        infoFactory.setConstructor(new GConstructorInfo(
-                Arrays.asList(new Object[]{"JettyContainer"}),
-                Arrays.asList(new Object[]{JettyContainer.class})));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty HTTP Connector", HTTPConnector.class, JettyConnector.GBEAN_INFO);
+        infoFactory.setConstructor(new String[]{"JettyContainer"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -28,7 +28,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/05/19 20:53:59 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/02 05:33:02 $
  */
 public class J2EEDomainImpl implements GBean {
     private GBeanContext context;
@@ -84,7 +84,9 @@ public class J2EEDomainImpl implements GBean {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(J2EEDomainImpl.class);
-        infoFactory.addAttribute("servers", false);
+
+        infoFactory.addAttribute("servers", String[].class, false);
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

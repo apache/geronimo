@@ -30,7 +30,7 @@ import org.apache.log4j.WriterAppender;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:30 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:05 $
  */
 public abstract class AbstractAppenderService implements GBean {
     protected final WriterAppender appender;
@@ -95,11 +95,11 @@ public abstract class AbstractAppenderService implements GBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractAppenderService.class.getName());
-        infoFactory.addAttribute(new GAttributeInfo("LayoutPattern", true));
-        infoFactory.addAttribute(new GAttributeInfo("Threshold", true));
-        infoFactory.addAttribute(new GAttributeInfo("Encoding", true));
-        infoFactory.addAttribute(new GAttributeInfo("ImmedateFlush", true));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractAppenderService.class);
+        infoFactory.addAttribute("LayoutPattern", String.class, true);
+        infoFactory.addAttribute("Threshold", String.class, true);
+        infoFactory.addAttribute("Encoding", String.class, true);
+        infoFactory.addAttribute("ImmedateFlush", boolean.class, true);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

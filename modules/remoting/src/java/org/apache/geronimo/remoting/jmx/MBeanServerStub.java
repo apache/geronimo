@@ -22,8 +22,6 @@ import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
 import org.apache.geronimo.proxy.ProxyContainer;
 import org.apache.geronimo.proxy.ReflexiveInterceptor;
@@ -33,7 +31,7 @@ import org.apache.geronimo.remoting.router.JMXTarget;
 
 
 /**
- * @version $Revision: 1.12 $ $Date: 2004/03/10 09:59:19 $
+ * @version $Revision: 1.13 $ $Date: 2004/06/02 05:33:04 $
  */
 public class MBeanServerStub implements GBean, JMXTarget {
     private ProxyContainer serverContainer;
@@ -81,9 +79,9 @@ public class MBeanServerStub implements GBean, JMXTarget {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(MBeanServerStub.class.getName());
-        infoFactory.addOperation(new GOperationInfo("getRemotingEndpointInterceptor"));
-        infoFactory.addReference(new GReferenceInfo("Router", JMXRouter.class.getName()));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(MBeanServerStub.class);
+        infoFactory.addOperation("getRemotingEndpointInterceptor");
+        infoFactory.addReference("Router", JMXRouter.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

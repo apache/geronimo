@@ -25,25 +25,19 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
-import org.apache.geronimo.gbean.GConstructorInfo;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
-import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:50 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/02 05:33:02 $
  *
  * */
 public class ParserFactoryImpl implements ParserFactory {
 
     private static final Log log = LogFactory.getLog(ParserFactoryImpl.class);
-
-    private final static GBeanInfo GBEAN_INFO;
 
     private final DocumentBuilderFactory factory;
     private EntityResolver entityResolver;
@@ -67,20 +61,17 @@ public class ParserFactoryImpl implements ParserFactory {
         DocumentBuilder builder = factory.newDocumentBuilder();
         builder.setEntityResolver(entityResolver);
         builder.setErrorHandler(new ErrorHandler() {
-            public void error(SAXParseException exception)
-                    throws SAXException {
+            public void error(SAXParseException exception) {
                 log.warn("SAX parse error (ignored)", exception);
                 //throw exception;
             }
 
-            public void fatalError(SAXParseException exception)
-                    throws SAXException {
+            public void fatalError(SAXParseException exception) {
                 log.warn("Fatal SAX parse error (ignored)", exception);
                 //throw exception;
             }
 
-            public void warning(SAXParseException exception)
-                    throws SAXException {
+            public void warning(SAXParseException exception) {
                 log.warn("SAX parse warning", exception);
             }
         });
@@ -95,13 +86,17 @@ public class ParserFactoryImpl implements ParserFactory {
         this.entityResolver = entityResolver;
     }
 
+    public final static GBeanInfo GBEAN_INFO;
+
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Factory for constructing suitable configured xml parsers", ParserFactoryImpl.class.getName());
-        infoFactory.addOperation(new GOperationInfo("getParser"));
-        infoFactory.addReference(new GReferenceInfo("EntityResolver", EntityResolver.class.getName()));
-        infoFactory.setConstructor(new GConstructorInfo(
-                new String[] {"EntityResolver"},
-                new Class[] {EntityResolver.class}));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Factory for constructing suitable configured xml parsers", ParserFactoryImpl.class);
+
+        infoFactory.addOperation("getParser");
+
+        infoFactory.addReference("EntityResolver", EntityResolver.class);
+
+        infoFactory.setConstructor(new String[]{"EntityResolver"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -26,15 +26,14 @@ import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
+import junit.framework.TestCase;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.management.State;
 
-import junit.framework.TestCase;
-
 /**
- * @version $Revision: 1.14 $ $Date: 2004/03/10 09:59:02 $
+ * @version $Revision: 1.15 $ $Date: 2004/06/02 05:33:03 $
  */
 public class ConfigTest extends TestCase {
     private ObjectName gbeanName1;
@@ -67,10 +66,8 @@ public class ConfigTest extends TestCase {
         Object state = mbServer.getAttribute(gbeanName2, "state");
         assertEquals(new Integer(State.RUNNING_INDEX), state);
         assertEquals(new Integer(1), mbServer.getAttribute(gbeanName1, "FinalInt"));
-        assertEquals(new Integer(2), mbServer.getAttribute(gbeanName1, "MutableInt"));
         assertEquals("1234", mbServer.getAttribute(gbeanName1, "Value"));
         assertEquals(new Integer(3), mbServer.getAttribute(gbeanName2, "FinalInt"));
-        assertEquals(new Integer(4), mbServer.getAttribute(gbeanName2, "MutableInt"));
 
         mbServer.setAttribute(gbeanName2, new Attribute("MutableInt", new Integer(44)));
         assertEquals(new Integer(44), mbServer.getAttribute(gbeanName2, "MutableInt"));
@@ -111,13 +108,11 @@ public class ConfigTest extends TestCase {
         mockBean1.setAttribute("Value", "1234");
         mockBean1.setAttribute("Name", "child");
         mockBean1.setAttribute("FinalInt", new Integer(1));
-        mockBean1.setAttribute("MutableInt", new Integer(2));
         gbeanName2 = new ObjectName("geronimo.test:name=MyMockGMBean2");
         GBeanMBean mockBean2 = new GBeanMBean(MockGBean.getGBeanInfo());
         mockBean2.setAttribute("Value", "5678");
         mockBean2.setAttribute("Name", "Parent");
         mockBean2.setAttribute("FinalInt", new Integer(3));
-        mockBean2.setAttribute("MutableInt", new Integer(4));
         mockBean2.setReferencePatterns("MockEndpoint", Collections.singleton(gbeanName1));
         mockBean2.setReferencePatterns("EndpointCollection", Collections.singleton(gbeanName1));
 

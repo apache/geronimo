@@ -39,7 +39,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:59:31 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/02 05:33:05 $
  */
 public class ReadOnlyRepository implements Repository, GBean {
     private static final Log log = LogFactory.getLog(ReadOnlyRepository.class);
@@ -101,13 +101,15 @@ public class ReadOnlyRepository implements Repository, GBean {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ReadOnlyRepository.class);
-        infoFactory.addAttribute(new GAttributeInfo("Root", true));
-        infoFactory.addReference(new GReferenceInfo("ServerInfo", ServerInfo.class));
+
+        infoFactory.addAttribute("Root", URI.class, true);
+
+        infoFactory.addReference("ServerInfo", ServerInfo.class);
+
         infoFactory.addInterface(Repository.class);
-        infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"Root", "ServerInfo"},
-                new Class[]{URI.class, ServerInfo.class}
-        ));
+
+        infoFactory.setConstructor(new String[]{"Root", "ServerInfo"});
+        
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

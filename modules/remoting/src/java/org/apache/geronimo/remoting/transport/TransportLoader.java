@@ -18,21 +18,20 @@
 package org.apache.geronimo.remoting.transport;
 
 import java.net.URI;
-import java.util.HashSet;
-import java.util.Set;
 
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.remoting.router.Router;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
- * @version $Revision: 1.9 $ $Date: 2004/03/10 09:59:20 $
+ * @version $Revision: 1.10 $ $Date: 2004/06/02 05:33:04 $
  */
 public class TransportLoader implements GBean {
+    private static final Log log = LogFactory.getLog(TransportLoader.class);
     private URI bindURI;
     private TransportServer transportServer;
     private Router router;
@@ -73,22 +72,31 @@ public class TransportLoader implements GBean {
     }
 
     public void doStop() throws Exception {
-        transportServer.stop();
-        transportServer.dispose();
-        transportServer = null;
+        if (transportServer != null) {
+            transportServer.stop();
+            transportServer.dispose();
+            transportServer = null;
+        }
     }
 
     public void doFail() {
-        // @todo do your best to clean up after a failure
+        try {
+            doStop();
+        } catch (Exception e) {
+            log.error("Failed to shutdown", e);
+        }
     }
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(TransportLoader.class);
-        infoFactory.addAttribute("ClientConnectURI", false);
-        infoFactory.addAttribute("BindURI", true);
+
+        infoFactory.addAttribute("ClientConnectURI", URI.class, false);
+        infoFactory.addAttribute("BindURI", URI.class, true);
+
         infoFactory.addReference("Router", Router.class);
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

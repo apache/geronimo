@@ -21,7 +21,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/03/18 10:04:50 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/02 05:33:03 $
  */
 public class MockDynamicGBean implements DynamicGBean {
 
@@ -58,8 +58,8 @@ public class MockDynamicGBean implements DynamicGBean {
     }
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("MockDynamicGBean", MockDynamicGBean.class.getName());
-        infoFactory.addAttribute("MutableInt", false);
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("MockDynamicGBean", MockDynamicGBean.class);
+        infoFactory.addAttribute("MutableInt", Integer.class, false);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 }

@@ -20,14 +20,14 @@ package org.apache.geronimo.kernel;
 import java.util.Collections;
 import javax.management.ObjectName;
 
+import junit.framework.TestCase;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.management.State;
-import junit.framework.TestCase;
 
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/03/10 09:59:02 $
+ * @version $Revision: 1.8 $ $Date: 2004/06/02 05:33:03 $
  */
 public class GBeanTest extends TestCase {
     private ObjectName name;
@@ -37,7 +37,6 @@ public class GBeanTest extends TestCase {
     public void testLoad() throws Exception {
         GBeanMBean gbean = new GBeanMBean(MockGBean.getGBeanInfo());
         gbean.setAttribute("Name", "Test");
-        gbean.setAttribute("MutableInt", new Integer(123));
         gbean.setAttribute("FinalInt", new Integer(123));
         kernel.loadGBean(name, gbean);
         kernel.startGBean(name);
@@ -49,13 +48,11 @@ public class GBeanTest extends TestCase {
 
     public void testEndpoint() throws Exception {
         GBeanMBean gbean1 = new GBeanMBean(MockGBean.getGBeanInfo());
-        gbean1.setAttribute("MutableInt", new Integer(123));
         gbean1.setAttribute("FinalInt", new Integer(123));
         kernel.loadGBean(name, gbean1);
         kernel.startGBean(name);
 
         GBeanMBean gbean2 = new GBeanMBean(MockGBean.getGBeanInfo());
-        gbean2.setAttribute("MutableInt", new Integer(123));
         gbean2.setAttribute("FinalInt", new Integer(123));
         gbean2.setReferencePatterns("MockEndpoint", Collections.singleton(name));
         kernel.loadGBean(name2, gbean2);

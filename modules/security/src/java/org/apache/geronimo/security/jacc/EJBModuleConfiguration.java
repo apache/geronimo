@@ -17,21 +17,18 @@
 
 package org.apache.geronimo.security.jacc;
 
-import javax.security.jacc.PolicyConfiguration;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
+import javax.security.jacc.PolicyConfiguration;
 
 import noNamespace.PrincipalType;
 import noNamespace.RealmType;
 import noNamespace.RoleMappingsType;
 import noNamespace.RoleType;
 import noNamespace.SecurityType;
-
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.security.GeronimoSecurityException;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.util.ConfigurationUtil;
@@ -41,12 +38,9 @@ import org.apache.geronimo.xbeans.j2ee.SecurityRoleType;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/05/30 01:26:23 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/02 05:33:04 $
  */
 public class EJBModuleConfiguration extends AbstractModuleConfiguration {
-
-    private static final GBeanInfo GBEAN_INFO;
-
     private EjbJarType ejbJar;
     private SecurityType security;
 
@@ -61,9 +55,8 @@ public class EJBModuleConfiguration extends AbstractModuleConfiguration {
      * permissions.  These permissions are placed into the appropriate
      * <code>PolicyConfiguration</code> object as defined in the JAAC spec.
      *
-     * @throws org.apache.geronimo.security.GeronimoSecurityException
-     *          if there is any violation of the semantics of
-     *          the security descriptor or the state of the module configuration.
+     * @throws org.apache.geronimo.security.GeronimoSecurityException if there is any violation of the semantics of
+     * the security descriptor or the state of the module configuration.
      * @see javax.security.jacc.PolicyConfiguration
      * @see "Java Authorization Contract for Containers", section 3.1.3
      */
@@ -119,13 +112,14 @@ public class EJBModuleConfiguration extends AbstractModuleConfiguration {
         }
     }
 
+
+    private static final GBeanInfo GBEAN_INFO;
+
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(EJBModuleConfiguration.class.getName(), AbstractModuleConfiguration.getGBeanInfo());
-        //TODO make sure this attribute not backed by a getter or setter works.
-        infoFactory.addAttribute(new GAttributeInfo("EJBJar", true));
-        infoFactory.addAttribute(new GAttributeInfo("Security", true));
-        infoFactory.setConstructor(new GConstructorInfo(new String[]{"ContextID", "EJBJar", "Security"},
-                                                        new Class[]{String.class, EjbJarType.class, SecurityType.class}));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(EJBModuleConfiguration.class, AbstractModuleConfiguration.GBEAN_INFO);
+        infoFactory.addAttribute("EJBJar", EjbJarType.class, true);
+        infoFactory.addAttribute("Security", SecurityType.class, true);
+        infoFactory.setConstructor(new String[]{"ContextID", "EJBJar", "Security"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -29,7 +29,6 @@ import org.apache.geronimo.connector.work.pool.SyncWorkExecutorPool;
 import org.apache.geronimo.connector.work.pool.WorkExecutorPool;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.transaction.XAWork;
 
 /**
@@ -43,7 +42,7 @@ import org.apache.geronimo.transaction.XAWork;
  * TODO There needs to be better lifecycle support.  The individual pools can be stopped now, but
  * not restarted AFAIK.
  *
- * @version $Revision: 1.6 $ $Date: 2004/03/12 17:58:45 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/02 05:33:02 $
  */
 public class GeronimoWorkManager implements WorkManager {
 
@@ -223,20 +222,27 @@ public class GeronimoWorkManager implements WorkManager {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(GeronimoWorkManager.class.getName());
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(GeronimoWorkManager.class);
         infoFactory.addInterface(WorkManager.class);
 
-        infoFactory.addAttribute("SyncMinimumPoolSize", true);
-        infoFactory.addAttribute("SyncMaximumPoolSize", true);
-        infoFactory.addAttribute("StartMinimumPoolSize", true);
-        infoFactory.addAttribute("StartMaximumPoolSize", true);
-        infoFactory.addAttribute("ScheduledMinimumPoolSize", true);
-        infoFactory.addAttribute("ScheduledMaximumPoolSize", true);
+        infoFactory.addAttribute("SyncMinimumPoolSize", Integer.TYPE, true);
+        infoFactory.addAttribute("SyncMaximumPoolSize", Integer.TYPE, true);
+        infoFactory.addAttribute("StartMinimumPoolSize", Integer.TYPE, true);
+        infoFactory.addAttribute("StartMaximumPoolSize", Integer.TYPE, true);
+        infoFactory.addAttribute("ScheduledMinimumPoolSize", Integer.TYPE, true);
+        infoFactory.addAttribute("ScheduledMaximumPoolSize", Integer.TYPE, true);
 
         infoFactory.addReference("XAWork", XAWork.class);
-        infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"SyncMinimumPoolSize", "SyncMaximumPoolSize", "StartMinimumPoolSize", "StartMaximumPoolSize", "ScheduledMinimumPoolSize", "ScheduledMaximumPoolSize", "XAWork"},
-                new Class[]{Integer.TYPE, Integer.TYPE, Integer.TYPE, Integer.TYPE, Integer.TYPE, Integer.TYPE, XAWork.class}));
+
+        infoFactory.setConstructor(new String[]{
+            "SyncMinimumPoolSize",
+            "SyncMaximumPoolSize",
+            "StartMinimumPoolSize",
+            "StartMaximumPoolSize",
+            "ScheduledMinimumPoolSize",
+            "ScheduledMaximumPoolSize",
+            "XAWork"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

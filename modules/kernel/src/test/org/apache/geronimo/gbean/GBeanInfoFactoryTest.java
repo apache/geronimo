@@ -24,7 +24,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:02 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/02 05:33:03 $
  */
 public class GBeanInfoFactoryTest extends TestCase {
 
@@ -85,20 +85,6 @@ public class GBeanInfoFactoryTest extends TestCase {
         assertEquals(className.getName(), gbeanInfoFactory.getBeanInfo().getClassName());
         assertTrue(gbeanInfoFactory.getBeanInfo().getAttributes().isEmpty());
         assertTrue(gbeanInfoFactory.getBeanInfo().getOperations().isEmpty());
-    }
-
-    /*
-     * void GBeanInfoFactory(String, GBeanInfo)
-     */
-    public void testGBeanInfoFactoryStringGBeanInfo() {
-        try {
-            new GBeanInfoFactory((String) null, (GBeanInfo) null);
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException expected) {}
-        GBeanInfoFactory gbeanInfoFactory = new GBeanInfoFactory(String.class.getName(),
-                GBeanInfo.getGBeanInfo(GBeanInfoTest.MockGBean.class.getName(),
-                                       GBeanInfoTest.MockGBean.class.getClassLoader()));
-        assertNotNull(gbeanInfoFactory);
     }
 
     /*
@@ -165,8 +151,7 @@ public class GBeanInfoFactoryTest extends TestCase {
 
         static {
             GBeanInfoFactory infoFactory = new GBeanInfoFactory(MockGBean.class);
-            infoFactory.setConstructor(new GConstructorInfo(new String[] { String.class.getName(),
-                    Integer.class.getName()}, new Class[] { String.class, Integer.class}));
+            infoFactory.setConstructor(new String[]{"foo", "bar"});
             infoFactory.addNotification(notificationInfo);
             infoFactory.addReference(refInfo);
             GBEAN_INFO = infoFactory.getBeanInfo();

@@ -17,21 +17,18 @@
 
 package org.apache.geronimo.security.jacc;
 
-import javax.security.jacc.PolicyConfiguration;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
+import javax.security.jacc.PolicyConfiguration;
 
 import noNamespace.PrincipalType;
 import noNamespace.RealmType;
 import noNamespace.RoleMappingsType;
 import noNamespace.RoleType;
 import noNamespace.SecurityType;
-
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.security.GeronimoSecurityException;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.util.ConfigurationUtil;
@@ -49,14 +46,11 @@ import org.apache.geronimo.xbeans.j2ee.WebAppType;
  * these utility MBeans and not directly access the
  * <code>PolicyConfiguration</code> objects.
  *
- * @version $Revision: 1.5 $ $Date: 2004/05/30 01:26:23 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/02 05:33:04 $
  * @see javax.security.jacc.PolicyConfiguration
  * @see "Java Authorization Contract for Containers", section 3.1.3
  */
 public class WebModuleConfiguration extends AbstractModuleConfiguration {
-
-    private static final GBeanInfo GBEAN_INFO;
-
     private WebAppType webApp;
     private SecurityType security;
 
@@ -71,9 +65,8 @@ public class WebModuleConfiguration extends AbstractModuleConfiguration {
      * permissions.  These permissions are placed into the appropriate
      * <code>PolicyConfiguration</code> object as defined in the JAAC spec.
      *
-     * @throws org.apache.geronimo.security.GeronimoSecurityException
-     *          if there is any violation of the semantics of
-     *          the security descriptor or the state of the module configuration.
+     * @throws org.apache.geronimo.security.GeronimoSecurityException if there is any violation of the semantics of
+     * the security descriptor or the state of the module configuration.
      * @see javax.security.jacc.PolicyConfiguration
      * @see "Java Authorization Contract for Containers", section 3.1.3
      */
@@ -123,13 +116,15 @@ public class WebModuleConfiguration extends AbstractModuleConfiguration {
         }
     }
 
+
+    private static final GBeanInfo GBEAN_INFO;
+
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(WebModuleConfiguration.class.getName(), AbstractModuleConfiguration.getGBeanInfo());
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(WebModuleConfiguration.class, AbstractModuleConfiguration.GBEAN_INFO);
         //TODO make sure this attribute not backed by a getter or setter works.
-        infoFactory.addAttribute(new GAttributeInfo("WebApp", true));
-        infoFactory.addAttribute(new GAttributeInfo("Security", true));
-        infoFactory.setConstructor(new GConstructorInfo(new String[]{"ContextID", "WebApp", "Security"},
-                                                        new Class[]{String.class, WebAppType.class, SecurityType.class}));
+        infoFactory.addAttribute("WebApp", WebAppType.class, true);
+        infoFactory.addAttribute("Security", SecurityType.class, true);
+        infoFactory.setConstructor(new String[]{"ContextID", "WebApp", "Security"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

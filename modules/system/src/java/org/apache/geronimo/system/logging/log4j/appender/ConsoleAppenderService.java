@@ -30,7 +30,7 @@ import org.apache.log4j.Appender;
  * An extention of the default Log4j DailyRollingFileAppender
  * which will make the directory structure for the set log file.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:30 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/02 05:33:05 $
  */
 public class ConsoleAppenderService extends AbstractAppenderService {
     public ConsoleAppenderService() {
@@ -71,8 +71,8 @@ public class ConsoleAppenderService extends AbstractAppenderService {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConsoleAppenderService.class.getName(), AbstractAppenderService.GBEAN_INFO);
-        infoFactory.addAttribute(new GAttributeInfo("Target", true));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConsoleAppenderService.class, AbstractAppenderService.GBEAN_INFO);
+        infoFactory.addAttribute("Target", String.class, true);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

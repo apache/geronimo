@@ -40,7 +40,7 @@ import org.apache.geronimo.transaction.manager.XidImpl;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/30 19:03:36 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/02 05:33:02 $
  *
  * */
 public class JDBCLog implements TransactionLog, GBean {
@@ -150,23 +150,20 @@ public class JDBCLog implements TransactionLog, GBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(JDBCLog.class.getName());
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(JDBCLog.class);
 
-        infoFactory.addAttribute("SystemId", true);
+        infoFactory.addAttribute("SystemId", String.class, true);
 
         infoFactory.addInterface(TransactionLog.class);
 
         infoFactory.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class);
 
-        infoFactory.setConstructor(
-                new String[]{"SystemId", "DataSource"},
-                new Class[]{String.class, DataSource.class});
+        infoFactory.setConstructor(new String[]{"SystemId", "DataSource"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
-
-
 }

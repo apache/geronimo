@@ -51,7 +51,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 /**
  * Implementation of ConfigurationStore using the local filesystem.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:30 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:05 $
  */
 public class LocalConfigStore implements ConfigurationStore, GBean {
     private static final String INDEX_NAME = "index.properties";
@@ -251,15 +251,18 @@ public class LocalConfigStore implements ConfigurationStore, GBean {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(LocalConfigStore.class);
-        infoFactory.addAttribute("root", true);
+
+        infoFactory.addAttribute("root", URI.class, true);
+
         infoFactory.addReference("ServerInfo", ServerInfo.class);
+
         infoFactory.addOperation("install", new Class[]{URL.class});
         infoFactory.addOperation("containsConfiguration", new Class[]{URI.class});
         infoFactory.addOperation("getConfiguration", new Class[]{URI.class});
         infoFactory.addOperation("getBaseURL", new Class[]{URI.class});
-        infoFactory.setConstructor(
-                new String[]{"root", "ServerInfo"},
-                new Class[]{URI.class, ServerInfo.class});
+
+        infoFactory.setConstructor(new String[]{"root", "ServerInfo"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

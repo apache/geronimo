@@ -17,21 +17,17 @@
 
 package org.apache.geronimo.security;
 
+import java.util.Collection;
+import java.util.Collections;
 import javax.management.ObjectName;
 import javax.security.jacc.PolicyContextException;
 
-import java.util.Collection;
-import java.util.Collections;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.security.jacc.ModuleConfiguration;
@@ -45,12 +41,9 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
 /**
  * An MBean that maintains a list of security realms.
  *
- * @version $Revision: 1.6 $ $Date: 2004/05/30 01:24:30 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/02 05:33:04 $
  */
 public class SecurityService implements SecurityServiceMBean, GBean {
-
-    private static final GBeanInfo GBEAN_INFO;
-
     /**
      * The JMX name of the SecurityService.
      */
@@ -139,13 +132,18 @@ public class SecurityService implements SecurityServiceMBean, GBean {
         log.info("Security service failed");
     }
 
+    public static final GBeanInfo GBEAN_INFO;
+
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(SecurityService.class.getName());
-        infoFactory.addAttribute(new GAttributeInfo("PolicyConfigurationFactory", true));
-        infoFactory.addReference(new GReferenceInfo("Realms", SecurityRealm.class.getName()));
-        infoFactory.addReference(new GReferenceInfo("ModuleConfigurations", ModuleConfiguration.class.getName()));
-        infoFactory.setConstructor(new GConstructorInfo(new String[]{"PolicyConfigurationFactory"},
-                                                        new Class[]{String.class}));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(SecurityService.class);
+
+        infoFactory.addAttribute("PolicyConfigurationFactory", String.class, true);
+
+        infoFactory.addReference("Realms", SecurityRealm.class);
+        infoFactory.addReference("ModuleConfigurations", ModuleConfiguration.class);
+
+        infoFactory.setConstructor(new String[]{"PolicyConfigurationFactory"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -17,18 +17,6 @@
 
 package org.apache.geronimo.security.jaas;
 
-import javax.crypto.Mac;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import javax.management.ObjectName;
-import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.login.AppConfigurationEntry;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
-
 import java.io.IOException;
 import java.security.AccessController;
 import java.security.InvalidKeyException;
@@ -43,19 +31,26 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import javax.management.ObjectName;
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.AppConfigurationEntry;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
 
 import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
 import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.security.ContextManager;
@@ -69,12 +64,9 @@ import org.apache.geronimo.security.realm.SecurityRealm;
 /**
  * An MBean that maintains a list of security realms.
  *
- * @version $Revision: 1.5 $ $Date: 2004/05/22 15:25:35 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/02 05:33:04 $
  */
 public class LoginService implements LoginServiceMBean, GBean {
-
-    private static final GBeanInfo GBEAN_INFO;
-
     /**
      * The JMX name of the SecurityService.
      */
@@ -170,14 +162,14 @@ public class LoginService implements LoginServiceMBean, GBean {
 
                 if (securityRealm.isLoginModuleLocal()) {
                     wrapper = new SerializableACE("org.apache.geronimo.security.jaas.RemoteLoginModuleLocalWrapper",
-                                                  SerializableACE.LoginModuleControlFlag.REQUIRED,
-                                                  options);
+                            SerializableACE.LoginModuleControlFlag.REQUIRED,
+                            options);
 
                 } else {
                     options.putAll(entry.getOptions());
                     wrapper = new SerializableACE("org.apache.geronimo.security.jaas.RemoteLoginModuleRemoteWrapper",
-                                                  SerializableACE.LoginModuleControlFlag.REQUIRED,
-                                                  options);
+                            SerializableACE.LoginModuleControlFlag.REQUIRED,
+                            options);
                 }
                 return wrapper;
             }
@@ -446,20 +438,25 @@ public class LoginService implements LoginServiceMBean, GBean {
     public void doFail() {
     }
 
+    public static final GBeanInfo GBEAN_INFO;
+
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(LoginService.class.getName());
-        infoFactory.addOperation(new GOperationInfo("getAppConfigurationEntry", new String[]{String.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("allocateLoginModule", new String[]{String.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("getCallbacks", new String[]{LoginModuleId.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("login", new String[]{LoginModuleId.class.getName(), Collection.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("commit", new String[]{LoginModuleId.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("abort", new String[]{LoginModuleId.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("logout", new String[]{LoginModuleId.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("retrieveSubject", new String[]{LoginModuleId.class.getName()}));
-        infoFactory.addAttribute(new GAttributeInfo("ReclaimPeriod", true));
-        infoFactory.addAttribute(new GAttributeInfo("Algorithm", true));
-        infoFactory.addAttribute(new GAttributeInfo("Password", true));
-        infoFactory.addReference(new GReferenceInfo("Realms", SecurityRealm.class.getName()));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(LoginService.class);
+
+        infoFactory.addOperation("getAppConfigurationEntry", new Class[]{String.class});
+        infoFactory.addOperation("allocateLoginModule", new Class[]{String.class});
+        infoFactory.addOperation("getCallbacks", new Class[]{LoginModuleId.class});
+        infoFactory.addOperation("login", new Class[]{LoginModuleId.class, Collection.class});
+        infoFactory.addOperation("commit", new Class[]{LoginModuleId.class});
+        infoFactory.addOperation("abort", new Class[]{LoginModuleId.class});
+        infoFactory.addOperation("logout", new Class[]{LoginModuleId.class});
+        infoFactory.addOperation("retrieveSubject", new Class[]{LoginModuleId.class});
+
+        infoFactory.addAttribute("ReclaimPeriod", long.class, true);
+        infoFactory.addAttribute("Algorithm", String.class, true);
+        infoFactory.addAttribute("Password", String.class, true);
+
+        infoFactory.addReference("Realms", SecurityRealm.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

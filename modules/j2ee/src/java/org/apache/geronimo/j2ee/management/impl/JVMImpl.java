@@ -26,7 +26,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:52 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:02 $
  */
 public class JVMImpl {
     public static final String JAVA_VERSION = System.getProperty("java.version");
@@ -95,13 +95,15 @@ public class JVMImpl {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(JVMImpl.class);
-        infoFactory.addAttribute("javaVersion", false);
-        infoFactory.addAttribute("javaVendor", false);
-        infoFactory.addAttribute("node", false);
-        infoFactory.addAttribute("freeMemory", false);
-        infoFactory.addAttribute("maxMemory", false);
-        infoFactory.addAttribute("totalMemory", false);
-        infoFactory.addAttribute("availableProcessors", false);
+
+        infoFactory.addAttribute("javaVersion", String.class, false);
+        infoFactory.addAttribute("javaVendor", String.class, false);
+        infoFactory.addAttribute("node", String.class, false);
+        infoFactory.addAttribute("freeMemory", Long.TYPE, false);
+        infoFactory.addAttribute("maxMemory", Long.TYPE, false);
+        infoFactory.addAttribute("totalMemory", Long.TYPE, false);
+        infoFactory.addAttribute("availableProcessors", Integer.TYPE, false);
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

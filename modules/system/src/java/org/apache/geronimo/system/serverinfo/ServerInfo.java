@@ -25,10 +25,9 @@ import java.net.URL;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/05/26 03:22:21 $
+ * @version $Revision: 1.8 $ $Date: 2004/06/02 05:33:05 $
  */
 public class ServerInfo {
     private final File base;
@@ -102,17 +101,19 @@ public class ServerInfo {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ServerInfo.class.getName());
-        infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"BaseDirectory"},
-                new Class[]{String.class}));
-        infoFactory.addAttribute("BaseDirectory", true);
-        infoFactory.addAttribute("Version", false);
-        infoFactory.addAttribute("BuildDate", false);
-        infoFactory.addAttribute("BuildTime", false);
-        infoFactory.addAttribute("Copyright", false);
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ServerInfo.class);
+
+        infoFactory.addAttribute("BaseDirectory", String.class, true);
+        infoFactory.addAttribute("Version", String.class, false);
+        infoFactory.addAttribute("BuildDate", String.class, false);
+        infoFactory.addAttribute("BuildTime", String.class, false);
+        infoFactory.addAttribute("Copyright", String.class, false);
+
         infoFactory.addOperation("resolvePath", new Class[]{String.class});
         infoFactory.addOperation("resolve", new Class[]{URI.class});
+
+        infoFactory.setConstructor(new String[]{"BaseDirectory"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

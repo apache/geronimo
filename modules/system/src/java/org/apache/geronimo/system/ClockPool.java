@@ -30,7 +30,7 @@ import org.apache.geronimo.gbean.WaitingException;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:30 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:05 $
  */
 public class ClockPool implements GBean {
 
@@ -85,9 +85,10 @@ public class ClockPool implements GBean {
     private static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ClockPool.class.getName());
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ClockPool.class);
 
-        infoFactory.addAttribute("poolName", true);
+        infoFactory.addAttribute("poolName", String.class, true);
+
         infoFactory.addOperation("getClockDaemon");
 
         GBEAN_INFO = infoFactory.getBeanInfo();

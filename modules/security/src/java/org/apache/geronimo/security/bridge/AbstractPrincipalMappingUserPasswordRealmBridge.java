@@ -17,6 +17,10 @@
 
 package org.apache.geronimo.security.bridge;
 
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -24,25 +28,14 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
-import java.io.IOException;
-import java.security.Principal;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:25 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/02 05:33:04 $
  */
 public abstract class AbstractPrincipalMappingUserPasswordRealmBridge extends AbstractRealmBridge {
-
-    private static final GBeanInfo GBEAN_INFO;
-
     protected final Map principalMap = new HashMap();
     private Class principalSourceType;
     private String principalTargetCallbackName;
@@ -57,11 +50,12 @@ public abstract class AbstractPrincipalMappingUserPasswordRealmBridge extends Ab
     }
 
     public AbstractPrincipalMappingUserPasswordRealmBridge(String targetRealm,
-                                                           Class principalSourceType,
-                                                           String principalTargetCallbackName,
-                                                           Class userNameSourceType,
-                                                           String userNameTargetCallbackName,
-                                                           Class passwordSourceType) {
+            Class principalSourceType,
+            String principalTargetCallbackName,
+            Class userNameSourceType,
+            String userNameTargetCallbackName,
+            Class passwordSourceType) {
+
         super(targetRealm);
         this.principalSourceType = principalSourceType;
         this.principalTargetCallbackName = principalTargetCallbackName;
@@ -112,8 +106,7 @@ public abstract class AbstractPrincipalMappingUserPasswordRealmBridge extends Ab
 
     protected CallbackHandler getCallbackHandler(final Subject sourceSubject) {
         return new CallbackHandler() {
-            public void handle(Callback[] callbacks)
-                    throws IOException, UnsupportedCallbackException {
+            public void handle(Callback[] callbacks) throws UnsupportedCallbackException {
                 Principal principalSourcePrincipal = findPrincipalOfType(sourceSubject, principalSourceType);
                 Principal userNameSourcePrincipal;
                 if (userNameSourceType == principalSourceType) {
@@ -159,15 +152,22 @@ public abstract class AbstractPrincipalMappingUserPasswordRealmBridge extends Ab
         };
     }
 
+    public static final GBeanInfo GBEAN_INFO;
+
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(CallerIdentityUserPasswordRealmBridge.class.getName(), AbstractRealmBridge.getGBeanInfo());
-        infoFactory.addAttribute(new GAttributeInfo("PrincipalSourceType", true));
-        infoFactory.addAttribute(new GAttributeInfo("PrincipalTargetCallbackName", true));
-        infoFactory.addAttribute(new GAttributeInfo("UserNameSourceType", true));
-        infoFactory.addAttribute(new GAttributeInfo("UserNameTargetCallbackName", true));
-        infoFactory.addAttribute(new GAttributeInfo("PasswordSourceType", true));
-        infoFactory.setConstructor(new GConstructorInfo(new String[]{"TargetRealm", "PrincipalSourceType", "PrincipalTargetCallbackName", "UserNameSourceType", "UserNameTargetCallbackName", "PasswordSourceType"},
-                                                        new Class[]{String.class, Class.class, String.class, Class.class, String.class, Class.class}));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(CallerIdentityUserPasswordRealmBridge.class, AbstractRealmBridge.GBEAN_INFO);
+
+        infoFactory.addAttribute("PrincipalSourceType", Class.class, true);
+        infoFactory.addAttribute("PrincipalTargetCallbackName", String.class, true);
+        infoFactory.addAttribute("UserNameSourceType", Class.class, true);
+        infoFactory.addAttribute("UserNameTargetCallbackName", String.class, true);
+        infoFactory.addAttribute("PasswordSourceType", Class.class, true);
+
+        infoFactory.setConstructor(new String[]{
+            "UserNameSourceType",
+            "UserNameTargetCallbackName",
+            "PasswordSourceType"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

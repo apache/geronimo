@@ -25,17 +25,11 @@ import javax.resource.spi.work.WorkManager;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/05/30 19:03:36 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/02 05:33:01 $
  */
 public class BootstrapContext implements javax.resource.spi.BootstrapContext {
-
-    private static final GBeanInfo GBEAN_INFO;
-
     private WorkManager workManager;
     private XATerminator xATerminator;
 
@@ -83,21 +77,24 @@ public class BootstrapContext implements javax.resource.spi.BootstrapContext {
         return new Timer();
     }
 
+    public static final GBeanInfo GBEAN_INFO;
+
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(BootstrapContext.class.getName());
-        infoFactory.addOperation(new GOperationInfo("getWorkManager"));
-        infoFactory.addOperation(new GOperationInfo("getXATerminator"));
-        infoFactory.addOperation(new GOperationInfo("createTimer"));
-        infoFactory.addReference(new GReferenceInfo("WorkManager", WorkManager.class.getName()));
-        infoFactory.addReference(new GReferenceInfo("XATerminator", XATerminator.class.getName()));
-        infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"WorkManager", "XATerminator"},
-                new Class[]{WorkManager.class, XATerminator.class}));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(BootstrapContext.class);
+
+        infoFactory.addOperation("getWorkManager");
+        infoFactory.addOperation("getXATerminator");
+        infoFactory.addOperation("createTimer");
+
+        infoFactory.addReference("WorkManager", WorkManager.class);
+        infoFactory.addReference("XATerminator", XATerminator.class);
+
+        infoFactory.setConstructor(new String[]{"WorkManager", "XATerminator"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
-
 }

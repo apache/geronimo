@@ -35,12 +35,9 @@ import org.apache.geronimo.security.GeronimoSecurityException;
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:25 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:04 $
  */
 public abstract class AbstractModuleConfiguration implements ModuleConfiguration, GBean {
-
-    private static final GBeanInfo GBEAN_INFO;
-
     public static final String BASE_OBJECT_NAME = "geronimo.security:type=ModuleConfiguration";
 
     private String contextId;
@@ -245,15 +242,19 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
         }
     }
 
+    public static final GBeanInfo GBEAN_INFO;
+
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractModuleConfiguration.class.getName());
-        infoFactory.addAttribute(new GAttributeInfo("ContextID", true));
-        infoFactory.addAttribute(new GAttributeInfo("Roles", true));//??persistent
-        infoFactory.addOperation(new GOperationInfo("addRoleMapping",
-                new String[]{String.class.getName(), Collection.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("linkConfiguration", new String[]{ModuleConfiguration.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("commit"));
-        infoFactory.addOperation(new GOperationInfo("inService"));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractModuleConfiguration.class);
+
+        infoFactory.addAttribute("ContextID", String.class, true);
+        infoFactory.addAttribute("Roles", HashSet.class, true); //??persistent
+
+        infoFactory.addOperation("addRoleMapping", new Class[]{String.class, Collection.class});
+        infoFactory.addOperation("linkConfiguration", new Class[]{ModuleConfiguration.class});
+        infoFactory.addOperation("commit");
+        infoFactory.addOperation("inService");
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

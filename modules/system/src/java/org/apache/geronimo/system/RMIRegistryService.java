@@ -31,7 +31,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Thin GBean wrapper around the RMI Registry.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/30 18:58:59 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/02 05:33:05 $
  */
 public class RMIRegistryService implements GBean {
     private int port = Registry.REGISTRY_PORT;
@@ -76,7 +76,7 @@ public class RMIRegistryService implements GBean {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(RMIRegistryService.class);
-        infoFactory.addAttribute("Port", true);
+        infoFactory.addAttribute("Port", int.class, true);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

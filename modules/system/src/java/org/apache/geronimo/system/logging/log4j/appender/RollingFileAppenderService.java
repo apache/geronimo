@@ -24,7 +24,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.log4j.RollingFileAppender;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:30 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:05 $
  */
 public class RollingFileAppenderService extends FileAppenderService {
     public RollingFileAppenderService(ServerInfo serverInfo) {
@@ -50,9 +50,9 @@ public class RollingFileAppenderService extends FileAppenderService {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(RollingFileAppenderService.class.getName(), FileAppenderService.GBEAN_INFO);
-        infoFactory.addAttribute(new GAttributeInfo("MaxBackupIndex", true));
-        infoFactory.addAttribute(new GAttributeInfo("MaxFileSize", true));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(RollingFileAppenderService.class, FileAppenderService.GBEAN_INFO);
+        infoFactory.addAttribute("MaxBackupIndex", int.class, true);
+        infoFactory.addAttribute("MaxFileSize", String.class, true);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

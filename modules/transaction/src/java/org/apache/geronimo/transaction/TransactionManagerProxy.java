@@ -17,11 +17,10 @@
 
 package org.apache.geronimo.transaction;
 
-import java.util.Map;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.HashSet;
-
+import java.util.Map;
+import java.util.Set;
 import javax.resource.spi.XATerminator;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
@@ -33,17 +32,14 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAException;
-import javax.transaction.xa.Xid;
 import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.transaction.manager.Recovery;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.transaction.manager.XidImporter;
-import org.apache.geronimo.transaction.manager.Recovery;
 
 /**
  * A wrapper for a TransactionManager that wraps all Transactions in a TransactionProxy
@@ -51,12 +47,9 @@ import org.apache.geronimo.transaction.manager.Recovery;
  * are delegated to the wrapped TransactionManager; all other operations are delegated to the
  * wrapped Transaction.
  *
- * @version $Revision: 1.8 $ $Date: 2004/05/06 04:00:51 $
+ * @version $Revision: 1.9 $ $Date: 2004/06/02 05:33:05 $
  */
 public class TransactionManagerProxy implements TransactionManager, XATerminator, XAWork {
-
-    public static final GBeanInfo GBEAN_INFO;
-
     private final TransactionManager delegate;
     private final XidImporter importer;
     private final ThreadLocal threadTx = new ThreadLocal();
@@ -273,25 +266,24 @@ public class TransactionManagerProxy implements TransactionManager, XATerminator
         }
     }
 
+    public static final GBeanInfo GBEAN_INFO;
+
     //for now we use the default constructor.
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(TransactionManagerProxy.class.getName());
-        /*
-        infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"Delegate", "XidImporter"},
-                new Class[]{TransactionManager.class, XidImporter.class}));
-         */
-        infoFactory.addAttribute(new GAttributeInfo("Delegate", true));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(TransactionManagerProxy.class);
 
-        infoFactory.addOperation(new GOperationInfo("setTransactionTimeout", new String[]{Integer.TYPE.getName()}));
-        infoFactory.addOperation(new GOperationInfo("begin"));
-        infoFactory.addOperation(new GOperationInfo("getStatus"));
-        infoFactory.addOperation(new GOperationInfo("getTransaction"));
-        infoFactory.addOperation(new GOperationInfo("suspend"));
-        infoFactory.addOperation(new GOperationInfo("resume", new String[]{Transaction.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("commit"));
-        infoFactory.addOperation(new GOperationInfo("rollback"));
-        infoFactory.addOperation(new GOperationInfo("setRollbackOnly"));
+        infoFactory.addAttribute("Delegate", TransactionManager.class, true);
+
+        infoFactory.addOperation("setTransactionTimeout", new Class[]{int.class});
+        infoFactory.addOperation("begin");
+        infoFactory.addOperation("getStatus");
+        infoFactory.addOperation("getTransaction");
+        infoFactory.addOperation("suspend");
+        infoFactory.addOperation("resume", new Class[]{Transaction.class});
+        infoFactory.addOperation("commit");
+        infoFactory.addOperation("rollback");
+        infoFactory.addOperation("setRollbackOnly");
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -22,8 +22,6 @@ import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
@@ -36,7 +34,7 @@ import org.apache.geronimo.security.jaas.LoginServiceMBean;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:58:10 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/02 05:33:04 $
  */
 public class LoginServiceStub implements GBean, JMXTarget {
     private ProxyContainer serverContainer;
@@ -88,9 +86,9 @@ public class LoginServiceStub implements GBean, JMXTarget {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(LoginServiceStub.class.getName());
-        infoFactory.addReference(new GReferenceInfo("Router", JMXRouter.class.getName()));
-        infoFactory.addOperation(new GOperationInfo("getRemotingEndpointInterceptor"));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(LoginServiceStub.class);
+        infoFactory.addReference("Router", JMXRouter.class);
+        infoFactory.addOperation("getRemotingEndpointInterceptor");
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

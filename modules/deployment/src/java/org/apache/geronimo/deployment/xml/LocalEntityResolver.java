@@ -26,11 +26,8 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.xml.resolver.Catalog;
 import org.apache.xml.resolver.CatalogEntry;
 import org.apache.xml.resolver.CatalogException;
@@ -59,12 +56,9 @@ import org.xml.sax.SAXException;
  * http://www.oasis-open.org/committees/entity/archives/spec-2001-08-01.html
  * and see http://www.oasis-open.org/html/a401.htm
  *
- * @version $Revision: 1.7 $ $Date: 2004/03/10 09:58:50 $
+ * @version $Revision: 1.8 $ $Date: 2004/06/02 05:33:02 $
  */
 public class LocalEntityResolver implements EntityResolver {
-
-    private static final GBeanInfo GBEAN_INFO;
-
     /**
      * used Logger
      */
@@ -399,16 +393,21 @@ public class LocalEntityResolver implements EntityResolver {
         catalog = manager.getCatalog();
     }
 
+    public static final GBeanInfo GBEAN_INFO;
+
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("configurable local entity resolver", LocalEntityResolver.class.getName());
-        infoFactory.addAttribute(new GAttributeInfo("CatalogFileURI", true));
-        infoFactory.addAttribute(new GAttributeInfo("LocalRepositoryURI", true));
-        infoFactory.addAttribute(new GAttributeInfo("FailOnUnresolvable", true));
-        infoFactory.addOperation(new GOperationInfo("resolveEntity", new String[]{String.class.getName(), String.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("addPublicMapping", new String[]{String.class.getName(), String.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("addSystemMapping", new String[]{String.class.getName(), String.class.getName()}));
-        infoFactory.setConstructor(new GConstructorInfo(new String[]{"CatalogFileURI", "LocalRepositoryURI", "FailOnUnresolvable"},
-                new Class[]{URI.class, URI.class, Boolean.TYPE}));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("configurable local entity resolver", LocalEntityResolver.class);
+
+        infoFactory.addAttribute("CatalogFileURI", URI.class, true);
+        infoFactory.addAttribute("LocalRepositoryURI", URI.class, true);
+        infoFactory.addAttribute("FailOnUnresolvable", boolean.class, true);
+
+        infoFactory.addOperation("resolveEntity", new Class[]{String.class, String.class});
+        infoFactory.addOperation("addPublicMapping", new Class[]{String.class, String.class});
+        infoFactory.addOperation("addSystemMapping", new Class[]{String.class, String.class});
+
+        infoFactory.setConstructor(new String[]{"CatalogFileURI", "LocalRepositoryURI", "FailOnUnresolvable"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

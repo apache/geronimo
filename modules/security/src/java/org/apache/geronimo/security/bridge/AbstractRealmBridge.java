@@ -22,19 +22,14 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:25 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/02 05:33:04 $
  */
 public abstract class AbstractRealmBridge implements RealmBridge {
-
-    private static final GBeanInfo GBEAN_INFO;
-
     private String targetRealm;
 
     public AbstractRealmBridge() {
@@ -61,11 +56,12 @@ public abstract class AbstractRealmBridge implements RealmBridge {
         this.targetRealm = targetRealm;
     }
 
+    public static final GBeanInfo GBEAN_INFO;
+
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractRealmBridge.class.getName());
-        infoFactory.addAttribute(new GAttributeInfo("TargetRealm", true));
-        infoFactory.setConstructor(new GConstructorInfo(new String[]{"TargetRealm"},
-                                                        new Class[]{String.class}));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractRealmBridge.class);
+        infoFactory.addAttribute("TargetRealm", String.class, true);
+        infoFactory.setConstructor(new String[]{"TargetRealm"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

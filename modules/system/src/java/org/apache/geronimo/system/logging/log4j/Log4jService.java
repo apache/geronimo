@@ -43,7 +43,7 @@ import org.apache.log4j.Logger;
  * A Log4j logging service.
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:30 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:05 $
  */
 public class Log4jService implements GBean {
     /**
@@ -300,16 +300,19 @@ public class Log4jService implements GBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(Log4jService.class.getName());
-        infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"ConfigurationURL", "RefreshPeriod", "ServerInfo"},
-                new Class[]{URL.class, int.class, ServerInfo.class}));
-        infoFactory.addAttribute(new GAttributeInfo("ConfigurationURL", true));
-        infoFactory.addAttribute(new GAttributeInfo("RefreshPeriod", true));
-        infoFactory.addReference(new GReferenceInfo("ServerInfo", ServerInfo.class.getName()));
-        infoFactory.addOperation(new GOperationInfo("reconfigure"));
-        infoFactory.addOperation(new GOperationInfo("setLoggerLevel", new String[]{String.class.getName(), String.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("getLoggerLevel", new String[]{String.class.getName()}));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(Log4jService.class);
+
+        infoFactory.addAttribute("ConfigurationURL", URL.class, true);
+        infoFactory.addAttribute("RefreshPeriod", int.class, true);
+
+        infoFactory.addReference("ServerInfo", ServerInfo.class);
+
+        infoFactory.addOperation("reconfigure");
+        infoFactory.addOperation("setLoggerLevel", new Class[]{String.class, String.class});
+        infoFactory.addOperation("getLoggerLevel", new Class[]{String.class});
+
+        infoFactory.setConstructor(new String[]{"ConfigurationURL", "RefreshPeriod", "ServerInfo"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

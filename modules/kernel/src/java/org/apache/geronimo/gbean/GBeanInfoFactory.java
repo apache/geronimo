@@ -27,10 +27,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @version $Revision: 1.19 $ $Date: 2004/05/27 01:05:58 $
+ * @version $Revision: 1.20 $ $Date: 2004/06/02 05:33:03 $
  */
 public class GBeanInfoFactory {
-
     private static final Class[] NO_ARGS = {};
 
     private final String name;
@@ -48,7 +47,7 @@ public class GBeanInfoFactory {
     private final Set notifications = new HashSet();
 
     public GBeanInfoFactory(String name) {
-        this(name, name);
+        this(name, name, null);
     }
 
     public GBeanInfoFactory(Class clazz) {
@@ -59,12 +58,16 @@ public class GBeanInfoFactory {
         this(name, className, null);
     }
 
-    public GBeanInfoFactory(String className, GBeanInfo source) {
-        this(className, className, source);
+    public GBeanInfoFactory(String name, Class clazz) {
+        this(name, checkNotNull(clazz).getName(), null);
     }
 
     public GBeanInfoFactory(Class clazz, GBeanInfo source) {
         this(checkNotNull(clazz).getName(), clazz.getName(), source);
+    }
+
+    public GBeanInfoFactory(String name, Class clazz, GBeanInfo source) {
+        this(name, checkNotNull(clazz).getName(), source);
     }
 
     public GBeanInfoFactory(String name, String className, GBeanInfo source) {
@@ -137,22 +140,26 @@ public class GBeanInfoFactory {
             if ((name.startsWith("get") || name.startsWith("is")) && parameterTypes.length == 0) {
                 String attributeName = (name.startsWith("get")) ? name.substring(3) : name.substring(2);
                 GAttributeInfo attribute = (GAttributeInfo) attributes.get(attributeName);
+                String type = method.getReturnType().getName();
                 if (attribute == null) {
-                    attributes.put(attributeName, new GAttributeInfo(attributeName,
-                            persistentName.contains(attributeName), name, null));
+                    attributes.put(attributeName, new GAttributeInfo(attributeName, type, persistentName.contains(attributeName), name, null));
                 } else {
-                    attributes.put(attributeName, new GAttributeInfo(attributeName,
-                            persistentName.contains(attributeName), name, attribute.getSetterName()));
+                    if (!type.equals(attribute.getType())) {
+                        throw new IllegalArgumentException("Getter and setter type do not match: " + attributeName);
+                    }
+                    attributes.put(attributeName, new GAttributeInfo(attributeName, type, attribute.isPersistent(), name, attribute.getSetterName()));
                 }
             } else if (name.startsWith("set") && parameterTypes.length == 1) {
                 String attributeName = name.substring(3);
                 GAttributeInfo attribute = (GAttributeInfo) attributes.get(attributeName);
+                String type = method.getParameterTypes()[0].getName();
                 if (attribute == null) {
-                    attributes.put(attributeName, new GAttributeInfo(attributeName,
-                            persistentName.contains(attributeName), null, name));
+                    attributes.put(attributeName, new GAttributeInfo(attributeName, type, persistentName.contains(attributeName), null, name));
                 } else {
-                    attributes.put(attributeName, new GAttributeInfo(attributeName,
-                            persistentName.contains(attributeName), attribute.getSetterName(), name));
+                    if (!type.equals(attribute.getType())) {
+                        throw new IllegalArgumentException("Getter and setter type do not match: " + attributeName);
+                    }
+                    attributes.put(attributeName, new GAttributeInfo(attributeName, type, attribute.isPersistent(), attribute.getGetterName(), name));
                 }
             } else {
                 List parameters = new ArrayList(parameterTypes.length);
@@ -164,8 +171,12 @@ public class GBeanInfoFactory {
         }
     }
 
-    public void addAttribute(String name, boolean persistent) {
-        addAttribute(new GAttributeInfo(name, persistent));
+    public void addAttribute(String name, Class type, boolean persistent) {
+        addAttribute(new GAttributeInfo(name, type.getName(), persistent));
+    }
+
+    public void addAttribute(String name, String type, boolean persistent) {
+        addAttribute(new GAttributeInfo(name, type, persistent));
     }
 
     public void addAttribute(GAttributeInfo info) {
@@ -176,13 +187,12 @@ public class GBeanInfoFactory {
         this.constructor = constructor;
     }
 
-    public void setConstructor(String[] names, Class[] types) {
-        constructor = new GConstructorInfo(names, types);
+    public void setConstructor(String[] names) {
+        constructor = new GConstructorInfo(names);
     }
 
     public void addOperation(GOperationInfo operationInfo) {
-        operations.put(new GOperationSignature(operationInfo.getName(), operationInfo.getParameterList()),
-                operationInfo);
+        operations.put(new GOperationSignature(operationInfo.getName(), operationInfo.getParameterList()), operationInfo);
     }
 
     public void addOperation(String name) {
@@ -206,7 +216,6 @@ public class GBeanInfoFactory {
     }
 
     public GBeanInfo getBeanInfo() {
-        return new GBeanInfo(name, className, attributes.values(), constructor, operations.values(), references,
-                notifications);
+        return new GBeanInfo(name, className, attributes.values(), constructor, operations.values(), references, notifications);
     }
 }

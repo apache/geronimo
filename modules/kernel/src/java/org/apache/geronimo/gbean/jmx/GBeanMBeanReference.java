@@ -40,9 +40,10 @@ import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.NotificationType;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.ClassLoading;
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/05/29 05:18:45 $
+ * @version $Revision: 1.8 $ $Date: 2004/06/02 05:33:03 $
  */
 public class GBeanMBeanReference implements NotificationListener {
     private static final Log log = LogFactory.getLog(GBeanMBeanReference.class);
@@ -87,11 +88,14 @@ public class GBeanMBeanReference implements NotificationListener {
         this.gmbean = gmbean;
         this.name = referenceInfo.getName();
         try {
-            this.type = gmbean.getClassLoader().loadClass(referenceInfo.getType());
+            this.type = ClassLoading.loadClass(referenceInfo.getType(), gmbean.getClassLoader());
         } catch (ClassNotFoundException e) {
-            throw new InvalidConfigurationException("Could not load reference type class:" +
+            throw new InvalidConfigurationException("Could not load reference proxy interface class:" +
                     " name=" + name +
                     " class=" + referenceInfo.getType());
+        }
+        if (Modifier.isFinal(type.getModifiers())) {
+            throw new IllegalArgumentException("Proxy interface cannot be a final class: " + type.getName());
         }
 
         Class setterType;
@@ -111,10 +115,6 @@ public class GBeanMBeanReference implements NotificationListener {
             singleValued = true;
         } else {
             throw new IllegalArgumentException("Setter parameter or constructor type must be Collection or " + type);
-        }
-
-        if (Modifier.isFinal(type.getModifiers())) {
-            throw new IllegalArgumentException("Proxy interface cannot be a final class: " + type.getName());
         }
     }
 
@@ -353,7 +353,8 @@ public class GBeanMBeanReference implements NotificationListener {
                 }
             }
         } else {
-            // even though we have an exact name we need to search the methods becaus we don't know the parameter type
+            // even though we have an exact name we need to search the methods because
+            // we don't know the parameter type
             Method[] methods = gMBean.getType().getMethods();
             String setterName = referenceInfo.getSetterName();
             for (int i = 0; i < methods.length; i++) {

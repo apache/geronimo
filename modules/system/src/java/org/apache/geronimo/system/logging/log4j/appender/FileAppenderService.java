@@ -19,11 +19,8 @@ package org.apache.geronimo.system.logging.log4j.appender;
 
 import java.io.File;
 
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.log4j.FileAppender;
 
@@ -32,7 +29,7 @@ import org.apache.log4j.FileAppender;
  * An extention of the default Log4j FileAppenderService which
  * will make the directory structure for the set log file.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:30 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/02 05:33:05 $
  */
 public class FileAppenderService extends AbstractAppenderService {
     private final ServerInfo serverInfo;
@@ -103,16 +100,17 @@ public class FileAppenderService extends AbstractAppenderService {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(FileAppenderService.class.getName(), AbstractAppenderService.GBEAN_INFO);
-        infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"ServerInfo"},
-                new Class[]{ServerInfo.class}
-        ));
-        infoFactory.addReference(new GReferenceInfo("ServerInfo", ServerInfo.class.getName()));
-        infoFactory.addAttribute(new GAttributeInfo("Append", true));
-        infoFactory.addAttribute(new GAttributeInfo("File", true));
-        infoFactory.addAttribute(new GAttributeInfo("BufferedIO", true));
-        infoFactory.addAttribute(new GAttributeInfo("BufferedSize", true));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(FileAppenderService.class, AbstractAppenderService.GBEAN_INFO);
+
+        infoFactory.addAttribute("Append", boolean.class, true);
+        infoFactory.addAttribute("File", String.class, true);
+        infoFactory.addAttribute("BufferedIO", boolean.class, true);
+        infoFactory.addAttribute("BufferedSize", int.class, true);
+
+        infoFactory.addReference("ServerInfo", ServerInfo.class);
+
+        infoFactory.setConstructor(new String[]{"ServerInfo"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

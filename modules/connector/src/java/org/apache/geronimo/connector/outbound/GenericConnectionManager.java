@@ -27,10 +27,10 @@ import org.apache.geronimo.security.bridge.RealmBridge;
 
 /**
  * GenericConnectionManager sets up a connection manager stack according to the
- *  policies described in the attributes.
+ * policies described in the attributes.
  *
- * @version $Revision: 1.3 $ $Date: 2004/05/30 19:03:36 $
- * */
+ * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:02 $
+ */
 public class GenericConnectionManager extends AbstractConnectionManager {
 
     //connection manager configuration choices
@@ -49,10 +49,10 @@ public class GenericConnectionManager extends AbstractConnectionManager {
     }
 
     public GenericConnectionManager(TransactionSupport transactionSupport,
-                                    PoolingSupport pooling,
-                                    String name,
-                                    RealmBridge realmBridge,
-                                    ConnectionTracker connectionTracker) {
+            PoolingSupport pooling,
+            String name,
+            RealmBridge realmBridge,
+            ConnectionTracker connectionTracker) {
         this.transactionSupport = transactionSupport;
         this.pooling = pooling;
         this.name = name;
@@ -62,7 +62,7 @@ public class GenericConnectionManager extends AbstractConnectionManager {
 
     /**
      * Order of constructed interceptors:
-     *
+     * <p/>
      * ConnectionTrackingInterceptor (connectionTracker != null)
      * ConnectionHandleInterceptor
      * TransactionCachingInterceptor (useTransactions & useTransactionCaching)
@@ -74,7 +74,7 @@ public class GenericConnectionManager extends AbstractConnectionManager {
      */
     protected void setUpConnectionManager() throws IllegalStateException {
         //check for consistency between attributes
-        if (realmBridge == null && pooling instanceof PartitionedPool && ((PartitionedPool)pooling).isPartitionBySubject()) {
+        if (realmBridge == null && pooling instanceof PartitionedPool && ((PartitionedPool) pooling).isPartitionBySubject()) {
             throw new IllegalStateException("To use Subject in pooling, you need a SecurityDomain");
         }
 
@@ -97,11 +97,9 @@ public class GenericConnectionManager extends AbstractConnectionManager {
 
         stack = new ConnectionHandleInterceptor(stack);
         if (connectionTracker != null) {
-            stack = new ConnectionTrackingInterceptor(
-                    stack,
+            stack = new ConnectionTrackingInterceptor(stack,
                     getName(),
-                    connectionTracker
-            );
+                    connectionTracker);
         }
         tail.setStack(stack);
         this.stack = stack;
@@ -151,18 +149,22 @@ public class GenericConnectionManager extends AbstractConnectionManager {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(GenericConnectionManager.class.getName(), AbstractConnectionManager.GBEAN_INFO);
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(GenericConnectionManager.class, AbstractConnectionManager.GBEAN_INFO);
 
-        infoFactory.addAttribute("Name", true);
-        infoFactory.addAttribute("TransactionSupport", true);
-        infoFactory.addAttribute("Pooling", true);
+        infoFactory.addAttribute("Name", String.class, true);
+        infoFactory.addAttribute("TransactionSupport", TransactionSupport.class, true);
+        infoFactory.addAttribute("Pooling", PoolingSupport.class, true);
 
         infoFactory.addReference("ConnectionTracker", ConnectionTracker.class);
         infoFactory.addReference("RealmBridge", RealmBridge.class);
 
-        infoFactory.setConstructor(
-                new String[]{"TransactionSupport", "Pooling", "Name", "RealmBridge", "ConnectionTracker"},
-                new Class[]{TransactionSupport.class, PoolingSupport.class, String.class, RealmBridge.class, ConnectionTracker.class});
+        infoFactory.setConstructor(new String[]{
+            "TransactionSupport",
+            "Pooling",
+            "Name",
+            "RealmBridge",
+            "ConnectionTracker"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -24,12 +24,8 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
-import java.io.IOException;
-
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
 
 
 /**
@@ -37,12 +33,9 @@ import org.apache.geronimo.gbean.GConstructorInfo;
  * it always returns the configured user and password, no matter what the
  * source realm or source subject.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:25 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/02 05:33:04 $
  */
 public class ConfiguredIdentityUserPasswordRealmBridge extends AbstractRealmBridge {
-
-    private static final GBeanInfo GBEAN_INFO;
-
     private String configuredUser;
     private char[] configuredPassword;
 
@@ -73,8 +66,7 @@ public class ConfiguredIdentityUserPasswordRealmBridge extends AbstractRealmBrid
 
     protected CallbackHandler getCallbackHandler(Subject sourceSubject) {
         return new CallbackHandler() {
-            public void handle(Callback[] callbacks)
-                    throws IOException, UnsupportedCallbackException {
+            public void handle(Callback[] callbacks) throws UnsupportedCallbackException {
                 for (int i = 0; i < callbacks.length; i++) {
                     Callback callback = callbacks[i];
                     if (callback instanceof NameCallback) {
@@ -90,12 +82,13 @@ public class ConfiguredIdentityUserPasswordRealmBridge extends AbstractRealmBrid
         };
     }
 
+    public static final GBeanInfo GBEAN_INFO;
+
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConfiguredIdentityUserPasswordRealmBridge.class.getName(), AbstractRealmBridge.getGBeanInfo());
-        infoFactory.addAttribute(new GAttributeInfo("ConfiguredUser", true));
-        infoFactory.addAttribute(new GAttributeInfo("ConfiguredPassword", true));
-        infoFactory.setConstructor(new GConstructorInfo(new String[]{"TargetRealm", "ConfiguredUser", "ConfiguredPassword"},
-                                                        new Class[]{String.class, String.class, String.class}));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConfiguredIdentityUserPasswordRealmBridge.class, AbstractRealmBridge.GBEAN_INFO);
+        infoFactory.addAttribute("ConfiguredUser", String.class, true);
+        infoFactory.addAttribute("ConfiguredPassword", String.class, true);
+        infoFactory.setConstructor(new String[]{"TargetRealm", "ConfiguredUser", "ConfiguredPassword"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

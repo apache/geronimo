@@ -31,7 +31,7 @@ import org.apache.geronimo.gbean.WaitingException;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:30 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/02 05:33:05 $
  */
 public class ThreadPool implements GBean {
 
@@ -110,17 +110,22 @@ public class ThreadPool implements GBean {
     }
 
     public void doFail() {
+        try {
+            doStop();
+        } catch (Exception e) {
+            log.error("Failded to shutdown", e);
+        }
     }
 
     private static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ThreadPool.class.getName());
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ThreadPool.class);
 
-        infoFactory.addAttribute("keepAliveTime", true);
-        infoFactory.addAttribute("minimumPoolSize", true);
-        infoFactory.addAttribute("maximumPoolSize", true);
-        infoFactory.addAttribute("poolName", true);
+        infoFactory.addAttribute("keepAliveTime", long.class, true);
+        infoFactory.addAttribute("minimumPoolSize", int.class, true);
+        infoFactory.addAttribute("maximumPoolSize", int.class, true);
+        infoFactory.addAttribute("poolName", String.class, true);
         infoFactory.addOperation("getWorkManager");
 
         GBEAN_INFO = infoFactory.getBeanInfo();

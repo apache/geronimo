@@ -17,28 +17,23 @@
 
 package org.apache.geronimo.security.bridge;
 
-import javax.security.auth.login.AppConfigurationEntry;
-
 import java.util.HashMap;
 import java.util.Set;
+import javax.security.auth.login.AppConfigurationEntry;
 
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.security.GeronimoSecurityException;
 import org.apache.geronimo.security.realm.providers.AbstractSecurityRealm;
 import org.apache.regexp.RE;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:27 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/02 05:33:05 $
  */
 public class TestRealm extends AbstractSecurityRealm {
     public final static String REALM_NAME = "bridge-realm";
     public final static String JAAS_NAME = "bridge";
-    private static final GBeanInfo GBEAN_INFO;
 
     public TestRealm() {
     }
@@ -68,20 +63,21 @@ public class TestRealm extends AbstractSecurityRealm {
 
     public AppConfigurationEntry getAppConfigurationEntry() {
         return new AppConfigurationEntry(TestLoginModule.class.getName(),
-                                         AppConfigurationEntry.LoginModuleControlFlag.REQUISITE,
-                                         new HashMap());
+                AppConfigurationEntry.LoginModuleControlFlag.REQUISITE,
+                new HashMap());
     }
 
     public boolean isLoginModuleLocal() {
         return true;
     }
 
+    public static final GBeanInfo GBEAN_INFO;
+
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(TestRealm.class.getName(), AbstractSecurityRealm.getGBeanInfo());
-        infoFactory.addAttribute(new GAttributeInfo("debug", true));
-        infoFactory.addOperation(new GOperationInfo("isLoginModuleLocal"));
-        infoFactory.setConstructor(new GConstructorInfo(new String[]{"RealmName"},
-                                                        new Class[]{String.class}));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(TestRealm.class, AbstractSecurityRealm.GBEAN_INFO);
+        infoFactory.addAttribute("debug", boolean.class, true);
+        infoFactory.addOperation("isLoginModuleLocal");
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -19,12 +19,11 @@ package org.apache.geronimo.kernel.config;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GOperationInfo;
 
 /**
  * 
  * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:03 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:04 $
  */
 public class MyGBean {
     public void main(String[] args) {
@@ -33,8 +32,8 @@ public class MyGBean {
 
     public static final GBeanInfo GBEAN_INFO;
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(MyGBean.class.getName());
-        infoFactory.addOperation(new GOperationInfo("main", new String[] {String[].class.getName()}));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(MyGBean.class);
+        infoFactory.addOperation("main", new Class[] {String[].class});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 }

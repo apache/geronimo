@@ -24,10 +24,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
 
 
 /**
@@ -38,30 +36,28 @@ import org.apache.geronimo.gbean.GConstructorInfo;
  * from the appropriate principal class and possibly
  * callback name.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:25 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/02 05:33:04 $
  */
 public class PropertiesFilePrincipalMappingUserPasswordRealmBridge extends AbstractPrincipalMappingUserPasswordRealmBridge {
-
-    private static final GBeanInfo GBEAN_INFO;
-
     private URL propertyFileURL;
 
     public PropertiesFilePrincipalMappingUserPasswordRealmBridge() {
     }
 
     public PropertiesFilePrincipalMappingUserPasswordRealmBridge(String targetRealm,
-                                                                 Class principalSourceType,
-                                                                 String principalTargetCallbackName,
-                                                                 Class userNameSourceType,
-                                                                 String userNameTargetCallbackName,
-                                                                 Class passwordSourceType,
-                                                                 URL propertyFileURL) {
+            Class principalSourceType,
+            String principalTargetCallbackName,
+            Class userNameSourceType,
+            String userNameTargetCallbackName,
+            Class passwordSourceType,
+            URL propertyFileURL) {
+
         super(targetRealm,
-              principalSourceType,
-              principalTargetCallbackName,
-              userNameSourceType,
-              userNameTargetCallbackName,
-              passwordSourceType);
+                principalSourceType,
+                principalTargetCallbackName,
+                userNameSourceType,
+                userNameTargetCallbackName,
+                passwordSourceType);
         this.propertyFileURL = propertyFileURL;
     }
 
@@ -94,11 +90,12 @@ public class PropertiesFilePrincipalMappingUserPasswordRealmBridge extends Abstr
         }
     }
 
+    public static final GBeanInfo GBEAN_INFO;
+
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(PropertiesFilePrincipalMappingUserPasswordRealmBridge.class.getName(), AbstractPrincipalMappingUserPasswordRealmBridge.getGBeanInfo());
-        infoFactory.addAttribute(new GAttributeInfo("PropertyFileURL", true));
-        infoFactory.setConstructor(new GConstructorInfo(new String[]{"TargetRealm", "PrincipalSourceType", "PrincipalTargetCallbackName", "UserNameSourceType", "UserNameTargetCallbackName", "PasswordSourceType", "PropertyFileURL"},
-                                                        new Class[]{String.class, Class.class, String.class, Class.class, String.class, Class.class, URL.class}));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(PropertiesFilePrincipalMappingUserPasswordRealmBridge.class, AbstractPrincipalMappingUserPasswordRealmBridge.GBEAN_INFO);
+        infoFactory.addAttribute("PropertyFileURL", URL.class, true);
+        infoFactory.setConstructor(new String[]{"TargetRealm", "PrincipalSourceType", "PrincipalTargetCallbackName", "UserNameSourceType", "UserNameTargetCallbackName", "PasswordSourceType", "PropertyFileURL"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

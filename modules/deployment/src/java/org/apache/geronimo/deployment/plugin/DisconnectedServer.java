@@ -32,7 +32,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/04/03 22:37:57 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/02 05:33:02 $
  */
 public class DisconnectedServer implements DeploymentServer {
     public boolean isLocal() {
@@ -84,7 +84,7 @@ public class DisconnectedServer implements DeploymentServer {
 
     public static final GBeanInfo GBEAN_INFO;
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("JSR88 Disconnected Server", DisconnectedServer.class.getName());
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("JSR88 Disconnected Server", DisconnectedServer.class);
         infoFactory.addInterface(DeploymentServer.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -29,7 +29,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
 import org.apache.geronimo.j2ee.management.J2EEServer;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/05/19 20:53:59 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/02 05:33:02 $
  */
 public class J2EEApplicationImpl implements GBean {
     private String deploymentDescriptor;
@@ -110,10 +110,11 @@ public class J2EEApplicationImpl implements GBean {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(J2EEApplicationImpl.class);
         infoFactory.addReference("j2eeServer", J2EEServer.class);
-        infoFactory.addAttribute("deploymentDescriptor", true);
-        infoFactory.addAttribute("modules", false);
-        infoFactory.setConstructor(new String[]{"j2eeServer", "deploymentDescriptor"},
-                new Class[]{J2EEServer.class, String.class});
+        infoFactory.addAttribute("deploymentDescriptor", String.class, true);
+        infoFactory.addAttribute("modules", String[].class, false);
+
+        infoFactory.setConstructor(new String[]{"j2eeServer", "deploymentDescriptor"});
+        
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

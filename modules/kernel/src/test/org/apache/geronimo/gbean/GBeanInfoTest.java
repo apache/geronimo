@@ -19,15 +19,16 @@ package org.apache.geronimo.gbean;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import junit.framework.TestCase;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/13 23:48:56 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/02 05:33:03 $
  */
 public class GBeanInfoTest extends TestCase {
+    private static final String CONSTRUCTOR_ARG_0 = "ConstructorArg-0";
+    private static final String CONSTRUCTOR_ARG_1 = "ConstructorArg-1";
 
     public void testGetGBeanInfo() {
         // 1. Test GBean that exists
@@ -91,13 +92,8 @@ public class GBeanInfoTest extends TestCase {
         GConstructorInfo gctorInfo = gbeanInfo.getConstructor();
         List attrNameList = gctorInfo.getAttributeNames();
         assertEquals(2, attrNameList.size());
-        assertTrue(attrNameList.contains(String.class.getName()));
-        assertTrue(attrNameList.contains(Integer.class.getName()));
-        Map attrTypeMap = gctorInfo.getAttributeTypeMap();
-        assertTrue(attrTypeMap.containsValue(String.class));
-        assertTrue(attrTypeMap.containsValue(Integer.class));
-        assertEquals(String.class, attrTypeMap.get(String.class.getName()));
-        assertEquals(Integer.class, attrTypeMap.get(Integer.class.getName()));
+        assertEquals(CONSTRUCTOR_ARG_0, attrNameList.get(0));
+        assertEquals(CONSTRUCTOR_ARG_1, attrNameList.get(1));
     }
 
     public void testGetOperationsSet() {
@@ -127,11 +123,11 @@ public class GBeanInfoTest extends TestCase {
 
     final static String nonPersistentAttrName = "nonPersistentAttribute";
 
-    final static GAttributeInfo nonPersistentAttrInfo = new GAttributeInfo(nonPersistentAttrName, false);
+    final static GAttributeInfo nonPersistentAttrInfo = new GAttributeInfo(nonPersistentAttrName, String.class.getName(), false);
 
     final static String persistentAttrName = "persistentAttribute";
 
-    final static GAttributeInfo persistentAttrInfo = new GAttributeInfo(persistentAttrName, true);
+    final static GAttributeInfo persistentAttrInfo = new GAttributeInfo(persistentAttrName, String.class.getName(), true);
 
     final static GOperationInfo opInfo = new GOperationInfo("operation");
 
@@ -148,18 +144,22 @@ public class GBeanInfoTest extends TestCase {
     }
 
     public static final class MockGBean {
-
         public static final GBeanInfo GBEAN_INFO;
 
         static {
             GBeanInfoFactory infoFactory = new GBeanInfoFactory(MockGBean.class);
-            infoFactory.setConstructor(new GConstructorInfo(new String[] { String.class.getName(),
-                    Integer.class.getName()}, new Class[] { String.class, Integer.class}));
+
             infoFactory.addAttribute(nonPersistentAttrInfo);
             infoFactory.addAttribute(persistentAttrInfo);
+
             infoFactory.addOperation(opInfo);
+
             infoFactory.addNotification(notificationInfo);
+
             infoFactory.addReference(refInfo);
+
+            infoFactory.setConstructor(new String[]{CONSTRUCTOR_ARG_0, CONSTRUCTOR_ARG_1});
+
             GBEAN_INFO = infoFactory.getBeanInfo();
         }
 

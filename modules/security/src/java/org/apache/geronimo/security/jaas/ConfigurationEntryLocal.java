@@ -19,7 +19,6 @@ package org.apache.geronimo.security.jaas;
 
 import javax.security.auth.login.AppConfigurationEntry;
 
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 
@@ -35,16 +34,12 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
  * <p>More specifically, you can only use this method or Sun's JAAS config
  * file.
  *
- * @version $Revision: 1.3 $ $Date: 2004/05/30 01:27:35 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:04 $
  * @see org.apache.geronimo.security.jaas.GeronimoLoginConfiguration
  * @see javax.security.auth.login.Configuration
  */
 public class ConfigurationEntryLocal extends ConfigurationEntry {
-
-    private static final GBeanInfo GBEAN_INFO;
-
     private String loginModuleName;
-
 
     public String getLoginModuleName() {
         return loginModuleName;
@@ -58,16 +53,18 @@ public class ConfigurationEntryLocal extends ConfigurationEntry {
         try {
             return new AppConfigurationEntry[]{
                 new AppConfigurationEntry(loginModuleName,
-                                          getControlFlag().getFlag(),
-                                          getOptions())};
+                        getControlFlag().getFlag(),
+                        getOptions())};
         } catch (Exception e) {
         }
         return null;
     }
 
+    public static final GBeanInfo GBEAN_INFO;
+
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConfigurationEntryLocal.class.getName(), ConfigurationEntry.getGBeanInfo());
-        infoFactory.addAttribute(new GAttributeInfo("LoginModuleName", true));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConfigurationEntryLocal.class, ConfigurationEntry.GBEAN_INFO);
+        infoFactory.addAttribute("LoginModuleName", String.class, true);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -33,7 +33,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
-
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -52,11 +51,8 @@ import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
@@ -76,7 +72,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.17 $ $Date: 2004/05/30 19:03:36 $
+ * @version $Revision: 1.18 $ $Date: 2004/06/02 05:33:02 $
  *
  * */
 public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
@@ -335,16 +331,17 @@ public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Geronimo RAR Configuration Factory", AbstractRARConfigBuilder.class.getName());
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Geronimo RAR Configuration Factory", AbstractRARConfigBuilder.class);
+
         infoFactory.addInterface(ConfigurationBuilder.class);
-        infoFactory.addAttribute(new GAttributeInfo("ConnectionTrackerNamePattern", true));
-        infoFactory.addReference(new GReferenceInfo("Repository", Repository.class));
-        infoFactory.addReference(new GReferenceInfo("Kernel", Kernel.class));
-        infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"Kernel", "Repository", "ConnectionTrackerNamePattern"},
-                new Class[]{Kernel.class, Repository.class, ObjectName.class}));
+
+        infoFactory.addAttribute("ConnectionTrackerNamePattern", ObjectName.class, true);
+
+        infoFactory.addReference("Repository", Repository.class);
+        infoFactory.addReference("Kernel", Kernel.class);
+
+        infoFactory.setConstructor(new String[]{"Kernel", "Repository", "ConnectionTrackerNamePattern"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
-
-
 }

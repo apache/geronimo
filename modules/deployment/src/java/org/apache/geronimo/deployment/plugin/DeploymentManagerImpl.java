@@ -20,15 +20,11 @@ package org.apache.geronimo.deployment.plugin;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Locale;
-import java.util.jar.JarInputStream;
-
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.shared.DConfigBeanVersionType;
@@ -46,9 +42,6 @@ import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.ModuleConfigurer;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
@@ -57,7 +50,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.16 $ $Date: 2004/04/03 22:37:57 $
+ * @version $Revision: 1.17 $ $Date: 2004/06/02 05:33:02 $
  */
 public class DeploymentManagerImpl implements DeploymentManager {
     private final DeploymentServer server;
@@ -241,15 +234,16 @@ public class DeploymentManagerImpl implements DeploymentManager {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("JSR88 Deployment Manager", DeploymentManagerImpl.class.getName());
-        infoFactory.addOperation(new GOperationInfo("addConfigurationBuilder", new String[]{ConfigurationBuilder.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("removeConfigurationBuilder", new String[]{ConfigurationBuilder.class.getName()}));
-        infoFactory.addReference(new GReferenceInfo("Server", DeploymentServer.class.getName()));
-        infoFactory.addReference(new GReferenceInfo("Configurers", ModuleConfigurer.class));
-        infoFactory.setConstructor(new GConstructorInfo(
-                Arrays.asList(new Object[]{"Server", "Configurers"}),
-                Arrays.asList(new Object[]{DeploymentServer.class, Collection.class})
-        ));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("JSR88 Deployment Manager", DeploymentManagerImpl.class);
+
+        infoFactory.addOperation("addConfigurationBuilder", new Class[]{ConfigurationBuilder.class});
+        infoFactory.addOperation("removeConfigurationBuilder", new Class[]{ConfigurationBuilder.class});
+
+        infoFactory.addReference("Server", DeploymentServer.class);
+        infoFactory.addReference("Configurers", ModuleConfigurer.class);
+
+        infoFactory.setConstructor(new String[]{"Server", "Configurers"});
+        
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 }

@@ -22,11 +22,10 @@ import java.net.URI;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.remoting.InterceptorRegistry;
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/03/10 09:59:19 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/02 05:33:04 $
  */
 public class InterceptorRegistryRouter extends AbstractInterceptorRouter implements Router {
     private SubsystemRouter subsystemRouter;
@@ -61,8 +60,8 @@ public class InterceptorRegistryRouter extends AbstractInterceptorRouter impleme
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(InterceptorRegistryRouter.class.getName(), AbstractInterceptorRouter.GBEAN_INFO);
-        infoFactory.addReference(new GReferenceInfo("SubsystemRouter", SubsystemRouter.class.getName()));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(InterceptorRegistryRouter.class, AbstractInterceptorRouter.GBEAN_INFO);
+        infoFactory.addReference("SubsystemRouter", SubsystemRouter.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -31,7 +31,7 @@ import org.mortbay.util.ThreadedServer;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:56 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/02 05:33:03 $
  */
 public abstract class JettyConnector implements GBean {
     private final JettyContainer container;
@@ -83,12 +83,12 @@ public abstract class JettyConnector implements GBean {
         }
     }
 
-    protected static final GBeanInfo GBEAN_INFO;
+    public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty HTTP Connector", JettyConnector.class.getName());
-        infoFactory.addAttribute(new GAttributeInfo("Port", true));
-        infoFactory.addReference(new GReferenceInfo("JettyContainer", JettyContainer.class.getName()));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty HTTP Connector", JettyConnector.class);
+        infoFactory.addAttribute("Port", int.class, true);
+        infoFactory.addReference("JettyContainer", JettyContainer.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 }

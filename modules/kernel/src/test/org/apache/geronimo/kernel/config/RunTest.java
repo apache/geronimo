@@ -19,26 +19,25 @@ package org.apache.geronimo.kernel.config;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
 import java.io.InputStream;
-import java.util.jar.JarOutputStream;
-import java.util.jar.Manifest;
-import java.util.jar.Attributes;
-import java.util.zip.ZipEntry;
+import java.io.ObjectOutputStream;
+import java.net.URI;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Collections;
-import java.net.URI;
-
+import java.util.jar.Attributes;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import junit.framework.TestCase;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
 
 /**
  * 
  * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:03 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:04 $
  */
 public class RunTest extends TestCase {
     private File carFile;

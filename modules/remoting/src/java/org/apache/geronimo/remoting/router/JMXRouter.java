@@ -17,27 +17,25 @@
 
 package org.apache.geronimo.remoting.router;
 
-import javax.management.ObjectName;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import javax.management.ObjectName;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
 
 /**
  * Uses JMX Object names to route the request to a JMX object that implements the
  * JMXTargetMBean interface.
- *
+ * <p/>
  * This allows you to route invocations to MBeans using URIs like:
  * async://localhost:3434/JMX#geronimo.jmx:target=MBeanServerStub
- *
+ * <p/>
  * The MBean that will receive invocations must implement the JMXTarget interface.
  *
- * @version $Revision: 1.10 $ $Date: 2004/03/10 09:59:19 $
+ * @version $Revision: 1.11 $ $Date: 2004/06/02 05:33:04 $
  */
 public class JMXRouter extends AbstractInterceptorRouter {
     private SubsystemRouter subsystemRouter;
@@ -61,7 +59,7 @@ public class JMXRouter extends AbstractInterceptorRouter {
 
     protected Interceptor lookupInterceptorFrom(URI to) throws Exception {
         ObjectName objectName = new ObjectName(to.getFragment());
-        JMXTarget bean = (JMXTarget)registered.get(objectName);
+        JMXTarget bean = (JMXTarget) registered.get(objectName);
 
         if (bean != null) return bean.getRemotingEndpointInterceptor();
 
@@ -81,10 +79,10 @@ public class JMXRouter extends AbstractInterceptorRouter {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(JMXRouter.class.getName(), AbstractInterceptorRouter.GBEAN_INFO);
-        infoFactory.addReference(new GReferenceInfo("SubsystemRouter", SubsystemRouter.class.getName()));
-        infoFactory.addOperation(new GOperationInfo("register", new String[] {ObjectName.class.getName(), JMXTarget.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("unRegister", new String[] {ObjectName.class.getName()}));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(JMXRouter.class, AbstractInterceptorRouter.GBEAN_INFO);
+        infoFactory.addReference("SubsystemRouter", SubsystemRouter.class);
+        infoFactory.addOperation("register", new Class[]{ObjectName.class, JMXTarget.class});
+        infoFactory.addOperation("unRegister", new Class[]{ObjectName.class});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

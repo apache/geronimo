@@ -17,28 +17,22 @@
 
 package org.apache.geronimo.security.realm.providers;
 
-import javax.security.auth.login.AppConfigurationEntry;
-
 import java.util.HashMap;
 import java.util.Set;
+import javax.security.auth.login.AppConfigurationEntry;
 
-import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.security.GeronimoSecurityException;
-import org.apache.regexp.RE;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.regexp.RE;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/05/22 15:25:13 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:04 $
  */
 public class KerberosSecurityRealm extends AbstractSecurityRealm {
-
-    private static final GBeanInfo GBEAN_INFO;
     private static Log log = LogFactory.getLog(KerberosSecurityRealm.class);
 
     private boolean running = false;
@@ -241,24 +235,27 @@ public class KerberosSecurityRealm extends AbstractSecurityRealm {
         return false;
     }
 
+    public static final GBeanInfo GBEAN_INFO;
+
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(KerberosSecurityRealm.class.getName(), AbstractSecurityRealm.getGBeanInfo());
-        infoFactory.addAttribute(new GAttributeInfo("debug", true));
-        infoFactory.addAttribute(new GAttributeInfo("storeKey", true));
-        infoFactory.addAttribute(new GAttributeInfo("useTicketCache", true));
-        infoFactory.addAttribute(new GAttributeInfo("useKeyTab", true));
-        infoFactory.addAttribute(new GAttributeInfo("doNotPrompt", true));
-        infoFactory.addAttribute(new GAttributeInfo("ticketCache", true));
-        infoFactory.addAttribute(new GAttributeInfo("keyTab", true));
-        infoFactory.addAttribute(new GAttributeInfo("refreshKrb5Config", true));
-        infoFactory.addAttribute(new GAttributeInfo("principal", true));
-        infoFactory.addAttribute(new GAttributeInfo("tryFirstPass", true));
-        infoFactory.addAttribute(new GAttributeInfo("useFirstPass", true));
-        infoFactory.addAttribute(new GAttributeInfo("storePass", true));
-        infoFactory.addAttribute(new GAttributeInfo("clearPass", true));
-        infoFactory.addOperation(new GOperationInfo("isLoginModuleLocal"));
-        infoFactory.setConstructor(new GConstructorInfo(new String[]{"RealmName"},
-                                                        new Class[]{String.class}));
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(KerberosSecurityRealm.class, AbstractSecurityRealm.GBEAN_INFO);
+
+        infoFactory.addAttribute("debug", boolean.class, true);
+        infoFactory.addAttribute("storeKey", boolean.class, true);
+        infoFactory.addAttribute("useTicketCache", boolean.class, true);
+        infoFactory.addAttribute("useKeyTab", boolean.class, true);
+        infoFactory.addAttribute("doNotPrompt", boolean.class, true);
+        infoFactory.addAttribute("ticketCache", String.class, true);
+        infoFactory.addAttribute("keyTab", String.class, true);
+        infoFactory.addAttribute("refreshKrb5Config", boolean.class, true);
+        infoFactory.addAttribute("principal", String.class, true);
+        infoFactory.addAttribute("tryFirstPass", boolean.class, true);
+        infoFactory.addAttribute("useFirstPass", boolean.class, true);
+        infoFactory.addAttribute("storePass", boolean.class, true);
+        infoFactory.addAttribute("clearPass", boolean.class, true);
+
+        infoFactory.addOperation("isLoginModuleLocal");
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

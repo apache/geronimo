@@ -32,7 +32,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
  * <li>4 byte system id</li>
  * <li>4 or 16 byte IP address of host</li>
  * <ol>
- * @version $Revision: 1.1 $ $Date: 2004/05/06 04:00:51 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/02 05:33:05 $
  * todo Should have a way of setting baseId
  */
 public class XidFactoryImpl implements XidFactory {
@@ -111,7 +111,7 @@ public class XidFactoryImpl implements XidFactory {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(XidFactoryImpl.class.getName());
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(XidFactoryImpl.class);
         infoFactory.addInterface(XidFactory.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

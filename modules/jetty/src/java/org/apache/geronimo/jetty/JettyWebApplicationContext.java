@@ -23,7 +23,6 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Set;
-
 import javax.resource.ResourceException;
 import javax.security.jacc.PolicyConfiguration;
 import javax.security.jacc.PolicyConfigurationFactory;
@@ -38,7 +37,6 @@ import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.config.ConfigurationParent;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
@@ -58,7 +56,7 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
- * @version $Revision: 1.17 $ $Date: 2004/05/31 23:37:05 $
+ * @version $Revision: 1.18 $ $Date: 2004/06/02 05:33:03 $
  */
 public class JettyWebApplicationContext extends WebApplicationContext implements GBean {
 
@@ -291,23 +289,34 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
     public static final GBeanInfo GBEAN_INFO;
 
     static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty WebApplication Context", JettyWebApplicationContext.class);
 
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty WebApplication Context", JettyWebApplicationContext.class.getName());
-        infoFactory.addAttribute("URI", true);
-        infoFactory.addAttribute("ContextPath", true);
-        infoFactory.addAttribute("ContextPriorityClassLoader", true);
-        infoFactory.addAttribute("SecurityConfig", true);
-        infoFactory.addAttribute("ComponentContext", true);
-        infoFactory.addAttribute("PolicyContextID", true);
-        infoFactory.addAttribute("UnshareableResources", true);
-        infoFactory.addAttribute("ApplicationManagedSecurityResources", true);
-        infoFactory.addAttribute("UserTransaction", true);
+        infoFactory.addAttribute("URI", URI.class, true);
+        infoFactory.addAttribute("ContextPath", String.class, true);
+        infoFactory.addAttribute("ContextPriorityClassLoader", Boolean.TYPE, true);
+        infoFactory.addAttribute("SecurityConfig", Security.class, true);
+        infoFactory.addAttribute("ComponentContext", ReadOnlyContext.class, true);
+        infoFactory.addAttribute("PolicyContextID", String.class, true);
+        infoFactory.addAttribute("UnshareableResources", Set.class, true);
+        infoFactory.addAttribute("ApplicationManagedSecurityResources", Set.class, true);
+        infoFactory.addAttribute("UserTransaction", UserTransactionImpl.class, true);
+
         infoFactory.addReference("Configuration", ConfigurationParent.class);
         infoFactory.addReference("JettyContainer", JettyContainer.class);
         infoFactory.addReference("TransactionManager", TransactionManager.class);
         infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class);
-        infoFactory.setConstructor(new GConstructorInfo(Arrays.asList(new Object[]{"Configuration", "URI", "JettyContainer", "ComponentContext", "PolicyContextID", "UnshareableResources", "ApplicationManagedSecurityResources", "TransactionManager", "TrackedConnectionAssociator", "UserTransaction"}),
-                                                        Arrays.asList(new Object[]{ConfigurationParent.class, URI.class, JettyContainer.class, ReadOnlyContext.class, String.class, Set.class, Set.class, TransactionManager.class, TrackedConnectionAssociator.class, UserTransactionImpl.class})));
+
+        infoFactory.setConstructor(new String[]{
+            "Configuration",
+            "URI",
+            "JettyContainer",
+            "ComponentContext",
+            "PolicyContextID",
+            "UnshareableResources",
+            "ApplicationManagedSecurityResources",
+            "TransactionManager",
+            "TrackedConnectionAssociator",
+            "UserTransaction"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
