@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: maven.xml,v 1.9 2003/08/14 12:37:50 jstrachan Exp $ -->
+<!-- $Id: maven.xml,v 1.10 2003/08/14 15:43:25 jstrachan Exp $ -->
 
 <project default="modules:build" 
          xmlns:j="jelly:core" 
@@ -125,19 +125,22 @@
     </j:scope>
   </goal>
   
-  <goal name="site:tocvs" prereqs="modules:copy-site"
+  <!-- site, modules:copy-site -->
+  
+  <goal name="site:tocvs" prereqs=""
   	description="Creates the entire website and copies it to the local CVS repository so that it can be checked in to update the Incubator site">
   	
-  	<j:choose xmlns="jelly:ant">
-  	  <j:when test="${empty(geronimo.cvs.docdir)}">
-  	    <echo>You must define a variable called geronimo.cvs.docdir to copy documentation to CVS</echo>
-  	  </j:when>
-  	  <j:otherwise>
-        <mkdir dir="${geronimo.cvs.docdir}"/>
-        <copy todir="${geronimo.cvs.docdir}">
-          <fileset dir="${basedir}/target/docs"/>
-   	    </copy>
-  	  </j:otherwise>
-  	</j:choose>
+  	<!-- a dummy scope tag to change XML namespace to ant -->
+  	<j:scope xmlns="jelly:ant">
+  	  <j:if test="${empty(geronimo.cvs.docdir)}">
+  	    <j:set var="geronimo.cvs.docdir" value="../incubator-site/build/site/projects/geronimo"/>
+  	  </j:if>
+  	  
+  	    
+      <mkdir dir="${geronimo.cvs.docdir}"/>
+      <copy todir="${geronimo.cvs.docdir}">
+        <fileset dir="${basedir}/target/docs"/>
+   	  </copy>
+  	</j:scope>
   </goal>
 </project>

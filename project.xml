@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: project.xml,v 1.11 2003/08/14 10:04:40 gregw Exp $ -->
+<!-- $Id: project.xml,v 1.12 2003/08/14 15:43:25 jstrachan Exp $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -66,12 +66,8 @@
   <!-- =================== -->
   
   <build>
-    <!--
-       | HACK: this is a quick hack as we've only got 1 module so far
-       |       switching to a multi-project reactor based build real soon
-     -->
-    <sourceDirectory>${basedir}/modules/core/src/java</sourceDirectory>
-    <unitTestSourceDirectory>${basedir}/modules/core/src/test</unitTestSourceDirectory>
+    <sourceDirectory></sourceDirectory>
+    <unitTestSourceDirectory></unitTestSourceDirectory>
 
     <resources>
       <resource>
