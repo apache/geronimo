@@ -35,7 +35,7 @@
 <!ENTITY howl-version "0.1.7">
 <!ENTITY hsqldb-version "1.7.1">
 <!ENTITY jelly-velocity-tags-version "SNAPSHOT">
-<!ENTITY jetty-version "5.0.1-SNAPSHOT">
+<!ENTITY jetty-version "5.0.0">
 <!ENTITY jaxb-ri-version "SNAPSHOT">
 <!ENTITY junit-version "3.8">
 <!ENTITY log4j-version "1.2.8">
