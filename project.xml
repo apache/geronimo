@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.17 $ $Date: 2003/08/16 15:14:11 $ -->
+<!-- $Revision: 1.18 $ $Date: 2003/08/16 17:15:11 $ -->
 
 <project>
   
@@ -19,7 +19,5 @@
     <sourceDirectory></sourceDirectory>
     <unitTestSourceDirectory></unitTestSourceDirectory>
   </build>
-  
-  <reports></reports>
   
 </project>
