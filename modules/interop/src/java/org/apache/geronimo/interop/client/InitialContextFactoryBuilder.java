@@ -19,7 +19,6 @@ package org.apache.geronimo.interop.client;
 
 import java.util.Hashtable;
 
-
 public class InitialContextFactoryBuilder
         implements javax.naming.spi.InitialContextFactoryBuilder {
     public javax.naming.spi.InitialContextFactory createInitialContextFactory(Hashtable env) {
