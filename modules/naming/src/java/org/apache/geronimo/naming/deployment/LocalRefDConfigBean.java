@@ -25,7 +25,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/04/08 05:22:15 $
+ * @version $Revision: 1.3 $ $Date: 2004/04/08 21:07:19 $
  */
 public class LocalRefDConfigBean extends DConfigBeanSupport {
 
@@ -35,8 +35,7 @@ public class LocalRefDConfigBean extends DConfigBeanSupport {
         super(ddBean, ref.getXmlObject());
         this.ref = ref;
 
-        // this doesn't work
-//        assert ddBean.getChildBean(namePath)[0].equals(getRefName());
+        assert ddBean.getChildBean(namePath)[0].getText().equals(getRefName());
     }
 
     String getRefName() {
