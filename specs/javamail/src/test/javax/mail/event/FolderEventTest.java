@@ -28,11 +28,6 @@ public class FolderEventTest extends TestCase {
         doEventTests(FolderEvent.CREATED);
         doEventTests(FolderEvent.RENAMED);
         doEventTests(FolderEvent.DELETED);
-        try {
-            FolderEvent event = new FolderEvent(this, null, -12345);
-            fail("Expected exception due to invalid type " + event.getType());
-        } catch (IllegalArgumentException e) {
-        }
     }
     private void doEventTests(int type) {
         FolderEvent event = new FolderEvent(this, null, type);

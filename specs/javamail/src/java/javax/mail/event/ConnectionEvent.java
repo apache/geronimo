@@ -21,34 +21,47 @@ package javax.mail.event;
  * @version $Rev$ $Date$
  */
 public class ConnectionEvent extends MailEvent {
-    public static final int CLOSED = 3;
-    public static final int DISCONNECTED = 2;
+    /**
+     * A connection was opened.
+     */
     public static final int OPENED = 1;
+
+    /**
+     * A connection was disconnected.
+     */
+    public static final int DISCONNECTED = 2;
+
+    /**
+     * A connection was closed.
+     */
+    public static final int CLOSED = 3;
+
     protected int type;
 
     public ConnectionEvent(Object source, int type) {
         super(source);
         this.type = type;
-        if (type != DISCONNECTED && type != OPENED && type != CLOSED) {
-            throw new IllegalArgumentException("Unknown type " + type);
-        }
+    }
+
+    public int getType() {
+        return type;
     }
 
     public void dispatch(Object listener) {
         // assume that it is the right listener type
         ConnectionListener l = (ConnectionListener) listener;
-        if (type == OPENED) {
+        switch (type) {
+        case OPENED:
             l.opened(this);
-        } else if (type == DISCONNECTED) {
+            break;
+        case DISCONNECTED:
             l.disconnected(this);
-        } else if (type == CLOSED) {
+            break;
+        case CLOSED:
             l.closed(this);
-        } else {
-            throw new IllegalArgumentException("Unknown type " + type);
+            break;
+        default:
+            throw new IllegalArgumentException("Invalid type " + type);
         }
-    }
-
-    public int getType() {
-        return type;
     }
 }

@@ -35,19 +35,6 @@ public class TransportEventTest extends TestCase {
         doEventTests(TransportEvent.MESSAGE_DELIVERED);
         doEventTests(TransportEvent.MESSAGE_PARTIALLY_DELIVERED);
         doEventTests(TransportEvent.MESSAGE_NOT_DELIVERED);
-        // TODO Should really instantiate some messages to test this
-        try {
-            TransportEvent event =
-                new TransportEvent(
-                    TestData.getTestTransport(),
-                    -12345,
-                    null,
-                    null,
-                    null,
-                    null);
-            fail("Expected exception due to invalid type " + event.getType());
-        } catch (IllegalArgumentException e) {
-        }
     }
     private void doEventTests(int type) throws AddressException {
         Folder folder = TestData.getTestFolder();

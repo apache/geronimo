@@ -20,12 +20,23 @@ package javax.mail.event;
 import java.util.EventListener;
 
 /**
+ * Listener for handling connection events.
+ *
  * @version $Rev$ $Date$
  */
 public interface ConnectionListener extends EventListener {
-    public abstract void closed(ConnectionEvent event);
+    /**
+     * Called when a connection is opened.
+     */
+    public abstract void opened(ConnectionEvent event);
 
+    /**
+     * Called when a connection is disconnected.
+     */
     public abstract void disconnected(ConnectionEvent event);
 
-    public abstract void opened(ConnectionEvent event);
+    /**
+     * Called when a connection is closed.
+     */
+    public abstract void closed(ConnectionEvent event);
 }

@@ -27,14 +27,6 @@ public class MessageChangedEventTest extends TestCase {
     public void testEvent() {
         doEventTests(MessageChangedEvent.ENVELOPE_CHANGED);
         doEventTests(MessageChangedEvent.FLAGS_CHANGED);
-        try {
-            MessageChangedEvent event =
-                new MessageChangedEvent(this, -12345, null);
-            fail(
-                "Expected exception due to invalid type "
-                    + event.getMessageChangeType());
-        } catch (IllegalArgumentException e) {
-        }
     }
     private void doEventTests(int type) {
         MessageChangedEvent event = new MessageChangedEvent(this, type, null);

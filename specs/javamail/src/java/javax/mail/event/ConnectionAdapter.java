@@ -18,6 +18,9 @@
 package javax.mail.event;
 
 /**
+ * An adaptor that receives connection events.
+ * This is a default implementation where the handlers perform no action.
+ * 
  * @version $Rev$ $Date$
  */
 public abstract class ConnectionAdapter implements ConnectionListener {

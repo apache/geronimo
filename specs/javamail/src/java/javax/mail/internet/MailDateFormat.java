@@ -17,39 +17,52 @@
 
 package javax.mail.internet;
 
+import java.text.FieldPosition;
 import java.text.NumberFormat;
+import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 /**
- * Parses dates of the form
+ * Formats ths date as specified by
+ * draft-ietf-drums-msg-fmt-08 dated January 26, 2000
+ * which supercedes RFC822.
  * <p/>
- * <code>Wed, 02 Jan 2003 23:59:59 -0100 (GMT)</code>
  * <p/>
- * <code>EEE,  d MMM yyyy HH:mm:ss Z (z)</code>
+ * The format used is <code>EEE, d MMM yyyy HH:mm:ss Z</code> and
+ * locale is always US-ASCII.
  *
  * @version $Rev$ $Date$
  */
 public class MailDateFormat extends SimpleDateFormat {
-    static final MailDateFormat INSTANCE = new MailDateFormat(); // @todo jboynes: this does not seem to be used
-    private static final String pattern = "EEE, d MMM yyyy HH:mm:ss Z (z)";
-
     public MailDateFormat() {
-        super(pattern, Locale.US);
+        super("EEE, d MMM yyyy HH:mm:ss Z", Locale.US);
     }
 
-    // @todo jboynes: are these commented out for a reason?
-    //    public StringBuffer format(Date date, StringBuffer buffer, FieldPosition position) {
-    //        return super.format(date,buffer,position);
-    //    }
-    //    public Date parse(String string, ParsePosition position) {
-    //        return parse(string,position);
-    //    }
+    public StringBuffer format(Date date, StringBuffer buffer, FieldPosition position) {
+        return super.format(date, buffer, position);
+    }
+
+    public Date parse(String string, ParsePosition position) {
+        return super.parse(string, position);
+    }
+
+    /**
+     * The calendar cannot be set
+     * @param calendar
+     * @throws UnsupportedOperationException
+     */
     public void setCalendar(Calendar calendar) {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * The format cannot be set
+     * @param format
+     * @throws UnsupportedOperationException
+     */
     public void setNumberFormat(NumberFormat format) {
         throw new UnsupportedOperationException();
     }

@@ -17,59 +17,106 @@
 
 package javax.mail;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
+ * A FetchProfile defines a list of message attributes that a client wishes to prefetch
+ * from the server during a fetch operation.
+ *
+ * Clients can either specify individual headers, or can reference common profiles
+ * as defined by {@link FetchProfile.Item FetchProfile.Item}.
+ *
  * @version $Rev$ $Date$
  */
 public class FetchProfile {
+    /**
+     * Inner class that defines sets of headers that are commonly bundled together
+     * in a FetchProfile.
+     */
     public static class Item {
-        // Should match Content-Type, Content-Description, Content-Disposition, Size, Line-Count 
+        /**
+         * Item for fetching information about the content of the message.
+         *
+         * This includes all the headers about the content including but not limited to:
+         * Content-Type, Content-Disposition, Content-Description, Size and Line-Count
+         */
         public static final Item CONTENT_INFO = new Item("Content-Info");
-        // Should match From, To, Cc, Bcc, Reply-To, Subject, Date, Envelope, Envelope-To
-        public static final Item ENVELOPE = new Item("Envelope-To");
-        // Can't find any standards for this?
-        public static final Item FLAGS = new Item("X-Flags");
-        private String _header;
 
-        protected Item(String header) {
-            if (header == null) {
-                throw new IllegalArgumentException("Header cannot be null");
-            }
-            _header = header;
-        }
+        /**
+         * Item for fetching information about the envelope of the message.
+         *
+         * This includes all the headers comprising the envelope including but not limited to:
+         * From, To, Cc, Bcc, Reply-To, Subject and Date
+         *
+         * For IMAP4, this should also include the ENVELOPE data item.
+         *
+         */
+        public static final Item ENVELOPE = new Item("Envelope");
 
-        String getHeader() {
-            return _header;
+        /**
+         * Item for fetching information about message flags.
+         * Generall corresponds to the X-Flags header.
+         */
+        public static final Item FLAGS = new Item("Flags");
+
+        protected Item(String name) {
+            // hmmm, name is passed in but we are not allowed to provide accessors
+            // or to override equals/hashCode so what use is it? 
         }
     }
 
-    private static final String[] headersType = new String[0];
-    private static final Item[] itemsType = new Item[0];
-    private Map _items = new HashMap();
+    // use Lists as we don't expect contains to be called often and the number of elements should be small
+    private final List items = new ArrayList();
+    private final List headers = new ArrayList();
 
+    /**
+     * Add a predefined profile of headers.
+     *
+     * @param item the profile to add
+     */
     public void add(Item item) {
-        _items.put(item._header, item);
+        items.add(item);
     }
 
+    /**
+     * Add a specific header.
+     * @param header the header whose value should be prefetched
+     */
     public void add(String header) {
-        _items.put(header, new Item(header));
+        headers.add(header);
     }
 
+    /**
+     * Determine if the given profile item is already included.
+     * @param item the profile to check for
+     * @return true if the profile item is already included
+     */
     public boolean contains(Item item) {
-        return _items.containsKey(item._header);
+        return items.contains(item);
     }
 
+    /**
+     * Determine if the specified header is already included.
+     * @param header the header to check for
+     * @return true if the header is already included
+     */
     public boolean contains(String header) {
-        return _items.containsKey(header);
+        return headers.contains(header);
     }
 
-    public String[] getHeaderNames() {
-        return (String[]) _items.keySet().toArray(headersType);
-    }
-
+    /**
+     * Get the profile items already included.
+     * @return the items already added to this profile
+     */
     public Item[] getItems() {
-        return (Item[]) _items.values().toArray(itemsType);
+        return (Item[]) items.toArray(new Item[items.size()]);
+    }
+
+    /** Get the headers that have already been included.
+     * @return the headers already added to this profile
+     */
+    public String[] getHeaderNames() {
+        return (String[]) headers.toArray(new String[headers.size()]);
     }
 }

@@ -18,19 +18,84 @@
 package javax.mail.search;
 
 /**
+ * A Term that provides matching criteria for Strings.
+ *
  * @version $Rev$ $Date$
  */
 public abstract class StringTerm extends SearchTerm {
+    /**
+     * If true, case should be ignored during matching.
+     */
     protected boolean ignoreCase;
+
+    /**
+     * The pattern associated with this term.
+     */
     protected String pattern;
 
+    /**
+     * Constructor specifying a pattern.
+     * Defaults to case insensitive matching.
+     * @param pattern the pattern for this term
+     */
     protected StringTerm(String pattern) {
         this(pattern, true);
     }
 
+    /**
+     * Constructor specifying pattern and case sensitivity.
+     * @param pattern the pattern for this term
+     * @param ignoreCase if true, case should be ignored during matching
+     */
     protected StringTerm(String pattern, boolean ignoreCase) {
         this.pattern = pattern;
         this.ignoreCase = ignoreCase;
+    }
+
+    /**
+     * Return the pattern associated with this term.
+     * @return the pattern associated with this term
+     */
+    public String getPattern() {
+        return pattern;
+    }
+
+    /**
+     * Indicate if case should be ignored when matching.
+     * @return if true, case should be ignored during matching
+     */
+    public boolean getIgnoreCase() {
+        return ignoreCase;
+    }
+
+    /**
+     * Determine if the pattern associated with this term is a substring of the
+     * supplied String. If ignoreCase is true then case will be ignored.
+     *
+     * @param match the String to compare to
+     * @return true if this patter is a substring of the supplied String
+     */
+    protected boolean match(String match) {
+        match: for (int length = match.length() - pattern.length(); length > 0; length--) {
+            for (int i = 0; i < pattern.length(); i++) {
+                char c1 = match.charAt(length + i);
+                char c2 = match.charAt(i);
+                if (c1 == c2) {
+                    continue;
+                }
+                if (ignoreCase) {
+                    if (Character.toLowerCase(c1) == Character.toLowerCase(c2)) {
+                        continue;
+                    }
+                    if (Character.toUpperCase(c1) == Character.toUpperCase(c2)) {
+                        continue;
+                    }
+                }
+                continue match;
+            }
+            return true;
+        }
+        return false;
     }
 
     public boolean equals(Object other) {
@@ -39,25 +104,7 @@ public abstract class StringTerm extends SearchTerm {
                 && ((StringTerm) other).ignoreCase == ignoreCase;
     }
 
-    public boolean getIgnoreCase() {
-        return ignoreCase;
-    }
-
-    public String getPattern() {
-        return pattern;
-    }
-
     public int hashCode() {
         return super.hashCode() + pattern.hashCode() + (ignoreCase ? 32 : 79);
-    }
-
-    protected boolean match(String match) {
-        String a = match;
-        String b = pattern;
-        if (ignoreCase) {
-            a = a.toUpperCase();
-            b = b.toUpperCase();
-        }
-        return a.indexOf(b) != -1;
     }
 }

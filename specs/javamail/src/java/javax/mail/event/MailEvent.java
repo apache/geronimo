@@ -20,6 +20,8 @@ package javax.mail.event;
 import java.util.EventObject;
 
 /**
+ * Common base class for mail events.
+ *
  * @version $Rev$ $Date$
  */
 public abstract class MailEvent extends EventObject {

@@ -26,49 +26,74 @@ public class FolderEvent extends MailEvent {
     public static final int CREATED = 1;
     public static final int DELETED = 2;
     public static final int RENAMED = 3;
+
     protected transient Folder folder;
     protected transient Folder newFolder;
     protected int type;
 
-    public FolderEvent(Object source,
-                       Folder oldFolder,
-                       Folder newFolder,
-                       int type) {
+    /**
+     * Constructor used for RENAMED events.
+     *
+     * @param source the source of the event
+     * @param oldFolder the folder that was renamed
+     * @param newFolder the folder with the new name
+     * @param type the event type
+     */
+    public FolderEvent(Object source, Folder oldFolder, Folder newFolder, int type) {
         super(source);
         folder = oldFolder;
         this.newFolder = newFolder;
         this.type = type;
-        if (type != CREATED && type != DELETED && type != RENAMED) {
-            throw new IllegalArgumentException("Unknown type " + type);
-        }
     }
 
+    /**
+     * Constructor other events.
+     *
+     * @param source the source of the event
+     * @param folder the folder affected
+     * @param type the event type
+     */
     public FolderEvent(Object source, Folder folder, int type) {
         this(source, folder, null, type);
     }
 
     public void dispatch(Object listener) {
-        // assume that it is the right listener type
         FolderListener l = (FolderListener) listener;
-        if (type == CREATED) {
+        switch (type) {
+        case CREATED:
             l.folderCreated(this);
-        } else if (type == DELETED) {
+            break;
+        case DELETED:
             l.folderDeleted(this);
-        } else if (type == RENAMED) {
+            break;
+        case RENAMED:
             l.folderRenamed(this);
-        } else {
-            throw new IllegalArgumentException("Unknown type " + type);
+            break;
+        default:
+            throw new IllegalArgumentException("Invalid type " + type);
         }
     }
 
+    /**
+     * Return the affected folder.
+     * @return the affected folder
+     */
     public Folder getFolder() {
         return folder;
     }
 
+    /**
+     * Return the new folder; only applicable to RENAMED events.
+     * @return the new folder
+     */
     public Folder getNewFolder() {
         return newFolder;
     }
 
+    /**
+     * Return the event type.
+     * @return the event type
+     */
     public int getType() {
         return type;
     }

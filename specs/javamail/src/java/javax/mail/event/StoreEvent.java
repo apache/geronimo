@@ -20,24 +20,58 @@ package javax.mail.event;
 import javax.mail.Store;
 
 /**
+ * Event representing motifications from the Store connection.
+ *
  * @version $Rev$ $Date$
  */
 public class StoreEvent extends MailEvent {
+    /**
+     * Indicates that this message is an alert.
+     */
     public static final int ALERT = 1;
+
+    /**
+     * Indicates that this message is a notice.
+     */
     public static final int NOTICE = 2;
+
+    /**
+     * The message type.
+     */
     protected int type;
+
+    /**
+     * The text to be presented to the user.
+     */
     protected String message;
 
+    /**
+     * Construct a new event.
+     *
+     * @param store   the Store that initiated the notification
+     * @param type    the message type
+     * @param message the text to be presented to the user
+     */
     public StoreEvent(Store store, int type, String message) {
         super(store);
         this.type = type;
         this.message = message;
     }
 
+    /**
+     * Return the message type.
+     *
+     * @return the message type
+     */
     public int getMessageType() {
         return type;
     }
 
+    /**
+     * Return the text to be displayed to the user.
+     *
+     * @return the text to be displayed to the user
+     */
     public String getMessage() {
         return message;
     }

@@ -20,12 +20,29 @@ package javax.mail;
 import java.io.Serializable;
 
 /**
+ * This abstract class models the addresses in a message.
+ * Addresses are Serializable so that they may be serialized along with other search terms.
+ *
  * @version $Rev$ $Date$
  */
 public abstract class Address implements Serializable {
+    /**
+     * Subclasses must provide a suitable implementation of equals().
+     *
+     * @param object the object to compare t
+     * @return true if the subclass determines the other object is equal to this Address
+     */
     public abstract boolean equals(Object object);
 
+    /**
+     * Return a String that identifies this address type.
+     * @return the type of this address
+     */
     public abstract String getType();
 
+    /**
+     * Subclasses must provide a suitable representation of their address.
+     * @return a representation of an Address as a String
+     */
     public abstract String toString();
 }

@@ -21,18 +21,19 @@ import java.io.Serializable;
 import javax.mail.Message;
 
 /**
+ * Base class for Terms in a parse tree used to represent a search condition.
+ *
+ * This class is Serializable to allow for the short term persistence of
+ * searches between Sessions; this is not intended for long-term persistence.
+ *
  * @version $Rev$ $Date$
  */
 public abstract class SearchTerm implements Serializable {
+    /**
+     * Checks a matching criteria defined by the concrete subclass of this Term.
+     *
+     * @param message the message to apply the matching criteria to
+     * @return true if the matching criteria is met
+     */
     public abstract boolean match(Message message);
-
-    public boolean equals(Object other) {
-        return (other != null && other.getClass() == this.getClass());
-    }
-
-    public int hashCode() {
-        // need to provide a default, so that other terms
-        // doing 'super.hashCode' don't get an instance-specific hash.
-        return 1234;
-    }
 }

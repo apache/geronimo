@@ -23,30 +23,49 @@ import javax.mail.Message;
  * @version $Rev$ $Date$
  */
 public class MessageChangedEvent extends MailEvent {
-    public static final int ENVELOPE_CHANGED = 2;
+    /**
+     * The message's flags changed.
+     */
     public static final int FLAGS_CHANGED = 1;
+
+    /**
+     * The messages envelope changed.
+     */
+    public static final int ENVELOPE_CHANGED = 2;
+
     protected transient Message msg;
     protected int type;
 
+    /**
+     * Constructor.
+     *
+     * @param source the folder that owns the message
+     * @param type the event type
+     * @param message the affected message
+     */
     public MessageChangedEvent(Object source, int type, Message message) {
         super(source);
         msg = message;
         this.type = type;
-        if (type != ENVELOPE_CHANGED && type != FLAGS_CHANGED) {
-            throw new IllegalArgumentException("Unknown type " + type);
-        }
     }
 
     public void dispatch(Object listener) {
-        // assume that it is the right listener type
         MessageChangedListener l = (MessageChangedListener) listener;
         l.messageChanged(this);
     }
 
+    /**
+     * Return the affected message.
+     * @return the affected message
+     */
     public Message getMessage() {
         return msg;
     }
 
+    /**
+     * Return the type of change.
+     * @return the event type
+     */ 
     public int getMessageChangeType() {
         return type;
     }

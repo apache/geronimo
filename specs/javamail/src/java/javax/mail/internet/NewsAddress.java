@@ -17,84 +17,65 @@
 
 package javax.mail.internet;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 import javax.mail.Address;
 
 /**
+ * A representation of an RFC1036 Internet newsgroup address.
+ *
  * @version $Rev$ $Date$
  */
 public class NewsAddress extends Address {
-    private static final String _separator = ",";
-    private static final NewsAddress[] NEWSADDRESS_ARRAY = new NewsAddress[0];
-
-    public static NewsAddress[] parse(String addresses) throws AddressException {
-        List result = new LinkedList();
-        StringTokenizer tokenizer = new StringTokenizer(addresses, ",");
-        while (tokenizer.hasMoreTokens()) {
-            String address = tokenizer.nextToken();
-            result.add(new NewsAddress(address));
-        }
-        return (NewsAddress[]) result.toArray(NEWSADDRESS_ARRAY);
-    }
-
-    public static String toString(Address[] addresses) {
-        // build up a comma separated list of addresses
-        StringBuffer result = new StringBuffer();
-        for (int a = 0; a < addresses.length; a++) {
-            result.append(addresses[a].toString());
-            if (a > 0) {
-                result.append(_separator);
-            }
-        }
-        return result.toString();
-    }
-
+    /**
+     * The host for this newsgroup
+     */
     protected String host;
+
+    /**
+     * The name of this newsgroup
+     */
     protected String newsgroup;
 
     public NewsAddress() {
     }
 
     public NewsAddress(String newsgroup) {
-        setNewsgroup(newsgroup);
+        this.newsgroup = newsgroup;
     }
 
     public NewsAddress(String newsgroup, String host) {
-        setNewsgroup(newsgroup);
-        setHost(host);
+        this.newsgroup = newsgroup;
+        this.host = host;
     }
 
-    public String getHost() {
-        return host;
+    /**
+     * The type of this address; always "news".
+     * @return "news"
+     */
+    public String getType() {
+        return "news";
+    }
+
+    public void setNewsgroup(String newsgroup) {
+        this.newsgroup = newsgroup;
     }
 
     public String getNewsgroup() {
         return newsgroup;
     }
 
-    public String getType() {
-        return "news";
+    public void setHost(String host) {
+        this.host = host;
     }
 
-    public void setHost(String string) {
-        host = string;
-    }
-
-    public void setNewsgroup(String newsgroup) {
-        newsgroup = newsgroup.trim();
-        int at;
-        if ((at = newsgroup.indexOf("@")) != -1) {
-            this.newsgroup = newsgroup.substring(0, at);
-            this.host = newsgroup.substring(at + 1);
-        } else {
-            this.newsgroup = newsgroup;
-        }
+    public String getHost() {
+        return host;
     }
 
     public String toString() {
-        return newsgroup + (host == null ? "" : "@" + host);
+        return host == null ? newsgroup : newsgroup + "@" + host;
     }
 
     public boolean equals(Object o) {
@@ -103,16 +84,63 @@ public class NewsAddress extends Address {
 
         final NewsAddress newsAddress = (NewsAddress) o;
 
-        if (!host.equals(newsAddress.host)) return false;
-        if (!newsgroup.equals(newsAddress.newsgroup)) return false;
+        if (host != null ? !host.equals(newsAddress.host) : newsAddress.host != null) return false;
+        if (newsgroup != null ? !newsgroup.equals(newsAddress.newsgroup) : newsAddress.newsgroup != null) return false;
 
         return true;
     }
 
     public int hashCode() {
         int result;
-        result = host.hashCode();
-        result = 29 * result + newsgroup.hashCode();
+        result = (host != null ? host.hashCode() : 0);
+        result = 29 * result + (newsgroup != null ? newsgroup.hashCode() : 0);
         return result;
+    }
+
+    /**
+     * Parse a comma-spearated list of addresses.
+     *
+     * @param addresses the list to parse
+     * @return the array of extracted addresses
+     * @throws AddressException if one of the addresses is invalid
+     */
+    public static NewsAddress[] parse(String addresses) throws AddressException {
+        List result = new ArrayList();
+        StringTokenizer tokenizer = new StringTokenizer(addresses, ",");
+        while (tokenizer.hasMoreTokens()) {
+            String address = tokenizer.nextToken().trim();
+            int index = address.indexOf('@');
+            if (index == -1) {
+                result.add(new NewsAddress(address));
+            } else {
+                String newsgroup = address.substring(0, index).trim();
+                String host = address.substring(index+1).trim();
+                result.add(new NewsAddress(newsgroup, host));
+            }
+        }
+        return (NewsAddress[]) result.toArray(new NewsAddress[result.size()]);
+    }
+
+    /**
+     * Convert the supplied addresses to a comma-separated String.
+     * If addresses is null, returns null; if empty, returns an empty string.
+     *
+     * @param addresses the addresses to convert
+     * @return a comma-separated list of addresses
+     */
+    public static String toString(Address[] addresses) {
+        if (addresses == null) {
+            return null;
+        }
+        if (addresses.length == 0) {
+            return "";
+        }
+        
+        StringBuffer result = new StringBuffer(addresses.length * 32);
+        result.append(addresses[0]);
+        for (int i = 1; i < addresses.length; i++) {
+            result.append(',').append(addresses[i].toString());
+        }
+        return result.toString();
     }
 }

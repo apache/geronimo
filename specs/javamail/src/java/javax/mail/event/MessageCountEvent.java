@@ -21,46 +21,90 @@ import javax.mail.Folder;
 import javax.mail.Message;
 
 /**
+ * Event indicating a change in the number of messages in a folder.
+ *
  * @version $Rev$ $Date$
  */
 public class MessageCountEvent extends MailEvent {
+    /**
+     * Messages were added to the folder.
+     */
     public static final int ADDED = 1;
+
+    /**
+     * Messages were removed from the folder.
+     */
     public static final int REMOVED = 2;
+
+    /**
+     * The affected messages.
+     */
     protected transient Message msgs[];
-    protected boolean removed;
+
+    /**
+     * The event type.
+     */
     protected int type;
 
-    public MessageCountEvent(Folder folder,
-                             int type,
-                             boolean removed,
-                             Message messages[]) {
+    /**
+     * If true, then messages were expunged from the folder by this client
+     * and message numbers reflect the deletion; if false, then the change
+     * was the result of an expunge by a different client.
+     */
+    protected boolean removed;
+
+    /**
+     * Construct a new event.
+     *
+     * @param folder   the folder containing the messages
+     * @param type     the event type
+     * @param removed  indicator of whether messages were expunged by this client
+     * @param messages the affected messages
+     */
+    public MessageCountEvent(Folder folder, int type, boolean removed, Message messages[]) {
         super(folder);
-        msgs = messages;
+        this.msgs = messages;
         this.type = type;
         this.removed = removed;
     }
 
-    public void dispatch(Object listener) {
-        // assume that it is the right listener type
-        MessageCountListener l = (MessageCountListener) listener;
-        if (type == ADDED) {
-            l.messagesAdded(this);
-        } else if (type == REMOVED) {
-            l.messagesRemoved(this);
-        } else {
-            throw new IllegalArgumentException("Unknown type " + type);
-        }
-    }
-
-    public Message[] getMessages() {
-        return msgs;
-    }
-
+    /**
+     * Return the event type.
+     *
+     * @return the event type
+     */
     public int getType() {
         return type;
     }
 
+    /**
+     * @return whether this event was the result of an expunge by this client
+     * @see MessageCountEvent#removed
+     */
     public boolean isRemoved() {
         return removed;
+    }
+
+    /**
+     * Return the affected messages.
+     *
+     * @return the affected messages
+     */
+    public Message[] getMessages() {
+        return msgs;
+    }
+
+    public void dispatch(Object listener) {
+        MessageCountListener l = (MessageCountListener) listener;
+        switch (type) {
+        case ADDED:
+            l.messagesAdded(this);
+            break;
+        case REMOVED:
+            l.messagesRemoved(this);
+            break;
+        default:
+            throw new IllegalArgumentException("Invalid type " + type);
+        }
     }
 }

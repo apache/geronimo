@@ -60,10 +60,5 @@ public class ConnectionEventTest extends TestCase {
         doEventTests(ConnectionEvent.CLOSED);
         doEventTests(ConnectionEvent.OPENED);
         doEventTests(ConnectionEvent.DISCONNECTED);
-        try {
-            ConnectionEvent event = new ConnectionEvent(this, -12345);
-            fail("Expected exception due to invalid type " + event.getType());
-        } catch (IllegalArgumentException e) {
-        }
     }
 }

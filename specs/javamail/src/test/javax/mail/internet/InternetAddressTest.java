@@ -21,25 +21,26 @@ import junit.framework.TestCase;
  * @version $Rev$ $Date$
  */
 public class InternetAddressTest extends TestCase {
-    public InternetAddressTest(String arg0) {
-        super(arg0);
+    private InternetAddress address;
+
+    public void testIsGroup() {
+        address.setAddress(":user@host;");
+        assertTrue(address.isGroup());
+
+        address.setAddress(":user@host, user2@host;");
+        assertTrue(address.isGroup());
+
+        address.setAddress("User Group :user@host;");
+        assertTrue(address.isGroup());
+
+        address.setAddress("A \"User Group\" :user@host;");
+        assertTrue(address.isGroup());
+
+        address.setAddress("\"Fake:Group\" user@host");
+        assertFalse(address.isGroup());
     }
-    public void testInternetAddress() throws AddressException {
-        InternetAddress ia =
-            new InternetAddress("Alex Blewitt <Alex.Blewitt@bigboy.com>");
-        assertEquals("Alex Blewitt", ia.getPersonal());
-        assertEquals("Alex.Blewitt@bigboy.com", ia.getAddress());
-    }
-    public void testInternetAddresses() throws AddressException {
-        InternetAddress[] ia =
-            InternetAddress.parse(
-                "Mr B <Mr.B@bigboy.com>, Mrs B <Mrs.B@biggirl.com>, Milly <Milly@thedog.com>");
-        assertEquals(3, ia.length);
-        assertEquals("Mr B", ia[0].getPersonal());
-        assertEquals("Mr.B@bigboy.com", ia[0].getAddress());
-        assertEquals("Mrs B", ia[1].getPersonal());
-        assertEquals("Mrs.B@biggirl.com", ia[1].getAddress());
-        assertEquals("Milly", ia[2].getPersonal());
-        assertEquals("Milly@thedog.com", ia[2].getAddress());
+
+    protected void setUp() throws Exception {
+        address = new InternetAddress();
     }
 }

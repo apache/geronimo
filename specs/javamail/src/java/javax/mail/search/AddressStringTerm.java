@@ -20,13 +20,26 @@ package javax.mail.search;
 import javax.mail.Address;
 
 /**
+ * A Term that compares two Addresses as Strings.
+ *
  * @version $Rev$ $Date$
  */
 public abstract class AddressStringTerm extends StringTerm {
-    protected AddressStringTerm(String addressString) {
-        super(addressString);
+    /**
+     * Constructor.
+     * @param pattern the pattern to be compared
+     */
+    protected AddressStringTerm(String pattern) {
+        super(pattern);
     }
 
+    /**
+     * Tests if the patterm associated with this Term is a substring of
+     * the address in the supplied object.
+     *
+     * @param address
+     * @return
+     */
     protected boolean match(Address address) {
         return match(address.toString());
     }
