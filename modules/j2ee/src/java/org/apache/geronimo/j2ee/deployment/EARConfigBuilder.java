@@ -222,17 +222,14 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         String id = application.getId();
         if (id == null) {
             // TODO this name is not necessairly the original name specified on the command line which is what we want
-            id = module.getName();
-            if (id.endsWith("!/")) {
-                id = id.substring(0, id.length() - 2);
-            }
+            File fileName = new File(module.getName());
+            id = fileName.getName();
             if (id.endsWith(".ear")) {
                 id = id.substring(0, id.length() - 4);
             }
             if (id.endsWith("/")) {
                 id = id.substring(0, id.length() - 1);
             }
-            id = id.substring(id.lastIndexOf('/') + 1);
         }
 
         gerApplication.setConfigId(id);
