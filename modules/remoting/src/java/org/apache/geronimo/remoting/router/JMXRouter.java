@@ -55,15 +55,16 @@
  */
 package org.apache.geronimo.remoting.router;
 
-import java.net.URI;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
-import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 
 /**
  * Uses JMX Object names to route the request to a JMX object that implements the
@@ -74,10 +75,11 @@ import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
  *
  * The MBean that will receive invocations must implement the JMXTarget interface.
  *
- * @version $Revision: 1.7 $ $Date: 2004/01/26 06:50:47 $
+ * @version $Revision: 1.8 $ $Date: 2004/01/31 20:20:44 $
  */
 public class JMXRouter extends AbstractInterceptorRouter {
     private SubsystemRouter subsystemRouter;
+    private Map registered = new HashMap();
 
     public SubsystemRouter getSubsystemRouter() {
         return subsystemRouter;
@@ -87,10 +89,21 @@ public class JMXRouter extends AbstractInterceptorRouter {
         this.subsystemRouter = subsystemRouter;
     }
 
+    public void register(ObjectName objectName, JMXTarget target) {
+        registered.put(objectName, target);
+    }
+
+    public void unRegister(ObjectName objectName) {
+        registered.remove(objectName);
+    }
+
     protected Interceptor lookupInterceptorFrom(URI to) throws Exception {
-        ObjectName on = new ObjectName(to.getFragment());
-        JMXTarget bean = (JMXTarget) MBeanProxyFactory.getProxy(JMXTarget.class, context.getServer(), on);
-        return bean.getRemotingEndpointInterceptor();
+        ObjectName objectName = new ObjectName(to.getFragment());
+        JMXTarget bean = (JMXTarget)registered.get(objectName);
+
+        if (bean != null) return bean.getRemotingEndpointInterceptor();
+
+        throw new IllegalArgumentException("No names mbeans registered that match object name pattern: " + objectName);
     }
 
     public void doStart() {
@@ -108,6 +121,8 @@ public class JMXRouter extends AbstractInterceptorRouter {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(JMXRouter.class.getName(), AbstractInterceptorRouter.GBEAN_INFO);
         infoFactory.addReference(new GReferenceInfo("SubsystemRouter", SubsystemRouter.class.getName()));
+        infoFactory.addOperation(new GOperationInfo("register", new String[] {ObjectName.class.getName(), JMXTarget.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("unRegister", new String[] {ObjectName.class.getName()}));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

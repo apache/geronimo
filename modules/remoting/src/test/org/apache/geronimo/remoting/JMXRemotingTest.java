@@ -71,7 +71,7 @@ import org.apache.geronimo.remoting.transport.BytesMarshalledObject;
 
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/01/28 05:55:39 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/31 20:20:44 $
  */
 
 public class JMXRemotingTest extends TestCase {
@@ -106,6 +106,7 @@ public class JMXRemotingTest extends TestCase {
         kernel.loadGBean(jmxRouter, gbean);
 
         gbean = new GBeanMBean("org.apache.geronimo.remoting.jmx.MBeanServerStub");
+        gbean.setReferencePatterns("Router", Collections.singleton(jmxRouter));
         serverStub = new ObjectName("geronimo.remoting:target=MBeanServerStub");
         kernel.loadGBean(serverStub, gbean);
 

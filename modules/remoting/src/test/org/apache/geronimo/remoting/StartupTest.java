@@ -68,7 +68,7 @@ import junit.framework.TestCase;
 /**
  * 
  * 
- * @version $Revision: 1.2 $ $Date: 2004/01/25 21:07:04 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/31 20:20:44 $
  */
 public class StartupTest  extends TestCase {
     private Kernel kernel;
@@ -98,6 +98,7 @@ public class StartupTest  extends TestCase {
         kernel.loadGBean(registeryRouter, gbean);
 
         gbean = new GBeanMBean("org.apache.geronimo.remoting.jmx.MBeanServerStub");
+        gbean.setReferencePatterns("Router", Collections.singleton(jmxRouter));
         ObjectName serverStub = new ObjectName("geronimo.remoting:target=MBeanServerStub");
         kernel.loadGBean(serverStub, gbean);
 
