@@ -73,4 +73,9 @@ specific services - those should be provided by children.
         <attribute name="MaxFileSize" type="java.lang.String">10MB</attribute>
         <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
     </gbean>
+
+    <!-- RMI Registry -->
+    <gbean name="geronimo.server:role=RMIRegistry" class="org.apache.geronimo.system.RMIRegistryService">
+        <attribute name="Port" type="int">1099</attribute>
+    </gbean>
 </configuration>
