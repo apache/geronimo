@@ -32,14 +32,14 @@ import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
- * @version $Revision: 1.10 $ $Date: 2004/07/08 22:07:54 $
+ * @version $Revision: 1.11 $ $Date: 2004/07/27 01:55:45 $
  */
 public class SocketProtocolStressTest extends TestCase {
 
     protected ThreadPool tp;
     protected ClockPool cp;
     protected SelectorManager sm;
-    protected SocketProtocol spt;
+    protected AcceptableProtocolStack aps;
     protected ProtocolFactory pf;
     protected ServerSocketAcceptor ssa;
     protected SocketProtocol sp;
@@ -48,11 +48,11 @@ public class SocketProtocolStressTest extends TestCase {
     public void testNothing() {}
 
     public void testSimple() throws Exception {
-        sp.sendDown(getDatagramPacket());
-        sp.sendDown(getDatagramPacket());
-        sp.sendDown(getDatagramPacket());
+        sp.sendDown(allocateDownPacket());
+        sp.sendDown(allocateDownPacket());
+        sp.sendDown(allocateDownPacket());
 
-        DatagramDownPacket packet = getDatagramPacket();
+        DatagramDownPacket packet = allocateDownPacket();
         sp.sendDown(packet);
         sp.sendDown(packet);
 
@@ -77,7 +77,7 @@ public class SocketProtocolStressTest extends TestCase {
                         barrier.barrier();
 
                         for (int i = 0; i < MESSAGE_COUNT; i++)
-                            sp.sendDown(getDatagramPacket());
+                            sp.sendDown(allocateDownPacket());
 
 
                     } catch (Exception e) {
@@ -112,60 +112,43 @@ public class SocketProtocolStressTest extends TestCase {
         sm = new SelectorManager();
         sm.setThreadPool(tp);
         sm.setThreadName("SM");
-        sm.setTimeout(500);
+        sm.setTimeout(0);
         sm.doStart();
 
-        spt = new SocketProtocol();
-        spt.setUpProtocol(new Protocol() {
-            public Protocol getUpProtocol() {
-                throw new NoSuchMethodError();
-            }
+        aps = new AcceptableProtocolStack();
 
-            public void setUpProtocol(Protocol up) {
-                throw new NoSuchMethodError();
-            }
+        SocketProtocol adc = new SocketProtocol();
+        adc.setTimeout(10 * 1000);
+        adc.setSelectorManager(sm);
 
-            public Protocol getDownProtocol() {
-                throw new NoSuchMethodError();
-            }
+        aps.push(adc);
 
-            public void setDownProtocol(Protocol down) {
-                throw new NoSuchMethodError();
-            }
-
-            public void clearLinks() {
-            }
-
-            public Protocol cloneProtocol() throws CloneNotSupportedException {
-                return (Protocol) super.clone();
-            }
-
+        aps.push(new AbstractProtocol() {
             public void setup() {
             }
 
             public void drain() {
             }
 
-            public void teardown() throws ProtocolException {
+            public void teardown() {
             }
 
-            public void sendUp(UpPacket packet) {
+            public void sendUp(UpPacket packet) throws ProtocolException {
                 count++;
+                this.getDownProtocol().sendDown(allocateDownPacket());
             }
 
             public void sendDown(DownPacket packet) {
             }
 
         });
-        spt.setTimeout(10 * 1000);
-        spt.setSelectorManager(sm);
 
         pf = new ProtocolFactory();
         pf.setClockPool(cp);
         pf.setMaxAge(Long.MAX_VALUE);
         pf.setMaxInactivity(1 * 60 * 60 * 1000);
         pf.setReclaimPeriod(10 * 1000);
-        pf.setTemplate(spt);
+        pf.setTemplate(aps);
 
         ssa = new ServerSocketAcceptor();
         ssa.setSelectorManager(sm);
@@ -205,7 +188,7 @@ public class SocketProtocolStressTest extends TestCase {
             public void drain() {
             }
 
-            public void teardown() throws ProtocolException {
+            public void teardown() {
             }
 
             public void sendUp(UpPacket packet) {
@@ -231,7 +214,7 @@ public class SocketProtocolStressTest extends TestCase {
 
         pf.drain();
 
-        spt.drain();
+        aps.drain();
 
         sm.doStop();
 
@@ -240,7 +223,7 @@ public class SocketProtocolStressTest extends TestCase {
         tp.doStop();
     }
 
-    public DatagramDownPacket getDatagramPacket() {
+    public DatagramDownPacket allocateDownPacket() {
         DatagramDownPacket packet = new DatagramDownPacket();
         ArrayList list = new ArrayList();
 
