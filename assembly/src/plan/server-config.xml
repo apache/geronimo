@@ -18,6 +18,15 @@ by the server.
     <dependency>
         <uri>geronimo/jars/geronimo-jetty-DEV.jar</uri>
     </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-connector-DEV.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-transaction-DEV.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-naming-DEV.jar</uri>
+    </dependency>
 
     <!-- default WAR container using Jetty -->
     <gbean name="geronimo.server:type=WebContainer,container=Jetty" class="org.apache.geronimo.jetty.JettyContainerImpl">
@@ -29,5 +38,4 @@ by the server.
 <!--        <attribute name="MaxConnections" type="int">10</attribute>-->
 <!--        <attribute name="MaxIdleTime" type="int">10</attribute>-->
     </gbean>
-
 </configuration>
