@@ -16,15 +16,7 @@
  */
 package org.apache.geronimo.axis.builder;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.ObjectStreamClass;
-import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
@@ -34,8 +26,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.naming.RefAddr;
-import javax.naming.Reference;
 import javax.wsdl.Binding;
 import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOperation;
@@ -76,12 +66,14 @@ import org.apache.geronimo.axis.client.ServiceImpl;
 import org.apache.geronimo.axis.client.ServiceReference;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.util.UnpackedJarFile;
+import org.apache.geronimo.j2ee.deployment.EJBModule;
+import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.naming.reference.DeserializingReference;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingDocument;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
 import org.apache.geronimo.xbeans.j2ee.PackageMappingType;
-import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.EJBModule;
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -95,8 +87,10 @@ public class ServiceReferenceTest extends TestCase {
     private DeploymentContext context;
     private ClassLoader isolatedCl = new URLClassLoader(new URL[0], this.getClass().getClassLoader());
     private final String operationName = "doMockOperation";
+    private final File wsdlDir = new File(basedir, "src/test-resources/interop");
+    private final File wsdlFile = new File(wsdlDir, "interop.wsdl");
 
-    private final Module module = new EJBModule(true, configID, null, null, "ejb", null, null, null);
+    private Module module;
 
     private boolean runExternalWSTest;
 
@@ -105,6 +99,10 @@ public class ServiceReferenceTest extends TestCase {
         tmpbasedir.delete();
         tmpbasedir.mkdirs();
         context = new DeploymentContext(tmpbasedir, configID, ConfigurationModuleType.CAR, null, "foo", "geronimo", null);
+
+        File moduleLocation = new File(tmpbasedir, "ejb");
+        moduleLocation.mkdirs();
+        module = new EJBModule(true, configID, null, new UnpackedJarFile(moduleLocation), "ejb", null, null, null);
 
         runExternalWSTest = System.getProperty("geronimo.run.external.webservicetest", "false").equals("true");
     }
@@ -193,10 +191,9 @@ public class ServiceReferenceTest extends TestCase {
     }
 
     public void testBuildInteropProxy() throws Exception {
-        File wsdl = new File(basedir, "src/test-resources/interop/interop.wsdl");
         WSDLFactory factory = WSDLFactory.newInstance();
         WSDLReader reader = factory.newWSDLReader();
-        Definition definition = reader.readWSDL(wsdl.toURI().toString());
+        Definition definition = reader.readWSDL(wsdlFile.toURI().toString());
         File jaxrpcMapping = new File(basedir, "src/test-resources/interop/interop-jaxrpcmapping.xml");
         JavaWsdlMappingDocument mappingDocument = JavaWsdlMappingDocument.Factory.parse(jaxrpcMapping);
         JavaWsdlMappingType mapping = mappingDocument.getJavaWsdlMapping();
@@ -217,22 +214,22 @@ public class ServiceReferenceTest extends TestCase {
     }
 
     public void testBuildInteropProxyFromURIs() throws Exception {
-        File wsdldir = new File(basedir, "src/test-resources/interop");
         //ejb is from the EJBModule "ejb" targetPath.
-        context.addFile(new URI("ejb/META-INF/wsdl/interop.wsdl"), new File(wsdldir, "interop.wsdl"));
-        context.addFile(new URI("ejb/META-INF/wsdl/interop-jaxrpcmapping.xml"), new File(wsdldir, "interop-jaxrpcmapping.xml"));
+        context.addFile(new URI("ejb/META-INF/wsdl/interop.wsdl"), wsdlFile);
+        context.addFile(new URI("ejb/META-INF/wsdl/interop-jaxrpcmapping.xml"), new File(wsdlDir, "interop-jaxrpcmapping.xml"));
         ClassLoader cl = context.getClassLoader(null);
-                //new URLClassLoader(new URL[]{wsdldir.toURL()}, isolatedCl);
+        //new URLClassLoader(new URL[]{wsdldir.toURL()}, isolatedCl);
         URI wsdlURI = new URI("META-INF/wsdl/interop.wsdl");
         URI jaxrpcmappingURI = new URI("META-INF/wsdl/interop-jaxrpcmapping.xml");
         QName serviceQName = new QName("http://tempuri.org/4s4c/1/3/wsdl/def/interopLab", "interopLab");
         AxisBuilder builder = new AxisBuilder();
         Map portComponentRefMap = null;
         List handlers = null;
-        Object proxy = builder.createService(InteropLab.class, wsdlURI, jaxrpcmappingURI, serviceQName, portComponentRefMap, handlers, context, module, cl);
-        assertNotNull(proxy);
+        DeserializingReference reference = (DeserializingReference) builder.createService(InteropLab.class, wsdlURI, jaxrpcmappingURI, serviceQName, portComponentRefMap, handlers, context, module, cl);
         ClassLoader contextCl = context.getClassLoader(null);
-        proxy = reserialize(proxy, contextCl);
+        reference.setClassLoader(contextCl);
+        Object proxy = reference.getContent();
+        assertNotNull(proxy);
         assertTrue(proxy instanceof InteropLab);
         InteropTestPortType interopTestPort = ((InteropLab) proxy).getinteropTestPort();
         assertNotNull(interopTestPort);
@@ -242,40 +239,6 @@ public class ServiceReferenceTest extends TestCase {
             assertEquals(result, 1);
         } else {
             System.out.println("Skipping external ws test");
-        }
-    }
-
-    private Object reserialize(Object object, ClassLoader cl) throws Exception {
-        if (!(object instanceof Serializable)) {
-            fail("object is not serializable, " + object);
-        }
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(object);
-        oos.flush();
-        byte[] bytes = baos.toByteArray();
-        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-        ObjectInputStream ois = new ConfigInputStream(bais, cl);
-        Object result = ois.readObject();
-        return result;
-    }
-
-    private static class ConfigInputStream extends ObjectInputStream {
-        private final ClassLoader cl;
-
-        public ConfigInputStream(InputStream in, ClassLoader cl) throws IOException {
-            super(in);
-            this.cl = cl;
-        }
-
-        protected Class resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
-            try {
-                return cl.loadClass(desc.getName());
-            } catch (ClassNotFoundException e) {
-                // let the parent try
-                return super.resolveClass(desc);
-            }
         }
     }
 

@@ -17,8 +17,10 @@
 package org.apache.geronimo.axis.builder;
 
 import java.beans.Introspector;
-import java.io.File;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -30,7 +32,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import javax.naming.Reference;
+import java.util.jar.JarFile;
 import javax.wsdl.Binding;
 import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOperation;
@@ -78,8 +80,9 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
+import org.apache.geronimo.naming.reference.DeserializingReference;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingDocument;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
 import org.apache.xmlbeans.XmlException;
@@ -113,16 +116,17 @@ public class AxisBuilder implements ServiceReferenceBuilder {
     }
 
     public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
-        String wsdlFile = null;
+        JarFile moduleFile = module.getModuleFile();
+        InputStream wsdlInputStream = null;
         try {
-            wsdlFile = deploymentContext.getTargetFile(module.getTargetPathURI().resolve(wsdlURI)).toURL().toString();
-        } catch (MalformedURLException e) {
-            throw new DeploymentException("Could not resolve wsdlfile", e);
+            wsdlInputStream = moduleFile.getInputStream(moduleFile.getEntry(wsdlURI.toString()));
+        } catch (IOException e) {
+            throw new DeploymentException("Could not open stream to wsdl file", e);
         }
         //TODO trying to read in the doc from the wsdlFile directly doesn't work in running geronimo, but does work in
         //unit tests.  You get a java.net.UnknownServiceException with message "no content-type".  Perhaps something
         //is wrong with the geronimo url handler??
-        InputSource is = new InputSource(wsdlFile);
+        InputSource inputSource = new InputSource(wsdlInputStream);
         WSDLFactory wsdlFactory = null;
         try {
             wsdlFactory = WSDLFactory.newInstance();
@@ -133,15 +137,20 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         wsdlReader.setFeature("javax.wsdl.importDocuments", false);
         Definition definition = null;
         try {
-            definition = wsdlReader.readWSDL(null, is);
+            definition = wsdlReader.readWSDL(null, inputSource);
         } catch (WSDLException e) {
             throw new DeploymentException("Failed to read wsdl document", e);
         }
 
-        File jaxrpcMappingFile = deploymentContext.getTargetFile(module.getTargetPathURI().resolve(jaxrpcMappingURI));
+        InputStream jaxrpcInputStream = null;
+        try {
+            jaxrpcInputStream = moduleFile.getInputStream(moduleFile.getEntry(jaxrpcMappingURI.toString()));
+        } catch (IOException e) {
+            throw new DeploymentException("Could not open stream to jaxrpc mapping document", e);
+        }
         JavaWsdlMappingDocument mappingDocument = null;
         try {
-            mappingDocument = JavaWsdlMappingDocument.Factory.parse(jaxrpcMappingFile);
+            mappingDocument = JavaWsdlMappingDocument.Factory.parse(jaxrpcInputStream);
         } catch (XmlException e) {
             throw new DeploymentException("Could not parse jaxrpc mapping document", e);
         } catch (IOException e) {
@@ -149,7 +158,19 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         }
         JavaWsdlMappingType mapping = mappingDocument.getJavaWsdlMapping();
 
-        return createService(serviceInterface, definition, mapping, serviceQName, SOAP_VERSION, deploymentContext, module, classLoader);
+        Object service =  createService(serviceInterface, definition, mapping, serviceQName, SOAP_VERSION, deploymentContext, module, classLoader);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = null;
+        try {
+            oos = new ObjectOutputStream(baos);
+            oos.writeObject(service);
+            oos.flush();
+        } catch (IOException e) {
+            throw new DeploymentException("Could not create serialize service", e);
+        }
+        byte[] bytes = baos.toByteArray();
+        DeserializingReference reference = new DeserializingReference(bytes);
+        return reference;
     }
 
     public javax.xml.rpc.Service createService(Class serviceInterface, Definition definition, JavaWsdlMappingType mapping, QName serviceQName, SOAPConstants soapVersion, DeploymentContext context, Module module, ClassLoader classloader) throws DeploymentException {

@@ -66,7 +66,7 @@ import org.apache.geronimo.kernel.Kernel;
 public class JettyWebAppContext extends WebApplicationContext implements GBeanLifecycle, JettyServletRegistration {
     private static Log log = LogFactory.getLog(JettyWebAppContext.class);
 
-    private final ClassLoader classLoader;
+    private final ClassLoader webClassLoader;
     private final JettyContainer jettyContainer;
 
     private final URI webAppRoot;
@@ -81,7 +81,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
      * @deprecated never use this... this is only here because Jetty WebApplicationContext is externalizable
      */
     public JettyWebAppContext() {
-        classLoader = null;
+        webClassLoader = null;
         jettyContainer = null;
         webAppRoot = null;
         handler = null;
@@ -147,11 +147,11 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         URL[] urls = new URL[webClassPath.length];
         for (int i = 0; i < webClassPath.length; i++) {
             URI classPathEntry = webClassPath[i];
-            classPathEntry = webAppRoot.resolve(classPathEntry);
+            classPathEntry = root.resolve(classPathEntry);
             urls[i] = classPathEntry.toURL();
         }
-        this.classLoader = new JettyClassLoader(urls, classLoader, contextPriorityClassLoader);
-        setClassLoader(this.classLoader);
+        this.webClassLoader = new JettyClassLoader(urls, classLoader, contextPriorityClassLoader);
+        setClassLoader(this.webClassLoader);
 
         handler = new WebApplicationHandler();
         addHandler(handler);
@@ -174,14 +174,14 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
         if (componentContext != null) {
             componentContext.setKernel(kernel);
-            componentContext.setClassLoader(classLoader);
+            componentContext.setClassLoader(this.webClassLoader);
         }
 
         int index = 0;
         BeforeAfter interceptor = new InstanceContextBeforeAfter(null, index++, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator);
         interceptor = new TransactionContextBeforeAfter(interceptor, index++, index++, transactionContextManager);
         interceptor = new ComponentContextBeforeAfter(interceptor, index++, componentContext);
-        interceptor = new ThreadClassloaderBeforeAfter(interceptor, index++, index++, this.classLoader);
+        interceptor = new ThreadClassloaderBeforeAfter(interceptor, index++, index++, this.webClassLoader);
         interceptor = new WebApplicationContextBeforeAfter(interceptor, index++, this);
 //JACC
         if (securityConfig != null) {
@@ -217,7 +217,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
     public void doStart() throws WaitingException, Exception {
         // reset the classsloader... jetty likes to set it to null when stopping
-        setClassLoader(classLoader);
+        setClassLoader(webClassLoader);
 
         // merge Geronimo and Jetty Lifecycles
         if (!isStarting()) {

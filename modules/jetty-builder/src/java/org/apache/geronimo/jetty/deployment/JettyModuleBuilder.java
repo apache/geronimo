@@ -945,7 +945,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         // check for a classes dir
         File classesDir = new File(webInfDir, "classes");
         if (classesDir.isDirectory()) {
-            webModule.addToWebClasspath(URI.create("WEB-INF/classes/"));
+            webModule.addToWebClasspath(webModule.getTargetPathURI().resolve(URI.create("WEB-INF/classes/")));
         }
 
         // add all of the libs
@@ -960,7 +960,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             if (libs != null) {
                 for (int i = 0; i < libs.length; i++) {
                     File lib = libs[i];
-                    webModule.addToWebClasspath(URI.create("WEB-INF/lib/" + lib.getName()));
+                    webModule.addToWebClasspath(webModule.getTargetPathURI().resolve(URI.create("WEB-INF/lib/" + lib.getName())));
                 }
             }
         }
