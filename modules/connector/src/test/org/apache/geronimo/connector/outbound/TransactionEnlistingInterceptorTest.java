@@ -18,18 +18,20 @@
 package org.apache.geronimo.connector.outbound;
 
 import javax.resource.ResourceException;
-import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
+import org.apache.geronimo.transaction.ContainerTransactionContext;
+import org.apache.geronimo.transaction.TransactionContext;
+import org.apache.geronimo.transaction.UnspecifiedTransactionContext;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:34 $
+ * @version $Revision: 1.4 $ $Date: 2004/04/06 00:21:21 $
  *
  * */
 public class TransactionEnlistingInterceptorTest extends ConnectionManagerTestUtils
@@ -56,7 +58,8 @@ public class TransactionEnlistingInterceptorTest extends ConnectionManagerTestUt
     }
 
     public void testNoTransaction() throws Exception {
-        ConnectionInfo connectionInfo = makeConnectionInfo(null);
+        ConnectionInfo connectionInfo = makeConnectionInfo();
+        TransactionContext.setContext(new UnspecifiedTransactionContext());
         transactionEnlistingInterceptor.getConnection(connectionInfo);
         assertTrue("Expected not started", !started);
         assertTrue("Expected not ended", !ended);
@@ -67,9 +70,10 @@ public class TransactionEnlistingInterceptorTest extends ConnectionManagerTestUt
 
     public void testTransaction() throws Exception {
         TransactionManager transactionManager = new TransactionManagerImpl();
-        transactionManager.begin();
-        Transaction transaction = transactionManager.getTransaction();
-        ConnectionInfo connectionInfo = makeConnectionInfo(transaction);
+        ContainerTransactionContext transactionContext = new ContainerTransactionContext(transactionManager);
+        TransactionContext.setContext(transactionContext);
+        transactionContext.begin();
+        ConnectionInfo connectionInfo = makeConnectionInfo();
         transactionEnlistingInterceptor.getConnection(connectionInfo);
         assertTrue("Expected started", started);
         assertTrue("Expected not ended", !ended);

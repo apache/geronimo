@@ -46,7 +46,7 @@ public class TransactionEnlistingInterceptor implements ConnectionInterceptor {
         next.getConnection(connectionInfo);
         try {
             ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
-            TransactionContext transactionContext = mci.getTransactionContext();
+            TransactionContext transactionContext = TransactionContext.getContext();
             if (transactionContext.isActive()) {
                 XAResource xares = mci.getXAResource();
                 transactionContext.getTransaction().enlistResource(xares);
@@ -75,11 +75,10 @@ public class TransactionEnlistingInterceptor implements ConnectionInterceptor {
             ConnectionReturnAction connectionReturnAction) {
         try {
             ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
-            TransactionContext transactionContext = mci.getTransactionContext();
+            TransactionContext transactionContext = TransactionContext.getContext();
             if (transactionContext.isActive()) {
                 XAResource xares = mci.getXAResource();
                 transactionContext.getTransaction().delistResource(xares, XAResource.TMSUSPEND);
-                mci.setTransactionContext(null);
             }
 
         } catch (SystemException e) {

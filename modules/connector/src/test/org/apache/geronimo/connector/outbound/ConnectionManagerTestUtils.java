@@ -20,6 +20,7 @@ package org.apache.geronimo.connector.outbound;
 import java.io.PrintWriter;
 import java.security.Principal;
 import java.util.Set;
+
 import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionEventListener;
 import javax.resource.spi.ConnectionRequestInfo;
@@ -28,18 +29,15 @@ import javax.resource.spi.LocalTransaction;
 import javax.resource.spi.ManagedConnection;
 import javax.resource.spi.ManagedConnectionMetaData;
 import javax.security.auth.Subject;
-import javax.transaction.Transaction;
 import javax.transaction.xa.XAResource;
 
-import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultTransactionContext;
-import org.apache.geronimo.security.bridge.RealmBridge;
-
 import junit.framework.TestCase;
+import org.apache.geronimo.security.bridge.RealmBridge;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:34 $
+ * @version $Revision: 1.4 $ $Date: 2004/04/06 00:21:21 $
  *
  * */
 public class ConnectionManagerTestUtils extends TestCase implements RealmBridge, ConnectionInterceptor {
@@ -85,13 +83,6 @@ public class ConnectionManagerTestUtils extends TestCase implements RealmBridge,
 
     protected ConnectionInfo makeConnectionInfo() {
         ManagedConnectionInfo managedConnectionInfo = new ManagedConnectionInfo(null, null);
-        return new ConnectionInfo(managedConnectionInfo);
-    }
-
-    protected ConnectionInfo makeConnectionInfo(Transaction transaction) throws Exception {
-        DefaultTransactionContext transactionContext = new DefaultTransactionContext(transaction);
-        ManagedConnectionInfo managedConnectionInfo = new ManagedConnectionInfo(null, null);
-        managedConnectionInfo.setTransactionContext(transactionContext);
         return new ConnectionInfo(managedConnectionInfo);
     }
 

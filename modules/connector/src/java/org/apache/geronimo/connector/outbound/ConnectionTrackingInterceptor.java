@@ -20,6 +20,7 @@ package org.apache.geronimo.connector.outbound;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
+
 import javax.resource.ResourceException;
 import javax.resource.spi.DissociatableManagedConnection;
 import javax.resource.spi.ManagedConnection;
@@ -27,8 +28,8 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
-import org.apache.geronimo.security.bridge.RealmBridge;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.bridge.RealmBridge;
 
 /**
  * ConnectionTrackingInterceptor.java handles communication with the
@@ -38,7 +39,7 @@ import org.apache.geronimo.security.ContextManager;
  * a connection the CachedConnectionManager is notified.
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:32 $
+ * @version $Revision: 1.6 $ $Date: 2004/04/06 00:21:21 $
  */
 public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
 
@@ -68,8 +69,6 @@ public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
      * @throws ResourceException
      */
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
-        ManagedConnectionInfo managedConnectionInfo = connectionInfo.getManagedConnectionInfo();
-        managedConnectionInfo.setTransactionContext(connectionTracker.getTransactionContext());
         next.getConnection(connectionInfo);
         connectionTracker.handleObtained(this, connectionInfo);
     }
@@ -117,7 +116,7 @@ public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
         }
         for (Iterator i = connectionInfos.iterator(); i.hasNext();) {
             ConnectionInfo connectionInfo = (ConnectionInfo) i.next();
-            getConnection(connectionInfo);
+            next.getConnection(connectionInfo);
         }
 
     }

@@ -17,28 +17,29 @@
 
 package org.apache.geronimo.jetty;
 
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URI;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Collections;
-import java.io.Reader;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URL;
+import java.util.Collections;
+import java.util.Set;
+
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.jetty.connector.HTTPConnector;
 import junit.framework.TestCase;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.jetty.connector.HTTPConnector;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.transaction.TransactionManagerProxy;
+import org.apache.geronimo.transaction.UserTransactionImpl;
 
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/03/10 09:58:56 $
+ * @version $Revision: 1.8 $ $Date: 2004/04/06 00:21:21 $
  */
 public class ApplicationTest extends TestCase {
     private Kernel kernel;
@@ -49,6 +50,10 @@ public class ApplicationTest extends TestCase {
     private MBeanServer mbServer;
     private GBeanMBean connector;
     private ObjectName appName;
+    private ObjectName tmName;
+    private ObjectName tcaName;
+    private GBeanMBean tm;
+    private GBeanMBean ctc;
 
     public void testApplication() throws Exception {
         URL url = Thread.currentThread().getContextClassLoader().getResource("deployables/war1");
@@ -57,11 +62,14 @@ public class ApplicationTest extends TestCase {
         app.setAttribute("ContextPath", "/test");
         app.setAttribute("ComponentContext", null);
         app.setAttribute("PolicyContextID", null);
+        UserTransactionImpl userTransaction = new UserTransactionImpl();
+        app.setAttribute("UserTransaction", userTransaction);
         app.setReferencePatterns("Configuration", Collections.EMPTY_SET);
         app.setReferencePatterns("JettyContainer", containerPatterns);
-        app.setReferencePatterns("TransactionManager", Collections.EMPTY_SET);
-        app.setReferencePatterns("TrackedConnectionAssociator", Collections.EMPTY_SET);
+        app.setReferencePatterns("TransactionManager", Collections.singleton(tmName));
+        app.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(tcaName));
         start(appName, app);
+
 
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678/test/hello.txt").openConnection();
         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -86,6 +94,9 @@ public class ApplicationTest extends TestCase {
         connectorName = new ObjectName("geronimo.jetty:role=Connector");
         appName = new ObjectName("geronimo.jetty:app=test");
 
+        tmName = new ObjectName("geronimo.test:role=TransactionManager");
+        tcaName = new ObjectName("geronimo.test:role=ConnectionTrackingCoordinator");
+
         kernel = new Kernel("test.kernel", "test");
         kernel.boot();
         mbServer = kernel.getMBeanServer();
@@ -97,9 +108,16 @@ public class ApplicationTest extends TestCase {
 
         start(containerName, container);
         start(connectorName, connector);
+
+        tm = new GBeanMBean(TransactionManagerProxy.GBEAN_INFO);
+        start(tmName, tm);
+        ctc = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
+        start(tcaName, ctc);
     }
 
     protected void tearDown() throws Exception {
+        stop(tcaName);
+        stop(tmName);
         stop(connectorName);
         stop(containerName);
         kernel.shutdown();

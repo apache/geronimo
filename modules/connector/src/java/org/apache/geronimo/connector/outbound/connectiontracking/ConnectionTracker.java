@@ -24,7 +24,7 @@ import org.apache.geronimo.transaction.TransactionContext;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/25 09:57:11 $
+ * @version $Revision: 1.4 $ $Date: 2004/04/06 00:21:21 $
  *
  * */
 public interface ConnectionTracker {
@@ -36,5 +36,4 @@ public interface ConnectionTracker {
             ConnectionTrackingInterceptor connectionTrackingInterceptor,
             ConnectionInfo connectionInfo);
 
-    TransactionContext getTransactionContext();
 }

@@ -23,34 +23,28 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
+
 import javax.resource.ResourceException;
 import javax.security.jacc.PolicyContext;
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultComponentContext;
-import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultTransactionContext;
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.config.ConfigurationParent;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
+import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.TransactionContext;
-import org.apache.geronimo.transaction.InstanceContext;
+import org.apache.geronimo.transaction.UnspecifiedTransactionContext;
+import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.mortbay.http.HttpException;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
@@ -59,7 +53,7 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
- * @version $Revision: 1.11 $ $Date: 2004/03/10 09:58:55 $
+ * @version $Revision: 1.12 $ $Date: 2004/04/06 00:21:21 $
  */
 public class JettyWebApplicationContext extends WebApplicationContext implements GBean {
 
@@ -72,14 +66,12 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
     private final String policyContextID;
     private final TransactionManager txManager;
     private final TrackedConnectionAssociator associator;
-
-    // @todo this should be replaced by global tx context handling.
-    private final Map transactionContextMap = Collections.synchronizedMap(new WeakHashMap());
+    private final UserTransactionImpl userTransaction;
 
     // @todo get these from DD
     private final Set unshareableResources = Collections.EMPTY_SET;
 
-    private boolean contextPriorityClassLoader=false;
+    private boolean contextPriorityClassLoader = false;
 
     public JettyWebApplicationContext(
             ConfigurationParent config,
@@ -88,7 +80,8 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
             ReadOnlyContext compContext,
             String policyContextID,
             TransactionManager txManager,
-            TrackedConnectionAssociator associator) {
+            TrackedConnectionAssociator associator,
+            UserTransactionImpl userTransaction) {
         super();
         this.config = config;
         this.uri = uri;
@@ -97,12 +90,14 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
         this.policyContextID = policyContextID;
         this.txManager = txManager;
         this.associator = associator;
+        this.userTransaction = userTransaction;
+        userTransaction.setUp(txManager, associator);
     }
 
 
     /** getContextPriorityClassLoader.
      * @return True if this context should give web application class in preference over the containers
-      * classes, as per the servlet specification recommendations.
+     * classes, as per the servlet specification recommendations.
      */
     public boolean getContextPriorityClassLoader() {
         return contextPriorityClassLoader;
@@ -113,7 +108,7 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
      * classes, as per the servlet specification recommendations.
      */
     public void setContextPriorityClassLoader(boolean b) {
-        contextPriorityClassLoader= b;
+        contextPriorityClassLoader = b;
     }
 
     /**
@@ -121,11 +116,9 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
      * determine if the context needs to create its own classloader.
      */
     protected void initClassLoader(boolean forceContextLoader)
-        throws MalformedURLException, IOException
-    {
+            throws MalformedURLException, IOException {
         setClassLoaderJava2Compliant(!contextPriorityClassLoader);
-        if (!contextPriorityClassLoader)
-        {
+        if (!contextPriorityClassLoader) {
             // TODO - once geronimo is correctly setting up the classpath, this should be uncommented.
             // At the moment, the g classloader does not appear to know about the WEB-INF classes and lib.
             // setClassLoader(Thread.currentThread().getContextClassLoader());
@@ -133,7 +126,7 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
         super.initClassLoader(forceContextLoader);
 
         if (log.isDebugEnabled())
-            log.debug("classloader for "+getContextPath()+": "+getClassLoader());
+            log.debug("classloader for " + getContextPath() + ": " + getClassLoader());
     }
 
     public void handle(String pathInContext,
@@ -146,9 +139,8 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
         // save previous state
         ReadOnlyContext oldComponentContext = RootContext.getComponentContext();
         String oldPolicyContextID = PolicyContext.getContextID();
-        Set oldUnshareableResources = null;
-        InstanceContext oldInstanceContext = null;
-        TransactionContext oldTransactionContext = null;
+
+        TrackedConnectionAssociator.ConnectorContextInfo oldConnectorContext = null;
 
         try {
             // set up java:comp JNDI Context
@@ -157,41 +149,20 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
             // set up Security Context
             PolicyContext.setContextID(policyContextID);
 
-            // set up Transaction Context
-            if (txManager != null) {
-                TransactionContext newTxContext;
-
-                // @todo this will not clean up properly if an exception occurs - we need to fix this API
-                try {
-                    Transaction tx = txManager.getTransaction();
-                    if (tx == null) {
-                        newTxContext = new DefaultTransactionContext(null);
-                    } else {
-                        newTxContext = (TransactionContext) transactionContextMap.get(tx);
-                        if (newTxContext == null) {
-                            newTxContext = new DefaultTransactionContext(tx);
-                            transactionContextMap.put(tx, newTxContext);
-                        }
-                    }
-                    oldUnshareableResources = associator.setUnshareableResources(unshareableResources);
-                    oldInstanceContext = associator.enter(new DefaultComponentContext());
-                    oldTransactionContext = associator.setTransactionContext(newTxContext);
-                } catch (SystemException e) {
-                    throw new RuntimeException(e);
-                } catch (RollbackException e) {
-                    throw new RuntimeException(e);
-                } catch (ResourceException e) {
-                    throw new RuntimeException(e);
-                }
+            if (TransactionContext.getContext() == null) {
+                TransactionContext.setContext(new UnspecifiedTransactionContext());
+            }
+            try {
+                oldConnectorContext = associator.enter(new DefaultComponentContext(), unshareableResources);
+            } catch (ResourceException e) {
+                throw new RuntimeException(e);
             }
 
             super.handle(pathInContext, pathParams, httpRequest, httpResponse);
         } finally {
             try {
                 if (txManager != null) {
-                    associator.exit(oldInstanceContext, unshareableResources);
-                    associator.resetTransactionContext(oldTransactionContext);
-                    associator.setUnshareableResources(oldUnshareableResources);
+                    associator.exit(oldConnectorContext);
                 }
             } catch (ResourceException e) {
                 throw new RuntimeException(e);
@@ -211,6 +182,9 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
         } else {
             setWAR(new URL(config.getBaseURL(), uri.toString()).toString());
         }
+        if (userTransaction != null) {
+            userTransaction.setOnline(true);
+        }
         container.addContext(this);
         super.start();
     }
@@ -225,6 +199,9 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
             }
         }
         container.removeContext(this);
+        if (userTransaction != null) {
+            userTransaction.setOnline(false);
+        }
     }
 
     public void doFail() {
@@ -240,18 +217,19 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
     static {
 
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty WebApplication Context", JettyWebApplicationContext.class.getName());
-        infoFactory.addAttribute(new GAttributeInfo("URI", true));
-        infoFactory.addAttribute(new GAttributeInfo("ContextPath", true));
-        infoFactory.addAttribute(new GAttributeInfo("ContextPriorityClassLoader", true));
-        infoFactory.addAttribute(new GAttributeInfo("ComponentContext", true));
-        infoFactory.addAttribute(new GAttributeInfo("PolicyContextID", true));
-        infoFactory.addReference(new GReferenceInfo("Configuration", ConfigurationParent.class.getName()));
-        infoFactory.addReference(new GReferenceInfo("JettyContainer", JettyContainer.class.getName()));
-        infoFactory.addReference(new GReferenceInfo("TransactionManager", TransactionManager.class.getName()));
-        infoFactory.addReference(new GReferenceInfo("TrackedConnectionAssociator", TrackedConnectionAssociator.class.getName()));
+        infoFactory.addAttribute("URI", true);
+        infoFactory.addAttribute("ContextPath", true);
+        infoFactory.addAttribute("ContextPriorityClassLoader", true);
+        infoFactory.addAttribute("ComponentContext", true);
+        infoFactory.addAttribute("PolicyContextID", true);
+        infoFactory.addAttribute("UserTransaction", true);
+        infoFactory.addReference("Configuration", ConfigurationParent.class);
+        infoFactory.addReference("JettyContainer", JettyContainer.class);
+        infoFactory.addReference("TransactionManager", TransactionManager.class);
+        infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class);
         infoFactory.setConstructor(new GConstructorInfo(
-                Arrays.asList(new Object[]{"Configuration", "URI", "JettyContainer", "ComponentContext", "PolicyContextID", "TransactionManager", "TrackedConnectionAssociator"}),
-                Arrays.asList(new Object[]{ConfigurationParent.class, URI.class, JettyContainer.class, ReadOnlyContext.class, String.class, TransactionManager.class, TrackedConnectionAssociator.class})));
+                Arrays.asList(new Object[]{"Configuration", "URI", "JettyContainer", "ComponentContext", "PolicyContextID", "TransactionManager", "TrackedConnectionAssociator", "UserTransaction"}),
+                Arrays.asList(new Object[]{ConfigurationParent.class, URI.class, JettyContainer.class, ReadOnlyContext.class, String.class, TransactionManager.class, TrackedConnectionAssociator.class, UserTransactionImpl.class})));
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

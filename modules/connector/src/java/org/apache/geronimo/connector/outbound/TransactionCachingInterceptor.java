@@ -54,7 +54,7 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor, Con
     }
 
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
-        TransactionContext transactionContext = connectionTracker.getTransactionContext();
+        TransactionContext transactionContext = TransactionContext.getContext();
         ManagedConnectionInfo managedConnectionInfo = (ManagedConnectionInfo)transactionContext.getManagedConnectionInfo(this);
         if (managedConnectionInfo != null) {
             connectionInfo.setManagedConnectionInfo(managedConnectionInfo);
@@ -71,7 +71,7 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor, Con
             next.returnConnection(connectionInfo, connectionReturnAction);
         }
 
-        TransactionContext transactionContext = connectionTracker.getTransactionContext();
+        TransactionContext transactionContext = TransactionContext.getContext();
         if (transactionContext.isActive()) {
             return;
         }

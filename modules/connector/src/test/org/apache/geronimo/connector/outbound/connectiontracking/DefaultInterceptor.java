@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl;
+package org.apache.geronimo.connector.outbound.connectiontracking;
 
 import org.apache.geronimo.transaction.InstanceContext;
 
@@ -23,7 +23,7 @@ import org.apache.geronimo.transaction.InstanceContext;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:33 $
+ * @version $Revision: 1.1 $ $Date: 2004/04/06 00:21:20 $
  *
  * */
 public interface DefaultInterceptor {

@@ -23,8 +23,6 @@ import javax.resource.spi.ManagedConnectionFactory;
 import javax.security.auth.Subject;
 import javax.transaction.xa.XAResource;
 
-import org.apache.geronimo.transaction.TransactionContext;
-
 /**
  * ConnectionRequest.java
  *
@@ -38,7 +36,6 @@ public class ManagedConnectionInfo {
     private ManagedConnectionFactory managedConnectionFactory;
     private ConnectionRequestInfo connectionRequestInfo;
     private Subject subject;
-    private TransactionContext transactionContext;
     private ManagedConnection managedConnection;
     private XAResource xares;
     private long lastUsed;
@@ -75,14 +72,6 @@ public class ManagedConnectionInfo {
 
     public void setSubject(Subject subject) {
         this.subject = subject;
-    }
-
-    public TransactionContext getTransactionContext() {
-        return transactionContext;
-    }
-
-    public void setTransactionContext(TransactionContext transactionContext) {
-        this.transactionContext = transactionContext;
     }
 
     public ManagedConnection getManagedConnection() {
