@@ -31,7 +31,7 @@ import org.apache.velocity.VelocityContext;
 /**
  * Simple servlet for looking at mbeans
  *
- * @version $Id: DebugServlet.java,v 1.2 2004/07/26 17:14:48 dain Exp $
+ * @version $Id$
  */
 public class DebugServlet extends BasicVelocityActionServlet {
     public static String OBJECT_NAME_FILTER_KEY = "ObjectNameFilter";

@@ -36,7 +36,7 @@ import org.apache.velocity.runtime.RuntimeConstants;
  * Simple servlet to dispatch based on 'action'.  Also inits velocity in a
  * simple way
  *
- * @version $Id: BasicVelocityActionServlet.java,v 1.2 2004/07/26 17:14:48 dain Exp $
+ * @version $Id$
  */
 public abstract class BasicVelocityActionServlet extends HttpServlet {
     public static final String DEFAULT_PROPS = "org/apache/geronimo/jmxdebug/web/velocity/velocity.defaults";

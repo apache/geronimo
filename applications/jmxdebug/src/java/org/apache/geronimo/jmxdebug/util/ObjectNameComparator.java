@@ -28,7 +28,7 @@ import javax.management.ObjectName;
  * will not place single token domains before multiple token domains of
  * the same type (foo.bar > foo at the moment).
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/26 17:14:48 $
+ * @version $Rev$ $Date$
  */
 public class ObjectNameComparator implements Comparator {
     public static final ObjectNameComparator INSTANCE = new ObjectNameComparator();

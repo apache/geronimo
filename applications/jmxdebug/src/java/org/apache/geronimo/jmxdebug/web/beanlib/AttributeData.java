@@ -22,7 +22,7 @@ import javax.management.MBeanAttributeInfo;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/07/26 17:14:48 $
+ * @version $Rev$ $Date$
  */
 public class AttributeData {
     private final String name;

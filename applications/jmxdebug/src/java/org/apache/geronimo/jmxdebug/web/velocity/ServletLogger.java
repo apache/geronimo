@@ -26,7 +26,7 @@ import javax.servlet.ServletContext;
 /**
  * Simple wrapper for the servlet log.
  *
- * @version $Id: ServletLogger.java,v 1.1 2004/02/18 15:33:41 geirm Exp $
+ * @version $Id$
  */
 public class ServletLogger {
     private ServletContext servletContext = null;

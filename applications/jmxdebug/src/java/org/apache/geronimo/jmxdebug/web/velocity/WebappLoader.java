@@ -30,7 +30,7 @@ import org.apache.commons.collections.ExtendedProperties;
  *  Simple webapp loader.  This code has been recycled from contributions to Velocity
  *  by me.
  *
- * @version $Id: WebappLoader.java,v 1.1 2004/02/18 15:33:41 geirm Exp $
+ * @version $Id$
  */
 public class WebappLoader extends ResourceLoader {
 
