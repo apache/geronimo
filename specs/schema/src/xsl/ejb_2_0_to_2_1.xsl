@@ -17,17 +17,17 @@
 -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+    xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     version="1.0">
 
     <xsl:output method="xml" indent="yes"/>
 
     <!--Replace dtd with schema "attributes"-->
     <xsl:template match="ejb-jar">
-        <ejb-jar xmlns="http://java.sun.com/xml/ns/j2ee"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd"
-          version="2.1">
-          <xsl:apply-templates/>
+        <ejb-jar xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd"
+            version="2.1">
+            <xsl:apply-templates/>
         </ejb-jar>
 
     </xsl:template>
@@ -46,25 +46,33 @@
                 <xsl:if test="acknowledge-mode">
                     <activation-config-property>
                         <activation-config-property-name>acknowledgeMode</activation-config-property-name>
-                        <activation-config-property-value><xsl:value-of select="acknowledge-mode"/></activation-config-property-value>
+                        <activation-config-property-value>
+                            <xsl:value-of select="acknowledge-mode"/>
+                        </activation-config-property-value>
                     </activation-config-property>
                 </xsl:if>
                 <xsl:if test="message-selector">
                     <activation-config-property>
                         <activation-config-property-name>messageSelector</activation-config-property-name>
-                        <activation-config-property-value><xsl:value-of select="message-selector"/></activation-config-property-value>
+                        <activation-config-property-value>
+                            <xsl:value-of select="message-selector"/>
+                        </activation-config-property-value>
                     </activation-config-property>
                 </xsl:if>
                 <xsl:if test="message-driven-destination/destination-type">
                     <activation-config-property>
                         <activation-config-property-name>destinationType</activation-config-property-name>
-                        <activation-config-property-value><xsl:value-of select="message-driven-destination/destination-type"/></activation-config-property-value>
+                        <activation-config-property-value>
+                            <xsl:value-of select="message-driven-destination/destination-type"/>
+                        </activation-config-property-value>
                     </activation-config-property>
                 </xsl:if>
                 <xsl:if test="message-driven-destination/subscription-durability">
                     <activation-config-property>
                         <activation-config-property-name>subscriptionDurability</activation-config-property-name>
-                        <activation-config-property-value><xsl:value-of select="message-driven-destination/subscription-durability"/></activation-config-property-value>
+                        <activation-config-property-value>
+                            <xsl:value-of select="message-driven-destination/subscription-durability"/>
+                        </activation-config-property-value>
                     </activation-config-property>
                 </xsl:if>
             </activation-config>
