@@ -24,12 +24,8 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
-import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.openejb.deployment.OpenEJBModuleBuilder;
 
 import javax.management.ObjectName;
 import java.io.BufferedInputStream;
@@ -61,28 +57,13 @@ import java.util.zip.ZipFile;
 public class WSConfigBuilder implements ConfigurationBuilder {
     private boolean hasEJB = false;
 
-    private final ConfigurationStore configurationStore;
-    private final ObjectName j2eeServer;
-    private final ObjectName transactionContextManagerObjectName;
-    private final ObjectName transactionalTimerObjectName;
-    private final ObjectName nonTransactionalTimerObjectName;
-    private final ObjectName trackedConnectionAssocator;
+    private final EARConfigBuilder earConfigBuilder;
+    private final ConfigurationStore store;
 
-    public WSConfigBuilder(ObjectName j2eeServer,
-                           ObjectName transactionContextManagerObjectName,
-                           ObjectName connectionTrackerObjectName,
-                           ObjectName transactionalTimerObjectName,
-                           ObjectName nonTransactionalTimerObjectName,
-                           ObjectName trackedConnectionAssocator,
-                           Repository repository,
-                           Kernel kernel,
-                           ConfigurationStore configurationStore) {
-        this.j2eeServer = j2eeServer;
-        this.transactionContextManagerObjectName = transactionContextManagerObjectName;
-        this.transactionalTimerObjectName = transactionalTimerObjectName;
-        this.nonTransactionalTimerObjectName = nonTransactionalTimerObjectName;
-        this.trackedConnectionAssocator = trackedConnectionAssocator;
-        this.configurationStore = configurationStore;
+    public WSConfigBuilder(EARConfigBuilder earConfigBuilder,
+                           ConfigurationStore store) {
+        this.earConfigBuilder = earConfigBuilder;
+        this.store = store;
     }
 
     public void doStart() throws WaitingException, Exception {
@@ -143,7 +124,7 @@ public class WSConfigBuilder implements ConfigurationBuilder {
             jos.closeEntry();
             jos.close();
             ArrayList list = new ArrayList(1);
-            list.add(configurationStore.install(source));
+            list.add(store.install(source));
             return list;
         } finally {
             if (sourceFile != null) {
@@ -190,33 +171,7 @@ public class WSConfigBuilder implements ConfigurationBuilder {
         return out;
     }
 
-    private File installEJBWebService(File module, File unpackedDir) throws IOException, URISyntaxException, DeploymentException {
-        /**
-         * TODO following code deploy the EJB in the OpenEJB EJB continaer. 
-         * The code is borrows from the geronimo openEJB module
-         * modules/core/src/test/org/openejb/deployment/EJBConfigBuilderTest.java#testEJBJarDeploy()
-         * Method. If this code is broken first the  above test should check. If that change this will broke 
-         * But this can quickly fix looking at it.      
-         */
-
-        URI defaultParentId = new URI("org/apache/geronimo/Server");
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, null);
-        ResourceReferenceBuilder resourceReferenceBuilder = null;
-        EARConfigBuilder earConfigBuilder = new EARConfigBuilder(defaultParentId,
-                j2eeServer,
-                transactionContextManagerObjectName,
-                trackedConnectionAssocator,
-                transactionalTimerObjectName,
-                nonTransactionalTimerObjectName,
-                null, // Repository
-                moduleBuilder,
-                moduleBuilder,
-                null,
-                null,
-                resourceReferenceBuilder, // webconnector
-                null, // app client
-                null // kernel
-        );
+    private File installEJBWebService(File module, File unpackedDir) throws IOException, DeploymentException {
         JarFile jarFile = new JarFile(module);
         Object plan = earConfigBuilder.getDeploymentPlan(null, jarFile);
         earConfigBuilder.buildConfiguration(plan, jarFile, unpackedDir);
@@ -276,26 +231,12 @@ public class WSConfigBuilder implements ConfigurationBuilder {
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(WSConfigBuilder.class);
-        infoFactory.addAttribute("j2eeServer", ObjectName.class, true);
-        infoFactory.addAttribute("transactionContextManagerObjectName", ObjectName.class, true);
-        infoFactory.addAttribute("connectionTrackerObjectName", ObjectName.class, true);
-        infoFactory.addAttribute("transactionalTimerObjectName", ObjectName.class, true);
-        infoFactory.addAttribute("nonTransactionalTimerObjectName", ObjectName.class, true);
-        infoFactory.addAttribute("trackedConnectionAssocator", ObjectName.class, true);
-        infoFactory.addAttribute("configurationStore", ConfigurationStore.class, false);
-        infoFactory.addReference("Repository", Repository.class);
-        infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addInterface(ConfigurationBuilder.class);
+        infoFactory.addReference("EARConfigBuilder", EARConfigBuilder.class);
+        infoFactory.addReference("Store", ConfigurationStore.class);
         infoFactory.setConstructor(new String[]{
-            "j2eeServer",
-            "transactionContextManagerObjectName",
-            "connectionTrackerObjectName",
-            "transactionalTimerObjectName",
-            "nonTransactionalTimerObjectName",
-            "trackedConnectionAssocator",
-            "configurationStore",
-            "Repository",
-            "kernel"
+            "EARConfigBuilder",
+            "Store"
         });
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

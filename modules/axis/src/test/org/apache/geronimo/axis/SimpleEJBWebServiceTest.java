@@ -15,6 +15,11 @@
  */
 package org.apache.geronimo.axis;
 
+import org.apache.geronimo.axis.testUtils.AxisGeronimoConstants;
+import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+
+import javax.management.ObjectName;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,13 +30,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
-import javax.management.ObjectName;
-
-import org.apache.geronimo.axis.testUtils.AxisGeronimoConstants;
-import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 
 public class SimpleEJBWebServiceTest extends AbstractWebServiceTest {
+
     public SimpleEJBWebServiceTest(String testName) throws FileNotFoundException, WaitingException, IOException {
         super(testName);
     }
@@ -46,16 +47,7 @@ public class SimpleEJBWebServiceTest extends AbstractWebServiceTest {
         kernel.loadGBean(axisname, axisgbean);
         kernel.startGBean(axisname);
         File jarfile = new File(getTestFile("target/generated/samples/echo-jar/echo-ewsimpl.jar"));
-        WSConfigBuilder wsconfBuilder
-                = new WSConfigBuilder(AxisGeronimoConstants.J2EE_SERVER_NAME,
-                        AxisGeronimoConstants.TRANSACTION_CONTEXT_MANAGER_NAME,
-                        AxisGeronimoConstants.CONNECTION_TRACKER_NAME,
-                        AxisGeronimoConstants.TRANSACTIONAL_TIMER_NAME,
-                        AxisGeronimoConstants.NONTRANSACTIONAL_TIMER_NAME,
-                        AxisGeronimoConstants.TRACKED_CONNECTION_ASSOCIATOR_NAME,
-                        null,
-                        kernel,
-                        store);
+        WSConfigBuilder wsconfBuilder = new WSConfigBuilder(getEARConfigBuilder(), store);
         File out = new File("target/temp");
         out.mkdirs();
         File ws = wsconfBuilder.installWebService(jarfile, out, Thread.currentThread().getContextClassLoader());
@@ -67,7 +59,7 @@ public class SimpleEJBWebServiceTest extends AbstractWebServiceTest {
 
 
         //let us try to brows the WSDL of the service
-        URL wsdlrequestUrl =AxisGeronimoUtils.getURL("/axis/services/echoPort?wsdl");
+        URL wsdlrequestUrl = AxisGeronimoUtils.getURL("/axis/services/echoPort?wsdl");
         //+"/axis/services/AdminService?wsdl");
         
         HttpURLConnection connection = (HttpURLConnection) wsdlrequestUrl.openConnection();
@@ -161,8 +153,9 @@ public class SimpleEJBWebServiceTest extends AbstractWebServiceTest {
         assertEquals(val, echoStringMethod.invoke(echoPort, new Object[]{val}));
         Class structClass = Class.forName("org.apache.ws.echosample.EchoStruct", true, jarclassloder);
         Method echostuctMethod = echoClass.getMethod("echoStruct", new Class[]{structClass});
+        assertNotNull(echostuctMethod);
         Object structval = structClass.newInstance();
-        
+        assertNotNull(structval);
         Thread.currentThread().setContextClassLoader(ocl);
         kernel.stopGBean(axisname);
         kernel.unloadGBean(axisname);

@@ -9,6 +9,26 @@
         <version>DEV</version>
     </dependency>
     
-    <!-- Start Axis Servlet from the plan -->
-    <gbean name="geronimo.server:type=WebServiceContainer,container=axis" class="org.apache.geronimo.axis.AxisGBean">    
+    <!-- Use the default deployer -->
+    <gbean name="geronimo.deployer:role=Builder,type=EAR,config=org/apache/geronimo/Server" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
+        <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
+        <attribute name="j2eeServer" type="javax.management.ObjectName">geronimo.server:j2eeType=J2EEServer,name=geronimo</attribute>
+        <attribute name="transactionContextManagerObjectName" type="javax.management.ObjectName">geronimo.server:type=TransactionContextManager</attribute>
+        <attribute name="connectionTrackerObjectName" type="javax.management.ObjectName">geronimo.server:type=ConnectionTracker</attribute>
+        <attribute name="transactionalTimerObjectName" type="javax.management.ObjectName">geronimo.server:type=ThreadPooledTimer,name=TransactionalThreadPooledTimer</attribute>
+        <attribute name="nonTransactionalTimerObjectName" type="javax.management.ObjectName">geronimo.server:type=ThreadPooledTimer,name=NonTransactionalThreadPooledTimer</attribute>
+        <reference name="Repository">*:role=Repository,*</reference>
+        <reference name="EJBConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/Server</reference>
+        <reference name="EJBReferenceBuilder">geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/Server</reference>
+        <reference name="WebConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=Web,config=org/apache/geronimo/Server</reference>
+        <reference name="ConnectorConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=Connector,config=org/apache/geronimo/Server</reference>
+        <reference name="ResourceReferenceBuilder">geronimo.deployer:role=ModuleBuilder,type=Connector,config=org/apache/geronimo/Server</reference>
+        <reference name="AppClientConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=AppClient,config=org/apache/geronimo/Server</reference>
+    </gbean>
+
+    <!-- Start Axis GBean from the plan -->
+    <gbean name="geronimo.server:type=WebServiceContainer,container=axis" class="org.apache.geronimo.axis.AxisGBean">
+        <reference name="EARConfigBuilder">geronimo.deployer:role=Builder,type=EAR,config=org/apache/geronimo/Server</reference>
+        <reference name="Store">geronimo.system:role=ConfigurationStore,type=Local</reference>
+    </gbean>
 </configuration>

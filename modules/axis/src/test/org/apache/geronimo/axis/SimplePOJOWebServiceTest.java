@@ -16,7 +16,6 @@
 package org.apache.geronimo.axis;
 
 import org.apache.axis.utils.ClassUtils;
-import org.apache.geronimo.axis.testUtils.AxisGeronimoConstants;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -35,6 +34,7 @@ import java.net.URLClassLoader;
 import java.util.List;
 
 public class SimplePOJOWebServiceTest extends AbstractWebServiceTest {
+
     public SimplePOJOWebServiceTest(String testName) throws FileNotFoundException, WaitingException, IOException {
         super(testName);
     }
@@ -48,16 +48,7 @@ public class SimplePOJOWebServiceTest extends AbstractWebServiceTest {
         GBeanMBean axisgbean = new GBeanMBean(AxisGbean.getGBeanInfo(), myCl);
         kernel.loadGBean(axisname, axisgbean);
         kernel.startGBean(axisname);
-        WSConfigBuilder wsconfBuilder
-                = new WSConfigBuilder(AxisGeronimoConstants.J2EE_SERVER_NAME,
-                        AxisGeronimoConstants.TRANSACTION_CONTEXT_MANAGER_NAME,
-                        AxisGeronimoConstants.CONNECTION_TRACKER_NAME,
-                        AxisGeronimoConstants.TRANSACTIONAL_TIMER_NAME,
-                        AxisGeronimoConstants.NONTRANSACTIONAL_TIMER_NAME,
-                        AxisGeronimoConstants.TRACKED_CONNECTION_ASSOCIATOR_NAME,
-                        null,
-                        kernel,
-                        store);
+        WSConfigBuilder wsconfBuilder = new WSConfigBuilder(getEARConfigBuilder(), store);
         List uri = wsconfBuilder.buildConfiguration(null, jarfile, outFile);
         GBeanMBean config = store.getConfiguration((URI) uri.get(0));
         ConfigurationManager configurationManager = kernel.getConfigurationManager();
@@ -87,7 +78,9 @@ public class SimplePOJOWebServiceTest extends AbstractWebServiceTest {
         assertEquals(val, echoStringMethod.invoke(echoPort, new Object[]{val}));
         Class structClass = ClassUtils.forName("org.apache.ws.echosample.EchoStruct");
         Method echostuctMethod = echoClass.getMethod("echoStruct", new Class[]{structClass});
+        assertNotNull(echostuctMethod);
         Object structval = structClass.newInstance();
+        assertNotNull(structval);
         kernel.stopGBean(axisname);
         kernel.unloadGBean(axisname);
     }

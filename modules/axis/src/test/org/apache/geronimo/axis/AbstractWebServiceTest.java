@@ -20,8 +20,11 @@ import org.apache.geronimo.axis.testUtils.J2EEManager;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.system.configuration.LocalConfigStore;
 import org.apache.geronimo.transaction.OnlineUserTransaction;
+import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
+import org.openejb.deployment.OpenEJBModuleBuilder;
 
 import javax.management.ObjectName;
 import java.io.File;
@@ -32,6 +35,12 @@ import java.net.URL;
 import java.util.Collections;
 
 public class AbstractWebServiceTest extends AbstractTestCase {
+
+    private static final String j2eeDomainName = "openejb.server";
+    private static final String j2eeServerName = "TestOpenEJBServer";
+    private static final ObjectName transactionManagerObjectName = JMXUtil.getObjectName(j2eeDomainName + ":type=TransactionManager");
+    private static final ObjectName connectionTrackerObjectName = JMXUtil.getObjectName(j2eeDomainName + ":type=ConnectionTracker");
+
     protected ObjectName axisname;
     protected Kernel kernel;
     protected J2EEManager j2eeManager;
@@ -85,4 +94,24 @@ public class AbstractWebServiceTest extends AbstractTestCase {
         AxisGeronimoUtils.delete(file);
     }
 
+    protected EARConfigBuilder getEARConfigBuilder() throws Exception {
+        URI defaultParentId = new URI("org/apache/geronimo/Server");
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, null);
+        EARConfigBuilder earConfigBuilder =
+                new EARConfigBuilder(defaultParentId,
+                        new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),
+                        transactionManagerObjectName,
+                        connectionTrackerObjectName,
+                        null,
+                        null,
+                        null,
+                        moduleBuilder,
+                        moduleBuilder,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null);
+        return earConfigBuilder;
+    }
 }
