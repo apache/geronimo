@@ -61,12 +61,13 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 import org.apache.geronimo.proxy.ProxyContainer;
 import org.apache.geronimo.proxy.ReflexiveInterceptor;
 import org.apache.geronimo.remoting.DeMarshalingInterceptor;
+import org.apache.geronimo.remoting.router.JMXTarget;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/11/16 06:36:03 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/16 06:47:52 $
  */
 public class MBeanServerStub
-        implements GeronimoMBeanTarget {
+        implements GeronimoMBeanTarget, JMXTarget {
 
     private ProxyContainer serverContainer;
     private DeMarshalingInterceptor demarshaller;
