@@ -67,7 +67,7 @@ import java.io.File;
 /**
  * A collection of String utilities.
  *
- * @version $Revision: 1.8 $ $Date: 2003/08/25 18:34:38 $
+ * @version $Revision: 1.9 $ $Date: 2003/08/26 07:51:06 $
  */
 public final class Strings
 {
@@ -678,10 +678,6 @@ public final class Strings
      * Make a URL from the given string.
      *
      * <p>
-     * If the string is a properly formatted file URL, then the file
-     * portion will be made canonical.
-     *
-     * <p>
      * If the string is an invalid URL then it will be converted into a
      * file URL.
      *
@@ -704,16 +700,7 @@ public final class Strings
             }
         }
         catch (Exception e) {
-            // make sure we have a absolute & canonical file url
-            try {
-                url = makeURLFromFilespec(urlspec, relativePrefix);
-            }
-            catch (IOException n) {
-                MalformedURLException mue = 
-                    new MalformedURLException("Failed to create URL from filespec: " + urlspec);
-                mue.initCause(n);
-                throw mue;
-            }
+            url = makeURLFromFilespec(urlspec, relativePrefix);
         }
         
         return url;
@@ -721,18 +708,15 @@ public final class Strings
     
     /** A helper to make a URL from a filespec. */
     private static URL makeURLFromFilespec(final String filespec, final String relativePrefix)
-        throws IOException
+        throws MalformedURLException
     {
-        // make sure the file is absolute & canonical file url
+        // make sure the file is absolute 
         File file = new File(filespec);
         
         // if we have a prefix and the file is not abs then prepend
         if (relativePrefix != null && !file.isAbsolute()) {
             file = new File(relativePrefix, filespec);
         }
-        
-        // make sure it is canonical (no ../ and such)
-        file = file.getCanonicalFile();
         
         return file.toURL();
     }
