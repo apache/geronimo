@@ -72,6 +72,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Arrays;
 import javax.management.AttributeNotFoundException;
 import javax.management.InvalidAttributeValueException;
 import javax.management.MBeanException;
@@ -121,12 +122,13 @@ import org.apache.geronimo.kernel.repository.MissingDependencyException;
  * a startRecursive() for all the GBeans it contains. Similarly, if the
  * Configuration is stopped then all of its GBeans will be stopped as well.
  *
- * @version $Revision: 1.9 $ $Date: 2004/02/10 22:34:04 $
+ * @version $Revision: 1.10 $ $Date: 2004/02/12 18:20:24 $
  */
 public class Configuration implements GBean {
     private static final Log log = LogFactory.getLog(Configuration.class);
 
     private final URI id;
+    private final URI parentID;
     private final ConfigurationParent parent;
     private final List classPath;
     private final List dependencies;
@@ -150,8 +152,9 @@ public class Configuration implements GBean {
      * @param repositories a Collection<Repository> of repositories used to resolve dependencies
      * @param dependencies a List<URI> of dependencies
      */
-    public Configuration(URI id, ConfigurationParent parent, List classPath, byte[] gbeanState, Collection repositories, List dependencies) {
+    public Configuration(URI id, URI parentID, ConfigurationParent parent, List classPath, byte[] gbeanState, Collection repositories, List dependencies) {
         this.id = id;
+        this.parentID = parentID;
         this.parent = parent;
         this.gbeanState = gbeanState;
         this.classPath = classPath;
@@ -187,6 +190,7 @@ public class Configuration implements GBean {
             urls[idx++] = new URL(baseURL, uri.toString());
         }
         assert idx == urls.length;
+        log.debug("ClassPath for " + id + " resolved to " + Arrays.asList(urls));
 
         if (parent == null) {
             classLoader = new URLClassLoader(urls);
@@ -198,17 +202,22 @@ public class Configuration implements GBean {
         gbeans = loadGBeans(gbeanState, classLoader);
 
         // register all the GBeans
+        MBeanServer mbServer = context.getServer();
         for (Iterator i = gbeans.entrySet().iterator(); i.hasNext();) {
             Map.Entry entry = (Map.Entry) i.next();
             ObjectName name = (ObjectName) entry.getKey();
             GBeanMBean gbean = (GBeanMBean) entry.getValue();
-            MBeanServer mbServer = context.getServer();
+            log.trace("Registering GBean " + name);
             mbServer.registerMBean(gbean, name);
             mbServer.invoke(Kernel.DEPENDENCY_SERVICE, "addDependency", new Object[]{name, context.getObjectName()}, new String[]{ObjectName.class.getName(), ObjectName.class.getName()});
         }
+
+        log.info("Started configuration " + id);
     }
 
     public void doStop() {
+        log.info("Stopping configuration " + id);
+
         // unregister all GBeans
         MBeanServer mbServer = context.getServer();
         for (Iterator i = gbeans.keySet().iterator(); i.hasNext();) {
@@ -220,6 +229,7 @@ public class Configuration implements GBean {
                 log.warn("Could not remove dependency for child " + name, e);
             }
             try {
+                log.trace("Unregistering GBean " + name);
                 mbServer.unregisterMBean(name);
             } catch (Exception e) {
                 // ignore
@@ -237,6 +247,14 @@ public class Configuration implements GBean {
     }
 
     public void doFail() {
+    }
+
+    /**
+     * Return the unique ID of this Configuration's parent
+     * @return the unique ID of the parent, or null if it does not have one
+     */
+    public URI getParentID() {
+        return parentID;
     }
 
     /**
@@ -381,6 +399,7 @@ public class Configuration implements GBean {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(Configuration.class);
         infoFactory.addAttribute(new GAttributeInfo("ID", true));
+        infoFactory.addAttribute(new GAttributeInfo("ParentID", true));
         infoFactory.addAttribute(new GAttributeInfo("ClassPath", true));
         infoFactory.addAttribute(new GAttributeInfo("Dependencies", true));
         infoFactory.addAttribute(new GAttributeInfo("GBeanState", true));
@@ -391,8 +410,8 @@ public class Configuration implements GBean {
         infoFactory.addReference(new GReferenceInfo("Parent", ConfigurationParent.class));
         infoFactory.addReference(new GReferenceInfo("Repositories", Repository.class));
         infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"ID", "Parent", "ClassPath", "GBeanState", "Repositories", "Dependencies"},
-                new Class[]{URI.class, ConfigurationParent.class, List.class, byte[].class, Collection.class, List.class}
+                new String[]{"ID", "ParentID", "Parent", "ClassPath", "GBeanState", "Repositories", "Dependencies"},
+                new Class[]{URI.class, URI.class, ConfigurationParent.class, List.class, byte[].class, Collection.class, List.class}
         ));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
