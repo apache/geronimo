@@ -22,12 +22,16 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.jar.JarFile;
+import java.io.Serializable;
 import javax.wsdl.*;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.soap.SOAPBinding;
 import javax.wsdl.extensions.soap.SOAPBody;
 import javax.xml.namespace.QName;
+import javax.xml.rpc.handler.HandlerInfo;
 
 import org.apache.axis.constants.Style;
 import org.apache.axis.constants.Use;
@@ -43,6 +47,9 @@ import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointMethodMappingType;
+import org.apache.geronimo.xbeans.j2ee.PortComponentHandlerType;
+import org.apache.geronimo.xbeans.j2ee.ParamValueType;
+import org.apache.geronimo.xbeans.j2ee.XsdQNameType;
 import org.apache.geronimo.axis.server.ReadOnlyServiceDesc;
 import org.apache.xmlbeans.SchemaType;
 
@@ -59,6 +66,22 @@ public class AxisServiceBuilder {
     }
 
 
+    public static ServiceInfo createServiceInfo(JarFile jarFile, String ejbName, ClassLoader classLoader) throws DeploymentException {
+        Map portComponentsMap = null;
+        try {
+            URL webservicesURL = DeploymentUtil.createJarURL(jarFile, "META-INF/webservices.xml");
+            portComponentsMap = WSDescriptorParser.parseWebServiceDescriptor(webservicesURL, jarFile, true);
+        } catch (MalformedURLException e1) {
+            throw new DeploymentException("Invalid URL to webservices.xml", e1);
+        }
+
+        // Grab the portInfo for this ejb
+        PortInfo portInfo = (PortInfo) portComponentsMap.get(ejbName);
+        JavaServiceDesc serviceDesc = createServiceDesc(portInfo, classLoader);
+        List handlerInfos = createHandlerInfos(portInfo, classLoader);
+        return new ServiceInfo(serviceDesc, handlerInfos);
+    }
+
     public static JavaServiceDesc createEJBServiceDesc(JarFile jarFile, String ejbName, ClassLoader classLoader) throws DeploymentException {
         Map portComponentsMap = null;
         try {
@@ -73,18 +96,50 @@ public class AxisServiceBuilder {
         return createServiceDesc(portInfo, classLoader);
     }
 
-    public static JavaServiceDesc createPOJOServiceDesc(JarFile jarFile, String pojoName, ClassLoader classLoader) throws DeploymentException {
-        Map portComponentsMap = null;
-        try {
-            URL webservicesURL = DeploymentUtil.createJarURL(jarFile, "WEB-INF/webservices.xml");
-            portComponentsMap = WSDescriptorParser.parseWebServiceDescriptor(webservicesURL, jarFile, true);
-        } catch (MalformedURLException e1) {
-            throw new DeploymentException("Invalid URL to webservices.xml", e1);
-        }
+    private static List createHandlerInfos(PortInfo portInfo, ClassLoader classLoader) throws DeploymentException {
+        List list = new ArrayList();
 
-        // Grab the portInfo for this pojo
-        PortInfo portInfo = (PortInfo) portComponentsMap.get(pojoName);
-        return createServiceDesc(portInfo, classLoader);
+        PortComponentHandlerType[] handlers = portInfo.getHandlers();
+
+        for (int i = 0; i < handlers.length; i++) {
+            PortComponentHandlerType handler = handlers[i];
+
+            // Get handler class
+            Class handlerClass = null;
+            String className = handler.getHandlerClass().getStringValue().trim();
+            try {
+                handlerClass = classLoader.loadClass(className);
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException("Unable to load handler class: "+className, e);
+            }
+
+            // config data for the handler
+            Map config = new HashMap();
+            ParamValueType[] paramValues = handler.getInitParamArray();
+            for (int j = 0; j < paramValues.length; j++) {
+                ParamValueType paramValue = paramValues[j];
+                String paramName = paramValue.getParamName().getStringValue().trim();
+                String paramStringValue = paramValue.getParamValue().getStringValue().trim();
+                config.put(paramName, paramStringValue);
+            }
+
+            // QName array of headers it processes
+            XsdQNameType[] soapHeaderQNames = handler.getSoapHeaderArray();
+            QName[] headers = new QName[soapHeaderQNames.length];
+            for (int j = 0; j < soapHeaderQNames.length; j++) {
+                XsdQNameType soapHeaderQName = soapHeaderQNames[j];
+                headers[j] = soapHeaderQName.getQNameValue();
+            }
+
+            list.add(new HandlerInfo(handlerClass, config, headers));
+        }
+        return list;
+    }
+
+    public static ServiceInfo createServiceInfo(PortInfo portInfo, ClassLoader classLoader) throws DeploymentException {
+        JavaServiceDesc serviceDesc = createServiceDesc(portInfo, classLoader);
+        List handlerInfos = createHandlerInfos(portInfo, classLoader);
+        return new ServiceInfo(serviceDesc, handlerInfos);
     }
 
     public static JavaServiceDesc createServiceDesc(PortInfo portInfo, ClassLoader classLoader) throws DeploymentException {

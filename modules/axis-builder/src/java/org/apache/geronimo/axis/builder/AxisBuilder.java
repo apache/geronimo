@@ -52,6 +52,7 @@ import org.apache.axis.encoding.ser.BeanSerializerFactory;
 import org.apache.axis.soap.SOAPConstants;
 import org.apache.axis.providers.java.RPCProvider;
 import org.apache.axis.handlers.soap.SOAPService;
+import org.apache.axis.handlers.HandlerInfoChainFactory;
 import org.apache.axis.MessageContext;
 import org.apache.axis.Handler;
 import org.apache.geronimo.axis.client.*;
@@ -89,8 +90,8 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
     //WebServiceBuilder
     public void configurePOJO(GBeanData targetGBean, Object portInfoObject, String seiClassName, ClassLoader classLoader) throws DeploymentException {
         PortInfo portInfo = (PortInfo) portInfoObject;
-
-        JavaServiceDesc serviceDesc = AxisServiceBuilder.createServiceDesc(portInfo, classLoader);
+        ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(portInfo, classLoader);
+        JavaServiceDesc serviceDesc = serviceInfo.getServiceDesc();
 
         Class pojoClass = null;
         try {
@@ -103,6 +104,10 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
         SOAPService service = new SOAPService(null, provider, null);
         service.setServiceDescription(serviceDesc);
         service.setOption("className", seiClassName);
+
+        HandlerInfoChainFactory handlerInfoChainFactory = new HandlerInfoChainFactory(serviceInfo.getHanlderInfos());
+        service.setOption(org.apache.axis.Constants.ATTR_HANDLERINFOCHAIN, handlerInfoChainFactory);
+
         URL wsdlURL = null;
         try {
             wsdlURL = new URL(serviceDesc.getWSDLFile());
