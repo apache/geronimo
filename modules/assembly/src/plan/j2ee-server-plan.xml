@@ -277,7 +277,7 @@ by the server.
         <reference name="ServerInfo">geronimo.server:name=ServerInfo,*</reference>
     </gbean>
 
-    <gbean name="geronimo.server:j2eeType=JVM,J2EEServer=geronimo" class="org.apache.geronimo.j2ee.management.impl.JVMImpl"/>
+    <gbean name="geronimo.server:j2eeType=JVM,J2EEServer=geronimo,name=JVM" class="org.apache.geronimo.j2ee.management.impl.JVMImpl"/>
 
     <!-- JMX Remoting -->
     <gbean namePart="JMXService" class="org.apache.geronimo.jmxremoting.JMXConnector">
