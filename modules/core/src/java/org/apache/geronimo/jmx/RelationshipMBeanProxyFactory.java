@@ -76,7 +76,7 @@ import javax.management.relation.RoleNotFoundException;
  * contains an IllegalStateException.  If an interface method that is not implemented by the MBean is invoked,
  * an InvocationTargetException is thrown, which contains an NoSuchMethodException.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/13 21:21:02 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/20 22:43:53 $
  */
 public final class RelationshipMBeanProxyFactory {
     private RelationshipMBeanProxyFactory() {
@@ -108,15 +108,21 @@ public final class RelationshipMBeanProxyFactory {
                         " targetRoleClass=" + iface.getName());
             }
         } catch (RelationNotFoundException e) {
-            throw new IllegalStateException("MBean relationshipID is not registered: relationshipID=" + relationshipID);
+            IllegalStateException illegalStateException = new IllegalStateException("MBean relationshipID is not registered: relationshipID=" + relationshipID);
+            illegalStateException.initCause(e);
+            throw illegalStateException;
         } catch (RelationTypeNotFoundException e) {
             // this is highly unlikely because we got the relation type from the MBeanServer, but the type could
             // be unregistered between getting it and accessing the role
-            throw new IllegalStateException("MBean relationshipID type is not registered: relationshipID=" + relationshipID);
+            IllegalStateException illegalStateException = new IllegalStateException("MBean relationshipID type is not registered: relationshipID=" + relationshipID);
+            illegalStateException.initCause(e);
+            throw illegalStateException;
         } catch (RoleInfoNotFoundException e) {
-            throw new IllegalStateException("MBean relationshipID does not have target role:" +
-                    " relationshipID=" + relationshipID +
-                    " target=" + targetRole);
+            IllegalStateException illegalStateException = new IllegalStateException("MBean relationshipID does not have target role:" +
+                                " relationshipID=" + relationshipID +
+                                " target=" + targetRole);
+            illegalStateException.initCause(e);
+            throw illegalStateException;
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException("Could not load Target Role class:" +
                     " relationshipID=" + relationshipID +
