@@ -62,7 +62,7 @@ import org.apache.geronimo.kernel.management.NotificationType;
  * {@link GBeanInfo} instance.  The GBeanMBean also supports caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.26 $ $Date: 2004/06/15 03:00:37 $
+ * @version $Revision: 1.27 $ $Date: 2004/06/25 07:24:20 $
  */
 public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     /**
@@ -218,17 +218,21 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         }
 
         // operations
-        Set operationsSet = new HashSet();
+        Map operationsMap = new HashMap();
         for (Iterator iterator = gbeanInfo.getOperations().iterator(); iterator.hasNext();) {
             GOperationInfo operationInfo = (GOperationInfo) iterator.next();
-            operationsSet.add(new GBeanMBeanOperation(this, operationInfo));
-        }
-        addManagedObjectOperations(operationsSet);
-        operations = (GBeanMBeanOperation[]) operationsSet.toArray(new GBeanMBeanOperation[gbeanInfo.getOperations().size()]);
-        for (int i = 0; i < operations.length; i++) {
-            GBeanMBeanOperation operation = operations[i];
+            GBeanMBeanOperation operation = new GBeanMBeanOperation(this, operationInfo);
             GOperationSignature signature = new GOperationSignature(operation.getName(), operation.getParameterTypes());
-            operationIndex.put(signature, new Integer(i));
+            operationsMap.put(signature, operation);
+        }
+        addManagedObjectOperations(operationsMap);
+        operations = new GBeanMBeanOperation[operationsMap.size()];
+        int opCounter = 0;
+        for (Iterator iterator = operationsMap.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry)iterator.next();
+            operations[opCounter] = (GBeanMBeanOperation) entry.getValue();
+            operationIndex.put(entry.getKey(), new Integer(opCounter));
+            opCounter++;
         }
 
         // add notification type from the ManagedObject interface
@@ -619,7 +623,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
      * @param index the index of the attribute
      * @return the attribute value
      * @throws ReflectionException if a problem occurs while getting the value
-     * @thorws IndexOutOfBoundsException if the index is invalid
+     * @throws IndexOutOfBoundsException if the index is invalid
      */
     public Object getAttribute(int index) throws ReflectionException {
         GBeanMBeanAttribute attribute = attributes[index];
@@ -627,7 +631,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     }
 
     /**
-     * Gets an attirubte's value by name.  This get style is less efficient becuse the attribute must
+     * Gets an attribute's value by name.  This get style is less efficient becuse the attribute must
      * first be looked up in a HashMap.
      *
      * @param attributeName the name of the attribute to retrieve
@@ -650,7 +654,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
      * @param index the index of the attribute
      * @param value the new value of attribute value
      * @throws ReflectionException if a problem occurs while setting the value
-     * @thorws IndexOutOfBoundsException if the index is invalid
+     * @throws IndexOutOfBoundsException if the index is invalid
      */
     public void setAttribute(int index, Object value) throws ReflectionException, IndexOutOfBoundsException {
         GBeanMBeanAttribute attribute = attributes[index];
@@ -658,7 +662,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     }
 
     /**
-     * Sets an attirubte's value by name.  This set style is less efficient becuse the attribute must
+     * Sets an attribute's value by name.  This set style is less efficient becuse the attribute must
      * first be looked up in a HashMap.
      *
      * @param attributeName the name of the attribute to retrieve
@@ -911,8 +915,9 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                         null));
     }
 
-    private void addManagedObjectOperations(Set operationsSet) {
-        operationsSet.add(new GBeanMBeanOperation(this,
+    private void addManagedObjectOperations(Map operationsMap) {
+        operationsMap.put(new GOperationSignature("start", Collections.EMPTY_LIST),
+                new GBeanMBeanOperation(this,
                 "start",
                 Collections.EMPTY_LIST,
                 Void.TYPE,
@@ -923,7 +928,8 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                     }
                 }));
 
-        operationsSet.add(new GBeanMBeanOperation(this,
+        operationsMap.put(new GOperationSignature("startRecursive", Collections.EMPTY_LIST),
+                new GBeanMBeanOperation(this,
                 "startRecursive",
                 Collections.EMPTY_LIST,
                 Void.TYPE,
@@ -934,7 +940,8 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                     }
                 }));
 
-        operationsSet.add(new GBeanMBeanOperation(this,
+        operationsMap.put(new GOperationSignature("stop", Collections.EMPTY_LIST),
+                new GBeanMBeanOperation(this,
                 "stop",
                 Collections.EMPTY_LIST,
                 Void.TYPE,

@@ -17,11 +17,12 @@
 
 package org.apache.geronimo.gbean.jmx;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import javax.management.MBeanOperationInfo;
 import javax.management.MBeanParameterInfo;
 import javax.management.ReflectionException;
@@ -33,7 +34,7 @@ import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.ClassLoading;
 
 /**
- * @version $Revision: 1.12 $ $Date: 2004/06/03 07:24:19 $
+ * @version $Revision: 1.13 $ $Date: 2004/06/25 07:24:20 $
  */
 public final class GBeanMBeanOperation {
     private final GBeanMBean gmbean;
@@ -145,4 +146,5 @@ public final class GBeanMBeanOperation {
             throw new ReflectionException(new InvocationTargetException(throwable));
         }
     }
+
 }
