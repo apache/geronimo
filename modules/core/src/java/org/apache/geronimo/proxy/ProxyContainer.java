@@ -63,11 +63,11 @@ import org.apache.geronimo.common.Invocation;
 import org.apache.geronimo.common.InvocationResult;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:25 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/25 03:14:46 $
  */
 public class ProxyContainer extends SimpleRPCContainer implements InvocationHandler {
 
-    /* (non-Javadoc)
+    /**
      * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])
      */
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -76,12 +76,6 @@ public class ProxyContainer extends SimpleRPCContainer implements InvocationHand
         ProxyInvocation.putArguments(invocation, args);
         InvocationResult result = this.invoke(invocation);
         return result.getResult();
-    }
-
-    static public Object createProxy(Object target) throws Exception {
-        ProxyContainer container = new ProxyContainer();
-        container.addInterceptor(new ReflexiveInterceptor(target));
-        return container.createProxy(target.getClass());
     }
 
     public Object createProxy(Class likeClass) {

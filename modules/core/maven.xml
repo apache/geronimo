@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.13 $ $Date: 2003/08/24 21:44:02 $ -->
+<!-- $Revision: 1.14 $ $Date: 2003/08/25 03:14:46 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -60,5 +60,25 @@
                 javacchome="${maven.repo.local}/javacc/jars"/>
     -->
   </preGoal>
+
+
+  <!-- Set up the test files -->
+  <postGoal name="test:test-resources">
+
+    <!-- Compile the code for the Marshalling/Remoting tests -->
+    <ant:mkdir dir="${maven.build.dir}/mock-app"/>
+    <javac
+      destdir="${maven.build.dir}/mock-app"
+      debug="${maven.compile.debug}"
+      deprecation="${maven.compile.deprecation}"
+      optimize="${maven.compile.optimize}">
+      <src>
+        <path>
+          <pathelement location="${maven.src.dir}/test-data/mock-app"/>
+        </path>
+      </src>
+    </javac>
+
+  </postGoal>  
 
 </project>

@@ -58,23 +58,73 @@ package org.apache.geronimo.remoting;
 import java.io.Serializable;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/24 05:31:40 $
+ * @version $Revision: 1.1 $ $Date: 2003/08/25 03:14:47 $
  */
-public class TransientValue implements Serializable {
-    transient public Object value;
+public class Person implements Serializable, IPerson {
+    
+    private String firstName;
+    private String lastName;
+    private IPerson spouse;
+    private TransientValue value;
     
    /**
     * @return
     */
-   public Object getValue() {
+   public TransientValue getValue() {
       return value;
    }
 
    /**
     * @param value
     */
-   public void setValue(Object value) {
+   public void setValue(TransientValue value) {
       this.value = value;
    }
 
+   /**
+    * @return
+    */
+   public IPerson getSpouse() {
+      return spouse;
+   }
+
+   /**
+    * @param spouse
+    */
+   public void setSpouse(IPerson spouse) {
+      this.spouse = spouse;
+   }
+
+   /**
+    * @return
+    */
+   public String getFirstName() {
+      return firstName;
+   }
+
+   /**
+    * @param firstName
+    */
+   public void setFirstName(String firstName) {
+      this.firstName = firstName;
+   }
+
+   /**
+    * @return
+    */
+   public String getLastName() {
+      return lastName;
+   }
+
+   /**
+    * @param lastName
+    */
+   public void setLastName(String lastName) {
+      this.lastName = lastName;
+   }
+
+    public static void main(String[] args) {
+      Person p = new Person();
+      p.setSpouse(p);
+   }
 }
