@@ -64,7 +64,7 @@ import java.util.Map;
 /**
  * Unit test for {@link Strings} class.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/16 14:06:48 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 15:08:53 $
  */
 public class StringsTest extends TestCase {
     
@@ -89,8 +89,8 @@ public class StringsTest extends TestCase {
         
         try {
             Strings.isEmpty(null);
-            fail("Expected IllegalArgumnetException to be thrown");
-        } catch (IllegalArgumentException ignore) {}
+            fail("Expected NullArgumentException to be thrown");
+        } catch (NullArgumentException ignore) {}
     }
     
     public void testCompare() {
