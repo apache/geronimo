@@ -17,35 +17,40 @@
 
 package javax.mail;
 
+import javax.mail.Provider.Type;
+import javax.mail.internet.ParameterList;
+import javax.mail.internet.ParseException;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.lang.reflect.Constructor;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import javax.mail.Provider.Type;
-import javax.mail.internet.ParameterList;
-import javax.mail.internet.ParseException;
+
 
 /**
  * @version $Rev$ $Date$
  */
 public final class Session {
-    private static final Map _addressMap = new HashMap();
-    private static final Map _providers = new HashMap();
+
+    private static final Provider[] PROVIDER_ARRAY = new Provider[0];
+    private static final Class[] PARAM_TYPES = {Session.class, URLName.class};
+    private static final Map addressMap = new HashMap();
+    private static final Map providers = new HashMap();
     private static Authenticator DEFAULT_AUTHENTICATOR;
     private static Session DEFAULT_SESSION;
-    private static final Provider[] PROVIDER_ARRAY = new Provider[0];
 
-    // Read in the files and configure the Providers
-    static {
-        loadProviders();
-        loadAddressMap();
-    }
+    private Authenticator authenticator;
+    private boolean debug;
+    private PrintStream debugOut;
+    private Map passwordAuthentications = new HashMap();
+    private Properties properties = new Properties();
+
 
     private Session() {
     }
@@ -57,12 +62,10 @@ public final class Session {
         return DEFAULT_SESSION;
     }
 
-    public synchronized static Session getDefaultInstance(Properties properties,
-                                                          Authenticator authenticator) {
+    public synchronized static Session getDefaultInstance(Properties properties, Authenticator authenticator) {
         if (DEFAULT_AUTHENTICATOR == null
                 || DEFAULT_AUTHENTICATOR == authenticator
-                || DEFAULT_AUTHENTICATOR.getClass().getClassLoader()
-                == authenticator.getClass().getClassLoader()) {
+                || DEFAULT_AUTHENTICATOR.getClass().getClassLoader() == authenticator.getClass().getClassLoader()) {
             if (DEFAULT_SESSION == null) {
                 DEFAULT_SESSION = getInstance(properties, authenticator);
                 DEFAULT_AUTHENTICATOR = authenticator;
@@ -77,14 +80,144 @@ public final class Session {
         return getInstance(properties, null);
     }
 
-    public static Session getInstance(Properties properties,
-                                      Authenticator authenticator) {
+    public static Session getInstance(Properties properties, Authenticator authenticator) {
         Session session = new Session();
-        session._authenticator = authenticator;
-        session._properties = new Properties(properties);
-        session._debug =
-                Boolean.getBoolean(properties.getProperty("mail.debug", "false"));
+        session.authenticator = authenticator;
+        session.properties = new Properties(properties);
+        session.debug = Boolean.getBoolean(properties.getProperty("mail.debug", "false"));
+
         return session;
+    }
+
+
+    public boolean getDebug() {
+        return debug;
+    }
+
+    public PrintStream getDebugOut() {
+        return System.err;
+    }
+
+    public Folder getFolder(URLName name) throws MessagingException {
+        // TODO Implement
+        return null;
+    }
+
+    public PasswordAuthentication getPasswordAuthentication(URLName name) {
+        return (PasswordAuthentication) passwordAuthentications.get(name);
+    }
+
+    public Properties getProperties() {
+        return properties;
+    }
+
+    public String getProperty(String property) {
+        return getProperties().getProperty(property);
+    }
+
+    public Provider getProvider(String protocol) throws NoSuchProviderException {
+        // TODO Implement
+        // Lookup from 
+        return (Provider) providers.get(new ProviderKey(Type.STORE, protocol));
+    }
+
+    public Provider[] getProviders() {
+        return (Provider[]) providers.values().toArray(PROVIDER_ARRAY);
+    }
+
+    public Store getStore() throws NoSuchProviderException {
+        return getStore(properties.getProperty("mail.store.protocol"));
+    }
+
+    public Store getStore(Provider provider) throws NoSuchProviderException {
+        try {
+            Class clazz = Class.forName(provider.getClassName());
+            Constructor constructor = clazz.getConstructor(PARAM_TYPES);
+            return (Store) constructor.newInstance(new Object[]{this, null});
+        } catch (Exception e) {
+            throw new NoSuchProviderException(e.toString());
+        }
+    }
+
+    public Store getStore(String protocol) throws NoSuchProviderException {
+        if (protocol == null) {
+            throw new NoSuchProviderException("No protocol specified in mail.store.protocol property or none given");
+        }
+        Provider provider = (Provider) providers.get(new ProviderKey(Type.STORE, protocol));
+        if (provider == null) {
+            throw new NoSuchProviderException("Unknown protocol for " + protocol);
+        }
+        return getStore(provider);
+    }
+
+    public Store getStore(URLName url) throws NoSuchProviderException {
+        return getStore(url.getProtocol());
+    }
+
+    public Transport getTransport() throws NoSuchProviderException {
+        return getTransport(properties.getProperty("mail.transport.protocol"));
+    }
+
+    public Transport getTransport(Address address) throws NoSuchProviderException {
+        String type = address.getType();
+        // type is 'rfc822' -> 'smtp'
+        // type is 'news' -> 'nntp'
+        return getTransport((String) addressMap.get(type));
+    }
+
+    public Transport getTransport(Provider provider) throws NoSuchProviderException {
+        try {
+            Class clazz = Class.forName(provider.getClassName());
+            Constructor constructor = clazz.getConstructor(PARAM_TYPES);
+            return (Transport) constructor.newInstance(new Object[]{this, null});
+        } catch (Exception e) {
+            throw new NoSuchProviderException(e.toString());
+        }
+    }
+
+    public Transport getTransport(String protocol) throws NoSuchProviderException {
+        if (protocol == null) {
+            throw new NoSuchProviderException("No protocol specified in mail.store.protocol property or none given");
+        }
+        Provider provider = (Provider) providers.get(new ProviderKey(Type.TRANSPORT, protocol));
+        if (provider == null) {
+            throw new NoSuchProviderException("Unknown protocol for " + protocol);
+        }
+        return getTransport(provider);
+    }
+
+    public Transport getTransport(URLName name) throws NoSuchProviderException {
+        return getTransport(name.getProtocol());
+    }
+
+    public PasswordAuthentication requestPasswordAuthentication(InetAddress host, int port,
+                                                                String protocol,
+                                                                String prompt,
+                                                                String defaultUserName) {
+        // TODO Implement this, probably by showing a dialog box of some sorts?
+        throw new UnsupportedOperationException("Method not yet implemented");
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
+    }
+
+    public void setDebugOut(PrintStream out) {
+        debugOut = out;
+    }
+
+    public void setPasswordAuthentication(URLName name, PasswordAuthentication authenticator) {
+        passwordAuthentications.put(name, authenticator);
+    }
+
+    public void setProvider(Provider provider) throws NoSuchProviderException {
+        providers.put(new ProviderKey(provider.getType(), provider.getProtocol()), provider);
+    }
+
+    // Read in the files and configure the Providers
+    static {
+        loadProviders();
+        loadAddressMap();
     }
 
     private static void loadAddressMap() {
@@ -97,6 +230,7 @@ public final class Session {
         } catch (IOException e) {
             // continue; we are trying to load a non-existent file; doesn't matter if we get security/IO exceptions
         }
+
         try {
             // Note: this is a class resouce, which always uses /
             loadAddressMap("/META-INF/javamail.address.map");
@@ -105,6 +239,7 @@ public final class Session {
         } catch (IOException e) {
             // continue; we are trying to load a non-existent file; doesn't matter if we get security/IO exceptions
         }
+
         try {
             // Note: this is a class resouce, which always uses /
             loadAddressMap("/META-INF/javamail.default.address.map");
@@ -120,6 +255,7 @@ public final class Session {
             return;
         }
         ;
+
         BufferedReader br = new BufferedReader(new InputStreamReader(in));
         String line;
         while ((line = br.readLine()) != null) {
@@ -129,7 +265,7 @@ public final class Session {
             int eq = line.indexOf("=");
             String type = line.substring(0, eq).trim();
             String transport = line.substring(eq + 1).trim();
-            _addressMap.put(type, transport);
+            addressMap.put(type, transport);
         }
         br.close();
     }
@@ -174,8 +310,8 @@ public final class Session {
         }
     }
 
-    private static void loadProviders(InputStream in)
-            throws IOException, ParseException {
+    private static void loadProviders(InputStream in) throws IOException, ParseException {
+
         BufferedReader br = new BufferedReader(new InputStreamReader(in));
         String line;
         while ((line = br.readLine()) != null) {
@@ -191,151 +327,36 @@ public final class Session {
             Type type = Provider.Type.getType(typeString);
             String vendor = pl.get("vendor");
             String version = pl.get("version");
-            Provider provider =
-                    new Provider(protocol, className, type, vendor, version);
-            _providers.put(typeString, provider);
+
+            Provider provider = new Provider(protocol, className, type, vendor, version);
+
+            providers.put(new ProviderKey(type, protocol), provider);
         }
         br.close();
     }
 
-    private static void loadProviders(String file)
-            throws ParseException, IOException {
+    private static void loadProviders(String file) throws ParseException, IOException {
         loadProviders(Session.class.getResourceAsStream(file));
     }
 
-    private Authenticator _authenticator;
-    private boolean _debug;
-    private PrintStream _debugOut;
-    private Map _passwordAuthentications = new HashMap();
-    private Properties _properties = new Properties();
+    private static final class ProviderKey {
 
-    public boolean getDebug() {
-        return _debug;
+        private final Type type;
+        private final String protocol;
+
+        ProviderKey(Type type, String protocol) {
+            this.type = type;
+            this.protocol = protocol;
     }
 
-    public PrintStream getDebugOut() {
-        return System.err;
+        public int hashCode() {
+            return type.hashCode() ^ protocol.hashCode();
     }
 
-    public Folder getFolder(URLName name) throws MessagingException {
-        // TODO Implement
-        return null;
+        public boolean equals(Object obj) {
+            if (!(obj instanceof ProviderKey)) return false;
+            ProviderKey key = (ProviderKey) obj;
+            return type == key.type & protocol.equals(key.protocol);
     }
-
-    public PasswordAuthentication getPasswordAuthentication(URLName name) {
-        return (PasswordAuthentication) _passwordAuthentications.get(name);
-    }
-
-    public Properties getProperties() {
-        return _properties;
-    }
-
-    public String getProperty(String property) {
-        return getProperties().getProperty(property);
-    }
-
-    public Provider getProvider(String name) throws NoSuchProviderException {
-        // TODO Implement
-        // Lookup from 
-        return (Provider) _providers.get(name);
-    }
-
-    public Provider[] getProviders() {
-        return (Provider[]) _providers.values().toArray(PROVIDER_ARRAY);
-    }
-
-    public Store getStore() throws NoSuchProviderException {
-        return getStore(_properties.getProperty("mail.store.protocol"));
-    }
-
-    public Store getStore(Provider provider) throws NoSuchProviderException {
-        Store store;
-        try {
-            store =
-                    (Store) Class.forName(provider.getClassName()).newInstance();
-        } catch (Exception e) {
-            throw new NoSuchProviderException(e.toString());
-        }
-        return store;
-    }
-
-    public Store getStore(String protocol) throws NoSuchProviderException {
-        if (protocol == null) {
-            throw new NoSuchProviderException("No protocol specified in mail.store.protocol property or none given");
-        }
-        Provider provider = (Provider) _providers.get(protocol);
-        if (provider == null) {
-            throw new NoSuchProviderException("Unknown protocol for " + protocol);
-        }
-        return getStore(provider);
-    }
-
-    public Store getStore(URLName url) throws NoSuchProviderException {
-        return getStore(url.getProtocol());
-    }
-
-    public Transport getTransport() throws NoSuchProviderException {
-        return getTransport(_properties.getProperty("mail.transport.protocol"));
-    }
-
-    public Transport getTransport(Address address)
-            throws NoSuchProviderException {
-        String type = address.getType();
-        // type is 'rfc822' -> 'smtp'
-        // type is 'news' -> 'nntp'
-        return getTransport((String) _addressMap.get(type));
-    }
-
-    public Transport getTransport(Provider provider)
-            throws NoSuchProviderException {
-        Transport transport;
-        try {
-            transport =
-                    (Transport) Class
-                    .forName(provider.getClassName())
-                    .newInstance();
-        } catch (Exception e) {
-            throw new NoSuchProviderException(e.toString());
-        }
-        return transport;
-    }
-
-    public Transport getTransport(String protocol)
-            throws NoSuchProviderException {
-        // TODO Implement
-        Provider provider = null; // lookup
-        return getTransport(provider);
-    }
-
-    public Transport getTransport(URLName name)
-            throws NoSuchProviderException {
-        return getTransport(name.getProtocol());
-    }
-
-    public PasswordAuthentication requestPasswordAuthentication(InetAddress host,
-                                                                int port,
-                                                                String protocol,
-                                                                String prompt,
-                                                                String defaultUserName) {
-        // TODO Implement this, probably by showing a dialog box of some sorts?
-        throw new UnsupportedOperationException("Method not yet implemented");
-    }
-
-    public void setDebug(boolean debug) {
-        _debug = debug;
-    }
-
-    public void setDebugOut(PrintStream out) {
-        _debugOut = out;
-    }
-
-    public void setPasswordAuthentication(URLName name,
-                                          PasswordAuthentication authenticator) {
-        _passwordAuthentications.put(name, authenticator);
-    }
-
-    public void setProvider(Provider provider) throws NoSuchProviderException {
-        String protocol = provider.getProtocol();
-        _providers.put(protocol, provider);
     }
 }
