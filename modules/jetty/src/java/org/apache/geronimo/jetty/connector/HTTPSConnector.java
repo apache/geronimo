@@ -19,7 +19,9 @@ package org.apache.geronimo.jetty.connector;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.jetty.JettyContainer;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.mortbay.http.SunJsseListener;
 
 /**
@@ -27,18 +29,21 @@ import org.mortbay.http.SunJsseListener;
  */
 public class HTTPSConnector extends JettyConnector {
     private final SunJsseListener https;
+    private final ServerInfo serverInfo;
+    private String keystore;
 
-    public HTTPSConnector(JettyContainer container) {
+    public HTTPSConnector(JettyContainer container, ServerInfo serverInfo) {
         super(container, new SunJsseListener());
+        this.serverInfo = serverInfo;
         https = (SunJsseListener)listener;
     }
 
-    public void setKeystore(String keystore) {
-        https.setKeystore(keystore);
+    public String getKeystore() {
+        return keystore;
     }
 
-    public String getKeystore() {
-        return https.getKeystore();
+    public void setKeystore(String keystore) {
+        this.keystore = keystore;
     }
 
     public void setKeyPassword(String password) {
@@ -89,6 +94,11 @@ public class HTTPSConnector extends JettyConnector {
         return https.getNeedClientAuth();
     }
 
+    public void doStart() throws WaitingException, Exception {
+        https.setKeystore(serverInfo.resolvePath(keystore));
+        super.doStart();
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -101,7 +111,8 @@ public class HTTPSConnector extends JettyConnector {
         infoFactory.addAttribute("password", String.class, true);
         infoFactory.addAttribute("useDefaultTrustStore", boolean.class, true);
         infoFactory.addAttribute("needClientAuth", boolean.class, true);
-        infoFactory.setConstructor(new String[]{"JettyContainer"});
+        infoFactory.addReference("ServerInfo", ServerInfo.class);
+        infoFactory.setConstructor(new String[]{"JettyContainer", "ServerInfo"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
