@@ -23,11 +23,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectStreamClass;
 import java.lang.reflect.Proxy;
 
-import org.apache.geronimo.common.Classes;
+import org.apache.geronimo.kernel.ClassLoading;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:12 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/21 23:24:27 $
  */
 public class ResolvingObjectInputStream extends ObjectInputStream {
 
@@ -49,7 +49,7 @@ public class ResolvingObjectInputStream extends ObjectInputStream {
      * @see java.io.ObjectInputStream#resolveClass(java.io.ObjectStreamClass)
      */
     protected Class resolveClass(ObjectStreamClass classDesc) throws IOException, ClassNotFoundException {
-        return Classes.loadClass(classDesc.getName(), classLoader);
+        return ClassLoading.loadClass(classDesc.getName(), classLoader);
     }
 
     /**
