@@ -69,9 +69,13 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 /**
  * Metadata about an MBean that is use during deployment.
  *
- * @version $Revision: 1.4 $ $Date: 2003/11/15 07:37:37 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/16 00:51:24 $
  */
 public class MBeanMetadata {
+
+    private final String[] NO_TYPES = new String[0];
+    private final Object[] NO_ARGS = new Object[0];
+
     private String code;
     private String geronimoMBeanDescriptor;
 
@@ -80,8 +84,8 @@ public class MBeanMetadata {
     private ObjectName loaderName;
     private ObjectName parentName;
     private URI baseURI;
-    private String[] constructorTypes;
-    private Object[] constructorArgs;
+    private String[] constructorTypes = NO_TYPES;
+    private Object[] constructorArgs = NO_ARGS;
     private final Map attributeValues = new HashMap();
     private final Set relationships = new HashSet();
     private final Set dependencies = new HashSet();
