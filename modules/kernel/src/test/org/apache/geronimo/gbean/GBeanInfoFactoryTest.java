@@ -24,7 +24,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/06/02 05:33:03 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/05 07:14:29 $
  */
 public class GBeanInfoFactoryTest extends TestCase {
 
@@ -36,7 +36,8 @@ public class GBeanInfoFactoryTest extends TestCase {
         try {
             new GBeanInfoFactory((String) null);
             fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException expected) {}
+        } catch (IllegalArgumentException expected) {
+        }
 
         final String gbeanName = "gbeanName";
         GBeanInfoFactory gbeanInfoFactory = new GBeanInfoFactory(gbeanName);
@@ -52,7 +53,8 @@ public class GBeanInfoFactoryTest extends TestCase {
         try {
             new GBeanInfoFactory((Class) null);
             fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException expected) {}
+        } catch (IllegalArgumentException expected) {
+        }
 
         final Class className = String.class;
         GBeanInfoFactory gbeanInfoFactory = new GBeanInfoFactory(className);
@@ -67,7 +69,8 @@ public class GBeanInfoFactoryTest extends TestCase {
         try {
             new GBeanInfoFactory((Class) null, null);
             fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException expected) {}
+        } catch (IllegalArgumentException expected) {
+        }
     }
 
     /*
@@ -77,7 +80,8 @@ public class GBeanInfoFactoryTest extends TestCase {
         try {
             new GBeanInfoFactory((Class) null, (GBeanInfo) null);
             fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException expected) {}
+        } catch (IllegalArgumentException expected) {
+        }
 
         final Class className = String.class;
         GBeanInfoFactory gbeanInfoFactory = new GBeanInfoFactory(className, MockGBean.getGBeanInfo());
@@ -101,18 +105,14 @@ public class GBeanInfoFactoryTest extends TestCase {
         gbeanInfoFactory = new GBeanInfoFactory("");
         gbeanInfoFactory.addInterface(GBean.class);
         GBeanInfo gbeanInfo = gbeanInfoFactory.getBeanInfo();
-        assertTrue(gbeanInfo.getAttributes().size() == 1);
-        GAttributeInfo gattrInfo = (GAttributeInfo) gbeanInfo.getAttributes().iterator().next();
-        assertEquals("GBeanContext", gattrInfo.getName());
-        assertEquals("setGBeanContext", gattrInfo.getSetterName());
-        assertNull(gattrInfo.getGetterName());
+        assertTrue(gbeanInfo.getAttributes().size() == 0);
         assertTrue(gbeanInfo.getOperations().size() == 3);
 
         gbeanInfoFactory = new GBeanInfoFactory("");
         gbeanInfoFactory.addInterface(SetterOnlyInterface.class);
         gbeanInfo = gbeanInfoFactory.getBeanInfo();
         assertEquals(1, gbeanInfo.getAttributes().size());
-        gattrInfo = (GAttributeInfo) gbeanInfo.getAttributes().iterator().next();
+        GAttributeInfo gattrInfo = (GAttributeInfo) gbeanInfo.getAttributes().iterator().next();
         assertEquals("Int", gattrInfo.getName());
         assertEquals("setInt", gattrInfo.getSetterName());
         assertNull(gattrInfo.getGetterName());

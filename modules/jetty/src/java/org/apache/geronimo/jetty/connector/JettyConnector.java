@@ -17,21 +17,16 @@
 
 package org.apache.geronimo.jetty.connector;
 
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.gbean.GReferenceInfo;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.jetty.JettyContainer;
 import org.mortbay.http.HttpListener;
 import org.mortbay.util.ThreadedServer;
 
 /**
- *
- *
- * @version $Revision: 1.6 $ $Date: 2004/06/02 05:33:03 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/05 07:14:29 $
  */
 public abstract class JettyConnector implements GBean {
     private final JettyContainer container;
@@ -48,9 +43,6 @@ public abstract class JettyConnector implements GBean {
 
     public void setPort(int port) {
         listener.setPort(port);
-    }
-
-    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws WaitingException, Exception {

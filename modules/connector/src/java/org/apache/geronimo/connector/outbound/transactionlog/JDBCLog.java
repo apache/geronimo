@@ -23,13 +23,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.sql.DataSource;
 import javax.transaction.xa.Xid;
 
 import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
@@ -38,11 +36,8 @@ import org.apache.geronimo.transaction.manager.TransactionLog;
 import org.apache.geronimo.transaction.manager.XidImpl;
 
 /**
- *
- *
- * @version $Revision: 1.3 $ $Date: 2004/06/02 05:33:02 $
- *
- * */
+ * @version $Revision: 1.4 $ $Date: 2004/06/05 07:14:29 $
+ */
 public class JDBCLog implements TransactionLog, GBean {
     private final static String INSERT_XID = "INSERT INTO TXLOG (SYSTEMID, FORMATID, GLOBALID, BRANCHID) VALUES (?, ?, ?, ?)";
     private final static String DELETE_XID = "DELETE FROM TXLOG WHERE SYSTEMID = ? AND FORMATID = ? AND GLOBALID = ? BRANCHID = ?";
@@ -57,11 +52,8 @@ public class JDBCLog implements TransactionLog, GBean {
         this.managedConnectionFactoryWrapper = managedConnectionFactoryWrapper;
     }
 
-    public void setGBeanContext(GBeanContext context) {
-    }
-
     public void doStart() throws WaitingException, Exception {
-        dataSource = (DataSource)managedConnectionFactoryWrapper.getProxy();
+        dataSource = (DataSource) managedConnectionFactoryWrapper.getProxy();
     }
 
     public void doStop() throws WaitingException, Exception {
@@ -70,6 +62,7 @@ public class JDBCLog implements TransactionLog, GBean {
 
     public void doFail() {
     }
+
     public void begin(Xid xid) throws LogException {
     }
 
@@ -107,7 +100,7 @@ public class JDBCLog implements TransactionLog, GBean {
     }
 
     public void rollback(Xid xid) throws LogException {
-            throw new LogException("JDBCLog does not support rollback of prepared transactions.  Use it only on servers that do not import transactions");
+        throw new LogException("JDBCLog does not support rollback of prepared transactions.  Use it only on servers that do not import transactions");
     }
 
     public List recover() throws LogException {

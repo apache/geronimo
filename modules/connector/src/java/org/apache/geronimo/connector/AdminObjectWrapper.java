@@ -25,14 +25,13 @@ import net.sf.cglib.proxy.MethodInterceptor;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/06/05 01:40:09 $
+ * @version $Revision: 1.8 $ $Date: 2004/06/05 07:14:29 $
  */
 public class AdminObjectWrapper implements GBean, DynamicGBean {
 
@@ -79,10 +78,6 @@ public class AdminObjectWrapper implements GBean, DynamicGBean {
 
     public Object getMethodInterceptor() {
         return interceptor;
-    }
-
-    //gbean implementation
-    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws WaitingException, Exception {

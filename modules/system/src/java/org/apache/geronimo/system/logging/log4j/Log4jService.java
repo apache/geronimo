@@ -26,14 +26,9 @@ import java.util.TimerTask;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogConfigurationException;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.kernel.log.GeronimoLogFactory;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.log4j.Level;
@@ -42,8 +37,7 @@ import org.apache.log4j.Logger;
 /**
  * A Log4j logging service.
  *
- *
- * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:05 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/05 07:14:30 $
  */
 public class Log4jService implements GBean {
     /**
@@ -79,9 +73,8 @@ public class Log4jService implements GBean {
     /**
      * Construct a <code>Log4jService</code>.
      *
-     * @param configURL       The configuration URL.
-     * @param refreshPeroid    The refresh refreshPeroid (in seconds).
-     *
+     * @param configURL The configuration URL.
+     * @param refreshPeroid The refresh refreshPeroid (in seconds).
      */
     public Log4jService(final URL configURL, final int refreshPeroid, ServerInfo serverInfo) {
         setRefreshPeriod(refreshPeroid);
@@ -96,8 +89,7 @@ public class Log4jService implements GBean {
     /**
      * Gets the level of the logger of the give name.
      *
-     * @param logger    The logger to inspect.
-     *
+     * @param logger The logger to inspect.
      */
     public String getLoggerLevel(final String logger) {
         if (logger == null) {
@@ -116,9 +108,8 @@ public class Log4jService implements GBean {
     /**
      * Sets the level for a logger of the give name.
      *
-     * @param logger    The logger to change level
-     * @param level     The level to change the logger to.
-     *
+     * @param logger The logger to change level
+     * @param level The level to change the logger to.
      */
     public void setLoggerLevel(final String logger, final String level) {
         if (logger == null) {
@@ -206,9 +197,6 @@ public class Log4jService implements GBean {
             }
             task.run();
         }
-    }
-
-    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() {

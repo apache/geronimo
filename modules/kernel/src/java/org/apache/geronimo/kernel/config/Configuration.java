@@ -45,7 +45,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GReferenceInfo;
@@ -82,7 +81,7 @@ import org.apache.geronimo.kernel.repository.Repository;
  * a startRecursive() for all the GBeans it contains. Similarly, if the
  * Configuration is stopped then all of its GBeans will be stopped as well.
  *
- * @version $Revision: 1.21 $ $Date: 2004/06/05 00:37:16 $
+ * @version $Revision: 1.22 $ $Date: 2004/06/05 07:14:29 $
  */
 public class Configuration implements GBean {
     private static final Log log = LogFactory.getLog(Configuration.class);
@@ -124,9 +123,6 @@ public class Configuration implements GBean {
         this.classPath = classPath;
         this.dependencies = dependencies;
         this.repositories = repositories;
-    }
-
-    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws Exception {

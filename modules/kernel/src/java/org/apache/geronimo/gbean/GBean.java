@@ -22,16 +22,9 @@ package org.apache.geronimo.gbean;
  * An optional interface for a GBean.  When a GBean implements this interface, the implementation
  * will get life-cycle callbacks.
  *
- * @version $Revision: 1.7 $ $Date: 2004/05/27 01:05:58 $
+ * @version $Revision: 1.8 $ $Date: 2004/06/05 07:14:29 $
  */
 public interface GBean {
-    /**
-     * Sets the operating context for the GBean.
-     *
-     * @param context the context object or null
-     */
-    void setGBeanContext(GBeanContext context);
-
     /**
      * Starts the GBean.  This informs the GBean that it is about to transition to the running state.
      *

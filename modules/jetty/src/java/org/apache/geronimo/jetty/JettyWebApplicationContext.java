@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Set;
 import javax.resource.ResourceException;
 import javax.security.jacc.PolicyConfiguration;
@@ -32,9 +31,7 @@ import javax.transaction.TransactionManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.transaction.DefaultInstanceContext;
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
@@ -43,6 +40,7 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
 import org.apache.geronimo.security.GeronimoSecurityException;
 import org.apache.geronimo.security.deploy.Security;
+import org.apache.geronimo.transaction.DefaultInstanceContext;
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.TransactionContext;
@@ -56,7 +54,7 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
- * @version $Revision: 1.19 $ $Date: 2004/06/04 17:47:31 $
+ * @version $Revision: 1.20 $ $Date: 2004/06/05 07:14:29 $
  */
 public class JettyWebApplicationContext extends WebApplicationContext implements GBean {
 
@@ -85,15 +83,15 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
     }
 
     public JettyWebApplicationContext(ConfigurationParent config,
-                                      URI uri,
-                                      JettyContainer container,
-                                      ReadOnlyContext compContext,
-                                      String policyContextID,
-                                      Set unshareableResources,
-                                      Set applicationManagedSecurityResources,
-                                      TransactionManager txManager,
-                                      TrackedConnectionAssociator associator,
-                                      UserTransactionImpl userTransaction) {
+            URI uri,
+            JettyContainer container,
+            ReadOnlyContext compContext,
+            String policyContextID,
+            Set unshareableResources,
+            Set applicationManagedSecurityResources,
+            TransactionManager txManager,
+            TrackedConnectionAssociator associator,
+            UserTransactionImpl userTransaction) {
         super();
         this.config = config;
         this.uri = uri;
@@ -127,7 +125,7 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
      * setContextPriorityClassLoader.
      *
      * @param b True if this context should give web application class in preference over the containers
-     *          classes, as per the servlet specification recommendations.
+     * classes, as per the servlet specification recommendations.
      */
     public void setContextPriorityClassLoader(boolean b) {
         contextPriorityClassLoader = b;
@@ -156,14 +154,15 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
         }
         super.initClassLoader(forceContextLoader);
 
-        if (log.isDebugEnabled())
+        if (log.isDebugEnabled()) {
             log.debug("classloader for " + getContextPath() + ": " + getClassLoader());
+        }
     }
 
     public void handle(String pathInContext,
-                       String pathParams,
-                       HttpRequest httpRequest,
-                       HttpResponse httpResponse)
+            String pathParams,
+            HttpRequest httpRequest,
+            HttpResponse httpResponse)
             throws HttpException, IOException {
 
         // save previous state
@@ -212,9 +211,6 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
             return false;
         }
         return true;
-    }
-
-    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws WaitingException, Exception {

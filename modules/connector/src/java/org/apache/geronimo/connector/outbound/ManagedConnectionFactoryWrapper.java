@@ -32,7 +32,6 @@ import org.apache.geronimo.connector.outbound.security.ManagedConnectionFactoryL
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
@@ -40,7 +39,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.geronimo.GeronimoContextManager;
 
 /**
- * @version $Revision: 1.11 $ $Date: 2004/06/05 01:40:09 $
+ * @version $Revision: 1.12 $ $Date: 2004/06/05 07:14:29 $
  */
 public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
 
@@ -153,9 +152,6 @@ public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
 
     public void setConnectionManagerFactory(ConnectionManagerFactory connectionManagerFactory) {
         this.connectionManagerFactory = connectionManagerFactory;
-    }
-
-    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws WaitingException, Exception {

@@ -21,7 +21,6 @@ import java.util.Properties;
 import javax.security.auth.login.AppConfigurationEntry;
 
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
@@ -40,7 +39,7 @@ import org.apache.geronimo.kernel.Kernel;
  * <p>More specifically, you can only use this method or Sun's JAAS config
  * file.
  *
- * @version $Revision: 1.8 $ $Date: 2004/06/04 22:31:56 $
+ * @version $Revision: 1.9 $ $Date: 2004/06/05 07:14:30 $
  * @see org.apache.geronimo.security.jaas.GeronimoLoginConfiguration
  * @see javax.security.auth.login.Configuration
  */
@@ -87,9 +86,6 @@ public abstract class ConfigurationEntry implements GBean {
 
     public void setOptions(Properties options) {
         this.options = options == null ? new Properties() : options;
-    }
-
-    public void setGBeanContext(GBeanContext context) {
     }
 
     public abstract AppConfigurationEntry[] getAppConfigurationEntry();

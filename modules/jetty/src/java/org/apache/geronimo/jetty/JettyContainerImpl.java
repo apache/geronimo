@@ -18,7 +18,6 @@
 package org.apache.geronimo.jetty;
 
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
@@ -28,7 +27,7 @@ import org.mortbay.http.UserRealm;
 import org.mortbay.jetty.Server;
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/06/02 05:33:03 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/05 07:14:29 $
  */
 public class JettyContainerImpl implements JettyContainer, GBean {
 
@@ -60,9 +59,6 @@ public class JettyContainerImpl implements JettyContainer, GBean {
 
     public void removeRealm(UserRealm realm) {
         server.removeRealm(realm.getName());
-    }
-
-    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws WaitingException, Exception {

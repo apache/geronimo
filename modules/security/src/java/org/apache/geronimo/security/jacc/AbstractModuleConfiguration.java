@@ -19,23 +19,18 @@ package org.apache.geronimo.security.jacc;
 
 import java.util.Collection;
 import java.util.HashSet;
-
 import javax.security.jacc.PolicyConfiguration;
 import javax.security.jacc.PolicyConfigurationFactory;
 import javax.security.jacc.PolicyContextException;
 
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.security.GeronimoSecurityException;
 
 
 /**
- *
- * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:04 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/05 07:14:30 $
  */
 public abstract class AbstractModuleConfiguration implements ModuleConfiguration, GBean {
     public static final String BASE_OBJECT_NAME = "geronimo.security:type=ModuleConfiguration";
@@ -59,9 +54,6 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
         }
     }
 
-    public void setGBeanContext(GBeanContext context) {
-    }
-
     /**
      * Implement configuration from supplied metadata (dds) in subclasses.
      */
@@ -79,6 +71,7 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
 
     /**
      * This method returns this object's policy context identifier.
+     *
      * @return this module's policy context identifier.
      */
     public String getContextID() {
@@ -87,6 +80,7 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
 
     /**
      * Used to notify the abstract base class that the concrete implementation has completed adding all the role names.
+     *
      * @param configured the state of the configuration
      */
     protected void setConfigured(boolean configured) {
@@ -95,6 +89,7 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
 
     /**
      * This method returns the policy configuration that this bean is configuring.
+     *
      * @return this object's policy configuration, <code>PolicyConfiguration</code>.
      */
     protected PolicyConfiguration getPolicyConfiguration() {
@@ -103,6 +98,7 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
 
     /**
      * This method returns the module's set of roles.
+     *
      * @return the set of roles that are being used for this module.
      */
     public HashSet getRoles() {
@@ -112,6 +108,7 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
     /**
      * Add a mapping from a module's security roles to physical principals.  Mapping principals to the same role twice
      * will cause a <code>PolicyContextException</code> to be thrown.
+     *
      * @param role The role that is to be mapped to a set of principals.
      * @param principals The set of principals that are to be mapped to to role.
      * @throws org.apache.geronimo.security.GeronimoSecurityException if the mapping principals to the same role twice occurs.
@@ -137,10 +134,11 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
      * mappings. <code>PolicyConfigurations</code> are linked to apply a common principal-to-role mapping to multiple
      * seperately manageable <code>PolicyConfigurations</code>, as is required when an application is composed of
      * multiple modules.</p>
-     *
+     * <p/>
      * <p>Note that the policy statements which comprise a role, or comprise the excluded or unchecked policy
      * collections in a <code>PolicyConfiguration</code> are unaffected by the configuration being linked to
      * another.</p>
+     *
      * @param link a reference to a different PolicyConfiguration than this <code>PolicyConfiguration</code>.
      * <p>The relationship formed by this method is symetric, transitive and idempotent. If the argument
      * <code>PolicyConfiguration</code> does not have a different Policy context identifier than this
@@ -179,7 +177,7 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
      * state such that calling any method, other than <code>delete</code>, <code>getContextID</code>, or
      * <code>inService</code> on the <code>PolicyConfiguration</code> will be rejected and cause an
      * <code>UnsupportedOperationException</code> to be thrown.</p>
-     *
+     * <p/>
      * <p> This operation has no affect on any linked <code>PolicyConfigurations</code> other than removing any links
      * involving the deleted <code>PolicyConfiguration<code>.</p>
      *
@@ -203,10 +201,11 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
      * in the policy contexts processed by the <code>Policy.refresh</code> method. A policy context whose state is
      * "inService" may be returned to the "open" state by calling the <code>getPolicyConfiguration</code> method of the
      * <code>PolicyConfiguration</code> factory with the policy context identifier of the policy context.</p>
-     *
+     * <p/>
      * <p> When the state of a policy context is "inService", calling any method other than <code>commit</code>,
      * <code>delete</code>, <code>getContextID</code>, or <code>inService</code> on its <code>PolicyConfiguration</code>
      * Object will cause an <code>UnsupportedOperationException</code> to be thrown.</p>
+     *
      * @throws java.lang.SecurityException if called by an <code>AccessControlContext</code> that has not been granted
      * the "setPolicy" <code>SecurityPermission</code>.
      * @throws java.lang.UnsupportedOperationException if the state of the policy context whose interface is this
@@ -226,8 +225,9 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
     /**
      * This method is used to determine if the policy context whose interface is this <code>PolicyConfiguration</code>
      * Object is in the "inService" state.
+     *
      * @return <code>true</code> if the state of the associated policy context is "inService"; <code>false</code>
-     * otherwise.
+     *         otherwise.
      * @throws java.lang.SecurityException if called by an <code>AccessControlContext</code> that has not been granted
      * the "setPolicy" <code>SecurityPermission</code>.
      * @throws org.apache.geronimo.security.GeronimoSecurityException if the implementation throws a checked exception that has not been accounted for by the

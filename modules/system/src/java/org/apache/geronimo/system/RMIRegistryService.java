@@ -20,23 +20,22 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Thin GBean wrapper around the RMI Registry.
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/02 05:33:05 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/05 07:14:30 $
  */
 public class RMIRegistryService implements GBean {
+    private static final Log log = LogFactory.getLog(RMIRegistryService.class);
     private int port = Registry.REGISTRY_PORT;
     private Registry registry;
-    private Log log;
 
     public int getPort() {
         return port;
@@ -44,14 +43,6 @@ public class RMIRegistryService implements GBean {
 
     public void setPort(int port) {
         this.port = port;
-    }
-
-    public void setGBeanContext(GBeanContext context) {
-        if (context != null) {
-            log = LogFactory.getLog(RMIRegistryService.class);
-        } else {
-            log = null;
-        }
     }
 
     public void doStart() throws WaitingException, Exception {

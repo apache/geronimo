@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
@@ -40,14 +39,11 @@ import org.apache.geronimo.gbean.WaitingException;
  * complete control over the URLs creted in the server.  This allows us to replace the
  * broken implementation of the "file" protocol.
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/02 05:33:05 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/05 07:14:30 $
  */
 public class GeronimoURLFactory implements GBean {
     private static final URLStreamHandlerFactory factory = new URLStreamHandlerFactory();
     private static boolean installed = false;
-
-    public void setGBeanContext(GBeanContext context) {
-    }
 
     public void doStart() throws WaitingException, Exception {
         // verify that our factory is installed... if our factory can not be
@@ -63,6 +59,7 @@ public class GeronimoURLFactory implements GBean {
 
     /**
      * Assigns the handler to the specified protocol.
+     *
      * @param protocol the prototcol name
      * @param handler the url handler for the protocol
      * @throws IllegalStateException if a handler is alreayd assigned to the protocol
@@ -73,6 +70,7 @@ public class GeronimoURLFactory implements GBean {
 
     /**
      * Gets the handler registered for the specified protocol
+     *
      * @param protocol the protocol name
      * @return the registered handler or null if no handler is registerd for the protocol
      */
@@ -82,6 +80,7 @@ public class GeronimoURLFactory implements GBean {
 
     /**
      * Gets a map of all registered handlers keyed by protocol name.
+     *
      * @return a map from protocol name to handler
      */
     public Map getRegisteredHandlers() {
@@ -90,6 +89,7 @@ public class GeronimoURLFactory implements GBean {
 
     /**
      * Is our factory installed?
+     *
      * @return true if our factory is installed; false otherwise
      */
     public static boolean isInstalled() {
@@ -99,7 +99,7 @@ public class GeronimoURLFactory implements GBean {
     /**
      * Installs the factory into URL using the setURLStreamHandlerFactory method.
      * This will fail is some other code already installed a factory.
-     *
+     * <p/>
      * This should be called from your main method to assure the factory is installed
      * before another code has a chance to take the slot.
      *
@@ -118,7 +118,7 @@ public class GeronimoURLFactory implements GBean {
      * Field.setAccessable(true).  This is the "naughty" way of installing a factory but works
      * on most platforms.  If the platform is not using Sun's implementation of URL, this code is
      * likely to not work, but all known platforms use Sun's URL code.
-     *
+     * <p/>
      * You should not use this method unless you absolutely have to.
      *
      * @throws Error if the application has already set a factory

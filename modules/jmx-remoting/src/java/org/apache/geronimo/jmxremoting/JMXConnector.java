@@ -25,7 +25,6 @@ import javax.management.remote.JMXServiceURL;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
@@ -34,7 +33,7 @@ import org.apache.geronimo.kernel.Kernel;
 /**
  * A Connector that supports the server sideof JSR 160 JMX Remoting.
  * 
- * @version $Revision: 1.4 $ $Date: 2004/06/05 01:40:09 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/05 07:14:29 $
  */
 public class JMXConnector implements GBean {
     private final Kernel kernel;
@@ -92,9 +91,6 @@ public class JMXConnector implements GBean {
      */
     public void setURL(String url) {
         this.url = url;
-    }
-
-    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws WaitingException, Exception {

@@ -48,7 +48,6 @@ import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
@@ -64,7 +63,7 @@ import org.apache.geronimo.security.realm.SecurityRealm;
 /**
  * An MBean that maintains a list of security realms.
  *
- * @version $Revision: 1.6 $ $Date: 2004/06/02 05:33:04 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/05 07:14:30 $
  */
 public class LoginService implements LoginServiceMBean, GBean {
     /**
@@ -400,9 +399,6 @@ public class LoginService implements LoginServiceMBean, GBean {
                 ContextManager.unregisterSubject(loginModule.getSubject());
             }
         }
-    }
-
-    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws WaitingException, Exception {

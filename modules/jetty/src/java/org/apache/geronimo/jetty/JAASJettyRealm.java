@@ -24,7 +24,6 @@ import javax.security.auth.login.LoginException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
@@ -35,7 +34,7 @@ import org.mortbay.util.LogSupport;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/06/02 05:33:03 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/05 07:14:29 $
  */
 public class JAASJettyRealm implements UserRealm, GBean {
 
@@ -130,9 +129,6 @@ public class JAASJettyRealm implements UserRealm, GBean {
 
     public void logout(Principal user) {
         log.warn(LogSupport.NOT_IMPLEMENTED);
-    }
-
-    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws WaitingException, Exception {

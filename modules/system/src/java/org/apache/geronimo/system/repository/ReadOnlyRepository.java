@@ -23,23 +23,17 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 
-import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
- *
- *
- * @version $Revision: 1.6 $ $Date: 2004/06/02 05:33:05 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/05 07:14:30 $
  */
 public class ReadOnlyRepository implements Repository, GBean {
     private static final Log log = LogFactory.getLog(ReadOnlyRepository.class);
@@ -81,14 +75,11 @@ public class ReadOnlyRepository implements Repository, GBean {
         return rootURI.resolve(uri).toURL();
     }
 
-    public void setGBeanContext(GBeanContext context) {
-    }
-
     public void doStart() throws WaitingException, Exception {
-        if(rootURI == null) {
+        if (rootURI == null) {
             rootURI = serverInfo.resolve(root);
         }
-        log.info("Repository root is "+rootURI);
+        log.info("Repository root is " + rootURI);
     }
 
     public void doStop() throws WaitingException, Exception {
@@ -109,7 +100,7 @@ public class ReadOnlyRepository implements Repository, GBean {
         infoFactory.addInterface(Repository.class);
 
         infoFactory.setConstructor(new String[]{"Root", "ServerInfo"});
-        
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

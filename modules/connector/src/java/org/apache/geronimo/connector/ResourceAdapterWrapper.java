@@ -26,17 +26,13 @@ import javax.resource.spi.endpoint.MessageEndpointFactory;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
 
 /**
- *
- *
- * @version $Revision: 1.8 $ $Date: 2004/06/02 05:33:01 $
- *
- * */
+ * @version $Revision: 1.9 $ $Date: 2004/06/05 07:14:29 $
+ */
 public class ResourceAdapterWrapper implements GBean, DynamicGBean {
 
     public static final GBeanInfo GBEAN_INFO;
@@ -80,9 +76,6 @@ public class ResourceAdapterWrapper implements GBean, DynamicGBean {
 
     public void endpointDeactivation(MessageEndpointFactory messageEndpointFactory, ActivationSpec activationSpec) {
         resourceAdapter.endpointDeactivation(messageEndpointFactory, activationSpec);
-    }
-
-    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws WaitingException, Exception {

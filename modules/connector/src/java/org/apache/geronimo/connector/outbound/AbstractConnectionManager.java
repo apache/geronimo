@@ -24,27 +24,20 @@ import javax.resource.spi.LazyAssociatableConnectionManager;
 import javax.resource.spi.ManagedConnectionFactory;
 
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
 
 /**
- *
- *
- * @version $Revision: 1.2 $ $Date: 2004/06/02 05:33:02 $
- *
- * */
+ * @version $Revision: 1.3 $ $Date: 2004/06/05 07:14:29 $
+ */
 public abstract class AbstractConnectionManager implements ConnectionManagerFactory, GBean, ConnectionManager, LazyAssociatableConnectionManager {
     protected ConnectionInterceptor stack;
 
     public AbstractConnectionManager() {
     }
 
-    public void setGBeanContext(GBeanContext context) {
-    }
-
-    public void doStart()  throws WaitingException, Exception{
+    public void doStart() throws WaitingException, Exception {
         setUpConnectionManager();
     }
 
@@ -64,13 +57,8 @@ public abstract class AbstractConnectionManager implements ConnectionManagerFact
     /**
      * in: mcf != null, is a deployed mcf
      * out: useable connection object.
-     * @param managedConnectionFactory
-     * @param connectionRequestInfo
-     * @return
-     * @throws javax.resource.ResourceException
      */
-    public Object allocateConnection(
-            ManagedConnectionFactory managedConnectionFactory,
+    public Object allocateConnection(ManagedConnectionFactory managedConnectionFactory,
             ConnectionRequestInfo connectionRequestInfo)
             throws ResourceException {
         ManagedConnectionInfo mci = new ManagedConnectionInfo(managedConnectionFactory, connectionRequestInfo);
@@ -83,13 +71,8 @@ public abstract class AbstractConnectionManager implements ConnectionManagerFact
      * in: non-null connection object, from non-null mcf.
      * connection object is not associated with a managed connection
      * out: supplied connection object is assiciated with a non-null ManagedConnection from mcf.
-     * @param connection
-     * @param managedConnectionFactory
-     * @param connectionRequestInfo
-     * @throws javax.resource.ResourceException
      */
-    public void associateConnection(
-            Object connection,
+    public void associateConnection(Object connection,
             ManagedConnectionFactory managedConnectionFactory,
             ConnectionRequestInfo connectionRequestInfo)
             throws ResourceException {

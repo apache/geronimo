@@ -19,18 +19,15 @@ package org.apache.geronimo.remoting.router;
 
 import java.net.URI;
 
-import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
-import org.apache.geronimo.remoting.transport.Msg;
-import org.apache.geronimo.remoting.transport.TransportException;
-
 import EDU.oswego.cs.dl.util.concurrent.Latch;
 import EDU.oswego.cs.dl.util.concurrent.Sync;
 import EDU.oswego.cs.dl.util.concurrent.TimeoutSync;
+import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.remoting.transport.Msg;
+import org.apache.geronimo.remoting.transport.TransportException;
 
 /**
- *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:59:19 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/05 07:14:29 $
  */
 public abstract class AbstractRouterRouter implements GBean, Router {
     private long stoppedRoutingTimeout = 1000 * 60; // 1 min.
@@ -57,8 +54,9 @@ public abstract class AbstractRouterRouter implements GBean, Router {
         try {
             routerLock.acquire();
             Router next = lookupRouterFrom(to);
-            if (next == null)
+            if (next == null) {
                 throw new TransportException("No route is available to: " + to);
+            }
 
             return next.sendRequest(to, msg);
 
@@ -79,9 +77,6 @@ public abstract class AbstractRouterRouter implements GBean, Router {
     }
 
     abstract protected Router lookupRouterFrom(URI to);
-
-    public void setGBeanContext(GBeanContext context) {
-    }
 
     public void doStart() {
         routerLock.release();

@@ -18,30 +18,23 @@
 package org.apache.geronimo.remoting.router;
 
 import java.net.URI;
-import java.util.Set;
-import java.util.HashSet;
 
+import EDU.oswego.cs.dl.util.concurrent.Latch;
+import EDU.oswego.cs.dl.util.concurrent.Sync;
+import EDU.oswego.cs.dl.util.concurrent.TimeoutSync;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocation;
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
-import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
 import org.apache.geronimo.remoting.InvocationSupport;
 import org.apache.geronimo.remoting.MarshalledObject;
 import org.apache.geronimo.remoting.transport.Msg;
 import org.apache.geronimo.remoting.transport.TransportException;
 
-import EDU.oswego.cs.dl.util.concurrent.Latch;
-import EDU.oswego.cs.dl.util.concurrent.Sync;
-import EDU.oswego.cs.dl.util.concurrent.TimeoutSync;
-
 /**
- * @version $Revision: 1.8 $ $Date: 2004/03/10 09:59:19 $
+ * @version $Revision: 1.9 $ $Date: 2004/06/05 07:14:29 $
  */
 public abstract class AbstractInterceptorRouter implements GBean, Router {
     private long stoppedRoutingTimeout = 1000 * 60; // 1 min.
@@ -50,8 +43,6 @@ public abstract class AbstractInterceptorRouter implements GBean, Router {
      * Allows us to pause invocations when in the stopped state.
      */
     private Sync routerLock = createNewRouterLock();
-
-    protected GBeanMBeanContext context;
 
     public long getStoppedRoutingTimeout() {
         return stoppedRoutingTimeout;
@@ -106,10 +97,6 @@ public abstract class AbstractInterceptorRouter implements GBean, Router {
 
     abstract protected Interceptor lookupInterceptorFrom(URI to) throws Throwable;
 
-    public void setGBeanContext(GBeanContext context) {
-        this.context = (GBeanMBeanContext) context;
-    }
-
     public void doStart() {
         routerLock.release();
     }
@@ -126,8 +113,8 @@ public abstract class AbstractInterceptorRouter implements GBean, Router {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractInterceptorRouter.class);
-        infoFactory.addOperation("sendRequest", new Class[] {URI.class, Msg.class});
-        infoFactory.addOperation("sendDatagram", new Class[] {URI.class, Msg.class});
+        infoFactory.addOperation("sendRequest", new Class[]{URI.class, Msg.class});
+        infoFactory.addOperation("sendDatagram", new Class[]{URI.class, Msg.class});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

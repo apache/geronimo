@@ -25,7 +25,6 @@ import javax.security.jacc.PolicyContextException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
@@ -41,7 +40,7 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
 /**
  * An MBean that maintains a list of security realms.
  *
- * @version $Revision: 1.7 $ $Date: 2004/06/02 05:33:04 $
+ * @version $Revision: 1.8 $ $Date: 2004/06/05 07:14:30 $
  */
 public class SecurityService implements SecurityServiceMBean, GBean {
     /**
@@ -116,9 +115,6 @@ public class SecurityService implements SecurityServiceMBean, GBean {
         this.moduleConfigurations = moduleConfigurations;
     }
 
-
-    public void setGBeanContext(GBeanContext context) {
-    }
 
     public void doStart() throws WaitingException, Exception {
         log.info("Security service started");

@@ -33,7 +33,6 @@ import org.apache.geronimo.deployment.plugin.DeploymentServer;
 import org.apache.geronimo.deployment.plugin.FailedProgressObject;
 import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
@@ -47,9 +46,7 @@ import org.apache.geronimo.system.configuration.LocalConfigStore;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- *
- *
- * @version $Revision: 1.11 $ $Date: 2004/06/02 19:50:40 $
+ * @version $Revision: 1.12 $ $Date: 2004/06/05 07:14:29 $
  */
 public class LocalServer implements DeploymentServer, GBean {
     private final URI rootConfigID;
@@ -130,9 +127,6 @@ public class LocalServer implements DeploymentServer, GBean {
     }
 
     public void release() {
-    }
-
-    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws WaitingException, Exception {

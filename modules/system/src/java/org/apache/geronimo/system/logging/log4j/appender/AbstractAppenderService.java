@@ -17,9 +17,7 @@
 
 package org.apache.geronimo.system.logging.log4j.appender;
 
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.system.logging.log4j.PatternLayout;
@@ -28,9 +26,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.WriterAppender;
 
 /**
- *
- *
- * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:05 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/05 07:14:30 $
  */
 public abstract class AbstractAppenderService implements GBean {
     protected final WriterAppender appender;
@@ -38,9 +34,6 @@ public abstract class AbstractAppenderService implements GBean {
     public AbstractAppenderService(WriterAppender appender) {
         this.appender = appender;
         appender.setLayout(new PatternLayout());
-    }
-
-    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() {

@@ -29,9 +29,7 @@ import java.util.Stack;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
@@ -42,7 +40,7 @@ import org.apache.geronimo.system.ThreadPool;
  * The SelectorManager will manage one Selector and the thread that checks
  * the selector.
  *
- * @version $Revision: 1.9 $ $Date: 2004/06/02 05:33:04 $
+ * @version $Revision: 1.10 $ $Date: 2004/06/05 07:14:29 $
  */
 public class SelectorManager implements Runnable, GBean {
 
@@ -234,9 +232,6 @@ public class SelectorManager implements Runnable, GBean {
             selector.wakeup();
             selectorKey.interestOps(selectorKey.interestOps() | addOpts);
         }
-    }
-
-    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws WaitingException, Exception {

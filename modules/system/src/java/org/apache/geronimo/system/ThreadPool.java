@@ -20,18 +20,16 @@ package org.apache.geronimo.system;
 import EDU.oswego.cs.dl.util.concurrent.Executor;
 import EDU.oswego.cs.dl.util.concurrent.PooledExecutor;
 import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/06/02 05:33:05 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/05 07:14:30 $
  */
 public class ThreadPool implements GBean {
 
@@ -83,9 +81,6 @@ public class ThreadPool implements GBean {
 
     private int getNextWorkerID() {
         return nextWorkerID++;
-    }
-
-    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws WaitingException, Exception {

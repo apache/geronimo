@@ -62,7 +62,7 @@ import org.apache.geronimo.kernel.management.NotificationType;
  * {@link GBeanInfo} instance.  The GBeanMBean also supports caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.22 $ $Date: 2004/06/05 00:37:16 $
+ * @version $Revision: 1.23 $ $Date: 2004/06/05 07:14:29 $
  */
 public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     /**
@@ -72,7 +72,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
 
     private static final Log log = LogFactory.getLog(GBeanMBean.class);
     private final Constructor constructor;
-    private GBeanMBeanContext gbeanContext;
+    private final GBeanMBeanContext gbeanContext;
 
     /**
      * Gets the context class loader from the thread or the system class loader if there is no context class loader.
@@ -261,6 +261,8 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                 (MBeanNotificationInfo[]) notifications.toArray(new MBeanNotificationInfo[notifications.size()]));
 
         rawInvoker = new RawInvoker(this);
+
+        gbeanContext = new GBeanMBeanContext(this);
     }
 
     /**
@@ -431,7 +433,6 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     }
 
     public Object getTarget() {
-        // todo this seems like a really realy bad idea
         return target;
     }
 
@@ -476,7 +477,6 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     public synchronized ObjectName preRegister(MBeanServer server, ObjectName objectName) throws Exception {
         ObjectName returnValue = super.preRegister(server, objectName);
 
-        gbeanContext = new GBeanMBeanContext(this);
         setAttribute("objectName", getObjectName());
         setAttribute("gbeanContext", gbeanContext);
         setAttribute("classLoader", classLoader);
@@ -542,12 +542,6 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
             }
         }
 
-        // set the gbean context
-        if (target instanceof GBean) {
-            GBean gbean = (GBean) target;
-            gbean.setGBeanContext(gbeanContext);
-        }
-
         return returnValue;
     }
 
@@ -561,12 +555,6 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
             // we need to bring the reference back off line
             for (int i = 0; i < references.length; i++) {
                 references[i].offline();
-            }
-
-            gbeanContext = null;
-            if (target instanceof GBean) {
-                GBean gbean = (GBean) target;
-                gbean.setGBeanContext(null);
             }
 
             // well that didn't work, ditch the instance
@@ -583,12 +571,6 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         // take all of the reference offline
         for (int i = 0; i < references.length; i++) {
             references[i].offline();
-        }
-
-        gbeanContext = null;
-        if (target instanceof GBean) {
-            GBean gbean = (GBean) target;
-            gbean.setGBeanContext(null);
         }
 
         offline = true;
