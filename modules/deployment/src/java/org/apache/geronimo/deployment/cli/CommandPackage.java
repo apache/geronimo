@@ -31,12 +31,14 @@ import java.util.List;
  */
 public class CommandPackage extends AbstractCommand {
     public CommandPackage() {
-        super("package", "3. Use if you know what you're doing", "[--classPath path] [--mainClass class] [module] [plan] fileName",
+        super("package", "3. Use if you know what you're doing", "[--classPath path] [--mainClass class] [--install] [module] [plan] fileName",
                 "Creates a configuration JAR rather than installing into the server " +
                 "environment.  The fileName argument specifies the JAR to create.  The " +
                 "optional classPath argument specifies a Class-Path to include in the JAR " +
-                "manifest.  The mainClass argument specifies the Main-Class to include in " +
-                "the JAR manifest.\n" +
+                "manifest.  The optional mainClass argument specifies the Main-Class to include in " +
+                "the JAR manifest.  The install option specifies that the " +
+                "configuration should be build into a JAR and also installed into " +
+                "the server configuration (otherwise it is packaged but not installed).\n" +
                 "The standard arguments may not be used with this command -- it " +
                 "never connects to a remote server.");
     }
@@ -54,6 +56,7 @@ public class CommandPackage extends AbstractCommand {
         File module = null;
         File plan = null;
         File packageFile;
+        boolean install = false;
         int i;
         for(i = 0; i < args.length; i++) {
             String arg = args[i];
@@ -61,6 +64,8 @@ public class CommandPackage extends AbstractCommand {
                 classPath = args[++i];
             } else if(arg.equals("--mainClass")) {
                 mainClass = args[++i];
+            } else if(arg.equals("--install")) {
+                install = true;
             } else if(arg.startsWith("--")) {
                 throw new DeploymentSyntaxException("Invalid argument '"+arg+"'");
             } else {
@@ -112,7 +117,7 @@ public class CommandPackage extends AbstractCommand {
         if(plan != null) {
             plan = plan.getAbsoluteFile();
         }
-        List list = (List)connection.invokeOfflineDeployer("deploy", new Object[]{plan, module, packageFile, Boolean.TRUE, mainClass, classPath},
+        List list = (List)connection.invokeOfflineDeployer("deploy", new Object[]{plan, module, packageFile, install ? Boolean.TRUE : Boolean.FALSE, mainClass, classPath},
                         new String[]{File.class.getName(), File.class.getName(), File.class.getName(), boolean.class.getName(), String.class.getName(), String.class.getName()});
         for (int j = 0; j < list.size(); j++) {
             out.println("Packaged configuration "+list.get(j)+" to "+packageFile);

@@ -210,21 +210,6 @@
             deploymentFactory="org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl"
             />
 
-        <!-- build the new deployer JAR
-        <ant:echo>Building new-deployer.jar</ant:echo>
-        <ant:mkdir dir="${distDir}/bin"/>
-        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
-            <ant:jvmarg value="-ea"/>
-            <ant:arg value="- -plan"/>
-            <ant:arg value="target/plan/deployer-system-plan.xml"/>
-            <ant:arg value="- -outfile"/>
-            <ant:arg value="${distDir}/bin/new-deployer.jar"/>
-            <ant:arg value="- -mainClass"/>
-            <ant:arg value="org.apache.geronimo.deployment.cli.DeployTool"/>
-            <ant:arg value="- -classPath"/>
-            <ant:arg value="${deploy.classpath}"/>
-        </ant:java>
-        -->
         <!-- build the system configuration and server.jar -->
         <ant:echo>Building server.jar</ant:echo>
         <ant:mkdir dir="${distDir}/bin"/>
@@ -235,6 +220,7 @@
             <ant:arg value="${server.classpath}"/>
             <ant:arg value="--mainClass"/>
             <ant:arg value="org.apache.geronimo.system.main.Daemon"/>
+            <ant:arg value="--install"/>
             <ant:arg value="target/plan/system-plan.xml"/>
             <ant:arg value="${distDir}/bin/server.jar"/>
         </ant:java>
@@ -300,6 +286,7 @@
             <ant:arg value="org.apache.geronimo.system.main.ClientCommandLine"/>
             <ant:arg value="--classPath"/>
             <ant:arg value="${client.classpath}"/>
+            <ant:arg value="--install"/>
             <ant:arg value="target/plan/client-system-plan.xml"/>
             <ant:arg value="${distDir}/bin/client.jar"/>
         </ant:java>
