@@ -53,16 +53,39 @@
             <j:if test="${geronimoVersion == null}">
                 <fail>Missing required attribute: geronimoVersion</fail>
             </j:if>
-            <j:if test="${targetDir == null}">
-                <j:set var="targetDir" value="target/geronimo"/>
-                <!--fail>Missing required attribute: targetDir</fail-->
-            </j:if>
             <j:if test="${geronimoName == null}">
                 <j:set var="geronimoName" value="geronimo"/>
-                <!--fail>Missing required attribute: targetDir</fail-->
+            </j:if>
+            <j:if test="${targetDir == null}">
+                <j:set var="targetDir" value="${basedir}/target/${geronimoName}"/>
             </j:if>
 
             <unjar src="${maven.repo.local}/${geronimoName}/jars/${geronimoName}-assembly-${geronimoVersion}.jar" dest="${targetDir}"/>
+
+            <!--copy stuff for this project into new geronimo repository-->
+            <ant:copy todir="${targetDir}/repository">
+                <ant:fileset dir="${maven.repo.local}">
+                    <j:forEach var="artifact" items="${pom.artifacts}">
+                        <j:set var="dependency" value="${artifact.dependency}"/>
+                        <j:if test="${dependency.getProperty('repository') == 'true'}">
+                            <ant:include name="${dependency.getArtifactDirectory()}/${dependency.getType()}s/${dependency.getArtifact()}"/>
+                        </j:if>
+                    </j:forEach>
+                </ant:fileset>
+            </ant:copy>
+            <!-- this version doesn't seem to work. Why not?-->
+            <!--ant:copy todir="${targetDir}/repository">
+                <mapper type="glob" from="${maven.repo.local}*" to="*"/>
+                <ant:fileset dir="${maven.repo.local}">
+                    <j:forEach var="artifact" items="${pom.artifacts}">
+                        <j:set var="dependency" value="${artifact.dependency}"/>
+                        <j:if test="${dependency.getProperty('repository') == 'true'}">
+                            <ant:fileset include="${artifact.path}"/>
+                        </j:if>
+                    </j:forEach>
+                </ant:fileset>
+            </ant:copy-->
+
         </define:tag>
 
     </define:taglib>
