@@ -57,7 +57,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/04/03 22:37:58 $
+ * @version $Revision: 1.7 $ $Date: 2004/04/03 22:59:43 $
  */
 public class SubjectCarryingProtocolTest extends AbstractTest {
 
@@ -77,7 +77,7 @@ public class SubjectCarryingProtocolTest extends AbstractTest {
     public void testDummy() throws Exception {
     }
 
-    public void Xtest() throws Exception {
+    public void test() throws Exception {
 
         new Thread(threadGroup, new ServerThread(serverSubject), "Geronimo server").start();
 
