@@ -39,13 +39,12 @@ import org.mortbay.http.UserRealm;
  * @version $Rev$ $Date$
  */
 public class JAASJettyRealm implements UserRealm, GBeanLifecycle {
-
     private static Log log = LogFactory.getLog(JAASJettyRealm.class);
 
     private final JettyContainer container;
     private String realmName;
     private String loginModuleName;
-    private HashMap userMap = new HashMap();
+    private final HashMap userMap = new HashMap();
 
     public JAASJettyRealm(JettyContainer container) {
         this.container = container;
@@ -80,9 +79,9 @@ public class JAASJettyRealm implements UserRealm, GBeanLifecycle {
 
             char[] password;
             if (credentials instanceof char[]) {
-                password = (char[])credentials;
+                password = (char[]) credentials;
             } else if (credentials instanceof String) {
-                password = ((String)credentials).toCharArray();
+                password = ((String) credentials).toCharArray();
             } else {
                 throw new LoginException("Cannot extract credentials from class: " + credentials.getClass().getName());
             }
@@ -119,7 +118,7 @@ public class JAASJettyRealm implements UserRealm, GBeanLifecycle {
     public boolean reauthenticate(Principal user) {
         // TODO This is not correct if auth can expire! We need to
 
-        ContextManager.setCurrentCaller(((JAASJettyPrincipal)user).getSubject());
+        ContextManager.setCurrentCaller(((JAASJettyPrincipal) user).getSubject());
 
         // get the user out of the cache
         return (userMap.get(user.getName()) != null);
@@ -140,13 +139,13 @@ public class JAASJettyRealm implements UserRealm, GBeanLifecycle {
     }
 
     public Principal pushRole(Principal user, String role) {
-        ((JAASJettyPrincipal)user).push(ContextManager.getCurrentCaller());
+        ((JAASJettyPrincipal) user).push(ContextManager.getCurrentCaller());
         ContextManager.setCurrentCaller(JettyServer.getCurrentWebAppContext().getRoleDesignate(role));
         return user;
     }
 
     public Principal popRole(Principal user) {
-        ContextManager.setCurrentCaller(((JAASJettyPrincipal)user).pop());
+        ContextManager.setCurrentCaller(((JAASJettyPrincipal) user).pop());
         return user;
     }
 

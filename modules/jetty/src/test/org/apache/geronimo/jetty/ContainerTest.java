@@ -24,15 +24,13 @@ import java.util.Set;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
+import junit.framework.TestCase;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.jetty.connector.HTTPConnector;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.jetty.connector.HTTPConnector;
-import junit.framework.TestCase;
 
 /**
- *
- *
  * @version $Rev$ $Date$
  */
 public class ContainerTest extends TestCase {

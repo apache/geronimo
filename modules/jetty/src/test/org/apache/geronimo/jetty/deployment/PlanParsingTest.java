@@ -3,10 +3,10 @@ package org.apache.geronimo.jetty.deployment;
 import java.io.File;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
-import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
 import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
 
 /**
  */

@@ -30,7 +30,6 @@ import org.mortbay.jetty.Server;
  * @version $Rev$ $Date$
  */
 public class JettyContainerImpl implements JettyContainer, GBeanLifecycle {
-
     private final Server server;
 
     public JettyContainerImpl() {

@@ -50,7 +50,6 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
  * @version $Rev$ $Date$
  */
 public class JettyWebAppContext extends WebApplicationContext implements GBeanLifecycle {
-
     private static Log log = LogFactory.getLog(JettyWebAppContext.class);
 
     private final ConfigurationParent config;
@@ -71,15 +70,15 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     }
 
     public JettyWebAppContext(URI uri,
-                              ReadOnlyContext compContext,
-                              UserTransactionImpl userTransaction,
-                              ClassLoader classLoader,
-                              Set unshareableResources,
-                              Set applicationManagedSecurityResources,
-                              TransactionContextManager transactionContextManager,
-                              TrackedConnectionAssociator associator,
-                              ConfigurationParent config,
-                              JettyContainer container) {
+            ReadOnlyContext compContext,
+            UserTransactionImpl userTransaction,
+            ClassLoader classLoader,
+            Set unshareableResources,
+            Set applicationManagedSecurityResources,
+            TransactionContextManager transactionContextManager,
+            TrackedConnectionAssociator associator,
+            ConfigurationParent config,
+            JettyContainer container) {
         super();
 
         assert container != null;
@@ -117,7 +116,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
      * setContextPriorityClassLoader.
      *
      * @param b True if this context should give web application class in preference over the containers
-     *          classes, as per the servlet specification recommendations.
+     * classes, as per the servlet specification recommendations.
      */
     public void setContextPriorityClassLoader(boolean b) {
         contextPriorityClassLoader = b;
@@ -127,9 +126,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
      * init the classloader. Uses the value of contextPriorityClassLoader to
      * determine if the context needs to create its own classloader.
      */
-    protected void initClassLoader(boolean forceContextLoader)
-            throws MalformedURLException, IOException {
-
+    protected void initClassLoader(boolean forceContextLoader) throws MalformedURLException, IOException {
         setClassLoaderJava2Compliant(!contextPriorityClassLoader);
         if (!contextPriorityClassLoader) {
             // TODO - once geronimo is correctly setting up the classpath, this should be uncommented.
@@ -144,9 +141,9 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     }
 
     public void handle(String pathInContext,
-                       String pathParams,
-                       HttpRequest httpRequest,
-                       HttpResponse httpResponse)
+            String pathParams,
+            HttpRequest httpRequest,
+            HttpResponse httpResponse)
             throws HttpException, IOException {
 
         // save previous state
@@ -201,7 +198,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     }
 
     public void doStart() throws WaitingException, Exception {
-
         // merge Geronimo and Jetty Lifecycles
         if (!isStarting()) {
             super.start();
@@ -273,7 +269,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     }
 
     public void doStop() throws Exception {
-
         // merge Geronimo and Jetty Lifecycles
         if (!isStopping()) {
             super.stop();
@@ -346,13 +341,12 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     }
 
     public void doFail() {
-
         try {
             super.stop();
         } catch (InterruptedException e) {
         }
-        container.removeContext(this);
 
+        container.removeContext(this);
         log.info("JettyWebAppContext failed");
     }
 

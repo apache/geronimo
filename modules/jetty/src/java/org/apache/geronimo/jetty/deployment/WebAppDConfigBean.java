@@ -25,18 +25,15 @@ import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
 import org.apache.geronimo.naming.deployment.ENCHelper;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
- *
- *
  * @version $Rev$ $Date$
  */
 public class WebAppDConfigBean extends DConfigBeanSupport {
-
-    private ENCHelper encHelper;
+    private final ENCHelper encHelper;
 
     WebAppDConfigBean(DDBean ddBean, JettyWebAppType webApp) {
         super(ddBean, webApp);
@@ -134,15 +131,19 @@ public class WebAppDConfigBean extends DConfigBeanSupport {
         getWebApp().setContextRoot(contextRoot);
     }
 
-    /** getContextPriorityClassLoader.
+    /**
+     * getContextPriorityClassLoader.
+     *
      * @return True if this context should give web application class in preference over the containers
-     * classes, as per the servlet specification recommendations.
+     *         classes, as per the servlet specification recommendations.
      */
     public boolean getContextPriorityClassLoader() {
         return getWebApp().getContextPriorityClassloader();
     }
 
-    /** setContextPriorityClassLoader.
+    /**
+     * setContextPriorityClassLoader.
+     *
      * @param contextPriority True if this context should give web application class in preference over the containers
      * classes, as per the servlet specification recommendations.
      */

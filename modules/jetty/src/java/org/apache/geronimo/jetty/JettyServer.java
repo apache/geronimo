@@ -20,20 +20,18 @@ import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.geronimo.security.ContextManager;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.UserRealm;
 import org.mortbay.jetty.Server;
-
-import org.apache.geronimo.security.ContextManager;
 
 
 /**
  * @version $Rev$ $Date$
  */
 public class JettyServer extends Server {
-
-    private Map realmDelegates = new HashMap();
     private final static ThreadLocal currentWebAppContext = new ThreadLocal();
+    private final Map realmDelegates = new HashMap();
 
     public UserRealm addRealm(UserRealm realm) {
         RealmDelegate delegate = (RealmDelegate) realmDelegates.get(realm.getName());

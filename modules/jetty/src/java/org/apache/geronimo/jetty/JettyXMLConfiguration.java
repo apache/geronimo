@@ -16,13 +16,6 @@
  */
 package org.apache.geronimo.jetty;
 
-import javax.security.auth.Subject;
-import javax.security.jacc.PolicyConfiguration;
-import javax.security.jacc.PolicyContextException;
-import javax.security.jacc.WebResourcePermission;
-import javax.security.jacc.WebRoleRefPermission;
-import javax.security.jacc.WebUserDataPermission;
-import javax.servlet.UnavailableException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.HashMap;
@@ -30,12 +23,16 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import javax.security.auth.Subject;
+import javax.security.jacc.PolicyConfiguration;
+import javax.security.jacc.PolicyContextException;
+import javax.security.jacc.WebResourcePermission;
+import javax.security.jacc.WebRoleRefPermission;
+import javax.security.jacc.WebUserDataPermission;
+import javax.servlet.UnavailableException;
 
-import org.mortbay.jetty.servlet.XMLConfiguration;
-import org.mortbay.xml.XmlParser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.geronimo.security.GeronimoSecurityException;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.deploy.Principal;
@@ -45,6 +42,8 @@ import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.jacc.RoleMappingConfiguration;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.security.util.URLPattern;
+import org.mortbay.jetty.servlet.XMLConfiguration;
+import org.mortbay.xml.XmlParser;
 
 
 /**
@@ -54,18 +53,17 @@ import org.apache.geronimo.security.util.URLPattern;
  * @version $Rev$ $Date$
  */
 public class JettyXMLConfiguration extends XMLConfiguration {
-
     private static Log log = LogFactory.getLog(JettyXMLConfiguration.class);
 
-    private Set securityRoles = new HashSet();
-    private Map uncheckedPatterns = new HashMap();
-    private Map excludedPatterns = new HashMap();
-    private Map rolesPatterns = new HashMap();
-    private Set allSet = new HashSet();
-    private Map allMap = new HashMap();
-    private Set allRoles = new HashSet();
-    private Map roleRefs = new HashMap();
-    private Map servletRoles = new HashMap();
+    private final Set securityRoles = new HashSet();
+    private final Map uncheckedPatterns = new HashMap();
+    private final Map excludedPatterns = new HashMap();
+    private final Map rolesPatterns = new HashMap();
+    private final Set allSet = new HashSet();
+    private final Map allMap = new HashMap();
+    private final Set allRoles = new HashSet();
+    private final Map roleRefs = new HashMap();
+    private final Map servletRoles = new HashMap();
 
 
     protected void initialize(XmlParser.Node config) throws ClassNotFoundException, UnavailableException {
@@ -85,7 +83,7 @@ public class JettyXMLConfiguration extends XMLConfiguration {
         String name = node.getString("servlet-name", false, true);
         if (name == null) name = node.getString("servlet-class", false, true);
 
-        Set roles = (Set)servletRoles.get(name);
+        Set roles = (Set) servletRoles.get(name);
         if (roles == null) {
             roles = new HashSet();
             servletRoles.put(name, roles);
@@ -119,11 +117,11 @@ public class JettyXMLConfiguration extends XMLConfiguration {
      * permissions.  These permissions are placed into the appropriate
      * <code>PolicyConfiguration</code> object as defined in the JACC spec.
      *
-     * @param node the deployment descriptor from which to obtain the
-     *             security constraints that are to be translated.
-     * @throws org.apache.geronimo.security.GeronimoSecurityException
-     *          if there is any violation of the semantics of
-     *          the security descriptor or the state of the module configuration.
+     * @param node deployment descriptor from which to obtain the
+     * security constraints that are to be translated.
+     * @throws org.apache.geronimo.security.GeronimoSecurityException if there
+     * is any violation of the semantics of the security descriptor or the state
+     * of the module configuration.
      * @see javax.security.jacc.PolicyConfiguration
      * @see "Java Authorization Contract for Containers", section 3.1.3
      */
@@ -147,9 +145,9 @@ public class JettyXMLConfiguration extends XMLConfiguration {
             transport = data.get("transport-guarantee").toString(false, true).toUpperCase();
         }
 
-        for (Iterator resourceIiter = node.iterator("web-resource-collection"); resourceIiter.hasNext(); ) {
+        for (Iterator resourceIiter = node.iterator("web-resource-collection"); resourceIiter.hasNext();) {
             XmlParser.Node collection = (XmlParser.Node) resourceIiter.next();
-            for (Iterator urlPattermIter = collection.iterator("url-pattern"); urlPattermIter.hasNext(); ) {
+            for (Iterator urlPattermIter = collection.iterator("url-pattern"); urlPattermIter.hasNext();) {
                 String url = ((XmlParser.Node) urlPattermIter.next()).toString(false, true);
                 URLPattern pattern = (URLPattern) currentPatterns.get(url);
                 if (pattern == null) {
@@ -165,7 +163,7 @@ public class JettyXMLConfiguration extends XMLConfiguration {
                 }
 
                 boolean noMethods = true;
-                for (Iterator methodIter = collection.iterator("http-method"); methodIter.hasNext(); ) {
+                for (Iterator methodIter = collection.iterator("http-method"); methodIter.hasNext();) {
                     String method = ((XmlParser.Node) methodIter.next()).toString(false, true);
                     pattern.addMethod(method);
                     allPattern.addMethod(method);
@@ -178,7 +176,7 @@ public class JettyXMLConfiguration extends XMLConfiguration {
                 }
 
                 if (currentPatterns == rolesPatterns) {
-                    for (Iterator roleNameIter = auths.iterator("role-name"); roleNameIter.hasNext(); ) {
+                    for (Iterator roleNameIter = auths.iterator("role-name"); roleNameIter.hasNext();) {
                         String role = ((XmlParser.Node) roleNameIter.next()).toString(false, true);
                         if (role.equals("*")) {
                             allRoles.add(pattern);
@@ -195,7 +193,7 @@ public class JettyXMLConfiguration extends XMLConfiguration {
 
     protected void initSecurityRole(XmlParser.Node node) {
         super.initSecurityRole(node);
-        
+
         securityRoles.add(node.get("role-name").toString(false, true));
     }
 
@@ -204,15 +202,11 @@ public class JettyXMLConfiguration extends XMLConfiguration {
      * PolicyConfiguration.
      *
      * @param configuration the JACC PolicyConfiguration
-     * @param security      the augmented security information from the geronimo-web.xml file
-     * @throws GeronimoSecurityException
+     * @param security the augmented security information from the geronimo-web.xml file
      */
     public void configure(PolicyConfiguration configuration, Security security) throws GeronimoSecurityException {
 
         try {
-            /**
-             *
-             */
             Iterator iter = excludedPatterns.keySet().iterator();
             while (iter.hasNext()) {
                 URLPattern pattern = (URLPattern) excludedPatterns.get(iter.next());
@@ -223,9 +217,6 @@ public class JettyXMLConfiguration extends XMLConfiguration {
                 configuration.addToExcludedPolicy(new WebUserDataPermission(name, actions));
             }
 
-            /**
-             *
-             */
             iter = rolesPatterns.keySet().iterator();
             while (iter.hasNext()) {
                 URLPattern pattern = (URLPattern) rolesPatterns.get(iter.next());
@@ -239,9 +230,6 @@ public class JettyXMLConfiguration extends XMLConfiguration {
                 }
             }
 
-            /**
-             *
-             */
             iter = uncheckedPatterns.keySet().iterator();
             while (iter.hasNext()) {
                 URLPattern pattern = (URLPattern) uncheckedPatterns.get(iter.next());
@@ -251,9 +239,6 @@ public class JettyXMLConfiguration extends XMLConfiguration {
                 configuration.addToUncheckedPolicy(new WebResourcePermission(name, actions));
             }
 
-            /**
-             *
-             */
             iter = rolesPatterns.keySet().iterator();
             while (iter.hasNext()) {
                 URLPattern pattern = (URLPattern) rolesPatterns.get(iter.next());
@@ -352,10 +337,10 @@ public class JettyXMLConfiguration extends XMLConfiguration {
                 String servletName = (String) keys.next();
                 Set roles = new HashSet(securityRoles);
 
-                roles.removeAll((Set)servletRoles.get(servletName));
+                roles.removeAll((Set) servletRoles.get(servletName));
 
                 iter = roles.iterator();
-                while(iter.hasNext()) {
+                while (iter.hasNext()) {
                     String roleName = (String) iter.next();
                     configuration.addToRole(roleName, new WebRoleRefPermission(servletName, roleName));
                 }

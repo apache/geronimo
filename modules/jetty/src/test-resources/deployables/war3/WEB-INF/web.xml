@@ -32,30 +32,30 @@
     </resource-ref>
 
     <security-constraint>
-      <web-resource-collection>
-        <web-resource-name>Admin Role</web-resource-name>
-        <url-pattern>/protected/*</url-pattern>
-      </web-resource-collection>
-      <auth-constraint>
-        <role-name>content-administrator</role-name>
-      </auth-constraint>
+        <web-resource-collection>
+            <web-resource-name>Admin Role</web-resource-name>
+            <url-pattern>/protected/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>content-administrator</role-name>
+        </auth-constraint>
     </security-constraint>
 
     <security-constraint>
-      <web-resource-collection>
-        <web-resource-name>NO ACCESS</web-resource-name>
-        <url-pattern>/auth/logon.html</url-pattern>
-      </web-resource-collection>
-      <auth-constraint/>
+        <web-resource-collection>
+            <web-resource-name>NO ACCESS</web-resource-name>
+            <url-pattern>/auth/logon.html</url-pattern>
+        </web-resource-collection>
+        <auth-constraint/>
     </security-constraint>
 
     <login-config>
-      <auth-method>FORM</auth-method>
-      <realm-name>Test JAAS Realm</realm-name>
-      <form-login-config>
-         <form-login-page>/auth/logon.html?param=test</form-login-page>
-         <form-error-page>/auth/logonError.html?param=test</form-error-page>
-      </form-login-config>
+        <auth-method>FORM</auth-method>
+        <realm-name>Test JAAS Realm</realm-name>
+        <form-login-config>
+            <form-login-page>/auth/logon.html?param=test</form-login-page>
+            <form-error-page>/auth/logonError.html?param=test</form-error-page>
+        </form-login-config>
     </login-config>
 
     <security-role>

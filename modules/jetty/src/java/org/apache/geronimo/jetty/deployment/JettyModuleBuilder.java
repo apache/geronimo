@@ -146,14 +146,13 @@ public class JettyModuleBuilder implements ModuleBuilder {
             // load the geronimo-jetty.xml from either the supplied plan or from the earFile
             try {
                 if (plan instanceof XmlObject) {
-                    jettyWebApp = (JettyWebAppType) SchemaConversionUtils.getNestedObjectAsType(
-                            (XmlObject) plan,
+                    jettyWebApp = (JettyWebAppType) SchemaConversionUtils.getNestedObjectAsType((XmlObject) plan,
                             "web-app",
                             JettyWebAppType.type);
                 } else {
                     JettyWebAppDocument jettyWebAppdoc = null;
                     if (plan != null) {
-                        jettyWebAppdoc = JettyWebAppDocument.Factory.parse((File)plan);
+                        jettyWebAppdoc = JettyWebAppDocument.Factory.parse((File) plan);
                     } else {
                         URL path = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/geronimo-jetty.xml");
                         jettyWebAppdoc = JettyWebAppDocument.Factory.parse(path);
@@ -423,14 +422,12 @@ public class JettyModuleBuilder implements ModuleBuilder {
         bean.setAttribute("applicationManagedSecurityResources", applicationManagedSecurityResources);
     }
 
-
     private static String getJ2eeStringValue(org.apache.geronimo.xbeans.j2ee.String string) {
         if (string == null) {
             return null;
         }
         return string.getStringValue();
     }
-
 
     private URI getDependencyURI(JettyDependencyType dep) throws DeploymentException {
         URI uri;

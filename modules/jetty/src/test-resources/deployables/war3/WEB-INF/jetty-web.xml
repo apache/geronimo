@@ -20,6 +20,6 @@
 <Configure class="org.mortbay.jetty.servlet.WebApplicationContext">
     <Set name="statsOn" type="boolean">true</Set>
     <Call name="getWebApplicationHandler">
-      <Set name="usingCookies">true</Set>
+        <Set name="usingCookies">true</Set>
     </Call>
 </Configure>

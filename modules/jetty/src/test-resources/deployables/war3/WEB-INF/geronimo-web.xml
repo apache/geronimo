@@ -15,8 +15,8 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-  
-<web-app xmlns="http://geronimo.apache.org/xml/ns/web/jetty" configId="org/apache/geronimo/test" >
+
+<web-app xmlns="http://geronimo.apache.org/xml/ns/web/jetty" configId="org/apache/geronimo/test">
     <context-root>/test</context-root>
     <context-priority-classloader>false</context-priority-classloader>
     <security use-context-handler="false">

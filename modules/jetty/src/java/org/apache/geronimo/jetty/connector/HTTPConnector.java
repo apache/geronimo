@@ -17,17 +17,12 @@
 
 package org.apache.geronimo.jetty.connector;
 
-import java.util.Arrays;
-
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.jetty.JettyContainer;
 import org.mortbay.http.SocketListener;
 
 /**
- *
- *
  * @version $Rev$ $Date$
  */
 public class HTTPConnector extends JettyConnector {

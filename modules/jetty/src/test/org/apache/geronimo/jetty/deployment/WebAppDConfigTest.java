@@ -22,13 +22,10 @@ import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
 
+import junit.framework.TestCase;
 import org.apache.geronimo.deployment.tools.loader.WebDeployable;
 
-import junit.framework.TestCase;
-
 /**
- *
- *
  * @version $Rev$ $Date$
  */
 public class WebAppDConfigTest extends TestCase {

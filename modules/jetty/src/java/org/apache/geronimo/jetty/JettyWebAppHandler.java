@@ -34,22 +34,22 @@ import org.mortbay.jetty.servlet.WebApplicationHandler;
  * @see org.apache.geronimo.jetty.JAASJettyRealm#isUserInRole(java.security.Principal, java.lang.String)
  */
 public class JettyWebAppHandler extends WebApplicationHandler {
-
     /**
-     * Return an instance of <code>JettyServletHolder</code>.
+     * Return a new instance of <code>JettyServletHolder</code>.
      * <p/>
      * This method overrides <code>WebApplicationHandler</code>'s implementation.
      *
-     * @param name         The name of the servlet.
-     * @param servletClass The class name of the servlet.
-     * @param forcedPath   If non null, the request attribute
-     *                     javax.servlet.include.servlet_path will be set to this path before
-     *                     service is called.
+     * @param name name of the servlet
+     * @param servletClass class name of the servlet
+     * @param forcedPath if non null the request attribute javax.servlet.include.servlet_path
+     * will be set to this path before service is called.
      * @return an instance of <code>JettyServletHolder</code>
      * @see org.mortbay.jetty.servlet.WebApplicationHandler#newServletHolder(java.lang.String, java.lang.String, java.lang.String)
      */
     public ServletHolder newServletHolder(String name, String servletClass, String forcedPath) {
-        if (_nameMap.containsKey(name)) throw new IllegalArgumentException("Named servlet already exists: " + name);
+        if (_nameMap.containsKey(name)) {
+            throw new IllegalArgumentException("Named servlet already exists: " + name);
+        }
 
         ServletHolder holder = new JettyServletHolder(this, name, servletClass, forcedPath);
 

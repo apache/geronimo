@@ -27,7 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.security.auth.Subject;
 import javax.security.jacc.PolicyConfiguration;
 import javax.security.jacc.PolicyConfigurationFactory;
@@ -75,7 +74,6 @@ import org.mortbay.util.LazyList;
  * @see org.mortbay.jetty.servlet.WebApplicationContext#checkSecurityConstraints(java.lang.String, org.mortbay.http.HttpRequest, org.mortbay.http.HttpResponse)
  */
 public class JettyWebAppJACCContext extends JettyWebAppContext {
-
     private static Log log = LogFactory.getLog(JettyWebAppJACCContext.class);
 
     private final String policyContextID;
@@ -84,11 +82,11 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
     private PolicyConfigurationFactory factory;
     private PolicyConfiguration policyConfiguration;
 
-    private Map roleDesignates = new HashMap();
+    private final Map roleDesignates = new HashMap();
 
-    private JAASJettyPrincipal defaultPrincipal;
+    private final JAASJettyPrincipal defaultPrincipal;
 
-    private PathMap _constraintMap = new PathMap();
+    private final PathMap constraintMap = new PathMap();
 
     private String formLoginPath;
 
@@ -97,20 +95,19 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
     }
 
     public JettyWebAppJACCContext(URI uri,
-                                  ReadOnlyContext compContext,
-                                  UserTransactionImpl userTransaction,
-                                  ClassLoader classLoader,
-                                  Set unshareableResources,
-                                  Set applicationManagedSecurityResources,
-                                  String policyContextID,
-                                  Security securityConfig,
-                                  TransactionContextManager transactionContextManager,
-                                  TrackedConnectionAssociator associator,
-                                  ConfigurationParent config,
-                                  JettyContainer container
-                                  ) {
-        super(uri, compContext, userTransaction, classLoader, unshareableResources, applicationManagedSecurityResources, transactionContextManager, associator, config, container
-        );
+            ReadOnlyContext compContext,
+            UserTransactionImpl userTransaction,
+            ClassLoader classLoader,
+            Set unshareableResources,
+            Set applicationManagedSecurityResources,
+            String policyContextID,
+            Security securityConfig,
+            TransactionContextManager transactionContextManager,
+            TrackedConnectionAssociator associator,
+            ConfigurationParent config,
+            JettyContainer container) {
+
+        super(uri, compContext, userTransaction, classLoader, unshareableResources, applicationManagedSecurityResources, transactionContextManager, associator, config, container);
 
         this.policyContextID = policyContextID;
         this.securityConfig = securityConfig;
@@ -143,16 +140,12 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
      * Call each HttpHandler until request is handled.
      *
      * @param pathInContext Path in context
-     * @param pathParams    Path parameters such as encoded Session ID
-     * @param httpRequest
-     * @param httpResponse
-     * @throws HttpException
-     * @throws IOException
+     * @param pathParams Path parameters such as encoded Session ID
      */
     public void handle(String pathInContext,
-                       String pathParams,
-                       HttpRequest httpRequest,
-                       HttpResponse httpResponse)
+            String pathParams,
+            HttpRequest httpRequest,
+            HttpResponse httpResponse)
             throws HttpException, IOException {
 
         String savedPolicyContextID = PolicyContext.getContextID();
@@ -177,45 +170,49 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
      * but, to decide whether we should attempt to authenticate the request.
      *
      * @param pathSpec The path spec to which the secuiryt cosntraint applies
-     * @param sc       the security constraint
+     * @param sc the security constraint
      * TODO Jetty to provide access to this map so we can remove this method
      * @see org.mortbay.http.HttpContext#addSecurityConstraint(java.lang.String, org.mortbay.http.SecurityConstraint)
      */
     public void addSecurityConstraint(String pathSpec, SecurityConstraint sc) {
         super.addSecurityConstraint(pathSpec, sc);
 
-        Object scs = _constraintMap.get(pathSpec);
+        Object scs = constraintMap.get(pathSpec);
         scs = LazyList.add(scs, sc);
-        _constraintMap.put(pathSpec, scs);
+        constraintMap.put(pathSpec, scs);
 
-        if (log.isDebugEnabled()) log.debug("added " + sc + " at " + pathSpec);
+        if (log.isDebugEnabled()) {
+            log.debug("added " + sc + " at " + pathSpec);
+        }
     }
 
     /**
      * Check the security constraints using JACC.
      *
      * @param pathInContext path in context
-     * @param request       HTTP request
-     * @param response      HTTP response
-     * @return <code>true</code> if the path in context passes the security
-     *         check, <code>false</code> if it fails or a redirection has occured
-     *         during authentication.
-     * @throws HttpException
-     * @throws IOException
+     * @param request HTTP request
+     * @param response HTTP response
+     * @return true if the path in context passes the security check,
+     *         false if it fails or a redirection has occured during authentication.
      */
     public boolean checkSecurityConstraints(String pathInContext, HttpRequest request, HttpResponse response) throws HttpException, IOException {
-
         if (formLoginPath != null) {
             String pathToBeTested = (pathInContext.indexOf('?') > 0 ? pathInContext.substring(0, pathInContext.indexOf('?')) : pathInContext);
 
-            if (pathToBeTested.equals(formLoginPath)) return true;
+            if (pathToBeTested.equals(formLoginPath)) {
+                return true;
+            }
         }
 
         try {
             Principal user = obtainUser(pathInContext, request, response);
 
-            if (user == null) return false;
-            if (user == SecurityConstraint.__NOBODY) return true;
+            if (user == null) {
+                return false;
+            }
+            if (user == SecurityConstraint.__NOBODY) {
+                return true;
+            }
 
             AccessControlContext acc = ContextManager.getCurrentContext();
             ServletHttpRequest servletHttpRequest = (ServletHttpRequest) request.getWrapper();
@@ -247,19 +244,16 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
      * principal.  This is automatically done by <code>JAASJettyRealm</code>.
      *
      * @param pathInContext path in context
-     * @param request       HTTP request
-     * @param response      HTTP response
+     * @param request HTTP request
+     * @param response HTTP response
      * @return <code>null</code> if there is no authenticated user at the moment
      *         and security checking should not proceed and servlet handling should also
      *         not proceed, e.g. redirect. <code>SecurityConstraint.__NOBODY</code> if
      *         security checking should not proceed and servlet handling should proceed,
      *         e.g. login page.
-     * @throws HttpException
-     * @throws IOException
      */
     public Principal obtainUser(String pathInContext, HttpRequest request, HttpResponse response) throws HttpException, IOException {
-
-        List scss = _constraintMap.getMatches(pathInContext);
+        List scss = constraintMap.getMatches(pathInContext);
         String pattern = null;
         boolean unauthenticated = false;
         boolean forbidden = false;
@@ -347,7 +341,6 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
      *
      * @param securityConfig The Geronimo security configuration.
      * @return the default principal
-     * @throws GeronimoSecurityException
      */
     protected JAASJettyPrincipal generateDefaultPrincipal(Security securityConfig) throws GeronimoSecurityException {
         JAASJettyPrincipal result = new JAASJettyPrincipal("default");
@@ -356,9 +349,13 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
         DefaultPrincipal principal = securityConfig.getDefaultPrincipal();
 
         RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal.getPrincipal(), principal.getRealmName());
-        if (realmPrincipal == null) throw new GeronimoSecurityException("Unable to create realm principal");
+        if (realmPrincipal == null) {
+            throw new GeronimoSecurityException("Unable to create realm principal");
+        }
         PrimaryRealmPrincipal primaryRealmPrincipal = ConfigurationUtil.generatePrimaryRealmPrincipal(principal.getPrincipal(), principal.getRealmName());
-        if (primaryRealmPrincipal == null) throw new GeronimoSecurityException("Unable to create primary realm principal");
+        if (primaryRealmPrincipal == null) {
+            throw new GeronimoSecurityException("Unable to create primary realm principal");
+        }
 
         defaultSubject.getPrincipals().add(realmPrincipal);
         defaultSubject.getPrincipals().add(primaryRealmPrincipal);
@@ -369,7 +366,6 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
     }
 
     public void doStart() throws WaitingException, Exception {
-
         super.doStart();
 
         Authenticator authenticator = getAuthenticator();
@@ -401,10 +397,10 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
 
             policyConfiguration = factory.getPolicyConfiguration(policyContextID, true);
             Configuration[] configurations = getConfigurations();
-            for (int i=0;i<configurations.length;i++)
-            {
-                if (configurations[i] instanceof JettyXMLConfiguration)
-                    ((JettyXMLConfiguration)configurations[i]).configure(policyConfiguration, securityConfig);
+            for (int i = 0; i < configurations.length; i++) {
+                if (configurations[i] instanceof JettyXMLConfiguration) {
+                    ((JettyXMLConfiguration) configurations[i]).configure(policyConfiguration, securityConfig);
+                }
             }
             policyConfiguration.commit();
         } catch (ClassNotFoundException e) {
@@ -436,7 +432,6 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
     }
 
     public void doStop() throws WaitingException, Exception {
-
         super.doStop();
 
         /**
@@ -458,17 +453,20 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
         /**
          * Delete the policy configuration for this web application
          */
-        if (policyConfiguration != null) policyConfiguration.delete();
+        if (policyConfiguration != null) {
+            policyConfiguration.delete();
+        }
 
         log.info("JettyWebAppJACCContext with JACC policy '" + policyContextID + "' stopped");
     }
 
     public void doFail() {
-
         super.doFail();
 
         try {
-            if (policyConfiguration != null) policyConfiguration.delete();
+            if (policyConfiguration != null) {
+                policyConfiguration.delete();
+            }
         } catch (PolicyContextException e) {
             // do nothing
         }

@@ -17,22 +17,23 @@
 
 package org.apache.geronimo.jetty;
 
-import org.mortbay.http.HttpListener;
 import org.mortbay.http.HttpContext;
+import org.mortbay.http.HttpListener;
 import org.mortbay.http.UserRealm;
 
 /**
- * 
- * 
  * @version $Rev$ $Date$
  */
 public interface JettyContainer {
     void addListener(HttpListener listener);
+
     void removeListener(HttpListener listener);
 
     void addContext(HttpContext context);
+
     void removeContext(HttpContext context);
 
     void addRealm(UserRealm realm);
+
     void removeRealm(UserRealm realm);
 }

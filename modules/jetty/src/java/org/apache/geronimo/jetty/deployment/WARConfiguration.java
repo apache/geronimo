@@ -22,14 +22,10 @@ import javax.enterprise.deploy.model.DeployableObject;
 import org.apache.geronimo.deployment.plugin.DeploymentConfigurationSupport;
 
 /**
- *
- *
  * @version $Rev$ $Date$
  */
 public class WARConfiguration extends DeploymentConfigurationSupport {
-
     public WARConfiguration(DeployableObject deployable) {
         super(deployable, new WebAppDConfigRoot(deployable.getDDBeanRoot()));
     }
-
 }

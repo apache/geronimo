@@ -16,18 +16,18 @@
  */
 package org.apache.geronimo.jetty;
 
-import javax.security.auth.Subject;
 import java.security.Principal;
 import java.util.Stack;
+import javax.security.auth.Subject;
 
 
 /**
  * @version $Rev$ $Date$
  */
 public class JAASJettyPrincipal implements Principal {
-    private String name;
+    private final String name;
     private Subject subject;
-    private Stack stack = new Stack();
+    private final Stack stack = new Stack();
 
     public JAASJettyPrincipal(String name) {
         this.name = name;

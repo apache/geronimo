@@ -21,13 +21,9 @@ import org.apache.geronimo.deployment.service.GBeanAdapter;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyGbeanType;
 
 /**
- *
- *
  * @version $Rev$ $Date$
- *
- * */
+ */
 public class JettyGBeanAdapter implements GBeanAdapter {
-
     private final JettyGbeanType gbean;
 
     public JettyGBeanAdapter(JettyGbeanType gbean) {

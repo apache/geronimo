@@ -26,8 +26,6 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 
 /**
- *
- *
  * @version $Rev$ $Date$
  */
 public class WARConfigurer implements ModuleConfigurer {

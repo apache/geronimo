@@ -17,8 +17,6 @@
 
 package org.apache.geronimo.jetty;
 
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
@@ -28,22 +26,23 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 
 import junit.framework.TestCase;
-
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.jetty.connector.HTTPConnector;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.security.deploy.Principal;
+import org.apache.geronimo.security.deploy.Realm;
+import org.apache.geronimo.security.deploy.Role;
+import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.transaction.GeronimoTransactionManager;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.security.deploy.Security;
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.deploy.Principal;
-import org.apache.geronimo.security.deploy.Role;
-import org.apache.geronimo.security.deploy.Realm;
 
 
 /**
@@ -101,7 +100,7 @@ public class SecurityTest extends TestCase {
         realm.setRealmName("demo-properties-realm");
         realm.getPrincipals().add(principal);
         role.getRealms().add(realm);
-        
+
         securityConfig.getRoleMappings().add(role);
 
         URL url = Thread.currentThread().getContextClassLoader().getResource("deployables/war3/");

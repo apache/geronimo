@@ -17,9 +17,8 @@
 
 package org.apache.geronimo.jetty.deployment;
 
-import java.io.InputStream;
 import java.io.IOException;
-
+import java.io.InputStream;
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.spi.DConfigBean;
@@ -33,12 +32,10 @@ import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
 
 /**
- *
- *
  * @version $Rev$ $Date$
  */
 public class WebAppDConfigRoot extends DConfigBeanRootSupport {
-    static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[] {
+    static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[]{
         XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.j2ee.String.class.getClassLoader()),
         XmlBeans.typeLoaderForClassLoader(JettyWebAppDocument.class.getClassLoader())
     });
@@ -61,7 +58,7 @@ public class WebAppDConfigRoot extends DConfigBeanRootSupport {
     }
 
     JettyWebAppDocument getWebAppDocument() {
-        return (JettyWebAppDocument)getXmlObject();
+        return (JettyWebAppDocument) getXmlObject();
     }
 
     public String[] getXpaths() {

@@ -16,12 +16,12 @@
  */
 package org.apache.geronimo.jetty;
 
+import java.io.IOException;
+import javax.security.jacc.PolicyContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.UnavailableException;
-import javax.security.jacc.PolicyContext;
-import java.io.IOException;
 
 import org.mortbay.jetty.servlet.ServletHandler;
 import org.mortbay.jetty.servlet.ServletHolder;
@@ -32,11 +32,11 @@ import org.mortbay.jetty.servlet.ServletHttpRequest;
  * This ServletHolder's sole purpose is to provide the thread's current
  * ServletHolder for realms that are interested in the current servlet, e.g.
  * current servlet name.
- * @see org.apache.geronimo.jetty.JAASJettyRealm#isUserInRole(java.security.Principal, java.lang.String)
+ *
  * @version $Rev$ $Date$
+ * @see org.apache.geronimo.jetty.JAASJettyRealm#isUserInRole(java.security.Principal, java.lang.String)
  */
 public class JettyServletHolder extends ServletHolder {
-
     private static final ThreadLocal currentServletHolder = new ThreadLocal();
 
     public JettyServletHolder() {
@@ -48,17 +48,12 @@ public class JettyServletHolder extends ServletHolder {
     }
 
     public JettyServletHolder(ServletHandler handler, String name, String className, String forcedPath) {
-        super(handler,name, className, forcedPath);
+        super(handler, name, className, forcedPath);
     }
 
     /**
      * Service a request with this servlet.  Set the ThreadLocal to hold the
      * current JettyServletHolder.
-     * @param request
-     * @param response
-     * @throws ServletException
-     * @throws UnavailableException
-     * @throws IOException
      */
     public void handle(ServletRequest request, ServletResponse response)
             throws ServletException, UnavailableException, IOException {
@@ -66,11 +61,12 @@ public class JettyServletHolder extends ServletHolder {
         currentServletHolder.set(this);
         PolicyContext.setHandlerData(ServletHttpRequest.unwrap(request));
 
-        super.handle(request, response);       
+        super.handle(request, response);
     }
 
     /**
      * Provide the thread's current JettyServletHolder
+     *
      * @return the thread's current JettyServletHolder
      * @see org.apache.geronimo.jetty.JAASJettyRealm#isUserInRole(java.security.Principal, java.lang.String)
      */
