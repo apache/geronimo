@@ -66,6 +66,7 @@
       <item name="Security"                 href="/modules/security/index.html"/>
       <item name="Spring"                   href="/modules/spring/index.html"/>
       <item name="System"                   href="/modules/system/index.html"/>
+      <item name="Tomcat"                   href="/modules/tomcat/index.html"/>
       <item name="Transaction"              href="/modules/transaction/index.html"/>
     </menu>
 
