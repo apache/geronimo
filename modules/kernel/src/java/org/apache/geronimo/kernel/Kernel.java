@@ -73,6 +73,7 @@ import javax.management.ReflectionException;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.net.URL;
 import java.util.Hashtable;
@@ -87,6 +88,7 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+
 
 /**
  * The core of a Geronimo instance.
@@ -105,7 +107,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.13 $ $Date: 2004/02/04 05:42:57 $
+ * @version $Revision: 1.14 $ $Date: 2004/02/05 00:41:30 $
  */
 public class Kernel implements Serializable, KernelMBean, NotificationBroadcaster {
 
@@ -151,7 +153,22 @@ public class Kernel implements Serializable, KernelMBean, NotificationBroadcaste
         this.storeInfo = storeInfo;
         this.configStore = configStore;
 
-        kernels.put(kernelName, this);
+        kernels.put(kernelName, new WeakReference(this));
+    }
+
+    /**
+     * Construct a Kernel using the specified JMX domain and supply the
+     * information needed to create the ConfigurationStore.
+     * @param domainName the domain name to be used for the JMX MBeanServer
+     * @param storeInfo the info for the GBeanMBean to be used for the ConfigurationStore
+     * @param configStore a local directory to be used by the ConfigurationStore;
+     *                    this must be present and writable when the kernel is booted
+     */
+    public Kernel(String domainName, GBeanInfo storeInfo, File configStore) {
+        this.kernelName = null;
+        this.domainName = domainName;
+        this.storeInfo = storeInfo;
+        this.configStore = configStore;
     }
 
     /**
@@ -161,6 +178,14 @@ public class Kernel implements Serializable, KernelMBean, NotificationBroadcaste
      */
     public Kernel(String kernelName, String domainName) {
         this(kernelName, domainName, null, null);
+    }
+
+    /**
+     * Construct a Kernel which does not have a config store.
+     * @param domainName the domain name to be used for the JMX MBeanServer
+     */
+    public Kernel(String domainName) {
+        this(domainName, null, null);
     }
 
     /**
@@ -185,7 +210,15 @@ public class Kernel implements Serializable, KernelMBean, NotificationBroadcaste
      * @return the kernel that was registered with that name
      */
     public static Kernel getKernel(String name) {
-        return (Kernel) kernels.get(name);
+        WeakReference reference = (WeakReference) kernels.get(name);
+
+        if (reference == null) return null;
+
+        Kernel result = (Kernel) reference.get();
+        if (result == null) {
+            kernels.remove(name);
+        }
+        return result;
     }
 
     /**
@@ -200,7 +233,12 @@ public class Kernel implements Serializable, KernelMBean, NotificationBroadcaste
         int size = kernels.size();
         if (size > 1) throw new IllegalStateException("More than one kernel has been registered.");
         if (size < 1) return null;
-        return (Kernel) kernels.values().iterator().next();
+
+        Kernel result = (Kernel) ((WeakReference) kernels.values().iterator().next()).get();
+        if (result == null) {
+            kernels.clear();
+        }
+        return result;
     }
 
     public static ObjectName getConfigObjectName(URI configID) throws MalformedObjectNameException {
@@ -213,7 +251,7 @@ public class Kernel implements Serializable, KernelMBean, NotificationBroadcaste
      * @throws java.io.IOException if the CAR could not be read
      * @throws org.apache.geronimo.kernel.config.InvalidConfigException if there is a configuration problem with the CAR
      */
-    public void install(URL source) throws  IOException, InvalidConfigException {
+    public void install(URL source) throws IOException, InvalidConfigException {
         if (store == null) {
             throw new UnsupportedOperationException("Kernel does not have a ConfigurationStore");
         }
