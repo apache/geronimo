@@ -92,4 +92,6 @@ public interface ConfigurationStore {
      * @return a List<URI> of configurations in the store
      */
     List listConfiguations();
+
+    File createNewConfigurationDir();
 }

@@ -138,15 +138,15 @@ public class Bootstrap {
             // write the deployer system out to a jar
 
             // create a temp directory to build into
-            File tempDir = null;
+            File configurationDir = null;
             try {
-                tempDir = DeploymentUtil.createTempDir();
+                configurationDir = configStore.createNewConfigurationDir();
 
-                // build the deployer-system configuration into the tempDir
-                builder.buildConfiguration(deployerSystemConfig, null, tempDir);
+                // build the deployer-system configuration into the configurationDir
+                builder.buildConfiguration(deployerSystemConfig, null, configurationDir);
 
                 // Write the manifest
-                File metaInf = new File(tempDir, "META-INF");
+                File metaInf = new File(configurationDir, "META-INF");
                 metaInf.mkdirs();
                 FileOutputStream out = null;
                 try {
@@ -161,28 +161,40 @@ public class Bootstrap {
                 startupJarTag.createNewFile();
 
                 // jar up the directory
-                DeploymentUtil.jarDirectory(tempDir,  new File(deployerJar));
+                DeploymentUtil.jarDirectory(configurationDir,  new File(deployerJar));
 
                 // delete the startup file before moving this to the config store
                 startupJarTag.delete();
 
                 // install the configuration
-                configStore.install(tempDir);
-            } finally {
-                DeploymentUtil.recursiveDelete(tempDir);
+                configStore.install(configurationDir);
+            } catch(Throwable e) {
+                DeploymentUtil.recursiveDelete(configurationDir);
+                if (e instanceof Error) {
+                    throw (Error)e;
+                } else if (e instanceof Exception) {
+                    throw (Exception)e;
+                }
+                throw new Error(e);
             }
 
             // build and install the j2ee-deployer configuration
             try {
-                tempDir = DeploymentUtil.createTempDir();
+                configurationDir = configStore.createNewConfigurationDir();
 
-                // build the j2ee-deployer configuration into the tempDir
-                builder.buildConfiguration(j2eeDeployerConfig, null, tempDir);
+                // build the j2ee-deployer configuration into the configurationDir
+                builder.buildConfiguration(j2eeDeployerConfig, null, configurationDir);
 
                 // install the configuration
-                configStore.install(tempDir);
-            } finally {
-                DeploymentUtil.recursiveDelete(tempDir);
+                configStore.install(configurationDir);
+            } catch(Throwable e) {
+                DeploymentUtil.recursiveDelete(configurationDir);
+                if (e instanceof Error) {
+                    throw (Error)e;
+                } else if (e instanceof Exception) {
+                    throw (Exception)e;
+                }
+                throw new Error(e);
             }
         } finally {
             Thread.currentThread().setContextClassLoader(oldCL);

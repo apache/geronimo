@@ -302,7 +302,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         File appClientConfiguration = null;
         try {
             try {
-                appClientConfiguration = DeploymentUtil.createTempDir();
+                appClientConfiguration = store.createNewConfigurationDir();
 
                 // construct the app client deployment context... this is the same class used by the ear context
                 try {
@@ -472,14 +472,17 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             } catch (Exception e) {
                 throw new DeploymentException(e);
             }
-        } catch (DeploymentException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new DeploymentException(e);
-        } finally {
+        } catch(Throwable e) {
             DeploymentUtil.recursiveDelete(appClientConfiguration);
+            if (e instanceof Error) {
+                throw (Error)e;
+            } else if (e instanceof DeploymentException) {
+                throw (DeploymentException)e;
+            } else if (e instanceof Exception) {
+                throw new DeploymentException(e);
+            }
+            throw new Error(e);
         }
-
     }
 
     private ReadOnlyContext buildComponentContext(EARContext earContext, AppClientModule appClientModule, ApplicationClientType appClient, GerApplicationClientType geronimoAppClient, ClassLoader cl) throws DeploymentException {

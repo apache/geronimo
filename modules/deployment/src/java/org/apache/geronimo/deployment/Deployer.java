@@ -112,7 +112,7 @@ public class Deployer {
             }
         }
 
-        File tempDir = null;
+        File configurationDir = null;
         try {
             Object plan = null;
             ConfigurationBuilder builder = null;
@@ -128,15 +128,11 @@ public class Deployer {
                 throw new DeploymentException("No deployer found for this plan type: " + planFile);
             }
 
-            // create a temp dir to write the configuration during the building proces
-            try {
-                tempDir = DeploymentUtil.createTempDir();
-            } catch (IOException e) {
-                throw new DeploymentException("Unable to create temp file for deployment", e);
-            }
+            // create a configuration dir to write the configuration during the building proces
+            configurationDir = store.createNewConfigurationDir();
 
             // create te meta-inf dir
-            File metaInf = new File(tempDir, "META-INF");
+            File metaInf = new File(configurationDir, "META-INF");
             metaInf.mkdirs();
 
             // create the manifest
@@ -161,7 +157,7 @@ public class Deployer {
 
 
             // this is a bit weird and should be rethougth but it works
-            List childURIs = builder.buildConfiguration(plan, module, tempDir);
+            List childURIs = builder.buildConfiguration(plan, module, configurationDir);
 
             try {
                 if (targetFile != null) {
@@ -172,13 +168,13 @@ public class Deployer {
                     }
 
                     // jar up the directory
-                    DeploymentUtil.jarDirectory(tempDir,  targetFile);
+                    DeploymentUtil.jarDirectory(configurationDir,  targetFile);
 
                     // remove the startup tag file so it doesn't accidently leak into a normal classloader
                     startupJarTag.delete();
                 }
                 if (install) {
-                    URI uri = store.install(tempDir);
+                    URI uri = store.install(configurationDir);
                     List deployedURIs = new ArrayList(childURIs.size() + 1);
                     deployedURIs.add(uri.toString());
                     deployedURIs.addAll(childURIs);
@@ -189,18 +185,21 @@ public class Deployer {
                 // unlikely as we just built this
                 throw new DeploymentException(e);
             }
-        } catch (DeploymentException e) {
+        } catch(Throwable e) {
+            DeploymentUtil.recursiveDelete(configurationDir);
             if (targetFile != null) {
                 targetFile.delete();
             }
-            throw e;
-        } catch (Exception e) {
-            if (targetFile != null) {
-                targetFile.delete();
+
+            if (e instanceof Error) {
+                throw (Error)e;
+            } else if (e instanceof DeploymentException) {
+                throw (DeploymentException)e;
+            } else if (e instanceof Exception) {
+                throw new DeploymentException(e);
             }
-            throw new DeploymentException(e);
+            throw new Error(e);
         } finally {
-            DeploymentUtil.recursiveDelete(tempDir);
             DeploymentUtil.close(module);
         }
     }

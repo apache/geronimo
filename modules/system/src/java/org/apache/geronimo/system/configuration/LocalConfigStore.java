@@ -136,7 +136,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         }
     }
 
-    private File createConfigurationDir() {
+    public File createNewConfigurationDir() {
         // loop until we find a directory that doesn't alredy exist
         // this can happen when a deployment fails (leaving an bad directory)
         // and the server reboots without saving out the index.propreties file
@@ -154,7 +154,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
     }
 
     public URI install(URL source) throws IOException, InvalidConfigException {
-        File configurationDir = createConfigurationDir();
+        File configurationDir = createNewConfigurationDir();
 
         InputStream is = source.openStream();
         try {
@@ -186,23 +186,18 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
 
     public URI install(File source) throws IOException, InvalidConfigException {
         if (!source.isDirectory()) {
-            throw new InvalidConfigException("Source must be a directory");
+            throw new InvalidConfigException("Source must be a directory: source=" + source);
         }
-
-        File configurationDir = createConfigurationDir();
-        if (!source.renameTo(configurationDir)) {
-            throw new IOException("Could not move source directory into config store:" +
-                    " source=" + source.getAbsolutePath() + ", destination=" + configurationDir.getAbsolutePath());
+        if (!source.getParentFile().equals(rootDir)) {
+            throw new InvalidConfigException("Source must be within the config store: source=" + source + ", configStoreDir=" + rootDir);
         }
 
         URI configId;
         try {
-            GBeanMBean config = loadConfig(configurationDir);
+            GBeanMBean config = loadConfig(source);
             configId = (URI) config.getAttribute("ID");
-            index.setProperty(configId.toString(), configurationDir.getName());
+            index.setProperty(configId.toString(), source.getName());
         } catch (Exception e) {
-            // try to put the file back
-            configurationDir.renameTo(source);
             throw new InvalidConfigException("Unable to get ID from downloaded configuration", e);
         }
 
@@ -210,7 +205,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
             saveIndex();
         }
 
-        log.info("Installed configuration " + configId + " in location " + configurationDir.getName());
+        log.info("Installed configuration " + configId + " in location " + source.getName());
         return configId;
     }
 
