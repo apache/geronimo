@@ -92,6 +92,8 @@ public class DeploymentFactoryImpl implements DeploymentFactory {
                     return manager;
                 } catch (IOException e) {
                     throw (DeploymentManagerCreationException)new DeploymentManagerCreationException(e.getMessage()).initCause(e);
+                } catch (SecurityException e) {
+                    throw new AuthenticationFailedException("Invalid login.");
                 }
             } else {
                 throw new DeploymentManagerCreationException("Invalid URI: " + uri);
