@@ -56,7 +56,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/03/01 20:50:07 $
+ * @version $Revision: 1.7 $ $Date: 2004/03/09 18:02:02 $
  *
  * */
 public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
@@ -66,10 +66,8 @@ public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
 
     public final static String BASE_RESOURCE_ADAPTER_NAME = "geronimo.management:J2eeType=ResourceAdapter,name=";
     protected final static String BASE_CONNECTION_MANAGER_FACTORY_NAME = "geronimo.management:J2eeType=ConnectionManager,name=";
-    protected static final String BASE_MANAGED_CONNECTION_FACTORY_NAME = "geronimo.management:J2eeType=ManagedConnectionFactory,name=";
     protected static final String BASE_REALM_BRIDGE_NAME = "geronimo.security:service=RealmBridge,name=";
     private static final String BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME = "geronimo.security:service=Realm,type=PasswordCredential,name=";
-    protected static final String BASE_ADMIN_OBJECT_NAME = "geronimo.management:service=AdminObject,name=";
 
     protected final Repository repository;
     protected final Kernel kernel;

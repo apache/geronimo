@@ -41,7 +41,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/25 09:57:13 $
+ * @version $Revision: 1.5 $ $Date: 2004/03/09 18:02:03 $
  *
  * */
 public class ConnectionManagerTest extends TestCase implements DefaultInterceptor, RealmBridge {
@@ -83,10 +83,9 @@ public class ConnectionManagerTest extends TestCase implements DefaultIntercepto
                 useTransactions,
                 maxSize,
                 blockingTimeout,
-                name,
+                //name,
                 realmBridge,
-                connectionTrackingCoordinator,
-                kernel);
+                connectionTrackingCoordinator);
         connectionManagerDeployment.doStart();
         connectionFactory = (MockConnectionFactory) connectionManagerDeployment.createConnectionFactory(mockManagedConnectionFactory);
         defaultComponentContext = new DefaultComponentContext();

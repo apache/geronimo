@@ -17,11 +17,13 @@
 
 package org.apache.geronimo.connector.outbound;
 
-import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnectionFactory;
+import javax.resource.spi.ConnectionManager;
+import javax.resource.spi.LazyAssociatableConnectionManager;
+import javax.resource.spi.ConnectionRequestInfo;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
 import org.apache.geronimo.gbean.GAttributeInfo;
@@ -30,8 +32,8 @@ import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
+import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.kernel.KernelMBean;
 import org.apache.geronimo.security.bridge.RealmBridge;
 
@@ -40,20 +42,11 @@ import org.apache.geronimo.security.bridge.RealmBridge;
  * and connection manager stack according to the policies described in the attributes.
  * It's used by deserialized copies of the proxy to get a reference to the actual stack.
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/25 09:57:10 $
+ * @version $Revision: 1.5 $ $Date: 2004/03/09 18:02:03 $
  * */
-public class ConnectionManagerDeployment implements ConnectionManagerFactory, GBean {
+public class ConnectionManagerDeployment implements ConnectionManagerFactory, GBean, ConnectionManager, LazyAssociatableConnectionManager {
 
     public static final GBeanInfo GBEAN_INFO;
-
-    private final static String MBEAN_SERVER_DELEGATE =
-            "JMImplementation:type=MBeanServerDelegate";
-
-    /**
-     * The original Serializable ProxyConnectionManager that provides the
-     * ConnectionManager implementation.
-     */
-    private ProxyConnectionManager cm;
 
     //connection manager configuration choices
     private boolean useConnectionRequestInfo;
@@ -70,23 +63,22 @@ public class ConnectionManagerDeployment implements ConnectionManagerFactory, GB
     //dependencies
     private RealmBridge realmBridge;
     private ConnectionTracker connectionTracker;
-    private KernelMBean kernel;
+
+    private ConnectionInterceptor stack;
 
     //default constructor for use as endpoint
     public ConnectionManagerDeployment() {
     }
 
     public ConnectionManagerDeployment(boolean useConnectionRequestInfo,
-            boolean useSubject,
-            boolean useTransactionCaching,
-            boolean useLocalTransactions,
-            boolean useTransactions,
-            int maxSize,
-            int blockingTimeout,
-            String name,
-            RealmBridge realmBridge,
-            ConnectionTracker connectionTracker,
-            KernelMBean kernel) {
+                                       boolean useSubject,
+                                       boolean useTransactionCaching,
+                                       boolean useLocalTransactions,
+                                       boolean useTransactions,
+                                       int maxSize,
+                                       int blockingTimeout,
+                                       RealmBridge realmBridge,
+                                       ConnectionTracker connectionTracker) {
         this.useConnectionRequestInfo = useConnectionRequestInfo;
         this.useLocalTransactions = useLocalTransactions;
         this.useSubject = useSubject;
@@ -95,37 +87,14 @@ public class ConnectionManagerDeployment implements ConnectionManagerFactory, GB
         this.maxSize = maxSize;
         this.blockingTimeout = blockingTimeout;
         this.realmBridge = realmBridge;
-        this.name = name;
         this.connectionTracker = connectionTracker;
-        this.kernel = kernel;
     }
 
     public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() {
-        MBeanServer mbeanServer = null;
-        if (kernel != null) {
-            mbeanServer = kernel.getMBeanServer();
-        } else {
-            throw new IllegalStateException("Neither kernel nor context is set, but you're trying to start");
-        }
-
-        String agentID;
-        try {
-            ObjectName name = ObjectName.getInstance(MBEAN_SERVER_DELEGATE);
-            agentID = (String) mbeanServer.getAttribute(name, "MBeanServerId");
-        } catch (Exception e) {
-            throw new RuntimeException("Problem getting agentID from MBeanServerDelegate", e);
-        }
-
-        ObjectName connectionManagerName = null;
-        try {
-            connectionManagerName = ObjectName.getInstance("geronimo.management:j2eeType=ConnectionManager,name=" + name);
-        } catch (MalformedObjectNameException e) {
-            throw new RuntimeException("could not construct an object name for ConnectionManagerDeployment mbean", e);
-        }
-        setUpConnectionManager(agentID, connectionManagerName);
+        setUpConnectionManager();
 
     }
 
@@ -141,7 +110,7 @@ public class ConnectionManagerDeployment implements ConnectionManagerFactory, GB
      * LocalXAResourceInsertionInterceptor or XAResourceInsertionInterceptor (useTransactions (&localTransactions))
      * MCFConnectionInterceptor
      */
-    private void setUpConnectionManager(String agentID, ObjectName connectionManagerName) {
+    private void setUpConnectionManager() {
         //check for consistency between attributes
         if (realmBridge == null) {
             assert useSubject == false: "To use Subject in pooling, you need a SecurityDomain";
@@ -188,26 +157,21 @@ public class ConnectionManagerDeployment implements ConnectionManagerFactory, GB
                     connectionTracker,
                     realmBridge);
         }
-
-        cm = new ProxyConnectionManager(agentID, connectionManagerName, stack);
+        this.stack = stack;
     }
 
     public void doStop() {
-        cm = null;
         realmBridge = null;
         connectionTracker = null;
+        stack = null;
     }
 
     public void doFail() {
     }
 
-    public ConnectionInterceptor getStack() {
-        return cm.getStack();
-    }
-
 
     public Object createConnectionFactory(ManagedConnectionFactory mcf) throws ResourceException {
-        return mcf.createConnectionFactory(cm);
+        return mcf.createConnectionFactory(this);
     }
 
     public int getBlockingTimeout() {
@@ -293,12 +257,46 @@ public class ConnectionManagerDeployment implements ConnectionManagerFactory, GB
         this.useTransactionCaching = useTransactionCaching;
     }
 
-    public KernelMBean getKernel() {
-        return kernel;
+    /**
+     * in: mcf != null, is a deployed mcf
+     * out: useable connection object.
+     * @param managedConnectionFactory
+     * @param connectionRequestInfo
+     * @return
+     * @throws ResourceException
+     */
+    public Object allocateConnection(
+            ManagedConnectionFactory managedConnectionFactory,
+            ConnectionRequestInfo connectionRequestInfo)
+            throws ResourceException {
+        ManagedConnectionInfo mci = new ManagedConnectionInfo(managedConnectionFactory, connectionRequestInfo);
+        ConnectionInfo ci = new ConnectionInfo(mci);
+        stack.getConnection(ci);
+        return ci.getConnectionHandle();
     }
 
-    public void setKernel(KernelMBean kernel) {
-        this.kernel = kernel;
+    /**
+     * in: non-null connection object, from non-null mcf.
+     * connection object is not associated with a managed connection
+     * out: supplied connection object is assiciated with a non-null ManagedConnection from mcf.
+     * @param connection
+     * @param managedConnectionFactory
+     * @param connectionRequestInfo
+     * @throws ResourceException
+     */
+    public void associateConnection(
+            Object connection,
+            ManagedConnectionFactory managedConnectionFactory,
+            ConnectionRequestInfo connectionRequestInfo)
+            throws ResourceException {
+        ManagedConnectionInfo mci = new ManagedConnectionInfo(managedConnectionFactory, connectionRequestInfo);
+        ConnectionInfo ci = new ConnectionInfo(mci);
+        ci.setConnectionHandle(connection);
+        stack.getConnection(ci);
+    }
+
+    ConnectionInterceptor getStack() {
+        return stack;
     }
 
     static {
@@ -313,18 +311,16 @@ public class ConnectionManagerDeployment implements ConnectionManagerFactory, GB
         infoFactory.addAttribute(new GAttributeInfo("UseConnectionRequestInfo", true));
         infoFactory.addAttribute(new GAttributeInfo("UseSubject", true));
 
-        infoFactory.addOperation(new GOperationInfo("getStack"));
         infoFactory.addOperation(new GOperationInfo("createConnectionFactory", new String[]{ManagedConnectionFactory.class.getName()}));
 
         infoFactory.addReference(new GReferenceInfo("ConnectionTracker", ConnectionTracker.class.getName()));
         infoFactory.addReference(new GReferenceInfo("RealmBridge", RealmBridge.class.getName()));
-        infoFactory.addReference(new GReferenceInfo("Kernel", KernelMBean.class.getName()));
 
         infoFactory.setConstructor(new GConstructorInfo(
                 new String[]{"UseConnectionRequestInfo", "UseSubject", "UseTransactionCaching", "UseLocalTransactions", "UseTransactions",
-                             "MaxSize", "BlockingTimeout", "Name", "RealmBridge", "ConnectionTracker", "Kernel"},
+                             "MaxSize", "BlockingTimeout", "RealmBridge", "ConnectionTracker"},
                 new Class[]{Boolean.TYPE, Boolean.TYPE, Boolean.TYPE, Boolean.TYPE, Boolean.TYPE,
-                            Integer.TYPE, Integer.TYPE, String.class, RealmBridge.class, ConnectionTracker.class, KernelMBean.class}));
+                            Integer.TYPE, Integer.TYPE, RealmBridge.class, ConnectionTracker.class}));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

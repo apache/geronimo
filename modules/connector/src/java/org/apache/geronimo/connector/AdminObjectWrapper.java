@@ -17,16 +17,14 @@
 
 package org.apache.geronimo.connector;
 
+import org.apache.geronimo.gbean.DynamicGBeanDelegate;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.DynamicGBeanDelegate;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:57:09 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/09 18:02:02 $
  *
  * */
 public class AdminObjectWrapper {
@@ -37,34 +35,47 @@ public class AdminObjectWrapper {
 
     private final DynamicGBeanDelegate delegate;
     private final Object adminObject;
+    private final String name;
 
     //for use as endpoint
     public AdminObjectWrapper() {
         adminObjectClass = null;
         adminObject = null;
         delegate = null;
+        name = null;
     }
 
-    public AdminObjectWrapper(Class adminObjectClass) throws IllegalAccessException, InstantiationException {
+    public AdminObjectWrapper(Class adminObjectClass, String name) throws IllegalAccessException, InstantiationException {
         this.adminObjectClass = adminObjectClass;
         adminObject = adminObjectClass.newInstance();
         delegate = new DynamicGBeanDelegate();
         delegate.addAll(adminObject);
+        this.name = name;
     }
 
     public Class getAdminObjectClass() {
         return adminObjectClass;
     }
 
+    public Object getProxy() {
+        return adminObject;
+    }
+
+    public Object getId() {
+        return name;
+    }
+
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(AdminObjectWrapper.class.getName());
-        infoFactory.addAttribute(new GAttributeInfo("AdminObjectClass", true));
-        infoFactory.setConstructor(new GConstructorInfo(new String[] {"AdminObjectClass"},
-                new Class[] {Class.class}));
+        infoFactory.addAttribute("AdminObjectClass", true);
+        infoFactory.addAttribute("Name", true);
+        infoFactory.setConstructor(new String[] {"AdminObjectClass", "Name"},
+                new Class[] {Class.class, String.class});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
+
 }

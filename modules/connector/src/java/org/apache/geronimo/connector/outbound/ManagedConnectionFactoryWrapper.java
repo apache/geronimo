@@ -19,28 +19,30 @@ package org.apache.geronimo.connector.outbound;
 
 import javax.naming.NamingException;
 import javax.resource.spi.ManagedConnectionFactory;
+import javax.management.ObjectName;
 
+import net.sf.cglib.proxy.Callback;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.MethodInterceptor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
 import org.apache.geronimo.connector.outbound.security.ManagedConnectionFactoryListener;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
-import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.naming.geronimo.GeronimoContextManager;
+import org.apache.geronimo.kernel.KernelMBean;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/25 09:57:10 $
+ * @version $Revision: 1.5 $ $Date: 2004/03/09 18:02:03 $
  *
  * */
 public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
@@ -69,6 +71,10 @@ public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
 
 
     private boolean registered = false;
+    private Object proxy;
+    private CFMethodInterceptor interceptor;
+    private KernelMBean kernel;
+    private ObjectName selfName;
 
     //default constructor for enhancement proxy endpoint
     public ManagedConnectionFactoryWrapper() {
@@ -88,7 +94,9 @@ public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
             String globalJNDIName,
             ResourceAdapterWrapper resourceAdapterWrapper,
             ConnectionManagerFactory connectionManagerFactory,
-            ManagedConnectionFactoryListener managedConnectionFactoryListener) throws InstantiationException, IllegalAccessException {
+            ManagedConnectionFactoryListener managedConnectionFactoryListener,
+            KernelMBean kernel,
+            ObjectName selfName) throws InstantiationException, IllegalAccessException {
         this.managedConnectionFactoryClass = managedConnectionFactoryClass;
         this.connectionFactoryInterface = connectionFactoryInterface;
         this.connectionFactoryImplClass = connectionFactoryImplClass;
@@ -104,6 +112,8 @@ public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
         delegate = new DynamicGBeanDelegate();
         delegate.addAll(managedConnectionFactory);
         this.managedConnectionFactoryListener = managedConnectionFactoryListener;
+        this.kernel = kernel;
+        this.selfName = selfName;
     }
 
     public Class getManagedConnectionFactoryClass() {
@@ -130,11 +140,11 @@ public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
         return globalJNDIName;
     }
 
-
+    /*
     public Object getConnectionFactory() {
         return connectionFactory;
     }
-
+     */
 
     public ResourceAdapterWrapper getResourceAdapterWrapper() {
         return resourceAdapterWrapper;
@@ -169,15 +179,27 @@ public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
 
         //create a new ConnectionFactory
         connectionFactory = connectionManagerFactory.createConnectionFactory(managedConnectionFactory);
+        //build a proxy that can be turned off
+        if (proxy == null) {
+            Enhancer enhancer = new Enhancer();
+            enhancer.setSuperclass(connectionFactoryInterface);
+            enhancer.setCallbackType(MethodInterceptor.class);
+            enhancer.setUseFactory(false);//????
+            interceptor = new CFMethodInterceptor(kernel.getKernelName(), selfName);
+            enhancer.setCallbacks(new Callback[] {interceptor});
+            proxy = enhancer.create(new Class[0], new Object[0]);
+        }
+        interceptor.setConnectionFactory(connectionFactory);
         //If a globalJNDIName is supplied, bind it.
         if (globalJNDIName != null) {
-            GeronimoContextManager.bind(globalJNDIName, connectionFactory);
+            GeronimoContextManager.bind(globalJNDIName, proxy);
             log.debug("Bound connection factory into global 'ger:' context at " + globalJNDIName);
         }
 
     }
 
     public void doStop() throws WaitingException {
+        interceptor.setConnectionFactory(null);
         //tear down login if present
         if (managedConnectionFactoryListener != null) {
             managedConnectionFactoryListener.setManagedConnectionFactory(null);
@@ -209,28 +231,38 @@ public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
         return null;
     }
 
+    public Object getProxy() {
+        return proxy;
+    }
+
+    public Object getMethodInterceptor() {
+        return interceptor;
+    }
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ManagedConnectionFactoryWrapper.class.getName());
 
-        infoFactory.addAttribute(new GAttributeInfo("ManagedConnectionFactoryClass", true));
-        infoFactory.addAttribute(new GAttributeInfo("ConnectionFactoryInterface", true));
-        infoFactory.addAttribute(new GAttributeInfo("ConnectionFactoryImplClass", true));
-        infoFactory.addAttribute(new GAttributeInfo("ConnectionInterface", true));
-        infoFactory.addAttribute(new GAttributeInfo("ConnectionImplClass", true));
+        infoFactory.addAttribute("ManagedConnectionFactoryClass", true);
+        infoFactory.addAttribute("ConnectionFactoryInterface", true);
+        infoFactory.addAttribute("ConnectionFactoryImplClass", true);
+        infoFactory.addAttribute("ConnectionInterface", true);
+        infoFactory.addAttribute("ConnectionImplClass", true);
+        infoFactory.addAttribute("SelfName", true);
 
-        infoFactory.addAttribute(new GAttributeInfo("GlobalJNDIName", true));
+        infoFactory.addAttribute("GlobalJNDIName", true);
 
-        infoFactory.addOperation(new GOperationInfo("getConnectionFactory"));
+        infoFactory.addOperation("getProxy");
+        infoFactory.addOperation("getMethodInterceptor");
 
-        infoFactory.addReference(new GReferenceInfo("ResourceAdapterWrapper", ResourceAdapterWrapper.class.getName()));
-        infoFactory.addReference(new GReferenceInfo("ConnectionManagerFactory", ConnectionManagerFactory.class.getName()));
-        infoFactory.addReference(new GReferenceInfo("ManagedConnectionFactoryListener", ManagedConnectionFactoryListener.class.getName()));
+        infoFactory.addReference("ResourceAdapterWrapper", ResourceAdapterWrapper.class);
+        infoFactory.addReference("ConnectionManagerFactory", ConnectionManagerFactory.class);
+        infoFactory.addReference("ManagedConnectionFactoryListener", ManagedConnectionFactoryListener.class);
+        infoFactory.addReference("Kernel", KernelMBean.class);
         infoFactory.setConstructor(new GConstructorInfo(
                 new String[]{"ManagedConnectionFactoryClass", "ConnectionFactoryInterface", "ConnectionFactoryImplClass", "ConnectionInterface", "ConnectionImplClass",
-                             "GlobalJNDIName", "ResourceAdapterWrapper", "ConnectionManagerFactory", "ManagedConnectionFactoryListener"},
+                             "GlobalJNDIName", "ResourceAdapterWrapper", "ConnectionManagerFactory", "ManagedConnectionFactoryListener", "Kernel", "SelfName"},
                 new Class[]{Class.class, Class.class, Class.class, Class.class, Class.class,
-                            String.class, ResourceAdapterWrapper.class, ConnectionManagerFactory.class, ManagedConnectionFactoryListener.class}));
+                            String.class, ResourceAdapterWrapper.class, ConnectionManagerFactory.class, ManagedConnectionFactoryListener.class, KernelMBean.class, ObjectName.class}));
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

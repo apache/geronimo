@@ -23,10 +23,12 @@ import javax.resource.spi.ManagedConnectionFactory;
 /**
  * ConnectionManagerFactory
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:57:10 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/09 18:02:03 $
  */
 public interface ConnectionManagerFactory {
 
     Object createConnectionFactory(ManagedConnectionFactory mcf) throws ResourceException;
+
+    String getName();
 
 }
