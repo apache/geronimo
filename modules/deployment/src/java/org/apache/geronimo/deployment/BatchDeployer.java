@@ -90,7 +90,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/16 03:48:42 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/16 23:02:02 $
  */
 public class BatchDeployer implements ConfigurationCallback {
     private final URI configRoot;
@@ -240,6 +240,14 @@ public class BatchDeployer implements ConfigurationCallback {
 
     public void addGBean(ObjectName name, GBeanMBean gbean) {
         gbeans.put(name, gbean);
+    }
+
+    public LinkedHashSet getClassPath() {
+        return classPath;
+    }
+
+    public GBeanMBean getConfiguration() {
+        return config;
     }
 
     public void saveConfiguration(JarOutputStream jos) throws IOException {
