@@ -78,7 +78,7 @@
 
     <gbean class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator" objectName="geronimo.connector:service=ConnectionTrackingCoordinator"/>
 
-    <gbean class="org.apache.geronimo.connector.outbound.ConnectionManagerDeployment" objectName="geronimo.management:j2eeType=ConnectionManager,name=test">
+    <gbean class="org.apache.geronimo.connector.outbound.ConnectionManagerDeployment" objectName="geronimo.server:j2eeType=ConnectionManager,name=test">
         <default attribute="UseConnectionRequestInfo" type="boolean">false</default>
         <default attribute="UseSubject" type="boolean">false</default>
         <default attribute="UseTransactionCaching" type="boolean">true</default>

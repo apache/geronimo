@@ -15,7 +15,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-  
+
 <gbeans>
     <path>geronimo-connector-DEV.jar</path>
     <path>geronimo-spec-j2ee-connector-DEV.jar</path>
@@ -45,7 +45,7 @@
     <gbean class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator" objectName="geronimo.connector:service=ConnectionTrackingCoordinator"/>
 
     <!-- test to see if ConnectionManagerDeployment actually deploys.  Normally set up by deployer. -->
-    <!--gbean class="org.apache.geronimo.connector.outbound.ConnectionManagerDeployment" objectName="geronimo.management:j2eeType=ConnectionManager,name=test">
+    <!--gbean class="org.apache.geronimo.connector.outbound.ConnectionManagerDeployment" objectName="geronimo.server:j2eeType=ConnectionManager,name=test">
         <default attribute="UseConnectionRequestInfo" type="boolean">false</default>
         <default attribute="UseSubject" type="boolean">false</default>
         <default attribute="UseTransactionCaching" type="boolean">true</default>
@@ -64,12 +64,12 @@
             <pattern>geronimo.boot:role=Kernel</pattern>
         </endpoint>
     </gbean-->
-<!--
-    <gbean class="org.apache.geronimo.connector.deployment.ConnectorDeployer" objectName="geronimo.deployment:type=connector">
-        <default attribute="ConnectionTrackerNamePattern" type="javax.management.ObjectName">geronimo.connector:service=ConnectionTrackingCoordinator</default>
-        <endpoint name="ParserFactory">
-            <pattern>geronimo.system:type=ParserFactory</pattern>
-        </endpoint>
-    </gbean>
--->
+    <!--
+        <gbean class="org.apache.geronimo.connector.deployment.ConnectorDeployer" objectName="geronimo.deployment:type=connector">
+            <default attribute="ConnectionTrackerNamePattern" type="javax.management.ObjectName">geronimo.connector:service=ConnectionTrackingCoordinator</default>
+            <endpoint name="ParserFactory">
+                <pattern>geronimo.system:type=ParserFactory</pattern>
+            </endpoint>
+        </gbean>
+    -->
 </gbeans>
