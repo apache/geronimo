@@ -17,8 +17,6 @@
 
 package org.apache.geronimo.transaction.manager;
 
-import java.util.Map;
-
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.InvalidTransactionException;
@@ -28,28 +26,33 @@ import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
-import javax.transaction.xa.Xid;
 import javax.transaction.xa.XAException;
+import javax.transaction.xa.Xid;
 
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.transaction.log.UnrecoverableLog;
 
 /**
- * Simple implementation of a local transaction manager.
+ * Simple implementation of a transaction manager.
+ * TODO timeout functionality
  *
- * @version $Revision: 1.5 $ $Date: 2004/05/06 04:00:51 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/11 19:20:55 $
  */
 public class TransactionManagerImpl implements TransactionManager, XidImporter {
     private final TransactionLog txnLog;
-    private final XidFactory xidFactory = new XidFactoryImpl();
+    private final XidFactory xidFactory;
     private volatile int timeout;
     private final ThreadLocal threadTx = new ThreadLocal();
 
     public TransactionManagerImpl() {
         txnLog = new UnrecoverableLog();
+        xidFactory = new XidFactoryImpl();
     }
 
-    public TransactionManagerImpl(TransactionLog txnLog) {
+    public TransactionManagerImpl(TransactionLog txnLog, XidFactory xidFactory) {
         this.txnLog = txnLog;
+        this.xidFactory = xidFactory;
     }
 
     public Transaction getTransaction() throws SystemException {

@@ -19,6 +19,7 @@ package org.apache.geronimo.transaction.log;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 import javax.transaction.xa.Xid;
 
@@ -31,13 +32,13 @@ import org.apache.geronimo.transaction.manager.XidFactory;
  * Not recommended for production use as heuristic recovery will be needed if
  * the transaction coordinator dies.
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/08 17:33:42 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/11 19:20:55 $
  */
 public class UnrecoverableLog implements TransactionLog {
     public void begin(Xid xid) throws LogException {
     }
 
-    public void prepare(Xid xid, String[] names) throws LogException {
+    public void prepare(Xid xid, List branches) throws LogException {
     }
 
     public void commit(Xid xid) throws LogException {

@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import javax.transaction.SystemException;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
@@ -28,18 +30,23 @@ import javax.transaction.xa.Xid;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/08 20:14:39 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/11 19:20:55 $
  */
-public class MockResourceManager {
+public class MockResourceManager implements ResourceManager {
     private boolean willCommit;
     private Map xids = new HashMap();
+
+    private NamedXAResource resources;
+    private NamedXAResource returnedResources;
 
     public MockResourceManager(boolean willCommit) {
         this.willCommit = willCommit;
     }
 
     public MockResource getResource(String xaResourceName) {
-        return new MockResource(this, xaResourceName);
+        MockResource mockResource =  new MockResource(this, xaResourceName);
+        resources = mockResource;
+        return mockResource;
     }
 
     public void join(Xid xid, XAResource xaRes) throws XAException {
@@ -63,5 +70,17 @@ public class MockResourceManager {
         if (xids.remove(xid) == null) {
             throw new XAException(XAException.XAER_NOTA);
         }
+    }
+
+    public NamedXAResource getRecoveryXAResources() throws SystemException {
+        return resources;
+    }
+
+    public void returnResource(NamedXAResource xaResource) {
+        returnedResources = xaResource;
+    }
+
+    public boolean areAllResourcesReturned() {
+        return returnedResources != null && returnedResources == resources;
     }
 }

@@ -17,31 +17,50 @@
 
 package org.apache.geronimo.transaction;
 
+import java.util.ArrayList;
+
 import javax.transaction.RollbackException;
 import javax.transaction.Status;
 import javax.transaction.Transaction;
 import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.gbean.ReferenceCollection;
+import org.apache.geronimo.gbean.ReferenceCollectionEvent;
+import org.apache.geronimo.gbean.ReferenceCollectionListener;
+import org.apache.geronimo.transaction.manager.MockLog;
 import org.apache.geronimo.transaction.manager.MockResource;
 import org.apache.geronimo.transaction.manager.MockResourceManager;
+import org.apache.geronimo.transaction.manager.Recovery;
+import org.apache.geronimo.transaction.manager.RecoveryImpl;
+import org.apache.geronimo.transaction.manager.TransactionLog;
+import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.transaction.manager.XidFactory;
+import org.apache.geronimo.transaction.manager.XidFactoryImpl;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/08 20:14:39 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/11 19:20:55 $
  *
  * */
 public class TransactionManagerProxyTest extends TestCase {
 
     MockResourceManager rm1 = new MockResourceManager(true);
-    MockResource r1_1 = new MockResource(rm1, "rm1");
-    MockResource r1_2 = new MockResource(rm1, "rm1");
+    MockResource r1_1 = rm1.getResource("rm1_1");
+    MockResource r1_2 = rm1.getResource("rm1_2");
     MockResourceManager rm2 = new MockResourceManager(true);
-    MockResource r2_1 = new MockResource(rm2, "rm2");
-    MockResource r2_2 = new MockResource(rm2, "rm2");
+    MockResource r2_1 = rm2.getResource("rm2_1");
+    MockResource r2_2 = rm2.getResource("rm2_2");
 
-    TransactionManagerProxy tm = new TransactionManagerProxy();
+    TransactionLog transactionLog = new MockLog();
+
+    XidFactory xidFactory = new XidFactoryImpl("tm1".getBytes());
+    TransactionManagerImpl transactionManager = new TransactionManagerImpl(transactionLog, xidFactory);
+    Recovery recovery = new RecoveryImpl(transactionLog, xidFactory);
+    ReferenceCollection resourceManagers = new TestReferenceCollection();
+    TransactionManagerProxy tm = new TransactionManagerProxy(transactionManager, transactionManager, recovery, resourceManagers);
 
     public void testNoResourcesCommit() throws Exception {
         assertEquals(Status.STATUS_NO_TRANSACTION, tm.getStatus());
@@ -89,7 +108,7 @@ public class TransactionManagerProxyTest extends TestCase {
         assertEquals(Status.STATUS_NO_TRANSACTION, tm.getStatus());
     }
 
-    public void testNoResoucesRollback() throws Exception {
+    public void testNoResourcesRollback() throws Exception {
         assertEquals(Status.STATUS_NO_TRANSACTION, tm.getStatus());
         tm.begin();
         assertEquals(Status.STATUS_ACTIVE, tm.getStatus());
@@ -228,6 +247,88 @@ public class TransactionManagerProxyTest extends TestCase {
         assertTrue(!r1_1.isRolledback() & !r1_2.isRolledback());
         assertTrue((r2_1.isCommitted() & r2_1.isPrepared()) ^ (r2_2.isCommitted() & r2_2.isPrepared()));
         assertTrue(!r2_1.isRolledback() & !r2_2.isRolledback());
+    }
+
+    //BE VERY CAREFUL!! the ResourceManager only "recovers" the LAST resource it creates.
+    //This test depends on using the resource that will be recovered by the resource manager.
+    public void testSimpleRecovery() throws Exception {
+        Xid xid = xidFactory.createXid();
+        tm.begin(xid, 1000);
+        Transaction tx = tm.getTransaction();
+        tx.enlistResource(r1_2);
+        tx.enlistResource(r2_2);
+        tx.delistResource(r1_2, XAResource.TMSUCCESS);
+        tx.delistResource(r2_2, XAResource.TMSUCCESS);
+        tm.prepare(xid);
+        //recover
+        resourceManagers.add(rm1);
+        tm.doStart();
+        assertTrue(r1_2.isCommitted());
+        assertTrue(!r2_2.isCommitted());
+        resourceManagers.add(rm2);
+        assertTrue(r2_2.isCommitted());
+        assertTrue(recovery.localRecoveryComplete());
+    }
+
+    public void testImportedXidRecovery() throws Exception {
+        XidFactory xidFactory2 = new XidFactoryImpl("tm2".getBytes());
+        Xid xid = xidFactory2.createXid();
+        tm.begin(xid, 1000);
+        Transaction tx = tm.getTransaction();
+        tx.enlistResource(r1_2);
+        tx.enlistResource(r2_2);
+        tx.delistResource(r1_2, XAResource.TMSUCCESS);
+        tx.delistResource(r2_2, XAResource.TMSUCCESS);
+        tm.prepare(xid);
+        //recover
+        resourceManagers.add(rm1);
+        tm.doStart();
+        assertTrue(!r1_2.isCommitted());
+        assertTrue(!r2_2.isCommitted());
+        resourceManagers.add(rm2);
+        assertTrue(!r2_2.isCommitted());
+        //there are no transactions started here, so local recovery is complete
+        assertTrue(recovery.localRecoveryComplete());
+        Xid[] recovered = tm.recover(XAResource.TMSTARTRSCAN);
+        assertEquals(1, recovered.length);
+        assertEquals(xid, recovered[0]);
+    }
+
+    public void testResourceManagerContract() throws Exception {
+        resourceManagers.add(rm1);
+        tm.doStart();
+        assertTrue(rm1.areAllResourcesReturned());
+    }
+
+
+    private static class TestReferenceCollection extends ArrayList implements ReferenceCollection {
+
+        ReferenceCollectionListener referenceCollectionListener;
+
+        public void addReferenceCollectionListener(ReferenceCollectionListener listener) {
+            this.referenceCollectionListener = listener;
+        }
+
+        public void removeReferenceCollectionListener(ReferenceCollectionListener listener) {
+            this.referenceCollectionListener = null;
+        }
+
+        public boolean add(Object o) {
+            boolean result = super.add(o);
+            if (referenceCollectionListener != null) {
+                referenceCollectionListener.memberAdded(new ReferenceCollectionEvent(null, o));
+            }
+            return result;
+        }
+
+        public boolean remove(Object o) {
+            boolean result = super.remove(o);
+            if (referenceCollectionListener != null) {
+                referenceCollectionListener.memberRemoved(new ReferenceCollectionEvent(null, o));
+            }
+            return result;
+        }
+
     }
 
 

@@ -42,7 +42,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Basic local transaction with support for multiple resources.
  *
- * @version $Revision: 1.6 $ $Date: 2004/06/08 17:33:42 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/11 19:20:55 $
  */
 public class TransactionImpl implements Transaction {
     private static final Log log = LogFactory.getLog("Transaction");
@@ -132,22 +132,22 @@ public class TransactionImpl implements Transaction {
 
         try {
             for (Iterator i = resourceManagers.iterator(); i.hasNext();) {
-                ResourceManager manager = (ResourceManager) i.next();
+                TransactionBranch manager = (TransactionBranch) i.next();
                 boolean sameRM;
                 //if the xares is already known, we must be resuming after a suspend.
-                if (xaRes == manager.committer) {
-                    xaRes.start(manager.branchId, XAResource.TMRESUME);
+                if (xaRes == manager.getCommitter()) {
+                    xaRes.start(manager.getBranchId(), XAResource.TMRESUME);
                     return true;
                 }
                 //Otherwise, see if this is a new xares for the same resource manager
                 try {
-                    sameRM = xaRes.isSameRM(manager.committer);
+                    sameRM = xaRes.isSameRM(manager.getCommitter());
                 } catch (XAException e) {
                     log.warn("Unexpected error checking for same RM", e);
                     continue;
                 }
                 if (sameRM) {
-                    xaRes.start(manager.branchId, XAResource.TMJOIN);
+                    xaRes.start(manager.getBranchId(), XAResource.TMJOIN);
                     xaResources.put(xaRes, manager);
                     return true;
                 }
@@ -174,12 +174,12 @@ public class TransactionImpl implements Transaction {
             default:
                 throw new IllegalStateException("Status is " + getStateString(status));
         }
-        ResourceManager manager = (ResourceManager) xaResources.remove(xaRes);
+        TransactionBranch manager = (TransactionBranch) xaResources.remove(xaRes);
         if (manager == null) {
             throw new IllegalStateException("Resource not enlisted");
         }
         try {
-            xaRes.end(manager.branchId, flag);
+            xaRes.end(manager.getBranchId(), flag);
             return true;
         } catch (XAException e) {
             log.warn("Unable to delist XAResource " + xaRes, e);
@@ -214,9 +214,9 @@ public class TransactionImpl implements Transaction {
 
             // one-phase
             if (resourceManagers.size() == 1) {
-                ResourceManager manager = (ResourceManager) resourceManagers.getFirst();
+                TransactionBranch manager = (TransactionBranch) resourceManagers.getFirst();
                 try {
-                    manager.committer.commit(manager.branchId, true);
+                    manager.getCommitter().commit(manager.getBranchId(), true);
                     synchronized (this) {
                         status = Status.STATUS_COMMITTED;
                     }
@@ -324,8 +324,6 @@ public class TransactionImpl implements Transaction {
 
     //helper method used by Transaction.commit and XATerminator prepare.
     private boolean internalPrepare() throws SystemException {
-        String[] names = new String[resourceManagers.size()];
-        int i = 0;
         for (Iterator rms = resourceManagers.iterator(); rms.hasNext();) {
             synchronized (this) {
                 if (status != Status.STATUS_PREPARING) {
@@ -333,15 +331,12 @@ public class TransactionImpl implements Transaction {
                     break;
                 }
             }
-            ResourceManager manager = (ResourceManager) rms.next();
+            TransactionBranch manager = (TransactionBranch) rms.next();
             try {
-                int vote = manager.committer.prepare(manager.branchId);
+                int vote = manager.getCommitter().prepare(manager.getBranchId());
                 if (vote == XAResource.XA_RDONLY) {
                     // we don't need to consider this RM any more
                     rms.remove();
-                } else {
-                    names[i] = manager.committer.getName();
-                    i++;
                 }
             } catch (XAException e) {
                 synchronized (this) {
@@ -362,7 +357,7 @@ public class TransactionImpl implements Transaction {
         // log our decision
         if (willCommit) {
             try {
-                txnLog.prepare(xid, names);
+                txnLog.prepare(xid, resourceManagers);
             } catch (LogException e) {
                 try {
                     rollbackResources(resourceManagers);
@@ -449,7 +444,7 @@ public class TransactionImpl implements Transaction {
     private void endResources() {
         while (true) {
             XAResource xaRes;
-            ResourceManager manager;
+            TransactionBranch manager;
             int flags;
             synchronized (this) {
                 Set entrySet = xaResources.entrySet();
@@ -458,12 +453,12 @@ public class TransactionImpl implements Transaction {
                 }
                 Map.Entry entry = (Map.Entry) entrySet.iterator().next();
                 xaRes = (XAResource) entry.getKey();
-                manager = (ResourceManager) entry.getValue();
+                manager = (TransactionBranch) entry.getValue();
                 flags = (status == Status.STATUS_MARKED_ROLLBACK) ? XAResource.TMFAIL : XAResource.TMSUCCESS;
                 xaResources.remove(xaRes);
             }
             try {
-                xaRes.end(manager.branchId, flags);
+                xaRes.end(manager.getBranchId(), flags);
             } catch (XAException e) {
                 log.warn("Error ending association for XAResource " + xaRes + "; transaction will roll back", e);
                 synchronized (this) {
@@ -479,11 +474,11 @@ public class TransactionImpl implements Transaction {
             status = Status.STATUS_ROLLING_BACK;
         }
         for (Iterator i = rms.iterator(); i.hasNext();) {
-            ResourceManager manager = (ResourceManager) i.next();
+            TransactionBranch manager = (TransactionBranch) i.next();
             try {
-                manager.committer.rollback(manager.branchId);
+                manager.getCommitter().rollback(manager.getBranchId());
             } catch (XAException e) {
-                log.error("Unexpected exception rolling back " + manager.committer + "; continuing with rollback", e);
+                log.error("Unexpected exception rolling back " + manager.getCommitter() + "; continuing with rollback", e);
                 if (cause == null) {
                     cause = new SystemException(e.errorCode);
                 }
@@ -504,11 +499,11 @@ public class TransactionImpl implements Transaction {
             status = Status.STATUS_COMMITTING;
         }
         for (Iterator i = rms.iterator(); i.hasNext();) {
-            ResourceManager manager = (ResourceManager) i.next();
+            TransactionBranch manager = (TransactionBranch) i.next();
             try {
-                manager.committer.commit(manager.branchId, false);
+                manager.getCommitter().commit(manager.getBranchId(), false);
             } catch (XAException e) {
-                log.error("Unexpected exception committing" + manager.committer + "; continuing to commit other RMs", e);
+                log.error("Unexpected exception committing" + manager.getCommitter() + "; continuing to commit other RMs", e);
                 if (cause == null) {
                     cause = new SystemException(e.errorCode);
                 }
@@ -566,19 +561,36 @@ public class TransactionImpl implements Transaction {
     }
 
     public void addBranchXid(XAResource xaRes, Xid branchId) {
-        ResourceManager manager = new ResourceManager(xaRes, branchId);
+        TransactionBranch manager = new TransactionBranch(xaRes, branchId);
         resourceManagers.add(manager);
         xaResources.put(xaRes, manager);
     }
 
-
-    private static class ResourceManager {
+    private static class TransactionBranch implements TransactionBranchInfo {
         private final NamedXAResource committer;
         private final Xid branchId;
 
-        public ResourceManager(XAResource xaRes, Xid branchId) {
+        public TransactionBranch(XAResource xaRes, Xid branchId) {
             committer = (NamedXAResource)xaRes;
             this.branchId = branchId;
         }
+
+        public NamedXAResource getCommitter() {
+            return committer;
+        }
+
+        public Xid getBranchId() {
+            return branchId;
+        }
+
+        public String getResourceName() {
+            return committer.getName();
+        }
+
+        public Xid getBranchXid() {
+            return branchId;
+        }
     }
+
+
 }

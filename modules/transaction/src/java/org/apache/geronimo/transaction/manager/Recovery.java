@@ -37,198 +37,26 @@ import org.apache.commons.logging.LogFactory;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/08 20:12:34 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/11 19:20:55 $
  *
  * */
-public class Recovery {
-    private static final Log log = LogFactory.getLog("Recovery");
+public interface Recovery {
 
-    private final List xaResources;
-    private final TransactionLog txLog;
-    private final XidFactory xidFactory;
+    void recoverLog() throws XAException;
 
-    private final Map externalXids = new HashMap();
-    private final Map ourXids = new HashMap();
-    private final Map externalGlobalIdMap = new HashMap();
+    void recoverResourceManager(NamedXAResource xaResource) throws XAException;
 
-    private final List recoveryErrors = new ArrayList();
-    private ByteArrayWrapper globalIdWrapper;
+    boolean hasRecoveryErrors();
 
-    public Recovery(final List xaResources, final TransactionLog txLog, final XidFactory xidFactory) {
-        this.xaResources = xaResources;
-        this.txLog = txLog;
-        this.xidFactory = xidFactory;
-    }
+    List getRecoveryErrors();
 
-    public synchronized void recover() throws XAException {
-        recoverLog();
+    boolean localRecoveryComplete();
 
-        for (Iterator iterator = xaResources.iterator(); iterator.hasNext();) {
-            NamedXAResource xaResource = (NamedXAResource) iterator.next();
-            recoverResourceManager(xaResource);
-        }
-    }
-
-    private void recoverLog() throws XAException {
-        Map preparedXids = null;
-        try {
-            preparedXids = txLog.recover(xidFactory);
-        } catch (LogException e) {
-            throw (XAException) new XAException(XAException.XAER_RMERR).initCause(e);
-        }
-        for (Iterator iterator = preparedXids.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            Xid xid = (Xid) entry.getKey();
-            if (xidFactory.matchesGlobalId(xid.getGlobalTransactionId())) {
-                XidNamesPair xidNamesPair = new XidNamesPair(xid, (Set) entry.getValue());
-                ourXids.put(new ByteArrayWrapper(xid.getGlobalTransactionId()), xidNamesPair);
-            } else {
-                TransactionImpl externalTx = new ExternalTransaction(xid, txLog, (Set) entry.getValue());
-                externalXids.put(xid, externalTx);
-                externalGlobalIdMap.put(xid.getGlobalTransactionId(), externalTx);
-            }
-        }
-    }
-
-
-    public synchronized void recoverResourceManager(NamedXAResource xaResource) throws XAException {
-        Xid[] prepared = xaResource.recover(XAResource.TMSTARTRSCAN + XAResource.TMENDRSCAN);
-        for (int i = 0; i < prepared.length; i++) {
-            Xid xid = prepared[i];
-            globalIdWrapper = new ByteArrayWrapper(xid.getGlobalTransactionId());
-            XidNamesPair xidNamesPair = (XidNamesPair) ourXids.get(globalIdWrapper);
-            if (xidNamesPair != null) {
-                try {
-                    xaResource.commit(xid, false);
-                } catch (XAException e) {
-                    recoveryErrors.add(e);
-                    log.error(e);
-                }
-                if (!xidNamesPair.resourceNames.remove(xaResource.getName())) {
-                    log.error("XAResource named: " + xaResource.getName() + " returned branch xid for xid: " + xid + " but was not registered with that transaction!");
-                }
-                if (xidNamesPair.resourceNames.isEmpty()) {
-                    try {
-                        ourXids.remove(globalIdWrapper);
-                        txLog.commit(xidNamesPair.xid);
-                    } catch (LogException e) {
-                        recoveryErrors.add(e);
-                        log.error(e);
-                    }
-                }
-            } else if (xidFactory.matchesGlobalId(xid.getGlobalTransactionId())) {
-                //ours, but prepare not logged
-                try {
-                    xaResource.rollback(xid);
-                } catch (XAException e) {
-                    recoveryErrors.add(e);
-                    log.error(e);
-                }
-            } else if (xidFactory.matchesBranchId(xid.getBranchQualifier())) {
-                //our branch, but we did not start this tx.
-                TransactionImpl externalTx = (TransactionImpl) externalGlobalIdMap.get(xid.getGlobalTransactionId());
-                if (externalTx == null) {
-                    //we did not prepare this branch, rollback.
-                    try {
-                        xaResource.rollback(xid);
-                    } catch (XAException e) {
-                        recoveryErrors.add(e);
-                        log.error(e);
-                    }
-                } else {
-                    //we prepared this branch, must wait for commit/rollback command.
-                    externalTx.addBranchXid(xaResource, xid);
-                }
-            }
-            //else we had nothing to do with this xid.
-        }
-    }
-
-    public synchronized boolean hasRecoveryErrors() {
-        return !recoveryErrors.isEmpty();
-    }
-
-    public synchronized List getRecoveryErrors() {
-        return Collections.unmodifiableList(recoveryErrors);
-    }
-
-    public synchronized boolean localRecoveryComplete() {
-        return ourXids.isEmpty();
-    }
+    int localUnrecoveredCount();
 
     //hard to implement.. needs ExternalTransaction to have a reference to externalXids.
-//    public boolean remoteRecoveryComplete() {
-//    }
+//    boolean remoteRecoveryComplete();
 
-    public synchronized Map getExternalXids() {
-        return new HashMap(externalXids);
-    }
+    Map getExternalXids();
 
-    private static class XidNamesPair {
-        private final Xid xid;
-        private final Set resourceNames;
-
-        public XidNamesPair(Xid xid, Set resourceNames) {
-            this.xid = xid;
-            this.resourceNames = resourceNames;
-        }
-    }
-
-    private static class ByteArrayWrapper {
-        private final byte[] bytes;
-        private final int hashCode;
-
-        public ByteArrayWrapper(final byte[] bytes) {
-            assert bytes != null;
-            this.bytes = bytes;
-            int hash = 0;
-            for (int i = 0; i < bytes.length; i++) {
-                hash += 37 * bytes[i];
-            }
-            hashCode = hash;
-        }
-
-        public boolean equals(Object other) {
-            if (other instanceof ByteArrayWrapper) {
-                return Arrays.equals(bytes, ((ByteArrayWrapper)other).bytes);
-            }
-            return false;
-        }
-
-        public int hashCode() {
-            return hashCode;
-        }
-    }
-
-    private static class ExternalTransaction extends TransactionImpl {
-        private Set resourceNames;
-
-        public ExternalTransaction(Xid xid, TransactionLog txLog, Set resourceNames) {
-            super(xid, txLog);
-            this.resourceNames = resourceNames;
-        }
-
-        public boolean hasName(String name) {
-            return resourceNames.contains(name);
-        }
-
-        public void removeName(String name) {
-            resourceNames.remove(name);
-        }
-
-        public void preparedCommit() throws SystemException {
-            if (!resourceNames.isEmpty()) {
-                throw new SystemException("This tx does not have all resource managers online, commit not allowed yet");
-            }
-            super.preparedCommit();
-        }
-
-        public void rollback() throws SystemException {
-            if (!resourceNames.isEmpty()) {
-                throw new SystemException("This tx does not have all resource managers online, rollback not allowed yet");
-            }
-            super.rollback();
-
-        }
-    }
 }

@@ -18,6 +18,7 @@
 package org.apache.geronimo.transaction.manager;
 
 import java.util.Map;
+import java.util.List;
 
 import javax.transaction.xa.Xid;
 
@@ -25,13 +26,19 @@ import javax.transaction.xa.Xid;
 /**
  * Interface used to notify a logging subsystem of transaction events.
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/08 17:33:42 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/11 19:20:55 $
  */
 public interface TransactionLog {
 
     void begin(Xid xid) throws LogException;
 
-    void prepare(Xid xid, String[] names) throws LogException;
+    /**
+     * log prepare for the global xid xid and the list of TransactionBranch branches
+     * @param xid global xid for the transactions
+     * @param branches List of TransactionBranch
+     * @throws LogException
+     */
+    void prepare(Xid xid, List branches) throws LogException;
 
     void commit(Xid xid) throws LogException;
 

@@ -30,7 +30,7 @@ import javax.transaction.xa.Xid;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/08 20:16:03 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/11 19:20:55 $
  *
  * */
 public class MockLog implements TransactionLog {
@@ -42,8 +42,8 @@ public class MockLog implements TransactionLog {
     public void begin(Xid xid) throws LogException {
     }
 
-    public void prepare(Xid xid, String[] names) throws LogException {
-        prepared.put(xid, new HashSet(Arrays.asList(names)));
+    public void prepare(Xid xid, List branches) throws LogException {
+        prepared.put(xid, new HashSet(branches));
     }
 
     public void commit(Xid xid) throws LogException {

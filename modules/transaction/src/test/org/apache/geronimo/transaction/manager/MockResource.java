@@ -17,6 +17,9 @@
 
 package org.apache.geronimo.transaction.manager;
 
+import java.util.Set;
+import java.util.HashSet;
+
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
@@ -24,7 +27,7 @@ import javax.transaction.xa.Xid;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/06/08 20:14:39 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/11 19:20:55 $
  */
 public class MockResource implements NamedXAResource {
     private String xaResourceName = "mockResource";
@@ -34,6 +37,7 @@ public class MockResource implements NamedXAResource {
     private boolean prepared;
     private boolean committed;
     private boolean rolledback;
+    private Set preparedXids = new HashSet();
 
     public MockResource(MockResourceManager manager, String xaResourceName) {
         this.manager = manager;
@@ -73,15 +77,18 @@ public class MockResource implements NamedXAResource {
 
     public int prepare(Xid xid) throws XAException {
         prepared = true;
-        return 0;
+        preparedXids.add(xid);
+        return XAResource.XA_OK;
     }
 
     public void commit(Xid xid, boolean onePhase) throws XAException {
+        preparedXids.remove(xid);
         committed = true;
     }
 
     public void rollback(Xid xid) throws XAException {
         rolledback = true;
+        preparedXids.remove(xid);
         manager.forget(xid, this);
     }
 
@@ -97,7 +104,7 @@ public class MockResource implements NamedXAResource {
     }
 
     public Xid[] recover(int flag) throws XAException {
-        throw new UnsupportedOperationException();
+        return (Xid[]) preparedXids.toArray(new Xid[preparedXids.size()]);
     }
 
     public boolean isPrepared() {

@@ -20,6 +20,7 @@ package org.apache.geronimo.transaction.manager;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.Map;
+import java.util.List;
 
 import javax.sql.XAConnection;
 import javax.sql.XADataSource;
@@ -31,7 +32,7 @@ import javax.transaction.xa.Xid;
  *
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/08 17:33:43 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/11 19:20:55 $
  */
 public class XATransactionTester {
     private TransactionLog log;
@@ -48,7 +49,8 @@ public class XATransactionTester {
         XAConnection xaConn = ds.getXAConnection("test", "test");
         XAResource xaRes = xaConn.getXAResource();
         log = new DummyLog();
-        manager = new TransactionManagerImpl(log);
+        XidFactory xidFactory = new XidFactoryImpl();
+        manager = new TransactionManagerImpl(log, xidFactory);
         Connection c = xaConn.getConnection();
         Statement s = c.createStatement();
 
@@ -104,7 +106,7 @@ public class XATransactionTester {
             XATransactionTester.this.xid = xid;
         }
 
-        public void prepare(Xid xid, String[] names) throws LogException {
+        public void prepare(Xid xid, List branches) throws LogException {
         }
 
         public void commit(Xid xid) throws LogException {
