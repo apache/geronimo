@@ -70,13 +70,21 @@ import org.apache.geronimo.transaction.log.UnrecoverableLog;
 /**
  * Simple implementation of a local transaction manager.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/29 00:32:40 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/11 10:59:17 $
  */
 public class TransactionManagerImpl implements TransactionManager {
-    private final TransactionLog txnLog = new UnrecoverableLog();
+    private final TransactionLog txnLog;
     private final XidFactory xidFactory = new XidFactory();
     private volatile int timeout;
     private ThreadLocal threadTx = new ThreadLocal();
+
+    public TransactionManagerImpl() {
+        txnLog = new UnrecoverableLog();
+    }
+
+    public TransactionManagerImpl(TransactionLog txnLog) {
+        this.txnLog = txnLog;
+    }
 
     public Transaction getTransaction() throws SystemException {
         return (Transaction) threadTx.get();

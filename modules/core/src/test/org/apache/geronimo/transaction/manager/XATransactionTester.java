@@ -55,99 +55,100 @@
  */
 package org.apache.geronimo.transaction.manager;
 
-import java.io.Serializable;
-import java.util.Arrays;
+import java.sql.Connection;
+import java.sql.Statement;
+import java.io.IOException;
+import javax.sql.XAConnection;
+import javax.sql.XADataSource;
+import javax.transaction.TransactionManager;
+import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+import javax.transaction.xa.XAException;
 
 /**
- * Unique id for a transaction.
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/11 10:59:17 $
+ *
+ *
+ * @version $Revision: 1.1 $ $Date: 2003/10/11 10:59:17 $
  */
-public class XidImpl implements Xid, Serializable {
-    private static int FORMAT_ID = 0x4765526f;  // Gero
-    private final byte[] globalId;
-    private final byte[] branchId;
-    private final int hash;
+public class XATransactionTester {
+    private TransactionLog log;
+    private TransactionManager manager;
+    private XADataSource ds;
+    private Xid xid;
 
-    /**
-     * Constructor taking a global id (for the main transaction)
-     * @param globalId the global transaction id
+    public static void main(String[] args) throws Exception {
+        new XATransactionTester().run(args);
+    }
+
+    public void run(String[] args) throws Exception {
+        ds = getDataSource(args);
+        XAConnection xaConn = ds.getXAConnection("test", "test");
+        XAResource xaRes = xaConn.getXAResource();
+        log = new DummyLog();
+        manager = new TransactionManagerImpl(log);
+        Connection c = xaConn.getConnection();
+        Statement s = c.createStatement();
+
+        manager.begin();
+        manager.getTransaction().enlistResource(xaRes);
+        s.execute("UPDATE XA_TEST SET X=X+1");
+        manager.getTransaction().delistResource(xaRes, XAResource.TMSUCCESS);
+        manager.commit();
+
+/*
+        manager.begin();
+        manager.getTransaction().enlistResource(xaRes);
+        xid = new XidImpl(xid, 1);
+        System.out.println("xid = " + xid);
+        s.execute("UPDATE XA_TEST SET X=X+1");
+
+        xaRes.end(xid, XAResource.TMSUCCESS);
+        xaRes.prepare(xid);
+        c.close();
+*/
+
+/*
+        Xid[] prepared = xaRes.recover(XAResource.TMNOFLAGS);
+        for (int i = 0; i < prepared.length; i++) {
+            Xid xid = prepared[i];
+            StringBuffer s = new StringBuffer();
+            s.append(Integer.toHexString(xid.getFormatId())).append('.');
+            byte[] globalId = xid.getGlobalTransactionId();
+            for (int j = 0; j < globalId.length; j++) {
+                s.append(Integer.toHexString(globalId[j]));
+            }
+
+            System.out.println("recovery = " + s);
+            xaRes.forget(xid);
+        }
+*/
+
+    }
+
+    /*
+     * @todo get something that loads this from a file
      */
-    public XidImpl(byte[] globalId) {
-        this.globalId = globalId;
-        this.hash = hash(globalId);
-        branchId = new byte[Xid.MAXBQUALSIZE];
+    private XADataSource getDataSource(String[] args) throws Exception {
+//        oracle.jdbc.xa.client.OracleXADataSource ds = new oracle.jdbc.xa.client.OracleXADataSource();
+//        ds.setURL("jdbc:oracle:thin:@localhost:1521:ABU");
+//        return ds;
+        return null;
     }
 
-    /**
-     * Constructor for a branch id
-     * @param global the xid of the global transaction this branch belongs to
-     * @param branch the branch id
-     */
-    public XidImpl(Xid global, int branch) {
-        int hash;
-        if (global instanceof XidImpl) {
-            globalId = ((XidImpl) global).globalId;
-            hash = ((XidImpl) global).hash;
-        } else {
-            globalId = global.getGlobalTransactionId();
-            hash = hash(globalId);
+    private class DummyLog implements TransactionLog {
+
+        public void begin(Xid xid) throws IOException {
+            XATransactionTester.this.xid = xid;
         }
-        branchId = new byte[Xid.MAXBQUALSIZE];
-        branchId[0] = (byte) branch;
-        branchId[1] = (byte) (branch >>> 8);
-        branchId[2] = (byte) (branch >>> 16);
-        branchId[3] = (byte) (branch >>> 24);
-        for (int i = 0; i < 4; i++) {
-            hash = (hash * 37) + branchId[i];
+
+        public void prepare(Xid xid) throws IOException {
         }
-        this.hash = hash;
-    }
 
-    private int hash(byte[] id) {
-        int hash = 0;
-        for (int i = 0; i < id.length; i++) {
-            hash = (hash * 37) + id[i];
+        public void commit(Xid xid) throws IOException {
         }
-        return hash;
-    }
 
-    public int getFormatId() {
-        return FORMAT_ID;
-    }
-
-    public byte[] getGlobalTransactionId() {
-        return (byte[]) globalId.clone();
-    }
-
-    public byte[] getBranchQualifier() {
-        return (byte[]) branchId.clone();
-    }
-
-    public boolean equals(Object obj) {
-        if (obj instanceof XidImpl == false) {
-            return false;
+        public void rollback(Xid xid) throws IOException {
         }
-        XidImpl other = (XidImpl) obj;
-        return Arrays.equals(globalId, other.globalId) && Arrays.equals(branchId, other.branchId);
-    }
-
-    public int hashCode() {
-        return hash;
-    }
-
-    public String toString() {
-        StringBuffer s = new StringBuffer();
-        s.append("[globalId=");
-        for (int i = 0; i < globalId.length; i++) {
-            s.append(Integer.toHexString(globalId[i]));
-        }
-        s.append(",branchId=");
-        for (int i = 0; i < branchId.length; i++) {
-            s.append(Integer.toHexString(branchId[i]));
-        }
-        s.append("]");
-        return s.toString();
     }
 }
