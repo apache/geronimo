@@ -65,6 +65,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.FilePermission;
+import java.io.FileDescriptor;
+import java.io.SyncFailedException;
 
 import java.net.URLConnection;
 import java.net.URL;
@@ -77,10 +80,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import java.security.Permission;
-import java.io.FilePermission;
+
+//
+// HACK: The current SNAPSHOT of commons-lang is old, inlined required methods for now
+//
+// import org.apache.commons.lang.SystemUtils;
 
 import org.apache.geronimo.common.NullArgumentException;
 import org.apache.geronimo.common.Primitives;
+import org.apache.geronimo.common.ThrowableHandler;
 
 import sun.net.www.ParseUtil;
 
@@ -89,12 +97,13 @@ import sun.net.www.ParseUtil;
  *
  * <p>Correctly returns headers.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/01 15:18:25 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/02 07:43:01 $
  */
 public class FileURLConnection
     extends URLConnection
 {
     protected File file;
+    protected FileDescriptor fd;
     
     public FileURLConnection(final URL url, final File file)
         throws MalformedURLException, IOException
@@ -139,7 +148,10 @@ public class FileURLConnection
             connect();
         }
         
-        return new BufferedInputStream(new FileInputStream(file));
+        FileInputStream fis = new FileInputStream(file);
+        fd = fis.getFD();
+        
+        return new BufferedInputStream(fis);
     }
     
      /**
@@ -155,7 +167,10 @@ public class FileURLConnection
             connect();
         }
         
-        return new BufferedOutputStream(new FileOutputStream(file));
+        FileOutputStream fos = new FileOutputStream(file);
+        fd = fos.getFD();
+        
+        return new BufferedOutputStream(fos);
     }
     
     /**
@@ -190,6 +205,57 @@ public class FileURLConnection
         return new FilePermission(filename, perms);
     }
     
+    //
+    // HACK: The current SNAPSHOT of commons-lang is old, inlined required methods for now
+    //
+    
+    private static String getSystemProperty(String property) {
+        try {
+            return System.getProperty(property);
+        } catch (SecurityException ex) {
+            // we are not allowed to look at this property
+            System.err.println(
+                "Caught a SecurityException reading the system property '" + property 
+                + "'; the SystemUtils property value will default to null."
+            );
+            return null;
+        }
+    }
+    
+    private static final String OS_NAME = getSystemProperty("os.name");
+    
+    private static boolean getOSMatches(String osNamePrefix) {
+        if (OS_NAME == null) {
+            return false;
+        }
+        return OS_NAME.startsWith(osNamePrefix);
+    }
+    
+    private static final boolean IS_OS_WINDOWS = getOSMatches("Windows");
+    
+    /**
+     * Conditionaly sync the underlying file descriptor if we are running
+     * on windows, so that the file details update.
+     */
+    private void maybeSync()
+    {
+        if (fd != null && fd.valid()) {
+            //
+            // HACK: The current SNAPSHOT of commons-lang is old, 
+            //       inlined required methods for now
+            //
+            
+            if (IS_OS_WINDOWS) {
+                try {
+                    fd.sync();
+                }
+                catch (SyncFailedException e) {
+                    ThrowableHandler.addWarning(e);
+                }
+            }
+        }
+    }
+    
     /**
      * Always return the last-modified from the file.
      *
@@ -198,6 +264,7 @@ public class FileURLConnection
      */
     public long getLastModified()
     {
+        maybeSync();
         return file.lastModified();
     }
     
@@ -216,6 +283,7 @@ public class FileURLConnection
      */
     public int getContentLength()
     {
+        maybeSync();
         return Primitives.toInt(file.length());
     }
     
