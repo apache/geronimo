@@ -22,10 +22,14 @@ import java.io.Serializable;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/09 20:15:43 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/09 22:48:26 $
  *
  * */
 public interface MockAdminObject extends Serializable {
+
+    String getTweedle();
+
+    void setTweedle(String tweedle);
 
     MockAdminObject getSomething();
 

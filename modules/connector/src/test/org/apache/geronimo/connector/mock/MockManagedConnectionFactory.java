@@ -32,7 +32,7 @@ import javax.security.auth.Subject;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:57:12 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/09 22:48:26 $
  *
  * */
 public class MockManagedConnectionFactory implements ManagedConnectionFactory {
@@ -43,6 +43,43 @@ public class MockManagedConnectionFactory implements ManagedConnectionFactory {
     private final Set managedConnections = new HashSet();
 
     private boolean reauthentication;
+
+    public String getOutboundStringProperty1() {
+        return outboundStringProperty1;
+    }
+
+    public void setOutboundStringProperty1(String outboundStringProperty1) {
+        this.outboundStringProperty1 = outboundStringProperty1;
+    }
+
+    public String getOutboundStringProperty2() {
+        return outboundStringProperty2;
+    }
+
+    public void setOutboundStringProperty2(String outboundStringProperty2) {
+        this.outboundStringProperty2 = outboundStringProperty2;
+    }
+
+    public String getOutboundStringProperty3() {
+        return outboundStringProperty3;
+    }
+
+    public void setOutboundStringProperty3(String outboundStringProperty3) {
+        this.outboundStringProperty3 = outboundStringProperty3;
+    }
+
+    public String getOutboundStringProperty4() {
+        return outboundStringProperty4;
+    }
+
+    public void setOutboundStringProperty4(String outboundStringProperty4) {
+        this.outboundStringProperty4 = outboundStringProperty4;
+    }
+
+    private String outboundStringProperty1;
+    private String outboundStringProperty2;
+    private String outboundStringProperty3;
+    private String outboundStringProperty4;
 
     public void setResourceAdapter(ResourceAdapter resourceAdapter) throws ResourceException {
         assert this.resourceAdapter == null: "Setting ResourceAdapter twice";

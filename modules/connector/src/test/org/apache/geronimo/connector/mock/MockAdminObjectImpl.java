@@ -20,10 +20,21 @@ package org.apache.geronimo.connector.mock;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/09 20:15:43 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/09 22:48:26 $
  *
  * */
 public class MockAdminObjectImpl implements MockAdminObject {
+
+    private String tweedle;
+
+    public String getTweedle() {
+        return tweedle;
+    }
+
+    public void setTweedle(String tweedle) {
+        this.tweedle = tweedle;
+    }
+
     public MockAdminObject getSomething() {
         return this;
     }

@@ -28,13 +28,15 @@ import javax.transaction.xa.XAResource;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:57:12 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/09 22:48:26 $
  *
  * */
 public class MockResourceAdapter implements ResourceAdapter {
 
 
     private BootstrapContext bootstrapContext;
+
+    private String raStringProperty;
 
     public void start(BootstrapContext bootstrapContext) throws ResourceAdapterInternalException {
         assert this.bootstrapContext == null : "Attempting to restart adapter without stoppping";
@@ -55,4 +57,13 @@ public class MockResourceAdapter implements ResourceAdapter {
     public XAResource[] getXAResources(ActivationSpec[] specs) throws ResourceException {
         return new XAResource[0];
     }
+
+    public String getRAStringProperty() {
+        return raStringProperty;
+    }
+
+    public void setRAStringProperty(String raStringProperty) {
+        this.raStringProperty = raStringProperty;
+    }
+
 }

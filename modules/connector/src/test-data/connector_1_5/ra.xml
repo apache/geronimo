@@ -49,7 +49,7 @@
             <connection-definition>
                 <managedconnectionfactory-class>org.apache.geronimo.connector.mock.MockManagedConnectionFactory</managedconnectionfactory-class>
                 <config-property>
-                    <config-property-name>OutboundStringProperty</config-property-name>
+                    <config-property-name>OutboundStringProperty1</config-property-name>
                     <config-property-type>java.lang.String</config-property-type>
                 </config-property>
                 <connectionfactory-interface>org.apache.geronimo.connector.mock.MockConnectionFactory</connectionfactory-interface>

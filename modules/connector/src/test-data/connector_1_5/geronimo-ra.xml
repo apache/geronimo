@@ -45,7 +45,7 @@
                 <connectionfactory-interface>org.apache.geronimo.connector.mock.MockConnectionFactory</connectionfactory-interface>
                 <connectiondefinition-instance>
                     <name>ThirdTestOutboundConnectionFactory</name>
-                    <config-property-setting name="OutboundStringProperty">StringValue3</config-property-setting>
+                    <config-property-setting name="OutboundStringProperty1">StringValue3</config-property-setting>
                     <connectionmanager>
                         <realm-bridge>TargetRealm</realm-bridge>
                         <blockingTimeout>5000</blockingTimeout>

@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Iterator;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
@@ -46,7 +47,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/25 09:57:12 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/09 22:48:26 $
  *
  * */
 public class RAR_1_5ConfigBuilderTest extends TestCase {
@@ -88,6 +89,14 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
             RAR_1_5ConfigBuilder configBuilder = new RAR_1_5ConfigBuilder(kernel, null, new ObjectName("geronimo.connector:service=ConnectionTracker"));
             DeploymentContext context =  new MockDeploymentContext(kernel);
             configBuilder.addConnectorGBeans(context, connectorDocument, geronimoConnectorDocument.getConnector(), this.getClass().getClassLoader());
+            for (Iterator iterator = gbeans.entrySet().iterator(); iterator.hasNext();) {
+                Map.Entry entry = (Map.Entry) iterator.next();
+                kernel.loadGBean((ObjectName)entry.getKey(), (GBeanMBean)entry.getValue());
+            }
+            for (Iterator iterator = gbeans.keySet().iterator(); iterator.hasNext();) {
+                ObjectName name = (ObjectName) iterator.next();
+                kernel.startGBean(name);
+            }
         } finally {
             kernel.shutdown();
         }
