@@ -39,30 +39,16 @@ import org.apache.geronimo.kernel.jmx.KernelMBean;
  * @version $Rev$ $Date$
  */
 public class DistributeCommand extends AbstractDeployCommand {
-    private static final String[] DEPLOY_SIG = {File.class.getName(), File.class.getName()};
-    private final Target[] targetList;
-    private final boolean spool;
-    private File moduleArchive;
-    private File deploymentPlan;
-    private InputStream moduleStream;
-    private InputStream deploymentStream;
+    protected final Target[] targetList;
 
     public DistributeCommand(KernelMBean kernel, Target[] targetList, File moduleArchive, File deploymentPlan) {
-        super(CommandType.DISTRIBUTE, kernel);
+        super(CommandType.DISTRIBUTE, kernel, moduleArchive, deploymentPlan, null, null, false);
         this.targetList = targetList;
-        this.moduleArchive = moduleArchive;
-        this.deploymentPlan = deploymentPlan;
-        spool = false;
     }
 
     public DistributeCommand(KernelMBean kernel, Target[] targetList, InputStream moduleStream, InputStream deploymentStream) {
-        super(CommandType.DISTRIBUTE, kernel);
+        super(CommandType.DISTRIBUTE, kernel, null, null, moduleStream, deploymentStream, true);
         this.targetList = targetList;
-        this.moduleArchive = null ;
-        this.deploymentPlan = null;
-        this.moduleStream = moduleStream;
-        this.deploymentStream = deploymentStream;
-        spool = true;
     }
 
     public void run() {
@@ -82,22 +68,8 @@ public class DistributeCommand extends AbstractDeployCommand {
                 return;
             }
 
-            Object[] args = {moduleArchive, deploymentPlan};
-            List objectNames = (List) kernel.invoke(deployer, "deploy", args, DEPLOY_SIG);
-            if (objectNames == null || objectNames.isEmpty()) {
-                DeploymentException deploymentException = new DeploymentException("Got empty list");
-                deploymentException.printStackTrace();
-                throw deploymentException;
-            }
-            String parentName = (String) objectNames.get(0);
-            String[] childIDs = new String[objectNames.size()-1];
-            for (int j=0; j < childIDs.length; j++) {
-                childIDs[j] = (String)objectNames.get(j+1);
-            }
+            doDeploy(deployer, targetList[0]);
 
-            TargetModuleID moduleID = new TargetModuleIDImpl(targetList[0], parentName.toString(), childIDs);
-            addModule(moduleID);
-            complete("Completed with id " + parentName);
         } catch (Exception e) {
             doFail(e);
         } finally {

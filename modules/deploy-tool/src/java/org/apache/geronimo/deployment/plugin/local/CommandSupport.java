@@ -36,8 +36,6 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 import javax.management.MBeanException;
 
 /**
- *
- *
  * @version $Rev$ $Date$
  */
 public abstract class CommandSupport implements ProgressObject, Runnable {
@@ -48,6 +46,8 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
     private final Set listeners = new HashSet();
     private final List moduleIDs = new ArrayList();
     private boolean logErrors;
+
+    private ProgressEvent event = null;
 
     protected CommandSupport(CommandType command) {
         this.command = command;
@@ -88,8 +88,15 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
         throw new OperationUnsupportedException("stop not supported");
     }
 
-    public synchronized void addProgressListener(ProgressListener pol) {
-        listeners.add(pol);
+    public void addProgressListener(ProgressListener pol) {
+        ProgressEvent event = null;
+        synchronized (this) {
+            listeners.add(pol);
+            event = this.event;
+        }
+        if (event != null) {
+            pol.handleProgressEvent(event);
+        }
     }
 
     public synchronized void removeProgressListener(ProgressListener pol) {
@@ -107,20 +114,20 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
     protected void doFail(Exception e) {
         // todo dain: kernel does not throw any JMX exceptions anymore... do we still need this
         if (e instanceof MBeanException) {
-            e = ((MBeanException)e).getTargetException();
+            e = ((MBeanException) e).getTargetException();
         }
-        
-        if( logErrors ) {
-        	System.err.println("Deployer operation failed: "+e.getMessage());
-        	e.printStackTrace(System.err);
+
+        if (logErrors) {
+            System.err.println("Deployer operation failed: " + e.getMessage());
+            e.printStackTrace(System.err);
         }
-        
+
         StringWriter writer = new StringWriter();
-         PrintWriter printWriter = new PrintWriter(writer);
-         printWriter.println(e.getMessage());
-         e.printStackTrace(printWriter);
-         fail(writer.toString());
-     }
+        PrintWriter printWriter = new PrintWriter(writer);
+        printWriter.println(e.getMessage());
+        e.printStackTrace(printWriter);
+        fail(writer.toString());
+    }
 
     private void sendEvent(String message, StateType state) {
         assert !Thread.holdsLock(this) : "Trying to send event whilst holding lock";
@@ -132,9 +139,9 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
             this.state = state;
             newStatus = getDeploymentStatus();
             toNotify = (ProgressListener[]) listeners.toArray(new ProgressListener[listeners.size()]);
+            event = new ProgressEvent(this, null, newStatus);
         }
 
-        ProgressEvent event = new ProgressEvent(this, null, newStatus);
         for (int i = 0; i < toNotify.length; i++) {
             toNotify[i].handleProgressEvent(event);
         }
@@ -193,12 +200,12 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
             return buf.toString();
         }
     }
-    
-	public boolean isLogErrors() {
-		return logErrors;
-	}
 
-	public void setLogErrors(boolean logErrors) {
-		this.logErrors = logErrors;
-	}
+    public boolean isLogErrors() {
+        return logErrors;
+    }
+
+    public void setLogErrors(boolean logErrors) {
+        this.logErrors = logErrors;
+    }
 }

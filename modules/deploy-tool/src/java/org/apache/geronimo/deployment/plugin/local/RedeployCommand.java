@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.net.URI;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.Target;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.plugin.TargetImpl;
@@ -35,26 +36,15 @@ public class RedeployCommand extends AbstractDeployCommand {
     private static final String[] DEPLOY_SIG = {File.class.getName(), File.class.getName()};
     private static final String[] UNINSTALL_SIG = {URI.class.getName()};
     private final TargetModuleID[] modules;
-    private File moduleArchive;
-    private File deploymentPlan;
-    private InputStream moduleStream;
-    private InputStream deploymentStream;
-    private final boolean spool;
 
-    public RedeployCommand(KernelMBean kernel, TargetModuleID modules[], File moduleArchive, File deploymentPlan) {
-        super(CommandType.START, kernel);
-        this.modules = modules;
-        this.moduleArchive = moduleArchive;
-        this.deploymentPlan = deploymentPlan;
-        spool = false;
+    public RedeployCommand(KernelMBean kernel, TargetModuleID[] moduleIDList, File moduleArchive, File deploymentPlan) {
+        super(CommandType.DISTRIBUTE, kernel, moduleArchive, deploymentPlan, null, null, false);
+        this.modules = moduleIDList;
     }
 
     public RedeployCommand(KernelMBean kernel, TargetModuleID[] moduleIDList, InputStream moduleArchive, InputStream deploymentPlan) {
-        super(CommandType.START, kernel);
+        super(CommandType.START, kernel, null, null, moduleArchive, deploymentPlan, true);
         this.modules = moduleIDList;
-        moduleStream = moduleArchive;
-        deploymentStream = deploymentPlan;
-        spool = true;
     }
 
     public void run() {
@@ -84,14 +74,20 @@ public class RedeployCommand extends AbstractDeployCommand {
                 ObjectName storeName = target.getObjectName();
                 kernel.invoke(storeName, "uninstall", new Object[]{configID}, UNINSTALL_SIG);
 
-                Object[] args = {moduleArchive, deploymentPlan};
-                URI configId = (URI) kernel.invoke(deployer, "deploy", args, DEPLOY_SIG);
-                module = new TargetModuleIDImpl(module.getTarget(), configId.toString());
-                addModule(module);
+                doDeploy(deployer, module.getTarget());
             }
             complete("Completed");
         } catch (Exception e) {
             doFail(e);
+        } finally {
+            if (spool) {
+                if (moduleArchive != null) {
+                    moduleArchive.delete();
+                }
+                if (deploymentPlan != null) {
+                    deploymentPlan.delete();
+                }
+            }
         }
     }
 }

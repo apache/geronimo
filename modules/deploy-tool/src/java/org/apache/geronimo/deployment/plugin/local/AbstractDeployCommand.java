@@ -18,16 +18,21 @@ package org.apache.geronimo.deployment.plugin.local;
 
 import java.util.Set;
 import java.util.Iterator;
+import java.util.List;
 import java.io.File;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.FileOutputStream;
 import javax.enterprise.deploy.shared.CommandType;
+import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.Target;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.jmx.KernelMBean;
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -36,10 +41,21 @@ public abstract class AbstractDeployCommand extends CommandSupport {
     private final static String DEPLOYER_NAME = "*:name=Deployer,j2eeType=Deployer,*";
 
     protected final KernelMBean kernel;
+    private static final String[] DEPLOY_SIG = {File.class.getName(), File.class.getName()};
+    protected final boolean spool;
+    protected File moduleArchive;
+    protected File deploymentPlan;
+    protected InputStream moduleStream;
+    protected InputStream deploymentStream;
 
-    public AbstractDeployCommand(CommandType command, KernelMBean kernel) {
+    public AbstractDeployCommand(CommandType command, KernelMBean kernel, File moduleArchive, File deploymentPlan, InputStream moduleStream, InputStream deploymentStream, boolean spool) {
         super(command);
         this.kernel = kernel;
+        this.moduleArchive = moduleArchive;
+        this.deploymentPlan = deploymentPlan;
+        this.moduleStream = moduleStream;
+        this.deploymentStream = deploymentStream;
+        this.spool = spool;
     }
 
     protected ObjectName getDeployerName() {
@@ -69,5 +85,24 @@ public abstract class AbstractDeployCommand extends CommandSupport {
         } finally {
             os.close();
         }
+    }
+
+    protected void doDeploy(ObjectName deployer, Target target) throws Exception {
+        Object[] args = {moduleArchive, deploymentPlan};
+        List objectNames = (List) kernel.invoke(deployer, "deploy", args, DEPLOY_SIG);
+        if (objectNames == null || objectNames.isEmpty()) {
+            DeploymentException deploymentException = new DeploymentException("Got empty list");
+            deploymentException.printStackTrace();
+            throw deploymentException;
+        }
+        String parentName = (String) objectNames.get(0);
+        String[] childIDs = new String[objectNames.size()-1];
+        for (int j=0; j < childIDs.length; j++) {
+            childIDs[j] = (String)objectNames.get(j+1);
+        }
+
+        TargetModuleID moduleID = new TargetModuleIDImpl(target, parentName.toString(), childIDs);
+        addModule(moduleID);
+        complete("Completed with id " + parentName);
     }
 }
