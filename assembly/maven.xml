@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- $Revision: 1.8 $ $Date: 2004/02/13 07:12:56 $ -->
+<!-- $Revision: 1.9 $ $Date: 2004/02/13 15:46:47 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -109,6 +109,7 @@
         </ant:jar>
 
         <!-- bootstrap the service deployer -->
+        <ant:echo>Bootstrapping service deployer</ant:echo>
         <ant:mkdir dir="target/config"/>
         <ant:mkdir dir="target/config-store"/>
         <j:invokeStatic className="org.apache.geronimo.deployment.Bootstrap" method="bootstrap">
@@ -118,6 +119,7 @@
         </j:invokeStatic>
 
         <!-- build the system configuration -->
+        <ant:echo>Building system configuration</ant:echo>
         <ant:java fork="true" jar="target/bin/deploy.jar">
             <ant:sysproperty key="geronimo.base.dir" value="target"/>
             <ant:arg value="--install"/>
@@ -132,6 +134,7 @@
         </ant:java>
 
         <!-- build the J2EEServer configuration -->
+        <ant:echo>Building server configuration</ant:echo>
         <ant:java fork="true" jar="target/bin/deploy.jar">
             <ant:sysproperty key="geronimo.base.dir" value="target"/>
             <ant:arg value="--install"/>
