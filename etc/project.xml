@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.16 $ $Date: 2003/11/23 02:24:47 $ -->
+<!-- $Revision: 1.17 $ $Date: 2003/11/25 04:19:29 $ -->
 
 <project>
   
@@ -18,27 +18,19 @@
   <organization>
     <name>Apache Software Foundation</name>
     <url>http://incubator.apache.org/</url>
-    <logo>/images/apache-incubator.png</logo>
+    <logo>http://incubator.apache.org/geronimo/images/apache-incubator.png</logo>
   </organization>
 
   <inceptionYear>2003</inceptionYear>
-  <logo>/images/geronimo.gif</logo>
+  <logo>http://incubator.apache.org/geronimo/images/geronimo.gif</logo>
   <description>Geronimo J2EE Application Server</description>
   <shortDescription>Geronimo J2EE Application Server</shortDescription>
   <url>http://incubator.apache.org/projects/geronimo/</url>
   <issueTrackingUrl>http://jira.codehaus.org/secure/BrowseProject.jspa?id=10220</issueTrackingUrl>
 
   <siteAddress>incubator.apache.org</siteAddress>
-
-  <!-- 
-  	hopefully we can deploy directly here one day...
-  	
-  <siteDirectory>/www/incubator.apache.org/projects/geronimo</siteDirectory> 
-  
-  	until then lets put it in James's home directory for now
-  -->
-  <siteDirectory>/home/jstrachan/public_html/geronimo</siteDirectory>
-  <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds</distributionDirectory>
+  <siteDirectory>/www/incubator.apache.org/geronimo</siteDirectory> 
+  <distributionDirectory>/www/incubator.apache.org/geronimo/builds</distributionDirectory>
 
   <repository>
     <connection>scm:cvs:pserver:anoncvs@cvs.apache.org:/home/cvspublic:incubator-geronimo</connection>
