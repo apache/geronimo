@@ -27,7 +27,7 @@ import java.util.jar.JarFile;
  */
 public interface ConfigurationBuilder {
     /**
-     * Builds a the deployment plan specific to this builder from a planFile and/or
+     * Builds a deployment plan specific to this builder from a planFile and/or
      * module if this builder can process it.
      * @param planFile the deployment plan to examine; can be null
      * @param module the URL of the module to examine; can be null
