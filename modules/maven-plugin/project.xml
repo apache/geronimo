@@ -18,7 +18,7 @@
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>${basedir}/../../etc/project.xml</extend>
+    <!--extend>${basedir}/../../etc/project.xml</extend-->
     
     <groupId>geronimo</groupId>
     <id>geronimo-deployment-plugin</id>
@@ -32,6 +32,8 @@
     <package>org.apache.geronimo</package>
     <logo></logo>
 
+    <currentVersion>1.0-SNAPSHOT</currentVersion>
+    
     <dependencies>
         <!--dependency>
             <groupId>xml-resolver</groupId>

@@ -33,8 +33,20 @@
             className="org.apache.geronimo.deployment.mavenplugin.StartServer"
             method="execute"/>
         <define:jellybean
+            name="startRemoteServer"
+            className="org.apache.geronimo.deployment.mavenplugin.StartRemoteServer"
+            method="execute"/>
+        <define:jellybean
+            name="waitForStarted"
+            className="org.apache.geronimo.deployment.mavenplugin.WaitForStarted"
+            method="execute"/>
+        <define:jellybean
             name="stopServer"
             className="org.apache.geronimo.deployment.mavenplugin.StopServer"
+            method="execute"/>
+        <define:jellybean
+            name="stopRemoteServer"
+            className="org.apache.geronimo.deployment.mavenplugin.StopRemoteServer"
             method="execute"/>
 
     </define:taglib>
