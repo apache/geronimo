@@ -37,6 +37,7 @@ import org.apache.geronimo.axis.server.AxisWebServiceContainer;
 import org.apache.geronimo.axis.server.ReadOnlyServiceDesc;
 import org.apache.geronimo.axis.server.POJOProvider;
 import org.apache.geronimo.axis.testData.echosample.EchoBean;
+import org.apache.geronimo.webservices.WebServiceContainer;
 
 //import org.openejb.deployment.OpenEJBModuleBuilder;
 
@@ -86,7 +87,8 @@ public class AxisWebServiceContainerTest extends AbstractTestCase {
         ReadOnlyServiceDesc sd = new ReadOnlyServiceDesc(serviceDesc);
 
         Class pojoClass = cl.loadClass("org.apache.geronimo.axis.testData.echosample.EchoBean");
-        RPCProvider provider = new POJOProvider(pojoClass);
+
+        RPCProvider provider = new POJOProvider();
         SOAPService service = new SOAPService(null, provider, null);
         service.setServiceDescription(serviceDesc);
         service.setOption("className","org.apache.geronimo.axis.testData.echosample.EchoBean");
@@ -117,6 +119,8 @@ public class AxisWebServiceContainerTest extends AbstractTestCase {
                 new HashMap());
         AxisResponse res =
             new AxisResponse("text/xml; charset=utf-8", "127.0.0.1", null, null, 8080, System.out);
+
+        req.setAttribute(WebServiceContainer.POJO_INSTANCE, pojoClass.newInstance());
         continaer.invoke(req, res);
         System.out.flush();
     }
