@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.54 $ $Date: 2004/01/21 22:21:26 $ -->
+<!-- $Revision: 1.55 $ $Date: 2004/01/22 01:37:44 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -505,62 +505,64 @@
     <!-- ==================================================== -->
 
     <goal name="run">
-        <j:set var="run.dir" value="${basedir}/target/${release.id}"/>
+        <ant:echo>Run targets are currently disabled.  Please, check out the last working revision last_geronimombean.</ant:echo>
 
         <!--
            | Should really execute the system script but for now...
          -->
-
-        <j:jelly xmlns="jelly:ant">
-            <java
-                classname="org.codehaus.classworlds.Launcher"
-                fork="true"
-                maxmemory="128m"
-                failonerror="true"
-                dir="${run.dir}">
-
-                <classpath>
-                    <pathelement location="${run.dir}/lib/classworlds-SNAPSHOT.jar"/>
-                    <pathelement location="${run.dir}/lib/geronimo-core-rmiclassloaderspi.jar"/>
-                </classpath>
-
-                <sysproperty key="classworlds.conf" value="${run.dir}/etc/classworlds.conf"/>
-                <sysproperty key="program.name" value="maven:run"/>
-                <sysproperty key="twiddle.home" value="${run.dir}"/>
-                <sysproperty key="java.rmi.server.RMIClassLoaderSpi" value="org.apache.geronimo.rmi.RMIClassLoaderSpiImpl"/>
-                <arg value="geronimo/start"/>
-            </java>
-        </j:jelly>
+<!--        <j:set var="run.dir" value="${basedir}/target/${release.id}"/>-->
+<!--        <j:jelly xmlns="jelly:ant">-->
+<!--            <java-->
+<!--                classname="org.codehaus.classworlds.Launcher"-->
+<!--                fork="true"-->
+<!--                maxmemory="128m"-->
+<!--                failonerror="true"-->
+<!--                dir="${run.dir}">-->
+<!---->
+<!--                <classpath>-->
+<!--                    <pathelement location="${run.dir}/lib/classworlds-SNAPSHOT.jar"/>-->
+<!--                    <pathelement location="${run.dir}/lib/geronimo-core-rmiclassloaderspi.jar"/>-->
+<!--                </classpath>-->
+<!---->
+<!--                <sysproperty key="classworlds.conf" value="${run.dir}/etc/classworlds.conf"/>-->
+<!--                <sysproperty key="program.name" value="maven:run"/>-->
+<!--                <sysproperty key="twiddle.home" value="${run.dir}"/>-->
+<!--                <sysproperty key="java.rmi.server.RMIClassLoaderSpi" value="org.apache.geronimo.rmi.RMIClassLoaderSpiImpl"/>-->
+<!--                <arg value="geronimo/start"/>-->
+<!--            </java>-->
+<!--        </j:jelly>-->
     </goal>
 
     <goal name="run:main">
-        <j:set var="run.dir" value="${basedir}/target/${release.id}"/>
+        <ant:echo>Run targets are currently disabled.  Please, check out the last working revision last_geronimombean.</ant:echo>
 
-        <j:jelly xmlns="jelly:ant">
-
-            <property environment="env"/>
-            <java classname="org.apache.geronimo.kernel.Main"
-                fork="true"
-                maxmemory="256m"
-                failonerror="true"
-                dir="${run.dir}">
-
-                <jvmarg value="-ea"/>
-                <classpath>
-                    <pathelement path="${env.JAVA_HOME}/lib/tools.jar"/>
-                    <pathelement path="${run.dir}/etc"/>
-                    <fileset dir="${run.dir}/bootlib">
-                        <include name="*.jar"/>
-                    </fileset>
-
+<!--        <j:set var="run.dir" value="${basedir}/target/${release.id}"/>-->
+<!---->
+<!--        <j:jelly xmlns="jelly:ant">-->
+<!---->
+<!--            <property environment="env"/>-->
+<!--            <java classname="org.apache.geronimo.kernel.Main"-->
+<!--                fork="true"-->
+<!--                maxmemory="256m"-->
+<!--                failonerror="true"-->
+<!--                dir="${run.dir}">-->
+<!---->
+<!--                <jvmarg value="-ea"/>-->
+<!--                <classpath>-->
+<!--                    <pathelement path="${env.JAVA_HOME}/lib/tools.jar"/>-->
+<!--                    <pathelement path="${run.dir}/etc"/>-->
+<!--                    <fileset dir="${run.dir}/bootlib">-->
+<!--                        <include name="*.jar"/>-->
+<!--                    </fileset>-->
+<!---->
                     <!-- temporary addition allows RMI to be used, such as with the JMX RMI connector -->
-                    <pathelement location="${run.dir}/lib/geronimo-core-rmiclassloaderspi.jar"/>
-                </classpath>
-
-                <sysproperty key="program.name" value="maven:run"/>
-                <sysproperty key="java.rmi.server.RMIClassLoaderSpi" value="org.apache.geronimo.rmi.RMIClassLoaderSpiImpl"/>
-            </java>
-        </j:jelly>
+<!--                    <pathelement location="${run.dir}/lib/geronimo-core-rmiclassloaderspi.jar"/>-->
+<!--                </classpath>-->
+<!---->
+<!--                <sysproperty key="program.name" value="maven:run"/>-->
+<!--                <sysproperty key="java.rmi.server.RMIClassLoaderSpi" value="org.apache.geronimo.rmi.RMIClassLoaderSpiImpl"/>-->
+<!--            </java>-->
+<!--        </j:jelly>-->
     </goal>
 
     <goal name="debug:main">
