@@ -31,6 +31,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Collections;
 
 /**
  * @version $Rev$ $Date$
@@ -260,17 +261,37 @@ public class MailcapCommandMap extends CommandMap {
     public synchronized CommandInfo[] getPreferredCommands(String mimeType) {
         Map commands = (Map) preferredCommands.get(mimeType.toLowerCase());
         if (commands == null) {
-            return null;
+            commands = (Map) preferredCommands.get(getWildcardMimeType(mimeType));
+        }
+        if (commands == null) {
+            return new CommandInfo[0];
         }
         return (CommandInfo[]) commands.values().toArray(new CommandInfo[commands.size()]);
     }
 
     public synchronized CommandInfo[] getAllCommands(String mimeType) {
-        List commands = (List) allCommands.get(mimeType.toLowerCase());
-        return (CommandInfo[]) commands.toArray(new CommandInfo[commands.size()]);
+        mimeType = mimeType.toLowerCase();
+        List exactCommands = (List) allCommands.get(mimeType);
+        if (exactCommands == null) {
+            exactCommands = Collections.EMPTY_LIST;
+        }
+        List wildCommands = (List) allCommands.get(getWildcardMimeType(mimeType));
+        if (wildCommands == null) {
+            wildCommands = Collections.EMPTY_LIST;
+        }
+        CommandInfo[] result = new CommandInfo[exactCommands.size() + wildCommands.size()];
+        int j = 0;
+        for (int i = 0; i < exactCommands.size(); i++) {
+            result[j++] = (CommandInfo) exactCommands.get(i);
+        }
+        for (int i = 0; i < wildCommands.size(); i++) {
+            result[j++] = (CommandInfo) wildCommands.get(i);
+        }
+        return result;
     }
 
     public synchronized CommandInfo getCommand(String mimeType, String cmdName) {
+        mimeType = mimeType.toLowerCase();
         // strip any parameters from the supplied mimeType
         int i = mimeType.indexOf(';');
         if (i != -1) {
@@ -280,18 +301,21 @@ public class MailcapCommandMap extends CommandMap {
         // search for an exact match
         Map commands = (Map) preferredCommands.get(mimeType.toLowerCase());
         if (commands == null) {
-            i = mimeType.indexOf('/');
-            if (i == -1) {
-                mimeType = mimeType + "/*";
-            } else {
-                mimeType = mimeType.substring(0, i + 1) + "*";
-            }
-            commands = (Map) preferredCommands.get(mimeType.toLowerCase());
+            commands = (Map) preferredCommands.get(getWildcardMimeType(mimeType));
         }
         if (commands == null) {
             return null;
         }
         return (CommandInfo) commands.get(cmdName.toLowerCase());
+    }
+
+    private String getWildcardMimeType(String mimeType) {
+        int i = mimeType.indexOf('/');
+        if (i == -1) {
+            return mimeType + "/*";
+        } else {
+            return mimeType.substring(0, i + 1) + "*";
+        }
     }
 
     public synchronized DataContentHandler createDataContentHandler(String mimeType) {
