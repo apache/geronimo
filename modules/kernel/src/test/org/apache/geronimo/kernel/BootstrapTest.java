@@ -68,7 +68,7 @@ import org.apache.geronimo.kernel.config.LocalConfigStore;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/04 05:42:57 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/05 05:26:33 $
  */
 public class BootstrapTest extends TestCase {
     private File configRoot;
@@ -78,23 +78,32 @@ public class BootstrapTest extends TestCase {
 
     public void testCreate() throws Exception {
         Kernel kernel = new Kernel("test.kernel", "geronimo", storeInfo, configRoot);
+        assertEquals("No kernel should be registered", null, Kernel.getKernel("test.kernel"));
         kernel.boot();
+        assertEquals("test.kernel kernel should be registered", kernel, Kernel.getKernel("test.kernel"));
         kernel.shutdown();
+        assertEquals("No kernel should be registered", null, Kernel.getKernel("test.kernel"));
     }
 
     public void testPersist() throws Exception {
         Kernel kernel = new Kernel("test.kernel", "geronimo", storeInfo, configRoot);
+        assertEquals("No kernel should be registered", null, Kernel.getKernel("test.kernel"));
         kernel.boot();
+        assertEquals("test.kernel kernel should be registered", kernel, Kernel.getKernel("test.kernel"));
         ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(kernelState));
         oos.writeObject(kernel);
         oos.close();
         kernel.shutdown();
+        assertEquals("No kernel should be registered", null, Kernel.getKernel("test.kernel"));
 
         ObjectInputStream ois = new ObjectInputStream(new FileInputStream(kernelState));
         kernel = (Kernel) ois.readObject();
         ois.close();
+        assertEquals("No kernel should be registered", null, Kernel.getKernel("test.kernel"));
         kernel.boot();
+        assertEquals("test.kernel kernel should be registered", kernel, Kernel.getKernel("test.kernel"));
         kernel.shutdown();
+        assertEquals("No kernel should be registered", null, Kernel.getKernel("test.kernel"));
     }
 
     protected void setUp() throws Exception {

@@ -73,6 +73,7 @@ import javax.management.ReflectionException;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.net.URL;
@@ -107,7 +108,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.14 $ $Date: 2004/02/05 00:41:30 $
+ * @version $Revision: 1.15 $ $Date: 2004/02/05 05:26:33 $
  */
 public class Kernel implements Serializable, KernelMBean, NotificationBroadcaster {
 
@@ -127,6 +128,7 @@ public class Kernel implements Serializable, KernelMBean, NotificationBroadcaste
     public static final ObjectName CONFIG_STORE = JMXUtil.getObjectName("geronimo.boot:role=ConfigurationStore");
 
     private static final Map kernels = new Hashtable();
+    private static final ReferenceQueue queue = new ReferenceQueue();
     private final String kernelName;
     private final String domainName;
     private final GBeanInfo storeInfo;
@@ -152,8 +154,6 @@ public class Kernel implements Serializable, KernelMBean, NotificationBroadcaste
         this.domainName = domainName;
         this.storeInfo = storeInfo;
         this.configStore = configStore;
-
-        kernels.put(kernelName, new WeakReference(this));
     }
 
     /**
@@ -210,15 +210,17 @@ public class Kernel implements Serializable, KernelMBean, NotificationBroadcaste
      * @return the kernel that was registered with that name
      */
     public static Kernel getKernel(String name) {
-        WeakReference reference = (WeakReference) kernels.get(name);
-
-        if (reference == null) return null;
-
-        Kernel result = (Kernel) reference.get();
-        if (result == null) {
-            kernels.remove(name);
+        synchronized (kernels) {
+            processQueue();
+            KernelReference ref = (KernelReference) kernels.get(name);
+            if (ref != null) {
+                Kernel kernel = (Kernel) ref.get();
+                if (kernel != null) {
+                    return kernel;
+                }
+            }
         }
-        return result;
+        return null;
     }
 
     /**
@@ -230,15 +232,19 @@ public class Kernel implements Serializable, KernelMBean, NotificationBroadcaste
      * @throws IllegalStateException if more than one
      */
     public static Kernel getSingleKernel() {
-        int size = kernels.size();
-        if (size > 1) throw new IllegalStateException("More than one kernel has been registered.");
-        if (size < 1) return null;
+        synchronized (kernels) {
+            processQueue();
 
-        Kernel result = (Kernel) ((WeakReference) kernels.values().iterator().next()).get();
-        if (result == null) {
-            kernels.clear();
+            int size = kernels.size();
+            if (size > 1) throw new IllegalStateException("More than one kernel has been registered.");
+            if (size < 1) return null;
+
+            Kernel result = (Kernel) ((KernelReference) kernels.values().iterator().next()).get();
+            if (result == null) {
+                kernels.clear();
+            }
+            return result;
         }
-        return result;
     }
 
     public static ObjectName getConfigObjectName(URI configID) throws MalformedObjectNameException {
@@ -431,6 +437,13 @@ public class Kernel implements Serializable, KernelMBean, NotificationBroadcaste
         }
         log = LogFactory.getLog(Kernel.class.getName());
         log.info("Starting boot");
+
+        if (kernelName != null) {
+            synchronized (kernels) {
+                kernels.put(kernelName, new KernelReference(kernelName, this));
+            }
+        }
+
         mbServer = MBeanServerFactory.createMBeanServer(domainName);
         mbServer.registerMBean(this, KERNEL);
         mbServer.registerMBean(new DependencyService(), DEPENDENCY_SERVICE);
@@ -488,6 +501,13 @@ public class Kernel implements Serializable, KernelMBean, NotificationBroadcaste
         synchronized (this) {
             notify();
         }
+
+        if (kernelName != null) {
+            synchronized (kernels) {
+                kernels.remove(kernelName);
+            }
+        }
+
         log.info("Kernel shutdown complete");
     }
 
@@ -506,4 +526,21 @@ public class Kernel implements Serializable, KernelMBean, NotificationBroadcaste
     public void removeNotificationListener(NotificationListener listener) throws ListenerNotFoundException {
     }
 
+    private static void processQueue() {
+        KernelReference kernelRef;
+        while ((kernelRef = (KernelReference) queue.poll()) != null) {
+            synchronized (kernels) {
+                kernels.remove(kernelRef.key);
+            }
+        }
+    }
+
+    private static class KernelReference extends WeakReference {
+        private final Object key;
+
+        public KernelReference(Object key, Object kernel) {
+            super(kernel, queue);
+            this.key = key;
+        }
+    }
 }
