@@ -248,8 +248,8 @@ public class InternetHeaders {
             return null;
         }
         for (Iterator i = headers.iterator(); i.hasNext();) {
-            String header = (String) i.next();
-            InternetAddress.parseHeader(addrs, header, strict, true);
+            InternetHeader header = (InternetHeader) i.next();
+            InternetAddress.parseHeader(addrs, header.getValue(), strict, true);
         }
         return (InternetAddress[]) addrs.toArray(new InternetAddress[addrs.size()]);
     }
