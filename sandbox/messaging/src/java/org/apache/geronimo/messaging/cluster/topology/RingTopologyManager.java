@@ -17,11 +17,17 @@
 
 package org.apache.geronimo.messaging.cluster.topology;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.geronimo.messaging.NodeInfo;
@@ -30,7 +36,7 @@ import org.apache.geronimo.messaging.NodeTopology;
 /**
  * A simple ring topology manager.
  *
- * @version $Revision: 1.3 $ $Date: 2004/07/17 03:33:34 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/19 23:56:37 $
  */
 public class RingTopologyManager
     implements TopologyManager
@@ -58,85 +64,83 @@ public class RingTopologyManager
     }
 
     public NodeTopology factoryTopology() {
-        return new RingTopology(nodes);
+        return new RingTopology(new ArrayList(nodes));
     }
 
-    private static class RingTopology implements NodeTopology {
+    /**
+     * Implementation note: it is an Externalizable as one does not want to
+     * serialize the Map of paths.
+     */
+    private static class RingTopology implements NodeTopology, Externalizable {
 
         private static int versionSeq = 0;
-        
-        private final List nodes;
-        private final Set nodeSet;
-        private final NodeInfo[] nodeArray;
-        private final NodeInfo[] nodeArrayInv;
-        private final int version;
-        
+
+        private List nodes;
+        private Set nodeSet;
+        private int version;
+        private Map paths;
+
+        /**
+         * Requires for externalization.
+         */
+        public RingTopology() {}
         
         private RingTopology(List aNodes) {
             nodes = aNodes;
-            nodeSet = new HashSet(nodes);
-            nodeArray = (NodeInfo[]) aNodes.toArray(new NodeInfo[0]);
-            int length = nodeArray.length;
-            nodeArrayInv = new NodeInfo[length];
-            for (int i = 0; i < length; i++) {
-                nodeArrayInv[i] = nodeArray[length - i - 1];
-            }
             version = versionSeq++;
+            initialize();
         }
         
         public Set getNeighbours(NodeInfo aRoot) {
-            if ( 1 == nodeArray.length ) {
+            if ( 1 == nodes.size() ) {
                 return Collections.EMPTY_SET;
-            } else if ( 2 == nodeArray.length ) {
+            }
+            int index;
+            try {
+                index = getIDOfNode(aRoot);
+            } catch (IllegalArgumentException e) {
+                return Collections.EMPTY_SET;
+            }
+            if ( 2 == nodes.size() ) {
                 Set result = new HashSet();
-                int index = getIDOfNode(aRoot);
-                result.add(nodeArray[0 == index ? 1 : 0]);
+                result.add(nodes.get(0 == index ? 1 : 0));
                 return result;
             }
             
             Set result = new HashSet();
-            int index = getIDOfNode(aRoot);
             if ( 0 == index ) {
-                result.add(nodeArray[nodeArray.length - 1]);
-                result.add(nodeArray[1]);
-            } else if ( nodeArray.length - 1 == index ) {
-                result.add(nodeArray[0]);
-                result.add(nodeArray[nodeArray.length - 2]);
+                result.add(nodes.get(nodes.size() - 1));
+                result.add(nodes.get(1));
+            } else if ( nodes.size() - 1 == index ) {
+                result.add(nodes.get(0));
+                result.add(nodes.get(nodes.size() - 2));
             } else {
-                result.add(nodeArray[index - 1]);
-                result.add(nodeArray[index + 1]);
+                result.add(nodes.get(index - 1));
+                result.add(nodes.get(index + 1));
             }
             return result;
         }
 
         public NodeInfo[] getPath(NodeInfo aSource, NodeInfo aTarget) {
-            int srcIndex = getIDOfNode(aSource);
-            int destIndex = getIDOfNode(aTarget);
-            NodeInfo[] path = new NodeInfo[Math.abs(destIndex - srcIndex)];
-            if ( srcIndex < destIndex ) {
-                System.arraycopy(nodeArray, srcIndex + 1, path, 0, path.length);
-            } else {
-                System.arraycopy(nodeArrayInv,
-                    nodeArrayInv.length - srcIndex, path, 0, path.length);
-            }
-            return path;
+            PathInfo pathInfo = new PathInfo(aSource, aTarget);
+            return (NodeInfo[]) paths.get(pathInfo);
         }
 
         public int getIDOfNode(NodeInfo aNodeInfo) {
-            for (int i = 0; i < nodeArray.length; i++) {
-                if ( nodeArray[i].equals(aNodeInfo) ) {
-                    return i;
-                }
+            int index = nodes.indexOf(aNodeInfo);
+            if ( -1 == index ) {
+                throw new IllegalArgumentException(aNodeInfo +
+                    " is not registered by the topology.");
             }
-            throw new IllegalArgumentException(aNodeInfo +
-                " is not registered by the topology.");
+            return index;
         }
 
         public NodeInfo getNodeById(int anId) {
-            if ( 0 > anId || nodeArray.length <= anId ) {
+            try {
+                return (NodeInfo) nodes.get(anId);
+            } catch (IndexOutOfBoundsException e) {
                 throw new IllegalArgumentException("Wrong identifier.");
             }
-            return nodeArray[anId];
         }
 
         public Set getNodes() {
@@ -147,9 +151,21 @@ public class RingTopologyManager
             return version;
         }
 
+        public void readExternal(ObjectInput in)
+            throws IOException, ClassNotFoundException {
+            nodes = (List) in.readObject();
+            version = in.readInt();
+            initialize();
+        }
+    
+        public void writeExternal(ObjectOutput out) throws IOException {
+            out.writeObject(nodes);
+            out.writeInt(version);
+        }
+
         public String toString() {
             StringBuffer buffer = new StringBuffer();
-            buffer.append("Topology type:Ring; \nMembers: ");
+            buffer.append("Topology type: Ring \nMembers: ");
             for (Iterator iter = nodeSet.iterator(); iter.hasNext();) {
                 NodeInfo nodeInfo = (NodeInfo) iter.next();
                 buffer.append("\n  " + nodeInfo + "");
@@ -157,6 +173,56 @@ public class RingTopologyManager
             return buffer.toString();
         }
         
+        private void initialize() {
+            nodeSet = new HashSet(nodes);
+
+            paths = new HashMap();
+            List cycledNodes = new ArrayList(nodes);
+            cycledNodes.addAll(nodes);
+            for(int i = 0; i < nodes.size(); i++) {
+                for(int j = i + 1; j < i + nodes.size(); j++) {
+                    PathInfo pathInfo =
+                        new PathInfo(
+                            (NodeInfo)cycledNodes.get(i), 
+                            (NodeInfo)cycledNodes.get(j));
+                    List result = cycledNodes.subList(i + 1, j + 1);
+                    paths.put(pathInfo, result.toArray(new NodeInfo[0]));
+                }
+            }
+            Collections.reverse(cycledNodes);
+            for(int i = 0; i < nodes.size(); i++) {
+                for(int j = i + 1; j < i + nodes.size(); j++) {
+                    PathInfo pathInfo =
+                        new PathInfo(
+                            (NodeInfo)cycledNodes.get(i), 
+                            (NodeInfo)cycledNodes.get(j));
+                    List result = cycledNodes.subList(i + 1, j + 1);
+                    NodeInfo[] path = (NodeInfo[]) paths.get(pathInfo);
+                    if ( result.size() < path.length ) {
+                        paths.put(pathInfo, result.toArray(new NodeInfo[0]));
+                    }
+                }
+            }
+        }        
+    }
+    
+    private static class PathInfo {
+        private final NodeInfo src;
+        private final NodeInfo dest;
+        private PathInfo(NodeInfo aSrc, NodeInfo aDest) {
+            src = aSrc;
+            dest = aDest;
+        }
+        public int hashCode() {
+            return src.hashCode() ^ dest.hashCode();
+        }
+        public boolean equals(Object obj) {
+            if ( false == obj instanceof PathInfo ) {
+                return false;
+            }
+            PathInfo other = (PathInfo) obj;
+            return src.equals(other.src) && dest.equals(other.dest);
+        }
     }
     
 }
