@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.17 $ $Date: 2003/08/30 08:40:37 $ -->
+<!-- $Revision: 1.18 $ $Date: 2003/09/01 19:47:39 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -25,9 +25,71 @@
   <!-- ============ -->
 
   <dependencies>
-
+    
+    <!-- Plugin Dependencies -->
+    
+    <dependency>
+      <id>commons-collections</id>
+      <version>2.1</version>
+      <properties>
+        <runtime>false</runtime>
+      </properties>
+    </dependency>
+    
+    <!-- Already a dependent
+    <dependency>
+      <id>commons-logging</id>
+      <version>1.1-dev</version>
+      <properties>
+        <runtime>false</runtime>
+      </properties>
+    </dependency>
+    -->
+    
+    <!-- Already a dependent
+    <dependency>
+      <id>log4j</id>
+      <version>1.2.8</version>
+      <properties>
+        <runtime>false</runtime>
+      </properties>
+    </dependency>
+    -->
+    
+    <dependency>
+      <id>xdoclet</id>
+      <version>1.2b2</version>
+      <properties>
+        <runtime>false</runtime>
+      </properties>
+    </dependency>
+    
+    <dependency>
+      <id>xdoclet+xdoclet-module</id>
+      <version>1.2b2</version>
+      <properties>
+        <runtime>false</runtime>
+      </properties>
+    </dependency>
+    
+    <dependency>
+      <id>xdoclet+jmx-module</id>
+      <version>1.2b2</version>
+      <properties>
+        <runtime>false</runtime>
+      </properties>
+    </dependency>
+    
+    <dependency>
+      <id>xdoclet+xjavadoc</id>
+      <version>1.2b2</version>
+      <properties>
+        <runtime>false</runtime>
+      </properties>
+    </dependency>
+    
     <!-- Module Dependencies -->
-
+    
     <dependency>
       <groupId>geronimo</groupId>
       <artifactId>geronimo-common</artifactId>
@@ -36,7 +98,16 @@
         <module>true</module>
       </properties>
     </dependency>
-
+    
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>geronimo-kernel</artifactId>
+      <version>DEV</version>
+      <properties>
+        <module>true</module>
+      </properties>
+    </dependency>
+    
     <dependency>
       <groupId>geronimo</groupId>
       <artifactId>geronimo-twiddle</artifactId>

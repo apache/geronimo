@@ -1,45 +1,30 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.15 $ $Date: 2003/08/29 12:36:51 $ -->
+<!-- $Revision: 1.16 $ $Date: 2003/09/01 19:47:39 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
   xmlns:ant="jelly:ant"
   xmlns:maven="jelly:maven"
-  xmlns:castor="castor">
+  xmlns:xdoclet="common:xdoclet"
+  xmlns:castor="common:castor">>
 
   <preGoal name="xdoc:jelly-transform">
     <attainGoal name="html2xdoc"/>
   </preGoal>
-
+  
   <preGoal name="java:compile">
-    <attainGoal name="castor:prepare-filesystem"/>
-      
-    <j:set var="schema" value="${basedir}/src/schema/geronimo-ejb-jar.xsd"/>
-    <j:set var="gen" value="${pom.getPluginContext('maven-castor-plugin').getVariable('maven.castor.dest')}"/>
-
-    <ant:path id="castor.classpath">
-      <ant:path refid="maven.dependency.classpath"/>
-    </ant:path>
-     
-    <ant:java className="org.exolab.castor.builder.SourceGenerator"
-              failonerror="true" fork="yes">
-      <ant:classpath refid="castor.classpath"/>
-      <ant:arg value="-i"/>
-      <ant:arg value="${schema}"/>
-      <ant:arg value="-package"/>
-      <ant:arg value="org.apache.geronimo.enterprise.deploy.common"/>
-      <ant:arg value="-types"/>
-      <ant:arg value="j2"/>
-      <ant:arg value="-nomarshall"/>
-      <ant:arg value="-f"/>
-      <ant:arg value="-dest"/>
-      <ant:arg value="${gen}"/>
-    </ant:java>
+    <attainGoal name="xdoclet:jmxdoclet:compile"/>
+  </preGoal>
     
+  <preGoal name="java:compile">
+    <castor:generate
+      schema="${basedir}/src/schema/geronimo-ejb-jar.xsd"
+      package="org.apache.geronimo.enterprise.deploy.common"
+      types="j2"/>
   </preGoal>
 
-  <postGoal name="java:compile">
+  <postGoal name="jar:jar">
     <ant:jar destfile="${basedir}/target/jsr88-geronimo-plugin.jar"
              basedir="${basedir}/target/classes"
              includes="org/apache/geronimo/enterprise/deploy/provider/**/*.class"
@@ -52,39 +37,25 @@
              includes="org/apache/geronimo/rmi/RMIClassLoaderSpiImpl.class"/>
   </postGoal>
   
-  <preGoal name="java:compile">
-    <!--
-    <j:set var="maven.javacc.compile.src" value="target/gen-src"/>
-    <ant:path id="maven.javacc.compile.src.set" location="${maven.javacc.compile.src}"/>
-    <maven:addPath id="maven.compile.src.set" refid="maven.javacc.compile.src.set"/>
-
-    <ant:mkdir dir="${maven.javacc.compile.src}/geronimo/persistence/ejb/ejbql"/>
-    <ant:jjtree target="src/java/geronimo/persistence/ejb/ejbql/EJBQL20Parser.jjt"
-                outputdirectory="${maven.javacc.compile.src}/geronimo/persistence/ejb/ejbql"
-                javacchome="${maven.repo.local}/javacc/jars" />
-    <ant:javacc target="${maven.javacc.compile.src}/geronimo/persistence/ejb/ejbql/EJBQL20Parser.jj"
-                javacchome="${maven.repo.local}/javacc/jars"/>
-    -->
-  </preGoal>
-
-
   <!-- Set up the test files -->
   <postGoal name="test:test-resources">
-
-    <!-- Compile the code for the Marshalling/Remoting tests -->
-    <ant:mkdir dir="${maven.build.dir}/mock-app"/>
-    <javac
-      destdir="${maven.build.dir}/mock-app"
-      debug="${maven.compile.debug}"
-      deprecation="${maven.compile.deprecation}"
-      optimize="${maven.compile.optimize}">
-      <src>
-        <path>
-          <pathelement location="${maven.src.dir}/test-data/mock-app"/>
-        </path>
-      </src>
-    </javac>
-
-  </postGoal>  
+    
+    <j:jelly xmlns="jelly:ant">
+      <!-- Compile the code for the Marshalling/Remoting tests -->
+      <mkdir dir="${maven.build.dir}/mock-app"/>
+      <javac
+        destdir="${maven.build.dir}/mock-app"
+        debug="${maven.compile.debug}"
+        deprecation="${maven.compile.deprecation}"
+        optimize="${maven.compile.optimize}">
+        <src>
+          <path>
+            <pathelement location="${maven.src.dir}/test-data/mock-app"/>
+          </path>
+        </src>
+      </javac>
+    </j:jelly>
+    
+  </postGoal>
 
 </project>
