@@ -17,13 +17,15 @@
 
 package org.apache.geronimo.kernel.management;
 
+import java.io.Serializable;
+
 
 /**
  * This class contains a type safe enumeration of the states from the J2EE Management specification.
  *
- * @version $Revision: 1.4 $ $Date: 2004/05/27 01:06:00 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/02 19:46:24 $
  */
-public final class State {
+public final class State implements Serializable {
     public static final int STARTING_INDEX = 0;
     public static final int RUNNING_INDEX = 1;
     public static final int STOPPING_INDEX = 2;
@@ -49,6 +51,16 @@ public final class State {
             return null;
         }
         return fromInt[index];
+    }
+
+    /**
+     * Get a State from an Integer index
+     *
+     * @param index Integer index of the state
+     * @return The State instance or null if no such State.
+     */
+    public static State fromInteger(Integer index) {
+        return fromInt(index.intValue());
     }
 
     /**
@@ -90,5 +102,9 @@ public final class State {
 
     public String toString() {
         return name;
+    }
+
+    private Object readResolve() {
+        return fromInt[index];
     }
 }
