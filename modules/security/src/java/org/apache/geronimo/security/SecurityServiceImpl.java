@@ -59,14 +59,22 @@ public class SecurityServiceImpl {
             System.setProperty("javax.security.jacc.PolicyConfigurationFactory.provider", policyConfigurationFactory);
         }
 
-        PolicyConfigurationFactory.getPolicyConfigurationFactory();
+        /**
+         * javax.security.jacc.policy.provider get preference over policyProvider
+         */
+        String sysProvider = System.getProperty("javax.security.jacc.policy.provider");
+        if (sysProvider != null)
+            policyProvider = sysProvider;
 
         if (policyProvider != null) {
+            System.setProperty("javax.security.jacc.policy.provider", policyProvider);
             Policy customPolicy = (Policy) classLoader.loadClass(policyProvider).newInstance();
             Policy.setPolicy(customPolicy);
         } else {
             Policy.setPolicy(new GeronimoPolicy());
         }
+
+        PolicyConfigurationFactory.getPolicyConfigurationFactory();
 
         log.info("JACC factory registered");
     }
