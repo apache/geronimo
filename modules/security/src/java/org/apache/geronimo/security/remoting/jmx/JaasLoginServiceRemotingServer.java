@@ -24,6 +24,7 @@ import java.net.URISyntaxException;
 import org.activeio.AcceptListener;
 import org.activeio.AsynchChannelServer;
 import org.activeio.Channel;
+import org.activeio.Packet;
 import org.activeio.RequestChannel;
 import org.activeio.SynchChannel;
 import org.activeio.SynchChannelServer;
@@ -100,9 +101,18 @@ public class JaasLoginServiceRemotingServer implements GBeanLifecycle {
     }
 
     private RequestChannel createRequestChannel(SynchChannel channel) throws IOException {
+        
         return new AsynchChannelToServerRequestChannel( 
                 new PacketAggregatingAsynchChannel(
-                        new SynchToAsynchChannelAdapter(channel)));
+                        new SynchToAsynchChannelAdapter(channel))) {            
+            /**
+             * close out the channel once one request has been serviced.
+             */
+            public void onPacket(Packet packet) {
+                super.onPacket(packet);
+                dispose();
+            }            
+        };
     }
 
     public void doStop() {

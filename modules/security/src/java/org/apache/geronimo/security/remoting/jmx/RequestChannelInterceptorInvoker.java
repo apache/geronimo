@@ -35,10 +35,6 @@ public class RequestChannelInterceptorInvoker implements RequestListener {
     private ClassLoader classloader;
     private Interceptor next;
 
-    public RequestChannelInterceptorInvoker(Interceptor next) {
-        this.next = next;
-    }
-
     public RequestChannelInterceptorInvoker(Interceptor next, ClassLoader classloader) {
         this.next = next;
         this.classloader = classloader;
@@ -93,7 +89,7 @@ public class RequestChannelInterceptorInvoker implements RequestListener {
     }
 
     public void onRquestError(IOException error) {
-        // TODO: handle this.
+        System.out.println("Request Error:"+error);
     }
 
 }
