@@ -1,0 +1,24 @@
+<project default="jar:install" 
+         xmlns:j="jelly:core" 
+         xmlns:ant="jelly:ant" 
+         xmlns:maven="jelly:maven">
+
+  <preGoal name="xdoc:jelly-transform">
+    <attainGoal name="html2xdoc"/>
+  </preGoal>
+
+  <preGoal name="java:compile">
+    <!--
+    <j:set var="maven.javacc.compile.src" value="target/gen-src"/>
+    <ant:path id="maven.javacc.compile.src.set" location="${maven.javacc.compile.src}"/>
+    <maven:addPath id="maven.compile.src.set" refid="maven.javacc.compile.src.set"/>
+
+    <ant:mkdir dir="${maven.javacc.compile.src}/geronimo/persistence/ejb/ejbql"/>
+    <ant:jjtree target="src/java/geronimo/persistence/ejb/ejbql/EJBQL20Parser.jjt"
+                outputdirectory="${maven.javacc.compile.src}/geronimo/persistence/ejb/ejbql"
+                javacchome="${maven.repo.local}/javacc/jars" />
+    <ant:javacc target="${maven.javacc.compile.src}/geronimo/persistence/ejb/ejbql/EJBQL20Parser.jj"
+                javacchome="${maven.repo.local}/javacc/jars"/>
+    -->
+  </preGoal>
+</project>
