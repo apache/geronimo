@@ -154,17 +154,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             XmlObject xmlObject = SchemaConversionUtils.parse(specDD);
             ConnectorDocument connectorDoc = SchemaConversionUtils.convertToConnectorSchema(xmlObject);
             connector = connectorDoc.getConnector();
-//            try {
-//                // try 1.0
-//                ConnectorDocument10 connectorDoc = ConnectorDocument10.Factory.parse(specDD);
-//                SchemaConversionUtils.validateDD(connectorDoc);
-//                connector = connectorDoc.getConnector();
-//            } catch (Exception ignore) {
-//                // that didn't work try 1.5
-//                ConnectorDocument connectorDoc = ConnectorDocument.Factory.parse(specDD);
-//                SchemaConversionUtils.validateDD(connectorDoc);
-//                connector = connectorDoc.getConnector();
-//            }
         } catch (Exception e) {
             return null;
         }
