@@ -17,20 +17,89 @@
 
 package org.apache.geronimo.jetty;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpListener;
 import org.mortbay.http.UserRealm;
 import org.mortbay.jetty.Server;
+
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.WaitingException;
 
 /**
  * @version $Rev$ $Date$
  */
 public class JettyContainerImpl implements JettyContainer, GBeanLifecycle {
     private final Server server;
+
+    public void resetStatistics() {
+        server.statsReset();
+    }
+
+    public void setCollectStatistics(boolean on) {
+        server.setStatsOn(on);
+    }
+
+    public boolean getCollectStatistics() {
+        return server.getStatsOn();
+    }
+
+    public long getCollectStatisticsStarted() {
+        return server.getStatsOnMs();
+    }
+
+    public int getConnections() {
+        return server.getConnections();
+    }
+
+    public int getConnectionsOpen() {
+        return server.getConnectionsOpen();
+    }
+
+    public int getConnectionsOpenMax() {
+        return server.getConnectionsOpenMax();
+    }
+
+    public long getConnectionsDurationAve() {
+        return server.getConnectionsDurationAve();
+    }
+
+    public long getConnectionsDurationMax() {
+        return server.getConnectionsDurationMax();
+    }
+
+    public int getConnectionsRequestsAve() {
+        return server.getConnectionsRequestsAve();
+    }
+
+    public int getConnectionsRequestsMax() {
+        return server.getConnectionsRequestsMax();
+    }
+
+    public int getErrors() {
+        return server.getErrors();
+    }
+
+    public int getRequests() {
+        return server.getRequests();
+    }
+
+    public int getRequestsActive() {
+        return server.getRequestsActive();
+    }
+
+    public int getRequestsActiveMax() {
+        return server.getRequestsActiveMax();
+    }
+
+    public long getRequestsDurationAve() {
+        return server.getRequestsDurationAve();
+    }
+
+    public long getRequestsDurationMax() {
+        return server.getRequestsDurationMax();
+    }
 
     public JettyContainerImpl() {
         server = new JettyServer();
@@ -83,6 +152,23 @@ public class JettyContainerImpl implements JettyContainer, GBeanLifecycle {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty Web Container", JettyContainerImpl.class);
+        infoFactory.addAttribute("collectStatistics", Boolean.TYPE, true);
+        infoFactory.addAttribute("collectStatisticsStarted", Long.TYPE, false);
+        infoFactory.addAttribute("connections", Integer.TYPE, false);
+        infoFactory.addAttribute("connectionsOpen", Integer.TYPE, false);
+        infoFactory.addAttribute("connectionsOpenMax", Integer.TYPE, false);
+        infoFactory.addAttribute("connectionsDurationAve", Long.TYPE, false);
+        infoFactory.addAttribute("connectionsDurationMax", Long.TYPE, false);
+        infoFactory.addAttribute("connectionsRequestsAve", Integer.TYPE, false);
+        infoFactory.addAttribute("connectionsRequestsMax", Integer.TYPE, false);
+        infoFactory.addAttribute("errors", Integer.TYPE, false);
+        infoFactory.addAttribute("requests", Integer.TYPE, false);
+        infoFactory.addAttribute("requestsActive", Integer.TYPE, false);
+        infoFactory.addAttribute("requestsActiveMax", Integer.TYPE, false);
+        infoFactory.addAttribute("requestsDurationAve", Long.TYPE, false);
+        infoFactory.addAttribute("requestsDurationMax", Long.TYPE, false);
+        infoFactory.addOperation("resetStatistics");
+
         infoFactory.addOperation("addListener", new Class[]{HttpListener.class});
         infoFactory.addOperation("removeListener", new Class[]{HttpListener.class});
         infoFactory.addOperation("addContext", new Class[]{HttpContext.class});

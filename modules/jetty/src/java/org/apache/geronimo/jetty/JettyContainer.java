@@ -36,4 +36,38 @@ public interface JettyContainer {
     void addRealm(UserRealm realm);
 
     void removeRealm(UserRealm realm);
+
+    void resetStatistics();
+
+    void setCollectStatistics(boolean on);
+
+    boolean getCollectStatistics();
+
+    long getCollectStatisticsStarted();
+
+    int getConnections();
+
+    int getConnectionsOpen();
+
+    int getConnectionsOpenMax();
+
+    long getConnectionsDurationAve();
+
+    long getConnectionsDurationMax();
+
+    int getConnectionsRequestsAve();
+
+    int getConnectionsRequestsMax();
+
+    int getErrors();
+
+    int getRequests();
+
+    int getRequestsActive();
+
+    int getRequestsActiveMax();
+
+    long getRequestsDurationAve();
+
+    long getRequestsDurationMax();
 }
