@@ -3,14 +3,15 @@
     <context-root>/demo</context-root>
     <context-priority-classloader>false</context-priority-classloader>
     <security use-context-handler="false">
-        <default-principal>
-            <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="george"/>
+        <default-principal realm-name="demo-properties-realm">
+            <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="izumi"/>
         </default-principal>
         <role-mappings>
             <role role-name="content-administrator">
-                <realm realm-name="geronimo-properties-realm">
-                    <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal" name="it"/>
+                <realm realm-name="demo-properties-realm">
+                    <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal" name="it" designated-run-as="true"/>
                     <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="metro"/>
+                    <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="george"/>
                 </realm>
             </role>
         </role-mappings>
