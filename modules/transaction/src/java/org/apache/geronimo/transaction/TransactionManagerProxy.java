@@ -217,9 +217,9 @@ public class TransactionManagerProxy implements TransactionManager, XidImporter,
     //XidImporter implementation. Wrap and unwrap TransactionProxy.
     //the importer functions should not affect the thread context.
     public Transaction importXid(Xid xid) throws XAException, SystemException {
-        if (threadTx.get() != null) {
-            throw new IllegalStateException("Transaction already associated with current thread");
-        }
+//        if (threadTx.get() != null) {
+//            throw new XAException("Transaction already associated with current thread");
+//        }
         TransactionProxy transactionProxy = new TransactionProxy(importer.importXid(xid));
 //        threadTx.set(transactionProxy);
         return transactionProxy;

@@ -125,11 +125,11 @@ public class TransactionManagerImpl implements TransactionManager, XidImporter {
     }
 
     public Transaction importXid(Xid xid) throws XAException, SystemException {
-        if (getStatus() != Status.STATUS_NO_TRANSACTION) {
-            throw new XAException("Transaction already active in this thread");
-        }
+//        if (getStatus() != Status.STATUS_NO_TRANSACTION) {
+//            throw new XAException("Transaction already active in this thread");
+//        }
         TransactionImpl tx = new TransactionImpl(xid, xidFactory, txnLog);
-        threadTx.set(tx);
+//        threadTx.set(tx);
         return tx;
     }
 
