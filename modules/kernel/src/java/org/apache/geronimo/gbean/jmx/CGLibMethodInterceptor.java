@@ -37,7 +37,7 @@ import org.objectweb.asm.Type;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/07/12 06:07:51 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/14 00:34:47 $
  */
 public class CGLibMethodInterceptor implements ProxyMethodInterceptor, MethodInterceptor {
     /**
@@ -160,8 +160,12 @@ public class CGLibMethodInterceptor implements ProxyMethodInterceptor, MethodInt
 
         if (method.getName().startsWith("get")) {
             String attributeName = method.getName().substring(3);
-            attributeName = Introspector.decapitalize(attributeName);
             Integer methodIndex = ((Integer) attributes.get(attributeName));
+            if (methodIndex != null) {
+                return new RawGetAttributeInvoker(rawInvoker, methodIndex.intValue());
+            }
+            attributeName = Introspector.decapitalize(attributeName);
+            methodIndex = ((Integer) attributes.get(attributeName));
             if (methodIndex != null) {
                 return new RawGetAttributeInvoker(rawInvoker, methodIndex.intValue());
             }
@@ -169,8 +173,12 @@ public class CGLibMethodInterceptor implements ProxyMethodInterceptor, MethodInt
 
         if (method.getName().startsWith("is")) {
             String attributeName = method.getName().substring(2);
-            attributeName = Introspector.decapitalize(attributeName);
             Integer methodIndex = ((Integer) attributes.get(attributeName));
+            if (methodIndex != null) {
+                return new RawGetAttributeInvoker(rawInvoker, methodIndex.intValue());
+            }
+            attributeName = Introspector.decapitalize(attributeName);
+            methodIndex = ((Integer) attributes.get(attributeName));
             if (methodIndex != null) {
                 return new RawGetAttributeInvoker(rawInvoker, methodIndex.intValue());
             }
@@ -178,8 +186,12 @@ public class CGLibMethodInterceptor implements ProxyMethodInterceptor, MethodInt
 
         if (method.getName().startsWith("set")) {
             String attributeName = method.getName().substring(3);
-            attributeName = Introspector.decapitalize(attributeName);
             Integer methodIndex = ((Integer) attributes.get(attributeName));
+            if (methodIndex != null) {
+                return new RawSetAttributeInvoker(rawInvoker, methodIndex.intValue());
+            }
+            attributeName = Introspector.decapitalize(attributeName);
+            methodIndex = ((Integer) attributes.get(attributeName));
             if (methodIndex != null) {
                 return new RawSetAttributeInvoker(rawInvoker, methodIndex.intValue());
             }
@@ -233,21 +245,15 @@ public class CGLibMethodInterceptor implements ProxyMethodInterceptor, MethodInt
 
         String name = method.getName();
         if (name.startsWith("get")) {
-            String attributeName = method.getName().substring(3);
-            attributeName = Introspector.decapitalize(attributeName);
-            if (attributes.containsKey(attributeName)) {
+            if (attributes.containsKey(method.getName().substring(3))) {
                 return new JMXGetAttributeInvoker(server, method);
             }
         } else if (name.startsWith("is")) {
-            String attributeName = method.getName().substring(2);
-            attributeName = Introspector.decapitalize(attributeName);
-            if (attributes.containsKey(attributeName)) {
+            if (attributes.containsKey(method.getName().substring(2))) {
                 return new JMXGetAttributeInvoker(server, method);
             }
         } else if (name.startsWith("set")) {
-            String attributeName = method.getName().substring(3);
-            attributeName = Introspector.decapitalize(attributeName);
-            if (attributes.containsKey(attributeName)) {
+            if (attributes.containsKey(method.getName().substring(3))) {
                 return new JMXSetAttributeInvoker(server, method);
             }
         }
