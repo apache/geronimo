@@ -75,7 +75,7 @@ import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
  * and once the MBean is deployed an imutable copy of will be made.  This class also adds support for multi target
  * POJOs under the MBean.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:35 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/24 22:45:01 $
  */
 public final class GeronimoMBeanInfo extends MBeanInfo {
     /**
@@ -97,12 +97,13 @@ public final class GeronimoMBeanInfo extends MBeanInfo {
     public static final String NEVER = "never";
 
     public GeronimoMBeanInfo() {
-        super(null, null, null, null, null, null);
+        // first aregument must be non-nul until MX4J snapshot is updated
+        super("Ignore", null, null, null, null, null);
         immutable = false;
     }
 
     GeronimoMBeanInfo(GeronimoMBeanInfo source) {
-        super(null, null, null, null, null, null);
+        super("Ignore", null, null, null, null, null);
         immutable = true;
 
         //

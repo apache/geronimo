@@ -72,7 +72,7 @@ import net.sf.cglib.MethodProxy;
  * direct the operation to a specific target in a multi target GeronimoMBean.  It also supports caching of the
  * invocation result, which can reduce the number of calls on the target.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:35 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/24 22:45:01 $
  */
 public final class GeronimoOperationInfo extends MBeanOperationInfo {
     /**
@@ -152,7 +152,7 @@ public final class GeronimoOperationInfo extends MBeanOperationInfo {
     private final int hashCode = System.identityHashCode(this);
 
     public GeronimoOperationInfo() {
-        super(null, null, null, null, MBeanOperationInfo.UNKNOWN);
+        super("Ignore", null, null, "Ignore", MBeanOperationInfo.UNKNOWN);
         immutable = false;
         methodProxy = null;
         returnType = null;
@@ -160,7 +160,7 @@ public final class GeronimoOperationInfo extends MBeanOperationInfo {
     }
 
     GeronimoOperationInfo(GeronimoOperationInfo source, GeronimoMBeanInfo parent) {
-        super(null, null, null, null, MBeanOperationInfo.UNKNOWN);
+        super("Ignore", null, null, "Ignore", MBeanOperationInfo.UNKNOWN);
         this.immutable = true;
 
         //

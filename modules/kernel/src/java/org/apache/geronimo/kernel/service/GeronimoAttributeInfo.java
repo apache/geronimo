@@ -66,7 +66,7 @@ import net.sf.cglib.MethodProxy;
  * direct the attibute to a specific target in a multi target GeronimoMBean.  It also supports caching of the
  * attribute value, which can reduce the number of calls on the target.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:35 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/24 22:45:01 $
  */
 public class GeronimoAttributeInfo extends MBeanAttributeInfo {
     /**
@@ -163,7 +163,7 @@ public class GeronimoAttributeInfo extends MBeanAttributeInfo {
      * Creates an empty mutable GeronimoAttributeInfo.
      */
     public GeronimoAttributeInfo() {
-        super(null, null, null, true, true, false);
+        super("Ignore", "Ignore", null, true, true, false);
         immutable = false;
         getterProxy = null;
         setterProxy = null;
@@ -176,7 +176,7 @@ public class GeronimoAttributeInfo extends MBeanAttributeInfo {
      * @param parent the GeronimoMBeanInfo that will contain this attribute
      */
     GeronimoAttributeInfo(GeronimoAttributeInfo source, GeronimoMBeanInfo parent) {
-        super(null, null, null, true, true, false);
+        super("Ignore", "Ignore", null, true, true, false);
         immutable = true;
 
         //

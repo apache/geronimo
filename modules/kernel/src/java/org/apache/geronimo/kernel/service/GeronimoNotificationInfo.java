@@ -67,7 +67,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
  * Describes a notification of a GeronimoMBean.  This extension allows the properties to be mutable during setup,
  * and once the MBean is deployed an imutable copy of will be made.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:35 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/24 22:45:01 $
  */
 public final class GeronimoNotificationInfo extends MBeanNotificationInfo {
     private final boolean immutable;
@@ -77,12 +77,12 @@ public final class GeronimoNotificationInfo extends MBeanNotificationInfo {
     private final int hashCode = System.identityHashCode(this);
 
     public GeronimoNotificationInfo() {
-        super(null, null, null);
+        super(null, "Ignore", null);
         immutable = false;
     }
 
     GeronimoNotificationInfo(GeronimoNotificationInfo source, GeronimoMBeanInfo parent) {
-        super(null, null, null);
+        super(null, "Ignore", null);
         immutable = true;
         name = source.name;
         description = source.name;
