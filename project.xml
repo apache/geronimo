@@ -1,256 +1,41 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Id: project.xml,v 1.9 2003/08/12 14:48:56 jdillon Exp $ -->
+
 <project>
-    <pomVersion>3</pomVersion>
-    <id>geronimo</id>
-    <name>Geronimo</name>
-    <currentVersion>1.0-alpha-1-SNAPSHOT</currentVersion>
-
-    <organization>
-      <name>Apache Software Foundation</name>
-      <url>http://incubator.apache.org/</url>
-      <logo>/images/group-logo.gif</logo>
-    </organization>
-
-    <inceptionYear>2003</inceptionYear>
-    <package>org.apache.geronimo</package>
-    <logo>/images/geronimo.jpg</logo>
-    <description>Geronimo J2EE Application Server</description>
-    <shortDescription>Geronimo J2EE Application Server</shortDescription>
-    <url>http://incubator.apache.org/projects/geronimo/</url>
-
-<!--
-	I hope we can use JIRA but will probably have to settle for bugzilla
-
-    <issueTrackingUrl>http://jira.codehaus.org/secure/BrowseProject.jspa?id=XXXX</issueTrackingUrl>
--->
-    <siteAddress>incubator.apache.org</siteAddress>
-
+  <pomVersion>3</pomVersion>
+  <extend>${basedir}/etc/project.xml</extend>
+  
+  <!-- ===================== -->
+  <!-- Module Identification -->
+  <!-- ===================== -->
+  
+  <name>Geronimo</name>
+  <id>geronimo</id>
+  
+  <currentVersion>1.0-alpha-1-SNAPSHOT</currentVersion>
+  
+  
+  <!-- =================== -->
+  <!-- Build Specification -->
+  <!-- =================== -->
+  
+  <build>
     <!--
-    <siteDirectory>/www/incubator.apache.org/projects/geronimo</siteDirectory>
-    -->
-    <siteDirectory>/home/jstrachan/public_html/geronimo</siteDirectory>
-
-    <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds</distributionDirectory>
-    <repository>
-        <connection>scm:cvs:pserver:anoncvs@cvs.apache.org:/home/cvspublic:incubator-geronimo</connection>
-        <developerConnection>scm:cvs:ext:${geronimo.username}@cvs.apache.org:/home/cvs:incubator-geronimo</developerConnection>
-        <url>http://cvs.apache.org/viewcvs/incubator-geronimo/</url>
-    </repository>
-
-    <versions>
-        <version>
-            <id>1.0-alpha-1</id>
-            <name>1.0-alpha-1</name>
-            <tag>GERONIMO_1_0_ALPHA_1</tag>
-        </version>
-        <version>
-            <id>1.0-alpha-2</id>
-            <name>1.0-alpha-2</name>
-            <tag>HEAD</tag>
-        </version>
-    </versions>
-
-
-
-    <mailingLists>
-<!--
-        <mailingList>
-            <name>Geronimo User List</name>
-            <subscribe>users-subscribe@geronimo-user.apache.org</subscribe>
-            <unsubscribe>users-unsubscribe@geronimo-user.apache.org</unsubscribe>
-            <archive>http://nagoya.apache.org/eyebrowse/SummarizeList?listName=geronimo-user@jakarta.apache.org</archive>
-        </mailingList>
--->
-        <mailingList>
-            <name>Geronimo Developer List</name>
-            <subscribe>geronimo-dev-subscribe@geronimo.apache.org</subscribe>
-            <unsubscribe>geronimo-dev-unsubscribe@incubator.apache.org</unsubscribe>
-            <archive>http://nagoya.apache.org/eyebrowse/SummarizeList?listId=140</archive>
-        </mailingList>
-    </mailingLists>
-
-    <developers>
-      <developer>
-        <name>Bruce Snyder</name>
-        <id>bsnyder</id>
-        <email>bsnyder@apache.org</email>
-        <organization></organization>
-      </developer>
-      <developer>
-        <name>Dain Sundstrom</name>
-        <id>dain</id>
-        <email>dain@apache.org</email>
-        <organization></organization>
-      </developer>
-      <developer>
-        <name>David Blevins</name>
-        <id>dblevins</id>
-        <email>dblevins@apache.org</email>
-        <organization></organization>
-      </developer>
-      <developer>
-        <name>David Jencks</name>
-        <id>djencks</id>
-        <email>djencks@apache.org</email>
-        <organization></organization>
-      </developer>
-      <developer>
-        <name>Geir Magnusson Jr.</name>
-        <id>geirm</id>
-        <email>geirm@apache.org</email>
-        <organization></organization>
-      </developer>
-      <developer>
-        <name>Greg Wilkins</name>
-        <id>gregw</id>
-        <email>gregw@apache.org</email>
-        <organization></organization>
-      </developer>
-      <developer>
-        <name>James Strachan</name>
-        <id>jstrachan</id>
-        <email>jstrachan@apache.org</email>
-        <organization></organization>
-      </developer>
-      <developer>
-        <name>Jan Bartel</name>
-        <id>janb</id>
-        <email>janb@apache.org</email>
-        <organization></organization>
-      </developer>
-      <developer>
-        <name>Jason Dillon</name>
-        <id>jdillon</id>
-        <email>jdillon@apache.org</email>
-        <organization></organization>
-      </developer>
-      <developer>
-        <name>Jeremy Boynes</name>
-        <id>jboynes</id>
-        <email>jboynes@apache.org</email>
-        <organization></organization>
-      </developer>
-      <developer>
-        <name>Jim Jagielski</name>
-        <id>jim</id>
-        <email>jim@apache.org</email>
-        <organization></organization>
-      </developer>
-      <developer>
-        <name>Jules Golsnell</name>
-        <id>jgosnell</id>
-        <email>jgosnell@apache.org</email>
-        <organization></organization>
-      </developer>
-      <developer>
-        <name>Richard Monson-Haefel</name>
-        <id>richardmf</id>
-        <email>richardmf@apache.org</email>
-        <organization></organization>
-      </developer>
-      <developer>
-        <name>Remigio Chirino</name>
-        <id>remigio</id>
-        <email>remigio@apache.org</email>
-        <organization></organization>
-      </developer>
-      <developer>
-        <name>Simone Bordet</name>
-        <id>simone</id>
-        <email>simone@apache.org</email>
-        <organization></organization>
-      </developer>
-    </developers>
-
-
-    <contributors>
-      <contributor>
-        <name>Ed Letifov</name>
-        <email></email>
-      </contributor>
-    </contributors>
-
-    <dependencies>
-        <dependency>
-            <id>commons-logging</id>
-            <version>1.0.3</version>
-            <url>http://jakarta.apache.org/commons/logging/</url>
-        </dependency>
-
-        <dependency>
-            <id>commons-httpclient</id>
-            <version>2.0-beta1</version>
-            <url>http://jakarta.apache.org/commons/httpclient/</url>
-        </dependency>
-
-        <dependency>
-            <id>log4j</id>
-            <version>1.2.8</version>
-        </dependency>
-
-        <dependency>
-            <id>concurrent</id>
-            <version>1.3.2</version>
-        </dependency>
-
-        <dependency>
-            <id>javacc</id>
-            <jar>JavaCC.zip</jar>
-        </dependency>
-
-        <dependency>
-            <id>mx4j</id>
-            <version>SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <id>mx4j+tools</id>
-            <version>SNAPSHOT</version>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <nagEmailAddress>geronimo-dev@incubator.apache.org</nagEmailAddress>
-
-		<!-- this is a quick hack as we've only got 1 module so far     -->
-		<!-- switching to a multi-project reactor based build real soon -->
-<!--
--->
-        <sourceDirectory>${basedir}/modules/core/src/java</sourceDirectory>
-        <unitTestSourceDirectory>${basedir}/modules/core/src/test</unitTestSourceDirectory>
-        <unitTest>
-            <includes>
-                <include>**/*Test.java</include>
-            </includes>
-            <excludes>
-                <exclude>**/Abstract*.java</exclude>
-            </excludes>
-        </unitTest>
-        <resources>
-            <resource>
-                <directory>${basedir}/modules/core/src/conf</directory>
-                <includes>
-                    <include>*.properties</include>
-                </includes>
-            </resource>
-        </resources>
-    </build>
-
-    <reports>
-        <report>maven-license-plugin</report>
-        <report>maven-checkstyle-plugin</report>
-        <report>maven-pmd-plugin</report>
-<!--
-        <report>maven-simian-plugin</report>
--->
-        <report>maven-jdepend-plugin</report>
-        <report>maven-changelog-plugin</report>
-        <report>maven-statcvs-plugin</report>
-        <report>maven-file-activity-plugin</report>
-        <report>maven-developer-activity-plugin</report>
-        <report>maven-jxr-plugin</report>
-        <report>maven-javadoc-plugin</report>
-        <report>maven-junit-report-plugin</report>
-        <report>maven-clover-plugin</report>
-    </reports>
+       | HACK: this is a quick hack as we've only got 1 module so far
+       |       switching to a multi-project reactor based build real soon
+     -->
+    <sourceDirectory>${basedir}/modules/core/src/java</sourceDirectory>
+    <unitTestSourceDirectory>${basedir}/modules/core/src/test</unitTestSourceDirectory>
+    
+    <resources>
+      <resource>
+        <directory>${basedir}/modules/core/src/conf</directory>
+        <includes>
+          <include>*.properties</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
 
 </project>

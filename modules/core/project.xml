@@ -1,50 +1,82 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Id: project.xml,v 1.3 2003/08/12 14:48:56 jdillon Exp $ -->
+
 <project>
-    <extend>${basedir}/../../project.xml</extend>
+  <pomVersion>3</pomVersion>
+  <extend>${basedir}/../../etc/project.xml</extend>
+  
+  <!-- ===================== -->
+  <!-- Module Identification -->
+  <!-- ===================== -->
+  
+  <name>Geronimo :: Core</name>
+  <id>geronimo-core</id>
+  <shortDescription>Geronimo Core J2EE Container</shortDescription>
+  <description>Geronimo Core J2EE Container</description>
+  <url>http://incubator.apache.org/projects/geronimo/core/</url>
+  <siteDirectory>/www/incubator.apache.org/projects/geronimo/core</siteDirectory>
+  <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/core</distributionDirectory>
+  
+  <currentVersion>1.0-alpha-1-SNAPSHOT</currentVersion>
+  
+  <!-- ============ -->
+  <!-- Dependencies -->
+  <!-- ============ -->
+  
+  <dependencies>
+    <dependency>
+      <id>commons-logging</id>
+      <version>1.0.3</version>
+      <url>http://jakarta.apache.org/commons/logging/</url>
+    </dependency>
     
-    <pomVersion>3</pomVersion>
-    <id>geronimo-core</id>
-    <name>Geronimo Core</name>
-    <currentVersion>1.0-alpha-1-SNAPSHOT</currentVersion>
-
-    <description>Geronimo Core J2EE Container</description>
-    <shortDescription>Geronimo Core J2EE Container</shortDescription>
-    <url>http://incubator.apache.org/projects/geronimo/core/</url>
-
-<!--
-	I hope we can use JIRA but will probably have to settle for bugzilla
-	
-    <issueTrackingUrl>http://jira.codehaus.org/secure/BrowseProject.jspa?id=XXXX</issueTrackingUrl>
--->
-
-    <siteAddress>incubator.apache.org</siteAddress>
-    <siteDirectory>/www/incubator.apache.org/projects/geronimo/core</siteDirectory>
-    <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/core</distributionDirectory>
-    <repository>
-        <connection>scm:cvs:pserver:anoncvs@cvs.apache.org:/home/cvspublic:incubator-geronimo</connection>
-        <developerConnection>scm:cvs:ext:${geronimo.username}@cvs.apache.org:/home/cvs:incubator-geronimo</developerConnection>
-        <url>http://cvs.apache.org/viewcvs/incubator-geronimo/</url>
-    </repository>
-
-
-    <build>
-        <sourceDirectory>${basedir}/src/java</sourceDirectory>
-        <unitTestSourceDirectory>${basedir}/src/test</unitTestSourceDirectory>
-        <unitTest>
-            <includes>
-                <include>**/*TestCase.java</include>
-            </includes>
-            <excludes>
-                <exclude>**/Abstract*.java</exclude>
-            </excludes>
-        </unitTest>
-        <resources>
-            <resource>
-                <directory>${basedir}/src/conf</directory>
-                <includes>
-                    <include>*.properties</include>
-                </includes>
-            </resource>
-        </resources>
-    </build>
+    <dependency>
+      <id>commons-httpclient</id>
+      <version>2.0-beta1</version>
+      <url>http://jakarta.apache.org/commons/httpclient/</url>
+    </dependency>
+    
+    <dependency>
+      <id>log4j</id>
+      <version>1.2.8</version>
+    </dependency>
+    
+    <dependency>
+      <id>concurrent</id>
+      <version>1.3.2</version>
+    </dependency>
+    
+    <dependency>
+      <id>javacc</id>
+      <jar>JavaCC.zip</jar>
+    </dependency>
+    
+    <dependency>
+      <id>mx4j</id>
+      <version>SNAPSHOT</version>
+    </dependency>
+    
+    <dependency>
+      <id>mx4j+tools</id>
+      <version>SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+  
+  
+  <!-- =================== -->
+  <!-- Build Specification -->
+  <!-- =================== -->
+  
+  <build>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/conf</directory>
+        <includes>
+          <include>*.properties</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+  
 </project>

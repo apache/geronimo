@@ -1,17 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: maven.xml,v 1.5 2003/08/12 12:13:43 jdillon Exp $ -->
+<!-- $Id: maven.xml,v 1.6 2003/08/12 14:48:56 jdillon Exp $ -->
 
 <project default="jar:install" 
          xmlns:j="jelly:core" 
          xmlns:ant="jelly:ant" 
          xmlns:maven="jelly:maven">
-
+  
+  <!-- ===================== -->
+  <!-- Module Initialization -->
+  <!-- ===================== -->
+  
+  <ant:property file="${basedir}/etc/project.properties"/>
+  
+  
   <preGoal name="xdoc:jelly-transform">
     <attainGoal name="html2xdoc"/>
     <attainGoal name="faq"/>
   </preGoal>
-
+  
+  
   <goal name="run" prereqs="set.classpath"
         description="Runs the Geronimo Server using the current build">
     <ant:java classname="org.apache.geronimo.Main" fork="yes">
@@ -59,10 +67,8 @@
     <attainGoal name="modules:reactor"/>
   </goal>
   
-  <!-- Need to refactor project globals before this will function properly
   <preGoal name="clean">
     <attainGoal name="modules:clean"/>
   </preGoal>
-  -->
-   
+  
 </project>
