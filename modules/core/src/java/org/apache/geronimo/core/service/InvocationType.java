@@ -65,7 +65,7 @@ import org.apache.geronimo.core.service.InvocationKey;
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:25:19 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/01 16:23:58 $
  */
 public final class InvocationType implements Serializable, InvocationKey {
     private static final StringInvocationKey INVOCATION_TYPE_KEY = new StringInvocationKey("INVOCATION_TYPE_KEY", false);
@@ -92,7 +92,7 @@ public final class InvocationType implements Serializable, InvocationKey {
     private final int ordinal;
 
     private InvocationType(String name, int ordinal, boolean local, boolean home) {
-        assert ordinal < MAX_ORDINAL;
+        assert ordinal <= MAX_ORDINAL;
         assert values[ordinal] == null;
         this.name = name;
         this.local = local;
