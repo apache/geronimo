@@ -71,7 +71,7 @@ import junit.framework.Assert;
 /**
  * Tests for <code>Configuration</code>.
  *
- * @version <code>$Id: ConfigurationTest.java,v 1.2 2003/08/13 10:55:51 jdillon Exp $</code>
+ * @version <code>$Id: ConfigurationTest.java,v 1.3 2003/08/13 11:48:57 jdillon Exp $</code>
  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
  */
 public class ConfigurationTest
@@ -169,14 +169,14 @@ public class ConfigurationTest
     {
         Configuration config = read("test1.xml");
         
-        Libraries l = config.getLibraries();
+        LibrariesConfig l = config.getLibrariesConfig();
         Assert.assertNotNull(l);
         
-        String[] libs = l.getLibrary();
+        LibraryConfig[] libs = l.getLibraryConfig();
         Assert.assertEquals(2, libs.length);
         
-        Assert.assertEquals("library1", libs[0]);
-        Assert.assertEquals("library2", libs[1]);
+        Assert.assertEquals("library1", libs[0].getContent());
+        Assert.assertEquals("library2", libs[1].getContent());
     }
     
     public void testIncludes() throws Exception
@@ -197,7 +197,7 @@ public class ConfigurationTest
     {
         Configuration config = read("test1.xml");
         
-        SearchPath s = config.getSearchPath();
+        SearchPathConfig s = config.getSearchPathConfig();
         Assert.assertNotNull(s);
         
         String[] paths = s.getPathElement();

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: twiddle-configuration.xsd,v 1.1 2003/08/12 18:18:45 jdillon Exp $ -->
+<!-- $Id: twiddle-configuration.xsd,v 1.2 2003/08/13 11:48:57 jdillon Exp $ -->
 
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
             xmlns="http://geronimo.apache.org/xml/schema/Twiddle/Configuration"
@@ -41,8 +41,24 @@
     
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:element name="library" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element ref="library" minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  
+  <xsd:element name="library">
+    <xsd:annotation>
+      <xsd:documentation>
+        Definition of a single library.
+      </xsd:documentation>
+    </xsd:annotation>
+    
+    <xsd:complexType>
+      <xsd:simpleContent>
+        <xsd:extension base="xsd:string">
+          <xsd:attribute name="id" type="xsd:string"/>
+        </xsd:extension>
+      </xsd:simpleContent>
     </xsd:complexType>
   </xsd:element>
   
@@ -158,7 +174,7 @@
       </xsd:sequence>
       
       <xsd:attribute name="name" use="required" type="xsd:string"/>
-      <xsd:attribute name="class" use="required" type="xsd:string"/>
+      <xsd:attribute name="code" use="required" type="xsd:string"/>
     </xsd:complexType>
   </xsd:element>
   
@@ -217,7 +233,8 @@
       </xsd:sequence>
       
       <xsd:attribute name="name" use="required" type="xsd:string"/>
-      <xsd:attribute name="class" use="required" type="xsd:string"/>
+      <xsd:attribute name="code" use="required" type="xsd:string"/>
+      <xsd:attribute name="libid" type="xsd:string"/>
     </xsd:complexType>
   </xsd:element>
   

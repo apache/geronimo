@@ -56,13 +56,12 @@
 
 package org.apache.geronimo.twiddle.command;
 
-import java.io.PrintWriter;
-import java.io.Reader;
+import org.apache.geronimo.twiddle.console.IOContext;
 
 /**
  * Provides a command with details on its environment.
  *
- * @version <code>$Id: CommandContext.java,v 1.1 2003/08/13 08:32:09 jdillon Exp $</code>
+ * @version <code>$Id: CommandContext.java,v 1.2 2003/08/13 11:48:57 jdillon Exp $</code>
  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
  */
 public interface CommandContext
@@ -105,34 +104,13 @@ public interface CommandContext
     
     
     /////////////////////////////////////////////////////////////////////////
-    //                          Container Access                           //
-    /////////////////////////////////////////////////////////////////////////
-    
-    CommandContainer getContainer();
-    
-    
-    /////////////////////////////////////////////////////////////////////////
     //                         Input/Output Access                         //
     /////////////////////////////////////////////////////////////////////////
     
     /**
-     * Get the output writer for the command.
+     * Get the input/output context for the command.
      *
-     * @return  The output writer.
+     * @return The input/output context the command is running in.
      */
-    PrintWriter getWriter();
-    
-    /**
-     * Get the error output writer for the command.
-     *
-     * @return  The error output writer.
-     */
-    PrintWriter getErrorWriter();
-    
-    /**
-     * Get the input reader for the command.
-     *
-     * @return  The input reader.
-     */
-    Reader getReader();
+    IOContext getIOContext();
 }

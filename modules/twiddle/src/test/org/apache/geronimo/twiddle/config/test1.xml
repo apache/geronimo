@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: test1.xml,v 1.1 2003/08/13 08:35:33 jdillon Exp $ -->
+<!-- $Id: test1.xml,v 1.2 2003/08/13 11:48:57 jdillon Exp $ -->
 
 <configuration xmlns="http://geronimo.apache.org/xml/schema/Twiddle/Configuration">
   
@@ -45,7 +45,7 @@
     <attribute name="boolean1" type="boolean">true</attribute>
     <attribute name="class1" type="class">my.class</attribute>
     
-    <complex-attribute name="complex1" class="my.complex.class">
+    <complex-attribute name="complex1" code="my.complex.class">
       <attribute name="default2">value2</attribute>
       <attribute name="string2" type="string">value</attribute>
       <attribute name="number2" type="number">2</attribute>
@@ -72,10 +72,10 @@
   
   <commands>
     
-    <command name="help" class="org.geronimo.twiddle.commands.HelpCommand"/>
+    <command name="help" code="org.geronimo.twiddle.commands.HelpCommand"/>
     
     <command-set name="whatever">
-      <command name="whatever" class="whatever">
+      <command name="whatever" code="whatever">
         <attribute name="Foo">Bar</attribute>
       </command>
     </command-set>

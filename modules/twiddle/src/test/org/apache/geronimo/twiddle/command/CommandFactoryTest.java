@@ -67,7 +67,7 @@ import org.apache.geronimo.twiddle.config.Attribute;
 /**
  * Tests for <code>CommandFactory</code>.
  *
- * @version <code>$Id: CommandFactoryTest.java,v 1.1 2003/08/13 08:35:33 jdillon Exp $</code>
+ * @version <code>$Id: CommandFactoryTest.java,v 1.2 2003/08/13 11:48:57 jdillon Exp $</code>
  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
  */
 public class CommandFactoryTest
@@ -118,7 +118,7 @@ public class CommandFactoryTest
         String type = "org.apache.geronimo.twiddle.command.TestCommand";
         config.setName(name);
         config.setDescription(desc);
-        config.setClazz(type);
+        config.setCode(type);
         
         CommandInfo protoInfo = new CommandInfo(config);
         Command command = protoInfo.getPrototype();
@@ -139,7 +139,7 @@ public class CommandFactoryTest
     {
         CommandConfig config = new CommandConfig();
         config.setName("mytest");
-        config.setClazz("org.apache.geronimo.twiddle.command.TestCommand");
+        config.setCode("org.apache.geronimo.twiddle.command.TestCommand");
         
         Attribute attr = new Attribute();
         String text = "this is the value for the text attribute";

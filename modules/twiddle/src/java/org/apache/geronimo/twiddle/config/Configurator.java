@@ -59,6 +59,7 @@ package org.apache.geronimo.twiddle.config;
 import java.net.URL;
 
 import org.apache.geronimo.common.NullArgumentException;
+import org.apache.geronimo.common.Strings;
 
 import org.apache.geronimo.twiddle.Twiddle;
 
@@ -69,11 +70,12 @@ import org.apache.geronimo.twiddle.command.CommandException;
 /**
  * Handles the details of Twiddle configuration.
  *
- * @version <code>$Id: Configurator.java,v 1.1 2003/08/13 10:55:51 jdillon Exp $</code>
+ * @version <code>$Id: Configurator.java,v 1.2 2003/08/13 11:48:57 jdillon Exp $</code>
  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
  */
 public class Configurator
 {
+    protected StringValueParser valueParser;
     protected Twiddle twiddle;
     
     public Configurator(final Twiddle twiddle)
@@ -83,6 +85,7 @@ public class Configurator
         }
         
         this.twiddle = twiddle;
+        this.valueParser = new StringValueParser();
     }
     
     public Twiddle getTwiddle()
@@ -113,9 +116,7 @@ public class Configurator
             
             String name = props[i].getName().trim();
             String value = props[i].getContent();
-            //
-            // TODO: Handle property value evaluation
-            //
+            value = valueParser.parse(value);
             System.setProperty(name, value);
         }
     }
@@ -134,10 +135,8 @@ public class Configurator
                 }
                 
                 try {
-                    URL configURL = new URL(includes[i]);
-                    //
-                    // TODO: Need to properly resolve this URL
-                    //
+                    String value = valueParser.parse(includes[i]);
+                    URL configURL = Strings.toURL(value);
                     Configuration iconfig = reader.read(configURL);
                     this.configure(iconfig);
                 }

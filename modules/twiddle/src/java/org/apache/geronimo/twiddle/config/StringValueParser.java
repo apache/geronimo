@@ -54,87 +54,28 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.twiddle.command;
-
-import java.io.IOException;
-
-import java.beans.Beans;
-import java.beans.BeanInfo;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-
-import java.lang.reflect.Method;
+package org.apache.geronimo.twiddle.config;
 
 import org.apache.geronimo.common.NullArgumentException;
 
-import org.apache.geronimo.twiddle.config.CommandConfig;
-import org.apache.geronimo.twiddle.config.Attribute;
-
 /**
- * A factory for creating <code>Command</code> instances from
- * a <code>CommandConfig</code>.
+ * Handles pasring expressions from a string.
  *
- * @version <code>$Id: CommandFactory.java,v 1.2 2003/08/13 11:48:57 jdillon Exp $</code>
+ * @version <code>$Id: StringValueParser.java,v 1.1 2003/08/13 11:48:57 jdillon Exp $</code>
  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
  */
-public class CommandFactory
+public class StringValueParser
 {
-    protected CommandConfig config;
-    
-    public CommandFactory(final CommandConfig config)
+    public StringValueParser()
     {
-        if (config == null) {
-            throw new NullArgumentException("config");
-        }
-        
-        this.config = config;
     }
     
-    public CommandConfig getConfig()
+    public String parse(String value)
     {
-        return config;
-    }
-    
-    protected Command doCreate() throws Exception
-    {
-        // Load the command instance
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        Command command = (Command)Beans.instantiate(cl, config.getCode());
+        //
+        // TODO: Implement me with JEXL or something...
+        //
         
-        // Apply attributes
-        BeanInfo info = Introspector.getBeanInfo(command.getClass());
-        Attribute[] attrs = config.getAttribute();
-        if (attrs != null) {
-            PropertyDescriptor[] descs = info.getPropertyDescriptors();
-            
-            for (int i=0; i<attrs.length; i++) {
-                String name = attrs[i].getName();
-                
-                for (int j=0; j<descs.length; j++) {
-                    //
-                    // TODO: Handle attribute types, for now they are all strings
-                    //
-                    
-                    if (name.equals(descs[j].getName())) {
-                        Object value = attrs[i].getContent();
-                        Method method = descs[j].getWriteMethod();
-                        method.invoke(command, new Object[] { value });
-                        break;
-                    }
-                }
-            }
-        }
-        
-        return command;
-    }
-    
-    public Command create() throws CommandException
-    {
-        try {
-            return doCreate();
-        }
-        catch (Exception e) {
-            throw new CommandException("Failed to create command: " + config.getName(), e);
-        }
+        return value;
     }
 }
