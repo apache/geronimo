@@ -95,15 +95,12 @@ public class SPRConfigBuilder
     log.info("Planning: "+sprFile.getName());
 
     // N.B.
+    // - we should check that META-INF/spring.xml exists here (we can't really validate it)
     // - we should check out META-INF/geronimo-spring.xml
-    // - we can't validate META-INF/spring.xml, as it could include stuff and use bad classes etc..
     // - could we inject stuff about environment into BeanFactory ?
 
     DefaultListableBeanFactory dlbf=new DefaultListableBeanFactory();
     XmlBeanDefinitionReader xbdr=new XmlBeanDefinitionReader(dlbf);
-
-    // we should check that META-INF/spring.xml exists here (we can't really validate it)
-    // we could load and check META-INF/geronimo-spring.xml here
 
     return xbdr;
   }
@@ -118,19 +115,18 @@ public class SPRConfigBuilder
     log.info("Adding Jar to application ClassLoader: "+name);
     ctx.addIncludeAsPackedJar(new URI(name+".tmp"), jar); // without the .tmp this crashes horribly
 
-    // if NestedJarFile was transparent we could remove this test and
-    // recurse to the bottom of the innermost jar - but instead we end
-    // up hanging waiting for the first entry of the first nested jar
-    // - So we are stuck with just supporting one level of nesting for
-    // the moment - shame :-(
+    // TODO - if NestedJarFile were totally transparent we could
+    // remove this test and recurse to the bottom of the innermost jar
+    // - but instead we end up hanging waiting for the first entry of
+    // the first nested jar - So we are stuck with just supporting one
+    // level of nesting for the moment - shame :-(
     if (!(jar instanceof NestedJarFile))
     {
       for (Enumeration e=jar.entries(); e.hasMoreElements();)
       {
-	ZipEntry entry = (ZipEntry) e.nextElement();
-	String ename=entry.getName();
-	if (ename.endsWith(".jar"))
-	  addJarToClassPath(ctx, new NestedJarFile(jar, ename));
+	String entry=((ZipEntry)e.nextElement()).getName();
+	if (entry.endsWith(".jar")) // TODO - is this test sufficient ?
+	  addJarToClassPath(ctx, new NestedJarFile(jar, entry));
       }
     }
   }
@@ -146,26 +142,24 @@ public class SPRConfigBuilder
 
     log.info("Building: "+sprFile.getName());
 
+    SPRContext ctx=null;
     try
     {
       URI configId=new URI(sprFile.getName());	// could be overridden in META-INF/geronimo-spring.xml
       URI parentId=defaultParentId; // could be overridden in META-INF/geronimo-spring.xml
 
-      SPRContext ctx=new SPRContext(outfile,
-				    configId,
-				    ConfigurationModuleType.SPR,
-				    parentId,
-				    kernel);
+      ctx=new SPRContext(outfile, configId, ConfigurationModuleType.SPR, parentId, kernel);
 
       // set up classpath
       addJarToClassPath(ctx, sprFile);
 
-      for (Enumeration e=sprFile.entries(); e.hasMoreElements();)
-      {
-	ZipEntry entry = (ZipEntry) e.nextElement();
-	String name=entry.getName();
-	ctx.addFile(URI.create(name), sprFile, entry);
-      }
+      // looks like this is for recursively unpacking an archive... - perhaps we need it ?
+      //       for (Enumeration e=sprFile.entries(); e.hasMoreElements();)
+      //       {
+      // 	ZipEntry entry = (ZipEntry) e.nextElement();
+      // 	String name=entry.getName();
+      // 	ctx.addFile(URI.create(name), sprFile, entry);
+      //       }
 
       // now we can get ClassLoader...
       ClassLoader cl=ctx.getClassLoader(repository);
@@ -174,7 +168,7 @@ public class SPRConfigBuilder
       xbdr.loadBeanDefinitions(new ClassPathResource("META-INF/spring.xml", cl));
 
       // force lazy construction of every bean described...
-      DefaultListableBeanFactory dlbf=(DefaultListableBeanFactory)xbdr.getBeanFactory();
+      DefaultListableBeanFactory dlbf=(DefaultListableBeanFactory)xbdr.getBeanFactory(); // hacky...
       String[] ids=dlbf.getBeanDefinitionNames();
       int n=ids.length;
       for (int i=n; i>0; i--)
@@ -184,19 +178,31 @@ public class SPRConfigBuilder
       ObjectName name=new ObjectName("geronimo.spring", "name", sprFile.getName());
       GBeanData gbeanData=new GBeanData(name, org.apache.geronimo.j2ee.management.impl.SpringApplicationImpl.GBEAN_INFO);
 
+      // what sort of thing might we want to make available via this GBean ?
+      // contents of dds ?
+      // number of beans constructucted ?
+      // integration points for other apps (how/what?)
+      // - The Bean Factory and Reader ?
+      // etc...
+
       // setting 'kernel' results in a NotSerializableException: after
       // returning from this method...
 
       // gbeanData.setAttribute("kernel", kernel);
       // gbeanData.setReferencePattern("objectName", name);
 
+      // It looks like by doing this our context creates and registers
+      // a GBean - representation for this Spring application in the
+      // kernel...
       ctx.addGBean(gbeanData);
-      ctx.close();
     }
     catch (Exception e)
     {
-      e.printStackTrace();
       throw new DeploymentException(e);
+    }
+    finally
+    {
+      ctx.close();
     }
 
     return new LinkedList(); // what should we return in this list ?
