@@ -46,12 +46,13 @@ import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlException;
 
 /**
  * Command line based deployment utility which combines multiple deployable modules
  * into a single configuration.
  *
- * @version $Revision: 1.20 $ $Date: 2004/06/02 05:33:02 $
+ * @version $Revision: 1.21 $ $Date: 2004/06/23 22:44:49 $
  */
 public class Deployer {
     private final Collection builders;
@@ -60,6 +61,54 @@ public class Deployer {
     public Deployer(Collection builders, ConfigurationStore store) {
         this.builders = builders;
         this.store = store;
+    }
+
+    public URI deploy(File moduleFile, File deploymentPlan) throws DeploymentException {
+        URL moduleURL;
+        try {
+            moduleURL = moduleFile.toURL();
+        } catch (MalformedURLException e) {
+            throw new DeploymentException(e);
+        }
+        ConfigurationBuilder builder = null;
+
+        XmlObject plan = null;
+        for (Iterator i = builders.iterator(); i.hasNext();) {
+            ConfigurationBuilder candidate = (ConfigurationBuilder) i.next();
+            try {
+                plan = candidate.getDeploymentPlan(moduleURL);
+                if (!plan.validate()) {
+                    throw new DeploymentException("Unable to parse plan");
+                }
+            } catch (XmlException e) {
+                throw new DeploymentException(e);
+            }
+            if (plan != null) {
+                builder = candidate;
+                break;
+            }
+        }
+        if (builder == null) {
+            throw new DeploymentException("No deployer found for this module type: " + moduleFile);
+        }
+
+        try {
+            File carfile = File.createTempFile("deployer", ".car");
+            try {
+
+                Manifest manifest = new Manifest();
+                Attributes mainAttributes = manifest.getMainAttributes();
+                mainAttributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
+                builder.buildConfiguration(carfile, manifest, moduleFile, plan);
+                return store.install(carfile.toURL());
+            } catch (InvalidConfigException e) {
+                throw new DeploymentException(e);
+            } finally {
+                carfile.delete();
+            }
+        } catch (IOException e) {
+            throw new DeploymentException(e);
+        }
     }
 
     /**
@@ -249,6 +298,7 @@ public class Deployer {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(Deployer.class);
 
         infoFactory.addOperation("deploy", new Class[]{String[].class});
+        infoFactory.addOperation("deploy", new Class[]{File.class, File.class});
 
         infoFactory.addReference("Builders", ConfigurationBuilder.class);
         infoFactory.addReference("Store", ConfigurationStore.class);

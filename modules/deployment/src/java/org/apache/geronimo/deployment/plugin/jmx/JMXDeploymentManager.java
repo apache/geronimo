@@ -41,6 +41,7 @@ import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.deployment.plugin.local.StartCommand;
 import org.apache.geronimo.deployment.plugin.local.StopCommand;
+import org.apache.geronimo.deployment.plugin.local.DistributeCommand;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelMBean;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
@@ -51,7 +52,7 @@ import org.apache.geronimo.kernel.management.State;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/02 19:58:02 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/23 22:44:49 $
  */
 public class JMXDeploymentManager implements DeploymentManager {
     private JMXConnector jmxConnector;
@@ -149,7 +150,12 @@ public class JMXDeploymentManager implements DeploymentManager {
     }
 
     public ProgressObject distribute(Target[] targetList, File moduleArchive, File deploymentPlan) {
-        throw new UnsupportedOperationException();
+        if (kernel == null) {
+            throw new IllegalStateException("Disconnected");
+        }
+        DistributeCommand command = new DistributeCommand(kernel, targetList, moduleArchive, deploymentPlan);
+        new Thread(command).start();
+        return command;
     }
 
     public ProgressObject distribute(Target[] targetList, InputStream moduleArchive, InputStream deploymentPlan) {

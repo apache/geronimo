@@ -52,7 +52,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 /**
  * Implementation of ConfigurationStore using the local filesystem.
  *
- * @version $Revision: 1.9 $ $Date: 2004/06/05 07:53:22 $
+ * @version $Revision: 1.10 $ $Date: 2004/06/23 22:44:49 $
  */
 public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
     private static final String INDEX_NAME = "index.properties";
@@ -131,7 +131,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         }
     }
 
-    public void install(URL source) throws IOException, InvalidConfigException {
+    public URI install(URL source) throws IOException, InvalidConfigException {
         String newId;
         synchronized (this) {
             newId = Integer.toString(++maxId);
@@ -144,9 +144,11 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         } finally {
             is.close();
         }
+        URI configId;
         try {
             GBeanMBean config = loadConfig(bundleRoot);
-            index.setProperty(config.getAttribute("ID").toString(), newId);
+            configId = (URI) config.getAttribute("ID");
+            index.setProperty(configId.toString(), newId);
         } catch (Exception e) {
             delete(bundleRoot);
             throw new InvalidConfigException("Unable to get ID from downloaded configuration", e);
@@ -154,7 +156,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         synchronized (this) {
             saveIndex();
         }
-
+        return configId;
     }
 
     public synchronized GBeanMBean getConfiguration(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {

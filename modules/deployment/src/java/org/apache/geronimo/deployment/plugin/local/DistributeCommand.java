@@ -18,49 +18,55 @@
 package org.apache.geronimo.deployment.plugin.local;
 
 import java.io.File;
-import java.io.InputStream;
+import java.util.Iterator;
+import java.util.Set;
+import java.net.URI;
 import javax.enterprise.deploy.shared.CommandType;
+import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.management.ObjectName;
 
-import org.apache.geronimo.deployment.ConfigurationBuilder;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.xmlbeans.XmlObject;
+import org.apache.geronimo.kernel.KernelMBean;
+import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 
 /**
- *
- *
- * @version $Revision: 1.10 $ $Date: 2004/04/23 03:08:28 $
+ * @version $Revision: 1.11 $ $Date: 2004/06/23 22:44:49 $
  */
 public class DistributeCommand extends CommandSupport {
-    private final ConfigurationStore store;
-    private final ConfigurationBuilder builder;
-    private final InputStream in;
-    private final XmlObject plan;
+    private static final String[] DEPLOY_SIG = {File.class.getName(), File.class.getName()};
+    private final KernelMBean kernel;
+    private final Target[] targetList;
+    private final File moduleArchive;
+    private final File deploymentPlan;
 
-    public DistributeCommand(ConfigurationStore store, ConfigurationBuilder builder, InputStream in, XmlObject plan) {
+    public DistributeCommand(KernelMBean kernel, Target[] targetList, File moduleArchive, File deploymentPlan) {
         super(CommandType.DISTRIBUTE);
-        this.store = store;
-        this.builder = builder;
-        this.in = in;
-        this.plan = plan;
+        this.kernel = kernel;
+        this.targetList = targetList;
+        this.moduleArchive = moduleArchive;
+        this.deploymentPlan = deploymentPlan;
     }
 
     public void run() {
-        File configFile = null;
         try {
-            // create some working space
-            configFile = File.createTempFile("deploy", ".car");
-            builder.buildConfiguration(configFile, null, in, plan);
+            Set deployers = kernel.listGBeans(new ObjectName("geronimo.deployment:role=Deployer,*"));
+            if (deployers.isEmpty()) {
+                fail("No deployer present in kernel");
+                return;
+            }
+            Iterator i = deployers.iterator();
+            ObjectName deployer = (ObjectName) i.next();
+            if (i.hasNext()) {
+                throw new UnsupportedOperationException("More than one deployer found");
+            }
 
-            // install in our local server
-            store.install(configFile.toURL());
-            //addModule(targetID);
+            Object[] args = {moduleArchive, deploymentPlan};
+            URI configId = (URI) kernel.invoke(deployer, "deploy", args, DEPLOY_SIG);
+            TargetModuleID moduleID = new TargetModuleIDImpl(targetList[0], configId.toString());
+            addModule(moduleID);
             complete("Completed");
         } catch (Exception e) {
             fail(e.getMessage());
-        } finally {
-            if (configFile != null) {
-                configFile.delete();
-            }
         }
     }
 }
