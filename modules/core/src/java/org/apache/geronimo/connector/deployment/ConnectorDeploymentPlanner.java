@@ -61,47 +61,35 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.management.JMException;
-import javax.management.MBeanRegistration;
-import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import javax.management.relation.RelationServiceMBean;
-import javax.management.relation.Role;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.common.Classes;
 import org.apache.geronimo.deployment.model.connector.ConfigProperty;
 import org.apache.geronimo.deployment.model.connector.ConnectorDocument;
 import org.apache.geronimo.deployment.model.geronimo.connector.GeronimoConnectionDefinition;
 import org.apache.geronimo.deployment.model.geronimo.connector.GeronimoConnectionManagerFactory;
 import org.apache.geronimo.deployment.model.geronimo.connector.GeronimoConnectorDocument;
 import org.apache.geronimo.deployment.model.geronimo.connector.GeronimoResourceAdapter;
+import org.apache.geronimo.kernel.deployment.AbstractDeploymentPlanner;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
 import org.apache.geronimo.kernel.deployment.DeploymentInfo;
 import org.apache.geronimo.kernel.deployment.DeploymentPlan;
-import org.apache.geronimo.kernel.deployment.AbstractDeploymentPlanner;
 import org.apache.geronimo.kernel.deployment.goal.DeployURL;
-import org.apache.geronimo.kernel.deployment.goal.DeploymentGoal;
 import org.apache.geronimo.kernel.deployment.goal.RedeployURL;
 import org.apache.geronimo.kernel.deployment.goal.UndeployURL;
 import org.apache.geronimo.kernel.deployment.service.ClassSpaceMetadata;
 import org.apache.geronimo.kernel.deployment.service.MBeanMetadata;
 import org.apache.geronimo.kernel.deployment.task.CreateClassSpace;
 import org.apache.geronimo.kernel.deployment.task.DeployGeronimoMBean;
-import org.apache.geronimo.kernel.deployment.task.InitializeMBeanInstance;
 import org.apache.geronimo.kernel.deployment.task.RegisterMBeanInstance;
 import org.apache.geronimo.kernel.deployment.task.StartMBeanInstance;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfoXMLLoader;
 import org.apache.geronimo.xml.deployment.ConnectorLoader;
 import org.apache.geronimo.xml.deployment.GeronimoConnectorLoader;
 import org.apache.geronimo.xml.deployment.LoaderUtil;
@@ -112,7 +100,7 @@ import org.xml.sax.SAXException;
  * DeploymentPlanner in charge of the plannification of Connector deployments.
  *
  *
- * @version $Revision: 1.7 $ $Date: 2003/11/26 02:17:40 $
+ * @version $Revision: 1.8 $ $Date: 2003/12/09 04:22:10 $
  */
 public class ConnectorDeploymentPlanner
         extends AbstractDeploymentPlanner {
@@ -268,7 +256,7 @@ public class ConnectorDeploymentPlanner
      * @param goals
      * @return
      * @throws DeploymentException
-     * @todo implement this
+     * todo implement this
      */
     protected boolean redeployURL(RedeployURL redeployURL, Set goals) throws DeploymentException {
         return false;
@@ -281,13 +269,13 @@ public class ConnectorDeploymentPlanner
      * @param plans
      * @return
      * @throws DeploymentException
-     * @todo implement this
+     * todo implement this
      */
     protected boolean removeURL(UndeployURL undeployURL, Set goals, Set plans) throws DeploymentException {
         return false;
     }
 
-    private void configureMBeanMetadata(ConfigProperty[] props, MBeanMetadata metadata) throws DeploymentException {
+    private void configureMBeanMetadata(ConfigProperty[] props, MBeanMetadata metadata) {
         GeronimoMBeanInfo info = new GeronimoMBeanInfo();
         info.setTargetClass(metadata.getCode());
         Map attributes = metadata.getAttributeValues();
@@ -299,9 +287,7 @@ public class ConnectorDeploymentPlanner
     private void adaptConfigProperties(
             ConfigProperty[] configProperty,
             GeronimoMBeanInfo mbeanInfo,
-            Map attributes)
-            throws DeploymentException {
-        ClassLoader cl = Classes.getContextClassLoader();
+            Map attributes) {
         for (int i = 0; i < configProperty.length; i++) {
             if (mbeanInfo != null) {
                 GeronimoAttributeInfo attInfo = new GeronimoAttributeInfo();
@@ -318,27 +304,13 @@ public class ConnectorDeploymentPlanner
         }
     }
 
-    private void addTasks(MBeanMetadata metadata, DeploymentPlan plan) throws DeploymentException {
+    private void addTasks(MBeanMetadata metadata, DeploymentPlan plan) {
         DeployGeronimoMBean createTask =
                 new DeployGeronimoMBean(getServer(), metadata);
         plan.addTask(createTask);
         StartMBeanInstance startTask =
                 new StartMBeanInstance(getServer(), metadata);
         plan.addTask(startTask);
-    }
-
-    /**
-     * Helper which throws a IllegalStateException, ISE.
-     *
-     * @param aMessage Message of the ISE.
-     * @param aThrowable Cause of the ISE.
-     *
-     * @exception IllegalStateException always thrown.
-     */
-    private void throwISE(String aMessage, Throwable aThrowable) {
-        IllegalStateException e = new IllegalStateException(aMessage);
-        e.initCause(aThrowable);
-        throw e;
     }
 
 
