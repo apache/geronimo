@@ -135,8 +135,10 @@ public class StartRemoteServer {
         cmd.add("-jar");
         cmd.add(systemFile.getCanonicalPath());
 
-        for (StringTokenizer st = new StringTokenizer(getConfigs()); st.hasMoreTokens();) {
-            cmd.add(st.nextToken());
+        if (getConfigs() != null) {
+            for (StringTokenizer st = new StringTokenizer(getConfigs()); st.hasMoreTokens();) {
+                cmd.add(st.nextToken());
+            }
         }
         String[] command = (String[]) cmd.toArray(new String[0]);
 
