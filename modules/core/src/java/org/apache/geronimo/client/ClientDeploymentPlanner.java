@@ -55,20 +55,14 @@
  */
 package org.apache.geronimo.client;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.JarURLConnection;
-import java.net.URL;
 import java.util.Set;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
 
 import org.apache.geronimo.deployment.DeploymentException;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/16 19:03:09 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/27 03:43:36 $
  */
 public class ClientDeploymentPlanner implements ClientDeploymentPlannerMBean {
     public boolean plan(Set goals, Set plans) throws DeploymentException {

@@ -56,35 +56,27 @@
 
 package org.apache.geronimo.command;
 
+import java.io.PrintWriter;
 import java.net.URL;
 
-import java.io.PrintWriter;
-
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.PosixParser;
 import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.ParseException;
-
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
+import org.apache.geronimo.Main;
 import org.apache.geronimo.common.NullArgumentException;
 import org.apache.geronimo.common.Strings;
-
 import org.apache.geronimo.twiddle.Twiddle;
+import org.apache.geronimo.twiddle.command.AbstractCommand;
 import org.apache.geronimo.twiddle.command.Command;
 import org.apache.geronimo.twiddle.command.CommandInfo;
-import org.apache.geronimo.twiddle.command.CommandContext;
-import org.apache.geronimo.twiddle.command.AbstractCommand;
-
 import org.apache.geronimo.twiddle.util.HelpFormatter;
-
-import org.apache.geronimo.Main;
 
 /**
  * A <em>Twiddle</em> command to start a Apache Geronimo server instance.
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/26 08:00:56 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/27 03:43:36 $
  */
 public class StartCommand
     extends AbstractCommand

@@ -58,7 +58,7 @@ package org.apache.geronimo.deployment.service;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.ArrayList;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -70,7 +70,7 @@ import org.w3c.dom.NodeList;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/16 23:16:34 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/27 03:43:36 $
  */
 public class MBeanMetadataXMLLoader {
     public MBeanMetadata loadXML(Element element) throws DeploymentException {

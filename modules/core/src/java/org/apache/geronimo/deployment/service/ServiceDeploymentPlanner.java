@@ -58,13 +58,13 @@ package org.apache.geronimo.deployment.service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
@@ -96,16 +96,14 @@ import org.apache.geronimo.deployment.plan.StartMBeanInstance;
 import org.apache.geronimo.deployment.plan.StopMBeanInstance;
 import org.apache.geronimo.deployment.scanner.URLType;
 import org.apache.geronimo.jmx.JMXUtil;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2003/08/26 13:03:58 $
+ * @version $Revision: 1.9 $ $Date: 2003/08/27 03:43:36 $
  */
 public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, MBeanRegistration {
     private Log log = LogFactory.getLog(getClass());
