@@ -65,6 +65,9 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import javax.mail.search.SearchTerm;
+/**
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 04:29:52 $
+ */
 public abstract class Message implements Part {
     public static class RecipientType implements Serializable {
         public static final RecipientType BCC = new RecipientType("Bcc");

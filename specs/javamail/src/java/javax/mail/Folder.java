@@ -73,6 +73,9 @@ import javax.mail.event.MessageCountEvent;
 import javax.mail.event.MessageCountListener;
 import javax.mail.event.TransportListener;
 import javax.mail.search.SearchTerm;
+/**
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 04:29:52 $
+ */
 public abstract class Folder {
     // Constants from J2SE 1.4 doc (Constant Values)
     public static final int HOLDS_FOLDERS = 2;

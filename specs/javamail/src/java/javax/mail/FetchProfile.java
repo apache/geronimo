@@ -61,6 +61,9 @@
 package javax.mail;
 import java.util.HashMap;
 import java.util.Map;
+/**
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 04:29:52 $
+ */
 public class FetchProfile {
     public static class Item {
         // Should match Content-Type, Content-Description, Content-Disposition, Size, Line-Count 

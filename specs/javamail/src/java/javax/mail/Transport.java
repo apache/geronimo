@@ -64,6 +64,9 @@ import java.util.LinkedList;
 import java.util.List;
 import javax.mail.event.TransportEvent;
 import javax.mail.event.TransportListener;
+/**
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 04:29:52 $
+ */
 public abstract class Transport extends Service {
     public static void send(Message message) throws MessagingException {
         send(message, message.getAllRecipients());

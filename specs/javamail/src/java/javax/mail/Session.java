@@ -72,6 +72,9 @@ import java.util.Properties;
 import javax.mail.Provider.Type;
 import javax.mail.internet.ParameterList;
 import javax.mail.internet.ParseException;
+/**
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 04:29:52 $
+ */
 public final class Session {
     private static final Map _addressMap = new HashMap();
     private static final Map _providers = new HashMap();

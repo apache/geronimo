@@ -59,6 +59,9 @@
 // DO NOT add / change / or delete method signatures!
 //
 package javax.mail;
+/**
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 04:29:52 $
+ */
 public class SendFailedException extends MessagingException {
     protected transient Address invalid[];
     protected transient Address validSent[];

@@ -59,6 +59,9 @@
 // DO NOT add / change / or delete method signatures!
 //
 package javax.mail;
+/**
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 04:29:52 $
+ */
 public class FolderNotFoundException extends MessagingException {
     private transient Folder _folder;
     public FolderNotFoundException() {

@@ -61,6 +61,9 @@
 package javax.mail;
 import java.net.MalformedURLException;
 import java.net.URL;
+/**
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 04:29:52 $
+ */
 public class URLName {
     private String _file;
     private String _host;

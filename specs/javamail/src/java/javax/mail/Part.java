@@ -64,6 +64,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
 import javax.activation.DataHandler;
+/**
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 04:29:52 $
+ */
 public interface Part {
     public static final String ATTACHMENT = "attachment";
     public static final String INLINE = "inline";

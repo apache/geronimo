@@ -68,6 +68,9 @@ import javax.mail.event.ConnectionEvent;
 import javax.mail.event.ConnectionListener;
 import javax.mail.event.MailEvent;
 import javax.mail.event.TransportListener;
+/**
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 04:29:52 $
+ */
 public abstract class Service {
     private boolean _connected;
     private List _connectionListeners = new LinkedList();

@@ -59,6 +59,9 @@
 // DO NOT add / change / or delete method signatures!
 //
 package javax.mail;
+/**
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 04:29:52 $
+ */
 public interface UIDFolder {
     public static final long LASTUID = -11;
     public abstract long getUIDValidity() throws MessagingException;

@@ -66,6 +66,9 @@ import javax.mail.event.FolderEvent;
 import javax.mail.event.FolderListener;
 import javax.mail.event.StoreEvent;
 import javax.mail.event.StoreListener;
+/**
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 04:29:52 $
+ */
 public abstract class Store extends Service {
     private static final Folder[] FOLDER_ARRAY = new Folder[0];
     private List _folderListeners = new LinkedList();

@@ -65,6 +65,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+/**
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 04:29:52 $
+ */
 public class Flags implements Cloneable, Serializable {
     public static final class Flag {
         public static final Flag ANSWERED = new Flag("Answered", true);

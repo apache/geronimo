@@ -60,6 +60,9 @@
 //
 package javax.mail;
 import javax.activation.DataSource;
+/**
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 04:29:52 $
+ */
 public interface MultipartDataSource extends DataSource {
     public abstract BodyPart getBodyPart(int index);
     public abstract int getCount();

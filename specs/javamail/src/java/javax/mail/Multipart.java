@@ -62,6 +62,9 @@ package javax.mail;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Vector;
+/**
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 04:29:52 $
+ */
 public abstract class Multipart {
     protected String contentType;
     protected Part parent;
