@@ -22,7 +22,6 @@ import javax.security.jacc.PolicyContextHandler;
 
 
 /**
- *
  * @version $Rev$ $Date$
  */
 public class PolicyContextHandlerHttpServletRequest implements PolicyContextHandler {

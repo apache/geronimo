@@ -66,6 +66,7 @@ import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerContainerSubject;
 import org.apache.geronimo.security.jacc.RoleMappingConfiguration;
+import org.apache.geronimo.security.jacc.RoleMappingConfigurationFactory;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 
 
@@ -116,7 +117,8 @@ public class TomcatGeronimoRealm extends JAASRealm {
         policyConfiguration = factory.getPolicyConfiguration(policyContextID, true);
 
         configure(uncheckedPermissions, excludedPermissions, rolePermissions);
-        addRoleMappings(securityRoles, loginDomainName, securityConfig, (RoleMappingConfiguration) policyConfiguration);
+        RoleMappingConfiguration roleMapper = RoleMappingConfigurationFactory.getRoleMappingFactory().getRoleMappingConfiguration(policyContextID, false);
+        addRoleMappings(securityRoles, loginDomainName, securityConfig, roleMapper);
         policyConfiguration.commit();
         this.loginDomainName = loginDomainName;
 

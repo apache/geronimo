@@ -171,18 +171,18 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
     public void linkConfiguration(javax.security.jacc.PolicyConfiguration link) throws PolicyContextException {
         if (state != OPEN) throw new UnsupportedOperationException("Not in an open state");
 
-        RoleMappingConfiguration configuration = (RoleMappingConfiguration) link;
+        RoleMappingConfiguration roleMapper = RoleMappingConfigurationFactory.getRoleMappingFactory().getRoleMappingConfiguration(link.getContextID(), false);
         Iterator principals = principalRoleMapping.keySet().iterator();
         while (principals.hasNext()) {
             Principal principal = (Principal) principals.next();
 
             Iterator roles = ((HashSet) principalRoleMapping.get(principal)).iterator();
             while (roles.hasNext()) {
-                configuration.addRoleMapping((String) roles.next(), Collections.singletonList(principal));
+                roleMapper.addRoleMapping((String) roles.next(), Collections.singletonList(principal));
             }
 
         }
-        configuration.linkConfiguration(this);
+        link.linkConfiguration(this);
     }
 
     public void delete() throws PolicyContextException {

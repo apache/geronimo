@@ -39,10 +39,13 @@ public class GeronimoPolicyConfigurationFactory extends PolicyConfigurationFacto
     private Map configurations = new HashMap();
 
     public GeronimoPolicyConfigurationFactory() {
-        if (singleton != null) {
-            log.warn("Singleton already assigned.  There may be more than one GeronimoPolicyConfigurationFactory being used.");
+        synchronized (GeronimoPolicyConfigurationFactory.class) {
+            if (singleton != null) {
+                log.error("Singleton already assigned.  There may be more than one GeronimoPolicyConfigurationFactory being used.");
+                throw new IllegalStateException("Singleton already assigned");
+            }
+            singleton = this;
         }
-        singleton = this;
     }
 
     public void setPolicyConfiguration(String contextID, GeronimoPolicyConfiguration configuration) {
@@ -50,7 +53,7 @@ public class GeronimoPolicyConfigurationFactory extends PolicyConfigurationFacto
         if (sm != null) sm.checkPermission(new GeronimoSecurityPermission("setPolicyConfiguration"));
 
         configurations.put(contextID, configuration);
-        
+
         log.trace("Set policy configuration " + contextID);
     }
 

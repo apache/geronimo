@@ -18,8 +18,6 @@
 package org.apache.geronimo.security.jacc;
 
 import java.util.Collection;
-
-import javax.security.jacc.PolicyConfiguration;
 import javax.security.jacc.PolicyContextException;
 
 
@@ -27,23 +25,25 @@ import javax.security.jacc.PolicyContextException;
  * <p>The methods of this interface are used by containers to create role mappings in a <code>Policy</code> provider.
  * An object that implements the <code>RoleMappingConfiguration</code> interface provides the role mapping configuration
  * interface for a corresponding policy context within the corresponding Policy provider.</p>
- *
+ * <p/>
  * <p>Geronimo will obtain an instance of this class by calling
- * <code>PolicyConfigurationFactory.getPolicyConfiguration</code>.  If the object that is returned <i>also</i>
+ * <code>RoleMappingConfigurationFactory.getRoleMappingConfiguration</code>.  If the object that is returned <i>also</i>
  * implements <code>RoleMappingConfiguration</code>, Geronimo will call the methods of that interface to provide role
  * mappings to the <code>Policy</code> provider</p>
+ *
  * @version $Rev$ $Date$
- * @see        javax.security.jacc.PolicyConfiguration
- * @see        javax.security.jacc.PolicyConfigurationFactory#getPolicyConfiguration
+ * @see RoleMappingConfigurationFactory#getRoleMappingConfiguration
  */
-public interface RoleMappingConfiguration extends PolicyConfiguration {
+public interface RoleMappingConfiguration {
 
     /**
      * Add a mapping from a module's security roles to physical principals.  Mapping principals to the same role twice
      * will cause a <code>PolicyContextException</code> to be thrown.
-     * @param role The role that is to be mapped to a set of principals.
+     *
+     * @param role       The role that is to be mapped to a set of principals.
      * @param principals The set of principals that are to be mapped to to role.
-     * @throws javax.security.jacc.PolicyContextException if the mapping principals to the same role twice occurs.
+     * @throws javax.security.jacc.PolicyContextException
+     *          if the mapping principals to the same role twice occurs.
      */
     public void addRoleMapping(String role, Collection principals) throws PolicyContextException;
 }

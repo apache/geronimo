@@ -49,6 +49,7 @@ import org.apache.geronimo.security.deploy.Realm;
 import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.jacc.RoleMappingConfiguration;
+import org.apache.geronimo.security.jacc.RoleMappingConfigurationFactory;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.mortbay.http.Authenticator;
 import org.mortbay.http.HttpException;
@@ -132,7 +133,8 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
 
         policyConfiguration = factory.getPolicyConfiguration(policyContextID, true);
         configure(uncheckedPermissions, excludedPermissions, rolePermissions);
-        addRoleMappings(securityRoles, securityRealmName, securityConfig, (RoleMappingConfiguration) policyConfiguration);
+        RoleMappingConfiguration roleMapper = RoleMappingConfigurationFactory.getRoleMappingFactory().getRoleMappingConfiguration(policyContextID, false);
+        addRoleMappings(securityRoles, securityRealmName, securityConfig, roleMapper);
         policyConfiguration.commit();
         this.excludedPermissions = excludedPermissions;
 

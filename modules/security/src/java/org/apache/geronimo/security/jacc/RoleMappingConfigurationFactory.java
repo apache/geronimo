@@ -17,13 +17,13 @@
 
 package org.apache.geronimo.security.jacc;
 
-import org.apache.geronimo.security.GeronimoSecurityPermission;
-
-import javax.security.jacc.PolicyConfiguration;
-import javax.security.jacc.PolicyContextException;
 import java.security.SecurityPermission;
 import java.util.HashMap;
 import java.util.Map;
+import javax.security.jacc.PolicyContextException;
+
+import org.apache.geronimo.security.GeronimoSecurityPermission;
+
 
 public class RoleMappingConfigurationFactory {
 
@@ -58,12 +58,10 @@ public class RoleMappingConfigurationFactory {
         if (configuration == null) {
 
             GeronimoPolicyConfigurationFactory gpcf = GeronimoPolicyConfigurationFactory.getSingleton();
-            PolicyConfiguration policyConfiguration = gpcf.getGeronimoPolicyConfiguration(contextID);
+            GeronimoPolicyConfiguration policyConfiguration = gpcf.getGeronimoPolicyConfiguration(contextID);
 
-            configuration = new RoleMappingConfiguration(policyConfiguration);
+            configuration = new RoleMappingConfigurationImpl(policyConfiguration);
             configurations.put(contextID, configuration);
-        } else {
-            configuration.open(remove);
         }
 
         return configuration;

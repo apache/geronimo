@@ -19,16 +19,16 @@ package org.apache.geronimo.security.jacc;
 
 import java.security.Permission;
 import java.security.ProtectionDomain;
+import javax.security.jacc.PolicyConfiguration;
 
 
 /**
- *
  * @version $Rev$ $Date$
  */
 
-public interface GeronimoPolicyConfiguration extends RoleMappingConfiguration {
+public interface GeronimoPolicyConfiguration extends PolicyConfiguration, RoleMappingConfiguration {
+    
     public boolean implies(ProtectionDomain domain, Permission permission);
 
     public void open(boolean remove);
-
 }
