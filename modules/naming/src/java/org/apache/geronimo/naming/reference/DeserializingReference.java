@@ -22,6 +22,8 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.ObjectStreamClass;
 
+import org.apache.geronimo.kernel.ClassLoading;
+
 /**
  * @version $Rev:  $ $Date:  $
  */
@@ -56,20 +58,15 @@ public class DeserializingReference extends SimpleAwareReference {
     }
 
     private static class ConfigInputStream extends ObjectInputStream {
-        private final ClassLoader cl;
+        private final ClassLoader classLoader;
 
-        public ConfigInputStream(InputStream in, ClassLoader cl) throws IOException {
+        public ConfigInputStream(InputStream in, ClassLoader classLoader) throws IOException {
             super(in);
-            this.cl = cl;
+            this.classLoader = classLoader;
         }
 
-        protected Class resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
-            try {
-                return cl.loadClass(desc.getName());
-            } catch (ClassNotFoundException e) {
-                // let the parent try
-                return super.resolveClass(desc);
-            }
+        protected Class resolveClass(ObjectStreamClass classDesc) throws IOException, ClassNotFoundException {
+            return ClassLoading.loadClass(classDesc.getName(), classLoader);
         }
     }
 }

@@ -16,7 +16,6 @@
  */
 package org.apache.geronimo.axis.builder;
 
-import java.beans.Introspector;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,13 +62,13 @@ import net.sf.cglib.reflect.FastConstructor;
 import org.apache.axis.client.Service;
 import org.apache.axis.description.OperationDesc;
 import org.apache.axis.description.ParameterDesc;
+import org.apache.axis.encoding.ser.ArrayDeserializerFactory;
+import org.apache.axis.encoding.ser.ArraySerializerFactory;
+import org.apache.axis.encoding.ser.BeanDeserializerFactory;
+import org.apache.axis.encoding.ser.BeanSerializerFactory;
 import org.apache.axis.enum.Style;
 import org.apache.axis.enum.Use;
 import org.apache.axis.soap.SOAPConstants;
-import org.apache.axis.encoding.ser.BeanSerializerFactory;
-import org.apache.axis.encoding.ser.BeanDeserializerFactory;
-import org.apache.axis.encoding.ser.ArraySerializerFactory;
-import org.apache.axis.encoding.ser.ArrayDeserializerFactory;
 import org.apache.geronimo.axis.client.GenericServiceEndpointWrapper;
 import org.apache.geronimo.axis.client.NoOverrideCallbackFilter;
 import org.apache.geronimo.axis.client.OperationInfo;
@@ -90,10 +89,13 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.naming.reference.DeserializingReference;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingDocument;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
+import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
 import org.apache.geronimo.xbeans.j2ee.MethodParamPartsMappingType;
+import org.apache.geronimo.xbeans.j2ee.PackageMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointInterfaceMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointMethodMappingType;
-import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
+import org.apache.geronimo.xbeans.j2ee.WsdlMessageMappingType;
+import org.apache.geronimo.xbeans.j2ee.WsdlReturnValueMappingType;
 import org.apache.xmlbeans.XmlException;
 import org.objectweb.asm.Type;
 import org.xml.sax.InputSource;
@@ -127,16 +129,6 @@ public class AxisBuilder implements ServiceReferenceBuilder {
     public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
         JarFile moduleFile = module.getModuleFile();
         JarWSDLLocator wsdlLocator = new JarWSDLLocator(moduleFile, wsdlURI);
-//        InputStream wsdlInputStream = null;
-//        try {
-//            wsdlInputStream = moduleFile.getInputStream(moduleFile.getEntry(wsdlURI.toString()));
-//        } catch (IOException e) {
-//            throw new DeploymentException("Could not open stream to wsdl file", e);
-//        }
-        //TODO trying to read in the doc from the wsdlFile directly doesn't work in running geronimo, but does work in
-        //unit tests.  You get a java.net.UnknownServiceException with message "no content-type".  Perhaps something
-        //is wrong with the geronimo url handler??
-//        InputSource inputSource = new InputSource(wsdlInputStream);
         WSDLFactory wsdlFactory = null;
         try {
             wsdlFactory = WSDLFactory.newInstance();
@@ -144,7 +136,6 @@ public class AxisBuilder implements ServiceReferenceBuilder {
             throw new DeploymentException("Could not create WSDLFactory", e);
         }
         WSDLReader wsdlReader = wsdlFactory.newWSDLReader();
-//        wsdlReader.setFeature("javax.wsdl.importDocuments", true);
         Definition definition = null;
         try {
             definition = wsdlReader.readWSDL(wsdlLocator);
@@ -223,7 +214,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         }
     }
 
-    public void buildSEIFactoryMap(Class serviceInterface, Definition definition, JavaWsdlMappingType mapping, QName serviceQName, SOAPConstants soapVersion, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, Object serviceImpl, DeploymentContext context, Module module, ClassLoader classloader) throws DeploymentException {
+    public void buildSEIFactoryMap(Class serviceInterface, Definition definition, JavaWsdlMappingType mapping, QName serviceQName, SOAPConstants soapVersion, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, Object serviceImpl, DeploymentContext context, Module module, ClassLoader classLoader) throws DeploymentException {
 
         //find the service we are working with
         javax.wsdl.Service service;
@@ -246,12 +237,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
             Map.Entry entry = (Map.Entry) iterator.next();
             String portName = (String) entry.getKey();
             Port port = (Port) entry.getValue();
-            Binding binding = port.getBinding();
-            SOAPBinding soapBinding = (SOAPBinding) getExtensibilityElement(SOAPBinding.class, binding.getExtensibilityElements());
-//            String transportURI = soapBinding.getTransportURI();
-            String portStyleString = soapBinding.getStyle();
-            Style portStyle = Style.getStyle(portStyleString);
-            PortType portType = binding.getPortType();
+
             SOAPAddress soapAddress = (SOAPAddress) getExtensibilityElement(SOAPAddress.class, port.getExtensibilityElements());
             String locationURIString = soapAddress.getLocationURI();
             URL location = null;
@@ -261,6 +247,14 @@ public class AxisBuilder implements ServiceReferenceBuilder {
                 throw new DeploymentException("Could not construct web service location URL from " + locationURIString);
             }
 
+            Binding binding = port.getBinding();
+            SOAPBinding soapBinding = (SOAPBinding) getExtensibilityElement(SOAPBinding.class, binding.getExtensibilityElements());
+//            String transportURI = soapBinding.getTransportURI();
+            String portStyleString = soapBinding.getStyle();
+            Style portStyle = Style.getStyle(portStyleString);
+
+            PortType portType = binding.getPortType();
+
             SEIFactory seiFactory;
 
             Class serviceEndpointInterface = null;
@@ -269,29 +263,31 @@ public class AxisBuilder implements ServiceReferenceBuilder {
             List operations = portType.getOperations();
             OperationInfo[] operationInfos = new OperationInfo[operations.size()];
             if (endpointMappings.length == 0) {
-                serviceEndpointInterface = getServiceEndpointInterfaceLightweight(serviceInterface, port);
-                Class enhancedServiceEndpointClass = enhanceServiceEndpointInterface(serviceEndpointInterface, context, module, classloader);
+                //lightweight jaxrpc mapping supplied
+                serviceEndpointInterface = getServiceEndpointInterfaceLightweight(portType, mapping, classLoader);
+                Class enhancedServiceEndpointClass = enhanceServiceEndpointInterface(serviceEndpointInterface, context, module, classLoader);
 
                 int i = 0;
                 for (Iterator ops = operations.iterator(); ops.hasNext();) {
                     Operation operation = (Operation) ops.next();
                     Method method = getMethodForOperation(enhancedServiceEndpointClass, operation);
                     BindingOperation bindingOperation = binding.getBindingOperation(operation.getName(), operation.getInput().getName(), operation.getOutput() == null ? null : operation.getOutput().getName());
-                    OperationInfo operationInfo = buildOperationInfo(method, bindingOperation, portStyle, soapVersion);
+                    OperationInfo operationInfo = buildOperationInfoLightweight(method, bindingOperation, portStyle, soapVersion);
                     operationInfos[i++] = operationInfo;
                 }
                 List typeMappings = new ArrayList();
-                seiFactory = createSEIFactory(enhancedServiceEndpointClass, serviceImpl, typeMappings, location, operationInfos, context, classloader);
+                seiFactory = createSEIFactory(enhancedServiceEndpointClass, serviceImpl, typeMappings, location, operationInfos, context, classLoader);
             } else {
+                //complete jaxrpc mapping file supplied
                 QName portTypeQName = portType.getQName();
                 ServiceEndpointInterfaceMappingType endpointMapping = getServiceEndpointInterfaceMapping(endpointMappings, portTypeQName);
                 String fqcn = endpointMapping.getServiceEndpointInterface().getStringValue();
                 try {
-                    serviceEndpointInterface = classloader.loadClass(fqcn);
+                    serviceEndpointInterface = classLoader.loadClass(fqcn);
                 } catch (ClassNotFoundException e) {
                     throw new DeploymentException("Could not load service endpoint interface", e);
                 }
-                Class enhancedServiceEndpointClass = enhanceServiceEndpointInterface(serviceEndpointInterface, context, module, classloader);
+                Class enhancedServiceEndpointClass = enhanceServiceEndpointInterface(serviceEndpointInterface, context, module, classLoader);
 
                 ServiceEndpointMethodMappingType[] methodMappings = endpointMapping.getServiceEndpointMethodMappingArray();
                 int i = 0;
@@ -299,15 +295,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
                     Operation operation = (Operation) ops.next();
                     BindingOperation bindingOperation = binding.getBindingOperation(operation.getName(), operation.getInput().getName(), operation.getOutput() == null ? null : operation.getOutput().getName());
                     ServiceEndpointMethodMappingType methodMapping = getMethodMappingForOperation(operation, methodMappings);
-                    String javaMethodName = methodMapping.getJavaMethodName().getStringValue().trim();
-                    Class[] types = getParameterTypes(methodMapping, classloader);
-                    Method method = null;
-                    try {
-                        method = serviceEndpointInterface.getMethod(javaMethodName, types);
-                    } catch (NoSuchMethodException e) {
-                        throw new DeploymentException("Could not find method for operation", e);
-                    }
-                    OperationInfo operationInfo = buildOperationInfo(method, bindingOperation, portStyle, soapVersion);
+                    OperationInfo operationInfo = buildOperationInfoHeavyweight(methodMapping, bindingOperation, portStyle, soapVersion, mapping, classLoader);
                     operationInfos[i++] = operationInfo;
                 }
                 JavaXmlTypeMappingType[] javaXmlTypeMappings = mapping.getJavaXmlTypeMappingArray();
@@ -320,18 +308,12 @@ public class AxisBuilder implements ServiceReferenceBuilder {
 
                     String className = javaXmlTypeMapping.getJavaType().getStringValue().trim();
 
-                    //TODO plain primitive types -- although these should not show up I think.
-                    if (className.indexOf("[") > -1) {
+                    Class clazz = convertJavaTypeName(className, classLoader);
+                    if (clazz.isArray()) {
                         serializerFactoryClass = ArraySerializerFactory.class;
                         deserializerFactoryClass = ArrayDeserializerFactory.class;
-                        className = getArrayClassName(className);
                     }
-                    Class clazz = null;
-                    try {
-                        clazz = classloader.loadClass(className);
-                    } catch (ClassNotFoundException e) {
-                        throw new DeploymentException("could not load class for classname: " + className, e);
-                    }
+
                     TypeMappingInfo typeMappingInfo = null;
                     if (javaXmlTypeMapping.isSetRootTypeQname()) {
                         QName typeName = javaXmlTypeMapping.getRootTypeQname().getQNameValue();
@@ -350,44 +332,85 @@ public class AxisBuilder implements ServiceReferenceBuilder {
 
 
                 }
-                seiFactory = createSEIFactory(enhancedServiceEndpointClass, serviceImpl, typeMappings, location, operationInfos, context, classloader);
+                seiFactory = createSEIFactory(enhancedServiceEndpointClass, serviceImpl, typeMappings, location, operationInfos, context, classLoader);
             }
             seiPortNameToFactoryMap.put(portName, seiFactory);
             seiClassNameToFactoryMap.put(serviceEndpointInterface.getName(), seiFactory);
         }
     }
 
-  String getArrayClassName(String className) {
+    Class convertJavaTypeName(String className, ClassLoader classLoader) throws DeploymentException {
         int pos = className.indexOf("[");
-        String baseType = className.substring(0, pos).trim();
-        StringBuffer buf = new StringBuffer(className.length());
-        buf.append("[");
-        while ((pos = className.indexOf("[", pos + 1)) > -1) {
+        if (pos > -1) {
+            String baseType = className.substring(0, pos).trim();
+            StringBuffer buf = new StringBuffer(className.length());
             buf.append("[");
-        }
-        if (false) { //is primitive type
-            //TODO arrays of primitive type
-        } else {
-            buf.append("L").append(baseType).append(";");
-        }
-        className = buf.toString();
-        return className;
-    }
+            while ((pos = className.indexOf("[", pos + 1)) > -1) {
+                buf.append("[");
+            }
 
-    private Class[] getParameterTypes(ServiceEndpointMethodMappingType methodMapping, ClassLoader classloader) throws DeploymentException {
-        MethodParamPartsMappingType[] paramMappings = methodMapping.getMethodParamPartsMappingArray();
-        Class[] types = new Class[paramMappings.length];
-        for (int i = 0; i < paramMappings.length; i++) {
-            MethodParamPartsMappingType paramMapping = paramMappings[i];
-            String paramType = paramMapping.getParamType().getStringValue().trim();
-            try {
-                types[i] = classloader.loadClass(paramType);
-            } catch (ClassNotFoundException e) {
-                throw new DeploymentException("Could not load param type", e);
+            if (baseType.equals("int")) {
+                buf.append("I");
+            } else if (baseType.equals("boolean")) {
+                buf.append("Z");
+            } else if (baseType.equals("byte")) {
+                buf.append("B");
+            } else if (baseType.equals("char")) {
+                buf.append("C");
+            } else if (baseType.equals("short")) {
+                buf.append("S");
+            } else if (baseType.equals("double")) {
+                buf.append("D");
+            } else if (baseType.equals("float")) {
+                buf.append("F");
+            } else if (baseType.equals("long")) {
+                buf.append("J");
+            } else {
+                buf.append("L").append(baseType).append(";");
+            }
+            className = buf.toString();
+        } else {
+            if (className.equals("int")) {
+                return int.class;
+            } else if (className.equals("boolean")) {
+                return boolean.class;
+            } else if (className.equals("byte")) {
+                return byte.class;
+            } else if (className.equals("char")) {
+                return char.class;
+            } else if (className.equals("short")) {
+                return short.class;
+            } else if (className.equals("double")) {
+                return double.class;
+            } else if (className.equals("float")) {
+                return float.class;
+            } else if (className.equals("long")) {
+                return long.class;
+            } else if (className.equals("void")) {
+                return void.class;
             }
         }
-        return types;
+        try {
+            return classLoader.loadClass(className);
+        } catch (ClassNotFoundException e) {
+            throw new DeploymentException("Could not load class ", e);
+        }
     }
+
+//    private Class[] getParameterTypes(ServiceEndpointMethodMappingType methodMapping, ClassLoader classloader) throws DeploymentException {
+//        MethodParamPartsMappingType[] paramMappings = methodMapping.getMethodParamPartsMappingArray();
+//        Class[] types = new Class[paramMappings.length];
+//        for (int i = 0; i < paramMappings.length; i++) {
+//            MethodParamPartsMappingType paramMapping = paramMappings[i];
+//            String paramType = paramMapping.getParamType().getStringValue().trim();
+//            try {
+//                types[i] = classloader.loadClass(paramType);
+//            } catch (ClassNotFoundException e) {
+//                throw new DeploymentException("Could not load param type", e);
+//            }
+//        }
+//        return types;
+//    }
 
     private ServiceEndpointMethodMappingType getMethodMappingForOperation(Operation operation, ServiceEndpointMethodMappingType[] methodMappings) throws DeploymentException {
         String operationName = operation.getName();
@@ -419,24 +442,38 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         return found;
     }
 
-    private Class getServiceEndpointInterfaceLightweight(Class serviceInterface, Port port) throws DeploymentException {
-        Method[] methods = serviceInterface.getMethods();
-        String methodName = "get" + port.getName();
-        String serviceEndpointInterfaceShortName = port.getBinding().getPortType().getQName().getLocalPart();
-        for (int i = 0; i < methods.length; i++) {
-            Method method = methods[i];
-            if (method.getName().equals(methodName)) {
-                Class serviceEndpointInterface = method.getReturnType();
-                String longName = serviceEndpointInterface.getName();
-                String name = longName.substring(longName.lastIndexOf('.') + 1);
-                if (!name.equals(serviceEndpointInterfaceShortName) &&
-                        !Introspector.decapitalize(name).equals(serviceEndpointInterfaceShortName)) {
-                    throw new DeploymentException("unexpected name for service endpoint interface, expected ending: " + serviceEndpointInterfaceShortName + ", found " + serviceEndpointInterface.getName());
-                }
-                return serviceEndpointInterface;
-            }
+    private Class getServiceEndpointInterfaceLightweight(PortType portType, JavaWsdlMappingType mappings, ClassLoader classLoader) throws DeploymentException {
+//        PortType portType = port.getBinding().getPortType();
+        QName portTypeQName = portType.getQName();
+        String portTypeNamespace = portTypeQName.getNamespaceURI();
+        String portTypePackage = getPackageFromNamespace(portTypeNamespace, mappings);
+        StringBuffer shortInterfaceName = new StringBuffer(portTypeQName.getLocalPart());
+        shortInterfaceName.setCharAt(0, Character.toUpperCase(shortInterfaceName.charAt(0)));
+        //TODO just use one buffer!
+        String fqcn = portTypePackage + "." + shortInterfaceName.toString();
+        try {
+            return classLoader.loadClass(fqcn);
+        } catch (ClassNotFoundException e) {
+            throw new DeploymentException("Could not load service endpoint interface type", e);
         }
-        throw new DeploymentException("Could not find service endpoint interface for port named " + port.getName());
+
+//        Method[] methods = serviceInterface.getMethods();
+//        String methodName = "get" + port.getName();
+//        String serviceEndpointInterfaceShortName = port.getBinding().getPortType().getQName().getLocalPart();
+//        for (int i = 0; i < methods.length; i++) {
+//            Method method = methods[i];
+//            if (method.getName().equals(methodName)) {
+//                Class serviceEndpointInterface = method.getReturnType();
+//                String longName = serviceEndpointInterface.getName();
+//                String name = longName.substring(longName.lastIndexOf('.') + 1);
+//                if (!name.equals(serviceEndpointInterfaceShortName) &&
+//                        !Introspector.decapitalize(name).equals(serviceEndpointInterfaceShortName)) {
+//                    throw new DeploymentException("unexpected name for service endpoint interface, expected ending: " + serviceEndpointInterfaceShortName + ", found " + serviceEndpointInterface.getName());
+//                }
+//                return serviceEndpointInterface;
+//            }
+//        }
+//        throw new DeploymentException("Could not find service endpoint interface for port named " + port.getName());
     }
 
     private ServiceEndpointInterfaceMappingType getServiceEndpointInterfaceMapping(ServiceEndpointInterfaceMappingType[] endpointMappings, QName portTypeQName) throws DeploymentException {
@@ -471,6 +508,17 @@ public class AxisBuilder implements ServiceReferenceBuilder {
 //        throw new DeploymentException("Package " + packageName + " was not mapped in jaxrpc mapping file");
 //    }
 
+    private String getPackageFromNamespace(String namespace, JavaWsdlMappingType mapping) throws DeploymentException {
+        PackageMappingType[] packageMappings = mapping.getPackageMappingArray();
+        for (int i = 0; i < packageMappings.length; i++) {
+            PackageMappingType packageMapping = packageMappings[i];
+            if (namespace.equals(packageMapping.getNamespaceURI().getStringValue().trim())) {
+                return packageMapping.getPackageType().getStringValue().trim();
+            }
+        }
+        throw new DeploymentException("Namespace " + namespace + " was not mapped in jaxrpc mapping file");
+    }
+
     public SEIFactory createSEIFactory(Class enhancedServiceEndpointClass, Object serviceImpl, List typeMappings, URL location, OperationInfo[] operationInfos, DeploymentContext deploymentContext, ClassLoader classLoader) throws DeploymentException {
 
         try {
@@ -503,12 +551,16 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         return serviceEndpointClass;
     }
 
-    public OperationInfo buildOperationInfo(Method method, BindingOperation bindingOperation, Style defaultStyle, SOAPConstants soapVersion) throws DeploymentException {
+    public OperationInfo buildOperationInfoLightweight(Method method, BindingOperation bindingOperation, Style defaultStyle, SOAPConstants soapVersion) throws DeploymentException {
 
-        //TODO how can bindingOperation be null?
+        if (bindingOperation == null) {
+            throw new DeploymentException("No BindingOperation supplied for method " + method.getName());
+        }
         Operation operation = bindingOperation.getOperation();
         String operationName = operation.getName();
-        List order = operation.getParameterOrdering();
+        //section 7.3.2, we don't have to look at parameter ordering.
+        //unless it turns out we have to validate it.
+//        List order = operation.getParameterOrdering();
         List parameterList = new ArrayList();
 
         QName returnType = null;
@@ -517,42 +569,32 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         Message inputMessage = operation.getInput().getMessage();
         Message outputMessage = operation.getOutput() == null ? null : operation.getOutput().getMessage();
 
-        if (order == null || order.size() == 0) {
-            if (outputMessage != null && outputMessage.getParts().size() > 1) {
-//                throw new DeploymentException("We don't handle multiple out params unless you supply the parameter order!");
-                System.out.println("We don't handle multiple out params unless you supply the parameter order!");
-                return new OperationInfo(null, false, null, null, null, method.getName(), Type.getMethodDescriptor(method));
-            }
-            Class[] methodParamTypes = method.getParameterTypes();
-            Map inputParts = inputMessage.getParts();
-            if (methodParamTypes.length != inputParts.size()) {
-                throw new DeploymentException("mismatch in parameter counts: method has " + methodParamTypes.length + " whereas the input message has " + inputParts.size());
-            }
-            int i = 0;
-            for (Iterator parts = inputParts.entrySet().iterator(); parts.hasNext();) {
-                //TODO HOW IS THIS SUPPOSED TO WORK????? is the map ordered?
-                Map.Entry entry = (Map.Entry) parts.next();
-                String partName = (String) entry.getKey();
-                Part part = (Part) entry.getValue();
-                QName name = new QName("", partName);
-                byte mode = ParameterDesc.IN;
-                QName typeQName = part.getTypeName() == null ? part.getElementName() : part.getTypeName();
-                Class javaClass = methodParamTypes[i++];
-                //TODO where do the inHeader and outHeader come from?
-                ParameterDesc parameter = new ParameterDesc(name, mode, typeQName, javaClass, false, false);
-                parameterList.add(parameter);
-            }
-            if (outputMessage != null && outputMessage.getParts().size() == 1) {
-                //TODO this might be wrong
-                returnQName = outputMessage.getQName();
-                Part part = (Part) outputMessage.getParts().values().iterator().next();
-                returnType = part.getTypeName() == null ? part.getElementName() : part.getTypeName();
-            }
-        } else {
-            //todo fix this
-//            throw new DeploymentException("specified parameter order NYI");
-            System.out.println("specified parameter order NYI");
-            return new OperationInfo(null, false, null, null, null, method.getName(), Type.getMethodDescriptor(method));
+        if (outputMessage != null && outputMessage.getParts().size() > 1) {
+            throw new DeploymentException("Lightweight mapping has at most one part in the (optional) output message, not: " + outputMessage.getParts().size());
+        }
+        Class[] methodParamTypes = method.getParameterTypes();
+        Map inputParts = inputMessage.getParts();
+        if (methodParamTypes.length != inputParts.size()) {
+            throw new DeploymentException("mismatch in parameter counts: method has " + methodParamTypes.length + " whereas the input message has " + inputParts.size());
+        }
+        int i = 0;
+        for (Iterator parts = inputParts.entrySet().iterator(); parts.hasNext();) {
+            //TODO HOW IS THIS SUPPOSED TO WORK????? is the map ordered?
+            Map.Entry entry = (Map.Entry) parts.next();
+            String partName = (String) entry.getKey();
+            Part part = (Part) entry.getValue();
+            QName name = new QName("", partName);
+            byte mode = ParameterDesc.IN;
+            QName typeQName = part.getTypeName() == null ? part.getElementName() : part.getTypeName();
+            Class javaClass = methodParamTypes[i++];
+            //lightweight mapping has no parts in headers, so inHeader and outHeader are false
+            ParameterDesc parameter = new ParameterDesc(name, mode, typeQName, javaClass, false, false);
+            parameterList.add(parameter);
+        }
+        if (outputMessage != null && outputMessage.getParts().size() == 1) {
+            returnQName = outputMessage.getQName();
+            Part part = (Part) outputMessage.getParts().values().iterator().next();
+            returnType = part.getTypeName() == null ? part.getElementName() : part.getTypeName();
         }
         ParameterDesc[] parameterDescs = (ParameterDesc[]) parameterList.toArray(new ParameterDesc[parameterList.size()]);
         OperationDesc operationDesc = new OperationDesc(operationName, parameterDescs, returnQName);
@@ -585,6 +627,114 @@ public class AxisBuilder implements ServiceReferenceBuilder {
 
         String methodName = method.getName();
         String methodDesc = Type.getMethodDescriptor(method);
+        OperationInfo operationInfo = new OperationInfo(operationDesc, usesSOAPAction, soapActionURI, soapVersion, operationQName, methodName, methodDesc);
+        return operationInfo;
+    }
+
+    public OperationInfo buildOperationInfoHeavyweight(ServiceEndpointMethodMappingType methodMapping, BindingOperation bindingOperation, Style defaultStyle, SOAPConstants soapVersion, JavaWsdlMappingType mapping, ClassLoader classLoader) throws DeploymentException {
+
+        //TODO how can bindingOperation be null?
+        Operation operation = bindingOperation.getOperation();
+        String operationName = operation.getName();
+
+
+        Message inputMessage = operation.getInput().getMessage();
+
+        MethodParamPartsMappingType[] paramMappings = methodMapping.getMethodParamPartsMappingArray();
+        Type[] parameterASMTypes = new Type[paramMappings.length];
+        ParameterDesc[] parameterDescriptions = new ParameterDesc[paramMappings.length];
+        for (int i = 0; i < paramMappings.length; i++) {
+            MethodParamPartsMappingType paramMapping = paramMappings[i];
+            int position = paramMapping.getParamPosition().getBigIntegerValue().intValue();
+            String paramJavaTypeName = paramMapping.getParamType().getStringValue().trim();
+            Class paramJavaType = convertJavaTypeName(paramJavaTypeName, classLoader);
+
+            WsdlMessageMappingType wsdlMessageMappingType = paramMapping.getWsdlMessageMapping();
+            String parameterMode = wsdlMessageMappingType.getParameterMode().getStringValue().trim();
+            byte mode = ParameterDesc.modeFromString(parameterMode);
+            boolean isSoapHeader = wsdlMessageMappingType.isSetSoapHeader();
+            boolean inHeader = isSoapHeader && (mode == ParameterDesc.IN || mode == ParameterDesc.INOUT);
+            boolean outHeader = isSoapHeader && (mode == ParameterDesc.OUT || mode == ParameterDesc.INOUT);
+            QName wsdlMessageQName = wsdlMessageMappingType.getWsdlMessage().getQNameValue();
+            String wsdlMessagePartName = wsdlMessageMappingType.getWsdlMessagePartName().getStringValue().trim();
+
+
+            //TODO Must this be the inputMessage? Then we don't need definition.
+            if (!wsdlMessageQName.equals(inputMessage.getQName())) {
+                throw new DeploymentException("QName of input message: " + inputMessage.getQName() + " does not match mapping message QName: " + wsdlMessageQName);
+            }
+//            Message inputMessage = definition.getMessage(wsdlMessageQName);
+            Part part = inputMessage.getPart(wsdlMessagePartName);
+            //TODO this makes little sense but may be correct, see comments in axis Parameter class
+            QName partQName = part.getElementName();
+            QName partTypeQName = part.getTypeName();
+
+            ParameterDesc parameterDesc = new ParameterDesc(partQName, mode, partTypeQName, paramJavaType, inHeader, outHeader);
+            parameterDescriptions[position] = parameterDesc;
+            parameterASMTypes[position] = Type.getType(paramJavaType);
+        }
+
+
+        QName returnType = null;
+        QName returnQName = null;
+        Class returnClass = null;
+        Type returnASMType = Type.VOID_TYPE;
+
+        Message outputMessage = operation.getOutput() == null ? null : operation.getOutput().getMessage();
+        if (methodMapping.isSetWsdlReturnValueMapping()) {
+            WsdlReturnValueMappingType wsdlReturnValueMapping = methodMapping.getWsdlReturnValueMapping();
+            String returnClassName = wsdlReturnValueMapping.getMethodReturnValue().getStringValue().trim();
+            returnClass = convertJavaTypeName(returnClassName, classLoader);
+
+            QName wsdlMessageQName = wsdlReturnValueMapping.getWsdlMessage().getQNameValue();
+
+            if (outputMessage == null) {
+                throw new DeploymentException("No output message, but a mapping for it!");
+            }
+            if (!wsdlMessageQName.equals(outputMessage.getQName())) {
+                throw new DeploymentException("OutputMessage has QName: " + outputMessage.getQName() + " but mapping specifies: " + wsdlMessageQName);
+            }
+
+            if (wsdlReturnValueMapping.isSetWsdlMessagePartName()) {
+                String wsdlMessagePartName = wsdlReturnValueMapping.getWsdlMessagePartName().getStringValue().trim();
+                Part part = outputMessage.getPart(wsdlMessagePartName);
+                returnQName = part.getElementName();
+                returnType = part.getTypeName();
+            }
+
+            returnASMType = Type.getType(returnClass);
+
+        }
+
+        OperationDesc operationDesc = new OperationDesc(operationName, parameterDescriptions, returnQName);
+        operationDesc.setReturnType(returnType);
+        operationDesc.setReturnClass(returnClass);
+
+        SOAPOperation soapOperation = (SOAPOperation) getExtensibilityElement(SOAPOperation.class, bindingOperation.getExtensibilityElements());
+        String soapActionURI = soapOperation.getSoapActionURI();
+        String styleString = soapOperation.getStyle();
+        Style style = Style.getStyle(styleString, defaultStyle);
+        BindingInput bindingInput = bindingOperation.getBindingInput();
+        SOAPBody soapBody = (SOAPBody) getExtensibilityElement(SOAPBody.class, bindingInput.getExtensibilityElements());
+        String useString = soapBody.getUse();
+        Use use = Use.getUse(useString);
+        operationDesc.setStyle(style);
+        operationDesc.setUse(use);
+        //TODO add faults
+//        TFault[] faults = tOperation.getFaultArray();
+//        for (int i = 0; i < faults.length; i++) {
+//            TFault fault = faults[i];
+//            QName faultQName = new QName("", fault.getName());
+//            String className = ;
+//            QName faultTypeQName = ;
+//            boolean isComplex = ;
+//            FaultDesc faultDesc = new FaultDesc(faultQName, className, faultTypeQName, isComplex)
+//        }
+        boolean usesSOAPAction = (soapActionURI != null);
+        QName operationQName = new QName("", operation.getName());
+
+        String methodName = methodMapping.getJavaMethodName().getStringValue().trim();
+        String methodDesc = Type.getMethodDescriptor(returnASMType, parameterASMTypes);
         OperationInfo operationInfo = new OperationInfo(operationDesc, usesSOAPAction, soapActionURI, soapVersion, operationQName, methodName, methodDesc);
         return operationInfo;
     }
