@@ -51,7 +51,7 @@
     </menu>
 
     <menu name="Modules">
-      <item name="Axis"                     href="/modules/axis/index.html"/>
+      <!-- item name="Axis"                     href="/modules/axis/index.html"/ -->
       <item name="Clustering"               href="/modules/clustering/index.html"/>
       <item name="Common"                   href="/modules/common/index.html"/>
       <item name="Connector"                href="/modules/connector/index.html"/>
@@ -71,13 +71,11 @@
     </menu>
 
     <menu name="Specifications">
-      <item name="Java Activation Framework"                  href="/specs/activation/index.html"/>
       <item name="Enterprise Java Beans"                      href="/specs/ejb/index.html"/>
       <item name="Java Connector"                             href="/specs/j2ee-connector/index.html"/>
       <item name="J2EE Application Deployment"                href="/specs/j2ee-deployment/index.html"/>
       <item name="J2EE Authorization Contract for Containers" href="/specs/j2ee-jacc/index.html"/>
       <item name="J2EE Application Management"                href="/specs/j2ee-management/index.html"/>
-      <item name="JavaMail"                                   href="/specs/javamail/index.html"/>
       <item name="Java Message Service"                       href="/specs/jms/index.html"/>
       <item name="Java Server Pages Specification"            href="/specs/jsp/index.html"/>
       <item name="Java Transaction API"                       href="/specs/jta/index.html"/>
