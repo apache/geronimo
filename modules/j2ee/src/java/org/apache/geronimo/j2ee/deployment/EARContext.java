@@ -17,15 +17,12 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.jar.JarOutputStream;
-
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.naming.Reference;
 
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
@@ -35,9 +32,7 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 /**
  * @version $Rev$ $Date$
  */
-public class EARContext extends DeploymentContext implements EJBReferenceBuilder {
-    private final Map ejbRefs = new HashMap();
-    private final Map ejbLocalRefs = new HashMap();
+public class EARContext extends DeploymentContext {
     private final Map resourceAdapterModules = new HashMap();
     private final Map activationSpecInfos = new HashMap();
     private final String j2eeDomainName;
@@ -53,9 +48,9 @@ public class EARContext extends DeploymentContext implements EJBReferenceBuilder
     private final ObjectName transactedTimerName;
     private final ObjectName nonTransactedTimerName;
 
-    private final EJBReferenceBuilder ejbReferenceBuilder;
+    private final EJBRefContext ejbRefContext;
 
-    public EARContext(JarOutputStream jos, URI id, ConfigurationModuleType moduleType, URI parentID, Kernel kernel, String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactedTimerName, ObjectName nonTransactedTimerName, EJBReferenceBuilder ejbReferenceBuilder) throws MalformedObjectNameException, DeploymentException {
+    public EARContext(JarOutputStream jos, URI id, ConfigurationModuleType moduleType, URI parentID, Kernel kernel, String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactedTimerName, ObjectName nonTransactedTimerName, EJBRefContext ejbRefContext) throws MalformedObjectNameException, DeploymentException {
         super(jos, id, moduleType, parentID, kernel);
         this.j2eeDomainName = j2eeDomainName;
         this.j2eeServerName = j2eeServerName;
@@ -100,7 +95,7 @@ public class EARContext extends DeploymentContext implements EJBReferenceBuilder
         this.connectionTrackerObjectName = connectionTrackerObjectName;
         this.transactedTimerName = transactedTimerName;
         this.nonTransactedTimerName = nonTransactedTimerName;
-        this.ejbReferenceBuilder = ejbReferenceBuilder;
+        this.ejbRefContext = ejbRefContext;
     }
 
     public String getJ2EEDomainName() {
@@ -143,71 +138,8 @@ public class EARContext extends DeploymentContext implements EJBReferenceBuilder
         return nonTransactedTimerName;
     }
 
-    public void addEJBRef(URI modulePath, String name, Object reference) throws DeploymentException {
-        Map references = (Map) ejbRefs.get(name);
-        if (references == null || references.isEmpty()) {
-            references = new HashMap();
-            ejbRefs.put(name, references);
-        }
-        addRef(modulePath, name, reference, references);
-    }
-
-    public void addEJBLocalRef(URI modulePath, String name, Object reference) throws DeploymentException {
-        Map references = (Map) ejbLocalRefs.get(name);
-        if (references == null || references.isEmpty()) {
-            references = new HashMap();
-            ejbLocalRefs.put(name, references);
-        }
-        addRef(modulePath, name, reference, references);
-    }
-
-    private void addRef(URI modulePath, String name, Object reference, Map references) throws DeploymentException {
-        try {
-            URI ejbURI = new URI(null, null, modulePath.getPath(), name);
-            references.put(ejbURI, reference);
-        } catch (URISyntaxException e) {
-            throw new DeploymentException(e);
-        }
-    }
-
-    public Object getEJBRef(URI module, String ejbLink) throws DeploymentException {
-        String name = ejbLink.substring(ejbLink.lastIndexOf('#') + 1);
-        return getRef(module, ejbLink, (Map) ejbRefs.get(name));
-    }
-
-    public Object getEJBLocalRef(URI module, String ejbLink) throws DeploymentException {
-        String name = ejbLink.substring(ejbLink.lastIndexOf('#') + 1);
-        return getRef(module, ejbLink, (Map) ejbLocalRefs.get(name));
-    }
-
-    private Object getRef(URI module, String ejbLink, Map references) throws AmbiguousEJBRefException, UnknownEJBRefException {
-        if (references == null || references.isEmpty()) {
-            throw new UnknownEJBRefException(ejbLink);
-        }
-        if (ejbLink.indexOf('#') < 0) {
-            // non absolute reference
-            if (references.size() != 1) {
-                // check for an ejb in the current module
-                Object ejbRef = references.get(module.resolve("#" + ejbLink));
-                if (ejbRef == null) {
-                    throw new AmbiguousEJBRefException(ejbLink);
-                }
-                return ejbRef;
-            }
-            Object ejbRef = references.values().iterator().next();
-            if (ejbRef == null) {
-                throw new UnknownEJBRefException(ejbLink);
-            }
-            return ejbRef;
-        } else {
-            // absolute reference  ../relative/path/Module#EJBName
-            URI ejbURI = module.resolve(ejbLink).normalize();
-            Object ejbRef = references.get(ejbURI);
-            if (ejbRef == null) {
-                throw new UnknownEJBRefException(ejbLink);
-            }
-            return ejbRef;
-        }
+    public EJBRefContext getEJBRefContext() {
+        return ejbRefContext;
     }
 
     public void addResourceAdapter(String resourceAdapterName, String resourceAdapterModule, Map activationSpecInfoMap) {
@@ -223,19 +155,5 @@ public class EARContext extends DeploymentContext implements EJBReferenceBuilder
 
     public String getResourceAdapterModule(String resourceAdapterName) {
         return (String) resourceAdapterModules.get(resourceAdapterName);
-    }
-
-    public Reference createEJBLocalReference(String objectName, boolean isSession, String localHome, String local) throws DeploymentException {
-        if (ejbReferenceBuilder != null) {
-            return ejbReferenceBuilder.createEJBLocalReference(objectName, isSession, localHome, local);
-        }
-        throw new DeploymentException("No ejb reference builder");
-    }
-
-    public Reference createEJBRemoteReference(String objectName, boolean isSession, String home, String remote) throws DeploymentException {
-        if (ejbReferenceBuilder != null) {
-            return ejbReferenceBuilder.createEJBRemoteReference(objectName, isSession, home, remote);
-        }
-        throw new DeploymentException("No ejb reference builder");
     }
 }

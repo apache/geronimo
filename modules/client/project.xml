@@ -49,6 +49,12 @@
     <dependencies>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-naming</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>

@@ -71,8 +71,6 @@
             <artifactId>geronimo-client</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
-                <lib>true</lib>
-                <client>true</client>
                 <repository>true</repository>
             </properties>
         </dependency>

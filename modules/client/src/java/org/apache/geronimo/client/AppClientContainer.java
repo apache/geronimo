@@ -78,6 +78,7 @@ public final class AppClientContainer {
             } else if (cause instanceof Error) {
                 throwable = cause;
             }
+            throwable = new Error(e);
         } finally {
             jndiContext.stopClient(appClientModuleName);
 

@@ -35,6 +35,7 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.naming.Reference;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
@@ -47,6 +48,8 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.AppClientModule;
 import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.EJBRefContext;
+import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.management.impl.J2EEAppClientModuleImpl;
@@ -68,6 +71,8 @@ import org.apache.geronimo.xbeans.j2ee.ApplicationClientType;
 import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.openejb.client.naming.RemoteEJBObjectFactory;
+import org.openejb.client.naming.RemoteEJBRefAddr;
 
 
 /**
@@ -272,6 +277,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         }
 
         // create a gbean for the app client module and add it to the ear
+        ReadOnlyContext componentContext;
         GBeanMBean appClientModuleGBean = new GBeanMBean(J2EEAppClientModuleImpl.GBEAN_INFO, earClassLoader);
         try {
             appClientModuleGBean.setReferencePatterns("J2EEServer", Collections.singleton(earContext.getServerObjectName()));
@@ -280,7 +286,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             }
             appClientModuleGBean.setAttribute("deploymentDescriptor", null);
 
-            ReadOnlyContext componentContext = buildComponentContext(earContext, appClientModule, appClient, geronimoAppClient, earClassLoader);
+            componentContext = buildComponentContext(earContext, appClientModule, appClient, geronimoAppClient, earClassLoader);
             appClientModuleGBean.setAttribute("componentContext", componentContext);
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
@@ -296,10 +302,23 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
             // construct the app client deployment context... this is the same class used by the ear context
             try {
+                EJBReferenceBuilder ejbReferenceBuilder = new EJBReferenceBuilder() {
+                    public Reference createEJBLocalReference(String objectName, boolean isSession, String localHome, String local) {
+                        throw new UnsupportedOperationException("Application client cannot have a local ejb ref");
+                    }
+
+                    public Reference createEJBRemoteReference(String objectName, boolean isSession, String home, String remote) {
+                        RemoteEJBRefAddr addr = new RemoteEJBRefAddr(objectName);
+                        Reference reference = new Reference(null, addr, RemoteEJBObjectFactory.class.getName(), null);
+                        return reference;
+                    }
+                };
+
                 URI configId = URI.create(geronimoAppClient.getConfigId());
                 appClientDeploymentContext = new EARContext(jos,
                         configId,
-                        ConfigurationModuleType.APP_CLIENT, PARENT_ID,
+                        ConfigurationModuleType.APP_CLIENT,
+                        PARENT_ID,
                         kernel,
                         clientDomainName,
                         clientServerName,
@@ -308,7 +327,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                         connectionTrackerObjectName,
                         null,
                         null,
-                        null);//not sure if EJBReferenceBuilder should be used for this.
+                        new EJBRefContext(earContext.getEJBRefContext(), ejbReferenceBuilder));
             } catch (Exception e) {
                 throw new DeploymentException("Could not create a deployment context for the app client", e);
             }
@@ -393,13 +412,25 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
             }
 
+            // add the app client static jndi provider
+            ObjectName jndiContextName = ObjectName.getInstance("geronimo.client:type=StaticJndiContext");
+            GBeanMBean jndiContextGBean = new GBeanMBean("org.apache.geronimo.client.StaticJndiContextPlugin", appClientClassLoader);
+            try {
+
+                componentContext = buildComponentContext(appClientDeploymentContext, appClientModule, appClient, geronimoAppClient, earClassLoader);
+                jndiContextGBean.setAttribute("context", componentContext);
+            } catch (Exception e) {
+                throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
+            }
+            appClientDeploymentContext.addGBean(jndiContextName, jndiContextGBean);
+
             // finally add the app client container
             ObjectName appClienContainerName = ObjectName.getInstance("geronimo.client:type=ClientContainer");
             GBeanMBean appClienContainerGBean = new GBeanMBean("org.apache.geronimo.client.AppClientContainer", appClientClassLoader);
             try {
                 appClienContainerGBean.setAttribute("mainClassName", mainClasss);
                 appClienContainerGBean.setAttribute("appClientModuleName", appClientModuleName);
-                appClienContainerGBean.setReferencePattern("JNDIContext", new ObjectName("geronimo.client:type=JNDIContext"));
+                appClienContainerGBean.setReferencePattern("JNDIContext", new ObjectName("geronimo.client:type=StaticJndiContext"));
             } catch (Exception e) {
                 throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
             }

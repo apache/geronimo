@@ -260,7 +260,7 @@
             <ant:arg value="--outfile"/>
             <ant:arg value="${distDir}/bin/client.jar"/>
             <ant:arg value="--mainClass"/>
-            <ant:arg value="org.apache.geronimo.client.ClientCommandLine"/>
+            <ant:arg value="org.apache.geronimo.system.main.ClientCommandLine"/>
             <ant:arg value="--classPath"/>
             <ant:arg value="${client.classpath}"/>
         </ant:java>

@@ -63,10 +63,10 @@ by the app client.
         <uri>tranql/jars/tranql-${tranql_version}.jar</uri>
     </dependency>
  
-    <gbean name="geronimo.client:type=JNDIContext" class="org.openejb.client.AppClientJNDIContext">
-        <attribute name="host" type="java.lang.String">localhost</attribute>
-        <attribute name="port" type="int">4201</attribute>
-    </gbean>
+<!--    <gbean name="geronimo.client:type=JNDIContext" class="org.openejb.client.AppClientJNDIContext">-->
+<!--        <attribute name="host" type="java.lang.String">localhost</attribute>-->
+<!--        <attribute name="port" type="int">4201</attribute>-->
+<!--    </gbean>-->
 
     <!--client connector support-->
     <gbean name="geronimo.client:type=ThreadPool,name=DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">

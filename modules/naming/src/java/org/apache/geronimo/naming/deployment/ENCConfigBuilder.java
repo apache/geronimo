@@ -32,6 +32,7 @@ import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.EJBRefContext;
 
 /**
  *
@@ -128,6 +129,7 @@ public class ENCConfigBuilder {
     }
 
     public static void addEJBRefs(EARContext earContext, URI uri, EjbRefType[] ejbRefs, Map ejbRefMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+        EJBRefContext ejbRefContext = earContext.getEJBRefContext();
         for (int i = 0; i < ejbRefs.length; i++) {
             EjbRefType ejbRef = ejbRefs[i];
 
@@ -144,7 +146,7 @@ public class ENCConfigBuilder {
             String ejbLink = getJ2eeStringValue(ejbRef.getEjbLink());
             if (ejbLink != null) {
                 try {
-                    builder.bind(ejbRefName, earContext.getEJBRef(uri, ejbLink));
+                    builder.bind(ejbRefName, ejbRefContext.getEJBRemoteRef(uri, ejbLink, isSession, home, remote));
                 } catch (NamingException e) {
                     throw new DeploymentException("Unable to to bind ejb-ref: ejb-ref-name=" + ejbRefName);
                 }
@@ -154,7 +156,7 @@ public class ENCConfigBuilder {
                     throw  new DeploymentException("No geronimo configuration for resource ref named: " + ejbRefName);
                 }
                 try {
-                    builder.bind(ejbRefName, earContext.createEJBRemoteReference(remoteRef.getTargetName(), isSession, home, remote));
+                    builder.bind(ejbRefName, ejbRefContext.getEJBRemoteRef(remoteRef.getTargetName(), isSession, home, remote));
                 } catch (NamingException e) {
                     throw new DeploymentException("Invalid env-entry definition for name: " + ejbRefName, e);
                 }
@@ -164,6 +166,7 @@ public class ENCConfigBuilder {
     }
 
     public static void addEJBLocalRefs(EARContext earContext, URI uri, EjbLocalRefType[] ejbLocalRefs, Map ejbLocalRefMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+        EJBRefContext ejbRefContext = earContext.getEJBRefContext();
         for (int i = 0; i < ejbLocalRefs.length; i++) {
             EjbLocalRefType ejbLocalRef = ejbLocalRefs[i];
 
@@ -180,7 +183,7 @@ public class ENCConfigBuilder {
             String ejbLink = getJ2eeStringValue(ejbLocalRef.getEjbLink());
             if (ejbLink != null) {
                 try {
-                    builder.bind(ejbRefName, earContext.getEJBLocalRef(uri, ejbLink));
+                    builder.bind(ejbRefName, ejbRefContext.getEJBLocalRef(uri, ejbLink, isSession, localHome, local));
                 } catch (NamingException e) {
                     throw new DeploymentException("Unable to to bind ejb-local-ref: ejb-ref-name=" + ejbRefName);
                 }
@@ -190,7 +193,7 @@ public class ENCConfigBuilder {
                     throw  new DeploymentException("No geronimo configuration for resource ref named: " + ejbRefName);
                 }
                 try {
-                    builder.bind(ejbRefName, earContext.createEJBLocalReference(localRef.getTargetName(), isSession, localHome, local));
+                    builder.bind(ejbRefName, ejbRefContext.getEJBLocalRef(localRef.getTargetName(), isSession, localHome, local));
                 } catch (NamingException e) {
                     throw new DeploymentException("Invalid env-entry definition for name: " + ejbRefName, e);
                 }
