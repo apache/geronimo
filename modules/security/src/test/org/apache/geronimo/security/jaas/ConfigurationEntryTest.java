@@ -19,14 +19,12 @@ package org.apache.geronimo.security.jaas;
 
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
-import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import java.io.File;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Properties;
 
-import com.sun.security.auth.login.ConfigFile;
 import junit.framework.TestCase;
 
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
@@ -39,7 +37,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/06/27 18:07:14 $
+ * @version $Revision: 1.9 $ $Date: 2004/06/27 18:11:00 $
  */
 public class ConfigurationEntryTest extends TestCase {
 
@@ -75,8 +73,6 @@ public class ConfigurationEntryTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
-        Configuration.setConfiguration(new GeronimoLoginConfiguration());
-
         kernel = new Kernel("test.kernel", "simple.geronimo.test");
         kernel.boot();
 
@@ -171,7 +167,5 @@ public class ConfigurationEntryTest extends TestCase {
         kernel.unloadGBean(serverInfo);
 
         kernel.shutdown();
-
-        Configuration.setConfiguration(new ConfigFile());
     }
 }
