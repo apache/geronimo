@@ -1,0 +1,571 @@
+/**
+ *
+ *  Copyright 2004-2005 The Apache Software Foundation
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.geronimo.interop.rmi.iiop.client;
+
+import org.apache.geronimo.interop.*;
+import org.apache.geronimo.interop.attributes.*;
+import org.apache.geronimo.interop.compiler.*;
+import org.apache.geronimo.interop.properties.*;
+import org.apache.geronimo.interop.rmi.*;
+import org.apache.geronimo.interop.rmi.iiop.*;
+import org.apache.geronimo.interop.util.*;
+import java.lang.reflect.*;
+import java.io .*;
+import java.util.*;
+
+public class StubCompiler
+{
+    //public static final Component component = new Component(StubCompiler.class);
+
+    public static StubCompiler getInstance(Class remoteInterface)
+    {
+        //StubCompiler sc = (StubCompiler)component.getInstance();
+        StubCompiler sc = new StubCompiler();
+        sc.init(remoteInterface);
+        return sc;
+    }
+
+    // private data
+   
+    private Class _remoteInterface;
+
+    private static HashMap _readMethods;
+    private static HashMap _writeMethods;
+    private static HashMap _overloadTypes;
+
+    static
+    {
+        _readMethods = new HashMap();
+        _readMethods.put("boolean", "readBoolean");
+        _readMethods.put("char", "readChar");
+        _readMethods.put("byte", "readByte");
+        _readMethods.put("short", "readShort");
+        _readMethods.put("int", "readInt");
+        _readMethods.put("long", "readLong");
+        _readMethods.put("float", "readFloat");
+        _readMethods.put("double", "readDouble");
+
+        _writeMethods = new HashMap();
+        _writeMethods.put("boolean", "writeBoolean");
+        _writeMethods.put("char", "writeChar");
+        _writeMethods.put("byte", "writeByte");
+        _writeMethods.put("short", "writeShort");
+        _writeMethods.put("int", "writeInt");
+        _writeMethods.put("long", "writeLong");
+        _writeMethods.put("float", "writeFloat");
+        _writeMethods.put("double", "writeDouble");
+
+        _overloadTypes = new HashMap();
+        _overloadTypes.put("boolean", "boolean");
+        _overloadTypes.put("byte", "octet");
+        _overloadTypes.put("char", "wchar");
+        _overloadTypes.put("double", "double");
+        _overloadTypes.put("float", "float");
+        _overloadTypes.put("int", "long");
+        _overloadTypes.put("long", "long_long");
+        _overloadTypes.put("short", "short");
+        _overloadTypes.put("java.lang.Class", "javax_rmi_CORBA.ClassDesc");
+        _overloadTypes.put("java.lang.String", "CORBA.WStringValue");
+        _overloadTypes.put("org.omg.CORBA.Object", "Object");
+        _overloadTypes.put("org.omg.CORBA.Any", "org_omg_boxedIDL_CORBA.Any");
+        _overloadTypes.put("org.omg.CORBA.TypeCode", "org_omg_boxedIDL_CORBA.TypeCode");
+    }
+
+    // public methods
+
+    protected void init( Class remoteInterface )
+    {
+        _remoteInterface = remoteInterface;
+    }
+
+    public static void main(String[] args)
+    {
+        for (int i = 0; i < args.length; i++)
+        {
+            String className = args[i];
+            Class remoteInterface = ThreadContext.loadClass(className);
+            StubCompiler sc = new StubCompiler();
+            sc.init( remoteInterface );
+            sc.getStubClass();
+        }
+    }
+
+    public Class getStubClass()
+    {
+        ClassWriter cw = getStubClassWriter();
+        return cw.compile(_remoteInterface);
+    }
+
+    public String getStubClassName()
+    {
+        String className = _remoteInterface.getName();
+        return JavaClass.addPackageSuffix(className, "iiop_stubs");
+    }
+
+    public ClassWriter getStubClassWriter()
+    {
+        String stubClassName = getStubClassName();
+        boolean isCorbaStub = ! java.rmi.Remote.class.isAssignableFrom(_remoteInterface);
+        String simple = isCorbaStub ? "Simple" : "";
+
+        ClassWriter cw = new ClassWriter(stubClassName);
+        cw.setAbstract();
+        cw.setSuperclass(ObjectRef.class);
+        cw.addImplements(_remoteInterface);
+        cw.beginClass();
+
+        StaticField attributesField = cw.newStaticField(Attribute[].class, "$attributes", "{}");
+        attributesField.setPublic();
+        attributesField.setFinal();
+
+        StaticField componentField = cw.newStaticField(Component.class, "$component",
+            cw.newObject("org.apache.geronimo.interop.Component", stubClassName + ".class"));
+        componentField.setPublic();
+        componentField.setFinal();
+
+        MethodWriter mw = cw.newMethod(stubClassName, "$getInstance");
+        mw.setStatic();
+        mw.beginMethod();
+        mw.returnValue(mw.cast(stubClassName, mw.invoke("$component.getInstance")));
+        mw.endMethod();
+
+        mw = cw.newMethod(String.class, "$getID");
+        mw.beginMethod();
+        String id = "RMI:" + _remoteInterface.getName() + ":0000000000000000";
+        // TODO: IDL type ids???
+        mw.returnValue(mw.string(id));
+        mw.endMethod();
+
+        HashMap vtMap = new HashMap();
+
+        Method[] methods = getRemoteMethods();
+        for (int i = 0; i < methods.length; i++)
+        {
+            Method method = methods[i];
+            String remoteMethodName = getOperation(method); // TODO: RMI-IIOP name
+            mw = cw.newMethod(method);
+            ParameterList parameters = mw.getParameterList();
+            ExceptionList exceptions = mw.getExceptionList();
+            String returnType = mw.getReturnType();
+            mw.beginMethod();
+            LocalVariable request = mw.newLocalVariable(Connection.class, "connection",
+                mw.invoke("this.$connect"));
+            if (parameters.size() != 0)
+            {
+                LocalVariable output = mw.newLocalVariable(org.apache.geronimo.interop.rmi.iiop.ObjectOutputStream.class,
+                    "output", mw.invoke(request + ".get" + simple + "OutputStream"));
+                Class[] parameterTypes = method.getParameterTypes();
+                int pi = 0;
+                for (Iterator j = parameters.iterator(); j.hasNext(); pi++)
+                {
+                    MethodParameter mp = (MethodParameter)j.next();
+                    String name = mp.name;
+                    String type = mp.type;
+                    if (isHolder(parameterTypes[pi]))
+                    {
+                        name = name + ".value";
+                        type = getHolderValueType(parameterTypes[pi]);
+                    }
+                    String writeMethod = getWriteMethod(type);
+                    if (writeMethod.equals("writeObject"))
+                    {
+                        Integer vtIndex = getValueTypeIndex(cw, vtMap, type);
+                        mw.call(output + "." + writeMethod, "type$" + vtIndex, name);
+                    }
+                    else
+                    {
+                        mw.call(output + "." + writeMethod, name);
+                    }
+                }
+            }
+            mw.call(request + ".invoke", "this", mw.string(remoteMethodName));
+            LocalVariable input = mw.newLocalVariable(org.apache.geronimo.interop.rmi.iiop.ObjectInputStream.class,
+                "input", mw.invoke(request + ".get" + simple + "InputStream"));
+            mw.call(request + ".close");
+            LocalVariable et = mw.newLocalVariable(String.class, "et",
+                mw.invoke(request + ".getExceptionType"));
+            mw.beginIf(et + " != null");
+            for (Iterator j = exceptions.iterator(); j.hasNext();)
+            {
+                String exception = (String)j.next();
+                // TODO: generate correct repository ids for user exceptions
+                mw.beginIf(mw.invoke(et + ".equals", mw.string(exception)));
+                Integer vtIndex = getValueTypeIndex(cw, vtMap, exception);
+                mw.throwCheckedException(mw.cast(exception, mw.invoke(input + ".readException", "type$" + vtIndex)));
+                mw.endIf();
+            }
+            if (isCorbaStub
+                || method.getName().equals("_is_a"))
+            {
+                mw.throwRuntimeException(mw.invoke("org.apache.geronimo.interop.rmi.iiop.SystemExceptionFactory.getException",
+                    mw.invoke(request + ".getException")));
+            }
+            else
+            {
+                mw.throwCheckedException(mw.invoke("org.apache.geronimo.interop.rmi.iiop.RemoteExceptionFactory.getException",
+                    mw.invoke(request + ".getException")));
+            }
+            mw.endIf();
+            if (method.getReturnType() != void.class)
+            {
+                String readMethod = getReadMethod(returnType);
+                mw.newResult();
+                if (readMethod.equals("readObject"))
+                {
+                    Integer vtIndex = getValueTypeIndex(cw, vtMap, returnType);
+                    mw.setResult(mw.cast(returnType, mw.invoke(input + "." + readMethod, "type$" + vtIndex)));
+                }
+                else
+                {
+                    mw.setResult(mw.invoke(input + "." + readMethod));
+                }
+                mw.returnResult();
+            }
+            mw.endMethod();
+        }
+        cw.endClass();
+        return cw;
+    }
+
+    public String getHolderValueType(Class c)
+    {
+        try
+        {
+            Field f = c.getField("value");
+            return JavaType.getName(f.getType());
+        }
+        catch (Exception ex)
+        {
+            throw new SystemException(c.getName() + ".value", ex);
+        }
+    }
+
+    public Method[] getRemoteMethods()
+    {
+        Method[] methods = _remoteInterface.getMethods();
+        TreeMap map = new TreeMap();
+        int n = methods.length;
+        for (int i = 0; i < n; i++)
+        {
+            Method method = methods[i];
+            String methodSig = JavaMethod.getShortSignature(method);
+            if (map.get(methodSig) != null)
+            {
+                continue;
+            }
+            String methodName = method.getName();
+            if (methodName.startsWith("_"))
+            {
+                if (! methodName.equals("_is_a"))
+                {
+                    continue;
+                }
+            }
+            map.put(methodSig, method);
+        }
+        n = map.size();
+        methods = new Method[n];
+        Iterator v = map.values().iterator();
+        for (int i = 0; i < n; i++)
+        {
+            Method method = (Method)v.next();
+            methods[i] = method;
+        }
+        return methods;
+    }
+
+    /**
+     ** Return the RMI-IIOP operation name for a remote method.
+     **/
+    public String getOperation(Method method)
+    {
+        if (! isOverloaded(method))
+        {
+            if (isGetAttribute(method) || isSetAttribute(method))
+            {
+                String prefix = method.getName().startsWith("set") ? "set" : "get";
+                String attribute = getAttributeName(method);
+                return "_" + prefix + "_" + attribute;
+            }
+            return method.getName();
+        }
+        Class[] types = method.getParameterTypes();
+        String suffix = "";
+        if (types.length == 0)
+        {
+            suffix = "__";
+        }
+        else
+        {
+            for (int i = 0; i < types.length; i++)
+            {
+                Class type = types[i];
+                suffix += "__" + overload(type, 0);
+            }
+        }
+        return method.getName() + suffix;
+    }
+
+    public String getReadMethod(String type)
+    {
+        String m = (String)_readMethods.get(type);
+        if (m == null)
+        {
+            m = "readObject";
+        }
+        return m;
+    }
+
+    public String getWriteMethod(String type)
+    {
+        String m = (String)_writeMethods.get(type);
+        if (m == null)
+        {
+            m = "writeObject";
+        }
+        return m;
+    }
+
+    public Integer getValueTypeIndex(ClassWriter cw, HashMap vtMap, String type)
+    {
+        Integer vtIndex = (Integer)vtMap.get(type);
+        if (vtIndex == null)
+        {
+            vtIndex = new Integer(vtMap.size() + 1);
+            vtMap.put(type, vtIndex);
+            StaticField vt = cw.newStaticField(ValueType.class, "type$" + vtIndex,
+                cw.invoke("org.apache.geronimo.interop.rmi.iiop.ValueType.getInstance",
+                    type + ".class"));
+            vt.setPrivate();
+            vt.setFinal();
+        }
+        return vtIndex;
+    }
+
+    public boolean isHolder(Class c)
+    {
+        if (c.getName().endsWith("Holder"))
+        {
+            if (org.omg.CORBA.portable.Streamable.class.isAssignableFrom(c))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //public boolean isOutParameter(Method method, int parameter)
+    public boolean isOutParameter(Component comp, Method method, int parameter)
+    {
+        AttributeList attributes = comp.getAttributes();
+        for (Iterator i = attributes.iterator(); i.hasNext();)
+        {
+            Attribute a = (Attribute)i.next();
+            /*
+             * How does an EJB have an out parameter?
+
+            if (a instanceof IdlOutAttribute)
+            {
+                IdlOutAttribute ioa = (IdlOutAttribute)a;
+                if (ioa.matches(method) && ioa.getParameterIndex() == parameter)
+                {
+                    return true;
+                }
+            }
+            */
+        }
+
+        return false;
+    }
+
+    public boolean isOverloaded(Method method)
+    {
+        String name = method.getName();
+        String sig1 = null;
+        Method[] methods = _remoteInterface.getMethods();
+        for (int i = 0; i < methods.length; i++)
+        {
+            Method otherMethod = methods[i];
+            if (otherMethod.getName().equals(name))
+            {
+                if (sig1 == null)
+                {
+                    sig1 = JavaMethod.getShortSignature(method);
+                }
+                String sig2 = JavaMethod.getShortSignature(otherMethod);
+                if (! sig1.equals(sig2))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // protected methods
+
+    protected String getAttributeName(Method method)
+    {
+        String name = method.getName();
+        if (name.startsWith("get") || name.startsWith("set"))
+        {
+            return StringUtil.getLowerFirstIfFirst2NotUpper(name.substring(3));
+        }
+        else if (name.startsWith("is"))
+        {
+            return StringUtil.getLowerFirstIfFirst2NotUpper(name.substring(2));
+        }
+        else
+        {
+            throw new IllegalArgumentException("method = " + method);
+        }
+    }
+
+    private boolean isGetAttribute(Method method)
+    {
+        String name = method.getName();
+        if (name.startsWith("get"))
+        {
+            if (name.length() < 4)
+            {
+                return false;
+            }
+        }
+        else if (name.startsWith("is"))
+        {
+            if (name.length() < 3)
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+        return method.getExceptionTypes().length == 0
+            && method.getParameterTypes().length == 0
+            && method.getReturnType() != null;
+    }
+
+    protected boolean isSetAttribute(Method method)
+    {
+        String name = method.getName();
+        if (name.startsWith("set"))
+        {
+            if (name.length() < 4)
+            {
+                return false;
+            }
+        }
+        String attribute = name.substring(3);
+        Method getMethod;
+        try
+        {
+            String getAttribute = "get" + attribute;
+            getMethod = _remoteInterface.getMethod(getAttribute, new Class[0]);
+        }
+        catch (Exception noGetAttribute)
+        {
+            try
+            {
+                String isAttribute  = "is" + attribute;
+                getMethod = _remoteInterface.getMethod(isAttribute, new Class[0]);
+            }
+            catch (Exception noIsAttribute)
+            {
+                return false;
+            }
+        }
+        if (getMethod.getExceptionTypes().length != 0)
+        {
+            return false;
+        }
+        Class getReturnType = getMethod.getReturnType();
+        if (getReturnType == null)
+        {
+            return false;
+        }
+        if (method.getExceptionTypes().length != 0)
+        {
+            return false;
+        }
+        Class[] setParameters = method.getParameterTypes();
+        if (setParameters.length != 1)
+        {
+            return false;
+        }
+        Class setParameterType = setParameters[0];
+        return setParameterType == getReturnType;
+    }
+
+    /**
+     ** Get mangled parameter type for RMI-IIOP overloading.
+     **/
+    protected String overload(Class type)
+    {
+        return overload(type, 0);
+    }
+
+    /**
+     ** Get mangled parameter type for RMI-IIOP overloading.
+     **/
+    protected String overload(Class type, int dim)
+    {
+        String typeName = JavaType.getName(type);
+        String overload = (String)_overloadTypes.get(typeName);
+        boolean wasInOverloadTypes = false;
+        if (overload != null)
+        {
+            typeName = overload;
+            overload = null;
+            wasInOverloadTypes = true;
+        }
+        if (type.isArray())
+        {
+            dim = 1;
+            Class element = type.getComponentType();
+            while (element.isArray())
+            {
+                dim++;
+                element = element.getComponentType();
+            }
+            return "org_omg_boxedRMI_" + overload(element, dim);
+        }
+        else
+        {
+            if (dim != 0)
+            {
+                int pos = typeName.lastIndexOf(".");
+                if (pos != -1)
+                {
+                    typeName = typeName.substring(0, pos) + "_seq" + dim
+                               + "_" + typeName.substring(pos + 1);
+                }
+            }
+            if (overload == null && ! wasInOverloadTypes)
+            {
+                if (org.omg.CORBA.portable.IDLEntity.class.isAssignableFrom(type))
+                {
+                    // TODO: don't do this for valuetype as IDL entity?
+                    typeName = "org_omg_boxedIDL_" + typeName;
+                }
+            }
+            return typeName.replace('.', '_');
+        }
+    }
+}
