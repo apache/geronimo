@@ -27,7 +27,7 @@ ___________________
 Release Notes
 ===================
 
- Please read the RELEASE_NOTES for a complete list of thinigs that are
+ Please read the RELEASE_NOTES for a complete list of things that are
  not yet functional.  We wrote those up to save you time trying to get
  things to work we know are not implemented.
  
@@ -35,9 +35,9 @@ ___________________
 Installation
 ===================
 
- If you've downloaded and unpacked a binary distrobution of Geronimo,
+ If you've downloaded and unpacked a binary distribution of Geronimo,
  then you are finished with installation.  If you downloaded a source
- distrobution, then see the BUILDING.txt file for more instructions
+ distribution, then see the BUILDING.txt file for more instructions
  before continuing any further.
  
 ___________________
@@ -46,12 +46,12 @@ Geronimo Home
  
  The GERONIMO_HOME directory, is the directory where the Geronimo
  binary was unpacked or the it is the 'target' directory created by
- Maven from a source distrobution.
+ Maven from a source distribution.
  
  If you unpacked the binary into the directory C:\geronimo,
  for example, than this directory is your GERONIMO_HOME directory.
- The GERONIMO_HOME directory is refered to in various parts of the
- documentation, so it's good to remeber where it is.
+ The GERONIMO_HOME directory is referred to in various parts of the
+ documentation, so it's good to remember where it is.
 
 ___________________
 Deploying
