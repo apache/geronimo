@@ -67,7 +67,7 @@ import java.util.Arrays;
 /**
  *
  *
- * @version $Revision: 1.10 $ $Date: 2004/02/20 17:04:27 $
+ * @version $Revision: 1.11 $ $Date: 2004/02/21 22:17:52 $
  */
 public class GBeanInfoFactory {
     private static final Class[] NO_ARGS = {};
@@ -94,6 +94,10 @@ public class GBeanInfoFactory {
 
     public GBeanInfoFactory(String className, GBeanInfo source) {
         this(className, className, source);
+    }
+
+    public GBeanInfoFactory(Class clazz, GBeanInfo source) {
+        this(clazz.getName(), clazz.getName(), source);
     }
 
     public GBeanInfoFactory(String name, String className, GBeanInfo source) {
