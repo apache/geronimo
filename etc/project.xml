@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.21 $ $Date: 2004/02/17 09:17:23 $ -->
+<!-- $Revision: 1.22 $ $Date: 2004/02/27 00:47:21 $ -->
 
 <project>
 
@@ -297,6 +297,14 @@
             <excludes>
                 <exclude>**/Abstract*.java</exclude>
             </excludes>
+            <resources>
+                <resource>
+                    <directory>${basedir}/src/test-data</directory>
+                    <includes>
+                        <include>**/*</include>
+                    </includes>
+                </resource>
+            </resources>
         </unitTest>
     </build>
 
