@@ -85,14 +85,16 @@ import org.apache.geronimo.twiddle.util.HelpFormatter;
 /**
  * Command-line interface to <code>Twiddle</code>.
  *
- * @version $Revision: 1.10 $ $Date: 2003/08/25 16:07:45 $
+ * @version $Revision: 1.11 $ $Date: 2003/08/27 10:38:38 $
  */
 public class Main
 {
     static {
         // Add our default Commons Logger that support the trace level
         if (System.getProperty(LogFactoryImpl.LOG_PROPERTY) == null) {
-            System.setProperty(LogFactoryImpl.LOG_PROPERTY, "org.apache.geronimo.core.log.CachingLog4jLog");
+            System.setProperty(
+                LogFactoryImpl.LOG_PROPERTY,
+                "org.apache.geronimo.common.log.log4j.CachingLog4jLog");
         }
     }
     
@@ -119,6 +121,14 @@ public class Main
         options.addOption(OptionBuilder.withLongOpt("help")
                                        .withDescription("Display this help message")
                                        .create('h'));
+                                       
+        options.addOption(OptionBuilder.withLongOpt("debug")
+                                       .withDescription("Enable debug output")
+                                       .create('d'));
+                                       
+        options.addOption(OptionBuilder.withLongOpt("trace")
+                                       .withDescription("Enable trace output")
+                                       .create('T'));
                                        
         options.addOption(OptionBuilder.withLongOpt("define")
                                        .withDescription("Define a system property")
@@ -174,6 +184,10 @@ public class Main
         if (line.hasOption('f')) {
             filename = line.getOptionValue('f');
         }
+        
+        //
+        // TODO handle --trace and --debug flags
+        //
         
         return line.getArgs();
     }
