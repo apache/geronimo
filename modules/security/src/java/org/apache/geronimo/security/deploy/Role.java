@@ -17,8 +17,8 @@
 package org.apache.geronimo.security.deploy;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -27,7 +27,7 @@ import java.util.Set;
 public class Role implements Serializable {
 
     private String roleName;
-    private Set realms = new HashSet();
+    private Map realms = new HashMap();
 
     public String getRoleName() {
         return roleName;
@@ -37,7 +37,16 @@ public class Role implements Serializable {
         this.roleName = roleName;
     }
 
-    public Set getRealms() {
+    public Map getRealms() {
         return realms;
+    }
+
+    public void append(Realm realm) {
+        if (realms.containsKey(realm.getRealmName())) {
+            Realm existing = (Realm) realms.get(realm.getRealmName());
+            existing.getPrincipals().addAll(realm.getPrincipals());
+        } else {
+            realms.put(realm.getRealmName(), realm);
+        }
     }
 }

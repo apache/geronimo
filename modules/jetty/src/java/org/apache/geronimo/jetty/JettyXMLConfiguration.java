@@ -383,7 +383,7 @@ public class JettyXMLConfiguration extends XMLConfiguration {
 
         JettyWebAppJACCContext context = (JettyWebAppJACCContext) getWebApplicationContext();
 
-        Iterator rollMappings = security.getRoleMappings().iterator();
+        Iterator rollMappings = security.getRoleMappings().values().iterator();
         while (rollMappings.hasNext()) {
             Role role = (Role) rollMappings.next();
             String roleName = role.getRoleName();
@@ -393,7 +393,7 @@ public class JettyXMLConfiguration extends XMLConfiguration {
 
             Subject roleDesignate = new Subject();
 
-            Iterator realms = role.getRealms().iterator();
+            Iterator realms = role.getRealms().values().iterator();
             while (realms.hasNext()) {
                 Realm realm = (Realm) realms.next();
 

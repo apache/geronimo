@@ -19,6 +19,7 @@ package org.apache.geronimo.security;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.security.Policy;
 import javax.management.ObjectName;
 import javax.security.jacc.PolicyContextException;
@@ -123,6 +124,15 @@ public class SecurityService implements SecurityServiceMBean, GBeanLifecycle {
         this.moduleConfigurations = moduleConfigurations;
     }
 
+    public SecurityRealm getRealm(String name) {
+        for (Iterator iter = realms.iterator(); iter.hasNext();) {
+            SecurityRealm realm = (SecurityRealm) iter.next();
+            if (name.equals(realm.getRealmName())) {
+                return realm;
+            }
+        }
+        return null;
+    }
 
     public void doStart() throws WaitingException, Exception {
         PolicyConfigurationFactory factory = PolicyConfigurationFactory.getPolicyConfigurationFactory();
@@ -148,6 +158,7 @@ public class SecurityService implements SecurityServiceMBean, GBeanLifecycle {
 
         infoFactory.addReference("Realms", SecurityRealm.class);
         infoFactory.addReference("ModuleConfigurations", ModuleConfiguration.class);
+        infoFactory.addOperation("getRealm", new Class[]{String.class});
 
         infoFactory.setConstructor(new String[]{"policyConfigurationFactory"});
 

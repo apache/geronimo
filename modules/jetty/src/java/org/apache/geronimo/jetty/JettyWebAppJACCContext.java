@@ -51,6 +51,7 @@ import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.PrimaryRealmPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.SubjectId;
+import org.apache.geronimo.security.SecurityService;
 import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deploy.Security;
@@ -86,6 +87,7 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
     private final Kernel kernel;
     private final String policyContextID;
     private final Security securityConfig;
+    private SecurityService securityService;
     private final JAASJettyPrincipal defaultPrincipal;
 
     private PolicyConfigurationFactory factory;
@@ -154,6 +156,14 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
 
     public Security getSecurityConfig() {
         return securityConfig;
+    }
+
+    public SecurityService getSecurityService() {
+        return securityService;
+    }
+
+    public void setSecurityService(SecurityService securityService) {
+        this.securityService = securityService;
     }
 
     public Subject getRoleDesignate(String roleName) {
@@ -537,6 +547,7 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("policyContextID", String.class, true);
         infoFactory.addAttribute("securityConfig", Security.class, true);
+        infoFactory.addReference("SecurityService", SecurityService.class);
 
         infoFactory.setConstructor(new String[]{
             "kernel",

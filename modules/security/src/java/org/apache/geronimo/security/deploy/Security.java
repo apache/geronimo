@@ -17,8 +17,14 @@
 package org.apache.geronimo.security.deploy;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
+
+import org.apache.geronimo.security.SecurityService;
+import org.apache.geronimo.security.realm.SecurityRealm;
 
 
 /**
@@ -30,8 +36,12 @@ public class Security implements Serializable {
     private boolean useContextHandler;
     private String defaultRole;
     private DefaultPrincipal defaultPrincipal;
-    private Set roleMappings = new HashSet();
+    private Map roleMappings = new HashMap();
+    private Set roleNames = new HashSet();
     private AutoMapAssistant assistant;
+
+    public Security() {
+    }
 
     public boolean isDoAsCurrentCaller() {
         return doAsCurrentCaller;
@@ -65,8 +75,12 @@ public class Security implements Serializable {
         this.defaultPrincipal = defaultPrincipal;
     }
 
-    public Set getRoleMappings() {
+    public Map getRoleMappings() {
         return roleMappings;
+    }
+
+    public Set getRoleNames() {
+        return roleNames;
     }
 
     public AutoMapAssistant getAssistant() {
@@ -75,5 +89,63 @@ public class Security implements Serializable {
 
     public void setAssistant(AutoMapAssistant assistant) {
         this.assistant = assistant;
+    }
+
+    public void append(Role role) {
+        if (roleMappings.containsKey(role.getRoleName())) {
+            Role existing = (Role) roleMappings.get(role.getRoleName());
+            for (Iterator iter = role.getRealms().keySet().iterator(); iter.hasNext();) {
+                existing.append((Realm) iter.next());
+            }
+        } else {
+            roleMappings.put(role.getRoleName(), role);
+        }
+    }
+
+    public void autoGenerate(SecurityService secyrityService) {
+        if (secyrityService == null) return;
+        if (assistant == null) return;
+
+        String realmName = assistant.getSecurityRealm();
+        SecurityRealm securityRealm = secyrityService.getRealm(realmName);
+        if (securityRealm == null || !(securityRealm instanceof AutoMapAssistant)) return;
+        org.apache.geronimo.security.realm.AutoMapAssistant autoMapAssistant = (org.apache.geronimo.security.realm.AutoMapAssistant) securityRealm;
+
+        /**
+         * Append roles
+         */
+        for (Iterator iter = roleNames.iterator(); iter.hasNext();) {
+            String roleName = (String) iter.next();
+            Role role = new Role();
+
+            role.setRoleName(roleName);
+
+            Realm realm = new Realm();
+
+            realm.setRealmName(assistant.getSecurityRealm());
+
+            for (Iterator principalClasses = autoMapAssistant.obtainRolePrincipalClasses().iterator(); principalClasses.hasNext();) {
+                Principal principal = new Principal();
+
+                principal.setClassName((String) principalClasses.next());
+                principal.setPrincipalName(roleName);
+                principal.setDesignatedRunAs(true);
+
+                realm.getPrincipals().add(principal);
+            }
+            role.append(realm);
+
+            append(role);
+        }
+
+        /**
+         * Add default principal
+         */
+        if (defaultPrincipal != null) return;
+
+        defaultPrincipal = new DefaultPrincipal();
+
+        defaultPrincipal.setPrincipal(autoMapAssistant.obtainDefaultPrincipal());
+        defaultPrincipal.setRealmName(realmName);
     }
 }

@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.security.deployment;
 
+import java.util.Set;
+
 import org.apache.geronimo.security.deploy.AutoMapAssistant;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deploy.Principal;
@@ -37,7 +39,7 @@ import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
  */
 public class SecurityBuilder {
 
-    public static Security buildSecurityConfig(GerSecurityType securityType) {
+    public static Security buildSecurityConfig(GerSecurityType securityType, Set roleNames) {
         Security security = null;
 
         if (securityType != null) {
@@ -73,10 +75,10 @@ public class SecurityBuilder {
                             realm.getPrincipals().add(buildPrincipal(realmType.getPrincipalArray(k)));
                         }
 
-                        role.getRealms().add(realm);
+                        role.getRealms().put(realm.getRealmName(), realm);
                     }
 
-                    security.getRoleMappings().add(role);
+                    security.getRoleMappings().put(role.getRoleName(), role);
                 }
             }
 
@@ -93,6 +95,8 @@ public class SecurityBuilder {
 
                 security.setAssistant(assistant);
             }
+
+            security.getRoleNames().addAll(roleNames);
         }
 
         return security;
@@ -107,5 +111,4 @@ public class SecurityBuilder {
 
         return principal;
     }
-
 }

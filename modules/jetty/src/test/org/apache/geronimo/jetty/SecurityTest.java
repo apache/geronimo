@@ -61,9 +61,9 @@ public class SecurityTest extends BaseSecurityTest {
         Realm realm = new Realm();
         realm.setRealmName("demo-properties-realm");
         realm.getPrincipals().add(principal);
-        role.getRealms().add(realm);
+        role.getRealms().put(realm.getRealmName(), realm);
 
-        securityConfig.getRoleMappings().add(role);
+        securityConfig.getRoleMappings().put(role.getRoleName(), role);
 
         startWebApp(securityConfig);
 
@@ -110,6 +110,7 @@ public class SecurityTest extends BaseSecurityTest {
         app.setAttribute("contextPriorityClassLoader", Boolean.FALSE);
         app.setAttribute("configurationBaseUrl", Thread.currentThread().getContextClassLoader().getResource("deployables/"));
         app.setAttribute("securityConfig", securityConfig);
+        app.setReferencePattern("SecurityService", securityServiceName);
         app.setAttribute("policyContextID", "TEST");
 
         app.setAttribute("contextPath", "/test");

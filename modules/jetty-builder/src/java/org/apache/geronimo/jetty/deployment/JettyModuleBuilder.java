@@ -17,6 +17,9 @@
 
 package org.apache.geronimo.jetty.deployment;
 
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.transaction.UserTransaction;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -25,12 +28,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.transaction.UserTransaction;
+
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
@@ -61,13 +66,12 @@ import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
 import org.apache.geronimo.xbeans.j2ee.FilterMappingType;
 import org.apache.geronimo.xbeans.j2ee.SecurityConstraintType;
+import org.apache.geronimo.xbeans.j2ee.SecurityRoleType;
 import org.apache.geronimo.xbeans.j2ee.ServletMappingType;
 import org.apache.geronimo.xbeans.j2ee.UrlPatternType;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
 import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
 
 
 /**
@@ -296,7 +300,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         UserTransaction userTransaction = new OnlineUserTransaction();
         ReadOnlyContext compContext = buildComponentContext(earContext, webModule, webApp, jettyWebApp, userTransaction, webClassLoader);
 
-        Security security = SecurityBuilder.buildSecurityConfig(jettyWebApp.getSecurity());
+        Security security = SecurityBuilder.buildSecurityConfig(jettyWebApp.getSecurity(), collectRoleNames(webApp));
 
         GBeanMBean gbean;
         try {
@@ -334,6 +338,17 @@ public class JettyModuleBuilder implements ModuleBuilder {
         }
         earContext.addGBean(webModuleName, gbean);
         return null;
+    }
+
+    private static Set collectRoleNames(WebAppType webApp) {
+        Set roleNames = new HashSet();
+
+        SecurityRoleType[] securityRoles = webApp.getSecurityRoleArray();
+        for (int i=0; i<securityRoles.length; i++) {
+            roleNames.add(securityRoles[i].getRoleName().getStringValue());
+        }
+
+        return roleNames;
     }
 
     private static URI[] getWebClassPath(EARContext earContext, WebModule webModule) {
