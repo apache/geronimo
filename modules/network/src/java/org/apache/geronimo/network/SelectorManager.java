@@ -40,7 +40,7 @@ import org.apache.geronimo.pool.ThreadPool;
  * The SelectorManager will manage one Selector and the thread that checks
  * the selector.
  *
- * @version $Revision: 1.16 $ $Date: 2004/07/18 23:39:02 $
+ * @version $Revision: 1.17 $ $Date: 2004/08/02 23:38:03 $
  */
 public class SelectorManager implements Runnable, GBeanLifecycle {
 
@@ -151,6 +151,8 @@ public class SelectorManager implements Runnable, GBeanLifecycle {
 
                     log.trace("Waiting for selector to return.");
                     if (selector.select(timeout) == 0) {
+                        log.trace("timeout == 0");
+
                         /**
                          * Clean stale connections that do not have and data: select
                          * returns indicating that the count of active connections with
@@ -164,6 +166,7 @@ public class SelectorManager implements Runnable, GBeanLifecycle {
 
                         while (list.hasNext()) {
                             SelectionKey key = (SelectionKey) list.next();
+                            log.trace("REMOVING " + key);
                             key.channel().close();
                             key.cancel();
                             list.remove();
