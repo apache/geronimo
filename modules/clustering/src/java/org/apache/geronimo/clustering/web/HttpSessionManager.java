@@ -65,6 +65,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.clustering.LocalCluster;
 import org.apache.geronimo.clustering.Data;
 import org.apache.geronimo.clustering.Tier;
+import org.apache.geronimo.clustering.MBeanImpl;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
@@ -74,11 +75,11 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
  * An HttpSessionManager for &lt;distributable/&gt; webapps, which
  * backs onto the generic Geronimo clustering framework.
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/04 14:18:06 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/04 15:19:31 $
  */
 public class
   HttpSessionManager
-  implements GeronimoMBeanTarget
+  extends MBeanImpl
 {
   protected Log _log=LogFactory.getLog(HttpSessionManager.class);
 
@@ -112,11 +113,11 @@ public class
   // GeronimoMBeanTarget
   //----------------------------------------
 
-  protected MBeanServer _server;
-
   public boolean
     canStart()
   {
+    if (!super.canStart()) return false;
+
     try
     {
       // find our tier
@@ -130,8 +131,6 @@ public class
 
     return true;
   }
-
-  public boolean canStop() {return true;}
 
   public void
     doStart()
@@ -157,24 +156,10 @@ public class
     // TODO - leave cluster
   }
 
-  public void
-    doFail()
-  {
-    _log.info("failing");
-    // leave cluster ?
-  }
-
-  public void
-    setMBeanContext(GeronimoMBeanContext context)
-  {
-    //    _objectName=(context==null)?null:context.getObjectName();
-    _server=(context==null)?null:context.getServer();
-  }
-
   public static GeronimoMBeanInfo
     getGeronimoMBeanInfo()
   {
-    GeronimoMBeanInfo mbeanInfo=new GeronimoMBeanInfo();
+    GeronimoMBeanInfo mbeanInfo=MBeanImpl.getGeronimoMBeanInfo();
     mbeanInfo.setTargetClass(HttpSessionManager.class);
     mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Size",        true, false, "number of extant HttpSessions within this webapp"));
     mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UID",         true, false, "unique identity for this webapp within this vm"));

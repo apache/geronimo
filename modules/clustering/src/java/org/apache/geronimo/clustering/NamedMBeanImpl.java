@@ -55,9 +55,7 @@
  */
 package org.apache.geronimo.clustering;
 
-import java.util.List;
 import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -67,97 +65,23 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 
 /**
- * A Node is an instance of a connection to a Cluster. Nodes are named
- * uniquely within their Cluster and VM. A VM may contain more than
- * one Node.
+ * A base class containing fnality useful to Named MBeans of the
+ * Clustering module.
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/04 15:19:31 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/04 15:21:37 $
  */
-public class
-  Node
-  extends NamedMBeanImpl
-  implements MetaDataListener, DataListener, DataDeltaListener
+public abstract class
+  NamedMBeanImpl
+  extends MBeanImpl
 {
-  protected Log     _log=LogFactory.getLog(Node.class);
-  protected Cluster _cluster;
+  protected Log _log=LogFactory.getLog(NamedMBeanImpl.class);
 
   /**
-   * Makes an ObjectName for a Node MBean with the given parameters.
-   *
-   * @param clusterName a <code>String</code> value
-   * @param nodeName a <code>String</code> value
-   * @return an <code>ObjectName</code> value
-   * @exception Exception if an error occurs
-   */
-  public static ObjectName
-    makeObjectName(String clusterName, String nodeName)
-    throws Exception
-  {
-    return new ObjectName("geronimo.clustering:role=Node,name="+nodeName+",cluster="+clusterName);
-  }
-
-  //----------------------------------------
-  // Node
-  //----------------------------------------
-
-  /**
-   * Returns the Node's Cluster's MBean's unique identifier.
+   * Returns the Node's unique identifier within it's Cluster.
    *
    * @return a <code>String</code> value
    */
-  public String getCluster() {return _objectName.getKeyProperty("cluster");}
-  /**
-   * Returns the Node's Cluster's current membership.
-   *
-   * @return a <code>List</code> value
-   */
-  public List getMembers(){return _cluster.getMembers();}
-
-  //----------------------------------------
-  // MetaDataListener
-  //----------------------------------------
-
-  public void
-    setMetaData(List members)
-  {
-    _log.info("membership changed: "+members);
-  }
-
-  //----------------------------------------
-  // DataListener
-  //----------------------------------------
-
-  protected Data _data;
-
-  public Data getData() {return _data;}
-
-  public void
-    setData(Data data)
-  {
-    String xtra="we must be the first node up";
-
-    if (data!=null)
-    {
-      xtra="we are joining an extant cluster";
-      _data=data;
-    }
-    else
-    {
-      _data=new Data();
-    }
-
-    _log.debug("initialising data - "+xtra);
-  }
-
-  //----------------------------------------
-  // DataDeltaListener
-  //----------------------------------------
-
-  public void
-    applyDataDelta(DataDelta delta)
-  {
-    _log.trace("applying data delta - "+delta);
-  }
+  public String getName() {return _objectName.getKeyProperty("name");}
 
   //----------------------------------------
   // GeronimoMBeanTarget
@@ -168,63 +92,21 @@ public class
   {
     if (!super.canStart()) return false;
 
-    if (_objectName.getKeyProperty("cluster")==null)
+    if (_objectName.getKeyProperty("name")==null)
     {
-      _log.warn("NodeMBean name must contain a 'cluster' property");
-      return false;
-    }
-
-    // should we really be altering our state in this method ?
-    try
-    {
-      _cluster=(Cluster)_server.getAttribute(Cluster.makeObjectName(_objectName.getKeyProperty("cluster")), "Reference");
-    }
-    catch (Exception e)
-    {
-      _log.error("could not find Cluster", e);
+      _log.warn("MBean name must contain a 'name' property");
       return false;
     }
 
     return true;
   }
 
-  public void
-    doStart()
-  {
-    _log=LogFactory.getLog(getClass().getName()+"#"+getCluster()+"/"+getName());
-    _log.info("starting");
-
-    synchronized (_cluster)
-    {
-      Data data=_cluster.getData();
-      _log.info("state transfer - sending: "+data);
-      setData(data);
-      _cluster.join(this);
-    }
-  }
-
-  public void
-    doStop()
-  {
-    _log.info("stopping");
-    _cluster.leave(this);
-  }
-
-  public void
-    doFail()
-  {
-    _log.info("failing");
-    _cluster.leave(this);	// TODO - ??
-  }
-
   public static GeronimoMBeanInfo
     getGeronimoMBeanInfo()
   {
     GeronimoMBeanInfo mbeanInfo=MBeanImpl.getGeronimoMBeanInfo();
-    mbeanInfo.setTargetClass(Node.class);
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Cluster",   true, false, "unique identifier for this Node's Cluster"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Members",   true, false, "list of cluster members"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Data",      true, false, "cluster state"));
+    // set target class in concrete subclasses...
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Name", true, false, "this Object's name"));
     return mbeanInfo;
   }
 }

@@ -74,30 +74,27 @@ import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
  * into the same abstract base.
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/04 14:35:06 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/04 15:19:31 $
  */
 public abstract class
   Tier
-  extends MBeanImpl
+  extends NamedMBeanImpl
 {
-  protected Log         _log=LogFactory.getLog(Tier.class);
-  protected Node        _node;
-  protected Data        _data;
-  protected Map         _tiers;
-  protected Object      _tier;
+  protected Log    _log=LogFactory.getLog(Tier.class);
+  protected Node   _node;
+  protected Data   _data;
+  protected Map    _tiers;
+  protected Object _tier;
 
-  //----------------------------------------
-  // Tier
-  //----------------------------------------
-
-  public String getClusterName() {return _objectName.getKeyProperty("cluster");}
-  public String getNodeName() {return _objectName.getKeyProperty("node");}
-  public String getName() {return _objectName.getKeyProperty("name");}
-
-  protected abstract Object alloc();
-  public abstract Object registerData(String uid, Object data);
-  public abstract Object deregisterData(String uid);
-
+  /**
+   * Makes an ObjectName for a Tier MBean with the given parameters.
+   *
+   * @param clusterName a <code>String</code> value
+   * @param nodeName a <code>String</code> value
+   * @param tierName a <code>String</code> value
+   * @return an <code>ObjectName</code> value
+   * @exception Exception if an error occurs
+   */
   public static ObjectName
     makeObjectName(String clusterName, String nodeName, String tierName)
     throws Exception
@@ -106,17 +103,24 @@ public abstract class
   }
 
   //----------------------------------------
+  // Tier
+  //----------------------------------------
+
+  public String getClusterName() {return _objectName.getKeyProperty("cluster");}
+  public String getNodeName() {return _objectName.getKeyProperty("node");}
+
+  protected abstract Object alloc();
+  public abstract Object registerData(String uid, Object data);
+  public abstract Object deregisterData(String uid);
+
+  //----------------------------------------
   // GeronimoMBeanTarget
   //----------------------------------------
 
   public boolean
     canStart()
   {
-    if (_objectName.getKeyProperty("name")==null)
-    {
-      _log.warn("TierMBean name must contain a 'name' property");
-      return false;
-    }
+    if (!super.canStart()) return false;
 
     if (_objectName.getKeyProperty("node")==null)
     {
@@ -171,7 +175,6 @@ public abstract class
     GeronimoMBeanInfo mbeanInfo=MBeanImpl.getGeronimoMBeanInfo();
     //set target class in concrete subclass
     mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Reference",   true, false, "a local reference to this Tier"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Name",        true, false, "Name of this Tier"));
     mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("NodeName",    true, false, "Name of this Tier's Node"));
     mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ClusterName", true, false, "Name of this Tier's Node's Cluster"));
     return mbeanInfo;

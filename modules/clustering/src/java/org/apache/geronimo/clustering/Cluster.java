@@ -66,21 +66,27 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 
 /**
- * A 'Cluster' is the in-vm representative of a Cluster of Geronimo
- * nodes. The particular cluster to which it belongs is identified by
- * it's 'name' property. I hope to support different types of cluster
- * including (initially) SimpleCluster, in which every node replicates
- * every other node and CleverCluster, which automagically partitions
- * data into SubClusters etc...
+ * A 'Cluster' is a point of connection between all 'Cluster's with
+ * the same name, running in other VMs. I hope to support different
+ * types of cluster including (initially) SimpleCluster, in which
+ * every node replicates every other node and CleverCluster, which
+ * automagically partitions data into SubClusters etc...
  *
- * @version $Revision: 1.7 $ $Date: 2004/01/04 14:35:06 $
+ * @version $Revision: 1.8 $ $Date: 2004/01/04 15:19:31 $
  */
 public abstract class
   Cluster
-  extends MBeanImpl
+  extends NamedMBeanImpl
 {
   protected Log _log=LogFactory.getLog(Cluster.class);
 
+  /**
+   * Makes an ObjectName for a Cluster MBean with the given parameters.
+   *
+   * @param clusterName a <code>String</code> value
+   * @return an <code>ObjectName</code> value
+   * @exception Exception if an error occurs
+   */
   public static ObjectName
     makeObjectName(String clusterName)
     throws Exception
@@ -118,11 +124,7 @@ public abstract class
   public boolean
     canStart()
   {
-    if (_objectName.getKeyProperty("name")==null)
-    {
-      _log.warn("ClusterMBean name must contain a 'name' property");
-      return false;
-    }
+    if (!super.canStart()) return false;
 
     return true;
   }
@@ -130,7 +132,7 @@ public abstract class
   public void
     doStart()
   {
-    _log=LogFactory.getLog(Cluster.class.getName()+"#"+_objectName.getKeyProperty("name"));
+    _log=LogFactory.getLog(Cluster.class.getName()+"#"+getName());
     _log.debug("starting");
   }
 
