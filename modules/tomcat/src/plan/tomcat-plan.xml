@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration
+    xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    parentId="org/apache/geronimo/System"
+    configId="org/apache/geronimo/Tomcat"
+    >
+
+    <dependency>
+        <uri>geronimo/jars/geronimo-tomcat-1.0-SNAPSHOT.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/catalina-5.0.16.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/tomcat-util-5.0.16.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>commons-digester/jars/commons-digester-1.6.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>commons-collections/jars/commons-collections-2.1.jar</uri>
+    </dependency>
+
+    <gbean name="geronimo.tomcat:name=Apache Tomcat" class="org.apache.geronimo.tomcat.TomcatGBean">
+    	<attribute name="CatalinaHome" type="java.lang.String">.</attribute>
+    	<attribute name="CatalinaHome" type="java.lang.String">.</attribute>
+    </gbean>
+
+</configuration>

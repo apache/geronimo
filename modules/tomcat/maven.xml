@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- $Rev: 46019 $ $Date: 2004-09-14 11:56:06 +0200 (Tue, 14 Sep 2004) $ -->
+
+<project default="default"
+    xmlns:j="jelly:core"
+    xmlns:define="jelly:define"
+    xmlns:velocity="jelly:velocity">
+
+    <!-- ==================== -->
+    <!-- Default Global Goals -->
+    <!-- ==================== -->
+
+    <goal name="default">
+        <attainGoal name="build"/>
+    </goal>
+
+    <goal name="build">
+        <attainGoal name="jar:install"/>
+    </goal>
+
+    <goal name="rebuild">
+        <attainGoal name="clean"/>
+        <attainGoal name="build"/>
+    </goal>
+
+	<preGoal name="jar:jar">
+		<mkdir dir="${maven.build.dest}/META-INF"/>
+		<copy todir="${maven.build.dest}/META-INF/geronimo-service.xml" file="src/plan/tomcat-plan.xml"/>
+	</preGoal>
+
+	<postGoal name="jar:jar">
+	
+        <j:set var="geronimoHome" value="../assembly/target/${pom.groupId}-${pom.currentVersion}"/>
+
+		<!-- 
+		   - TODO: There must be a better way!
+		   - copy the dependencies (specified in tomcat-plan.xml)
+		   - note the version is explicity referenced
+		  -->
+		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/tomcat/jars"
+		      file="${maven.repo.local}/tomcat/jars/catalina-5.0.16.jar"/>
+		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/tomcat/jars"
+		      file="${maven.repo.local}/tomcat/jars/tomcat-util-5.0.16.jar"/>
+		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/commons-digester/jars"
+		      file="${maven.repo.local}/commons-digester/jars/commons-digester-1.6.jar"/>
+		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/commons-collections/jars"
+		      file="${maven.repo.local}/commons-collections/jars/commons-collections-2.1.jar"/>
+
+        <!-- Pre-load the server's repository (copied from assembly's maven.xml) -->
+        <!--
+        <j:set var="repoDir" value="../assembly/target/${pom.groupId}-${pom.currentVersion}/repository"/>
+        <ant:mkdir dir="${repoDir}"/>
+        <ant:copy todir="${repoDir}">
+            <ant:fileset dir="${maven.repo.local}">
+                <j:forEach var="artifact" items="${pom.artifacts}">
+                    <j:set var="dependency" value="${artifact.dependency}"/>
+                    <j:if test="${dependency.getProperty('repository') == 'true'}">
+                        <ant:include name="${dependency.getArtifactDirectory()}/${dependency.getType()}s/${dependency.getArtifact()}"/>
+                    </j:if>
+                </j:forEach>
+            </ant:fileset>
+        </ant:copy>
+        -->
+        
+        <copy todir="${geronimoHome}/var/catalina" file="src/var/server.xml"/>
+        
+        <echo>Deploying Apache Tomcat configuration</echo>
+        <java fork="true" jar="../assembly/target/geronimo-${pom.currentVersion}/bin/deployer.jar"
+              failonerror="true">
+            <jvmarg value="-ea"/>
+            <arg value="--install"/>
+            <arg value="--plan"/>
+            <arg value="src/plan/tomcat-plan.xml"/>
+            <arg value="--module"/>
+            <arg value="target/${maven.final.name}.jar"/>
+        </java>
+	</postGoal>	
+	
+<!--
+	<postGoal name="jar:jar">
+		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/geronimo/jars"
+		      file="target/${maven.final.name}.jar"/>
+	</postGoal>
+	
+    <goal name="deploy">
+        <echo>Deploying Apache Tomcat configuration</echo>
+        <java fork="true" jar="../assembly/target/geronimo-${pom.currentVersion}/bin/deployer.jar"
+              failonerror="true">
+            <jvmarg value="-ea"/>
+            <arg value="- -install"/>
+            <arg value="- -plan"/>
+            <arg value="src/plan/tomcat-plan.xml"/>
+        </java>
+    </goal>
+-->
+</project>
+

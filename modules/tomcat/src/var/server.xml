@@ -1,0 +1,8 @@
+<Server port="8005" shutdown="SHUTDOWN" debug="0">
+	<Service name="Catalina">
+		<Connector port="8080"
+		           maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
+		           enableLookups="false" acceptCount="100"
+		           debug="0" connectionTimeout="20000"/>
+	</Service>
+</Server>

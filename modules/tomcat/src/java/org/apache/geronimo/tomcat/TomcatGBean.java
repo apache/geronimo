@@ -18,6 +18,8 @@ package org.apache.geronimo.tomcat;
 
 import org.apache.catalina.startup.Catalina;
 import org.apache.catalina.util.ServerInfo;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -33,8 +35,10 @@ import org.apache.geronimo.gbean.GReferenceInfo;
  */
 public class TomcatGBean implements GBeanLifecycle {
 
+    private static final Log log = LogFactory.getLog(TomcatGBean.class);
+
     /**
-     * Reference to the org.apache.catalina.startup.Catalina shell. Right now
+     * Reference to the org.apache.catalina.startup.Bootstrap shell. Right now
      * we're just wrapping up the shell, but we'll be replacing it with our own
      * GBean shell for ease of management.
      */
@@ -68,19 +72,27 @@ public class TomcatGBean implements GBeanLifecycle {
     }
 
     public void doFail() {
-        doStop();
+        try {
+            doStop();
+        } catch (Exception ignored) {
+        }
     }
 
-    public void doStart() {
-        System.setProperty("catalina.home", catalinaHome);
-        System.setProperty("catalina.base", catalinaBase);
+    public void doStart() throws Exception {
+        log.debug("catalinaHome: " + catalinaHome + ", catalinaBase: " + catalinaBase);
         if (shell == null) {
             shell = new Catalina();
+        }
+        if (catalinaHome != null) {
+            shell.setCatalinaHome("catalina.home");
+        }
+        if (catalinaBase != null) {
+            shell.setCatalinaBase("catalina.base");
         }
         shell.start();
     }
 
-    public void doStop() {
+    public void doStop() throws Exception {
         if (shell != null) {
             shell.stop();
             shell = null;

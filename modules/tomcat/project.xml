@@ -54,9 +54,54 @@
         </dependency>
         <dependency>
             <groupId>tomcat</groupId>
+            <artifactId>bootstrap</artifactId>
+            <version>&tomcat-version;</version>
+            <url>http://jakarta.apache.org/tomcat/</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>tomcat</groupId>
             <artifactId>catalina</artifactId>
             <version>&tomcat-version;</version>
             <url>http://jakarta.apache.org/tomcat/</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>tomcat-util</artifactId>
+            <version>&tomcat-version;</version>
+            <url>http://jakarta.apache.org/tomcat/</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>commons-digester</groupId>
+            <artifactId>commons-digester</artifactId>
+            <version>&commons-digester-version;</version>
+            <url>http://jakarta.apache.org/commons/digester</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>&commons-logging-version;</version>
+            <url>http://jakarta.apache.org/commons/logging</url>
+        </dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>&commons-collections-version;</version>
+            <url>http://jakarta.apache.org/commons/collections</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
         </dependency>
     </dependencies>
 
@@ -66,14 +111,5 @@
                 <include>**/*Test.java</include>
             </includes>                
         </unitTest>
-        <resources>
-            <resource>
-                <directory>${basedir}/src/java</directory>
-                <includes>
-                    <include>**/*.xml</include>
-                    <include>**/*.properties</include>
-                </includes>
-            </resource>
-        </resources>
     </build>
 </project>

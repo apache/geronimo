@@ -26,6 +26,7 @@
 <!ENTITY commons-jxpath-version "1.1">
 <!ENTITY commons-logging-version "1.0.3">
 <!ENTITY commons-primitives-version "1.0">
+<!ENTITY commons-digester-version "1.6">
 <!ENTITY concurrent-version "1.3.4">
 <!ENTITY dom4j-version "1.4">
 <!ENTITY ews-version "SNAPSHOT">
