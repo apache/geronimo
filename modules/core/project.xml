@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.12 $ $Date: 2003/08/24 11:23:14 $ -->
+<!-- $Revision: 1.13 $ $Date: 2003/08/24 21:44:02 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -162,7 +162,24 @@
       <version>0.9.5</version>
       <url>http://castor.exolab.org</url>
     </dependency>
-
+    
+    <dependency>
+      <id>xerces</id>
+      <version>2.4.0</version>
+      <url>http://xml.apache.org</url>
+      <properties>
+        <runtime>true</runtime>
+      </properties>
+    </dependency>
+    
+    <dependency>
+      <id>xml-apis</id>
+      <version>1.0.b2</version>
+      <properties>
+        <runtime>true</runtime>
+      </properties>
+    </dependency>
+    
     <dependency>
       <id>dom4j</id>
       <version>1.4</version>

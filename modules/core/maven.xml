@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.12 $ $Date: 2003/08/24 21:25:40 $ -->
+<!-- $Revision: 1.13 $ $Date: 2003/08/24 21:44:02 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -13,10 +13,30 @@
   </preGoal>
 
   <preGoal name="java:compile">
-    <castor:generate schema="${basedir}/src/schema/geronimo-ejb-jar.xsd"
-                     package="org.apache.geronimo.twiddle.config"
-                     marshal="false"
-                     types="j2"/>
+    <attainGoal name="castor:prepare-filesystem"/>
+      
+    <j:set var="schema" value="${basedir}/src/schema/geronimo-ejb-jar.xsd"/>
+    <j:set var="gen" value="${pom.getPluginContext('maven-castor-plugin').getVariable('maven.castor.dest')}"/>
+
+    <ant:path id="castor.classpath">
+      <ant:path refid="maven.dependency.classpath"/>
+    </ant:path>
+     
+    <ant:java className="org.exolab.castor.builder.SourceGenerator"
+              failonerror="true" fork="yes">
+      <ant:classpath refid="castor.classpath"/>
+      <ant:arg value="-i"/>
+      <ant:arg value="${schema}"/>
+      <ant:arg value="-package"/>
+      <ant:arg value="org.apache.geronimo.enterprise.deploy.common"/>
+      <ant:arg value="-types"/>
+      <ant:arg value="j2"/>
+      <ant:arg value="-nomarshall"/>
+      <ant:arg value="-f"/>
+      <ant:arg value="-dest"/>
+      <ant:arg value="${gen}"/>
+    </ant:java>
+    
   </preGoal>
 
   <postGoal name="java:compile">
