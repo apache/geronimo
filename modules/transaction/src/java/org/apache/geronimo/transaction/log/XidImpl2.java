@@ -22,13 +22,11 @@ import java.util.Arrays;
 
 import javax.transaction.xa.Xid;
 
-import pyrasun.binlog.LogEntryKey;
-
 /**
  * Unique id for a transaction.  This implementation is backed by a single byte buffer
  * so can do less copying than one backed by several byte buffers for the different components.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/06 04:00:51 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/06 04:15:06 $
  */
 public class XidImpl2 implements Xid, Serializable {
     private static int HEADER_SIZE = 4;
