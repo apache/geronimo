@@ -67,7 +67,7 @@ import java.io.File;
 /**
  * A collection of String utilities.
  *
- * @version <code>$Revision: 1.6 $</code>
+ * @version $Revision: 1.7 $ $Date: 2003/08/16 15:14:11 $
  */
 public final class Strings
 {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: test1.xml,v 1.3 2003/08/13 16:54:48 jdillon Exp $ -->
+<!-- $Revision: 1.4 $ $Date: 2003/08/16 15:14:13 $ -->
 
 <configuration xmlns="http://geronimo.apache.org/xml/schema/Twiddle/Configuration">
   

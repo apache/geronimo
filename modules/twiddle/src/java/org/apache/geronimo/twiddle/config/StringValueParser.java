@@ -61,7 +61,7 @@ import org.apache.geronimo.common.NullArgumentException;
 /**
  * Handles pasring expressions from a string.
  *
- * @version <code>$Id: StringValueParser.java,v 1.3 2003/08/14 20:24:34 bsnyder Exp $</code>
+ * @version <code>$Revision: 1.4 $ $Date: 2003/08/16 15:14:12 $</code>
  */
 public class StringValueParser
 {

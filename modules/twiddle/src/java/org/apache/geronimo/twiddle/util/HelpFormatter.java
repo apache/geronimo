@@ -65,7 +65,7 @@ import org.apache.geronimo.common.NullArgumentException;
 /**
  * A helper to handle command help output.
  *
- * @version <code>$Id: HelpFormatter.java,v 1.3 2003/08/14 20:24:35 bsnyder Exp $</code>
+ * @version <code>$Revision: 1.4 $ $Date: 2003/08/16 15:14:12 $</code>
  */
 public class HelpFormatter
     extends org.apache.commons.cli.HelpFormatter

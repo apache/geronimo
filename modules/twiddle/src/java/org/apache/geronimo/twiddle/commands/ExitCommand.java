@@ -79,7 +79,7 @@ import org.apache.geronimo.twiddle.util.HelpFormatter;
 /**
  * Exit command... terminates the virtual machine.
  *
- * @version <code>$Id: ExitCommand.java,v 1.4 2003/08/14 20:24:34 bsnyder Exp $</code>
+ * @version <code>$Revision: 1.5 $ $Date: 2003/08/16 15:14:12 $</code>
  */
 public class ExitCommand
     extends AbstractCommand

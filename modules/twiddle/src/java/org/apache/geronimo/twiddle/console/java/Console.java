@@ -77,7 +77,7 @@ import org.apache.geronimo.twiddle.console.TransientHistory;
  *    <li>Does not support completion.
  * </ul>
  *
- * @version <code>$Id: Console.java,v 1.3 2003/08/14 20:24:35 bsnyder Exp $</code>
+ * @version <code>$Revision: 1.4 $ $Date: 2003/08/16 15:14:12 $</code>
  */
 public class Console
     extends AbstractConsole

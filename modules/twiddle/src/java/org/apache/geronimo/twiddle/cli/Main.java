@@ -81,7 +81,7 @@ import org.apache.geronimo.twiddle.util.HelpFormatter;
 /**
  * Command-line interface to <code>Twiddle</code>.
  *
- * @version <code>$Id: Main.java,v 1.5 2003/08/16 09:26:16 jdillon Exp $</code>
+ * @version $Revision: 1.6 $ $Date: 2003/08/16 15:14:12 $
  */
 public class Main
 {

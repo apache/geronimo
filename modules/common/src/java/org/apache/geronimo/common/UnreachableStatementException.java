@@ -60,7 +60,7 @@ package org.apache.geronimo.common;
  * Thrown to indicate that section of code that should never have been
  * reachable, has just been reached.
  *
- * @version <tt>$Revision: 1.4 $</tt>
+ * @version $Revision: 1.5 $ $Date: 2003/08/16 15:14:11 $
  */
 public class UnreachableStatementException 
    extends RuntimeException

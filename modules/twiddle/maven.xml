@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: maven.xml,v 1.4 2003/08/15 18:44:40 dain Exp $ -->
+<!-- $Revision: 1.5 $ $Date: 2003/08/16 15:14:12 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"

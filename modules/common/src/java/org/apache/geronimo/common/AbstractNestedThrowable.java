@@ -63,7 +63,7 @@ import java.io.PrintStream;
  * A common superclass for <tt>Throwable</tt> classes that can contain
  * a nested <tt>Throwable</tt> detail object.
  *
- * @version <tt>$Revision: 1.3 $</tt>
+ * @version $Revision: 1.4 $ $Date: 2003/08/16 15:14:11 $
  */
 public abstract class AbstractNestedThrowable
     extends Throwable

@@ -67,7 +67,7 @@ import org.apache.geronimo.twiddle.config.Attribute;
 /**
  * Tests for <code>CommandFactory</code>.
  *
- * @version <code>$Id: CommandFactoryTest.java,v 1.4 2003/08/14 20:24:35 bsnyder Exp $</code>
+ * @version <code>$Revision: 1.5 $ $Date: 2003/08/16 15:14:13 $</code>
  */
 public class CommandFactoryTest
     extends TestCase

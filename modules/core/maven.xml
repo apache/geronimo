@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Id: maven.xml,v 1.5 2003/08/14 17:23:38 jdillon Exp $ -->
+<!-- $Revision: 1.6 $ $Date: 2003/08/16 15:14:12 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"

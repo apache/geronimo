@@ -59,7 +59,7 @@ package org.apache.geronimo.common;
 /**
  * A simple base-class for classes which need to be cloneable.
  *
- * @version <tt>$Revision: 1.4 $</tt>
+ * @version $Revision: 1.5 $ $Date: 2003/08/16 15:14:11 $
  */
 public class CloneableObject
    implements java.lang.Cloneable

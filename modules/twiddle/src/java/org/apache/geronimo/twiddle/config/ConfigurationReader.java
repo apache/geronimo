@@ -73,7 +73,7 @@ import org.apache.geronimo.common.Strings;
 /**
  * Creates <code>Configuration</code> objects.
  *
- * @version <code>$Id: ConfigurationReader.java,v 1.4 2003/08/14 20:24:34 bsnyder Exp $</code>
+ * @version <code>$Revision: 1.5 $ $Date: 2003/08/16 15:14:12 $</code>
  */
 public class ConfigurationReader
 {

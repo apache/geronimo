@@ -74,7 +74,7 @@ import org.apache.geronimo.common.ThrowableHandler;
  *    </ol>
  * </p>
  *
- * @version <tt>$Revision: 1.3 $</tt>
+ * @version $Revision: 1.4 $ $Date: 2003/08/16 15:14:11 $
  */
 public final class Java
 {

@@ -60,7 +60,7 @@ package org.apache.geronimo.twiddle.command;
  * Thrown to indicate that an operation which requires a named
  * command has failed because the command was not found.
  *
- * @version <code>$Id: CommandNotFoundException.java,v 1.3 2003/08/14 20:24:34 bsnyder Exp $</code>
+ * @version $Revision: 1.4 $ $Date: 2003/08/16 15:14:12 $
  */
 public class CommandNotFoundException
    extends CommandException

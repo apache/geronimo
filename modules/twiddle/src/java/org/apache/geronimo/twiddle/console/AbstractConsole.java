@@ -66,7 +66,7 @@ import java.io.IOException;
  * <p>Also provides helpers to determine if history and/or completion is
  *    enabled.
  *
- * @version <code>$Id: AbstractConsole.java,v 1.3 2003/08/14 20:24:34 bsnyder Exp $</code>
+ * @version <code>$Revision: 1.4 $ $Date: 2003/08/16 15:14:12 $</code>
  */
 public abstract class AbstractConsole
     implements Console

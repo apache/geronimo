@@ -59,7 +59,7 @@ package org.apache.geronimo.common.platform;
 /**
  * Platform constants.
  *
- * @version <tt>$Revision: 1.4 $</tt>
+ * @version $Revision: 1.5 $ $Date: 2003/08/16 15:14:11 $
  */
 public interface Constants
 {

@@ -64,7 +64,7 @@ import junit.framework.Assert;
 /**
  * Tests for <code>CommandPathParser</code>.
  *
- * @version <code>$Id: CommandPathParserTest.java,v 1.3 2003/08/14 20:24:35 bsnyder Exp $</code>
+ * @version <code>$Revision: 1.4 $ $Date: 2003/08/16 15:14:13 $</code>
  */
 public class CommandPathParserTest
     extends TestCase

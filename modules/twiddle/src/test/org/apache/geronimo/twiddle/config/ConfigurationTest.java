@@ -71,7 +71,7 @@ import junit.framework.Assert;
 /**
  * Tests for <code>Configuration</code>.
  *
- * @version <code>$Id: ConfigurationTest.java,v 1.6 2003/08/14 20:24:35 bsnyder Exp $</code>
+ * @version <code>$Revision: 1.7 $ $Date: 2003/08/16 15:14:13 $</code>
  */
 public class ConfigurationTest
     extends TestCase

@@ -59,7 +59,7 @@ package org.apache.geronimo.twiddle.command;
 /**
  * A simple test command.
  *
- * @version <code>$Id: TestCommand.java,v 1.3 2003/08/14 20:24:35 bsnyder Exp $</code>
+ * @version <code>$Revision: 1.4 $ $Date: 2003/08/16 15:14:13 $</code>
  */
 public class TestCommand
     extends AbstractCommand

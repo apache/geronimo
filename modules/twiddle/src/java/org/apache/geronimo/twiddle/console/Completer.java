@@ -59,7 +59,7 @@ package org.apache.geronimo.twiddle.console;
 /**
 * Provides a {@link Console} with plugable command-line completion.
  *
- * @version <code>$Id: Completer.java,v 1.3 2003/08/14 20:24:34 bsnyder Exp $</code>
+ * @version <code>$Revision: 1.4 $ $Date: 2003/08/16 15:14:12 $</code>
  */
 public interface Completer
 {

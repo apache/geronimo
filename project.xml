@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: project.xml,v 1.16 2003/08/16 11:31:32 jstrachan Exp $ -->
+<!-- $Revision: 1.17 $ $Date: 2003/08/16 15:14:11 $ -->
 
 <project>
   
@@ -19,5 +19,7 @@
     <sourceDirectory></sourceDirectory>
     <unitTestSourceDirectory></unitTestSourceDirectory>
   </build>
+  
+  <reports></reports>
   
 </project>

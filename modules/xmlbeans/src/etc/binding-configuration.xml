@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: binding-configuration.xml,v 1.1 2003/08/14 20:16:45 jstrachan Exp $ -->
+<!-- $Revision: 1.2 $ $Date: 2003/08/16 15:14:13 $ -->
 
 <binding xmlns="http://www.castor.org/SourceGenerator/Binding"
          defaultBindingType="element">

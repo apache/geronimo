@@ -70,7 +70,7 @@ import org.apache.geronimo.twiddle.command.CommandException;
 /**
  * Handles the details of Twiddle configuration.
  *
- * @version <code>$Id: Configurator.java,v 1.4 2003/08/14 20:24:34 bsnyder Exp $</code>
+ * @version <code>$Revision: 1.5 $ $Date: 2003/08/16 15:14:12 $</code>
  */
 public class Configurator
 {
