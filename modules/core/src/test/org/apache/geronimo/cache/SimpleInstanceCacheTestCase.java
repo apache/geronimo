@@ -58,6 +58,9 @@ package org.apache.geronimo.cache;
 
 import junit.framework.TestCase;
 
+/**
+ * @version $Revision: 1.2 $ $Date: 2003/08/12 09:13:03 $
+ */
 public class SimpleInstanceCacheTestCase extends TestCase {
     protected InstanceCache cache;
     Object key;
