@@ -16,16 +16,17 @@
  */
 package org.apache.geronimo.security.deployment;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.security.deploy.DistinguishedName;
 import org.apache.geronimo.security.deploy.Principal;
 import org.apache.geronimo.security.deploy.Realm;
 import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.xbeans.geronimo.security.GerDefaultPrincipalType;
+import org.apache.geronimo.xbeans.geronimo.security.GerDistinguishedNameType;
 import org.apache.geronimo.xbeans.geronimo.security.GerPrincipalType;
 import org.apache.geronimo.xbeans.geronimo.security.GerRealmType;
 import org.apache.geronimo.xbeans.geronimo.security.GerRoleMappingsType;
@@ -52,9 +53,8 @@ public class SecurityBuilder {
             security.setDefaultRole(securityType.getDefaultRole().trim());
         }
 
-        GerRoleMappingsType roleMappingsType = securityType.getRoleMappings();
-        Set allRealms = new HashSet();
-        if (roleMappingsType != null) {
+        if (securityType.isSetRoleMappings()) {
+            GerRoleMappingsType roleMappingsType = securityType.getRoleMappings();
             for (int i = 0; i < roleMappingsType.sizeOfRoleArray(); i++) {
                 GerRoleType roleType = roleMappingsType.getRoleArray(i);
                 Role role = new Role();
@@ -65,7 +65,6 @@ public class SecurityBuilder {
                 for (int j = 0; j < roleType.sizeOfRealmArray(); j++) {
                     GerRealmType realmType = roleType.getRealmArray(j);
                     String realmName = realmType.getRealmName().trim();
-                    allRealms.add(realmName);
                     Realm realm = new Realm();
 
                     realm.setRealmName(realmName);
@@ -75,6 +74,15 @@ public class SecurityBuilder {
                     }
 
                     role.getRealms().put(realmName, realm);
+                }
+
+                for (int j = 0; j < roleType.sizeOfDistinguishedNameArray(); j++) {
+                    GerDistinguishedNameType dnType = roleType.getDistinguishedNameArray(j);
+                    DistinguishedName name = new DistinguishedName(dnType.getName());
+
+                    name.setDesignatedRunAs(dnType.getDesignatedRunAs());
+
+                    role.append(name);
                 }
 
                 security.getRoleMappings().put(roleName, role);

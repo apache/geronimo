@@ -34,6 +34,7 @@ import javax.security.auth.login.CredentialExpiredException;
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+import javax.security.auth.x500.X500Principal;
 import javax.security.jacc.PolicyConfiguration;
 import javax.security.jacc.PolicyConfigurationFactory;
 import javax.security.jacc.PolicyContext;
@@ -61,6 +62,7 @@ import org.apache.geronimo.security.PrimaryRealmPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.SubjectId;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.security.deploy.DistinguishedName;
 import org.apache.geronimo.security.deploy.Realm;
 import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
@@ -521,6 +523,18 @@ public class TomcatGeronimoRealm extends JAASRealm {
                     }
                 }
             }
+
+            for (Iterator names = role.getDNames().iterator(); names.hasNext();) {
+                DistinguishedName dn = (DistinguishedName) names.next();
+
+                X500Principal x500Principal = ConfigurationUtil.generateX500Principal(dn.getName());
+
+                principalSet.add(x500Principal);
+                if (dn.isDesignatedRunAs()) {
+                    roleDesignate.getPrincipals().add(x500Principal);
+                }
+            }
+
             roleMapper.addRoleMapping(roleName, principalSet);
 
             if (roleDesignate.getPrincipals().size() > 0) {

@@ -30,8 +30,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import javax.security.jacc.PolicyContextException;
 
-import org.apache.geronimo.security.RealmPrincipal;
-
 
 /**
  * @version $Rev$ $Date$
@@ -70,7 +68,6 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
 
         for (int i = 0; i < principals.length; i++) {
             Principal principal = principals[i];
-            if (!(principal instanceof RealmPrincipal)) continue;
 
             Permissions permissions = (Permissions) principalPermissionsMap.get(principal);
 
@@ -84,8 +81,6 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
         Iterator iter = principals.iterator();
         while (iter.hasNext()) {
             Principal principal = (Principal) iter.next();
-
-            if (!(principal instanceof RealmPrincipal)) throw new PolicyContextException("Principal not instance of RealmPrincipal");
 
             HashSet roles = (HashSet) principalRoleMapping.get(principal);
             if (roles == null) {

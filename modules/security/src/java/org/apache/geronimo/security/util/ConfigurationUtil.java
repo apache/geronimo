@@ -24,6 +24,7 @@ import java.security.PrivilegedExceptionAction;
 import javax.security.jacc.PolicyContext;
 import javax.security.jacc.PolicyContextException;
 import javax.security.jacc.PolicyContextHandler;
+import javax.security.auth.x500.X500Principal;
 
 import org.apache.geronimo.security.PrimaryRealmPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
@@ -39,6 +40,15 @@ import org.apache.geronimo.security.deploy.Principal;
  * @see "JSR 115" Java Authorization Contract for Containers
  */
 public class ConfigurationUtil {
+
+    /**
+     * Create an X500Principal from a deployment description.
+     * @param name the distinguished name of the principal
+     * @return an X500Principal from a deployment description
+     */
+    public static X500Principal generateX500Principal(String name) {
+        return new X500Principal(name);
+    }
 
     /**
      * Create a RealmPrincipal from a deployment description.
