@@ -72,7 +72,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/16 02:09:36 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/17 00:16:43 $
  *
  * */
 public class DeploymentHelper {
@@ -88,22 +88,21 @@ public class DeploymentHelper {
      * @param url Deployment URL.
      * @param urlType Type of the URL.
      */
-    public DeploymentHelper(URL url, URLType urlType, String objectNameTypeName, String archiveType, String j2eeDDName, String geronimoDDName) throws DeploymentException {
+    public DeploymentHelper(URL url, URLType urlType, String objectNameTypeName, String j2eeDDName, String geronimoDDName) throws DeploymentException {
+        this(url, urlType, objectNameTypeName, j2eeDDName, geronimoDDName, "META-INF");
+    }
+
+    public DeploymentHelper(URL url, URLType urlType, String objectNameTypeName, String j2eeDDName, String geronimoDDName, String infDir) throws DeploymentException {
         this.url = url;
         this.urlType = urlType;
         this.objectNameTypeName = objectNameTypeName;
         try {
             if (URLType.PACKED_ARCHIVE == urlType) {
-                if (!this.url.getPath().endsWith(archiveType)) {
-                    j2eeURL = null;
-                    geronimoURL = null;
-                    return;
-                }
-                j2eeURL = new URL("jar:" + this.url.toExternalForm() + "!/META-INF/" + j2eeDDName);
-                geronimoURL = new URL("jar:" + this.url.toExternalForm() + "!/META-INF/" + geronimoDDName);
+                j2eeURL = new URL("jar:" + this.url.toExternalForm() + "!/" + infDir + "/" + j2eeDDName);
+                geronimoURL = new URL("jar:" + this.url.toExternalForm() + "!/" + infDir + "/" + geronimoDDName);
             } else if (URLType.UNPACKED_ARCHIVE == urlType) {
-                j2eeURL = new URL(this.url, "META-INF/" + j2eeDDName);
-                geronimoURL = new URL(this.url, "META-INF/" + geronimoDDName);
+                j2eeURL = new URL(this.url, infDir + "/" + j2eeDDName);
+                geronimoURL = new URL(this.url, infDir + "/" + geronimoDDName);
             } else {
                 j2eeURL = null;
                 geronimoURL = null;
@@ -129,6 +128,7 @@ public class DeploymentHelper {
         }
 
     }
+
     /**
      * Locates the URL referencing the ra.xml deployment descriptor.
      *
@@ -174,6 +174,7 @@ public class DeploymentHelper {
         }
         return classSpaceMetaData;
     }
+
     /**
      * Intended to be overridden for all but the simplest packages
      * @param archives
