@@ -121,7 +121,7 @@ import org.apache.geronimo.kernel.Kernel;
  * a startRecursive() for all the GBeans it contains. Similarly, if the
  * Configuration is stopped then all of its GBeans will be stopped as well.
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/22 02:46:27 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/23 16:44:52 $
  */
 public class Configuration implements GBean {
     private static final Log log = LogFactory.getLog(Configuration.class);
@@ -295,7 +295,7 @@ public class Configuration implements GBean {
         }
     }
 
-    static void loadGMBeanState(GBeanMBean gbean, ObjectInputStream ois) throws IOException, AttributeNotFoundException, InvalidAttributeValueException, MBeanException, ReflectionException, ClassNotFoundException {
+    public static void loadGMBeanState(GBeanMBean gbean, ObjectInputStream ois) throws IOException, AttributeNotFoundException, InvalidAttributeValueException, MBeanException, ReflectionException, ClassNotFoundException {
         int attributeCount = ois.readInt();
         for (int i = 0; i < attributeCount; i ++) {
             gbean.setAttribute((String)ois.readObject(), ois.readObject());
@@ -332,7 +332,7 @@ public class Configuration implements GBean {
         return baos.toByteArray();
     }
 
-    static void storeGMBeanState(GBeanMBean gbean, ObjectOutputStream oos) throws IOException, AttributeNotFoundException, MBeanException, ReflectionException {
+    public static void storeGMBeanState(GBeanMBean gbean, ObjectOutputStream oos) throws IOException, AttributeNotFoundException, MBeanException, ReflectionException {
         List persistentAttributes = gbean.getGBeanInfo().getPersistentAttributes();
         oos.writeInt(persistentAttributes.size());
         for (Iterator j = persistentAttributes.iterator(); j.hasNext();) {
