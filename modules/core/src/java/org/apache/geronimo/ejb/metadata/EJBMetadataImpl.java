@@ -63,10 +63,11 @@ import java.util.Map;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:12 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/08 22:28:02 $
  */
 public final class EJBMetadataImpl implements EJBMetadata {
     private String name;
+    private String policyContextId;
     private ClassLoader classLoader;
     private Class beanClass;
     private Class homeInterface;
@@ -84,6 +85,14 @@ public final class EJBMetadataImpl implements EJBMetadata {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getPolicyContextId() {
+        return policyContextId;
+    }
+
+    public void setPolicyContextId(String policyContextId) {
+        this.policyContextId = policyContextId;
     }
 
     public ClassLoader getClassLoader() {

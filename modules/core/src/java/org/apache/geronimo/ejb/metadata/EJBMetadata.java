@@ -61,10 +61,12 @@ import java.lang.reflect.Method;
  *
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:12 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/08 22:28:02 $
  */
 public interface EJBMetadata {
     String getName();
+
+    String getPolicyContextId();
 
     ClassLoader getClassLoader();
 
