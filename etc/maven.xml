@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.9 $ $Date: 2003/08/25 20:49:52 $ -->
+<!-- $Revision: 1.10 $ $Date: 2003/08/25 21:16:49 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -67,7 +67,7 @@
   </preGoal>
   
   <!-- Remove the log files -->
-  <goal name="clobber" 
+  <goal name="clobber"
         description="Removes all (non-repository installed) build generated files">
         
     <!-- Let clean:clean do some work first -->

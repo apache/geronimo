@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.26 $ $Date: 2003/08/25 15:46:39 $ -->
+<!-- $Revision: 1.27 $ $Date: 2003/08/25 21:16:49 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -101,12 +101,24 @@
     <modules:reactor goals="clean" aggregate="false"/>
   </goal>
   
+  <goal name="modules:clobber">
+    <modules:reactor goals="clobber" aggregate="false"/>
+  </goal>
+  
   <goal name="modules:jar:deploy">
     <modules:reactor goals="jar:deploy"/>
   </goal>
   
   <preGoal name="clean:clean">
-    <attainGoal name="modules:clean"/>
+    <!-- Do not clean modules if are clobbering them -->
+    <j:if test="${clobbering != 'true'}">
+      <attainGoal name="modules:clean"/>
+    </j:if>
+  </preGoal>
+  
+  <preGoal name="clobber">
+    <j:set var="clobbering" value="true"/>
+    <attainGoal name="modules:clobber"/>
   </preGoal>
   
   <goal name="jar:deploy">
