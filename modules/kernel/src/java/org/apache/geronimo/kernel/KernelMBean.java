@@ -20,6 +20,7 @@ package org.apache.geronimo.kernel;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
+import java.util.Set;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
@@ -32,7 +33,7 @@ import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 
 /**
- * @version $Revision: 1.11 $ $Date: 2004/06/02 19:50:41 $
+ * @version $Revision: 1.12 $ $Date: 2004/06/04 04:35:20 $
  */
 public interface KernelMBean {
     /**
@@ -124,4 +125,11 @@ public interface KernelMBean {
     Object invoke(ObjectName objectName, String methodName, Object[] args, String[] types) throws Exception;
 
     boolean isLoaded(ObjectName name);
+
+    /**
+     * Return the names of GBeans that match the query.
+     * @param query the query to be performed
+     * @return a Set<ObjectName> of the names of online GBeans that match the query
+     */
+    Set listGBeans(ObjectName query);
 }

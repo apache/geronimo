@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.List;
+import java.util.Set;
 import javax.management.Attribute;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
@@ -68,7 +69,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.30 $ $Date: 2004/06/02 19:50:40 $
+ * @version $Revision: 1.31 $ $Date: 2004/06/04 04:35:20 $
  */
 public class Kernel extends NotificationBroadcasterSupport implements Serializable, KernelMBean {
 
@@ -285,6 +286,10 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
         } catch (MBeanRegistrationException e) {
             throw (IllegalStateException) new IllegalStateException("Error unloading GBean " + name).initCause(e);
         }
+    }
+
+    public Set listGBeans(ObjectName query) {
+        return mbServer.queryNames(query, null);
     }
 
     public List listConfigurationStores() {
