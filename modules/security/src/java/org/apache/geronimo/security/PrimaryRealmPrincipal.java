@@ -21,11 +21,28 @@ import java.security.Principal;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:25 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/13 16:52:53 $
  */
 public class PrimaryRealmPrincipal extends RealmPrincipal {
 
     public PrimaryRealmPrincipal(String realm, Principal principal) {
         super(realm, principal);
+    }
+
+    /**
+     * Compares this principal to the specified object.  Returns true
+     * if the object passed in matches the principal represented by
+     * the implementation of this interface.
+     *
+     * @param another principal to compare with.
+     * @return true if the principal passed in is the same as that
+     *         encapsulated by this principal, and false otherwise.
+     */
+    public boolean equals(Object another) {
+        if (!(another instanceof PrimaryRealmPrincipal)) return false;
+
+        PrimaryRealmPrincipal realmPrincipal = (PrimaryRealmPrincipal) another;
+
+        return getRealm().equals(realmPrincipal.getRealm()) && getPrincipal().equals(realmPrincipal.getPrincipal());
     }
 }
