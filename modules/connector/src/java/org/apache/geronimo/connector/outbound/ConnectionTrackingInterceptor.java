@@ -67,7 +67,7 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
 import org.apache.geronimo.security.bridge.RealmBridge;
-import org.apache.geronimo.security.util.ContextManager;
+import org.apache.geronimo.security.ContextManager;
 
 /**
  * ConnectionTrackingInterceptor.java handles communication with the
@@ -77,7 +77,7 @@ import org.apache.geronimo.security.util.ContextManager;
  * a connection the CachedConnectionManager is notified.
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 05:56:10 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/23 06:47:05 $
  */
 public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
 

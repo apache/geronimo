@@ -53,90 +53,35 @@
  *
  * ====================================================================
  */
+package org.apache.geronimo.security.jacc;
 
-package org.apache.geronimo.connector.outbound.security;
+import java.util.Collection;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import javax.resource.spi.ManagedConnectionFactory;
-import javax.security.auth.login.AppConfigurationEntry;
+import javax.security.jacc.PolicyConfiguration;
+import javax.security.jacc.PolicyContextException;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.security.GeronimoSecurityException;
-import org.apache.geronimo.security.realm.SecurityRealm;
-import org.apache.geronimo.security.realm.providers.AbstractSecurityRealm;
-import org.apache.regexp.RE;
 
 /**
+ * <p>The methods of this interface are used by containers to create role mappings in a <code>Policy</code> provider.
+ * An object that implements the <code>RoleMappingConfiguration</code> interface provides the role mapping configuration
+ * interface for a corresponding policy context within the corresponding Policy provider.</p>
  *
- *
- * @version $Revision: 1.2 $ $Date: 2004/01/23 06:47:05 $
- *
- * */
-public class PasswordCredentialRealm implements SecurityRealm, ManagedConnectionFactoryListener {
+ * <p>Geronimo will obtain an instance of this class by calling
+ * <code>PolicyConfigurationFactory.getPolicyConfiguration</code>.  If the object that is returned <i>also</i>
+ * implements <code>RoleMappingConfiguration</code>, Geronimo will call the methods of that interface to provide role
+ * mappings to the <code>Policy</code> provider</p>
+ * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:07 $
+ * @see        javax.security.jacc.PolicyConfiguration
+ * @see        javax.security.jacc.PolicyConfigurationFactory#getPolicyConfiguration
+ */
+public interface RoleMappingConfiguration extends PolicyConfiguration {
 
-    private static final GBeanInfo GBEAN_INFO;
-
-    private String realmName;
-
-    ManagedConnectionFactory managedConnectionFactory;
-
-    static final String REALM_INSTANCE = "org.apache.connector.outbound.security.PasswordCredentialRealm";
-
-
-    public void setRealmName(String realmName) {
-        this.realmName = realmName;
-    }
-
-    public String getRealmName() {
-        return realmName;
-    }
-
-    public Set getGroupPrincipals() throws GeronimoSecurityException {
-        return null;
-    }
-
-    public Set getGroupPrincipals(RE regexExpression) throws GeronimoSecurityException {
-        return null;
-    }
-
-    public Set getUserPrincipals() throws GeronimoSecurityException {
-        return null;
-    }
-
-    public Set getUserPrincipals(RE regexExpression) throws GeronimoSecurityException {
-        return null;
-    }
-
-    public void refresh() throws GeronimoSecurityException {
-    }
-
-    public AppConfigurationEntry[] getAppConfigurationEntry() {
-        Map options = new HashMap();
-        options.put(REALM_INSTANCE, this);
-        AppConfigurationEntry appConfigurationEntry = new AppConfigurationEntry(PasswordCredentialLoginModule.class.getName(),
-                AppConfigurationEntry.LoginModuleControlFlag.REQUISITE,
-                options);
-        return new AppConfigurationEntry[]{appConfigurationEntry};
-    }
-
-    public void setManagedConnectionFactory(ManagedConnectionFactory managedConnectionFactory) {
-        this.managedConnectionFactory = managedConnectionFactory;
-    }
-
-    ManagedConnectionFactory getManagedConnectionFactory() {
-        return managedConnectionFactory;
-    }
-
-    static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(PasswordCredentialRealm.class.getName(), AbstractSecurityRealm.getGBeanInfo());
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
+    /**
+     * Add a mapping from a module's security roles to physical principals.  Mapping principals to the same role twice
+     * will cause a <code>PolicyContextException</code> to be thrown.
+     * @param role The role that is to be mapped to a set of principals.
+     * @param principals The set of principals that are to be mapped to to role.
+     * @throws javax.security.jacc.PolicyContextException if the mapping principals to the same role twice occurs.
+     */
+    public void addRoleMapping(String role, Collection principals) throws PolicyContextException;
 }

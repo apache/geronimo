@@ -19,7 +19,7 @@
  * 3. The end-user documentation included with the redistribution,
  *    if any, must include the following acknowledgment:
  *       "This product includes software developed by the
- *        Apache Software Foundation (http://www.apache.org/)."
+ *        Apache Software Foundation (http:www.apache.org/)."
  *    Alternately, this acknowledgment may appear in the software itself,
  *    if and wherever such third-party acknowledgments normally appear.
  *
@@ -49,94 +49,52 @@
  * This software consists of voluntary contributions made by many
  * individuals on behalf of the Apache Software Foundation.  For more
  * information on the Apache Software Foundation, please see
- * <http://www.apache.org/>.
+ * <http:www.apache.org/>.
  *
  * ====================================================================
  */
-
-package org.apache.geronimo.connector.outbound.security;
+package org.apache.geronimo.security.jacc;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import javax.resource.spi.ManagedConnectionFactory;
-import javax.security.auth.login.AppConfigurationEntry;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.security.GeronimoSecurityException;
-import org.apache.geronimo.security.realm.SecurityRealm;
-import org.apache.geronimo.security.realm.providers.AbstractSecurityRealm;
-import org.apache.regexp.RE;
+import javax.security.jacc.PolicyConfiguration;
+import javax.security.jacc.PolicyConfigurationFactory;
+import javax.security.jacc.PolicyContextException;
+
+import org.apache.geronimo.security.jacc.GeronimoPolicyConfiguration;
+import org.apache.geronimo.security.GeronimoSecurityPermission;
+
 
 /**
  *
- *
- * @version $Revision: 1.2 $ $Date: 2004/01/23 06:47:05 $
- *
- * */
-public class PasswordCredentialRealm implements SecurityRealm, ManagedConnectionFactoryListener {
+ * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:07 $
+ */
+public class GeronimoPolicyConfigurationFactory extends PolicyConfigurationFactory {
+    private Map configurations = new HashMap();
 
-    private static final GBeanInfo GBEAN_INFO;
+    public void setPolicyConfiguration(String contextID, GeronimoPolicyConfiguration configuration) {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(new GeronimoSecurityPermission("setPolicyConfiguration"));
 
-    private String realmName;
-
-    ManagedConnectionFactory managedConnectionFactory;
-
-    static final String REALM_INSTANCE = "org.apache.connector.outbound.security.PasswordCredentialRealm";
-
-
-    public void setRealmName(String realmName) {
-        this.realmName = realmName;
+        configurations.put(contextID, configuration);
     }
 
-    public String getRealmName() {
-        return realmName;
+    public PolicyConfiguration getPolicyConfiguration(String contextID, boolean remove) throws PolicyContextException {
+        PolicyConfiguration configuration = (PolicyConfiguration) configurations.get(contextID);
+
+        if (configuration == null || remove) {
+            configuration = new PolicyConfigurationGeneric(contextID);
+            configurations.put(contextID, configuration);
+        }
+
+        return configuration;
     }
 
-    public Set getGroupPrincipals() throws GeronimoSecurityException {
-        return null;
-    }
+    public boolean inService(String contextID) throws PolicyContextException {
+        PolicyConfiguration configuration = getPolicyConfiguration(contextID, false);
 
-    public Set getGroupPrincipals(RE regexExpression) throws GeronimoSecurityException {
-        return null;
-    }
-
-    public Set getUserPrincipals() throws GeronimoSecurityException {
-        return null;
-    }
-
-    public Set getUserPrincipals(RE regexExpression) throws GeronimoSecurityException {
-        return null;
-    }
-
-    public void refresh() throws GeronimoSecurityException {
-    }
-
-    public AppConfigurationEntry[] getAppConfigurationEntry() {
-        Map options = new HashMap();
-        options.put(REALM_INSTANCE, this);
-        AppConfigurationEntry appConfigurationEntry = new AppConfigurationEntry(PasswordCredentialLoginModule.class.getName(),
-                AppConfigurationEntry.LoginModuleControlFlag.REQUISITE,
-                options);
-        return new AppConfigurationEntry[]{appConfigurationEntry};
-    }
-
-    public void setManagedConnectionFactory(ManagedConnectionFactory managedConnectionFactory) {
-        this.managedConnectionFactory = managedConnectionFactory;
-    }
-
-    ManagedConnectionFactory getManagedConnectionFactory() {
-        return managedConnectionFactory;
-    }
-
-    static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(PasswordCredentialRealm.class.getName(), AbstractSecurityRealm.getGBeanInfo());
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
+        return configuration.inService();
     }
 
 }

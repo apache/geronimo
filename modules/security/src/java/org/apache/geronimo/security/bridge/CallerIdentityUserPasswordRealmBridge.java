@@ -54,84 +54,66 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.connector.outbound.security;
+package org.apache.geronimo.security.bridge;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
 import java.util.Set;
-import javax.resource.spi.ManagedConnectionFactory;
-import javax.security.auth.login.AppConfigurationEntry;
+
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.security.GeronimoSecurityException;
-import org.apache.geronimo.security.realm.SecurityRealm;
-import org.apache.geronimo.security.realm.providers.AbstractSecurityRealm;
-import org.apache.regexp.RE;
+import org.apache.geronimo.security.realm.providers.GeronimoPasswordCredential;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/23 06:47:05 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:07 $
  *
  * */
-public class PasswordCredentialRealm implements SecurityRealm, ManagedConnectionFactoryListener {
+public class CallerIdentityUserPasswordRealmBridge extends AbstractRealmBridge {
 
     private static final GBeanInfo GBEAN_INFO;
 
-    private String realmName;
+    public CallerIdentityUserPasswordRealmBridge() {}
 
-    ManagedConnectionFactory managedConnectionFactory;
-
-    static final String REALM_INSTANCE = "org.apache.connector.outbound.security.PasswordCredentialRealm";
-
-
-    public void setRealmName(String realmName) {
-        this.realmName = realmName;
+    public CallerIdentityUserPasswordRealmBridge(String targetRealm) {
+        super(targetRealm);
     }
 
-    public String getRealmName() {
-        return realmName;
-    }
 
-    public Set getGroupPrincipals() throws GeronimoSecurityException {
-        return null;
-    }
+    protected CallbackHandler getCallbackHandler(final Subject sourceSubject) {
+        return new CallbackHandler() {
+            public void handle(Callback[] callbacks)
+                    throws IOException, UnsupportedCallbackException {
+                Set credentials = sourceSubject.getPrivateCredentials(GeronimoPasswordCredential.class);
+                if (credentials == null || credentials.size() != 1) {
+                    throw new UnsupportedCallbackException(null, "No GeronimoPasswordCredential to read");
+                }
+                GeronimoPasswordCredential geronimoPasswordCredential = (GeronimoPasswordCredential)credentials.iterator().next();
+                for (int i = 0; i < callbacks.length; i++) {
+                    Callback callback = callbacks[i];
+                    if (callback instanceof NameCallback) {
+                        ((NameCallback)callback).setName(geronimoPasswordCredential.getUserName());
+                    } else if (callback instanceof PasswordCallback) {
+                        ((PasswordCallback)callback).setPassword(geronimoPasswordCredential.getPassword());
+                    } else {
+                        throw new UnsupportedCallbackException(callback, "Only name and password callbacks supported");
+                    }
 
-    public Set getGroupPrincipals(RE regexExpression) throws GeronimoSecurityException {
-        return null;
-    }
+                }
+            }
 
-    public Set getUserPrincipals() throws GeronimoSecurityException {
-        return null;
-    }
-
-    public Set getUserPrincipals(RE regexExpression) throws GeronimoSecurityException {
-        return null;
-    }
-
-    public void refresh() throws GeronimoSecurityException {
-    }
-
-    public AppConfigurationEntry[] getAppConfigurationEntry() {
-        Map options = new HashMap();
-        options.put(REALM_INSTANCE, this);
-        AppConfigurationEntry appConfigurationEntry = new AppConfigurationEntry(PasswordCredentialLoginModule.class.getName(),
-                AppConfigurationEntry.LoginModuleControlFlag.REQUISITE,
-                options);
-        return new AppConfigurationEntry[]{appConfigurationEntry};
-    }
-
-    public void setManagedConnectionFactory(ManagedConnectionFactory managedConnectionFactory) {
-        this.managedConnectionFactory = managedConnectionFactory;
-    }
-
-    ManagedConnectionFactory getManagedConnectionFactory() {
-        return managedConnectionFactory;
+        };
     }
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(PasswordCredentialRealm.class.getName(), AbstractSecurityRealm.getGBeanInfo());
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(CallerIdentityUserPasswordRealmBridge.class.getName(), AbstractRealmBridge.getGBeanInfo());
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

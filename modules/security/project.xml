@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.38 $ $Date: 2004/01/23 06:47:06 $ -->
+<!-- $Revision: 1.1 $ $Date: 2004/01/23 06:47:06 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -10,13 +10,13 @@
     <!-- Module Identification -->
     <!-- ===================== -->
 
-    <name>Geronimo :: Core</name>
-    <id>geronimo-core</id>
-    <shortDescription>Geronimo Core J2EE Container</shortDescription>
-    <description>Geronimo Core J2EE Container</description>
-    <url>http://incubator.apache.org/projects/geronimo/core/</url>
-    <siteDirectory>/www/incubator.apache.org/projects/geronimo/core</siteDirectory>
-    <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/core</distributionDirectory>
+    <name>Geronimo :: Security</name>
+    <id>geronimo-security</id>
+    <shortDescription>Geronimo Security</shortDescription>
+    <description>Geronimo Security</description>
+    <url>http://incubator.apache.org/projects/geronimo/security/</url>
+    <siteDirectory>/www/incubator.apache.org/projects/geronimo/security</siteDirectory>
+    <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/security</distributionDirectory>
 
     <currentVersion>DEV</currentVersion>
 
@@ -37,7 +37,16 @@
         </dependency>
 
 
-        <!-- Module Dependencies -->
+       <!-- Module Dependencies -->
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-core</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
@@ -48,7 +57,7 @@
             </properties>
         </dependency>
 
-        <dependency>
+	<dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-common</artifactId>
             <version>DEV</version>
@@ -69,6 +78,15 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-deployment</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-twiddle</artifactId>
             <version>DEV</version>
             <properties>
                 <module>true</module>
@@ -105,6 +123,15 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee-jacc</artifactId>
             <version>DEV</version>
             <properties>
                 <module>true</module>
@@ -271,6 +298,15 @@
         </dependency>
 
         <dependency>
+            <id>hsqldb</id>
+            <version>1.7.1</version>
+            <url>http://hsqldb.sourceforge.net</url>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
             <groupId>xml-commons-resolver</groupId>
             <artifactId>xml-commons-resolver</artifactId>
             <version>1.1</version>
@@ -297,24 +333,17 @@
                 </includes>
             </resource>
             <resource>
-                <directory>${basedir}/src/java/org/apache/geronimo/connector/outbound</directory>
-                <targetPath>org/apache/geronimo/connector/outbound</targetPath>
+                <directory>${basedir}/src/java/org/apache/geronimo/security</directory>
+                <targetPath>org/apache/geronimo/security</targetPath>
                 <includes>
-                    <include>*.xml</include>
+                    <include>*.properties</include>
                 </includes>
             </resource>
             <resource>
-                <directory>${basedir}/src/java/org/apache/geronimo/connector/deployment</directory>
-                <targetPath>org/apache/geronimo/connector/deployment</targetPath>
+                <directory>${basedir}/src/test/org/apache/geronimo/security</directory>
+                <targetPath>org/apache/geronimo/security</targetPath>
                 <includes>
-                    <include>*.xml</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>${basedir}/src/java/org/apache/geronimo/transaction</directory>
-                <targetPath>org/apache/geronimo/transaction</targetPath>
-                <includes>
-                    <include>*.xml</include>
+                    <include>*.properties</include>
                 </includes>
             </resource>
         </resources>

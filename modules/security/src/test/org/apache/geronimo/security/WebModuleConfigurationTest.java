@@ -54,89 +54,45 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.connector.outbound.security;
+package org.apache.geronimo.security;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import javax.resource.spi.ManagedConnectionFactory;
-import javax.security.auth.login.AppConfigurationEntry;
+import java.io.File;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.security.GeronimoSecurityException;
-import org.apache.geronimo.security.realm.SecurityRealm;
-import org.apache.geronimo.security.realm.providers.AbstractSecurityRealm;
-import org.apache.regexp.RE;
+import org.apache.geronimo.deployment.model.geronimo.web.GeronimoWebAppDocument;
+import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
+import org.apache.geronimo.xml.deployment.GeronimoWebAppLoader;
+import org.apache.geronimo.security.jacc.WebModuleConfiguration;
+import org.w3c.dom.Document;
+
 
 /**
+ * Unit test for web module configuration
  *
- *
- * @version $Revision: 1.2 $ $Date: 2004/01/23 06:47:05 $
- *
- * */
-public class PasswordCredentialRealm implements SecurityRealm, ManagedConnectionFactoryListener {
+ * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:08 $
+ */
+public class WebModuleConfigurationTest extends AbstractLoaderUtilTest {
+    private File docDir;
+    WebModuleConfiguration module;
+    WebApp client;
 
-    private static final GBeanInfo GBEAN_INFO;
+    public void setUp() throws Exception {
+        super.setUp();
 
-    private String realmName;
+        System.setProperty("javax.security.jacc.PolicyConfigurationFactory.provider", "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory");
 
-    ManagedConnectionFactory managedConnectionFactory;
-
-    static final String REALM_INSTANCE = "org.apache.connector.outbound.security.PasswordCredentialRealm";
-
-
-    public void setRealmName(String realmName) {
-        this.realmName = realmName;
+        docDir = new File("src/test-data/xml/deployment");
     }
 
-    public String getRealmName() {
-        return realmName;
-    }
+    public void testRead() throws Exception {
 
-    public Set getGroupPrincipals() throws GeronimoSecurityException {
-        return null;
-    }
 
-    public Set getGroupPrincipals(RE regexExpression) throws GeronimoSecurityException {
-        return null;
-    }
+        File f = new File(docDir, "geronimo-web-app-testRead.xml");
+        Document xmlDoc = parser.parse(f);
+        GeronimoWebAppDocument doc = GeronimoWebAppLoader.load(xmlDoc);
+        client = doc.getWebApp();
 
-    public Set getUserPrincipals() throws GeronimoSecurityException {
-        return null;
-    }
+        module = new WebModuleConfiguration("pookie /test", client);
+        assertSame("pookie /test", module.getContextID());
 
-    public Set getUserPrincipals(RE regexExpression) throws GeronimoSecurityException {
-        return null;
     }
-
-    public void refresh() throws GeronimoSecurityException {
-    }
-
-    public AppConfigurationEntry[] getAppConfigurationEntry() {
-        Map options = new HashMap();
-        options.put(REALM_INSTANCE, this);
-        AppConfigurationEntry appConfigurationEntry = new AppConfigurationEntry(PasswordCredentialLoginModule.class.getName(),
-                AppConfigurationEntry.LoginModuleControlFlag.REQUISITE,
-                options);
-        return new AppConfigurationEntry[]{appConfigurationEntry};
-    }
-
-    public void setManagedConnectionFactory(ManagedConnectionFactory managedConnectionFactory) {
-        this.managedConnectionFactory = managedConnectionFactory;
-    }
-
-    ManagedConnectionFactory getManagedConnectionFactory() {
-        return managedConnectionFactory;
-    }
-
-    static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(PasswordCredentialRealm.class.getName(), AbstractSecurityRealm.getGBeanInfo());
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
 }

@@ -54,84 +54,87 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.connector.outbound.security;
+package org.apache.geronimo.security.bridge;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import javax.resource.spi.ManagedConnectionFactory;
-import javax.security.auth.login.AppConfigurationEntry;
+import java.io.IOException;
 
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
+
+import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.security.GeronimoSecurityException;
-import org.apache.geronimo.security.realm.SecurityRealm;
-import org.apache.geronimo.security.realm.providers.AbstractSecurityRealm;
-import org.apache.regexp.RE;
+import org.apache.geronimo.gbean.GConstructorInfo;
 
 /**
+ * ConfiguredIdentityRealmBridge supplies a constant mapping between realms:
+ * it always returns the configured user and password, no matter what the
+ * source realm or source subject.
  *
- *
- * @version $Revision: 1.2 $ $Date: 2004/01/23 06:47:05 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:07 $
  *
  * */
-public class PasswordCredentialRealm implements SecurityRealm, ManagedConnectionFactoryListener {
+public class ConfiguredIdentityUserPasswordRealmBridge extends AbstractRealmBridge {
 
     private static final GBeanInfo GBEAN_INFO;
 
-    private String realmName;
+    private String configuredUser;
+    private char[] configuredPassword;
 
-    ManagedConnectionFactory managedConnectionFactory;
+    public ConfiguredIdentityUserPasswordRealmBridge() {}
 
-    static final String REALM_INSTANCE = "org.apache.connector.outbound.security.PasswordCredentialRealm";
-
-
-    public void setRealmName(String realmName) {
-        this.realmName = realmName;
+    public ConfiguredIdentityUserPasswordRealmBridge(String targetRealm, String configuredUser, String configuredPassword) {
+        super(targetRealm);
+        this.configuredUser = configuredUser;
+        setConfiguredPassword(configuredPassword);
     }
 
-    public String getRealmName() {
-        return realmName;
+    public String getConfiguredUser() {
+        return configuredUser;
     }
 
-    public Set getGroupPrincipals() throws GeronimoSecurityException {
-        return null;
+    public void setConfiguredUser(String configuredUser) {
+        this.configuredUser = configuredUser;
     }
 
-    public Set getGroupPrincipals(RE regexExpression) throws GeronimoSecurityException {
-        return null;
+    public String getConfiguredPassword() {
+        return configuredPassword == null? null:new String(configuredPassword);
     }
 
-    public Set getUserPrincipals() throws GeronimoSecurityException {
-        return null;
+    public void setConfiguredPassword(String configuredPassword) {
+        this.configuredPassword = configuredPassword == null? null: configuredPassword.toCharArray();
     }
 
-    public Set getUserPrincipals(RE regexExpression) throws GeronimoSecurityException {
-        return null;
-    }
+    protected CallbackHandler getCallbackHandler(Subject sourceSubject) {
+        return new CallbackHandler() {
+            public void handle(Callback[] callbacks)
+                    throws IOException, UnsupportedCallbackException {
+                for (int i = 0; i < callbacks.length; i++) {
+                    Callback callback = callbacks[i];
+                    if (callback instanceof NameCallback) {
+                        ((NameCallback)callback).setName(configuredUser);
+                    } else if (callback instanceof PasswordCallback) {
+                        ((PasswordCallback)callback).setPassword(configuredPassword);
+                    } else {
+                        throw new UnsupportedCallbackException(callback);
+                    }
+                }
+            }
 
-    public void refresh() throws GeronimoSecurityException {
-    }
-
-    public AppConfigurationEntry[] getAppConfigurationEntry() {
-        Map options = new HashMap();
-        options.put(REALM_INSTANCE, this);
-        AppConfigurationEntry appConfigurationEntry = new AppConfigurationEntry(PasswordCredentialLoginModule.class.getName(),
-                AppConfigurationEntry.LoginModuleControlFlag.REQUISITE,
-                options);
-        return new AppConfigurationEntry[]{appConfigurationEntry};
-    }
-
-    public void setManagedConnectionFactory(ManagedConnectionFactory managedConnectionFactory) {
-        this.managedConnectionFactory = managedConnectionFactory;
-    }
-
-    ManagedConnectionFactory getManagedConnectionFactory() {
-        return managedConnectionFactory;
+        };
     }
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(PasswordCredentialRealm.class.getName(), AbstractSecurityRealm.getGBeanInfo());
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConfiguredIdentityUserPasswordRealmBridge.class.getName(), AbstractRealmBridge.getGBeanInfo());
+        infoFactory.addAttribute(new GAttributeInfo("ConfiguredUser", true));
+        infoFactory.addAttribute(new GAttributeInfo("ConfiguredPassword", true));
+        infoFactory.setConstructor(new GConstructorInfo(
+                new String[] {"TargetRealm", "ConfiguredUser", "ConfiguredPassword"},
+                new Class[] {String.class, String.class, String.class}));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

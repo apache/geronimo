@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<components>
+    <class-space name="geronimo.system:role=ClassSpace,name=System"/>
+
+    <mbean descriptor="org.apache.geronimo.security.SecurityService"
+           name="geronimo.security:type=SecurityService">
+        <attribute name="PolicyConfigurationFactory">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
+    </mbean>
+
+    <mbean descriptor="org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm" name="geronimo.security:type=SecurityRealm">
+        <attribute name="RealmName">Foo</attribute>
+        <attribute name="UsersURI">../../../modules/core/src/test-data/data/users.properties</attribute>
+        <attribute name="GroupsURI">../../../modules/core/src/test-data/data/groups.properties</attribute>
+        <depends name="geronimo.security:type=SecurityService"/>
+    </mbean>
+</components>

@@ -54,89 +54,42 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.connector.outbound.security;
+package org.apache.geronimo.security.bridge;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import javax.resource.spi.ManagedConnectionFactory;
-import javax.security.auth.login.AppConfigurationEntry;
+import java.util.Collections;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.security.GeronimoSecurityException;
-import org.apache.geronimo.security.realm.SecurityRealm;
-import org.apache.geronimo.security.realm.providers.AbstractSecurityRealm;
-import org.apache.regexp.RE;
+import javax.security.auth.Subject;
+
+import junit.framework.TestCase;
+import org.apache.geronimo.security.SecurityService;
+import org.apache.geronimo.security.realm.providers.GeronimoPasswordCredential;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/23 06:47:05 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:08 $
  *
  * */
-public class PasswordCredentialRealm implements SecurityRealm, ManagedConnectionFactoryListener {
+public abstract class AbstractUserPasswordBridgeTest extends TestCase {
+    private SecurityService securityService;
+    protected final static String USER = "testuser";
+    protected final static String PASSWORD = "testpassword";
 
-    private static final GBeanInfo GBEAN_INFO;
-
-    private String realmName;
-
-    ManagedConnectionFactory managedConnectionFactory;
-
-    static final String REALM_INSTANCE = "org.apache.connector.outbound.security.PasswordCredentialRealm";
-
-
-    public void setRealmName(String realmName) {
-        this.realmName = realmName;
+    protected void setUp() {
+        securityService = new SecurityService();
+        securityService.setRealms(Collections.singleton(new TestRealm()));
     }
 
-    public String getRealmName() {
-        return realmName;
+    protected void checkValidSubject(Subject targetSubject) {
+        assertEquals("Expected one  TestPrincipal", 1, targetSubject.getPrincipals(TestPrincipal.class).size());
+        Object p = targetSubject.getPrincipals(TestPrincipal.class).iterator().next();
+        assertSame("Expected ResourcePrincipal", TestPrincipal.class, p.getClass());
+        assertEquals("Expected name of TestPrincipal to be " + ConfiguredIdentityUserPasswordBridgeTest.USER, ConfiguredIdentityUserPasswordBridgeTest.USER, ((TestPrincipal) p).getName());
+        assertEquals("Expected no public credential", 0, targetSubject.getPublicCredentials().size());
+        assertEquals("Expected one private credential", 1, targetSubject.getPrivateCredentials().size());
+        Object cred = targetSubject.getPrivateCredentials().iterator().next();
+        assertSame("Expected GeronimoPasswordCredential", GeronimoPasswordCredential.class, cred.getClass());
+        assertEquals("Expected user", ConfiguredIdentityUserPasswordBridgeTest.USER, ((GeronimoPasswordCredential) cred).getUserName());
+        assertEquals("Expected password", ConfiguredIdentityUserPasswordBridgeTest.PASSWORD, new String(((GeronimoPasswordCredential) cred).getPassword()));
     }
-
-    public Set getGroupPrincipals() throws GeronimoSecurityException {
-        return null;
-    }
-
-    public Set getGroupPrincipals(RE regexExpression) throws GeronimoSecurityException {
-        return null;
-    }
-
-    public Set getUserPrincipals() throws GeronimoSecurityException {
-        return null;
-    }
-
-    public Set getUserPrincipals(RE regexExpression) throws GeronimoSecurityException {
-        return null;
-    }
-
-    public void refresh() throws GeronimoSecurityException {
-    }
-
-    public AppConfigurationEntry[] getAppConfigurationEntry() {
-        Map options = new HashMap();
-        options.put(REALM_INSTANCE, this);
-        AppConfigurationEntry appConfigurationEntry = new AppConfigurationEntry(PasswordCredentialLoginModule.class.getName(),
-                AppConfigurationEntry.LoginModuleControlFlag.REQUISITE,
-                options);
-        return new AppConfigurationEntry[]{appConfigurationEntry};
-    }
-
-    public void setManagedConnectionFactory(ManagedConnectionFactory managedConnectionFactory) {
-        this.managedConnectionFactory = managedConnectionFactory;
-    }
-
-    ManagedConnectionFactory getManagedConnectionFactory() {
-        return managedConnectionFactory;
-    }
-
-    static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(PasswordCredentialRealm.class.getName(), AbstractSecurityRealm.getGBeanInfo());
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
 }

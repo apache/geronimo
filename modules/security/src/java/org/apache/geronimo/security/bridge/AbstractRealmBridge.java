@@ -54,84 +54,59 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.connector.outbound.security;
+package org.apache.geronimo.security.bridge;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import javax.resource.spi.ManagedConnectionFactory;
-import javax.security.auth.login.AppConfigurationEntry;
+import javax.security.auth.Subject;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 
+import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.security.GeronimoSecurityException;
-import org.apache.geronimo.security.realm.SecurityRealm;
-import org.apache.geronimo.security.realm.providers.AbstractSecurityRealm;
-import org.apache.regexp.RE;
+import org.apache.geronimo.gbean.GConstructorInfo;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/23 06:47:05 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:07 $
  *
  * */
-public class PasswordCredentialRealm implements SecurityRealm, ManagedConnectionFactoryListener {
+public abstract class AbstractRealmBridge implements RealmBridge {
 
     private static final GBeanInfo GBEAN_INFO;
 
-    private String realmName;
+    private String targetRealm;
 
-    ManagedConnectionFactory managedConnectionFactory;
+    public AbstractRealmBridge() {}
 
-    static final String REALM_INSTANCE = "org.apache.connector.outbound.security.PasswordCredentialRealm";
-
-
-    public void setRealmName(String realmName) {
-        this.realmName = realmName;
+    public AbstractRealmBridge(String targetRealm) {
+        this.targetRealm = targetRealm;
     }
 
-    public String getRealmName() {
-        return realmName;
+    public Subject mapSubject(Subject sourceSubject) throws LoginException {
+        Subject targetSubject = new Subject();
+        LoginContext loginContext = new LoginContext(targetRealm, targetSubject, getCallbackHandler(sourceSubject));
+        loginContext.login();
+        return targetSubject;
     }
 
-    public Set getGroupPrincipals() throws GeronimoSecurityException {
-        return null;
+    protected abstract CallbackHandler getCallbackHandler(Subject sourceSubject);
+
+    public String getTargetRealm() {
+        return targetRealm;
     }
 
-    public Set getGroupPrincipals(RE regexExpression) throws GeronimoSecurityException {
-        return null;
-    }
-
-    public Set getUserPrincipals() throws GeronimoSecurityException {
-        return null;
-    }
-
-    public Set getUserPrincipals(RE regexExpression) throws GeronimoSecurityException {
-        return null;
-    }
-
-    public void refresh() throws GeronimoSecurityException {
-    }
-
-    public AppConfigurationEntry[] getAppConfigurationEntry() {
-        Map options = new HashMap();
-        options.put(REALM_INSTANCE, this);
-        AppConfigurationEntry appConfigurationEntry = new AppConfigurationEntry(PasswordCredentialLoginModule.class.getName(),
-                AppConfigurationEntry.LoginModuleControlFlag.REQUISITE,
-                options);
-        return new AppConfigurationEntry[]{appConfigurationEntry};
-    }
-
-    public void setManagedConnectionFactory(ManagedConnectionFactory managedConnectionFactory) {
-        this.managedConnectionFactory = managedConnectionFactory;
-    }
-
-    ManagedConnectionFactory getManagedConnectionFactory() {
-        return managedConnectionFactory;
+    public void setTargetRealm(String targetRealm) {
+        this.targetRealm = targetRealm;
     }
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(PasswordCredentialRealm.class.getName(), AbstractSecurityRealm.getGBeanInfo());
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractRealmBridge.class.getName());
+        infoFactory.addAttribute(new GAttributeInfo("TargetRealm", true));
+        infoFactory.setConstructor(new GConstructorInfo(
+                new String[] {"TargetRealm"},
+                new Class[] {String.class}));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

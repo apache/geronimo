@@ -53,90 +53,62 @@
  *
  * ====================================================================
  */
+package org.apache.geronimo.security;
 
-package org.apache.geronimo.connector.outbound.security;
+import java.io.File;
+import java.util.Collections;
+import java.util.Arrays;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import javax.resource.spi.ManagedConnectionFactory;
-import javax.security.auth.login.AppConfigurationEntry;
+import junit.framework.TestCase;
+import org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm;
+import org.apache.geronimo.security.jacc.EJBModuleConfiguration;
+import org.apache.geronimo.security.jacc.ModuleConfiguration;
+import org.apache.geronimo.security.jacc.WebModuleConfiguration;
+import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
+import org.apache.geronimo.deployment.model.geronimo.ejb.EnterpriseBeans;
+import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.Security;
+import org.apache.geronimo.deployment.model.ejb.AssemblyDescriptor;
+import org.apache.geronimo.deployment.model.ejb.ExcludeList;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.security.GeronimoSecurityException;
-import org.apache.geronimo.security.realm.SecurityRealm;
-import org.apache.geronimo.security.realm.providers.AbstractSecurityRealm;
-import org.apache.regexp.RE;
 
 /**
+ * Unit test for web module configuration
  *
- *
- * @version $Revision: 1.2 $ $Date: 2004/01/23 06:47:05 $
- *
- * */
-public class PasswordCredentialRealm implements SecurityRealm, ManagedConnectionFactoryListener {
+ * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:08 $
+ */
+public class SecurityServiceTest extends TestCase {
+    SecurityService securityService;
 
-    private static final GBeanInfo GBEAN_INFO;
+    public void setUp() throws Exception {
+        System.setProperty("javax.security.jacc.PolicyConfigurationFactory.provider", "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory");
 
-    private String realmName;
+        securityService = new SecurityService();
 
-    ManagedConnectionFactory managedConnectionFactory;
+        PropertiesFileSecurityRealm securityRealm = new PropertiesFileSecurityRealm("Foo",
+                (new File(new File("."), "src/test-data/data/users.properties")).toURI(),
+                (new File(new File("."), "src/test-data/data/groups.properties")).toURI());
+        securityRealm.doStart();
 
-    static final String REALM_INSTANCE = "org.apache.connector.outbound.security.PasswordCredentialRealm";
-
-
-    public void setRealmName(String realmName) {
-        this.realmName = realmName;
+        securityService.setRealms(Collections.singleton(securityRealm));
+        EjbJar ejbJar = new EjbJar();
+        ejbJar.setEnterpriseBeans(new EnterpriseBeans());
+        AssemblyDescriptor assemblyDescriptor = new AssemblyDescriptor();
+        assemblyDescriptor.setExcludeList(new ExcludeList());
+        ejbJar.setAssemblyDescriptor(assemblyDescriptor);
+        ejbJar.setSecurity(new Security());
+        WebApp webApp = new WebApp();
+        webApp.setSecurity(new Security());
+        securityService.setModuleConfigurations(Arrays.asList(new Object[] {new EJBModuleConfiguration("Foo", ejbJar),new WebModuleConfiguration("Bar", webApp)}));
     }
 
-    public String getRealmName() {
-        return realmName;
+    public void tearDown() throws Exception {
     }
 
-    public Set getGroupPrincipals() throws GeronimoSecurityException {
-        return null;
+    public void testConfig() throws Exception {
+        ModuleConfiguration ejbModuleConfiguration = securityService.getModuleConfiguration("Foo", false);
+        assertTrue("expected an ejbModuleConfiguration", ejbModuleConfiguration != null);
+        ModuleConfiguration webModuleConfiguration = securityService.getModuleConfiguration("Bar", false);
+        assertTrue("expected a webModuleConfiguration", webModuleConfiguration != null);
     }
-
-    public Set getGroupPrincipals(RE regexExpression) throws GeronimoSecurityException {
-        return null;
-    }
-
-    public Set getUserPrincipals() throws GeronimoSecurityException {
-        return null;
-    }
-
-    public Set getUserPrincipals(RE regexExpression) throws GeronimoSecurityException {
-        return null;
-    }
-
-    public void refresh() throws GeronimoSecurityException {
-    }
-
-    public AppConfigurationEntry[] getAppConfigurationEntry() {
-        Map options = new HashMap();
-        options.put(REALM_INSTANCE, this);
-        AppConfigurationEntry appConfigurationEntry = new AppConfigurationEntry(PasswordCredentialLoginModule.class.getName(),
-                AppConfigurationEntry.LoginModuleControlFlag.REQUISITE,
-                options);
-        return new AppConfigurationEntry[]{appConfigurationEntry};
-    }
-
-    public void setManagedConnectionFactory(ManagedConnectionFactory managedConnectionFactory) {
-        this.managedConnectionFactory = managedConnectionFactory;
-    }
-
-    ManagedConnectionFactory getManagedConnectionFactory() {
-        return managedConnectionFactory;
-    }
-
-    static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(PasswordCredentialRealm.class.getName(), AbstractSecurityRealm.getGBeanInfo());
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.16 $ $Date: 2004/01/19 14:05:52 $ -->
+<!-- $Revision: 1.17 $ $Date: 2004/01/23 06:44:21 $ -->
 
 <project name="Apache Geronimo">
 
@@ -40,6 +40,7 @@
       <item name="Kernel"                   href="/modules/kernel/index.html"/>
       <item name="Mail"                     href="/modules/mail/index.html"/>
       <item name="Remoting"                 href="/modules/remoting/index.html"/>
+      <item name="Security"                 href="/modules/security/index.html"/>
       <item name="Twiddle"                  href="/modules/twiddle/index.html"/>
       <item name="Web Container"            href="/modules/web/index.html"/>
       <item name="XML Beans"                href="/modules/xbeans/index.html"/>

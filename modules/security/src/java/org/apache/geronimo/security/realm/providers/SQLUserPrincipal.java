@@ -19,7 +19,7 @@
  * 3. The end-user documentation included with the redistribution,
  *    if any, must include the following acknowledgment:
  *       "This product includes software developed by the
- *        Apache Software Foundation (http://www.apache.org/)."
+ *        Apache Software Foundation (http:www.apache.org/)."
  *    Alternately, this acknowledgment may appear in the software itself,
  *    if and wherever such third-party acknowledgments normally appear.
  *
@@ -49,94 +49,68 @@
  * This software consists of voluntary contributions made by many
  * individuals on behalf of the Apache Software Foundation.  For more
  * information on the Apache Software Foundation, please see
- * <http://www.apache.org/>.
+ * <http:www.apache.org/>.
  *
  * ====================================================================
  */
+package org.apache.geronimo.security.realm.providers;
 
-package org.apache.geronimo.connector.outbound.security;
+import java.security.Principal;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import javax.resource.spi.ManagedConnectionFactory;
-import javax.security.auth.login.AppConfigurationEntry;
-
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.security.GeronimoSecurityException;
-import org.apache.geronimo.security.realm.SecurityRealm;
-import org.apache.geronimo.security.realm.providers.AbstractSecurityRealm;
-import org.apache.regexp.RE;
 
 /**
  *
- *
- * @version $Revision: 1.2 $ $Date: 2004/01/23 06:47:05 $
- *
- * */
-public class PasswordCredentialRealm implements SecurityRealm, ManagedConnectionFactoryListener {
+ * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:07 $
+ */
 
-    private static final GBeanInfo GBEAN_INFO;
+public class SQLUserPrincipal implements Principal {
+    private final String name;
 
-    private String realmName;
-
-    ManagedConnectionFactory managedConnectionFactory;
-
-    static final String REALM_INSTANCE = "org.apache.connector.outbound.security.PasswordCredentialRealm";
-
-
-    public void setRealmName(String realmName) {
-        this.realmName = realmName;
+    public SQLUserPrincipal(String name) {
+        this.name = name;
     }
 
-    public String getRealmName() {
-        return realmName;
+    /**
+     * Compares this principal to the specified object.  Returns true
+     * if the object passed in matches the principal represented by
+     * the implementation of this interface.
+     *
+     * @param another principal to compare with.
+     *
+     * @return true if the principal passed in is the same as that
+     * encapsulated by this principal, and false otherwise.
+
+     */
+    public boolean equals(Object another) {
+        if (!(another instanceof SQLUserPrincipal)) return false;
+
+        return ((SQLUserPrincipal) another).name.equals(name);
     }
 
-    public Set getGroupPrincipals() throws GeronimoSecurityException {
-        return null;
+    /**
+     * Returns a string representation of this principal.
+     *
+     * @return a string representation of this principal.
+     */
+    public String toString() {
+        return name;
     }
 
-    public Set getGroupPrincipals(RE regexExpression) throws GeronimoSecurityException {
-        return null;
+    /**
+     * Returns a hashcode for this principal.
+     *
+     * @return a hashcode for this principal.
+     */
+    public int hashCode() {
+        return name.hashCode();
     }
 
-    public Set getUserPrincipals() throws GeronimoSecurityException {
-        return null;
+    /**
+     * Returns the name of this principal.
+     *
+     * @return the name of this principal.
+     */
+    public String getName() {
+        return name;
     }
-
-    public Set getUserPrincipals(RE regexExpression) throws GeronimoSecurityException {
-        return null;
-    }
-
-    public void refresh() throws GeronimoSecurityException {
-    }
-
-    public AppConfigurationEntry[] getAppConfigurationEntry() {
-        Map options = new HashMap();
-        options.put(REALM_INSTANCE, this);
-        AppConfigurationEntry appConfigurationEntry = new AppConfigurationEntry(PasswordCredentialLoginModule.class.getName(),
-                AppConfigurationEntry.LoginModuleControlFlag.REQUISITE,
-                options);
-        return new AppConfigurationEntry[]{appConfigurationEntry};
-    }
-
-    public void setManagedConnectionFactory(ManagedConnectionFactory managedConnectionFactory) {
-        this.managedConnectionFactory = managedConnectionFactory;
-    }
-
-    ManagedConnectionFactory getManagedConnectionFactory() {
-        return managedConnectionFactory;
-    }
-
-    static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(PasswordCredentialRealm.class.getName(), AbstractSecurityRealm.getGBeanInfo());
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
 }
