@@ -23,7 +23,7 @@ import javax.enterprise.deploy.spi.Target;
 /**
  * 
  * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:48 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/02 18:05:46 $
  */
 public class TargetModuleIDImpl implements TargetModuleID {
     private final Target target;
@@ -52,5 +52,28 @@ public class TargetModuleIDImpl implements TargetModuleID {
 
     public String getWebURL() {
         return null;
+    }
+
+    public String toString() {
+        return "[" + target + ", " + moduleID + "]";
+    }
+
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TargetModuleIDImpl)) return false;
+
+        final TargetModuleIDImpl targetModuleID = (TargetModuleIDImpl) o;
+
+        if (!moduleID.equals(targetModuleID.moduleID)) return false;
+        if (!target.equals(targetModuleID.target)) return false;
+
+        return true;
+    }
+
+    public int hashCode() {
+        int result;
+        result = target.hashCode();
+        result = 29 * result + moduleID.hashCode();
+        return result;
     }
 }

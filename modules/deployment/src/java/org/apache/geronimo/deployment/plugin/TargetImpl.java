@@ -22,7 +22,7 @@ import javax.enterprise.deploy.spi.Target;
 /**
  * 
  * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:48 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/02 18:05:46 $
  */
 public class TargetImpl implements Target {
     private final String name;
@@ -39,5 +39,24 @@ public class TargetImpl implements Target {
 
     public String getDescription() {
         return description;
+    }
+
+    public String toString() {
+        return name;
+    }
+
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TargetImpl)) return false;
+
+        final TargetImpl target = (TargetImpl) o;
+
+        if (!name.equals(target.name)) return false;
+
+        return true;
+    }
+
+    public int hashCode() {
+        return name.hashCode();
     }
 }
