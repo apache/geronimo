@@ -67,46 +67,46 @@ package org.apache.geronimo.connector.outbound;
  */
 public class ConnectionInfo {
 
-	private ManagedConnectionInfo mci;
-	private Object connection;
+    private ManagedConnectionInfo mci;
+    private Object connection;
 
-	public ConnectionInfo() {
-	} // ConnectionInfo constructor
+    public ConnectionInfo() {
+    } // ConnectionInfo constructor
 
-	public ConnectionInfo(ManagedConnectionInfo mci) {
-		this.mci = mci;
-	}
+    public ConnectionInfo(ManagedConnectionInfo mci) {
+        this.mci = mci;
+    }
 
-	/**
-	 * Get the Mci value.
-	 * @return the Mci value.
-	 */
-	public ManagedConnectionInfo getManagedConnectionInfo() {
-		return mci;
-	}
+    /**
+     * Get the Mci value.
+     * @return the Mci value.
+     */
+    public ManagedConnectionInfo getManagedConnectionInfo() {
+        return mci;
+    }
 
-	/**
-	 * Set the Mci value.
-	 * @param mci The new Mci value.
-	 */
-	public void setManagedConnectionInfo(ManagedConnectionInfo mci) {
-		this.mci = mci;
-	}
+    /**
+     * Set the Mci value.
+     * @param mci The new Mci value.
+     */
+    public void setManagedConnectionInfo(ManagedConnectionInfo mci) {
+        this.mci = mci;
+    }
 
-	/**
-	 * Get the Connection value.
-	 * @return the Connection value.
-	 */
-	public Object getConnectionHandle() {
-		return connection;
-	}
+    /**
+     * Get the Connection value.
+     * @return the Connection value.
+     */
+    public Object getConnectionHandle() {
+        return connection;
+    }
 
-	/**
-	 * Set the Connection value.
-	 * @param newConnection The new Connection value.
-	 */
-	public void setConnectionHandle(Object connection) {
-		this.connection = connection;
-	}
+    /**
+     * Set the Connection value.
+     * @param newConnection The new Connection value.
+     */
+    public void setConnectionHandle(Object connection) {
+        this.connection = connection;
+    }
 
 } // ConnectionInfo

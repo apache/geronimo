@@ -74,164 +74,164 @@ import javax.transaction.xa.XAResource;
  */
 public class ManagedConnectionInfo {
 
-	private ManagedConnectionFactory mcf;
-	private ConnectionRequestInfo cri;
-	private Subject subject;
-	private Transaction tx;
-	private ManagedConnection mc;
-	private XAResource xares;
-	private long lastUsed;
-	private ConnectionInterceptor poolInterceptor;
+    private ManagedConnectionFactory mcf;
+    private ConnectionRequestInfo cri;
+    private Subject subject;
+    private Transaction tx;
+    private ManagedConnection mc;
+    private XAResource xares;
+    private long lastUsed;
+    private ConnectionInterceptor poolInterceptor;
 
-	private GeronimoConnectionEventListener listener;
+    private GeronimoConnectionEventListener listener;
 
-	public ManagedConnectionInfo(
-		ManagedConnectionFactory mcf,
-		ConnectionRequestInfo cri) {
-		this.mcf = mcf;
-		this.cri = cri;
-	} // ManagedConnectionInfo constructor
+    public ManagedConnectionInfo(
+            ManagedConnectionFactory mcf,
+            ConnectionRequestInfo cri) {
+        this.mcf = mcf;
+        this.cri = cri;
+    } // ManagedConnectionInfo constructor
 
-	/**
-	 * Get the Mcf value.
-	 * @return the Mcf value.
-	 */
-	public ManagedConnectionFactory getManagedConnectionFactory() {
-		return mcf;
-	}
+    /**
+     * Get the Mcf value.
+     * @return the Mcf value.
+     */
+    public ManagedConnectionFactory getManagedConnectionFactory() {
+        return mcf;
+    }
 
-	/**
-	 * Set the Mcf value.
-	 * @param newMcf The new Mcf value.
-	 */
-	public void setManagedConnectionFactory(ManagedConnectionFactory mcf) {
-		this.mcf = mcf;
-	}
+    /**
+     * Set the Mcf value.
+     * @param newMcf The new Mcf value.
+     */
+    public void setManagedConnectionFactory(ManagedConnectionFactory mcf) {
+        this.mcf = mcf;
+    }
 
-	/**
-	 * Get the Cri value.
-	 * @return the Cri value.
-	 */
-	public ConnectionRequestInfo getConnectionRequestInfo() {
-		return cri;
-	}
+    /**
+     * Get the Cri value.
+     * @return the Cri value.
+     */
+    public ConnectionRequestInfo getConnectionRequestInfo() {
+        return cri;
+    }
 
-	/**
-	 * Set the Cri value.
-	 * @param newCri The new Cri value.
-	 */
-	public void setConnectionRequestInfo(ConnectionRequestInfo cri) {
-		this.cri = cri;
-	}
+    /**
+     * Set the Cri value.
+     * @param newCri The new Cri value.
+     */
+    public void setConnectionRequestInfo(ConnectionRequestInfo cri) {
+        this.cri = cri;
+    }
 
-	/**
-	 * Get the Subject value.
-	 * @return the Subject value.
-	 */
-	public Subject getSubject() {
-		return subject;
-	}
+    /**
+     * Get the Subject value.
+     * @return the Subject value.
+     */
+    public Subject getSubject() {
+        return subject;
+    }
 
-	/**
-	 * Set the Subject value.
-	 * @param newSubject The new Subject value.
-	 */
-	public void setSubject(Subject subject) {
-		this.subject = subject;
-	}
+    /**
+     * Set the Subject value.
+     * @param newSubject The new Subject value.
+     */
+    public void setSubject(Subject subject) {
+        this.subject = subject;
+    }
 
-	/**
-	 * Get the Tx value.
-	 * @return the Tx value.
-	 */
-	public Transaction getTransaction() {
-		return tx;
-	}
+    /**
+     * Get the Tx value.
+     * @return the Tx value.
+     */
+    public Transaction getTransaction() {
+        return tx;
+    }
 
-	/**
-	 * Set the Tx value.
-	 * @param newTx The new Tx value.
-	 */
-	public void setTransaction(Transaction tx) {
-		this.tx = tx;
-	}
+    /**
+     * Set the Tx value.
+     * @param newTx The new Tx value.
+     */
+    public void setTransaction(Transaction tx) {
+        this.tx = tx;
+    }
 
-	/**
-	 * Get the Mc value.
-	 * @return the Mc value.
-	 */
-	public ManagedConnection getManagedConnection() {
-		return mc;
-	}
+    /**
+     * Get the Mc value.
+     * @return the Mc value.
+     */
+    public ManagedConnection getManagedConnection() {
+        return mc;
+    }
 
-	/**
-	 * Set the Mc value.
-	 * @param newMc The new Mc value.
-	 */
-	public void setManagedConnection(ManagedConnection mc) {
-		this.mc = mc;
-	}
+    /**
+     * Set the Mc value.
+     * @param newMc The new Mc value.
+     */
+    public void setManagedConnection(ManagedConnection mc) {
+        this.mc = mc;
+    }
 
-	/**
-	 * Get the Xares value.
-	 * @return the Xares value.
-	 */
-	public XAResource getXAResource() {
-		return xares;
-	}
+    /**
+     * Get the Xares value.
+     * @return the Xares value.
+     */
+    public XAResource getXAResource() {
+        return xares;
+    }
 
-	/**
-	 * Set the Xares value.
-	 * @param newXares The new Xares value.
-	 */
-	public void setXAResource(XAResource xares) {
-		this.xares = xares;
-	}
+    /**
+     * Set the Xares value.
+     * @param newXares The new Xares value.
+     */
+    public void setXAResource(XAResource xares) {
+        this.xares = xares;
+    }
 
-	public long getLastUsed() {
-		return lastUsed;
-	}
+    public long getLastUsed() {
+        return lastUsed;
+    }
 
-	public void setLastUsed(long lastUsed) {
-		this.lastUsed = lastUsed;
-	}
+    public void setLastUsed(long lastUsed) {
+        this.lastUsed = lastUsed;
+    }
 
-	public void setPoolInterceptor(ConnectionInterceptor poolInterceptor) {
-		this.poolInterceptor = poolInterceptor;
-	}
+    public void setPoolInterceptor(ConnectionInterceptor poolInterceptor) {
+        this.poolInterceptor = poolInterceptor;
+    }
 
-	public ConnectionInterceptor getPoolInterceptor() {
-		return poolInterceptor;
-	}
+    public ConnectionInterceptor getPoolInterceptor() {
+        return poolInterceptor;
+    }
 
-	public void setConnectionEventListener(GeronimoConnectionEventListener listener) {
-		this.listener = listener;
-	}
+    public void setConnectionEventListener(GeronimoConnectionEventListener listener) {
+        this.listener = listener;
+    }
 
-	public void addConnectionHandle(Object handle) {
-		listener.addConnectionHandle(handle);
-	}
+    public void addConnectionHandle(Object handle) {
+        listener.addConnectionHandle(handle);
+    }
 
-	public void removeConnectionHandle(Object handle) {
-		listener.removeConnectionHandle(handle);
-	}
+    public void removeConnectionHandle(Object handle) {
+        listener.removeConnectionHandle(handle);
+    }
 
-	public boolean hasConnectionHandles() {
-		return listener.hasConnectionHandles();
-	}
+    public boolean hasConnectionHandles() {
+        return listener.hasConnectionHandles();
+    }
 
-	public void clearConnectionHandles() {
-		listener.clearConnectionHandles();
-	}
+    public void clearConnectionHandles() {
+        listener.clearConnectionHandles();
+    }
 
-	public boolean securityMatches(ManagedConnectionInfo other) {
-		return (
-			subject == null
-				? other.getSubject() == null
-				: subject.equals(other.getSubject()))
-			&& (cri == null
-				? other.getConnectionRequestInfo() == null
-				: cri.equals(other.getConnectionRequestInfo()));
-	}
+    public boolean securityMatches(ManagedConnectionInfo other) {
+        return (
+                subject == null
+                ? other.getSubject() == null
+                : subject.equals(other.getSubject()))
+                && (cri == null
+                ? other.getConnectionRequestInfo() == null
+                : cri.equals(other.getConnectionRequestInfo()));
+    }
 
 } // ManagedConnectionInfo

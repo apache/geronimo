@@ -74,167 +74,167 @@ import javax.transaction.xa.Xid;
  */
 public class LocalXAResource implements XAResource {
 
-	private final LocalTransaction localTx;
-	private Xid xid;
-	private int txTimeout;
+    private final LocalTransaction localTx;
+    private Xid xid;
+    private int txTimeout;
 
-	public LocalXAResource(LocalTransaction localTx) {
-		this.localTx = localTx;
-	} // LocalXAResource constructor
+    public LocalXAResource(LocalTransaction localTx) {
+        this.localTx = localTx;
+    } // LocalXAResource constructor
 
-	// Implementation of javax.transaction.xa.XAResource
+    // Implementation of javax.transaction.xa.XAResource
 
-	/**
-	 * The <code>commit</code> method
-	 *
-	 * @param xid a <code>Xid</code> value
-	 * @param flag a <code>boolean</code> value
-	 * @exception XAException if an error occurs
-	 */
-	public void commit(Xid xid, boolean flag) throws XAException {
-		if (this.xid == null || !this.xid.equals(xid)) {
-			throw new XAException();
-		} // end of if ()
-		try {
-			localTx.commit();
-		} catch (ResourceException e) {
-			XAException xae = new XAException();
-			//xae.setLinkedException(e);
-			throw xae;
-		} // end of try-catch
-		finally {
-			this.xid = null;
-		} // end of finally
+    /**
+     * The <code>commit</code> method
+     *
+     * @param xid a <code>Xid</code> value
+     * @param flag a <code>boolean</code> value
+     * @exception XAException if an error occurs
+     */
+    public void commit(Xid xid, boolean flag) throws XAException {
+        if (this.xid == null || !this.xid.equals(xid)) {
+            throw new XAException();
+        } // end of if ()
+        try {
+            localTx.commit();
+        } catch (ResourceException e) {
+            XAException xae = new XAException();
+            //xae.setLinkedException(e);
+            throw xae;
+        } // end of try-catch
+        finally {
+            this.xid = null;
+        } // end of finally
 
-	}
+    }
 
-	/**
-	 * The <code>forget</code> method
-	 *
-	 * @param xid a <code>Xid</code> value
-	 * @exception XAException if an error occurs
-	 */
-	public void forget(Xid xid) throws XAException {
-		this.xid = null;
-	}
+    /**
+     * The <code>forget</code> method
+     *
+     * @param xid a <code>Xid</code> value
+     * @exception XAException if an error occurs
+     */
+    public void forget(Xid xid) throws XAException {
+        this.xid = null;
+    }
 
-	/**
-	 * The <code>getTransactionTimeout</code> method
-	 *
-	 * @return an <code>int</code> value
-	 * @exception XAException if an error occurs
-	 */
-	public int getTransactionTimeout() throws XAException {
-		return txTimeout;
-	}
+    /**
+     * The <code>getTransactionTimeout</code> method
+     *
+     * @return an <code>int</code> value
+     * @exception XAException if an error occurs
+     */
+    public int getTransactionTimeout() throws XAException {
+        return txTimeout;
+    }
 
-	/**
-	 * The <code>isSameRM</code> method
-	 *
-	 * @param XAResource a <code>XAResource</code> value
-	 * @return a <code>boolean</code> value
-	 * @exception XAException if an error occurs
-	 */
-	public boolean isSameRM(XAResource xares) throws XAException {
-		return this == xares;
-	}
+    /**
+     * The <code>isSameRM</code> method
+     *
+     * @param XAResource a <code>XAResource</code> value
+     * @return a <code>boolean</code> value
+     * @exception XAException if an error occurs
+     */
+    public boolean isSameRM(XAResource xares) throws XAException {
+        return this == xares;
+    }
 
-	/**
-	 * The <code>recover</code> method
-	 *
-	 * @param n an <code>int</code> value
-	 * @return a <code>Xid[]</code> value
-	 * @exception XAException if an error occurs
-	 */
-	public Xid[] recover(int n) throws XAException {
-		return null;
-	}
+    /**
+     * The <code>recover</code> method
+     *
+     * @param n an <code>int</code> value
+     * @return a <code>Xid[]</code> value
+     * @exception XAException if an error occurs
+     */
+    public Xid[] recover(int n) throws XAException {
+        return null;
+    }
 
-	/**
-	 * The <code>rollback</code> method
-	 *
-	 * @param xid a <code>Xid</code> value
-	 * @exception XAException if an error occurs
-	 */
-	public void rollback(Xid xid) throws XAException {
-		if (this.xid == null || !this.xid.equals(xid)) {
-			throw new XAException();
-		} // end of if ()
-		try {
-			localTx.rollback();
-		} catch (ResourceException e) {
-			XAException xae = new XAException();
-			//xae.setLinkedException(e);
-			throw xae;
-		} // end of try-catch
-		finally {
-			this.xid = null;
-		} // end of finally
+    /**
+     * The <code>rollback</code> method
+     *
+     * @param xid a <code>Xid</code> value
+     * @exception XAException if an error occurs
+     */
+    public void rollback(Xid xid) throws XAException {
+        if (this.xid == null || !this.xid.equals(xid)) {
+            throw new XAException();
+        } // end of if ()
+        try {
+            localTx.rollback();
+        } catch (ResourceException e) {
+            XAException xae = new XAException();
+            //xae.setLinkedException(e);
+            throw xae;
+        } // end of try-catch
+        finally {
+            this.xid = null;
+        } // end of finally
 
-	}
+    }
 
-	/**
-	 * The <code>setTransactionTimeout</code> method
-	 *
-	 * @param n an <code>int</code> value
-	 * @return a <code>boolean</code> value
-	 * @exception XAException if an error occurs
-	 */
-	public boolean setTransactionTimeout(int txTimeout) throws XAException {
-		this.txTimeout = txTimeout;
-		return true;
-	}
+    /**
+     * The <code>setTransactionTimeout</code> method
+     *
+     * @param n an <code>int</code> value
+     * @return a <code>boolean</code> value
+     * @exception XAException if an error occurs
+     */
+    public boolean setTransactionTimeout(int txTimeout) throws XAException {
+        this.txTimeout = txTimeout;
+        return true;
+    }
 
-	/**
-	 * The <code>start</code> method
-	 *
-	 * @param xid a <code>Xid</code> value
-	 * @param n an <code>int</code> value
-	 * @exception XAException if an error occurs
-	 */
-	public void start(Xid xid, int flag) throws XAException {
-		if (flag == XAResource.TMNOFLAGS) {
-			if (xid != null) {
-				throw new XAException();
-			} // end of if ()
-			this.xid = xid;
-			try {
-				localTx.begin();
-			} catch (ResourceException e) {
-				throw new XAException(); //"could not start local tx", e);
-			} // end of try-catch
+    /**
+     * The <code>start</code> method
+     *
+     * @param xid a <code>Xid</code> value
+     * @param n an <code>int</code> value
+     * @exception XAException if an error occurs
+     */
+    public void start(Xid xid, int flag) throws XAException {
+        if (flag == XAResource.TMNOFLAGS) {
+            if (xid != null) {
+                throw new XAException();
+            } // end of if ()
+            this.xid = xid;
+            try {
+                localTx.begin();
+            } catch (ResourceException e) {
+                throw new XAException(); //"could not start local tx", e);
+            } // end of try-catch
 
-		} // end of if ()
-		if (flag == XAResource.TMRESUME && xid != this.xid) {
-			throw new XAException();
-		} // end of if ()
-		throw new XAException("unknown state");
-	}
+        } // end of if ()
+        if (flag == XAResource.TMRESUME && xid != this.xid) {
+            throw new XAException();
+        } // end of if ()
+        throw new XAException("unknown state");
+    }
 
-	/**
-	 * The <code>end</code> method
-	 *
-	 * @param xid a <code>Xid</code> value
-	 * @param n an <code>int</code> value
-	 * @exception XAException if an error occurs
-	 */
-	public void end(Xid xid, int flag) throws XAException {
-		if (xid != this.xid) {
-			throw new XAException();
-		} // end of if ()
-		//we could keep track of if the flag is TMSUCCESS...
-	}
+    /**
+     * The <code>end</code> method
+     *
+     * @param xid a <code>Xid</code> value
+     * @param n an <code>int</code> value
+     * @exception XAException if an error occurs
+     */
+    public void end(Xid xid, int flag) throws XAException {
+        if (xid != this.xid) {
+            throw new XAException();
+        } // end of if ()
+        //we could keep track of if the flag is TMSUCCESS...
+    }
 
-	/**
-	 * The <code>prepare</code> method
-	 *
-	 * @param xid a <code>Xid</code> value
-	 * @return an <code>int</code> value
-	 * @exception XAException if an error occurs
-	 */
-	public int prepare(Xid xid) throws XAException {
-		//log warning that semantics are incorrect...
-		return XAResource.XA_OK;
-	}
+    /**
+     * The <code>prepare</code> method
+     *
+     * @param xid a <code>Xid</code> value
+     * @return an <code>int</code> value
+     * @exception XAException if an error occurs
+     */
+    public int prepare(Xid xid) throws XAException {
+        //log warning that semantics are incorrect...
+        return XAResource.XA_OK;
+    }
 
 } // LocalXAResource

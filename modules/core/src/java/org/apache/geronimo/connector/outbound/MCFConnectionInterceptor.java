@@ -71,31 +71,32 @@ import javax.resource.spi.ManagedConnection;
 public class MCFConnectionInterceptor implements ConnectionInterceptor {
 
     private final ConnectionManagerDeployment head;
-	public MCFConnectionInterceptor(ConnectionManagerDeployment head) {
-        this.head = head;
-	} // MCFConnectionInterceptor constructor
 
-	public void getConnection(ConnectionInfo ci) throws ResourceException {
-		ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
-		ManagedConnection mc =
-			mci.getManagedConnectionFactory().createManagedConnection(
-				mci.getSubject(),
-				mci.getConnectionRequestInfo());
-		mci.setManagedConnection(mc);
+    public MCFConnectionInterceptor(ConnectionManagerDeployment head) {
+        this.head = head;
+    } // MCFConnectionInterceptor constructor
+
+    public void getConnection(ConnectionInfo ci) throws ResourceException {
+        ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
+        ManagedConnection mc =
+                mci.getManagedConnectionFactory().createManagedConnection(
+                        mci.getSubject(),
+                        mci.getConnectionRequestInfo());
+        mci.setManagedConnection(mc);
         GeronimoConnectionEventListener listener = new GeronimoConnectionEventListener(head.getStack(), mci);
         mci.setConnectionEventListener(listener);
-	}
+    }
 
-	public void returnConnection(
-		ConnectionInfo ci,
-		ConnectionReturnAction cra) {
-		ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
-		ManagedConnection mc = mci.getManagedConnection();
-		try {
-			mc.destroy();
-		} catch (ResourceException e) {
-			//log and forget
-		} // end of try-catch
-	}
+    public void returnConnection(
+            ConnectionInfo ci,
+            ConnectionReturnAction cra) {
+        ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
+        ManagedConnection mc = mci.getManagedConnection();
+        try {
+            mc.destroy();
+        } catch (ResourceException e) {
+            //log and forget
+        } // end of try-catch
+    }
 
 } // MCFConnectionInterceptor

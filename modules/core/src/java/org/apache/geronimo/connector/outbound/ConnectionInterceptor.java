@@ -71,8 +71,8 @@ import javax.resource.ResourceException;
  */
 
 public interface ConnectionInterceptor {
-	void getConnection(ConnectionInfo ci) throws ResourceException;
+    void getConnection(ConnectionInfo ci) throws ResourceException;
 
-	void returnConnection(ConnectionInfo ci, ConnectionReturnAction cra);
+    void returnConnection(ConnectionInfo ci, ConnectionReturnAction cra);
 
 } // ConnectionInterceptor

@@ -75,64 +75,64 @@ import org.apache.geronimo.connector.TxUtils;
  */
 public class TransactionEnlistingInterceptor implements ConnectionInterceptor {
 
-	private final ConnectionInterceptor next;
-	private final TransactionManager tm;
+    private final ConnectionInterceptor next;
+    private final TransactionManager tm;
 
-	public TransactionEnlistingInterceptor(
-		ConnectionInterceptor next,
-		TransactionManager tm) {
-		this.next = next;
-		this.tm = tm;
-	} // TransactionEnlistingInterceptor constructor
+    public TransactionEnlistingInterceptor(
+            ConnectionInterceptor next,
+            TransactionManager tm) {
+        this.next = next;
+        this.tm = tm;
+    } // TransactionEnlistingInterceptor constructor
 
-	public void getConnection(ConnectionInfo ci) throws ResourceException {
-		next.getConnection(ci);
-		try {
-			Transaction tx = tm.getTransaction();
-			if (TxUtils.isActive(tx)) {
-				ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
-				XAResource xares = mci.getXAResource();
-				tx.enlistResource(xares);
-				mci.setTransaction(tx);
-			} // end of if ()
+    public void getConnection(ConnectionInfo ci) throws ResourceException {
+        next.getConnection(ci);
+        try {
+            Transaction tx = tm.getTransaction();
+            if (TxUtils.isActive(tx)) {
+                ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
+                XAResource xares = mci.getXAResource();
+                tx.enlistResource(xares);
+                mci.setTransaction(tx);
+            } // end of if ()
 
-		} catch (SystemException e) {
-			throw new ResourceException("Could not get transaction", e);
-		} // end of try-catch
-		catch (RollbackException e) {
-			throw new ResourceException(
-				"Could not enlist resource in rolled back transaction",
-				e);
-		} // end of catch
+        } catch (SystemException e) {
+            throw new ResourceException("Could not get transaction", e);
+        } // end of try-catch
+        catch (RollbackException e) {
+            throw new ResourceException(
+                    "Could not enlist resource in rolled back transaction",
+                    e);
+        } // end of catch
 
-	}
+    }
 
-	/**
-	 * The <code>returnConnection</code> method
-	 *
-	 * @todo Probably the logic needs improvement if a connection
-	 * error occurred and we are destroying the handle.
-	 * @param ci a <code>ConnectionInfo</code> value
-	 * @param cra a <code>ConnectionReturnAction</code> value
-	 * @exception ResourceException if an error occurs
-	 */
-	public void returnConnection(
-		ConnectionInfo ci,
-		ConnectionReturnAction cra) {
-		try {
-			Transaction tx = tm.getTransaction();
-			if (TxUtils.isActive(tx)) {
-				ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
-				XAResource xares = mci.getXAResource();
-				tx.delistResource(xares, XAResource.TMSUSPEND);
-				mci.setTransaction(null);
-			} // end of if ()
+    /**
+     * The <code>returnConnection</code> method
+     *
+     * @todo Probably the logic needs improvement if a connection
+     * error occurred and we are destroying the handle.
+     * @param ci a <code>ConnectionInfo</code> value
+     * @param cra a <code>ConnectionReturnAction</code> value
+     * @exception ResourceException if an error occurs
+     */
+    public void returnConnection(
+            ConnectionInfo ci,
+            ConnectionReturnAction cra) {
+        try {
+            Transaction tx = tm.getTransaction();
+            if (TxUtils.isActive(tx)) {
+                ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
+                XAResource xares = mci.getXAResource();
+                tx.delistResource(xares, XAResource.TMSUSPEND);
+                mci.setTransaction(null);
+            } // end of if ()
 
-		} catch (SystemException e) {
-			//throw new ResourceException("Could not get transaction", e);
-		} // end of try-catch
+        } catch (SystemException e) {
+            //throw new ResourceException("Could not get transaction", e);
+        } // end of try-catch
 
-		next.returnConnection(ci, cra);
-	}
+        next.returnConnection(ci, cra);
+    }
 
 } // TransactionEnlistingInterceptor

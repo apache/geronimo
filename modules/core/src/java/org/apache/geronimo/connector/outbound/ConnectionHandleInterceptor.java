@@ -68,36 +68,36 @@ import javax.resource.ResourceException;
  */
 public class ConnectionHandleInterceptor implements ConnectionInterceptor {
 
-	private final ConnectionInterceptor next;
+    private final ConnectionInterceptor next;
 
-	public ConnectionHandleInterceptor(ConnectionInterceptor next) {
-		this.next = next;
-	}
+    public ConnectionHandleInterceptor(ConnectionInterceptor next) {
+        this.next = next;
+    }
 
-	public void getConnection(ConnectionInfo ci) throws ResourceException {
-		next.getConnection(ci);
-		ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
-		if (ci.getConnectionHandle() == null) {
-			ci.setConnectionHandle(
-				mci.getManagedConnection().getConnection(
-					mci.getSubject(),
-					mci.getConnectionRequestInfo()));
+    public void getConnection(ConnectionInfo ci) throws ResourceException {
+        next.getConnection(ci);
+        ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
+        if (ci.getConnectionHandle() == null) {
+            ci.setConnectionHandle(
+                    mci.getManagedConnection().getConnection(
+                            mci.getSubject(),
+                            mci.getConnectionRequestInfo()));
 
-		} else {
-			mci.getManagedConnection().associateConnection(
-				ci.getConnectionHandle());
-		} // end of else
-		mci.addConnectionHandle(ci.getConnectionHandle());
-	}
+        } else {
+            mci.getManagedConnection().associateConnection(
+                    ci.getConnectionHandle());
+        } // end of else
+        mci.addConnectionHandle(ci.getConnectionHandle());
+    }
 
-	public void returnConnection(
-		ConnectionInfo ci,
-		ConnectionReturnAction cra) {
-		if (ci.getConnectionHandle() != null) {
-			ci.getManagedConnectionInfo().removeConnectionHandle(
-				ci.getConnectionHandle());
-		}
-		next.returnConnection(ci, cra);
-	}
+    public void returnConnection(
+            ConnectionInfo ci,
+            ConnectionReturnAction cra) {
+        if (ci.getConnectionHandle() != null) {
+            ci.getManagedConnectionInfo().removeConnectionHandle(
+                    ci.getConnectionHandle());
+        }
+        next.returnConnection(ci, cra);
+    }
 
 }

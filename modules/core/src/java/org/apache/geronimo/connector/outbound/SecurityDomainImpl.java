@@ -68,12 +68,12 @@ import javax.security.auth.Subject;
  * @version 1.0
  */
 public class SecurityDomainImpl implements SecurityDomain {
-	public SecurityDomainImpl() {
+    public SecurityDomainImpl() {
 
-	} // SecurityDomainImpl constructor
+    } // SecurityDomainImpl constructor
 
-	public Subject getSubject() {
-		return new Subject();
-	}
+    public Subject getSubject() {
+        return new Subject();
+    }
 
 } // SecurityDomainImpl

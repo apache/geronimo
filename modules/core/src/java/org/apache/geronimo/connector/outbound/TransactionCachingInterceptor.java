@@ -60,6 +60,7 @@ import java.util.WeakHashMap;
 import java.util.Iterator;
 import java.util.Collection;
 import java.util.LinkedList;
+
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.SystemException;
@@ -75,31 +76,25 @@ import org.apache.geronimo.connector.TxUtils;
  *
  * @version 1.0
  */
-public class TransactionCachingInterceptor implements ConnectionInterceptor
-{
+public class TransactionCachingInterceptor implements ConnectionInterceptor {
 
     private final ConnectionInterceptor next;
     private final TransactionManager tm;
     private final WeakHashMap txToMCIListMap = new WeakHashMap();
 
-    public TransactionCachingInterceptor(final ConnectionInterceptor next, final TransactionManager tm)
-    {
+    public TransactionCachingInterceptor(final ConnectionInterceptor next, final TransactionManager tm) {
         this.next = next;
         this.tm = tm;
     } // TransactionCachingInterceptor constructor
 
-    public void getConnection(ConnectionInfo ci) throws ResourceException
-    {
-        try
-        {
+    public void getConnection(ConnectionInfo ci) throws ResourceException {
+        try {
             Transaction tx = tm.getTransaction();
-            if (TxUtils.isActive(tx))
-            {
+            if (TxUtils.isActive(tx)) {
                 ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
                 Collection mcis = null;
-                synchronized (txToMCIListMap)
-                {
-                    mcis = (Collection)txToMCIListMap.get(tx);
+                synchronized (txToMCIListMap) {
+                    mcis = (Collection) txToMCIListMap.get(tx);
                 }
                 /*Access to mcis should not need to be synchronized
                  * unless several requests in the same transaction in
@@ -107,13 +102,10 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor
                  * time.  This cannot occur with transactions imported
                  * through jca.  I don't know about any other possible
                  * ways this could occur.*/
-                if (mcis != null)
-                {
-                    for (Iterator i = mcis.iterator(); i.hasNext();)
-                    {
-                        ManagedConnectionInfo oldmci = (ManagedConnectionInfo)i.next();
-                        if (mci.securityMatches(oldmci))
-                        {
+                if (mcis != null) {
+                    for (Iterator i = mcis.iterator(); i.hasNext();) {
+                        ManagedConnectionInfo oldmci = (ManagedConnectionInfo) i.next();
+                        if (mci.securityMatches(oldmci)) {
                             ci.setManagedConnectionInfo(oldmci);
                             return;
                         } // end of if ()
@@ -121,49 +113,38 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor
                     } // end of for ()
 
                 } // end of if ()
-                else
-                {
+                else {
                     mcis = new LinkedList();
-                    synchronized (txToMCIListMap)
-                    {
+                    synchronized (txToMCIListMap) {
                         txToMCIListMap.put(tx, mcis);
                     }
                 } // end of else
                 next.getConnection(ci);
                 //put it in the map
-                synchronized (mcis)
-                {
+                synchronized (mcis) {
                     mcis.add(ci.getManagedConnectionInfo());
                 }
 
             } // end of if ()
-            else
-            {
+            else {
                 next.getConnection(ci);
             } // end of else
 
-        }
-        catch (SystemException e)
-        {
+        } catch (SystemException e) {
             throw new ResourceException("Could not get transaction from transaction manager", e);
         } // end of try-catch
 
     }
 
-    public void returnConnection(ConnectionInfo ci, ConnectionReturnAction cra)
-    {
+    public void returnConnection(ConnectionInfo ci, ConnectionReturnAction cra) {
 
-        try
-        {
+        try {
             Transaction tx = tm.getTransaction();
-            if (cra == ConnectionReturnAction.DESTROY || !TxUtils.isActive(tx))
-            {
+            if (cra == ConnectionReturnAction.DESTROY || !TxUtils.isActive(tx)) {
                 next.returnConnection(ci, cra);
             }
             //if tx is active, we keep it cached and do nothing.
-        }
-        catch (SystemException e)
-        {
+        } catch (SystemException e) {
             //throw new ResourceException("Could not get transaction from transaction manager", e);
         } // end of try-catch
 

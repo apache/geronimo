@@ -68,6 +68,6 @@ import javax.security.auth.Subject;
  */
 public interface SecurityDomain {
 
-	Subject getSubject();
+    Subject getSubject();
 
 } // SecurityDomain

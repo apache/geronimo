@@ -71,96 +71,96 @@ import javax.resource.spi.ConnectionEventListener;
  * @version 1.0
  */
 public class GeronimoConnectionEventListener
-	implements ConnectionEventListener {
+        implements ConnectionEventListener {
 
-	private final ManagedConnectionInfo mci;
-	private final ConnectionInterceptor stack;
-	private final Set connectionHandles = new HashSet();
+    private final ManagedConnectionInfo mci;
+    private final ConnectionInterceptor stack;
+    private final Set connectionHandles = new HashSet();
 
-	public GeronimoConnectionEventListener(
-		final ConnectionInterceptor stack,
-		final ManagedConnectionInfo mci) {
-		this.stack = stack;
-		this.mci = mci;
-	} // ConnectionEventListener constructor
+    public GeronimoConnectionEventListener(
+            final ConnectionInterceptor stack,
+            final ManagedConnectionInfo mci) {
+        this.stack = stack;
+        this.mci = mci;
+    } // ConnectionEventListener constructor
 
-	/**
-	 * The <code>connectionClosed</code> method
-	 *
-	 * @param connectionEvent a <code>ConnectionEvent</code> value
-	 */
-	public void connectionClosed(ConnectionEvent connectionEvent) {
-		if (connectionEvent.getSource() != mci.getManagedConnection()) {
-			throw new IllegalArgumentException(
-				"ConnectionClosed event received from wrong ManagedConnection. Expected "
-					+ mci.getManagedConnection()
-					+ ", actual "
-					+ connectionEvent.getSource());
-		} // end of if ()
-		ConnectionInfo ci = new ConnectionInfo(mci);
-		ci.setConnectionHandle(connectionEvent.getConnectionHandle());
-		stack.returnConnection(ci, ConnectionReturnAction.RETURN_HANDLE);
-	}
+    /**
+     * The <code>connectionClosed</code> method
+     *
+     * @param connectionEvent a <code>ConnectionEvent</code> value
+     */
+    public void connectionClosed(ConnectionEvent connectionEvent) {
+        if (connectionEvent.getSource() != mci.getManagedConnection()) {
+            throw new IllegalArgumentException(
+                    "ConnectionClosed event received from wrong ManagedConnection. Expected "
+                    + mci.getManagedConnection()
+                    + ", actual "
+                    + connectionEvent.getSource());
+        } // end of if ()
+        ConnectionInfo ci = new ConnectionInfo(mci);
+        ci.setConnectionHandle(connectionEvent.getConnectionHandle());
+        stack.returnConnection(ci, ConnectionReturnAction.RETURN_HANDLE);
+    }
 
-	/**
-	 * The <code>connectionErrorOccurred</code> method
-	 *
-	 * @param connectionEvent a <code>ConnectionEvent</code> value
-	 */
-	public void connectionErrorOccurred(ConnectionEvent connectionEvent) {
-		if (connectionEvent.getSource() != mci.getManagedConnection()) {
-			throw new IllegalArgumentException(
-				"ConnectionError event received from wrong ManagedConnection. Expected "
-					+ mci.getManagedConnection()
-					+ ", actual "
-					+ connectionEvent.getSource());
-		} // end of if ()
-		ConnectionInfo ci = new ConnectionInfo(mci);
-		ci.setConnectionHandle(connectionEvent.getConnectionHandle());
-		stack.returnConnection(ci, ConnectionReturnAction.DESTROY);
-	}
+    /**
+     * The <code>connectionErrorOccurred</code> method
+     *
+     * @param connectionEvent a <code>ConnectionEvent</code> value
+     */
+    public void connectionErrorOccurred(ConnectionEvent connectionEvent) {
+        if (connectionEvent.getSource() != mci.getManagedConnection()) {
+            throw new IllegalArgumentException(
+                    "ConnectionError event received from wrong ManagedConnection. Expected "
+                    + mci.getManagedConnection()
+                    + ", actual "
+                    + connectionEvent.getSource());
+        } // end of if ()
+        ConnectionInfo ci = new ConnectionInfo(mci);
+        ci.setConnectionHandle(connectionEvent.getConnectionHandle());
+        stack.returnConnection(ci, ConnectionReturnAction.DESTROY);
+    }
 
-	/**
-	 * The <code>localTransactionStarted</code> method
-	 *
-	 * @param event a <code>ConnectionEvent</code> value
-	 * @todo implement this method
-	 */
-	public void localTransactionStarted(ConnectionEvent event) {
-	}
+    /**
+     * The <code>localTransactionStarted</code> method
+     *
+     * @param event a <code>ConnectionEvent</code> value
+     * @todo implement this method
+     */
+    public void localTransactionStarted(ConnectionEvent event) {
+    }
 
-	/**
-	 * The <code>localTransactionCommitted</code> method
-	 *
-	 * @param event a <code>ConnectionEvent</code> value
-	 * @todo implement this method
-	 */
-	public void localTransactionCommitted(ConnectionEvent event) {
-	}
+    /**
+     * The <code>localTransactionCommitted</code> method
+     *
+     * @param event a <code>ConnectionEvent</code> value
+     * @todo implement this method
+     */
+    public void localTransactionCommitted(ConnectionEvent event) {
+    }
 
-	/**
-	 * The <code>localTransactionRolledback</code> method
-	 *
-	 * @param event a <code>ConnectionEvent</code> value
-	 * @todo implement this method
-	 */
-	public void localTransactionRolledback(ConnectionEvent event) {
-	}
+    /**
+     * The <code>localTransactionRolledback</code> method
+     *
+     * @param event a <code>ConnectionEvent</code> value
+     * @todo implement this method
+     */
+    public void localTransactionRolledback(ConnectionEvent event) {
+    }
 
-	public void addConnectionHandle(Object handle) {
-		connectionHandles.add(handle);
-	}
+    public void addConnectionHandle(Object handle) {
+        connectionHandles.add(handle);
+    }
 
-	public void removeConnectionHandle(Object handle) {
-		connectionHandles.remove(handle);
-	}
+    public void removeConnectionHandle(Object handle) {
+        connectionHandles.remove(handle);
+    }
 
-	public boolean hasConnectionHandles() {
-		return !connectionHandles.isEmpty();
-	}
+    public boolean hasConnectionHandles() {
+        return !connectionHandles.isEmpty();
+    }
 
-	public void clearConnectionHandles() {
-		connectionHandles.clear();
-	}
+    public void clearConnectionHandles() {
+        connectionHandles.clear();
+    }
 
 } // ConnectionEventListener

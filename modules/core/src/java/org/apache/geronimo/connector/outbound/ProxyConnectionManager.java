@@ -81,89 +81,89 @@ import javax.resource.spi.ManagedConnectionFactory;
  *
  */
 public class ProxyConnectionManager
-	implements Serializable, ConnectionManager, LazyAssociatableConnectionManager {
+        implements Serializable, ConnectionManager, LazyAssociatableConnectionManager {
 
-	/**
-	 * The field agentID holds the agentID of the mbean server 
-	 * we use to lookup the stack if we are deserialized.
-	 */
-	private final String agentID;
+    /**
+     * The field agentID holds the agentID of the mbean server
+     * we use to lookup the stack if we are deserialized.
+     */
+    private final String agentID;
 
-	/**
-	 * The field <code>CMName</code> holds the object name of 
-	 * the ConnectionManagerDeployment that sets us up.
-	 *
-	 */
-	private final ObjectName CMName;
+    /**
+     * The field <code>CMName</code> holds the object name of
+     * the ConnectionManagerDeployment that sets us up.
+     *
+     */
+    private final ObjectName CMName;
 
-	private transient ConnectionInterceptor stack;
+    private transient ConnectionInterceptor stack;
 
-	public ProxyConnectionManager(
-		String agentID,
-		ObjectName CMName,
-		ConnectionInterceptor stack) {
-		this.agentID = agentID;
-		this.CMName = CMName;
-		this.stack = stack;
-	} // ProxyConnectionManager constructor
+    public ProxyConnectionManager(
+            String agentID,
+            ObjectName CMName,
+            ConnectionInterceptor stack) {
+        this.agentID = agentID;
+        this.CMName = CMName;
+        this.stack = stack;
+    } // ProxyConnectionManager constructor
 
-	public Object allocateConnection(
-		ManagedConnectionFactory mcf,
-		ConnectionRequestInfo cri)
-		throws ResourceException {
-		internalGetStack();
-		ManagedConnectionInfo mci = new ManagedConnectionInfo(mcf, cri);
-		ConnectionInfo ci = new ConnectionInfo(mci);
-		stack.getConnection(ci);
-		return ci.getConnectionHandle();
-	}
+    public Object allocateConnection(
+            ManagedConnectionFactory mcf,
+            ConnectionRequestInfo cri)
+            throws ResourceException {
+        internalGetStack();
+        ManagedConnectionInfo mci = new ManagedConnectionInfo(mcf, cri);
+        ConnectionInfo ci = new ConnectionInfo(mci);
+        stack.getConnection(ci);
+        return ci.getConnectionHandle();
+    }
 
-	public void associateConnection(
-		Object connection,
-		ManagedConnectionFactory mcf,
-		ConnectionRequestInfo cri)
-		throws ResourceException {
-		internalGetStack();
-		ManagedConnectionInfo mci = new ManagedConnectionInfo(mcf, cri);
-		ConnectionInfo ci = new ConnectionInfo(mci);
-		ci.setConnectionHandle(connection);
-		stack.getConnection(ci);
-	}
+    public void associateConnection(
+            Object connection,
+            ManagedConnectionFactory mcf,
+            ConnectionRequestInfo cri)
+            throws ResourceException {
+        internalGetStack();
+        ManagedConnectionInfo mci = new ManagedConnectionInfo(mcf, cri);
+        ConnectionInfo ci = new ConnectionInfo(mci);
+        ci.setConnectionHandle(connection);
+        stack.getConnection(ci);
+    }
 
-	private void internalGetStack() throws ResourceException {
-		if (stack == null) {
-			MBeanServer server =
-				(MBeanServer) MBeanServerFactory.findMBeanServer(agentID).get(
-					0);
-			try {
-				this.stack =
-					(ConnectionInterceptor) server.getAttribute(
-						this.CMName,
-						"Stack");
-			} catch (InstanceNotFoundException e) {
-				throw new ResourceException("Could not get stack from jmx", e);
-			} catch (MBeanException e) {
-				throw new ResourceException("Could not get stack from jmx", e);
-			} catch (ReflectionException e) {
-				throw new ResourceException("Could not get stack from jmx", e);
-			} catch (AttributeNotFoundException e) {
-				throw new ResourceException("Could not get stack from jmx", e);
-			}
+    private void internalGetStack() throws ResourceException {
+        if (stack == null) {
+            MBeanServer server =
+                    (MBeanServer) MBeanServerFactory.findMBeanServer(agentID).get(
+                            0);
+            try {
+                this.stack =
+                        (ConnectionInterceptor) server.getAttribute(
+                                this.CMName,
+                                "Stack");
+            } catch (InstanceNotFoundException e) {
+                throw new ResourceException("Could not get stack from jmx", e);
+            } catch (MBeanException e) {
+                throw new ResourceException("Could not get stack from jmx", e);
+            } catch (ReflectionException e) {
+                throw new ResourceException("Could not get stack from jmx", e);
+            } catch (AttributeNotFoundException e) {
+                throw new ResourceException("Could not get stack from jmx", e);
+            }
 
-		} // end of if ()
-	}
+        } // end of if ()
+    }
 
-	/**
-	 * The <code>getStack</code> method is called through jmx to get
-	 * the actual ConnectionInterceptor stack for deserialized copies
-	 * of this object.
-	 *
-	 * @return a <code>ConnectionInterceptor</code> value
-	 *
-	 * @jmx.managed-operation
-	 */
-	public ConnectionInterceptor getStack() {
-		return stack;
-	}
+    /**
+     * The <code>getStack</code> method is called through jmx to get
+     * the actual ConnectionInterceptor stack for deserialized copies
+     * of this object.
+     *
+     * @return a <code>ConnectionInterceptor</code> value
+     *
+     * @jmx.managed-operation
+     */
+    public ConnectionInterceptor getStack() {
+        return stack;
+    }
 
 } // ProxyConnectionManager

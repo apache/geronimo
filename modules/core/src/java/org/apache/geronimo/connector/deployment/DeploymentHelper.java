@@ -88,10 +88,9 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanInfoXMLLoader;
  * Connector deployment helper. It allows to compute various information of
  * a URL to be deployed.
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/11 21:11:56 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/14 16:00:23 $
  */
-public final class DeploymentHelper
-{
+public final class DeploymentHelper {
 
 
     private final URL url;
@@ -109,26 +108,26 @@ public final class DeploymentHelper
     public DeploymentHelper(URL aURL, URLType aType) throws DeploymentException {
         url = aURL;
         type = aType;
-		try {
-			if ( URLType.PACKED_ARCHIVE == type ) {
-				if (!url.getPath().endsWith(".rar")) {
-				    raURL = null;
-				    graURL = null;
-					return;
-				}
-				raURL = new URL("jar:"+url.toExternalForm()+"!/META-INF/ra.xml");
-				graURL = new URL("jar:"+url.toExternalForm()+"!/META-INF/geronimo-ra.xml");
-			} else if ( URLType.UNPACKED_ARCHIVE == type ) {
-				raURL = new URL(url, "META-INF/ra.xml");
-				graURL = new URL(url, "META-INF/geronimo-ra.xml");
-			} else {
-				raURL = null;
-				graURL = null;
-				return;
-			}
-		} catch (MalformedURLException e1) {
-			throw new DeploymentException("Should never occurs", e1);
-		}
+        try {
+            if (URLType.PACKED_ARCHIVE == type) {
+                if (!url.getPath().endsWith(".rar")) {
+                    raURL = null;
+                    graURL = null;
+                    return;
+                }
+                raURL = new URL("jar:" + url.toExternalForm() + "!/META-INF/ra.xml");
+                graURL = new URL("jar:" + url.toExternalForm() + "!/META-INF/geronimo-ra.xml");
+            } else if (URLType.UNPACKED_ARCHIVE == type) {
+                raURL = new URL(url, "META-INF/ra.xml");
+                graURL = new URL(url, "META-INF/geronimo-ra.xml");
+            } else {
+                raURL = null;
+                graURL = null;
+                return;
+            }
+        } catch (MalformedURLException e1) {
+            throw new DeploymentException("Should never occurs", e1);
+        }
     }
 
     /**
@@ -139,13 +138,13 @@ public final class DeploymentHelper
      *
      * @throws DeploymentException
      */
-	public URL locateDD() throws DeploymentException {
-		return raURL;
-	}
+    public URL locateDD() throws DeploymentException {
+        return raURL;
+    }
 
-	public URL locateGeronimoDD() throws DeploymentException {
-		return graURL;
-	}
+    public URL locateGeronimoDD() throws DeploymentException {
+        return graURL;
+    }
 
     /**
      * Build a ClassSpaceMetadata abstracting the connector archives.
@@ -167,26 +166,26 @@ public final class DeploymentHelper
 
         List raArchives = raCS.getUrls();
 
-        if ( URLType.PACKED_ARCHIVE == type ) {
-            String rootJar = "jar:"+url.toExternalForm();
+        if (URLType.PACKED_ARCHIVE == type) {
+            String rootJar = "jar:" + url.toExternalForm();
             try {
                 JarFile jFile = new JarFile(url.getFile());
                 Enumeration entries = jFile.entries();
-                while ( entries.hasMoreElements() ) {
+                while (entries.hasMoreElements()) {
                     JarEntry jEntry = (JarEntry) entries.nextElement();
-                    if ( jEntry.isDirectory() ) {
+                    if (jEntry.isDirectory()) {
                         continue;
                     }
-                    if ( jEntry.getName().endsWith(".jar") ) {
+                    if (jEntry.getName().endsWith(".jar")) {
                         raArchives.add(
-                            new URL(rootJar + "!/" + jEntry.getName()));
+                                new URL(rootJar + "!/" + jEntry.getName()));
                     }
                     // TODO handle the .so and .dll entries.
                 }
             } catch (IOException e) {
                 throw new DeploymentException("Should never occurs", e);
             }
-        } else if ( URLType.UNPACKED_ARCHIVE == type ) {
+        } else if (URLType.UNPACKED_ARCHIVE == type) {
             File rootDeploy = new File(url.getFile());
             File[] jarFiles = rootDeploy.listFiles(new FileFilter() {
                 public boolean accept(File pathname) {
@@ -215,8 +214,8 @@ public final class DeploymentHelper
     public ObjectName buildDeploymentName() {
         return JMXUtil.getObjectName(
                 "geronimo.deployment:role=DeploymentUnit,url="
-                    + ObjectName.quote(url.toString())
-                    + ",type=Connector");
+                + ObjectName.quote(url.toString())
+                + ",type=Connector");
     }
 
     /**
@@ -228,8 +227,8 @@ public final class DeploymentHelper
     public ObjectName buildClassSpaceName() {
         return JMXUtil.getObjectName(
                 "geronimo.deployment:role=DeploymentUnitClassSpace,url="
-                    + ObjectName.quote(url.toString())
-                    + ",type=Connector");
+                + ObjectName.quote(url.toString())
+                + ",type=Connector");
     }
 
     /**
@@ -238,39 +237,39 @@ public final class DeploymentHelper
      * @return Connector deployment name.
      */
 
-	public ObjectName buildResourceAdapterDeploymentName(GeronimoResourceAdapter gra) {
-		return JMXUtil.getObjectName(
-				"geronimo.management:j2eeType=JCAResourceAdapter,name="
-					+ gra.getName());
-	}
+    public ObjectName buildResourceAdapterDeploymentName(GeronimoResourceAdapter gra) {
+        return JMXUtil.getObjectName(
+                "geronimo.management:j2eeType=JCAResourceAdapter,name="
+                + gra.getName());
+    }
 
-	public ObjectName buildManagedConnectionFactoryDeploymentName(GeronimoConnectionDefinition gcd) {
-		return JMXUtil.getObjectName(
-				"geronimo.management:j2eeType=JCAManagedConnectionFactory,name="
-					+ gcd.getName());
-	}
-
-
-	public ObjectName buildConnectionManagerFactoryDeploymentName(GeronimoConnectionDefinition gcd) {
-	return JMXUtil.getObjectName(
-			"geronimo.management:j2eeType=ConnectionManager,name="
-				+ gcd.getName());
-	}
+    public ObjectName buildManagedConnectionFactoryDeploymentName(GeronimoConnectionDefinition gcd) {
+        return JMXUtil.getObjectName(
+                "geronimo.management:j2eeType=JCAManagedConnectionFactory,name="
+                + gcd.getName());
+    }
 
 
-	public ObjectName buildMCFHelperDeploymentName(GeronimoConnectionDefinition gcd) {
-	return JMXUtil.getObjectName(
-			"geronimo.management:j2eeType=MCFHelper,name="
-				+ gcd.getName());
-	}
+    public ObjectName buildConnectionManagerFactoryDeploymentName(GeronimoConnectionDefinition gcd) {
+        return JMXUtil.getObjectName(
+                "geronimo.management:j2eeType=ConnectionManager,name="
+                + gcd.getName());
+    }
+
+
+    public ObjectName buildMCFHelperDeploymentName(GeronimoConnectionDefinition gcd) {
+        return JMXUtil.getObjectName(
+                "geronimo.management:j2eeType=MCFHelper,name="
+                + gcd.getName());
+    }
 
     /**
      * @param gra
      * @return
      */
     public ObjectName buildBootstrapContextName(GeronimoResourceAdapter gra) {
-		return JMXUtil.getObjectName(
-				gra.getBootstrapContext());
+        return JMXUtil.getObjectName(
+                gra.getBootstrapContext());
     }
 
 

@@ -75,90 +75,91 @@ import javax.security.auth.Subject;
  */
 public class MultiPoolConnectionInterceptor implements ConnectionInterceptor {
 
-	private final ConnectionInterceptor next;
+    private final ConnectionInterceptor next;
 
-	private int maxSize;
+    private int maxSize;
 
-	private int blockingTimeout;
+    private int blockingTimeout;
 
-	private final boolean useSubject;
+    private final boolean useSubject;
 
-	private final boolean useCRI;
+    private final boolean useCRI;
 
-	private final Map pools = new HashMap();
+    private final Map pools = new HashMap();
 
-	public MultiPoolConnectionInterceptor(
-		final ConnectionInterceptor next,
-		int maxSize,
-		int blockingTimeout,
-		final boolean useSubject,
-		final boolean useCRI) {
-		this.next = next;
-		this.maxSize = maxSize;
-		this.blockingTimeout = blockingTimeout;
-		this.useSubject = useSubject;
-		this.useCRI = useCRI;
-	}
+    public MultiPoolConnectionInterceptor(
+            final ConnectionInterceptor next,
+            int maxSize,
+            int blockingTimeout,
+            final boolean useSubject,
+            final boolean useCRI) {
+        this.next = next;
+        this.maxSize = maxSize;
+        this.blockingTimeout = blockingTimeout;
+        this.useSubject = useSubject;
+        this.useCRI = useCRI;
+    }
 
-	public void getConnection(ConnectionInfo ci) throws ResourceException {
-		ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
-		SubjectCRIKey key =
-			new SubjectCRIKey(
-				useSubject ? mci.getSubject() : null,
-				useCRI ? mci.getConnectionRequestInfo() : null);
-		SinglePoolConnectionInterceptor poolInterceptor = null;
-		synchronized (pools) {
-			poolInterceptor = (SinglePoolConnectionInterceptor) pools.get(key);
-			if (poolInterceptor == null) {
-				poolInterceptor =
-					new SinglePoolConnectionInterceptor(
-						next,
-						mci.getSubject(),
-						mci.getConnectionRequestInfo(),
-						maxSize,
-						blockingTimeout);
-				pools.put(key, poolInterceptor);
-			} // end of if ()
+    public void getConnection(ConnectionInfo ci) throws ResourceException {
+        ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
+        SubjectCRIKey key =
+                new SubjectCRIKey(
+                        useSubject ? mci.getSubject() : null,
+                        useCRI ? mci.getConnectionRequestInfo() : null);
+        SinglePoolConnectionInterceptor poolInterceptor = null;
+        synchronized (pools) {
+            poolInterceptor = (SinglePoolConnectionInterceptor) pools.get(key);
+            if (poolInterceptor == null) {
+                poolInterceptor =
+                        new SinglePoolConnectionInterceptor(
+                                next,
+                                mci.getSubject(),
+                                mci.getConnectionRequestInfo(),
+                                maxSize,
+                                blockingTimeout);
+                pools.put(key, poolInterceptor);
+            } // end of if ()
 
-		}
-		mci.setPoolInterceptor(poolInterceptor);
-		poolInterceptor.getConnection(ci);
-	}
+        }
+        mci.setPoolInterceptor(poolInterceptor);
+        poolInterceptor.getConnection(ci);
+    }
 
-	public void returnConnection(
-		ConnectionInfo ci,
-		ConnectionReturnAction cra) {
-		ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
-		ConnectionInterceptor poolInterceptor = mci.getPoolInterceptor();
-		poolInterceptor.returnConnection(ci, cra);
-	}
+    public void returnConnection(
+            ConnectionInfo ci,
+            ConnectionReturnAction cra) {
+        ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
+        ConnectionInterceptor poolInterceptor = mci.getPoolInterceptor();
+        poolInterceptor.returnConnection(ci, cra);
+    }
 
-	static class SubjectCRIKey {
-		private final Subject subject;
-		private final ConnectionRequestInfo cri;
-		private final int hashcode;
+    static class SubjectCRIKey {
+        private final Subject subject;
+        private final ConnectionRequestInfo cri;
+        private final int hashcode;
 
-		public SubjectCRIKey(
-			final Subject subject,
-			final ConnectionRequestInfo cri) {
-			this.subject = subject;
-			this.cri = cri;
-			this.hashcode =
-				(subject == null ? 17 : subject.hashCode() * 17)
-					^ (cri == null ? 1 : cri.hashCode());
-		}
-		public boolean equals(Object other) {
-			if (!(other instanceof SubjectCRIKey)) {
-				return false;
-			} // end of if ()
-			SubjectCRIKey o = (SubjectCRIKey) other;
-			if (hashcode != o.hashcode) {
-				return false;
-			} // end of if ()
-			return subject == null
-				? o.subject == null
-				: subject.equals(o.subject)
-				&& cri == null ? o.cri == null : cri.equals(o.cri);
-		}
-	}
+        public SubjectCRIKey(
+                final Subject subject,
+                final ConnectionRequestInfo cri) {
+            this.subject = subject;
+            this.cri = cri;
+            this.hashcode =
+                    (subject == null ? 17 : subject.hashCode() * 17)
+                    ^ (cri == null ? 1 : cri.hashCode());
+        }
+
+        public boolean equals(Object other) {
+            if (!(other instanceof SubjectCRIKey)) {
+                return false;
+            } // end of if ()
+            SubjectCRIKey o = (SubjectCRIKey) other;
+            if (hashcode != o.hashcode) {
+                return false;
+            } // end of if ()
+            return subject == null
+                    ? o.subject == null
+                    : subject.equals(o.subject)
+                    && cri == null ? o.cri == null : cri.equals(o.cri);
+        }
+    }
 } // MultiPoolConnectionInterceptor

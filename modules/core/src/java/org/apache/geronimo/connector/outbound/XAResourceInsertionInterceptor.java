@@ -66,25 +66,21 @@ import javax.resource.ResourceException;
  *
  * @version 1.0
  */
-public class XAResourceInsertionInterceptor implements ConnectionInterceptor
-{
+public class XAResourceInsertionInterceptor implements ConnectionInterceptor {
 
     private final ConnectionInterceptor next;
 
-    public XAResourceInsertionInterceptor(final ConnectionInterceptor next)
-    {
+    public XAResourceInsertionInterceptor(final ConnectionInterceptor next) {
         this.next = next;
     } // XAResourceInsertionInterceptor constructor
 
-    public void getConnection(ConnectionInfo ci) throws ResourceException
-    {
+    public void getConnection(ConnectionInfo ci) throws ResourceException {
         next.getConnection(ci);
         ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
         mci.setXAResource(mci.getManagedConnection().getXAResource());
     }
 
-    public void returnConnection(ConnectionInfo ci, ConnectionReturnAction cra)
-    {
+    public void returnConnection(ConnectionInfo ci, ConnectionReturnAction cra) {
         next.returnConnection(ci, cra);
     }
 

@@ -76,193 +76,193 @@ import EDU.oswego.cs.dl.util.concurrent.FIFOSemaphore;
  */
 public class SinglePoolConnectionInterceptor implements ConnectionInterceptor {
 
-	private final ConnectionInterceptor next;
+    private final ConnectionInterceptor next;
 
-	private FIFOSemaphore permits;
+    private FIFOSemaphore permits;
 
-	private PoolDeque pool;
+    private PoolDeque pool;
 
-	private final Subject defaultSubject;
+    private final Subject defaultSubject;
 
-	private final ConnectionRequestInfo defaultCRI;
+    private final ConnectionRequestInfo defaultCRI;
 
-	private int maxSize;
+    private int maxSize;
 
-	private int blockingTimeout;
+    private int blockingTimeout;
 
-	public SinglePoolConnectionInterceptor(
-		final ConnectionInterceptor next,
-		final Subject defaultSubject,
-		final ConnectionRequestInfo defaultCRI,
-		int maxSize,
-		int blockingTimeout) {
-		this.next = next;
-		this.defaultSubject = defaultSubject;
-		this.defaultCRI = defaultCRI;
-		this.maxSize = maxSize;
-		this.blockingTimeout = blockingTimeout;
-		permits = new FIFOSemaphore(maxSize);
-		pool = new PoolDeque(maxSize);
-	}
+    public SinglePoolConnectionInterceptor(
+            final ConnectionInterceptor next,
+            final Subject defaultSubject,
+            final ConnectionRequestInfo defaultCRI,
+            int maxSize,
+            int blockingTimeout) {
+        this.next = next;
+        this.defaultSubject = defaultSubject;
+        this.defaultCRI = defaultCRI;
+        this.maxSize = maxSize;
+        this.blockingTimeout = blockingTimeout;
+        permits = new FIFOSemaphore(maxSize);
+        pool = new PoolDeque(maxSize);
+    }
 
-	public void getConnection(ConnectionInfo ci) throws ResourceException {
-		ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
-		try {
-			if (permits.attempt(blockingTimeout)) {
-				ManagedConnectionInfo newMCI = null;
-				synchronized (pool) {
-					if (pool.isEmpty()) {
-						next.getConnection(ci);
-						return;
-					} else {
-						newMCI = (ManagedConnectionInfo) pool.removeFirst();
-					} // end of else
-					try {
-						ManagedConnection matchedMC =
-							newMCI
-								.getManagedConnectionFactory()
-								.matchManagedConnections(
-								Collections.singleton(
-									newMCI.getManagedConnection()),
-								mci.getSubject(),
-								mci.getConnectionRequestInfo());
-						if (matchedMC != null) {
-							ci.setManagedConnectionInfo(newMCI);
-							return;
-						} else {
-							//matching failed.
-							ConnectionInfo returnCI = new ConnectionInfo();
-							returnCI.setManagedConnectionInfo(newMCI);
-							returnConnection(
-								returnCI,
-								ConnectionReturnAction.RETURN_HANDLE);
-							throw new ResourceException("The pooling strategy does not match the MatchManagedConnections implementation.  Please investigate and reconfigure this pool");
-						}
-					} catch (ResourceException e) {
-						//something is wrong: destroy connection, rethrow, release permit
-						ConnectionInfo returnCI = new ConnectionInfo();
-						returnCI.setManagedConnectionInfo(newMCI);
-						returnConnection(
-							returnCI,
-							ConnectionReturnAction.DESTROY);
-						throw e;
-					} // end of try-catch
-				}
-			} else {
-				throw new ResourceException(
-					"No ManagedConnections available "
-						+ "within configured blocking timeout ( "
-						+ blockingTimeout
-						+ " [ms] )");
+    public void getConnection(ConnectionInfo ci) throws ResourceException {
+        ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
+        try {
+            if (permits.attempt(blockingTimeout)) {
+                ManagedConnectionInfo newMCI = null;
+                synchronized (pool) {
+                    if (pool.isEmpty()) {
+                        next.getConnection(ci);
+                        return;
+                    } else {
+                        newMCI = (ManagedConnectionInfo) pool.removeFirst();
+                    } // end of else
+                    try {
+                        ManagedConnection matchedMC =
+                                newMCI
+                                .getManagedConnectionFactory()
+                                .matchManagedConnections(
+                                        Collections.singleton(
+                                                newMCI.getManagedConnection()),
+                                        mci.getSubject(),
+                                        mci.getConnectionRequestInfo());
+                        if (matchedMC != null) {
+                            ci.setManagedConnectionInfo(newMCI);
+                            return;
+                        } else {
+                            //matching failed.
+                            ConnectionInfo returnCI = new ConnectionInfo();
+                            returnCI.setManagedConnectionInfo(newMCI);
+                            returnConnection(
+                                    returnCI,
+                                    ConnectionReturnAction.RETURN_HANDLE);
+                            throw new ResourceException("The pooling strategy does not match the MatchManagedConnections implementation.  Please investigate and reconfigure this pool");
+                        }
+                    } catch (ResourceException e) {
+                        //something is wrong: destroy connection, rethrow, release permit
+                        ConnectionInfo returnCI = new ConnectionInfo();
+                        returnCI.setManagedConnectionInfo(newMCI);
+                        returnConnection(
+                                returnCI,
+                                ConnectionReturnAction.DESTROY);
+                        throw e;
+                    } // end of try-catch
+                }
+            } else {
+                throw new ResourceException(
+                        "No ManagedConnections available "
+                        + "within configured blocking timeout ( "
+                        + blockingTimeout
+                        + " [ms] )");
 
-			} // end of else
+            } // end of else
 
-		} catch (InterruptedException ie) {
-			throw new ResourceException("Interrupted while requesting permit!");
-		} // end of try-catch
-	}
+        } catch (InterruptedException ie) {
+            throw new ResourceException("Interrupted while requesting permit!");
+        } // end of try-catch
+    }
 
-	public void returnConnection(
-		ConnectionInfo ci,
-		ConnectionReturnAction cra) {
-		boolean wasInPool = false;
-		ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
-		if (cra == ConnectionReturnAction.DESTROY) {
-			synchronized (pool) {
-				wasInPool = pool.remove(mci);
-			}
-		} else {
-			if (mci.hasConnectionHandles()) {
-				return;
-			}
-		} // end of else
+    public void returnConnection(
+            ConnectionInfo ci,
+            ConnectionReturnAction cra) {
+        boolean wasInPool = false;
+        ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
+        if (cra == ConnectionReturnAction.DESTROY) {
+            synchronized (pool) {
+                wasInPool = pool.remove(mci);
+            }
+        } else {
+            if (mci.hasConnectionHandles()) {
+                return;
+            }
+        } // end of else
 
-		ManagedConnection mc = mci.getManagedConnection();
-		try {
-			mc.cleanup();
-		} catch (ResourceException e) {
-			cra = ConnectionReturnAction.DESTROY;
-		}
+        ManagedConnection mc = mci.getManagedConnection();
+        try {
+            mc.cleanup();
+        } catch (ResourceException e) {
+            cra = ConnectionReturnAction.DESTROY;
+        }
 
-		if (cra == ConnectionReturnAction.DESTROY) {
+        if (cra == ConnectionReturnAction.DESTROY) {
 
-			next.returnConnection(ci, cra);
-		} else {
-			synchronized (pool) {
-				mci.setLastUsed(System.currentTimeMillis());
-				pool.addFirst(mci);
-			}
+            next.returnConnection(ci, cra);
+        } else {
+            synchronized (pool) {
+                mci.setLastUsed(System.currentTimeMillis());
+                pool.addFirst(mci);
+            }
 
-		} // end of else
+        } // end of else
 
-	}
+    }
 
-	static class PoolDeque {
+    static class PoolDeque {
 
-		private final ManagedConnectionInfo[] deque;
-		private int first = 0;
-		private int last = -1;
+        private final ManagedConnectionInfo[] deque;
+        private int first = 0;
+        private int last = -1;
 
-		public PoolDeque(int size) {
-			deque = new ManagedConnectionInfo[size];
-		}
+        public PoolDeque(int size) {
+            deque = new ManagedConnectionInfo[size];
+        }
 
-		public boolean isEmpty() {
-			return first > last;
-		}
+        public boolean isEmpty() {
+            return first > last;
+        }
 
-		public ManagedConnectionInfo removeFirst() {
-			if (isEmpty()) {
-				throw new IllegalStateException("deque is empty");
-			}
-			return deque[first++];
-		}
+        public ManagedConnectionInfo removeFirst() {
+            if (isEmpty()) {
+                throw new IllegalStateException("deque is empty");
+            }
+            return deque[first++];
+        }
 
-		public void addFirst(ManagedConnectionInfo mci) {
-			if (first == 0) {
-				throw new IllegalStateException("deque is at first element already");
-			}
+        public void addFirst(ManagedConnectionInfo mci) {
+            if (first == 0) {
+                throw new IllegalStateException("deque is at first element already");
+            }
 
-			deque[--first] = mci;
-		}
+            deque[--first] = mci;
+        }
 
-		public void addLast(ManagedConnectionInfo mci) {
-			if (last == deque.length - 1) {
-				throw new IllegalStateException("deque is full");
-			}
+        public void addLast(ManagedConnectionInfo mci) {
+            if (last == deque.length - 1) {
+                throw new IllegalStateException("deque is full");
+            }
 
-			deque[++last] = mci;
-		}
+            deque[++last] = mci;
+        }
 
-		public ManagedConnectionInfo peekLast() {
-			if (isEmpty()) {
-				throw new IllegalStateException("deque is empty");
-			}
+        public ManagedConnectionInfo peekLast() {
+            if (isEmpty()) {
+                throw new IllegalStateException("deque is empty");
+            }
 
-			return deque[last];
-		}
+            return deque[last];
+        }
 
-		public ManagedConnectionInfo removeLast() {
-			if (isEmpty()) {
-				throw new IllegalStateException("deque is empty");
-			}
+        public ManagedConnectionInfo removeLast() {
+            if (isEmpty()) {
+                throw new IllegalStateException("deque is empty");
+            }
 
-			return deque[last--];
-		}
+            return deque[last--];
+        }
 
-		public boolean remove(ManagedConnectionInfo mci) {
-			for (int i = first; i <= last; i++) {
-				if (deque[i] == mci) {
-					for (int j = i + 1; j <= last; j++) {
-						deque[j - 1] = deque[j];
-					}
-					last--;
-					return true;
-				}
+        public boolean remove(ManagedConnectionInfo mci) {
+            for (int i = first; i <= last; i++) {
+                if (deque[i] == mci) {
+                    for (int j = i + 1; j <= last; j++) {
+                        deque[j - 1] = deque[j];
+                    }
+                    last--;
+                    return true;
+                }
 
-			}
-			return false;
-		}
-	}
+            }
+            return false;
+        }
+    }
 
 } // SinglePoolConnectionInterceptor
