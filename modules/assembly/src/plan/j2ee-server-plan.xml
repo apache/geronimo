@@ -108,6 +108,10 @@ by the server.
          <uri>geronimo/jars/geronimo-axis-${geronimo_version}.jar</uri>
     </dependency>
 
+    <dependency>
+         <uri>geronimo/jars/geronimo-webservices-${geronimo_version}.jar</uri>
+    </dependency>
+
 
     <!-- Default security realm using properties files -->
     <gbean namePart="properties-login"
@@ -272,6 +276,7 @@ by the server.
     <gbean name="geronimo.server:j2eeType=J2EEServer,name=geronimo" class="org.apache.geronimo.j2ee.management.impl.J2EEServerImpl">
         <reference name="ServerInfo">geronimo.server:name=ServerInfo,*</reference>
     </gbean>
+
     <gbean name="geronimo.server:j2eeType=JVM,J2EEServer=geronimo" class="org.apache.geronimo.j2ee.management.impl.JVMImpl"/>
 
     <!-- JMX Remoting -->
@@ -279,5 +284,8 @@ by the server.
         <attribute name="URL">service:jmx:rmi://localhost/jndi/rmi:/JMXConnector</attribute>
         <attribute name="applicationConfigName">JMX</attribute>
     </gbean>
+
+
+    <gbean namePart="eis/JAXR" class="org.apache.geronimo.webservices.jaxr.JAXRGBean"/>
 
 </configuration>

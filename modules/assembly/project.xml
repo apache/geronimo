@@ -1140,6 +1140,34 @@
         </dependency>
         <!-- end spring support-->
 
+        <!-- JAXR (Apache Scout)-->
+        <dependency>
+            <groupId>scout</groupId>
+            <artifactId>jaxr-api</artifactId>
+            <version>${scout_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>scout</groupId>
+            <artifactId>scout</artifactId>
+            <version>${scout_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>juddi</groupId>
+            <artifactId>juddi</artifactId>
+            <version>${juddi_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
     </dependencies>
 
 </project>
