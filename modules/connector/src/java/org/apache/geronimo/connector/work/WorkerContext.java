@@ -39,12 +39,22 @@ import org.apache.geronimo.transaction.context.TransactionContextManager;
  */
 public class WorkerContext implements Work {
 
-    private Log log = LogFactory.getLog(WorkerContext.class);
+    private static final Log log = LogFactory.getLog(WorkerContext.class);
 
     /**
      * Null WorkListener used as the default WorkListener.
      */
-    private static final WorkListener NULL_WORK_LISTENER = new WorkAdapter();
+    private static final WorkListener NULL_WORK_LISTENER = new WorkAdapter() {
+        public void workRejected(WorkEvent event) {
+            if(event.getException() != null) {
+                if(event.getException() instanceof WorkCompletedException && event.getException().getCause() != null) {
+                    log.error(event.getWork().toString(), event.getException().getCause());
+                } else {
+                    log.error(event.getWork().toString(), event.getException());
+                }
+            }
+        }
+    };
 
     /**
      * Priority of the thread, which will execute this work.
