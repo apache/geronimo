@@ -89,7 +89,7 @@ import org.apache.geronimo.kernel.deployment.DeploymentException;
  * GeronimoMBeanInfo instance.  The GeronimoMBean also support caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:35 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/24 22:41:56 $
  */
 public class GeronimoMBean extends AbstractManagedObject implements DynamicMBean {
     private final Log log = LogFactory.getLog(getClass());
@@ -106,6 +106,17 @@ public class GeronimoMBean extends AbstractManagedObject implements DynamicMBean
         }
         if (mbeanInfo == null) {
             throw new DeploymentException("No MBean info set for Geronimo MBean");
+        }
+
+        context = new GeronimoMBeanContext(server, this, name);
+        return this.objectName;
+    }
+
+    public void postRegister(Boolean registrationDone) {
+        super.postRegister(registrationDone);
+        if(!registrationDone.booleanValue()) {
+            context = null;
+            return;
         }
 
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
@@ -125,25 +136,33 @@ public class GeronimoMBean extends AbstractManagedObject implements DynamicMBean
                 operationInfoMap.put(new MethodKey(operationInfo.getName(), operationInfo.getParameterTypes()), operationInfo);
             }
 
-            context = new GeronimoMBeanContext(server, this, name);
             for (Iterator i = mbeanInfo.targets.values().iterator(); i.hasNext();) {
                 Object target = i.next();
                 if (target instanceof GeronimoMBeanTarget) {
-                    ((GeronimoMBeanTarget) target).setMBeanContext(context);
+                    try {
+                        ((GeronimoMBeanTarget) target).setMBeanContext(context);
+                    } catch (RuntimeException e) {
+                        log.warn("Ignoring RuntimeException from setMBeanContext(context): objectName" + context.getObjectName(), e);
+                    }
                 }
             }
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
-        return this.objectName;
     }
 
     public void postDeregister() {
         super.postDeregister();
+        ObjectName objectName = context.getObjectName();
+        context = null;
         for (Iterator i = mbeanInfo.targets.values().iterator(); i.hasNext();) {
             Object target = i.next();
             if (target instanceof GeronimoMBeanTarget) {
-                ((GeronimoMBeanTarget) target).setMBeanContext(null);
+                try {
+                    ((GeronimoMBeanTarget) target).setMBeanContext(null);
+                } catch (RuntimeException e) {
+                    log.warn("Ignoring RuntimeException from setMBeanContext(null): objectName" + objectName, e);
+                }
             }
         }
     }
