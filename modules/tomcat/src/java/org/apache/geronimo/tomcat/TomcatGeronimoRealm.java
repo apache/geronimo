@@ -173,16 +173,13 @@ public class TomcatGeronimoRealm extends JAASRealm {
                                          SecurityConstraint[] constraints)
             throws IOException {
 
-        //Set the proper context
-        PolicyContext.setContextID(policyContextID);
-
         //Get an authenticated subject, if there is one
         Subject subject = null;
         try {
 
             //We will use the PolicyContextHandlerContainerSubject.HANDLER_KEY to see if a user
             //has authenticated, since a request.getUserPrincipal() will not pick up the user
-            //unless its using a acached session.
+            //unless its using a cached session.
             subject = (Subject) PolicyContext.getContext(PolicyContextHandlerContainerSubject.HANDLER_KEY);
 
         } catch (PolicyContextException e) {
