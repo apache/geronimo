@@ -62,7 +62,7 @@ public class TimeoutTest extends AbstractTest {
         gbean = new GBeanData(loginService, JaasLoginService.getGBeanInfo());
         gbean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
         gbean.setAttribute("expiredLoginScanIntervalMillis", new Integer(50));
-        gbean.setAttribute("maxLoginDurationMillis", new Integer(1000));
+        gbean.setAttribute("maxLoginDurationMillis", new Integer(5000));
         gbean.setAttribute("algorithm", "HmacSHA1");
         gbean.setAttribute("password", "secret");
         kernel.loadGBean(gbean, JaasLoginService.class.getClassLoader());
@@ -186,11 +186,11 @@ public class TimeoutTest extends AbstractTest {
 
         assertTrue("id of server subject should be non-null", ContextManager.getSubjectId(subject) != null);
 
-        Thread.sleep(300); // wait for timeout to kick in
+        Thread.sleep(3000); // wait for timeout to kick in
 
         assertTrue("id of server subject should be non-null", ContextManager.getSubjectId(subject) != null);
 
-        Thread.sleep(1700); // wait for timeout to kick in
+        Thread.sleep(7000); // wait for timeout to kick in
 
         assertTrue("id of server subject should be null", ContextManager.getSubjectId(subject) == null);
     }
