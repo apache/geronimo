@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.14 $ $Date: 2003/11/25 04:42:06 $ -->
+<!-- $Revision: 1.15 $ $Date: 2004/01/10 22:49:49 $ -->
 
 <project name="Apache Geronimo">
 
@@ -31,6 +31,7 @@
     </menu>
     
     <menu name="Modules">
+      <item name="Clustering"               href="/modules/clustering/index.html"/>
       <item name="Common"                   href="/modules/common/index.html"/>
       <item name="Web Console"              href="/modules/console-web/index.html"/>
       <item name="Core Container"           href="/modules/core/index.html"/>
