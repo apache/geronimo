@@ -367,7 +367,7 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
             Set principalSet = new HashSet();
 
             if (!securityRoles.contains(roleName)) {
-                throw new GeronimoSecurityException("Role does not exist in this configuration");
+                throw new GeronimoSecurityException("Role '" + roleName + "' does not exist in this configuration");
             }
 
             Subject roleDesignate = new Subject();
