@@ -32,7 +32,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/09/02 06:25:08 $
+ * @version $Revision: 1.2 $ $Date: 2004/09/09 16:47:46 $
  */
 public class SchemaConversionUtils {
     private static final String J2EE_NAMESPACE = "http://java.sun.com/xml/ns/j2ee";
@@ -124,6 +124,17 @@ public class SchemaConversionUtils {
             cursor.toFirstChild();
             convertToDescriptionGroup(cursor, moveable);
             convertToJNDIEnvironmentRefsGroup(cursor, moveable);
+            cursor.push();
+            QName taglib = new QName(J2EE_NAMESPACE, "taglib");
+            if (cursor.toNextSibling(taglib)) {
+                cursor.toPrevSibling();
+                moveable.toCursor(cursor);
+                cursor.beginElement("jsp-config", J2EE_NAMESPACE);
+                while (moveable.toNextSibling(taglib)) {
+                    moveable.moveXml(cursor);
+                }
+            }
+            cursor.pop();
             do {
                 String name = cursor.getName().getLocalPart();
                 if ("filter".equals(name) || "servlet".equals(name)) {

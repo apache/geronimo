@@ -29,7 +29,7 @@ import org.apache.xmlbeans.XmlObject;
  * ejb 1.1 dtd appears to be a subset of ejb 2.0 dtd so the same xsl should
  * work for both.
  *
- * @version $Revision: 1.2 $ $Date: 2004/09/06 02:16:21 $
+ * @version $Revision: 1.3 $ $Date: 2004/09/09 16:47:46 $
  */
 public class SchemaConversionUtilsTest extends TestCase {
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
@@ -201,6 +201,8 @@ public class SchemaConversionUtilsTest extends TestCase {
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
+//        System.out.println(xmlObject.toString());
+//        System.out.println(expected.toString());
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(xmlObject, expected, problems);
         assertTrue("Differences: " + problems, ok);
