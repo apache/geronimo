@@ -1112,6 +1112,33 @@
 
         <dependency>
             <groupId>openorb</groupId>
+            <artifactId>openorb-ins</artifactId>
+            <version>${openorb_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-pss</artifactId>
+            <version>${openorb_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-ssl</artifactId>
+            <version>${openorb_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>openorb</groupId>
             <artifactId>openorb-orb-omg</artifactId>
             <version>${openorb_version}</version>
             <properties>
@@ -1132,6 +1159,15 @@
 
         <dependency>
             <groupId>openorb</groupId>
+            <artifactId>openorb-ots</artifactId>
+            <version>${openorb_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>openorb</groupId>
             <artifactId>openorb-tools</artifactId>
             <version>${openorb_version}</version>
             <properties>
@@ -1144,7 +1180,7 @@
             <artifactId>avalon-framework</artifactId>
             <version>${avalon_framework_version}</version>
             <properties>
-                <repository>true</repository>
+               <repository>true</repository>
             </properties>
         </dependency>
 
@@ -1153,9 +1189,19 @@
             <artifactId>avalon-logkit</artifactId>
             <version>${avalon_logkit_version}</version>
             <properties>
-                <repository>true</repository>
+               <repository>true</repository>
             </properties>
         </dependency>
+
+        <dependency>
+            <groupId>bouncycastle</groupId>
+            <artifactId>bcprov</artifactId>
+            <version>${bouncycastle_version}</version>
+            <properties>
+               <repository>true</repository>
+            </properties>
+        </dependency>
+
         <!-- end corba support-->
 
         <!-- spring support-->
