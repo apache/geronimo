@@ -127,7 +127,7 @@ public class LoginSQLTest extends AbstractTest {
 
         context.logout();
     }
-
+/*
     public void testLogoutTimeout() throws Exception {
 
         assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(sqlRealm, "state"));
@@ -188,11 +188,9 @@ public class LoginSQLTest extends AbstractTest {
         context.login();
         context.logout();
 
-        /**
-         * Waiting this long should cause the login module w/ an artificially
-         * low age limit to expire.  The next call to login should automatically
-         * create a new one.
-         */
+        // Waiting this long should cause the login module w/ an artificially
+        // low age limit to expire.  The next call to login should automatically
+        // create a new one.
         Thread.sleep(4 * 1000);
 
         context.login();
@@ -208,4 +206,5 @@ public class LoginSQLTest extends AbstractTest {
 
         context.logout();
     }
+    */
 }

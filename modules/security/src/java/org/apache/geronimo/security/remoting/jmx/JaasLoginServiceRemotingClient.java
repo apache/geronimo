@@ -29,6 +29,8 @@ import org.apache.geronimo.security.jaas.JaasLoginServiceMBean;
 
 
 /**
+ * A client-side utility that connects to a remote login service.
+ *
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
 public class JaasLoginServiceRemotingClient {

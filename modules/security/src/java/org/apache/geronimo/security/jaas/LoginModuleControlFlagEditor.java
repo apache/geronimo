@@ -22,6 +22,8 @@ import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
 
 
 /**
+ * A property editor for login module flags.  This is used by GBeans when flags
+ * are specified in config files.
  *
  * @version $Rev$ $Date$
  */

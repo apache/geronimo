@@ -38,6 +38,10 @@ import org.apache.geronimo.security.jaas.JaasLoginServiceMBean;
 
 
 /**
+ * A server-side utility that exposes a JaasLoginService to remote clients.
+ * It prevents clients from connecting to arbitrary server-side MBeans through
+ * this listener -- only the JaasLoginService is exposed.
+ * 
  * @version $Rev: 56022 $ $Date: 2004-10-30 01:16:18 -0400 (Sat, 30 Oct 2004) $
  */
 public class JaasLoginServiceRemotingServer implements GBeanLifecycle, JMXTarget {

@@ -23,6 +23,7 @@ import java.io.ObjectStreamException;
 
 
 /**
+ * A wrapper for the JAAS login module control flag that is Serializable.
  *
  * @version $Rev$ $Date$
  */
