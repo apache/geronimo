@@ -63,12 +63,12 @@ import org.apache.geronimo.deployment.model.geronimo.ejb.EnterpriseBeans;
 import org.apache.geronimo.deployment.model.geronimo.ejb.MessageDriven;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Entity;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Session;
-import org.apache.geronimo.deployment.model.geronimo.ejb.Ejb;
+import org.apache.geronimo.deployment.model.ejb.Ejb;
 
 /**
  * Loads a Geronimo ejb-jar.xml file into POJOs
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/05 20:18:03 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/17 01:47:14 $
  */
 public class GeronimoEjbJarLoader {
     public static GeronimoEjbJarDocument load(Document doc) {
@@ -108,7 +108,7 @@ public class GeronimoEjbJarLoader {
             Element root = roots[i];
             sessions[i] = new Session();
             loadEjb(root, sessions[i]);
-//            sessions[i].setSecurityRoleRef(GeronimoJ2EELoader.loadSecurityRoleRefs(root));
+            sessions[i].setSecurityRoleRef(J2EELoader.loadSecurityRoleRefs(root));
             sessions[i].setJndiName(LoaderUtil.getChildContent(root, "jndi-name"));
         }
         return sessions;
@@ -121,20 +121,21 @@ public class GeronimoEjbJarLoader {
             Element root = roots[i];
             entities[i] = new Entity();
             loadEjb(root, entities[i]);
-//            entities[i].setSecurityRoleRef(GeronimoJ2EELoader.loadSecurityRoleRefs(root));
+            entities[i].setSecurityRoleRef(J2EELoader.loadSecurityRoleRefs(root));
             entities[i].setJndiName(LoaderUtil.getChildContent(root, "jndi-name"));
         }
         return entities;
     }
 
     private static void loadEjb(Element root, Ejb bean) {
-        bean.setEjbName(LoaderUtil.getChildContent(root, "ejb-name"));
-//        bean.setEjbRef(GeronimoJ2EELoader.loadEJBRefs(root));
-//        bean.setEjbLocalRef(GeronimoJ2EELoader.loadEJBLocalRefs(root));
-//        bean.setResourceRef(GeronimoJ2EELoader.loadResourceRefs(root));
-//        bean.setResourceEnvRef(GeronimoJ2EELoader.loadResourceEnvRefs(root));
-//        bean.setMessageDestinationRef(GeronimoJ2EELoader.loadMessageDestinationRefs(root));
-//        bean.setEnvEntry(GeronimoJ2EELoader.loadEnvEntries(null, root));
-//        bean.setServiceRef(GeronimoJ2EELoader.loadServiceRefs(root));
+        EjbJarLoader.loadEjb(root, bean);
+        // the rest is loaded by a separate method in EjbJarLoader
+        bean.setEJBRef(GeronimoJ2EELoader.loadEJBRefs(root));
+        bean.setEJBLocalRef(GeronimoJ2EELoader.loadEJBLocalRefs(root));
+        bean.setResourceRef(GeronimoJ2EELoader.loadResourceRefs(root));
+        bean.setResourceEnvRef(GeronimoJ2EELoader.loadResourceEnvRefs(root));
+        bean.setMessageDestinationRef(GeronimoJ2EELoader.loadMessageDestinationRefs(root));
+        bean.setEnvEntry(J2EELoader.loadEnvEntries(root));
+        bean.setServiceRef(J2EELoader.loadServiceRefs(root));
     }
 }

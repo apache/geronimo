@@ -71,7 +71,7 @@ import org.apache.geronimo.kernel.deployment.DeploymentException;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2003/09/09 03:47:10 $
+ * @version $Revision: 1.7 $ $Date: 2003/09/17 01:47:15 $
  */
 public class ComponentContextBuilder {
     /**
@@ -83,8 +83,8 @@ public class ComponentContextBuilder {
     public static Context buildContext(JNDIEnvironmentRefs refs) throws DeploymentException {
         Map envMap = new HashMap();
         buildEnvEntries(envMap, refs.getEnvEntry());
-        buildEJBRefs(envMap, refs.getEJBRef());
-        buildResourceRefs(envMap, refs.getResourceRef());
+        buildEJBRefs(envMap, refs.getGeronimoEJBRef());
+        buildResourceRefs(envMap, refs.getGeronimoResourceRef());
 
         Map compMap = new HashMap();
         compMap.put("env", new ReadOnlyContext(envMap));

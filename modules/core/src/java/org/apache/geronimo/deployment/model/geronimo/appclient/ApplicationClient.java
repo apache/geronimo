@@ -57,105 +57,177 @@ package org.apache.geronimo.deployment.model.geronimo.appclient;
 
 import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbLocalRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
-import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDIEnvironmentRefs;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestination;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestinationRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ServiceRef;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDIEnvironmentRefs;
-import org.apache.geronimo.deployment.model.j2ee.Displayable;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestination;
 
 
 /**
+ * JavaBean for the geronimo-application-client.xml tag application-client
  *
- *
- * @version $Revision: 1.2 $ $Date: 2003/09/05 20:44:24 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/17 01:47:15 $
  */
-public class ApplicationClient extends Displayable implements JNDIEnvironmentRefs {
-    private String version;
-    private EnvEntry[] envEntry;
-    private EjbRef[] ejbRef;
-    private ServiceRef[] serviceRef;
-    private ResourceRef[] resourceRef;
-    private ResourceEnvRef[] resourceEnvRef;
-    private MessageDestinationRef[] messageDestinationRef;
-    private String callbackHandler;
-    private MessageDestination[] messageDestination;
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public String getCallbackHandler() {
-        return callbackHandler;
-    }
-
-    public void setCallbackHandler(String callbackHandler) {
-        this.callbackHandler = callbackHandler;
-    }
-
-    public EjbRef[] getEJBRef() {
-        return ejbRef;
-    }
-
-    public void setEJBRef(EjbRef[] ejbRef) {
-        this.ejbRef = ejbRef;
-    }
-
-    public EjbLocalRef[] getEJBLocalRef() {
+public class ApplicationClient extends org.apache.geronimo.deployment.model.appclient.ApplicationClient implements JNDIEnvironmentRefs {
+    public EjbLocalRef[] getGeronimoEJBLocalRef() {
         return new EjbLocalRef[0];
     }
 
-    public EnvEntry[] getEnvEntry() {
-        return envEntry;
+    public void setEJBRef(org.apache.geronimo.deployment.model.j2ee.EJBRef[] ejbRef) {
+        assert (ejbRef instanceof EjbRef[]);
+        super.setEJBRef(ejbRef);
     }
 
-    public void setEnvEntry(EnvEntry[] envEntry) {
-        this.envEntry = envEntry;
+    public void setEJBRef(int i, org.apache.geronimo.deployment.model.j2ee.EJBRef ejbRef) {
+        assert (ejbRef instanceof EjbRef);
+        super.setEJBRef(i, ejbRef);
     }
 
-    public MessageDestination[] getMessageDestination() {
-        return messageDestination;
+    public EjbRef getGeronimoEJBRef(int i) {
+        return (EjbRef) getEJBRef(i);
     }
 
-    public void setMessageDestination(MessageDestination[] messageDestination) {
-        this.messageDestination = messageDestination;
+    public void setGeronimoEJBRef(int i, EjbRef ejbRef) {
+        super.setEJBRef(i, ejbRef);
     }
 
-    public MessageDestinationRef[] getMessageDestinationRef() {
-        return messageDestinationRef;
+    public EjbRef[] getGeronimoEJBRef() {
+        return (EjbRef[]) getEJBRef();
     }
 
-    public void setMessageDestinationRef(MessageDestinationRef[] messageDestinationRef) {
-        this.messageDestinationRef = messageDestinationRef;
+    public void setGeronimoEJBRef(EjbRef[] ejbRef) {
+        super.setEJBRef(ejbRef);
     }
 
-    public ResourceEnvRef[] getResourceEnvRef() {
-        return resourceEnvRef;
+    public void setMessageDestination(org.apache.geronimo.deployment.model.j2ee.MessageDestination[] messageDestination) {
+        assert (messageDestination instanceof MessageDestination[]);
+        super.setMessageDestination(messageDestination);
     }
 
-    public void setResourceEnvRef(ResourceEnvRef[] resourceEnvRef) {
-        this.resourceEnvRef = resourceEnvRef;
+    public void setMessageDestination(int i, org.apache.geronimo.deployment.model.j2ee.MessageDestination messageDestination) {
+        assert (messageDestination instanceof MessageDestination);
+        super.setMessageDestination(i, messageDestination);
     }
 
-    public ResourceRef[] getResourceRef() {
-        return resourceRef;
+    public MessageDestination getGeronimoMessageDestination(int i) {
+        return (MessageDestination) super.getMessageDestination(i);
     }
 
-    public void setResourceRef(ResourceRef[] resourceRef) {
-        this.resourceRef = resourceRef;
+    public void setGeronimoMessageDestination(int i, MessageDestination messageDestination) {
+        super.setMessageDestination(i, messageDestination);
     }
 
-    public ServiceRef[] getServiceRef() {
-        return serviceRef;
+    public MessageDestination[] getGeronimoMessageDestination() {
+        return (MessageDestination[]) super.getMessageDestination();
     }
 
-    public void setServiceRef(ServiceRef[] serviceRef) {
-        this.serviceRef = serviceRef;
+    public void setGeronimoMessageDestination(MessageDestination[] messageDestination) {
+        super.setMessageDestination(messageDestination);
+    }
+
+    public void setMessageDestinationRef(org.apache.geronimo.deployment.model.j2ee.MessageDestinationRef[] messageDestinationRef) {
+        assert (messageDestinationRef instanceof MessageDestinationRef[]);
+        super.setMessageDestinationRef(messageDestinationRef);
+    }
+
+    public void setMessageDestinationRef(int i, org.apache.geronimo.deployment.model.j2ee.MessageDestinationRef messageDestinationRef) {
+        assert (messageDestinationRef instanceof MessageDestinationRef);
+        super.setMessageDestinationRef(i, messageDestinationRef);
+    }
+
+    public MessageDestinationRef getGeronimoMessageDestinationRef(int i) {
+        return (MessageDestinationRef) super.getMessageDestinationRef(i);
+    }
+
+    public void setGeronimoMessageDestinationRef(int i, MessageDestinationRef messageDestinationRef) {
+        super.setMessageDestinationRef(i, messageDestinationRef);
+    }
+
+    public MessageDestinationRef[] getGeronimoMessageDestinationRef() {
+        return (MessageDestinationRef[]) super.getMessageDestinationRef();
+    }
+
+    public void setGeronimoMessageDestinationRef(MessageDestinationRef[] messageDestinationRef) {
+        super.setMessageDestinationRef(messageDestinationRef);
+    }
+
+    public void setResourceEnvRef(org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef[] resourceEnvRef) {
+        assert (resourceEnvRef instanceof ResourceEnvRef[]);
+        super.setResourceEnvRef(resourceEnvRef);
+    }
+
+    public void setResourceEnvRef(int i, org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef ref) {
+        assert (ref instanceof ResourceEnvRef);
+        super.setResourceEnvRef(i, ref);
+    }
+
+    public ResourceEnvRef getGeronimoResourceEnvRef(int i) {
+        return (ResourceEnvRef) getResourceEnvRef(i);
+    }
+
+    public void setGeronimoResourceEnvRef(int i, ResourceEnvRef resourceEnvRef) {
+        super.setResourceEnvRef(i, resourceEnvRef);
+    }
+
+    public ResourceEnvRef[] getGeronimoResourceEnvRef() {
+        return (ResourceEnvRef[]) getResourceEnvRef();
+    }
+
+    public void setGeronimoResourceEnvRef(ResourceEnvRef[] resourceEnvRef) {
+        super.setResourceEnvRef(resourceEnvRef);
+    }
+
+    public void setResourceRef(org.apache.geronimo.deployment.model.j2ee.ResourceRef[] resourceRef) {
+        assert (resourceRef instanceof ResourceRef[]);
+        super.setResourceRef(resourceRef);
+    }
+
+    public void setResourceRef(int i, org.apache.geronimo.deployment.model.j2ee.ResourceRef ref) {
+        assert (ref instanceof ResourceRef);
+        super.setResourceRef(i, ref);
+    }
+
+    public ResourceRef getGeronimoResourceRef(int i) {
+        return (ResourceRef) getResourceRef(i);
+    }
+
+    public void setGeronimoResourceRef(int i, ResourceRef resourceRef) {
+        super.setResourceRef(i, resourceRef);
+    }
+
+    public ResourceRef[] getGeronimoResourceRef() {
+        return (ResourceRef[]) getResourceRef();
+    }
+
+    public void setGeronimoResourceRef(ResourceRef[] resourceRef) {
+        super.setResourceRef(resourceRef);
+    }
+
+    public void setServiceRef(org.apache.geronimo.deployment.model.j2ee.ServiceRef[] serviceRef) {
+        assert (serviceRef instanceof ServiceRef[]);
+        super.setServiceRef(serviceRef);
+    }
+
+    public void setServiceRef(int i, org.apache.geronimo.deployment.model.j2ee.ServiceRef ref) {
+        assert (ref instanceof ServiceRef);
+        super.setServiceRef(i, ref);
+    }
+
+    public ServiceRef[] getGeronimoServiceRef() {
+        return (ServiceRef[]) getServiceRef();
+    }
+
+    public ServiceRef getGeronimoServiceRef(int i) {
+        return (ServiceRef)getServiceRef(i);
+    }
+
+    public void setGeronimoServiceRef(ServiceRef[] serviceRef) {
+        super.setServiceRef(serviceRef);
+    }
+
+    public void setGeronimoServiceRef(int i, ServiceRef ref) {
+        super.setServiceRef(i, ref);
     }
 }

@@ -70,11 +70,10 @@ import org.w3c.dom.Element;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 06:08:04 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/17 01:47:15 $
  */
 public class WebAppLoader extends AbstractWebAppLoader {
     public WebAppLoader() {
-        super(new J2EELoader());
     }
 
     public WebApp load(Document doc) {
@@ -85,14 +84,14 @@ public class WebAppLoader extends AbstractWebAppLoader {
 
         WebApp webApp = new WebApp();
         loadCommonElements(webApp, root);
-        webApp.setEnvEntry(j2eeLoader.loadEnvEntries(root, new EnvEntry[0]));
-        webApp.setEjbRef(j2eeLoader.loadEJBRefs(root, new EJBRef[0]));
-        webApp.setEjbLocalRef(j2eeLoader.loadEJBLocalRefs(root, new EJBLocalRef[0]));
-        webApp.setServiceRef(j2eeLoader.loadServiceRefs(root, new ServiceRef[0]));
-        webApp.setResourceRef(j2eeLoader.loadResourceRefs(root, new ResourceRef[0]));
-        webApp.setResourceEnvRef(j2eeLoader.loadResourceEnvRefs(root, new ResourceEnvRef[0]));
-        webApp.setMessageDestinationRef(j2eeLoader.loadMessageDestinationRefs(root, new MessageDestinationRef[0]));
-        webApp.setMessageDestination(j2eeLoader.loadMessageDestinations(root, new MessageDestination[0]));
+        webApp.setEnvEntry(J2EELoader.loadEnvEntries(root));
+        webApp.setEJBRef(J2EELoader.loadEJBRefs(root));
+        webApp.setEJBLocalRef(J2EELoader.loadEJBLocalRefs(root));
+        webApp.setServiceRef(J2EELoader.loadServiceRefs(root));
+        webApp.setResourceRef(J2EELoader.loadResourceRefs(root));
+        webApp.setResourceEnvRef(J2EELoader.loadResourceEnvRefs(root));
+        webApp.setMessageDestinationRef(J2EELoader.loadMessageDestinationRefs(root));
+        webApp.setMessageDestination(J2EELoader.loadMessageDestinations(root));
         return webApp;
     }
 }

@@ -68,76 +68,110 @@ import org.w3c.dom.Element;
 /**
  * Loads common Geronimo DD tags
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/05 20:44:24 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/17 01:47:14 $
  */
-public class GeronimoJ2EELoader extends J2EELoader {
-    protected org.apache.geronimo.deployment.model.j2ee.EJBRef newEJBRef() {
-        return new EjbRef();
+public final class GeronimoJ2EELoader {
+    public static EjbRef[] loadEJBRefs(Element e) {
+        Element[] nodes = LoaderUtil.getChildren(e, "ejb-ref");
+        EjbRef[] result = new EjbRef[nodes.length];
+        for(int i = 0; i < nodes.length; i++) {
+            result[i] = loadEJBRef(nodes[i], new EjbRef());
+        }
+        return result;
     }
 
-    protected org.apache.geronimo.deployment.model.j2ee.EJBRef loadEJBRef(Element e) {
-        EjbRef ejbRef = (EjbRef) super.loadEJBRef(e);
+    public static EjbRef loadEJBRef(Element e, EjbRef ejbRef) {
+        J2EELoader.loadEJBRef(e, ejbRef);
         ejbRef.setJndiName(LoaderUtil.getChildContent(e, "jndi-name"));
         return ejbRef;
     }
 
-    protected org.apache.geronimo.deployment.model.j2ee.EJBLocalRef newEJBLocalRef() {
-        return new EjbLocalRef();
+    public static EjbLocalRef[] loadEJBLocalRefs(Element e) {
+        Element[] nodes = LoaderUtil.getChildren(e, "ejb-local-ref");
+        EjbLocalRef[] result = new EjbLocalRef[nodes.length];
+        for(int i = 0; i < nodes.length; i++) {
+            result[i] = loadEJBLocalRef(nodes[i], new EjbLocalRef());
+        }
+        return result;
     }
 
-    protected org.apache.geronimo.deployment.model.j2ee.EJBLocalRef loadEJBLocalRef(Element e) {
-        EjbLocalRef ejbRef = (EjbLocalRef) super.loadEJBLocalRef(e);
+    public static EjbLocalRef loadEJBLocalRef(Element e, EjbLocalRef ejbRef) {
+        J2EELoader.loadEJBLocalRef(e, ejbRef);
         ejbRef.setJndiName(LoaderUtil.getChildContent(e, "jndi-name"));
         return ejbRef;
     }
 
-    protected org.apache.geronimo.deployment.model.j2ee.ResourceRef newResourceRef() {
-        return new ResourceRef();
+    public static ResourceRef[] loadResourceRefs(Element e) {
+        Element[] nodes = LoaderUtil.getChildren(e, "resource-ref");
+        ResourceRef[] result = new ResourceRef[nodes.length];
+        for(int i = 0; i < nodes.length; i++) {
+            result[i] = loadResourceRef(nodes[i], new ResourceRef());
+        }
+        return result;
     }
 
-    protected org.apache.geronimo.deployment.model.j2ee.ResourceRef loadResourceRef(Element e) {
-        ResourceRef resourceRef = (ResourceRef) super.loadResourceRef(e);
+    public static ResourceRef loadResourceRef(Element e, ResourceRef resourceRef) {
+        J2EELoader.loadResourceRef(e, resourceRef);
         resourceRef.setJndiName(LoaderUtil.getChildContent(e, "jndi-name"));
         return resourceRef;
     }
 
-    protected org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef newResourceEnvRef() {
-        return new ResourceEnvRef();
+    public static ResourceEnvRef[] loadResourceEnvRefs(Element e) {
+        Element[] nodes = LoaderUtil.getChildren(e, "resource-env-ref");
+        ResourceEnvRef[] result = new ResourceEnvRef[nodes.length];
+        for(int i = 0; i < nodes.length; i++) {
+            result[i] = loadResourceEnvRef(nodes[i], new ResourceEnvRef());
+        }
+        return result;
     }
 
-    protected org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef loadResourceEnvRef(Element e) {
-        ResourceEnvRef resourceEnvRef = (ResourceEnvRef) super.loadResourceEnvRef(e);
+    public static ResourceEnvRef loadResourceEnvRef(Element e, ResourceEnvRef resourceEnvRef) {
+        J2EELoader.loadResourceEnvRef(e, resourceEnvRef);
         resourceEnvRef.setJndiName(LoaderUtil.getChildContent(e, "jndi-name"));
         return resourceEnvRef;
     }
 
-    protected org.apache.geronimo.deployment.model.j2ee.ServiceRef newServiceRef() {
-        return new ServiceRef();
+    public static ServiceRef[] loadServiceRefs(Element e) {
+        Element[] nodes = LoaderUtil.getChildren(e, "service-ref");
+        ServiceRef[] result = new ServiceRef[nodes.length];
+        for(int i = 0; i < nodes.length; i++) {
+            result[i] = loadServiceRef(nodes[i], new ServiceRef());
+        }
+        return result;
     }
 
-    protected org.apache.geronimo.deployment.model.j2ee.ServiceRef loadServiceRef(Element e) {
-        ServiceRef serviceRef = (ServiceRef) super.loadServiceRef(e);
+    public static ServiceRef loadServiceRef(Element e, ServiceRef serviceRef) {
+        J2EELoader.loadServiceRef(e, serviceRef);
         return serviceRef;
     }
 
-    protected org.apache.geronimo.deployment.model.j2ee.MessageDestinationRef newMessageDestinationRef() {
-        return new MessageDestinationRef();
+    public static MessageDestinationRef[] loadMessageDestinationRefs(Element e) {
+        Element[] nodes = LoaderUtil.getChildren(e, "message-destination-ref");
+        MessageDestinationRef[] result = new MessageDestinationRef[nodes.length];
+        for(int i = 0; i < nodes.length; i++) {
+            result[i] = loadMessageDestinationRef(nodes[i], new MessageDestinationRef());
+        }
+        return result;
     }
 
-    protected org.apache.geronimo.deployment.model.j2ee.MessageDestinationRef loadMessageDestinationRef(Element e) {
-        MessageDestinationRef msgDestRef = (MessageDestinationRef) super.loadMessageDestinationRef(e);
-        msgDestRef.setJndiName(LoaderUtil.getChildContent(e, "jndi-name"));
-        return msgDestRef;
+    public static MessageDestinationRef loadMessageDestinationRef(Element e, MessageDestinationRef messageDestinationRef) {
+        J2EELoader.loadMessageDestinationRef(e, messageDestinationRef);
+        messageDestinationRef.setJndiName(LoaderUtil.getChildContent(e, "jndi-name"));
+        return messageDestinationRef;
     }
 
-
-    protected org.apache.geronimo.deployment.model.j2ee.MessageDestination newMessageDestination() {
-        return new MessageDestination();
+    public static MessageDestination[] loadMessageDestinations(Element e) {
+        Element[] nodes = LoaderUtil.getChildren(e, "message-destination");
+        MessageDestination[] result = new MessageDestination[nodes.length];
+        for(int i = 0; i < nodes.length; i++) {
+            result[i] = loadMessageDestination(nodes[i], new MessageDestination());
+        }
+        return result;
     }
 
-    protected org.apache.geronimo.deployment.model.j2ee.MessageDestination loadMessageDestination(Element e) {
-        MessageDestination msgDest = (MessageDestination) super.loadMessageDestination(e);
-        msgDest.setJndiName(LoaderUtil.getChildContent(e, "jndi-name"));
-        return msgDest;
+    public static MessageDestination loadMessageDestination(Element e, MessageDestination messageDestination) {
+        J2EELoader.loadMessageDestination(e, messageDestination);
+        messageDestination.setJndiName(LoaderUtil.getChildContent(e, "jndi-name"));
+        return messageDestination;
     }
 }

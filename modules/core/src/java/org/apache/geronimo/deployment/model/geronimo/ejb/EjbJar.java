@@ -58,16 +58,19 @@ package org.apache.geronimo.deployment.model.geronimo.ejb;
 /**
  * JavaBean for the geronimo-ejb-jar.xml tag ejb-jar
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/04 04:59:52 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/17 01:47:14 $
  */
-public class EjbJar {
-    private EnterpriseBeans enterpriseBeans;
-
-    public EnterpriseBeans getEnterpriseBeans() {
-        return enterpriseBeans;
+public class EjbJar extends org.apache.geronimo.deployment.model.ejb.EjbJar {
+    public void setEnterpriseBeans(org.apache.geronimo.deployment.model.ejb.EnterpriseBeans beans) {
+        assert (beans instanceof EnterpriseBeans);
+        super.setEnterpriseBeans(beans);
     }
 
-    public void setEnterpriseBeans(EnterpriseBeans enterpriseBeans) {
-        this.enterpriseBeans = enterpriseBeans;
+    public EnterpriseBeans getGeronimoEnterpriseBeans() {
+        return (EnterpriseBeans)super.getEnterpriseBeans();
+    }
+
+    public void setGeronimoEnterpriseBeans(EnterpriseBeans beans) {
+        super.setEnterpriseBeans(beans);
     }
 }

@@ -63,12 +63,11 @@ import org.apache.geronimo.deployment.model.j2ee.MessageDestinationRef;
 import org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef;
 import org.apache.geronimo.deployment.model.j2ee.ResourceRef;
 import org.apache.geronimo.deployment.model.j2ee.ServiceRef;
-import org.apache.geronimo.deployment.model.j2ee.EJBLocalRef;
 
 /**
+ * JavaBean for the application-client.xml tag application-client
  *
- *
- * @version $Revision: 1.3 $ $Date: 2003/09/05 20:18:03 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/17 01:47:15 $
  */
 public class ApplicationClient extends Displayable {
     private String version;
@@ -97,63 +96,115 @@ public class ApplicationClient extends Displayable {
         this.callbackHandler = callbackHandler;
     }
 
-    public EJBRef[] getEJBRef() {
-        return ejbRef;
-    }
-
-    public void setEJBRef(EJBRef[] ejbRef) {
-        this.ejbRef = ejbRef;
-    }
-
-    public EJBLocalRef[] getEJBLocalRef() {
-        return new EJBLocalRef[0];
-    }
-
-    public EnvEntry[] getEnvEntry() {
-        return envEntry;
-    }
-
-    public void setEnvEntry(EnvEntry[] envEntry) {
-        this.envEntry = envEntry;
-    }
-
     public MessageDestination[] getMessageDestination() {
         return messageDestination;
+    }
+
+    public MessageDestination getMessageDestination(int i) {
+        return messageDestination[i];
+    }
+
+    public void setMessageDestination(int i, MessageDestination messageDestination) {
+        this.messageDestination[i] = messageDestination;
     }
 
     public void setMessageDestination(MessageDestination[] messageDestination) {
         this.messageDestination = messageDestination;
     }
 
+    public EJBRef[] getEJBRef() {
+        return ejbRef;
+    }
+
+    public EJBRef getEJBRef(int i) {
+        return ejbRef[i];
+    }
+
+    public void setEJBRef(EJBRef[] ejbRef) {
+        this.ejbRef = ejbRef;
+    }
+
+    public void setEJBRef(int i, EJBRef ejbRef) {
+        this.ejbRef[i] = ejbRef;
+    }
+
+    public EnvEntry[] getEnvEntry() {
+        return envEntry;
+    }
+
+    public EnvEntry getEnvEntry(int i) {
+        return envEntry[i];
+    }
+
+    public void setEnvEntry(EnvEntry[] envEntry) {
+        this.envEntry = envEntry;
+    }
+
+    public void setEnvEntry(int i, EnvEntry envEntry) {
+        this.envEntry[i] = envEntry;
+    }
+
     public MessageDestinationRef[] getMessageDestinationRef() {
         return messageDestinationRef;
+    }
+
+    public MessageDestinationRef getMessageDestinationRef(int i) {
+        return messageDestinationRef[i];
     }
 
     public void setMessageDestinationRef(MessageDestinationRef[] messageDestinationRef) {
         this.messageDestinationRef = messageDestinationRef;
     }
 
-    public ResourceEnvRef[] getResourceEnvRef() {
-        return resourceEnvRef;
-    }
-
-    public void setResourceEnvRef(ResourceEnvRef[] resourceEnvRef) {
-        this.resourceEnvRef = resourceEnvRef;
+    public void setMessageDestinationRef(int i, MessageDestinationRef messageDestinationRef) {
+        this.messageDestinationRef[i] = messageDestinationRef;
     }
 
     public ResourceRef[] getResourceRef() {
         return resourceRef;
     }
 
+    public ResourceRef getResourceRef(int i) {
+        return resourceRef[i];
+    }
+
     public void setResourceRef(ResourceRef[] resourceRef) {
         this.resourceRef = resourceRef;
+    }
+
+    public void setResourceRef(int i, ResourceRef resourceRef) {
+        this.resourceRef[i] = resourceRef;
+    }
+
+    public ResourceEnvRef[] getResourceEnvRef() {
+        return resourceEnvRef;
+    }
+
+    public ResourceEnvRef getResourceEnvRef(int i) {
+        return resourceEnvRef[i];
+    }
+
+    public void setResourceEnvRef(ResourceEnvRef[] resourceEnvRef) {
+        this.resourceEnvRef = resourceEnvRef;
+    }
+
+    public void setResourceEnvRef(int i, ResourceEnvRef resourceEnvRef) {
+        this.resourceEnvRef[i] = resourceEnvRef;
     }
 
     public ServiceRef[] getServiceRef() {
         return serviceRef;
     }
 
+    public ServiceRef getServiceRef(int i) {
+        return serviceRef[i];
+    }
+
     public void setServiceRef(ServiceRef[] serviceRef) {
         this.serviceRef = serviceRef;
+    }
+
+    public void setServiceRef(int i, ServiceRef serviceRef) {
+        this.serviceRef[i] = serviceRef;
     }
 }

@@ -55,9 +55,6 @@
  */
 package org.apache.geronimo.xml.deployment;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.geronimo.deployment.model.j2ee.EJBRef;
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
 import org.apache.geronimo.deployment.model.j2ee.EJBLocalRef;
@@ -83,45 +80,39 @@ import org.w3c.dom.NodeList;
  * Knows how to load common J2EE deployment descriptor elements from a DOM
  * into POJOs.
  *
- * @version $Revision: 1.4 $ $Date: 2003/09/05 20:18:03 $
+ * @version $Revision: 1.5 $ $Date: 2003/09/17 01:47:14 $
  */
-public class J2EELoader {
-    public EnvEntry[] loadEnvEntries(Element parent, EnvEntry[] resultType) {
+public final class J2EELoader {
+    public static EnvEntry[] loadEnvEntries(Element parent) {
         NodeList nodes = parent.getElementsByTagName("env-entry");
         int length = nodes.getLength();
-        List result = new ArrayList(length);
+        EnvEntry[] result = new EnvEntry[length];
         for (int i = 0; i < length; i++) {
             Element e = (Element) nodes.item(i);
-            result.add(loadEnvEntry(e));
+            result[i] = loadEnvEntry(e, new EnvEntry());
         }
-        return (EnvEntry[]) result.toArray(resultType);
+        return result;
     }
 
-    protected EnvEntry newEnvEntry() {
-        return new EnvEntry();
-    }
-
-    protected EnvEntry loadEnvEntry(Element e) {
-        EnvEntry envEntry = newEnvEntry();
+    public static EnvEntry loadEnvEntry(Element e, EnvEntry envEntry) {
         envEntry.setEnvEntryName(LoaderUtil.getChildContent(e, "env-entry-name"));
         envEntry.setEnvEntryType(LoaderUtil.getChildContent(e, "env-entry-type"));
         envEntry.setEnvEntryValue(LoaderUtil.getChildContent(e, "env-entry-value"));
         return envEntry;
     }
 
-    public EJBRef[] loadEJBRefs(Element parent, EJBRef[] resultType) {
+    public static EJBRef[] loadEJBRefs(Element parent) {
         NodeList nodes = parent.getElementsByTagName("ejb-ref");
         int length = nodes.getLength();
-        List result = new ArrayList(length);
+        EJBRef[] result= new EJBRef[length];
         for (int i = 0; i < length; i++) {
             Element e = (Element) nodes.item(i);
-            result.add(loadEJBRef(e));
+            result[i] = loadEJBRef(e, new EJBRef());
         }
-        return (EJBRef[]) result.toArray(resultType);
+        return result;
     }
 
-    protected EJBRef loadEJBRef(Element e) {
-        EJBRef ejbRef = newEJBRef();
+    public static EJBRef loadEJBRef(Element e, EJBRef ejbRef) {
         ejbRef.setEJBRefName(LoaderUtil.getChildContent(e, "ejb-ref-name"));
         ejbRef.setEJBRefType(LoaderUtil.getChildContent(e, "ejb-ref-type"));
         ejbRef.setHome(LoaderUtil.getChildContent(e, "home"));
@@ -130,23 +121,18 @@ public class J2EELoader {
         return ejbRef;
     }
 
-    protected EJBRef newEJBRef() {
-        return new EJBRef();
-    }
-
-    public EJBLocalRef[] loadEJBLocalRefs(Element parent, EJBLocalRef[] resultType) {
+    public static EJBLocalRef[] loadEJBLocalRefs(Element parent) {
         NodeList nodes = parent.getElementsByTagName("ejb-local-ref");
         int length = nodes.getLength();
-        List result = new ArrayList(length);
+        EJBLocalRef[] result = new EJBLocalRef[length];
         for (int i = 0; i < length; i++) {
             Element e = (Element) nodes.item(i);
-            result.add(loadEJBLocalRef(e));
+            result[i] = loadEJBLocalRef(e, new EJBLocalRef());
         }
-        return (EJBLocalRef[]) result.toArray(resultType);
+        return result;
     }
 
-    protected EJBLocalRef loadEJBLocalRef(Element e) {
-        EJBLocalRef ejbLocalRef = newEJBLocalRef();
+    public static EJBLocalRef loadEJBLocalRef(Element e, EJBLocalRef ejbLocalRef) {
         ejbLocalRef.setEJBRefName(LoaderUtil.getChildContent(e, "ejb-ref-name"));
         ejbLocalRef.setEJBRefType(LoaderUtil.getChildContent(e, "ejb-ref-type"));
         ejbLocalRef.setLocalHome(LoaderUtil.getChildContent(e, "local-home"));
@@ -155,11 +141,7 @@ public class J2EELoader {
         return ejbLocalRef;
     }
 
-    protected EJBLocalRef newEJBLocalRef() {
-        return new EJBLocalRef();
-    }
-
-    public SecurityRoleRef[] loadSecurityRoleRefs(Element parent) {
+    public static SecurityRoleRef[] loadSecurityRoleRefs(Element parent) {
         Element[] roots = LoaderUtil.getChildren(parent, "security-role-ref");
         SecurityRoleRef[] refs = new SecurityRoleRef[roots.length];
         for(int i = 0; i < roots.length; i++) {
@@ -172,19 +154,18 @@ public class J2EELoader {
         return refs;
     }
 
-    public ServiceRef[] loadServiceRefs(Element parent, ServiceRef[] resultType) {
+    public static ServiceRef[] loadServiceRefs(Element parent) {
         NodeList nodes = parent.getElementsByTagName("service-ref");
         int length = nodes.getLength();
-        List result = new ArrayList(length);
+        ServiceRef[] result = new ServiceRef[length];
         for (int i = 0; i < length; i++) {
             Element e = (Element) nodes.item(i);
-            result.add(loadServiceRef(e));
+            result[i] = loadServiceRef(e, new ServiceRef());
         }
-        return (ServiceRef[]) result.toArray(resultType);
+        return result;
     }
 
-    protected ServiceRef loadServiceRef(Element e) {
-        ServiceRef serviceRef = newServiceRef();
+    public static ServiceRef loadServiceRef(Element e, ServiceRef serviceRef) {
         serviceRef.setServiceRefName(LoaderUtil.getChildContent(e, "service-ref-name"));
         serviceRef.setServiceInterface(LoaderUtil.getChildContent(e, "service-interface"));
         serviceRef.setWSDLFile(LoaderUtil.getChildContent(e, "wsdl-file"));
@@ -195,11 +176,7 @@ public class J2EELoader {
         return serviceRef;
     }
 
-    protected ServiceRef newServiceRef() {
-        return new ServiceRef();
-    }
-
-    private PortComponentRef[] loadPortComponentRefs(Element parent) {
+    private static PortComponentRef[] loadPortComponentRefs(Element parent) {
         NodeList nodes = parent.getElementsByTagName("port-component-ref");
         int length = nodes.getLength();
         PortComponentRef[] result = new PortComponentRef[length];
@@ -213,7 +190,7 @@ public class J2EELoader {
         return result;
     }
 
-    private Handler[] loadHandlers(Element parent) {
+    private static Handler[] loadHandlers(Element parent) {
         NodeList nodes = parent.getElementsByTagName("handler");
         int length = nodes.getLength();
         Handler[] result = new Handler[length];
@@ -231,7 +208,7 @@ public class J2EELoader {
         return result;
     }
 
-    public ParamValue[] loadInitParams(Element parent) {
+    public static ParamValue[] loadInitParams(Element parent) {
         NodeList nodes = parent.getElementsByTagName("init-param");
         int length = nodes.getLength();
         ParamValue[] result = new ParamValue[length];
@@ -245,20 +222,18 @@ public class J2EELoader {
         return result;
     }
 
-    public ResourceRef[] loadResourceRefs(Element parent, ResourceRef[] resultType) {
+    public static ResourceRef[] loadResourceRefs(Element parent) {
         NodeList nodes = parent.getElementsByTagName("resource-ref");
         int length = nodes.getLength();
-        List result = new ArrayList(length);
+        ResourceRef[] result = new ResourceRef[length];
         for (int i = 0; i < length; i++) {
             Element e = (Element) nodes.item(i);
-            ResourceRef resRef = loadResourceRef(e);
-            result.add(resRef);
+            result[i] = loadResourceRef(e, new ResourceRef());
         }
-        return (ResourceRef[]) result.toArray(resultType);
+        return result;
     }
 
-    protected ResourceRef loadResourceRef(Element e) {
-        ResourceRef resRef = newResourceRef();
+    public static ResourceRef loadResourceRef(Element e, ResourceRef resRef) {
         resRef.setResRefName(LoaderUtil.getChildContent(e, "res-ref-name"));
         resRef.setResType(LoaderUtil.getChildContent(e, "res-type"));
         resRef.setResAuth(LoaderUtil.getChildContent(e, "res-auth"));
@@ -266,76 +241,57 @@ public class J2EELoader {
         return resRef;
     }
 
-    protected ResourceRef newResourceRef() {
-        return new ResourceRef();
-    }
-
-    public ResourceEnvRef[] loadResourceEnvRefs(Element parent, ResourceEnvRef[] resultType) {
+    public static ResourceEnvRef[] loadResourceEnvRefs(Element parent) {
         NodeList nodes = parent.getElementsByTagName("resource-env-ref");
         int length = nodes.getLength();
-        List result = new ArrayList(length);
+        ResourceEnvRef[] result = new ResourceEnvRef[length];
         for (int i = 0; i < length; i++) {
             Element e = (Element) nodes.item(i);
-            result.add(loadResourceEnvRef(e));
+            result[i] = loadResourceEnvRef(e, new ResourceEnvRef());
         }
-        return (ResourceEnvRef[]) result.toArray(resultType);
+        return result;
     }
 
-    protected ResourceEnvRef loadResourceEnvRef(Element e) {
-        ResourceEnvRef resEnvRef = newResourceEnvRef();
+    public static ResourceEnvRef loadResourceEnvRef(Element e, ResourceEnvRef resEnvRef) {
         resEnvRef.setResourceEnvRefName(LoaderUtil.getChildContent(e, "resource-env-ref-name"));
         resEnvRef.setResourceEnvRefType(LoaderUtil.getChildContent(e, "resource-env-ref-type"));
         return resEnvRef;
     }
 
-    protected ResourceEnvRef newResourceEnvRef() {
-        return new ResourceEnvRef();
-    }
-
-    public MessageDestination[] loadMessageDestinations(Element parent, MessageDestination[] resultType) {
+    public static MessageDestination[] loadMessageDestinations(Element parent) {
         Element[] nodes = LoaderUtil.getChildren(parent, "message-destination");
-        List result = new ArrayList(nodes.length);
+        MessageDestination[] result = new MessageDestination[nodes.length];
         for(int i = 0; i < nodes.length; i++) {
-            result.add(loadMessageDestination(nodes[i]));
+            result[i] = loadMessageDestination(nodes[i], new MessageDestination());
         }
-        return (MessageDestination[]) result.toArray(resultType);
+        return result;
     }
 
-    protected MessageDestination loadMessageDestination(Element e) {
-        MessageDestination msgDest = newMessageDestination();
+    public static MessageDestination loadMessageDestination(Element e, MessageDestination msgDest) {
         loadDisplayable(e, msgDest);
         msgDest.setMessageDestinationName(LoaderUtil.getChildContent(e, "message-destination-name"));
         return msgDest;
     }
 
-    protected MessageDestination newMessageDestination() {
-        return new MessageDestination();
-    }
-
-    public MessageDestinationRef[] loadMessageDestinationRefs(Element parent, MessageDestinationRef[] resultType) {
+    public static MessageDestinationRef[] loadMessageDestinationRefs(Element parent) {
         NodeList nodes = parent.getElementsByTagName("message-destination-ref");
         int length = nodes.getLength();
-        List result = new ArrayList(length);
+        MessageDestinationRef[] result = new MessageDestinationRef[length];
         for (int i = 0; i < length; i++) {
             Element e = (Element) nodes.item(i);
-            result.add(loadMessageDestinationRef(e));
+            result[i] = loadMessageDestinationRef(e, new MessageDestinationRef());
         }
-        return (MessageDestinationRef[]) result.toArray(resultType);
+        return result;
     }
 
-    protected MessageDestinationRef loadMessageDestinationRef(Element e) {
-        MessageDestinationRef msgDestRef = newMessageDestinationRef();
+    public static MessageDestinationRef loadMessageDestinationRef(Element e, MessageDestinationRef msgDestRef) {
         msgDestRef.setMessageDestinationRefName(LoaderUtil.getChildContent(e, "message-destination-ref-name"));
         msgDestRef.setMessageDestinationType(LoaderUtil.getChildContent(e, "message-destination-type"));
         msgDestRef.setMessageDestinationLink(LoaderUtil.getChildContent(e, "message-destination-link"));
         return msgDestRef;
     }
 
-    protected MessageDestinationRef newMessageDestinationRef() {
-        return new MessageDestinationRef();
-    }
-
-    public void loadDescribable(Element parent, Describable desc) {
+    public static void loadDescribable(Element parent, Describable desc) {
         Element[] roots = LoaderUtil.getChildren(parent, "description");
         Description[] ds = new Description[roots.length];
         for(int i = 0; i < roots.length; i++) {
@@ -347,7 +303,7 @@ public class J2EELoader {
         desc.setDescription(ds);
     }
 
-    public void loadDisplayable(Element parent, Displayable disp) {
+    public static void loadDisplayable(Element parent, Displayable disp) {
         loadDescribable(parent, disp);
         Element[] roots = LoaderUtil.getChildren(parent, "display-name");
         DisplayName[] ds = new DisplayName[roots.length];
@@ -370,7 +326,7 @@ public class J2EELoader {
         disp.setIcon(ic);
     }
 
-    public RunAs loadRunAs(Element parent) {
+    public static RunAs loadRunAs(Element parent) {
         if(parent == null) {
             return null;
         }

@@ -59,20 +59,20 @@ import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
 /**
  * Interface for accessing the objects for a components JNDI context.
  * 
- * @version $Revision: 1.2 $ $Date: 2003/09/05 20:44:24 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/17 01:47:15 $
  */
 public interface JNDIEnvironmentRefs {
     EnvEntry[] getEnvEntry();
 
-    EjbRef[] getEJBRef();
+    EjbRef[] getGeronimoEJBRef();
 
-    EjbLocalRef[] getEJBLocalRef();
+    EjbLocalRef[] getGeronimoEJBLocalRef();
 
-    ServiceRef[] getServiceRef();
+    ServiceRef[] getGeronimoServiceRef();
 
-    ResourceRef[] getResourceRef();
+    ResourceRef[] getGeronimoResourceRef();
 
-    ResourceEnvRef[] getResourceEnvRef();
+    ResourceEnvRef[] getGeronimoResourceEnvRef();
 
-    MessageDestinationRef[] getMessageDestinationRef();
+    MessageDestinationRef[] getGeronimoMessageDestinationRef();
 }

@@ -79,15 +79,7 @@ import org.apache.geronimo.deployment.model.ejb.Relationships;
 import org.apache.geronimo.deployment.model.ejb.RpcBean;
 import org.apache.geronimo.deployment.model.ejb.SecurityIdentity;
 import org.apache.geronimo.deployment.model.ejb.Session;
-import org.apache.geronimo.deployment.model.j2ee.EJBLocalRef;
-import org.apache.geronimo.deployment.model.j2ee.EJBRef;
-import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
-import org.apache.geronimo.deployment.model.j2ee.MessageDestination;
-import org.apache.geronimo.deployment.model.j2ee.MessageDestinationRef;
-import org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef;
-import org.apache.geronimo.deployment.model.j2ee.ResourceRef;
 import org.apache.geronimo.deployment.model.j2ee.SecurityRole;
-import org.apache.geronimo.deployment.model.j2ee.ServiceRef;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -95,12 +87,10 @@ import org.w3c.dom.Element;
  * Knows how to load a set of POJOs from a DOM representing an ejb-jar.xml
  * deployment descriptor.
  *
- * @version $Revision: 1.4 $ $Date: 2003/09/07 23:20:06 $
+ * @version $Revision: 1.5 $ $Date: 2003/09/17 01:47:14 $
  */
 public class EjbJarLoader {
-    private J2EELoader j2eeLoader = new J2EELoader();
-
-    public EjbJarDocument load(Document doc) {
+    public static EjbJarDocument load(Document doc) {
         Element root = doc.getDocumentElement();
         if (!"ejb-jar".equals(root.getTagName())) {
             throw new IllegalArgumentException("Document is not an ejb-jar instance");
@@ -117,7 +107,7 @@ public class EjbJarLoader {
         Element re = LoaderUtil.getChild(root, "relationships");
         if(re != null) {
             Relationships rel = new Relationships();
-            j2eeLoader.loadDescribable(re, rel);
+            J2EELoader.loadDescribable(re, rel);
             rel.setEjbRelation(loadEjbRelations(re));
             jar.setRelationships(rel);
         }
@@ -126,7 +116,7 @@ public class EjbJarLoader {
             AssemblyDescriptor ad = new AssemblyDescriptor();
             ad.setContainerTransaction(loadContainerTransactions(ade));
             ad.setExcludeList(loadExcludeList(LoaderUtil.getChild(ade, "exclude-list")));
-            ad.setMessageDestination(j2eeLoader.loadMessageDestinations(ade, new MessageDestination[0]));
+            ad.setMessageDestination(J2EELoader.loadMessageDestinations(ade));
             ad.setMethodPermission(loadMethodPermissions(ade));
             ad.setSecurityRole(loadSecurityRoles(ade));
             jar.setAssemblyDescriptor(ad);
@@ -136,23 +126,23 @@ public class EjbJarLoader {
         return result;
     }
 
-    private ExcludeList loadExcludeList(Element parent) {
+    private static ExcludeList loadExcludeList(Element parent) {
         if(parent == null) {
             return null;
         }
         ExcludeList list = new ExcludeList();
-        j2eeLoader.loadDescribable(parent, list);
+        J2EELoader.loadDescribable(parent, list);
         list.setMethod(loadMethods(parent));
         return list;
     }
 
-    private MethodPermission[] loadMethodPermissions(Element parent) {
+    private static MethodPermission[] loadMethodPermissions(Element parent) {
         Element[] roots = LoaderUtil.getChildren(parent, "method-permission");
         MethodPermission[] perms = new MethodPermission[roots.length];
         for(int i = 0; i < roots.length; i++) {
             Element root = roots[i];
             perms[i] = new MethodPermission();
-            j2eeLoader.loadDescribable(root, perms[i]);
+            J2EELoader.loadDescribable(root, perms[i]);
             perms[i].setUnchecked(LoaderUtil.getChild(root, "unchecked") != null);
             perms[i].setRoleName(LoaderUtil.getChildContent(root, "role-name"));
             perms[i].setMethod(loadMethods(root));
@@ -160,38 +150,38 @@ public class EjbJarLoader {
         return perms;
     }
 
-    private SecurityRole[] loadSecurityRoles(Element parent) {
+    private static SecurityRole[] loadSecurityRoles(Element parent) {
         Element[] roots = LoaderUtil.getChildren(parent, "security-role");
         SecurityRole[] roles = new SecurityRole[roots.length];
         for(int i = 0; i < roots.length; i++) {
             Element root = roots[i];
             roles[i] = new SecurityRole();
-            j2eeLoader.loadDescribable(root, roles[i]);
+            J2EELoader.loadDescribable(root, roles[i]);
             roles[i].setRoleName(LoaderUtil.getChildContent(root, "role-name"));
         }
         return roles;
     }
 
-    private ContainerTransaction[] loadContainerTransactions(Element parent) {
+    private static ContainerTransaction[] loadContainerTransactions(Element parent) {
         Element[] roots = LoaderUtil.getChildren(parent, "container-transaction");
         ContainerTransaction[] tx = new ContainerTransaction[roots.length];
         for(int i = 0; i < roots.length; i++) {
             Element root = roots[i];
             tx[i] = new ContainerTransaction();
-            j2eeLoader.loadDescribable(root, tx[i]);
+            J2EELoader.loadDescribable(root, tx[i]);
             tx[i].setTransAttribute(LoaderUtil.getChildContent(root, "trans-attribute"));
             tx[i].setMethod(loadMethods(root));
         }
         return tx;
     }
 
-    private Method[] loadMethods(Element parent) {
+    private static Method[] loadMethods(Element parent) {
         Element[] roots = LoaderUtil.getChildren(parent, "method");
         Method[] meth = new Method[roots.length];
         for(int i = 0; i < roots.length; i++) {
             Element root = roots[i];
             meth[i] = new Method();
-            j2eeLoader.loadDescribable(root, meth[i]);
+            J2EELoader.loadDescribable(root, meth[i]);
             meth[i].setEjbName(LoaderUtil.getChildContent(root, "ejb-name"));
             meth[i].setMethodIntf(LoaderUtil.getChildContent(root, "method-intf"));
             meth[i].setMethodName(LoaderUtil.getChildContent(root, "method-name"));
@@ -203,26 +193,26 @@ public class EjbJarLoader {
         return meth;
     }
 
-    private EjbRelation[] loadEjbRelations(Element parent) {
+    private static EjbRelation[] loadEjbRelations(Element parent) {
         Element[] roots = LoaderUtil.getChildren(parent, "ejb-relation");
         EjbRelation[] rels = new EjbRelation[roots.length];
         for(int i = 0; i < roots.length; i++) {
             Element root = roots[i];
             rels[i] = new EjbRelation();
-            j2eeLoader.loadDescribable(root, rels[i]);
+            J2EELoader.loadDescribable(root, rels[i]);
             rels[i].setEjbRelationName(LoaderUtil.getChildContent(root, "ejb-relation-name"));
             rels[i].setEjbRelationshipRole(loadRelationshipRoles(root));
         }
         return rels;
     }
 
-    private EjbRelationshipRole[] loadRelationshipRoles(Element parent) {
+    private static EjbRelationshipRole[] loadRelationshipRoles(Element parent) {
         Element[] roots = LoaderUtil.getChildren(parent, "ejb-relationship-role");
         EjbRelationshipRole[] roles = new EjbRelationshipRole[roots.length];
         for(int i = 0; i < roots.length; i++) {
             Element root = roots[i];
             roles[i] = new EjbRelationshipRole();
-            j2eeLoader.loadDescribable(root, roles[i]);
+            J2EELoader.loadDescribable(root, roles[i]);
             roles[i].setEjbRelationshipRoleName(LoaderUtil.getChildContent(root, "ejb-relationship-role-name"));
             roles[i].setMultiplicity(LoaderUtil.getChildContent(root, "multiplicity"));
             roles[i].setCascadeDelete(LoaderUtil.getChild(root, "cascade-delete") != null);
@@ -232,34 +222,35 @@ public class EjbJarLoader {
         return roles;
     }
 
-    private RelationshipRoleSource loadRelationshipRoleSource(Element parent) {
+    private static RelationshipRoleSource loadRelationshipRoleSource(Element parent) {
         if(parent == null) {
             return null;
         }
         RelationshipRoleSource source = new RelationshipRoleSource();
-        j2eeLoader.loadDescribable(parent, source);
+        J2EELoader.loadDescribable(parent, source);
         source.setEjbName(LoaderUtil.getChildContent(parent, "ejb-name"));
         return source;
     }
 
-    private CmrField loadCmrField(Element parent) {
+    private static CmrField loadCmrField(Element parent) {
         if(parent == null) {
             return null;
         }
         CmrField field = new CmrField();
-        j2eeLoader.loadDescribable(parent, field);
+        J2EELoader.loadDescribable(parent, field);
         field.setCmrFieldName(LoaderUtil.getChildContent(parent, "cmr-field-name"));
         field.setCmrFieldType(LoaderUtil.getChildContent(parent, "cmr-field-type"));
         return field;
     }
 
-    private MessageDriven[] loadMessageDrivens(Element parent) {
+    private static MessageDriven[] loadMessageDrivens(Element parent) {
         Element[] roots = LoaderUtil.getChildren(parent, "message-driven");
         MessageDriven[] mdbs = new MessageDriven[roots.length];
         for(int i = 0; i < roots.length; i++) {
             Element root = roots[i];
             mdbs[i] = new MessageDriven();
             loadEjb(root, mdbs[i]);
+            loadReferencesForEjb(root, mdbs[i]);
             mdbs[i].setMessageDestinationLink(LoaderUtil.getChildContent(root, "message-destination-link"));
             mdbs[i].setMessageDestinationType(LoaderUtil.getChildContent(root, "message-destination-type"));
             mdbs[i].setMessagingType(LoaderUtil.getChildContent(root, "messaging-type"));
@@ -269,12 +260,12 @@ public class EjbJarLoader {
         return mdbs;
     }
 
-    private ActivationConfig loadActivationConfig(Element parent) {
+    private static ActivationConfig loadActivationConfig(Element parent) {
         if(parent == null) {
             return null;
         }
         ActivationConfig config = new ActivationConfig();
-        j2eeLoader.loadDescribable(parent, config);
+        J2EELoader.loadDescribable(parent, config);
         Element[] roots = LoaderUtil.getChildren(parent, "activation-config-property");
         ActivationConfigProperty[] props = new ActivationConfigProperty[roots.length];
         for(int i = 0; i < roots.length; i++) {
@@ -287,7 +278,7 @@ public class EjbJarLoader {
         return config;
     }
 
-    private Session[] loadSessions(Element ebe) {
+    private static Session[] loadSessions(Element ebe) {
         Element[] roots = LoaderUtil.getChildren(ebe, "session");
         Session[] sessions = new Session[roots.length];
         for(int i = 0; i < roots.length; i++) {
@@ -301,7 +292,7 @@ public class EjbJarLoader {
         return sessions;
     }
 
-    private Entity[] loadEntities(Element ebe) {
+    private static Entity[] loadEntities(Element ebe) {
         Element[] roots = LoaderUtil.getChildren(ebe, "entity");
         Entity[] entities = new Entity[roots.length];
         for(int i = 0; i < roots.length; i++) {
@@ -320,11 +311,11 @@ public class EjbJarLoader {
         return entities;
     }
 
-    private Query[] loadQueries(Element parent) {
+    private static Query[] loadQueries(Element parent) {
         Element[] roots = LoaderUtil.getChildren(parent, "query");
         Query[] queries = new Query[roots.length];
         for(int i = 0; i < roots.length; i++) {
-            j2eeLoader.loadDescribable(roots[i], queries[i]);
+            J2EELoader.loadDescribable(roots[i], queries[i]);
             queries[i].setEjbQl(LoaderUtil.getChildContent(roots[i], "ejb-ql"));
             queries[i].setResultTypeMapping(LoaderUtil.getChildContent(roots[i], "result-type-mapping"));
             queries[i].setQueryMethod(loadQueryMethod(roots[i]));
@@ -332,7 +323,7 @@ public class EjbJarLoader {
         return queries;
     }
 
-    private QueryMethod loadQueryMethod(Element root) {
+    private static QueryMethod loadQueryMethod(Element root) {
         if(root == null) {
             return null;
         }
@@ -342,51 +333,55 @@ public class EjbJarLoader {
         return method;
     }
 
-    private CmpField[] loadCmpFields(Element parent) {
+    private static CmpField[] loadCmpFields(Element parent) {
         Element[] roots = LoaderUtil.getChildren(parent, "cmp-field");
         CmpField[] fields = new CmpField[roots.length];
         for(int i = 0; i < roots.length; i++) {
             fields[i] = new CmpField();
-            j2eeLoader.loadDescribable(roots[i], fields[i]);
+            J2EELoader.loadDescribable(roots[i], fields[i]);
             fields[i].setFieldName(LoaderUtil.getChildContent(roots[i], "field-name"));
         }
         return fields;
     }
 
-    private void loadRpcBean(Element root, RpcBean bean) {
+    private static void loadRpcBean(Element root, RpcBean bean) {
         loadEjb(root, bean);
+        loadReferencesForEjb(root, bean);
         bean.setHome(LoaderUtil.getChildContent(root, "home"));
         bean.setLocal(LoaderUtil.getChildContent(root, "local"));
         bean.setLocalHome(LoaderUtil.getChildContent(root, "local-home"));
         bean.setRemote(LoaderUtil.getChildContent(root, "remote"));
-        bean.setSecurityRoleRef(j2eeLoader.loadSecurityRoleRefs(root));
+        bean.setSecurityRoleRef(J2EELoader.loadSecurityRoleRefs(root));
     }
 
-    private void loadEjb(Element root, Ejb bean) {
-        j2eeLoader.loadDisplayable(root, bean);
-        bean.setEjbName(LoaderUtil.getChildContent(root, "ejb-name"));
-        bean.setEjbClass(LoaderUtil.getChildContent(root, "ejb-class"));
+    public static void loadEjb(Element root, Ejb bean) {
+        J2EELoader.loadDisplayable(root, bean);
+        bean.setEJBName(LoaderUtil.getChildContent(root, "ejb-name"));
+        bean.setEJBClass(LoaderUtil.getChildContent(root, "ejb-class"));
         bean.setSecurityIdentity(loadSecurityIdentity(LoaderUtil.getChild(root, "security-identity")));
-        bean.setEjbRef(j2eeLoader.loadEJBRefs(root, new EJBRef[0]));
-        bean.setEjbLocalRef(j2eeLoader.loadEJBLocalRefs(root, new EJBLocalRef[0]));
-        bean.setResourceRef(j2eeLoader.loadResourceRefs(root, new ResourceRef[0]));
-        bean.setResourceEnvRef(j2eeLoader.loadResourceEnvRefs(root, new ResourceEnvRef[0]));
-        bean.setMessageDestinationRef(j2eeLoader.loadMessageDestinationRefs(root, new MessageDestinationRef[0]));
-        bean.setEnvEntry(j2eeLoader.loadEnvEntries(root, new EnvEntry[0]));
-        bean.setServiceRef(j2eeLoader.loadServiceRefs(root, new ServiceRef[0]));
     }
 
-    private SecurityIdentity loadSecurityIdentity(Element root) {
+    private static void loadReferencesForEjb(Element root, Ejb bean) {
+        bean.setEJBRef(J2EELoader.loadEJBRefs(root));
+        bean.setEJBLocalRef(J2EELoader.loadEJBLocalRefs(root));
+        bean.setResourceRef(J2EELoader.loadResourceRefs(root));
+        bean.setResourceEnvRef(J2EELoader.loadResourceEnvRefs(root));
+        bean.setMessageDestinationRef(J2EELoader.loadMessageDestinationRefs(root));
+        bean.setEnvEntry(J2EELoader.loadEnvEntries(root));
+        bean.setServiceRef(J2EELoader.loadServiceRefs(root));
+    }
+
+    private static SecurityIdentity loadSecurityIdentity(Element root) {
         if(root == null) {
             return null;
         }
         SecurityIdentity id = new SecurityIdentity();
-        j2eeLoader.loadDescribable(root, id);
+        J2EELoader.loadDescribable(root, id);
         if(LoaderUtil.getChild(root, "use-caller-identity") != null) {
             id.setUseCallerIdentity(true);
         } else {
             id.setUseCallerIdentity(false);
-            id.setRunAs(j2eeLoader.loadRunAs(LoaderUtil.getChild(root, "run-as")));
+            id.setRunAs(J2EELoader.loadRunAs(LoaderUtil.getChild(root, "run-as")));
         }
         return id;
     }

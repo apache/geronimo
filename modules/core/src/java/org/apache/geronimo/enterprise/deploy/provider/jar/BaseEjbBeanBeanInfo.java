@@ -66,7 +66,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * BeanInfo describing the BaseEjbBean class
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/04 05:24:21 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/17 01:47:15 $
  */
 public class BaseEjbBeanBeanInfo extends SimpleBeanInfo {
     private static final Log log = LogFactory.getLog(BaseEjbBeanBeanInfo.class);
@@ -80,7 +80,7 @@ public class BaseEjbBeanBeanInfo extends SimpleBeanInfo {
 
     public PropertyDescriptor[] getPropertyDescriptors() {
         try {
-            PropertyDescriptor name = new PropertyDescriptor("ejbName", BaseEjbBean.class, "getEjbName", null);
+            PropertyDescriptor name = new PropertyDescriptor("ejbName", BaseEjbBean.class, "getEJBName", null);
             name.setBound(true);
             name.setDisplayName("EJB Name");
             name.setShortDescription("The unique name for this EJB");

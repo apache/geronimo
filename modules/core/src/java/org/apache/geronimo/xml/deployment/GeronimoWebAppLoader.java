@@ -55,26 +55,18 @@
  */
 package org.apache.geronimo.xml.deployment;
 
-import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbLocalRef;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestination;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestinationRef;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.ServiceRef;
 import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
-import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 06:08:04 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/17 01:47:14 $
  */
 public class GeronimoWebAppLoader extends AbstractWebAppLoader {
     public GeronimoWebAppLoader() {
-        super(new GeronimoJ2EELoader());
+        super();
     }
 
     public WebApp load(Document doc) {
@@ -85,14 +77,14 @@ public class GeronimoWebAppLoader extends AbstractWebAppLoader {
 
         WebApp webApp = new WebApp();
         loadCommonElements(webApp, root);
-        webApp.setEnvEntry(j2eeLoader.loadEnvEntries(root, new EnvEntry[0]));
-        webApp.setEjbRef((EjbRef[]) j2eeLoader.loadEJBRefs(root, new EjbRef[0]));
-        webApp.setEjbLocalRef((EjbLocalRef[]) j2eeLoader.loadEJBLocalRefs(root, new EjbLocalRef[0]));
-        webApp.setServiceRef((ServiceRef[])j2eeLoader.loadServiceRefs(root, new ServiceRef[0]));
-        webApp.setResourceRef((ResourceRef[]) j2eeLoader.loadResourceRefs(root, new ResourceRef[0]));
-        webApp.setResourceEnvRef((ResourceEnvRef[]) j2eeLoader.loadResourceEnvRefs(root, new ResourceEnvRef[0]));
-        webApp.setMessageDestinationRef((MessageDestinationRef[]) j2eeLoader.loadMessageDestinationRefs(root, new MessageDestinationRef[0]));
-        webApp.setMessageDestination((MessageDestination[]) j2eeLoader.loadMessageDestinations(root, new MessageDestination[0]));
+        webApp.setEnvEntry(J2EELoader.loadEnvEntries(root));
+        webApp.setEJBRef(GeronimoJ2EELoader.loadEJBRefs(root));
+        webApp.setEJBLocalRef(GeronimoJ2EELoader.loadEJBLocalRefs(root));
+        webApp.setServiceRef(GeronimoJ2EELoader.loadServiceRefs(root));
+        webApp.setResourceRef(GeronimoJ2EELoader.loadResourceRefs(root));
+        webApp.setResourceEnvRef(GeronimoJ2EELoader.loadResourceEnvRefs(root));
+        webApp.setMessageDestinationRef(GeronimoJ2EELoader.loadMessageDestinationRefs(root));
+        webApp.setMessageDestination(GeronimoJ2EELoader.loadMessageDestinations(root));
         return webApp;
     }
 }

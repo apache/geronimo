@@ -63,13 +63,16 @@ import java.io.IOException;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Implementation of EntityResolver that looks to the local filesystem.
- * 
- * @version $Revision: 1.1 $ $Date: 2003/09/05 20:18:03 $
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/09/17 01:47:14 $
  */
 public class LocalEntityResolver implements EntityResolver {
+    private static final Log log = LogFactory.getLog(LocalEntityResolver.class);
     private final File root;
 
     public LocalEntityResolver(File root) {
@@ -77,6 +80,9 @@ public class LocalEntityResolver implements EntityResolver {
     }
 
     public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+        if (log.isDebugEnabled()) {
+            log.debug("Resolving entity S="+systemId+" P="+publicId);
+        }
         if (publicId != null || systemId == null) {
             return null;
         }

@@ -62,13 +62,10 @@ import org.w3c.dom.Element;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 06:08:04 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/17 01:47:14 $
  */
 public abstract class AbstractWebAppLoader {
-    protected final J2EELoader j2eeLoader;
-
-    public AbstractWebAppLoader(J2EELoader j2eeLoader) {
-        this.j2eeLoader = j2eeLoader;
+    public AbstractWebAppLoader() {
     }
 
     protected void loadCommonElements(AbstractWebApp webApp, Element root) {

@@ -66,7 +66,7 @@ import org.apache.geronimo.deployment.model.ejb.Session;
  * Some basic tests for session beans.  Right now this is not exhaustive, but
  * it's an example of how the tests can be written.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/02 17:04:20 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/17 01:47:15 $
  */
 public class SessionBeanTests extends BaseEjbJarTest {
     protected Session bean;
@@ -91,7 +91,7 @@ public class SessionBeanTests extends BaseEjbJarTest {
      * criteria.
      */
     public ValidationResult testBeanImplementationClass() {
-        Class cls = loadClass(bean.getEjbClass(), "Session Bean Implementation Class");
+        Class cls = loadClass(bean.getEJBClass(), "Session Bean Implementation Class");
         ValidationResult result = ValidationResult.PASSED;
         if(!Modifier.isPublic(cls.getModifiers())) {
             result = error("ejb.impl.not.public", result);

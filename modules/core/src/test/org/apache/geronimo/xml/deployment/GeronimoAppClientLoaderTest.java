@@ -73,7 +73,7 @@ import org.w3c.dom.Document;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/05 20:47:15 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/17 01:47:15 $
  */
 public class GeronimoAppClientLoaderTest extends TestCase {
     private File docDir;
@@ -91,7 +91,7 @@ public class GeronimoAppClientLoaderTest extends TestCase {
         assertEquals("java.lang.String", envEntry.getEnvEntryType());
         assertEquals("Hello World", envEntry.getEnvEntryValue());
 
-        EjbRef[] ejbRefs = client.getEJBRef();
+        EjbRef[] ejbRefs = client.getGeronimoEJBRef();
         assertEquals(1, ejbRefs.length);
         EjbRef ejbRef = ejbRefs[0];
         assertEquals("ejb/MyEJB", ejbRef.getEJBRefName());
@@ -101,13 +101,13 @@ public class GeronimoAppClientLoaderTest extends TestCase {
         assertNull(ejbRef.getEJBLink());
         assertEquals("TestEJB", ejbRef.getJndiName());
 
-        ServiceRef[] serviceRefs = client.getServiceRef();
+        ServiceRef[] serviceRefs = client.getGeronimoServiceRef();
         assertEquals(1, serviceRefs.length);
         ServiceRef serviceRef = serviceRefs[0];
         assertEquals("service/MyService", serviceRef.getServiceRefName());
         assertEquals("javax.xml.rpc.Service", serviceRef.getServiceInterface());
 
-        ResourceRef[] resourceRefs = client.getResourceRef();
+        ResourceRef[] resourceRefs = client.getGeronimoResourceRef();
         assertEquals(1, resourceRefs.length);
         ResourceRef resourceRef = resourceRefs[0];
         assertEquals("jdbc/MyDS", resourceRef.getResRefName());
@@ -116,14 +116,14 @@ public class GeronimoAppClientLoaderTest extends TestCase {
         assertEquals("Shareable", resourceRef.getResSharingScope());
         assertEquals("TestDS", resourceRef.getJndiName());
 
-        ResourceEnvRef[] resEnvRefs = client.getResourceEnvRef();
+        ResourceEnvRef[] resEnvRefs = client.getGeronimoResourceEnvRef();
         assertEquals(1, resEnvRefs.length);
         ResourceEnvRef resEnvRef = resEnvRefs[0];
         assertEquals("jms/MyOldQueue", resEnvRef.getResourceEnvRefName());
         assertEquals("javax.jms.Queue", resEnvRef.getResourceEnvRefType());
         assertEquals("TestQueue", resEnvRef.getJndiName());
 
-        MessageDestinationRef[] msgDestRefs = client.getMessageDestinationRef();
+        MessageDestinationRef[] msgDestRefs = client.getGeronimoMessageDestinationRef();
         assertEquals(1, msgDestRefs.length);
         MessageDestinationRef msgDestRef = msgDestRefs[0];
         assertEquals("jms/MyQueue", msgDestRef.getMessageDestinationRefName());
@@ -132,7 +132,7 @@ public class GeronimoAppClientLoaderTest extends TestCase {
 
         assertEquals(client.getCallbackHandler(), "my.callback.handler");
 
-        MessageDestination[] msgDests = client.getMessageDestination();
+        MessageDestination[] msgDests = client.getGeronimoMessageDestination();
         assertEquals(1, msgDests.length);
         MessageDestination msgDest = msgDests[0];
         assertEquals("jms/MyOwnQueue", msgDest.getMessageDestinationName());

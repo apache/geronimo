@@ -67,7 +67,7 @@ import org.apache.geronimo.deployment.model.j2ee.ServiceRef;
 /**
  * Base class for the JavaBeans for all EJBs (entity, session, message-driven).
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:19 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/17 01:47:15 $
  */
 public class Ejb extends Displayable {
     private String ejbName;
@@ -81,51 +81,51 @@ public class Ejb extends Displayable {
     private EnvEntry[] envEntry = new EnvEntry[0];
     private ServiceRef[] serviceRef = new ServiceRef[0];
 
-    public String getEjbClass() {
+    public String getEJBClass() {
         return ejbClass;
     }
 
-    public void setEjbClass(String ejbClass) {
+    public void setEJBClass(String ejbClass) {
         this.ejbClass = ejbClass;
     }
 
-    public String getEjbName() {
+    public String getEJBName() {
         return ejbName;
     }
 
-    public void setEjbName(String ejbName) {
+    public void setEJBName(String ejbName) {
         this.ejbName = ejbName;
     }
 
-    public EJBLocalRef[] getEjbLocalRef() {
+    public EJBLocalRef[] getEJBLocalRef() {
         return ejbLocalRef;
     }
 
-    public EJBLocalRef getEjbLocalRef(int i) {
+    public EJBLocalRef getEJBLocalRef(int i) {
         return ejbLocalRef[i];
     }
 
-    public void setEjbLocalRef(EJBLocalRef[] ejbLocalRef) {
+    public void setEJBLocalRef(EJBLocalRef[] ejbLocalRef) {
         this.ejbLocalRef = ejbLocalRef;
     }
 
-    public void setEjbLocalRef(int i, EJBLocalRef ejbLocalRef) {
+    public void setEJBLocalRef(int i, EJBLocalRef ejbLocalRef) {
         this.ejbLocalRef[i] = ejbLocalRef;
     }
 
-    public EJBRef[] getEjbRef() {
+    public EJBRef[] getEJBRef() {
         return ejbRef;
     }
 
-    public EJBRef getEjbRef(int i) {
+    public EJBRef getEJBRef(int i) {
         return ejbRef[i];
     }
 
-    public void setEjbRef(EJBRef[] ejbRef) {
+    public void setEJBRef(EJBRef[] ejbRef) {
         this.ejbRef = ejbRef;
     }
 
-    public void setEjbRef(int i, EJBRef ejbRef) {
+    public void setEJBRef(int i, EJBRef ejbRef) {
         this.ejbRef[i] = ejbRef;
     }
 

@@ -69,7 +69,7 @@ import org.w3c.dom.Element;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/08 06:08:04 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/17 01:47:14 $
  */
 public class AppClientLoader {
     private J2EELoader j2eeLoader = new J2EELoader();
@@ -79,14 +79,14 @@ public class AppClientLoader {
             throw new IllegalArgumentException("Document is not an application-client instance");
         }
         ApplicationClient appClient = new ApplicationClient();
-        appClient.setEnvEntry(j2eeLoader.loadEnvEntries(root, new EnvEntry[0]));
-        appClient.setEJBRef(j2eeLoader.loadEJBRefs(root, new EJBRef[0]));
-        appClient.setServiceRef(j2eeLoader.loadServiceRefs(root, new ServiceRef[0]));
-        appClient.setResourceRef(j2eeLoader.loadResourceRefs(root, new ResourceRef[0]));
-        appClient.setResourceEnvRef(j2eeLoader.loadResourceEnvRefs(root, new ResourceEnvRef[0]));
-        appClient.setMessageDestinationRef(j2eeLoader.loadMessageDestinationRefs(root, new MessageDestinationRef[0]));
+        appClient.setEnvEntry(j2eeLoader.loadEnvEntries(root));
+        appClient.setEJBRef(j2eeLoader.loadEJBRefs(root));
+        appClient.setServiceRef(j2eeLoader.loadServiceRefs(root));
+        appClient.setResourceRef(j2eeLoader.loadResourceRefs(root));
+        appClient.setResourceEnvRef(j2eeLoader.loadResourceEnvRefs(root));
+        appClient.setMessageDestinationRef(j2eeLoader.loadMessageDestinationRefs(root));
         appClient.setCallbackHandler(LoaderUtil.getChildContent(root, "callback-handler"));
-        appClient.setMessageDestination(j2eeLoader.loadMessageDestinations(root, new MessageDestination[0]));
+        appClient.setMessageDestination(j2eeLoader.loadMessageDestinations(root));
         return appClient;
     }
 }

@@ -55,16 +55,22 @@
  */
 package org.apache.geronimo.deployment.model.geronimo.ejb;
 
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbLocalRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDIEnvironmentRefs;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestinationRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.SecurityRoleRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.ServiceRef;
 
 /**
  * JavaBean for the geronimo-ejb-jar.xml tag entity
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/04 04:59:52 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/17 01:47:14 $
  */
-public class Entity extends Ejb {
+public class Entity extends org.apache.geronimo.deployment.model.ejb.Entity implements JNDIEnvironmentRefs {
     private String jndiName;
-    private SecurityRoleRef[] securityRoleRef = new SecurityRoleRef[0];
 
     public String getJndiName() {
         return jndiName;
@@ -74,19 +80,185 @@ public class Entity extends Ejb {
         this.jndiName = jndiName;
     }
 
-    public SecurityRoleRef[] getSecurityRoleRef() {
-        return securityRoleRef;
+    public void setGeronimoSecurityRoleRef(org.apache.geronimo.deployment.model.j2ee.SecurityRoleRef[] ref) {
+        assert (ref instanceof SecurityRoleRef[]);
+        super.setSecurityRoleRef(ref);
     }
 
-    public SecurityRoleRef getSecurityRoleRef(int i) {
-        return securityRoleRef[i];
+    public void setGeronimoSecurityRoleRef(int i, org.apache.geronimo.deployment.model.j2ee.SecurityRoleRef ref) {
+        assert (ref instanceof SecurityRoleRef);
+        super.setSecurityRoleRef(i, ref);
     }
 
-    public void setSecurityRoleRef(SecurityRoleRef[] securityRoleRef) {
-        this.securityRoleRef = securityRoleRef;
+    public void setGeronimoSecurityRoleRef(int i, SecurityRoleRef ref) {
+        super.setSecurityRoleRef(i, ref);
     }
 
-    public void setSecurityRoleRef(int i, SecurityRoleRef securityRoleRef) {
-        this.securityRoleRef[i] = securityRoleRef;
+    public SecurityRoleRef getGeronimoSecurityRoleRef(int i) {
+        return (SecurityRoleRef)super.getSecurityRoleRef(i);
+    }
+
+    public void setGeronimoSecurityRoleRef(SecurityRoleRef[] ref) {
+        super.setSecurityRoleRef(ref);
+    }
+
+    public SecurityRoleRef[] getGeronimoSecurityRoleRef() {
+        return (SecurityRoleRef[])super.getSecurityRoleRef();
+    }
+
+    public void setEJBLocalRef(org.apache.geronimo.deployment.model.j2ee.EJBLocalRef[] ejbRef) {
+        assert (ejbRef instanceof EjbLocalRef[]);
+        super.setEJBLocalRef(ejbRef);
+    }
+
+    public void setEJBLocalRef(int i, org.apache.geronimo.deployment.model.j2ee.EJBLocalRef ejbRef) {
+        assert (ejbRef instanceof EjbLocalRef);
+        super.setEJBLocalRef(i, ejbRef);
+    }
+
+    public EjbLocalRef getGeronimoEJBLocalRef(int i) {
+        return (EjbLocalRef) getEJBLocalRef(i);
+    }
+
+    public void setGeronimoEJBLocalRef(int i, EjbLocalRef ejbRef) {
+        super.setEJBLocalRef(i, ejbRef);
+    }
+
+    public EjbLocalRef[] getGeronimoEJBLocalRef() {
+        return (EjbLocalRef[]) getEJBLocalRef();
+    }
+
+    public void setGeronimoEJBLocalRef(EjbLocalRef[] ejbRef) {
+        super.setEJBLocalRef(ejbRef);
+    }
+
+    public void setEJBRef(org.apache.geronimo.deployment.model.j2ee.EJBRef[] ejbRef) {
+        assert (ejbRef instanceof EjbRef[]);
+        super.setEJBRef(ejbRef);
+    }
+
+    public void setEJBRef(int i, org.apache.geronimo.deployment.model.j2ee.EJBRef ejbRef) {
+        assert (ejbRef instanceof EjbRef);
+        super.setEJBRef(i, ejbRef);
+    }
+
+    public EjbRef getGeronimoEJBRef(int i) {
+        return (EjbRef) getEJBRef(i);
+    }
+
+    public void setGeronimoEJBRef(int i, EjbRef ejbRef) {
+        super.setEJBRef(i, ejbRef);
+    }
+
+    public EjbRef[] getGeronimoEJBRef() {
+        return (EjbRef[]) getEJBRef();
+    }
+
+    public void setGeronimoEJBRef(EjbRef[] ejbRef) {
+        super.setEJBRef(ejbRef);
+    }
+
+    public void setMessageDestinationRef(org.apache.geronimo.deployment.model.j2ee.MessageDestinationRef[] messageDestinationRef) {
+        assert (messageDestinationRef instanceof MessageDestinationRef[]);
+        super.setMessageDestinationRef(messageDestinationRef);
+    }
+
+    public void setMessageDestinationRef(int i, org.apache.geronimo.deployment.model.j2ee.MessageDestinationRef messageDestinationRef) {
+        assert (messageDestinationRef instanceof MessageDestinationRef);
+        super.setMessageDestinationRef(i, messageDestinationRef);
+    }
+
+    public MessageDestinationRef getGeronimoMessageDestinationRef(int i) {
+        return (MessageDestinationRef) super.getMessageDestinationRef(i);
+    }
+
+    public void setGeronimoMessageDestinationRef(int i, MessageDestinationRef messageDestinationRef) {
+        super.setMessageDestinationRef(i, messageDestinationRef);
+    }
+
+    public MessageDestinationRef[] getGeronimoMessageDestinationRef() {
+        return (MessageDestinationRef[]) super.getMessageDestinationRef();
+    }
+
+    public void setGeronimoMessageDestinationRef(MessageDestinationRef[] messageDestinationRef) {
+        super.setMessageDestinationRef(messageDestinationRef);
+    }
+
+    public void setResourceEnvRef(org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef[] resourceEnvRef) {
+        assert (resourceEnvRef instanceof ResourceEnvRef[]);
+        super.setResourceEnvRef(resourceEnvRef);
+    }
+
+    public void setResourceEnvRef(int i, org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef ref) {
+        assert (ref instanceof ResourceEnvRef);
+        super.setResourceEnvRef(i, ref);
+    }
+
+    public ResourceEnvRef getGeronimoResourceEnvRef(int i) {
+        return (ResourceEnvRef) getResourceEnvRef(i);
+    }
+
+    public void setGeronimoResourceEnvRef(int i, ResourceEnvRef resourceEnvRef) {
+        super.setResourceEnvRef(i, resourceEnvRef);
+    }
+
+    public ResourceEnvRef[] getGeronimoResourceEnvRef() {
+        return (ResourceEnvRef[]) getResourceEnvRef();
+    }
+
+    public void setGeronimoResourceEnvRef(ResourceEnvRef[] resourceEnvRef) {
+        super.setResourceEnvRef(resourceEnvRef);
+    }
+
+    public void setResourceRef(org.apache.geronimo.deployment.model.j2ee.ResourceRef[] resourceRef) {
+        assert (resourceRef instanceof ResourceRef[]);
+        super.setResourceRef(resourceRef);
+    }
+
+    public void setResourceRef(int i, org.apache.geronimo.deployment.model.j2ee.ResourceRef ref) {
+        assert (ref instanceof ResourceRef);
+        super.setResourceRef(i, ref);
+    }
+
+    public ResourceRef getGeronimoResourceRef(int i) {
+        return (ResourceRef) getResourceRef(i);
+    }
+
+    public void setGeronimoResourceRef(int i, ResourceRef resourceRef) {
+        super.setResourceRef(i, resourceRef);
+    }
+
+    public ResourceRef[] getGeronimoResourceRef() {
+        return (ResourceRef[]) getResourceRef();
+    }
+
+    public void setGeronimoResourceRef(ResourceRef[] resourceRef) {
+        super.setResourceRef(resourceRef);
+    }
+
+    public void setServiceRef(org.apache.geronimo.deployment.model.j2ee.ServiceRef[] serviceRef) {
+        assert (serviceRef instanceof ServiceRef[]);
+        super.setServiceRef(serviceRef);
+    }
+
+    public void setServiceRef(int i, org.apache.geronimo.deployment.model.j2ee.ServiceRef ref) {
+        assert (ref instanceof ServiceRef);
+        super.setServiceRef(i, ref);
+    }
+
+    public ServiceRef[] getGeronimoServiceRef() {
+        return (ServiceRef[]) getServiceRef();
+    }
+
+    public ServiceRef getGeronimoServiceRef(int i) {
+        return (ServiceRef)getServiceRef(i);
+    }
+
+    public void setGeronimoServiceRef(ServiceRef[] serviceRef) {
+        super.setServiceRef(serviceRef);
+    }
+
+    public void setGeronimoServiceRef(int i, ServiceRef ref) {
+        super.setServiceRef(i, ref);
     }
 }

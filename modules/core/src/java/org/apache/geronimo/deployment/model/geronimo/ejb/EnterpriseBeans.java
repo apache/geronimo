@@ -58,58 +58,84 @@ package org.apache.geronimo.deployment.model.geronimo.ejb;
 /**
  * JavaBean for the geronimo-ejb-jar.xml tag enterprise-beans
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/04 04:59:52 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/17 01:47:14 $
  */
-public class EnterpriseBeans {
-    private Session[] session;
-    private Entity[] entity;
-    private MessageDriven[] messageDriven;
-
-    public Session[] getSession() {
-        return session;
+public class EnterpriseBeans extends org.apache.geronimo.deployment.model.ejb.EnterpriseBeans {
+    public void setEntity(int i, org.apache.geronimo.deployment.model.ejb.Entity bean) {
+        assert (bean instanceof Entity);
+        super.setEntity(i, bean);
     }
 
-    public Session getSession(int i) {
-        return session[i];
+    public void setEntity(org.apache.geronimo.deployment.model.ejb.Entity[] bean) {
+        assert (bean instanceof Entity[]);
+        super.setEntity(bean);
     }
 
-    public void setSession(Session[] session) {
-        this.session = session;
+    public Entity getGeronimoEntity(int i) {
+        return (Entity)super.getEntity(i);
     }
 
-    public void setSession(int i, Session session) {
-        this.session[i] = session;
+    public Entity[] getGeronimoEntity() {
+        return (Entity[])super.getEntity();
     }
 
-    public Entity[] getEntity() {
-        return entity;
+    public void setGeronimoEntity(int i, Entity bean) {
+        super.setEntity(i, bean);
     }
 
-    public Entity getEntity(int i) {
-        return entity[i];
+    public void setGeronimoEntity(Entity[] bean) {
+        super.setEntity(bean);
     }
 
-    public void setEntity(Entity[] entity) {
-        this.entity = entity;
+    public void setSession(int i, org.apache.geronimo.deployment.model.ejb.Session bean) {
+        assert (bean instanceof Session);
+        super.setSession(i, bean);
     }
 
-    public void setEntity(int i, Entity entity) {
-        this.entity[i] = entity;
+    public void setSession(org.apache.geronimo.deployment.model.ejb.Session[] bean) {
+        assert (bean instanceof Session[]);
+        super.setSession(bean);
     }
 
-    public MessageDriven[] getMessageDriven() {
-        return messageDriven;
+    public Session[] getGeronimoSession() {
+        return (Session[])super.getSession();
     }
 
-    public MessageDriven getMessageDriven(int i) {
-        return messageDriven[i];
+    public Session getGeronimoSession(int i) {
+        return (Session)super.getSession(i);
     }
 
-    public void setMessageDriven(MessageDriven[] messageDriven) {
-        this.messageDriven = messageDriven;
+    public void setGeronimoSession(int i, Session bean) {
+        super.setSession(i, bean);
     }
 
-    public void setMessageDriven(int i, MessageDriven messageDriven) {
-        this.messageDriven[i] = messageDriven;
+    public void setGeronimoSession(Session[] bean) {
+        super.setSession(bean);
+    }
+
+    public void setMessageDriven(int i, org.apache.geronimo.deployment.model.ejb.MessageDriven bean) {
+        assert (bean instanceof MessageDriven);
+        super.setMessageDriven(i, bean);
+    }
+
+    public void setMessageDriven(org.apache.geronimo.deployment.model.ejb.MessageDriven[] bean) {
+        assert (bean instanceof MessageDriven[]);
+        super.setMessageDriven(bean);
+    }
+
+    public MessageDriven[] getGeronimoMessageDriven() {
+        return (MessageDriven[])super.getMessageDriven();
+    }
+
+    public MessageDriven getGeronimoMessageDriven(int i) {
+        return (MessageDriven)super.getMessageDriven(i);
+    }
+
+    public void setGeronimoMessageDriven(int i, MessageDriven bean) {
+        super.setMessageDriven(i, bean);
+    }
+
+    public void setGeronimoMessageDriven(MessageDriven[] bean) {
+        super.setMessageDriven(bean);
     }
 }

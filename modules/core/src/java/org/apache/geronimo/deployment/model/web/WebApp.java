@@ -66,7 +66,7 @@ import org.apache.geronimo.deployment.model.j2ee.ServiceRef;
 /**
  * JavaBean for the root web.xml tag web-app
  *
- * @version $Revision: 1.2 $  $Date: 2003/09/08 06:08:04 $
+ * @version $Revision: 1.3 $  $Date: 2003/09/17 01:47:15 $
  */
 public class WebApp extends AbstractWebApp {
     private EJBRef[] ejbRef = new EJBRef[0];
@@ -77,35 +77,35 @@ public class WebApp extends AbstractWebApp {
     private ServiceRef[] serviceRef = new ServiceRef[0];
     private MessageDestination[] messageDestination = new MessageDestination[0];
 
-    public EJBLocalRef[] getEjbLocalRef() {
+    public EJBLocalRef[] getEJBLocalRef() {
         return ejbLocalRef;
     }
 
-    public EJBLocalRef getEjbLocalRef(int i) {
+    public EJBLocalRef getEJBLocalRef(int i) {
         return ejbLocalRef[i];
     }
 
-    public void setEjbLocalRef(EJBLocalRef[] ejbLocalRef) {
+    public void setEJBLocalRef(EJBLocalRef[] ejbLocalRef) {
         this.ejbLocalRef = ejbLocalRef;
     }
 
-    public void setEjbLocalRef(int i, EJBLocalRef ejbLocalRef) {
+    public void setEJBLocalRef(int i, EJBLocalRef ejbLocalRef) {
         this.ejbLocalRef[i] = ejbLocalRef;
     }
 
-    public EJBRef[] getEjbRef() {
+    public EJBRef[] getEJBRef() {
         return ejbRef;
     }
 
-    public EJBRef getEjbRef(int i) {
+    public EJBRef getEJBRef(int i) {
         return ejbRef[i];
     }
 
-    public void setEjbRef(EJBRef[] ejbRef) {
+    public void setEJBRef(EJBRef[] ejbRef) {
         this.ejbRef = ejbRef;
     }
 
-    public void setEjbRef(int i, EJBRef ejbRef) {
+    public void setEJBRef(int i, EJBRef ejbRef) {
         this.ejbRef[i] = ejbRef;
     }
 
