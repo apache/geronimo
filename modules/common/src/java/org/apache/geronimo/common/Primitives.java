@@ -20,7 +20,7 @@ package org.apache.geronimo.common;
 /**
  * Primitive utilities.
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/25 09:57:02 $
+ * @version $Revision: 1.5 $ $Date: 2004/03/10 00:03:36 $
  */
 public final class Primitives
 {
@@ -37,7 +37,7 @@ public final class Primitives
     }
     
     /**
-     * Test the equality of two doubles by converting their values into
+     * Test the equality of two floats by converting their values into
      * IEEE 754 floating-point "single precision" bit layouts.
      *
      * @param a    Float to check equality with.
@@ -119,7 +119,7 @@ public final class Primitives
     {
         if (value > Integer.MAX_VALUE || value < Integer.MIN_VALUE) {
             throw new DataConversionException
-                ("Can not safly convert to int: " + value);
+                ("Can not safely convert to int: " + value);
         }
         
         return (int)value;
