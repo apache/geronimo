@@ -60,6 +60,8 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -91,7 +93,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/21 01:10:49 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/21 19:51:29 $
  *
  * */
 public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
@@ -156,6 +158,22 @@ public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
     public XmlObject getDeploymentPlan(URL module) {
         //for starters we require an external geronimo dd.
         return null;
+    }
+
+    public void buildConfiguration(File outfile, File module, XmlObject plan) throws IOException, DeploymentException {
+        if (module.isDirectory()) {
+            throw new DeploymentException("Cannot deploy an unpacked RAR");
+        }
+        FileInputStream is = new FileInputStream(module);
+        try {
+            buildConfiguration(outfile, new JarInputStream(new BufferedInputStream(is)), plan);
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                // ignore
+            }
+        }
     }
 
     public void buildConfiguration(File outfile, JarInputStream module, XmlObject plan) throws IOException, DeploymentException {

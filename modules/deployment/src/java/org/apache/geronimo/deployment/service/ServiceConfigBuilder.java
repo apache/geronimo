@@ -95,7 +95,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/02/20 15:49:56 $
+ * @version $Revision: 1.6 $ $Date: 2004/02/21 19:51:29 $
  */
 public class ServiceConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
@@ -116,6 +116,10 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
 
     public XmlObject getDeploymentPlan(URL module) {
         return null;
+    }
+
+    public void buildConfiguration(File outfile, File module, XmlObject plan) throws IOException, DeploymentException {
+        buildConfiguration(outfile, (JarInputStream)null, plan);
     }
 
     public void buildConfiguration(File outfile, JarInputStream module, XmlObject plan) throws IOException, DeploymentException {

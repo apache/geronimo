@@ -67,7 +67,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 /**
  * 
  * 
- * @version $Revision: 1.3 $ $Date: 2004/02/20 07:19:13 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/21 19:51:29 $
  */
 public interface ConfigurationBuilder {
     SchemaTypeLoader[] getTypeLoaders();
@@ -87,5 +87,23 @@ public interface ConfigurationBuilder {
      */
     XmlObject getDeploymentPlan(URL module);
 
+    /**
+     * Build a configuration from a local file
+     * @param outfile the file to write the configuration to
+     * @param module the module to build
+     * @param plan the deployment plan
+     * @throws IOException if there was a problem reading or writing the files
+     * @throws DeploymentException if there was a problem with the configuration
+     */
+    void buildConfiguration(File outfile, File module, XmlObject plan) throws IOException, DeploymentException;
+
+    /**
+     * Build a configuration from an arbitrary input stream
+     * @param outfile the file to write the configuration to
+     * @param module the module to build
+     * @param plan the deployment plan
+     * @throws IOException if there was a problem reading or writing the files
+     * @throws DeploymentException if there was a problem with the configuration
+     */
     void buildConfiguration(File outfile, JarInputStream module, XmlObject plan) throws IOException, DeploymentException;
 }

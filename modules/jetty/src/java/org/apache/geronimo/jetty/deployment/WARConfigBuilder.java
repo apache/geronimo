@@ -62,12 +62,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.FileInputStream;
+import java.io.BufferedInputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Properties;
+import java.util.ArrayList;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
@@ -103,11 +106,12 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/02/21 17:41:55 $
+ * @version $Revision: 1.8 $ $Date: 2004/02/21 19:51:29 $
  */
 public class WARConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
@@ -154,7 +158,7 @@ public class WARConfigBuilder implements ConfigurationBuilder {
         try {
             is = planURL.openStream();
             try {
-                return XmlBeans.getContextTypeLoader().parse(is, type, null);
+                return parse(is, type);
             } finally {
                 is.close();
             }
@@ -165,25 +169,82 @@ public class WARConfigBuilder implements ConfigurationBuilder {
         }
     }
 
+    public void buildConfiguration(File outfile, File module, XmlObject plan) throws IOException, DeploymentException {
+        if (!module.isDirectory()) {
+            FileInputStream is = new FileInputStream(module);
+            try {
+                buildConfiguration(outfile, new JarInputStream(new BufferedInputStream(is)), plan);
+                return;
+            } finally {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
+        }
+        WebAppType webApp = getDD(module);
+        JettyWebAppType jettyWebApp = ((JettyWebAppDocument) plan).getWebApp();
+        URI configID = getConfigID(jettyWebApp);
+        URI parentID = getParentID(jettyWebApp);
+
+        FileOutputStream fos = new FileOutputStream(outfile);
+        try {
+            JarOutputStream os = new JarOutputStream(new BufferedOutputStream(fos));
+            DeploymentContext context = null;
+            try {
+                context = new DeploymentContext(os, configID, parentID, kernel);
+            } catch (MalformedObjectNameException e) {
+                throw new DeploymentException(e);
+            }
+
+            // todo do we need to support include and dependency or can we rely on the parent?
+            // add low-level GBean definitions to the config
+//            addIncludes(context, configType);
+//            addDependencies(context, configType.getDependencyArray());
+            ClassLoader cl = context.getClassLoader(repository);
+            addGBeans(context, jettyWebApp.getGbeanArray(), cl);
+
+
+            // add the GBean for the web application
+            addWebAppGBean(context, webApp, jettyWebApp, module.getAbsoluteFile().toURI());
+
+            // todo do we need to add GBeans to make the servlets JSR77 ManagedObjects?
+
+            context.close();
+            os.flush();
+        } finally {
+            fos.close();
+        }
+    }
+
+    private WebAppType getDD(File module) throws IOException, DeploymentException {
+        File dd = new File(module, "WEB-INF/web.xml");
+        if (!(dd.exists() && dd.canRead())) {
+            throw new DeploymentException("Cannot read WEB-INF/web.xml from module directory");
+        }
+        FileInputStream is = new FileInputStream(dd);
+        try {
+            try {
+                WebAppDocument doc = (WebAppDocument) parse(new BufferedInputStream(is), WebAppDocument.type);
+                return doc.getWebApp();
+            } catch (XmlException e) {
+                throw new DeploymentException("Unable to parse web.xml", e);
+            }
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+    }
+
     public void buildConfiguration(File outfile, JarInputStream module, XmlObject plan) throws IOException, DeploymentException {
         WebAppType webApp = null;
         JettyWebAppType jettyWebApp = ((JettyWebAppDocument) plan).getWebApp();
-        URI configID;
-        try {
-            configID = new URI(jettyWebApp.getConfigId());
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Invalid configId " + jettyWebApp.getConfigId(), e);
-        }
-        URI parentID;
-        if (jettyWebApp.isSetParentId()) {
-            try {
-                parentID = new URI(jettyWebApp.getParentId());
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid parentId " + jettyWebApp.getParentId(), e);
-            }
-        } else {
-            parentID = null;
-        }
+        URI configID = getConfigID(jettyWebApp);
+        URI parentID = getParentID(jettyWebApp);
 
         FileOutputStream fos = new FileOutputStream(outfile);
         try {
@@ -204,7 +265,7 @@ public class WARConfigBuilder implements ConfigurationBuilder {
                     byte[] buffer = getBytes(module);
                     context.addFile(target, new ByteArrayInputStream(buffer));
                     try {
-                        WebAppDocument doc = (WebAppDocument) XmlBeans.getContextTypeLoader().parse(new ByteArrayInputStream(buffer), WebAppDocument.type, null);
+                        WebAppDocument doc = (WebAppDocument) parse(new ByteArrayInputStream(buffer), WebAppDocument.type);
                         webApp = doc.getWebApp();
                     } catch (XmlException e) {
                         throw new DeploymentException("Unable to parse web.xml");
@@ -217,7 +278,6 @@ public class WARConfigBuilder implements ConfigurationBuilder {
             if (webApp == null) {
                 throw new DeploymentException("Did not find WEB-INF/web.xml in module");
             }
-            context.addToClassPath(warRoot);
 
             // todo do we need to support include and dependency or can we rely on the parent?
             // add low-level GBean definitions to the config
@@ -237,16 +297,6 @@ public class WARConfigBuilder implements ConfigurationBuilder {
         } finally {
             fos.close();
         }
-    }
-
-    private byte[] getBytes(InputStream is) throws IOException {
-        byte[] buffer = new byte[4096];
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        int count;
-        while ((count = is.read(buffer)) > 0) {
-            baos.write(buffer, 0, count);
-        }
-        return baos.toByteArray();
     }
 
     private void addWebAppGBean(DeploymentContext context, WebAppType webApp, JettyWebAppType jettyWebApp, URI warRoot) throws DeploymentException {
@@ -348,6 +398,49 @@ public class WARConfigBuilder implements ConfigurationBuilder {
 
             context.addGBean(builder.getName(), builder.getGBean());
         }
+    }
+
+    private XmlObject parse(InputStream is, SchemaType type) throws IOException, XmlException {
+        ArrayList errors = new ArrayList();
+        SchemaTypeLoader loader = XmlBeans.getContextTypeLoader();
+        XmlOptions options = new XmlOptions();
+        options.setLoadLineNumbers();
+        options.setErrorListener(errors);
+        return loader.parse(is, type, options);
+    }
+
+    private URI getParentID(JettyWebAppType jettyWebApp) throws DeploymentException {
+        URI parentID;
+        if (jettyWebApp.isSetParentId()) {
+            try {
+                parentID = new URI(jettyWebApp.getParentId());
+            } catch (URISyntaxException e) {
+                throw new DeploymentException("Invalid parentId " + jettyWebApp.getParentId(), e);
+            }
+        } else {
+            parentID = null;
+        }
+        return parentID;
+    }
+
+    private URI getConfigID(JettyWebAppType jettyWebApp) throws DeploymentException {
+        URI configID;
+        try {
+            configID = new URI(jettyWebApp.getConfigId());
+        } catch (URISyntaxException e) {
+            throw new DeploymentException("Invalid configId " + jettyWebApp.getConfigId(), e);
+        }
+        return configID;
+    }
+
+    private byte[] getBytes(InputStream is) throws IOException {
+        byte[] buffer = new byte[4096];
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        int count;
+        while ((count = is.read(buffer)) > 0) {
+            baos.write(buffer, 0, count);
+        }
+        return baos.toByteArray();
     }
 
     public static final GBeanInfo GBEAN_INFO;
