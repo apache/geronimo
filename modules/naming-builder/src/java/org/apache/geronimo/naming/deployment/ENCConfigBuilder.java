@@ -439,18 +439,25 @@ public class ENCConfigBuilder {
                 throw new DeploymentException("Could not load service interface class: " + serviceInterfaceName, e);
             }
             URI wsdlURI = null;
-            try {
-                wsdlURI = new URI(getStringValue(serviceRef.getWsdlFile().getStringValue()));
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("could not construct wsdl uri from " + serviceRef.getWsdlFile().getStringValue(), e);
+            if (serviceRef.isSetWsdlFile()) {
+                try {
+                    wsdlURI = new URI(getStringValue(serviceRef.getWsdlFile().getStringValue()));
+                } catch (URISyntaxException e) {
+                    throw new DeploymentException("could not construct wsdl uri from " + serviceRef.getWsdlFile().getStringValue(), e);
+                }
             }
             URI jaxrpcMappingURI = null;
-            try {
-                jaxrpcMappingURI = new URI(getStringValue(serviceRef.getJaxrpcMappingFile()));
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Could not construct jaxrpc mapping uri from " + serviceRef.getJaxrpcMappingFile(), e);
+            if (serviceRef.isSetJaxrpcMappingFile()) {
+                try {
+                    jaxrpcMappingURI = new URI(getStringValue(serviceRef.getJaxrpcMappingFile()));
+                } catch (URISyntaxException e) {
+                    throw new DeploymentException("Could not construct jaxrpc mapping uri from " + serviceRef.getJaxrpcMappingFile(), e);
+                }
             }
-            QName serviceQName = serviceRef.getServiceQname().getQNameValue();
+            QName serviceQName = null;
+            if (serviceRef.isSetServiceQname()) {
+                serviceQName = serviceRef.getServiceQname().getQNameValue();
+            }
             Map portComponentRefMap = new HashMap();
             PortComponentRefType[] portComponentRefs = serviceRef.getPortComponentRefArray();
             if (portComponentRefs != null) {
@@ -516,7 +523,7 @@ public class ENCConfigBuilder {
         } catch (ClassNotFoundException e) {
             throw new DeploymentException("Class " + superInterfaceName + " could not be loaded");
         }
-        if (clazz.isAssignableFrom(superInterface)) {
+        if (!superInterface.isAssignableFrom(clazz)) {
             throw new DeploymentException(interfaceType + " interface does not extend " + superInterfaceName + ": " + interfaceName);
         }
     }

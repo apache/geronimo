@@ -159,7 +159,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         }
         JavaWsdlMappingType mapping = mappingDocument.getJavaWsdlMapping();
 
-        Object service =  createService(serviceInterface, definition, mapping, serviceQName, SOAP_VERSION, deploymentContext, module, classLoader);
+        Object service = createService(serviceInterface, definition, mapping, serviceQName, SOAP_VERSION, deploymentContext, module, classLoader);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = null;
         try {
@@ -177,7 +177,9 @@ public class AxisBuilder implements ServiceReferenceBuilder {
     public javax.xml.rpc.Service createService(Class serviceInterface, Definition definition, JavaWsdlMappingType mapping, QName serviceQName, SOAPConstants soapVersion, DeploymentContext context, Module module, ClassLoader classloader) throws DeploymentException {
         Map seiFactoryMap = new HashMap();
         ServiceImpl serviceInstance = createService(serviceInterface, seiFactoryMap, context, module, classloader);
-        buildSEIFactoryMap(serviceInterface, definition, mapping, serviceQName, soapVersion, seiFactoryMap, serviceInstance, context, module, classloader);
+        if (serviceQName != null) {
+            buildSEIFactoryMap(serviceInterface, definition, mapping, serviceQName, soapVersion, seiFactoryMap, serviceInstance, context, module, classloader);
+        }
         return serviceInstance;
     }
 
@@ -218,7 +220,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         //find the service we are working with
         javax.wsdl.Service service = definition.getService(serviceQName);
         if (service == null) {
-                throw new DeploymentException("No service wsdl for supplied service interface");
+            throw new DeploymentException("No service wsdl for supplied service qname " + serviceQName);
         }
 
         Map wsdlPortMap = service.getPorts();
@@ -277,7 +279,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
             }
         }
         if (found == null) {
-            throw new DeploymentException("No method found for operation named " + opName );
+            throw new DeploymentException("No method found for operation named " + opName);
         }
         return found;
     }
@@ -293,7 +295,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
                 String longName = serviceEndpointInterface.getName();
                 String name = longName.substring(longName.lastIndexOf('.') + 1);
                 if (!name.equals(serviceEndpointInterfaceShortName) &&
-                       !Introspector.decapitalize(name).equals(serviceEndpointInterfaceShortName)) {
+                        !Introspector.decapitalize(name).equals(serviceEndpointInterfaceShortName)) {
                     throw new DeploymentException("unexpected name for service endpoint interface, expected ending: " + serviceEndpointInterfaceShortName + ", found " + serviceEndpointInterface.getName());
                 }
                 return serviceEndpointInterface;
@@ -391,8 +393,8 @@ public class AxisBuilder implements ServiceReferenceBuilder {
             if (outputMessage != null && outputMessage.getParts().size() == 1) {
                 //TODO this might be wrong
                 returnQName = outputMessage.getQName();
-                Part part = (Part)outputMessage.getParts().values().iterator().next();
-                returnType = part.getTypeName() == null? part.getElementName(): part.getTypeName();
+                Part part = (Part) outputMessage.getParts().values().iterator().next();
+                returnType = part.getTypeName() == null ? part.getElementName() : part.getTypeName();
             }
         } else {
             //todo fix this
@@ -442,7 +444,6 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         }
         return -1;
     }
-
 
 
     private void saveClass(DeploymentContext deploymentContext, String className, byte[] classBytes) throws DeploymentException {
