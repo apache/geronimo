@@ -474,7 +474,7 @@ public final class Session {
         }
 
         try {
-            Enumeration e = cl.getResources("/META-INF/javamail.providers");
+            Enumeration e = cl.getResources("META-INF/javamail.providers");
             while (e.hasMoreElements()) {
                 URL url = (URL) e.nextElement();
                 InputStream is = url.openStream();
@@ -491,7 +491,7 @@ public final class Session {
         }
 
         try {
-            Enumeration e = cl.getResources("/META-INF/javamail.default.providers");
+            Enumeration e = cl.getResources("META-INF/javamail.default.providers");
             while (e.hasMoreElements()) {
                 URL url = (URL) e.nextElement();
                 InputStream is = url.openStream();
