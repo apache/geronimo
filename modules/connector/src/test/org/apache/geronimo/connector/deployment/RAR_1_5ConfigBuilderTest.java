@@ -121,7 +121,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
         ObjectName connectionTrackerName = new ObjectName("geronimo.connector:service=ConnectionTracker");
 
         Kernel kernel = new Kernel("testServer");
-        ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(kernel);
+        ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(10, 0, 5000, 15, kernel);
         File rarFile = action.getRARFile();
 
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();

@@ -52,7 +52,7 @@ public class GenericConnectionManager extends AbstractConnectionManager {
 
         private final ConnectionInterceptor stack;
         private final ConnectionInterceptor recoveryStack;
-        private final PoolingAttributes poolingSupport;
+        private final PoolingSupport poolingSupport;
 
         /**
          * Order of constructed interceptors:
@@ -110,7 +110,7 @@ public class GenericConnectionManager extends AbstractConnectionManager {
             return recoveryStack;
         }
 
-        public PoolingAttributes getPoolingAttributes() {
+        public PoolingSupport getPoolingAttributes() {
             return poolingSupport;
         }
     }
@@ -119,19 +119,19 @@ public class GenericConnectionManager extends AbstractConnectionManager {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(GenericConnectionManager.class, AbstractConnectionManager.GBEAN_INFO);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(GenericConnectionManager.class, AbstractConnectionManager.GBEAN_INFO);
 
-        infoFactory.addAttribute("name", String.class, true);
-        infoFactory.addAttribute("transactionSupport", TransactionSupport.class, true);
-        infoFactory.addAttribute("pooling", PoolingSupport.class, true);
+        infoBuilder.addAttribute("name", String.class, true);
+        infoBuilder.addAttribute("transactionSupport", TransactionSupport.class, true);
+        infoBuilder.addAttribute("pooling", PoolingSupport.class, true);
 
-        infoFactory.addAttribute("objectName", String.class, false);
+        infoBuilder.addAttribute("objectName", String.class, false);
 
-        infoFactory.addReference("ConnectionTracker", ConnectionTracker.class);
-        infoFactory.addReference("RealmBridge", RealmBridge.class);
-        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class);
+        infoBuilder.addReference("ConnectionTracker", ConnectionTracker.class);
+        infoBuilder.addReference("RealmBridge", RealmBridge.class);
+        infoBuilder.addReference("TransactionContextManager", TransactionContextManager.class);
 
-        infoFactory.setConstructor(new String[]{
+        infoBuilder.setConstructor(new String[]{
             "transactionSupport",
             "pooling",
             "objectName",
@@ -139,7 +139,7 @@ public class GenericConnectionManager extends AbstractConnectionManager {
             "ConnectionTracker",
             "TransactionContextManager"});
 
-        GBEAN_INFO = infoFactory.getBeanInfo();
+        GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {

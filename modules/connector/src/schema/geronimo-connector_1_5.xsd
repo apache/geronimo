@@ -287,8 +287,10 @@
 
     <xsd:complexType name="singlepool-Type">
         <xsd:sequence>
-            <xsd:element name="max-size" type="xsd:int"/>
-            <xsd:element name="blocking-timeout-milliseconds" type="xsd:int"/>
+            <xsd:element name="max-size" type="xsd:int" minOccurs="0"/>
+            <xsd:element name="min-size" type="xsd:int" minOccurs="0"/>
+            <xsd:element name="blocking-timeout-milliseconds" type="xsd:int" minOccurs="0"/>
+            <xsd:element name="idle-timeout-minutes" type="xsd:int" minOccurs="0"/>
             <xsd:choice>
                 <xsd:element name="match-one"/>
                 <xsd:element name="match-all"/>

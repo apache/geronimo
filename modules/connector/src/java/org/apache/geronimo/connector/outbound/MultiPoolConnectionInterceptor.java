@@ -94,6 +94,26 @@ public class MultiPoolConnectionInterceptor implements ConnectionInterceptor, Po
         return singlePoolFactory.getPartitionMaxSize();
     }
 
+    public void setPartitionMaxSize(int maxSize) throws InterruptedException {
+        singlePoolFactory.setPartitionMaxSize(maxSize);
+        for (Iterator iterator = pools.entrySet().iterator(); iterator.hasNext();) {
+            PoolingAttributes poolingAttributes = (PoolingAttributes) ((Map.Entry) iterator.next()).getValue();
+            poolingAttributes.setPartitionMaxSize(maxSize);
+        }
+    }
+
+    public int getPartitionMinSize() {
+        return singlePoolFactory.getPartitionMinSize();
+    }
+
+    public void setPartitionMinSize(int minSize) {
+        singlePoolFactory.setPartitionMinSize(minSize);
+        for (Iterator iterator = pools.entrySet().iterator(); iterator.hasNext();) {
+            PoolingAttributes poolingAttributes = (PoolingAttributes) ((Map.Entry) iterator.next()).getValue();
+            poolingAttributes.setPartitionMinSize(minSize);
+        }
+    }
+
     public int getIdleConnectionCount() {
         int count = 0;
         for (Iterator iterator = pools.entrySet().iterator(); iterator.hasNext();) {
@@ -110,6 +130,30 @@ public class MultiPoolConnectionInterceptor implements ConnectionInterceptor, Po
             count += poolingAttributes.getConnectionCount();
         }
         return count;
+    }
+
+    public int getBlockingTimeoutMilliseconds() {
+        return singlePoolFactory.getBlockingTimeoutMilliseconds();
+    }
+
+    public void setBlockingTimeoutMilliseconds(int timeoutMilliseconds) {
+        singlePoolFactory.setBlockingTimeoutMilliseconds(timeoutMilliseconds);
+        for (Iterator iterator = pools.entrySet().iterator(); iterator.hasNext();) {
+            PoolingAttributes poolingAttributes = (PoolingAttributes) ((Map.Entry) iterator.next()).getValue();
+            poolingAttributes.setBlockingTimeoutMilliseconds(timeoutMilliseconds);
+        }
+    }
+
+    public int getIdleTimeoutMinutes() {
+        return singlePoolFactory.getIdleTimeoutMinutes();
+    }
+
+    public void setIdleTimeoutMinutes(int idleTimeoutMinutes) {
+        singlePoolFactory.setIdleTimeoutMinutes(idleTimeoutMinutes);
+        for (Iterator iterator = pools.entrySet().iterator(); iterator.hasNext();) {
+            PoolingAttributes poolingAttributes = (PoolingAttributes) ((Map.Entry) iterator.next()).getValue();
+            poolingAttributes.setIdleTimeoutMinutes(idleTimeoutMinutes);
+        }
     }
 
     static class SubjectCRIKey {

@@ -17,14 +17,10 @@
 
 package org.apache.geronimo.connector.outbound;
 
+import java.util.ArrayList;
 import java.util.Collections;
-
 import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnection;
-
-import EDU.oswego.cs.dl.util.concurrent.FIFOSemaphore;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * SinglePoolConnectionInterceptor chooses a single connection from the pool.  If selectOneAssumeMatch
@@ -36,184 +32,175 @@ import org.apache.commons.logging.LogFactory;
  * selected connection does match before returning it: if not it throws an exception.
  *
  * @version $Rev$ $Date$
- *
  */
-public class SinglePoolConnectionInterceptor implements ConnectionInterceptor, PoolingAttributes {
-
-    private static Log log = LogFactory.getLog(SinglePoolConnectionInterceptor.class.getName());
+public class SinglePoolConnectionInterceptor extends AbstractSinglePoolConnectionInterceptor {
 
 
-    private final ConnectionInterceptor next;
-
-    private FIFOSemaphore permits;
+    private boolean selectOneAssumeMatch;
 
     private PoolDeque pool;
 
-    private int blockingTimeout;
-    private boolean selectOneAssumeMatch;
 
-    private int connectionCount = 0;
-
-    public SinglePoolConnectionInterceptor(
-            final ConnectionInterceptor next,
-            int maxSize,
-            int blockingTimeout,
-            boolean selectOneAssumeMatch) {
-        this.next = next;
-        this.blockingTimeout = blockingTimeout;
-        permits = new FIFOSemaphore(maxSize);
+    public SinglePoolConnectionInterceptor(final ConnectionInterceptor next,
+                                           int maxSize,
+                                           int minSize,
+                                           int blockingTimeoutMilliseconds,
+                                           int idleTimeoutMinutes,
+                                           boolean selectOneAssumeMatch) {
+        super(next, maxSize, minSize, blockingTimeoutMilliseconds, idleTimeoutMinutes);
         pool = new PoolDeque(maxSize);
         this.selectOneAssumeMatch = selectOneAssumeMatch;
     }
 
-    public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
-        ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
-        if (mci.getManagedConnection() != null) {
-            return;
-        }
-        try {
-            if (permits.attempt(blockingTimeout)) {
-                ManagedConnectionInfo newMCI = null;
-                synchronized (pool) {
-                    if (pool.isEmpty()) {
-                        next.getConnection(connectionInfo);
-                        connectionCount++;
-                        if (log.isTraceEnabled()) {
-                            log.trace("Returning new connection " + connectionInfo.getManagedConnectionInfo());
-                        }
-                        return;
-                    } else {
-                        newMCI = pool.removeLast();
-                    }
-                    if (selectOneAssumeMatch) {
-                        connectionInfo.setManagedConnectionInfo(newMCI);
-                        if (log.isTraceEnabled()) {
-                            log.trace("Returning pooled connection without checking matching " + connectionInfo.getManagedConnectionInfo());
-                        }
-                        return;
-                    }
-                    try {
-                        ManagedConnection matchedMC =
-//                                newMCI.getManagedConnection();
-                                newMCI
-                                .getManagedConnectionFactory()
-                                .matchManagedConnections(
-                                        Collections.singleton(
-                                                newMCI.getManagedConnection()),
-                                        mci.getSubject(),
-                                        mci.getConnectionRequestInfo());
-                        if (matchedMC != null) {
-                            connectionInfo.setManagedConnectionInfo(newMCI);
-                            if (log.isTraceEnabled()) {
-                                log.trace("Returning pooled connection " + connectionInfo.getManagedConnectionInfo());
-                            }
-                            return;
-                        } else {
-                            //matching failed.
-                            ConnectionInfo returnCI = new ConnectionInfo();
-                            returnCI.setManagedConnectionInfo(newMCI);
-                            returnConnection(
-                                    returnCI,
-                                    ConnectionReturnAction.RETURN_HANDLE);
-                            throw new ResourceException("The pooling strategy does not match the MatchManagedConnections implementation.  Please investigate and reconfigure this pool");
-                        }
-                    } catch (ResourceException e) {
-                        //something is wrong: destroy connection, rethrow, release permit
-                        ConnectionInfo returnCI = new ConnectionInfo();
-                        returnCI.setManagedConnectionInfo(newMCI);
-                        returnConnection(
-                                returnCI,
-                                ConnectionReturnAction.DESTROY);
-                        throw e;
-                    } // end of try-catch
+    protected void internalGetConnection(ConnectionInfo connectionInfo) throws ResourceException {
+        synchronized (pool) {
+            ManagedConnectionInfo newMCI = null;
+            if (pool.isEmpty()) {
+                next.getConnection(connectionInfo);
+                connectionCount++;
+                if (log.isTraceEnabled()) {
+                    log.trace("Returning new connection " + connectionInfo.getManagedConnectionInfo());
                 }
+                return;
             } else {
-                throw new ResourceException(
-                        "No ManagedConnections available "
-                        + "within configured blocking timeout ( "
-                        + blockingTimeout
-                        + " [ms] )");
-
-            } // end of else
-
-        } catch (InterruptedException ie) {
-            throw new ResourceException("Interrupted while requesting permit!");
-        } // end of try-catch
-    }
-
-    public void returnConnection(
-            ConnectionInfo connectionInfo,
-            ConnectionReturnAction connectionReturnAction) {
-        if (log.isTraceEnabled()) {
-            log.trace("returning connection" + connectionInfo.getConnectionHandle());
-        }
-        boolean wasInPool = false;
-        ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
-        if (connectionReturnAction == ConnectionReturnAction.DESTROY) {
-            synchronized (pool) {
-                wasInPool = pool.remove(mci);
+                newMCI = pool.removeLast();
             }
-        } else {
-            if (mci.hasConnectionHandles()) {
+            if (connectionCount < minSize) {
+                timer.schedule(new FillTask(connectionInfo), 10);
+            }
+            if (selectOneAssumeMatch) {
+                connectionInfo.setManagedConnectionInfo(newMCI);
+                if (log.isTraceEnabled()) {
+                    log.trace("Returning pooled connection without checking matching " + connectionInfo.getManagedConnectionInfo());
+                }
                 return;
             }
-        } // end of else
+            try {
+                ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
+                ManagedConnection matchedMC =
+                        newMCI
+                        .getManagedConnectionFactory()
+                        .matchManagedConnections(Collections.singleton(newMCI.getManagedConnection()),
+                                mci.getSubject(),
+                                mci.getConnectionRequestInfo());
+                if (matchedMC != null) {
+                    connectionInfo.setManagedConnectionInfo(newMCI);
+                    if (log.isTraceEnabled()) {
+                        log.trace("Returning pooled connection " + connectionInfo.getManagedConnectionInfo());
+                    }
+                    return;
+                } else {
+                    //matching failed.
+                    ConnectionInfo returnCI = new ConnectionInfo();
+                    returnCI.setManagedConnectionInfo(newMCI);
+                    returnConnection(returnCI,
+                            ConnectionReturnAction.RETURN_HANDLE);
+                    throw new ResourceException("The pooling strategy does not match the MatchManagedConnections implementation.  Please investigate and reconfigure this pool");
+                }
+            } catch (ResourceException e) {
+                //something is wrong: destroy connection, rethrow, release permit
+                ConnectionInfo returnCI = new ConnectionInfo();
+                returnCI.setManagedConnectionInfo(newMCI);
+                returnConnection(returnCI,
+                        ConnectionReturnAction.DESTROY);
+                throw e;
+            }
+        }
+    }
 
+    protected boolean internalReturn(ConnectionInfo connectionInfo, ConnectionReturnAction connectionReturnAction) {
+        ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
         ManagedConnection mc = mci.getManagedConnection();
         try {
             mc.cleanup();
         } catch (ResourceException e) {
             connectionReturnAction = ConnectionReturnAction.DESTROY;
         }
-
-        if (connectionReturnAction == ConnectionReturnAction.DESTROY) {
-            next.returnConnection(connectionInfo, connectionReturnAction);
-            connectionCount--;
-        } else {
-            synchronized (pool) {
+        boolean wasInPool = false;
+        synchronized (pool) {
+            if (shrinkLater > 0) {
+                //nothing can get in the pool while shrinkLater > 0, so wasInPool is false here.
+                connectionReturnAction = ConnectionReturnAction.DESTROY;
+                shrinkLater--;
+            } else if (connectionReturnAction == ConnectionReturnAction.RETURN_HANDLE) {
                 mci.setLastUsed(System.currentTimeMillis());
-                pool.addLast(mci);
+                pool.add(mci);
+                return wasInPool;
+            } else {
+                wasInPool = pool.remove(mci);
             }
-
-        } // end of else
-
-        if (!wasInPool) {
-            permits.release();
         }
-    }
-
-    public int getPartitionCount() {
-        return 1;
+        //we must destroy connection.
+        next.returnConnection(connectionInfo, connectionReturnAction);
+        connectionCount--;
+        return wasInPool;
     }
 
     public int getPartitionMaxSize() {
         return pool.capacity();
     }
 
+    protected void transferConnections(int maxSize, int shrinkNow) {
+        //1st example: copy 0 (none)
+        //2nd example: copy 10 (all)
+        PoolDeque oldPool = pool;
+        pool = new PoolDeque(maxSize);
+        //since we have replaced pool already, pool.remove will be very fast:-)
+        for (int i = 0; i < shrinkNow; i++) {
+            ConnectionInfo killInfo = new ConnectionInfo(oldPool.peek(i));
+            internalReturn(killInfo, ConnectionReturnAction.DESTROY);
+        }
+        for (int i = shrinkNow; i < connectionCount; i++) {
+            pool.add(oldPool.peek(i));
+        }
+    }
+
     public int getIdleConnectionCount() {
         return pool.currentSize();
     }
 
-    public int getConnectionCount() {
-        return connectionCount;
+
+    protected void getExpiredManagedConnectionInfos(long threshold, ArrayList killList) {
+        synchronized (pool) {
+            for (int i = 0; i < pool.currentSize(); i++) {
+                ManagedConnectionInfo mci = pool.peek(i);
+                if (mci.getLastUsed() < threshold) {
+                    killList.add(mci);
+                }
+            }
+        }
     }
+
+    protected boolean addToPool(ManagedConnectionInfo mci) {
+        boolean added;
+        synchronized (pool) {
+            connectionCount++;
+            added = getPartitionMaxSize() > getIdleConnectionCount();
+            if (added) {
+                pool.add(mci);
+            }
+        }
+        return added;
+    }
+
 
     static class PoolDeque {
 
         private final ManagedConnectionInfo[] deque;
-        private int first = 0;
+        private final int first = 0;
         private int last = -1;
 
         public PoolDeque(int size) {
             deque = new ManagedConnectionInfo[size];
         }
 
+        //internal
         public boolean isEmpty() {
             return first > last;
         }
 
-
-        public void addLast(ManagedConnectionInfo mci) {
+        //internal
+        public void add(ManagedConnectionInfo mci) {
             if (last == deque.length - 1) {
                 throw new IllegalStateException("deque is full");
             }
@@ -221,14 +208,15 @@ public class SinglePoolConnectionInterceptor implements ConnectionInterceptor, P
             deque[++last] = mci;
         }
 
-        public ManagedConnectionInfo peekLast() {
-            if (isEmpty()) {
-                throw new IllegalStateException("deque is empty");
+        //internal
+        public ManagedConnectionInfo peek(int i) {
+            if (i < first || i > last) {
+                throw new IllegalStateException("index is out of current range");
             }
-
-            return deque[last];
+            return deque[i];
         }
 
+        //internal
         public ManagedConnectionInfo removeLast() {
             if (isEmpty()) {
                 throw new IllegalStateException("deque is empty");
@@ -237,6 +225,7 @@ public class SinglePoolConnectionInterceptor implements ConnectionInterceptor, P
             return deque[last--];
         }
 
+        //internal
         public boolean remove(ManagedConnectionInfo mci) {
             for (int i = first; i <= last; i++) {
                 if (deque[i] == mci) {
@@ -251,13 +240,15 @@ public class SinglePoolConnectionInterceptor implements ConnectionInterceptor, P
             return false;
         }
 
+        //internal
         public int capacity() {
             return deque.length;
         }
 
+        //internal
         public int currentSize() {
             return last - first + 1;
         }
     }
 
-} // SinglePoolConnectionInterceptor
+}

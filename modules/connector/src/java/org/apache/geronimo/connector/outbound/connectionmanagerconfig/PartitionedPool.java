@@ -36,8 +36,8 @@ public class PartitionedPool implements PoolingSupport {
 
     private PoolingAttributes poolingAttributes;
 
-    public PartitionedPool(boolean partitionByConnectionRequestInfo, boolean partitionBySubject, int maxSize, int blockingTimeoutMilliseconds, boolean matchOne, boolean matchAll, boolean selectOneAssumeMatch) {
-        singlePool = new SinglePool(maxSize, blockingTimeoutMilliseconds, matchOne, matchAll, selectOneAssumeMatch);
+    public PartitionedPool(int maxSize, int minSize, int blockingTimeoutMilliseconds, int idleTimeoutMinutes, boolean matchOne, boolean matchAll, boolean selectOneAssumeMatch, boolean partitionByConnectionRequestInfo, boolean partitionBySubject) {
+        singlePool = new SinglePool(maxSize, minSize, blockingTimeoutMilliseconds, idleTimeoutMinutes, matchOne, matchAll, selectOneAssumeMatch);
         this.partitionByConnectionRequestInfo = partitionByConnectionRequestInfo;
         this.partitionBySubject = partitionBySubject;
     }
@@ -67,11 +67,19 @@ public class PartitionedPool implements PoolingSupport {
     }
 
     public int getBlockingTimeoutMilliseconds() {
-        return singlePool.getBlockingTimeoutMilliseconds();
+        return poolingAttributes.getBlockingTimeoutMilliseconds();
     }
 
     public void setBlockingTimeoutMilliseconds(int blockingTimeoutMilliseconds) {
-        singlePool.setBlockingTimeoutMilliseconds(blockingTimeoutMilliseconds);
+        poolingAttributes.setBlockingTimeoutMilliseconds(blockingTimeoutMilliseconds);
+    }
+
+    public int getIdleTimeoutMinutes() {
+        return poolingAttributes.getIdleTimeoutMinutes();
+    }
+
+    public void setIdleTimeoutMinutes(int idleTimeoutMinutes) {
+        poolingAttributes.setIdleTimeoutMinutes(idleTimeoutMinutes);
     }
 
     public boolean isMatchOne() {
@@ -114,6 +122,18 @@ public class PartitionedPool implements PoolingSupport {
 
     public int getPartitionMaxSize() {
         return poolingAttributes.getPartitionMaxSize();
+    }
+
+    public void setPartitionMaxSize(int maxSize) throws InterruptedException {
+        poolingAttributes.setPartitionMaxSize(maxSize);
+    }
+
+    public int getPartitionMinSize() {
+        return poolingAttributes.getPartitionMinSize();
+    }
+
+    public void setPartitionMinSize(int minSize) {
+        poolingAttributes.setPartitionMinSize(minSize);
     }
 
     public int getIdleConnectionCount() {

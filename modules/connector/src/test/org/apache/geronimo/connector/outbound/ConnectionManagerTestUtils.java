@@ -53,7 +53,9 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
     protected boolean useThreadCaching = false;
     protected boolean useTransactions = true;
     protected int maxSize = 10;
+    protected int minSize = 0;
     protected int blockingTimeout = 100;
+    protected int idleTimeoutMinutes = 15;
     protected boolean useConnectionRequestInfo = false;
     protected boolean useSubject = true;
     private boolean matchOne = true;
@@ -75,7 +77,7 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
     protected Subject subject;
     protected UserTransactionImpl userTransaction;
     protected TransactionSupport transactionSupport = new XATransactions(useTransactionCaching, useThreadCaching);
-    protected PoolingSupport poolingSupport = new PartitionedPool(useConnectionRequestInfo, useSubject, maxSize, blockingTimeout, matchOne, matchAll, selectOneNoMatch);
+    protected PoolingSupport poolingSupport = new PartitionedPool(maxSize, minSize, blockingTimeout, idleTimeoutMinutes, matchOne, matchAll, selectOneNoMatch, useConnectionRequestInfo, useSubject);
 
     protected DefaultInterceptor mockComponent = new DefaultInterceptor() {
         public Object invoke(InstanceContext newInstanceContext) throws Throwable {

@@ -26,6 +26,7 @@ import javax.resource.spi.ManagedConnectionFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
+import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
 
 /**
  * @version $Rev$ $Date$
@@ -98,6 +99,18 @@ public abstract class AbstractConnectionManager implements ConnectionManagerFact
         return getPooling().getPartitionMaxSize();
     }
 
+    public void setPartitionMaxSize(int maxSize) throws InterruptedException {
+        getPooling().setPartitionMaxSize(maxSize);
+    }
+
+    public int getPartitionMinSize() {
+        return getPooling().getPartitionMinSize();
+    }
+
+    public void setPartitionMinSize(int minSize) {
+        getPooling().setPartitionMinSize(minSize);
+    }
+
     public int getIdleConnectionCount() {
         return getPooling().getIdleConnectionCount();
     }
@@ -106,6 +119,21 @@ public abstract class AbstractConnectionManager implements ConnectionManagerFact
         return getPooling().getConnectionCount();
     }
 
+    public int getBlockingTimeoutMilliseconds() {
+        return getPooling().getBlockingTimeoutMilliseconds();
+    }
+
+    public void setBlockingTimeoutMilliseconds(int timeoutMilliseconds) {
+        getPooling().setBlockingTimeoutMilliseconds(timeoutMilliseconds);
+    }
+
+    public int getIdleTimeoutMinutes() {
+        return getPooling().getIdleTimeoutMinutes();
+    }
+
+    public void setIdleTimeoutMinutes(int idleTimeoutMinutes) {
+        getPooling().setIdleTimeoutMinutes(idleTimeoutMinutes);
+    }
 
     private ConnectionInterceptor getStack() {
         return interceptors.getStack();
@@ -115,26 +143,30 @@ public abstract class AbstractConnectionManager implements ConnectionManagerFact
         return interceptors.getRecoveryStack();
     }
 
-    private PoolingAttributes getPooling() {
+    //public for persistence of pooling attributes (max, min size, blocking/idle timeouts)
+    public PoolingSupport getPooling() {
         return interceptors.getPoolingAttributes();
     }
 
     public interface Interceptors {
         ConnectionInterceptor getStack();
+
         ConnectionInterceptor getRecoveryStack();
-        PoolingAttributes getPoolingAttributes();
+
+        PoolingSupport getPoolingAttributes();
     }
 
     protected static final GBeanInfo GBEAN_INFO;
 
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AbstractConnectionManager.class);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(AbstractConnectionManager.class);
 
-        infoFactory.addInterface(ConnectionManagerFactory.class);
-        infoFactory.addInterface(PoolingAttributes.class);
+        infoBuilder.addInterface(ConnectionManagerFactory.class);
+        //these attributes are persisted via the pooling state.
+        infoBuilder.addInterface(PoolingAttributes.class);
 
-        GBEAN_INFO = infoFactory.getBeanInfo();
+        GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
 }

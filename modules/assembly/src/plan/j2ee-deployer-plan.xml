@@ -109,7 +109,12 @@ Configuration for the Geronimo deployer
 
     <gbean name="geronimo.deployer:role=ClientEJBReferenceBuilder,config=org/apache/geronimo/J2EEDeployer" class="org.openejb.deployment.RemoteEJBReferenceBuilder"/>
 
-    <gbean name="geronimo.deployer:role=ModuleBuilder,type=Connector,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.connector.deployment.ConnectorModuleBuilder"/>
+    <gbean name="geronimo.deployer:role=ModuleBuilder,type=Connector,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.connector.deployment.ConnectorModuleBuilder">
+        <attribute name="defaultMaxSize" type="int">10</attribute>
+        <attribute name="defaultMinSize" type="int">0</attribute>
+        <attribute name="defaultBlockingTimeoutMilliseconds" type="int">5000</attribute>
+        <attribute name="defaultIdleTimeoutMinutes" type="int">15</attribute>
+    </gbean>
 
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=AppClient,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.client.builder.AppClientModuleBuilder">
         <attribute name="transactionContextManagerObjectName" type="javax.management.ObjectName">geronimo.client:type=TransactionContextManager</attribute>

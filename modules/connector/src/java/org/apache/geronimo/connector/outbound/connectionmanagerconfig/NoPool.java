@@ -34,15 +34,43 @@ public class NoPool implements PoolingSupport {
         return 0;
     }
 
-    public int getPartitionMaxSize() {
-        return 0;
-    }
-
     public int getIdleConnectionCount() {
         return 0;
     }
 
     public int getConnectionCount() {
         return 0;
+    }
+
+    public int getPartitionMaxSize() {
+        return 0;
+    }
+
+    public void setPartitionMaxSize(int maxSize) {
+
+    }
+
+    public int getPartitionMinSize() {
+        return 0;
+    }
+
+    public void setPartitionMinSize(int minSize) {
+
+    }
+
+    public int getBlockingTimeoutMilliseconds() {
+        return 0;
+    }
+
+    public void setBlockingTimeoutMilliseconds(int timeoutMilliseconds) {
+
+    }
+
+    public int getIdleTimeoutMinutes() {
+        return 0;
+    }
+
+    public void setIdleTimeoutMinutes(int idleTimeoutMinutes) {
+
     }
 }

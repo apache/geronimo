@@ -14,32 +14,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.geronimo.connector.outbound;
 
+import java.util.Timer;
+
 /**
- * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
+ * @version $Rev:  $ $Date:  $
  */
-public interface PoolingAttributes {
-    int getPartitionCount();
+public class PoolIdleReleaserTimer {
 
-    int getConnectionCount();
+    private static final Timer timer = new Timer(true);
 
-    int getIdleConnectionCount();
-
-    int getPartitionMaxSize();
-
-    void setPartitionMaxSize(int maxSize) throws InterruptedException;
-
-    int getPartitionMinSize();
-
-    void setPartitionMinSize(int minSize);
-
-    int getBlockingTimeoutMilliseconds();
-
-    void setBlockingTimeoutMilliseconds(int timeoutMilliseconds);
-
-    int getIdleTimeoutMinutes();
-
-    void setIdleTimeoutMinutes(int idleTimeoutMinutes);
+    public static Timer getTimer() {
+        return timer;
+    }
 }

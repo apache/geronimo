@@ -23,23 +23,24 @@ import org.apache.geronimo.connector.outbound.SinglePoolMatchAllConnectionInterc
 import org.apache.geronimo.connector.outbound.PoolingAttributes;
 
 /**
- *
- *
  * @version $Rev$ $Date$
- *
- * */
+ */
 public class SinglePool implements PoolingSupport {
     private int maxSize;
+    private int minSize;
     private int blockingTimeoutMilliseconds;
+    private int idleTimeoutMinutes;
     private boolean matchOne;
     private boolean matchAll;
     private boolean selectOneAssumeMatch;
 
     private PoolingAttributes pool;
 
-    public SinglePool(int maxSize, int blockingTimeoutMilliseconds, boolean matchOne, boolean matchAll, boolean selectOneAssumeMatch) {
+    public SinglePool(int maxSize, int minSize, int blockingTimeoutMilliseconds, int idleTimeoutMinutes, boolean matchOne, boolean matchAll, boolean selectOneAssumeMatch) {
         this.maxSize = maxSize;
+        this.minSize = minSize;
         this.blockingTimeoutMilliseconds = blockingTimeoutMilliseconds;
+        this.idleTimeoutMinutes = idleTimeoutMinutes;
         this.matchOne = matchOne;
         this.matchAll = matchAll;
         this.selectOneAssumeMatch = selectOneAssumeMatch;
@@ -53,12 +54,34 @@ public class SinglePool implements PoolingSupport {
         this.maxSize = maxSize;
     }
 
+    public int getMinSize() {
+        return minSize;
+    }
+
+    public void setMinSize(int minSize) {
+        this.minSize = minSize;
+    }
+
     public int getBlockingTimeoutMilliseconds() {
         return blockingTimeoutMilliseconds;
     }
 
     public void setBlockingTimeoutMilliseconds(int blockingTimeoutMilliseconds) {
         this.blockingTimeoutMilliseconds = blockingTimeoutMilliseconds;
+        if (pool != null) {
+            pool.setBlockingTimeoutMilliseconds(blockingTimeoutMilliseconds);
+        }
+    }
+
+    public int getIdleTimeoutMinutes() {
+        return idleTimeoutMinutes;
+    }
+
+    public void setIdleTimeoutMinutes(int idleTimeoutMinutes) {
+        this.idleTimeoutMinutes = idleTimeoutMinutes;
+        if (pool != null) {
+            pool.setIdleTimeoutMinutes(idleTimeoutMinutes);
+        }
     }
 
     public boolean isMatchOne() {
@@ -87,18 +110,20 @@ public class SinglePool implements PoolingSupport {
 
     public ConnectionInterceptor addPoolingInterceptors(ConnectionInterceptor tail) {
         if (isMatchAll()) {
-            SinglePoolMatchAllConnectionInterceptor pool = new SinglePoolMatchAllConnectionInterceptor(
-                    tail,
+            SinglePoolMatchAllConnectionInterceptor pool = new SinglePoolMatchAllConnectionInterceptor(tail,
                     getMaxSize(),
-                    getBlockingTimeoutMilliseconds());
+                    getMinSize(),
+                    getBlockingTimeoutMilliseconds(),
+                    getIdleTimeoutMinutes());
             this.pool = pool;
             return pool;
 
         } else {
-            SinglePoolConnectionInterceptor pool = new SinglePoolConnectionInterceptor(
-                    tail,
+            SinglePoolConnectionInterceptor pool = new SinglePoolConnectionInterceptor(tail,
                     getMaxSize(),
+                    getMinSize(),
                     getBlockingTimeoutMilliseconds(),
+                    getIdleTimeoutMinutes(),
                     isSelectOneAssumeMatch());
             this.pool = pool;
             return pool;
@@ -110,14 +135,32 @@ public class SinglePool implements PoolingSupport {
     }
 
     public int getPartitionMaxSize() {
-        return pool == null?  maxSize: pool.getPartitionMaxSize();
+        return maxSize;
+    }
+
+    public void setPartitionMaxSize(int maxSize) throws InterruptedException {
+        if (pool != null) {
+            pool.setPartitionMaxSize(maxSize);
+        }
+        this.maxSize = maxSize;
+    }
+
+    public int getPartitionMinSize() {
+        return minSize;
+    }
+
+    public void setPartitionMinSize(int minSize) {
+        if (pool != null) {
+            pool.setPartitionMinSize(minSize);
+        }
+        this.minSize = minSize;
     }
 
     public int getIdleConnectionCount() {
-        return pool.getIdleConnectionCount();
+        return pool == null ? 0 : pool.getIdleConnectionCount();
     }
 
     public int getConnectionCount() {
-        return pool.getConnectionCount();
+        return pool == null ? 0 : pool.getConnectionCount();
     }
 }

@@ -80,6 +80,8 @@ import org.apache.geronimo.xbeans.geronimo.GerConnectorType;
 import org.apache.geronimo.xbeans.geronimo.GerDependencyType;
 import org.apache.geronimo.xbeans.geronimo.GerGbeanType;
 import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
+import org.apache.geronimo.xbeans.geronimo.GerSinglepoolType;
+import org.apache.geronimo.xbeans.geronimo.GerPartitionedpoolType;
 import org.apache.geronimo.xbeans.j2ee.ActivationspecType;
 import org.apache.geronimo.xbeans.j2ee.AdminobjectType;
 import org.apache.geronimo.xbeans.j2ee.ConfigPropertyType;
@@ -104,9 +106,17 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     private static final String BASE_REALM_BRIDGE_NAME = "geronimo.security:service=RealmBridge,name=";
     private static final String BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME = "geronimo.security:service=Realm,type=PasswordCredential,name=";
 
+    private final int defaultMaxSize;
+    private final int defaultMinSize;
+    private final int defaultBlockingTimeoutMilliseconds;
+    private final int defaultIdleTimeoutMinutes;
     private final Kernel kernel;
 
-    public ConnectorModuleBuilder(Kernel kernel) {
+    public ConnectorModuleBuilder(int defaultMaxSize, int defaultMinSize, int defaultBlockingTimeoutMilliseconds, int defaultIdleTimeoutMinutes, Kernel kernel) {
+        this.defaultMaxSize = defaultMaxSize;
+        this.defaultMinSize = defaultMinSize;
+        this.defaultBlockingTimeoutMilliseconds = defaultBlockingTimeoutMilliseconds;
+        this.defaultIdleTimeoutMinutes = defaultIdleTimeoutMinutes;
         this.kernel = kernel;
     }
 
@@ -438,7 +448,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             }
 
 
-         }
+        }
         //
         // admin objects (think message queuse and topics)
         //
@@ -451,35 +461,35 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         }
         // add configured admin objects
         for (int i = 0; i < geronimoConnector.getAdminobjectArray().length; i++) {
-             GerAdminobjectType gerAdminObject = geronimoConnector.getAdminobjectArray()[i];
+            GerAdminobjectType gerAdminObject = geronimoConnector.getAdminobjectArray()[i];
 
-             String adminObjectInterface = gerAdminObject.getAdminobjectInterface().getStringValue();
-             AdminobjectType adminObject = (AdminobjectType) adminObjectInterfaceMap.get(adminObjectInterface);
-             if (adminObject == null) {
-                 throw new DeploymentException("No admin object declared for interface: " + adminObjectInterface);
-             }
+            String adminObjectInterface = gerAdminObject.getAdminobjectInterface().getStringValue();
+            AdminobjectType adminObject = (AdminobjectType) adminObjectInterfaceMap.get(adminObjectInterface);
+            if (adminObject == null) {
+                throw new DeploymentException("No admin object declared for interface: " + adminObjectInterface);
+            }
 
-             for (int j = 0; j < gerAdminObject.getAdminobjectInstanceArray().length; j++) {
-                 GerAdminobjectInstanceType gerAdminObjectInstance = gerAdminObject.getAdminobjectInstanceArray()[j];
+            for (int j = 0; j < gerAdminObject.getAdminobjectInstanceArray().length; j++) {
+                GerAdminobjectInstanceType gerAdminObjectInstance = gerAdminObject.getAdminobjectInstanceArray()[j];
 
-                 // create the adminObjectGBean
-                 GBeanInfoBuilder adminObjectInfoFactory = new GBeanInfoBuilder("org.apache.geronimo.connector.AdminObjectWrapper", cl);
-                 ConfigProperty[] configProperties = getConfigProperties(adminObject.getConfigPropertyArray(), gerAdminObjectInstance.getConfigPropertySettingArray());
-                 GBeanMBean adminObjectGBean = setUpDynamicGBean(adminObjectInfoFactory, configProperties, cl);
+                // create the adminObjectGBean
+                GBeanInfoBuilder adminObjectInfoFactory = new GBeanInfoBuilder("org.apache.geronimo.connector.AdminObjectWrapper", cl);
+                ConfigProperty[] configProperties = getConfigProperties(adminObject.getConfigPropertyArray(), gerAdminObjectInstance.getConfigPropertySettingArray());
+                GBeanMBean adminObjectGBean = setUpDynamicGBean(adminObjectInfoFactory, configProperties, cl);
 
-                 // set the standard properties
-                 try {
-                     adminObjectGBean.setAttribute("adminObjectInterface", cl.loadClass(adminObjectInterface));
-                     adminObjectGBean.setAttribute("adminObjectClass", cl.loadClass(adminObject.getAdminobjectClass().getStringValue()));
-                 } catch (Exception e) {
-                     throw new DeploymentException("Could not initialize AdminObject", e);
-                 }
+                // set the standard properties
+                try {
+                    adminObjectGBean.setAttribute("adminObjectInterface", cl.loadClass(adminObjectInterface));
+                    adminObjectGBean.setAttribute("adminObjectClass", cl.loadClass(adminObject.getAdminobjectClass().getStringValue()));
+                } catch (Exception e) {
+                    throw new DeploymentException("Could not initialize AdminObject", e);
+                }
 
-                 // add it
-                 ObjectName adminObjectObjectName = NameFactory.getResourceComponentName(null, null, null, null, gerAdminObjectInstance.getMessageDestinationName(), NameFactory.JCA_ADMIN_OBJECT, moduleJ2eeContext);
-                 earContext.addGBean(adminObjectObjectName, adminObjectGBean);
-             }
-         }
+                // add it
+                ObjectName adminObjectObjectName = NameFactory.getResourceComponentName(null, null, null, null, gerAdminObjectInstance.getMessageDestinationName(), NameFactory.JCA_ADMIN_OBJECT, moduleJ2eeContext);
+                earContext.addGBean(adminObjectObjectName, adminObjectGBean);
+            }
+        }
     }
 
     private Map getActivationSpecInfoMap(MessagelistenerType[] messagelistenerArray, ClassLoader cl) throws DeploymentException {
@@ -512,9 +522,9 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             }
 
             GBeanInfo gbeanInfo = infoFactory.getBeanInfo();
-            Class activationSpecClass = null;
             try {
-                activationSpecClass = cl.loadClass(activationSpecClassName);
+                //make sure the class is available, but we don't use it.
+                cl.loadClass(activationSpecClassName);
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("Could not load ActivationSpec class", e);
             }
@@ -659,24 +669,29 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             throw new DeploymentException("Unexpected transaction support element");
         }
         PoolingSupport pooling = null;
-        //TODO configure this
-//        int idleTimeoutMinutes = 15;
         if (connectionManager.getSinglePool() != null) {
-            pooling = new SinglePool(connectionManager.getSinglePool().getMaxSize(),
-                    connectionManager.getSinglePool().getBlockingTimeoutMilliseconds(),
-//                    idleTimeoutMinutes,
-                    connectionManager.getSinglePool().getMatchOne() != null,
-                    connectionManager.getSinglePool().getMatchAll() != null,
-                    connectionManager.getSinglePool().getSelectOneAssumeMatch() != null);
+            GerSinglepoolType pool = connectionManager.getSinglePool();
+
+            pooling = new SinglePool(
+                    pool.isSetMaxSize() ? pool.getMaxSize() : defaultMaxSize,
+                    pool.isSetMinSize() ? pool.getMinSize() : defaultMinSize,
+                    pool.isSetBlockingTimeoutMilliseconds() ? pool.getBlockingTimeoutMilliseconds() : defaultBlockingTimeoutMilliseconds,
+                    pool.isSetIdleTimeoutMinutes() ? pool.getIdleTimeoutMinutes() : defaultIdleTimeoutMinutes,
+                    pool.getMatchOne() != null,
+                    pool.getMatchAll() != null,
+                    pool.getSelectOneAssumeMatch() != null);
         } else if (connectionManager.getPartitionedPool() != null) {
-            pooling = new PartitionedPool(connectionManager.getPartitionedPool().getPartitionByConnectionrequestinfo() != null,
-                    connectionManager.getPartitionedPool().getPartitionBySubject() != null,
-                    connectionManager.getPartitionedPool().getMaxSize(),
-                    connectionManager.getPartitionedPool().getBlockingTimeoutMilliseconds(),
-//                    idleTimeoutMinutes,
-                    connectionManager.getPartitionedPool().getMatchOne() != null,
-                    connectionManager.getPartitionedPool().getMatchAll() != null,
-                    connectionManager.getPartitionedPool().getSelectOneAssumeMatch() != null);
+            GerPartitionedpoolType pool = connectionManager.getPartitionedPool();
+            pooling = new PartitionedPool(
+                    pool.isSetMaxSize() ? pool.getMaxSize() : defaultMaxSize,
+                    pool.isSetMinSize() ? pool.getMinSize() : defaultMinSize,
+                    pool.isSetBlockingTimeoutMilliseconds() ? pool.getBlockingTimeoutMilliseconds() : defaultBlockingTimeoutMilliseconds,
+                    pool.isSetIdleTimeoutMinutes() ? pool.getIdleTimeoutMinutes() : defaultIdleTimeoutMinutes,
+                    pool.getMatchOne() != null,
+                    pool.getMatchAll() != null,
+                    pool.getSelectOneAssumeMatch() != null,
+                    pool.isSetPartitionByConnectionrequestinfo(),
+                    pool.isSetPartitionBySubject());
         } else if (connectionManager.getNoPool() != null) {
             pooling = new NoPool();
         } else {
@@ -836,12 +851,19 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ConnectorModuleBuilder.class);
-        infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addInterface(ModuleBuilder.class);
-        infoFactory.addInterface(ResourceReferenceBuilder.class);
-        infoFactory.setConstructor(new String[] {"kernel"});
-        GBEAN_INFO = infoFactory.getBeanInfo();
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ConnectorModuleBuilder.class);
+        infoBuilder.addAttribute("defaultMaxSize", int.class, true);
+        infoBuilder.addAttribute("defaultMinSize", int.class, true);
+        infoBuilder.addAttribute("defaultBlockingTimeoutMilliseconds", int.class, true);
+        infoBuilder.addAttribute("defaultIdleTimeoutMinutes", int.class, true);
+
+        infoBuilder.addAttribute("kernel", Kernel.class, false);
+
+        infoBuilder.addInterface(ModuleBuilder.class);
+        infoBuilder.addInterface(ResourceReferenceBuilder.class);
+
+        infoBuilder.setConstructor(new String[]{"defaultMaxSize", "defaultMinSize", "defaultBlockingTimeoutMilliseconds", "defaultIdleTimeoutMinutes", "kernel"});
+        GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {
