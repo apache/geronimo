@@ -32,7 +32,7 @@ import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
- * @version $Revision: 1.11 $ $Date: 2004/07/27 01:55:45 $
+ * @version $Revision: 1.12 $ $Date: 2004/07/28 17:30:45 $
  */
 public class SocketProtocolStressTest extends TestCase {
 
@@ -61,7 +61,7 @@ public class SocketProtocolStressTest extends TestCase {
 
     public void testConcurrentRequests() throws Exception {
 
-        final int WORKERS = 100;
+        final int WORKERS = 10;
         final int MESSAGE_COUNT = 10;
         final CyclicBarrier barrier = new CyclicBarrier(WORKERS);
         final CountDown finished = new CountDown(WORKERS);
