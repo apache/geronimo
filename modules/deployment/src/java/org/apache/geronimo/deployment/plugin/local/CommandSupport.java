@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.io.StringWriter;
+import java.io.PrintWriter;
 import javax.enterprise.deploy.shared.ActionType;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.shared.StateType;
@@ -31,6 +33,7 @@ import javax.enterprise.deploy.spi.status.DeploymentStatus;
 import javax.enterprise.deploy.spi.status.ProgressEvent;
 import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressObject;
+import javax.management.MBeanException;
 
 /**
  *
@@ -99,6 +102,17 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
     protected final void complete(String message) {
         sendEvent(message, StateType.COMPLETED);
     }
+
+    protected void doFail(Exception e) {
+        if (e instanceof MBeanException) {
+            e = ((MBeanException)e).getTargetException();
+        }
+        StringWriter writer = new StringWriter();
+         PrintWriter printWriter = new PrintWriter(writer);
+         printWriter.println(e.getMessage());
+         e.printStackTrace(printWriter);
+         fail(writer.toString());
+     }
 
     private void sendEvent(String message, StateType state) {
         assert !Thread.holdsLock(this) : "Trying to send event whilst holding lock";

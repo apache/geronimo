@@ -17,16 +17,14 @@
 package org.apache.geronimo.deployment.plugin.local;
 
 import java.net.URI;
-import java.io.StringWriter;
-import java.io.PrintWriter;
-import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.shared.CommandType;
+import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.kernel.KernelMBean;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
+import org.apache.geronimo.kernel.KernelMBean;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
 
 /**
  * @version $Rev$ $Date$
@@ -63,10 +61,7 @@ public class UndeployCommand extends CommandSupport {
             }
             complete("Completed");
         } catch (Exception e) {
-            StringWriter writer = new StringWriter();
-            PrintWriter printWriter = new PrintWriter(writer);
-            e.printStackTrace(printWriter);
-            fail(writer.toString());
+            doFail(e);
         }
     }
 }

@@ -16,18 +16,18 @@
  */
 package org.apache.geronimo.deployment.plugin.local;
 
-import java.net.URI;
 import java.io.File;
-import java.util.Set;
+import java.net.URI;
 import java.util.Iterator;
-import javax.enterprise.deploy.spi.TargetModuleID;
+import java.util.Set;
 import javax.enterprise.deploy.shared.CommandType;
+import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.kernel.KernelMBean;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
+import org.apache.geronimo.kernel.KernelMBean;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
  * @version $Rev$ $Date$
@@ -78,7 +78,7 @@ public class RedeployCommand extends CommandSupport {
             }
             complete("Completed");
         } catch (Exception e) {
-            fail(e.getMessage());
+            doFail(e);
         }
     }
 }

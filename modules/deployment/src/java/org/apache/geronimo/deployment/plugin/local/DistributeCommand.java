@@ -18,23 +18,21 @@
 package org.apache.geronimo.deployment.plugin.local;
 
 import java.io.File;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.io.FileOutputStream;
-import java.io.StringWriter;
-import java.io.PrintWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
 import java.util.Iterator;
 import java.util.Set;
-import java.net.URI;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.kernel.KernelMBean;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.deployment.util.FileUtil;
+import org.apache.geronimo.kernel.KernelMBean;
 
 /**
  * @version $Rev$ $Date$
@@ -98,10 +96,7 @@ public class DistributeCommand extends CommandSupport {
             addModule(moduleID);
             complete("Completed");
         } catch (Exception e) {
-            StringWriter writer = new StringWriter();
-            PrintWriter printWriter = new PrintWriter(writer);
-            e.printStackTrace(printWriter);
-            fail(writer.toString());
+            doFail(e);
         } finally {
             if (spool) {
                 if (moduleArchive != null) {
