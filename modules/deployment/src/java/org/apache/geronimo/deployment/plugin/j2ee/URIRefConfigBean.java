@@ -62,12 +62,12 @@ import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
 /**
  * 
  * 
- * @version $Revision: 1.3 $ $Date: 2004/01/23 19:58:16 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/23 22:39:08 $
  */
-public class EJBRefConfigBean extends DConfigBeanSupport {
+public class URIRefConfigBean extends DConfigBeanSupport {
     private String targetURI;
 
-    public EJBRefConfigBean(DDBean ddBean) {
+    public URIRefConfigBean(DDBean ddBean) {
         super(ddBean);
     }
 
