@@ -42,7 +42,6 @@
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"
-            home="${basedir}"
             module="${basedir}/target/${pom.artifactId}-${pom.currentVersion}.jar"
             plan="${basedir}/src/plan/plan1.xml"
             />

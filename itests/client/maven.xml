@@ -71,7 +71,6 @@
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"
-            home="${basedir}"
             module="${basedir}/target/geronimo-itests-client-${pom.currentVersion}.jar"
             />
         <echo message="distributed ejbs"/>
