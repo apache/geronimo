@@ -32,7 +32,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/17 03:11:59 $
+ * @version $Revision: 1.4 $ $Date: 2004/04/10 17:14:01 $
  */
 public class ControlServerProtocol extends AbstractControlProtocol {
 
@@ -129,7 +129,9 @@ public class ControlServerProtocol extends AbstractControlProtocol {
             getDownProtocol().sendDown(constructBootPacket());
         } else if (p instanceof BootSuccessUpPacket) {
             log.trace("BOOT SUCCESS");
+            log.trace("RELEASING " + sendMutex);
             sendMutex.release();
+            log.trace("RELEASED " + sendMutex);
         } else if (p instanceof ShutdownRequestUpPacket) {
             log.trace("SHUTDOWN_REQ");
             getDownProtocol().sendDown(new ShutdownAcknowledgeDownPacket());
@@ -140,14 +142,18 @@ public class ControlServerProtocol extends AbstractControlProtocol {
 
     public void sendDown(DownPacket packet) throws ProtocolException {
         try {
+            log.trace("AQUIRING " + sendMutex);
             if (!sendMutex.attempt(timeout)) throw new ProtocolException("Send timeout.");
+            log.trace("AQUIRED " + sendMutex);
 
             PassthroughDownPacket passthtough = new PassthroughDownPacket();
             passthtough.setBuffers(packet.getBuffers());
 
             getDownProtocol().sendDown(passthtough);
 
+            log.trace("RELEASING " + sendMutex);
             sendMutex.release();
+            log.trace("RELEASED " + sendMutex);
         } catch (InterruptedException e) {
             throw new ProtocolException(e);
         }

@@ -28,7 +28,7 @@ import org.apache.geronimo.network.protocol.UpPacket;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/04/08 05:22:15 $
+ * @version $Revision: 1.5 $ $Date: 2004/04/10 17:14:01 $
  */
 public class ControlClientProtocol extends AbstractControlProtocol {
 
@@ -74,7 +74,9 @@ public class ControlClientProtocol extends AbstractControlProtocol {
 
             getDownProtocol().sendDown(new BootRequestDownPacket()); //todo: this is probably dangerous, put in thread pool
 
+            log.trace("AQUIRING " + sendMutex);
             sendMutex.acquire();
+            log.trace("AQUIRED " + sendMutex);
 
             state = STARTED;
         } catch (InterruptedException e) {
@@ -108,7 +110,9 @@ public class ControlClientProtocol extends AbstractControlProtocol {
                 log.trace("BOOT RESPONSE");
                 listener.serveUp(((BootResponseUpPacket) p).getMenu());
                 getDownProtocol().sendDown(new BootSuccessDownPacket());
+                log.trace("RELEASING " + sendMutex);
                 sendMutex.release();
+                log.trace("RELEASED " + sendMutex);
             } catch (ControlException e) {
                 throw new ProtocolException(e);
             }
@@ -131,13 +135,18 @@ public class ControlClientProtocol extends AbstractControlProtocol {
 
     public void sendDown(DownPacket packet) throws ProtocolException {
         try {
+            log.trace("AQUIRING " + sendMutex);
             if (!sendMutex.attempt(timeout)) throw new ProtocolException("Send timeout");
+            log.trace("AQUIRED " + sendMutex);
+
             PassthroughDownPacket passthtough = new PassthroughDownPacket();
             passthtough.setBuffers(packet.getBuffers());
 
             getDownProtocol().sendDown(passthtough);
 
+            log.trace("RELEASING " + sendMutex);
             sendMutex.release();
+            log.trace("RELEASED " + sendMutex);
         } catch (InterruptedException e) {
             throw new ProtocolException(e);
         }
