@@ -73,7 +73,7 @@ import org.apache.geronimo.enterprise.deploy.tool.EjbDeployableObject;
 /**
  * Initializes a command-line JSR-88 deployer.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/04 05:26:19 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/29 14:08:01 $
  */
 public class Deployer {
     private static final Log log = LogFactory.getLog(Deployer.class);
@@ -388,6 +388,9 @@ public class Deployer {
                 return;
             } catch(ConfigurationException e) {
                 out.println("ERROR: "+e.getMessage());
+                if(e.getCause() != null) {
+                    e.printStackTrace(out);
+                }
                 return;
             }
         }
