@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.52 $ $Date: 2004/01/20 06:13:38 $ -->
+<!-- $Revision: 1.53 $ $Date: 2004/01/20 14:59:28 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -667,6 +667,17 @@
                     <fileset dir="${maven.repo.local}/concurrent/jars">
                           <include name="concurrent-1.3.2.jar"/>
                     </fileset>
+                    <!-- WebDAV, not required for boot. To be fixed.-->
+                    <fileset dir="${maven.repo.local}/tomcat/jars">
+                          <include name="catalina-5.0.16.jar"/>
+                          <include name="catalina-optional-5.0.16.jar"/>
+                          <include name="naming-common-5.0.16.jar"/>
+                          <include name="naming-resources-5.0.16.jar"/>
+                          <include name="servlets-common-5.0.16.jar"/>
+                          <include name="servlets-default-5.0.16.jar"/>
+                          <include name="servlets-webdav-5.0.16.jar"/>
+                          <include name="tomcat-util-5.0.16.jar"/>
+                    </fileset>
                 </classpath>
 
                 <arg value="file:${run.dir}/deployment/src/test-resources/etc/bootstrapped-service.xml"/>
@@ -743,6 +754,17 @@
                     <!-- connector work manager -->
                     <fileset dir="${maven.repo.local}/concurrent/jars">
                           <include name="concurrent-1.3.2.jar"/>
+                    </fileset>
+                    <!-- WebDAV, not required for boot. To be fixed.-->
+                    <fileset dir="${maven.repo.local}/tomcat/jars">
+                          <include name="catalina-5.0.16.jar"/>
+                          <include name="catalina-optional-5.0.16.jar"/>
+                          <include name="naming-common-5.0.16.jar"/>
+                          <include name="naming-resources-5.0.16.jar"/>
+                          <include name="servlets-common-5.0.16.jar"/>
+                          <include name="servlets-default-5.0.16.jar"/>
+                          <include name="servlets-webdav-5.0.16.jar"/>
+                          <include name="tomcat-util-5.0.16.jar"/>
                     </fileset>
                 </classpath>
 

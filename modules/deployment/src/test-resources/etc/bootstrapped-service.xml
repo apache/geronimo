@@ -150,4 +150,31 @@
             <pattern>geronimo.boot:role=Kernel</pattern>
         </endpoint>
     </gbean>
+
+    <!-- WebDAV Server -->
+    <gbean class="org.apache.geronimo.webdav.jetty.JettyDAVServer" objectName="geronimo.webdav:type=DAVServer,name=System">
+        <endpoint name="Connectors">
+            <pattern>geronimo.webdav:type=Connector,server=System,*</pattern>
+        </endpoint>
+        <endpoint name="Repositories">
+            <pattern>geronimo.webdav:type=DAVRepository,server=System,*</pattern>
+        </endpoint>
+    </gbean>
+
+    <!-- DAVRepository -->
+    <gbean class="org.apache.geronimo.webdav.CatalinaDAVRepository" objectName="geronimo.webdav:type=DAVRepository,server=System,name=LocalConfigStore">
+        <!-- Expose the directory from which G has been booted. -->
+        <default attribute="Root" type="java.io.File">./</default>
+	<default attribute="Context" type="java.lang.String">LocalConfigStore</default>
+    </gbean>
+    
+    <!-- (protocol) Connector -->
+    <gbean class="org.apache.geronimo.webdav.jetty.JettyConnectorImpl" objectName="geronimo.webdav:type=Connector,server=System,name=admin">
+        <default attribute="Protocol" type="java.lang.String">http</default>
+	<default attribute="Interface" type="java.lang.String">localhost</default>
+	<default attribute="Port" type="int">4444</default>
+	<default attribute="MaxConnections" type="int">0</default>
+        <default attribute="MaxIdleTime" type="int">0</default>
+    </gbean>
+
 </gbeans>
