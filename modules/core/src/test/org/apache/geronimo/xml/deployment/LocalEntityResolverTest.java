@@ -65,7 +65,7 @@ import org.xml.sax.SAXException;
 /**
  * TODO Decide if we need an entity resolver, and if we do, move this test to where it is.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/22 08:47:26 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 22:56:21 $
  */
 public class LocalEntityResolverTest extends AbstractLoaderUtilTest {
 
@@ -185,7 +185,7 @@ public class LocalEntityResolverTest extends AbstractLoaderUtilTest {
     public void testNotFoundWithLocalRepository() throws Exception {
 
         File repo = new File(docDir, "localresolverrepository");
-        resolver.setLocalRepositoryURI(new URI(repo.getAbsolutePath()));
+        resolver.setLocalRepositoryURI(repo.getAbsoluteFile().toURI());
 
         resolver.setFailOnUnresolvable(false);
         InputSource source = resolver.resolveEntity(NON_EXISTING_DTD, "http://incubator.apache.org/geronimo/geronimo.dtd");
