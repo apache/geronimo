@@ -46,8 +46,8 @@
 
 #ifndef _SECURITY_IDL_
 #define _SECURITY_IDL_
-#include <orb.idl>
-#include <TimeBase.idl>
+#include "geronimo-orb.idl"
+#include "TimeBase.idl"
 #pragma prefix "omg.org"
 
 module Security {

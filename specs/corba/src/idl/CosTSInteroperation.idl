@@ -1,7 +1,7 @@
 // PIDL for CosTSInteroperation Module, p 10-59 
 // CORBAservices, Transaction Service V1.0, 3/94
 
-#include <orb.idl>
+#include "geronimo-orb.idl"
 #include <IOP.idl>
 #include <CosTransactions.idl>
 

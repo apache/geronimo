@@ -1,4 +1,4 @@
-#include <orb.idl>
+#include "geronimo-orb.idl"
 
 module CosTransactions {
 // DATATYPES

@@ -21,12 +21,32 @@
 
 <project default="default"
     xmlns:j="jelly:core"
-    xmlns:ant="jelly:ant"
+    xmlns:define="jelly:define"
+    xmlns:maven="jelly:maven"
+    xmlns:idlj="corba:idlj"
     >
 
-    <!-- <property name="idlj.verbose" value="-verbose"/> -->
-    <property name="idlj.verbose" value="-verbose"/> 
+    <property name="idlj.verbose" value="-verbose"/>
     <property name="pkg.prefix" value="org.omg"/>
+
+    <preGoal name="java:compile">
+        <attainGoal name="interop:idlj"/>
+    </preGoal>
+
+    <goal name="interop:idlj">
+        <idlj:idlj idlFile="IOP"/>
+        <idlj:idlj idlFile="GIOP"/>
+        <idlj:idlj idlFile="IIOP"/>
+        <idlj:idlj idlFile="CosNaming"/>
+        <idlj:idlj idlFile="CSI"/>
+        <idlj:idlj idlFile="GSSUP"/>
+        <idlj:idlj idlFile="CSIIOP"/>
+        <idlj:idlj idlFile="TimeBase"/>
+        <idlj:idlj idlFile="Security"/>
+        <idlj:idlj idlFile="SSLIOP"/>
+        <idlj:idlj idlFile="CosTransactions"/>
+        <idlj:idlj idlFile="CosTSInteroperation"/>
+    </goal>
 
     <!--
       #
@@ -36,249 +56,91 @@
       # prefix, but the idlj tool would generate the GIOP in a wrong package:
       # o.a.g.i.org.omg.o.a.g.i for some strange reason.
     -->
+    <define:taglib uri="corba:idlj">
+        <define:tag name="idlj">
+            <j:if test="${context.getVariable('idlFile') == null}">
+                <fail>Missing required attribute: idlFile=${idlFile}</fail>
+            </j:if>
 
-    <!--
-      # Todo:
-      #
-      # 1. It would be nice to improve the iop, giop, iiop, cosnaming targets as their
-      #    build goals are almost the same.  Maybe we could figure out how to use a for
-      #    script statement....
-      #
-    -->
+            <!-- Create an output directory for the generated sources-->
+            <property name="maven.idl.target" value="${maven.build.dir}/idl"/>
+            <mkdir dir="${maven.idl.target}"/>
 
-    <goal name="interop:idlj:iop">
-      <ant:echo message="Interop :: idlj :: IOP"/>
-      <ant:ant antfile="build.xml">
-        <ant:property name="maven.build.src" value="${maven.build.src}"/>
-        <ant:property name="maven.src.dir" value="${maven.src.dir}"/>
-        <ant:property name="maven.basedir" value="${basedir}"/>
-        <ant:property name="pkg.prefix" value="${pkg.prefix}"/>
-        <ant:property name="idlj.verbose" value="${idlj.verbose}"/>
-        <ant:property name="idl.file" value="IOP"/>
-      </ant:ant>
-    </goal>
+            <!-- Add the output directory the the maven list of sources -->
+            <j:if test="${context.getVariable('idl.src.added') == null}">
+                <j:if test="${context.antProject.getReference('maven.compile.src.set') != null}">
+                    <path id="maven.idl.compile.src.set" location="${maven.idl.target}"/>
+                    <maven:addPath id="maven.compile.src.set" refid="maven.idl.compile.src.set"/>
+                </j:if>
+                <j:if test="${context.antProject.getReference('maven.compile.src.set') == null}">
+                    <echo message="Maven cannot find the generated sources unless you provide a dummy source directory in project.xml"/>
+                </j:if>
+                <property name="idl.src.added" value="true"/>
+            </j:if>
 
-    <goal name="interop:idlj:giop">
-      <ant:echo message="Interop :: idlj :: GIOP"/>
-      <ant:ant antfile="build.xml">
-        <ant:property name="maven.build.src" value="${maven.build.src}"/>
-        <ant:property name="maven.src.dir" value="${maven.src.dir}"/>
-        <ant:property name="maven.basedir" value="${basedir}"/>
-        <ant:property name="pkg.prefix" value="${pkg.prefix}"/>
-        <ant:property name="idlj.verbose" value="${idlj.verbose}"/>
-        <ant:property name="idl.file" value="GIOP"/>
-      </ant:ant>
-    </goal>
+            <!-- check if we are up to date -->
+            <uptodate property="idl.build.not.required"
+                srcfile="${maven.src.dir}/idl/${idlFile}.idl"
+                targetfile="${maven.idl.target}/${idlFile}.ts"/>
 
-    <goal name="interop:idlj:iiop">
-      <ant:echo message="Interop :: idlj :: IIOP"/>
-      <ant:ant antfile="build.xml">
-        <ant:property name="maven.build.src" value="${maven.build.src}"/>
-        <ant:property name="maven.src.dir" value="${maven.src.dir}"/>
-        <ant:property name="maven.basedir" value="${basedir}"/>
-        <ant:property name="pkg.prefix" value="${pkg.prefix}"/>
-        <ant:property name="idlj.verbose" value="${idlj.verbose}"/>
-        <ant:property name="idl.file" value="IIOP"/>
-      </ant:ant>
-    </goal>
+            <!-- if we are not up to date generate the source -->
+            <j:if test="${context.getVariable('idl.build.not.required') != 'true'}">
+                <echo>
 
-    <goal name="interop:idlj:cosnaming">
-      <ant:echo message="Interop :: idlj :: CosNaming"/>
-      <ant:ant antfile="build.xml">
-        <ant:property name="maven.build.src" value="${maven.build.src}"/>
-        <ant:property name="maven.src.dir" value="${maven.src.dir}"/>
-        <ant:property name="maven.basedir" value="${basedir}"/>
-        <ant:property name="pkg.prefix" value="${pkg.prefix}"/>
-        <ant:property name="idlj.verbose" value="${idlj.verbose}"/>
-        <ant:property name="idl.file" value="CosNaming"/>
-      </ant:ant>
-    </goal>
 
-    <goal name="interop:idlj:csiv2">
-      <attainGoal name="interop:idlj:csiv2:csi"/>
-      <attainGoal name="interop:idlj:csiv2:gssup"/>
-      <attainGoal name="interop:idlj:csiv2:csiiop"/>
-    </goal>
-
-    <goal name="interop:idlj:csiv2:csi">
-      <ant:echo message="Interop :: idlj :: CSIv2 :: CSI"/>
-      <ant:ant antfile="build.xml">
-        <ant:property name="maven.build.src" value="${maven.build.src}"/>
-        <ant:property name="maven.src.dir" value="${maven.src.dir}"/>
-        <ant:property name="maven.basedir" value="${basedir}"/>
-        <ant:property name="pkg.prefix" value="${pkg.prefix}"/>
-        <ant:property name="idlj.verbose" value="${idlj.verbose}"/>
-        <ant:property name="idl.file" value="CSI"/>
-      </ant:ant>
-    </goal>
-
-    <goal name="interop:idlj:csiv2:gssup">
-      <ant:echo message="Interop :: idlj :: CSIv2 :: GSSUP"/>
-      <ant:ant antfile="build.xml">
-        <ant:property name="maven.build.src" value="${maven.build.src}"/>
-        <ant:property name="maven.src.dir" value="${maven.src.dir}"/>
-        <ant:property name="maven.basedir" value="${basedir}"/>
-        <ant:property name="pkg.prefix" value="${pkg.prefix}"/>
-        <ant:property name="idlj.verbose" value="${idlj.verbose}"/>
-        <ant:property name="idl.file" value="GSSUP"/>
-      </ant:ant>
-    </goal>
-        
-    <goal name="interop:idlj:csiv2:csiiop">
-      <ant:echo message="Interop :: idlj :: CSIv2 :: CSIIIOP"/>
-      <ant:ant antfile="build.xml">
-        <ant:property name="maven.build.src" value="${maven.build.src}"/>
-        <ant:property name="maven.src.dir" value="${maven.src.dir}"/>
-        <ant:property name="maven.basedir" value="${basedir}"/>
-        <ant:property name="pkg.prefix" value="${pkg.prefix}"/>
-        <ant:property name="idlj.verbose" value="${idlj.verbose}"/>
-        <ant:property name="idl.file" value="CSIIOP"/>
-      </ant:ant>
-    </goal>
-
-    <goal name="interop:idlj:security-service">
-      <attainGoal name="interop:idlj:security-service:timebase"/>
-      <attainGoal name="interop:idlj:security-service:securityservice"/>
-      <attainGoal name="interop:idlj:security-service:ssliop"/>
-    </goal>
-
-    <goal name="interop:idlj:security-service:timebase">
-      <ant:echo message="Interop :: idlj :: SecurityService :: TimeBase"/>
-      <ant:ant antfile="build.xml">
-        <ant:property name="maven.build.src" value="${maven.build.src}"/>
-        <ant:property name="maven.src.dir" value="${maven.src.dir}"/>
-        <ant:property name="maven.basedir" value="${basedir}"/>
-        <ant:property name="pkg.prefix" value="${pkg.prefix}"/>
-        <ant:property name="idlj.verbose" value="${idlj.verbose}"/>
-        <ant:property name="idl.file" value="TimeBase"/>
-      </ant:ant>
-    </goal>
-
-    <goal name="interop:idlj:security-service:securityservice">
-      <ant:echo message="Interop :: idlj :: SecurityService :: SecurityService"/>
-      <ant:ant antfile="build.xml">
-        <ant:property name="maven.build.src" value="${maven.build.src}"/>
-        <ant:property name="maven.src.dir" value="${maven.src.dir}"/>
-        <ant:property name="maven.basedir" value="${basedir}"/>
-        <ant:property name="pkg.prefix" value="${pkg.prefix}"/>
-        <ant:property name="idlj.verbose" value="${idlj.verbose}"/>
-        <ant:property name="idl.file" value="Security"/>
-      </ant:ant>
-    </goal>
-
-    <goal name="interop:idlj:security-service:ssliop">
-      <ant:echo message="Interop :: idlj :: SecurityService :: SSLIOP"/>
-      <ant:ant antfile="build.xml">
-        <ant:property name="maven.build.src" value="${maven.build.src}"/>
-        <ant:property name="maven.src.dir" value="${maven.src.dir}"/>
-        <ant:property name="maven.basedir" value="${basedir}"/>
-        <ant:property name="pkg.prefix" value="${pkg.prefix}"/>
-        <ant:property name="idlj.verbose" value="${idlj.verbose}"/>
-        <ant:property name="idl.file" value="SSLIOP"/>
-      </ant:ant>
-    </goal>
-
-    <goal name="interop:idlj:costxn:costransactions">
-      <ant:echo message="Interop :: idlj :: CosTx :: CosTransactions"/>
-      <ant:ant antfile="build.xml">
-        <ant:property name="maven.build.src" value="${maven.build.src}"/>
-        <ant:property name="maven.src.dir" value="${maven.src.dir}"/>
-        <ant:property name="maven.basedir" value="${basedir}"/>
-        <ant:property name="pkg.prefix" value="${pkg.prefix}"/>
-        <ant:property name="idlj.verbose" value="${idlj.verbose}"/>
-        <ant:property name="idl.file" value="CosTransactions"/>
-      </ant:ant>
-    </goal>
-
-    <goal name="interop:idlj:costxn:costsinterop">
-      <ant:echo message="Interop :: idlj :: CosTx :: CosTSInteroperation"/>
-      <ant:ant antfile="build.xml">
-        <ant:property name="maven.build.src" value="${maven.build.src}"/>
-        <ant:property name="maven.src.dir" value="${maven.src.dir}"/>
-        <ant:property name="maven.basedir" value="${basedir}"/>
-        <ant:property name="pkg.prefix" value="${pkg.prefix}"/>
-        <ant:property name="idlj.verbose" value="${idlj.verbose}"/>
-        <ant:property name="idl.file" value="CosTransactions"/>
-      </ant:ant>
-    </goal>
-
-    <goal name="interop:idlj:costxn">
-      <attainGoal name="interop:idlj:costxn:costransactions"/>
-      <attainGoal name="interop:idlj:costxn:costsinterop"/>
-    </goal>
-
-    <goal name="interop:java:compile">
-        <ant:echo message="Interop :: Compile"/>
-        <ant:javac srcdir="${maven.build.src}" destdir="${maven.build.dest}"
-            classpath="${maven.build.dest};${maven.build.src}"/>
-    </goal>
-
-    <goal name="interop:idlj">
-        <attainGoal name="interop:idlj:iop"/>
-        <attainGoal name="interop:idlj:giop"/>
-        <attainGoal name="interop:idlj:iiop"/>
-        <attainGoal name="interop:idlj:cosnaming"/>
-        <attainGoal name="interop:idlj:csiv2"/>
-        <attainGoal name="interop:idlj:security-service"/>
-        <attainGoal name="interop:idlj:costxn"/>
-    </goal>
-
-    <goal name="interop:stub:generate-compile">
-      <ant:exec dir="${maven.basedir}" executable="java">
-          <ant:arg value="-cp"/>
-          <ant:arg path="${maven.build.dest};${maven.repo.local}\geronimo-spec\jars\geronimo-spec-ejb-2.1-rc3.jar;${maven.repo.local}\commons-logging\jars\commons-logging-1.0.4.jar"/>
-          <ant:arg value="org.apache.geronimo.interop.rmi.iiop.compiler.StubCompiler"/>
-          <ant:arg value="-g"/>
-          <ant:arg value="-c"/>
-          <ant:arg value="-s"/>
-          <ant:arg value="-v"/>
-          <ant:arg value="-o"/>
-          <ant:arg value="-r"/>
-          <ant:arg path="${maven.repo.local}"/>
-          <ant:arg value="-gs"/>
-          <ant:arg path="target/stubs"/>
-          <ant:arg value="-gc"/>
-          <ant:arg path="target/classes"/>
-          <ant:arg value="IDL:org.apache.geronimo.interop.CosNaming.NamingContext"/>
-      </ant:exec>
-    </goal>
-
-    <goal name="interop:skel:generate-compile">
-      <ant:exec dir="${maven.basedir}" executable="java">
-          <ant:arg value="-cp"/>
-          <ant:arg path="${maven.build.dest};${maven.repo.local}\geronimo-spec\jars\geronimo-spec-ejb-2.1-rc3.jar;${maven.repo.local}\commons-logging\jars\commons-logging-1.0.4.jar"/>
-          <ant:arg value="org.apache.geronimo.interop.rmi.iiop.compiler.SkelCompiler"/>
-          <ant:arg value="-g"/>
-          <ant:arg value="-c"/>
-          <ant:arg value="-s"/>
-          <ant:arg value="-v"/>
-          <ant:arg value="-o"/>
-          <ant:arg value="-r"/>
-          <ant:arg path="${maven.repo.local}"/>
-          <ant:arg value="-gs"/>
-          <ant:arg path="target/skels"/>
-          <ant:arg value="-gc"/>
-          <ant:arg path="target/classes"/>
-          <ant:arg value="IDL:org.apache.geronimo.interop.CosNaming.NamingContext"/>
-      </ant:exec>
-    </goal>
-
-    <preGoal name="java:compile">
-        <attainGoal name="interop:idlj"/>
-        <attainGoal name="interop:java:compile"/>
-    </preGoal>
-
-    <postGoal name="java:compile">
-      <!--
-      <attainGoal name="interop:stub:generate-compile"/>
-      <attainGoal name="interop:skel:generate-compile"/>
-      -->
-    </postGoal>
-
-    <!--
-    <goal name="showprops">
-      <ant:echoproperties/>
-    </goal>
-    -->
-
+Interop :: idlj :: ${idlFile}</echo>
+                <exec dir="${basedir}" executable="idlj" failonerror='true'>
+                    <arg value="-td"/>
+                    <arg file="${maven.idl.target}"/>
+                    <arg value="-i"/>
+                    <arg file="${java.home}/lib"/>
+                    <arg value="-i"/>
+                    <arg file="${maven.src.dir}/idl"/>
+                    <arg value="${idlj.verbose}"/>
+                    <arg value="-pkgPrefix"/>
+                    <arg value="IOP"/>
+                    <arg value="${pkg.prefix}"/>
+                    <arg value="-pkgPrefix"/>
+                    <arg value="IIOP"/>
+                    <arg value="${pkg.prefix}"/>
+                    <arg value="-pkgPrefix"/>
+                    <arg value="GIOP"/>
+                    <arg value="${pkg.prefix}"/>
+                    <arg value="-pkgPrefix"/>
+                    <arg value="CosNaming"/>
+                    <arg value="${pkg.prefix}"/>
+                    <arg value="-pkgPrefix"/>
+                    <arg value="CSI"/>
+                    <arg value="${pkg.prefix}"/>
+                    <arg value="-pkgPrefix"/>
+                    <arg value="GSSUP"/>
+                    <arg value="${pkg.prefix}"/>
+                    <arg value="-pkgPrefix"/>
+                    <arg value="CSIIOP"/>
+                    <arg value="${pkg.prefix}"/>
+                    <arg value="-pkgPrefix"/>
+                    <arg value="TimeBase"/>
+                    <arg value="${pkg.prefix}"/>
+                    <arg value="-pkgPrefix"/>
+                    <arg value="Security"/>
+                    <arg value="${pkg.prefix}"/>
+                    <arg value="-pkgPrefix"/>
+                    <arg value="SSLIOP"/>
+                    <arg value="${pkg.prefix}"/>
+                    <arg value="-pkgPrefix"/>
+                    <arg value="CosTransactions"/>
+                    <arg value="${pkg.prefix}"/>
+                    <arg value="-pkgPrefix"/>
+                    <arg value="CosTSInteroperation"/>
+                    <arg value="${pkg.prefix}"/>
+                    <arg value="-pkgPrefix"/>
+                    <arg value="CosTSPortability"/>
+                    <arg value="${pkg.prefix}"/>
+                    <arg file="${maven.src.dir}/idl/${idlFile}.idl"/>
+                </exec>
+                <!-- We generated the source, so touch the timestamp file -->
+                <touch file="${maven.idl.target}/${idlFile}.ts"/>
+            </j:if>
+        </define:tag>
+    </define:taglib>
 </project>
