@@ -18,17 +18,13 @@
 package org.apache.geronimo.kernel;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 
 import junit.framework.TestCase;
 
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/03/10 09:59:02 $
+ * @version $Revision: 1.8 $ $Date: 2004/06/05 19:30:43 $
  */
 public class BootstrapTest extends TestCase {
     private File tmpDir;
@@ -36,27 +32,6 @@ public class BootstrapTest extends TestCase {
 
     public void testCreate() throws Exception {
         Kernel kernel = new Kernel("test.kernel", "geronimo");
-        assertEquals("No kernel should be registered", null, Kernel.getKernel("test.kernel"));
-        kernel.boot();
-        assertEquals("test.kernel kernel should be registered", kernel, Kernel.getKernel("test.kernel"));
-        kernel.shutdown();
-        assertEquals("No kernel should be registered", null, Kernel.getKernel("test.kernel"));
-    }
-
-    public void testPersist() throws Exception {
-        Kernel kernel = new Kernel("test.kernel", "geronimo");
-        assertEquals("No kernel should be registered", null, Kernel.getKernel("test.kernel"));
-        kernel.boot();
-        assertEquals("test.kernel kernel should be registered", kernel, Kernel.getKernel("test.kernel"));
-        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(kernelState));
-        oos.writeObject(kernel);
-        oos.close();
-        kernel.shutdown();
-        assertEquals("No kernel should be registered", null, Kernel.getKernel("test.kernel"));
-
-        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(kernelState));
-        kernel = (Kernel) ois.readObject();
-        ois.close();
         assertEquals("No kernel should be registered", null, Kernel.getKernel("test.kernel"));
         kernel.boot();
         assertEquals("test.kernel kernel should be registered", kernel, Kernel.getKernel("test.kernel"));

@@ -22,8 +22,10 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import javax.management.InstanceNotFoundException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -32,15 +34,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/06/05 01:40:09 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/05 19:30:43 $
  */
-public class ConfigurationManagerImpl implements ConfigurationManager {
+public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLifecycle {
     private static final Log log = LogFactory.getLog(ConfigurationManagerImpl.class);
     private final Kernel kernel;
     private final Collection stores;
@@ -195,15 +198,41 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
     }
 
     private List getStores() {
-        List storeSnapshot = new ArrayList(stores);
-        if (storeSnapshot.size() == 0) {
-            throw new UnsupportedOperationException("There are no installed ConfigurationStores");
-        }
-        return storeSnapshot;
+        return new ArrayList(stores);
     }
 
     public ObjectName getConfigObjectName(URI configID) throws MalformedObjectNameException {
         return new ObjectName("geronimo.config:name=" + ObjectName.quote(configID.toString()));
+    }
+
+    public void doStart() {
+    }
+
+    private static final ObjectName CONFIG_QUERY = JMXUtil.getObjectName("geronimo.config:*");
+
+    public void doStop() {
+        while (true) {
+            Set configs = kernel.listGBeans(CONFIG_QUERY);
+            if (configs.isEmpty()) {
+                return;
+            }
+            for (Iterator i = configs.iterator(); i.hasNext();) {
+                ObjectName configName = (ObjectName) i.next();
+                if (kernel.isLoaded(configName)) {
+                    try {
+                        kernel.stopGBean(configName);
+                        kernel.unloadGBean(configName);
+                    } catch (InstanceNotFoundException e) {
+                        // ignore
+                    } catch (InvalidConfigException e) {
+                        // ignore
+                    }
+                }
+            }
+        }
+    }
+
+    public void doFail() {
     }
 
     public static final GBeanInfo GBEAN_INFO;

@@ -37,7 +37,7 @@ import org.apache.geronimo.system.url.GeronimoURLFactory;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/06/04 17:38:45 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/05 19:30:43 $
  */
 public class Daemon {
     static {
@@ -61,7 +61,6 @@ public class Daemon {
      * will remain running until the shutdown() method on the kernel is
      * invoked or until the JVM exits.
      * @param args the command line arguments
-     * @todo save list of started configurations and restart them next time
      */
     public static void main(String[] args) {
         try {
@@ -97,6 +96,7 @@ public class Daemon {
             } catch (Exception e) {
                 e.printStackTrace();
                 System.exit(2);
+                throw new AssertionError();
             }
 
             // add our shutdown hook
@@ -104,17 +104,7 @@ public class Daemon {
             final ObjectName configName = configurationManager.load(configuration, classLoader.getResource("/"));
             Runtime.getRuntime().addShutdownHook(new Thread("Shutdown Thread") {
                 public void run() {
-                    if (kernel.isRunning()) {
-                        kernel.notifyShutdown();
-                        try {
-                            // stop this configuration first
-                            kernel.stopGBean(configName);
-                        } catch (Exception e) {
-                            // ignore
-                        }
-                        // clean up the kernel before exiting
-                        kernel.shutdown();
-                    }
+                    kernel.shutdown();
                 }
             });
 
@@ -131,6 +121,7 @@ public class Daemon {
                         e.printStackTrace();
                         kernel.shutdown();
                         System.exit(3);
+                        throw new AssertionError();
                     }
                 }
             }
@@ -149,6 +140,7 @@ public class Daemon {
                 kernel.shutdown();
                 e.printStackTrace();
                 System.exit(3);
+                throw new AssertionError();
             }
 
 

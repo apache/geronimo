@@ -18,7 +18,6 @@
 package org.apache.geronimo.kernel;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.net.URI;
@@ -70,9 +69,9 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.35 $ $Date: 2004/06/05 01:40:09 $
+ * @version $Revision: 1.36 $ $Date: 2004/06/05 19:30:43 $
  */
-public class Kernel extends NotificationBroadcasterSupport implements Serializable, KernelMBean {
+public class Kernel extends NotificationBroadcasterSupport implements KernelMBean {
 
     /**
      * The JMX name used by a Kernel to register itself when it boots.
@@ -90,13 +89,13 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
     private final String kernelName;
     private final String domainName;
 
-    private transient Log log;
-    private transient boolean running;
-    private transient MBeanServer mbServer;
-    private transient LinkedList shutdownHooks = new LinkedList();
+    private Log log;
+    private boolean running;
+    private MBeanServer mbServer;
+    private LinkedList shutdownHooks = new LinkedList();
 
-    private transient ConfigurationManager configurationManager;
-    private transient GBeanMBean configurationManagerGBean;
+    private ConfigurationManager configurationManager;
+    private GBeanMBean configurationManagerGBean;
 
     private static final String[] NO_TYPES = new String[0];
     private static final Object[] NO_ARGS = new Object[0];
@@ -379,23 +378,6 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
     }
 
     /**
-     * @deprecated this should be in shutdown
-     */
-    public void notifyShutdown() {
-        while (!shutdownHooks.isEmpty()) {
-            Runnable hook;
-            synchronized (shutdownHooks) {
-                hook = (Runnable) shutdownHooks.removeFirst();
-            }
-            try {
-                hook.run();
-            } catch (Throwable e) {
-                log.warn("Error from kernel shutdown hook", e);
-            }
-        }
-    }
-
-    /**
      * Shut down this kernel instance, unregistering the MBeans and releasing
      * the MBeanServer.
      */
@@ -406,23 +388,8 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
         running = false;
         log.info("Starting kernel shutdown");
 
-        configurationManager = null;
-        configurationManagerGBean = null;
-        try {
-            if (configurationManagerGBean != null) {
-                configurationManagerGBean.stop();
-            }
-        } catch (Exception e) {
-            // ignore
-        }
-        try {
-            if (configurationManagerGBean != null) {
-                mbServer.unregisterMBean(CONFIGURATION_MANAGER_NAME);
-            }
-        } catch (Exception e) {
-            // ignore
-        }
-        configurationManagerGBean = null;
+        notifyShutdownHooks();
+        shutdownConfigManager();
 
         try {
             mbServer.unregisterMBean(KERNEL);
@@ -446,6 +413,39 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
         }
 
         log.info("Kernel shutdown complete");
+    }
+
+    private void notifyShutdownHooks() {
+        while (!shutdownHooks.isEmpty()) {
+            Runnable hook;
+            synchronized (shutdownHooks) {
+                hook = (Runnable) shutdownHooks.removeFirst();
+            }
+            try {
+                hook.run();
+            } catch (Throwable e) {
+                log.warn("Error from kernel shutdown hook", e);
+            }
+        }
+    }
+
+    private void shutdownConfigManager() {
+        configurationManager = null;
+        try {
+            if (configurationManagerGBean != null) {
+                configurationManagerGBean.stop();
+            }
+        } catch (Exception e) {
+            // ignore
+        }
+        try {
+            if (configurationManagerGBean != null) {
+                mbServer.unregisterMBean(CONFIGURATION_MANAGER_NAME);
+            }
+        } catch (Exception e) {
+            // ignore
+        }
+        configurationManagerGBean = null;
     }
 
     public boolean isRunning() {
