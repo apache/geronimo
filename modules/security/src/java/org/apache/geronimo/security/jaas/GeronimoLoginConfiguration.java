@@ -101,7 +101,7 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
         ConfigurationEntryFactory factory = (ConfigurationEntryFactory) event.getMember();
 
         entries.remove(factory.getConfigurationName());
-        log.info("Removed ACE " + factory.getConfigurationName());
+        log.info("Removed Application Configuration Entry " + factory.getConfigurationName());
     }
 
     private final void addConfiguration(ConfigurationEntryFactory factory) {
@@ -115,7 +115,7 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
         AppConfigurationEntry ace = new AppConfigurationEntry(config.getLoginModuleClassName(), config.getFlag().getFlag(), config.getOptions());
 
         entries.put(factory.getConfigurationName(), ace);
-        log.info("Added ACE " + factory.getConfigurationName());
+        log.info("Added Application Configuration Entry " + factory.getConfigurationName());
     }
 
     public void doStart() throws WaitingException, Exception {
@@ -130,6 +130,13 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
 
     public void doStop() throws WaitingException, Exception {
         Configuration.setConfiguration(oldConfiguration);
+
+        for (Iterator iter = entries.keySet().iterator(); iter.hasNext();){
+            ConfigurationEntryFactory factory = (ConfigurationEntryFactory) entries.get(iter.next());
+            log.info("Removed Application Configuration Entry " + factory.getConfigurationName());
+        }
+        entries.clear();
+        
         log.info("Uninstalled Geronimo login configuration");
     }
 
