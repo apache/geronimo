@@ -78,6 +78,7 @@ import org.apache.geronimo.kernel.deployment.DeploymentException;
 import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
 import org.apache.geronimo.kernel.deployment.service.XMLUtil;
 import org.apache.geronimo.common.Classes;
+import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -86,7 +87,7 @@ import org.w3c.dom.NodeList;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/17 03:44:38 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/17 17:00:31 $
  */
 public class ServiceDeployer implements ModuleFactory {
     private final DocumentBuilder parser;
@@ -142,7 +143,7 @@ public class ServiceDeployer implements ModuleFactory {
             String type = defaultElement.getAttribute("type");
             Object value = XMLUtil.getContent(defaultElement);
             try {
-                PropertyEditor editor = PropertyEditorManager.findEditor(Classes.loadClass(type));
+                PropertyEditor editor = PropertyEditors.findEditor(type);
                 if (editor != null) {
                     editor.setAsText((String) value);
                     value = editor.getValue();
