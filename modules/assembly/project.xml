@@ -479,6 +479,14 @@
         </dependency>
         <dependency>
             <groupId>activemq</groupId>
+            <artifactId>activemq-store-journal</artifactId>
+            <version>${activemq_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>activemq</groupId>
             <artifactId>activemq-store-jdbm</artifactId>
             <version>${activemq_version}</version>
             <properties>

@@ -29,43 +29,46 @@
     <dependency>
         <uri>activemq/jars/activemq-gbean-${activemq_version}.jar</uri>
     </dependency>
-    <!--
-    <dependency>
-        <uri>activemq/jars/activemq-store-jdbm-${activemq_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>jdbm/jars/jdbm-0.20-dev.jar</uri>
-    </dependency>
-    -->
     <dependency>
         <uri>activemq/jars/activemq-store-jdbc-${activemq_version}.jar</uri>
     </dependency>
+    <dependency>
+        <uri>activemq/jars/activemq-store-journal-${activemq_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>activeio/jars/activeio-${activeio_version}.jar</uri>
+    </dependency>
 
     <!-- message broker -->
-    <!--
-    <gbean namePart="ActiveMQ" class="org.codehaus.activemq.store.jdbm.JdbmPersistenceAdapterGBean">
-        <reference name="ServerInfo">geronimo.system:name=ServerInfo,*</reference>
-        <attribute name="DataDirectory">var/activemq</attribute>    
-    </gbean>
-    -->
-
-    <gbean namePart="ActiveMQ" class="org.codehaus.activemq.store.jdbc.JDBCPersistenceAdapterGBean">
-        <reference name="DataSource">geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=org/apache/geronimo/SystemDatabase,j2eeType=JCAManagedConnectionFactory,name=SystemDatasource</reference>
-    </gbean>
-
     <gbean namePart="ActiveMQ" class="org.codehaus.activemq.gbean.ActiveMQContainerGBean">
         <attribute name="brokerName">possibly-unique-broker</attribute>
-        <reference name="PersistenceAdapter">geronimo.server:j2eeType=JMSPersistence,name=ActiveMQ,*</reference>
+        <reference name="persistenceAdapter">geronimo.server:j2eeType=JMSPersistence,name=ActiveMQ.cache,*</reference>
+    </gbean>
+
+    <gbean namePart="ActiveMQ.cache" class="org.codehaus.activemq.store.cache.SimpleCachePersistenceAdapterGBean">
+        <attribute name="cacheSize">10000</attribute>
+        <reference name="longTermPersistence">geronimo.server:j2eeType=JMSPersistence,name=ActiveMQ.journal,*</reference>
+    </gbean>
+
+    <gbean namePart="ActiveMQ.journal" class="org.codehaus.activemq.store.journal.JournalPersistenceAdapterGBean">
+        <reference name="serverInfo">geronimo.server:name=ServerInfo,*</reference>
+        <attribute name="directory">var/activemq/journal</attribute>
+        <attribute name="journalType">default</attribute>
+        <reference name="longTermPersistence">geronimo.server:j2eeType=JMSPersistence,name=ActiveMQ.jdbc,*</reference>
+    </gbean>
+
+    <gbean namePart="ActiveMQ.jdbc" class="org.codehaus.activemq.store.jdbc.JDBCPersistenceAdapterGBean">
+        <reference name="dataSource">geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=org/apache/geronimo/SystemDatabase,j2eeType=JCAManagedConnectionFactory,name=SystemDatasource</reference>
     </gbean>
 
     <gbean namePart="ActiveMQ.tcp.localhost.61616" class="org.codehaus.activemq.gbean.ActiveMQConnectorGBean">
         <attribute name="url">tcp://localhost:61616</attribute>
-        <reference name="ActiveMQContainer">geronimo.server:j2eeType=JMSServer,name=ActiveMQ,*</reference>
+        <reference name="activeMQContainer">geronimo.server:j2eeType=JMSServer,name=ActiveMQ,*</reference>
     </gbean>
 
     <gbean namePart="ActiveMQ.vm.localhost" class="org.codehaus.activemq.gbean.ActiveMQConnectorGBean">
         <attribute name="url">vm://localhost</attribute>
-        <reference name="ActiveMQContainer">geronimo.server:j2eeType=JMSServer,name=ActiveMQ,*</reference>
+        <reference name="activeMQContainer">geronimo.server:j2eeType=JMSServer,name=ActiveMQ,*</reference>
     </gbean>    
 
 </configuration>
