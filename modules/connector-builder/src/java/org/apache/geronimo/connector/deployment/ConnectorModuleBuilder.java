@@ -37,9 +37,9 @@ import javax.management.ObjectName;
 import javax.naming.Reference;
 
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
-import org.apache.geronimo.connector.ResourceAdapterModuleImpl;
-import org.apache.geronimo.connector.AdminObjectWrapper;
 import org.apache.geronimo.connector.ActivationSpecWrapper;
+import org.apache.geronimo.connector.AdminObjectWrapper;
+import org.apache.geronimo.connector.ResourceAdapterModuleImpl;
 import org.apache.geronimo.connector.outbound.JCAConnectionFactoryImpl;
 import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.LocalTransactions;
@@ -61,7 +61,6 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.ConnectorModule;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -362,7 +361,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         GBeanData resourceAdapterModuleData = earContext.getRefContext().getResourceAdapterModuleData(resourceAdapterModuleName);
 
         // add it
-        earContext.addGBean(resourceAdapterModuleData, cl);
+        earContext.addGBean(resourceAdapterModuleData);
 
         GerConnectorType geronimoConnector = (GerConnectorType) module.getVendorDD();
 
@@ -407,7 +406,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                     throw new DeploymentException("Could not construct resource adapter object name", e);
                 }
                 resourceAdapterInstanceGBeanData.setName(resourceAdapterObjectName);
-                earContext.addGBean(resourceAdapterInstanceGBeanData, cl);
+                earContext.addGBean(resourceAdapterInstanceGBeanData);
             }
 
             // Outbound Managed Connection Factories (think JDBC data source or JMS connection factory)
@@ -419,7 +418,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                     assert geronimoConnectionDefinition != null: "Null GeronimoConnectionDefinition";
 
                     String connectionFactoryInterfaceName = geronimoConnectionDefinition.getConnectionfactoryInterface().getStringValue().trim();
-                    GBeanData connectionFactoryGBeanData = (GBeanData) earContext.getRefContext().getConnectionFactoryInfo(resourceAdapterModuleObjectName, connectionFactoryInterfaceName);
+                    GBeanData connectionFactoryGBeanData = earContext.getRefContext().getConnectionFactoryInfo(resourceAdapterModuleObjectName, connectionFactoryInterfaceName);
 
                     if (connectionFactoryGBeanData == null) {
                         throw new DeploymentException("No connection definition for ConnectionFactory class: " + connectionFactoryInterfaceName);
@@ -440,7 +439,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             GerAdminobjectType gerAdminObject = geronimoConnector.getAdminobjectArray()[i];
 
             String adminObjectInterface = gerAdminObject.getAdminobjectInterface().getStringValue();
-            GBeanData adminObjectGBeanData = (GBeanData) earContext.getRefContext().getAdminObjectInfo(resourceAdapterModuleObjectName, adminObjectInterface);
+            GBeanData adminObjectGBeanData = earContext.getRefContext().getAdminObjectInfo(resourceAdapterModuleObjectName, adminObjectInterface);
 
             if (adminObjectGBeanData == null) {
                 throw new DeploymentException("No admin object declared for interface: " + adminObjectInterface);
@@ -458,7 +457,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                     throw new DeploymentException("Could not construct admin object object name", e);
                 }
                 adminObjectInstanceGBeanData.setName(adminObjectObjectName);
-                earContext.addGBean(adminObjectInstanceGBeanData, cl);
+                earContext.addGBean(adminObjectInstanceGBeanData);
             }
         }
     }
@@ -617,14 +616,25 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             }
         }
 
-        //we configure our connection manager
-        GerConnectionmanagerType connectionManager = connectionfactoryInstance.getConnectionmanager();
-        GBeanMBean connectionManagerGBean;
+        // create the object name for our connection manager
+        ObjectName connectionManagerObjectName = null;
         try {
-            connectionManagerGBean = new GBeanMBean(GBeanInfo.getGBeanInfo("org.apache.geronimo.connector.outbound.GenericConnectionManager", cl), cl);
+            connectionManagerObjectName = NameFactory.getResourceComponentName(null, null, null, null, connectionfactoryInstance.getName(), NameFactory.JCA_CONNECTION_MANAGER, j2eeContext);
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Could not construct connection manager object name", e);
+        }
+
+        // create the data holder for our connection manager
+        GBeanInfo gbeanInfo;
+        try {
+            gbeanInfo = GBeanInfo.getGBeanInfo("org.apache.geronimo.connector.outbound.GenericConnectionManager", cl);
         } catch (InvalidConfigurationException e) {
             throw new DeploymentException("Unable to create GMBean", e);
         }
+        GBeanData connectionManagerGBean = new GBeanData(connectionManagerObjectName, gbeanInfo);
+
+        //we configure our connection manager
+        GerConnectionmanagerType connectionManager = connectionfactoryInstance.getConnectionmanager();
         TransactionSupport transactionSupport = null;
         if (connectionManager.isSetNoTransaction()) {
             transactionSupport = NoTransactions.INSTANCE;
@@ -685,14 +695,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             throw new DeploymentException("Problem setting up ConnectionManager", e);
         }
 
-        // add it
-        ObjectName connectionManagerObjectName = null;
-        try {
-            connectionManagerObjectName = NameFactory.getResourceComponentName(null, null, null, null, connectionfactoryInstance.getName(), NameFactory.JCA_CONNECTION_MANAGER, j2eeContext);
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Could not construct connection manager object name", e);
-        }
-        earContext.addGBean(connectionManagerObjectName, connectionManagerGBean);
+        earContext.addGBean(connectionManagerGBean);
         return connectionManagerObjectName;
     }
 
@@ -718,11 +721,11 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             }
             managedConnectionFactoryInstanceGBeanData.setReferencePattern("ConnectionManagerFactory", connectionManagerObjectName);
             if (connectiondefinitionInstance.getCredentialInterface() != null && "javax.resource.spi.security.PasswordCredential".equals(connectiondefinitionInstance.getCredentialInterface().getStringValue())) {
-                GBeanMBean realmGBean = new GBeanMBean(PasswordCredentialRealm.getGBeanInfo(), cl);
+                ObjectName realmObjectName = ObjectName.getInstance(BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + connectiondefinitionInstance.getName());
+                GBeanData realmGBean = new GBeanData(realmObjectName, PasswordCredentialRealm.getGBeanInfo());
                 realmGBean.setAttribute("realmName", BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + connectiondefinitionInstance.getName());
-                ObjectName realmObjectNam = ObjectName.getInstance(BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + connectiondefinitionInstance.getName());
-                earContext.addGBean(realmObjectNam, realmGBean);
-                managedConnectionFactoryInstanceGBeanData.setReferencePattern("ManagedConnectionFactoryListener", realmObjectNam);
+                earContext.addGBean(realmGBean);
+                managedConnectionFactoryInstanceGBeanData.setReferencePattern("ManagedConnectionFactoryListener", realmObjectName);
             }
             //additional interfaces implemented by connection factory
             FullyQualifiedClassType[] implementedInterfaceElements = connectiondefinitionInstance.getImplementedInterfaceArray();
@@ -744,7 +747,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             throw new DeploymentException("Could not construct managed connection factory object name", e);
         }
         managedConnectionFactoryInstanceGBeanData.setName(managedConnectionFactoryObjectName);
-        earContext.addGBean(managedConnectionFactoryInstanceGBeanData, cl);
+        earContext.addGBean(managedConnectionFactoryInstanceGBeanData);
 
         // ConnectionFactory
         ObjectName connectionFactoryObjectName = null;
@@ -757,7 +760,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         connectionFactoryGBeanData.setReferencePattern("J2EEServer", earContext.getServerObjectName());
         connectionFactoryGBeanData.setAttribute("managedConnectionFactory", managedConnectionFactoryObjectName.getCanonicalName());
 
-        earContext.addGBean(connectionFactoryGBeanData, cl);
+        earContext.addGBean(connectionFactoryGBeanData);
     }
 
     private static URI getDependencyURI(GerDependencyType dependency) throws DeploymentException {

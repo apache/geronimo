@@ -67,7 +67,7 @@ public class DeploymentContext {
      */
     private final ConfigurationModuleType type;
     private final Kernel kernel;
-    private final GBeanMBean config;
+    private final GBeanData config;
     private final Map gbeans = new HashMap();
     private final Set dependencies = new LinkedHashSet();
     private final LinkedHashSet classPath = new LinkedHashSet();
@@ -95,7 +95,7 @@ public class DeploymentContext {
         this.baseDir = baseDir;
         this.baseUri = baseDir.toURI();
 
-        config = new GBeanMBean(Configuration.GBEAN_INFO);
+        config = new GBeanData(Configuration.getConfigurationObjectName(configID), Configuration.GBEAN_INFO);
 
         try {
             config.setAttribute("ID", configID);
@@ -117,16 +117,21 @@ public class DeploymentContext {
             }
 
             try {
-                // todo it is a really bad to start the configurations
-                ObjectName currentConfig = parentName;
-                while ( State.RUNNING != State.fromInteger((Integer) kernel.getAttribute(currentConfig, "state")) ) {
-                    kernel.startGBean(currentConfig);
-                    URI currentParentID = (URI) kernel.getAttribute(currentConfig, "parentID");
-                    if ( null == currentParentID ) {
+                // starting with the current config start all parents until
+                // there are either no more parents or a parent is already running
+                for (Iterator iterator = ancestors.iterator(); iterator.hasNext();) {
+                    ObjectName name = (ObjectName) iterator.next();
+                    if (isRunning(kernel, name) ) {
+                        // configuration is already running... we can stop now
                         break;
                     }
-                    currentConfig = Configuration.getConfigurationObjectName(currentParentID);
+                    kernel.startGBean(name);
+                    if (!isRunning(kernel, name) ) {
+                        throw new DeploymentException("Failed to start parent configuration: " + name);
+                    }
                 }
+            } catch (DeploymentException e) {
+                throw e;
             } catch (Exception e) {
                 throw new DeploymentException(e);
             }
@@ -145,6 +150,10 @@ public class DeploymentContext {
         }
     }
 
+    private static boolean isRunning(Kernel kernel, ObjectName name) throws Exception {
+        return State.RUNNING_INDEX == ((Integer) kernel.getAttribute(name, "state")).intValue();
+    }
+
     public URI getConfigID() {
         return configID;
     }
@@ -157,13 +166,16 @@ public class DeploymentContext {
         return baseDir;
     }
 
+    /**
+     * @deprecated use addGBean(GBeanData gbean)
+     */
     public void addGBean(ObjectName name, GBeanMBean gbean) {
         gbeans.put(name, gbean);
     }
 
-    public void addGBean(GBeanData gbean, ClassLoader classLoader) {
-        GBeanMBean gbeanMBean = new GBeanMBean(gbean, classLoader);
-        gbeans.put(gbean.getName(), gbeanMBean);
+    public void addGBean(GBeanData gbean) {
+        assert gbean.getName() != null: "GBean name is null";
+        gbeans.put(gbean.getName(), gbean);
     }
 
     public void addDependency(URI uri) {
@@ -421,9 +433,7 @@ public class DeploymentContext {
         try {
             out = new ObjectOutputStream(new FileOutputStream(configSer));
             try {
-                GBeanData gbeanData = config.getGBeanData();
-                gbeanData.setName(Configuration.getConfigurationObjectName(configID));
-                gbeanData.writeExternal(out);
+                config.writeExternal(out);
             } catch (IOException e) {
                 throw e;
             } catch (Exception e) {
