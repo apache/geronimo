@@ -68,20 +68,15 @@ import java.util.List;
 import java.util.Map;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
-import javax.management.ListenerNotFoundException;
-import javax.management.MBeanException;
-import javax.management.MBeanNotificationInfo;
+import javax.management.JMException;
+import javax.management.JMRuntimeException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
-import javax.management.NotificationBroadcaster;
-import javax.management.NotificationFilter;
-import javax.management.NotificationListener;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
 import javax.management.NotificationBroadcasterSupport;
+import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -111,9 +106,9 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.17 $ $Date: 2004/02/12 18:22:55 $
+ * @version $Revision: 1.18 $ $Date: 2004/02/13 23:21:07 $
  */
-public class Kernel extends NotificationBroadcasterSupport implements Serializable, KernelMBean{
+public class Kernel extends NotificationBroadcasterSupport implements Serializable, KernelMBean {
 
     /**
      * The JMX name used by a Kernel to register itself when it boots.
@@ -382,37 +377,36 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
     public void startGBean(ObjectName name) throws InstanceNotFoundException, InvalidConfigException {
         try {
             mbServer.invoke(name, "start", null, null);
-        } catch (MBeanException e) {
-            // start is not supposed to throw anything
-            // todo it can now throw Exception and we should let that through
-            throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
-        } catch (ReflectionException e) {
-            // @todo this is a bad exception - we should dig the cause out of the RE.ITE
-            throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
+        } catch (JMException e) {
+            Throwable cause = e;
+            while ((cause instanceof JMException || cause instanceof JMRuntimeException) && cause.getCause() != null) {
+                cause = cause.getCause();
+            }
+            throw new InvalidConfigException("Invalid GBean configuration for " + name, cause);
         }
     }
 
     public void startRecursiveGBean(ObjectName name) throws InstanceNotFoundException, InvalidConfigException {
         try {
             mbServer.invoke(name, "startRecursive", null, null);
-        } catch (MBeanException e) {
-            // start is not supposed to throw anything
-            // todo it can now throw Exception and we should let that through
-            throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
-        } catch (ReflectionException e) {
-            // @todo this is a bad exception - we should dig the cause out of the RE.ITE
-            throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
+        } catch (JMException e) {
+            Throwable cause = e;
+            while ((cause instanceof JMException || cause instanceof JMRuntimeException) && cause.getCause() != null) {
+                cause = cause.getCause();
+            }
+            throw new InvalidConfigException("Invalid GBean configuration for " + name, cause);
         }
     }
 
     public void stopGBean(ObjectName name) throws InstanceNotFoundException, InvalidConfigException {
         try {
             mbServer.invoke(name, "stop", null, null);
-        } catch (MBeanException e) {
-            // stop is not supposed to throw anything
-            throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
-        } catch (ReflectionException e) {
-            throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
+        } catch (JMException e) {
+            Throwable cause = e;
+            while ((cause instanceof JMException || cause instanceof JMRuntimeException) && cause.getCause() != null) {
+                cause = cause.getCause();
+            }
+            throw new InvalidConfigException("Invalid GBean configuration for " + name, cause);
         }
     }
 

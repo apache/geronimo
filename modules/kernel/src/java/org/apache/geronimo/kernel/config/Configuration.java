@@ -66,15 +66,16 @@ import java.io.ObjectStreamClass;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Arrays;
 import javax.management.AttributeNotFoundException;
 import javax.management.InvalidAttributeValueException;
+import javax.management.JMRuntimeException;
 import javax.management.MBeanException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -92,8 +93,8 @@ import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
+import org.apache.geronimo.kernel.repository.Repository;
 
 /**
  * A Configuration represents a collection of runnable services that can be
@@ -122,7 +123,7 @@ import org.apache.geronimo.kernel.repository.MissingDependencyException;
  * a startRecursive() for all the GBeans it contains. Similarly, if the
  * Configuration is stopped then all of its GBeans will be stopped as well.
  *
- * @version $Revision: 1.10 $ $Date: 2004/02/12 18:20:24 $
+ * @version $Revision: 1.11 $ $Date: 2004/02/13 23:21:07 $
  */
 public class Configuration implements GBean {
     private static final Log log = LogFactory.getLog(Configuration.class);
@@ -208,7 +209,17 @@ public class Configuration implements GBean {
             ObjectName name = (ObjectName) entry.getKey();
             GBeanMBean gbean = (GBeanMBean) entry.getValue();
             log.trace("Registering GBean " + name);
-            mbServer.registerMBean(gbean, name);
+            try {
+                mbServer.registerMBean(gbean, name);
+            } catch (JMRuntimeException e) {
+                Throwable cause = e.getCause();
+                if (cause instanceof Exception) {
+                    throw (Exception) cause;
+                } else if (cause instanceof Error) {
+                    throw (Error) cause;
+                }
+                throw e;
+            }
             mbServer.invoke(Kernel.DEPENDENCY_SERVICE, "addDependency", new Object[]{name, context.getObjectName()}, new String[]{ObjectName.class.getName(), ObjectName.class.getName()});
         }
 

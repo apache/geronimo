@@ -55,6 +55,7 @@
  */
 package org.apache.geronimo.gbean.jmx;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import net.sf.cglib.reflect.FastClass;
@@ -63,7 +64,7 @@ import net.sf.cglib.reflect.FastMethod;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:38:55 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/13 23:21:07 $
  */
 public class FastMethodInvoker implements MethodInvoker {
     private FastMethod method;
@@ -73,6 +74,16 @@ public class FastMethodInvoker implements MethodInvoker {
     }
 
     public Object invoke(Object target, Object[] arguments) throws Exception {
-        return method.invoke(target, arguments);
+        try {
+            return method.invoke(target, arguments);
+        } catch (InvocationTargetException e) {
+            Throwable cause = e.getTargetException();
+            if (cause instanceof Exception) {
+                throw (Exception) cause;
+            } else if (cause instanceof Error) {
+                throw (Error) cause;
+            }
+            throw e;
+        }
     }
 }

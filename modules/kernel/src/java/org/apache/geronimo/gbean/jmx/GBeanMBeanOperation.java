@@ -76,7 +76,7 @@ import org.apache.geronimo.gbean.DynamicGBean;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/18 01:22:42 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/13 23:21:07 $
  */
 public class GBeanMBeanOperation {
     private final GBeanMBean gmbean;
@@ -191,6 +191,8 @@ public class GBeanMBeanOperation {
         try {
             Thread.currentThread().setContextClassLoader(gmbean.getClassLoader());
             return methodInvoker.invoke(gmbean.getTarget(), arguments);
+        } catch (Exception e) {
+            throw new ReflectionException(e);
         } catch (Throwable throwable) {
             throw new ReflectionException(new InvocationTargetException(throwable));
         } finally {
