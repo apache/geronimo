@@ -288,6 +288,6 @@ by the server.
 
     <gbean namePart="eis/JAXR" class="org.apache.geronimo.webservices.jaxr.JAXRGBean"/>
 
-    <gbean namePart="ejb/mgmt/MEJB" class="org.openejb.mejb.MEJB"/>
+    <gbean name="geronimo.server:J2EEApplication=null,EJBModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=StatelessSessionBean,name=ejb/mgmt/MEJB" class="org.openejb.mejb.MEJB"/>
 
 </configuration>
