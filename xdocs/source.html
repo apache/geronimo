@@ -1,0 +1,80 @@
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!-- $Rev: 47507 $ $Date: 2004-09-29 17:56:18 -0400 (Wed, 29 Sep 2004) $ -->
+
+<html>
+<head>
+</head>
+<body>
+
+<h1>Apache Geronimo Source Code</h1>
+
+<p>
+The Geronimo project uses the
+<a href="http://subversion.tigris.org/">Subversion</a> version control
+system.  If you're new to Subversion, you can check out the
+<a href="http://svnbook.red-bean.com/">online book</a> about Subversion.
+Note that we are currently using Subversion 1.1.x (there are separate
+versions of the book covering 1.0 and 1.1).
+</p>
+
+<h2>Web Access to Subversion</h2>
+
+<p>
+If you just want to browse the source code, you can use the
+<a
+href="http://svn.apache.org/viewcvs.cgi/geronimo/trunk/?root=Apache-SVN">ViewCVS
+web interface</a> to Subversion.  This is current at all times.
+</p>
+
+<h2>Normal Subversion Access</h2>
+<p>Anyone can check code out of Subversion.  You only need to specify a
+username and password in order to update the Subversion repository, and only
+Geronimo committers have the permissions to do that.  We run Subversion
+over standard HTTPS, so hopefully you won't have problems with intervening
+firewalls.</p>
+
+<h3>Check out from Subversion</h3>
+<p>Again, anyone can do this.  Use a command like:</p>
+<pre>svn checkout https://svn.apache.org/repos/asf/geronimo/trunk geronimo</pre>
+
+<h3>Commit Changes to Subversion</h3>
+<p>Any Geronimo committer should have a shell account on
+<tt>svn.apache.org</tt>.  Before you can commit, you'll need to set a
+Subversion password for yourself.  To do that, log in to
+<tt>svn.apache.org</tt> and run the command <strong>svnpasswd</strong>.</p>
+
+<p>Once your password is set, you can use a command like this to commit:</p>
+<pre>svn commit</pre>
+<p>If Subversion can't figure out your username, you can tell it
+explicitly:</p>
+<pre>svn --username you commit</pre>
+<p>Subversion will prompt you for a password, and once you enter it once, it
+will remember it for you.  Note this is the password you configured with
+<tt>svnpasswd</tt>, not your shell or other password.</p>
+
+<h2>Building Geronimo from Source</h2>
+<p>Refer to the <a href="http://wiki.apache.org/geronimo/Building">Wiki
+page</a> for the build procedure.  It typically takes 10-30 minutes for a full
+build, and it needs to be run while online in order to download or update a
+large number of dependencies.</p>
+
+</body>
+</html>
