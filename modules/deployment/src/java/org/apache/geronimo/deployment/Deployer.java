@@ -69,6 +69,13 @@ public class Deployer {
 
         XmlObject plan = null;
         JarFile moduleJarFile = null;
+        if (moduleFile != null) {
+            try {
+                moduleJarFile = JarUtil.createJarFile(moduleFile);
+            } catch (IOException e) {
+                throw new DeploymentException("Could not open module file: " + moduleFile.getAbsolutePath());
+            }
+        }
         if (deploymentPlan != null) {
             plan = getPlan(deploymentPlan);
             for (Iterator i = builders.iterator(); i.hasNext();) {
@@ -82,11 +89,6 @@ public class Deployer {
                 throw new DeploymentException("No deployer found for this plan type: " + deploymentPlan);
             }
         } else if (moduleFile != null) {
-            try {
-                moduleJarFile = JarUtil.createJarFile(moduleFile);
-            } catch (IOException e) {
-                throw new DeploymentException("Could not open module file: " + moduleFile.getAbsolutePath());
-            }
             for (Iterator i = builders.iterator(); i.hasNext();) {
                 ConfigurationBuilder candidate = (ConfigurationBuilder) i.next();
                 plan = candidate.getDeploymentPlan(moduleJarFile);
