@@ -233,6 +233,14 @@
             <ant:arg value="target/plan/j2ee-server-plan.xml"/>
         </ant:java>
 
+        <!-- build the runtime deployer configuration -->
+        <ant:echo>Building runtime deployer configuration</ant:echo>
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="distribute"/>
+            <ant:arg value="target/plan/j2ee-runtime-deployer-plan.xml"/>
+        </ant:java>
+
         <!-- building tranql connector default database configuration-->
         <ant:echo>Building default database configuration</ant:echo>
         <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
