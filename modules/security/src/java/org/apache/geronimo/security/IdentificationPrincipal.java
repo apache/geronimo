@@ -22,7 +22,7 @@ import java.security.Principal;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/02/25 09:58:08 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/13 16:52:29 $
  */
 public class IdentificationPrincipal implements Principal, Serializable {
     private final SubjectId id;
@@ -50,7 +50,7 @@ public class IdentificationPrincipal implements Principal, Serializable {
 
         IdentificationPrincipal idPrincipal = (IdentificationPrincipal) another;
 
-        return id == idPrincipal.id;
+        return id.equals(idPrincipal.id);
     }
 
     /**
