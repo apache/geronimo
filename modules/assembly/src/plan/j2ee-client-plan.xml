@@ -62,6 +62,10 @@ by the app client.
     <dependency>
         <uri>tranql/jars/tranql-${tranql_version}.jar</uri>
     </dependency>
+    <!-- required for rar 1.5 to load realms -->
+    <dependency>
+        <uri>regexp/jars/regexp-${regexp_version}.jar</uri>
+    </dependency>
     <!--connector deploys some jsr 77 beans... maybe this shoult be turned off-->
     <dependency>
         <uri>geronimo/jars/geronimo-j2ee-${geronimo_version}.jar</uri>
