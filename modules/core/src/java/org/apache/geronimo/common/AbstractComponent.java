@@ -55,7 +55,6 @@
  */
 package org.apache.geronimo.common;
 
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -63,61 +62,191 @@ import org.apache.commons.logging.LogFactory;
  *
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:10 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/13 02:12:40 $
  */
-public class AbstractComponent implements Component {
-    private State state = State.NOT_CREATED;
+public class AbstractComponent implements Component
+{
+    private State state= State.STOPPED;
+    private long startTime;
     private Container container;
-    protected Log log = LogFactory.getLog(getClass());
+    protected Log log= LogFactory.getLog(getClass());
 
-    public State getState() {
+    public State getState()
+    {
         return state;
     }
 
-    public final Container getContainer() {
+    /**
+     * Set the Component state.
+     * @param newState
+     * @throws IllegalStateException Thrown if the transition is not supported by the JSR77 lifecycle.
+     */
+    protected void setState(State newState) throws IllegalStateException
+    {
+        switch (state.getIndex())
+        {
+            case State.STOPPED_INDEX :
+                {
+                    switch (state.getIndex())
+                    {
+                        case State.STARTING_INDEX :
+                            break;
+                        case State.STOPPED_INDEX :
+                        case State.RUNNING_INDEX :
+                        case State.STOPPING_INDEX :
+                        case State.FAILED_INDEX :
+                            throw new IllegalStateException(
+                                "Can not transition to " + newState + " state from " + state);
+                    }
+                    break;
+                }
+
+            case State.STARTING_INDEX :
+                {
+                    switch (state.getIndex())
+                    {
+                        case State.RUNNING_INDEX :
+                        case State.FAILED_INDEX :
+                        case State.STOPPING_INDEX :
+                            break;
+                        case State.STOPPED_INDEX :
+                        case State.STARTING_INDEX :
+                            throw new IllegalStateException(
+                                "Can not transition to " + newState + " state from " + state);
+                    }
+                    break;
+                }
+
+            case State.RUNNING_INDEX :
+                {
+                    switch (state.getIndex())
+                    {
+                        case State.STOPPING_INDEX :
+                        case State.FAILED_INDEX :
+                            break;
+                        case State.STOPPED_INDEX :
+                        case State.STARTING_INDEX :
+                        case State.RUNNING_INDEX :
+                            throw new IllegalStateException(
+                                "Can not transition to " + newState + " state from " + state);
+
+                    }
+                    break;
+                }
+
+            case State.STOPPING_INDEX :
+                {
+                    switch (state.getIndex())
+                    {
+                        case State.STOPPED_INDEX :
+                        case State.FAILED_INDEX :
+                            break;
+                        case State.STARTING_INDEX :
+                        case State.RUNNING_INDEX :
+                        case State.STOPPING_INDEX :
+                            throw new IllegalStateException(
+                                "Can not transition to " + newState + " state from " + state);
+                    }
+                    break;
+                }
+
+            case State.FAILED_INDEX :
+                {
+                    switch (state.getIndex())
+                    {
+                        case State.STARTING_INDEX :
+                        case State.STOPPING_INDEX :
+                            break;
+                        case State.STOPPED_INDEX :
+                        case State.RUNNING_INDEX :
+                        case State.FAILED_INDEX :
+                            throw new IllegalStateException(
+                                "Can not transition to " + newState + " state from " + state);
+                    }
+                    break;
+                }
+        }
+        log.debug("State changed from " + state + " to " + newState);
+        if (newState==State.RUNNING)
+            startTime= System.currentTimeMillis();
+        state= newState;
+
+    }
+
+    public long getStartTime()
+    {
+        return startTime;
+    }
+
+    public final Container getContainer()
+    {
         return container;
     }
 
-    public final void setContainer(Container container) {
-        if (state != State.NOT_CREATED && state != State.DESTROYED) {
-            throw new IllegalStateException("Set container can only be called while in the not-created or destroyed states: state=" + state);
+    public final void setContainer(Container container)
+    {
+        if (state != State.STOPPED)
+        {
+            throw new IllegalStateException(
+                "Set container can only be called while in the stopped state: state=" + state);
         }
-        if (state == State.NOT_CREATED && container == null) {
-            throw new IllegalArgumentException("Interceptor has not been created; container must be NOT null.");
-        }
-        if (state == State.DESTROYED && container != null) {
-            throw new IllegalArgumentException("Interceptor has been destroyed; container must be null.");
-        }
-        this.container = container;
+        this.container= container;
     }
 
-    public void create() throws Exception {
-        if (state != State.NOT_CREATED) {
-            throw new IllegalStateException("Can not transition to created state from " + state);
+    public void start() throws Exception
+    {
+        try
+        {
+            setState(State.STARTING);
+            doStart();
+            setState(State.RUNNING);
         }
-        state = State.STOPPED;
+        finally
+        {
+            if (state != State.RUNNING)
+                setState(State.FAILED);
+        }
     }
 
-    public void start() throws Exception {
-        if (state != State.STOPPED) {
-            throw new IllegalStateException("Can not transition to started state from " + state);
-        }
-        state = State.STARTED;
+    public void startRecursive() throws Exception
+    {
+        start();
     }
 
-    public void stop() {
-        if (state == State.NOT_CREATED || state == State.DESTROYED) {
-            throw new IllegalStateException("Can not transition to started state from " + state);
-        } else if (state == State.STOPPED) {
-            log.warn("Stop called on an already stopped component; no exception will be thrown but this is a programming error.");
-        }
-        state = State.STOPPED;
+    /**
+     * Do the start tasks for the component.  Called in the STARTING state by 
+     * the start() and startRecursive() methods to perform the tasks required to 
+     * start the component. The default implementation does nothing.
+     * @throws Exception
+     */
+    public void doStart() throws Exception
+    {
     }
 
-    public void destroy() {
-        if (state != State.STOPPED) {
-            log.warn("Destroy called on an component in the " + state + " state; no exception will be thrown but this is a programming error.");
+    public void stop()
+    {
+        // Do the actual stop tasks
+        try
+        {
+            setState(State.STOPPING);
+            doStop();
+            setState(State.STOPPED);
         }
-        state = State.DESTROYED;
+        catch (Exception e)
+        {
+            log.warn("Stop failed", e);
+            setState(State.FAILED);
+        }
     }
+
+    /**
+     * Do the stop tasks for the component.  Called in the STOPPING state by the stop()
+     * method to perform the tasks required to stop the component.
+     * This implementation does nothing.
+     * @throws Exception
+     */
+    public void doStop() throws Exception
+    {
+    }
+
 }

@@ -71,7 +71,7 @@ import org.apache.geronimo.ejb.container.EJBPlugins;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/13 02:12:40 $
  */
 public final class EnterpriseContextInstancePool extends AbstractComponent implements InstancePool {
     private SimpleInstancePool pool;
@@ -79,17 +79,16 @@ public final class EnterpriseContextInstancePool extends AbstractComponent imple
     private int maxSize = 100;
     private boolean hardLimit = false;
 
-    public void create() throws Exception {
-        super.create();
-        pool = new SimpleInstancePool(EJBPlugins.getInstanceFactory(getContainer()), maxSize, hardLimit);
-        discardQueue = new DiscardQueue();
-    }
-
-    public void start() throws Exception {
-        super.start();
+    public void doStart() throws Exception {
+        if (pool==null)
+            pool = new SimpleInstancePool(EJBPlugins.getInstanceFactory(getContainer()), maxSize, hardLimit);
+        if (discardQueue==null)
+            discardQueue = new DiscardQueue();
+        
         pool.fill();
     }
 
+    // @todo Destroy not part of jsr77 lifecycle
     public void destroy() {
         List contexts = pool.stopPooling();
         pool = null;
@@ -104,8 +103,6 @@ public final class EnterpriseContextInstancePool extends AbstractComponent imple
 
         discardQueue.stop();
         discardQueue = null;
-
-        super.destroy();
     }
 
     /**

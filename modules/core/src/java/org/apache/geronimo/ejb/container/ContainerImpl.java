@@ -73,155 +73,163 @@ import org.apache.geronimo.common.State;
 /**
  *
  *
- *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
+ * @todo Currently this class implements the startRecursive method of 
+ * the JSR77 lifecycle. This should be moved to an AbstractContainer class
+ * @todo The stop method is implemented as stopRecursive, which should be moved
+ * to an abstractContainer class
+ * @version $Revision: 1.4 $ $Date: 2003/08/13 02:12:40 $
  */
-public class ContainerImpl extends AbstractComponent implements Container {
-    private final Map plugins = new LinkedHashMap();
-    private final Map pluginObjects = new LinkedHashMap();
-    private final LinkedList interceptors = new LinkedList();
+public class ContainerImpl extends AbstractComponent implements Container
+{
+    private final Map plugins= new LinkedHashMap();
+    private final Map pluginObjects= new LinkedHashMap();
+    private final LinkedList interceptors= new LinkedList();
     // for efficency keep a reference to the first interceptor
     private Interceptor firstInterceptor;
 
-    public InvocationResult invoke(Invocation invocation) throws Exception {
+    public InvocationResult invoke(Invocation invocation) throws Exception
+    {
         return firstInterceptor.invoke(invocation);
     }
 
-    public void addInterceptor(Interceptor interceptor) {
-        if (firstInterceptor == null) {
-            firstInterceptor = interceptor;
+    public void addInterceptor(Interceptor interceptor)
+    {
+        if (firstInterceptor == null)
+        {
+            firstInterceptor= interceptor;
             interceptors.addLast(interceptor);
-        } else {
-            Interceptor lastInterceptor = (Interceptor) interceptors.getLast();
+        }
+        else
+        {
+            Interceptor lastInterceptor= (Interceptor)interceptors.getLast();
             lastInterceptor.setNext(interceptor);
             interceptors.addLast(interceptor);
         }
     }
 
-    public void create() throws Exception {
-        super.create();
-        // Create all the interceptors in forward insertion order
-        for (Iterator iterator = pluginObjects.values().iterator(); iterator.hasNext();) {
-            Object object = iterator.next();
-            if (object instanceof Component) {
-                Component component = (Component) object;
-                component.setContainer(this);
-                component.create();
-            }
-        }
+    public void startRecursive() throws Exception
+    {
+        try
+        {
+            // start this component
+            setState(State.STARTING);
 
-        // Create all the plugins in forward insertion order
-        for (Iterator iterator = interceptors.iterator(); iterator.hasNext();) {
-            Interceptor interceptor = (Interceptor) iterator.next();
-            interceptor.setContainer(this);
-            interceptor.create();
+            // Start all the components in forward insertion order
+            for (Iterator iterator= pluginObjects.values().iterator(); iterator.hasNext();)
+            {
+                Object object= iterator.next();
+                if (object instanceof Component)
+                {
+                    Component component= (Component)object;
+                    component.startRecursive();
+                }
+            }
+
+            // Start this component
+            doStart();
+
+            setState(State.RUNNING);
+        }
+        finally
+        {
+            if (getState() != State.RUNNING)
+                setState(State.FAILED);
         }
     }
 
-    public void start() throws Exception {
-        super.start();
-        // Start all the interceptors in forward insertion order
-        for (Iterator iterator = pluginObjects.values().iterator(); iterator.hasNext();) {
-            Object object = iterator.next();
-            if (object instanceof Component) {
-                Component component = (Component) object;
-                component.start();
-            }
-        }
-
+    public void doStart() throws Exception
+    {
         // Start all the plugins in forward insertion order
-        for (Iterator iterator = interceptors.iterator(); iterator.hasNext();) {
-            Interceptor interceptor = (Interceptor) iterator.next();
+        for (Iterator iterator= interceptors.iterator(); iterator.hasNext();)
+        {
+            Interceptor interceptor= (Interceptor)iterator.next();
             interceptor.start();
         }
     }
 
-    public void stop() {
+    public void stop()
+    {
+        try
+        {
+            setState(State.STOPPING);
+
+            // @todo this is actually a stopRecursive, which is not supported
+            // by JSR77
+            // Stop all the plugins in reverse insertion order
+            LinkedList list= new LinkedList();
+            for (Iterator iterator= pluginObjects.values().iterator(); iterator.hasNext();)
+            {
+                Object object= iterator.next();
+                if (object instanceof Component)
+                {
+                    list.addFirst(object);
+                }
+            }
+            for (Iterator iterator= list.iterator(); iterator.hasNext();)
+            {
+                Component component= (Component)iterator.next();
+                component.stop();
+            }
+
+            // Stop this component
+            doStop();
+
+            setState(State.STOPPED);
+        }
+        finally
+        {
+            if (getState() != State.STOPPED)
+                setState(State.FAILED);
+        }
+    }
+
+    public void doStop()
+    {
         // Stop all the interceptors in reverse insertion order
-        for (ListIterator iterator = interceptors.listIterator(interceptors.size()); iterator.hasPrevious();) {
-            Interceptor interceptor = (Interceptor) iterator.previous();
+        for (ListIterator iterator= interceptors.listIterator(interceptors.size()); iterator.hasPrevious();)
+        {
+            Interceptor interceptor= (Interceptor)iterator.previous();
             interceptor.stop();
         }
-
-        // Stop all the plugins in reverse insertion order
-        LinkedList list = new LinkedList();
-        for (Iterator iterator = pluginObjects.values().iterator(); iterator.hasNext();) {
-            Object object = iterator.next();
-            if (object instanceof Component) {
-                list.addFirst(object);
-            }
-        }
-        for (Iterator iterator = list.iterator(); iterator.hasNext();) {
-            Component component = (Component) iterator.next();
-            component.stop();
-        }
-
-        super.stop();
     }
 
-    public void destroy() {
-        // Destroy all the interceptors in reverse insertion order
-        for (ListIterator iterator = interceptors.listIterator(interceptors.size()); iterator.hasPrevious();) {
-            Interceptor interceptor = (Interceptor) iterator.previous();
-            interceptor.destroy();
-            interceptor.setContainer(null);
-        }
-
-        // Destroy all the plugins in reverse insertion order
-        LinkedList list = new LinkedList();
-        for (Iterator iterator = pluginObjects.values().iterator(); iterator.hasNext();) {
-            Object object = iterator.next();
-            if (object instanceof Component) {
-                list.addFirst(object);
-            }
-        }
-        for (Iterator iterator = list.iterator(); iterator.hasNext();) {
-            Component component = (Component) iterator.next();
-            component.destroy();
-            component.setContainer(null);
-        }
-
+    // @todo destroy not supported in JSR77 lifecycle, needs to be
+    // integrated or removed.
+    public void destroy()
+    {
         plugins.clear();
         pluginObjects.clear();
-        super.destroy();
     }
 
-    public ObjectName getPlugin(String logicalPluginName) {
-        return (ObjectName) plugins.get(logicalPluginName);
+    public ObjectName getPlugin(String logicalPluginName)
+    {
+        return (ObjectName)plugins.get(logicalPluginName);
     }
 
-    public void putPlugin(String logicalPluginName, ObjectName objectName) {
-        State state = getState();
-        if (state != State.NOT_CREATED && state != State.DESTROYED) {
-            throw new IllegalStateException("putPluginObject can only be called while in the not-created or destroyed states: state=" + state);
+    public void putPlugin(String logicalPluginName, ObjectName objectName)
+    {
+        State state= getState();
+        if (state != State.STOPPED)
+        {
+            throw new IllegalStateException(
+                "putPluginObject can only be called while in the stopped state: state=" + state);
         }
-        if (state == State.NOT_CREATED && objectName == null) {
-            throw new IllegalArgumentException("Container has not been created; objectName must be NOT null.");
-        }
-        if (state == State.DESTROYED && objectName != null) {
-            throw new IllegalArgumentException("Container has been destroyed; objectName must be null.");
-        }
-
         plugins.put(logicalPluginName, objectName);
     }
 
-    public Object getPluginObject(String logicalPluginName) {
+    public Object getPluginObject(String logicalPluginName)
+    {
         return pluginObjects.get(logicalPluginName);
     }
 
-    public void putPluginObject(String logicalPluginName, Object plugin) {
-        State state = getState();
-        if (state != State.NOT_CREATED && state != State.DESTROYED) {
-            throw new IllegalStateException("putPluginObject can only be called while in the not-created or destroyed states: state=" + state);
+    public void putPluginObject(String logicalPluginName, Object plugin)
+    {
+        State state= getState();
+        if (state != State.STOPPED)
+        {
+            throw new IllegalStateException(
+                "putPluginObject can only be called while in the not-created or destroyed states: state=" + state);
         }
-        if (state == State.NOT_CREATED && plugin == null) {
-            throw new IllegalArgumentException("Container has not been created; plugin must be NOT null.");
-        }
-        if (state == State.DESTROYED && plugin != null) {
-            throw new IllegalArgumentException("Container has been destroyed; plugin must be null.");
-        }
-
         pluginObjects.put(logicalPluginName, plugin);
     }
 }
-

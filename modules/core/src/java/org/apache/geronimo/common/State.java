@@ -59,20 +59,34 @@ package org.apache.geronimo.common;
  *
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:10 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/13 02:12:40 $
  */
 public final class State {
-    public static final State NOT_CREATED = new State("not-created");
-    public static final State STOPPED = new State("stopped");
-    public static final State STARTED = new State("started");
-    public static final State DESTROYED = new State("destroyed");
-
+	
+	public static final int STARTING_INDEX=0;
+	public static final int RUNNING_INDEX=1;
+	public static final int STOPPING_INDEX=2;
+	public static final int STOPPED_INDEX=3;
+	public static final int FAILED_INDEX=4;
+	
+    public static final State STARTING = new State("starting",STARTING_INDEX);
+    public static final State RUNNING = new State("running",RUNNING_INDEX);
+	public static final State STOPPING = new State("stopping",STOPPING_INDEX);
+	public static final State STOPPED = new State("stopped",STOPPED_INDEX);
+	public static final State FAILED = new State("failed",FAILED_INDEX);
+	
     private final String name;
-
-    private State(String name) {
+	private final int index;
+	
+    private State(String name, int index) {
         this.name = name;
+        this.index = index;
     }
 
+	public int getIndex() {	
+		return index;
+	}
+	
     public String toString() {
         return name;
     }

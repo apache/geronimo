@@ -59,7 +59,7 @@ package org.apache.geronimo.common;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:10 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/13 02:12:40 $
  */
 public abstract class AbstractInterceptor extends AbstractComponent implements Interceptor {
     private Interceptor next;
@@ -70,14 +70,8 @@ public abstract class AbstractInterceptor extends AbstractComponent implements I
 
     public final void setNext(Interceptor nextInterceptor) {
         State state = getState();
-        if (state != State.NOT_CREATED && state != State.DESTROYED) {
-            throw new IllegalStateException("setNext can only be called while in the not-created or destroyed states: state=" + state);
-        }
-        if (state == State.NOT_CREATED && nextInterceptor == null) {
-            throw new IllegalArgumentException("Interceptor has not been created; nextInterceptor must be NOT null.");
-        }
-        if (state == State.DESTROYED && nextInterceptor != null) {
-            throw new IllegalArgumentException("Interceptor has been destroyed; nextInterceptor must be null.");
+        if (state != State.STOPPED) {
+            throw new IllegalStateException("setNext can only be called while in the stopped state: state=" + state);
         }
         next = nextInterceptor;
     }

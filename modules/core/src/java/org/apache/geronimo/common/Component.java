@@ -57,10 +57,10 @@ package org.apache.geronimo.common;
 
 
 /**
+ * Implements the JSR 77 state model
  *
  *
- *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:10 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/13 02:12:40 $
  */
 public interface Component {
     /**
@@ -69,6 +69,12 @@ public interface Component {
      */
     State getState();
 
+	/**
+	 * Gets the start time of this component
+	 * @return time in milliseonds since epoch that this component was started.
+	 */
+	long getStartTime();
+	
     /**
      * Gets the container to which this component belongs.
      * @return the container for which invocations will be intercepted
@@ -87,20 +93,7 @@ public interface Component {
     void setContainer(Container container) throws IllegalStateException, IllegalArgumentException;
 
     /**
-     * Transitions the component to the stopped state.  This method has access to the
-     * container. Once an component has been created setContainer() will throw IllegalStateException.
-     *
-     * Normally a component uses this to acquire references to other componets of the container. The
-     * components will all have been registered at this stage, but not necessarily
-     * created so methods should not be invoked on the reference until the start method.
-     *
-     * @throws java.lang.Exception if a problem occurs during the transition
-     * @throws java.lang.IllegalStateException if this interceptor is not in the not-created state
-     */
-    void create() throws Exception, IllegalStateException;
-
-    /**
-     * Transitions the component to the started state.  This method has access to the
+     * Transitions the component to the starting state.  This method has access to the
      * container.
      *
      * Normally a component uses this to cache data from other components. The other components will
@@ -108,29 +101,38 @@ public interface Component {
      * invoked on them.
      *
      * @throws java.lang.Exception if a problem occurs during the transition
-     * @throws java.lang.IllegalStateException if this interceptor is not in the stopped state
+     * @throws java.lang.IllegalStateException if this interceptor is not in the stopped or failed state
      */
     void start() throws Exception, IllegalStateException;
 
+	/**
+	 * Transitions the component to the starting state.  This method has access to the
+	 * container.
+	 * 
+	 * If this Component is a Container, then startRecursive is called on all child Components
+	 * that are in the STOPPED or FAILED state.
+	 * Normally a component uses this to cache data from other components. The other components will
+	 * have been created at this stage, but not necessairly started and may not be ready to have methods
+	 * invoked on them.
+	 *
+	 * @throws java.lang.Exception if a problem occurs during the transition
+	 * @throws java.lang.IllegalStateException if this interceptor is not in the STOPPED or FAILED state
+	 */
+	void startRecursive() throws Exception, IllegalStateException;
+
     /**
-     * Transitions the component to the stopped state.  This method has access to the
+     * Transitions the component to the stopping state.  This method has access to the
      * container.
      *
+	 * If this is Component is a Container, then all its child components must be in the 
+	 * STOPPED or FAILED State.
+	 * 
      * Normally a component uses this to drop references to data cached in the start method.
      * The other components will not necessairly have been stopped at this stage and may not be ready
      * to have methods invoked on them.
      */
-    void stop();
+    void stop() throws IllegalStateException;
+    
 
-    /**
-     * Transitions the component to the destroyed state.  This method has access to the
-     * container.  Once a component has been destroyed, it can not be recreated with the i
-     * create method.  If the create method is called on an destroyed component an
-     * IllegalStateException will be thrown.
-     *
-     * Normally a component uses this to drop references to components cached in the create method.
-     * The other components will not necessairly have been destroyed at this stage, but may have been
-     * stopped somethods should not be called on other components.
-     */
-    void destroy();
+
 }

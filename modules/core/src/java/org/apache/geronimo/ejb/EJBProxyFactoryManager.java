@@ -67,28 +67,17 @@ import org.apache.geronimo.ejb.container.EJBPlugins;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/13 02:12:40 $
  */
 public class EJBProxyFactoryManager extends AbstractComponent {
     private Map proxies = new HashMap();
     private ThreadLocal threadEJBProxyFactory = new ThreadLocal();
 
-    public void create() throws Exception {
-        log.debug("Creating EJBProxyFactoryManager: ejbName=" + EJBPlugins.getEJBMetadata(getContainer()).getName());
-        super.create();
-        for (Iterator iterator = proxies.keySet().iterator(); iterator.hasNext();) {
-            String proxyName = (String) iterator.next();
-            EJBProxyFactory ejbProxyFactory = getEJBProxyFactory(proxyName);
-            // @todo uncomment this when the ejb proxy factories are rewriten to be full components
-            //ejbProxyFactory.setContainer(getContainer());
-            log.debug("Creating EJBProxyFactory: proxyName=" + proxyName + " ejbName=" + EJBPlugins.getEJBMetadata(getContainer()).getName());
-            ejbProxyFactory.create();
-        }
-    }
 
-    public void start() throws Exception {
+    public void doStart() throws Exception {
         log.debug("Starting EJBProxyFactoryManager: ejbName=" + EJBPlugins.getEJBMetadata(getContainer()).getName());
-        super.start();
+
+        // @todo This should be handled by startRecursive()
         for (Iterator iterator = proxies.keySet().iterator(); iterator.hasNext();) {
             String proxyName = (String) iterator.next();
             EJBProxyFactory ejbProxyFactory = getEJBProxyFactory(proxyName);
@@ -97,9 +86,10 @@ public class EJBProxyFactoryManager extends AbstractComponent {
         }
     }
 
-    public void stop() {
+    public void doStop() {
         log.debug("Stopping EJBProxyFactoryManager: ejbName=" + EJBPlugins.getEJBMetadata(getContainer()).getName());
-        super.stop();
+ 
+        // @todo This will not work when this is a container, as children must be stopped before stop() is called.
         for (Iterator iterator = proxies.keySet().iterator(); iterator.hasNext();) {
             String proxyName = (String) iterator.next();
             EJBProxyFactory ejbProxyFactory = getEJBProxyFactory(proxyName);
@@ -108,17 +98,11 @@ public class EJBProxyFactoryManager extends AbstractComponent {
         }
     }
 
+
+    /**
+     * @todo Currently not part of the Component lifecycle (due to jsr77)
+     */
     public void destroy() {
-        log.debug("Destroying EJBProxyFactoryManager: ejbName=" + EJBPlugins.getEJBMetadata(getContainer()).getName());
-        super.destroy();
-        for (Iterator iterator = proxies.keySet().iterator(); iterator.hasNext();) {
-            String proxyName = (String) iterator.next();
-            EJBProxyFactory ejbProxyFactory = getEJBProxyFactory(proxyName);
-            log.debug("Destroying EJBProxyFactory: proxyName=" + proxyName + " ejbName=" + EJBPlugins.getEJBMetadata(getContainer()).getName());
-            ejbProxyFactory.destroy();
-            // @todo uncomment this when the ejb proxy factories are rewriten to be full components
-            //ejbProxyFactory.setContainer(null);
-        }
         proxies.clear();
     }
 

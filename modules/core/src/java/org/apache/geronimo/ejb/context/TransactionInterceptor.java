@@ -67,7 +67,7 @@ import org.apache.geronimo.ejb.metadata.EJBMetadata;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:12 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/13 02:12:40 $
  */
 public class TransactionInterceptor implements Interceptor {
     private Interceptor transactionInterceptor;
@@ -76,6 +76,10 @@ public class TransactionInterceptor implements Interceptor {
 
     public State getState() {
         return transactionInterceptor.getState();
+    }
+
+    public long getStartTime(){
+        return transactionInterceptor.getStartTime();
     }
 
     public final Container getContainer() {
@@ -94,7 +98,7 @@ public class TransactionInterceptor implements Interceptor {
         this.nextInterceptor = nextInterceptor;
     }
 
-    public void create() throws Exception {
+    public void start() throws Exception {
         EJBMetadata ejbMetadata = EJBPlugins.getEJBMetadata(container);
         if (ejbMetadata.getTransactionDemarcation().isContainer()) {
             transactionInterceptor = new CMTInterceptor();
@@ -103,19 +107,19 @@ public class TransactionInterceptor implements Interceptor {
         }
         transactionInterceptor.setContainer(container);
         transactionInterceptor.setNext(nextInterceptor);
-        transactionInterceptor.create();
-    }
-
-    public void start() throws Exception {
         transactionInterceptor.start();
+    }
+    
+    public void startRecursive() throws Exception {
+        transactionInterceptor.startRecursive();
     }
 
     public void stop() {
         transactionInterceptor.stop();
     }
 
+    // @todo not supported by JSR77 lifecycle 
     public void destroy() {
-        transactionInterceptor.destroy();
         transactionInterceptor.setContainer(null);
         transactionInterceptor = null;
     }
