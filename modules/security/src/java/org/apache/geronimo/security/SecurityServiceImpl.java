@@ -23,7 +23,6 @@ import javax.security.jacc.PolicyContextException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.security.jacc.GeronimoPolicy;

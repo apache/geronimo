@@ -16,24 +16,25 @@
  */
 package org.apache.geronimo.security.realm.providers;
 
-import java.util.Map;
-import java.util.Date;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.PrintWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import javax.security.auth.spi.LoginModule;
+import java.util.Date;
+import java.util.Map;
 import javax.security.auth.Subject;
-import javax.security.auth.login.LoginException;
+import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.Callback;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
+
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
  * Writes audit records to a file for all authentication activity.  Currently

@@ -21,18 +21,16 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
-import java.util.Collections;
-import java.io.File;
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.security.AbstractTest;
+import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
-import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.security.realm.GenericSecurityRealm;
 
 
 /**
@@ -81,8 +79,8 @@ public class LoginSQLTest extends AbstractTest {
 
         conn.close();
 
-        GBeanMBean gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginModuleGBean");
         sqlModule = new ObjectName("geronimo.security:type=LoginModule,name=sql");
+        GBeanData gbean = new GBeanData(sqlModule, LoginModuleGBean.getGBeanInfo());
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.SQLLoginModule");
         gbean.setAttribute("serverSide", new Boolean(true));
         Properties props = new Properties();
@@ -94,16 +92,16 @@ public class LoginSQLTest extends AbstractTest {
         props.put("groupSelect", "SELECT GroupName, UserName FROM Groups");
         gbean.setAttribute("options", props);
         gbean.setAttribute("loginDomainName", "SQLDomain");
-        kernel.loadGBean(sqlModule, gbean);
+        kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
         kernel.startGBean(sqlModule);
 
-        gbean = new GBeanMBean("org.apache.geronimo.security.realm.GenericSecurityRealm");
         sqlRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=sql-realm");
+        gbean = new GBeanData(sqlRealm, GenericSecurityRealm.getGBeanInfo());
         gbean.setAttribute("realmName", "sql-realm");
         props = new Properties();
         props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=sql");
         gbean.setAttribute("loginModuleConfiguration", props);
-        kernel.loadGBean(sqlRealm, gbean);
+        kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
         kernel.startGBean(sqlRealm);
 
     }

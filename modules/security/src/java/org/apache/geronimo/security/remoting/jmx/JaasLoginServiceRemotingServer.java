@@ -20,7 +20,6 @@ package org.apache.geronimo.security.remoting.jmx;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-
 import javax.management.ObjectName;
 
 import org.activeio.AcceptListener;
@@ -37,14 +36,15 @@ import org.activeio.adapter.SynchToAsynchChannelServerAdapter;
 import org.activeio.filter.PacketAggregatingAsynchChannel;
 import org.activeio.net.SocketMetadata;
 import org.activeio.net.SocketSynchChannelFactory;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.proxy.ReflexiveInterceptor;
 import org.apache.geronimo.security.jaas.JaasLoginServiceMBean;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 
 /**

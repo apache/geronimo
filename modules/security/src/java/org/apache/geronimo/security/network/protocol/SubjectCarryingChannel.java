@@ -21,7 +21,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.security.AccessController;
 import java.util.Collection;
-
 import javax.security.auth.Subject;
 
 import org.activeio.AsynchChannel;
@@ -32,6 +31,7 @@ import org.activeio.adapter.PacketOutputStream;
 import org.activeio.packet.AppendedPacket;
 import org.activeio.packet.ByteArrayPacket;
 import org.activeio.packet.FilterPacket;
+
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.SubjectId;

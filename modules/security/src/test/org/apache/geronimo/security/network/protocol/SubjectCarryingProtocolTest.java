@@ -24,12 +24,12 @@ import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 import java.util.Collections;
 import java.util.Properties;
-
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 
+import com.sun.security.auth.login.ConfigFile;
 import org.activeio.AcceptListener;
 import org.activeio.AsynchChannelServer;
 import org.activeio.Channel;
@@ -45,13 +45,14 @@ import org.activeio.adapter.SynchToAsynchChannelServerAdapter;
 import org.activeio.filter.PacketAggregatingAsynchChannel;
 import org.activeio.net.SocketSynchChannelFactory;
 import org.activeio.packet.ByteArrayPacket;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.security.AbstractTest;
+import org.apache.geronimo.security.jaas.LoginModuleGBean;
+import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-
-import com.sun.security.auth.login.ConfigFile;
 
 
 /**
@@ -112,16 +113,16 @@ public class SubjectCarryingProtocolTest extends AbstractTest implements Request
     public void setUp() throws Exception {
         super.setUp();
 
-        GBeanMBean gbean;
+        GBeanData gbean;
 
-        gbean = new GBeanMBean(ServerInfo.GBEAN_INFO);
         serverInfo = new ObjectName("geronimo.system:role=ServerInfo");
+        gbean = new GBeanData(serverInfo, ServerInfo.GBEAN_INFO);
         gbean.setAttribute("baseDirectory", ".");
-        kernel.loadGBean(serverInfo, gbean);
+        kernel.loadGBean(gbean, ServerInfo.class.getClassLoader());
         kernel.startGBean(serverInfo);
 
-        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginModuleGBean");
         testCE = new ObjectName("geronimo.security:type=LoginModule,name=properties");
+        gbean = new GBeanData(testCE, LoginModuleGBean.getGBeanInfo());
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
         gbean.setAttribute("serverSide", new Boolean(true));
         Properties props = new Properties();
@@ -129,16 +130,16 @@ public class SubjectCarryingProtocolTest extends AbstractTest implements Request
         props.put("groupsURI", new File(new File("."), "src/test-data/data/groups.properties").toURI().toString());
         gbean.setAttribute("options", props);
         gbean.setAttribute("loginDomainName", "PropertiesDomain");
-        kernel.loadGBean(testCE, gbean);
+        kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
-        gbean = new GBeanMBean("org.apache.geronimo.security.realm.GenericSecurityRealm");
         testRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=properties-realm");
+        gbean = new GBeanData(testRealm, GenericSecurityRealm.getGBeanInfo());
         gbean.setAttribute("realmName", "properties-realm");
         props = new Properties();
         props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=properties");
         gbean.setAttribute("loginModuleConfiguration", props);
         gbean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfo));
-        kernel.loadGBean(testRealm, gbean);
+        kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
 
         kernel.startGBean(testCE);
         kernel.startGBean(testRealm);

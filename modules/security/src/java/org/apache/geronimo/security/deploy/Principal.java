@@ -16,11 +16,11 @@
  */
 package org.apache.geronimo.security.deploy;
 
-import java.io.Serializable;
 import java.beans.PropertyEditorManager;
+import java.io.Serializable;
 
-import org.apache.geronimo.common.propertyeditor.TextPropertyEditorSupport;
 import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
+import org.apache.geronimo.common.propertyeditor.TextPropertyEditorSupport;
 
 
 /**

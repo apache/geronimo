@@ -17,11 +17,6 @@
 
 package org.apache.geronimo.security;
 
-import javax.crypto.Mac;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import javax.security.auth.Subject;
-import javax.security.jacc.EJBRoleRefPermission;
 import java.io.Serializable;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
@@ -34,6 +29,11 @@ import java.util.Hashtable;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import javax.security.auth.Subject;
+import javax.security.jacc.EJBRoleRefPermission;
 
 
 /**

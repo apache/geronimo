@@ -17,14 +17,13 @@
 
 package org.apache.geronimo.security.bridge;
 
+import java.util.Set;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 
-import org.apache.geronimo.security.realm.providers.GeronimoPasswordCredential;
-import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.ContextManager;
-
-import java.util.Set;
+import org.apache.geronimo.security.IdentificationPrincipal;
+import org.apache.geronimo.security.realm.providers.GeronimoPasswordCredential;
 
 
 /**

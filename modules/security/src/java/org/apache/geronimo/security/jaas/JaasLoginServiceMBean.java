@@ -16,13 +16,12 @@
  */
 package org.apache.geronimo.security.jaas;
 
-import org.apache.geronimo.common.GeronimoSecurityException;
-import org.apache.geronimo.security.IdentificationPrincipal;
-
-import javax.security.auth.login.LoginException;
-import javax.security.auth.callback.Callback;
 import java.security.Principal;
 import java.util.Collection;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.login.LoginException;
+
+import org.apache.geronimo.common.GeronimoSecurityException;
 
 /**
  * Interface used to connect to the JaasLoginService via remoting, etc.  This

@@ -16,12 +16,16 @@
  */
 package org.apache.geronimo.security.jaas;
 
-import org.apache.geronimo.security.RealmPrincipal;
-import org.apache.geronimo.security.ContextManager;
-
-import javax.security.auth.Subject;
-import java.util.*;
 import java.security.Principal;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import javax.security.auth.Subject;
+
+import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.RealmPrincipal;
 
 /**
  * Tracks security information about a single user.  This is used before,

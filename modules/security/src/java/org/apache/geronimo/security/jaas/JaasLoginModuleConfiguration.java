@@ -16,15 +16,15 @@
  */
 package org.apache.geronimo.security.jaas;
 
-import org.apache.geronimo.common.GeronimoSecurityException;
-
-import javax.security.auth.spi.LoginModule;
-import java.io.Serializable;
 import java.io.Externalizable;
-import java.util.Map;
+import java.io.Serializable;
+import java.rmi.Remote;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.rmi.Remote;
+import java.util.Map;
+import javax.security.auth.spi.LoginModule;
+
+import org.apache.geronimo.common.GeronimoSecurityException;
 
 /**
  * Describes the configuration of a LoginModule -- its name, class, control

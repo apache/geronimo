@@ -32,11 +32,15 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
+
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
+import org.apache.geronimo.security.jaas.JaasLoginService;
 import org.apache.geronimo.security.jaas.JaasLoginServiceMBean;
+import org.apache.geronimo.security.jaas.LoginModuleGBean;
+import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
@@ -83,49 +87,49 @@ public class RemoteLoginTest extends TestCase {
         kernel = new Kernel("test.kernel");
         kernel.boot();
 
-        GBeanMBean gbean;
+        GBeanData gbean;
 
         // Create all the parts
 
-        gbean = new GBeanMBean(ServerInfo.GBEAN_INFO);
         serverInfo = new ObjectName("geronimo.system:role=ServerInfo");
+        gbean = new GBeanData(serverInfo, ServerInfo.GBEAN_INFO);
         gbean.setAttribute("baseDirectory", ".");
-        kernel.loadGBean(serverInfo, gbean);
+        kernel.loadGBean(gbean, ServerInfo.class.getClassLoader());
         kernel.startGBean(serverInfo);
 
-        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.JaasLoginService");
         loginService = new ObjectName("geronimo.security:type=JaasLoginService");
+        gbean = new GBeanData(loginService, JaasLoginService.getGBeanInfo());
         gbean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
 //        gbean.setAttribute("reclaimPeriod", new Long(100));
         gbean.setAttribute("algorithm", "HmacSHA1");
         gbean.setAttribute("password", "secret");
-        kernel.loadGBean(loginService, gbean);
+        kernel.loadGBean(gbean, JaasLoginService.class.getClassLoader());
 
-        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginModuleGBean");
         testCE = new ObjectName("geronimo.security:type=LoginModule,name=properties");
+        gbean = new GBeanData(testCE, LoginModuleGBean.getGBeanInfo());
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
         gbean.setAttribute("serverSide", new Boolean(true));
         Properties props = new Properties();
         props.put("usersURI", new File(new File("."), "src/test-data/data/users.properties").toString());
         props.put("groupsURI", new File(new File("."), "src/test-data/data/groups.properties").toString());
         gbean.setAttribute("options", props);
-        kernel.loadGBean(testCE, gbean);
+        kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
-        gbean = new GBeanMBean("org.apache.geronimo.security.realm.GenericSecurityRealm");
         testRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=properties-realm");
+        gbean = new GBeanData(testRealm, GenericSecurityRealm.getGBeanInfo());
         gbean.setAttribute("realmName", "properties-realm");
         props = new Properties();
         props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=properties");
         gbean.setAttribute("loginModuleConfiguration", props);
         gbean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfo));
-        kernel.loadGBean(testRealm, gbean);
+        kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
 
 
-        gbean = new GBeanMBean("org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer");
+        serverStub = new ObjectName("geronimo.remoting:target=JaasLoginServiceRemotingServer");
+        gbean = new GBeanData(serverStub, JaasLoginServiceRemotingServer.getGBeanInfo());
         gbean.setAttribute("bindURI", new URI("tcp://0.0.0.0:4242"));
         gbean.setReferencePattern("loginService", loginService);
-        serverStub = new ObjectName("geronimo.remoting:target=JaasLoginServiceRemotingServer");
-        kernel.loadGBean(serverStub, gbean);
+        kernel.loadGBean(gbean, JaasLoginServiceRemotingServer.class.getClassLoader());
 
         kernel.startGBean(loginService);
         kernel.startGBean(testCE);

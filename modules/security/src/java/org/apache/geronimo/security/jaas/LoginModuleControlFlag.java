@@ -17,9 +17,9 @@
 
 package org.apache.geronimo.security.jaas;
 
-import javax.security.auth.login.AppConfigurationEntry;
-import java.io.Serializable;
 import java.io.ObjectStreamException;
+import java.io.Serializable;
+import javax.security.auth.login.AppConfigurationEntry;
 
 
 /**

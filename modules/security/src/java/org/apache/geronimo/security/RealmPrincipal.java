@@ -19,6 +19,7 @@ package org.apache.geronimo.security;
 
 import java.io.Serializable;
 import java.security.Principal;
+
 import org.apache.geronimo.common.NullArgumentException;
 
 

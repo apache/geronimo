@@ -17,11 +17,11 @@
 
 package org.apache.geronimo.security.bridge;
 
-import org.apache.geronimo.security.IdentificationPrincipal;
-import org.apache.geronimo.security.ContextManager;
-
-import javax.security.auth.Subject;
 import java.util.Set;
+import javax.security.auth.Subject;
+
+import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.IdentificationPrincipal;
 
 
 /**

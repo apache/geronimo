@@ -17,6 +17,10 @@
 
 package org.apache.geronimo.security;
 
+import java.io.IOException;
+import java.net.URI;
+import java.util.Collections;
+import java.util.Properties;
 import javax.management.ObjectName;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -24,17 +28,15 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.Collections;
-import java.util.Properties;
-
 import junit.framework.TestCase;
 
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.bridge.TestLoginModule;
 import org.apache.geronimo.security.jaas.JaasLoginService;
+import org.apache.geronimo.security.jaas.LoginModuleGBean;
+import org.apache.geronimo.security.realm.GenericSecurityRealm;
+import org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer;
 
 
 /**
@@ -51,38 +53,38 @@ public abstract class AbstractTest extends TestCase {
         kernel = new Kernel("test.kernel");
         kernel.boot();
 
-        GBeanMBean gbean;
+        GBeanData gbean;
 
         // Create all the parts
 
-        gbean = new GBeanMBean(JaasLoginService.class.getName());
         loginService = JaasLoginService.OBJECT_NAME;
+        gbean = new GBeanData(loginService, JaasLoginService.getGBeanInfo());
         gbean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
 //        gbean.setAttribute("reclaimPeriod", new Long(10 * 1000));  // todo check other tests to see if ok
         gbean.setAttribute("algorithm", "HmacSHA1");
         gbean.setAttribute("password", "secret");
-        kernel.loadGBean(loginService, gbean);
+        kernel.loadGBean(gbean, JaasLoginService.class.getClassLoader());
 
-        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginModuleGBean");
         testLoginModule = new ObjectName("geronimo.security:type=LoginModule,name=TestModule");
+        gbean = new GBeanData(testLoginModule, LoginModuleGBean.getGBeanInfo());
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.bridge.TestLoginModule");
         gbean.setAttribute("serverSide", new Boolean(true));
         gbean.setAttribute("loginDomainName", "TestLoginDomain");
-        kernel.loadGBean(testLoginModule, gbean);
+        kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
-        gbean = new GBeanMBean("org.apache.geronimo.security.realm.GenericSecurityRealm");
         testRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm="+TestLoginModule.REALM_NAME);
+        gbean = new GBeanData(testRealm, GenericSecurityRealm.getGBeanInfo());
         gbean.setAttribute("realmName", TestLoginModule.REALM_NAME);
         Properties props = new Properties();
         props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=TestModule");
         gbean.setAttribute("loginModuleConfiguration", props);
-        kernel.loadGBean(testRealm, gbean);
+        kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
 
-        gbean = new GBeanMBean("org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer");
+        serverStub = new ObjectName("geronimo.remoting:target=JaasLoginServiceRemotingServer");
+        gbean = new GBeanData(serverStub, JaasLoginServiceRemotingServer.getGBeanInfo());
         gbean.setAttribute("bindURI", new URI("tcp://0.0.0.0:4242"));
         gbean.setReferencePattern("loginService", loginService);
-        serverStub = new ObjectName("geronimo.remoting:target=JaasLoginServiceRemotingServer");
-        kernel.loadGBean(serverStub, gbean);
+        kernel.loadGBean(gbean, JaasLoginServiceRemotingServer.class.getClassLoader());
 
         kernel.startGBean(loginService);
         kernel.startGBean(testLoginModule);

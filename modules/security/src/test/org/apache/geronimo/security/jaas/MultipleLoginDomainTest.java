@@ -18,13 +18,13 @@ package org.apache.geronimo.security.jaas;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.security.auth.Subject;
-import javax.security.auth.login.LoginException;
 import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
 import junit.framework.TestCase;
+
 import org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal;
 
 /**

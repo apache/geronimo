@@ -16,8 +16,6 @@
  */
 package org.apache.geronimo.security.jacc;
 
-import javax.security.jacc.PolicyConfiguration;
-
 import junit.framework.TestCase;
 
 /**

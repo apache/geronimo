@@ -16,10 +16,9 @@
  */
 package org.apache.geronimo.security.jaas;
 
-import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
-import java.io.IOException;
 
 /**
  * This callback handler separates the process of obtaining callbacks from

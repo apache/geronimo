@@ -17,8 +17,8 @@
 
 package org.apache.geronimo.security.jaas;
 
-import org.apache.geronimo.common.propertyeditor.TextPropertyEditorSupport;
 import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
+import org.apache.geronimo.common.propertyeditor.TextPropertyEditorSupport;
 
 
 /**
