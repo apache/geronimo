@@ -54,6 +54,35 @@ public class SchemaConversionUtilsTest extends TestCase {
 
     //I've taken option (1) and fixed the schemas
 
+    public void testApplicationClient13ToApplicationClient14Transform() throws Exception {
+        File srcXml = new File(basedir, "src/test-data/j2ee_1_3dtd/application-client-13.xml");
+        File expectedOutputXml = new File(basedir, "src/test-data/j2ee_1_3dtd/application-client-14.xml");
+        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
+        XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
+        SchemaConversionUtils.validateDD(expected);
+        xmlObject = SchemaConversionUtils.convertToApplicationClientSchema(xmlObject);
+//        System.out.println(xmlObject.toString());
+//        System.out.println(expected.toString());
+        List problems = new ArrayList();
+        boolean ok = compareXmlObjects(xmlObject, expected, problems);
+        assertTrue("Differences: " + problems, ok);
+        //make sure trying to convert twice has no bad effects
+        XmlCursor cursor2 = xmlObject.newCursor();
+        try {
+            String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/application_1_4.xsd";
+            String version = "1.4";
+            assertFalse(SchemaConversionUtils.convertToSchema(cursor2, SchemaConversionUtils.J2EE_NAMESPACE, schemaLocationURL, version));
+        } finally {
+            cursor2.dispose();
+        }
+        boolean ok2 = compareXmlObjects(xmlObject, expected, problems);
+        assertTrue("Differences after reconverting to schema: " + problems, ok2);
+        //do the whole transform twice...
+        xmlObject = SchemaConversionUtils.convertToApplicationClientSchema(xmlObject);
+        boolean ok3 = compareXmlObjects(xmlObject, expected, problems);
+        assertTrue("Differences after reconverting to application client schema: " + problems, ok3);
+    }
+
     public void testApplication13ToApplication14Transform() throws Exception {
         File srcXml = new File(basedir, "src/test-data/j2ee_1_3dtd/application-13.xml");
         File expectedOutputXml = new File(basedir, "src/test-data/j2ee_1_3dtd/application-14.xml");

@@ -116,12 +116,18 @@ public class SchemaConversionUtils {
             return (ApplicationClientDocument) xmlObject;
         }
         XmlCursor cursor = xmlObject.newCursor();
+        XmlCursor moveable = xmlObject.newCursor();
         String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/application-client_1_4.xsd";
         String version = "1.4";
         try {
             convertToSchema(cursor, J2EE_NAMESPACE, schemaLocationURL, version);
+            cursor.toStartDoc();
+            cursor.toChild(J2EE_NAMESPACE, "application-client");
+            cursor.toFirstChild();
+            convertToDescriptionGroup(cursor, moveable);
         } finally {
             cursor.dispose();
+            moveable.dispose();
         }
         XmlObject result = xmlObject.changeType(ApplicationClientDocument.type);
         if (result != null) {
