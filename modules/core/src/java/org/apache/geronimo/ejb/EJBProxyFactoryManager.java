@@ -60,7 +60,7 @@ import java.util.Iterator;
 import java.util.Map;
 import javax.ejb.EJBException;
 
-import org.apache.geronimo.core.service.AbstractComponent;
+import org.apache.geronimo.core.service.AbstractManagedComponent;
 import org.apache.geronimo.core.service.RPCContainer;
 import org.apache.geronimo.ejb.container.EJBPlugins;
 
@@ -68,9 +68,9 @@ import org.apache.geronimo.ejb.container.EJBPlugins;
  *
  *
  *
- * @version $Revision: 1.6 $ $Date: 2003/09/08 04:28:26 $
+ * @version $Revision: 1.7 $ $Date: 2003/10/30 07:47:04 $
  */
-public class EJBProxyFactoryManager extends AbstractComponent {
+public class EJBProxyFactoryManager extends AbstractManagedComponent {
     private Map proxies = new HashMap();
     private ThreadLocal threadEJBProxyFactory = new ThreadLocal();
 

@@ -60,7 +60,7 @@ package org.apache.geronimo.core.service;
  * Implements the JSR 77 state model
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:25:19 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/30 07:47:04 $
  */
 public interface Component 
 {
@@ -81,11 +81,4 @@ public interface Component
      */
     void setContainer(Container container) throws IllegalStateException, IllegalArgumentException;
 
-
-    /**
-     * Get the unique id of this Component
-     *
-     * @return name formatted according to JSR77
-     */
-    String getObjectName();
 }

@@ -55,6 +55,7 @@
  */
 package org.apache.geronimo.core.service;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.service.AbstractManagedObject;
 
 /**
  * A helper implementation of the Component interface that should
@@ -62,9 +63,9 @@ import org.apache.geronimo.kernel.management.State;
  *
  * @todo this is broken because name is required but there is no way to set it
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/14 12:05:49 $
+ * @version $Revision: 1.1 $ $Date: 2003/10/30 07:47:04 $
  */
-public class AbstractComponent extends AbstractStateManageable implements Component {
+public class AbstractManagedComponent extends AbstractManagedObject implements ManagedComponent {
     /**
      *  the Container this Component belongs to
      */
@@ -98,34 +99,26 @@ public class AbstractComponent extends AbstractStateManageable implements Compon
     }
 
     /* Start the Component
-     * @see org.apache.geronimo.core.service.AbstractStateManageable#doStart()
+     * @see org.apache.geronimo.core.service.AbstractManagedObject#doStart()
      */
     protected void doStart() throws Exception {
     }
 
     /* Stop the Component
-     * @see org.apache.geronimo.core.service.AbstractStateManageable#doStop()
+     * @see org.apache.geronimo.core.service.AbstractManagedObject#doStop()
      */
     protected void doStop() throws Exception {
     }
 
     /*
-     * @see org.apache.geronimo.core.service.AbstractStateManageable#doNotification(java.lang.String)
+     * @see org.apache.geronimo.core.service.AbstractManagedObject#doNotification(java.lang.String)
      */
     public void doNotification(String eventTypeValue) {
         log.debug("notification: " + eventTypeValue + " from " + this);
     }
 
 
-   /**
-     * Get the unique identity of this Component
-     *
-     * @return the name (formatted according to JSR 77)
-     */
-    public String getObjectName() {
-        return super.toString();
-    }
-
+  
 
 
 
@@ -136,8 +129,8 @@ public class AbstractComponent extends AbstractStateManageable implements Compon
      * @return true if the names are the same, false otherwise
      */
     public boolean equals(Object o) {
-        if (o instanceof Component) {
-            Component component = (Component)o;
+        if (o instanceof AbstractManagedComponent) {
+            AbstractManagedComponent component = (AbstractManagedComponent)o;
             return component.getObjectName().equals(objectName);
         }
         return false;

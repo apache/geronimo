@@ -61,14 +61,14 @@ import java.util.Map;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.core.service.AbstractContainer;
+import org.apache.geronimo.core.service.AbstractManagedContainer;
 
 /**
  * Base class for a Container that can accept invocations.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:25:19 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/30 07:47:04 $
  */
-public class AbstractRPCContainer extends AbstractContainer implements RPCContainer {
+public class AbstractRPCContainer extends AbstractManagedContainer implements RPCContainer {
     // @todo access to these objects must be synchronized
     private final Map plugins = new LinkedHashMap();
     private final Map pluginObjects = new LinkedHashMap();

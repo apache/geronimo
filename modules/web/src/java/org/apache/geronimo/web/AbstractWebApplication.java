@@ -60,8 +60,9 @@ package org.apache.geronimo.web;
 import java.net.URI;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.core.service.AbstractComponent;
+import org.apache.geronimo.core.service.AbstractManagedComponent;
 import org.apache.geronimo.core.service.Container;
+
 
 
 /**
@@ -70,22 +71,23 @@ import org.apache.geronimo.core.service.Container;
  * Instances are created by a deployer. The deployer finds the
  * WebContainer and associates it with the WebApplication.
  * 
- * @jmx:mbean extends="org.apache.geronimo.web.WebApplication, org.apache.geronimo.kernel.management.StateManageable, javax.management.MBeanRegistration" 
- * @version $Revision: 1.8 $ $Date: 2003/09/28 22:30:58 $
+ * @jmx:mbean extends="org.apache.geronimo.web.WebApplication, org.apache.geronimo.kernel.management.ManagedObject, org.apache.geronimo.kernel.management.StateManageable, javax.management.MBeanRegistration" 
+ * @version $Revision: 1.9 $ $Date: 2003/10/30 07:47:04 $
  */
-public abstract class AbstractWebApplication extends AbstractComponent implements WebApplication {
+public abstract class AbstractWebApplication extends AbstractManagedComponent implements WebApplication {
 
      private final static Log log = LogFactory.getLog(AbstractWebApplication.class);
 
     protected URI uri; 
 
-
+    
    /**
      * Class loading delegation model
      */
     private boolean java2ClassloadingCompliance = false;
 
-   
+
+    /* -------------------------------------------------------------------------------------- */
     /**
      * Creates a new <code>AbstractWebApplication</code> instance.
      *
@@ -94,7 +96,7 @@ public abstract class AbstractWebApplication extends AbstractComponent implement
     
     }
     
-
+    /* -------------------------------------------------------------------------------------- */
     /**
      * Creates a new <code>AbstractWebApplication</code> instance.
      *
@@ -107,7 +109,7 @@ public abstract class AbstractWebApplication extends AbstractComponent implement
 
     
   
-
+    /* -------------------------------------------------------------------------------------- */
     /**
      * Start the webapp. Called by the container or management interface
      * @throws Exception
@@ -117,6 +119,7 @@ public abstract class AbstractWebApplication extends AbstractComponent implement
        
     }
 
+    /* -------------------------------------------------------------------------------------- */
     /**
      * Stop the webapp. Called by the container, or by mangement
      * interface
@@ -128,31 +131,19 @@ public abstract class AbstractWebApplication extends AbstractComponent implement
   
 
     
+    /* -------------------------------------------------------------------------------------- */
+    /** Get the URI of this webapp
+     * @return the URI of the webapp
+     * @see org.apache.geronimo.web.WebApplication#getURI()
+     */
     public URI getURI ()
     {
         return uri;
     }
 
-    /**
-     * Return the list of Servlets of this webapp
-     * @return
-     * @see org.apache.geronimo.web.WebApplication#getServlets()
-     */
-    public String[] getServlets() {
-        //TODO
-        return null;
-    }
-
-    /**
-     * @return
-     * @see org.apache.geronimo.web.WebApplication#getDeploymentDescriptor()
-     */
-    public String getDeploymentDescriptor() {
-        //TODO
-        return null;
-    }
-
  
+
+    /* -------------------------------------------------------------------------------------- */
     /**
      * Setter for classloading compliance. If true, then classloading will
      * delegate first to parent classloader a la Java2 spec. If false, then
@@ -163,6 +154,7 @@ public abstract class AbstractWebApplication extends AbstractComponent implement
         java2ClassloadingCompliance = state;
     }
 
+    /* -------------------------------------------------------------------------------------- */
     /**
      * Getter for classloading compliance.
      * @return truen if application is using Java 2 compliant class loading
@@ -172,6 +164,12 @@ public abstract class AbstractWebApplication extends AbstractComponent implement
     }
 
 
+    /* -------------------------------------------------------------------------------------- */
+    /** Set the container to which this webapp belongs.
+     * In turn, we add ourselves as a component to that container.
+     * @param container
+     * @see org.apache.geronimo.core.service.Component#setContainer(org.apache.geronimo.core.service.Container)
+     */
     public void setContainer (Container container)
     {
         super.setContainer(container);
@@ -179,6 +177,48 @@ public abstract class AbstractWebApplication extends AbstractComponent implement
         container.addComponent (this);
     }
   
+    /* -------------------------------------------------------------------------------------- */
+     /** JSR077
+      * Return the list of Servlets of this webapp
+      * @return
+      * @see org.apache.geronimo.web.WebApplication#getServlets()
+      */
+     public String[] getServlets() {
+         //TODO
+         return null;
+     }
+
+     /* -------------------------------------------------------------------------------------- */
+     /** JSR077
+      * @return web.xml as a string
+      * @see org.apache.geronimo.web.WebApplication#getDeploymentDescriptor()
+      */
+     public String getDeploymentDescriptor() {
+         //TODO
+         return null;
+     }
 
   
+    /* -------------------------------------------------------------------------------------- */
+    /**JSR077
+     * @return ObjectName(s) as string of JVM(s) on which this webapp is deployed
+     * @see org.apache.geronimo.kernel.management.J2EEModule#getJavaVMs()
+     */
+    public String[] getJavaVMs()
+    {
+        // TODO
+        return null;
+    }
+
+    /* -------------------------------------------------------------------------------------- */
+    /** JSR077 
+     * @return ObjectName as string of Geronimo server  on which this webapp is deployed
+     * @see org.apache.geronimo.kernel.management.J2EEDeployedObject#getServer()
+     */
+    public String getServer()
+    {
+        // TODO
+        return null;
+    }
+
 }

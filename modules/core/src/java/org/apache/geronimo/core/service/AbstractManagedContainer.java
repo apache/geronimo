@@ -65,15 +65,15 @@ import javax.management.ObjectName;
 import org.apache.geronimo.common.NullArgumentException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.deployment.DependencyServiceMBean;
-import org.apache.geronimo.core.service.AbstractComponent;
+import org.apache.geronimo.core.service.AbstractManagedComponent;
 
 /**
  * Abstract implementation of Container interface.
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/16 16:42:26 $
+ * @version $Revision: 1.1 $ $Date: 2003/10/30 07:47:04 $
  *
  */
-public abstract class AbstractContainer extends AbstractComponent implements Container {
+public abstract class AbstractManagedContainer extends AbstractManagedComponent implements ManagedContainer {
     /**
      * The Dependency Service manager.  We register our components with the is service because
      * we need to stop if any of our services fail or stop.
@@ -102,10 +102,13 @@ public abstract class AbstractContainer extends AbstractComponent implements Con
         if (component == null) {
             throw new NullArgumentException("component");
         }
-        try {
-            dependency.addStartDependency(new ObjectName(component.getObjectName()), objectName);
-        } catch (MalformedObjectNameException e) {
-            throw new IllegalArgumentException("Component does not have a valid object name: objectName=" + component.getObjectName());
+        
+        if (component instanceof AbstractManagedComponent) {
+            try {
+                 dependency.addStartDependency(new ObjectName(((AbstractManagedComponent)component).getObjectName()), objectName);
+            } catch (MalformedObjectNameException e) {
+                throw new IllegalArgumentException("Component does not have a valid object name: objectName=" + ((AbstractManagedComponent)component).getObjectName());
+            }
         }
         components.add(component);
     }
@@ -134,10 +137,13 @@ public abstract class AbstractContainer extends AbstractComponent implements Con
         if (component == null) {
             throw new NullArgumentException("component");
         }
-        try {
-            dependency.removeStartDependency(objectName, new ObjectName(component.getObjectName()));
-        } catch (MalformedObjectNameException e) {
-            throw new IllegalArgumentException("Component does not have a valid object name: objectName=" + component.getObjectName());
+        
+        if (component instanceof AbstractManagedComponent) {
+            try {
+                dependency.removeStartDependency(objectName, new ObjectName(((AbstractManagedComponent)component).getObjectName()));
+            } catch (MalformedObjectNameException e) {
+                throw new IllegalArgumentException("Component does not have a valid object name: objectName=" + ((AbstractManagedComponent)component).getObjectName());
+            }
         }
         components.remove(component);
     }

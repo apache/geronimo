@@ -61,7 +61,7 @@ import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
 
 import org.apache.geronimo.cache.InstanceFactory;
-import org.apache.geronimo.core.service.AbstractComponent;
+import org.apache.geronimo.core.service.AbstractManagedComponent;
 import org.apache.geronimo.core.service.RPCContainer;
 import org.apache.geronimo.ejb.EnterpriseContext;
 import org.apache.geronimo.ejb.GeronimoSessionContext;
@@ -72,9 +72,9 @@ import org.apache.geronimo.ejb.container.EJBPlugins;
  *
  *
  *
- * @version $Revision: 1.6 $ $Date: 2003/09/08 04:28:26 $
+ * @version $Revision: 1.7 $ $Date: 2003/10/30 07:47:04 $
  */
-public class StatelessInstanceFactory extends AbstractComponent implements InstanceFactory {
+public class StatelessInstanceFactory extends AbstractManagedComponent implements InstanceFactory {
     private Class beanClass;
     private Method ejbCreate;
 

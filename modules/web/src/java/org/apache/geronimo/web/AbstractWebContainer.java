@@ -79,7 +79,7 @@ import javax.management.Notification;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 import javax.management.relation.Role;
-import org.apache.geronimo.core.service.AbstractContainer;
+import org.apache.geronimo.core.service.AbstractManagedContainer;
 import org.apache.geronimo.core.service.Component;
 import org.apache.geronimo.core.service.Container;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
@@ -117,10 +117,10 @@ import org.w3c.dom.Node;
  * 2. the url is a directory which contains a WEB-INF/web.xml file
  * 
  * @jmx:mbean extends="org.apache.geronimo.kernel.deployment.DeploymentPlanner, org.apache.geronimo.web.WebContainer, org.apache.geronimo.kernel.management.StateManageable, javax.management.MBeanRegistration" 
- * @version $Revision: 1.10 $ $Date: 2003/10/05 01:38:21 $
+ * @version $Revision: 1.11 $ $Date: 2003/10/30 07:47:05 $
  */
 public abstract class AbstractWebContainer
-    extends AbstractContainer
+    extends AbstractManagedContainer
     implements WebContainer, AbstractWebContainerMBean, MBeanRegistration
 {
     private final static Log log =

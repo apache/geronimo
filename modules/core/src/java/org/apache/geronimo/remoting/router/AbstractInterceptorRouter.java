@@ -75,7 +75,7 @@ import EDU.oswego.cs.dl.util.concurrent.TimeoutSync;
  * @jmx:mbean
  *      extends="org.apache.geronimo.kernel.management.ManagedObject,org.apache.geronimo.kernel.management.StateManageable"
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/08 04:33:53 $
+ * @version $Revision: 1.4 $ $Date: 2003/10/30 07:47:04 $
  */
 public abstract class AbstractInterceptorRouter
     extends AbstractManagedObject
@@ -169,14 +169,14 @@ public abstract class AbstractInterceptorRouter
     abstract protected Interceptor lookupInterceptorFrom(URI to) throws Throwable;
 
     /**
-     * @see org.apache.geronimo.core.service.AbstractStateManageable#doStart()
+     * @see org.apache.geronimo.core.service.AbstractManagedObject#doStart()
      */
     protected void doStart() throws Exception {
         routerLock.release();
     }
 
     /**
-     * @see org.apache.geronimo.core.service.AbstractStateManageable#doStop()
+     * @see org.apache.geronimo.core.service.AbstractManagedObject#doStop()
      */
     protected void doStop() throws Exception {
         routerLock = createNewRouterLock();

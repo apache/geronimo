@@ -57,23 +57,22 @@
 package org.apache.geronimo.web.jetty;
 
 import java.lang.reflect.Constructor;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.core.service.AbstractComponent;
 import org.apache.geronimo.core.service.Container;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.web.AbstractWebConnector;
-import org.apache.geronimo.web.WebConnector;
 import org.mortbay.http.HttpListener;
 import org.mortbay.http.SocketListener;
 import org.mortbay.http.SunJsseListener;
 import org.mortbay.http.ajp.AJP13Listener;
-import org.mortbay.util.ThreadedServer;
 import org.mortbay.jetty.Server;
+import org.mortbay.util.ThreadedServer;
 
 /**
  * @jmx:mbean extends="org.apache.geronimo.web.AbstractWebConnectorMBean"
- * @version $Revision: 1.4 $ $Date: 2003/09/14 12:09:44 $
+ * @version $Revision: 1.5 $ $Date: 2003/10/30 07:47:05 $
  */
 public class JettyWebConnector extends AbstractWebConnector implements JettyWebConnectorMBean
 {

@@ -69,7 +69,7 @@ import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
  * @jmx:mbean
  *      extends="org.apache.geronimo.kernel.management.ManagedObject,org.apache.geronimo.kernel.management.StateManageable"
  *
- * @version $Revision: 1.5 $ $Date: 2003/09/08 04:33:54 $
+ * @version $Revision: 1.6 $ $Date: 2003/10/30 07:47:04 $
  */
 public class TransportLoader
     extends AbstractManagedObject
@@ -81,7 +81,7 @@ public class TransportLoader
     private ObjectName routerTarget;
 
     /**
-     * @see org.apache.geronimo.core.service.AbstractComponent#doStart()
+     * @see org.apache.geronimo.core.service.AbstractManagedComponent#doStart()
      */
     protected void doStart() throws Exception {
 
@@ -100,7 +100,7 @@ public class TransportLoader
     }
 
     /**
-     * @see org.apache.geronimo.core.service.AbstractComponent#doStop()
+     * @see org.apache.geronimo.core.service.AbstractManagedComponent#doStop()
      */
     protected void doStop() throws Exception {
         if (transportServer == null) {

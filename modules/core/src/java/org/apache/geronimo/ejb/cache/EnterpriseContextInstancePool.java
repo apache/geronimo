@@ -64,7 +64,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.cache.InstancePool;
 import org.apache.geronimo.cache.SimpleInstancePool;
-import org.apache.geronimo.core.service.AbstractComponent;
+import org.apache.geronimo.core.service.AbstractManagedComponent;
 import org.apache.geronimo.core.service.RPCContainer;
 import org.apache.geronimo.ejb.EnterpriseContext;
 import org.apache.geronimo.ejb.container.EJBPlugins;
@@ -72,9 +72,9 @@ import org.apache.geronimo.ejb.container.EJBPlugins;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2003/09/08 04:28:26 $
+ * @version $Revision: 1.7 $ $Date: 2003/10/30 07:47:04 $
  */
-public final class EnterpriseContextInstancePool extends AbstractComponent implements InstancePool {
+public final class EnterpriseContextInstancePool extends AbstractManagedComponent implements InstancePool {
     private SimpleInstancePool pool;
     private DiscardQueue discardQueue;
     private int maxSize = 100;

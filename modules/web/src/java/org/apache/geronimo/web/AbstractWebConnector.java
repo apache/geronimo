@@ -1,6 +1,6 @@
 package org.apache.geronimo.web;
 
-import org.apache.geronimo.core.service.AbstractComponent;
+import org.apache.geronimo.core.service.AbstractManagedComponent;
 import org.apache.geronimo.core.service.Container;
 import java.util.Arrays;
 import java.util.List;
@@ -13,9 +13,9 @@ import java.util.List;
  * Created: Mon Sep  8 20:39:02 2003
  * @jmx:mbean extends="org.apache.geronimo.web.WebConnector, org.apache.geronimo.kernel.management.StateManageable"
  * 
- * @version $Revision: 1.2 $ $Date: 2003/09/29 13:12:45 $
+ * @version $Revision: 1.3 $ $Date: 2003/10/30 07:47:04 $
  */
-public abstract class AbstractWebConnector extends AbstractComponent implements WebConnector, AbstractWebConnectorMBean
+public abstract class AbstractWebConnector extends AbstractManagedComponent implements WebConnector, AbstractWebConnectorMBean
 {
     
     public static final String HTTP_PROTOCOL = "http";

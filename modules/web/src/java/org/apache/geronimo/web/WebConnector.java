@@ -56,7 +56,7 @@
 
 package org.apache.geronimo.web;
 
-import org.apache.geronimo.core.service.Component;
+import org.apache.geronimo.core.service.ManagedComponent;
 
 /**
  * WebConnector
@@ -64,9 +64,9 @@ import org.apache.geronimo.core.service.Component;
  * A WebConnector serves web content on a given
  * interface and port number.
  * 
- * @version $Revision: 1.5 $ $Date: 2003/10/05 01:38:21 $
+ * @version $Revision: 1.6 $ $Date: 2003/10/30 07:47:05 $
  */
-public interface WebConnector extends Component {
+public interface WebConnector extends ManagedComponent {
     /**
      * Port number of connector
      * @param port number on which to listen

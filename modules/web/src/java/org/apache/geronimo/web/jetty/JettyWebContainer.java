@@ -72,7 +72,7 @@ import org.mortbay.http.SocketListener;
  * @jmx:mbean extends="org.apache.geronimo.web.AbstractWebContainerMBean"
  *
  *
- * @version $Revision: 1.7 $ $Date: 2003/10/05 01:38:21 $
+ * @version $Revision: 1.8 $ $Date: 2003/10/30 07:47:05 $
  */
 public class JettyWebContainer extends AbstractWebContainer implements JettyWebContainerMBean {
   
@@ -111,7 +111,7 @@ public class JettyWebContainer extends AbstractWebContainer implements JettyWebC
  
     public WebApplication createWebApplication (URI uri)
     { 
-        return new JettyWebApplication(uri);
+        return new JettyWebApplication(uri);   
     }
 
  

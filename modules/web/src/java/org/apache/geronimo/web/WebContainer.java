@@ -58,7 +58,7 @@ package org.apache.geronimo.web;
 
 import java.net.URI;
 
-import org.apache.geronimo.core.service.Container;
+import org.apache.geronimo.core.service.ManagedContainer;
 
 import org.w3c.dom.Document;
 
@@ -66,10 +66,10 @@ import org.w3c.dom.Document;
  * WebContainer
  *
  *
- * @version $Revision: 1.7 $  $Date: 2003/09/28 22:30:58 $
+ * @version $Revision: 1.8 $  $Date: 2003/10/30 07:47:05 $
  */
 
-public interface WebContainer extends Container {
+public interface WebContainer extends ManagedContainer {
     
 
     /**

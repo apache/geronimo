@@ -102,7 +102,7 @@ import org.apache.geronimo.kernel.deployment.service.MBeanRelationshipMetadata;
  * Implementors of StateManageable may use this class and simply provide
  * doStart, doStop and sendNotification methods.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:35 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/30 07:47:04 $
  */
 public abstract class AbstractManagedObject implements ManagedObject, StateManageable, EventProvider, NotificationListener, MBeanRegistration, NotificationEmitter {
     protected final Log log = LogFactory.getLog(getClass());
@@ -120,17 +120,17 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
     /**
      * The definitive list of notifications types supported by this service.
      */
-    private final Set notificationTypes = new HashSet();
+    protected final Set notificationTypes = new HashSet();
 
     /**
      * A dynamic proxy to the dependency service.
      */
-    private DependencyServiceMBean dependencyService;
+    protected DependencyServiceMBean dependencyService;
 
     /**
      * A dynamic proxy to the relation service.
      */
-    private RelationServiceMBean relationService;
+    protected RelationServiceMBean relationService;
 
     /**
      * The sequence number of the events.

@@ -58,6 +58,7 @@ package org.apache.geronimo.web;
 
 import java.net.URI;
 import org.apache.geronimo.core.service.Component;
+import org.apache.geronimo.kernel.management.WebModule;
 
 
 
@@ -66,9 +67,9 @@ import org.apache.geronimo.core.service.Component;
  *
  * It supports the J2EE Management WebModule attributes 
  *
- * @version  $Revision: 1.9 $ $Date: 2003/10/05 01:38:21 $
+ * @version  $Revision: 1.10 $ $Date: 2003/10/30 07:47:05 $
  */
-public interface WebApplication extends Component {
+public interface WebApplication extends Component, WebModule {
  
     /*-------------------------------------------------------------------------------- */
     /**Get the uri of the webapp
@@ -89,12 +90,7 @@ public interface WebApplication extends Component {
      */
     public ClassLoader getParentClassLoader ();
 
-    /*-------------------------------------------------------------------------------- */
-    /** JSR077 WebModule method to expose the
-     * names of all servlets contained within this webapp.
-     * @return Names of all servlets contained by this webapp
-     */
-    public String[] getServlets();
+    
 
 
     /* -------------------------------------------------------------------------------------- */

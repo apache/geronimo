@@ -1,15 +1,12 @@
 package org.apache.geronimo.web.jetty;
 
 import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.core.service.AbstractComponent;
-import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.web.AbstractWebApplication;
+import org.apache.geronimo.web.WebContainer;
 import org.mortbay.jetty.servlet.WebApplicationContext;
 
 
@@ -21,7 +18,7 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
  * Created: Sun Sep 14 16:40:17 2003
  *
  * @jmx:mbean extends="org.apache.geronimo.web.AbstractWebApplicationMBean
- * @version $Revision: 1.2 $ $Date: 2003/09/28 22:30:58 $
+ * @version $Revision: 1.3 $ $Date: 2003/10/30 07:47:05 $
  */
 public class JettyWebApplication extends AbstractWebApplication implements JettyWebApplicationMBean 
 {
@@ -116,6 +113,11 @@ public class JettyWebApplication extends AbstractWebApplication implements Jetty
     public void doStart () throws Exception
     {
         super.doStart();
+        String defaultDescriptor = null;
+        URI defaultDescriptorURI = ((WebContainer)getContainer()).getDefaultWebXmlURI();
+        if (defaultDescriptorURI != null)
+            defaultDescriptor = defaultDescriptorURI.toString();
+        jettyContext.setDefaultsDescriptor(defaultDescriptor);
         jettyContext.start();
         
         log.debug (jettyContext.getFileClassPath());
