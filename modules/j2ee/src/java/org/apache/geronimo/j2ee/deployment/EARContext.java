@@ -20,28 +20,61 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.jar.JarOutputStream;
 import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/05/19 20:53:59 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/26 03:20:49 $
  */
 public class EARContext extends DeploymentContext {
     private final Map ejbRefs = new HashMap();
     private final Map ejbLocalRefs = new HashMap();
-    private String j2eeDomainName;
-    private String j2eeServerName;
-    private String j2eeApplicationName;
+    private final String j2eeDomainName;
+    private final String j2eeServerName;
+    private final String j2eeApplicationName;
+    private final ObjectName domainObjectName;
+    private final ObjectName serverObjectName;
+    private final ObjectName applicationObjectName;
 
     public EARContext(JarOutputStream jos, URI id, URI parentID, Kernel kernel, String j2eeDomainName, String j2eeServerName, String j2eeApplicationName) throws MalformedObjectNameException, DeploymentException {
         super(jos, id, parentID, kernel);
         this.j2eeDomainName = j2eeDomainName;
         this.j2eeServerName = j2eeServerName;
         this.j2eeApplicationName = j2eeApplicationName;
+
+        Properties domainNameProps = new Properties();
+        domainNameProps.put("j2eeType", "J2EEDomain");
+        domainNameProps.put("name", j2eeDomainName);
+        try {
+            domainObjectName = new ObjectName(j2eeDomainName, domainNameProps);
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Unable to construct J2EEDomain ObjectName", e);
+        }
+
+        Properties serverNameProps = new Properties();
+        serverNameProps.put("j2eeType", "J2EEServer");
+        serverNameProps.put("name", j2eeServerName);
+        try {
+            serverObjectName = new ObjectName(j2eeDomainName, serverNameProps);
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Unable to construct J2EEServer ObjectName", e);
+        }
+        
+        Properties applicationNameProps = new Properties();
+        applicationNameProps.put("j2eeType", "J2EEApplication");
+        applicationNameProps.put("name", j2eeApplicationName);
+        applicationNameProps.put("J2EEServer", j2eeServerName);
+        try {
+            applicationObjectName = new ObjectName(j2eeDomainName, applicationNameProps);
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Unable to construct J2EEApplication ObjectName", e);
+        }
     }
 
     public String getJ2EEDomainName() {
@@ -54,6 +87,18 @@ public class EARContext extends DeploymentContext {
 
     public String getJ2EEApplicationName() {
         return j2eeApplicationName;
+    }
+
+    public ObjectName getDomainObjectName() {
+        return domainObjectName;
+    }
+
+    public ObjectName getServerObjectName() {
+        return serverObjectName;
+    }
+
+    public ObjectName getApplicationObjectName() {
+        return applicationObjectName;
     }
 
     public void addEJBRef(URI modulePath, String name, Object reference) throws DeploymentException {

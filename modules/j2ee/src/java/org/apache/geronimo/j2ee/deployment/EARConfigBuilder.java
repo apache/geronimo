@@ -61,7 +61,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/05/19 20:53:59 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/26 03:20:49 $
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
     private final Kernel kernel;
@@ -166,9 +166,9 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
             // Create the output ear context
             JarOutputStream os = new JarOutputStream(new BufferedOutputStream(fos));
-            EARContext context = null;
+            EARContext earContext = null;
             try {
-                context = new EARContext(os, configId, parentId, kernel, j2eeDomainName, j2eeServerName, applicationName);
+                earContext = new EARContext(os, configId, parentId, kernel, j2eeDomainName, j2eeServerName, applicationName);
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException(e);
             }
@@ -177,50 +177,41 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             for (Enumeration enum = earFile.entries(); enum.hasMoreElements();) {
                 ZipEntry entry = (ZipEntry) enum.nextElement();
                 if (!moduleLocations.contains(entry.getName())) {
-                    context.addFile(URI.create(entry.getName()), earFile.getInputStream(entry));
+                    earContext.addFile(URI.create(entry.getName()), earFile.getInputStream(entry));
                 }
             }
 
             // each module installs it's files into the output context.. this is differenct for each module type
             for (Iterator iterator = modules.iterator(); iterator.hasNext();) {
                 Module module = (Module) iterator.next();
-                getBuilder(module).installModule(earFile, context, module);
+                getBuilder(module).installModule(earFile, earContext, module);
             }
 
-            // give each module a chance to populate the context now that a classloader is available
-            ClassLoader cl = context.getClassLoader(repository);
+            // give each module a chance to populate the earContext now that a classloader is available
+            ClassLoader cl = earContext.getClassLoader(repository);
             for (Iterator iterator = modules.iterator(); iterator.hasNext();) {
                 Module module = (Module) iterator.next();
-                getBuilder(module).initContext(context, module, cl);
+                getBuilder(module).initContext(earContext, module, cl);
             }
 
             // Create the J2EEApplication managed object
-            GBeanMBean gbean = new GBeanMBean(J2EEApplicationImpl.GBEAN_INFO);
             if (application != null) {
+                GBeanMBean gbean = new GBeanMBean(J2EEApplicationImpl.GBEAN_INFO);
                 try {
                     gbean.setAttribute("deploymentDescriptor", application.toString());
                 } catch (Exception e) {
                     throw new DeploymentException("Error initializing J2EEApplication managed object");
                 }
+                gbean.setReferencePatterns("j2eeServer", Collections.singleton(j2eeServer));
+                earContext.addGBean(earContext.getApplicationObjectName(), gbean);
             }
-            gbean.setReferencePatterns("j2eeServer", Collections.singleton(j2eeServer));
-            Properties hashMap = new Properties();
-            hashMap.put("j2eeType", "J2EEApplication");
-            hashMap.put("name", applicationName);
-            hashMap.put("J2EEServer", j2eeServerName);
-            try {
-                context.addGBean(new ObjectName(j2eeDomainName, hashMap), gbean);
-            } catch (MalformedObjectNameException e) {
-                throw new DeploymentException("Invalid J2EEServer name", e);
-            }
-
             // each module can now add it's GBeans
             for (Iterator iterator = modules.iterator(); iterator.hasNext();) {
                 Module module = (Module) iterator.next();
-                getBuilder(module).addGBeans(context, module, cl);
+                getBuilder(module).addGBeans(earContext, module, cl);
             }
 
-            context.close();
+            earContext.close();
             os.flush();
         } finally {
             if (earFile != null) {
