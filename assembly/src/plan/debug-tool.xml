@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+THIS FILE IS A SERIOUS HACK UNTIL THE WAR DEPLOYER IS AVAILABLE
+IT IS AN EXAMPLE OF HOW TO DO IT THE HARD WAY AND SHOULD NOT BE
+TAKEN AS REPRESENTATIVE OF HOW THIS SHOULD WORK
+-->
+<configuration
+    xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    configId="org/apache/geronimo/DebugConsole"
+    parentId="org/apache/geronimo/Server"
+    >
+
+    <gbean name="geronimo.server:type=WebApp,container=Jetty,app=test" class="org.apache.geronimo.jetty.JettyWebApplicationContext">
+        <attribute name="URI" type="java.net.URI">file:/D:/apache/incubator-geronimo/modules/console-web/target/geronimo-web-console/</attribute>
+        <attribute name="ContextPath" type="java.lang.String">/debug-tool</attribute>
+        <reference name="JettyContainer">geronimo.server:type=WebContainer,container=Jetty</reference>
+    </gbean>
+</configuration>
