@@ -45,5 +45,13 @@
             <artifactId>geronimo-spec-activation</artifactId>
             <version>${geronimo_spec_activation_version}</version>
         </dependency>
+        <dependency>
+            <groupId>scout</groupId>
+            <artifactId>scout</artifactId>
+            <version>${scout_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>        
     </dependencies>
 </project>

@@ -16,11 +16,11 @@
  */
 package javax.xml.registry;
 
-import java.util.Properties;
 import java.util.Collection;
+import java.util.Properties;
 
 import junit.framework.TestCase;
-import org.apache.scout.registry.ConnectionFactoryImpl;
+import org.apache.ws.scout.registry.ConnectionFactoryImpl;
 
 /**
  * @version $Revision$ $Date$
