@@ -146,14 +146,6 @@ public class NameFactory {
         return getEjbComponentName(j2eeDomainName, j2eeServerName, j2eeApplicationName, j2eeModuleName, j2eeName, j2eeType, context).getCanonicalName();
     }
 
-    public static ObjectName getResourceComponentName(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName, String j2eeName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
-        return getComponentName(j2eeDomainName, j2eeServerName, j2eeApplicationName, RESOURCE_ADAPTER_MODULE, j2eeModuleName, j2eeName, j2eeType, context);
-    }
-
-    public static String getResourceComponentNameString(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName, String j2eeName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
-        return getResourceComponentName(j2eeDomainName, j2eeServerName, j2eeApplicationName, j2eeModuleName, j2eeName, j2eeType, context).getCanonicalName();
-    }
-
     /**
      * Creates a query for components that are in no application with given name.
      *
@@ -209,10 +201,6 @@ public class NameFactory {
             props.put(URL_PATTERN, ObjectName.quote(urlPattern));
         }
         return ObjectName.getInstance(context.getJ2eeDomainName(j2eeDomainName), props);
-    }
-
-    public static String getWebComponentNameString(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName, String j2eeName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
-        return getResourceComponentName(j2eeDomainName, j2eeServerName, j2eeApplicationName, j2eeModuleName, j2eeName, j2eeType, context).getCanonicalName();
     }
 
     //for non-j2ee-deployable resources such as the transaction manager

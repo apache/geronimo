@@ -99,7 +99,7 @@ public class AbstractWebModuleTest extends TestCase {
         staticContentServletGBeanData.setAttribute("initParams", staticContentServletInitParams);
         staticContentServletGBeanData.setAttribute("loadOnStartup", new Integer(0));
         staticContentServletGBeanData.setAttribute("servletMappings", Collections.singleton(new String("/")));
-        ObjectName staticContentServletObjectName = NameFactory.getResourceComponentName(null, null, null, null, (String) staticContentServletGBeanData.getAttribute("servletName"), NameFactory.SERVLET, moduleContext);
+        ObjectName staticContentServletObjectName = NameFactory.getComponentName(null, null, null, NameFactory.WEB_MODULE, null, (String) staticContentServletGBeanData.getAttribute("servletName"), NameFactory.SERVLET, moduleContext);
         staticContentServletGBeanData.setName(staticContentServletObjectName);
         staticContentServletGBeanData.setReferencePattern("JettyServletRegistration", webModuleName);
 

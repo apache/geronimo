@@ -105,7 +105,7 @@ public class AdminObjectWrapperTest extends TestCase {
         J2eeContext j2eeContext = new J2eeContextImpl("test.domain", "geronimo.server", "testapp", NameFactory.RESOURCE_ADAPTER_MODULE, "testmodule", TARGET_NAME, NameFactory.JMS_RESOURCE);
         kernel = new Kernel(j2eeContext.getJ2eeDomainName(), new BasicGBeanRegistry());
         kernel.boot();
-        selfName = NameFactory.getResourceComponentName(null, null, null, null, null, null, j2eeContext);
+        selfName = NameFactory.getComponentName(null, null, null, NameFactory.JCA_RESOURCE, null, null, null, j2eeContext);
 
         GBeanData aow = new GBeanData(selfName, AdminObjectWrapper.getGBeanInfo());
         aow.setAttribute("adminObjectInterface", MockAdminObject.class.getName());

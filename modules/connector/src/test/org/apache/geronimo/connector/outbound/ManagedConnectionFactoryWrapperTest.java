@@ -156,7 +156,7 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         kernel.loadGBean(cmfName, cmf);
 
         J2eeContext j2eeContext = new J2eeContextImpl("test.domain", "geronimo", "testapplication", "noModuleType", "testmodule", TARGET_NAME, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
-        managedConnectionFactoryName = NameFactory.getResourceComponentName(null, null, null, null, null, null, j2eeContext);
+        managedConnectionFactoryName = NameFactory.getComponentName(null, null, null, NameFactory.JCA_RESOURCE, null, null, null, j2eeContext);
 
         GBeanMBean mcfw = new GBeanMBean(ManagedConnectionFactoryWrapper.getGBeanInfo());
         mcfw.setAttribute("managedConnectionFactoryClass", MockManagedConnectionFactory.class.getName());
