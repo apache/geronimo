@@ -54,14 +54,13 @@ public class ContextManager {
     private static String algorithm;
     private static String password;
 
+    public static final GeronimoSecurityPermission GET_CONTEXT = new GeronimoSecurityPermission("getContext");
+    public static final GeronimoSecurityPermission SET_CONTEXT = new GeronimoSecurityPermission("setContext");
+
     static {
         password = "secret";
         ContextManager.setAlgorithm("HmacSHA1");
     }
-
-
-    public static final GeronimoSecurityPermission GET_CONTEXT = new GeronimoSecurityPermission("getContext");
-    public static final GeronimoSecurityPermission SET_CONTEXT = new GeronimoSecurityPermission("setContext");
 
     /**
      * After a login, the client is left with a relatively empty Subject, while

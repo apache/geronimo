@@ -59,6 +59,9 @@ public class GeronimoPolicy extends Policy {
     }
 
     public PermissionCollection getPermissions(CodeSource codesource) {
+
+        if (root != null) return root.getPermissions(codesource);
+
         return null;
     }
 
