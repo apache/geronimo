@@ -1,0 +1,2 @@
+protocol=test;type=store;class=org.apache.geronimo.mail.TestStore;vendor=Apache Software Foundation, Inc;version=test;
+protocol=test;type=transport;class=org.apache.geronimo.mail.TestTransport;vendor=Apache Software Foundation, Inc;version=test;
