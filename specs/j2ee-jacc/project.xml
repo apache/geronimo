@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Id: project.xml,v 1.1 2003/08/30 01:55:12 dblevins Exp $ -->
+
+<project>
+  <pomVersion>3</pomVersion>
+  <extend>${basedir}/../../etc/project.xml</extend>
+  
+  <name>Geronimo :: JSR 115 Specification</name>
+  <groupId>geronimo-spec</groupId>
+  <id>geronimo-spec-j2ee-jacc</id>
+  <shortDescription>Java Authorization Contract for Containers</shortDescription>
+  <description></description>
+  <siteDirectory></siteDirectory>
+  <distributionDirectory></distributionDirectory>
+  
+  <package>javax.security.jacc</package>
+  <currentVersion>DEV</currentVersion>
+
+  <!-- ============ -->
+  <!-- Dependencies -->
+  <!-- ============ -->
+  
+  <dependencies>
+      
+    <dependency>
+      <groupId>servletapi</groupId>
+      <artifactId>servletapi</artifactId>
+      <version>SNAPSHOT</version>
+      <url>http://www.jcp.org/en/jsr/detail?id=154</url>
+    </dependency>
+    
+  </dependencies>
+</project>
