@@ -60,7 +60,6 @@ import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.geronimo.core.service.AbstractManagedComponent;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.commons.logging.Log;
@@ -78,23 +77,19 @@ import javax.management.Notification;
 import javax.management.MBeanServerNotification;
 import javax.management.InstanceNotFoundException;
 import java.util.Set;
-import java.util.Hashtable;
 import java.security.AccessController;
 
 
 /**
  * An MBean that maintains a list of security realms.
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/18 05:17:17 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/14 17:21:01 $
  * @jmx:mbean
  */
 public class SecurityService extends AbstractManagedComponent implements SecurityServiceMBean, GeronimoMBeanTarget {
 
     private static final ObjectName DEFAULT_NAME = JMXUtil.getObjectName("geronimo.security:type=SecurityService");
     private GeronimoMBeanContext context;
-    private static Hashtable services = new Hashtable();
-    private static long lastIdUsed = 0;
-    private static long myId = 0;
 
     private final Log log = LogFactory.getLog(SecurityService.class);
 
@@ -116,9 +111,6 @@ public class SecurityService extends AbstractManagedComponent implements Securit
     public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
         GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
         mbeanInfo.setTargetClass(SecurityService.class.getName());
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ServiceId",
-                true, false,
-                "Id of this security service"));
         return mbeanInfo;
     }
 
@@ -132,15 +124,9 @@ public class SecurityService extends AbstractManagedComponent implements Securit
      */
     public void postRegister(Boolean aBoolean) {
         super.postRegister(aBoolean);
-
-        synchronized (services) {
-            myId = ++lastIdUsed;
-            services.put(new Long(myId), this);
-        }
     }
 
     public void preDeregister() throws Exception {
-        services.remove(new Long(myId));
     }
 
     public void postDeregister() {
@@ -162,8 +148,6 @@ public class SecurityService extends AbstractManagedComponent implements Securit
             ConfigurationUtil.registerPolicyContextHandler(new PolicyContextHandlerContainerSubject(), true);
             ConfigurationUtil.registerPolicyContextHandler(new PolicyContextHandlerSOAPMessage(), true);
             ConfigurationUtil.registerPolicyContextHandler(new PolicyContextHandlerHttpServletRequest(), true);
-            ConfigurationUtil.registerPolicyContextHandler(new PolicyContextHandlerEnterpriseBean(), true);
-            ConfigurationUtil.registerPolicyContextHandler(new PolicyContextHandlerEJBArguments(), true);
         } catch (PolicyContextException pce) {
             log.error("Exception in doStart()", pce);
 
@@ -183,16 +167,6 @@ public class SecurityService extends AbstractManagedComponent implements Securit
     }
 
     public void doFail() {
-    }
-
-    /**
-     *
-     * @return
-     * @throws GeronimoSecurityException
-     * @jmx:managed-operation
-     */
-    public String getServiceId() throws GeronimoSecurityException {
-        return new Long(myId).toString();
     }
 
     /**
