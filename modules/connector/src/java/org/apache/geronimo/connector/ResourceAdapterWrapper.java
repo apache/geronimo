@@ -21,6 +21,7 @@ import javax.resource.ResourceException;
 import javax.resource.spi.ActivationSpec;
 import javax.resource.spi.ManagedConnectionFactory;
 import javax.resource.spi.ResourceAdapter;
+import javax.resource.spi.ResourceAdapterAssociation;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
 
 import org.apache.geronimo.gbean.DynamicGBean;
@@ -38,7 +39,7 @@ import org.apache.geronimo.gbean.WaitingException;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:31 $
+ * @version $Revision: 1.6 $ $Date: 2004/04/07 06:54:57 $
  *
  * */
 public class ResourceAdapterWrapper implements GBean, DynamicGBean {
@@ -73,7 +74,7 @@ public class ResourceAdapterWrapper implements GBean, DynamicGBean {
         return resourceAdapterClass;
     }
 
-    public void registerManagedConnectionFactory(ManagedConnectionFactory managedConnectionFactory) throws ResourceException {
+    public void registerManagedConnectionFactory(ResourceAdapterAssociation managedConnectionFactory) throws ResourceException {
         managedConnectionFactory.setResourceAdapter(resourceAdapter);
     }
 
@@ -119,7 +120,7 @@ public class ResourceAdapterWrapper implements GBean, DynamicGBean {
         infoFactory.addAttribute(new GAttributeInfo("ResourceAdapterClass", true));
         infoFactory.addReference(new GReferenceInfo("BootstrapContext", BootstrapContext.class.getName()));
 
-        infoFactory.addOperation(new GOperationInfo("registerManagedConnectionFactory", new String[]{ManagedConnectionFactory.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("registerManagedConnectionFactory", new String[]{ResourceAdapterAssociation.class.getName()}));
         infoFactory.addOperation(new GOperationInfo("endpointActivation", new String[]{MessageEndpointFactory.class.getName(), ActivationSpec.class.getName()}));
         infoFactory.addOperation(new GOperationInfo("endpointDeactivation", new String[]{MessageEndpointFactory.class.getName(), ActivationSpec.class.getName()}));
         infoFactory.setConstructor(new GConstructorInfo(

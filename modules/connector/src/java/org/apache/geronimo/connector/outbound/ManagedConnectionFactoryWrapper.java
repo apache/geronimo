@@ -19,6 +19,7 @@ package org.apache.geronimo.connector.outbound;
 
 import javax.naming.NamingException;
 import javax.resource.spi.ManagedConnectionFactory;
+import javax.resource.spi.ResourceAdapterAssociation;
 import javax.management.ObjectName;
 
 import net.sf.cglib.proxy.Callback;
@@ -42,7 +43,7 @@ import org.apache.geronimo.kernel.KernelMBean;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/03/10 09:58:32 $
+ * @version $Revision: 1.8 $ $Date: 2004/04/07 06:54:57 $
  *
  * */
 public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
@@ -164,8 +165,11 @@ public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
 
     public void doStart() throws WaitingException, Exception {
         //register with resource adapter if not yet done
-        if (!registered && resourceAdapterWrapper != null) {
-            resourceAdapterWrapper.registerManagedConnectionFactory(managedConnectionFactory);
+        if (!registered && (managedConnectionFactory instanceof ResourceAdapterAssociation)) {
+            if (resourceAdapterWrapper == null) {
+                throw new IllegalStateException("Managed connection factory expects to be registered with a ResourceAdapter, but there is no ResourceAdapter");
+            }
+            resourceAdapterWrapper.registerManagedConnectionFactory((ResourceAdapterAssociation)managedConnectionFactory);
             registered = true;
             log.debug("Registered managedConnectionFactory with ResourceAdapter " + resourceAdapterWrapper.toString());
         }

@@ -33,14 +33,10 @@ import javax.security.auth.Subject;
  *
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:45 $
+ * @version $Revision: 1.5 $ $Date: 2004/04/07 06:54:57 $
  */
 public interface ManagedConnectionFactory extends Serializable {
-    
-    public void setResourceAdapter(ResourceAdapter resourceAdapter) throws ResourceException;
-    
-    public ResourceAdapter getResourceAdapter();
-    
+
     public Object createConnectionFactory(ConnectionManager cxManager) throws ResourceException;
 
     public Object createConnectionFactory() throws ResourceException;
