@@ -29,7 +29,7 @@ import org.apache.geronimo.messaging.NodeTopology;
 /**
  * A simple ring topology manager.
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/10 23:12:25 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/05 07:03:50 $
  */
 public class RingTopologyManager
     implements TopologyManager
@@ -72,10 +72,14 @@ public class RingTopologyManager
 
     private static class RingTopology implements NodeTopology {
 
+        private static int versionSeq = 0;
+        
         private final List nodes;
         private final Set nodeSet;
         private final NodeInfo[] nodeArray;
         private final NodeInfo[] nodeArrayInv;
+        private final int version;
+        
         
         private RingTopology(List aNodes) {
             nodes = aNodes;
@@ -86,6 +90,7 @@ public class RingTopologyManager
             for (int i = 0; i < length; i++) {
                 nodeArrayInv[i] = nodeArray[length - i - 1];
             }
+            version = versionSeq++;
         }
         
         public Set getNeighbours(NodeInfo aRoot) {
@@ -146,7 +151,11 @@ public class RingTopologyManager
         public Set getNodes() {
             return nodeSet;
         }
-        
+
+        public int getVersion() {
+            return version;
+        }
+
     }
     
 }

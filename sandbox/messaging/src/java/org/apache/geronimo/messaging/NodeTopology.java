@@ -25,11 +25,18 @@ import java.util.Set;
  * <BR>
  * This is a Serializable as it is exchanged between nodes.
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/10 23:12:24 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/05 07:03:50 $
  */
 public interface NodeTopology extends Serializable
 {
 
+    /**
+     * Gets the version of this topology.
+     * 
+     * @return version number.
+     */
+    public int getVersion();
+    
     /**
      * Gets the neighbours of the specified node. They are the nodes directly
      * reachable from aRoot. 

@@ -35,7 +35,7 @@ import org.apache.geronimo.system.ClockPool;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/10 23:12:25 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/05 07:03:50 $
  */
 public class RemoteNodeManagerImplTest extends TestCase
 {
@@ -127,6 +127,9 @@ public class RemoteNodeManagerImplTest extends TestCase
             public Set getNodes() {
                 return null;
             }
+            public int getVersion() {
+                return 0;
+            }
         };
         manager.setTopology(topology);
 
@@ -170,30 +173,6 @@ public class RemoteNodeManagerImplTest extends TestCase
         public void fireRemoteNodeEvent(RemoteNodeEvent anEvent) {
             event = anEvent;
         }
-    }
-
-    private class MockTopology implements NodeTopology {
-
-        public Set getNeighbours(NodeInfo aRoot) {
-            return null;
-        }
-
-        public NodeInfo[] getPath(NodeInfo aSource, NodeInfo aTarget) {
-            return null;
-        }
-
-        public int getIDOfNode(NodeInfo aNodeInfo) {
-            return 0;
-        }
-
-        public NodeInfo getNodeById(int anId) {
-            return null;
-        }
-
-        public Set getNodes() {
-            return null;
-        }
-
     }
     
 }

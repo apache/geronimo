@@ -46,7 +46,7 @@ import org.apache.xmlbeans.XmlObject;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/10 23:12:24 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/05 07:03:50 $
  */
 public class AdminServerTest
     extends TestCase
@@ -90,6 +90,9 @@ public class AdminServerTest
                 nodes.add(nodeInfo1);
                 nodes.add(nodeInfo2);
                 return nodes;
+            }
+            public int getVersion() {
+                return 0;
             }
         });
         

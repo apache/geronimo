@@ -34,7 +34,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/10 23:12:24 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/05 07:03:50 $
  */
 public class NodeImplTest
     extends TestCase
@@ -109,7 +109,7 @@ public class NodeImplTest
         
         // Sets the topology.
         NodeTopology topology =
-                new MockTopology(nodeInfo1, nodeInfo2, nodeInfo3, nodeInfo4);
+            new MockTopology(nodeInfo1, nodeInfo2, nodeInfo3, nodeInfo4);
         node1.setTopology(topology);
     }
 
@@ -145,9 +145,7 @@ public class NodeImplTest
     public static void main(String[] args) throws Exception {
         NodeImplTest test = new NodeImplTest();
         test.setUp();
-        while ( true ) {
-            test.testInputStreamPerformance();
-        }
+        test.testSendRawPerformance();
     }
     
     public void testSendRawPerformance() throws Exception {
@@ -313,6 +311,9 @@ public class NodeImplTest
         }
         public Set getNodes() {
             throw new IllegalArgumentException("Not expected");
+        }
+        public int getVersion() {
+            return 0;
         }
     }
     

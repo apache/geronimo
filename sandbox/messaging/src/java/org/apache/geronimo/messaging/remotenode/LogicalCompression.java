@@ -39,16 +39,21 @@ import org.apache.geronimo.messaging.io.StreamOutputStream;
  * Its goal is to compress Msgs to be sent to other nodes. The compression is
  * based on a shared knowledge such as a Topology.
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/24 23:52:12 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/05 07:03:50 $
  */
 public class LogicalCompression
     implements PopSynchronization, PushSynchronization
 {
 
     /**
-     * Topology shared knowledge.   
+     * Future topology.
      */
-    private NodeTopology topology;
+    private NodeTopology futTopology;
+    
+    /**
+     * Current registered topology.
+     */
+    private NodeTopology curTopology;
     
     /**
      * No logical compression.
@@ -70,12 +75,25 @@ public class LogicalCompression
      */
     private final static byte RESPONSE = (byte) 1;
 
-    public NodeTopology getTopology() {
-        return topology;
+    /**
+     * Registers a future topology. It is only used to uncompress Msgs which
+     * have not been compressed by the current topology. 
+     * 
+     * @param aTopology Future topology.
+     */
+    public void registerFutureTopology(NodeTopology aTopology) {
+        futTopology = aTopology;
     }
-
-    public void setTopology(NodeTopology aTopology) {
-        topology = aTopology;
+    
+    /**
+     * Registers the current topology. It is used to compress and uncompress
+     * Msgs. If it is not possible to uncompress a Msg with the current
+     * topology, then the future topology is used.
+     * 
+     * @param aTopology Current topology.
+     */
+    public void registerTopology(NodeTopology aTopology) {
+        curTopology = aTopology;
     }
     
     public Object beforePop(StreamInputStream anIn)
@@ -93,8 +111,17 @@ public class LogicalCompression
         if ( type == NULL ) {
             return result;
         }
+        int version = anIn.readInt();
+        NodeTopology topology = null;
+        if ( null != curTopology && version == curTopology.getVersion() ) {
+            topology = curTopology;
+        } else if ( null != futTopology &&
+            version == futTopology.getVersion() ) {
+            topology = futTopology;
+        }
         if ( null == topology ) {
-            throw new IllegalArgumentException("No topology is defined.");
+            throw new IllegalArgumentException("No topology with version {" +
+                version + "} is defined.");
         }
         int id = anIn.readInt();
         NodeInfo nodeInfo = topology.getNodeById(id);
@@ -107,7 +134,7 @@ public class LogicalCompression
         id = anIn.readInt();
         nodeInfo = topology.getNodeById(id);
         result.add(nodeInfo);
-        return result.toArray();
+        return result;
     }
     
     public void afterPop(StreamInputStream anIn, Msg aMsg, Object anOpaque)
@@ -137,11 +164,13 @@ public class LogicalCompression
         RequestSender.RequestID reqID  = (RequestSender.RequestID)
             header.resetHeader(MsgHeaderConstants.CORRELATION_ID);
         anOut.writeByte(reqID.getID());
+        NodeTopology topology = curTopology;
         if ( null == topology ) {
             anOut.writeByte(NULL);
             return null;
         }
         anOut.writeByte(TOPOLOGY);
+        anOut.writeInt(topology.getVersion());
         
         NodeInfo info =
             (NodeInfo) header.resetHeader(MsgHeaderConstants.SRC_NODE);

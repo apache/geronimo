@@ -53,7 +53,7 @@ import org.apache.geronimo.system.ThreadPool;
 /**
  * Node implementation.
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/10 23:12:24 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/05 07:03:50 $
  */
 public class NodeImpl
     implements Node, GBeanLifecycle
@@ -119,6 +119,11 @@ public class NodeImpl
     private NodeTopology nodeTopology;
     
     /**
+     * To serialize the topology changes.
+     */
+    private final Object topologyMonitor;
+    
+    /**
      * Creates a Node.
      * 
      * @param aNodeInfo Node meta-data.
@@ -142,6 +147,7 @@ public class NodeImpl
         clockPool = aClockPool;
         
         replacerResolver = new MsgReplacerResolver();
+        topologyMonitor = new Object();
 
         streamManager = newStreamManager();
         referenceableManager = newReferenceableManager();
@@ -177,10 +183,16 @@ public class NodeImpl
     }
     
     public void setTopology(NodeTopology aTopology) {
-        cascadeTopology(aTopology, Collections.EMPTY_SET);
+        synchronized(topologyMonitor) {
+            cascadeTopology(aTopology, Collections.EMPTY_SET);
+        }
     }
-
+    
     private void cascadeTopology(NodeTopology aTopology, Set aSetOfProcessed) {
+        // Registers a future topology here. This way neighbours can start to
+        // send Msgs compressed with the new topology.
+        compression.registerFutureTopology(aTopology);
+        
         // Applies the new topology.
         nodeManager.setTopology(aTopology);
 
@@ -211,15 +223,11 @@ public class NodeImpl
         try {
             // Cascades the new topology to all of them.
             topologyEndPoint.cascadeTopology(aTopology, processed);
-        } catch (Throwable e) {
-            e.printStackTrace();
         } finally {
             endPointProxyFactory.releaseProxy(topologyEndPoint);
         }
         
-        // TODO re-introduces logical compression when dynamic reconfiguration
-        // of topology will support 2PC.
-//        compression.setTopology(aTopology);
+        compression.registerTopology(aTopology);
         nodeTopology = aTopology;
     }
     
@@ -270,6 +278,12 @@ public class NodeImpl
                 Set result = new HashSet();
                 result.add(nodeInfo);
                 return result;
+            }
+            public int getVersion() {
+                return 0;
+            }
+            public void setVersion(int aVersion) {
+                throw new UnsupportedOperationException();
             }
         };
         setTopology(topology);
