@@ -22,13 +22,22 @@ import java.util.Set;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/06/27 18:17:52 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/11 21:37:10 $
  */
 public class Security implements Serializable {
 
+    private boolean doAsCurrentCaller;
     private boolean useContextHandler;
     private DefaultPrincipal defaultPrincipal;
     private Set roleMappings = new HashSet();
+
+    public boolean isDoAsCurrentCaller() {
+        return doAsCurrentCaller;
+    }
+
+    public void setDoAsCurrentCaller(boolean doAsCurrentCaller) {
+        this.doAsCurrentCaller = doAsCurrentCaller;
+    }
 
     public boolean isUseContextHandler() {
         return useContextHandler;
