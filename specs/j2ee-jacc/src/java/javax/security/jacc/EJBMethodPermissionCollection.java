@@ -38,13 +38,13 @@ import java.util.Collections;
 
 /**
  *
- * @version $Revision: 1.4 $ $Date: 2004/07/25 00:57:00 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/25 20:24:46 $
  */
 public final class EJBMethodPermissionCollection extends PermissionCollection {
 
     private LinkedList collection = new LinkedList();
     private HashMap permissions = new HashMap();
-    private static final String WILDCARD = new String();
+    private static final String WILDCARD = new String("$WILDCARD");
 
     /**
      * Adds a permission object to the current collection of permission objects.
