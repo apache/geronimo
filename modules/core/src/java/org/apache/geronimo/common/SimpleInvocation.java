@@ -55,14 +55,14 @@
  */
 package org.apache.geronimo.common;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 
  * 
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:45:02 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:21 $
  */
 public class SimpleInvocation implements Invocation {
     private Map marshalMap = new HashMap();

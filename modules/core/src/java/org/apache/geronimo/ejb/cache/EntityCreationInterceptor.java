@@ -56,11 +56,11 @@
 package org.apache.geronimo.ejb.cache;
 
 import org.apache.geronimo.common.AbstractInterceptor;
-import org.apache.geronimo.ejb.EJBInvocationUtil;
-import org.apache.geronimo.ejb.EnterpriseContext;
 import org.apache.geronimo.common.Invocation;
 import org.apache.geronimo.common.InvocationResult;
 import org.apache.geronimo.common.InvocationType;
+import org.apache.geronimo.ejb.EJBInvocationUtil;
+import org.apache.geronimo.ejb.EnterpriseContext;
 
 /**
  * This interceptor does a double invocation for entity creation.  The first invocation handles
@@ -69,7 +69,7 @@ import org.apache.geronimo.common.InvocationType;
  * a normal business method.
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:51:54 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:20 $
  */
 public final class EntityCreationInterceptor extends AbstractInterceptor {
     public InvocationResult invoke(Invocation invocation) throws Exception {

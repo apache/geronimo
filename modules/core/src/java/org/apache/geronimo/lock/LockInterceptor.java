@@ -56,22 +56,22 @@
 package org.apache.geronimo.lock;
 
 import java.rmi.RemoteException;
+
 import javax.ejb.EJBException;
 
 import org.apache.geronimo.common.AbstractInterceptor;
-import org.apache.geronimo.ejb.EJBInvocationUtil;
-import org.apache.geronimo.ejb.Entrancy;
+import org.apache.geronimo.common.Container;
 import org.apache.geronimo.common.Invocation;
 import org.apache.geronimo.common.InvocationResult;
 import org.apache.geronimo.common.InvocationType;
-import org.apache.geronimo.common.Container;
+import org.apache.geronimo.ejb.EJBInvocationUtil;
 import org.apache.geronimo.ejb.container.EJBPlugins;
 import org.apache.geronimo.ejb.context.ExecutionContext;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:55:14 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:19 $
  */
 public final class LockInterceptor extends AbstractInterceptor {
     private LockDomain lockDomain;

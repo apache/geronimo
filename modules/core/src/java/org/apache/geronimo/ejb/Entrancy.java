@@ -59,10 +59,10 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 
-import org.apache.geronimo.ejb.EJBInvocationUtil;
 import org.apache.geronimo.common.Invocation;
 import org.apache.geronimo.common.InvocationType;
 
@@ -70,7 +70,7 @@ import org.apache.geronimo.common.InvocationType;
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:51:54 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:20 $
  */
 public final class Entrancy implements Serializable {
     private static final String ENTRANCY_KEY = "ENTRANCY_KEY";

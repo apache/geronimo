@@ -58,13 +58,14 @@ package org.apache.geronimo.lock;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
 import javax.transaction.Synchronization;
 
 /**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:55:14 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:19 $
  */
 public abstract class LockContext implements Synchronization {
     protected final Set locks = new HashSet();

@@ -60,16 +60,16 @@ import javax.transaction.TransactionManager;
 import org.apache.geronimo.cache.InstanceCache;
 import org.apache.geronimo.cache.InstanceFactory;
 import org.apache.geronimo.cache.InstancePool;
-import org.apache.geronimo.ejb.EJBProxyFactoryManager;
-import org.apache.geronimo.lock.LockDomain;
-import org.apache.geronimo.ejb.metadata.EJBMetadata;
 import org.apache.geronimo.common.Container;
+import org.apache.geronimo.ejb.EJBProxyFactoryManager;
+import org.apache.geronimo.ejb.metadata.EJBMetadata;
+import org.apache.geronimo.lock.LockDomain;
 
 /**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:51:54 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:21 $
  */
 public final class EJBPlugins {
     // only static methods are allowed for this class

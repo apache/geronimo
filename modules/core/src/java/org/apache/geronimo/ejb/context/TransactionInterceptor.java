@@ -55,12 +55,11 @@
  */
 package org.apache.geronimo.ejb.context;
 
-import org.apache.geronimo.common.AbstractInterceptor;
-import org.apache.geronimo.common.InvocationResult;
-import org.apache.geronimo.common.Invocation;
-import org.apache.geronimo.common.State;
-import org.apache.geronimo.common.Interceptor;
 import org.apache.geronimo.common.Container;
+import org.apache.geronimo.common.Interceptor;
+import org.apache.geronimo.common.Invocation;
+import org.apache.geronimo.common.InvocationResult;
+import org.apache.geronimo.common.State;
 import org.apache.geronimo.ejb.container.EJBPlugins;
 import org.apache.geronimo.ejb.metadata.EJBMetadata;
 
@@ -68,7 +67,7 @@ import org.apache.geronimo.ejb.metadata.EJBMetadata;
  * 
  * 
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:51:54 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:19 $
  */
 public class TransactionInterceptor implements Interceptor {
     private Interceptor transactionInterceptor;

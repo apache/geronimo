@@ -62,13 +62,14 @@ package javax.ejb;
 import java.security.Identity;
 import java.security.Principal;
 import java.util.Properties;
+
 import javax.transaction.UserTransaction;
 
 /**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:39:51 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:21 $
  */
 public interface EJBContext {
     Identity getCallerIdentity() throws IllegalStateException;

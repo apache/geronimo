@@ -62,13 +62,11 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
-import org.apache.geronimo.deployment.DeploymentInfo;
-
 /**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:47:53 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:19 $
  */
 public class FileSystemScanner implements Scanner {
     private final File root;

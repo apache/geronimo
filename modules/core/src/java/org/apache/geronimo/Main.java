@@ -55,10 +55,11 @@
  */
 package org.apache.geronimo;
 
-import java.net.URL;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.Set;
+
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectInstance;
@@ -71,7 +72,7 @@ import org.apache.log4j.Logger;
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:42:53 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:19 $
  */
 public class Main implements Runnable {
     private static final Logger log = Logger.getLogger("Geronimo");

@@ -65,11 +65,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
+import javax.management.MBeanRegistration;
+import javax.management.MBeanServer;
 import javax.management.Notification;
 import javax.management.NotificationBroadcasterSupport;
-import javax.management.MBeanRegistration;
 import javax.management.ObjectName;
-import javax.management.MBeanServer;
 
 import org.apache.log4j.Logger;
 
@@ -79,7 +80,7 @@ import org.apache.log4j.Logger;
  * Notifiction.
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:47:53 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:19 $
  */
 public class DeploymentScanner extends NotificationBroadcasterSupport implements DeploymentScannerMBean,MBeanRegistration {
     private static final Logger log = Logger.getLogger(DeploymentScanner.class);

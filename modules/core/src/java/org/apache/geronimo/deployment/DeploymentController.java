@@ -55,16 +55,17 @@
  */
 package org.apache.geronimo.deployment;
 
-import java.util.List;
-import java.util.Iterator;
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
 import javax.management.MBeanRegistration;
-import javax.management.ObjectName;
 import javax.management.MBeanServer;
-import javax.management.NotificationListener;
 import javax.management.Notification;
 import javax.management.NotificationFilterSupport;
+import javax.management.NotificationListener;
+import javax.management.ObjectName;
 
 import org.apache.geronimo.jmx.JMXUtil;
 import org.apache.log4j.Logger;
@@ -73,7 +74,7 @@ import org.apache.log4j.Logger;
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:47:53 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:21 $
  */
 public class DeploymentController implements MBeanRegistration, NotificationListener, DeploymentControllerMBean {
     private static final ObjectName DEFAULT_NAME = JMXUtil.getObjectName("geronimo.deployment:type=DeploymentController");

@@ -60,14 +60,13 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.security.Principal;
 
-import org.apache.geronimo.ejb.EnterpriseContext;
 import org.apache.geronimo.common.Invocation;
 
 /**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:51:54 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:20 $
  */
 public final class EJBInvocationUtil implements Serializable {
     // Be careful here.  If you change the oridnals, this class must be changed on evey client.

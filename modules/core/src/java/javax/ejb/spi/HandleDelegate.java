@@ -62,6 +62,7 @@ package javax.ejb.spi;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+
 import javax.ejb.EJBHome;
 import javax.ejb.EJBObject;
 
@@ -69,7 +70,7 @@ import javax.ejb.EJBObject;
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:39:52 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:21 $
  */
 public interface HandleDelegate {
     EJBHome readEJBHome(ObjectInputStream objectInputStream) throws ClassNotFoundException, IOException;

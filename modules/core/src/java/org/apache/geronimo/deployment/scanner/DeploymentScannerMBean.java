@@ -55,14 +55,14 @@
  */
 package org.apache.geronimo.deployment.scanner;
 
-import java.net.URL;
 import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * 
  * 
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:47:53 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:19 $
  */
 public interface DeploymentScannerMBean {
     public static final String SCAN_COMPLETE="geronimo.deployment.SCAN_COMPLETE";

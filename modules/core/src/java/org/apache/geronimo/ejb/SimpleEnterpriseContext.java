@@ -58,13 +58,12 @@ package org.apache.geronimo.ejb;
 import javax.ejb.EnterpriseBean;
 
 import org.apache.geronimo.common.Container;
-import org.apache.geronimo.ejb.EnterpriseContext;
 
 /**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:51:54 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:20 $
  */
 public final class SimpleEnterpriseContext implements EnterpriseContext {
     private Container container;

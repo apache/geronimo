@@ -62,17 +62,16 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.apache.geronimo.cache.InstancePool;
+import org.apache.geronimo.cache.SimpleInstancePool;
 import org.apache.geronimo.common.AbstractComponent;
 import org.apache.geronimo.ejb.EnterpriseContext;
 import org.apache.geronimo.ejb.container.EJBPlugins;
-import org.apache.geronimo.cache.InstancePool;
-import org.apache.geronimo.cache.SimpleInstancePool;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:51:54 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:20 $
  */
 public final class EnterpriseContextInstancePool extends AbstractComponent implements  InstancePool {
     private SimpleInstancePool pool;

@@ -55,15 +55,15 @@
  */
 package org.apache.geronimo.ejb.metadata;
 
-import java.util.Map;
-import java.util.HashMap;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 
  * 
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:51:54 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:21 $
  */
 public final class EJBMetadataImpl implements EJBMetadata {
     private String name;

@@ -60,6 +60,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.management.Attribute;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
@@ -74,7 +75,7 @@ import javax.management.RuntimeOperationsException;
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:53:54 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:21 $
  */
 public class MBeanProxyFactory {
     public static Object getProxy(Class iface, MBeanServer server, ObjectName name) throws InstanceNotFoundException {

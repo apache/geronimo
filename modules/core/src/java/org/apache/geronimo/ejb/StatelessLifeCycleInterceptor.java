@@ -57,8 +57,8 @@ package org.apache.geronimo.ejb;
 
 import java.lang.reflect.Method;
 
-import javax.ejb.EJBObject;
 import javax.ejb.EJBLocalObject;
+import javax.ejb.EJBObject;
 
 import org.apache.geronimo.common.AbstractInterceptor;
 import org.apache.geronimo.common.Invocation;
@@ -71,7 +71,7 @@ import org.apache.geronimo.ejb.metadata.EJBMetadata;
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:51:54 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:20 $
  */
 public class StatelessLifeCycleInterceptor extends AbstractInterceptor {
     private static final Method removeRemote;

@@ -60,21 +60,22 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Map;
+
 import javax.management.ObjectName;
 
 import org.apache.geronimo.common.AbstractComponent;
 import org.apache.geronimo.common.Component;
+import org.apache.geronimo.common.Container;
 import org.apache.geronimo.common.Interceptor;
 import org.apache.geronimo.common.Invocation;
 import org.apache.geronimo.common.InvocationResult;
 import org.apache.geronimo.common.State;
-import org.apache.geronimo.common.Container;
 
 /**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:51:54 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:21 $
  */
 public class ContainerImpl extends AbstractComponent implements Container {
     private final Map plugins = new LinkedHashMap();

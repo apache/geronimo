@@ -59,18 +59,17 @@ import java.rmi.NoSuchObjectException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.apache.geronimo.ejb.EnterpriseContext;
-import org.apache.geronimo.common.AbstractComponent;
-import org.apache.geronimo.common.Container;
-import org.apache.geronimo.ejb.container.EJBPlugins;
 import org.apache.geronimo.cache.InstanceCache;
 import org.apache.geronimo.cache.LRUInstanceCache;
 import org.apache.geronimo.cache.LRURunner;
+import org.apache.geronimo.common.AbstractComponent;
+import org.apache.geronimo.common.Container;
+import org.apache.geronimo.ejb.EnterpriseContext;
+import org.apache.geronimo.ejb.container.EJBPlugins;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:51:54 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:20 $
  */
 public final class EnterpriseContextInstanceCache extends AbstractComponent implements InstanceCache {
     private LRUInstanceCache cache;

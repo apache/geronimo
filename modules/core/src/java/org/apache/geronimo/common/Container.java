@@ -57,15 +57,11 @@ package org.apache.geronimo.common;
 
 import javax.management.ObjectName;
 
-import org.apache.geronimo.common.Invocation;
-import org.apache.geronimo.common.InvocationResult;
-import org.apache.geronimo.common.Component;
-
 /**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:45:02 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:21 $
  */
 public interface Container extends Component {
     //

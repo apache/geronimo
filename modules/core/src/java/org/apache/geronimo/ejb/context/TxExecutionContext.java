@@ -57,6 +57,7 @@ package org.apache.geronimo.ejb.context;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.transaction.NotSupportedException;
 import javax.transaction.RollbackException;
 import javax.transaction.Synchronization;
@@ -69,7 +70,7 @@ import org.apache.geronimo.lock.TxLockContext;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:51:54 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:19 $
  */
 public class TxExecutionContext extends ExecutionContext implements Synchronization {
     private static final Map contextsByTx = new HashMap();

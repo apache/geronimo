@@ -57,13 +57,12 @@ package org.apache.geronimo.deployment.scanner;
 
 import java.io.IOException;
 import java.util.Set;
-import java.net.URL;
 
 /**
  * Interface for scanning a location for deployments
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:47:53 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:19 $
  */
 public interface Scanner {
     /**

@@ -59,6 +59,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+
 import javax.ejb.EJBException;
 import javax.naming.InitialContext;
 import javax.transaction.Status;
@@ -68,7 +69,6 @@ import javax.transaction.TransactionManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.geronimo.common.Container;
 import org.apache.geronimo.ejb.container.EJBPlugins;
 import org.apache.geronimo.ejb.context.ExecutionContext;
@@ -78,7 +78,7 @@ import org.apache.geronimo.ejb.metadata.EJBMetadata;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:51:54 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:20 $
  */
 public class SynchronizationRegistry {
     private static final String EJB_REGISTRY_KEY = "EJB_REGISTRY_KEY";
