@@ -1,5 +1,5 @@
-<!ENTITY geronimo-version "1.0-M2">
-<!ENTITY openejb-version "2.0-M2">
+<!ENTITY geronimo-version "1.0-SNAPSHOT">
+<!ENTITY openejb-version "2.0-SNAPSHOT">
 <!ENTITY tranql-version "1.0-SNAPSHOT">
 <!ENTITY tranql-connector-version "SNAPSHOT">
 
