@@ -60,7 +60,7 @@ import org.apache.geronimo.kernel.management.NotificationType;
  * {@link GBeanInfo} instance.  The GBeanMBean also supports caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.18 $ $Date: 2004/06/02 05:33:03 $
+ * @version $Revision: 1.19 $ $Date: 2004/06/02 20:51:51 $
  */
 public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     /**
@@ -157,7 +157,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     /**
      * A fast index based raw invoker for this GBean.
      */
-    private RawInvoker rawInvoker;
+    private final RawInvoker rawInvoker;
 
     /**
      * Constructa a GBeanMBean using the supplied gbeanInfo and class loader
@@ -255,6 +255,8 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                 mbeanOperations,
                 // Is there any way to add notifications before an instance of the class is created?
                 (MBeanNotificationInfo[]) notifications.toArray(new MBeanNotificationInfo[notifications.size()]));
+
+        rawInvoker = new RawInvoker(this);
     }
 
     /**
@@ -515,10 +517,6 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
             }
         }
 
-        // create the raw invoker for this gbean.... this MUST be closed
-        // when the gbean goes offline or we will get a memory leak
-        rawInvoker = new RawInvoker(this);
-
         return returnValue;
     }
 
@@ -536,12 +534,6 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
             // we need to bring the reference back off line
             for (int i = 0; i < references.length; i++) {
                 references[i].offline();
-            }
-
-            // clean up the raw invoker... this holds a reference to this gbean (a possible memory leak)
-            if (rawInvoker != null) {
-                rawInvoker.close();
-                rawInvoker = null;
             }
 
             // well that didn't work, ditch the instance
@@ -563,12 +555,6 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         if (target instanceof GBean) {
             GBean gbean = (GBean) target;
             gbean.setGBeanContext(null);
-        }
-
-        // clean up the raw invoker... this holds a reference to this gbean (a possible memory leak)
-        if (rawInvoker != null) {
-            rawInvoker.close();
-            rawInvoker = null;
         }
 
         offline = true;

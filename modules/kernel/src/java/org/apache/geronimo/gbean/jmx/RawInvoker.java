@@ -22,23 +22,17 @@ import javax.management.JMRuntimeException;
 import javax.management.ReflectionException;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/05/27 01:05:59 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/02 20:51:51 $
  */
 public final class RawInvoker {
-    private GBeanMBean gbean;
-    private Map attributeIndex;
-    private Map operationIndex;
+    private final GBeanMBean gbean;
+    private final Map attributeIndex;
+    private final Map operationIndex;
 
     public RawInvoker(GBeanMBean gbean) {
         this.gbean = gbean;
         attributeIndex = gbean.getAttributeIndex();
         operationIndex = gbean.getOperationIndex();
-    }
-
-    void close() {
-        synchronized (this) {
-            gbean = null;
-        }
     }
 
     public Map getAttributeIndex() {
@@ -49,12 +43,7 @@ public final class RawInvoker {
         return operationIndex;
     }
 
-    public Object getAttribute(int index) throws Exception {
-        GBeanMBean gbean;
-        synchronized (this) {
-            gbean = this.gbean;
-        }
-
+    public Object getAttribute(final int index) throws Exception {
         try {
             return gbean.getAttribute(index);
         } catch (ReflectionException e) {
@@ -72,12 +61,7 @@ public final class RawInvoker {
         }
     }
 
-    public void setAttribute(int index, Object value) throws Exception {
-        GBeanMBean gbean;
-        synchronized (this) {
-            gbean = this.gbean;
-        }
-
+    public void setAttribute(final int index, final Object value) throws Exception {
         try {
             gbean.setAttribute(index, value);
         } catch (ReflectionException e) {
@@ -95,12 +79,7 @@ public final class RawInvoker {
         }
     }
 
-    public Object invoke(int index, Object[] args) throws Exception {
-        GBeanMBean gbean;
-        synchronized (this) {
-            gbean = this.gbean;
-        }
-
+    public Object invoke(final int index, final Object[] args) throws Exception {
         try {
             return gbean.invoke(index, args);
         } catch (ReflectionException e) {
