@@ -62,10 +62,17 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.HashSet;
+import java.util.ArrayList;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.gbean.EndpointCollection;
+import org.apache.geronimo.gbean.EndpointCollectionListener;
+import org.apache.geronimo.gbean.EndpointCollectionEvent;
 import org.apache.geronimo.kernel.jmx.InterfaceCallbackFilter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.Factory;
@@ -74,36 +81,49 @@ import net.sf.cglib.proxy.SimpleCallbacks;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/15 00:45:54 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/15 05:36:53 $
  */
 public class CollectionProxy implements Proxy {
+    private static final Log log = LogFactory.getLog(CollectionProxy.class);
+
     /**
      * The GBeanMBean to which this proxy belongs.
      */
-    private final GBeanMBean gmbean;
+    private GBeanMBean gmbean;
+
+    /**
+     * Name of the endpoint
+     */
+    public String name;
 
     /**
      * A map from object names to the proxy
      */
-    private final Map proxies = new HashMap();
+    private Map proxies = new HashMap();
 
     /**
      * A map from object names to the proxy interceptor
      */
-    private final Map interceptors = new HashMap();
+    private Map interceptors = new HashMap();
 
     /**
      * Proxy collection implementation held by the component
      */
-    private final ClientCollection proxy = new ClientCollection(proxies.values());
+    private ClientCollection proxy = new ClientCollection();
 
     /**
      * Facotry for proxy instances.
      */
-    private final Factory factory;
+    private Factory factory;
 
-    public CollectionProxy(GBeanMBean gmbean, Class type) {
+    /**
+     * Is this proxy currently stopped?
+     */
+    private boolean stopped;
+
+    public CollectionProxy(GBeanMBean gmbean, String name, Class type) {
         this.gmbean = gmbean;
+        this.name = name;
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(Object.class);
         enhancer.setInterfaces(new Class[]{type});
@@ -113,7 +133,23 @@ public class CollectionProxy implements Proxy {
         factory = enhancer.create();
     }
 
-    public Object getProxy() {
+    public synchronized void destroy() {
+        for (Iterator iterator = interceptors.values().iterator(); iterator.hasNext();) {
+            ProxyMethodInterceptor interceptor = (ProxyMethodInterceptor) iterator.next();
+            interceptor.disconnect();
+        }
+        proxy.listeners = null;
+
+        gmbean = null;
+        name = null;
+        proxies = null;
+        interceptors = null;
+        proxy = null;
+        factory = null;
+        stopped = true;
+    }
+
+    public synchronized Object getProxy() {
         return proxy;
     }
 
@@ -128,19 +164,27 @@ public class CollectionProxy implements Proxy {
             interceptor.connect(gmbean.getServer(), target, proxy.isStopped());
             interceptors.put(target, interceptor);
             proxies.put(target, factory.newInstance(interceptor));
+            if (!stopped) {
+                proxy.fireMemberAdddedEvent(target);
+            }
         }
     }
 
     public synchronized void removeTarget(ObjectName target) {
-        proxies.remove(target);
-        ProxyMethodInterceptor interceptor = (ProxyMethodInterceptor) interceptors.remove(target);
-        if (interceptor != null) {
-            interceptor.disconnect();
+        Object targetProxy = proxies.remove(target);
+        if (targetProxy != null) {
+            ProxyMethodInterceptor interceptor = (ProxyMethodInterceptor) interceptors.remove(target);
+            if (interceptor != null) {
+                interceptor.disconnect();
+            }
+            if (!stopped) {
+                proxy.fireMemberRemovedEvent(target);
+            }
         }
     }
 
     public synchronized void start() throws WaitingException {
-        proxy.start();
+        stopped = false;
         for (Iterator iterator = interceptors.values().iterator(); iterator.hasNext();) {
             ProxyMethodInterceptor interceptor = (ProxyMethodInterceptor) iterator.next();
             interceptor.start();
@@ -148,64 +192,120 @@ public class CollectionProxy implements Proxy {
     }
 
     public synchronized void stop() {
-        proxy.stop();
+        stopped = true;
         for (Iterator iterator = interceptors.values().iterator(); iterator.hasNext();) {
             ProxyMethodInterceptor interceptor = (ProxyMethodInterceptor) iterator.next();
             interceptor.stop();
         }
     }
 
-    private static class ClientCollection implements Collection {
-        private Collection proxies;
-        private boolean stopped;
-
-        public ClientCollection(Collection proxies) {
-            this.proxies = proxies;
-            stopped = true;
-        }
-
-        private void start() {
-            stopped = false;
-        }
-
-        private void stop() {
-            stopped = true;
-        }
+    private class ClientCollection implements EndpointCollection {
+        private Set listeners = new HashSet();
 
         public boolean isStopped() {
-            return stopped;
+            synchronized (CollectionProxy.this) {
+                return stopped;
+            }
+        }
+
+        public void addEndpointCollectionListener(EndpointCollectionListener listener) {
+            synchronized (CollectionProxy.this) {
+                listeners.add(listener);
+            }
+        }
+
+        public void removeEndpointCollectionListener(EndpointCollectionListener listener) {
+            synchronized (CollectionProxy.this) {
+                listeners.remove(listener);
+            }
+        }
+
+        private void fireMemberAdddedEvent(Object member) {
+            ArrayList listenerCopy;
+            synchronized (CollectionProxy.this) {
+                listenerCopy = new ArrayList(listeners);
+            }
+            for (Iterator iterator = listenerCopy.iterator(); iterator.hasNext();) {
+                EndpointCollectionListener listener = (EndpointCollectionListener) iterator.next();
+                try {
+                    listener.memberAdded(new EndpointCollectionEvent(name, member));
+                } catch (Throwable t) {
+                    log.error("Listener threw exception", t);
+                }
+            }
+        }
+
+        private void fireMemberRemovedEvent(Object member) {
+            ArrayList listenerCopy;
+            synchronized (CollectionProxy.this) {
+                listenerCopy = new ArrayList(listeners);
+            }
+            for (Iterator iterator = listenerCopy.iterator(); iterator.hasNext();) {
+                EndpointCollectionListener listener = (EndpointCollectionListener) iterator.next();
+                try {
+                    listener.memberRemoved(new EndpointCollectionEvent(name, member));
+                } catch (Throwable t) {
+                    log.error("Listener threw exception", t);
+                }
+            }
         }
 
         public int size() {
-            if (stopped) {
-                return 0;
+            synchronized (CollectionProxy.this) {
+                if (stopped) {
+                    return 0;
+                }
+                return proxies.size();
             }
-            return proxies.size();
         }
 
         public boolean isEmpty() {
-            if (stopped) {
-                return true;
+            synchronized (CollectionProxy.this) {
+                if (stopped) {
+                    return true;
+                }
+                return proxies.isEmpty();
             }
-            return proxies.isEmpty();
         }
 
         public boolean contains(Object o) {
-            if (stopped) {
-                return false;
+            synchronized (CollectionProxy.this) {
+                if (stopped) {
+                    return false;
+                }
+                return proxies.containsValue(o);
             }
-            return proxies.contains(o);
         }
 
         public Iterator iterator() {
-            if (stopped) {
+            synchronized (CollectionProxy.this) {
+                if (stopped) {
+                    return new Iterator() {
+                        public boolean hasNext() {
+                            return false;
+                        }
+
+                        public Object next() {
+                            throw new NoSuchElementException();
+                        }
+
+                        public void remove() {
+                            throw new UnsupportedOperationException();
+                        }
+                    };
+                }
+
                 return new Iterator() {
+                    // copy the proxies, so the client can iterate without concurrent modification
+                    // this is necssary since the client has nothing to synchronize on
+                    private final Iterator iterator = new ArrayList(proxies.values()).iterator();
+
                     public boolean hasNext() {
-                        return false;
+                        return iterator.hasNext();
                     }
 
                     public Object next() {
-                        throw new NoSuchElementException();
+                        return iterator.next();
                     }
 
                     public void remove() {
@@ -213,46 +313,36 @@ public class CollectionProxy implements Proxy {
                     }
                 };
             }
-
-            return new Iterator() {
-                private final Iterator iterator = proxies.iterator();
-
-                public boolean hasNext() {
-                    return iterator.hasNext();
-                }
-
-                public Object next() {
-                    return iterator.next();
-                }
-
-                public void remove() {
-                    throw new UnsupportedOperationException();
-                }
-            };
         }
 
         public Object[] toArray() {
-            if (stopped) {
-                return new Object[0];
+            synchronized (CollectionProxy.this) {
+                if (stopped) {
+                    return new Object[0];
+                }
+                return proxies.values().toArray();
             }
-            return proxies.toArray();
         }
 
         public Object[] toArray(Object a[]) {
-            if (stopped) {
-                if (a.length > 0) {
-                    a[0] = null;
+            synchronized (CollectionProxy.this) {
+                if (stopped) {
+                    if (a.length > 0) {
+                        a[0] = null;
+                    }
+                    return a;
                 }
-                return a;
+                return proxies.values().toArray(a);
             }
-            return proxies.toArray(a);
         }
 
         public boolean containsAll(Collection c) {
-            if (stopped) {
-                return c.isEmpty();
+            synchronized (CollectionProxy.this) {
+                if (stopped) {
+                    return c.isEmpty();
+                }
+                return proxies.values().containsAll(c);
             }
-            return proxies.containsAll(c);
         }
 
         public boolean add(Object o) {

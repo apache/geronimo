@@ -53,30 +53,17 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.gbean.jmx;
+package org.apache.geronimo.gbean;
 
-import java.util.Set;
-import javax.management.ObjectName;
-
-import org.apache.geronimo.gbean.WaitingException;
+import java.util.Collection;
 
 /**
- *
- *
- * @version $Revision: 1.2 $ $Date: 2004/01/15 05:36:53 $
+ * An extension of collection that allows a client to register for notifications when
+ * members are added to and removed from the collection.
+ * 
+ * @version $Revision: 1.1 $ $Date: 2004/01/15 05:36:53 $
  */
-public interface Proxy {
-    void destroy();
-
-    Object getProxy();
-
-    Set getTargets();
-
-    void addTarget(ObjectName target);
-
-    void removeTarget(ObjectName target);
-
-    void start() throws WaitingException;
-
-    void stop();
+public interface EndpointCollection extends Collection {
+    void addEndpointCollectionListener(EndpointCollectionListener listener);
+    void removeEndpointCollectionListener(EndpointCollectionListener listener);
 }

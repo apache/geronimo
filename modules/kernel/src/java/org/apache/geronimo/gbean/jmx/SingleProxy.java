@@ -74,36 +74,36 @@ import net.sf.cglib.proxy.SimpleCallbacks;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/15 00:45:54 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/15 05:36:53 $
  */
 public class SingleProxy implements Proxy {
     private static final Log log = LogFactory.getLog(SingleProxy.class);
     /**
      * The GBeanMBean to which this proxy belongs.
      */
-    private final GBeanMBean gmbean;
+    private GBeanMBean gmbean;
 
     /**
      * Name of this proxy.
      */
-    private final String name;
+    private String name;
 
     /**
      * The ObjectName patterns to which this proxy could be connected.
      * This is used to block mbeans from starting that would match a
      * pattern while we are running.
      */
-    private final Set patterns;
+    private Set patterns;
 
     /**
      * A set of all targets matching the
      */
-    private final Set targets = new HashSet();
+    private Set targets = new HashSet();
 
     /**
      * Proxy implementation held by the component
      */
-    private final Object proxy;
+    private Object proxy;
 
     /**
      * Is the GBeanMBean waitng for me to start?
@@ -134,11 +134,23 @@ public class SingleProxy implements Proxy {
         proxy = factory.newInstance(methodInterceptor);
     }
 
-    public Object getProxy() {
+    public synchronized void destroy() {
+        methodInterceptor.disconnect();
+
+        gmbean = null;
+        name = null;
+        patterns = null;
+        targets = null;
+        proxy = null;
+        waitingForMe = false;
+        methodInterceptor = null;
+    }
+
+    public synchronized Object getProxy() {
         return proxy;
     }
 
-    public Set getTargets() {
+    public synchronized Set getTargets() {
         return targets;
     }
 

@@ -86,7 +86,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/15 00:45:54 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/15 05:36:53 $
  */
 public class GBeanMBeanEndpoint implements NotificationListener {
     /**
@@ -196,7 +196,7 @@ public class GBeanMBeanEndpoint implements NotificationListener {
         if (singleValued) {
             proxy = new SingleProxy(gmbean, name, type, patterns);
         } else {
-            proxy = new CollectionProxy(gmbean, type);
+            proxy = new CollectionProxy(gmbean, name, type);
         }
 
 
@@ -266,6 +266,7 @@ public class GBeanMBeanEndpoint implements NotificationListener {
         Set registeredTargets = proxy.getTargets();
 
         // destroy the proxy
+        proxy.destroy();
         proxy = null;
 
         // unregister for all notifications

@@ -53,30 +53,27 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.gbean.jmx;
-
-import java.util.Set;
-import javax.management.ObjectName;
-
-import org.apache.geronimo.gbean.WaitingException;
+package org.apache.geronimo.gbean;
 
 /**
- *
- *
- * @version $Revision: 1.2 $ $Date: 2004/01/15 05:36:53 $
+ * 
+ * 
+ * @version $Revision: 1.1 $ $Date: 2004/01/15 05:36:53 $
  */
-public interface Proxy {
-    void destroy();
+public class EndpointCollectionEvent {
+    private final String endpointName;
+    private final Object member;
 
-    Object getProxy();
+    public EndpointCollectionEvent(String endpointName, Object member) {
+        this.endpointName = endpointName;
+        this.member = member;
+    }
 
-    Set getTargets();
+    public String getEndpointName() {
+        return endpointName;
+    }
 
-    void addTarget(ObjectName target);
-
-    void removeTarget(ObjectName target);
-
-    void start() throws WaitingException;
-
-    void stop();
+    public Object getMember() {
+        return member;
+    }
 }
