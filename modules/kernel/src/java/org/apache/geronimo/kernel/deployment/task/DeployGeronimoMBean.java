@@ -56,12 +56,16 @@
 package org.apache.geronimo.kernel.deployment.task;
 
 import java.net.URL;
+import java.util.Iterator;
+import java.util.Map;
+
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
+import javax.management.MBeanAttributeInfo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -72,11 +76,12 @@ import org.apache.geronimo.kernel.deployment.service.MBeanMetadata;
 import org.apache.geronimo.kernel.service.GeronimoMBean;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfoXMLLoader;
+import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/11/15 07:37:37 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/15 19:42:02 $
  */
 public class DeployGeronimoMBean implements DeploymentTask {
     private static final Log log = LogFactory.getLog(DeployGeronimoMBean.class);
@@ -137,6 +142,11 @@ public class DeployGeronimoMBean implements DeploymentTask {
                         throw new DeploymentException("GeronimoMBean descriptor not found: " + descriptorName);
                     }
                     geronimoMBeanInfo = GeronimoMBeanInfoXMLLoader.loadMBean(url);
+                }
+                Map metadataAttributes = metadata.getAttributeValues();
+                for (int i = 0; i < geronimoMBeanInfo.getAttributes().length; i++) {
+                    GeronimoAttributeInfo attributeInfo = (GeronimoAttributeInfo) geronimoMBeanInfo.getAttributes()[i];
+                    attributeInfo.setInitialValue(metadataAttributes.get(attributeInfo.getName()));
                 }
                 mbean.setMBeanInfo(geronimoMBeanInfo);
                 server.registerMBean(mbean, metadata.getName());
