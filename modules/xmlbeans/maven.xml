@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.4 $ $Date: 2003/08/16 15:14:13 $ -->
+<!-- $Revision: 1.5 $ $Date: 2003/08/22 10:24:06 $ -->
 
 <project
   xmlns:j="jelly:core"
@@ -28,22 +28,29 @@
 
    	<!-- a dummy scope tag to change XML namespace to ant -->
   	<j:scope xmlns="jelly:ant">
-  	   <taskdef name="xmlbean" classname="com.bea.xbean.tool.XMLBean" classpathref="maven.dependency.classpath"/>
-  
-        <ant:mkdir dir="${dir}"/>
-	<!--
-	destfile="${basedir}/target/xmlbeans.jar">
-	      typesystemname="org.apache.geronimo.xmlbeans"
-	-->
-	    <xmlbean
-	      
-	      schema="${basedir}/src/schema"
-	      srcgendir="${basedir}/target/src"
-	      classpathref="maven.dependency.classpath"
-	      srconly="true"
-	      download="true"
-	      failonerror="true" />
-	
+      <mkdir dir="${dir}"/>
+      
+<!-- currently there's a classloader bug with xsdconfig files with Ant task
+  	  <taskdef name="xmlbean" classname="com.bea.xbean.tool.XMLBean" classpathref="maven.dependency.classpath"/>
+        
+	  <xmlbean
+	    schema="${basedir}/src/schema"
+	    srcgendir="${basedir}/target/src"
+        classpathref="maven.dependency.classpath" 
+        srconly="true"
+	    download="true"
+	    failonerror="true" />
+-->
+
+      <java classname="com.bea.xbean.tool.SchemaCompiler" fork="yes">
+        <classpath refid="maven.dependency.classpath"/>
+        <arg value="-src"/>
+        <arg value="${basedir}/target/src/schema"/>
+        <arg value="-srconly"/>
+        <arg value="-dl"/>
+        <arg value="on"/>
+        <arg value="${basedir}/src"/>
+      </java>
     </j:scope>
   </goal>
   	
