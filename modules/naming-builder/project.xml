@@ -55,12 +55,6 @@
         </dependency>
 
         <!-- Module Dependencies -->
-        <!-- only for ComponentContextInterceptor -->
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-core</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
@@ -111,20 +105,6 @@
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
             <version>&geronimo-spec-jta-version;</version>
-        </dependency>
-
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib-full</artifactId>
-            <version>&cglib-version;</version>
-            <url>http://cglib.sf.net/</url>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>&commons-logging-version;</version>
-            <url>http://jakarta.apache.org/commons/logging/</url>
         </dependency>
 
         <dependency>
