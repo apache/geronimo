@@ -72,7 +72,7 @@ import org.apache.geronimo.common.net.protocol.URLStreamHandlerFactory;
 /**
  * Unit test for {@link URLMonitorTask} class.
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/01 15:22:24 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/12 15:34:46 $
  */
 public class URLMonitorTaskTest
     extends TestCase
@@ -142,7 +142,9 @@ public class URLMonitorTaskTest
         
         // Schedule the timer now
         Timer timer = new Timer();
-        timer.schedule(urlMonitorTask, 0);
+	
+	// Use a value >=0 to avoid race conditions
+        timer.schedule(urlMonitorTask, 20);
         
         // Change the last modified and get the last modified from the file,
         // since it might be truncated while setting
