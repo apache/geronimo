@@ -80,6 +80,9 @@ by the server.
         <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
     </gbean>
 
+    <!-- Register GeronimoLoginConfiguration as the LoginConfiguration handler -->
+    <gbean name="geronimo.security:type=LoginConfiguration" class="org.apache.geronimo.security.jaas.GeronimoLoginConfiguration"/>
+
     <gbean name="geronimo.security:type=SecurityService" class="org.apache.geronimo.security.SecurityService">
         <attribute name="PolicyConfigurationFactory" type="java.lang.String">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
         <reference name="Realms">geronimo.security:type=SecurityRealm,*</reference>
@@ -132,7 +135,8 @@ by the server.
         <attribute name="Url" type="java.lang.String">tcp://localhost:61616</attribute>
         <reference name="ActiveMQContainer">geronimo.server:type=JMSServer,container=ActiveMQ</reference>
     </gbean>
--->
+    -->
+
 
     <!-- EJB container -->
     <!-- pattern domain name must match the domain of the j2eeServer attribute of the EAR builder in the deployer plan -->

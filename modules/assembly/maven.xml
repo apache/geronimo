@@ -16,7 +16,7 @@
     limitations under the License.
 -->
   
-<!-- $Revision: 1.14 $ $Date: 2004/05/28 22:22:40 $ -->
+<!-- $Revision: 1.15 $ $Date: 2004/05/30 19:07:52 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -169,6 +169,7 @@
             <ant:arg value="${server.classpath}"/>
         </ant:java>
 
+
         <!-- build the J2EEServer configuration -->
         <ant:echo>Building server configuration</ant:echo>
         <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
@@ -176,6 +177,25 @@
             <ant:arg value="--install"/>
             <ant:arg value="--plan"/>
             <ant:arg value="src/plan/j2ee-server-plan.xml"/>
+        </ant:java>
+
+        <!-- build the J2EEServer secure configuration -->
+        <ant:echo>Building secure server configuration</ant:echo>
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="--install"/>
+            <ant:arg value="--plan"/>
+            <ant:arg value="src/plan/j2ee-secure-plan.xml"/>
+        </ant:java>
+
+
+        <!-- build the Demo configuration -->
+        <ant:echo>Building demo website configuration</ant:echo>
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="--install"/>
+            <ant:arg value="--module"/>
+            <ant:arg value="${maven.repo.local}/geronimo/wars/geronimo-demo-${pom.currentVersion}.war"/>
         </ant:java>
 
         <!-- build the Debug Tool configuration -->
