@@ -78,6 +78,7 @@ public class NameFactory {
     public static final String WEB_FILTER_MAPPING = "WebFilterMapping";
     public static final String URL_PATTERN = "URLPattern";
     public static final String GERONIMO_SERVICE = "GBean"; //copied in GBeanInfoBuilder to avoid dependencies in the wrong direction.
+    public static final String CORBA_SERVICE = "CORBABean";
 
     public static String JAXR_CONNECTION_FACTORY = "JAXRConnectionFactory";
 
