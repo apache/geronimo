@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.45 $ $Date: 2003/11/22 20:08:54 $ -->
+<!-- $Revision: 1.46 $ $Date: 2003/11/25 04:17:04 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -174,6 +174,10 @@
     <goal name="modules:javadoc">
         <modules:reactor goals="javadoc" aggregate="false"/>
     </goal>
+    
+    <goal name="modules:clover">
+        <modules:reactor goals="clover" aggregate="false"/>
+    </goal>
 
     <goal name="modules:clean">
         <modules:reactor goals="clean" aggregate="false"/>
@@ -206,6 +210,7 @@
     <goal name="default">
         <attainGoal name="modules:default"/>
     </goal>
+
 
     <!-- ========================= -->
     <!-- Module Output Aggregation -->
