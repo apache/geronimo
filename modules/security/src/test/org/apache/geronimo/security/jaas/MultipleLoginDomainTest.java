@@ -32,6 +32,8 @@ import org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal;
  */
 public class MultipleLoginDomainTest extends TestCase {
 
+    public void testDummy() throws Exception { }
+    
     /** this test demonstrates that naming login domains does not actually separate principals from different login domains.
      * The crucial line is commented out so as to avoid breaking the build.
      * @throws Exception
