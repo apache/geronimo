@@ -1,397 +1,207 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.24 $ $Date: 2003/12/13 22:12:29 $ -->
+<!-- $Revision: 1.25 $ $Date: 2004/01/24 20:36:52 $ -->
 
 <project default="default"
-  xmlns:j="jelly:core"
-  xmlns:u="jelly:util"
-  xmlns:ant="jelly:ant"
-  xmlns:maven="jelly:maven"
-  xmlns:define="jelly:define"
-  xmlns:xdoclet="common:xdoclet"
-  xmlns:castor="common:castor">
-  
-  <!-- ================= -->
-  <!-- Global Properties -->
-  <!-- ================= -->
-  
-  <!-- Determine what the top-level project root is -->
-  <j:set var="project.root" value="${pom.parentBasedir().getParentFile().getCanonicalFile()}"/>
-  
-  <!-- Load the global properties -->
-  <ant:property file="${project.root}/etc/global.properties"/>
-  
-  
-  <!-- ==================== -->
-  <!-- Default Global Goals -->
-  <!-- ==================== -->
-  
-  <goal name="default">
-    <attainGoal name="jar:install"/>
-  </goal>
-  
-  <goal name="build">
-    <attainGoal name="default"/>
-  </goal>
-  
-  <goal name="rebuild">
-    <attainGoal name="clean"/>
-    <attainGoal name="build"/>
-  </goal>
+    xmlns:j="jelly:core"
+    xmlns:u="jelly:util"
+    xmlns:ant="jelly:ant"
+    xmlns:maven="jelly:maven"
+    xmlns:define="jelly:define"
+    xmlns:xdoclet="common:xdoclet"
+    xmlns:castor="common:castor">
 
-  <!-- For testing -->
-  <goal name="hello">
-    <ant:echo>
-      H E L L O
-      ---------
-      Module Name: ${pom.name}
-    </ant:echo>
-  </goal>
-  
-  <!-- Remove classes which depend on changed files, so they will rebuild. -->
-  <preGoal name="java:compile">
-    <j:if test="${sourcesPresent}">
-      <ant:depend srcdir="${maven.compile.source}"
-                  destdir="${maven.build.dest}"
-                  dump="false"
-                  closure="false">
-        <j:forEach var="sm" items="${pom.build.sourceModifications}">
-          <ant:available property="classPresent" classname="${sm.className}"/>
-          <j:if test="${classPresent != 'true'}">
-            <j:forEach var="exclude" items="${sm.excludes}">
-              <ant:exclude name="${exclude}"/>
-            </j:forEach>
-            <j:forEach var="include" items="${sm.includes}">
-              <ant:include name="${include}"/>
-            </j:forEach>
-          </j:if>
-        </j:forEach>
-      </ant:depend>
-    </j:if>
-  </preGoal>
-  
-  <!-- Remove the log files -->
-  <goal name="clobber"
+    <!-- ================= -->
+    <!-- Global Properties -->
+    <!-- ================= -->
+
+    <!-- Determine what the top-level project root is -->
+    <j:set var="project.root" value="${pom.parentBasedir().getParentFile().getCanonicalFile()}"/>
+
+    <!-- Load the global properties -->
+    <ant:property file="${project.root}/etc/global.properties"/>
+
+
+    <!-- ==================== -->
+    <!-- Default Global Goals -->
+    <!-- ==================== -->
+
+    <goal name="default">
+        <attainGoal name="jar:install"/>
+    </goal>
+
+    <goal name="build">
+        <attainGoal name="default"/>
+    </goal>
+
+    <goal name="rebuild">
+        <attainGoal name="clean"/>
+        <attainGoal name="build"/>
+    </goal>
+
+    <!-- For testing -->
+    <goal name="hello">
+        <ant:echo>
+            H E L L O
+            ---------
+            Module Name: ${pom.name}
+        </ant:echo>
+    </goal>
+
+    <!-- Remove classes which depend on changed files, so they will rebuild. -->
+    <preGoal name="java:compile">
+        <j:if test="${sourcesPresent}">
+            <ant:depend srcdir="${maven.compile.source}"
+                destdir="${maven.build.dest}"
+                dump="false"
+                closure="false">
+                <j:forEach var="sm" items="${pom.build.sourceModifications}">
+                    <ant:available property="classPresent" classname="${sm.className}"/>
+                    <j:if test="${classPresent != 'true'}">
+                        <j:forEach var="exclude" items="${sm.excludes}">
+                            <ant:exclude name="${exclude}"/>
+                        </j:forEach>
+                        <j:forEach var="include" items="${sm.includes}">
+                            <ant:include name="${include}"/>
+                        </j:forEach>
+                    </j:if>
+                </j:forEach>
+            </ant:depend>
+        </j:if>
+    </preGoal>
+
+    <!-- Remove the log files -->
+    <goal name="clobber"
         description="Removes all (non-repository installed) build generated files">
-        
-    <!-- Let clean:clean do some work first -->
-    <attainGoal name="clean:clean"/>
-    
-    <j:jelly xmlns="jelly:ant">
-      <delete quiet="false" failonerror="false">
-        <fileset dir="${basedir}">
-          <include name="maven.log"/>
-          <include name="velocity.log*"/>
-          <include name="junit*.properties"/>
-        </fileset>
-      </delete>
-    </j:jelly>
-  
-  </goal>
-  
-  <!-- Cleanse source files -->
-  <goal name="cleanse-sources"
+
+        <!-- Let clean:clean do some work first -->
+        <attainGoal name="clean:clean"/>
+
+        <j:jelly xmlns="jelly:ant">
+            <delete quiet="false" failonerror="false">
+                <fileset dir="${basedir}">
+                    <include name="maven.log"/>
+                    <include name="velocity.log*"/>
+                    <include name="junit*.properties"/>
+                </fileset>
+            </delete>
+        </j:jelly>
+
+    </goal>
+
+    <!-- Cleanse source files -->
+    <goal name="cleanse-sources"
         description="Cleanse source files, removing tabs and translating CRLF -> LF">
-        
-    <j:scope xmlns="jelly:ant">
-      
-      <!-- Cleanse sources -->
-      <j:set var="srcdir" value="${basedir}/src/java"/>
-      <u:available file="">
-      <fixcrlf srcdir="${srcdir}" eol="lf" eof="remove" tab="remove" tablength="4">
-        <include name="**/*.java"/>
-      </fixcrlf>
-      <fixcrlf srcdir="${basedir}" eol="lf" eof="remove" tab="remove" tablength="2">
-        <include name="**/*.xml"/>
-        <include name="**/*.html"/>
-      </fixcrlf>
-      </u:available>
-      
-      <!-- Cleanse test sources -->
-      <j:set var="srcdir" value="${basedir}/src/test"/>
-      <u:available file="${srcdir}">
-        <fixcrlf srcdir="${srcdir}" eol="lf" eof="remove" tab="remove" tablength="4">
-          <include name="**/*.java"/>
-          <include name="**/*.xml"/>
-          <include name="**/*.html"/>
-        </fixcrlf>
-        <fixcrlf srcdir="${srcdir}" eol="lf" eof="remove" tab="remove" tablength="2">
-          <include name="**/*.xml"/>
-          <include name="**/*.html"/>
-        </fixcrlf>
-      </u:available>
-      
-      <!-- Cleanse xdocs -->
-      <j:set var="srcdir" value="${basedir}/src/xdocs"/>
-      <u:available file="${srcdir}">
-        <fixcrlf srcdir="${srcdir}" eol="lf" eof="remove" tab="remove" tablength="2">
-          <include name="**/*.xml"/>
-          <include name="**/*.html"/>
-        </fixcrlf>
-      </u:available>
-      
-      <!-- Cleanse build files -->
-      <fixcrlf srcdir="." eol="lf" tab="remove" eof="remove" tablength="2">
-        <include name="project.xml"/>
-        <include name="maven.xml"/>
-      </fixcrlf>
-      
-      <!-- Cleanse scripts -->
-      <j:set var="srcdir" value="${basedir}/src/bin"/>
-      <u:available file="${srcdir}">
-        <fixcrlf srcdir="${srcdir}" eol="lf" eof="remove" tab="remove" tablength="4">
-          <include name="**/*"/>
-        </fixcrlf>
-      </u:available>
-      
-    </j:scope>
-    
-  </goal>
-  
-  <preGoal name="clover:test">
-    <j:set var="cloveroverride" value="true"/>
-  </preGoal>
 
-  <!-- Check if the tests need to run -->
-  <preGoal name="test:test">
-    <j:if test="${context.getVariable('maven.test.force') == null}">
-      <j:if test="${cloveroverride != 'true'}">
-        <j:set var="uptodatePropName" value="tests.uptodate"/>
-        <j:remove var="${uptodatePropName}"/>
-        <ant:mkdir dir="${basedir}/target/test-reports/"/>
-        <j:set var="uptodateFile" value="${basedir}/target/test-reports/tstamp"/>
-      
-        <ant:uptodate property="${uptodatePropName}" targetfile="${uptodateFile}">
-          <ant:srcfiles dir="${basedir}/src/" includes="**/*"/>
-        </ant:uptodate>
-      
-        <j:if test="${context.getVariable(uptodatePropName) == 'true'}">
-          <ant:echo>NOTICE: Skipping tests; they seem to have passed already</ant:echo>
-          <j:set var="maven.test.skip" value="true"/>
-          <j:set var="unitTestSourcesPresent" value="false"/>
+        <j:scope xmlns="jelly:ant">
+
+            <!-- Cleanse sources -->
+            <j:set var="srcdir" value="${basedir}/src/java"/>
+            <u:available file="">
+                <fixcrlf srcdir="${srcdir}" eol="lf" eof="remove" tab="remove" tablength="4">
+                    <include name="**/*.java"/>
+                </fixcrlf>
+                <fixcrlf srcdir="${basedir}" eol="lf" eof="remove" tab="remove" tablength="2">
+                    <include name="**/*.xml"/>
+                    <include name="**/*.html"/>
+                </fixcrlf>
+            </u:available>
+
+            <!-- Cleanse test sources -->
+            <j:set var="srcdir" value="${basedir}/src/test"/>
+            <u:available file="${srcdir}">
+                <fixcrlf srcdir="${srcdir}" eol="lf" eof="remove" tab="remove" tablength="4">
+                    <include name="**/*.java"/>
+                    <include name="**/*.xml"/>
+                    <include name="**/*.html"/>
+                </fixcrlf>
+                <fixcrlf srcdir="${srcdir}" eol="lf" eof="remove" tab="remove" tablength="2">
+                    <include name="**/*.xml"/>
+                    <include name="**/*.html"/>
+                </fixcrlf>
+            </u:available>
+
+            <!-- Cleanse xdocs -->
+            <j:set var="srcdir" value="${basedir}/src/xdocs"/>
+            <u:available file="${srcdir}">
+                <fixcrlf srcdir="${srcdir}" eol="lf" eof="remove" tab="remove" tablength="2">
+                    <include name="**/*.xml"/>
+                    <include name="**/*.html"/>
+                </fixcrlf>
+            </u:available>
+
+            <!-- Cleanse build files -->
+            <fixcrlf srcdir="." eol="lf" tab="remove" eof="remove" tablength="2">
+                <include name="project.xml"/>
+                <include name="maven.xml"/>
+            </fixcrlf>
+
+            <!-- Cleanse scripts -->
+            <j:set var="srcdir" value="${basedir}/src/bin"/>
+            <u:available file="${srcdir}">
+                <fixcrlf srcdir="${srcdir}" eol="lf" eof="remove" tab="remove" tablength="4">
+                    <include name="**/*"/>
+                </fixcrlf>
+            </u:available>
+
+        </j:scope>
+
+    </goal>
+
+    <preGoal name="clover:test">
+        <j:set var="cloveroverride" value="true"/>
+    </preGoal>
+
+    <!-- Check if the tests need to run -->
+    <preGoal name="test:test">
+        <j:if test="${context.getVariable('maven.test.force') == null}">
+            <j:if test="${cloveroverride != 'true'}">
+                <j:set var="uptodatePropName" value="tests.uptodate"/>
+                <j:remove var="${uptodatePropName}"/>
+                <ant:mkdir dir="${basedir}/target/test-reports/"/>
+                <j:set var="uptodateFile" value="${basedir}/target/test-reports/tstamp"/>
+
+                <ant:uptodate property="${uptodatePropName}" targetfile="${uptodateFile}">
+                    <ant:srcfiles dir="${basedir}/src/" includes="**/*"/>
+                </ant:uptodate>
+
+                <j:if test="${context.getVariable(uptodatePropName) == 'true'}">
+                    <ant:echo>NOTICE: Skipping tests; they seem to have passed already</ant:echo>
+                    <j:set var="maven.test.skip" value="true"/>
+                    <j:set var="unitTestSourcesPresent" value="false"/>
+                </j:if>
+            </j:if>
         </j:if>
-      </j:if>
-    </j:if>
-  </preGoal>
-  
-  <!-- Update the timestamp of the last successful test -->
-  <postGoal name="test:test">
-    <j:if test="${context.getVariable('maven.test.failure') == null}">
-      <ant:touch file="${basedir}/target/test-reports/tstamp"/>
-    </j:if>
-  </postGoal>
-  
-  
-  <!-- =================== -->
-  <!-- XDoclet Integration -->
-  <!-- =================== -->
-  
-  <define:taglib uri="common:xdoclet">
-    
-    <define:tag name="jmxdoclet" xmlns="jelly:ant">
-      <j:if test="${srcdir == null}">
-        <fail>Missing required attribute: srcdir</fail>
-      </j:if>
-      <j:if test="${destdir == null}">
-        <fail>Missing required attribute: destdir</fail>
-      </j:if>
-      
-      <!-- Inlcude the generated sources in the Javac compile -->
-      <j:if test="${appendSet != null}">
-        <path id="xdoclet.jmx.compile.src.set" location="${destdir}"/>
-        <maven:addPath id="${appendSet}" refid="xdoclet.jmx.compile.src.set"/>
-      </j:if>
-      
-      <j:set var="uptodatePropName" value="xdoclet.jmx.uptodate"/>
-      <j:expr value="${context.setVariable(uptodatePropName, null)}"/>
-      <j:set var="uptodateFile" value="${destdir}/tstamp"/>
-      
-      <uptodate property="${uptodatePropName}"
-                targetfile="${uptodateFile}">
-        <srcfiles dir="${srcdir}" includes="**/*.java"/>
-      </uptodate>
+    </preGoal>
 
-      <j:if test="${context.getVariable(uptodatePropName) == null}">
-        <!-- Load the jmxdoclet task -->
-        <taskdef name="jmxdoclet" classname="xdoclet.modules.jmx.JMXDocletTask">
-          <classpath>
-            <path refid="maven.dependency.classpath"/>
-          </classpath>
-        </taskdef>
-        
-        <!-- Where sources will be generated -->
-        <mkdir dir="${destdir}"/>
-        
-        <echo>Generating MBean interfaces...</echo>
-	<!-- Generate MBean interfaces -->
-        <jmxdoclet destDir="${destdir}" verbose="false">
-          
-          <fileset dir="${srcdir}">
-            <include name="**/*.java"/>
-          </fileset>
-          
-          <mbeaninterface templateFile="${project.root}/etc/xdoclet/template/jmx/mbean.xdt"/>
-        </jmxdoclet>
-
-        <touch file="${uptodateFile}"/>
-      </j:if>
-      
-    </define:tag>
-    
-    <define:tag name="geronimodoclet" xmlns="jelly:ant">
-      <j:if test="${srcdir == null}">
-        <fail>Missing required attribute: srcdir</fail>
-      </j:if>
-      <j:if test="${destdir == null}">
-        <fail>Missing required attribute: destdir</fail>
-      </j:if>
-      
-      <!-- Inlcude the generated sources in the Javac compile -->
-      <j:if test="${appendSet != null}">
-        <path id="xdoclet.geronimo.compile.src.set" location="${destdir}"/>
-        <maven:addPath id="${appendSet}" refid="xdoclet.geronimo.compile.src.set"/>
-      </j:if>
-      
-      <j:set var="uptodatePropName" value="xdoclet.geronimo.uptodate"/>
-      <j:expr value="${context.setVariable(uptodatePropName, null)}"/>
-      <j:set var="uptodateFile" value="${destdir}/tstampGeronimoDoclet"/>
-      
-      <uptodate property="${uptodatePropName}"
-                targetfile="${uptodateFile}">
-        <srcfiles dir="${srcdir}" includes="**/*.java"/>
-      </uptodate>
-
-      <j:if test="${context.getVariable(uptodatePropName) == null}">
-	<!-- Load the geronimodoclet task -->
-        <taskdef name="geronimodoclet" classname="org.apache.geronimo.tools.xdoclet.GeronimoDocletTask">
-          <classpath>
-            <path refid="maven.dependency.classpath"/>
-          </classpath>
-        </taskdef>
-
-        <!-- Where sources will be generated -->
-        <mkdir dir="${destdir}"/>
-        
-        <echo>Generating GeronimoMBeanInfo XML...</echo>
-        <geronimodoclet destDir="${destdir}" verbose="false">
-          <fileset dir="${srcdir}">
-            <include name="**/*.java"/>
-          </fileset>
-          <mbeaninfo templateFile="${project.root}/etc/xdoclet/template/jmx/geronimo-mbeaninfo.xdt"/>
-        </geronimodoclet>
-
-        <touch file="${uptodateFile}"/>
-      </j:if>
-      
-    </define:tag>
-
-  </define:taglib>
-  
-  <goal name="xdoclet:jmxdoclet:compile">
-    <xdoclet:jmxdoclet
-      srcdir="${basedir}/src/java"
-      destdir="${basedir}/target/xdoclet/jmx"
-      appendSet="maven.compile.src.set"/>
-    <xdoclet:geronimodoclet
-      srcdir="${basedir}/src/java"
-      destdir="${basedir}/target/classes"
-      appendSet="maven.compile.src.set"/>
-  </goal>
-  
-  <goal name="xdoclet:jmxdoclet:test-compile">
-    <xdoclet:jmxdoclet
-      srcdir="${basedir}/src/test"
-      destdir="${basedir}/target/test-xdoclet/jmx"
-      appendSet="maven.test.compile.src.set"/>
-    <xdoclet:geronimodoclet
-      srcdir="${basedir}/src/test"
-      destdir="${basedir}/target/test-classes"
-      appendSet="maven.test.compile.src.set"/>
-  </goal>
-  
-  
-  <!-- ===================================== -->
-  <!-- Castor Integration (Plugin is Broken) -->
-  <!-- ===================================== -->
-  
-  <define:taglib uri="common:castor">
-    
-    <define:tag name="generate" xmlns="jelly:ant">
-      <j:if test="${schema == null}">
-        <fail>Missing required attribute: schema</fail>
-      </j:if>
-      <j:if test="${package == null}">
-        <fail>Missing required attribute: package</fail>
-      </j:if>
-      <!-- types can be null -->
-      <!-- marshal can be null -->
-      <!-- binding can be null -->
-      
-      <j:set var="maven.castor.dest" value="${basedir}/target/castor/gen"/>
-      <mkdir dir="${maven.castor.dest}"/>
-      
-      <path id="maven.castor.compile.src.set"
-            location="${maven.castor.dest}"/>
-      <maven:addPath id="maven.compile.src.set"
-                     refid="maven.castor.compile.src.set"/>
-      
-      <u:file var="schemaFile" name="${schema}"/>
-      <j:if test="${binding != null}">
-        <u:file var="bindingFile" name="${binding}"/>
-      </j:if>
-      <j:set var="uptodatePropName" value="castor.schema.${schemaFile.name}.uptodate"/>
-      <j:set var="uptodateFile" value="${basedir}/target/castor/${schemaFile.name}.tstamp"/>
-      
-      <uptodate property="${uptodatePropName}"
-                targetfile="${uptodateFile}">
-        <!-- Evil hack to make uptodate work when I do not have a known basedir -->
-        <srcfiles dir="${schemaFile.parentFile.path}" includes="${schemaFile.name}"/>
-        <j:if test="${binding != null}">
-          <srcfiles dir="${bindingFile.parentFile.path}" includes="${bindingFile.name}"/>
+    <!-- Update the timestamp of the last successful test -->
+    <postGoal name="test:test">
+        <j:if test="${context.getVariable('maven.test.failure') == null}">
+            <ant:touch file="${basedir}/target/test-reports/tstamp"/>
         </j:if>
-      </uptodate>
-      
-      <j:if test="${context.getVariable(uptodatePropName) != 'true'}">
-        <echo message="Generating sources for ${schema}"/>
-        
-        <path id="castor.classpath">
-          <path refid="maven.dependency.classpath"/>
-        </path>
-         
-        <java className="org.exolab.castor.builder.SourceGenerator"
-              failonerror="true"
-              fork="yes">
-          
-          <classpath refid="castor.classpath"/>
-          <arg value="-i"/>
-          <arg value="${schema}"/>
-          
-          <j:if test="${binding != null}">
-            <arg value="-binding-file"/>
-            <arg value="${binding}"/>
-          </j:if>
-          
-          <arg value="-package"/>
-          <arg value="${package}"/>
-          
-          <j:if test="${types != null}">
-            <arg value="-types"/>
-            <arg value="${types}"/>
-          </j:if>
-          
-          <j:if test="${marshal == 'false'}">
-            <arg value="-nomarshall"/>
-          </j:if>
-          
-          <arg value="-f"/>
-          <arg value="-dest"/>
-          <arg value="${maven.castor.dest}"/>
-        </java>
-        
-        <touch file="${uptodateFile}"/>
-      </j:if>
-      
-    </define:tag>
-  </define:taglib>
+    </postGoal>
 
+    <!-- generate packages ready to be deployed, if appropriate -->
+    <postGoal name="jar:jar">
+        <ant:available property="geronimoServicePresent" file="${basedir}/src/etc/META-INF/geronimo-service.xml"/>
+        <j:if test="${geronimoServicePresent == 'true'}">
+            <ant:jar destfile="${basedir}/target/${pom.artifactId}-package-${pom.currentVersion}.jar">
+                <fileset dir="${basedir}/target" includes="${pom.artifactId}-${pom.currentVersion}.jar"/>
+                <fileset dir="${basedir}/src/etc" includes="META-INF/geronimo-service.xml"/>
+            </ant:jar>
+        </j:if>
+    </postGoal>
+
+    <postGoal name="jar:install">
+        <ant:available property="geronimoPackagePresent" file="${basedir}/target/${pom.artifactId}-package-${pom.currentVersion}.jar"/>
+        <j:if test="${geronimoPackagePresent == 'true'}">
+        <ant:property name="jardir__" value="${maven.repo.local}/${pom.artifactDirectory}/jars"/>
+        <ant:mkdir dir="${jardir__}"/>
+        <ant:copy
+            file="${basedir}/target/${pom.artifactId}-package-${pom.currentVersion}.jar"
+            todir="${jardir__}"
+            overwrite="true"
+            />
+        </j:if>
+    </postGoal>
 </project>
