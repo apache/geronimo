@@ -17,9 +17,13 @@
 
 package org.apache.geronimo.connector.outbound;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
 import javax.resource.ResourceException;
 
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
 import org.apache.geronimo.transaction.ConnectionReleaser;
 import org.apache.geronimo.transaction.TransactionContext;
 
@@ -53,13 +57,25 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor, Con
 
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
         TransactionContext transactionContext = TransactionContext.getContext();
-        ManagedConnectionInfo managedConnectionInfo = (ManagedConnectionInfo)transactionContext.getManagedConnectionInfo(this);
-        if (managedConnectionInfo != null) {
-            connectionInfo.setManagedConnectionInfo(managedConnectionInfo);
-            return;
+        ManagedConnectionInfos managedConnectionInfos = (ManagedConnectionInfos) transactionContext.getManagedConnectionInfo(this);
+        if (managedConnectionInfos == null) {
+            managedConnectionInfos = new ManagedConnectionInfos();
+            transactionContext.setManagedConnectionInfo(this, managedConnectionInfos);
+        }
+        if (connectionInfo.isUnshareable()) {
+            if (!managedConnectionInfos.containsUnshared(connectionInfo.getManagedConnectionInfo())) {
+                next.getConnection(connectionInfo);
+                managedConnectionInfos.addUnshared(connectionInfo.getManagedConnectionInfo());
+            }
         } else {
-            next.getConnection(connectionInfo);
-            transactionContext.setManagedConnectionInfo(this, connectionInfo.getManagedConnectionInfo());
+            ManagedConnectionInfo managedConnectionInfo = managedConnectionInfos.getShared();
+            if (managedConnectionInfo != null) {
+                connectionInfo.setManagedConnectionInfo(managedConnectionInfo);
+                return;
+            } else {
+                next.getConnection(connectionInfo);
+                managedConnectionInfos.setShared(connectionInfo.getManagedConnectionInfo());
+            }
         }
     }
 
@@ -80,10 +96,50 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor, Con
         next.returnConnection(connectionInfo, connectionReturnAction);
     }
 
-    public void afterCompletion(Object managedConnectionInfo) {
+    public void afterCompletion(Object stuff) {
+        ManagedConnectionInfos managedConnectionInfos = (ManagedConnectionInfos)stuff;
+        ManagedConnectionInfo sharedMCI = managedConnectionInfos.getShared();
+        if (sharedMCI != null) {
+            returnHandle(sharedMCI);
+        }
+        for (Iterator iterator = managedConnectionInfos.getUnshared().iterator(); iterator.hasNext();) {
+            ManagedConnectionInfo managedConnectionInfo = (ManagedConnectionInfo) iterator.next();
+            returnHandle(managedConnectionInfo);
+        }
+    }
+
+    private void returnHandle(ManagedConnectionInfo managedConnectionInfo) {
         ConnectionInfo connectionInfo = new ConnectionInfo();
-        connectionInfo.setManagedConnectionInfo((ManagedConnectionInfo)managedConnectionInfo);
+        connectionInfo.setManagedConnectionInfo(managedConnectionInfo);
         returnConnection(connectionInfo, ConnectionReturnAction.RETURN_HANDLE);
+    }
+
+    static class ManagedConnectionInfos {
+        private ManagedConnectionInfo shared;
+        private Set unshared = Collections.EMPTY_SET;
+
+        public ManagedConnectionInfo getShared() {
+            return shared;
+        }
+
+        public void setShared(ManagedConnectionInfo shared) {
+            this.shared = shared;
+        }
+
+        public Set getUnshared() {
+            return unshared;
+        }
+
+        public void addUnshared(ManagedConnectionInfo unsharedMCI) {
+            if (this.unshared == Collections.EMPTY_SET) {
+                this.unshared = new HashSet();
+            }
+            this.unshared.add(unsharedMCI);
+        }
+
+        public boolean containsUnshared(ManagedConnectionInfo unsharedMCI) {
+            return this.unshared.contains(unsharedMCI);
+        }
     }
 
 }

@@ -24,7 +24,7 @@ import javax.resource.ResourceException;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/04/22 17:02:16 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/24 19:10:34 $
  *
  * */
 public class ThreadLocalCachingConnectionInterceptor implements ConnectionInterceptor {
@@ -41,6 +41,10 @@ public class ThreadLocalCachingConnectionInterceptor implements ConnectionInterc
 
 
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
+        if (connectionInfo.isUnshareable()) {
+            next.getConnection(connectionInfo);
+            return;
+        }
         ManagedConnectionInfo managedConnectionInfo = (ManagedConnectionInfo) connections.get();
         if (managedConnectionInfo != null) {
             if (matchConnections) {
@@ -68,7 +72,7 @@ public class ThreadLocalCachingConnectionInterceptor implements ConnectionInterc
     }
 
     public void returnConnection(ConnectionInfo connectionInfo, ConnectionReturnAction connectionReturnAction) {
-        if (connectionReturnAction == ConnectionReturnAction.DESTROY) {
+        if (connectionReturnAction == ConnectionReturnAction.DESTROY || connectionInfo.isUnshareable()) {
             next.returnConnection(connectionInfo, connectionReturnAction);
         }
     }

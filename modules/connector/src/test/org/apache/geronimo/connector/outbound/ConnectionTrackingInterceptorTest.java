@@ -19,17 +19,16 @@ package org.apache.geronimo.connector.outbound;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
+
 import javax.resource.ResourceException;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
-import org.apache.geronimo.transaction.TransactionContext;
 
 /**
  * TODO test unshareable resources.
  * TODO test repeat calls with null/non-null Subject
  *
- * @version $Revision: 1.6 $ $Date: 2004/04/20 18:29:39 $
+ * @version $Revision: 1.7 $ $Date: 2004/05/24 19:10:35 $
  *
  * */
 public class ConnectionTrackingInterceptorTest extends ConnectionInterceptorTestUtils
@@ -46,11 +45,10 @@ public class ConnectionTrackingInterceptorTest extends ConnectionInterceptorTest
     private ConnectionInfo releasedTrackedConnectionInfo;
 
     private Collection connectionInfos;
-    private Set unshareable;
 
     protected void setUp() throws Exception {
         super.setUp();
-        connectionTrackingInterceptor = new ConnectionTrackingInterceptor(this, key, this, this);
+        connectionTrackingInterceptor = new ConnectionTrackingInterceptor(this, key, this);
     }
 
     protected void tearDown() throws Exception {
@@ -79,14 +77,6 @@ public class ConnectionTrackingInterceptorTest extends ConnectionInterceptorTest
 
     }
 
-
-    public void testEnterWithNullSubject() throws Exception {
-        getConnectionAndReenter();
-        //expect no re-association
-        assertTrue("Expected no connection asked for", obtainedConnectionInfo == null);
-        assertTrue("Expected no connection returned", returnedConnectionInfo == null);
-    }
-
     private void getConnectionAndReenter() throws ResourceException {
         ConnectionInfo connectionInfo = makeConnectionInfo();
         connectionTrackingInterceptor.getConnection(connectionInfo);
@@ -94,8 +84,7 @@ public class ConnectionTrackingInterceptorTest extends ConnectionInterceptorTest
         obtainedConnectionInfo = null;
         connectionInfos = new HashSet();
         connectionInfos.add(connectionInfo);
-        unshareable = new HashSet();
-        connectionTrackingInterceptor.enter(connectionInfos, unshareable);
+        connectionTrackingInterceptor.enter(connectionInfos);
     }
 
     public void testEnterWithSameSubject() throws Exception {
@@ -109,7 +98,7 @@ public class ConnectionTrackingInterceptorTest extends ConnectionInterceptorTest
     public void testEnterWithChangedSubject() throws Exception {
         testEnterWithSameSubject();
         makeSubject("bar");
-        connectionTrackingInterceptor.enter(connectionInfos, unshareable);
+        connectionTrackingInterceptor.enter(connectionInfos);
         //expect re-association
         assertTrue("Expected connection asked for", obtainedConnectionInfo != null);
         //connection is returned by SubjectInterceptor
@@ -119,7 +108,7 @@ public class ConnectionTrackingInterceptorTest extends ConnectionInterceptorTest
     public void testExitWithNonDissociatableConnection() throws Exception {
         managedConnection = new TestPlainManagedConnection();
         testEnterWithSameSubject();
-        connectionTrackingInterceptor.exit(connectionInfos, unshareable);
+        connectionTrackingInterceptor.exit(connectionInfos);
         assertTrue("Expected no connection returned", returnedConnectionInfo == null);
         assertEquals("Expected one info in connectionInfos", connectionInfos.size(), 1);
     }
@@ -128,7 +117,7 @@ public class ConnectionTrackingInterceptorTest extends ConnectionInterceptorTest
         managedConnection = new TestDissociatableManagedConnection();
         testEnterWithSameSubject();
         assertEquals("Expected one info in connectionInfos", 1, connectionInfos.size());
-        connectionTrackingInterceptor.exit(connectionInfos, unshareable);
+        connectionTrackingInterceptor.exit(connectionInfos);
         assertTrue("Expected connection returned", returnedConnectionInfo != null);
         assertEquals("Expected no infos in connectionInfos", 0, connectionInfos.size());
     }
@@ -148,8 +137,8 @@ public class ConnectionTrackingInterceptorTest extends ConnectionInterceptorTest
         releasedTrackedConnectionInfo = connectionInfo;
     }
 
-    public TransactionContext getTransactionContext() {
-        return null;
+    public void setEnvironment(ConnectionInfo connectionInfo, String key) {
+        //unsharable = false, app security = false;
     }
 
     //ConnectionInterceptor interface

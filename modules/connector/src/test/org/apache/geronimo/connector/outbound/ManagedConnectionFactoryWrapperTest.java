@@ -35,9 +35,11 @@ import junit.framework.TestCase;
 import org.apache.geronimo.connector.mock.MockConnection;
 import org.apache.geronimo.connector.mock.MockConnectionFactory;
 import org.apache.geronimo.connector.mock.MockManagedConnectionFactory;
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
-import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoTransactions;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoPool;
+import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoTransactions;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.deployment.RefAdapter;
@@ -49,7 +51,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/06 03:59:56 $
+ * @version $Revision: 1.3 $ $Date: 2004/05/24 19:10:35 $
  *
  * */
 public class ManagedConnectionFactoryWrapperTest extends TestCase {
@@ -181,7 +183,7 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
     protected void setUp() throws Exception {
         kernel = new Kernel(KERNEL_NAME, "test.domain");
         kernel.boot();
-        GBeanMBean ctc = new GBeanMBean(ConnectionTrackingCoordinator.getGBeanInfo());
+        GBeanMBean ctc = new GBeanMBean(MockConnectionTrackingCoordinator.getGBeanInfo());
         ctcName = ObjectName.getInstance("test:role=ConnectionTrackingCoordinator");
         kernel.loadGBean(ctcName, ctc);
         GBeanMBean cmf = new GBeanMBean(GenericConnectionManager.getGBeanInfo());
@@ -216,5 +218,32 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
     protected void tearDown() throws Exception {
         kernel.stopGBean(selfName);
         kernel.shutdown();
+    }
+
+    public static class MockConnectionTrackingCoordinator implements ConnectionTracker {
+        public void handleObtained(
+                ConnectionTrackingInterceptor connectionTrackingInterceptor,
+                ConnectionInfo connectionInfo) {
+        }
+
+        public void handleReleased(
+                ConnectionTrackingInterceptor connectionTrackingInterceptor,
+                ConnectionInfo connectionInfo) {
+        }
+
+        public void setEnvironment(ConnectionInfo connectionInfo, String key) {
+        }
+
+        static final GBeanInfo GBEAN_INFO;
+
+        static {
+            GBeanInfoFactory infoFactory = new GBeanInfoFactory(MockConnectionTrackingCoordinator.class);
+            infoFactory.addInterface(ConnectionTracker.class);
+            GBEAN_INFO = infoFactory.getBeanInfo();
+        }
+
+        public static GBeanInfo getGBeanInfo() {
+            return GBEAN_INFO;
+        }
     }
 }

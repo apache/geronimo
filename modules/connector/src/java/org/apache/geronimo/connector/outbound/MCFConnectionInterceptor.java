@@ -24,7 +24,7 @@ import javax.resource.spi.ManagedConnection;
  * MCFConnectionInterceptor.java
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/05/06 03:58:22 $
+ * @version $Revision: 1.6 $ $Date: 2004/05/24 19:10:34 $
  */
 public class MCFConnectionInterceptor implements ConnectionInterceptor {
 
@@ -35,6 +35,9 @@ public class MCFConnectionInterceptor implements ConnectionInterceptor {
 
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
         ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
+        if (mci.getManagedConnection() != null) {
+            return;
+        }
         ManagedConnection mc =
                 mci.getManagedConnectionFactory().createManagedConnection(
                         mci.getSubject(),

@@ -29,6 +29,8 @@ public class ConnectionInfo {
 
     private ManagedConnectionInfo mci;
     private Object connection;
+    private boolean unshareable;
+    private boolean applicationManagedSecurity;
     private Exception trace;
 
     public ConnectionInfo() {
@@ -71,6 +73,22 @@ public class ConnectionInfo {
         this.connection = connection;
     }
 
+    public boolean isUnshareable() {
+        return unshareable;
+    }
+
+    public void setUnshareable(boolean unshareable) {
+        this.unshareable = unshareable;
+    }
+
+    public boolean isApplicationManagedSecurity() {
+        return applicationManagedSecurity;
+    }
+
+    public void setApplicationManagedSecurity(boolean applicationManagedSecurity) {
+        this.applicationManagedSecurity = applicationManagedSecurity;
+    }
+
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
@@ -95,5 +113,7 @@ public class ConnectionInfo {
     public Exception getTrace() {
         return trace;
     }
+
+
 
 } // ConnectionInfo

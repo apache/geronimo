@@ -46,7 +46,7 @@ import org.apache.geronimo.transaction.UserTransactionImpl;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/05/06 03:59:56 $
+ * @version $Revision: 1.9 $ $Date: 2004/05/24 19:10:35 $
  *
  * */
 public class ConnectionManagerTestUtils extends TestCase implements DefaultInterceptor, RealmBridge {
@@ -72,11 +72,21 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
     protected DefaultComponentContext defaultComponentContext;
     protected DefaultComponentInterceptor defaultComponentInterceptor;
     protected Set unshareableResources = new HashSet();
+    protected Set applicationManagedSecurityResources = new HashSet();
     protected MockManagedConnection mockManagedConnection;
     protected Subject subject;
     protected UserTransactionImpl userTransaction;
     protected TransactionSupport transactionSupport = new XATransactions(useTransactionCaching, useThreadCaching);
     protected PoolingSupport poolingSupport = new PartitionedPool(useConnectionRequestInfo, useSubject, maxSize, blockingTimeout, matchOne, matchAll, selectOneNoMatch);
+
+    protected DefaultInterceptor mockComponent = new DefaultInterceptor() {
+        public Object invoke(InstanceContext newInstanceContext) throws Throwable {
+            MockConnection mockConnection = (MockConnection) connectionFactory.getConnection();
+            mockManagedConnection = mockConnection.getManagedConnection();
+            mockConnection.close();
+            return null;
+        }
+    };
 
     protected void setUp() throws Exception {
         connectionTrackingCoordinator = new ConnectionTrackingCoordinator();
@@ -93,7 +103,7 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
         connectionManagerDeployment.doStart();
         connectionFactory = (MockConnectionFactory) connectionManagerDeployment.createConnectionFactory(mockManagedConnectionFactory);
         defaultComponentContext = new DefaultComponentContext();
-        defaultComponentInterceptor = new DefaultComponentInterceptor(this, connectionTrackingCoordinator, unshareableResources);
+        defaultComponentInterceptor = new DefaultComponentInterceptor(this, connectionTrackingCoordinator, unshareableResources, applicationManagedSecurityResources);
     }
 
     protected void tearDown() throws Exception {
@@ -105,22 +115,12 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
         defaultComponentContext = null;
     }
 
-    public Object invoke(InstanceContext newInstanceContext) throws Throwable {
-        MockConnection mockConnection = (MockConnection) connectionFactory.getConnection();
-        mockManagedConnection = mockConnection.getManagedConnection();
-        if (userTransaction != null) {
-            userTransaction.begin();
-            MockXAResource mockXAResource = (MockXAResource) mockManagedConnection.getXAResource();
-            assertEquals("XAResource should know one xid", 1, mockXAResource.getKnownXids().size());
-            assertNull("Should not be committed", mockXAResource.getCommitted());
-            userTransaction.commit();
-            assertNotNull("Should be committed", mockXAResource.getCommitted());
-        }
-        mockConnection.close();
-        return null;
-    }
 
     public Subject mapSubject(Subject sourceSubject) {
         return subject;
+    }
+
+    public Object invoke(InstanceContext newInstanceContext) throws Throwable {
+        return mockComponent.invoke(newInstanceContext);
     }
 }

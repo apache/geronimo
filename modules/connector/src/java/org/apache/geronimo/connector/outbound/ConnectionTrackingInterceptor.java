@@ -24,12 +24,8 @@ import java.util.Set;
 import javax.resource.ResourceException;
 import javax.resource.spi.DissociatableManagedConnection;
 import javax.resource.spi.ManagedConnection;
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginException;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
-import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.bridge.RealmBridge;
 
 /**
  * ConnectionTrackingInterceptor.java handles communication with the
@@ -39,28 +35,26 @@ import org.apache.geronimo.security.bridge.RealmBridge;
  * a connection the CachedConnectionManager is notified.
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/04/22 17:03:28 $
+ * @version $Revision: 1.9 $ $Date: 2004/05/24 19:10:34 $
  */
 public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
 
     private final ConnectionInterceptor next;
     private final String key;
     private final ConnectionTracker connectionTracker;
-    private final RealmBridge realmBridge;
 
     public ConnectionTrackingInterceptor(
             final ConnectionInterceptor next,
             final String key,
-            final ConnectionTracker connectionTracker,
-            final RealmBridge realmBridge) {
+            final ConnectionTracker connectionTracker
+            ) {
         this.next = next;
         this.key = key;
         this.connectionTracker = connectionTracker;
-        this.realmBridge = realmBridge;
     }
 
     /**
-     * called by: ProxyConnectionManager.allocateConnection, ProxyConnectionManager.associateConnection, and enter.
+     * called by: GenericConnectionManager.allocateConnection, GenericConnectionManager.associateConnection, and enter.
      * in: connectionInfo is non-null, and has non-null ManagedConnectionInfo with non-null managedConnectionfactory.
      * connection handle may or may not be null.
      * out: connectionInfo has non-null connection handle, non null ManagedConnectionInfo with non-null ManagedConnection and GeronimoConnectionEventListener.
@@ -69,6 +63,7 @@ public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
      * @throws ResourceException
      */
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
+        connectionTracker.setEnvironment(connectionInfo, key);
         next.getConnection(connectionInfo);
         connectionTracker.handleObtained(this, connectionInfo);
     }
@@ -88,32 +83,8 @@ public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
         next.returnConnection(connectionInfo, connectionReturnAction);
     }
 
-    public void enter(Collection connectionInfos, Set unshareable)
+    public void enter(Collection connectionInfos)
             throws ResourceException {
-        if (unshareable.contains(key)) {
-            //should probably check to see if subjects are consistent,
-            //and if not raise an exception.  Also need to check if
-            //the spec says anything about this.
-            //this is wrong
-        }
-        if (realmBridge == null) {
-            return;    //this is wrong: need a "bouncing" subjectInterceptor
-        }
-
-        Subject currentSubject = null;
-        try {
-            currentSubject = realmBridge.mapSubject(ContextManager.getCurrentCaller());
-        } catch (SecurityException e) {
-            throw new ResourceException("Can not obtain Subject for login", e);
-        } catch (LoginException e) {
-            throw new ResourceException("Can not obtain Subject for login", e);
-        }
-        //TODO figure out which is right here
-        //assert currentSubject != null;
-        if (currentSubject == null) {
-            //check to see if mci.getSubject() is null?
-            return;
-        }
         for (Iterator i = connectionInfos.iterator(); i.hasNext();) {
             ConnectionInfo connectionInfo = (ConnectionInfo) i.next();
             next.getConnection(connectionInfo);
@@ -121,13 +92,14 @@ public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
 
     }
 
-    public void exit(Collection connectionInfos, Set unshareableResources)
+    public void exit(Collection connectionInfos)
             throws ResourceException {
-        if (unshareableResources.contains(key)) {
-            return;
-        }
         for (Iterator i = connectionInfos.iterator(); i.hasNext();) {
             ConnectionInfo connectionInfo = (ConnectionInfo) i.next();
+            if (connectionInfo.isUnshareable()) {
+                //if one is, they all are
+                return;
+            }
             ManagedConnectionInfo managedConnectionInfo = connectionInfo.getManagedConnectionInfo();
             ManagedConnection managedConnection = managedConnectionInfo.getManagedConnection();
             if (managedConnection instanceof DissociatableManagedConnection

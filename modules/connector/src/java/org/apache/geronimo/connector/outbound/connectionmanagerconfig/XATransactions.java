@@ -21,11 +21,12 @@ import org.apache.geronimo.connector.outbound.ConnectionInterceptor;
 import org.apache.geronimo.connector.outbound.XAResourceInsertionInterceptor;
 import org.apache.geronimo.connector.outbound.TransactionEnlistingInterceptor;
 import org.apache.geronimo.connector.outbound.TransactionCachingInterceptor;
+import org.apache.geronimo.connector.outbound.ThreadLocalCachingConnectionInterceptor;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/06 03:58:22 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/24 19:10:34 $
  *
  * */
 public class XATransactions extends TransactionSupport {
@@ -58,6 +59,11 @@ public class XATransactions extends TransactionSupport {
     }
 
     public ConnectionInterceptor addTransactionInterceptors(ConnectionInterceptor stack) {
+        //experimental thread local caching
+        if (isUseThreadCaching()) {
+            //useMatching should be configurable
+            stack = new ThreadLocalCachingConnectionInterceptor(stack, false);
+        }
         stack = new TransactionEnlistingInterceptor(stack);
         if (isUseTransactionCaching()) {
             stack = new TransactionCachingInterceptor(stack);

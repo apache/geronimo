@@ -45,7 +45,7 @@ import org.apache.geronimo.transaction.TrackedConnectionAssociator;
  * ConnectionManager stacks so the existing ManagedConnections can be
  * enrolled properly.
  *
- * @version $Revision: 1.7 $ $Date: 2004/04/07 06:53:26 $
+ * @version $Revision: 1.8 $ $Date: 2004/05/24 19:10:34 $
  */
 public class ConnectionTrackingCoordinator implements TrackedConnectionAssociator, ConnectionTracker {
 
@@ -53,51 +53,53 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
 
     private final ThreadLocal currentInstanceContexts = new ThreadLocal();
     private final ThreadLocal currentUnshareableResources = new ThreadLocal();
+    private final ThreadLocal currentApplicationManagedSecurityResources = new ThreadLocal();
 
-    public TrackedConnectionAssociator.ConnectorContextInfo enter(InstanceContext newInstanceContext, Set newUnshareableResources)
+    public TrackedConnectionAssociator.ConnectorContextInfo enter(InstanceContext newInstanceContext, Set newUnshareableResources, Set applicationManagedSecurityResources)
             throws ResourceException {
         InstanceContext oldInstanceContext = (InstanceContext) currentInstanceContexts.get();
-        Set oldUnshareableResources = (Set)currentUnshareableResources.get();
-        notifyConnections(newInstanceContext, newUnshareableResources);
+        Set oldUnshareableResources = (Set) currentUnshareableResources.get();
+        Set oldApplicationManagedSecurityResources = (Set) currentApplicationManagedSecurityResources.get();
         currentInstanceContexts.set(newInstanceContext);
         currentUnshareableResources.set(newUnshareableResources);
-        return new TrackedConnectionAssociator.ConnectorContextInfo(oldInstanceContext, oldUnshareableResources);
+        currentApplicationManagedSecurityResources.set(applicationManagedSecurityResources);
+        notifyConnections(newInstanceContext);
+        return new TrackedConnectionAssociator.ConnectorContextInfo(oldInstanceContext, oldUnshareableResources, oldApplicationManagedSecurityResources);
     }
 
-    private void notifyConnections(InstanceContext oldInstanceContext, Set newUnshareableResources) throws ResourceException {
+    private void notifyConnections(InstanceContext oldInstanceContext) throws ResourceException {
         Map connectionManagerToManagedConnectionInfoMap = oldInstanceContext.getConnectionManagerMap();
         for (Iterator i = connectionManagerToManagedConnectionInfoMap.entrySet().iterator(); i.hasNext();) {
             Map.Entry entry = (Map.Entry) i.next();
             ConnectionTrackingInterceptor mcci =
                     (ConnectionTrackingInterceptor) entry.getKey();
             Set connections = (Set) entry.getValue();
-            mcci.enter(connections, newUnshareableResources);
+            mcci.enter(connections);
         }
     }
 
     public void newTransaction() throws ResourceException {
         InstanceContext oldInstanceContext = (InstanceContext) currentInstanceContexts.get();
-        Set oldUnshareableResources = (Set)currentUnshareableResources.get();
-        notifyConnections(oldInstanceContext, oldUnshareableResources);
+        notifyConnections(oldInstanceContext);
     }
 
     public void exit(ConnectorContextInfo reenteringConnectorContext)
             throws ResourceException {
         InstanceContext oldInstanceContext = (InstanceContext) currentInstanceContexts.get();
-        Set oldUnshareableResources = (Set)currentUnshareableResources.get();
         Map resources = oldInstanceContext.getConnectionManagerMap();
         for (Iterator i = resources.entrySet().iterator(); i.hasNext();) {
             Map.Entry entry = (Map.Entry) i.next();
             ConnectionTrackingInterceptor mcci =
                     (ConnectionTrackingInterceptor) entry.getKey();
             Set connections = (Set) entry.getValue();
-            mcci.exit(connections, oldUnshareableResources);
+            mcci.exit(connections);
             if (connections.isEmpty()) {
                 i.remove();
             }
         }
         currentInstanceContexts.set(reenteringConnectorContext.getInstanceContext());
         currentUnshareableResources.set(reenteringConnectorContext.getUnshareableResources());
+        currentApplicationManagedSecurityResources.set(reenteringConnectorContext.getApplicationManagedSecurityResources());
     }
 
 
@@ -128,6 +130,15 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
         Set infos = (Set) resources.get(connectionTrackingInterceptor);
         //It's not at all clear that an equal ci will be supplied here
         infos.remove(connectionInfo);
+    }
+
+    public void setEnvironment(ConnectionInfo connectionInfo, String key) {
+        Set unshareableResources = (Set) currentUnshareableResources.get();
+        boolean unshareable = unshareableResources.contains(key);
+        connectionInfo.setUnshareable(unshareable);
+        Set applicationManagedSecurityResources = (Set) currentApplicationManagedSecurityResources.get();
+        boolean applicationManagedSecurity = applicationManagedSecurityResources.contains(key);
+        connectionInfo.setApplicationManagedSecurity(applicationManagedSecurity);
     }
 
     static {

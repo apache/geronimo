@@ -31,7 +31,7 @@ import org.apache.geronimo.security.bridge.RealmBridge;
  * GenericConnectionManager sets up a connection manager stack according to the
  *  policies described in the attributes.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/06 03:58:22 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/24 19:10:34 $
  * */
 public class GenericConnectionManager extends AbstractConnectionManager {
 
@@ -87,21 +87,23 @@ public class GenericConnectionManager extends AbstractConnectionManager {
         stack = transactionSupport.addXAResourceInsertionInterceptor(stack);
         stack = pooling.addPoolingInterceptors(stack);
         //experimental threadlocal caching
-        if (transactionSupport instanceof XATransactions && ((XATransactions)transactionSupport).isUseThreadCaching()) {
-            stack = new ThreadLocalCachingConnectionInterceptor(stack, false);
-        }
+        //moved to XATransactions
+//        if (transactionSupport instanceof XATransactions && ((XATransactions)transactionSupport).isUseThreadCaching()) {
+//            stack = new ThreadLocalCachingConnectionInterceptor(stack, false);
+//        }
+        stack = transactionSupport.addTransactionInterceptors(stack);
+
         if (realmBridge != null) {
             stack = new SubjectInterceptor(stack, realmBridge);
         }
-        stack = transactionSupport.addTransactionInterceptors(stack);
 
         stack = new ConnectionHandleInterceptor(stack);
         if (connectionTracker != null) {
             stack = new ConnectionTrackingInterceptor(
                     stack,
                     getName(),
-                    connectionTracker,
-                    realmBridge);
+                    connectionTracker
+            );
         }
         tail.setStack(stack);
         this.stack = stack;

@@ -22,23 +22,25 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.security.auth.Subject;
+import javax.resource.ResourceException;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.connector.outbound.ConnectionInfo;
 import org.apache.geronimo.connector.outbound.ConnectionTrackingInterceptor;
 import org.apache.geronimo.connector.outbound.ManagedConnectionInfo;
+import org.apache.geronimo.connector.outbound.ConnectionInterceptor;
+import org.apache.geronimo.connector.outbound.ConnectionReturnAction;
 import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultComponentContext;
-import org.apache.geronimo.security.bridge.RealmBridge;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/04/06 00:21:20 $
+ * @version $Revision: 1.6 $ $Date: 2004/05/24 19:10:35 $
  *
  * */
 public class ConnectionTrackingCoordinatorTest extends TestCase
-        implements RealmBridge {
+        implements ConnectionInterceptor {
 
     private static final String name1 = "foo";
     private static final String name2 = "bar";
@@ -47,12 +49,14 @@ public class ConnectionTrackingCoordinatorTest extends TestCase
     private ConnectionTrackingInterceptor key2;
     private Subject subject = null;
     private Set unshareableResources;
+    private Set applicationManagedSecurityResources;
 
     protected void setUp() throws Exception {
         connectionTrackingCoordinator = new ConnectionTrackingCoordinator();
-        key1 = new ConnectionTrackingInterceptor(null, name1, connectionTrackingCoordinator, this);
-        key2 = new ConnectionTrackingInterceptor(null, name2, connectionTrackingCoordinator, this);
+        key1 = new ConnectionTrackingInterceptor(this, name1, connectionTrackingCoordinator);
+        key2 = new ConnectionTrackingInterceptor(this, name2, connectionTrackingCoordinator);
         unshareableResources = new HashSet();
+        applicationManagedSecurityResources = new HashSet();
     }
 
     protected void tearDown() throws Exception {
@@ -63,7 +67,7 @@ public class ConnectionTrackingCoordinatorTest extends TestCase
 
     public void testSimpleComponentContextLifecyle() throws Exception {
         DefaultComponentContext componentContext = new DefaultComponentContext();
-        TrackedConnectionAssociator.ConnectorContextInfo connectorContext = connectionTrackingCoordinator.enter(componentContext, unshareableResources);
+        TrackedConnectionAssociator.ConnectorContextInfo connectorContext = connectionTrackingCoordinator.enter(componentContext, unshareableResources, applicationManagedSecurityResources);
         assertNull("Expected old component context to be null", connectorContext.getInstanceContext());
         //give the context a ConnectionInfo
         ManagedConnectionInfo managedConnectionInfo = new ManagedConnectionInfo(null, null);
@@ -76,7 +80,7 @@ public class ConnectionTrackingCoordinatorTest extends TestCase
         assertTrue("Expected to get supplied ConnectionInfo from infos", connectionInfo == infos.iterator().next());
 
         //Enter again, and close the handle
-        connectorContext = connectionTrackingCoordinator.enter(componentContext, unshareableResources);
+        connectorContext = connectionTrackingCoordinator.enter(componentContext, unshareableResources, applicationManagedSecurityResources);
         assertNull("Expected old component context to be null", connectorContext.getInstanceContext());
         connectionTrackingCoordinator.handleReleased(key1, connectionInfo);
         connectionTrackingCoordinator.exit(connectorContext);
@@ -87,7 +91,7 @@ public class ConnectionTrackingCoordinatorTest extends TestCase
 
     public void testNestedComponentContextLifecyle() throws Exception {
         DefaultComponentContext componentContext1 = new DefaultComponentContext();
-        TrackedConnectionAssociator.ConnectorContextInfo oldConnectorContext1 = connectionTrackingCoordinator.enter(componentContext1, unshareableResources);
+        TrackedConnectionAssociator.ConnectorContextInfo oldConnectorContext1 = connectionTrackingCoordinator.enter(componentContext1, unshareableResources, applicationManagedSecurityResources);
         assertNull("Expected old component context to be null", oldConnectorContext1.getInstanceContext());
         //give the context a ConnectionInfo
         ManagedConnectionInfo managedConnectionInfo1 = new ManagedConnectionInfo(null, null);
@@ -96,7 +100,7 @@ public class ConnectionTrackingCoordinatorTest extends TestCase
 
         //Simulate calling another component
         DefaultComponentContext componentContext2 = new DefaultComponentContext();
-        TrackedConnectionAssociator.ConnectorContextInfo oldConnectorContext2 = connectionTrackingCoordinator.enter(componentContext2, unshareableResources);
+        TrackedConnectionAssociator.ConnectorContextInfo oldConnectorContext2 = connectionTrackingCoordinator.enter(componentContext2, unshareableResources, applicationManagedSecurityResources);
         assertTrue("Expected returned component context to be componentContext1", oldConnectorContext2.getInstanceContext() == componentContext1);
         //give the context a ConnectionInfo
         ManagedConnectionInfo managedConnectionInfo2 = new ManagedConnectionInfo(null, null);
@@ -119,7 +123,7 @@ public class ConnectionTrackingCoordinatorTest extends TestCase
         assertEquals("Expected no connection for key2", null, connectionManagerMap1.get(key2));
 
         //Enter again, and close the handle
-        oldConnectorContext1 = connectionTrackingCoordinator.enter(componentContext1, unshareableResources);
+        oldConnectorContext1 = connectionTrackingCoordinator.enter(componentContext1, unshareableResources, applicationManagedSecurityResources);
         assertNull("Expected old component context to be null", oldConnectorContext1.getInstanceContext());
         connectionTrackingCoordinator.handleReleased(key1, connectionInfo1);
         connectionTrackingCoordinator.exit(oldConnectorContext1);
@@ -130,5 +134,11 @@ public class ConnectionTrackingCoordinatorTest extends TestCase
 
     public Subject mapSubject(Subject sourceSubject) {
         return subject;
+    }
+
+    public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
+    }
+
+    public void returnConnection(ConnectionInfo connectionInfo, ConnectionReturnAction connectionReturnAction) {
     }
 }

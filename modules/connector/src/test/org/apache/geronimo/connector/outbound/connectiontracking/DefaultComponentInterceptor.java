@@ -27,7 +27,7 @@ import org.apache.geronimo.transaction.UnspecifiedTransactionContext;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/04/06 00:21:20 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/24 19:10:35 $
  *
  * */
 public class DefaultComponentInterceptor implements DefaultInterceptor {
@@ -35,20 +35,22 @@ public class DefaultComponentInterceptor implements DefaultInterceptor {
     private final DefaultInterceptor next;
     private final TrackedConnectionAssociator cachedConnectionAssociator;
     private final Set unshareableResources;
+    private final Set applicationManagedSecurityResources;
 
     public DefaultComponentInterceptor(DefaultInterceptor next,
             TrackedConnectionAssociator cachedConnectionManager,
-            Set unshareableResources) {
+            Set unshareableResources, Set applicationManagedSecurityResources) {
         this.next = next;
         this.cachedConnectionAssociator = cachedConnectionManager;
         this.unshareableResources = unshareableResources;
+        this.applicationManagedSecurityResources = applicationManagedSecurityResources;
     }
 
     public Object invoke(InstanceContext newInstanceContext) throws Throwable {
         if (TransactionContext.getContext() == null) {
             TransactionContext.setContext(new UnspecifiedTransactionContext());
         }
-        TrackedConnectionAssociator.ConnectorContextInfo oldConnectorContext = cachedConnectionAssociator.enter(newInstanceContext, unshareableResources);
+        TrackedConnectionAssociator.ConnectorContextInfo oldConnectorContext = cachedConnectionAssociator.enter(newInstanceContext, unshareableResources, applicationManagedSecurityResources);
         try {
             return next.invoke(newInstanceContext);
         } finally {

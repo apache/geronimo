@@ -31,7 +31,7 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/04/20 18:29:39 $
+ * @version $Revision: 1.6 $ $Date: 2004/05/24 19:10:35 $
  *
  * */
 public class TransactionEnlistingInterceptorTest extends ConnectionInterceptorTestUtils
@@ -68,12 +68,31 @@ public class TransactionEnlistingInterceptorTest extends ConnectionInterceptorTe
         assertTrue("Expected not committed", !committed);
     }
 
-    public void testTransaction() throws Exception {
+    public void testTransactionShareableConnection() throws Exception {
         TransactionManager transactionManager = new TransactionManagerImpl();
         ContainerTransactionContext transactionContext = new ContainerTransactionContext(transactionManager);
         TransactionContext.setContext(transactionContext);
         transactionContext.begin();
         ConnectionInfo connectionInfo = makeConnectionInfo();
+        transactionEnlistingInterceptor.getConnection(connectionInfo);
+        assertTrue("Expected started", started);
+        assertTrue("Expected not ended", !ended);
+        started = false;
+        transactionEnlistingInterceptor.returnConnection(connectionInfo, ConnectionReturnAction.RETURN_HANDLE);
+        assertTrue("Expected not started", !started);
+        assertTrue("Expected ended", ended);
+        assertTrue("Expected returned", returned);
+        transactionManager.commit();
+        assertTrue("Expected committed", committed);
+    }
+
+    public void testTransactionUnshareableConnection() throws Exception {
+        TransactionManager transactionManager = new TransactionManagerImpl();
+        ContainerTransactionContext transactionContext = new ContainerTransactionContext(transactionManager);
+        TransactionContext.setContext(transactionContext);
+        transactionContext.begin();
+        ConnectionInfo connectionInfo = makeConnectionInfo();
+        connectionInfo.setUnshareable(true);
         transactionEnlistingInterceptor.getConnection(connectionInfo);
         assertTrue("Expected started", started);
         assertTrue("Expected not ended", !ended);

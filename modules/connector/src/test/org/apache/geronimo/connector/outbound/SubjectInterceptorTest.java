@@ -18,11 +18,12 @@
 package org.apache.geronimo.connector.outbound;
 
 import javax.security.auth.Subject;
+import javax.resource.ResourceException;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/04/20 18:29:39 $
+ * @version $Revision: 1.5 $ $Date: 2004/05/24 19:10:35 $
  *
  * */
 public class SubjectInterceptorTest extends ConnectionInterceptorTestUtils {
@@ -63,7 +64,7 @@ public class SubjectInterceptorTest extends ConnectionInterceptorTestUtils {
         //reset our test indicator
         obtainedConnectionInfo = null;
         subjectInterceptor.getConnection(connectionInfo);
-        assertTrue("Expected connection asked for", obtainedConnectionInfo == null);
+        assertTrue("Expected connection asked for", obtainedConnectionInfo == connectionInfo);
         assertTrue("Expected no connection returned", returnedConnectionInfo == null);
     }
 
@@ -80,6 +81,35 @@ public class SubjectInterceptorTest extends ConnectionInterceptorTestUtils {
         assertTrue("Expected connection asked for", obtainedConnectionInfo != null);
         //connection is returned by SubjectInterceptor
         assertTrue("Expected connection returned", returnedConnectionInfo != null);
+    }
+
+    public void testApplicationManagedSecurity() throws Exception {
+        makeSubject("foo");
+        ConnectionInfo connectionInfo = makeConnectionInfo();
+        connectionInfo.setApplicationManagedSecurity(true);
+        ManagedConnectionInfo managedConnectionInfo = connectionInfo.getManagedConnectionInfo();
+        managedConnection = new TestPlainManagedConnection();
+        subjectInterceptor.getConnection(connectionInfo);
+        //expect no subject set on mci
+        assertTrue("Expected call to next with same connectionInfo", connectionInfo == obtainedConnectionInfo);
+        assertTrue("Expected the same managedConnectionInfo", managedConnectionInfo == connectionInfo.getManagedConnectionInfo());
+        assertTrue("Expected no subject to be inserted", null == managedConnectionInfo.getSubject());
+    }
+
+    public void testUnshareablePreventsReAssociation() throws Exception {
+        makeSubject("foo");
+        ConnectionInfo connectionInfo = makeConnectionInfo();
+        connectionInfo.setUnshareable(true);
+        managedConnection = new TestPlainManagedConnection();
+        subjectInterceptor.getConnection(connectionInfo);
+        //reset our test indicator
+        obtainedConnectionInfo = null;
+        makeSubject("bar");
+        try {
+            subjectInterceptor.getConnection(connectionInfo);
+            fail("Reassociating should fail on an unshareable connection");
+        } catch (ResourceException e) {
+        }
     }
 
 }

@@ -24,13 +24,13 @@ import javax.resource.ResourceException;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/04/06 00:21:20 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/24 19:11:14 $
  *
  * */
 public interface TrackedConnectionAssociator {
 
     ConnectorContextInfo enter(InstanceContext newInstanceContext,
-                               Set unshareableResources)
+                               Set unshareableResources, Set applicationManagedSecurityResources)
             throws ResourceException;
 
     void newTransaction() throws ResourceException;
@@ -41,10 +41,12 @@ public interface TrackedConnectionAssociator {
     class ConnectorContextInfo {
         private final InstanceContext instanceContext;
         private final Set unshareableResources;
+        private final Set applicationManagedSecurityResources;
 
-        public ConnectorContextInfo(InstanceContext instanceContext, Set unshareableResources) {
+        public ConnectorContextInfo(InstanceContext instanceContext, Set unshareableResources, Set applicationManagedSecurityResources) {
             this.instanceContext = instanceContext;
             this.unshareableResources = unshareableResources;
+            this.applicationManagedSecurityResources = applicationManagedSecurityResources;
         }
 
         public InstanceContext getInstanceContext() {
@@ -53,6 +55,10 @@ public interface TrackedConnectionAssociator {
 
         public Set getUnshareableResources() {
             return unshareableResources;
+        }
+
+        public Set getApplicationManagedSecurityResources() {
+            return applicationManagedSecurityResources;
         }
     }
 }

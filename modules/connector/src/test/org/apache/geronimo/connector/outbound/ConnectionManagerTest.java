@@ -17,37 +17,19 @@
 
 package org.apache.geronimo.connector.outbound;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.security.auth.Subject;
-import javax.transaction.TransactionManager;
-
-import org.apache.geronimo.connector.mock.MockConnection;
-import org.apache.geronimo.connector.mock.MockConnectionFactory;
-import org.apache.geronimo.connector.mock.MockManagedConnection;
-import org.apache.geronimo.connector.mock.MockManagedConnectionFactory;
 import org.apache.geronimo.connector.mock.MockXAResource;
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
-import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultComponentContext;
-import org.apache.geronimo.connector.outbound.connectiontracking.DefaultComponentInterceptor;
+import org.apache.geronimo.connector.mock.MockConnection;
 import org.apache.geronimo.connector.outbound.connectiontracking.DefaultInterceptor;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.security.bridge.RealmBridge;
-import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
-import org.apache.geronimo.transaction.InstanceContext;
-import org.apache.geronimo.transaction.TransactionContext;
 import org.apache.geronimo.transaction.ContainerTransactionContext;
+import org.apache.geronimo.transaction.TransactionContext;
 import org.apache.geronimo.transaction.UnspecifiedTransactionContext;
 import org.apache.geronimo.transaction.UserTransactionImpl;
-
-import junit.framework.TestCase;
+import org.apache.geronimo.transaction.InstanceContext;
 
 /**
  *
  *
- * @version $Revision: 1.9 $ $Date: 2004/04/22 17:06:30 $
+ * @version $Revision: 1.10 $ $Date: 2004/05/24 19:10:35 $
  *
  * */
 public class ConnectionManagerTest extends ConnectionManagerTestUtils {
@@ -90,6 +72,20 @@ public class ConnectionManagerTest extends ConnectionManagerTestUtils {
     }
 
     public void testUserTransactionEnlistingExistingConnections() throws Throwable {
+        mockComponent = new DefaultInterceptor() {
+            public Object invoke(InstanceContext newInstanceContext) throws Throwable {
+                MockConnection mockConnection = (MockConnection) connectionFactory.getConnection();
+                mockManagedConnection = mockConnection.getManagedConnection();
+                userTransaction.begin();
+                MockXAResource mockXAResource = (MockXAResource) mockManagedConnection.getXAResource();
+                assertEquals("XAResource should know one xid", 1, mockXAResource.getKnownXids().size());
+                assertNull("Should not be committed", mockXAResource.getCommitted());
+                userTransaction.commit();
+                assertNotNull("Should be committed", mockXAResource.getCommitted());
+                mockConnection.close();
+                return null;
+            }
+        };
         TransactionContext.setContext(new UnspecifiedTransactionContext());
         userTransaction = new UserTransactionImpl();
         userTransaction.setUp(transactionManager, connectionTrackingCoordinator);
@@ -100,5 +96,33 @@ public class ConnectionManagerTest extends ConnectionManagerTestUtils {
         assertNotNull("Should be committed", mockXAResource.getCommitted());
     }
 
+    public void testUnshareableConnections() throws Throwable {
+        unshareableResources.add(name);
+        mockComponent = new DefaultInterceptor() {
+            public Object invoke(InstanceContext newInstanceContext) throws Throwable {
+                MockConnection mockConnection1 = (MockConnection) connectionFactory.getConnection();
+                mockManagedConnection = mockConnection1.getManagedConnection();
+                MockConnection mockConnection2 = (MockConnection) connectionFactory.getConnection();
+                //the 2 cx are for the same RM, so tm will call commit only one one (the first)
+                //mockManagedConnection = mockConnection2.getManagedConnection();
+                assertNotNull("Expected non-null managedconnection 1", mockConnection1.getManagedConnection());
+                assertNotNull("Expected non-null managedconnection 2", mockConnection2.getManagedConnection());
+                assertTrue("Expected different managed connections for each unshared handle", mockConnection1.getManagedConnection() != mockConnection2.getManagedConnection());
 
+                mockConnection1.close();
+                mockConnection2.close();
+                return null;
+            }
+
+        };
+        ContainerTransactionContext transactionContext = new ContainerTransactionContext(transactionManager);
+        TransactionContext.setContext(transactionContext);
+        transactionContext.begin();
+        defaultComponentInterceptor.invoke(defaultComponentContext);
+        MockXAResource mockXAResource = (MockXAResource) mockManagedConnection.getXAResource();
+        assertEquals("XAResource should know one xid", 1, mockXAResource.getKnownXids().size());
+        assertNull("Should not be committed", mockXAResource.getCommitted());
+        transactionManager.commit();
+        assertNotNull("Should be committed", mockXAResource.getCommitted());
+    }
 }

@@ -20,7 +20,6 @@ package org.apache.geronimo.connector.outbound;
 import javax.resource.ResourceException;
 import javax.transaction.TransactionManager;
 
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
 import org.apache.geronimo.transaction.ContainerTransactionContext;
 import org.apache.geronimo.transaction.TransactionContext;
 import org.apache.geronimo.transaction.UnspecifiedTransactionContext;
@@ -29,11 +28,10 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/05/06 03:59:56 $
+ * @version $Revision: 1.8 $ $Date: 2004/05/24 19:10:35 $
  *
  * */
-public class TransactionCachingInterceptorTest extends ConnectionInterceptorTestUtils
-        implements ConnectionTracker {
+public class TransactionCachingInterceptorTest extends ConnectionInterceptorTestUtils {
 
     private TransactionManager transactionManager;
     private TransactionCachingInterceptor transactionCachingInterceptor;
@@ -60,7 +58,7 @@ public class TransactionCachingInterceptorTest extends ConnectionInterceptorTest
         assertTrue("Expected nothing returned yet", returnedConnectionInfo == null);
         assertTrue("Expected the same ManagedConnectionInfo in the TransactionContext as was returned",
                 connectionInfo1.getManagedConnectionInfo()
-                == transactionContext.getManagedConnectionInfo(transactionCachingInterceptor));
+                == getSharedManagedConnectionInfo(transactionContext));
         obtainedConnectionInfo = null;
         ConnectionInfo connectionInfo2 = new ConnectionInfo();
         transactionCachingInterceptor.getConnection(connectionInfo2);
@@ -69,7 +67,7 @@ public class TransactionCachingInterceptorTest extends ConnectionInterceptorTest
         assertTrue("Expected the same ManagedConnectionInfo in both ConnectionInfos",
                 connectionInfo1.getManagedConnectionInfo() == connectionInfo2.getManagedConnectionInfo());
         assertTrue("Expected the same ManagedConnectionInfo in the TransactionContext as was returned",
-                connectionInfo1.getManagedConnectionInfo() == transactionContext.getManagedConnectionInfo(transactionCachingInterceptor));
+                connectionInfo1.getManagedConnectionInfo() == getSharedManagedConnectionInfo(transactionContext));
         //commit, see if connection returned.
         //we didn't create any handles, so the "ManagedConnection" should be returned.
         assertTrue("Expected TransactionContext to report active", transactionContext.isActive());
@@ -77,6 +75,51 @@ public class TransactionCachingInterceptorTest extends ConnectionInterceptorTest
         assertTrue("Expected connection to be returned", returnedConnectionInfo != null);
         assertTrue("Expected TransactionContext to report inactive", !transactionContext.isActive());
 
+    }
+
+    public void testGetUnshareableConnectionsInTransaction() throws Exception {
+        ContainerTransactionContext transactionContext = new ContainerTransactionContext(transactionManager);
+        TransactionContext.setContext(transactionContext);
+        transactionContext.begin();
+        ConnectionInfo connectionInfo1 = makeConnectionInfo();
+        connectionInfo1.setUnshareable(true);
+        transactionCachingInterceptor.getConnection(connectionInfo1);
+        assertTrue("Expected to get an initial connection", obtainedConnectionInfo != null);
+        assertTrue("Expected nothing returned yet", returnedConnectionInfo == null);
+        assertTrue("Expected different ManagedConnectionInfo in the TransactionContext as was returned",
+                connectionInfo1.getManagedConnectionInfo()
+                != getSharedManagedConnectionInfo(transactionContext));
+        //2nd is shared, modelling a call into another ejb
+        obtainedConnectionInfo = null;
+        ConnectionInfo connectionInfo2 = makeConnectionInfo();
+        transactionCachingInterceptor.getConnection(connectionInfo2);
+        assertTrue("Expected to get a second connection", obtainedConnectionInfo != null);
+        assertTrue("Expected nothing returned yet", returnedConnectionInfo == null);
+        assertTrue("Expected the same ManagedConnectionInfo in both ConnectionInfos",
+                connectionInfo1.getManagedConnectionInfo() != connectionInfo2.getManagedConnectionInfo());
+        assertTrue("Expected the same ManagedConnectionInfo in the TransactionContext as was returned",
+                connectionInfo2.getManagedConnectionInfo() == getSharedManagedConnectionInfo(transactionContext));
+        //3rd is unshared, modelling a call into a third ejb
+        obtainedConnectionInfo = null;
+        ConnectionInfo connectionInfo3 = makeConnectionInfo();
+        connectionInfo3.setUnshareable(true);
+        transactionCachingInterceptor.getConnection(connectionInfo3);
+        assertTrue("Expected to get a third connection", obtainedConnectionInfo != null);
+        assertTrue("Expected nothing returned yet", returnedConnectionInfo == null);
+        assertTrue("Expected different ManagedConnectionInfo in both unshared ConnectionInfos",
+                connectionInfo1.getManagedConnectionInfo() != connectionInfo3.getManagedConnectionInfo());
+        assertTrue("Expected different ManagedConnectionInfo in the TransactionContext as was returned",
+                connectionInfo3.getManagedConnectionInfo() != getSharedManagedConnectionInfo(transactionContext));
+        //commit, see if connection returned.
+        //we didn't create any handles, so the "ManagedConnection" should be returned.
+        assertTrue("Expected TransactionContext to report active", transactionContext.isActive());
+        transactionContext.commit();
+        assertTrue("Expected connection to be returned", returnedConnectionInfo != null);
+        assertTrue("Expected TransactionContext to report inactive", !transactionContext.isActive());
+    }
+
+    private ManagedConnectionInfo getSharedManagedConnectionInfo(ContainerTransactionContext transactionContext) {
+        return ((TransactionCachingInterceptor.ManagedConnectionInfos)transactionContext.getManagedConnectionInfo(transactionCachingInterceptor)).getShared();
     }
 
     public void testGetConnectionOutsideTransaction() throws Exception {
@@ -128,7 +171,7 @@ public class TransactionCachingInterceptorTest extends ConnectionInterceptorTest
         assertTrue("Expected different ManagedConnectionInfo in each ConnectionInfos",
                 connectionInfo1.getManagedConnectionInfo() != connectionInfo2.getManagedConnectionInfo());
         assertTrue("Expected the same ManagedConnectionInfo in the TransactionContext as was returned",
-                connectionInfo2.getManagedConnectionInfo() == transactionContext2.getManagedConnectionInfo(transactionCachingInterceptor));
+                connectionInfo2.getManagedConnectionInfo() == getSharedManagedConnectionInfo(transactionContext2));
         //commit 2nd transaction, see if connection returned.
         //we didn't create any handles, so the "ManagedConnection" should be returned.
         assertTrue("Expected TransactionContext to report active", transactionContext2.isActive());
