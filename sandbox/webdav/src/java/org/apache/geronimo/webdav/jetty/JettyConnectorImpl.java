@@ -19,7 +19,6 @@ package org.apache.geronimo.webdav.jetty;
 
 import java.lang.reflect.Constructor;
 
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -36,7 +35,7 @@ import org.mortbay.util.ThreadedServer;
 /**
  * Connector using under the cover a Jetty HttpListener.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 10:00:41 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/02 11:29:24 $
  */
 public class JettyConnectorImpl extends AbstractConnector implements GBean, JettyConnector {
     private static final String HTTP_PROTOCOL = "http";
@@ -105,9 +104,9 @@ public class JettyConnectorImpl extends AbstractConnector implements GBean, Jett
     static {
         GBeanInfoFactory infoFactory =
                 new GBeanInfoFactory("Connector - Jetty",
-                        JettyConnectorImpl.class.getName(),
+                        JettyConnectorImpl.class,
                         AbstractConnector.getGBeanInfo());
-        infoFactory.addAttribute(new GAttributeInfo("Listener", false));
+        infoFactory.addAttribute("Listener", HttpListener.class, false);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

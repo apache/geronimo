@@ -24,7 +24,6 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -45,16 +44,11 @@ import org.mortbay.jetty.servlet.ServletHttpContext;
 /**
  * DAVServer using under the cover a light Jetty servlet container.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 10:00:41 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/02 11:29:24 $
  */
 public class JettyDAVServer implements DAVServer, GBean {
     private static final Log log = LogFactory.getLog(JettyDAVServer.class);
 
-    /**
-     * Context callback.
-     */
-    private GBeanContext context;
-    
     /**
      * Jetty Server doing the actual work.
      */
@@ -231,7 +225,6 @@ public class JettyDAVServer implements DAVServer, GBean {
     }
 
     public void setGBeanContext(GBeanContext aContext) {
-        context = aContext;        
     }
 
     public void doStart() throws WaitingException, Exception {
@@ -270,8 +263,8 @@ public class JettyDAVServer implements DAVServer, GBean {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("DAV Server - Jetty", JettyDAVServer.class.getName());
         infoFactory.addReference(new GReferenceInfo("Connectors", JettyConnector.class.getName()));
         infoFactory.addReference(new GReferenceInfo("Repositories", DAVRepository.class.getName()));
-        infoFactory.addAttribute(new GAttributeInfo("Connectors", false, Boolean.TRUE, Boolean.TRUE, null, null));
-        infoFactory.addAttribute(new GAttributeInfo("Repositories", false, Boolean.TRUE, Boolean.TRUE, null, null));
+        infoFactory.addAttribute("Connectors", Collection.class, false);
+        infoFactory.addAttribute("Repositories", Collection.class, false);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

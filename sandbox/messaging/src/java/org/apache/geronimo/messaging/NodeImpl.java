@@ -52,7 +52,7 @@ import org.apache.geronimo.system.ThreadPool;
 /**
  * Node implementation.
  *
- * @version $Revision: 1.3 $ $Date: 2004/05/27 14:34:46 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/02 11:29:24 $
  */
 public class NodeImpl
     implements Node, GBean
@@ -350,12 +350,10 @@ public class NodeImpl
 
     static {
         GBeanInfoFactory factory = new GBeanInfoFactory(NodeImpl.class);
-        factory.setConstructor(
-            new String[] {"NodeInfo", "MessagingTransportFactory"},
-            new Class[] {NodeInfo.class, MessagingTransportFactory.class});
-        factory.addAttribute("NodeInfo", true);
-        factory.addAttribute("MessagingTransportFactory", true);
-        factory.addAttribute("Topology", true);
+        factory.setConstructor(new String[] {"NodeInfo", "MessagingTransportFactory"});
+        factory.addAttribute("NodeInfo", NodeInfo.class, true);
+        factory.addAttribute("MessagingTransportFactory", MessagingTransportFactory.class, true);
+        factory.addAttribute("Topology", NodeTopology.class, true);
         factory.addOperation("join", new Class[]{NodeInfo.class});
         factory.addOperation("leave", new Class[]{NodeInfo.class});
         factory.addOperation("addEndPoint", new Class[]{EndPoint.class});

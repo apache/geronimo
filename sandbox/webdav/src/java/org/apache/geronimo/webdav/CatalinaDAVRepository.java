@@ -18,7 +18,6 @@
 package org.apache.geronimo.webdav;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,12 +27,10 @@ import org.apache.catalina.Globals;
 import org.apache.catalina.servlets.WebdavServlet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.naming.resources.FileDirContext;
 
@@ -41,7 +38,7 @@ import org.apache.naming.resources.FileDirContext;
  * DAVRepository implementation using the Tomcat WebDAV servlet as the
  * processing servlet.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 10:00:41 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/02 11:29:24 $
  */
 public class CatalinaDAVRepository implements DAVRepository, GBean {
 
@@ -165,16 +162,14 @@ public class CatalinaDAVRepository implements DAVRepository, GBean {
     static {
         GBeanInfoFactory infoFactory =
                 new GBeanInfoFactory("DAV Repository - Catalina WebDAV Servlet",
-                        CatalinaDAVRepository.class.getName());
-        infoFactory.addAttribute(new GAttributeInfo("Root", true));
-        infoFactory.addAttribute(new GAttributeInfo("Context", true));
-        infoFactory.addAttribute(new GAttributeInfo("Host", true));
-        infoFactory.addAttribute(new GAttributeInfo("HandlingServlet", false));
-        infoFactory.addAttribute(new GAttributeInfo("ServletContextAttr", false));
-        infoFactory.addAttribute(new GAttributeInfo("ServletInitParam", false));
-        infoFactory.setConstructor(new GConstructorInfo(
-                Arrays.asList(new Object[]{"Root", "Context", "Host"}),
-                Arrays.asList(new Object[]{File.class, String.class, String.class})));
+                        CatalinaDAVRepository.class);
+        infoFactory.addAttribute("Root", File.class, true);
+        infoFactory.addAttribute("Context", String.class, true);
+        infoFactory.addAttribute("Host", String.class, true);
+        infoFactory.addAttribute("HandlingServlet", Class.class, false);
+        infoFactory.addAttribute("ServletContextAttr", Map.class, false);
+        infoFactory.addAttribute("ServletInitParam", Map.class, false);
+        infoFactory.setConstructor(new String[]{"Root", "Context", "Host"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

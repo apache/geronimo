@@ -29,7 +29,7 @@ import org.apache.geronimo.messaging.Node;
  * It is a wrapper/proxy for a GFileManager, whose services need to be exposed
  * via a Node.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:24:59 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/02 11:29:24 $
  */
 public class GFileManagerProxy
     extends AbstractEndPoint
@@ -89,9 +89,7 @@ public class GFileManagerProxy
     
     static {
         GBeanInfoFactory factory = new GBeanInfoFactory(GFileManagerProxy.class, AbstractEndPoint.GBEAN_INFO);
-        factory.setConstructor(
-            new String[] {"Node", "Delegate"},
-            new Class[] {Node.class, GFileManager.class});
+        factory.setConstructor(new String[] {"Node", "Delegate"});
         factory.addReference("Delegate", GFileManager.class);
         GBEAN_INFO = factory.getBeanInfo();
     }

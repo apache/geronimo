@@ -17,12 +17,10 @@
 
 package org.apache.geronimo.messaging;
 
-import java.util.Arrays;
-
+import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.messaging.interceptors.HeaderOutInterceptor;
 import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
@@ -30,10 +28,10 @@ import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 /**
  * Based implementation for the EndPoint contracts.
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/20 13:37:11 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/02 11:29:24 $
  */
 public abstract class AbstractEndPoint
-    implements EndPoint
+    implements EndPoint, GBean
 {
 
     /**
@@ -168,12 +166,10 @@ public abstract class AbstractEndPoint
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("Abstract EndPoint", AbstractEndPoint.class.getName());
         infoFactory.addReference("Node", Node.class);
-        infoFactory.addAttribute("ID", true);
-        infoFactory.addAttribute("MsgConsumerOut", false);
-        infoFactory.addAttribute("MsgProducerOut", false);
-        infoFactory.setConstructor(new GConstructorInfo(
-            Arrays.asList(new Object[]{"Node", "ID"}),
-            Arrays.asList(new Object[]{Node.class, Object.class})));
+        infoFactory.addAttribute("ID", Object.class, true);
+        infoFactory.addAttribute("MsgConsumerOut", MsgOutInterceptor.class, false);
+        infoFactory.addAttribute("MsgProducerOut", MsgOutInterceptor.class, false);
+        infoFactory.setConstructor(new String[]{"Node", "ID"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

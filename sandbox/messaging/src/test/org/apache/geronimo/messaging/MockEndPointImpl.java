@@ -20,7 +20,6 @@ package org.apache.geronimo.messaging;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -28,7 +27,7 @@ import org.apache.geronimo.messaging.interceptors.HeaderOutInterceptor;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/02 11:29:24 $
  */
 public class MockEndPointImpl
     extends AbstractEndPoint
@@ -71,10 +70,9 @@ public class MockEndPointImpl
     static {
         GBeanInfoFactory factory = new GBeanInfoFactory(MockEndPointImpl.class, AbstractEndPoint.GBEAN_INFO);
         factory.setConstructor(
-            new String[] {"Node", "ID", "TargetNodes"},
-            new Class[] {Node.class, Object.class, NodeInfo[].class});
-        factory.addAttribute(new GAttributeInfo("TargetNodes", true));
-        factory.addAttribute(new GAttributeInfo("Received", false));
+            new String[] {"Node", "ID", "TargetNodes"});
+        factory.addAttribute("TargetNodes", NodeInfo[].class, true);
+        factory.addAttribute("Received", List.class, false);
         factory.addOperation("sendRawObject", new Class[]{Object.class});
         GBEAN_INFO = factory.getBeanInfo();
     }

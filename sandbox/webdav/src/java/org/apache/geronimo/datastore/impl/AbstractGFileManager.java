@@ -42,7 +42,7 @@ import org.apache.geronimo.gbean.WaitingException;
  * Indeed, a full GFileManager just have to provide its own GFileDAO
  * implementation in order to support all the GFileManager contract.
  *
- * @version $Revision: 1.4 $ $Date: 2004/05/11 12:24:59 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/02 11:29:25 $
  */
 public abstract class AbstractGFileManager
     implements GFileManager
@@ -235,8 +235,8 @@ public abstract class AbstractGFileManager
 
     static {
         GBeanInfoFactory factory = new GBeanInfoFactory(AbstractGFileManager.class);
-        factory.addAttribute("Name", true);
-        factory.addAttribute("LockManager", true);
+        factory.addAttribute("Name", String.class, true);
+        factory.addAttribute("LockManager", LockManager.class, true);
         factory.addOperation("startInteraction");
         factory.addOperation("factoryGFile", new Class[]{Object.class, String.class});
         factory.addOperation("persistNew", new Class[]{Object.class, GFile.class});

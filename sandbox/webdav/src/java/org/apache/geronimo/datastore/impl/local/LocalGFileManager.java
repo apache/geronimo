@@ -34,7 +34,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 /**
  * GFileManager using a LocalGFileDAO to interact with the data store.
  *
- * @version $Revision: 1.3 $ $Date: 2004/05/11 12:25:00 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/02 11:29:25 $
  */
 public class LocalGFileManager
     extends AbstractGFileManager
@@ -156,11 +156,9 @@ public class LocalGFileManager
 
     static {
         GBeanInfoFactory factory =
-            new GBeanInfoFactory(LocalGFileManager.class.getName(), AbstractGFileManager.GBEAN_INFO);
-        factory.setConstructor(
-            new String[] {"Name", "Root", "LockManager"},
-            new Class[] {String.class, File.class, LockManager.class});
-        factory.addAttribute("Root", true);
+            new GBeanInfoFactory(LocalGFileManager.class, AbstractGFileManager.GBEAN_INFO);
+        factory.setConstructor(new String[] {"Name", "Root", "LockManager"});
+        factory.addAttribute("Root", File.class, true);
         GBEAN_INFO = factory.getBeanInfo();
     }
 

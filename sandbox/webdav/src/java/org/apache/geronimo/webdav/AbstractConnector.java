@@ -22,16 +22,14 @@ import java.net.UnknownHostException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
 
 /**
  * Base implementation for the Connector contracts.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:41 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/02 11:29:24 $
  */
 public abstract class AbstractConnector implements Connector, GBean {
     protected final Log log = LogFactory.getLog(getClass());
@@ -140,14 +138,12 @@ public abstract class AbstractConnector implements Connector, GBean {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("Abstract Connector", AbstractConnector.class.getName());
-        infoFactory.addAttribute(new GAttributeInfo("Port", true));
-        infoFactory.addAttribute(new GAttributeInfo("Protocol", true));
-        infoFactory.addAttribute(new GAttributeInfo("Interface", true));
-        infoFactory.addAttribute(new GAttributeInfo("MaxConnections", true));
-        infoFactory.addAttribute(new GAttributeInfo("MaxIdleTime", true));
-        infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"Protocol", "Interface", "Port", "MaxConnections", "MaxIdleTime"},
-                new Class[]{String.class, String.class, Integer.TYPE, Integer.TYPE, Integer.TYPE}));
+        infoFactory.addAttribute("Port", int.class, true);
+        infoFactory.addAttribute("Protocol", String.class, true);
+        infoFactory.addAttribute("Interface", String.class, true);
+        infoFactory.addAttribute("MaxConnections", int.class, true);
+        infoFactory.addAttribute("MaxIdleTime", int.class, true);
+        infoFactory.setConstructor(new String[]{"Protocol", "Interface", "Port", "MaxConnections", "MaxIdleTime"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -21,7 +21,6 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,11 +29,9 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.LazyLoader;
 import net.sf.cglib.proxy.MethodInterceptor;
 
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.messaging.AbstractEndPoint;
 import org.apache.geronimo.messaging.Node;
 import org.apache.geronimo.messaging.NodeInfo;
@@ -45,7 +42,7 @@ import org.apache.geronimo.messaging.proxy.HOPPFilter;
 /**
  * ReplicationMember implementation.
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/20 13:37:11 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/02 11:29:25 $
  */
 public class ReplicationMemberImpl
     extends AbstractEndPoint
@@ -231,12 +228,10 @@ public class ReplicationMemberImpl
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("Replication Member", ReplicationMemberImpl.class.getName(), AbstractEndPoint.GBEAN_INFO);
-        infoFactory.addAttribute(new GAttributeInfo("TargetNodes", true));
+        infoFactory.addAttribute("TargetNodes",  NodeInfo[].class, true);
         infoFactory.addOperation("registerReplicantCapable", new Class[] {ReplicationCapable.class});
         infoFactory.addOperation("retrieveReplicantCapable", new Class[] {Object.class});
-        infoFactory.setConstructor(new GConstructorInfo(
-            Arrays.asList(new Object[]{"Node", "ID", "TargetNodes"}),
-            Arrays.asList(new Object[]{Node.class, String.class, NodeInfo[].class})));
+        infoFactory.setConstructor(new String[]{"Node", "ID", "TargetNodes"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
