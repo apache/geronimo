@@ -185,10 +185,11 @@ public class DataHandler implements Transferable {
                 throw new UnsupportedDataTypeException();
             }
             final PipedInputStream is = new PipedInputStream();
-            new Thread() {
+            Thread thread = new Thread() {
                 public void run() {
                     try {
                         PipedOutputStream os = new PipedOutputStream(is);
+                        is.connect(os);
                         try {
                             dch.writeTo(data, mimeType, os);
                         } finally {
@@ -199,6 +200,7 @@ public class DataHandler implements Transferable {
                     }
                 }
             };
+            thread.start();
             return is;
         }
 
