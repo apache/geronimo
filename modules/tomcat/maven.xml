@@ -51,42 +51,5 @@
 		<copy todir="${maven.build.dest}/META-INF/geronimo-service.xml" file="src/plan/tomcat-plan.xml"/>
 	</preGoal>
 
-	<postGoal name="jar:jar">
-	
-        <j:set var="geronimoHome" value="../assembly/target/${pom.groupId}-${pom.currentVersion}"/>
-
-		<!-- 
-		   - TODO: There must be a better way!
-		   - copy the dependencies (specified in tomcat-plan.xml)
-		  -->
-		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/geronimo/jars"
-		      file="target/${maven.final.name}.jar"/>
-		      <copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/tomcat/jars">
-		      <!-- Don't want to break the other modules that rely on the libs -->
-		      <!-- fileset dir="${maven.repo.local}/tomcat/jars" includes="*-&tomcat-version;.jar"/ -->
-		      <fileset dir="${maven.repo.local}/tomcat/jars" includes="*-5.5.4.jar"/>
-		</copy>
-		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/commons-beanutils/jars"
-		      file="${maven.repo.local}/commons-beanutils/jars/commons-beanutils-&commons-beanutils-version;.jar"/>
-		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/commons-collections/jars"
-		      file="${maven.repo.local}/commons-collections/jars/commons-collections-&commons-collections-version;.jar"/>
-		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/commons-digester/jars"
-		      file="${maven.repo.local}/commons-digester/jars/commons-digester-&commons-digester-version;.jar"/>
-		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/commons-modeler/jars"
-		      file="${maven.repo.local}/commons-modeler/jars/commons-modeler-&commons-modeler-version;.jar"/>
-		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/xerces/jars"
-		      file="${maven.repo.local}/xerces/jars/xercesImpl-&xerces-version;.jar"/>
-		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/mx4j/jars"
-		      file="${maven.repo.local}/mx4j/jars/mx4j-&mx4j-version;.jar"/>
-        
-        <copy todir="${geronimoHome}/var/catalina/conf" file="src/var/web.xml"/>
-        
-        <echo>Deploying Apache Tomcat configuration</echo>
-        <java fork="true" jar="../assembly/target/geronimo-${pom.currentVersion}/bin/deployer.jar" failonerror="true">
-            <jvmarg value="-ea"/>
-            <arg value="distribute"/>
-            <arg value="src/plan/tomcat-plan.xml"/>
-        </java>
-	</postGoal>	
 </project>
 

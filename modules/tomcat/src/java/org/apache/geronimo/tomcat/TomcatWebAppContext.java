@@ -23,7 +23,6 @@ import java.net.URL;
 
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.core.StandardContext;
-import org.apache.catalina.loader.WebappClassLoader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -60,8 +59,10 @@ public class TomcatWebAppContext extends StandardContext implements GBeanLifecyc
 
     public void doStart() throws WaitingException, Exception {
 
+        // See the note of TomcatContainer::addContext
         container.addContext(this);
-        super.start();
+        // Is it necessary - doesn't Tomcat Embedded take care of it?
+        // super.start();
 
         log.info("TomcatWebAppContext started");
     }

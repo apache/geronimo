@@ -71,9 +71,9 @@ by the server.
     <dependency>
         <uri>geronimo/jars/geronimo-jetty-${geronimo_version}.jar</uri>
     </dependency>
-    <!--
-       - Uncomment it to run Apache Tomcat as the web container
-       -
+<!-- the tomcat module's requirement
+   - uncomment it to run Apache Tomcat as a web container
+   -
     <dependency>
         <uri>geronimo/jars/geronimo-tomcat-${geronimo_version}.jar</uri>
     </dependency>
@@ -81,10 +81,7 @@ by the server.
         <uri>tomcat/jars/catalina-5.5.4.jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/jasper-compiler-5.5.4.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tomcat/jars/jasper-runtime-5.5.4.jar</uri>
+        <uri>tomcat/jars/catalina-optional-5.5.4.jar</uri>
     </dependency>
     <dependency>
         <uri>tomcat/jars/tomcat-coyote-5.5.4.jar</uri>
@@ -125,7 +122,7 @@ by the server.
     <dependency>
         <uri>mx4j/jars/mx4j-2.0.1.jar</uri>
     </dependency>
-    -->
+   -->
     <dependency>
         <uri>geronimo/jars/geronimo-jmxremoting-${geronimo_version}.jar</uri>
     </dependency>
@@ -252,11 +249,11 @@ by the server.
 
     <!-- default WAR container using Jetty -->
     <gbean name="geronimo.server:type=WebContainer,container=Jetty" class="org.apache.geronimo.jetty.JettyContainerImpl"/>
-    <!--
-       - Uncomment it and comment the above Jetty GBean to run Apache Tomcat as the web container
-       -
+<!-- the tomcat module's requirement
+   - uncomment it to run Apache Tomcat as a web container
+   -
     <gbean name="geronimo.server:type=WebContainer,container=Tomcat" class="org.apache.geronimo.tomcat.TomcatContainer"/>
-    -->
+   -->
     <gbean name="geronimo.server:type=RequestLog,container=Jetty" class="org.apache.geronimo.jetty.requestlog.NCSARequestLog">
         <reference name="JettyContainer">geronimo.server:type=WebContainer,container=Jetty</reference>
         <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>

@@ -104,6 +104,21 @@
                 <repository>true</repository>
             </properties>
         </dependency>
+        <!-- 
+           - Required until any realm is provided to Tomcat
+           - See StandardEngine::getRealm() 
+           -->
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>catalina-optional</artifactId>
+            <!-- Don't want to break the other modules that rely on the libs -->
+            <!--version>&tomcat-version;</version-->
+            <version>5.5.4</version>
+            <url>http://jakarta.apache.org/tomcat/</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>tomcat-coyote</artifactId>

@@ -331,6 +331,9 @@
             <ant:arg value="distribute"/>
             <ant:arg value="${maven.repo.local}/geronimo/wars/geronimo-jmxdebug-${pom.currentVersion}.war"/>
         </ant:java>
+        
+        <ant:copy todir="${distDir}/var/catalina/conf"  file="${project.root}/modules/tomcat/src/var/web.xml"/>
+        
     </goal>
 
     <goal name="cli">

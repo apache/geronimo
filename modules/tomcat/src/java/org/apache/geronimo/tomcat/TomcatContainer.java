@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.tomcat;
 
+import mx4j.log.FileLogger;
+
 import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
 import org.apache.catalina.Host;
@@ -39,11 +41,16 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 public class TomcatContainer implements GBeanLifecycle {
 
     private static final Log log = LogFactory.getLog(TomcatContainer.class);
-    
+
     /**
      * The default value of CATALINA_HOME variable
      */
     private static final String CATALINA_HOME = "var/catalina";
+    
+    /**
+     * Work directory
+     */
+    private static final String WORK_DIR = "work"; 
 
     /**
      * Reference to the org.apache.catalina.Embedded embedded.
@@ -105,6 +112,13 @@ public class TomcatContainer implements GBeanLifecycle {
             embedded = new Embedded();
         }
 
+        // Assemble FileLogger as a gbean
+        /*
+         * FileLogger fileLog = new FileLogger(); fileLog.setDirectory(".");
+         * fileLog.setPrefix("vsjMbedTC5"); fileLog.setSuffix(".log");
+         * fileLog.setTimestamp(true);
+         */
+
         // 2. Set the relevant properties of this object itself. In particular,
         // you will want to establish the default Logger to be used, as well as
         // the default Realm if you are using container-managed security.
@@ -113,7 +127,7 @@ public class TomcatContainer implements GBeanLifecycle {
         // 3. Call createEngine() to create an Engine object, and then call its
         // property setters as desired.
         engine = embedded.createEngine();
-        engine.setName("Geronimo");
+        engine.setName("tomcat.engine");
         engine.setDefaultHost("localhost");
 
         // 4. Call createHost() to create at least one virtual Host associated
@@ -122,7 +136,7 @@ public class TomcatContainer implements GBeanLifecycle {
         // Engine with engine.addChild(host).
         host = embedded.createHost("localhost", "");
         // TODO: Make it that gbean's attribute or tomcatwebappcontext's one
-        ((StandardHost) host).setWorkDir(CATALINA_HOME);
+        ((StandardHost) host).setWorkDir(WORK_DIR);
 
         engine.addChild(host);
 
@@ -132,6 +146,7 @@ public class TomcatContainer implements GBeanLifecycle {
         // zero-length string, which will be used to process all requests not
         // mapped to some other Context. After you customize this Context, add
         // it to the corresponding Host with host.addChild(context).
+        // TODO: Make a default webapp configurable - another gbean?
         defaultContext = embedded.createContext("", "");
         defaultContext.setParentClassLoader(this.getClass().getClassLoader());
         host.addChild(defaultContext);
@@ -179,8 +194,14 @@ public class TomcatContainer implements GBeanLifecycle {
      * @see org.apache.catalina.Host
      */
     public void addContext(Context ctx) {
-        ctx.setParentClassLoader(this.getClass().getClassLoader());
-        host.addChild(ctx);
+        // TODO: Rethink what we're doing here
+        // The param - ctx - extends StandardContext, but at the same time we don't leverage it.
+        // TomcatContainer creates it again - so in fact there're two classes for the same thing.
+        // The question comes up what do we get from having the
+        // TomcatWebAppContext class extend Tomcat's StandardContext?
+        Context anotherCtxObj = embedded.createContext(ctx.getPath(), ctx.getDocBase());
+        anotherCtxObj.setParentClassLoader(this.getClass().getClassLoader());
+        host.addChild(anotherCtxObj);
     }
 
     public void removeContext(Context ctx) {
