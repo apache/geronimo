@@ -125,9 +125,13 @@ public class SecurityTest extends TestCase {
         assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());
 
         String cookie = connection.getHeaderField("Set-Cookie");
+        cookie = cookie.substring(0, cookie.lastIndexOf(';'));
         String location = connection.getHeaderField("Location");
 
-        cookie = cookie.substring(0, cookie.lastIndexOf(';'));
+        connection = (HttpURLConnection) new URL(location).openConnection();
+        connection.setInstanceFollowRedirects(false);
+        assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
+
         location = location.substring(0, location.lastIndexOf('/')) + "/j_security_check?j_username=alan&j_password=starcraft";
 
         connection = (HttpURLConnection) new URL(location).openConnection();
