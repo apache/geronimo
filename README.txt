@@ -12,6 +12,14 @@ Then just type
 
 	maven
 	
+to run JUnit test cases
+
+	maven test
+
+to try run the Geronimo server type
+
+	maven run
+		
 to get the javadocs type
 
 	maven javadoc
@@ -19,10 +27,6 @@ to get the javadocs type
 or for the HTML website
 
 	maven site
-	
-to run JUnit test cases
-
-	maven test
 	
 	
 	
