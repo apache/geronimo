@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.4 $ $Date: 2003/08/16 15:14:12 $ -->
+<!-- $Revision: 1.5 $ $Date: 2003/08/27 11:59:59 $ -->
 
 <binding xmlns="http://www.castor.org/SourceGenerator/Binding"
          defaultBindingType="element">
@@ -32,43 +32,59 @@
   
   <!-- Custom element binding -->
   
-  <elementBinding name="properties">
+  <elementBinding name="/properties">
     <java-class name="PropertiesConfig"/>
   </elementBinding>
   
-  <elementBinding name="property">
+  <elementBinding name="/property">
     <java-class name="PropertyConfig"/>
   </elementBinding>
   
-  <elementBinding name="includes">
+  <elementBinding name="/includes">
     <java-class name="IncludesConfig"/>
   </elementBinding>
   
-  <elementBinding name="libraries">
-    <java-class name="LibrariesConfig"/>
+  <elementBinding name="/class-worlds">
+    <java-class
+      name="ClassWorldsConfig"
+      package="org.apache.geronimo.twiddle.config.classworlds"/>
   </elementBinding>
   
-  <elementBinding name="library">
-    <java-class name="LibraryConfig"/>
+  <elementBinding name="/class-realm">
+    <java-class
+      name="ClassRealmConfig"
+      package="org.apache.geronimo.twiddle.config.classworlds"/>
   </elementBinding>
   
-  <elementBinding name="search-path">
+  <elementBinding name="/class-realm/load">
+    <java-class
+      name="LoadURLConfig"
+      package="org.apache.geronimo.twiddle.config.classworlds"/>
+  </elementBinding>
+  
+  <elementBinding name="/class-realm/import">
+    <java-class
+      name="ImportPackageConfig"
+      package="org.apache.geronimo.twiddle.config.classworlds"/>
+  </elementBinding>
+  
+  <elementBinding name="/search-path">
     <java-class name="SearchPathConfig"/>
   </elementBinding>
   
-  <elementBinding name="environment">
+  <elementBinding name="/environment">
     <java-class name="EnvironmentConfig"/>
   </elementBinding>
   
-  <elementBinding name="commands">
+  <elementBinding name="/commands">
     <java-class name="CommandsConfig"/>
   </elementBinding>
   
-  <elementBinding name="command">
+  <elementBinding name="/command">
     <java-class name="CommandConfig"/>
   </elementBinding>
   
-  <elementBinding name="command-set">
+  <elementBinding name="/command-set">
     <java-class name="CommandSetConfig"/>
   </elementBinding>
   

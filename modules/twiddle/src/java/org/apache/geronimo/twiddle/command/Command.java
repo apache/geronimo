@@ -62,11 +62,14 @@ package org.apache.geronimo.twiddle.command;
  * <p>Commands follow the prototype pattern using the {@link #clone} method
  *    to create new instances from the prototype.
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/16 15:14:12 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/27 12:00:00 $
  */
 public interface Command
     extends Cloneable
 {
+    /** The default class-realm id. */
+    String DEFAULT_CLASS_REALM = "twiddle.default";
+    
     /** Standard command success status code. */
     int SUCCESS = 0;
     

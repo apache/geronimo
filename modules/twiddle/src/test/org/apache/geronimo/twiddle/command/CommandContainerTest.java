@@ -61,34 +61,40 @@ import java.util.NoSuchElementException;
 
 import junit.framework.TestCase;
 
+import com.werken.classworlds.ClassWorld;
+
 import org.apache.geronimo.common.NullArgumentException;
 import org.apache.geronimo.twiddle.config.CommandConfig;
 
 /**
  * Unit test for {@link CommandContainer} class.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/24 17:10:36 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/27 12:00:00 $
  */
 public class CommandContainerTest extends TestCase {
 
+    ClassWorld world;
     CommandContainer commandContainer;
     CommandInfo commandInfoOne;
     CommandInfo commandInfoTwo;
 
     protected void setUp() throws Exception {
+        world = new ClassWorld();
+        world.newRealm(Command.DEFAULT_CLASS_REALM);
+        
         commandContainer = new CommandContainer();
 
         CommandConfig config = new CommandConfig();
         config.setName("Uno");
         config.setDescription("First Command");
         config.setCode("org.apache.geronimo.twiddle.command.TestCommand");
-        commandInfoOne = new CommandInfo(config);
+        commandInfoOne = new CommandInfo(config, world);
 
         config = new CommandConfig();
         config.setName("Due");
         config.setDescription("Second Command");
         config.setCode("org.apache.geronimo.twiddle.command.TestCommand");
-        commandInfoTwo = new CommandInfo(config);
+        commandInfoTwo = new CommandInfo(config, world);
 
         super.setUp();
     }

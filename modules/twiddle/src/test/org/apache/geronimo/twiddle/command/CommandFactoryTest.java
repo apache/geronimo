@@ -58,23 +58,30 @@ package org.apache.geronimo.twiddle.command;
 
 import junit.framework.TestCase;
 
+import com.werken.classworlds.ClassWorld;
+
 import org.apache.geronimo.twiddle.config.CommandConfig;
 import org.apache.geronimo.twiddle.config.Attribute;
+
 import org.apache.geronimo.common.NullArgumentException;
 
 /**
  * Tests for <code>CommandFactory</code>.
  *
- * @version <code>$Revision: 1.7 $ $Date: 2003/08/24 19:40:48 $</code>
+ * @version <code>$Revision: 1.8 $ $Date: 2003/08/27 12:00:00 $</code>
  */
 public class CommandFactoryTest
     extends TestCase
 {
+    protected ClassWorld world;
+    
     /**
      * Set up instance variables required by this test case.
      */
-    protected void setUp()
+    protected void setUp() throws Exception
     {
+        world = new ClassWorld();
+        world.newRealm(Command.DEFAULT_CLASS_REALM);
     }
 
     /**
@@ -82,6 +89,7 @@ public class CommandFactoryTest
      */
     protected void tearDown()
     {
+        world = null;
     }
 
 
@@ -99,13 +107,13 @@ public class CommandFactoryTest
         config.setDescription(desc);
         config.setCode(type);
 
-        CommandInfo protoInfo = new CommandInfo(config);
+        CommandInfo protoInfo = new CommandInfo(config, world);
         assertEquals(config,protoInfo.getConfig());
         assertTrue(protoInfo.hasDescription());
         Command command = protoInfo.getPrototype();
 
         try {
-            new CommandInfo(null);
+            new CommandInfo(null, null);
             fail("Expected NullArgumentException");
         } catch (NullArgumentException ignore) {
         }
@@ -134,7 +142,7 @@ public class CommandFactoryTest
         attr.setContent(text);
         config.addAttribute(attr);
 
-        CommandInfo protoInfo = new CommandInfo(config);
+        CommandInfo protoInfo = new CommandInfo(config, world);
         Command command = protoInfo.getPrototype();
 
         // Verify that the text attribute was set correctly
@@ -147,7 +155,7 @@ public class CommandFactoryTest
         CommandFactory commandFactory;
 
         try {
-            new CommandFactory(null);
+            new CommandFactory(null, null);
             fail("Expected NullArgumentException");
         } catch (NullArgumentException ignore) {
         }
@@ -160,16 +168,16 @@ public class CommandFactoryTest
         config.setDescription(desc);
         config.setCode(type);
 
-        commandFactory = new CommandFactory(config);
+        commandFactory = new CommandFactory(config, world);
         assertEquals(config,commandFactory.getConfig());
         try {
             commandFactory.create();
         } catch (CommandException e) {
-            fail("Unexpected CommandException"+e);
+            fail("Unexpected CommandException: " + e);
         }
 
         try {
-            new CommandFactory(new CommandConfig()).create();
+            new CommandFactory(new CommandConfig(), world).create();
             fail("Expected CommandException");
         } catch (CommandException ignore) {
         }

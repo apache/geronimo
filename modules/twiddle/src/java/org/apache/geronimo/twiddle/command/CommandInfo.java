@@ -56,6 +56,8 @@
 
 package org.apache.geronimo.twiddle.command;
 
+import com.werken.classworlds.ClassWorld;
+
 import org.apache.geronimo.common.NullArgumentException;
 
 import org.apache.geronimo.twiddle.config.CommandConfig;
@@ -63,12 +65,15 @@ import org.apache.geronimo.twiddle.config.CommandConfig;
 /**
  * Information about a command.
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/16 15:14:12 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/27 12:00:00 $
  */
 public class CommandInfo
 {
     /** The command configuration. */
     protected CommandConfig config;
+    
+    /** The classworld to load the command class from. */
+    protected ClassWorld world;
     
     /** The command prototype. */
     protected Command prototype;
@@ -77,14 +82,19 @@ public class CommandInfo
      * Construct a <code>CommandInfo</code> from the given config.
      *
      * @param config    The command configuration.
+     * @param world     The classworld to load the command class from.
      */
-    public CommandInfo(final CommandConfig config)
+    public CommandInfo(final CommandConfig config, final ClassWorld world)
     {
         if (config == null) {
             throw new NullArgumentException("config");
         }
+        if (world == null) {
+            throw new NullArgumentException("world");
+        }
         
         this.config = config;
+        this.world = world;
     }
     
     /**
@@ -98,6 +108,16 @@ public class CommandInfo
     }
     
     /**
+     * Get classworld to load the command class from.
+     *
+     * @return The classworld to load the command class from.
+     */
+    public ClassWorld getClassWorld()
+    {
+        return world;
+    }
+    
+    /**
      * Create the command prototype.
      *
      * @return The command prototype.
@@ -106,7 +126,7 @@ public class CommandInfo
      */
     protected Command createPrototype() throws CommandException
     {
-        CommandFactory factory = new CommandFactory(config);
+        CommandFactory factory = new CommandFactory(config, world);
         Command command = factory.create();
         command.setCommandInfo(this);
         

@@ -59,11 +59,17 @@ package org.apache.geronimo.twiddle.command;
 import java.io.IOException;
 
 import java.beans.Beans;
-import java.beans.BeanInfo;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
+
+import com.werken.classworlds.ClassWorld;
+import com.werken.classworlds.ClassRealm;
+import com.werken.classworlds.NoSuchRealmException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.apache.commons.beanutils.BeanUtils;
 
 import org.apache.geronimo.common.NullArgumentException;
 
@@ -74,19 +80,26 @@ import org.apache.geronimo.twiddle.config.Attribute;
  * A factory for creating <code>Command</code> instances from
  * a <code>CommandConfig</code>.
  *
- * @version $Revision: 1.6 $ $Date: 2003/08/16 15:14:12 $
+ * @version $Revision: 1.7 $ $Date: 2003/08/27 12:00:00 $
  */
 public class CommandFactory
 {
-    protected CommandConfig config;
+    private static final Log log = LogFactory.getLog(CommandFactory.class);
     
-    public CommandFactory(final CommandConfig config)
+    protected CommandConfig config;
+    protected ClassWorld world;
+    
+    public CommandFactory(final CommandConfig config, final ClassWorld world)
     {
         if (config == null) {
             throw new NullArgumentException("config");
         }
+        if (world == null) {
+            throw new NullArgumentException("world");
+        }
         
         this.config = config;
+        this.world = world;
     }
     
     public CommandConfig getConfig()
@@ -94,41 +107,56 @@ public class CommandFactory
         return config;
     }
     
-    protected Command doCreate() throws Exception
+    public ClassWorld getClassWorld()
     {
-        // Load the command instance
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        Command command = (Command)Beans.instantiate(cl, config.getCode());
-        
-        //
-        // TODO: Use Commons BeanUtils
-        //
-        
-        // Apply attributes
-        BeanInfo info = Introspector.getBeanInfo(command.getClass());
-        Attribute[] attrs = config.getAttribute();
-        if (attrs != null) {
-            PropertyDescriptor[] descs = info.getPropertyDescriptors();
-            
-            for (int i=0; i<attrs.length; i++) {
-                String name = attrs[i].getName();
-                
-                for (int j=0; j<descs.length; j++) {
-                    //
-                    // TODO: Handle attribute types, for now they are all strings
-                    //
-                    
-                    if (name.equals(descs[j].getName())) {
-                        Object value = attrs[i].getContent();
-                        Method method = descs[j].getWriteMethod();
-                        method.invoke(command, new Object[] { value });
-                        break;
-                    }
-                }
-            }
+        return world;
+    }
+    
+    protected ClassRealm getClassRealm()
+        throws NoSuchRealmException
+    {
+        String name = config.getRealm();
+        if (name == null) {
+            name = Command.DEFAULT_CLASS_REALM;
         }
         
+        if (log.isTraceEnabled()) {
+            log.trace("Loading command from class-realm: " + name);
+        }
+        
+        return getClassWorld().getRealm(name);
+    }
+    
+    protected Command doCreate()
+        throws ClassNotFoundException, IllegalAccessException,
+               InvocationTargetException, NoSuchRealmException,
+               IOException
+    {
+        // Get a handle on the class realm to load the class from
+        ClassRealm realm = getClassRealm();
+        ClassLoader cl = realm.getClassLoader();
+        
+        // Load the command instance
+        Command command = (Command)Beans.instantiate(cl, config.getCode());
+        
+        // Configure the command attributes
+        configureAttributes(command, config.getAttribute());
+        
         return command;
+    }
+    
+    protected void configureAttributes(final Command command, final Attribute[] attrs)
+        throws IllegalAccessException, InvocationTargetException
+    {
+        assert command != null;
+        
+        if (attrs == null) return;
+        
+        for (int i=0; i<attrs.length; i++) {
+            String name = attrs[i].getName();
+            Object value = attrs[i].getContent();
+            BeanUtils.setProperty(command, name, value);
+        }
     }
     
     public Command create() throws CommandException

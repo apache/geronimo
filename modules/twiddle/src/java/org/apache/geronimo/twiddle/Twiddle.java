@@ -66,6 +66,7 @@ import java.io.StringWriter;
 import java.io.PrintWriter;
 
 import com.werken.classworlds.ClassWorld;
+import com.werken.classworlds.DuplicateRealmException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -89,7 +90,7 @@ import org.apache.geronimo.twiddle.console.IOContext;
  *    command processor, it serves only to facilitate their operation and to
  *    provide a simple API to execute commands (hence facade).
  *
- * @version <tt>$Revision: 1.10 $ $Date: 2003/08/25 18:44:06 $</tt>
+ * @version <tt>$Revision: 1.11 $ $Date: 2003/08/27 11:59:59 $</tt>
  */
 public class Twiddle
 {
@@ -125,6 +126,16 @@ public class Twiddle
         this.world = world;
         this.container = new CommandContainer();
         this.executor = new CommandExecutor(container);
+        
+        // Make sure the default realm is there
+        try {
+            world.newRealm(Command.DEFAULT_CLASS_REALM);
+            log.debug("Created new default class-realm");
+        }
+        catch (DuplicateRealmException ignore) {
+            // default realm already exists
+            log.debug("Default class-realm already exists, using it");
+        }
     }
     
     /**
@@ -199,8 +210,12 @@ public class Twiddle
      */
     public void configure(final Configuration config) throws CommandException
     {
+        log.debug("Configuring...");
+        
         Configurator c = new Configurator(this);
         c.configure(config);
+        
+        log.debug("Configured");
     }
     
     

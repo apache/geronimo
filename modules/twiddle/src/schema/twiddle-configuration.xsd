@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.4 $ $Date: 2003/08/16 15:14:12 $ -->
+<!-- $Revision: 1.5 $ $Date: 2003/08/27 12:00:00 $ -->
 
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
             xmlns="http://geronimo.apache.org/xml/schema/Twiddle/Configuration"
@@ -23,7 +23,7 @@
     <xsd:complexType>
       <xsd:sequence>
         <xsd:element ref="properties" minOccurs="0" maxOccurs="1"/>
-        <!-- <xsd:element ref="libraries" minOccurs="0" maxOccurs="1"/> -->
+        <xsd:element ref="class-worlds" minOccurs="0" maxOccurs="1"/>
         <xsd:element ref="includes" minOccurs="0" maxOccurs="1"/>
         <xsd:element ref="environment" minOccurs="0" maxOccurs="1"/>
         <!-- <xsd:element ref="search-path" minOccurs="0" maxOccurs="1"/> -->
@@ -32,39 +32,43 @@
     </xsd:complexType>
   </xsd:element>
   
-  <!--
-  
-  <xsd:element name="libraries">
+  <xsd:element name="class-worlds">
     <xsd:annotation>
       <xsd:documentation>
-        Definitions of additional libraries to load.
+        Definitions of classworlds.
       </xsd:documentation>
     </xsd:annotation>
     
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:element ref="library" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element ref="class-realm" minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
   
-  <xsd:element name="library">
+  <xsd:element name="class-realm">
     <xsd:annotation>
       <xsd:documentation>
-        Definition of a single library.
+        Definition of a classworld class-realm.
       </xsd:documentation>
     </xsd:annotation>
     
     <xsd:complexType>
-      <xsd:simpleContent>
-        <xsd:extension base="xsd:string">
-          <xsd:attribute name="id" type="xsd:string"/>
-        </xsd:extension>
-      </xsd:simpleContent>
+      <xsd:sequence>
+        <xsd:element name="load" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element name="import" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:simpleContent>
+              <xsd:extension base="xsd:string">
+                <xsd:attribute name="realm" use="required" type="xsd:string"/>
+              </xsd:extension>
+            </xsd:simpleContent>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+      <xsd:attribute name="name" use="optional" type="xsd:string"/>
     </xsd:complexType>
   </xsd:element>
-  
-  -->
   
   <xsd:element name="properties">
     <xsd:annotation>
@@ -251,7 +255,7 @@
       
       <xsd:attribute name="name" use="required" type="xsd:string"/>
       <xsd:attribute name="code" use="required" type="xsd:string"/>
-      <!-- <xsd:attribute name="libid" type="xsd:string"/> -->
+      <xsd:attribute name="realm" type="xsd:string"/>
     </xsd:complexType>
   </xsd:element>
   
