@@ -58,7 +58,7 @@ import org.apache.xmlbeans.XmlObject;
  * result. Results are consolidated by the admin server, which provides a 
  * consistent view of the deployment operations.
  *
- * @version $Revision: 1.6 $ $Date: 2004/06/10 23:12:25 $
+ * @version $Revision: 1.7 $ $Date: 2004/07/05 07:02:28 $
  */
 public class ManagedServer
     extends GBeanBaseEndPoint
@@ -127,14 +127,15 @@ public class ManagedServer
         // module is saved "as-is" in the data-store.
         // Injects the Referenceable interface such that the ProgressObject
         // is not marshalled.
-        DistributeCommand command =
-            new DistributeCommand(
-                store,
-                new NoOpConfigurationBuilder(),
-                jis,
-                null);
-        new Thread(command).start();
-        return (ProgressObject) ReferenceableEnhancer.enhance(command);
+//        DistributeCommand command =
+//            new DistributeCommand(
+//                store,
+//                new NoOpConfigurationBuilder(),
+//                jis,
+//                null);
+//        new Thread(command).start();
+//        return (ProgressObject) ReferenceableEnhancer.enhance(command);
+        return null;
     }
 
     public TargetModuleID[] getAvailableModules(
