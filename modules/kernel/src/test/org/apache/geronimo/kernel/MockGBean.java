@@ -17,26 +17,29 @@
 
 package org.apache.geronimo.kernel;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
 
 /**
- *
- *
- * @version $Revision: 1.13 $ $Date: 2004/03/10 09:59:02 $
+ * @version $Revision: 1.14 $ $Date: 2004/03/13 23:46:30 $
  */
 public class MockGBean implements MockEndpoint {
+
     private static final GBeanInfo GBEAN_INFO;
+
     private final String name;
+
     private final int finalInt;
+
     private int mutableInt;
+
+    private int exceptionMutableInt;
+
     private String value;
 
     private MockEndpoint endpoint;
@@ -52,18 +55,17 @@ public class MockGBean implements MockEndpoint {
         infoFactory.addAttribute("Name", true);
         infoFactory.addAttribute("Value", true);
         infoFactory.addAttribute("FinalInt", true);
+        infoFactory.addAttribute("MutableInt", false);
+        infoFactory.addAttribute("ExceptionMutableInt", true);
         infoFactory.addAttribute("EndpointMutableInt", false);
-        infoFactory.addOperation("checkResource", new Class[] {String.class});
+        infoFactory.addOperation("checkResource", new Class[] { String.class});
         infoFactory.addOperation("checkEndpoint");
         infoFactory.addOperation("checkEndpointCollection");
-        infoFactory.addOperation("doSomething", new Class[] {String.class});
-        infoFactory.addInterface(MockEndpoint.class, new String[] {"MutableInt"});
+        infoFactory.addOperation("doSomething", new Class[] { String.class});
+        infoFactory.addInterface(MockEndpoint.class, new String[] { "MutableInt"});
         infoFactory.addReference("MockEndpoint", MockEndpoint.class);
         infoFactory.addReference("EndpointCollection", MockEndpoint.class);
-        infoFactory.setConstructor(
-                new String[]{"Name", "FinalInt"},
-                new Class[]{String.class, Integer.TYPE}
-        );
+        infoFactory.setConstructor(new String[] { "Name", "FinalInt"}, new Class[] { String.class, Integer.TYPE});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
@@ -98,6 +100,32 @@ public class MockGBean implements MockEndpoint {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public void setExceptionMutableInt(int exceptionMutableInt) throws InvocationTargetException {
+        this.exceptionMutableInt = exceptionMutableInt;
+        if (exceptionMutableInt == -1) {
+            throw new InvocationTargetException(new Exception("Thrown when -1"));
+        }
+        if (exceptionMutableInt == -2) {
+            throw new InvocationTargetException(new Error("Thrown when -2"));
+        }
+        if (exceptionMutableInt == -3) {
+            throw new InvocationTargetException(new Throwable("Thrown when -3"));
+        }
+    }
+
+    public int getExceptionMutableInt() throws InvocationTargetException {
+        if (this.exceptionMutableInt == -1) {
+            throw new InvocationTargetException(new Exception("Thrown when -1"));
+        }
+        if (this.exceptionMutableInt == -2) {
+            throw new InvocationTargetException(new Error("Thrown when -2"));
+        }
+        if (exceptionMutableInt == -3) {
+            throw new InvocationTargetException(new Throwable("Thrown when -3"));
+        }
+        return this.exceptionMutableInt;
     }
 
     public MockEndpoint getMockEndpoint() {

@@ -30,26 +30,43 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 
 /**
- *
- *
- * @version $Revision: 1.8 $ $Date: 2004/03/10 09:59:00 $
+ * @version $Revision: 1.9 $ $Date: 2004/03/13 23:46:30 $
  */
 public class GBeanMBeanAttribute {
+
     private static final Log log = LogFactory.getLog(GBeanMBeanAttribute.class);
+
     private final GBeanMBean gmbean;
+
     private final String name;
+
     private final Class type;
+
     private final boolean readable;
+
     private final MethodInvoker getInvoker;
+
     private final boolean writable;
+
     private final MethodInvoker setInvoker;
+
     private final boolean isConstructorArg;
+
     private final boolean persistent;
+
     private final MBeanAttributeInfo mbeanAttributeInfo;
 
     private Object persistentValue;
 
-    public GBeanMBeanAttribute(GBeanMBean gmbean, String name, Class type, MethodInvoker getInvoker, MethodInvoker setInvoker) {
+    public GBeanMBeanAttribute(GBeanMBean gmbean, String name, Class type, MethodInvoker getInvoker,
+            MethodInvoker setInvoker) {
+        if (gmbean == null || name == null || type == null) {
+            throw new IllegalArgumentException("null param(s) supplied");
+        }
+        if (getInvoker == null && setInvoker == null) {
+            throw new InvalidConfigurationException("An attribute must be readable, writable, or persistent: +"
+                    + " name=" + name + " targetClass=" + gmbean.getType().getName());
+        }
         this.gmbean = gmbean;
         this.name = name;
         this.type = type;
@@ -59,30 +76,35 @@ public class GBeanMBeanAttribute {
         this.setInvoker = setInvoker;
         this.isConstructorArg = false;
         this.persistent = false;
-        mbeanAttributeInfo = new MBeanAttributeInfo(name, type.getName(), null, readable, writable, type == Boolean.TYPE);
+        this.mbeanAttributeInfo = new MBeanAttributeInfo(name, type.getName(), null, readable, writable,
+                type == Boolean.TYPE);
     }
 
-    public GBeanMBeanAttribute(GBeanMBean gMBean, GAttributeInfo attributeInfo, Class constructorType) throws InvalidConfigurationException {
-        if (attributeInfo.isReadable() == Boolean.FALSE &&
-                attributeInfo.isWritable() == Boolean.FALSE &&
-                !attributeInfo.isPersistent()) {
-            throw new InvalidConfigurationException("An attribute must be readable, writable, or persistent: +" +
-                    " name=" + attributeInfo.getName() +
-                    " targetClass=" + gMBean.getType().getName());
+    public GBeanMBeanAttribute(GBeanMBean gmbean, GAttributeInfo attributeInfo, Class constructorType)
+            throws InvalidConfigurationException {
+        if (gmbean == null || attributeInfo == null) {
+            throw new IllegalArgumentException("null param(s) supplied");
         }
-        this.gmbean = gMBean;
+        if (attributeInfo.isReadable() == Boolean.FALSE && attributeInfo.isWritable() == Boolean.FALSE
+                && !attributeInfo.isPersistent()) {
+            throw new InvalidConfigurationException("An attribute must be readable, writable, or persistent: +"
+                    + " name=" + attributeInfo.getName() + " targetClass=" + gmbean.getType().getName());
+        }
+        this.gmbean = gmbean;
         this.name = attributeInfo.getName();
         this.persistent = attributeInfo.isPersistent();
         this.isConstructorArg = (constructorType != null);
 
         boolean isIs;
 
-        // If attribute is persistent or not tagged as unreadable, search for a getter method
+        // If attribute is persistent or not tagged as unreadable, search for a
+        // getter method
         if (attributeInfo instanceof DynamicGAttributeInfo) {
             type = Object.class;
             readable = attributeInfo.isReadable().booleanValue();
             if (readable) {
                 getInvoker = new MethodInvoker() {
+
                     public Object invoke(Object target, Object[] arguments) throws Exception {
                         DynamicGBean dynamicGBean = (DynamicGBean) GBeanMBeanAttribute.this.gmbean.getTarget();
                         return dynamicGBean.getAttribute(name);
@@ -94,6 +116,7 @@ public class GBeanMBeanAttribute {
             writable = attributeInfo.isWritable().booleanValue();
             if (writable) {
                 setInvoker = new MethodInvoker() {
+
                     public Object invoke(Object target, Object[] arguments) throws Exception {
                         DynamicGBean dynamicGBean = (DynamicGBean) GBeanMBeanAttribute.this.gmbean.getTarget();
                         dynamicGBean.setAttribute(name, arguments[0]);
@@ -107,27 +130,30 @@ public class GBeanMBeanAttribute {
         } else {
             Method getterMethod = null;
             if (attributeInfo.isPersistent() || attributeInfo.isReadable() != Boolean.FALSE) {
-                getterMethod = searchForGetter(gMBean, attributeInfo);
+                getterMethod = searchForGetter(gmbean, attributeInfo);
             }
             if (getterMethod != null) {
                 getInvoker = new FastMethodInvoker(getterMethod);
 
-                // this attribute is readable as long as it was not explicitly tagged as unreadable
+                // this attribute is readable as long as it was not explicitly
+                // tagged as unreadable
                 readable = attributeInfo.isReadable() != Boolean.FALSE;
             } else {
                 getInvoker = null;
                 readable = false;
             }
 
-            // If attribute is persistent or not tagged as unwritable, search for a setter method
+            // If attribute is persistent or not tagged as unwritable, search
+            // for a setter method
             Method setterMethod = null;
             if (attributeInfo.isPersistent() || attributeInfo.isWritable() != Boolean.FALSE) {
-                setterMethod = searchForSetter(gMBean, attributeInfo);
+                setterMethod = searchForSetter(gmbean, attributeInfo);
             }
             if (setterMethod != null) {
                 setInvoker = new FastMethodInvoker(setterMethod);
 
-                // this attribute is writable as long as it was not explicitly tagged as unwritable
+                // this attribute is writable as long as it was not explicitly
+                // tagged as unwritable
                 writable = attributeInfo.isWritable() != Boolean.FALSE;
                 isIs = setterMethod.getName().startsWith("is");
             } else {
@@ -137,35 +163,31 @@ public class GBeanMBeanAttribute {
             }
 
             // getter and setter types are consistent
-            if (getInvoker != null && setInvoker != null &&
-                    getterMethod.getReturnType() != setterMethod.getParameterTypes()[0]) {
-                throw new InvalidConfigurationException("Getter and setter methods do not have the same types:" +
-                        " name=" + attributeInfo.getName() +
-                        " getterMethod=" + getterMethod.getName() +
-                        " setterMethod=" + setterMethod.getName() +
-                        " targetClass=" + gMBean.getType().getName());
+            if (getInvoker != null && setInvoker != null
+                    && getterMethod.getReturnType() != setterMethod.getParameterTypes()[0]) {
+                throw new InvalidConfigurationException("Getter and setter methods do not have the same types:"
+                        + " name=" + attributeInfo.getName() + " getterMethod=" + getterMethod.getName()
+                        + " setterMethod=" + setterMethod.getName() + " targetClass=" + gmbean.getType().getName());
             }
 
             // getter and constructor types are consistent
-            if (constructorType != null && getterMethod != null &&
-                    constructorType != getterMethod.getReturnType()) {
-                throw new InvalidConfigurationException("Constructor argument and getter method do not have the same type:" +
-                        " name=" + attributeInfo.getName() +
-                        " constructorType=" + constructorType.getName() +
-                        " getterMethod=" + getterMethod.getName() +
-                        " getterMethod type=" + getterMethod.getReturnType().getName() +
-                        " targetClass=" + gMBean.getType().getName());
+            if (constructorType != null && getterMethod != null && constructorType != getterMethod.getReturnType()) {
+                throw new InvalidConfigurationException(
+                        "Constructor argument and getter method do not have the same type:" + " name="
+                                + attributeInfo.getName() + " constructorType=" + constructorType.getName()
+                                + " getterMethod=" + getterMethod.getName() + " getterMethod type="
+                                + getterMethod.getReturnType().getName() + " targetClass=" + gmbean.getType().getName());
             }
 
             // setter and constructor types are consistent
-            if (constructorType != null && setterMethod != null &&
-                    constructorType != setterMethod.getParameterTypes()[0]) {
-                throw new InvalidConfigurationException("Constructor argument and setter method do not have the same type:" +
-                        " name=" + attributeInfo.getName() +
-                        " constructorType=" + constructorType.getName() +
-                        " setterMethod=" + setterMethod.getName() +
-                        " getterMethod type=" + setterMethod.getParameterTypes()[0].getName() +
-                        " targetClass=" + gMBean.getType().getName());
+            if (constructorType != null && setterMethod != null
+                    && constructorType != setterMethod.getParameterTypes()[0]) {
+                throw new InvalidConfigurationException(
+                        "Constructor argument and setter method do not have the same type:" + " name="
+                                + attributeInfo.getName() + " constructorType=" + constructorType.getName()
+                                + " setterMethod=" + setterMethod.getName() + " getterMethod type="
+                                + setterMethod.getParameterTypes()[0].getName() + " targetClass="
+                                + gmbean.getType().getName());
             }
 
             // set the attribute type
@@ -181,15 +203,10 @@ public class GBeanMBeanAttribute {
             }
         }
 
-        mbeanAttributeInfo = new MBeanAttributeInfo(
-                attributeInfo.getName(),
-                type.getName(),
-                null,
-                readable,
-                writable,
+        mbeanAttributeInfo = new MBeanAttributeInfo(attributeInfo.getName(), type.getName(), null, readable, writable,
                 isIs);
 
-        if(persistent && type.isPrimitive()) {
+        if (persistent && type.isPrimitive()) {
             if (type == Boolean.TYPE) {
                 persistentValue = Boolean.FALSE;
             } else if (type == Character.TYPE) {
@@ -241,13 +258,15 @@ public class GBeanMBeanAttribute {
             ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
                 Thread.currentThread().setContextClassLoader(gmbean.getClassLoader());
-                setInvoker.invoke(gmbean.getTarget(), new Object[]{persistentValue});
+                assert gmbean.getTarget() == null : "online() invoked, however the corresponding GBeanMBean is " +
+                    "not fully initialized (perhaps online() has been called directly instead by a Kernel)";
+                setInvoker.invoke(gmbean.getTarget(), new Object[] { persistentValue});
             } catch (InvocationTargetException e) {
                 Throwable targetException = e.getTargetException();
-                if(targetException instanceof Exception) {
-                    throw (Exception)targetException;
+                if (targetException instanceof Exception) {
+                    throw (Exception) targetException;
                 } else if (targetException instanceof Error) {
-                    throw (Error)targetException;
+                    throw (Error) targetException;
                 }
                 throw e;
             } finally {
@@ -263,8 +282,8 @@ public class GBeanMBeanAttribute {
                 Thread.currentThread().setContextClassLoader(gmbean.getClassLoader());
                 persistentValue = getInvoker.invoke(gmbean.getTarget(), null);
             } catch (Throwable throwable) {
-                log.error("Could not get the current value of persistent attribute while going offline.  The " +
-                        "persistent attribute will not reflect the current state attribute: name=" + name, throwable);
+                log.error("Could not get the current value of persistent attribute while going offline.  The "
+                        + "persistent attribute will not reflect the current state attribute: name=" + name, throwable);
             } finally {
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
             }
@@ -302,8 +321,8 @@ public class GBeanMBeanAttribute {
     public void setValue(Object value) throws ReflectionException {
         if (gmbean.isOffline()) {
             if (persistent) {
-                if(value == null && type.isPrimitive()) {
-                    throw new IllegalArgumentException("Can not assign null to a primitive attribute");
+                if (value == null && type.isPrimitive()) {
+                    throw new IllegalArgumentException("Cannot assign null to a primitive attribute");
                 }
                 // @todo actually check type
                 this.persistentValue = value;
@@ -318,14 +337,14 @@ public class GBeanMBeanAttribute {
                     throw new IllegalArgumentException("This attribute is not writable");
                 }
             }
-            if(value == null && type.isPrimitive()) {
-                throw new IllegalArgumentException("Can not assign null to a primitive attribute");
+            if (value == null && type.isPrimitive()) {
+                throw new IllegalArgumentException("Cannot assign null to a primitive attribute");
             }
             // @todo actually check type
             ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
                 Thread.currentThread().setContextClassLoader(gmbean.getClassLoader());
-                setInvoker.invoke(gmbean.getTarget(), new Object[]{value});
+                setInvoker.invoke(gmbean.getTarget(), new Object[] { value});
             } catch (Throwable throwable) {
                 throw new ReflectionException(new InvocationTargetException(throwable));
             } finally {
@@ -334,7 +353,8 @@ public class GBeanMBeanAttribute {
         }
     }
 
-    private static Method searchForGetter(GBeanMBean gMBean, GAttributeInfo attributeInfo) throws InvalidConfigurationException {
+    private static Method searchForGetter(GBeanMBean gMBean, GAttributeInfo attributeInfo)
+                                                                                          throws InvalidConfigurationException {
         if (attributeInfo.getGetterName() == null) {
             // no explicit name give so we must search for a name
             String getterName = "get" + attributeInfo.getName();
@@ -342,10 +362,8 @@ public class GBeanMBeanAttribute {
             Method[] methods = gMBean.getType().getMethods();
             for (int i = 0; i < methods.length; i++) {
                 Method method = methods[i];
-                if (method.getParameterTypes().length == 0 &&
-                        method.getReturnType() != Void.TYPE &&
-                        (getterName.equalsIgnoreCase(method.getName()) ||
-                        isName.equalsIgnoreCase(method.getName()))) {
+                if (method.getParameterTypes().length == 0 && method.getReturnType() != Void.TYPE
+                        && (getterName.equalsIgnoreCase(method.getName()) || isName.equalsIgnoreCase(method.getName()))) {
 
                     return method;
                 }
@@ -362,53 +380,54 @@ public class GBeanMBeanAttribute {
             }
         }
 
-        // if this attribute was explicity tagged as being readable but there is not getter
+        // if this attribute was explicity tagged as being readable but there
+        // is not getter
         if (attributeInfo.isReadable() == Boolean.TRUE) {
-            throw new InvalidConfigurationException("Getter method not found on target:" +
-                    " name=" + attributeInfo.getName() +
-                    " targetClass=" + gMBean.getType().getName());
+            throw new InvalidConfigurationException("Getter method not found on target:" + " name="
+                    + attributeInfo.getName() + " targetClass=" + gMBean.getType().getName());
         }
 
         // a getter is not necessary for this attribute
         return null;
     }
 
-    private static Method searchForSetter(GBeanMBean gMBean, GAttributeInfo attributeInfo) throws InvalidConfigurationException {
+    private static Method searchForSetter(GBeanMBean gMBean, GAttributeInfo attributeInfo)
+                                                                                          throws InvalidConfigurationException {
         if (attributeInfo.getSetterName() == null) {
             // no explicit name give so we must search for a name
             String setterName = "set" + attributeInfo.getName();
             Method[] methods = gMBean.getType().getMethods();
             for (int i = 0; i < methods.length; i++) {
                 Method method = methods[i];
-                if (method.getParameterTypes().length == 1 &&
-                        method.getReturnType() == Void.TYPE &&
-                        setterName.equalsIgnoreCase(method.getName())) {
+                if (method.getParameterTypes().length == 1 && method.getReturnType() == Void.TYPE
+                        && setterName.equalsIgnoreCase(method.getName())) {
 
                     return method;
                 }
             }
         } else {
-            // even though we have an exact name we need to search the methods becaus we don't know the parameter type
+            // even though we have an exact name we need to search the methods
+            // becaus we don't know the parameter type
             Method[] methods = gMBean.getType().getMethods();
             String setterName = attributeInfo.getSetterName();
             for (int i = 0; i < methods.length; i++) {
                 Method method = methods[i];
-                if (method.getParameterTypes().length == 1 &&
-                        method.getReturnType() == Void.TYPE &&
-                        setterName.equals(method.getName())) {
+                if (method.getParameterTypes().length == 1 && method.getReturnType() == Void.TYPE
+                        && setterName.equals(method.getName())) {
 
                     return method;
                 }
             }
         }
 
-        // An attribute must have a setter if it was explicitly tagged as writable or
-        // if it is persistent and it is not a constructor arg (if it is persistent we must have
+        // An attribute must have a setter if it was explicitly tagged as
+        // writable or
+        // if it is persistent and it is not a constructor arg (if it is
+        // persistent we must have
         // a way toget the data into the instance)
         if (attributeInfo.isWritable() == Boolean.TRUE) {
-            throw new InvalidConfigurationException("Setter method not found on target:" +
-                    " name=" + attributeInfo.getName() +
-                    " targetClass=" + gMBean.getType().getName());
+            throw new InvalidConfigurationException("Setter method not found on target:" + " name="
+                    + attributeInfo.getName() + " targetClass=" + gMBean.getType().getName());
         }
 
         // a setter is not necessary for this attribute
