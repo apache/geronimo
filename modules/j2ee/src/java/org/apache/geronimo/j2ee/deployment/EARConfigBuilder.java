@@ -114,7 +114,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     }
 
     public boolean canConfigure(XmlObject plan) {
-        if (plan instanceof GerApplicationDocument) {
+        if (plan instanceof GerApplicationType) {
             return true;
         }
         if (ejbConfigBuilder != null && ejbConfigBuilder.canHandlePlan(plan)) {
