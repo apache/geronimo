@@ -37,7 +37,7 @@ import org.apache.geronimo.network.SelectorManager;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:13 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/16 03:33:18 $
  */
 public class SocketProtocol implements AcceptableProtocol, SelectionEventListner {
 
@@ -262,6 +262,8 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
                 }
             }
 
+            // release old buffers
+            sendBuffer = null;
 
             // We are done writing.
             log.trace("OP_READ " + selectionKey);
@@ -335,6 +337,7 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
                     UpPacket packet = new UpPacket();
                     packet.setBuffer(bodyBuffer);
 
+                    // release old buffer
                     bodyBuffer = null;
 
                     up.sendUp(packet);
