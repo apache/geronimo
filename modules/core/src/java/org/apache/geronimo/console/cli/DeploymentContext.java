@@ -29,9 +29,21 @@ import javax.enterprise.deploy.model.DeployableObject;
 /**
  * The information required in order to perform deployment operations.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:41 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/16 04:39:41 $
  */
 public class DeploymentContext {
+    /**
+     * URI of the DeploymentManager.
+     */
+    public String uri;
+    /**
+     * Optional username provided when retrieving the DeploymentManager.
+     */
+    public String username;
+    /**
+     * Optional password provided when retrieving the DeploymentManager.
+     */
+    public String password;
     public DeploymentManager deployer;
     public DeployableObject standardModule;
     public DeploymentConfiguration serverModule;

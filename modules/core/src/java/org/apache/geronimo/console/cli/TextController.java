@@ -31,7 +31,7 @@ import javax.enterprise.deploy.model.DDBean;
  * will paint information to the screen and then accept user input, possibly
  * repeating or invoking other controllers before returning to the caller.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:41 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/16 04:39:41 $
  */
 public abstract class TextController {
     protected final DeploymentContext context;
@@ -40,6 +40,14 @@ public abstract class TextController {
         this.context = context;
     }
 
+    protected boolean ensureConnected() {
+        if( context.connected ) {
+            return true;
+        }
+        context.out.println("Not connected.");
+        return false;
+    }
+    
     protected void newScreen(String title) {
         context.out.println("\n\n------ "+title+" ------");
     }
@@ -53,6 +61,9 @@ public abstract class TextController {
     }
 
     protected String truncate(String s, int size) {
+        if ( null == s ) {
+            return "";
+        }
         if(s.length() <= size) {
             return s;
         }
