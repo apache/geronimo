@@ -35,7 +35,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/08/01 20:14:20 $
+ * @version $Revision: 1.6 $ $Date: 2004/08/04 21:48:31 $
  *
  * */
 public class SchemaConversionUtils {
@@ -221,7 +221,8 @@ public class SchemaConversionUtils {
                         cursor.beginElement("activation-config", J2EE_NAMESPACE);
                         hasProperties |= addActivationConfigProperty(moveable, cursor, "message-selector", "messageSelector");
                         hasProperties |= addActivationConfigProperty(moveable, cursor, "acknowledge-mode", "acknowledgeMode");
-                        if (moveable.toNextSibling(J2EE_NAMESPACE, "message-driven-destination")) {
+                        if (new QName(J2EE_NAMESPACE, "message-driven-destination").equals(moveable.getName()) ||
+                                moveable.toNextSibling(J2EE_NAMESPACE, "message-driven-destination")) {
                             moveable.push();
                             moveable.toFirstChild();
                             hasProperties |= addActivationConfigProperty(moveable, cursor, "destination-type", "destinationType");
@@ -291,7 +292,7 @@ public class SchemaConversionUtils {
     private static void moveElements(String localName, XmlCursor moveable, XmlCursor toHere) {
         QName name = new QName(J2EE_NAMESPACE, localName);
         //skip elements already in the correct order.
-        while (toHere.getName().equals(name) && toHere.toNextSibling()) {
+        while (name.equals(toHere.getName()) && toHere.toNextSibling()) {
         }
         moveable.toCursor(toHere);
         while (moveable.toNextSibling(name)) {
