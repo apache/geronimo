@@ -26,20 +26,21 @@ import org.apache.commons.logging.Log;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/04/22 17:06:30 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/06 03:59:56 $
  *
  * */
 public class ConnectionManagerStressTest extends ConnectionManagerTestUtils {
 
     private static final Log log = LogFactory.getLog(ConnectionManagerStressTest.class);
 
-    protected int repeatCount = 100;
-    protected int threadCount = 50;
+    protected int repeatCount = 200;
+    protected int threadCount = 100;
     private Object startBarrier = new Object();
     private Object stopBarrier = new Object();
     private int startedThreads = 0;
     private int stoppedThreads = 0;
     private long totalDuration = 0;
+    private int slowCount = 0;
     private Object mutex = new Object();
 
     private Exception e = null;
@@ -59,6 +60,7 @@ public class ConnectionManagerStressTest extends ConnectionManagerTestUtils {
                 public void run() {
                     TransactionContext.setContext(new UnspecifiedTransactionContext());
                     long localStartTime = 0;
+                    int localSlowCount = 0;
                     try {
                         synchronized (startBarrier) {
                             ++startedThreads;
@@ -70,7 +72,13 @@ public class ConnectionManagerStressTest extends ConnectionManagerTestUtils {
                         localStartTime = System.currentTimeMillis();
                         for (int i = 0; i < repeatCount; i++) {
                             try {
+                                long start = System.currentTimeMillis();
                                 defaultComponentInterceptor.invoke(new DefaultComponentContext());
+                                long duration = System.currentTimeMillis() - start;
+                                if (duration > 100) {
+                                    localSlowCount++;
+                                    System.out.println("got a cx: " + i + ", time: " + (duration));
+                                }
                             } catch (Throwable throwable) {
                                 throwable.printStackTrace();
                             }
@@ -85,7 +93,8 @@ public class ConnectionManagerStressTest extends ConnectionManagerTestUtils {
                         }
                         long localDuration = System.currentTimeMillis() - localStartTime;
                         synchronized (mutex) {
-                             totalDuration += localDuration;
+                            totalDuration += localDuration;
+                            slowCount += localSlowCount;
                         }
                     }
                 }
@@ -105,7 +114,8 @@ public class ConnectionManagerStressTest extends ConnectionManagerTestUtils {
             while (stoppedThreads < threadCount) stopBarrier.wait();
         }
         long duration = System.currentTimeMillis() - startTime;
-        log.info("no tx run, thread count: " + threadCount + ", connection count: " + repeatCount + ", duration: " + duration + ", total duration: " + totalDuration + ", ms per cx request: " + (totalDuration/(threadCount * repeatCount)));
+        log.info("no tx run, thread count: " + threadCount + ", connection count: " + repeatCount + ", duration: " + duration + ", total duration: " + totalDuration + ", ms per cx request: " + (totalDuration / (threadCount * repeatCount)));
+        System.out.println("no tx run, thread count: " + threadCount + ", connection count: " + repeatCount + ", duration: " + duration + ", total duration: " + totalDuration + ", ms per cx request: " + (totalDuration / (threadCount * repeatCount)) + ", slow cx request count: " + slowCount);
         //return startTime;
         if (e != null) {
             throw e;

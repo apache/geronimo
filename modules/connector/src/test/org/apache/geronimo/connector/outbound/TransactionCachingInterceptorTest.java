@@ -29,7 +29,7 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/04/20 18:29:39 $
+ * @version $Revision: 1.7 $ $Date: 2004/05/06 03:59:56 $
  *
  * */
 public class TransactionCachingInterceptorTest extends ConnectionInterceptorTestUtils
@@ -41,7 +41,7 @@ public class TransactionCachingInterceptorTest extends ConnectionInterceptorTest
     protected void setUp() throws Exception {
         super.setUp();
         transactionManager = new TransactionManagerImpl();
-        transactionCachingInterceptor = new TransactionCachingInterceptor(this, this);
+        transactionCachingInterceptor = new TransactionCachingInterceptor(this);
     }
 
     protected void tearDown() throws Exception {

@@ -36,6 +36,8 @@ import org.apache.geronimo.connector.mock.MockConnection;
 import org.apache.geronimo.connector.mock.MockConnectionFactory;
 import org.apache.geronimo.connector.mock.MockManagedConnectionFactory;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
+import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoTransactions;
+import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoPool;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.deployment.RefAdapter;
@@ -47,7 +49,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/09 18:02:03 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/06 03:59:56 $
  *
  * */
 public class ManagedConnectionFactoryWrapperTest extends TestCase {
@@ -182,14 +184,10 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         GBeanMBean ctc = new GBeanMBean(ConnectionTrackingCoordinator.getGBeanInfo());
         ctcName = ObjectName.getInstance("test:role=ConnectionTrackingCoordinator");
         kernel.loadGBean(ctcName, ctc);
-        GBeanMBean cmf = new GBeanMBean(ConnectionManagerDeployment.getGBeanInfo());
-        cmf.setAttribute("UseConnectionRequestInfo", Boolean.FALSE);
-        cmf.setAttribute("UseSubject", Boolean.FALSE);
-        cmf.setAttribute("UseTransactionCaching", Boolean.FALSE);
-        cmf.setAttribute("UseLocalTransactions", Boolean.FALSE);
-        cmf.setAttribute("UseTransactions", Boolean.FALSE);
-        cmf.setAttribute("MaxSize", new Integer(10));
-        cmf.setAttribute("BlockingTimeout", new Integer(5000));
+        GBeanMBean cmf = new GBeanMBean(GenericConnectionManager.getGBeanInfo());
+        cmf.setAttribute("TransactionSupport", NoTransactions.INSTANCE);
+        cmf.setAttribute("Pooling", new NoPool());
+        cmf.setAttribute("Name", "TestCF");
         cmf.setReferencePatterns("ConnectionTracker", Collections.singleton(ctcName));
         cmfName = ObjectName.getInstance("test:role=ConnectionManagerFactory");
         kernel.loadGBean(cmfName, cmf);

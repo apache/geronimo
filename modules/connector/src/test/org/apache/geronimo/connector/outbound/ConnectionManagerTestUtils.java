@@ -28,6 +28,10 @@ import org.apache.geronimo.connector.outbound.connectiontracking.DefaultIntercep
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.outbound.connectiontracking.DefaultComponentInterceptor;
 import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultComponentContext;
+import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
+import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
+import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransactions;
+import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PartitionedPool;
 import org.apache.geronimo.connector.mock.MockManagedConnectionFactory;
 import org.apache.geronimo.connector.mock.MockConnectionFactory;
 import org.apache.geronimo.connector.mock.MockConnection;
@@ -42,23 +46,27 @@ import org.apache.geronimo.transaction.UserTransactionImpl;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/04/22 17:06:30 $
+ * @version $Revision: 1.8 $ $Date: 2004/05/06 03:59:56 $
  *
  * */
 public class ConnectionManagerTestUtils extends TestCase implements DefaultInterceptor, RealmBridge {
-    protected boolean useConnectionRequestInfo = false;
-    protected boolean useSubject = true;
     protected boolean useTransactionCaching = true;
     protected boolean useLocalTransactions = false;
+    protected boolean useThreadCaching = false;
     protected boolean useTransactions = true;
-    protected int maxSize = 50;
+    protected int maxSize = 100;
     protected int blockingTimeout = 100;
+    protected boolean useConnectionRequestInfo = false;
+    protected boolean useSubject = true;
+    private boolean matchOne = true;
+    private boolean matchAll = false;
+    private boolean selectOneNoMatch = false;
     protected String name = "testCF";
     //dependencies
     protected RealmBridge realmBridge = this;
     protected ConnectionTrackingCoordinator connectionTrackingCoordinator;
     protected TransactionManager transactionManager;
-    protected ConnectionManagerDeployment connectionManagerDeployment;
+    protected AbstractConnectionManager connectionManagerDeployment;
     protected MockConnectionFactory connectionFactory;
     protected MockManagedConnectionFactory mockManagedConnectionFactory;
     protected DefaultComponentContext defaultComponentContext;
@@ -67,6 +75,8 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
     protected MockManagedConnection mockManagedConnection;
     protected Subject subject;
     protected UserTransactionImpl userTransaction;
+    protected TransactionSupport transactionSupport = new XATransactions(useTransactionCaching, useThreadCaching);
+    protected PoolingSupport poolingSupport = new PartitionedPool(useConnectionRequestInfo, useSubject, maxSize, blockingTimeout, matchOne, matchAll, selectOneNoMatch);
 
     protected void setUp() throws Exception {
         connectionTrackingCoordinator = new ConnectionTrackingCoordinator();
@@ -74,14 +84,10 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
         mockManagedConnectionFactory = new MockManagedConnectionFactory();
         subject = new Subject();
         ContextManager.setCurrentCaller(subject);
-        connectionManagerDeployment = new ConnectionManagerDeployment(useConnectionRequestInfo,
-                useSubject,
-                useTransactionCaching,
-                useLocalTransactions,
-                useTransactions,
-                maxSize,
-                blockingTimeout,
-                //name,
+        connectionManagerDeployment = new GenericConnectionManager(
+                transactionSupport,
+                poolingSupport,
+                name,
                 realmBridge,
                 connectionTrackingCoordinator);
         connectionManagerDeployment.doStart();

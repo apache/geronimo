@@ -32,13 +32,15 @@
                     <config-property-setting name="OutboundStringProperty3">newvalue2</config-property-setting>
                     <connectionmanager>
                         <realm-bridge>TargetRealm</realm-bridge>
-                        <blockingTimeout>5000</blockingTimeout>
-                        <maxSize>10</maxSize>
-                        <useTransactions>true</useTransactions>
-                        <useLocalTransactions>false</useLocalTransactions>
-                        <useTransactionCaching>true</useTransactionCaching>
-                        <useConnectionRequestInfo>false</useConnectionRequestInfo>
-                        <useSubject>true</useSubject>
+                        <xa-transaction>
+                            <transaction-caching/>
+                        </xa-transaction>
+                        <partitioned-pool>
+                            <max-size>10</max-size>
+                            <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
+                            <match-one/>
+                            <partition-by-subject/>
+                        </partitioned-pool>
                     </connectionmanager>
                     <global-jndi-name>connectionfactories/testcf</global-jndi-name>
                     <credential-interface>javax.resource.spi.security.PasswordCredential</credential-interface>
@@ -49,13 +51,15 @@
                     <config-property-setting name="OutboundStringProperty1">newvalue4</config-property-setting>
                     <connectionmanager>
                         <realm-bridge>TargetRealm</realm-bridge>
-                        <blockingTimeout>5000</blockingTimeout>
-                        <maxSize>10</maxSize>
-                        <useTransactions>true</useTransactions>
-                        <useLocalTransactions>false</useLocalTransactions>
-                        <useTransactionCaching>true</useTransactionCaching>
-                        <useConnectionRequestInfo>true</useConnectionRequestInfo>
-                        <useSubject>false</useSubject>
+                        <xa-transaction>
+                            <transaction-caching/>
+                        </xa-transaction>
+                        <partitioned-pool>
+                            <max-size>10</max-size>
+                            <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
+                            <match-one/>
+                            <partition-by-subject/>
+                        </partitioned-pool>
                     </connectionmanager>
                 </connectiondefinition-instance>
             </connection-definition>
@@ -66,17 +70,18 @@
                     <config-property-setting name="OutboundStringProperty1">StringValue3</config-property-setting>
                     <connectionmanager>
                         <realm-bridge>TargetRealm</realm-bridge>
-                        <blockingTimeout>5000</blockingTimeout>
-                        <maxSize>10</maxSize>
-                        <useTransactions>true</useTransactions>
-                        <useLocalTransactions>false</useLocalTransactions>
-                        <useTransactionCaching>true</useTransactionCaching>
-                        <useConnectionRequestInfo>false</useConnectionRequestInfo>
-                        <useSubject>true</useSubject>
+                        <xa-transaction>
+                            <transaction-caching/>
+                        </xa-transaction>
+                        <partitioned-pool>
+                            <max-size>10</max-size>
+                            <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
+                            <match-one/>
+                            <partition-by-subject/>
+                        </partitioned-pool>
                     </connectionmanager>
                 </connectiondefinition-instance>
             </connection-definition>
-            <transaction-support>XATransaction</transaction-support>
         </outbound-resourceadapter>
         <adminobject>
             <adminobject-interface>org.apache.geronimo.connector.mock.MockAdminObject</adminobject-interface>

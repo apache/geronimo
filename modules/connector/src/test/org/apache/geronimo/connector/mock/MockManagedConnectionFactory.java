@@ -34,7 +34,7 @@ import javax.security.auth.Subject;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/04/22 17:06:30 $
+ * @version $Revision: 1.6 $ $Date: 2004/05/06 03:59:56 $
  *
  * */
 public class MockManagedConnectionFactory implements ManagedConnectionFactory {
@@ -118,6 +118,7 @@ public class MockManagedConnectionFactory implements ManagedConnectionFactory {
         } else {
             for (Iterator iterator = connectionSet.iterator(); iterator.hasNext();) {
                 ManagedConnection managedConnection = (ManagedConnection) iterator.next();
+//                return managedConnection;
                 if (managedConnections.contains(managedConnection)) {
                     MockManagedConnection mockManagedConnection = (MockManagedConnection) managedConnection;
                     if ((subject == null ? mockManagedConnection.getSubject() == null : subject.equals(mockManagedConnection.getSubject())

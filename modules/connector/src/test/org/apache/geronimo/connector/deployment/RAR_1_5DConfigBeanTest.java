@@ -52,7 +52,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:33 $
+ * @version $Revision: 1.4 $ $Date: 2004/05/06 03:59:55 $
  *
  * */
 public class RAR_1_5DConfigBeanTest extends TestCase {
@@ -108,7 +108,7 @@ public class RAR_1_5DConfigBeanTest extends TestCase {
         ConfigPropertySettings connectionDefinitionSetting1 = connectionDefinitionInstance1.getConfigProperty()[0];
         connectionDefinitionSetting1.setConfigPropertyValue("TestCDValue1");
         //connection manager properties
-        connectionDefinitionInstance1.setBlockingTimeout(3000);
+//        connectionDefinitionInstance1.setBlockingTimeout(3000);
 
         //check the results
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -137,7 +137,7 @@ public class RAR_1_5DConfigBeanTest extends TestCase {
         assertEquals("TestCDValue1", connectiondefinitionInstanceType.getConfigPropertySettingArray(0).getStringValue());
         //connection manager
         GerConnectionmanagerType connectionmanagerType = connectiondefinitionInstanceType.getConnectionmanager();
-        assertEquals(3000, connectionmanagerType.getBlockingTimeout().intValue());
+//        assertEquals(3000, connectionmanagerType.getBlockingTimeout().intValue());
 
         //and read back into dconfigbeans
         rarConfiguration.restore(new ByteArrayInputStream(bytes));
@@ -168,7 +168,7 @@ public class RAR_1_5DConfigBeanTest extends TestCase {
         connectionDefinitionSetting1 = connectionDefinitionInstances[0].getConfigProperty()[0];
         assertEquals("TestCDValue1", connectionDefinitionSetting1.getConfigPropertyValue());
         //connection manager
-        assertEquals(3000, connectionDefinitionInstances[0].getBlockingTimeout());
+//        assertEquals(3000, connectionDefinitionInstances[0].getBlockingTimeout());
 
     }
 
