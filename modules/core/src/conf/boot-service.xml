@@ -10,10 +10,9 @@
     <mbean code="org.apache.geronimo.deployment.scanner.DeploymentScanner" name="geronimo.deployment:role=DeploymentScanner">
         <constructor>
             <arg type="java.lang.String">
-                file:../../example/
-                file:../../jetty-hack/
+                file:../../deploy/
             </arg>
-            <arg type="boolean">false</arg>
+            <arg type="boolean">true</arg>
         </constructor>
         <attribute name="ScanInterval">5000</attribute>
         <relationship type="DeploymentController-DeploymentScanner" name="DeploymentController-DeploymentScanner" role="DeploymentScanner"/>
