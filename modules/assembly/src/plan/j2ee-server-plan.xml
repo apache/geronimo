@@ -191,6 +191,8 @@ by the server.
         <reference name="JettyContainer">geronimo.server:type=WebContainer,container=Jetty</reference>
         <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
         <attribute name="filename">var/log/jetty_yyyy_mm_dd.log</attribute>
+        <attribute name="logDateFormat">dd/MMM/yyyy:HH:mm:ss ZZZ</attribute>
+        <attribute name="logTimeZone">GMT</attribute>
     </gbean>
 
     <gbean name="geronimo.server:type=WebConnector,container=Jetty,port=8080" class="org.apache.geronimo.jetty.connector.HTTPConnector">
