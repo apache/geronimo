@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.33 $ $Date: 2004/09/03 05:48:14 $ -->
+<!-- $Revision: 1.34 $ $Date: 2004/09/07 02:35:13 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -183,6 +183,31 @@
 
         </j:scope>
 
+    </goal>
+
+    <goal name="java-src"
+        description="Creates an archive containing only java source.">
+
+        <u:available file="${basedir}/src/java">
+            <j:set var="javaSrcBuilt" value="true"/>
+            <ant:mkdir dir="${basedir}/target"/>
+            <ant:jar destfile="${basedir}/target/${pom.artifactId}-${pom.currentVersion}-java-src.jar">
+                <fileset dir="${basedir}/src/java"/>
+                <u:available file="${basedir}/target/xmlbeans">
+                    <fileset dir="${basedir}/target/xmlbeans"/>
+                </u:available>
+            </ant:jar>
+        </u:available>
+
+        <j:if test="${javaSrcBuilt != 'true'}">
+            <u:available file="${basedir}/target/xmlbeans">
+                <j:set var="java-src.built" value="true"/>
+                <ant:mkdir dir="${basedir}/target"/>
+                <ant:jar destfile="${basedir}/target/${pom.artifactId}-${pom.currentVersion}-java-src.jar">
+                    <fileset dir="${basedir}/target/xmlbeans"/>
+                </ant:jar>
+            </u:available>
+        </j:if>
     </goal>
 
     <!-- If there is no src/test directory you can

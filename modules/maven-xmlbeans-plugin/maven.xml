@@ -17,7 +17,7 @@
 -->
 
 
-<!-- $Revision: 1.7 $ $Date: 2004/04/05 18:11:54 $ -->
+<!-- $Revision: 1.8 $ $Date: 2004/09/07 02:35:13 $ -->
 
 <project default="default"
     xmlns:ant="jelly:ant"
@@ -82,5 +82,14 @@
                 </fileset>
             </delete>
         </j:jelly>
+    </goal>
+
+    <goal name="java-src"
+        description="Creates an archive containing only java source.">
+
+        <ant:mkdir dir="${basedir}/target"/>
+        <ant:jar destfile="${basedir}/target/${pom.artifactId}-${pom.currentVersion}-java-src.jar">
+            <fileset dir="${basedir}/src/java"/>
+        </ant:jar>
     </goal>
 </project>

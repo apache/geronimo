@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.81 $ $Date: 2004/09/05 21:05:06 $ -->
+<!-- $Revision: 1.82 $ $Date: 2004/09/07 02:35:13 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -232,6 +232,10 @@
       <modules:reactor goals="jar:deploy"/>
   </goal>
 
+    <goal name="modules:java-src">
+        <modules:reactor goals="java-src"/>
+    </goal>
+
     <goal name="modules:clean">
         <!-- DMB: don't know why we are cleaning this way when we could invoke clean on the submodules -->
         <attainGoal name="modules:reactor:init"/>
@@ -298,8 +302,8 @@
         <attainGoal name="modules:eclipse"/>
     </goal>
 
-    <goal name="blah">
-        <modules:reactor goals="hello"/>
+    <goal name="java-src">
+        <attainGoal name="modules:java-src"/>
     </goal>
 
     <goal name="plugins">
