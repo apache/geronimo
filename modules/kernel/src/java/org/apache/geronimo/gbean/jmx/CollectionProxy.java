@@ -39,7 +39,7 @@ import org.apache.geronimo.gbean.WaitingException;
 /**
  *
  *
- * @version $Revision: 1.14 $ $Date: 2004/03/10 09:59:00 $
+ * @version $Revision: 1.15 $ $Date: 2004/04/23 07:17:33 $
  */
 public class CollectionProxy implements Proxy {
     private static final Log log = LogFactory.getLog(CollectionProxy.class);
@@ -130,12 +130,12 @@ public class CollectionProxy implements Proxy {
     public synchronized void removeTarget(ObjectName target) {
         Object targetProxy = proxies.remove(target);
         if (targetProxy != null) {
+            if (!stopped) {
+                proxy.fireMemberRemovedEvent(targetProxy);
+            }
             ProxyMethodInterceptor interceptor = (ProxyMethodInterceptor) interceptors.remove(target);
             if (interceptor != null) {
                 interceptor.disconnect();
-            }
-            if (!stopped) {
-                proxy.fireMemberRemovedEvent(targetProxy);
             }
         }
     }
