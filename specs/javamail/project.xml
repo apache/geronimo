@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.1 $ $Date: 2003/08/16 01:55:47 $ -->
+<!-- $Revision: 1.2 $ $Date: 2003/08/16 12:32:28 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
   <extend>${basedir}/../../etc/project.xml</extend>
   
   <name>Geronimo :: JavaMail Specification</name>
-  <groupId>geronimo-javamail</groupId>
+  <groupId>geronimo-spec</groupId>
   <id>geronimo-spec-javamail</id>
   <shortDescription></shortDescription>
   <description></description>
