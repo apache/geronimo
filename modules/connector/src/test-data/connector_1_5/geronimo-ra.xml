@@ -112,7 +112,7 @@
     </gbean>
 
     <gbean name="geronimo.server:type=TransactionManager" class="org.apache.geronimo.transaction.GeronimoTransactionManager">
-        <references name="resourceManagers">
+        <references name="ResourceManagers">
             <pattern>geronimo.server:j2eeType=JCAManagedConnectionFactory,*</pattern>
             <pattern>geronimo.server:j2eeType=MessageDrivenBean,*</pattern>
         </references>
