@@ -32,7 +32,7 @@
     <!-- Module Identification -->
     <!-- ===================== -->
 
-    <name>Geronimo :: Naming</name>
+    <name>Geronimo :: Naming :: Builder</name>
     <id>geronimo-naming-builder</id>
     <shortDescription>Geronimo Naming Builder</shortDescription>
     <description>Geronimo Naming Builder</description>
