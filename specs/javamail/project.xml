@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.2 $ $Date: 2003/08/16 12:32:28 $ -->
+<!-- $Revision: 1.3 $ $Date: 2003/08/16 19:31:46 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -16,13 +16,24 @@
   
   <package>javax</package>
   <currentVersion>DEV</currentVersion>
-
-  <!-- Module Dependencies -->
+  
+  <!-- ============ -->
+  <!-- Dependencies -->
+  <!-- ============ -->
+  
   <dependencies>
+    
+    <!-- Module Dependencies -->
+    
     <dependency>
       <groupId>geronimo-spec</groupId>
       <artifactId>geronimo-spec-activation</artifactId>
       <version>DEV</version>
+      <properties>
+        <module>true</module>
+      </properties>
     </dependency>
+    
   </dependencies>
+  
 </project>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.3 $ $Date: 2003/08/16 15:14:13 $ -->
+<!-- $Revision: 1.4 $ $Date: 2003/08/16 19:31:46 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -29,6 +29,9 @@
       <groupId>geronimo-spec</groupId>
       <artifactId>geronimo-spec-jta</artifactId>
       <version>DEV</version>
+      <properties>
+        <module>true</module>
+      </properties>
     </dependency>
     
   </dependencies>
