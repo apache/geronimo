@@ -19,18 +19,15 @@ package org.apache.geronimo.messaging.jmx;
 
 import javax.management.MBeanServer;
 
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.LazyLoader;
-
 import org.apache.geronimo.kernel.KernelMBean;
 import org.apache.geronimo.messaging.AbstractEndPoint;
 import org.apache.geronimo.messaging.Node;
-import org.apache.geronimo.messaging.reference.Referenceable;
+import org.apache.geronimo.messaging.reference.ReferenceableEnhancer;
 
 /**
  * MBeanServerEndPoint implementation.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/24 12:12:47 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/27 14:23:21 $
  */
 public class MBeanServerEndPointImpl
     extends AbstractEndPoint
@@ -58,23 +55,9 @@ public class MBeanServerEndPointImpl
         if ( null == aKernel ) {
             throw new IllegalArgumentException("Kernel is required.");
         }
-        // Injects the Referenceable interface.
-        Enhancer enhancer = new Enhancer();
-        enhancer.setInterfaces(
-                new Class[] {MBeanServer.class, Referenceable.class});
-        enhancer.setCallbackType(LazyLoader.class);
-        enhancer.setCallback(new LazyLoader() {
-            public Object loadObject() throws Exception {
-                return aKernel.getMBeanServer();
-            }
-        });
-        // Gets rid of the Factory interface.
-        // Implementation note: when the proxy was implementing it, the
-        // ReferenceableInfo was defining two interfaces MBeanServer and
-        // Factory. Upon deserialization these two interfaces were MBeanServer
-        // and MBeanServer.
-        enhancer.setUseFactory(false);
-        server = (MBeanServer) enhancer.create();
+        
+        server = (MBeanServer)
+            ReferenceableEnhancer.enhance(aKernel.getMBeanServer());
     }
 
     public MBeanServer getMBeanServer() {
