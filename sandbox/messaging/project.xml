@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.1 $ $Date: 2004/05/11 12:06:43 $ -->
+<!-- $Revision: 1.2 $ $Date: 2004/05/27 15:57:34 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -77,6 +77,24 @@
             <artifactId>geronimo-network</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
+
+		<!-- TODO START reverse dependency -->
+        <dependency>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xbean-apache</artifactId>
+            <version>1.0-DEV</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-deployment</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee-deployment</artifactId>
+            <version>1.1-rc1</version>
+        </dependency>
+		<!-- TODO END reverse dependency -->
 
         <dependency>
             <groupId>commons-logging</groupId>
