@@ -35,4 +35,11 @@
 
     <currentVersion>${geronimo_spec_saaj_version}</currentVersion>
 
+    <dependencies>
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-activation</artifactId>
+            <version>${geronimo_spec_activation_version}</version>
+        </dependency>
+    </dependencies>
 </project>

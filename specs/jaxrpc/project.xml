@@ -45,5 +45,15 @@
             <artifactId>geronimo-spec-qname</artifactId>
             <version>${geronimo_spec_qname_version}</version>
         </dependency>
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-saaj</artifactId>
+            <version>${geronimo_spec_saaj_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-servlet</artifactId>
+            <version>${geronimo_spec_servlet_version}</version>
+        </dependency>
     </dependencies>
 </project>
