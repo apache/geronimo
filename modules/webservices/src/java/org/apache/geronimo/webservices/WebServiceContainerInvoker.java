@@ -63,7 +63,7 @@ public class WebServiceContainerInvoker implements Servlet {
         // This is the guy the WebServiceContainer should invoke
         req.setAttribute(WebServiceContainer.POJO_INSTANCE, pojo);
 
-        if (request.getParameter("wsdl") != null) {
+        if (request.getParameter("wsdl") != null || request.getParameter("WSDL") != null) {
             try {
                 service.getWsdl(request, response);
             } catch (IOException e) {
