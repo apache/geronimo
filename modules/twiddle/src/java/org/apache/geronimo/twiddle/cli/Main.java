@@ -65,13 +65,10 @@ import java.net.URL;
 import org.codehaus.classworlds.ClassWorld;
 
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.ParseException;
-
 import org.apache.geronimo.common.NullArgumentException;
 
 import org.apache.geronimo.twiddle.Twiddle;
@@ -82,7 +79,7 @@ import org.apache.geronimo.twiddle.util.HelpFormatter;
 /**
  * Command-line interface to <code>Twiddle</code>.
  *
- * @version $Revision: 1.13 $ $Date: 2003/09/05 20:25:36 $
+ * @version $Revision: 1.14 $ $Date: 2003/12/07 03:39:34 $
  */
 public class Main
 {

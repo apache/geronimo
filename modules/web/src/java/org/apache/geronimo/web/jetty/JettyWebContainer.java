@@ -59,20 +59,18 @@ package org.apache.geronimo.web.jetty;
 import java.net.URI;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.core.service.Container;
 import org.apache.geronimo.kernel.management.StateManageable;
 import org.apache.geronimo.web.AbstractWebContainer;
 import org.apache.geronimo.web.WebApplication;
 import org.apache.geronimo.web.WebConnector;
 import org.mortbay.jetty.Server;
-import org.mortbay.http.SocketListener;
 
 /**
  * Base class for jetty web containers.
  * @jmx:mbean extends="org.apache.geronimo.web.AbstractWebContainerMBean"
  *
  *
- * @version $Revision: 1.8 $ $Date: 2003/10/30 07:47:05 $
+ * @version $Revision: 1.9 $ $Date: 2003/12/07 03:42:50 $
  */
 public class JettyWebContainer extends AbstractWebContainer implements JettyWebContainerMBean {
   
