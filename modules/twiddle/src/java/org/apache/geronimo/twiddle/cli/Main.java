@@ -57,6 +57,9 @@
 package org.apache.geronimo.twiddle.cli;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
+
 import java.net.URL;
 import java.net.URLDecoder;
 
@@ -67,17 +70,18 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.HelpFormatter;
 
 import org.apache.geronimo.twiddle.Twiddle;
 
 import org.apache.geronimo.twiddle.config.Configuration;
 import org.apache.geronimo.twiddle.config.ConfigurationReader;
 
+import org.apache.geronimo.twiddle.util.HelpFormatter;
+
 /**
  * Command-line interface to <code>Twiddle</code>.
  *
- * @version <code>$Id: Main.java,v 1.1 2003/08/13 08:32:09 jdillon Exp $</code>
+ * @version <code>$Id: Main.java,v 1.2 2003/08/13 15:18:47 jdillon Exp $</code>
  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
  */
 public class Main
@@ -111,24 +115,17 @@ public class Main
         // parse the command line arguments
         CommandLine line = parser.parse(options, args, true);
         
-        // Dump parsed options
-        System.out.println("Twiddle options:");
-        Option[] opts = line.getOptions();
-        for (int i=0; i<opts.length; i++) {
-            System.out.println(opts[i]);
-        }
-        
         // Display command-line help and exit
         if (line.hasOption('h')) {
-            System.out.println(Twiddle.getBanner());
-            HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp(
+            PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out), true);
+            HelpFormatter formatter = new HelpFormatter(out);
+            
+            formatter.print(
+                Twiddle.getBanner(),
                 "twiddle [options] (<command> [options] [arguments])*",
-                LINE_SEPARATOR + "Options:",
-                options,
-                LINE_SEPARATOR
+                options
             );
-            System.out.println();
+            
             System.exit(0);
         }
         

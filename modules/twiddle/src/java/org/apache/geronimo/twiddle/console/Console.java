@@ -65,11 +65,15 @@ import java.io.IOException;
  *
  * <p>Modeled after Java-Readline.
  *
- * @version <code>$Id: Console.java,v 1.1 2003/08/13 10:54:37 jdillon Exp $</code>
+ * @version <code>$Id: Console.java,v 1.2 2003/08/13 15:18:48 jdillon Exp $</code>
  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
  */
 public interface Console
 {
+    //
+    // TODO: Refatcor line reading into subpackage/classes
+    //
+    
     /**
      * Set the input/output context.
      *

@@ -63,9 +63,9 @@ import java.util.Iterator;
 import org.apache.geronimo.common.NullArgumentException;
 
 /**
- * ???
+ * A container for commands.
  *
- * @version <code>$Id: CommandContainer.java,v 1.1 2003/08/13 08:32:09 jdillon Exp $</code>
+ * @version <code>$Id: CommandContainer.java,v 1.2 2003/08/13 15:18:47 jdillon Exp $</code>
  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
  */
 public class CommandContainer

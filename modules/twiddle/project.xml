@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: project.xml,v 1.2 2003/08/13 10:55:51 jdillon Exp $ -->
+<!-- $Id: project.xml,v 1.3 2003/08/13 15:18:47 jdillon Exp $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -64,6 +64,12 @@
       <id>log4j</id>
       <version>1.2.8</version>
       <url>http://jakarta.apache.org/log4j</url>
+    </dependency>
+    
+    <dependency>
+      <id>commons-beanutils</id>
+      <version>1.6.1</version>
+      <url>http://jakarta.apache.org/commons/beanutils.html</url>
     </dependency>
     
     <dependency>

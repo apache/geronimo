@@ -74,7 +74,7 @@ import org.apache.geronimo.twiddle.config.Attribute;
  * A factory for creating <code>Command</code> instances from
  * a <code>CommandConfig</code>.
  *
- * @version <code>$Id: CommandFactory.java,v 1.2 2003/08/13 11:48:57 jdillon Exp $</code>
+ * @version <code>$Id: CommandFactory.java,v 1.3 2003/08/13 15:18:47 jdillon Exp $</code>
  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
  */
 public class CommandFactory
@@ -100,6 +100,10 @@ public class CommandFactory
         // Load the command instance
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         Command command = (Command)Beans.instantiate(cl, config.getCode());
+        
+        //
+        // TODO: Use Commons BeanUtils
+        //
         
         // Apply attributes
         BeanInfo info = Introspector.getBeanInfo(command.getClass());

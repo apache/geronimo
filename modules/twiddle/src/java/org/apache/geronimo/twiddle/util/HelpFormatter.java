@@ -54,29 +54,103 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.twiddle.command;
+package org.apache.geronimo.twiddle.util;
 
-import org.apache.geronimo.twiddle.console.IOContext;
+import java.io.PrintWriter;
+
+import org.apache.commons.cli.Options;
+
+import org.apache.geronimo.common.NullArgumentException;
 
 /**
- * Provides a command with details on its environment.
+ * A helper to handle command help output.
  *
- * @version <code>$Id: CommandContext.java,v 1.3 2003/08/13 15:18:47 jdillon Exp $</code>
+ * @version <code>$Id: HelpFormatter.java,v 1.1 2003/08/13 15:18:48 jdillon Exp $</code>
  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
  */
-public interface CommandContext
+public class HelpFormatter
+    extends org.apache.commons.cli.HelpFormatter
 {
-    /**
-     * Get the command environemnt.
-     *
-     * @return The commands environment.
-     */
-    Environment getEnvironment();
+    /** Platform dependent line separator. */
+    public static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    
+    /** Terminal width. */
+    public static final int TERMINAL_WIDTH = 80;
+    
+    /** The writer to print help to. */
+    protected PrintWriter out;
     
     /**
-     * Get the input/output context for the command.
+     * Construct a <code>HelpFormatter</code>
      *
-     * @return The input/output context the command is running in.
+     * @param out   The writer to print to.
      */
-    IOContext getIOContext();
+    public HelpFormatter(final PrintWriter out)
+    {
+        if (out == null) {
+            throw new NullArgumentException("out");
+        }
+        
+        this.out = out;
+    }
+    
+    /**
+     * Print help.
+     *
+     * @param desc      The help desctiption, or null for none.
+     * @param usage     The command usage/syntax.
+     * @param header    The options header, or null for the default.
+     * @param options   The command line options.
+     * @param footer    The options footer, or null for the default.
+     */
+    public void print(final String desc, final String usage, String header,
+                      final Options options, String footer)
+    {
+        if (usage == null) {
+            throw new NullArgumentException("usage");
+        }
+        if (options == null) {
+            throw new NullArgumentException("options");
+        }
+        
+        if (desc != null) {
+            out.println(desc);
+            out.println();
+        }
+        
+        if (header == null) {
+            header = LINE_SEPARATOR + "Options:";
+        }
+        
+        if (footer == null) {
+            footer = LINE_SEPARATOR;
+        }
+        
+        printHelp(out, TERMINAL_WIDTH, usage, header, options, 2, 4, footer);
+        out.println();
+        out.flush();
+    }
+    
+    /**
+     * Print help.
+     *
+     * @param desc      The help desctiption, or null for none.
+     * @param usage     The command usage/syntax.
+     * @param options   The command line options.
+     */
+    public void print(final String desc, final String usage, final Options options)
+    {
+        print(desc, usage, null, options, null);
+    }
+    
+    /**
+     * Print help.
+     *
+     * @param usage     The command usage/syntax.
+     * @param options   The command line options.
+     */
+    public void print(final String usage, final Options options)
+    {
+        print(null, usage, null, options, null);
+    }
 }

@@ -65,10 +65,12 @@ import org.apache.geronimo.twiddle.command.CommandContext;
 import org.apache.geronimo.twiddle.command.CommandException;
 import org.apache.geronimo.twiddle.command.CommandNotFoundException;
 
+import org.apache.geronimo.twiddle.console.IOContext;
+
 /**
- * ???
+ * Executes commands.
  *
- * @version <code>$Id: CommandExecutor.java,v 1.1 2003/08/13 08:32:09 jdillon Exp $</code>
+ * @version <code>$Id: CommandExecutor.java,v 1.2 2003/08/13 15:18:47 jdillon Exp $</code>
  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
  */
 public class CommandExecutor
@@ -112,10 +114,18 @@ public class CommandExecutor
     protected int execute(final Command command, final String[] args) throws Exception
     {
         // Set the context
-        //
-        // TODO
-        //
-        // command.setCommandContext(ctx);
+        CommandContext ctx = new CommandContext() {
+            public Environment getEnvironment()
+            {
+                return null;
+            }
+            
+            public IOContext getIOContext()
+            {
+                return new IOContext();
+            }
+        };
+        command.setCommandContext(ctx);
         
         // Execute the command
         int result = Command.FAILURE;

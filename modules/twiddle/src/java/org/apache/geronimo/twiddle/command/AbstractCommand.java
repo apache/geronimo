@@ -56,6 +56,9 @@
 
 package org.apache.geronimo.twiddle.command;
 
+import java.io.PrintWriter;
+import java.io.Reader;
+
 import org.apache.geronimo.common.CloneableObject;
 import org.apache.geronimo.common.NullArgumentException;
 
@@ -65,7 +68,7 @@ import org.apache.geronimo.common.NullArgumentException;
  * <p>Sub-classes only need to implement {@link Command#execute} and
  *    can access the command context from {@link #getCommandContext}.
  *
- * @version <code>$Id: AbstractCommand.java,v 1.1 2003/08/13 08:32:09 jdillon Exp $</code>
+ * @version <code>$Id: AbstractCommand.java,v 1.2 2003/08/13 15:18:47 jdillon Exp $</code>
  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
  */
 public abstract class AbstractCommand
@@ -80,6 +83,11 @@ public abstract class AbstractCommand
     
     /** The command context. */
     private CommandContext context;
+    
+    
+    /////////////////////////////////////////////////////////////////////////
+    //                              Command                                //
+    /////////////////////////////////////////////////////////////////////////
     
     public void setCommandInfo(final CommandInfo info)
     {
@@ -113,6 +121,11 @@ public abstract class AbstractCommand
         context = null;
     }
     
+    
+    /////////////////////////////////////////////////////////////////////////
+    //                          Sub-class Helpers                          //
+    /////////////////////////////////////////////////////////////////////////
+    
     /**
      * Provides sub-classes with access to the command context.
      *
@@ -127,5 +140,35 @@ public abstract class AbstractCommand
         }
         
         return context;
+    }
+    
+    /**
+     * Provides sub-classes with the reader for the current context.
+     *
+     * @return The reader for the current context.
+     */
+    protected Reader getReader()
+    {
+        return getCommandContext().getIOContext().getReader();
+    }
+    
+    /**
+     * Provides sub-classes with the writer for the current context.
+     *
+     * @return The writer for the current context.
+     */
+    protected PrintWriter getWriter()
+    {
+        return getCommandContext().getIOContext().getWriter();
+    }
+    
+    /**
+     * Provides sub-classes with the error writer for the current context.
+     *
+     * @return The error writer for the current context.
+     */
+    protected PrintWriter getErrorWriter()
+    {
+        return getCommandContext().getIOContext().getErrorWriter();
     }
 }

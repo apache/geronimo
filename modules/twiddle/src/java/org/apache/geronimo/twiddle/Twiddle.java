@@ -71,6 +71,8 @@ import org.apache.geronimo.twiddle.command.CommandContainer;
 import org.apache.geronimo.twiddle.command.CommandExecutor;
 import org.apache.geronimo.twiddle.command.CommandException;
 
+import org.apache.geronimo.twiddle.console.IOContext;
+
 /**
  * <em>Twiddle</em> is a command processor.
  *
@@ -78,11 +80,14 @@ import org.apache.geronimo.twiddle.command.CommandException;
  *    command processor, it serves only to facilitate their operation and to
  *    provide a simple API to execute commands (hence facade).
  *
- * @version <tt>$Revision: 1.3 $ $Date: 2003/08/13 10:55:51 $</tt>
+ * @version <tt>$Revision: 1.4 $ $Date: 2003/08/13 15:18:47 $</tt>
  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
  */
 public class Twiddle
 {
+    /** The input/output context. */
+    protected IOContext io;
+    
     /** The command container. */
     protected CommandContainer container;
     
@@ -92,10 +97,34 @@ public class Twiddle
     /**
      * Construct a <code>Twiddle</code> command processor.
      */
+    public Twiddle(final IOContext io)
+    {
+        if (io == null) {
+            throw new NullArgumentException("io");
+        }
+        
+        this.io = io;
+        this.container = new CommandContainer();
+        this.executor = new CommandExecutor(container);
+    }
+    
+    /**
+     * Construct a <code>Twiddle</code> command processor using system
+     * defaults for the input/output context.
+     */
     public Twiddle()
     {
-        container = new CommandContainer();
-        executor = new CommandExecutor(container);
+        this(new IOContext(System.in, System.out, System.err));
+    }
+    
+    /**
+     * Get the input/output context.
+     *
+     * @return The input/output context.
+     */
+    public IOContext getIOContext()
+    {
+        return io;
     }
     
     /**
@@ -175,7 +204,7 @@ public class Twiddle
         out.println("|_   _|_      _(_) __| | __| | | ___");
         out.println("  | | \\ \\ /\\ / / |/ _` |/ _` | |/ _ \\");
         out.println("  | |  \\ V  V /| | (_| | (_| | |  __/");
-        out.println("  |_|   \\_/\\_/ |_|\\__,_|\\__,_|_|\\___|");
+        out.print("  |_|   \\_/\\_/ |_|\\__,_|\\__,_|_|\\___|");
         out.flush();
         
         return writer.toString();

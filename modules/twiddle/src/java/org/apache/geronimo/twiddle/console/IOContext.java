@@ -57,14 +57,19 @@
 package org.apache.geronimo.twiddle.console;
 
 import java.io.InputStream;
+import java.io.Reader;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
 
 import org.apache.geronimo.common.NullArgumentException;
 
 /**
- * Abstraction of a collection of input and output streams.
+ * Abstraction of a collection of input and output streams
+ * as well as helper methods to access the corresponding reader/writers.
  *
- * @version <code>$Id: IOContext.java,v 1.1 2003/08/13 10:54:37 jdillon Exp $</code>
+ * @version <code>$Id: IOContext.java,v 1.2 2003/08/13 15:18:48 jdillon Exp $</code>
  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
  */
 public class IOContext
@@ -72,11 +77,20 @@ public class IOContext
     /** The input stream. */
     protected InputStream input;
     
+    /** The reader (or null if reader was not accessed). */
+    protected Reader reader;
+    
     /** The output stream. */
     protected OutputStream output;
     
+    /** The writer (or null if writer was not accessed). */
+    protected PrintWriter writer;
+    
     /** The error output stream. */
     protected OutputStream errorOutput;
+    
+    /** The error writer (or null if writer was not accessed). */
+    protected PrintWriter errorWriter;
     
     /**
      * Construct a <code>IOContext</code>.
@@ -114,6 +128,14 @@ public class IOContext
     }
     
     /**
+     * Construct a <code>IOContext</code> using system defaults.
+     */
+    public IOContext()
+    {
+        this(System.in, System.out, System.err);
+    }
+    
+    /**
      * Get the input stream.
      *
      * @return The input stream.
@@ -121,6 +143,20 @@ public class IOContext
     public InputStream getInputStream()
     {
         return input;
+    }
+    
+    /**
+     * Get the reader.
+     *
+     * @return The reader.
+     */
+    public Reader getReader()
+    {
+        if (reader == null) {
+            reader = new InputStreamReader(input);
+        }
+        
+        return reader;
     }
     
     /**
@@ -134,6 +170,20 @@ public class IOContext
     }
     
     /**
+     * Get the writer.
+     *
+     * @return The writer.
+     */
+    public PrintWriter getWriter()
+    {
+        if (writer == null) {
+            writer = new PrintWriter(new OutputStreamWriter(output), true);
+        }
+        
+        return writer;
+    }
+    
+    /**
      * Get the error output stream.
      *
      * @return The error output stream.
@@ -141,5 +191,19 @@ public class IOContext
     public OutputStream getErrorOutputStream()
     {
         return errorOutput;
+    }
+    
+    /**
+     * Get the error writer.
+     *
+     * @return The error writer.
+     */
+    public PrintWriter getErrorWriter()
+    {
+        if (errorWriter == null) {
+            errorWriter = new PrintWriter(new OutputStreamWriter(errorOutput), true);
+        }
+        
+        return errorWriter;
     }
 }
