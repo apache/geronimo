@@ -111,35 +111,6 @@ public class ServiceReferenceTest extends TestCase {
         recursiveDelete(tmpbasedir);
     }
 
-    public void testGetArrayClassName() throws Exception {
-        AxisBuilder builder = new AxisBuilder();
-        ClassLoader classLoader = this.getClass().getClassLoader();
-        assertEquals(Object[].class, builder.convertJavaTypeName("java.lang.Object[]", classLoader));
-        assertEquals(Object[].class, builder.convertJavaTypeName("java.lang.Object [ ] ", classLoader));
-        assertEquals(Object[][].class, builder.convertJavaTypeName("java.lang.Object [ ] []", classLoader));
-
-        assertEquals(boolean[][].class, builder.convertJavaTypeName("boolean [ ] []", classLoader));
-        assertEquals(byte[][].class, builder.convertJavaTypeName("byte [ ] []", classLoader));
-        assertEquals(char[][].class, builder.convertJavaTypeName("char [ ] []", classLoader));
-        assertEquals(double[][].class, builder.convertJavaTypeName("double [ ] []", classLoader));
-        assertEquals(float[][].class, builder.convertJavaTypeName("float [ ] []", classLoader));
-        assertEquals(int[][].class, builder.convertJavaTypeName("int [ ] []", classLoader));
-        assertEquals(long[][].class, builder.convertJavaTypeName("long [ ] []", classLoader));
-        assertEquals(short[][].class, builder.convertJavaTypeName("short [ ] []", classLoader));
-
-        assertEquals(boolean.class, builder.convertJavaTypeName("boolean", classLoader));
-        assertEquals(byte.class, builder.convertJavaTypeName("byte", classLoader));
-        assertEquals(char.class, builder.convertJavaTypeName("char", classLoader));
-        assertEquals(double.class, builder.convertJavaTypeName("double", classLoader));
-        assertEquals(float.class, builder.convertJavaTypeName("float", classLoader));
-        assertEquals(int.class, builder.convertJavaTypeName("int", classLoader));
-        assertEquals(long.class, builder.convertJavaTypeName("long", classLoader));
-        assertEquals(short.class, builder.convertJavaTypeName("short", classLoader));
-        assertEquals(void.class, builder.convertJavaTypeName("void", classLoader));
-
-
-    }
-
     public void testServiceRefCreation() throws Exception {
         AxisBuilder builder = new AxisBuilder();
 

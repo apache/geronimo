@@ -96,6 +96,7 @@ import org.apache.geronimo.xbeans.j2ee.ServiceEndpointInterfaceMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointMethodMappingType;
 import org.apache.geronimo.xbeans.j2ee.WsdlMessageMappingType;
 import org.apache.geronimo.xbeans.j2ee.WsdlReturnValueMappingType;
+import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.xmlbeans.XmlException;
 import org.objectweb.asm.Type;
 import org.xml.sax.InputSource;
@@ -128,36 +129,40 @@ public class AxisBuilder implements ServiceReferenceBuilder {
 
     public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
         JarFile moduleFile = module.getModuleFile();
-        JarWSDLLocator wsdlLocator = new JarWSDLLocator(moduleFile, wsdlURI);
-        WSDLFactory wsdlFactory = null;
-        try {
-            wsdlFactory = WSDLFactory.newInstance();
-        } catch (WSDLException e) {
-            throw new DeploymentException("Could not create WSDLFactory", e);
-        }
-        WSDLReader wsdlReader = wsdlFactory.newWSDLReader();
         Definition definition = null;
-        try {
-            definition = wsdlReader.readWSDL(wsdlLocator);
-        } catch (WSDLException e) {
-            throw new DeploymentException("Failed to read wsdl document", e);
-        }
+        JavaWsdlMappingType mapping = null;
+        if (wsdlURI != null) {
+            JarWSDLLocator wsdlLocator = new JarWSDLLocator(moduleFile, wsdlURI);
+            WSDLFactory wsdlFactory = null;
+            try {
+                wsdlFactory = WSDLFactory.newInstance();
+            } catch (WSDLException e) {
+                throw new DeploymentException("Could not create WSDLFactory", e);
+            }
+            WSDLReader wsdlReader = wsdlFactory.newWSDLReader();
+            definition = null;
+            try {
+                definition = wsdlReader.readWSDL(wsdlLocator);
+            } catch (WSDLException e) {
+                throw new DeploymentException("Failed to read wsdl document", e);
+            }
 
-        InputStream jaxrpcInputStream = null;
-        try {
-            jaxrpcInputStream = moduleFile.getInputStream(moduleFile.getEntry(jaxrpcMappingURI.toString()));
-        } catch (IOException e) {
-            throw new DeploymentException("Could not open stream to jaxrpc mapping document", e);
+            InputStream jaxrpcInputStream = null;
+            try {
+                jaxrpcInputStream = moduleFile.getInputStream(moduleFile.getEntry(jaxrpcMappingURI.toString()));
+            } catch (IOException e) {
+                throw new DeploymentException("Could not open stream to jaxrpc mapping document", e);
+            }
+            JavaWsdlMappingDocument mappingDocument = null;
+            try {
+                mappingDocument = JavaWsdlMappingDocument.Factory.parse(jaxrpcInputStream);
+            } catch (XmlException e) {
+                throw new DeploymentException("Could not parse jaxrpc mapping document", e);
+            } catch (IOException e) {
+                throw new DeploymentException("Could not read jaxrpc mapping document", e);
+            }
+            mapping = mappingDocument.getJavaWsdlMapping();
         }
-        JavaWsdlMappingDocument mappingDocument = null;
-        try {
-            mappingDocument = JavaWsdlMappingDocument.Factory.parse(jaxrpcInputStream);
-        } catch (XmlException e) {
-            throw new DeploymentException("Could not parse jaxrpc mapping document", e);
-        } catch (IOException e) {
-            throw new DeploymentException("Could not read jaxrpc mapping document", e);
-        }
-        JavaWsdlMappingType mapping = mappingDocument.getJavaWsdlMapping();
 
         Object service = createService(serviceInterface, definition, mapping, serviceQName, SOAP_VERSION, deploymentContext, module, classLoader);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -178,7 +183,9 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         Map seiPortNameToFactoryMap = new HashMap();
         Map seiClassNameToFactoryMap = new HashMap();
         Object serviceInstance = createService(serviceInterface, seiPortNameToFactoryMap, seiClassNameToFactoryMap, context, module, classloader);
-        buildSEIFactoryMap(serviceInterface, definition, mapping, serviceQName, soapVersion, seiPortNameToFactoryMap, seiClassNameToFactoryMap, serviceInstance, context, module, classloader);
+        if (definition != null) {
+            buildSEIFactoryMap(serviceInterface, definition, mapping, serviceQName, soapVersion, seiPortNameToFactoryMap, seiClassNameToFactoryMap, serviceInstance, context, module, classloader);
+        }
         return serviceInstance;
     }
 
@@ -308,7 +315,12 @@ public class AxisBuilder implements ServiceReferenceBuilder {
 
                     String className = javaXmlTypeMapping.getJavaType().getStringValue().trim();
 
-                    Class clazz = convertJavaTypeName(className, classLoader);
+                    Class clazz = null;
+                    try {
+                        clazz = ClassLoading.loadClass(className, classLoader);
+                    } catch (ClassNotFoundException e) {
+                        throw new DeploymentException("Could not load java type", e);
+                    }
                     if (clazz.isArray()) {
                         serializerFactoryClass = ArraySerializerFactory.class;
                         deserializerFactoryClass = ArrayDeserializerFactory.class;
@@ -338,79 +350,6 @@ public class AxisBuilder implements ServiceReferenceBuilder {
             seiClassNameToFactoryMap.put(serviceEndpointInterface.getName(), seiFactory);
         }
     }
-
-    Class convertJavaTypeName(String className, ClassLoader classLoader) throws DeploymentException {
-        int pos = className.indexOf("[");
-        if (pos > -1) {
-            String baseType = className.substring(0, pos).trim();
-            StringBuffer buf = new StringBuffer(className.length());
-            buf.append("[");
-            while ((pos = className.indexOf("[", pos + 1)) > -1) {
-                buf.append("[");
-            }
-
-            if (baseType.equals("int")) {
-                buf.append("I");
-            } else if (baseType.equals("boolean")) {
-                buf.append("Z");
-            } else if (baseType.equals("byte")) {
-                buf.append("B");
-            } else if (baseType.equals("char")) {
-                buf.append("C");
-            } else if (baseType.equals("short")) {
-                buf.append("S");
-            } else if (baseType.equals("double")) {
-                buf.append("D");
-            } else if (baseType.equals("float")) {
-                buf.append("F");
-            } else if (baseType.equals("long")) {
-                buf.append("J");
-            } else {
-                buf.append("L").append(baseType).append(";");
-            }
-            className = buf.toString();
-        } else {
-            if (className.equals("int")) {
-                return int.class;
-            } else if (className.equals("boolean")) {
-                return boolean.class;
-            } else if (className.equals("byte")) {
-                return byte.class;
-            } else if (className.equals("char")) {
-                return char.class;
-            } else if (className.equals("short")) {
-                return short.class;
-            } else if (className.equals("double")) {
-                return double.class;
-            } else if (className.equals("float")) {
-                return float.class;
-            } else if (className.equals("long")) {
-                return long.class;
-            } else if (className.equals("void")) {
-                return void.class;
-            }
-        }
-        try {
-            return classLoader.loadClass(className);
-        } catch (ClassNotFoundException e) {
-            throw new DeploymentException("Could not load class ", e);
-        }
-    }
-
-//    private Class[] getParameterTypes(ServiceEndpointMethodMappingType methodMapping, ClassLoader classloader) throws DeploymentException {
-//        MethodParamPartsMappingType[] paramMappings = methodMapping.getMethodParamPartsMappingArray();
-//        Class[] types = new Class[paramMappings.length];
-//        for (int i = 0; i < paramMappings.length; i++) {
-//            MethodParamPartsMappingType paramMapping = paramMappings[i];
-//            String paramType = paramMapping.getParamType().getStringValue().trim();
-//            try {
-//                types[i] = classloader.loadClass(paramType);
-//            } catch (ClassNotFoundException e) {
-//                throw new DeploymentException("Could not load param type", e);
-//            }
-//        }
-//        return types;
-//    }
 
     private ServiceEndpointMethodMappingType getMethodMappingForOperation(Operation operation, ServiceEndpointMethodMappingType[] methodMappings) throws DeploymentException {
         String operationName = operation.getName();
@@ -640,6 +579,8 @@ public class AxisBuilder implements ServiceReferenceBuilder {
 
         Message inputMessage = operation.getInput().getMessage();
 
+        boolean isWrappedElement = methodMapping.isSetWrappedElement();
+
         MethodParamPartsMappingType[] paramMappings = methodMapping.getMethodParamPartsMappingArray();
         Type[] parameterASMTypes = new Type[paramMappings.length];
         ParameterDesc[] parameterDescriptions = new ParameterDesc[paramMappings.length];
@@ -647,7 +588,12 @@ public class AxisBuilder implements ServiceReferenceBuilder {
             MethodParamPartsMappingType paramMapping = paramMappings[i];
             int position = paramMapping.getParamPosition().getBigIntegerValue().intValue();
             String paramJavaTypeName = paramMapping.getParamType().getStringValue().trim();
-            Class paramJavaType = convertJavaTypeName(paramJavaTypeName, classLoader);
+            Class paramJavaType = null;
+            try {
+                paramJavaType = ClassLoading.loadClass(paramJavaTypeName, classLoader);
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException("could not load parameter type", e);
+            }
 
             WsdlMessageMappingType wsdlMessageMappingType = paramMapping.getWsdlMessageMapping();
             String parameterMode = wsdlMessageMappingType.getParameterMode().getStringValue().trim();
@@ -666,7 +612,8 @@ public class AxisBuilder implements ServiceReferenceBuilder {
 //            Message inputMessage = definition.getMessage(wsdlMessageQName);
             Part part = inputMessage.getPart(wsdlMessagePartName);
             //TODO this makes little sense but may be correct, see comments in axis Parameter class
-            QName partQName = part.getElementName();
+            //the part name qname is really odd.
+            QName partQName = isWrappedElement? part.getElementName(): new QName("", part.getName());
             QName partTypeQName = part.getTypeName();
 
             ParameterDesc parameterDesc = new ParameterDesc(partQName, mode, partTypeQName, paramJavaType, inHeader, outHeader);
@@ -684,7 +631,11 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         if (methodMapping.isSetWsdlReturnValueMapping()) {
             WsdlReturnValueMappingType wsdlReturnValueMapping = methodMapping.getWsdlReturnValueMapping();
             String returnClassName = wsdlReturnValueMapping.getMethodReturnValue().getStringValue().trim();
-            returnClass = convertJavaTypeName(returnClassName, classLoader);
+            try {
+                returnClass = ClassLoading.loadClass(returnClassName, classLoader);
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException("Could not load return type", e);
+            }
 
             QName wsdlMessageQName = wsdlReturnValueMapping.getWsdlMessage().getQNameValue();
 
