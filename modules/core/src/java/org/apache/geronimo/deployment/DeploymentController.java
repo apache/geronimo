@@ -65,6 +65,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.io.IOException;
 import javax.management.MBeanRegistration;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
@@ -80,13 +81,15 @@ import org.apache.geronimo.deployment.goal.DeployURL;
 import org.apache.geronimo.deployment.goal.RedeployURL;
 import org.apache.geronimo.deployment.goal.UndeployURL;
 import org.apache.geronimo.deployment.plan.DeploymentPlan;
+import org.apache.geronimo.deployment.scanner.URLInfo;
+import org.apache.geronimo.deployment.scanner.URLType;
 import org.apache.geronimo.jmx.JMXUtil;
 
 /**
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:10 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/12 07:10:15 $
  */
 public class DeploymentController implements MBeanRegistration, DeploymentControllerMBean {
     private static final ObjectName DEFAULT_NAME = JMXUtil.getObjectName("geronimo.deployment:role=DeploymentController");
@@ -142,28 +145,30 @@ public class DeploymentController implements MBeanRegistration, DeploymentContro
     public void postDeregister() {
     }
 
-    public synchronized void planDeployment(ObjectName source, Set urls) {
-        // find new and existing urls
-        for (Iterator i = urls.iterator(); i.hasNext();) {
-            URL url = (URL) i.next();
+    public synchronized void planDeployment(ObjectName source, Set urlInfos) {
+        // find new and existing urlInfos
+        for (Iterator i = urlInfos.iterator(); i.hasNext();) {
+            URLInfo urlInfo = (URLInfo) i.next();
+            URL url = urlInfo.getUrl();
             if (!isDeployed(url)) {
-                goals.add(new DeployURL(url));
+                goals.add(new DeployURL(url, urlInfo.getType()));
             } else {
                 goals.add(new RedeployURL(url));
             }
         }
 
-        // create remove goals for all urls that were found last time but not now
+        // create remove goals for all urlInfos that were found last time but not now
         Set lastScan = (Set) scanResults.get(source);
         if (lastScan != null) {
             for (Iterator i = lastScan.iterator(); i.hasNext();) {
-                URL url = (URL) i.next();
-                if (!urls.contains(url) && isDeployed(url)) {
+                URLInfo urlInfo = (URLInfo) i.next();
+                URL url = urlInfo.getUrl();
+                if (!urlInfos.contains(urlInfo) && isDeployed(url)) {
                     goals.add(new UndeployURL(url));
                 }
             }
         }
-        scanResults.put(source, urls);
+        scanResults.put(source, urlInfos);
 
         try {
             generatePlans();
@@ -194,8 +199,15 @@ public class DeploymentController implements MBeanRegistration, DeploymentContro
             return;
         }
 
+        URLType type = null;
         try {
-            DeployURL goal = new DeployURL(url);
+            type = URLType.getType(url);
+        } catch (IOException e) {
+            throw new DeploymentException(e);
+        }
+
+        try {
+            DeployURL goal = new DeployURL(url, type);
             goals.add(goal);
             generatePlans();
             executePlans();

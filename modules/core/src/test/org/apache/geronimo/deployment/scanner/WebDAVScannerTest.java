@@ -55,68 +55,40 @@
  */
 package org.apache.geronimo.deployment.scanner;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.LinkedList;
+import java.net.URL;
+import java.util.Iterator;
 import java.util.Set;
-import java.util.zip.ZipException;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
+
+import junit.framework.TestCase;
 
 /**
  *
  *
- *
- * @version $Revision: 1.4 $ $Date: 2003/08/12 07:10:15 $
+ * @version $Revision: 1.1 $ $Date: 2003/08/12 07:10:16 $
  */
-public class FileSystemScanner implements Scanner {
-    private final File root;
-    private final boolean recurse;
-    private final FileFilter filter;
+public class WebDAVScannerTest extends TestCase {
+    private WebDAVScanner scanner;
+    private URL baseURL;
 
-    public FileSystemScanner(File root, boolean recurse, FileFilter filter) {
-        this.root = root;
-        this.recurse = recurse;
-        this.filter = filter;
+    public void testScan() throws Exception {
+        scanner = new WebDAVScanner(baseURL, false);
+        Set result = scanner.scan();
+        for (Iterator i = result.iterator(); i.hasNext();) {
+            URLInfo urlInfo = (URLInfo) i.next();
+            System.out.println("urlInfo = " + urlInfo);
+        }
     }
 
-    private static final FileFilter DEFAULT_FILTER = new FileFilter() {
-        public boolean accept(File pathname) {
-            return !pathname.isHidden();
+    public void testTypes() throws Exception {
+        scanner = new WebDAVScanner(baseURL, false);
+        Set result = scanner.scan();
+        for (Iterator i = result.iterator(); i.hasNext();) {
+            URLInfo urlInfo = (URLInfo) i.next();
+            assertEquals(urlInfo.getType(), URLType.getType(urlInfo.getUrl()));
         }
-    };
-
-    public FileSystemScanner(File root, boolean recurse) {
-        this(root, recurse, DEFAULT_FILTER);
     }
 
-    public synchronized Set scan() throws IOException {
-        Set result = new HashSet();
-        LinkedList toScan = new LinkedList();
-        toScan.addFirst(root);
-        while (!toScan.isEmpty()) {
-            File dir = (File) toScan.removeFirst();
-            File[] files = dir.listFiles(filter);
-            if (files == null) {
-                // this is not a directory any more ...
-                continue;
-            }
-
-            for (int i = 0; i < files.length; i++) {
-                File file = files[i];
-                URLType type = URLType.getType(file);
-                if (type == URLType.COLLECTION) {
-                    if (recurse) {
-                        // add this to the end of the list so we go breadth first
-                        toScan.addLast(file);
-                    }
-                } else {
-                    result.add(new URLInfo(file.toURL(), type));
-                }
-            }
-        }
-        return result;
+    protected void setUp() throws Exception {
+        baseURL = new URL("http://localhost/testScan/");
     }
 }

@@ -61,6 +61,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.List;
+import java.util.Iterator;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -68,13 +69,14 @@ import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.scanner.FileSystemScanner;
 import org.apache.geronimo.deployment.scanner.Scanner;
 import org.apache.geronimo.deployment.scanner.WebDAVScanner;
+import org.apache.geronimo.deployment.scanner.URLInfo;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/11 17:59:11 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/12 07:10:16 $
  */
 public class ClassSpaceMetadataXMLLoader {
     public ClassSpaceMetadata loadXML(Element element) throws DeploymentException {
@@ -101,7 +103,11 @@ public class ClassSpaceMetadataXMLLoader {
                         String archive = archiveElement.getAttribute("name");
                         if ("*".equals(archive)) {
                             // scan location and add all
-                            urls.addAll(scan(codebase));
+                            Collection c = scan(codebase);
+                            for (Iterator k = c.iterator(); k.hasNext();) {
+                                URLInfo urlInfo = (URLInfo) k.next();
+                                urls.add(urlInfo.getUrl());
+                            }
                         } else {
                             // add explicit archive
                             URL url = new URL(codebase, archive);

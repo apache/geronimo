@@ -61,13 +61,12 @@ import java.util.Set;
 /**
  * Interface for scanning a location for deployments
  *
- *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/12 07:10:15 $
  */
 public interface Scanner {
     /**
      * Scan for any deployments
-     * @return a Set<DeploymentInfo> of deployables found by this scanner
+     * @return a Set<URLInfo> of deployables found by this scanner
      * @throws IOException
      */
     public Set scan() throws IOException;

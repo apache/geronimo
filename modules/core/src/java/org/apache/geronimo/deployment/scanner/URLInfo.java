@@ -55,68 +55,45 @@
  */
 package org.apache.geronimo.deployment.scanner;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
-import java.util.zip.ZipException;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
+import java.net.URL;
 
 /**
  *
  *
- *
- * @version $Revision: 1.4 $ $Date: 2003/08/12 07:10:15 $
+ * @version $Revision: 1.1 $ $Date: 2003/08/12 07:10:15 $
  */
-public class FileSystemScanner implements Scanner {
-    private final File root;
-    private final boolean recurse;
-    private final FileFilter filter;
+public class URLInfo {
+    private final URL url;
+    private final URLType type;
 
-    public FileSystemScanner(File root, boolean recurse, FileFilter filter) {
-        this.root = root;
-        this.recurse = recurse;
-        this.filter = filter;
+    public URLInfo(URL url, URLType type) {
+        assert (url != null) : "url was null";
+        assert (type != null) : "type was null";
+        this.url = url;
+        this.type = type;
     }
 
-    private static final FileFilter DEFAULT_FILTER = new FileFilter() {
-        public boolean accept(File pathname) {
-            return !pathname.isHidden();
+    public URLType getType() {
+        return type;
+    }
+
+    public URL getUrl() {
+        return url;
+    }
+
+    public String toString() {
+        return url + " (" + type.toString() + ")";
+    }
+
+    public boolean equals(Object obj) {
+        if (obj instanceof URLInfo) {
+            return this.url.equals(((URLInfo) obj).url);
         }
-    };
-
-    public FileSystemScanner(File root, boolean recurse) {
-        this(root, recurse, DEFAULT_FILTER);
+        return false;
     }
 
-    public synchronized Set scan() throws IOException {
-        Set result = new HashSet();
-        LinkedList toScan = new LinkedList();
-        toScan.addFirst(root);
-        while (!toScan.isEmpty()) {
-            File dir = (File) toScan.removeFirst();
-            File[] files = dir.listFiles(filter);
-            if (files == null) {
-                // this is not a directory any more ...
-                continue;
-            }
-
-            for (int i = 0; i < files.length; i++) {
-                File file = files[i];
-                URLType type = URLType.getType(file);
-                if (type == URLType.COLLECTION) {
-                    if (recurse) {
-                        // add this to the end of the list so we go breadth first
-                        toScan.addLast(file);
-                    }
-                } else {
-                    result.add(new URLInfo(file.toURL(), type));
-                }
-            }
-        }
-        return result;
+    public int hashCode() {
+        return url.hashCode();
     }
+
 }

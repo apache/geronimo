@@ -57,19 +57,27 @@ package org.apache.geronimo.deployment.goal;
 
 import java.net.URL;
 
+import org.apache.geronimo.deployment.scanner.URLType;
+
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/11 17:59:10 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/12 07:10:15 $
  */
 public class DeployURL extends DeploymentGoal {
     private final URL url;
+    private final URLType type;
 
-    public DeployURL(URL url) {
+    public DeployURL(URL url, URLType type) {
         this.url = url;
+        this.type = type;
     }
 
     public URL getUrl() {
         return url;
+    }
+
+    public URLType getType() {
+        return type;
     }
 }

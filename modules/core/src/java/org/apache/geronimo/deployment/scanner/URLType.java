@@ -56,67 +56,80 @@
 package org.apache.geronimo.deployment.scanner;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
-import java.util.zip.ZipException;
+import java.io.InputStream;
+import java.net.JarURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.jar.JarFile;
-import java.util.jar.Manifest;
+import java.util.zip.ZipException;
 
 /**
  *
  *
- *
- * @version $Revision: 1.4 $ $Date: 2003/08/12 07:10:15 $
+ * @version $Revision: 1.1 $ $Date: 2003/08/12 07:10:15 $
  */
-public class FileSystemScanner implements Scanner {
-    private final File root;
-    private final boolean recurse;
-    private final FileFilter filter;
+public class URLType {
+    private final String desc;
+    public static final URLType RESOURCE = new URLType("RESOURCE");
+    public static final URLType COLLECTION = new URLType("COLLECTION");
+    public static final URLType PACKED_ARCHIVE = new URLType("PACKED_ARCHIVE");
+    public static final URLType UNPACKED_ARCHIVE = new URLType("UNPACKED_ARCHIVE");
 
-    public FileSystemScanner(File root, boolean recurse, FileFilter filter) {
-        this.root = root;
-        this.recurse = recurse;
-        this.filter = filter;
-    }
-
-    private static final FileFilter DEFAULT_FILTER = new FileFilter() {
-        public boolean accept(File pathname) {
-            return !pathname.isHidden();
-        }
-    };
-
-    public FileSystemScanner(File root, boolean recurse) {
-        this(root, recurse, DEFAULT_FILTER);
-    }
-
-    public synchronized Set scan() throws IOException {
-        Set result = new HashSet();
-        LinkedList toScan = new LinkedList();
-        toScan.addFirst(root);
-        while (!toScan.isEmpty()) {
-            File dir = (File) toScan.removeFirst();
-            File[] files = dir.listFiles(filter);
-            if (files == null) {
-                // this is not a directory any more ...
-                continue;
+    public static URLType getType(File file) throws IOException {
+        if (file.isDirectory()) {
+            // file is a directory - see if it has a manifest
+            // we check for an actual manifest file to keep things consistent with a packed archive
+            if (new File(file, "META-INF/MANIFEST.MF").exists()) {
+                return UNPACKED_ARCHIVE;
+            } else {
+                return COLLECTION;
             }
-
-            for (int i = 0; i < files.length; i++) {
-                File file = files[i];
-                URLType type = URLType.getType(file);
-                if (type == URLType.COLLECTION) {
-                    if (recurse) {
-                        // add this to the end of the list so we go breadth first
-                        toScan.addLast(file);
-                    }
-                } else {
-                    result.add(new URLInfo(file.toURL(), type));
-                }
+        } else {
+            // we have a regular file - see if it contains a manifest
+            try {
+                JarFile jar = new JarFile(file);
+                jar.getManifest();
+                return PACKED_ARCHIVE;
+            } catch (ZipException e) {
+                return RESOURCE;
             }
         }
-        return result;
+    }
+
+    public static URLType getType(URL url) throws IOException {
+        if (url.toString().endsWith("/")) {
+            URL metaInfURL = new URL(url, "META-INF/MANIFEST.MF");
+            URLConnection urlConnection = metaInfURL.openConnection();
+            urlConnection.connect();
+            try {
+                InputStream is = urlConnection.getInputStream();
+                is.close();
+                return UNPACKED_ARCHIVE;
+            } catch (IOException e) {
+                return COLLECTION;
+            }
+        } else {
+            URL jarURL = new URL("jar:" + url.toString() + "!/");
+            JarURLConnection jarConnection = (JarURLConnection) jarURL.openConnection();
+            try {
+                jarConnection.getManifest();
+                return PACKED_ARCHIVE;
+            } catch (ZipException e) {
+                return RESOURCE;
+            }
+        }
+    }
+
+    private URLType(String desc) {
+        this.desc = desc;
+    }
+
+    public boolean equals(Object obj) {
+        return this == obj;
+    }
+
+    public String toString() {
+        return desc;
     }
 }

@@ -57,12 +57,14 @@ package org.apache.geronimo.deployment.scanner;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.zip.ZipException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
@@ -73,17 +75,18 @@ import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpMethodBase;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * Scanner that searches a remote site using WebDAV looking for deployments.
- * Sub-collections that themselves contain a META-INF sub-collection are
+ * Sub-collections that themselves contain a Manifest are
  * assumed to be deployable; others may be recursed into
  *
- *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
+ * @todo we should cache results between scans to reduce network traffic
+ * @version $Revision: 1.4 $ $Date: 2003/08/12 07:10:15 $
  */
 public class WebDAVScanner implements Scanner {
     private final URL base;
@@ -134,18 +137,17 @@ public class WebDAVScanner implements Scanner {
                 Set scanResult = scanCollection(scanURL);
                 for (Iterator i = scanResult.iterator(); i.hasNext();) {
                     URL url = (URL) i.next();
-                    if (!url.toString().endsWith("/")) {
-                        // plain file - add it
-                        result.add(url);
-                    } else if (scanURL.equals(url)) {
+                    if (scanURL.equals(url)) {
                         // ignore the collection we scanned
                         continue;
-                    } else if (hasMetaInf(url)) {
-                        // a sub-collection with META-INF - add it
-                        result.add(url);
-                    } else if (recurse) {
-                        // a sub-collection without META-INF and we are recursing
-                        toScan.addLast(url);
+                    }
+                    URLType type = getType(url);
+                    if (type == URLType.COLLECTION) {
+                        if (recurse) {
+                            toScan.addLast(url);
+                        }
+                    } else {
+                        result.add(new URLInfo(url, type));
                     }
                 }
                 handler.result.clear();
@@ -160,30 +162,30 @@ public class WebDAVScanner implements Scanner {
     }
 
     /**
-     * See if the specified URL has a META-INF sub-collection
+     * See if the specified URL has a manifest
      * @param url the URL to check
-     * @return true if the URL has a META-INF sub-collection
+     * @return true if the URL has a manifest
      * @throws IOException if there was a problem talking to the server
      */
-    private boolean hasMetaInf(URL url) throws IOException {
-        assert (url.toString().endsWith("/"));
-        URL metaInfURL = new URL(url, "META-INF/");
-        HttpMethod method = new PropfindMethod(metaInfURL.toString());
-        try {
-            method.setFollowRedirects(false);
-            method.setRequestHeader("DAV", "1");
-            method.setRequestHeader("Depth", "0");
-            int status = httpClient.executeMethod(method);
-            method.getResponseBody();
-            if (status == 404) {
-                return false;
-            } else if (status == 207) {
-                return true;
-            } else {
-                throw new IOException("Unexpected result " + status);
+    private URLType getType(URL url) throws IOException {
+        if (url.toString().endsWith("/")) {
+            URL metaInfURL = new URL(url, "META-INF/MANIFEST.MF");
+            HttpMethod getMethod = new GetMethod(metaInfURL.toString());
+            try {
+                int status = httpClient.executeMethod(getMethod);
+                return status == 200 ? URLType.UNPACKED_ARCHIVE : URLType.COLLECTION;
+            } finally {
+                getMethod.releaseConnection();
             }
-        } finally {
-            method.releaseConnection();
+        } else {
+            URL jarURL = new URL("jar:" + url.toString() + "!/");
+            JarURLConnection jarConnection = (JarURLConnection) jarURL.openConnection();
+            try {
+                jarConnection.getManifest();
+                return URLType.PACKED_ARCHIVE;
+            } catch (ZipException e) {
+                return URLType.RESOURCE;
+            }
         }
     }
 

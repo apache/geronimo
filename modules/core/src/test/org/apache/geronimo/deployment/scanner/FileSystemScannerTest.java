@@ -56,67 +56,90 @@
 package org.apache.geronimo.deployment.scanner;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
+import java.io.FileOutputStream;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Set;
-import java.util.zip.ZipException;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
+import java.util.jar.JarOutputStream;
+import java.util.zip.ZipEntry;
+
+import junit.framework.TestCase;
 
 /**
  *
  *
- *
- * @version $Revision: 1.4 $ $Date: 2003/08/12 07:10:15 $
+ * @version $Revision: 1.1 $ $Date: 2003/08/12 07:10:16 $
  */
-public class FileSystemScanner implements Scanner {
-    private final File root;
-    private final boolean recurse;
-    private final FileFilter filter;
+public class FileSystemScannerTest extends TestCase {
+    private File testRoot;
+    private Set rootURLs;
 
-    public FileSystemScanner(File root, boolean recurse, FileFilter filter) {
-        this.root = root;
-        this.recurse = recurse;
-        this.filter = filter;
+    public void testURLTypes() throws Exception {
+        assertEquals(URLType.COLLECTION, URLType.getType(testRoot));
+        assertEquals(URLType.RESOURCE, URLType.getType(new File(testRoot, "f1-service.xml")));
+        assertEquals(URLType.PACKED_ARCHIVE, URLType.getType(new File(testRoot, "z1.jar")));
+        assertEquals(URLType.UNPACKED_ARCHIVE, URLType.getType(new File(testRoot, "z2.jar")));
     }
 
-    private static final FileFilter DEFAULT_FILTER = new FileFilter() {
-        public boolean accept(File pathname) {
-            return !pathname.isHidden();
-        }
-    };
-
-    public FileSystemScanner(File root, boolean recurse) {
-        this(root, recurse, DEFAULT_FILTER);
+    public void testScan() throws Exception {
+        Scanner scanner = new FileSystemScanner(testRoot, false);
+        Set results = scanner.scan();
+        assertEquals(rootURLs, results);
     }
 
-    public synchronized Set scan() throws IOException {
-        Set result = new HashSet();
-        LinkedList toScan = new LinkedList();
-        toScan.addFirst(root);
-        while (!toScan.isEmpty()) {
-            File dir = (File) toScan.removeFirst();
-            File[] files = dir.listFiles(filter);
-            if (files == null) {
-                // this is not a directory any more ...
-                continue;
-            }
+    public void testRecursiveScan() throws Exception {
+    }
 
-            for (int i = 0; i < files.length; i++) {
-                File file = files[i];
-                URLType type = URLType.getType(file);
-                if (type == URLType.COLLECTION) {
-                    if (recurse) {
-                        // add this to the end of the list so we go breadth first
-                        toScan.addLast(file);
-                    }
-                } else {
-                    result.add(new URLInfo(file.toURL(), type));
-                }
+    protected void setUp() throws Exception {
+        File tempDir = new File(System.getProperty("java.io.tmpdir"));
+        testRoot = new File(tempDir, "testScan");
+        testRoot.mkdir();
+
+        rootURLs = new HashSet();
+        rootURLs.add(createFile(testRoot, "f1-service.xml"));
+        rootURLs.add(createFile(testRoot, "f2-service.xml"));
+        rootURLs.add(createJarFile(testRoot, "z1.jar"));
+        rootURLs.add(createUnpacked(testRoot, "z2.jar"));
+    }
+
+    protected void tearDown() throws Exception {
+        recursiveDelete(testRoot);
+    }
+
+    private URLInfo createFile(File root, String path) throws Exception {
+        File newFile = new File(root, path);
+        newFile.createNewFile();
+        return new URLInfo(newFile.toURL(), URLType.RESOURCE);
+    }
+
+    private URLInfo createJarFile(File root, String path) throws Exception {
+        File newFile = new File(root, path);
+        newFile.createNewFile();
+        JarOutputStream jos = new JarOutputStream(new FileOutputStream(newFile));
+        ZipEntry entry = new ZipEntry("index.txt");
+        jos.putNextEntry(entry);
+        jos.close();
+        return new URLInfo(newFile.toURL(), URLType.PACKED_ARCHIVE);
+    }
+
+    private URLInfo createUnpacked(File root, String path) throws Exception {
+        File newFile = new File(root, path);
+        newFile.mkdir();
+        File manifest = new File(newFile, "META-INF/MANIFEST.MF");
+        manifest.getParentFile().mkdirs();
+        manifest.createNewFile();
+        return new URLInfo(newFile.toURL(), URLType.UNPACKED_ARCHIVE);
+    }
+
+    private void recursiveDelete(File root) throws Exception {
+        File[] files = root.listFiles();
+        for (int i = 0; i < files.length; i++) {
+            File file = files[i];
+            if (file.isDirectory()) {
+                recursiveDelete(file);
+            } else {
+                file.delete();
             }
         }
-        return result;
+        root.delete();
     }
 }
