@@ -82,7 +82,7 @@
 
     <Call name="addWebApplication">
         <Arg></Arg>
-        <Arg>console</Arg>
+        <Arg>jmx-console</Arg>
         <Arg><SystemProperty name="jetty.home.dir"/>/geronimo-web-console.war</Arg>
         <Arg><SystemProperty name="jetty.home.dir"/>/webdefault.xml</Arg>
         <Arg type="boolean">true</Arg>
