@@ -8,7 +8,7 @@
 
     <mbean code="org.apache.geronimo.web.hack.Jetty" name="jetty:role=WebContainer">
         <constructor>
-            <arg type="java.net.URL">jetty-config.xml</arg>
+            <arg type="java.net.URL">${geronimo.home}/etc/jetty-config.xml</arg>
         </constructor>
     </mbean>
 </components>
