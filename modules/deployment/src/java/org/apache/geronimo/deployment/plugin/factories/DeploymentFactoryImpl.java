@@ -37,13 +37,13 @@ import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
  * to contain the GBeans that are responsible for deploying each module
  * type.
  *
- * @version $Revision: 1.11 $ $Date: 2004/06/02 06:50:41 $
+ * @version $Revision: 1.12 $ $Date: 2004/07/06 05:34:19 $
  */
 public class DeploymentFactoryImpl implements DeploymentFactory {
     public static final String URI_PREFIX = "deployer:geronimo:";
 
     public String getDisplayName() {
-        return "Geronimo";
+        return "Apache Geronimo";
     }
 
     public String getProductVersion() {
@@ -67,23 +67,32 @@ public class DeploymentFactoryImpl implements DeploymentFactory {
             return null;
         }
 
-        uri = uri.substring(URI_PREFIX.length());
-        if (uri.startsWith("jmx")) {
+        try {
+            uri = uri.substring(URI_PREFIX.length());
+            if (uri.startsWith("jmx")) {
 
-            Map environment = new HashMap();
-            String[] credentials = new String[]{username, password};
-            environment.put(JMXConnector.CREDENTIALS, credentials);
+                Map environment = new HashMap();
+                String[] credentials = new String[]{username, password};
+                environment.put(JMXConnector.CREDENTIALS, credentials);
 
-            try {
-                JMXServiceURL address = new JMXServiceURL("service:" + uri);
-                JMXConnector jmxConnector = JMXConnectorFactory.connect(address, environment);
-                return new JMXDeploymentManager(jmxConnector);
-            } catch (IOException e) {
-                throw new DeploymentManagerCreationException(e.getMessage());
+                try {
+                    JMXServiceURL address = new JMXServiceURL("service:" + uri);
+                    JMXConnector jmxConnector = JMXConnectorFactory.connect(address, environment);
+                    return new JMXDeploymentManager(jmxConnector);
+                } catch (IOException e) {
+                    throw new DeploymentManagerCreationException(e.getMessage());
+                }
+            } else {
+                throw new DeploymentManagerCreationException("Invalid URI: " + uri);
             }
-        } else {
-            throw new DeploymentManagerCreationException("Invalid URI: " + uri);
-
+        } catch (RuntimeException e) {
+            // some DeploymentManagerFactories suppress unchecked exceptions - log and rethrow
+            e.printStackTrace();
+            throw e;
+        } catch (Error e) {
+            // some DeploymentManagerFactories suppress unchecked exceptions - log and rethrow
+            e.printStackTrace();
+            throw e;
         }
     }
 
