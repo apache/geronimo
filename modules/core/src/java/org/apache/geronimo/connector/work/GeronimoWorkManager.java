@@ -79,7 +79,7 @@ import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
  * TODO There needs to be better lifecycle support.  The individual pools can be stopped now, but
  * not restarted AFAIK.
  *
-* @version $Revision: 1.4 $ $Date: 2003/11/26 02:15:32 $
+* @version $Revision: 1.5 $ $Date: 2003/11/27 02:30:21 $
  */
 public class GeronimoWorkManager implements WorkManager {
 
@@ -161,7 +161,7 @@ public class GeronimoWorkManager implements WorkManager {
         startWorkExecutorPool.setMaximumPoolSize(maxSize);
     }
 
-    public int getsSheduledThreadCount() {
+    public int getScheduledThreadCount() {
         return scheduledWorkExecutorPool.getPoolSize();
     }
 

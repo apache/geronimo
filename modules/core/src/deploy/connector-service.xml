@@ -7,49 +7,22 @@
     <!-- ============================================================ -->
     <mbean descriptor="org.apache.geronimo.connector.work.GeronimoWorkManager"
     	name="geronimo.jca:role=WorkManager">
-    </mbean>
-    
-    <!-- ============================================================ -->
-    <!-- Starts the Work Executor Pool in charge of the treatment of  -->
-    <!-- synchronous works                                            -->
-    <!-- ============================================================ -->
-    <mbean descriptor="org.apache.geronimo.connector.work.pool.SyncWorkExecutorPool"
-    	name="geronimo.jca:role=SynchWorkExecutorPool">
         <constructor>
-            <arg type="int">1</arg>
-            <arg type="int">1</arg>
+            <arg type="int">0</arg> <!-- synchronous-->
+            <arg type="int">10</arg>
+            <arg type="int">0</arg> <!-- started -->
+            <arg type="int">10</arg>
+            <arg type="int">0</arg> <!-- scheduled -->
+            <arg type="int">10</arg>
         </constructor>
     </mbean>
 
-    <!-- ============================================================ -->
-    <!-- Starts the Work Executor Pool in charge of the treatment of  -->
-    <!-- synchronous works until the work start.                      -->
-    <!-- ============================================================ -->
-    <mbean descriptor="org.apache.geronimo.connector.work.pool.StartWorkExecutorPool"
-    	name="geronimo.jca:role=StartWorkExecutorPool">
-        <constructor>
-            <arg type="int">1</arg>
-            <arg type="int">1</arg>
-        </constructor>
-    </mbean>
-
-    <!-- ============================================================ -->
-    <!-- Starts the Work Executor Pool in charge of the treatment of  -->
-    <!-- asynchronous works.                                          -->
-    <!-- ============================================================ -->
-    <mbean descriptor="org.apache.geronimo.connector.work.pool.ScheduleWorkExecutorPool"
-    	name="geronimo.jca:role=ScheduleWorkExecutorPool">
-        <constructor>
-            <arg type="int">1</arg>
-            <arg type="int">1</arg>
-        </constructor>
-    </mbean>
 
 
     <!-- ============================================================ -->
     <!-- ============================================================ -->
     <mbean name="geronimo.transaction:role=BootstrapContext"
            descriptor="org.apache.geronimo.connector.BootstrapContext">
-    </mbean>    
+    </mbean>
 
 </components>
