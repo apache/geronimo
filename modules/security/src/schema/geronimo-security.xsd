@@ -41,6 +41,14 @@
             <xsd:element name="default-principal" type="default-principalType"/>
             <xsd:element name="role-mappings" type="role-mappingsType" minOccurs="0"/>
         </xsd:sequence>
+        <xsd:attribute name="doas-current-caller" type="xsd:boolean" default="false">
+            <xsd:annotation>
+                <xsd:documentation>
+                    Set this attribute to "true" if the work is to be performed
+                    as the calling Subject.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
         <xsd:attribute name="use-context-handler" type="xsd:boolean">
             <xsd:annotation>
                 <xsd:documentation>
