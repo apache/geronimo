@@ -5,8 +5,7 @@
     <!-- ================================================================ -->
     <!-- Set up the Jetty-specific jars                                   -->
     <!-- ================================================================ -->
-    <class-space name="geronimo.system:role=ClassSpace,name=Jetty"
-        parent="geronimo.system:role=ClassSpace,name=System">
+    <class-space name="geronimo.system:role=ClassSpace,name=System">
         <codebase url="file:lib/">
             <archive name="*"/>
         </codebase>
