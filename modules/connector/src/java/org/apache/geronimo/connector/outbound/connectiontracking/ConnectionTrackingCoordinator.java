@@ -45,7 +45,7 @@ import org.apache.geronimo.transaction.TrackedConnectionAssociator;
  * ConnectionManager stacks so the existing ManagedConnections can be
  * enrolled properly.
  *
- * @version $Revision: 1.6 $ $Date: 2004/04/06 00:21:21 $
+ * @version $Revision: 1.7 $ $Date: 2004/04/07 06:53:26 $
  */
 public class ConnectionTrackingCoordinator implements TrackedConnectionAssociator, ConnectionTracker {
 
@@ -54,7 +54,7 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
     private final ThreadLocal currentInstanceContexts = new ThreadLocal();
     private final ThreadLocal currentUnshareableResources = new ThreadLocal();
 
-    public ConnectorContextInfo enter(InstanceContext newInstanceContext, Set newUnshareableResources)
+    public TrackedConnectionAssociator.ConnectorContextInfo enter(InstanceContext newInstanceContext, Set newUnshareableResources)
             throws ResourceException {
         InstanceContext oldInstanceContext = (InstanceContext) currentInstanceContexts.get();
         Set oldUnshareableResources = (Set)currentUnshareableResources.get();
