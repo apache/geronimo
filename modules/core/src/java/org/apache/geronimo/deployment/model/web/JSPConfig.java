@@ -53,92 +53,46 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.model.ejb;
-
-import org.apache.geronimo.deployment.model.j2ee.MessageDestination;
-import org.apache.geronimo.deployment.model.j2ee.SecurityRole;
+package org.apache.geronimo.deployment.model.web;
 
 /**
- *  JavaBean for the ejb-jar.xml tag assembly-descriptor
+ * JavaBean for the web.xml tag jsp-config
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/07 23:20:06 $
+ * @version $Revision: 1.1 $
  */
-public class AssemblyDescriptor {
-    private SecurityRole[] securityRole = new SecurityRole[0];
-    private MethodPermission[] methodPermission = new MethodPermission[0];
-    private ContainerTransaction[] containerTransaction = new ContainerTransaction[0];
-    private MessageDestination[] messageDestination = new MessageDestination[0];
-    private ExcludeList excludeList;
+public class JSPConfig {
+    private Taglib[] taglib = new Taglib[0];
+    private JSPPropertyGroup[] jspPropertyGroup = new JSPPropertyGroup[0];
 
-    public ContainerTransaction[] getContainerTransaction() {
-        return containerTransaction;
+    public JSPPropertyGroup[] getJSPPropertyGroup() {
+        return jspPropertyGroup;
     }
 
-    public ContainerTransaction getContainerTransaction(int i) {
-        return containerTransaction[i];
+    public JSPPropertyGroup getJSPPropertyGroup(int i) {
+        return jspPropertyGroup[i];
     }
 
-    public void setContainerTransaction(ContainerTransaction[] containerTransaction) {
-        this.containerTransaction = containerTransaction;
+    public void setJSPPropertyGroup(JSPPropertyGroup[] jspPropertyGroup) {
+        this.jspPropertyGroup = jspPropertyGroup;
     }
 
-    public void setContainerTransaction(int i, ContainerTransaction containerTransaction) {
-        this.containerTransaction[i] = containerTransaction;
+    public void setJSPPropertyGroup(int i, JSPPropertyGroup jspPropertyGroup) {
+        this.jspPropertyGroup[i] = jspPropertyGroup;
     }
 
-    public ExcludeList getExcludeList() {
-        return excludeList;
+    public Taglib[] getTaglib() {
+        return taglib;
     }
 
-    public void setExcludeList(ExcludeList excludeList) {
-        this.excludeList = excludeList;
+    public Taglib getTaglib(int i) {
+        return taglib[i];
     }
 
-    public MessageDestination[] getMessageDestination() {
-        return messageDestination;
+    public void setTaglib(Taglib[] taglib) {
+        this.taglib = taglib;
     }
 
-    public MessageDestination getMessageDestination(int i) {
-        return messageDestination[i];
-    }
-
-    public void setMessageDestination(MessageDestination[] messageDestination) {
-        this.messageDestination = messageDestination;
-    }
-
-    public void setMessageDestination(int i, MessageDestination messageDestination) {
-        this.messageDestination[i] = messageDestination;
-    }
-
-    public MethodPermission[] getMethodPermission() {
-        return methodPermission;
-    }
-
-    public MethodPermission getMethodPermission(int i) {
-        return methodPermission[i];
-    }
-
-    public void setMethodPermission(MethodPermission[] methodPermission) {
-        this.methodPermission = methodPermission;
-    }
-
-    public void setMethodPermission(int i, MethodPermission methodPermission) {
-        this.methodPermission[i] = methodPermission;
-    }
-
-    public SecurityRole[] getSecurityRole() {
-        return securityRole;
-    }
-
-    public SecurityRole getSecurityRole(int i) {
-        return securityRole[i];
-    }
-
-    public void setSecurityRole(SecurityRole[] securityRole) {
-        this.securityRole = securityRole;
-    }
-
-    public void setSecurityRole(int i, SecurityRole securityRole) {
-        this.securityRole[i] = securityRole;
+    public void setTaglib(int i, Taglib taglib) {
+        this.taglib[i] = taglib;
     }
 }

@@ -53,14 +53,14 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.model.ejb;
+package org.apache.geronimo.deployment.model.j2ee;
 
 import org.apache.geronimo.deployment.model.j2ee.Describable;
 
 /**
  *  JavaBean for the ejb-jar.xml tag security-role
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/02 17:04:19 $
+ * @version $Revision: 1.1 $ $Date: 2003/09/07 23:20:06 $
  */
 public class SecurityRole extends Describable {
     private String roleName;

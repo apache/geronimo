@@ -53,92 +53,95 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.model.ejb;
+package org.apache.geronimo.deployment.model.web;
 
-import org.apache.geronimo.deployment.model.j2ee.MessageDestination;
-import org.apache.geronimo.deployment.model.j2ee.SecurityRole;
+import org.apache.geronimo.deployment.model.j2ee.Displayable;
+import org.apache.geronimo.deployment.model.j2ee.RunAs;
+import org.apache.geronimo.deployment.model.j2ee.SecurityRoleRef;
 
 /**
- *  JavaBean for the ejb-jar.xml tag assembly-descriptor
+ * JavaBean for the web.xml tag servlet
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/07 23:20:06 $
+ * @version $Revision: 1.1 $
  */
-public class AssemblyDescriptor {
-    private SecurityRole[] securityRole = new SecurityRole[0];
-    private MethodPermission[] methodPermission = new MethodPermission[0];
-    private ContainerTransaction[] containerTransaction = new ContainerTransaction[0];
-    private MessageDestination[] messageDestination = new MessageDestination[0];
-    private ExcludeList excludeList;
+public class Servlet extends Displayable {
+    private String servletName;
+    private String servletClass;
+    private String jspFile;
+    private InitParam[] initParam = new InitParam[0];
+    private Integer loadOnStartup;
+    private RunAs runAs;
+    private SecurityRoleRef[] securityRoleRef = new SecurityRoleRef[0];
 
-    public ContainerTransaction[] getContainerTransaction() {
-        return containerTransaction;
+    public InitParam[] getInitParam() {
+        return initParam;
     }
 
-    public ContainerTransaction getContainerTransaction(int i) {
-        return containerTransaction[i];
+    public InitParam getInitParam(int i) {
+        return initParam[i];
     }
 
-    public void setContainerTransaction(ContainerTransaction[] containerTransaction) {
-        this.containerTransaction = containerTransaction;
+    public void setInitParam(InitParam[] initParam) {
+        this.initParam = initParam;
     }
 
-    public void setContainerTransaction(int i, ContainerTransaction containerTransaction) {
-        this.containerTransaction[i] = containerTransaction;
+    public void setInitParam(int i, InitParam initParam) {
+        this.initParam[i] = initParam;
     }
 
-    public ExcludeList getExcludeList() {
-        return excludeList;
+    public String getJspFile() {
+        return jspFile;
     }
 
-    public void setExcludeList(ExcludeList excludeList) {
-        this.excludeList = excludeList;
+    public void setJspFile(String jspFile) {
+        this.jspFile = jspFile;
     }
 
-    public MessageDestination[] getMessageDestination() {
-        return messageDestination;
+    public Integer getLoadOnStartup() {
+        return loadOnStartup;
     }
 
-    public MessageDestination getMessageDestination(int i) {
-        return messageDestination[i];
+    public void setLoadOnStartup(Integer loadOnStartup) {
+        this.loadOnStartup = loadOnStartup;
     }
 
-    public void setMessageDestination(MessageDestination[] messageDestination) {
-        this.messageDestination = messageDestination;
+    public RunAs getRunAs() {
+        return runAs;
     }
 
-    public void setMessageDestination(int i, MessageDestination messageDestination) {
-        this.messageDestination[i] = messageDestination;
+    public void setRunAs(RunAs runAs) {
+        this.runAs = runAs;
     }
 
-    public MethodPermission[] getMethodPermission() {
-        return methodPermission;
+    public SecurityRoleRef[] getSecurityRoleRef() {
+        return securityRoleRef;
     }
 
-    public MethodPermission getMethodPermission(int i) {
-        return methodPermission[i];
+    public SecurityRoleRef getSecurityRoleRef(int i) {
+        return securityRoleRef[i];
     }
 
-    public void setMethodPermission(MethodPermission[] methodPermission) {
-        this.methodPermission = methodPermission;
+    public void setSecurityRoleRef(SecurityRoleRef[] securityRoleRef) {
+        this.securityRoleRef = securityRoleRef;
     }
 
-    public void setMethodPermission(int i, MethodPermission methodPermission) {
-        this.methodPermission[i] = methodPermission;
+    public void setSecurityRoleRef(int i, SecurityRoleRef securityRoleRef) {
+        this.securityRoleRef[i] = securityRoleRef;
     }
 
-    public SecurityRole[] getSecurityRole() {
-        return securityRole;
+    public String getServletClass() {
+        return servletClass;
     }
 
-    public SecurityRole getSecurityRole(int i) {
-        return securityRole[i];
+    public void setServletClass(String servletClass) {
+        this.servletClass = servletClass;
     }
 
-    public void setSecurityRole(SecurityRole[] securityRole) {
-        this.securityRole = securityRole;
+    public String getServletName() {
+        return servletName;
     }
 
-    public void setSecurityRole(int i, SecurityRole securityRole) {
-        this.securityRole[i] = securityRole;
+    public void setServletName(String servletName) {
+        this.servletName = servletName;
     }
 }

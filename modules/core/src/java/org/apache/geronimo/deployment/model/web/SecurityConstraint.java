@@ -53,92 +53,66 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.model.ejb;
+package org.apache.geronimo.deployment.model.web;
 
-import org.apache.geronimo.deployment.model.j2ee.MessageDestination;
-import org.apache.geronimo.deployment.model.j2ee.SecurityRole;
+import org.apache.geronimo.deployment.model.j2ee.DisplayName;
 
 /**
- *  JavaBean for the ejb-jar.xml tag assembly-descriptor
+ * JavaBean for the web.xml tag security-constraint
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/07 23:20:06 $
+ * @version $Revision: 1.1 $
  */
-public class AssemblyDescriptor {
-    private SecurityRole[] securityRole = new SecurityRole[0];
-    private MethodPermission[] methodPermission = new MethodPermission[0];
-    private ContainerTransaction[] containerTransaction = new ContainerTransaction[0];
-    private MessageDestination[] messageDestination = new MessageDestination[0];
-    private ExcludeList excludeList;
+public class SecurityConstraint {
+    private DisplayName[] displayName = new DisplayName[0];
+    private WebResourceCollection[] webResourceCollection = new WebResourceCollection[0];
+    private AuthConstraint authConstraint;
+    private UserDataConstraint userDataConstraint;
 
-    public ContainerTransaction[] getContainerTransaction() {
-        return containerTransaction;
+    public AuthConstraint getAuthConstraint() {
+        return authConstraint;
     }
 
-    public ContainerTransaction getContainerTransaction(int i) {
-        return containerTransaction[i];
+    public void setAuthConstraint(AuthConstraint authConstraint) {
+        this.authConstraint = authConstraint;
     }
 
-    public void setContainerTransaction(ContainerTransaction[] containerTransaction) {
-        this.containerTransaction = containerTransaction;
+    public UserDataConstraint getUserDataConstraint() {
+        return userDataConstraint;
     }
 
-    public void setContainerTransaction(int i, ContainerTransaction containerTransaction) {
-        this.containerTransaction[i] = containerTransaction;
+    public void setUserDataConstraint(UserDataConstraint userDataConstraint) {
+        this.userDataConstraint = userDataConstraint;
     }
 
-    public ExcludeList getExcludeList() {
-        return excludeList;
+    public WebResourceCollection[] getWebResourceCollection() {
+        return webResourceCollection;
     }
 
-    public void setExcludeList(ExcludeList excludeList) {
-        this.excludeList = excludeList;
+    public WebResourceCollection getWebResourceCollection(int i) {
+        return webResourceCollection[i];
     }
 
-    public MessageDestination[] getMessageDestination() {
-        return messageDestination;
+    public void setWebResourceCollection(WebResourceCollection[] webResourceCollection) {
+        this.webResourceCollection = webResourceCollection;
     }
 
-    public MessageDestination getMessageDestination(int i) {
-        return messageDestination[i];
+    public void setWebResourceCollection(int i, WebResourceCollection webResourceCollection) {
+        this.webResourceCollection[i] = webResourceCollection;
     }
 
-    public void setMessageDestination(MessageDestination[] messageDestination) {
-        this.messageDestination = messageDestination;
+    public DisplayName[] getDisplayName() {
+        return displayName;
     }
 
-    public void setMessageDestination(int i, MessageDestination messageDestination) {
-        this.messageDestination[i] = messageDestination;
+    public DisplayName getDisplayName(int i) {
+        return displayName[i];
     }
 
-    public MethodPermission[] getMethodPermission() {
-        return methodPermission;
+    public void setDisplayName(DisplayName[] displayName) {
+        this.displayName = displayName;
     }
 
-    public MethodPermission getMethodPermission(int i) {
-        return methodPermission[i];
-    }
-
-    public void setMethodPermission(MethodPermission[] methodPermission) {
-        this.methodPermission = methodPermission;
-    }
-
-    public void setMethodPermission(int i, MethodPermission methodPermission) {
-        this.methodPermission[i] = methodPermission;
-    }
-
-    public SecurityRole[] getSecurityRole() {
-        return securityRole;
-    }
-
-    public SecurityRole getSecurityRole(int i) {
-        return securityRole[i];
-    }
-
-    public void setSecurityRole(SecurityRole[] securityRole) {
-        this.securityRole = securityRole;
-    }
-
-    public void setSecurityRole(int i, SecurityRole securityRole) {
-        this.securityRole[i] = securityRole;
+    public void setDisplayName(int i, DisplayName displayName) {
+        this.displayName[i] = displayName;
     }
 }

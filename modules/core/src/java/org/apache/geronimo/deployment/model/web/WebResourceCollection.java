@@ -53,92 +53,57 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.model.ejb;
+package org.apache.geronimo.deployment.model.web;
 
-import org.apache.geronimo.deployment.model.j2ee.MessageDestination;
-import org.apache.geronimo.deployment.model.j2ee.SecurityRole;
+import org.apache.geronimo.deployment.model.j2ee.Describable;
 
 /**
- *  JavaBean for the ejb-jar.xml tag assembly-descriptor
+ * JavaBean for the web.xml tag web-resource-collection
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/07 23:20:06 $
+ * @version $Revision: 1.1 $
  */
-public class AssemblyDescriptor {
-    private SecurityRole[] securityRole = new SecurityRole[0];
-    private MethodPermission[] methodPermission = new MethodPermission[0];
-    private ContainerTransaction[] containerTransaction = new ContainerTransaction[0];
-    private MessageDestination[] messageDestination = new MessageDestination[0];
-    private ExcludeList excludeList;
+public class WebResourceCollection extends Describable {
+    private String webResourceName;
+    private String[] urlPattern = new String[0];
+    private String[] httpMethod = new String[0];
 
-    public ContainerTransaction[] getContainerTransaction() {
-        return containerTransaction;
+    public String[] getHttpMethod() {
+        return httpMethod;
     }
 
-    public ContainerTransaction getContainerTransaction(int i) {
-        return containerTransaction[i];
+    public String getHttpMethod(int i) {
+        return httpMethod[i];
     }
 
-    public void setContainerTransaction(ContainerTransaction[] containerTransaction) {
-        this.containerTransaction = containerTransaction;
+    public void setHttpMethod(String[] httpMethod) {
+        this.httpMethod = httpMethod;
     }
 
-    public void setContainerTransaction(int i, ContainerTransaction containerTransaction) {
-        this.containerTransaction[i] = containerTransaction;
+    public void setHttpMethod(int i, String httpMethod) {
+        this.httpMethod[i] = httpMethod;
     }
 
-    public ExcludeList getExcludeList() {
-        return excludeList;
+    public String[] getUrlPattern() {
+        return urlPattern;
     }
 
-    public void setExcludeList(ExcludeList excludeList) {
-        this.excludeList = excludeList;
+    public String getUrlPattern(int i) {
+        return urlPattern[i];
     }
 
-    public MessageDestination[] getMessageDestination() {
-        return messageDestination;
+    public void setUrlPattern(String[] urlPattern) {
+        this.urlPattern = urlPattern;
     }
 
-    public MessageDestination getMessageDestination(int i) {
-        return messageDestination[i];
+    public void setUrlPattern(int i, String urlPattern) {
+        this.urlPattern[i] = urlPattern;
     }
 
-    public void setMessageDestination(MessageDestination[] messageDestination) {
-        this.messageDestination = messageDestination;
+    public String getWebResourceName() {
+        return webResourceName;
     }
 
-    public void setMessageDestination(int i, MessageDestination messageDestination) {
-        this.messageDestination[i] = messageDestination;
-    }
-
-    public MethodPermission[] getMethodPermission() {
-        return methodPermission;
-    }
-
-    public MethodPermission getMethodPermission(int i) {
-        return methodPermission[i];
-    }
-
-    public void setMethodPermission(MethodPermission[] methodPermission) {
-        this.methodPermission = methodPermission;
-    }
-
-    public void setMethodPermission(int i, MethodPermission methodPermission) {
-        this.methodPermission[i] = methodPermission;
-    }
-
-    public SecurityRole[] getSecurityRole() {
-        return securityRole;
-    }
-
-    public SecurityRole getSecurityRole(int i) {
-        return securityRole[i];
-    }
-
-    public void setSecurityRole(SecurityRole[] securityRole) {
-        this.securityRole = securityRole;
-    }
-
-    public void setSecurityRole(int i, SecurityRole securityRole) {
-        this.securityRole[i] = securityRole;
+    public void setWebResourceName(String webResourceName) {
+        this.webResourceName = webResourceName;
     }
 }

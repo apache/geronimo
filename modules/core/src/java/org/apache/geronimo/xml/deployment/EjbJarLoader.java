@@ -55,47 +55,47 @@
  */
 package org.apache.geronimo.xml.deployment;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.apache.geronimo.deployment.model.ejb.EjbJar;
-import org.apache.geronimo.deployment.model.ejb.EnterpriseBeans;
-import org.apache.geronimo.deployment.model.ejb.Session;
-import org.apache.geronimo.deployment.model.ejb.RpcBean;
-import org.apache.geronimo.deployment.model.ejb.Ejb;
-import org.apache.geronimo.deployment.model.ejb.SecurityIdentity;
-import org.apache.geronimo.deployment.model.ejb.Entity;
-import org.apache.geronimo.deployment.model.ejb.CmpField;
-import org.apache.geronimo.deployment.model.ejb.Query;
-import org.apache.geronimo.deployment.model.ejb.QueryMethod;
-import org.apache.geronimo.deployment.model.ejb.MessageDriven;
 import org.apache.geronimo.deployment.model.ejb.ActivationConfig;
 import org.apache.geronimo.deployment.model.ejb.ActivationConfigProperty;
+import org.apache.geronimo.deployment.model.ejb.AssemblyDescriptor;
+import org.apache.geronimo.deployment.model.ejb.CmpField;
+import org.apache.geronimo.deployment.model.ejb.CmrField;
+import org.apache.geronimo.deployment.model.ejb.ContainerTransaction;
+import org.apache.geronimo.deployment.model.ejb.Ejb;
+import org.apache.geronimo.deployment.model.ejb.EjbJar;
 import org.apache.geronimo.deployment.model.ejb.EjbJarDocument;
-import org.apache.geronimo.deployment.model.ejb.Relationships;
 import org.apache.geronimo.deployment.model.ejb.EjbRelation;
 import org.apache.geronimo.deployment.model.ejb.EjbRelationshipRole;
-import org.apache.geronimo.deployment.model.ejb.CmrField;
-import org.apache.geronimo.deployment.model.ejb.RelationshipRoleSource;
-import org.apache.geronimo.deployment.model.ejb.AssemblyDescriptor;
-import org.apache.geronimo.deployment.model.ejb.ContainerTransaction;
-import org.apache.geronimo.deployment.model.ejb.Method;
-import org.apache.geronimo.deployment.model.ejb.SecurityRole;
-import org.apache.geronimo.deployment.model.ejb.MethodPermission;
+import org.apache.geronimo.deployment.model.ejb.EnterpriseBeans;
+import org.apache.geronimo.deployment.model.ejb.Entity;
 import org.apache.geronimo.deployment.model.ejb.ExcludeList;
+import org.apache.geronimo.deployment.model.ejb.MessageDriven;
+import org.apache.geronimo.deployment.model.ejb.Method;
+import org.apache.geronimo.deployment.model.ejb.MethodPermission;
+import org.apache.geronimo.deployment.model.ejb.Query;
+import org.apache.geronimo.deployment.model.ejb.QueryMethod;
+import org.apache.geronimo.deployment.model.ejb.RelationshipRoleSource;
+import org.apache.geronimo.deployment.model.ejb.Relationships;
+import org.apache.geronimo.deployment.model.ejb.RpcBean;
+import org.apache.geronimo.deployment.model.ejb.SecurityIdentity;
+import org.apache.geronimo.deployment.model.ejb.Session;
+import org.apache.geronimo.deployment.model.j2ee.EJBLocalRef;
 import org.apache.geronimo.deployment.model.j2ee.EJBRef;
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
-import org.apache.geronimo.deployment.model.j2ee.ResourceRef;
-import org.apache.geronimo.deployment.model.j2ee.EJBLocalRef;
-import org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef;
-import org.apache.geronimo.deployment.model.j2ee.MessageDestinationRef;
-import org.apache.geronimo.deployment.model.j2ee.ServiceRef;
 import org.apache.geronimo.deployment.model.j2ee.MessageDestination;
+import org.apache.geronimo.deployment.model.j2ee.MessageDestinationRef;
+import org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef;
+import org.apache.geronimo.deployment.model.j2ee.ResourceRef;
+import org.apache.geronimo.deployment.model.j2ee.SecurityRole;
+import org.apache.geronimo.deployment.model.j2ee.ServiceRef;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * Knows how to load a set of POJOs from a DOM representing an ejb-jar.xml
  * deployment descriptor.
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/05 20:18:03 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/07 23:20:06 $
  */
 public class EjbJarLoader {
     private J2EELoader j2eeLoader = new J2EELoader();

@@ -53,92 +53,39 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.model.ejb;
-
-import org.apache.geronimo.deployment.model.j2ee.MessageDestination;
-import org.apache.geronimo.deployment.model.j2ee.SecurityRole;
+package org.apache.geronimo.deployment.model.web;
 
 /**
- *  JavaBean for the ejb-jar.xml tag assembly-descriptor
+ * JavaBean for the web.xml tag error-page
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/07 23:20:06 $
+ * @version $Revision: 1.1 $
  */
-public class AssemblyDescriptor {
-    private SecurityRole[] securityRole = new SecurityRole[0];
-    private MethodPermission[] methodPermission = new MethodPermission[0];
-    private ContainerTransaction[] containerTransaction = new ContainerTransaction[0];
-    private MessageDestination[] messageDestination = new MessageDestination[0];
-    private ExcludeList excludeList;
+public class ErrorPage {
+    private Integer errorCode;
+    private String exceptionType;
+    private String location;
 
-    public ContainerTransaction[] getContainerTransaction() {
-        return containerTransaction;
+    public Integer getErrorCode() {
+        return errorCode;
     }
 
-    public ContainerTransaction getContainerTransaction(int i) {
-        return containerTransaction[i];
+    public void setErrorCode(Integer errorCode) {
+        this.errorCode = errorCode;
     }
 
-    public void setContainerTransaction(ContainerTransaction[] containerTransaction) {
-        this.containerTransaction = containerTransaction;
+    public String getExceptionType() {
+        return exceptionType;
     }
 
-    public void setContainerTransaction(int i, ContainerTransaction containerTransaction) {
-        this.containerTransaction[i] = containerTransaction;
+    public void setExceptionType(String exceptionType) {
+        this.exceptionType = exceptionType;
     }
 
-    public ExcludeList getExcludeList() {
-        return excludeList;
+    public String getLocation() {
+        return location;
     }
 
-    public void setExcludeList(ExcludeList excludeList) {
-        this.excludeList = excludeList;
-    }
-
-    public MessageDestination[] getMessageDestination() {
-        return messageDestination;
-    }
-
-    public MessageDestination getMessageDestination(int i) {
-        return messageDestination[i];
-    }
-
-    public void setMessageDestination(MessageDestination[] messageDestination) {
-        this.messageDestination = messageDestination;
-    }
-
-    public void setMessageDestination(int i, MessageDestination messageDestination) {
-        this.messageDestination[i] = messageDestination;
-    }
-
-    public MethodPermission[] getMethodPermission() {
-        return methodPermission;
-    }
-
-    public MethodPermission getMethodPermission(int i) {
-        return methodPermission[i];
-    }
-
-    public void setMethodPermission(MethodPermission[] methodPermission) {
-        this.methodPermission = methodPermission;
-    }
-
-    public void setMethodPermission(int i, MethodPermission methodPermission) {
-        this.methodPermission[i] = methodPermission;
-    }
-
-    public SecurityRole[] getSecurityRole() {
-        return securityRole;
-    }
-
-    public SecurityRole getSecurityRole(int i) {
-        return securityRole[i];
-    }
-
-    public void setSecurityRole(SecurityRole[] securityRole) {
-        this.securityRole = securityRole;
-    }
-
-    public void setSecurityRole(int i, SecurityRole securityRole) {
-        this.securityRole[i] = securityRole;
+    public void setLocation(String location) {
+        this.location = location;
     }
 }

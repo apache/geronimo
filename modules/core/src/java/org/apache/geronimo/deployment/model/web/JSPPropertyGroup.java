@@ -53,92 +53,93 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.model.ejb;
+package org.apache.geronimo.deployment.model.web;
 
-import org.apache.geronimo.deployment.model.j2ee.MessageDestination;
-import org.apache.geronimo.deployment.model.j2ee.SecurityRole;
+import org.apache.geronimo.deployment.model.j2ee.Displayable;
 
 /**
- *  JavaBean for the ejb-jar.xml tag assembly-descriptor
+ * JavaBean for the web.xml tag jsp-property-group
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/07 23:20:06 $
+ * @version $Revision: 1.1 $
  */
-public class AssemblyDescriptor {
-    private SecurityRole[] securityRole = new SecurityRole[0];
-    private MethodPermission[] methodPermission = new MethodPermission[0];
-    private ContainerTransaction[] containerTransaction = new ContainerTransaction[0];
-    private MessageDestination[] messageDestination = new MessageDestination[0];
-    private ExcludeList excludeList;
+public class JSPPropertyGroup extends Displayable {
+    private String urlPattern;
+    private Boolean elIgnored;
+    private String pageEncoding;
+    private Boolean scriptingInvalid;
+    private Boolean isXml;
+    private String[] includePrelude = new String[0];
+    private String[] includeCoda = new String[0];
 
-    public ContainerTransaction[] getContainerTransaction() {
-        return containerTransaction;
+    public Boolean getELIgnored() {
+        return elIgnored;
     }
 
-    public ContainerTransaction getContainerTransaction(int i) {
-        return containerTransaction[i];
+    public void setELIgnored(Boolean elIgnored) {
+        this.elIgnored = elIgnored;
     }
 
-    public void setContainerTransaction(ContainerTransaction[] containerTransaction) {
-        this.containerTransaction = containerTransaction;
+    public String[] getIncludeCoda() {
+        return includeCoda;
     }
 
-    public void setContainerTransaction(int i, ContainerTransaction containerTransaction) {
-        this.containerTransaction[i] = containerTransaction;
+    public String getIncludeCoda(int i) {
+        return includeCoda[i];
     }
 
-    public ExcludeList getExcludeList() {
-        return excludeList;
+    public void setIncludeCoda(String[] includeCoda) {
+        this.includeCoda = includeCoda;
     }
 
-    public void setExcludeList(ExcludeList excludeList) {
-        this.excludeList = excludeList;
+    public void setIncludeCoda(int i, String includeCoda) {
+        this.includeCoda[i] = includeCoda;
     }
 
-    public MessageDestination[] getMessageDestination() {
-        return messageDestination;
+    public String[] getIncludePrelude() {
+        return includePrelude;
     }
 
-    public MessageDestination getMessageDestination(int i) {
-        return messageDestination[i];
+    public String getIncludePrelude(int i) {
+        return includePrelude[i];
     }
 
-    public void setMessageDestination(MessageDestination[] messageDestination) {
-        this.messageDestination = messageDestination;
+    public void setIncludePrelude(String[] includePrelude) {
+        this.includePrelude = includePrelude;
     }
 
-    public void setMessageDestination(int i, MessageDestination messageDestination) {
-        this.messageDestination[i] = messageDestination;
+    public void setIncludePrelude(int i, String includePrelude) {
+        this.includePrelude[i] = includePrelude;
     }
 
-    public MethodPermission[] getMethodPermission() {
-        return methodPermission;
+    public Boolean getXML() {
+        return isXml;
     }
 
-    public MethodPermission getMethodPermission(int i) {
-        return methodPermission[i];
+    public void setXML(Boolean xml) {
+        isXml = xml;
     }
 
-    public void setMethodPermission(MethodPermission[] methodPermission) {
-        this.methodPermission = methodPermission;
+    public String getPageEncoding() {
+        return pageEncoding;
     }
 
-    public void setMethodPermission(int i, MethodPermission methodPermission) {
-        this.methodPermission[i] = methodPermission;
+    public void setPageEncoding(String pageEncoding) {
+        this.pageEncoding = pageEncoding;
     }
 
-    public SecurityRole[] getSecurityRole() {
-        return securityRole;
+    public Boolean getScriptingInvalid() {
+        return scriptingInvalid;
     }
 
-    public SecurityRole getSecurityRole(int i) {
-        return securityRole[i];
+    public void setScriptingInvalid(Boolean scriptingInvalid) {
+        this.scriptingInvalid = scriptingInvalid;
     }
 
-    public void setSecurityRole(SecurityRole[] securityRole) {
-        this.securityRole = securityRole;
+    public String getURLPattern() {
+        return urlPattern;
     }
 
-    public void setSecurityRole(int i, SecurityRole securityRole) {
-        this.securityRole[i] = securityRole;
+    public void setURLPattern(String urlPattern) {
+        this.urlPattern = urlPattern;
     }
 }
