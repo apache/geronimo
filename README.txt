@@ -12,18 +12,18 @@ Then just type
 
 	maven
 	
-to run JUnit test cases
+to build Geronimo running all of the Unit test cases
 
-	maven test
+	maven build
+
+to do a clean rebuild of Geronimo type
+
+	maven rebuild
 
 to try run the Geronimo server type
 
 	maven run
 		
-to get the javadocs type
-
-	maven javadoc
-
 or for the HTML website
 
 	maven site

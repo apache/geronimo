@@ -20,7 +20,9 @@
       <item name="Related Projects"        href="/reuse.html"/>
     </menu>
     <menu name="Modules">
+      <item name="Common"		   		   href="/modules/core/"/>
       <item name="Core Container"		   href="/modules/core/"/>
+      <item name="Twiddle"		   		   href="/modules/twiddle/"/>
     </menu>
     
     <menu name="Apache Community">
