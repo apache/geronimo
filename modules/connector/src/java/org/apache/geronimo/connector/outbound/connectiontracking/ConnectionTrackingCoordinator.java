@@ -84,11 +84,11 @@ import org.apache.geronimo.gbean.GOperationInfo;
  * ConnectionManager stacks so the existing ManagedConnections can be
  * enrolled properly.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 05:56:10 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/30 05:29:41 $
  */
 public class ConnectionTrackingCoordinator implements TrackedConnectionAssociator, ConnectionTracker {
 
-    private final static GBeanInfo GBEAN_INFO;
+    public final static GBeanInfo GBEAN_INFO;
 
     private final ThreadLocal currentConnectorComponentContexts = new ThreadLocal();
     private final ThreadLocal currentConnectorTransactionContexts = new ThreadLocal();
