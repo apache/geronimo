@@ -38,16 +38,12 @@
  temporary (I hope) individual elements while xmlbeans group handling is straightened out
  -->
 
-    <xsd:element name="ejb-ref"
-        type="gernaming:remote-refType"/>
-    <xsd:element name="ejb-local-ref"
-        type="gernaming:local-refType"/>
+    <xsd:element name="ejb-ref" type="gernaming:remote-refType"/>
+    <xsd:element name="ejb-local-ref" type="gernaming:local-refType"/>
     <!-- leave web services out until I know what they do -->
     <!--xsd:group ref="service-refGroup"/-->
-    <xsd:element name="resource-ref"
-        type="gernaming:local-refType"/>
-    <xsd:element name="resource-env-ref"
-        type="gernaming:local-refType"/>
+    <xsd:element name="resource-ref" type="gernaming:local-refType"/>
+    <xsd:element name="resource-env-ref" type="gernaming:local-refType"/>
     
     <xsd:group name="jndiEnvironmentRefsGroup">
         <xsd:annotation>
@@ -59,20 +55,12 @@
             </xsd:documentation>
         </xsd:annotation>
         <xsd:sequence>
-            <xsd:element name="ejb-ref"
-                type="gernaming:remote-refType"
-                minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="ejb-local-ref"
-                type="gernaming:local-refType"
-                minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="ejb-ref" type="gernaming:remote-refType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="ejb-local-ref" type="gernaming:local-refType" minOccurs="0" maxOccurs="unbounded"/>
             <!-- leave web services out until I know what they do -->
             <!--xsd:group ref="service-refGroup"/-->
-            <xsd:element name="resource-ref"
-                type="gernaming:local-refType"
-                minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="resource-env-ref"
-                type="gernaming:local-refType"
-                minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="resource-ref" type="gernaming:local-refType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="resource-env-ref" type="gernaming:local-refType" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:group>
 
@@ -86,6 +74,7 @@
                     <xsd:element name="target-name" type="xsd:string"/>
                 </xsd:sequence>
                 <xsd:element name="external-uri" type="xsd:string"/>
+                <xsd:element name="ejb-link" type="xsd:string"/>
             </xsd:choice>
         </xsd:sequence>
     </xsd:complexType>
@@ -102,6 +91,7 @@
                             <xsd:element name="target-name" type="xsd:string"/>
                         </xsd:sequence>
                         <xsd:element name="external-uri" type="xsd:string"/>
+                        <xsd:element name="ejb-link" type="xsd:string"/>
                     </xsd:choice>
                 </xsd:sequence>
             </xsd:restriction>

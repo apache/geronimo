@@ -17,22 +17,25 @@
 
 package org.apache.geronimo.naming.deployment;
 
-import java.util.Map;
-import java.lang.String;
 import java.net.URI;
-
+import java.util.Map;
 import javax.naming.NamingException;
 import javax.transaction.UserTransaction;
 
-import org.apache.geronimo.xbeans.j2ee.*;
-import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.EJBRefContext;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
-import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.apache.geronimo.j2ee.deployment.EJBRefContext;
+import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
+import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
+import org.apache.geronimo.xbeans.j2ee.EjbRefType;
+import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
+import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
+import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
+import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 
 /**
  *
@@ -143,7 +146,14 @@ public class ENCConfigBuilder {
 
             boolean isSession = "Session".equals(ejbRef.getEjbRefType().getStringValue());
 
-            String ejbLink = getJ2eeStringValue(ejbRef.getEjbLink());
+            String ejbLink = null;
+            GerRemoteRefType remoteRef = (GerRemoteRefType) ejbRefMap.get(ejbRefName);
+            if (remoteRef != null && remoteRef.isSetEjbLink()) {
+                ejbLink = remoteRef.getEjbLink();
+            } else if (ejbRef.isSetEjbLink()) {
+                ejbLink = getJ2eeStringValue(ejbRef.getEjbLink());
+            }
+
             if (ejbLink != null) {
                 try {
                     builder.bind(ejbRefName, ejbRefContext.getEJBRemoteRef(uri, ejbLink, isSession, home, remote));
@@ -151,7 +161,6 @@ public class ENCConfigBuilder {
                     throw new DeploymentException("Unable to to bind ejb-ref: ejb-ref-name=" + ejbRefName);
                 }
             } else {
-                GerRemoteRefType remoteRef = (GerRemoteRefType) ejbRefMap.get(ejbRefName);
                 if (remoteRef == null) {
                     throw  new DeploymentException("No geronimo configuration for resource ref named: " + ejbRefName);
                 }
@@ -161,7 +170,6 @@ public class ENCConfigBuilder {
                     throw new DeploymentException("Invalid env-entry definition for name: " + ejbRefName, e);
                 }
             }
-
         }
     }
 
@@ -180,7 +188,14 @@ public class ENCConfigBuilder {
 
             boolean isSession = "Session".equals(ejbLocalRef.getEjbRefType().getStringValue());
 
-            String ejbLink = getJ2eeStringValue(ejbLocalRef.getEjbLink());
+            String ejbLink = null;
+            GerLocalRefType localRef = (GerLocalRefType) ejbLocalRefMap.get(ejbRefName);
+            if (localRef != null && localRef.isSetEjbLink()) {
+                ejbLink = localRef.getEjbLink();
+            } else if (ejbLocalRef.isSetEjbLink()) {
+                ejbLink = getJ2eeStringValue(ejbLocalRef.getEjbLink());
+            }
+
             if (ejbLink != null) {
                 try {
                     builder.bind(ejbRefName, ejbRefContext.getEJBLocalRef(uri, ejbLink, isSession, localHome, local));
@@ -188,7 +203,6 @@ public class ENCConfigBuilder {
                     throw new DeploymentException("Unable to to bind ejb-local-ref: ejb-ref-name=" + ejbRefName);
                 }
             } else {
-                GerLocalRefType localRef = (GerLocalRefType) ejbLocalRefMap.get(ejbRefName);
                 if (localRef == null) {
                     throw  new DeploymentException("No geronimo configuration for resource ref named: " + ejbRefName);
                 }
