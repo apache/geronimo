@@ -74,7 +74,7 @@ import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
  * into the same abstract base.
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/04 15:19:31 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/04 15:51:59 $
  */
 public abstract class
   Tier
@@ -106,8 +106,8 @@ public abstract class
   // Tier
   //----------------------------------------
 
-  public String getClusterName() {return _objectName.getKeyProperty("cluster");}
-  public String getNodeName() {return _objectName.getKeyProperty("node");}
+  public String getClusterName(){return _objectName.getKeyProperty("cluster");}
+  public String getNodeName(){return _objectName.getKeyProperty("node");}
 
   protected abstract Object alloc();
   public abstract Object registerData(String uid, Object data);

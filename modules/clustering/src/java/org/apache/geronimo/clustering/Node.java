@@ -71,7 +71,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
  * uniquely within their Cluster and VM. A VM may contain more than
  * one Node.
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/04 15:19:31 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/04 15:51:59 $
  */
 public class
   Node
@@ -105,13 +105,9 @@ public class
    *
    * @return a <code>String</code> value
    */
-  public String getCluster() {return _objectName.getKeyProperty("cluster");}
-  /**
-   * Returns the Node's Cluster's current membership.
-   *
-   * @return a <code>List</code> value
-   */
-  public List getMembers(){return _cluster.getMembers();}
+  public String getClusterName(){return _objectName.getKeyProperty("cluster");}
+
+  public Cluster getCluster(){return _cluster;}
 
   //----------------------------------------
   // MetaDataListener
@@ -191,7 +187,7 @@ public class
   public void
     doStart()
   {
-    _log=LogFactory.getLog(getClass().getName()+"#"+getCluster()+"/"+getName());
+    _log=LogFactory.getLog(getClass().getName()+"#"+getClusterName()+"/"+getName());
     _log.info("starting");
 
     synchronized (_cluster)
@@ -222,9 +218,8 @@ public class
   {
     GeronimoMBeanInfo mbeanInfo=MBeanImpl.getGeronimoMBeanInfo();
     mbeanInfo.setTargetClass(Node.class);
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Cluster",   true, false, "unique identifier for this Node's Cluster"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Members",   true, false, "list of cluster members"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Data",      true, false, "cluster state"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ClusterName", true, false, "Node's Cluster's Name"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Data",        true, false, "Node's state"));
     return mbeanInfo;
   }
 }

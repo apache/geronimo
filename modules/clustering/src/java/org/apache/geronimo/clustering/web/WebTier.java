@@ -74,7 +74,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
  * Responsible for maintaining state stored in the Web tier -
  * i.e. HttpSessions.
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/04 14:18:06 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/04 15:51:59 $
  */
 public class
   WebTier
@@ -115,12 +115,13 @@ public class
   //----------------------------------------
   // GeronimoMBeanTarget
   //----------------------------------------
+
   public static GeronimoMBeanInfo
     getGeronimoMBeanInfo()
   {
     GeronimoMBeanInfo mbeanInfo=Tier.getGeronimoMBeanInfo();
     mbeanInfo.setTargetClass(WebTier.class);
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("WebAppCount", true, false, "Number of WebApps deployed in this Tier"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("WebAppCount",      true, false, "Number of WebApps deployed in this Tier"));
     mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("HttpSessionCount", true, false, "Number of HttpSessions stored in this Tier"));
     return mbeanInfo;
   }

@@ -68,7 +68,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
  * A base class containing fnality useful to Named MBeans of the
  * Clustering module.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/04 15:21:37 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/04 15:51:59 $
  */
 public abstract class
   NamedMBeanImpl
@@ -77,7 +77,7 @@ public abstract class
   protected Log _log=LogFactory.getLog(NamedMBeanImpl.class);
 
   /**
-   * Returns the Node's unique identifier within it's Cluster.
+   * Returns the MBean's name.
    *
    * @return a <code>String</code> value
    */
