@@ -85,4 +85,12 @@ specific services - those should be provided by children.
     <gbean name="geronimo.server:role=RMIRegistry" class="org.apache.geronimo.system.RMIRegistryService">
         <attribute name="port" type="int">1099</attribute>
     </gbean>
+
+    <!-- Naming properties -->
+    <gbean name="geronimo.server:role=NamingProperties" class="org.apache.geronimo.system.properties.NamingProperties">
+        <attribute name="namingFactoryInitial" type="java.lang.String">com.sun.jndi.rmi.registry.RegistryContextFactory</attribute>
+        <attribute name="namingFactoryUrlPkgs" type="java.lang.String">org.apache.geronimo.naming</attribute>
+        <attribute name="namingProviderUrl" type="java.lang.String">rmi://localhost:1099</attribute>
+    </gbean>
+    
 </configuration>
