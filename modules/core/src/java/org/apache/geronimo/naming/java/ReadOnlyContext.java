@@ -87,12 +87,12 @@ import javax.naming.spi.NamingManager;
  * resolution phase performed by the JVM takes considerably longer, so for
  * optimum performance lookups should be coded like:</p>
  * <code>
- *   Context componentContext = new InitialContext().lookup("java:comp");
+ *   Context componentContext = (Context)new InitialContext().lookup("java:comp");
  *   String envEntry = (String) componentContext.lookup("env/myEntry");
  *   String envEntry2 = (String) componentContext.lookup("env/myEntry2");
  * </code>
  *
- * @version $Revision: 1.6 $ $Date: 2003/11/16 05:24:38 $
+ * @version $Revision: 1.7 $ $Date: 2003/12/09 05:03:49 $
  */
 public class ReadOnlyContext implements Context {
     private final Hashtable env;        // environment for this context
@@ -122,7 +122,11 @@ public class ReadOnlyContext implements Context {
     }
 
     ReadOnlyContext(Hashtable env) {
+        if (env == null) {
+            this.env = new Hashtable();
+        } else {
         this.env = new Hashtable(env);
+        }
         this.bindings = Collections.EMPTY_MAP;
         this.treeBindings = Collections.EMPTY_MAP;
     }
@@ -159,8 +163,24 @@ public class ReadOnlyContext implements Context {
                     throw new NamingException("scheme " + scheme + " not recognized");
                 }
                 return ctx.lookup(name);
+            } else {
+                // Split out the first name of the path
+                // and look for it in the bindings map.
+                CompositeName path = new CompositeName(name);
+
+                if (path.size() == 0) {
+                    return this;
+                } else {
+                    Object obj = bindings.get(path.get(0));
+                    if (obj == null){
+                        throw new NameNotFoundException(name);
+                    } else if (obj instanceof Context && path.size() > 1){
+                        Context subContext = (Context) obj;
+                        obj = subContext.lookup(path.getSuffix(1));
+                    }
+                    return obj;
+                }
             }
-            throw new NameNotFoundException(name);
         }
         if (result instanceof LinkRef) {
             LinkRef ref = (LinkRef) result;
