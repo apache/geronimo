@@ -33,7 +33,7 @@ import javax.naming.NamingException;
 /**
 * Unit tests for basic ops on an {@link javax.naming.InitialContext}.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:09 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/22 01:34:24 $
  */
 public class BasicContextTest extends AbstractContextTest {
 
@@ -84,7 +84,7 @@ public class BasicContextTest extends AbstractContextTest {
     }
 
     public void testList() throws NamingException {
-        NamingEnumeration enum;
+        NamingEnumeration ne;
         Map expected;
         Map result;
 
@@ -93,22 +93,22 @@ public class BasicContextTest extends AbstractContextTest {
             Map.Entry entry = (Map.Entry) i.next();
             expected.put(entry.getKey(), entry.getValue().getClass().getName());
         }
-        enum = envContext.list("");
+        ne = envContext.list("");
         result = new HashMap();
-        while (enum.hasMore()) {
-            NameClassPair pair = (NameClassPair) enum.next();
+        while (ne.hasMore()) {
+            NameClassPair pair = (NameClassPair) ne.next();
             result.put(pair.getName(), pair.getClassName());
         }
         assertEquals(expected, result);
 
         try {
-            enum.next();
+            ne.next();
             fail();
         } catch (NoSuchElementException e) {
             // ok
         }
         try {
-            enum.nextElement();
+            ne.nextElement();
             fail();
         } catch (NoSuchElementException e) {
             // ok
@@ -116,12 +116,12 @@ public class BasicContextTest extends AbstractContextTest {
     }
 
     public void testListBindings() throws NamingException {
-        NamingEnumeration enum;
-        enum = envContext.listBindings("");
+        NamingEnumeration ne;
+        ne = envContext.listBindings("");
         int count = 0;
-        while (enum.hasMore()) {
+        while (ne.hasMore()) {
             count ++;
-            Binding pair = (Binding) enum.next();
+            Binding pair = (Binding) ne.next();
             assertTrue(envBinding.containsKey(pair.getName()));
             if (! (envBinding.get(pair.getName()) instanceof ReadOnlyContext)) {
                 assertEquals(pair.getObject(), envBinding.get(pair.getName()));
@@ -130,13 +130,13 @@ public class BasicContextTest extends AbstractContextTest {
         assertEquals(envBinding.size(), count);
 
         try {
-            enum.next();
+            ne.next();
             fail();
         } catch (NoSuchElementException e) {
             // ok
         }
         try {
-            enum.nextElement();
+            ne.nextElement();
             fail();
         } catch (NoSuchElementException e) {
             // ok
