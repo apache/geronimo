@@ -20,6 +20,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamClass;
+import java.io.Serializable;
+import java.io.ObjectStreamException;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.ByteArrayInputStream;
 import java.lang.reflect.Proxy;
 
 import org.apache.geronimo.kernel.ClassLoading;
@@ -51,4 +56,9 @@ public class ObjectInputStreamExt extends ObjectInputStream {
             throw new ClassNotFoundException(null, e);
         }
     }
+
+    ClassLoader getClassloader() {
+        return classloader;
+    }
+
 }
