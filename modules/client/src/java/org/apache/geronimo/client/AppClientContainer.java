@@ -22,6 +22,8 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.transaction.context.TransactionContext;
+import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
 
 /**
  * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
@@ -60,35 +62,31 @@ public final class AppClientContainer {
     }
 
     public void main(String[] args) throws Exception {
-        Throwable throwable = null;
         Thread thread = Thread.currentThread();
 
         ClassLoader contextClassLoader = thread.getContextClassLoader();
         thread.setContextClassLoader(classLoader);
+        TransactionContext oldTransactionContext = TransactionContext.getContext();
 
         try {
             jndiContext.startClient(appClientModuleName);
-
+            TransactionContext.setContext(new UnspecifiedTransactionContext());
             mainMethod.invoke(null, new Object[]{args});
 
         } catch (InvocationTargetException e) {
             Throwable cause = e.getCause();
             if (cause instanceof Exception) {
-                throwable = cause;
+                throw (Exception) cause;
             } else if (cause instanceof Error) {
-                throwable = cause;
+                throw (Error) cause;
             }
-            throwable = new Error(e);
+            throw new Error(e);
         } finally {
             jndiContext.stopClient(appClientModuleName);
 
             thread.setContextClassLoader(contextClassLoader);
+            TransactionContext.setContext(oldTransactionContext);
 
-            if (throwable instanceof Exception) {
-                throw (Exception) throwable;
-            } else if (throwable instanceof Error) {
-                throw (Error) throwable;
-            }
         }
     }
 

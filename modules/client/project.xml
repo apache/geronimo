@@ -47,11 +47,6 @@
     <!-- ============ -->
 
     <dependencies>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-naming</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
@@ -61,7 +56,19 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-naming</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-transaction</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
 
