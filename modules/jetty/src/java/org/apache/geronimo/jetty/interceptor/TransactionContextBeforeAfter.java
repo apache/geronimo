@@ -30,7 +30,7 @@ import org.mortbay.http.HttpResponse;
  * @version $Rev:  $ $Date:  $
  */
 public class TransactionContextBeforeAfter implements BeforeAfter {
-    
+
     private final BeforeAfter next;
     private final int oldTxIndex;
     private final int newTxIndex;
@@ -58,39 +58,42 @@ public class TransactionContextBeforeAfter implements BeforeAfter {
     }
 
     public void after(Object[] context, HttpRequest httpRequest, HttpResponse httpResponse) {
-        if (next != null) {
-            next.after(context, httpRequest, httpResponse);
-        }
-        TransactionContext oldTransactionContext = (TransactionContext) context[oldTxIndex];
-        TransactionContext newTransactionContext = (TransactionContext) context[newTxIndex];
         try {
-            if (newTransactionContext != null) {
-                if (newTransactionContext != transactionContextManager.getContext()) {
-                    transactionContextManager.getContext().rollback();
-                    newTransactionContext.rollback();
-                    throw new RuntimeException("WRONG EXCEPTION! returned from servlet call with wrong tx context");
-                }
-                newTransactionContext.commit();
-
-            } else {
-                if (oldTransactionContext != transactionContextManager.getContext()) {
-                    if (transactionContextManager.getContext() != null) {
-                        transactionContextManager.getContext().rollback();
-                    }
-                    throw new RuntimeException("WRONG EXCEPTION! returned from servlet call with wrong tx context");
-                }
+            if (next != null) {
+                next.after(context, httpRequest, httpResponse);
             }
-        } catch (SystemException e) {
-            throw new RuntimeException("WRONG EXCEPTION!", e);
-        } catch (HeuristicMixedException e) {
-            throw new RuntimeException("WRONG EXCEPTION!", e);
-        } catch (HeuristicRollbackException e) {
-            throw new RuntimeException("WRONG EXCEPTION!", e);
-        } catch (RollbackException e) {
-            throw new RuntimeException("WRONG EXCEPTION!", e);
         } finally {
-            //this is redundant when we enter with an inheritable context and nothing goes wrong.
-            transactionContextManager.setContext(oldTransactionContext);
+            TransactionContext oldTransactionContext = (TransactionContext) context[oldTxIndex];
+            TransactionContext newTransactionContext = (TransactionContext) context[newTxIndex];
+            try {
+                if (newTransactionContext != null) {
+                    if (newTransactionContext != transactionContextManager.getContext()) {
+                        transactionContextManager.getContext().rollback();
+                        newTransactionContext.rollback();
+                        throw new RuntimeException("WRONG EXCEPTION! returned from servlet call with wrong tx context");
+                    }
+                    newTransactionContext.commit();
+
+                } else {
+                    if (oldTransactionContext != transactionContextManager.getContext()) {
+                        if (transactionContextManager.getContext() != null) {
+                            transactionContextManager.getContext().rollback();
+                        }
+                        throw new RuntimeException("WRONG EXCEPTION! returned from servlet call with wrong tx context");
+                    }
+                }
+            } catch (SystemException e) {
+                throw new RuntimeException("WRONG EXCEPTION!", e);
+            } catch (HeuristicMixedException e) {
+                throw new RuntimeException("WRONG EXCEPTION!", e);
+            } catch (HeuristicRollbackException e) {
+                throw new RuntimeException("WRONG EXCEPTION!", e);
+            } catch (RollbackException e) {
+                throw new RuntimeException("WRONG EXCEPTION!", e);
+            } finally {
+                //this is redundant when we enter with an inheritable context and nothing goes wrong.
+                transactionContextManager.setContext(oldTransactionContext);
+            }
         }
     }
 
