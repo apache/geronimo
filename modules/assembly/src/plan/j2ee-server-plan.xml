@@ -71,58 +71,6 @@ by the server.
     <dependency>
         <uri>geronimo/jars/geronimo-jetty-${geronimo_version}.jar</uri>
     </dependency>
-<!-- the tomcat module's requirement
-   - uncomment it to run Apache Tomcat as a web container
-   -
-    <dependency>
-        <uri>geronimo/jars/geronimo-tomcat-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tomcat/jars/catalina-${tomcat_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tomcat/jars/catalina-optional-${tomcat_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tomcat/jars/tomcat-coyote-${tomcat_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tomcat/jars/tomcat-http-${tomcat_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tomcat/jars/tomcat-util-${tomcat_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tomcat/jars/naming-resources-${tomcat_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tomcat/jars/servlets-default-${tomcat_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tomcat/jars/servlets-invoker-${tomcat_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>commons-beanutils/jars/commons-beanutils-1.6.1.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>commons-collections/jars/commons-collections-2.1.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>commons-digester/jars/commons-digester-1.6.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>commons-el/jars/commons-el-1.0.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>commons-modeler/jars/commons-modeler-1.1.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>regexp/jars/regexp-1.3.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>mx4j/jars/mx4j-2.0.1.jar</uri>
-    </dependency>
-   -->
     <dependency>
         <uri>geronimo/jars/geronimo-jmxremoting-${geronimo_version}.jar</uri>
     </dependency>
