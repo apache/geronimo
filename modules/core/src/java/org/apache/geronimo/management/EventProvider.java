@@ -57,8 +57,8 @@ package org.apache.geronimo.management;
 
 /**
  * This is a representation of the EventProvider type defined in the J2EE Management specification.
- * 
- * @version $Revision: 1.1 $ $Date: 2003/08/21 03:04:39 $
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/21 14:44:25 $
  */
 public interface EventProvider {
     /**

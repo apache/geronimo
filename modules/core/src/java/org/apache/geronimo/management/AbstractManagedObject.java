@@ -56,10 +56,10 @@
 package org.apache.geronimo.management;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.HashSet;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanRegistration;
@@ -85,21 +85,18 @@ import javax.management.relation.RoleNotFoundException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.common.StartException;
+import org.apache.geronimo.common.StopException;
 import org.apache.geronimo.deployment.dependency.DependencyServiceMBean;
 import org.apache.geronimo.deployment.service.MBeanRelationship;
 import org.apache.geronimo.jmx.JMXUtil;
-import org.apache.geronimo.management.NotificationType;
-import org.apache.geronimo.management.State;
-import org.apache.geronimo.management.StateManageable;
-import org.apache.geronimo.common.StartException;
-import org.apache.geronimo.common.StopException;
 
 /**
  * Abstract implementation of JSR77 StateManageable.
  * Implementors of StateManageable may use this class and simply provide
  * doStart, doStop and doNotification methods.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/21 13:41:19 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/21 14:44:25 $
  */
 public abstract class AbstractManagedObject extends NotificationBroadcasterSupport implements ManagedObject, StateManageable, EventProvider, NotificationListener, MBeanRegistration {
     protected final Log log = LogFactory.getLog(getClass());
@@ -239,7 +236,7 @@ public abstract class AbstractManagedObject extends NotificationBroadcasterSuppo
     }
 
     public final String[] getEventTypes() {
-        return (String[])notificationTypes.toArray(new String[notificationTypes.size()]);
+        return (String[]) notificationTypes.toArray(new String[notificationTypes.size()]);
     }
 
     public MBeanNotificationInfo[] getNotificationInfo() {
@@ -301,7 +298,7 @@ public abstract class AbstractManagedObject extends NotificationBroadcasterSuppo
             synchronized (this) {
                 try {
                     // if we are still trying to start and can start now... start
-                    if(getStateInstance() == State.STARTING &&
+                    if (getStateInstance() == State.STARTING &&
                             dependencyService.canStart(objectName) && canStart()) {
                         enrollInRelationships();
                         doStart();
@@ -319,7 +316,7 @@ public abstract class AbstractManagedObject extends NotificationBroadcasterSuppo
                 }
             }
         } finally {
-            if(newState != null) {
+            if (newState != null) {
                 doNotification(newState.getEventTypeValue());
             }
         }
@@ -391,7 +388,7 @@ public abstract class AbstractManagedObject extends NotificationBroadcasterSuppo
                 }
             }
         } finally {
-            if(newState != null) {
+            if (newState != null) {
                 doNotification(newState.getEventTypeValue());
             }
         }
@@ -454,14 +451,14 @@ public abstract class AbstractManagedObject extends NotificationBroadcasterSuppo
         } else if (RelationNotification.RELATION_BASIC_REMOVAL.equals(type) ||
                 RelationNotification.RELATION_MBEAN_REMOVAL.equals(type)) {
 
-            if(getStateInstance() == State.RUNNING) {
+            if (getStateInstance() == State.RUNNING) {
                 RelationNotification notification = (RelationNotification) n;
                 String relationType = notification.getRelationTypeName();
-                if(relationType != null) {
+                if (relationType != null) {
                     Set relationships = dependencyService.getRelationships(objectName);
                     for (Iterator i = relationships.iterator(); i.hasNext();) {
                         MBeanRelationship relationship = (MBeanRelationship) i.next();
-                        if(relationType.equals(relationship.getType())){
+                        if (relationType.equals(relationship.getType())) {
                             checkState();
                             return;
                         }
@@ -710,7 +707,7 @@ public abstract class AbstractManagedObject extends NotificationBroadcasterSuppo
             for (Iterator i = relationships.iterator(); i.hasNext();) {
                 MBeanRelationship relationship = (MBeanRelationship) i.next();
                 String relationshipName = relationship.getName();
-                if(relationship.getCreatedRelationship()) {
+                if (relationship.getCreatedRelationship()) {
                     // drop the entire relationship
                     relationService.removeRelation(relationshipName);
                 } else {

@@ -62,7 +62,7 @@ import javax.management.NotificationFilter;
  * Static constants class which contains all of the J2EE notification types from the
  * J2EE management specification.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/20 07:13:09 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/21 14:44:25 $
  */
 public final class NotificationType {
     private NotificationType() {
@@ -129,7 +129,7 @@ public final class NotificationType {
         public boolean isNotificationEnabled(Notification notification) {
             String type = notification.getType();
             for (int i = 0; i < TYPES.length; i++) {
-                if(TYPES[i].equals(type)) {
+                if (TYPES[i].equals(type)) {
                     return true;
                 }
             }
