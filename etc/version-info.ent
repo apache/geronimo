@@ -36,7 +36,7 @@
 <!ENTITY axis-commons-discovery-version "SNAPSHOT">
 <!ENTITY bouncycastle-bcprov-version "jdk14-124">
 <!ENTITY cglib-version "2.0">
-<!ENTITY castor-version "0.9.3.9">
+<!ENTITY castor-version "0.9.5.3">
 <!ENTITY commons-beanutils-version "1.6.1">
 <!ENTITY commons-cli-version "1.0">
 <!ENTITY commons-collections-version "2.1">
