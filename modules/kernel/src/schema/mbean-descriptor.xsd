@@ -111,10 +111,19 @@ http://www.apache.org/.
                 </xs:element>
                 <xs:element name="endpoint" minOccurs="0" maxOccurs="unbounded">
                     <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="peer" minOccurs="0" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:attribute name="pattern" type="objectName" use="required"/>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
                         <xs:attribute name="name" type="xs:string" use="required"/>
                         <xs:attribute name="type" type="className" use="required"/>
-                        <xs:attribute name="minOccurs" type="xs:int" use="optional" default="0"/>
-                        <xs:attribute name="maxOccurs" type="maxOccurs" use="optional" default="unbounded"/>
+                        <xs:attribute name="description" type="xs:string" use="optional"/>
+                        <xs:attribute name="targetName" type="xs:string" use="optional" default="default"/>
+                        <xs:attribute name="required" type="xs:boolean" use="optional" default="false"/>
+                        <xs:attribute name="setterName" type="xs:string" use="optional"/>
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>
@@ -127,6 +136,9 @@ http://www.apache.org/.
         </xs:key>
     </xs:element>
     <xs:simpleType name="className">
+        <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+    <xs:simpleType name="objectName">
         <xs:restriction base="xs:string"/>
     </xs:simpleType>
     <xs:simpleType name="impact">
