@@ -106,14 +106,14 @@
             <ant:fileset dir="${project.root}/modules/naming-builder">
                 <ant:include name="src/schema/*.xsd"/>
             </ant:fileset>
-            <ant:fileset dir="${project.root}/modules/security">
-                <ant:include name="src/schema/*.xsd"/>
+            <ant:fileset dir="${project.root}/modules/security-builder">
+                <ant:include name="src/schema/geronimo*.xsd"/>
             </ant:fileset>
             <ant:fileset dir="${project.root}/modules/client-builder">
                 <ant:include name="src/schema/*.xsd"/>
             </ant:fileset>
             <ant:fileset dir="${project.root}">
-                <ant:include name="openejb/modules/core/src/schema/openejb-jar.xsd"/>
+                <ant:include name="openejb/modules/openejb-builder/src/schema/openejb-jar.xsd"/>
             </ant:fileset>
             <ant:fileset dir="src/etc"/>
         </ant:copy>
