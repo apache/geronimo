@@ -55,6 +55,8 @@
  */
 package org.apache.geronimo.kernel.service;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -67,9 +69,13 @@ import javax.management.MBeanInfo;
 import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanOperationInfo;
 
-import org.apache.geronimo.kernel.service.ParserUtil;
-import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
-
+import net.sf.cglib.proxy.CallbackFilter;
+import net.sf.cglib.proxy.Callbacks;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.Factory;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
+import net.sf.cglib.proxy.SimpleCallbacks;
 import net.sf.cglib.reflect.FastClass;
 
 /**
@@ -77,7 +83,7 @@ import net.sf.cglib.reflect.FastClass;
  * and once the MBean is deployed an imutable copy of will be made.  This class also adds support for multi target
  * POJOs under the MBean.
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/06 19:58:45 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/09 20:04:45 $
  */
 public final class GeronimoMBeanInfo extends MBeanInfo {
     /**
@@ -139,21 +145,20 @@ public final class GeronimoMBeanInfo extends MBeanInfo {
                 Map.Entry entry = (Map.Entry) i.next();
                 className = (String) entry.getValue();
                 Class clazz = ParserUtil.loadClass(className);
-                Object target = clazz.newInstance();
+
+                if(Modifier.isFinal(clazz.getModifiers())) {
+                    throw new IllegalArgumentException("Target class cannot be final: " + className);
+                }
+
+                // Insert Magic Here
+                GeronimoMBeanTarget target = createTarget(clazz);
+                //Object target = clazz.newInstance();
                 targets.put(entry.getKey(), target);
                 FastClass fastClass = FastClass.create(clazz);
                 targetFastClasses.put(entry.getKey(), fastClass);
             }
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException("Target class could not be loaded: className=" + className);
-        } catch (InstantiationException e) {
-            IllegalArgumentException exception = new IllegalArgumentException("Target class could not be loaded: className=" + className);
-            exception.initCause(e);
-            throw exception;
-        } catch (IllegalAccessException e) {
-            IllegalArgumentException exception = new IllegalArgumentException("Cound not access target class default constructor: className=" + className);
-            exception.initCause(e);
-            throw exception;
         }
 
         //
@@ -220,14 +225,14 @@ public final class GeronimoMBeanInfo extends MBeanInfo {
     }
 
     FastClass getTargetFastClass() {
-        return (FastClass)targetFastClasses.get(DEFAULT_TARGET_NAME);
+        return (FastClass) targetFastClasses.get(DEFAULT_TARGET_NAME);
     }
 
     FastClass getTargetFastClass(String name) {
-        if(GERONIMO_MBEAN_TARGET_NAME.equals(name)) {
+        if (GERONIMO_MBEAN_TARGET_NAME.equals(name)) {
             return GeronimoMBean.fastClass;
         }
-        return (FastClass)targetFastClasses.get(name);
+        return (FastClass) targetFastClasses.get(name);
     }
 
     public String getName() {
@@ -316,6 +321,82 @@ public final class GeronimoMBeanInfo extends MBeanInfo {
         }
         endpoints.add(endpoint);
     }
+
+    private GeronimoMBeanTarget createTarget(Class superClass) {
+        Enhancer enhancer = new Enhancer();
+        enhancer.setSuperclass(superClass);
+        enhancer.setInterfaces(new Class[]{GeronimoMBeanTarget.class});
+        enhancer.setCallbackFilter(new TargetCallbackFilter(superClass));
+        enhancer.setCallbacks(new SimpleCallbacks());
+        Factory factory = enhancer.create();
+        return (GeronimoMBeanTarget) factory.newInstance(NO_OP_METHOD_INTERCEPTOR);
+    }
+
+    private static final class TargetCallbackFilter implements CallbackFilter {
+        private final Class superClass;
+
+        public TargetCallbackFilter(Class superClass) {
+            this.superClass = superClass;
+        }
+
+        public int accept(Method method) {
+            String name = method.getName();
+            Class[] parameterTypes = method.getParameterTypes();
+            if (parameterTypes.length == 0 &&
+                    method.getReturnType() == Void.TYPE &&
+                    method.getExceptionTypes().length == 0 &&
+                    ("doStart".equals(name) || "doStop".equals(name) || "doFail".equals(name))) {
+
+                try {
+                    superClass.getMethod(name, null);
+                    return Callbacks.NO_OP;
+                } catch (Exception e) {
+                    return Callbacks.INTERCEPT;
+                }
+            }
+
+            if (parameterTypes.length == 0 &&
+                    method.getReturnType() == Boolean.TYPE &&
+                    method.getExceptionTypes().length == 0 &&
+                    ("canStart".equals(name) || "canStop".equals(name))) {
+
+                try {
+                    superClass.getMethod(name, null);
+                    return Callbacks.NO_OP;
+                } catch (Exception e) {
+                    return Callbacks.INTERCEPT;
+                }
+            }
+
+            if (parameterTypes.length == 1 && parameterTypes[0] == GeronimoMBeanContext.class &&
+                    "setMBeanContext".equals(name) &&
+                    method.getReturnType() == Void.TYPE &&
+                    method.getExceptionTypes().length == 0) {
+
+                try {
+                    superClass.getMethod("setContext", parameterTypes);
+                    return Callbacks.NO_OP;
+                } catch (Exception e) {
+                    return Callbacks.INTERCEPT;
+                }
+            }
+            return Callbacks.NO_OP;
+        }
+    }
+
+    private static final MethodInterceptor NO_OP_METHOD_INTERCEPTOR = new MethodInterceptor() {
+        public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
+            if (Modifier.isAbstract(method.getModifiers())) {
+                if(method.getReturnType() == Boolean.TYPE) {
+                    return Boolean.TRUE;
+                } else {
+                    return null;
+                }
+            }
+            return proxy.invokeSuper(obj, args);
+        }
+    };
+
 
     public int hashCode() {
         return hashCode;
