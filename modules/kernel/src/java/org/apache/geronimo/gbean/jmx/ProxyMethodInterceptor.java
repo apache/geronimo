@@ -75,7 +75,7 @@ import net.sf.cglib.reflect.FastClass;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:38:55 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/15 00:45:54 $
  */
 public final class ProxyMethodInterceptor implements MethodInterceptor {
     /**
@@ -117,6 +117,7 @@ public final class ProxyMethodInterceptor implements MethodInterceptor {
         assert server != null && objectName != null;
         this.server = server;
         this.objectName = objectName;
+        this.stopped = stopped;
         this.methodTable = ProxyMethodInterceptor.createMethodTable(server, objectName, proxyType);
     }
 
@@ -186,9 +187,8 @@ public final class ProxyMethodInterceptor implements MethodInterceptor {
         Method[] methods = proxyType.getMethods();
         for (int i = 0; i < methods.length; i++) {
             Method method = methods[i];
-            String superName = MethodProxy.getSuperName(proxyType, method);
-            if (superName != null) {
-                int index = fastClass.getIndex(superName, method.getParameterTypes());
+            int index = getSuperIndex(fastClass, method);
+            if (index >= 0) {
                 if (operations.containsKey(new MBeanOperationSignature(method))) {
                     methodTable[index] = new InvokeMBean(method, false, false);
                 } else if (method.getName().startsWith("get") && attributes.containsKey(method.getName().substring(3))) {
@@ -274,7 +274,6 @@ public final class ProxyMethodInterceptor implements MethodInterceptor {
                 return enhancedClass.getIndex(name, parameterTypes);
             }
         }
-        throw new IllegalArgumentException("Method not found on enhancedClass:" +
-                " enhancedClass=" + enhancedClass.getJavaClass() + " method=" + method);
+        return -1;
     }
 }

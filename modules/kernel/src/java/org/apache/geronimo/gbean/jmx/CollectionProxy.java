@@ -64,8 +64,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.kernel.jmx.InterfaceCallbackFilter;
 import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.kernel.jmx.InterfaceCallbackFilter;
 
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.Factory;
@@ -74,18 +74,13 @@ import net.sf.cglib.proxy.SimpleCallbacks;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/14 22:16:38 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/15 00:45:54 $
  */
 public class CollectionProxy implements Proxy {
     /**
      * The GBeanMBean to which this proxy belongs.
      */
     private final GBeanMBean gmbean;
-
-    /**
-     * The proxy type
-     */
-    private final Class type;
 
     /**
      * A map from object names to the proxy
@@ -109,7 +104,6 @@ public class CollectionProxy implements Proxy {
 
     public CollectionProxy(GBeanMBean gmbean, Class type) {
         this.gmbean = gmbean;
-        this.type = type;
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(Object.class);
         enhancer.setInterfaces(new Class[]{type});
@@ -130,7 +124,7 @@ public class CollectionProxy implements Proxy {
     public synchronized void addTarget(ObjectName target) {
         // if this is a new target...
         if (!proxies.containsKey(target)) {
-            ProxyMethodInterceptor interceptor = new ProxyMethodInterceptor(type);
+            ProxyMethodInterceptor interceptor = new ProxyMethodInterceptor(factory.getClass());
             interceptor.connect(gmbean.getServer(), target, proxy.isStopped());
             interceptors.put(target, interceptor);
             proxies.put(target, factory.newInstance(interceptor));
@@ -138,13 +132,10 @@ public class CollectionProxy implements Proxy {
     }
 
     public synchronized void removeTarget(ObjectName target) {
-        // if this is one of our existing targets target...
-        if (!proxies.containsKey(target)) {
-            proxies.remove(target);
-            ProxyMethodInterceptor interceptor = (ProxyMethodInterceptor) interceptors.remove(target);
-            if (interceptor != null) {
-                interceptor.disconnect();
-            }
+        proxies.remove(target);
+        ProxyMethodInterceptor interceptor = (ProxyMethodInterceptor) interceptors.remove(target);
+        if (interceptor != null) {
+            interceptor.disconnect();
         }
     }
 

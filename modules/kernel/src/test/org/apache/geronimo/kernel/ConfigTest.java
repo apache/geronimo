@@ -76,7 +76,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/14 22:16:38 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/15 00:45:54 $
  */
 public class ConfigTest extends TestCase {
     private ObjectName gbeanName1;
@@ -103,13 +103,15 @@ public class ConfigTest extends TestCase {
         ObjectName configName = (ObjectName) mbServer.invoke(Kernel.KERNEL, "load", new Object[]{config, null}, new String[]{GBeanMBean.class.getName(), URL.class.getName()});
         mbServer.invoke(configName, "startRecursive", null, null);
 
-        assertEquals(new Integer(State.RUNNING.toInt()), mbServer.getAttribute(configName, "state"));
+        assertEquals(new Integer(State.RUNNING_INDEX), mbServer.getAttribute(configName, "state"));
         assertNotNull(mbServer.getAttribute(configName, "ClassLoader"));
 
-        assertEquals(new Integer(State.RUNNING.toInt()), mbServer.getAttribute(gbeanName1, "state"));
+        assertEquals(new Integer(State.RUNNING_INDEX), mbServer.getAttribute(gbeanName1, "state"));
+        Object state = mbServer.getAttribute(gbeanName2, "state");
+        assertEquals(new Integer(State.RUNNING_INDEX), state);
         assertEquals("1234", mbServer.getAttribute(gbeanName1, "Value"));
         assertEquals("no endpoint", mbServer.invoke(gbeanName1, "checkEndpoint", null, null));
-        //assertEquals("endpointCheck", mbServer.invoke(gbeanName2, "checkEndpoint", null, null));
+        assertEquals("endpointCheck", mbServer.invoke(gbeanName2, "checkEndpoint", null, null));
 
         mbServer.invoke(configName, "stop", null, null);
         try {

@@ -86,7 +86,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/14 22:16:38 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/15 00:45:54 $
  */
 public class GBeanMBeanEndpoint implements NotificationListener {
     /**
@@ -194,7 +194,7 @@ public class GBeanMBeanEndpoint implements NotificationListener {
     public synchronized void online() throws ReflectionException {
         // create the proxy
         if (singleValued) {
-            proxy = new SingleProxy(gmbean, name, type);
+            proxy = new SingleProxy(gmbean, name, type, patterns);
         } else {
             proxy = new CollectionProxy(gmbean, type);
         }

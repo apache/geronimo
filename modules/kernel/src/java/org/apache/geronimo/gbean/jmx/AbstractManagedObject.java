@@ -92,7 +92,7 @@ import org.apache.geronimo.gbean.WaitingException;
  * Implementors of StateManageable may use this class and simply provide
  * doStart, doStop and sendNotification methods.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:38:55 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/15 00:45:54 $
  */
 public abstract class AbstractManagedObject implements ManagedObject, StateManageable, EventProvider, NotificationListener, MBeanRegistration, NotificationEmitter {
     protected final Log log = LogFactory.getLog(getClass());
@@ -217,6 +217,14 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
 
     public final String getObjectName() {
         return objectName.toString();
+    }
+
+    public final ObjectName getObjectNameObject() {
+        return objectName;
+    }
+
+    public DependencyService2MBean getDependencyService() {
+        return dependencyService;
     }
 
     public final boolean isStateManageable() {
@@ -506,6 +514,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
                     try {
                         doStart();
                     } catch (WaitingException e) {
+                        log.debug("Waiting to start: objectName=\"" + objectName + "\" reason=\"" + e.getMessage() + "\"");
                         return;
                     }
                     setStateInstance(State.RUNNING);
@@ -576,6 +585,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
                     try {
                         doStop();
                     } catch (WaitingException e) {
+                        log.debug("Waiting to stop: objectName=\"" + objectName + "\" reason=\"" + e.getMessage() + "\"");
                         return;
                     }
                     setStateInstance(State.STOPPED);
