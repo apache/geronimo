@@ -16,29 +16,23 @@
  */
 package org.apache.geronimo.jetty;
 
-import javax.security.auth.Subject;
+import java.security.AccessControlContext;
+import java.security.AccessControlException;
+import java.security.Principal;
+import java.util.HashMap;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.security.jacc.WebRoleRefPermission;
-import java.security.AccessControlContext;
-import java.security.AccessControlException;
-import java.security.AccessController;
-import java.security.Principal;
-import java.util.HashMap;
-import java.util.Stack;
 
-import org.mortbay.http.HttpRequest;
-import org.mortbay.http.UserRealm;
-import org.mortbay.jaas.callback.DefaultCallbackHandler;
-import org.mortbay.util.LogSupport;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.security.ContextManager;
+import org.mortbay.http.HttpRequest;
+import org.mortbay.http.UserRealm;
 
 
 /**
@@ -74,7 +68,6 @@ public class JAASJettyRealm implements UserRealm, GBeanLifecycle {
     }
 
     public Principal authenticate(String username, Object credentials, HttpRequest request) {
-
         try {
             JAASJettyPrincipal userPrincipal = (JAASJettyPrincipal) userMap.get(username);
 
@@ -85,16 +78,20 @@ public class JAASJettyRealm implements UserRealm, GBeanLifecycle {
             }
 
 
-            DefaultCallbackHandler callbackHandler = new DefaultCallbackHandler();
-
-            callbackHandler.setUserName(username);
-            callbackHandler.setCredential(credentials);
+            char[] password;
+            if (credentials instanceof char[]) {
+                password = (char[])credentials;
+            } else if (credentials instanceof String) {
+                password = ((String)credentials).toCharArray();
+            } else {
+                throw new LoginException("Cannot extract credentials from class: " + credentials.getClass().getName());
+            }
+            PasswordCallbackHandler callbackHandler = new PasswordCallbackHandler(username, password);
 
             //set up the login context
-            LoginContext loginContext = new LoginContext(loginModuleName,
-                                                         callbackHandler);
-
+            LoginContext loginContext = new LoginContext(loginModuleName, callbackHandler);
             loginContext.login();
+            callbackHandler.clear();
 
             ContextManager.registerSubject(loginContext.getSubject());
             ContextManager.setCurrentCaller(loginContext.getSubject());

@@ -508,15 +508,6 @@
             </properties>
         </dependency>
 
-        <dependency>
-            <groupId>jetty</groupId>
-            <artifactId>org.mortbay.jaas</artifactId>
-            <version>&jetty-version;</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-
         <!-- for jsps -->
         <dependency>
             <groupId>tomcat</groupId>

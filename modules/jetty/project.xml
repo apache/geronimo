@@ -161,12 +161,6 @@
         </dependency>
 
         <dependency>
-            <groupId>jetty</groupId>
-            <artifactId>org.mortbay.jaas</artifactId>
-            <version>&jetty-version;</version>
-        </dependency>
-
-        <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j</artifactId>
             <version>&mx4j-version;</version>
