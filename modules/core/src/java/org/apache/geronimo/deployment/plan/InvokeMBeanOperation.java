@@ -64,11 +64,11 @@ import javax.management.ReflectionException;
 import org.apache.geronimo.deployment.DeploymentException;
 
 /**
- * 
- * 
- * @version $Revision: 1.1 $ $Date: 2003/08/11 19:46:28 $
+ *
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/14 00:02:38 $
  */
-public class InvokeMBeanOperation extends DeploymentTask {
+public class InvokeMBeanOperation implements DeploymentTask {
     private final MBeanServer server;
     private final ObjectName name;
     private final String operation;
@@ -81,6 +81,10 @@ public class InvokeMBeanOperation extends DeploymentTask {
         this.operation = operation;
         this.argTypes = argTypes;
         this.args = args;
+    }
+
+    public boolean canRun() throws DeploymentException {
+        return true;
     }
 
     public void perform() throws DeploymentException {

@@ -66,15 +66,19 @@ import org.apache.geronimo.deployment.DeploymentException;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/11 17:59:10 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/14 00:02:38 $
  */
-public class StartMBeanInstance extends DeploymentTask {
+public class StartMBeanInstance implements DeploymentTask {
     private final MBeanServer server;
     private final ObjectName name;
 
     public StartMBeanInstance(MBeanServer server, ObjectName name) {
         this.server = server;
         this.name = name;
+    }
+
+    public boolean canRun() throws DeploymentException {
+        return true;
     }
 
     public void perform() throws DeploymentException {

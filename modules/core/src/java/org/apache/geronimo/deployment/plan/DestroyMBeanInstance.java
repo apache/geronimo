@@ -64,13 +64,14 @@ import javax.management.ReflectionException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.deployment.DeploymentException;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/11 17:59:10 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/14 00:02:38 $
  */
-public class DestroyMBeanInstance extends DeploymentTask {
+public class DestroyMBeanInstance implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
     private final MBeanServer server;
     private final ObjectName name;
@@ -78,6 +79,10 @@ public class DestroyMBeanInstance extends DeploymentTask {
     public DestroyMBeanInstance(MBeanServer server, ObjectName name) {
         this.server = server;
         this.name = name;
+    }
+
+    public boolean canRun() throws DeploymentException {
+        return true;
     }
 
     public void perform() {

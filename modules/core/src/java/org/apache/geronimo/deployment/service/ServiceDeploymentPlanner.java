@@ -88,6 +88,7 @@ import org.apache.geronimo.deployment.plan.DeploymentTask;
 import org.apache.geronimo.deployment.plan.DestroyMBeanInstance;
 import org.apache.geronimo.deployment.plan.RegisterMBeanInstance;
 import org.apache.geronimo.jmx.JMXUtil;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -96,7 +97,7 @@ import org.xml.sax.SAXException;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/11 17:59:11 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/14 00:02:43 $
  */
 public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, MBeanRegistration {
     private MBeanServer server;

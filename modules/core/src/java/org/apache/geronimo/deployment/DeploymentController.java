@@ -89,7 +89,7 @@ import org.apache.geronimo.jmx.JMXUtil;
  *
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/12 07:10:15 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/14 00:02:34 $
  */
 public class DeploymentController implements MBeanRegistration, DeploymentControllerMBean {
     private static final ObjectName DEFAULT_NAME = JMXUtil.getObjectName("geronimo.deployment:role=DeploymentController");
@@ -256,8 +256,35 @@ public class DeploymentController implements MBeanRegistration, DeploymentContro
 
     private void executePlans() throws DeploymentException {
         while (!plans.isEmpty()) {
-            ArrayList planList = new ArrayList(plans);
+            List planList = new ArrayList(plans);
+
+            // get all of the runnable plans
+            List runnablePlans = new ArrayList();
             for (Iterator i = planList.iterator(); i.hasNext();) {
+                DeploymentPlan plan = (DeploymentPlan) i.next();
+                try {
+                    if (plan.canRun()) {
+                        runnablePlans.add(plan);
+                    }
+                } catch (DeploymentException e) {
+                    // plan threw an exception, which means it is completely not runnable and should be discarded
+                    log.debug("Plan canRun() threw an exception.  The plan has been discarded: plan=" + plan, e);
+                    plans.remove(plan);
+                }
+            }
+
+            if (plans.isEmpty()) {
+                log.debug("All plans were discarded");
+                return;
+            }
+
+            if (runnablePlans.isEmpty()) {
+                log.debug("No plans are runnable");
+                return;
+            }
+
+            // execute all of the runnable plans
+            for (Iterator i = runnablePlans.iterator(); i.hasNext();) {
                 DeploymentPlan plan = (DeploymentPlan) i.next();
                 plan.execute();
                 plans.remove(plan);

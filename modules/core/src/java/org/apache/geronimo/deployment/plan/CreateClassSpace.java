@@ -75,9 +75,9 @@ import org.apache.geronimo.deployment.service.ClassSpaceMetadata;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/11 17:59:10 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/14 00:02:38 $
  */
-public class CreateClassSpace extends DeploymentTask {
+public class CreateClassSpace implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
     private final MBeanServer server;
     private final ClassSpaceMetadata metadata;
@@ -86,6 +86,10 @@ public class CreateClassSpace extends DeploymentTask {
     public CreateClassSpace(MBeanServer server, ClassSpaceMetadata metadata) {
         this.server = server;
         this.metadata = metadata;
+    }
+
+    public boolean canRun() throws DeploymentException {
+        return true;
     }
 
     public void perform() throws DeploymentException {

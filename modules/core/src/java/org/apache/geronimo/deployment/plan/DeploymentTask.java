@@ -58,12 +58,33 @@ package org.apache.geronimo.deployment.plan;
 import org.apache.geronimo.deployment.DeploymentException;
 
 /**
+ * DeploymenTask is a single unit of work in a plan.  The plan checks is all tasks canRun() before
+ * executing the plan and performing all the tasks.  I this task throws an exception during perform,
+ * it must clean up after itself before throwing the exception as undo will not be called.  If this
+ * task completes successfully but a subsequent task throws an exception the undo method will be
+ * called so the task can rollback any changes.
  *
- *
- * @version $Revision: 1.1 $ $Date: 2003/08/11 17:59:10 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/14 00:02:38 $
  */
-public abstract class DeploymentTask {
-    public abstract void perform() throws DeploymentException;
+public interface DeploymentTask {
+    /**
+     * Can this task complete now?
+     * @return true if the can can complete now; otherwise false and the plan should wait
+     * @throws DeploymentException if a problem occurs while checking the task, if the can check
+     * throws an exception the plan should be discarded
+     */
+    boolean canRun() throws DeploymentException;
 
-    public abstract void undo();
+    /**
+     * Executes the task.  If a DeploymentException is throw undo will not be called, so task
+     * should clean up after itself before throwing the exception
+     * @throws DeploymentException if an unrecoverable problem occurs in the task, plan should
+     * be rolled back
+     */
+    void perform() throws DeploymentException;
+
+    /**
+     * Undo all operations performed during the perform method.
+     */
+    void undo();
 }

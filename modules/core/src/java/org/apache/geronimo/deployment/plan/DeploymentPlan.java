@@ -66,7 +66,7 @@ import org.apache.geronimo.deployment.DeploymentException;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/11 17:59:10 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/14 00:02:38 $
  */
 public class DeploymentPlan {
     private final Log log = LogFactory.getLog(this.getClass());
@@ -75,8 +75,24 @@ public class DeploymentPlan {
     public DeploymentPlan() {
     }
 
+    public DeploymentPlan(DeploymentTask task) {
+        tasks.add(task);
+    }
+
     public void addTask(DeploymentTask task) {
         tasks.add(task);
+    }
+
+    public boolean canRun() throws DeploymentException {
+        boolean canRun = true;
+        for (Iterator i = tasks.iterator(); i.hasNext();) {
+            DeploymentTask task = (DeploymentTask) i.next();
+            log.trace("Checking if task can run " + task);
+
+            // always check each task, so the task can throw an exception if the task can never run
+            canRun = canRun && task.canRun();
+        }
+        return canRun;
     }
 
     public void execute() throws DeploymentException {
