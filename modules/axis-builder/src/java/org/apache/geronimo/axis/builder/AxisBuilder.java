@@ -66,6 +66,10 @@ import org.apache.axis.description.ParameterDesc;
 import org.apache.axis.enum.Style;
 import org.apache.axis.enum.Use;
 import org.apache.axis.soap.SOAPConstants;
+import org.apache.axis.encoding.ser.BeanSerializerFactory;
+import org.apache.axis.encoding.ser.BeanDeserializerFactory;
+import org.apache.axis.encoding.ser.ArraySerializerFactory;
+import org.apache.axis.encoding.ser.ArrayDeserializerFactory;
 import org.apache.geronimo.axis.client.GenericServiceEndpointWrapper;
 import org.apache.geronimo.axis.client.NoOverrideCallbackFilter;
 import org.apache.geronimo.axis.client.OperationInfo;
@@ -75,6 +79,7 @@ import org.apache.geronimo.axis.client.SerializableNoOp;
 import org.apache.geronimo.axis.client.ServiceImpl;
 import org.apache.geronimo.axis.client.ServiceMethodInterceptor;
 import org.apache.geronimo.axis.client.ServiceReference;
+import org.apache.geronimo.axis.client.TypeMappingInfo;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -88,6 +93,7 @@ import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
 import org.apache.geronimo.xbeans.j2ee.MethodParamPartsMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointInterfaceMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointMethodMappingType;
+import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
 import org.apache.xmlbeans.XmlException;
 import org.objectweb.asm.Type;
 import org.xml.sax.InputSource;
@@ -304,12 +310,68 @@ public class AxisBuilder implements ServiceReferenceBuilder {
                     OperationInfo operationInfo = buildOperationInfo(method, bindingOperation, portStyle, soapVersion);
                     operationInfos[i++] = operationInfo;
                 }
+                JavaXmlTypeMappingType[] javaXmlTypeMappings = mapping.getJavaXmlTypeMappingArray();
                 List typeMappings = new ArrayList();
+                for (int j = 0; j < javaXmlTypeMappings.length; j++) {
+                    JavaXmlTypeMappingType javaXmlTypeMapping = javaXmlTypeMappings[j];
+                    //default settings
+                    Class serializerFactoryClass = BeanSerializerFactory.class;
+                    Class deserializerFactoryClass = BeanDeserializerFactory.class;
+
+                    String className = javaXmlTypeMapping.getJavaType().getStringValue().trim();
+
+                    //TODO plain primitive types -- although these should not show up I think.
+                    if (className.indexOf("[") > -1) {
+                        serializerFactoryClass = ArraySerializerFactory.class;
+                        deserializerFactoryClass = ArrayDeserializerFactory.class;
+                        className = getArrayClassName(className);
+                    }
+                    Class clazz = null;
+                    try {
+                        clazz = classloader.loadClass(className);
+                    } catch (ClassNotFoundException e) {
+                        throw new DeploymentException("could not load class for classname: " + className, e);
+                    }
+                    TypeMappingInfo typeMappingInfo = null;
+                    if (javaXmlTypeMapping.isSetRootTypeQname()) {
+                        QName typeName = javaXmlTypeMapping.getRootTypeQname().getQNameValue();
+                        typeMappingInfo = new TypeMappingInfo(clazz, typeName, serializerFactoryClass, deserializerFactoryClass);
+                    } else if (javaXmlTypeMapping.isSetAnonymousTypeQname()) {
+                        String anonTypeQNameString = javaXmlTypeMapping.getAnonymousTypeQname().getStringValue();
+                        int pos = anonTypeQNameString.lastIndexOf(":");
+                        if (pos == -1) {
+                            throw new DeploymentException("anon QName is invalid, no final ':' " + anonTypeQNameString);
+                        }
+                        //this appears to be ignored...
+                        QName typeName = new QName(anonTypeQNameString.substring(0, pos), anonTypeQNameString.substring(pos + 1));
+                        typeMappingInfo = new TypeMappingInfo(clazz, typeName, serializerFactoryClass, deserializerFactoryClass);
+                    }
+                    typeMappings.add(typeMappingInfo);
+
+
+                }
                 seiFactory = createSEIFactory(enhancedServiceEndpointClass, serviceImpl, typeMappings, location, operationInfos, context, classloader);
             }
             seiPortNameToFactoryMap.put(portName, seiFactory);
             seiClassNameToFactoryMap.put(serviceEndpointInterface.getName(), seiFactory);
         }
+    }
+
+  String getArrayClassName(String className) {
+        int pos = className.indexOf("[");
+        String baseType = className.substring(0, pos).trim();
+        StringBuffer buf = new StringBuffer(className.length());
+        buf.append("[");
+        while ((pos = className.indexOf("[", pos + 1)) > -1) {
+            buf.append("[");
+        }
+        if (false) { //is primitive type
+            //TODO arrays of primitive type
+        } else {
+            buf.append("L").append(baseType).append(";");
+        }
+        className = buf.toString();
+        return className;
     }
 
     private Class[] getParameterTypes(ServiceEndpointMethodMappingType methodMapping, ClassLoader classloader) throws DeploymentException {

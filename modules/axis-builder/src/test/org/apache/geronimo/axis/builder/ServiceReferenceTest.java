@@ -111,6 +111,14 @@ public class ServiceReferenceTest extends TestCase {
         recursiveDelete(tmpbasedir);
     }
 
+    public void testGetArrayClassName() throws Exception {
+        AxisBuilder builder = new AxisBuilder();
+        assertEquals("[Ljava.lang.Object;", builder.getArrayClassName("java.lang.Object[]"));
+        assertEquals("[Ljava.lang.Object;", builder.getArrayClassName("java.lang.Object [ ] "));
+        assertEquals("[[Ljava.lang.Object;", builder.getArrayClassName("java.lang.Object [ ] []"));
+
+    }
+
     public void testServiceRefCreation() throws Exception {
         AxisBuilder builder = new AxisBuilder();
 
