@@ -59,81 +59,118 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogConfigurationException;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.impl.LogFactoryImpl;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/02/11 03:14:11 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/13 07:22:22 $
  */
 public class GeronimoLogFactory extends LogFactory {
-    private LogFactory logFactory = new LogFactoryImpl();
-    private final HashMap instances = new HashMap();
+    private final static Object factoryLock = new Object();
+    // todo this should use weak references
+    private static final HashMap instancesByClassLoader = new HashMap();
 
-    public synchronized LogFactory getLogFactory() {
-        return logFactory;
+    private static LogFactory logFactory = new BootstrapLogFactory();
+
+    public GeronimoLogFactory() {
+        System.out.println("Created Geronimo log factory");
+    }
+
+    public LogFactory getLogFactory() {
+        synchronized (factoryLock) {
+            return logFactory;
+        }
     }
 
     public void setLogFactory(LogFactory logFactory) {
-        Set logs;
-        synchronized (this) {
-            this.logFactory = logFactory;
-            logs = new HashSet(instances.values());
-        }
+        // change the log factory
+        this.logFactory = logFactory;
 
+        // update all known logs to use instances of the new factory
+        Set logs = getInstances();
         for (Iterator iterator = logs.iterator(); iterator.hasNext();) {
             GeronimoLog log = (GeronimoLog) iterator.next();
             log.setLog(logFactory.getInstance(log.getName()));
         }
     }
 
-    public synchronized Set getInstances() {
-        return new HashSet(instances.values());
-    }
+    public Set getInstances() {
+        synchronized (factoryLock) {
+            Set logs = new HashSet();
+            for (Iterator iterator = instancesByClassLoader.values().iterator(); iterator.hasNext();) {
+                Map instanceMap = ((Map) iterator.next());
+                logs.addAll(instanceMap.values());
 
-    public synchronized Log getInstance(Class clazz) throws LogConfigurationException {
-        return getInstance(clazz.getName());
-    }
-
-    public synchronized Log getInstance(String name) throws LogConfigurationException {
-        ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
-        try {
-            Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
-            Log instance = (Log) instances.get(name);
-            if (instance == null) {
-                instance = new GeronimoLog(name, logFactory.getInstance(name));
-                instances.put(name, instance);
             }
-            return instance;
-        } finally {
-            Thread.currentThread().setContextClassLoader(oldCL);
+            return logs;
         }
     }
 
-    public synchronized void release() {
-        for (Iterator iterator = instances.values().iterator(); iterator.hasNext();) {
-            GeronimoLog log = (GeronimoLog) iterator.next();
-            log.setLog(null);
+    public Log getInstance(Class clazz) throws LogConfigurationException {
+        synchronized (factoryLock) {
+            return getInstance(clazz.getName());
         }
-        instances.clear();
     }
 
-    public synchronized Object getAttribute(String name) {
-        return logFactory.getAttribute(name);
+    public Log getInstance(String name) throws LogConfigurationException {
+        synchronized (factoryLock) {
+            // get the instances for the context classloader
+            ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+            Map instances = (Map) instancesByClassLoader.get(contextClassLoader);
+            if(instances == null) {
+                instances = new HashMap();
+                instancesByClassLoader.put(contextClassLoader, instances);
+            }
+
+            // get the log
+            Log log = (Log) instances.get(name);
+            if (log == null) {
+                log = new GeronimoLog(name, logFactory.getInstance(name));
+                instances.put(name, log);
+            }
+            return log;
+        }
     }
 
-    public synchronized String[] getAttributeNames() {
-        return logFactory.getAttributeNames();
+    public void release() {
+        synchronized (factoryLock) {
+            for (Iterator maps = instancesByClassLoader.values().iterator(); maps.hasNext();) {
+                Map instances = (Map) maps.next();
+                for (Iterator logs = instances.values().iterator(); logs.hasNext();) {
+                    GeronimoLog log = (GeronimoLog) logs.next();
+                    log.setLog(null);
+
+                }
+            }
+            instancesByClassLoader.clear();
+        }
     }
 
-    public synchronized void removeAttribute(String name) {
-        logFactory.removeAttribute(name);
+    public Object getAttribute(String name) {
+        synchronized (factoryLock) {
+            return logFactory.getAttribute(name);
+        }
     }
 
-    public synchronized void setAttribute(String name, Object value) {
-        logFactory.setAttribute(name, value);
+    public String[] getAttributeNames() {
+        synchronized (factoryLock) {
+            return logFactory.getAttributeNames();
+        }
+    }
+
+    public  void removeAttribute(String name) {
+        synchronized (factoryLock) {
+            logFactory.removeAttribute(name);
+        }
+    }
+
+    public void setAttribute(String name, Object value) {
+        synchronized (factoryLock) {
+            logFactory.setAttribute(name, value);
+        }
     }
 }
 

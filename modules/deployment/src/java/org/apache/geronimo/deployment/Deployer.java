@@ -70,14 +70,13 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.log.GeronimoLogFactory;
+import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.kernel.config.LocalConfigStore;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
@@ -87,12 +86,12 @@ import org.apache.xmlbeans.XmlObject;
  * Command line based deployment utility which combines multiple deployable modules
  * into a single configuration.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/12 18:27:39 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/13 07:22:22 $
  */
 public class Deployer {
     static {
         // This MUST be done before the first log is acquired
-        System.setProperty(LogFactory.FACTORY_PROPERTY, GeronimoLogFactory.class.getName());
+        GeronimoLogging.initialize(GeronimoLogging.ERROR);
     }
 
     public static final URI DEFAULT_CONFIG = URI.create("org/apache/geronimo/J2EEDeployer");

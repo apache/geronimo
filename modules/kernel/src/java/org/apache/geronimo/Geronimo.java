@@ -63,18 +63,17 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.LocalConfigStore;
-import org.apache.geronimo.kernel.log.GeronimoLogFactory;
+import org.apache.geronimo.kernel.log.GeronimoLogging;
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/02/12 18:23:58 $
+ * @version $Revision: 1.9 $ $Date: 2004/02/13 07:22:22 $
  */
 public class Geronimo {
     static {
         // This MUST be done before the first log is acquired
-        System.setProperty(LogFactory.FACTORY_PROPERTY, GeronimoLogFactory.class.getName());
+        GeronimoLogging.initialize(GeronimoLogging.INFO);
     }
 
     private Geronimo() {
@@ -112,7 +111,6 @@ public class Geronimo {
             }
             configs.add(configID);
         }
-
         final Kernel kernel;
         File storeDir = new File(storeDirName);
         if (storeDir.exists()) {

@@ -53,93 +53,25 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.system.repository;
+package org.apache.geronimo.kernel.log;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-
-import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
-import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.impl.LogFactoryImpl;
 
 /**
- *
- *
- * @version $Revision: 1.2 $ $Date: 2004/02/13 07:22:22 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/13 07:22:22 $
  */
-public class ReadOnlyRepository implements Repository, GBean {
-    private static final Log log = LogFactory.getLog(ReadOnlyRepository.class);
-    private final URI root;
-    private final ServerInfo serverInfo;
-    private URI rootURI;
-
-    public ReadOnlyRepository(URI root, ServerInfo serverInfo) {
-        this.root = root;
-        this.serverInfo = serverInfo;
-    }
-
-    public boolean hasURI(URI uri) {
-        uri = rootURI.resolve(uri);
-        if ("file".equals(uri.getScheme())) {
-            File f = new File(uri);
-            return f.exists() && f.canRead();
-        } else {
-            try {
-                uri.toURL().openStream().close();
-                return true;
-            } catch (IOException e) {
-                return false;
-            }
+public class BootstrapLogFactory extends LogFactoryImpl {
+    private String logClassName;
+    protected String getLogClassName() {
+        if (logClassName != null) {
+            return logClassName;
         }
-    }
 
-    public URL getURL(URI uri) throws MalformedURLException {
-        return rootURI.resolve(uri).toURL();
-    }
-
-    public void setGBeanContext(GBeanContext context) {
-    }
-
-    public void doStart() throws WaitingException, Exception {
-        rootURI = serverInfo.resolve(root);
-        log.info("Repository root is "+rootURI);
-    }
-
-    public void doStop() throws WaitingException, Exception {
-        rootURI = null;
-    }
-
-    public void doFail() {
-        rootURI = null;
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ReadOnlyRepository.class);
-        infoFactory.addAttribute(new GAttributeInfo("Root", true));
-        infoFactory.addReference(new GReferenceInfo("ServerInfo", ServerInfo.class));
-        infoFactory.addInterface(Repository.class);
-        infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"Root", "ServerInfo"},
-                new Class[]{URI.class, ServerInfo.class}
-        ));
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
+        if (isLog4JAvailable()) {
+            logClassName = "org.apache.geronimo.kernel.log.BootstrapLog4jLog";
+        } else {
+            logClassName = "org.apache.geronimo.kernel.log.BootstrapJdk14Log";
+        }
+        return logClassName;
     }
 }

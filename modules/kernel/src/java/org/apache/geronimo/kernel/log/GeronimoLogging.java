@@ -53,93 +53,66 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.system.repository;
+package org.apache.geronimo.kernel.log;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-
-import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
-import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- *
- *
- * @version $Revision: 1.2 $ $Date: 2004/02/13 07:22:22 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/13 07:22:22 $
  */
-public class ReadOnlyRepository implements Repository, GBean {
-    private static final Log log = LogFactory.getLog(ReadOnlyRepository.class);
-    private final URI root;
-    private final ServerInfo serverInfo;
-    private URI rootURI;
+public class GeronimoLogging {
+    public static final GeronimoLogging TRACE = new GeronimoLogging("TRACE");
+    public static final GeronimoLogging DEBUG = new GeronimoLogging("DEBUG");
+    public static final GeronimoLogging INFO = new GeronimoLogging("INFO");
+    public static final GeronimoLogging WARN = new GeronimoLogging("WARN");
+    public static final GeronimoLogging ERROR = new GeronimoLogging("ERROR");
+    public static final GeronimoLogging FATAL = new GeronimoLogging("FATAL");
 
-    public ReadOnlyRepository(URI root, ServerInfo serverInfo) {
-        this.root = root;
-        this.serverInfo = serverInfo;
-    }
+    private static boolean initialized = false;
+    private static GeronimoLogging defaultLevel;
 
-    public boolean hasURI(URI uri) {
-        uri = rootURI.resolve(uri);
-        if ("file".equals(uri.getScheme())) {
-            File f = new File(uri);
-            return f.exists() && f.canRead();
-        } else {
-            try {
-                uri.toURL().openStream().close();
-                return true;
-            } catch (IOException e) {
-                return false;
-            }
+    /**
+     * Initializes the logging system used by Geronimo.  This MUST be called in
+     * in the main class used to start the geronimo server.  This method forces
+     * commons logging to use GeronimoLogFacotry, starts the initial commons-logging
+     * logging system, and forces mx4j to use commons logging.
+     *
+     * @param level
+     */
+    public static void initialize(GeronimoLogging level) {
+        if (!initialized) {
+            defaultLevel = level;
+
+            // force commons-logging to use our log factory
+            System.setProperty(LogFactory.FACTORY_PROPERTY, GeronimoLogFactory.class.getName());
+
+            // force the log factory to initialize
+            LogFactory.getLog(GeronimoLogging.class);
+
+            // force mx4j to use commons logging
+            // todo do this with reflection so mx4j is not required (this is important in JDK 1.5)
+            mx4j.log.Log.redirectTo(new mx4j.log.CommonsLogger());
+
+            initialized = true;
         }
+
     }
 
-    public URL getURL(URI uri) throws MalformedURLException {
-        return rootURI.resolve(uri).toURL();
+    public static GeronimoLogging getDefaultLevel() {
+        return defaultLevel;
     }
 
-    public void setGBeanContext(GBeanContext context) {
+    private final String level;
+
+    private GeronimoLogging(String level) {
+        this.level = level;
     }
 
-    public void doStart() throws WaitingException, Exception {
-        rootURI = serverInfo.resolve(root);
-        log.info("Repository root is "+rootURI);
+    public String toString() {
+        return level;
     }
 
-    public void doStop() throws WaitingException, Exception {
-        rootURI = null;
-    }
-
-    public void doFail() {
-        rootURI = null;
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ReadOnlyRepository.class);
-        infoFactory.addAttribute(new GAttributeInfo("Root", true));
-        infoFactory.addReference(new GReferenceInfo("ServerInfo", ServerInfo.class));
-        infoFactory.addInterface(Repository.class);
-        infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"Root", "ServerInfo"},
-                new Class[]{URI.class, ServerInfo.class}
-        ));
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
+    public boolean equals(Object object) {
+        return object == this;
     }
 }
