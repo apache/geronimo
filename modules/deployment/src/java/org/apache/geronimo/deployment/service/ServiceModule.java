@@ -66,8 +66,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.LinkedList;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -83,7 +85,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/16 03:48:42 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/16 22:19:51 $
  */
 public class ServiceModule implements DeploymentModule {
     private final URI moduleID;
@@ -102,7 +104,7 @@ public class ServiceModule implements DeploymentModule {
     }
 
     public void generateClassPath(ConfigurationCallback callback) throws DeploymentException {
-        URI moduleBase = URI.create(moduleID.toString()+"/");
+        URI moduleBase = URI.create(moduleID.toString() + "/");
         if (urlInfo.getType() == URLType.PACKED_ARCHIVE) {
             try {
                 InputStream is = urlInfo.getUrl().openStream();
@@ -131,7 +133,7 @@ public class ServiceModule implements DeploymentModule {
             //@todo support proper recursive file scanning (with WebDAV and filters)
             URL url = urlInfo.getUrl();
             if (!"file".equals(url.getProtocol())) {
-                throw new DeploymentException("Unpacked archives not supported for URL "+url.toString());
+                throw new DeploymentException("Unpacked archives not supported for URL " + url.toString());
             }
             URI root = URI.create(url.toString());
             for (Iterator i = pathURIs.iterator(); i.hasNext();) {
@@ -166,7 +168,7 @@ public class ServiceModule implements DeploymentModule {
                                     is.close();
                                 }
                             } catch (IOException e) {
-                                throw new DeploymentException("Unable to add file:"+file, e);
+                                throw new DeploymentException("Unable to add file:" + file, e);
                             }
                         }
                     }
@@ -212,6 +214,10 @@ public class ServiceModule implements DeploymentModule {
                 } catch (Exception e) {
                     throw new DeploymentException("Unable to set GMBean attribute " + entry.getKey(), e);
                 }
+            }
+            for (Iterator iterator = defs.getEndpoints().entrySet().iterator(); iterator.hasNext();) {
+                Map.Entry entry = (Map.Entry) iterator.next();
+                gbean.setEndpointPatterns((String) entry.getKey(), (Set) entry.getValue());
             }
             callback.addGBean(name, gbean);
         }

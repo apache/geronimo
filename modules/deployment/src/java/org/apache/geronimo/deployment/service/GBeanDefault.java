@@ -60,27 +60,30 @@ import java.util.Map;
 import org.apache.geronimo.gbean.GBeanInfo;
 
 /**
- * 
- * 
- * @version $Revision: 1.1 $ $Date: 2004/01/16 03:48:42 $
+ *
+ *
+ * @version $Revision: 1.2 $ $Date: 2004/01/16 22:19:51 $
  */
 public class GBeanDefault {
     private final String className;
     private final GBeanInfo info;
     private final String objectName;
     private final Map values;
+    private final Map endpoints;
 
-    public GBeanDefault(GBeanInfo info, String objectName, Map values) {
+    public GBeanDefault(GBeanInfo info, String objectName, Map values, Map endpoints) {
         this.info = info;
         this.objectName = objectName;
         this.values = values;
+        this.endpoints = endpoints;
         this.className = null;
     }
 
-    public GBeanDefault(String className, String objectName, Map values) {
+    public GBeanDefault(String className, String objectName, Map values, Map endpoints) {
         this.className = className;
         this.objectName = objectName;
         this.values = values;
+        this.endpoints = endpoints;
         this.info = null;
     }
 
@@ -99,4 +102,9 @@ public class GBeanDefault {
     public String getClassName() {
         return className;
     }
+
+    public Map getEndpoints() {
+        return endpoints;
+    }
+
 }

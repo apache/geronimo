@@ -64,7 +64,12 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
+
 import javax.xml.parsers.DocumentBuilder;
+import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 
 import org.apache.geronimo.deployment.ModuleFactory;
 import org.apache.geronimo.deployment.DeploymentModule;
@@ -80,7 +85,7 @@ import org.w3c.dom.NodeList;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/16 03:48:42 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/16 22:19:51 $
  */
 public class ServiceDeployer implements ModuleFactory {
     private final DocumentBuilder parser;
@@ -122,7 +127,7 @@ public class ServiceDeployer implements ModuleFactory {
         }
 
         LinkedHashSet path = new LinkedHashSet();
-        List gbeans = new ArrayList();
+        List gbeanDefaults = new ArrayList();
         NodeList nl = documentElement.getChildNodes();
         for (int i = 0; i < nl.getLength(); i++) {
             Node node = nl.item(i);
@@ -138,13 +143,13 @@ public class ServiceDeployer implements ModuleFactory {
                     throw new DeploymentException("Invalid path URI: "+uri, e);
                 }
             } else if ("gbean".equals(element.getNodeName())) {
-                gbeans.add(loadDefault(element));
+                gbeanDefaults.add(loadDefault(element));
             }
         }
-        return new ServiceModule(moduleID, urlInfo, new ArrayList(path), gbeans);
+        return new ServiceModule(moduleID, urlInfo, new ArrayList(path), gbeanDefaults);
     }
 
-    private GBeanDefault loadDefault(Element gbeanElement) {
+    private GBeanDefault loadDefault(Element gbeanElement) throws DeploymentException {
         String className = gbeanElement.getAttribute("class");
         String objectName = gbeanElement.getAttribute("objectName");
         NodeList nl = gbeanElement.getElementsByTagName("default");
@@ -155,6 +160,25 @@ public class ServiceDeployer implements ModuleFactory {
             String value = (String) XMLUtil.getContent(defaultElement);
             values.put(attr, value);
         }
-        return new GBeanDefault(className, objectName, values);
+        NodeList endpointList = gbeanElement.getElementsByTagName("endpoint");
+        Map endpoints = new HashMap(endpointList.getLength());
+        for (int i = 0; i < endpointList.getLength(); i++) {
+            Element endpointElement = (Element)endpointList.item(i);
+            String endpointName = endpointElement.getAttribute("name");
+            NodeList patternList = endpointElement.getElementsByTagName("pattern");
+            Set patterns = new HashSet(patternList.getLength());
+            for (int j = 0; j < patternList.getLength(); j++) {
+                Element patternElement = (Element) patternList.item(j);
+                ObjectName pattern = null;
+                try {
+                    pattern = ObjectName.getInstance((String) XMLUtil.getContent(patternElement));
+                } catch (MalformedObjectNameException e) {
+                    throw new DeploymentException("Invalid pattern for endpoint named: " + endpointName, e);
+                }
+                patterns.add(pattern);
+            }
+            endpoints.put(endpointName, patterns);
+        }
+        return new GBeanDefault(className, objectName, values, endpoints);
     }
 }
