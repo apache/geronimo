@@ -37,7 +37,7 @@ import org.apache.geronimo.network.SelectorManager;
 
 
 /**
- * @version $Revision: 1.11 $ $Date: 2004/05/01 17:23:55 $
+ * @version $Revision: 1.12 $ $Date: 2004/05/01 23:16:37 $
  */
 public class SocketProtocol implements AcceptableProtocol, SelectionEventListner {
 
@@ -284,7 +284,6 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
                 }
             }
         } catch (CancelledKeyException e) {
-            log.trace("Key Cancelled:", e);
             // who knows, by the time we get here,
             // the key could have been canceled.
         }
@@ -403,11 +402,9 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
             if (tracing) log.trace("No more data available to be read.");
 
         } catch (CancelledKeyException e) {
-            log.trace("Key Cancelled: ", e);
             // who knows, by the time we get here,
             // the key could have been canceled.
         } catch (ClosedChannelException e) {
-            log.trace("Channel Closed: ", e);
             // who knows, by the time we get here,
             // the channel could have been closed.
         } catch (IOException e) {
@@ -426,11 +423,10 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
 
     public void close() {
         synchronized (this) {
-            if (socketChannel != null) {
+            if (state == STARTED) {
                 log.trace("Closing");
                 try {
-                    selectionKey.cancel();
-                    socketChannel.close();
+                    selectorManager.closeChannel(socketChannel);
                 } catch (Throwable e) {
                     log.info("Closing error: ", e);
                 }
