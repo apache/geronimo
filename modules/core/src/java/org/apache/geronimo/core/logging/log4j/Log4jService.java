@@ -60,7 +60,7 @@ import java.net.URL;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-Overrides
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -80,7 +80,7 @@ import org.apache.geronimo.core.logging.AbstractLoggingService;
  * @jmx:mbean
  *      extends="org.apache.geronimo.core.logging.LoggingServiceMBean"
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/01 19:31:33 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/01 19:40:43 $
  */
 public class Log4jService
     extends AbstractLoggingService
