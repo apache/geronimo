@@ -95,5 +95,4 @@ public final class ClearFilterTag extends MBeanServerContextSupport {
     private boolean filtered() {
         return (!ctx.getObjectNameFilter().equals("*:*"));
     }
-
 }

@@ -9,7 +9,7 @@
     </welcome-file-list>
 
     <taglib>
-        <taglib-uri>jmx-console</taglib-uri>
+        <taglib-uri>console-web</taglib-uri>
         <taglib-location>/WEB-INF/lib/jmx-console-servlet.jar</taglib-location>
     </taglib>
 

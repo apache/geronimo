@@ -4,11 +4,11 @@
 <html>
 <head>
     <title>Geronimo Management Console -- Frequently Asked Questions</title>
-    <link rel="stylesheet" href="/jmx-console/style.css"/>
+    <link rel="stylesheet" href="/console/style.css"/>
 </head>
 
 <body>
-<img src="images/geronimo_logo_console.gif" border="0" alt="geronimo jmx console"/>
+<img src="images/geronimo_logo_console.gif" border="0" alt="geronimo management console"/>
 <div id="topNavBar"><div class="topNav">JMX Agent View</div></div>
 
 <jsp:include page="leftNavigation.jsp"/>

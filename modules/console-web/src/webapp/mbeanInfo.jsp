@@ -4,12 +4,12 @@
 <html>
 <head>
     <title>Geronimo Management Console</title>
-    <link rel="stylesheet" href="/jmx-console/style.css"/>
+    <link rel="stylesheet" href="/console/style.css"/>
 </head>
 
 <body>
 <jmx:MBeanServerContext>
-<img src="images/geronimo_logo_console.gif" border="0" alt="geronimo jmx console"/>
+<img src="images/geronimo_logo_console.gif" border="0" alt="geronimo management console"/>
 <div id="topNavBar"><div class="topNav">JMX Web Console</div></div>
 
 <jsp:include page="leftNavigation.jsp"/>

@@ -103,7 +103,7 @@ public final class MBeanAttributesTag
         return EVAL_BODY_INCLUDE;
     }
 
-    /*
+    /**
      *  This seems like a very backwards way to do this.  I don't know
      *  that creating an ObjectName, using it to get an ObjectInstance
      *  then creating another ObjectName is necessarily the way to go.
@@ -124,7 +124,7 @@ public final class MBeanAttributesTag
         }
     }
 
-    /*
+    /**
      * This gets the value of the MBeanName request parameter.  If it
      * Doesn't find anything, it returns null.
      */
@@ -139,7 +139,6 @@ public final class MBeanAttributesTag
 
     private void printMBeanProperties(JspWriter out) {
         try {
-
             //String mbeanName;
             //out.println("<strong>MBean Name </strong>" + getMBeanName());
             out.println("<table cellpadding=\"0\" cellspacing=\"0\">");
@@ -191,15 +190,6 @@ public final class MBeanAttributesTag
                 out.println("\t</tr>");
 
             }
-
-            /*
-            out.println("\t<tr class=\"one\">");
-            out.println("\t\t<td class=\"name\">About</td>");
-            out.println("\t\t<td class=\"center\">=</td>");
-            out.println("\t\t<td class=\"value\">Now</td>");
-            out.println("\t</tr>");
-            */
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -263,7 +253,6 @@ public final class MBeanAttributesTag
                 } else if (i % 2 == 1) {
                     trClass = "two";
                 }
-
                 out.println("\t<tr class=\"" + trClass + "\">");
                 out.println("\t\t<td class=\"name\">" + attributeName + "</td>");
                 out.println("\t\t<td class=\"center\">=</td>");

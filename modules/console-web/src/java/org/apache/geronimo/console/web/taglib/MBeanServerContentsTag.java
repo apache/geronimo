@@ -70,7 +70,7 @@ import javax.management.ObjectName;
 import javax.management.QueryExp;
 import javax.servlet.jsp.JspWriter;
 
-import org.apache.geronimo.console.web.util.MBeanComparator;
+import org.apache.geronimo.console.web.util.ObjectInstanceComparator;
 
 /**
  * This class displays the contents of the MBeanServer, arranged in groups, in
@@ -164,7 +164,7 @@ public final class MBeanServerContentsTag extends MBeanServerContextSupport {
     private List toList(Set set) {
         List list = new ArrayList();
         list.addAll(set);
-        MBeanComparator comparator = new MBeanComparator();
+        ObjectInstanceComparator comparator = new ObjectInstanceComparator();
         Collections.sort(list, comparator);
         return list;
     }

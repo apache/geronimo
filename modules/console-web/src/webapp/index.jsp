@@ -4,12 +4,12 @@
 <html>
 <head>
     <title>Geronimo Management Console</title>
-    <link rel="stylesheet" href="/jmx-console/style.css"/>
+    <link rel="stylesheet" href="/console/style.css"/>
 </head>
 
 <body>
 <jmx:MBeanServerContext>
-<img src="images/geronimo_logo_console.gif" border="0" alt="geronimo jmx console"/>
+<img src="images/geronimo_logo_console.gif" border="0" alt="geronimo managment console"/>
 <div id="topNavBar"><div class="topNav">JMX Agent View</div></div>
 
 <jsp:include page="leftNavigation.jsp"/>
@@ -21,7 +21,7 @@
 <input class="textInput" type="text" size="30" name="ObjectNameFilter" value="<jmx:MBeanServerContextValue type='ObjectNameFilter'/>"/>
 <input class="submit" type="submit" tabindex="1" value="Filter Output"/>
 <jmx:ClearFilter/>
-(<a href="/jmx-console/faq.jsp#objectName"/>help</a>)
+(<a href="/console/faq.jsp#objectName"/>help</a>)
 </form>
 
 <jmx:MBeanServerContents/>

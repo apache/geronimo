@@ -4,7 +4,7 @@
 <taglib>
     <tlibversion>0.1</tlibversion>
     <jspversion>1.2</jspversion>
-    <shortname>geronimo_jmx-console</shortname>
+    <shortname>console-web</shortname>
     <uri>http://geronimo.apache.org/tlds/geronimo_jmx-console_v0-1.tld</uri>
 
     <tag>
