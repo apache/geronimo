@@ -26,14 +26,81 @@ import org.mortbay.http.SunJsseListener;
  * @version $Rev$ $Date$
  */
 public class HTTPSConnector extends JettyConnector {
+    private final SunJsseListener https;
+
     public HTTPSConnector(JettyContainer container) {
         super(container, new SunJsseListener());
+        https = (SunJsseListener)listener;
+    }
+
+    public void setKeystore(String keystore) {
+        https.setKeystore(keystore);
+    }
+
+    public String getKeystore() {
+        return https.getKeystore();
+    }
+
+    public void setKeyPassword(String password) {
+        https.setKeyPassword(password);
+    }
+
+    public void setKeystoreProviderClass(String cls) {
+        https.setKeystoreProviderClass(cls);
+    }
+
+    public String getKeystoreProviderClass() {
+        return https.getKeystoreProviderClass();
+    }
+
+    public void setKeystoreProviderName(String cls) {
+        https.setKeystoreProviderName(cls);
+    }
+
+    public String getKeystoreProviderName() {
+        return https.getKeystoreProviderName();
+    }
+
+    public void setKeystoreType(String cls) {
+        https.setKeystoreType(cls);
+    }
+
+    public String getKeystoreType() {
+        return https.getKeystoreType();
+    }
+
+    public void setPassword(String password) {
+        https.setPassword(password);
+    }
+
+    public void setUseDefaultTrustStore(boolean use) {
+        https.setUseDefaultTrustStore(use);
+    }
+
+    public boolean getUseDefaultTrustStore() {
+        return https.getUseDefaultTrustStore();
+    }
+
+    public void setNeedClientAuth(boolean auth) {
+        https.setNeedClientAuth(auth);
+    }
+
+    public boolean getNeedClientAuth() {
+        return https.getNeedClientAuth();
     }
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty HTTPS Connector", HTTPSConnector.class, JettyConnector.GBEAN_INFO);
+        infoFactory.addAttribute("keystore", String.class, true);
+        infoFactory.addAttribute("keyPassword", String.class, true);
+        infoFactory.addAttribute("keystoreProviderClass", String.class, true);
+        infoFactory.addAttribute("keystoreProviderName", String.class, true);
+        infoFactory.addAttribute("keystoreType", String.class, true);
+        infoFactory.addAttribute("password", String.class, true);
+        infoFactory.addAttribute("useDefaultTrustStore", boolean.class, true);
+        infoFactory.addAttribute("needClientAuth", boolean.class, true);
         infoFactory.setConstructor(new String[]{"JettyContainer"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
