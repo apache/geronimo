@@ -47,29 +47,16 @@
     <!-- ============ -->
 
     <dependencies>
+
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-xmlbeans-plugin</artifactId>
+            <artifactId>geronimo-common</artifactId>
             <version>${pom.currentVersion}</version>
-            <type>plugin</type>
-        </dependency>
-
-        <!-- needed for xmlbeans runtime-->
-        <dependency>
-            <groupId>xmlbeans</groupId>
-            <artifactId>xbean-apache</artifactId>
-            <version>&xmlbeans-version;</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-core</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-common</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
 
@@ -93,19 +80,7 @@
 
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-deployment</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-core</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
 
@@ -113,21 +88,6 @@
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-jacc</artifactId>
             <version>&geronimo-spec-j2ee-jacc-version;</version>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-servlet</artifactId>
-            <version>&geronimo-spec-servlet-version;</version>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-j2ee-schema</artifactId>
-            <version>${pom.currentVersion}</version>
-            <properties>
-                <xmlbeans>true</xmlbeans>
-            </properties>
         </dependency>
 
         <!-- Thirdparty -->
@@ -159,13 +119,6 @@
         </dependency>
 
         <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-            <version>&xerces-version;</version>
-            <url>http://xml.apache.org</url>
-        </dependency>
-
-        <dependency>
             <groupId>regexp</groupId>
             <artifactId>regexp</artifactId>
             <version>&regexp-version;</version>
@@ -177,13 +130,6 @@
             <artifactId>hsqldb</artifactId>
             <version>&hsqldb-version;</version>
             <url>http://hsqldb.sourceforge.net</url>
-        </dependency>
-
-        <dependency>
-            <groupId>xml-resolver</groupId>
-            <artifactId>xml-resolver</artifactId>
-            <version>&xml-resolver-version;</version>
-            <url>http://xml.apache.org/commons</url>
         </dependency>
 
         <dependency>
