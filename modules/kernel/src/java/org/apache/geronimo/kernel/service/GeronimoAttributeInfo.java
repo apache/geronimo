@@ -66,7 +66,7 @@ import net.sf.cglib.reflect.FastMethod;
  * direct the attibute to a specific target in a multi target GeronimoMBean.  It also supports caching of the
  * attribute value, which can reduce the number of calls on the target.
  *
- * @version $Revision: 1.6 $ $Date: 2003/11/11 16:00:59 $
+ * @version $Revision: 1.7 $ $Date: 2003/11/14 16:10:21 $
  */
 public class GeronimoAttributeInfo extends MBeanAttributeInfo {
     /**
@@ -194,7 +194,17 @@ public class GeronimoAttributeInfo extends MBeanAttributeInfo {
         this(name, readable, writable, null, null, initialValue);
     }
 
-    public GeronimoAttributeInfo(String name, boolean readable, boolean writable, String description, String targetName) {
+    //might be confusing...
+      public GeronimoAttributeInfo(String name, boolean readable, boolean writable, String description) {
+          this(name, readable, writable, description, null, null);
+      }
+
+    //might be confusing...
+      public GeronimoAttributeInfo(String name, boolean readable, boolean writable, String description, Object initialValue) {
+          this(name, readable, writable, description, null, initialValue);
+      }
+
+        public GeronimoAttributeInfo(String name, boolean readable, boolean writable, String description, String targetName) {
         this(name, readable, writable, description, targetName, null);
     }
 
