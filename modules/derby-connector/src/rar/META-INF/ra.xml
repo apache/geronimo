@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<connector xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+       http://java.sun.com/xml/ns/j2ee/connector_1_5.xsd"
+    version="1.5">
+
+    <description>Geronimo Derby XA Resource Adapter</description>
+    <display-name>Geronimo Derby XA Resource Adapter</display-name>
+
+    <vendor-name>Tranql</vendor-name>
+    <eis-type>RDBMS</eis-type>
+    <resourceadapter-version>0.1</resourceadapter-version>
+    <resourceadapter>
+        <outbound-resourceadapter>
+            <connection-definition>
+                <managedconnectionfactory-class>org.apache.geronimo.derby.connector.DerbyXAManagedConnectionFactory</managedconnectionfactory-class>
+                <config-property>
+                    <config-property-name>DatabaseName</config-property-name>
+                    <config-property-type>java.lang.String</config-property-type>
+                </config-property>
+                <config-property>
+                    <config-property-name>Password</config-property-name>
+                    <config-property-type>java.lang.String</config-property-type>
+                </config-property>
+                <config-property>
+                    <config-property-name>UserName</config-property-name>
+                    <config-property-type>java.lang.String</config-property-type>
+                </config-property>
+                <config-property>
+                    <config-property-name>LoginTimeout</config-property-name>
+                    <config-property-type>java.lang.Integer</config-property-type>
+                </config-property>
+                <config-property>
+                    <config-property-name>CreateDatabase</config-property-name>
+                    <config-property-type>java.lang.String</config-property-type>
+                </config-property>
+                <config-property>
+                    <config-property-name>ShutdownDatabase</config-property-name>
+                    <config-property-type>java.lang.String</config-property-type>
+                </config-property>
+
+                <connectionfactory-interface>javax.sql.DataSource</connectionfactory-interface>
+                <connectionfactory-impl-class>org.tranql.connector.jdbc.DataSource</connectionfactory-impl-class>
+                <connection-interface>java.sql.Connection</connection-interface>
+                <connection-impl-class>org.tranql.connector.jdbc.ConnectionHandle</connection-impl-class>
+
+            </connection-definition>
+            <transaction-support>XATransaction</transaction-support>
+            <authentication-mechanism>
+                <description>uses jdbc user password authentication</description>
+                <authentication-mechanism-type>BasicPassword</authentication-mechanism-type>
+                <credential-interface>javax.resource.spi.security.PasswordCredential</credential-interface>
+            </authentication-mechanism>
+            <reauthentication-support>false</reauthentication-support>
+        </outbound-resourceadapter>
+    </resourceadapter>
+</connector>
