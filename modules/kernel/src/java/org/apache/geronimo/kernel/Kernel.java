@@ -572,6 +572,7 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
         configurationManagerInstance = new GBeanInstance(this, configurationData, lifecycleBroadcaster, getClass().getClassLoader());
         configurationManagerInstance.start();
         configurationManager = (ConfigurationManager) configurationManagerInstance.getTarget();
+        assert configurationManager != null: "ConfigurationManager failed to start";
 
         // wrap it in an mbean and register it
         GBeanMBean configurationManagerGBean = new GBeanMBean(this, configurationManagerInstance, lifecycleBroadcaster);

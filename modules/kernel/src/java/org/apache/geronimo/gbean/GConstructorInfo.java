@@ -28,6 +28,10 @@ import java.util.List;
 public class GConstructorInfo implements Serializable {
     private final List attributeNames;
 
+    public GConstructorInfo() {
+        this.attributeNames = Collections.EMPTY_LIST;
+    }
+
     public GConstructorInfo(String[] attributeNames) {
         this(Arrays.asList(attributeNames));
     }

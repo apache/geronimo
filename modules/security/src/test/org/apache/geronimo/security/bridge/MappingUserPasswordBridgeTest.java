@@ -17,14 +17,14 @@
 
 package org.apache.geronimo.security.bridge;
 
-import org.apache.geronimo.security.IdentificationPrincipal;
-import org.apache.geronimo.security.ContextManager;
-
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import javax.security.auth.Subject;
+
+import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.IdentificationPrincipal;
 
 
 /**

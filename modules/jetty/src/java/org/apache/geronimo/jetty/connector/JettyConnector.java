@@ -32,6 +32,11 @@ public abstract class JettyConnector implements GBeanLifecycle {
     private final JettyContainer container;
     protected final HttpListener listener;
 
+    public JettyConnector(JettyContainer container) {
+        this.container = container;
+        this.listener = null;
+    }
+
     public JettyConnector(JettyContainer container, HttpListener listener) {
         this.container = container;
         this.listener = listener;
@@ -81,6 +86,7 @@ public abstract class JettyConnector implements GBeanLifecycle {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty HTTP Connector", JettyConnector.class);
         infoFactory.addAttribute("port", int.class, true);
         infoFactory.addReference("JettyContainer", JettyContainer.class);
+        infoFactory.setConstructor(new String[] {"JettyContainer"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 }

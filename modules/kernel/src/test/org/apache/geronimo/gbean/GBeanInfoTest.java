@@ -17,7 +17,6 @@
 
 package org.apache.geronimo.gbean;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -27,8 +26,8 @@ import junit.framework.TestCase;
  * @version $Rev$ $Date$
  */
 public class GBeanInfoTest extends TestCase {
-    private static final String CONSTRUCTOR_ARG_0 = "ConstructorArg-0";
-    private static final String CONSTRUCTOR_ARG_1 = "ConstructorArg-1";
+    private static final String CONSTRUCTOR_ARG_0 = "ConstructorArg_0";
+    private static final String CONSTRUCTOR_ARG_1 = "ConstructorArg_1";
 
     public void testGetGBeanInfo() {
         // 1. Test GBean that exists
@@ -51,22 +50,6 @@ public class GBeanInfoTest extends TestCase {
         }
     }
 
-    /*
-     * void GBeanInfo(String, Set, GConstructorInfo, Set, Set, Set)
-     */
-    public void testGBeanInfoStringSetGConstructorInfoSetSetSet() {
-        GBeanInfo gbeanInfo = new GBeanInfo(null, null, null, null, null, null);
-        assertNotNull(gbeanInfo);
-    }
-
-    /*
-     * void GBeanInfo(String, String, Set, GConstructorInfo, Set, Set, Set)
-     */
-    public void testGBeanInfoStringStringSetGConstructorInfoSetSetSet() {
-        GBeanInfo gbeanInfo = new GBeanInfo(null, null, null, null, null, null, null);
-        assertNotNull(gbeanInfo);
-    }
-
     public void testGetName() {
         assertEquals(MockGBean.class.getName(), gbeanInfo.getName());
     }
@@ -77,15 +60,14 @@ public class GBeanInfoTest extends TestCase {
 
     public void testGetAttributeSet() {
         Set attrSet = gbeanInfo.getAttributes();
-        assertEquals(2, attrSet.size());
+        assertEquals(4, attrSet.size());
         assertTrue(attrSet.contains(persistentAttrInfo));
         assertTrue(attrSet.contains(nonPersistentAttrInfo));
     }
 
     public void testGetPersistentAttributes() {
         List attrList = gbeanInfo.getPersistentAttributes();
-        assertEquals(1, attrList.size());
-        assertEquals(persistentAttrInfo, attrList.get(0));
+        assertEquals(3, attrList.size());
     }
 
     public void testGetConstructor() {
@@ -102,16 +84,11 @@ public class GBeanInfoTest extends TestCase {
         assertTrue(gbeanOpSet.contains(opInfo));
     }
 
-    public void testGetNotificationsSet() {
-        Set gbeanNotificationSet = gbeanInfo.getNotifications();
-        assertEquals(1, gbeanNotificationSet.size());
-        assertTrue(gbeanNotificationSet.contains(notificationInfo));
-    }
-
     public void testGetReferencesSet() {
         Set gbeanRefSet = gbeanInfo.getReferences();
         assertEquals(1, gbeanRefSet.size());
-        assertTrue(gbeanRefSet.contains(refInfo));
+        GReferenceInfo newRefInfo = (GReferenceInfo) gbeanRefSet.iterator().next();
+        assertEquals(refInfo.getName(), newRefInfo.getName());
     }
 
     public void testToString() {
@@ -123,17 +100,15 @@ public class GBeanInfoTest extends TestCase {
 
     final static String nonPersistentAttrName = "nonPersistentAttribute";
 
-    final static GAttributeInfo nonPersistentAttrInfo = new GAttributeInfo(nonPersistentAttrName, String.class.getName(), false);
+    final static GAttributeInfo nonPersistentAttrInfo = new GAttributeInfo(nonPersistentAttrName, String.class.getName(), false, "getFoo", "setFoo");
 
     final static String persistentAttrName = "persistentAttribute";
 
-    final static GAttributeInfo persistentAttrInfo = new GAttributeInfo(persistentAttrName, String.class.getName(), true);
+    final static GAttributeInfo persistentAttrInfo = new GAttributeInfo(persistentAttrName, String.class.getName(), true, "getFoo", "setFoo");
 
     final static GOperationInfo opInfo = new GOperationInfo("operation");
 
-    final static GNotificationInfo notificationInfo = new GNotificationInfo("notification", Collections.singleton(null));
-
-    final static GReferenceInfo refInfo = new GReferenceInfo("reference", String.class);
+    final static GReferenceInfo refInfo = new GReferenceInfo("reference", String.class.getName(), String.class.getName(), "setReference");
 
     public void setUp() {
         gbeanInfo = MockGBean.getGBeanInfo();
@@ -154,17 +129,24 @@ public class GBeanInfoTest extends TestCase {
 
             infoFactory.addOperation(opInfo);
 
-            infoFactory.addNotification(notificationInfo);
-
             infoFactory.addReference(refInfo);
 
+            infoFactory.addAttribute(CONSTRUCTOR_ARG_0, String.class, true);
+            infoFactory.addAttribute(CONSTRUCTOR_ARG_1, String.class, true);
             infoFactory.setConstructor(new String[]{CONSTRUCTOR_ARG_0, CONSTRUCTOR_ARG_1});
+
 
             GBEAN_INFO = infoFactory.getBeanInfo();
         }
 
         public static GBeanInfo getGBeanInfo() {
             return GBEAN_INFO;
+        }
+
+        public MockGBean(String ConstructorArg_0, String ConstructorArg_1) {
+        }
+
+        public void setReference(String reference) {
         }
     }
 }

@@ -19,7 +19,7 @@ package org.apache.geronimo.gbean.runtime;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,7 +42,6 @@ import org.apache.geronimo.gbean.GOperationSignature;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.gbean.DynamicGAttributeInfo;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.LifecycleListener;
 import org.apache.geronimo.kernel.NoSuchAttributeException;
@@ -209,23 +208,14 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
 
         name = gbeanInfo.getName();
 
-        // get the constructor
-        constructor = Util.searchForConstructor(gbeanInfo, type);
-
-        // build a map from constructor argument names to type
-        Class[] constructorParameterTypes = constructor.getParameterTypes();
-        Map constructorTypes = new HashMap(constructorParameterTypes.length);
-        List constructorAttributeNames = gbeanInfo.getConstructor().getAttributeNames();
-        for (int i = 0; i < constructorParameterTypes.length; i++) {
-            Class type = constructorParameterTypes[i];
-            constructorTypes.put(constructorAttributeNames.get(i), type);
-        }
+        //
+        Set constructorArgs = new HashSet(gbeanInfo.getConstructor().getAttributeNames());
 
         // attributes
         Map attributesMap = new HashMap();
         for (Iterator iterator = gbeanInfo.getAttributes().iterator(); iterator.hasNext();) {
             GAttributeInfo attributeInfo = (GAttributeInfo) iterator.next();
-            attributesMap.put(attributeInfo.getName(), new GBeanAttribute(this, attributeInfo, constructorTypes.containsKey(attributeInfo.getName())));
+            attributesMap.put(attributeInfo.getName(), new GBeanAttribute(this, attributeInfo, constructorArgs.contains(attributeInfo.getName())));
         }
         addManagedObjectAttributes(attributesMap);
         attributes = (GBeanAttribute[]) attributesMap.values().toArray(new GBeanAttribute[attributesMap.size()]);
@@ -237,11 +227,10 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
         Set referencesSet = new HashSet();
         for (Iterator iterator = gbeanInfo.getReferences().iterator(); iterator.hasNext();) {
             GReferenceInfo referenceInfo = (GReferenceInfo) iterator.next();
-            Class constructorType = (Class) constructorTypes.get(referenceInfo.getName());
-            if (Util.isCollectionValuedReference(this, referenceInfo, constructorType)) {
-                referencesSet.add(new GBeanCollectionReference(this, referenceInfo, constructorType));
+            if (referenceInfo.getProxyType().equals(Collection.class.getName())) {
+                referencesSet.add(new GBeanCollectionReference(this, referenceInfo));
             } else {
-                referencesSet.add(new GBeanSingleReference(this, referenceInfo, constructorType));
+                referencesSet.add(new GBeanSingleReference(this, referenceInfo));
             }
         }
         references = (GBeanReference[]) referencesSet.toArray(new GBeanReference[gbeanInfo.getReferences().size()]);
@@ -270,8 +259,33 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
             opCounter++;
         }
 
+        // get the constructor
+        List arguments = gbeanInfo.getConstructor().getAttributeNames();
+        Class[] parameterTypes = new Class[arguments.size()];
+        for (int i = 0; i < parameterTypes.length; i++) {
+            String argumentName = (String) arguments.get(i);
+            if (attributeIndex.containsKey(argumentName)) {
+                Integer index = (Integer) attributeIndex.get(argumentName);
+                GBeanAttribute attribute = attributes[index.intValue()];
+                parameterTypes[i] = attribute.getType();
+            } else if (referenceIndex.containsKey(argumentName)) {
+                Integer index = (Integer) referenceIndex.get(argumentName);
+                GBeanReference reference = references[index.intValue()];
+                parameterTypes[i] = reference.getProxyType();
+            }
+        }
+        try {
+            constructor = type.getConstructor(parameterTypes);
+        } catch (NoSuchMethodException e) {
+            throw new InvalidConfigurationException("Could not find a valid constructor for GBean: " + gbeanInfo.getName());
+        }
+
+        // rebuild the gbean info based on the current attributes, operations, and references because
+        // the above code add new attributes and operations
+        this.gbeanInfo = rebuildGBeanInfo(gbeanInfo.getConstructor());
+
+        // create the raw invokers
         rawInvoker = new RawInvoker(this);
-        this.gbeanInfo = rebuildGBeanInfo(gbeanInfo);
 
         // set the initial attribute values
         try {
@@ -757,10 +771,6 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
                 } else {
                     throw new InvalidConfigurationException("Unknown attribute or reference name in constructor: name=" + name);
                 }
-                assert parameters[i] == null || parameterTypes[i].isPrimitive() || parameterTypes[i].isAssignableFrom(parameters[i].getClass()):
-                        "Attempting to construct " + objectName + " of type " + gbeanInfo.getClassName()
-                        + ". Constructor parameter " + i + " should be " + parameterTypes[i].getName()
-                        + " but is " + parameters[i].getClass().getName();
             }
 
             // create instance
@@ -990,54 +1000,34 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
                 }));
     }
 
+    private GBeanInfo rebuildGBeanInfo(GConstructorInfo constructor) {
+        Set attributeInfos = new HashSet();
+        for (int i = 0; i < attributes.length; i++) {
+            GBeanAttribute attribute = attributes[i];
+            attributeInfos.add(attribute.getAttributeInfo());
+        }
+        Set operationInfos = new HashSet();
+        for (int i = 0; i < operations.length; i++) {
+            operationInfos.add(operations[i].getOperationInfo());
+        }
+
+        Set referenceInfos = new HashSet();
+        for (int i = 0; i < references.length; i++) {
+            referenceInfos.add(references[i].getReferenceInfo());
+        }
+
+        return new GBeanInfo(name,
+                type.getName(),
+                attributeInfos,
+                constructor,
+                operationInfos,
+                referenceInfos);
+    }
+
     public String toString() {
         if (objectName == null) {
             return super.toString();
         }
         return objectName.toString();
-    }
-
-    // todo this is a lame hack to get around the gbean info not being accurate when the gbean instance is creted
-    private GBeanInfo rebuildGBeanInfo(GBeanInfo source) {
-        Set attributeInfos = new HashSet();
-        for (int i = 0; i < attributes.length; i++) {
-            GBeanAttribute attribute = attributes[i];
-            if (attribute.isDynamic()) {
-                attributeInfos.add(new DynamicGAttributeInfo(attribute.getName(),
-                        attribute.getType().getName(),
-                        attribute.isPersistent(),
-                        attribute.isReadable(),
-                        attribute.isWritable()
-                ));
-            } else {
-                attributeInfos.add(new GAttributeInfo(attribute.getName(),
-                        attribute.getType().getName(),
-                        attribute.isPersistent(),
-                        Boolean.valueOf(attribute.isReadable()),
-                        Boolean.valueOf(attribute.isWritable()),
-                        null,
-                        null
-                ));
-            }
-        }
-        Set operationInfos = new HashSet();
-        for (int i = 0; i < operations.length; i++) {
-            GBeanOperation operation = operations[i];
-            operationInfos.add(new GOperationInfo(operation.getName(), operation.getParameterTypes()));
-        }
-
-        Set referenceInfos = new HashSet();
-        for (int i = 0; i < references.length; i++) {
-            GBeanReference reference = references[i];
-            referenceInfos.add(new GReferenceInfo(reference.getName(), reference.getType()));
-        }
-
-        return Util.perfect(new GBeanInfo(source.getName(),
-                source.getClassName(),
-                attributeInfos,
-                source.getConstructor(),
-                operationInfos,
-                referenceInfos,
-                new HashSet(Arrays.asList(NotificationType.TYPES))), classLoader);
     }
 }

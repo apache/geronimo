@@ -32,38 +32,35 @@ public class GReferenceInfo implements Serializable {
     /**
      * Type of this reference.
      */
-    private final String type;
+    private final String referenceType;
+
+    /**
+     * Type of the proxy injected into the bean.
+     */
+    private final String proxyType;
 
     /**
      * Name of the setter method.
-     * The default is "set" + name.  In the case of a default value we do a caseless search for the name.
      */
     private final String setterName;
 
-    public GReferenceInfo() {
-        this(null, null, null);
-    }
-
-    public GReferenceInfo(String name, String type) {
-        this(name, type, null);
-    }
-
-    public GReferenceInfo(String name, Class type) {
-        this(name, type.getName(), null);
-    }
-
-    public GReferenceInfo(String name, String type, String setterName) {
+    public GReferenceInfo(String name, String referenceType, String proxyType, String setterName) {
         this.name = name;
-        this.type = type;
+        this.referenceType = referenceType;
         this.setterName = setterName;
+        this.proxyType = proxyType;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getType() {
-        return type;
+    public String getReferenceType() {
+        return referenceType;
+    }
+
+    public String getProxyType() {
+        return proxyType;
     }
 
     public String getSetterName() {
@@ -72,7 +69,8 @@ public class GReferenceInfo implements Serializable {
 
     public String toString() {
         return "[GReferenceInfo: name=" + name +
-                " type=" + type +
+                " referenceType=" + referenceType +
+                " proxyType=" + proxyType +
                 " setterName=" + setterName +
                 "]";
     }

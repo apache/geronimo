@@ -36,7 +36,7 @@ public class GenericConnectionManager extends AbstractConnectionManager {
 
     //default constructor for use as endpoint
     public GenericConnectionManager() {
-        super(null);
+        super();
     }
 
     public GenericConnectionManager(TransactionSupport transactionSupport,

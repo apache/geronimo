@@ -320,11 +320,11 @@ public class JDBCWorkerPersistence implements WorkerPersistence, GBeanLifecycle 
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JDBCWorkerPersistence.class);
-        infoFactory.addAttribute("sequenceSQL", String.class, true);
-        infoFactory.addAttribute("insertSQL", String.class, true);
-        infoFactory.addAttribute("deleteSQL", String.class, true);
-        infoFactory.addAttribute("fixedRateUpdateSQL", String.class, true);
-        infoFactory.addAttribute("selectSQL", String.class, true);
+//        infoFactory.addAttribute("sequenceSQL", String.class, true);
+//        infoFactory.addAttribute("insertSQL", String.class, true);
+//        infoFactory.addAttribute("deleteSQL", String.class, true);
+//        infoFactory.addAttribute("fixedRateUpdateSQL", String.class, true);
+//        infoFactory.addAttribute("selectSQL", String.class, true);
 
         infoFactory.addAttribute("createSequenceSQL", String.class, true);
         infoFactory.addAttribute("createTableSQL", String.class, true);
@@ -333,7 +333,8 @@ public class JDBCWorkerPersistence implements WorkerPersistence, GBeanLifecycle 
 
         infoFactory.addReference("managedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class);
 
-        infoFactory.setConstructor(new String[]{"kernel", "managedConnectionFactoryWrapper", "sequenceSQL", "insertSQL", "deleteSQL", "fixedRateUpdateSQL", "selectSQL"});
+//        infoFactory.setConstructor(new String[]{"kernel", "managedConnectionFactoryWrapper", "sequenceSQL", "insertSQL", "deleteSQL", "fixedRateUpdateSQL", "selectSQL"});
+        infoFactory.setConstructor(new String[]{"kernel", "managedConnectionFactoryWrapper"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

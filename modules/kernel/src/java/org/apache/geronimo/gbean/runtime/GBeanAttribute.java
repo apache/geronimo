@@ -60,6 +60,8 @@ public class GBeanAttribute {
 
     private final boolean dynamic;
 
+    private final GAttributeInfo attributeInfo;
+
     static GBeanAttribute createSpecialAttribute(GBeanAttribute attribute, GBeanInstance gbeanInstance, String name, Class type, Object value) {
         return new GBeanAttribute(attribute, gbeanInstance, name, type, value);
     }
@@ -109,6 +111,26 @@ public class GBeanAttribute {
         // persistence
         this.persistent = false;
         initializePersistentValue(value);
+
+        // create an attribute info for this gbean
+        if (attribute != null) {
+            GAttributeInfo attributeInfo = attribute.getAttributeInfo();
+            this.attributeInfo = new GAttributeInfo(this.name,
+                    this.type.getName(),
+                    this.persistent,
+                    this.readable,
+                    this.writable,
+                    attributeInfo.getGetterName(),
+                    attributeInfo.getSetterName());
+        } else {
+            this.attributeInfo = new GAttributeInfo(this.name,
+                    this.type.getName(),
+                    this.persistent,
+                    this.readable,
+                    this.writable,
+                    null,
+                    null);
+        }
     }
 
     static GBeanAttribute createFrameworkAttribute(GBeanInstance gbeanInstance, String name, Class type, MethodInvoker getInvoker) {
@@ -144,6 +166,15 @@ public class GBeanAttribute {
         // persistence
         this.persistent = persistent;
         initializePersistentValue(persistentValue);
+
+        // create an attribute info for this gbean
+        attributeInfo = new GAttributeInfo(this.name,
+                this.type.getName(),
+                this.persistent,
+                this.readable,
+                this.writable,
+                null,
+                null);
     }
 
     public GBeanAttribute(GBeanInstance gbeanInstance, GAttributeInfo attributeInfo, boolean isConstructorArg) throws InvalidConfigurationException {
@@ -153,11 +184,12 @@ public class GBeanAttribute {
         if (gbeanInstance == null || attributeInfo == null) {
             throw new IllegalArgumentException("null param(s) supplied");
         }
-        if (attributeInfo.isReadable() == Boolean.FALSE && attributeInfo.isWritable() == Boolean.FALSE && !attributeInfo.isPersistent()) {
-            throw new InvalidConfigurationException("An attribute must be readable, writable, or persistent: +"
-                    + " name=" + attributeInfo.getName() + " targetClass=" + gbeanInstance.getType().getName());
+        if (!attributeInfo.isReadable() && !attributeInfo.isWritable() && !attributeInfo.isPersistent() && !isConstructorArg) {
+            throw new InvalidConfigurationException("An attribute must be readable, writable, persistent or a constructor arg: " +
+                    " name=" + attributeInfo.getName() + " targetClass=" + gbeanInstance.getType().getName());
         }
         this.gbeanInstance = gbeanInstance;
+        this.attributeInfo = attributeInfo;
         this.name = attributeInfo.getName();
         this.isConstructorArg = isConstructorArg;
         try {
@@ -167,17 +199,18 @@ public class GBeanAttribute {
         }
         this.persistent = attributeInfo.isPersistent();
 
+        readable = attributeInfo.isReadable();
+        writable = attributeInfo.isWritable();
+
         // If attribute is persistent or not tagged as unreadable, search for a
         // getter method
         if (attributeInfo instanceof DynamicGAttributeInfo) {
             this.dynamic = true;
-            readable = attributeInfo.isReadable().booleanValue();
             if (readable) {
                 getInvoker = new DynamicGetterMethodInvoker(name);
             } else {
                 getInvoker = null;
             }
-            writable = attributeInfo.isWritable().booleanValue();
             if (writable) {
                 setInvoker = new DynamicSetterMethodInvoker(name);
             } else {
@@ -185,36 +218,34 @@ public class GBeanAttribute {
             }
         } else {
             this.dynamic = false;
-            Method getterMethod = null;
-            if (attributeInfo.isPersistent() || attributeInfo.isReadable() != Boolean.FALSE) {
-                getterMethod = searchForGetter(gbeanInstance, attributeInfo, type);
-            }
-            if (getterMethod != null) {
-                getInvoker = new FastMethodInvoker(getterMethod);
+            if (attributeInfo.getGetterName() != null) {
+                try {
+                    String getterName = attributeInfo.getGetterName();
+                    Method getterMethod = gbeanInstance.getType().getMethod(getterName, null);
 
-                // this attribute is readable as long as it was not explicitly
-                // tagged as unreadable
-                readable = attributeInfo.isReadable() != Boolean.FALSE;
+                    if (!getterMethod.getReturnType().equals(type)) {
+                        throw new InvalidConfigurationException("Getter method not found " +getDescription());
+                    }
+                    getInvoker = new FastMethodInvoker(getterMethod);
+                } catch (NoSuchMethodException e) {
+                    throw new InvalidConfigurationException("Getter method not found " +getDescription());
+                }
             } else {
                 getInvoker = null;
-                readable = false;
             }
 
             // If attribute is persistent or not tagged as unwritable, search
             // for a setter method
-            Method setterMethod = null;
-            if (attributeInfo.isPersistent() || attributeInfo.isWritable() != Boolean.FALSE) {
-                setterMethod = searchForSetter(gbeanInstance, attributeInfo, type);
-            }
-            if (setterMethod != null) {
-                setInvoker = new FastMethodInvoker(setterMethod);
-
-                // this attribute is writable as long as it was not explicitly
-                // tagged as unwritable
-                writable = attributeInfo.isWritable() != Boolean.FALSE;
+            if (attributeInfo.getSetterName() != null) {
+                try {
+                    String setterName = attributeInfo.getSetterName();
+                    Method setterMethod = gbeanInstance.getType().getMethod(setterName, new Class[] {type});
+                    setInvoker = new FastMethodInvoker(setterMethod);
+                } catch (NoSuchMethodException e) {
+                    throw new InvalidConfigurationException("Setter method not found " + getDescription());
+                }
             } else {
                 setInvoker = null;
-                writable = false;
             }
         }
 
@@ -248,6 +279,10 @@ public class GBeanAttribute {
 
     public String getName() {
         return name;
+    }
+
+    public GAttributeInfo getAttributeInfo() {
+        return attributeInfo;
     }
 
     public boolean isReadable() {
@@ -316,7 +351,7 @@ public class GBeanAttribute {
         if (special) {
             return persistentValue;
         }
-        
+
         // get the target to invoke
         Object target = gbeanInstance.getTarget();
         if (target == null && !framework) {
@@ -356,103 +391,6 @@ public class GBeanAttribute {
 
     public String getDescription() {
         return "Attribute Name: " + getName() + ", Type: " + getType() + ", GBeanInstance: " + gbeanInstance.getName();
-    }
-
-    private static Method searchForGetter(GBeanInstance gbeanInstance, GAttributeInfo attributeInfo, Class type) throws InvalidConfigurationException {
-        Method getterMethod = null;
-        if (attributeInfo.getGetterName() == null) {
-            // no explicit name give so we must search for a name
-            String getterName = "get" + attributeInfo.getName();
-            String isName = "is" + attributeInfo.getName();
-            Method[] methods = gbeanInstance.getType().getMethods();
-            for (int i = 0; i < methods.length; i++) {
-                if (methods[i].getParameterTypes().length == 0 && methods[i].getReturnType() != Void.TYPE
-                        && (getterName.equalsIgnoreCase(methods[i].getName()) || isName.equalsIgnoreCase(methods[i].getName()))) {
-
-                    // found it
-                    getterMethod = methods[i];
-                    break;
-                }
-            }
-        } else {
-            // we have an explicit name, so no searching is necessary
-            try {
-                getterMethod = gbeanInstance.getType().getMethod(attributeInfo.getGetterName(), null);
-                if (getterMethod.getReturnType() == Void.TYPE) {
-                    throw new InvalidConfigurationException("Getter method return VOID:" +
-                            " name=" + attributeInfo.getName() +
-                            ", type=" + type.getName() +
-                            ", targetClass=" + gbeanInstance.getType().getName());
-                }
-            } catch (Exception e) {
-                // we will throw the formatted exception below
-            }
-        }
-
-        // if the return type of the getter doesn't match, throw an exception
-        if (getterMethod != null && !type.equals(getterMethod.getReturnType())) {
-            throw new InvalidConfigurationException("Incorrect return type for getter method:" +
-                    " name=" + attributeInfo.getName() +
-                    ", targetClass=" + gbeanInstance.getType().getName() +
-                    ", getter type=" + getterMethod.getReturnType() +
-                    ", expected type=" + type.getName());
-        }
-
-        // if this attribute was explicity tagged as being readable but there is not getter
-        if (getterMethod == null && attributeInfo.isReadable() == Boolean.TRUE) {
-            throw new InvalidConfigurationException("Getter method not found on target:" +
-                    " name=" + attributeInfo.getName() +
-                    ", type=" + type.getName() +
-                    ", targetClass=" + gbeanInstance.getType().getName());
-        }
-
-        return getterMethod;
-    }
-
-    private static Method searchForSetter(GBeanInstance gbeanInstance, GAttributeInfo attributeInfo, Class type) throws InvalidConfigurationException {
-        if (attributeInfo.getSetterName() == null) {
-            // no explicit name give so we must search for a name
-            String setterName = "set" + attributeInfo.getName();
-            Method[] methods = gbeanInstance.getType().getMethods();
-            for (int i = 0; i < methods.length; i++) {
-                Method method = methods[i];
-                if (method.getParameterTypes().length == 1 &&
-                        method.getParameterTypes()[0].equals(type) &&
-                        method.getReturnType() == Void.TYPE &&
-                        setterName.equalsIgnoreCase(method.getName())) {
-
-                    return method;
-                }
-            }
-        } else {
-            // we have an explicit name, so no searching is necessary
-            try {
-                Method method = gbeanInstance.getType().getMethod(attributeInfo.getSetterName(), new Class[]{type});
-                if (method.getReturnType() != Void.TYPE) {
-                    throw new InvalidConfigurationException("Setter method must return VOID:" +
-                            " name=" + attributeInfo.getName() +
-                            ", type=" + type.getName() +
-                            ", targetClass=" + gbeanInstance.getType().getName());
-                }
-                return method;
-            } catch (Exception e) {
-                // we will throw the formatted exception below
-            }
-        }
-
-        // An attribute must have a setter if it was explicitly tagged as
-        // writable or if it is persistent and it is not a constructor arg
-        // (if it is persistent we must have a way to set the data into the
-        // instance)
-        if (attributeInfo.isWritable() == Boolean.TRUE) {
-            throw new InvalidConfigurationException("Setter method not found on target:" +
-                    " name=" + attributeInfo.getName() +
-                    ", type=" + type.getName() +
-                    ", targetClass=" + gbeanInstance.getType().getName());
-        }
-
-        // a setter is not necessary for this attribute
-        return null;
     }
 
     private static final class DynamicGetterMethodInvoker implements MethodInvoker {

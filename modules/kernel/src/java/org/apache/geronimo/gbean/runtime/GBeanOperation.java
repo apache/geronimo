@@ -38,6 +38,7 @@ public final class GBeanOperation {
     private final List parameterTypes;
     private final MethodInvoker methodInvoker;
     private final boolean framework;
+    private final GOperationInfo operationInfo;
 
     static GBeanOperation createFrameworkOperation(GBeanInstance gbeanInstance, String name, List parameterTypes, MethodInvoker methodInvoker) {
         return new GBeanOperation(gbeanInstance, name, parameterTypes, methodInvoker);
@@ -49,12 +50,14 @@ public final class GBeanOperation {
         this.name = name;
         this.parameterTypes = Collections.unmodifiableList(new ArrayList(parameterTypes));
         this.methodInvoker = methodInvoker;
+        this.operationInfo = new GOperationInfo(this.name, this.parameterTypes);
     }
 
     public GBeanOperation(GBeanInstance gbeanInstance, GOperationInfo operationInfo) throws InvalidConfigurationException {
         framework = false;
         this.gbeanInstance = gbeanInstance;
         this.name = operationInfo.getName();
+        this.operationInfo = operationInfo;
 
         // get an array of the parameter classes
         this.parameterTypes = Collections.unmodifiableList(new ArrayList(operationInfo.getParameterList()));
@@ -101,6 +104,10 @@ public final class GBeanOperation {
 
     public List getParameterTypes() {
         return parameterTypes;
+    }
+
+    public GOperationInfo getOperationInfo() {
+        return operationInfo;
     }
 
     public boolean isFramework() {

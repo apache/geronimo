@@ -44,8 +44,8 @@ public class GBeanSingleReference extends AbstractGBeanReference {
      */
     private ObjectName proxyTarget;
 
-    public GBeanSingleReference(GBeanInstance gbeanInstance, GReferenceInfo referenceInfo, Class constructorType) throws InvalidConfigurationException {
-        super(gbeanInstance, referenceInfo, constructorType);
+    public GBeanSingleReference(GBeanInstance gbeanInstance, GReferenceInfo referenceInfo) throws InvalidConfigurationException {
+        super(gbeanInstance, referenceInfo);
     }
 
     public synchronized void start() throws Exception {
@@ -79,7 +79,7 @@ public class GBeanSingleReference extends AbstractGBeanReference {
 
         // add a dependency on our target and create the proxy
         ObjectName target = (ObjectName) targets.iterator().next();
-        setProxy(kernel.getProxyManager().createProxy(target, getType()));
+        setProxy(kernel.getProxyManager().createProxy(target, getReferenceType()));
         proxyTarget = target;
         kernel.getDependencyManager().addDependency(objectName, target);
     }

@@ -172,7 +172,7 @@ public class JAASJettyRealm implements UserRealm, GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty Realm", JAASJettyRealm.class.getName());
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty Realm", JAASJettyRealm.class);
         infoFactory.setConstructor(new String[]{"JettyContainer"});
         infoFactory.addReference("JettyContainer", JettyContainer.class);
         infoFactory.addAttribute("name", String.class, true);

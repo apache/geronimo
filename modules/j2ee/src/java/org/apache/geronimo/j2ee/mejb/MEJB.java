@@ -44,7 +44,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelMBean;
 import org.apache.geronimo.kernel.NoSuchAttributeException;
 import org.apache.geronimo.kernel.NoSuchOperationException;
-
+ 
 /**
  * GBean implementing Management interface and supplying proxies to act as the MEJB container.
  *
@@ -253,7 +253,7 @@ public class MEJB implements Management {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(MEJB.class.getName());
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(MEJB.class);
         infoBuilder.addAttribute("kernel", KernelMBean.class, false);
         infoBuilder.addInterface(Management.class);
 

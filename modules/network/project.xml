@@ -99,7 +99,6 @@
             <version>&log4j-version;</version>
             <url>http://jakarta.apache.org/log4j</url>
         </dependency>
-
     </dependencies>
 
     <build>

@@ -46,7 +46,12 @@ public abstract class AbstractGBeanReference implements GBeanReference {
     /**
      * Interface this GBeanInstance uses to refer to the other.
      */
-    private final Class type;
+    private final Class referenceType;
+
+    /**
+     * Proxy type which is injected into the GBeanInstance.
+     */
+    private final Class proxyType;
 
     /**
      * The GBeanInstance to which this reference belongs.
@@ -74,6 +79,8 @@ public abstract class AbstractGBeanReference implements GBeanReference {
      */
     private final Set targets = new HashSet();
 
+    private final GReferenceInfo referenceInfo;
+
     /**
      * The kernel to which the reference is bound.
      */
@@ -84,25 +91,34 @@ public abstract class AbstractGBeanReference implements GBeanReference {
      */
     private Object proxy;
 
-    public AbstractGBeanReference(GBeanInstance gbeanInstance, GReferenceInfo referenceInfo, Class constructorType) throws InvalidConfigurationException {
+    public AbstractGBeanReference(GBeanInstance gbeanInstance, GReferenceInfo referenceInfo) throws InvalidConfigurationException {
         this.gbeanInstance = gbeanInstance;
+        this.referenceInfo = referenceInfo;
         this.name = referenceInfo.getName();
         try {
-            this.type = ClassLoading.loadClass(referenceInfo.getType(), gbeanInstance.getClassLoader());
+            this.referenceType = ClassLoading.loadClass(referenceInfo.getReferenceType(), gbeanInstance.getClassLoader());
         } catch (ClassNotFoundException e) {
-            throw new InvalidConfigurationException("Could not load reference proxy interface class:" +
-                    " name=" + name +
-                    " class=" + referenceInfo.getType());
+            throw new InvalidConfigurationException("Could not load reference proxy interface class:" + getDescription());
         }
-        if (Modifier.isFinal(type.getModifiers())) {
-            throw new IllegalArgumentException("Proxy interface cannot be a final class: " + type.getName());
+        if (Modifier.isFinal(referenceType.getModifiers())) {
+            throw new IllegalArgumentException("Proxy interface cannot be a final class: " + referenceType.getName());
+        }
+        try {
+            this.proxyType = ClassLoading.loadClass(referenceInfo.getProxyType(), gbeanInstance.getClassLoader());
+        } catch (ClassNotFoundException e) {
+            throw new InvalidConfigurationException("Could not load proxy class:" + getDescription());
         }
 
-        if (constructorType != null) {
-            setInvoker = null;
+        if (referenceInfo.getSetterName() != null) {
+            try {
+                String setterName = referenceInfo.getSetterName();
+                Method setterMethod = gbeanInstance.getType().getMethod(setterName, new Class[] {proxyType});
+                setInvoker = new FastMethodInvoker(setterMethod);
+            } catch (NoSuchMethodException e) {
+                throw new InvalidConfigurationException("Setter method not found " + getDescription());
+            }
         } else {
-            Method setterMethod = searchForSetter(gbeanInstance, referenceInfo);
-            setInvoker = new FastMethodInvoker(setterMethod);
+            setInvoker = null;
         }
 
         listener = new LifecycleAdapter() {
@@ -150,8 +166,16 @@ public abstract class AbstractGBeanReference implements GBeanReference {
         return name;
     }
 
-    public final Class getType() {
-        return type;
+    public final GReferenceInfo getReferenceInfo() {
+        return referenceInfo;
+    }
+
+    public final Class getReferenceType() {
+        return referenceType;
+    }
+
+    public final Class getProxyType() {
+        return proxyType;
     }
 
     public Object getProxy() {
@@ -251,37 +275,10 @@ public abstract class AbstractGBeanReference implements GBeanReference {
         }
     }
 
-    protected static Method searchForSetter(GBeanInstance gbeanInstance, GReferenceInfo referenceInfo) throws InvalidConfigurationException {
-        if (referenceInfo.getSetterName() == null) {
-            // no explicit name give so we must search for a name
-            String setterName = "set" + referenceInfo.getName();
-            Method[] methods = gbeanInstance.getType().getMethods();
-            for (int i = 0; i < methods.length; i++) {
-                Method method = methods[i];
-                if (method.getParameterTypes().length == 1 &&
-                        method.getReturnType() == Void.TYPE &&
-                        setterName.equalsIgnoreCase(method.getName())) {
-
-                    return method;
-                }
-            }
-        } else {
-            // even though we have an exact name we need to search the methods because
-            // we don't know the parameter type
-            Method[] methods = gbeanInstance.getType().getMethods();
-            String setterName = referenceInfo.getSetterName();
-            for (int i = 0; i < methods.length; i++) {
-                Method method = methods[i];
-                if (method.getParameterTypes().length == 1 &&
-                        method.getReturnType() == Void.TYPE &&
-                        setterName.equals(method.getName())) {
-
-                    return method;
-                }
-            }
-        }
-        throw new InvalidConfigurationException("Target does not have specified method:" +
-                " name=" + referenceInfo.getName() +
-                " targetClass=" + gbeanInstance.getType().getName());
+    protected final String getDescription() {
+        return "Reference Name: " + getName() +
+                ", Reference Type: " + getReferenceType() +
+                ", Proxy Type: " + getProxy() +
+                ", GBeanInstance: " + gbeanInstance.getName();
     }
 }

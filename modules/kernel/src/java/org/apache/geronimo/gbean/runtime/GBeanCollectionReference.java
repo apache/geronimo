@@ -26,8 +26,8 @@ import org.apache.geronimo.gbean.InvalidConfigurationException;
  * @version $Rev: 71492 $ $Date: 2004-11-14 21:31:50 -0800 (Sun, 14 Nov 2004) $
  */
 public class GBeanCollectionReference extends AbstractGBeanReference {
-    public GBeanCollectionReference(GBeanInstance gbeanInstance, GReferenceInfo referenceInfo, Class constructorType) throws InvalidConfigurationException {
-        super(gbeanInstance, referenceInfo, constructorType);
+    public GBeanCollectionReference(GBeanInstance gbeanInstance, GReferenceInfo referenceInfo) throws InvalidConfigurationException {
+        super(gbeanInstance, referenceInfo);
     }
 
     public synchronized void start() throws Exception {
@@ -42,7 +42,7 @@ public class GBeanCollectionReference extends AbstractGBeanReference {
         }
 
         // add a dependency on our target and create the proxy
-        setProxy(new ProxyCollection(getName(), getType(), getKernel().getProxyManager(), getTargets()));
+        setProxy(new ProxyCollection(getName(), getReferenceType(), getKernel().getProxyManager(), getTargets()));
     }
 
     public synchronized void stop() {

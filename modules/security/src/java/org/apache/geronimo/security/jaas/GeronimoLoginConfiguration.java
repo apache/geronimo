@@ -17,17 +17,16 @@
 
 package org.apache.geronimo.security.jaas;
 
-import javax.security.auth.login.AppConfigurationEntry;
-import javax.security.auth.login.Configuration;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
+import javax.security.auth.login.AppConfigurationEntry;
+import javax.security.auth.login.Configuration;
 
-import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
-
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -146,7 +145,7 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
     private static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(GeronimoLoginConfiguration.class.getName());
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(GeronimoLoginConfiguration.class);
         infoFactory.addReference("Configurations", ConfigurationEntryFactory.class);
 
         GBEAN_INFO = infoFactory.getBeanInfo();

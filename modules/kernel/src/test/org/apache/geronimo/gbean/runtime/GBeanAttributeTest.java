@@ -19,7 +19,6 @@ package org.apache.geronimo.gbean.runtime;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.gbean.DynamicGAttributeInfo;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
@@ -114,27 +113,28 @@ public class GBeanAttributeTest extends TestCase {
         }
 
         {
-            final GAttributeInfo attributeInfo = new GAttributeInfo(attributeName, String.class.getName(), false, Boolean.TRUE, Boolean.FALSE, null, null);
+            final GAttributeInfo attributeInfo = new GAttributeInfo(attributeName, String.class.getName(), false, true, false, null, null);
             GBeanAttribute attribute = new GBeanAttribute(gbeanInstance, attributeInfo, false);
             assertTrue(attribute.isReadable());
             assertFalse(attribute.isWritable());
         }
 
         {
-            final GAttributeInfo attributeInfo = new GAttributeInfo(persistentPrimitiveAttributeName, int.class.getName(), false, Boolean.FALSE, Boolean.TRUE, null, null);
+            final GAttributeInfo attributeInfo = new GAttributeInfo(persistentPrimitiveAttributeName, int.class.getName(), false, false, true, null, null);
             GBeanAttribute attribute = new GBeanAttribute(gbeanInstance, attributeInfo, false);
             assertFalse(attribute.isReadable());
             assertTrue(attribute.isWritable());
         }
 
-        {
-            final GAttributeInfo attributeInfo = new GAttributeInfo("AnotherFinalInt", int.class.getName(), false, Boolean.TRUE, Boolean.TRUE, null, null);
-            try {
-                new GBeanAttribute(gbeanInstance, attributeInfo, false);
-                fail("Getter and setter methods do not have the same types; InvalidConfigurationException expected");
-            } catch (InvalidConfigurationException expected) {
-            }
-        }
+//        // todo recreate this in the info builder tests since the compariason now happens there
+//        {
+//            final GAttributeInfo attributeInfo = new GAttributeInfo("AnotherFinalInt", int.class.getName(), false, true, true, null, null);
+//            try {
+//                new GBeanAttribute(gbeanInstance, attributeInfo, false);
+//                fail("Getter and setter methods do not have the same types; InvalidConfigurationException expected");
+//            } catch (InvalidConfigurationException expected) {
+//            }
+//        }
 
         {
             // the attribute name and getter name are different, yet both
@@ -225,139 +225,8 @@ public class GBeanAttributeTest extends TestCase {
             } catch (InvalidConfigurationException expected) {
             }
         }
-
-        {
-            final DynamicGAttributeInfo dynamicAttributeInfo = new DynamicGAttributeInfo(attributeName);
-            GBeanAttribute attribute = new GBeanAttribute(gbeanInstance, dynamicAttributeInfo, false);
-            assertFalse(attribute.isPersistent());
-            assertEquals(dynamicAttributeInfo.isPersistent(), attribute.isPersistent());
-            assertTrue(attribute.isReadable());
-            assertEquals(dynamicAttributeInfo.isReadable().booleanValue(), attribute.isReadable());
-            assertTrue(attribute.isWritable());
-            assertEquals(dynamicAttributeInfo.isWritable().booleanValue(), attribute.isWritable());
-            assertEquals(dynamicAttributeInfo.getName(), attribute.getName());
-        }
-
-        {
-            final DynamicGAttributeInfo dynamicAttributeInfo = new DynamicGAttributeInfo(attributeName, true);
-            GBeanAttribute attribute = new GBeanAttribute(gbeanInstance, dynamicAttributeInfo, false);
-            assertTrue(attribute.isPersistent());
-            assertEquals(dynamicAttributeInfo.isPersistent(), attribute.isPersistent());
-            assertTrue(attribute.isReadable());
-            assertEquals(dynamicAttributeInfo.isReadable().booleanValue(), attribute.isReadable());
-            assertTrue(attribute.isWritable());
-            assertEquals(dynamicAttributeInfo.isWritable().booleanValue(), attribute.isWritable());
-            assertEquals(dynamicAttributeInfo.getName(), attribute.getName());
-        }
-
-        {
-            final DynamicGAttributeInfo dynamicAttributeInfo = new DynamicGAttributeInfo(attributeName, true, false,
-                    true);
-            GBeanAttribute attribute = new GBeanAttribute(gbeanInstance, dynamicAttributeInfo, false);
-            assertTrue(attribute.isPersistent());
-            assertEquals(dynamicAttributeInfo.isPersistent(), attribute.isPersistent());
-            assertFalse(attribute.isReadable());
-            assertEquals(dynamicAttributeInfo.isReadable().booleanValue(), attribute.isReadable());
-            assertTrue(attribute.isWritable());
-            assertEquals(dynamicAttributeInfo.isWritable().booleanValue(), attribute.isWritable());
-            assertEquals(dynamicAttributeInfo.getName(), attribute.getName());
-        }
-
-        {
-            final DynamicGAttributeInfo dynamicAttributeInfo = new DynamicGAttributeInfo(attributeName, true, false,
-                    false);
-            GBeanAttribute attribute = new GBeanAttribute(gbeanInstance, dynamicAttributeInfo, false);
-            assertTrue(attribute.isPersistent());
-            assertEquals(dynamicAttributeInfo.isPersistent(), attribute.isPersistent());
-            assertFalse(attribute.isReadable());
-            assertEquals(dynamicAttributeInfo.isReadable().booleanValue(), attribute.isReadable());
-            assertFalse(attribute.isWritable());
-            assertEquals(dynamicAttributeInfo.isWritable().booleanValue(), attribute.isWritable());
-            assertEquals(dynamicAttributeInfo.getName(), attribute.getName());
-        }
     }
 
-//    public final void testOnline() throws Exception {
-//
-//        // 1. setValue throws Exception
-//        {
-//            final Integer valueThatCausesException = new Integer(-1);
-//
-//            final GBeanAttribute attribute = new GBeanAttribute(gbeanInstance, throwingExceptionAttributeInfo);
-//            attribute.setValue(valueThatCausesException);
-//
-//            final Kernel kernel = new Kernel("test.kernel");
-//            try {
-//                kernel.boot();
-//                kernel.loadGBean(name, gbeanInstance);
-//                attribute.start();
-//                fail("Setter upon call with " + valueThatCausesException + " should have thrown exception");
-//            } catch (/* IllegalArgument */Exception expected) {
-//            } finally {
-//                // @todo possible BUG: gbeanInstance holds information on being online
-//                // although kernel is shutdown
-//                // explicit unloading GBean
-//                kernel.unloadGBean(name);
-//                kernel.shutdown();
-//            }
-//        }
-//
-//        // 2. setValue throws Error
-//        {
-//            final Integer valueThatCausesError = new Integer(-2);
-//
-//            final GBeanAttribute attribute = new GBeanAttribute(gbeanInstance, throwingExceptionAttributeInfo);
-//            attribute.setValue(valueThatCausesError);
-//
-//            final Kernel kernel = new Kernel("test.kernel");
-//            try {
-//                kernel.boot();
-//                kernel.loadGBean(name, gbeanInstance);
-//                attribute.start();
-//                fail("Setter upon call with " + valueThatCausesError + " should have thrown error");
-//            } catch (Error expected) {
-//            } finally {
-//                // @todo possible BUG: see the above finally block
-//                kernel.unloadGBean(name);
-//                kernel.shutdown();
-//            }
-//        }
-//
-//        // 3. setValue throws Throwable
-//        {
-//            final Integer valueThatCausesThrowable = new Integer(-3);
-//
-//            final GBeanAttribute attribute = new GBeanAttribute(gbeanInstance, throwingExceptionAttributeInfo);
-//            attribute.setValue(valueThatCausesThrowable);
-//
-//            final Kernel kernel = new Kernel("test.kernel");
-//            try {
-//                kernel.boot();
-//                kernel.loadGBean(name, gbeanInstance);
-//                attribute.start();
-//                fail("Setter upon call with " + valueThatCausesThrowable + " should have thrown throwable");
-//            } catch (Throwable expected) {
-//            } finally {
-//                kernel.shutdown();
-//            }
-//        }
-//
-//        {
-//            try {
-//                GBeanMBean gmbean2 = new GBeanMBean(MockGBean.getGBeanInfo());
-//                GBeanAttribute attribute2 = new GBeanAttribute(gmbean2, throwingExceptionAttributeInfo);
-//                attribute2.start();
-//                fail("AssertionError or NullPointerException expected");
-//            } catch (Exception expected) {
-//            } catch (AssertionError expected) {
-//            }
-//        }
-//    }
-//
-//    public final void testOffline() {
-//        //TODO Implement offline().
-//    }
-//
     public final void testGetValue() throws Exception {
         {
             // attribute that isn't readable and persistent
@@ -381,25 +250,6 @@ public class GBeanAttributeTest extends TestCase {
             } finally {
                 gbeanInstance.stop();
             }
-        }
-
-        {
-            final DynamicGAttributeInfo dynamicAttributeInfo = new DynamicGAttributeInfo(MockDynamicGBean.MUTABLE_INT_ATTRIBUTE_NAME, true, true, true);
-            GBeanAttribute attribute = new GBeanAttribute(dynamicGBeanInstance, dynamicAttributeInfo, false);
-
-            try {
-                dynamicGBeanInstance.start();
-
-                final Integer zero = new Integer(0);
-                assertEquals(zero, attribute.getValue());
-
-                final Integer one = new Integer(1);
-                attribute.setValue(one);
-                assertEquals(one, attribute.getValue());
-            } finally {
-                dynamicGBeanInstance.stop();
-            }
-
         }
     }
 
@@ -519,9 +369,8 @@ public class GBeanAttributeTest extends TestCase {
                 throw new UnsupportedOperationException("Throws exception to rise test coverage");
             }
         };
-        attributeInfo = new GAttributeInfo(attributeName, String.class.getName(), false);
-//        throwingExceptionAttributeInfo = new GAttributeInfo("ExceptionMutableInt", int.class.getName(), true);
-        persistentPrimitiveAttributeInfo = new GAttributeInfo(persistentPrimitiveAttributeName, int.class.getName(), true);
+        attributeInfo = new GAttributeInfo(attributeName, String.class.getName(), false, "getName", "setName");
+        persistentPrimitiveAttributeInfo = new GAttributeInfo(persistentPrimitiveAttributeName, int.class.getName(), true, "getMutableInt", "setMutableInt");
     }
 
     protected void tearDown() throws Exception {

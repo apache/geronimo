@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Arrays;
+
+import org.apache.geronimo.kernel.management.NotificationType;
 
 /**
  * Describes a GBean.
@@ -35,6 +38,8 @@ import java.util.HashMap;
  * @version $Rev$ $Date$
  */
 public final class GBeanInfo implements Serializable {
+    private static final Set DEFAULT_NOTIFICATIONS = Collections.unmodifiableSet(new HashSet(Arrays.asList(NotificationType.TYPES)));
+
     /**
      * Static helper to try to get the GBeanInfo from the class supplied.
      *
@@ -72,10 +77,24 @@ public final class GBeanInfo implements Serializable {
     private final Set notifications;
     private final Set references;
 
+    public GBeanInfo(String className, Collection attributes, GConstructorInfo constructor, Collection operations, Set references) {
+        this(className, className, attributes, constructor, operations, references, DEFAULT_NOTIFICATIONS);
+    }
+
+    public GBeanInfo(String name, String className, Collection attributes, GConstructorInfo constructor, Collection operations, Set references) {
+        this(name, className, attributes, constructor, operations, references, DEFAULT_NOTIFICATIONS);
+    }
+
+    /**
+     * @deprecated
+     */
     public GBeanInfo(String className, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set notifications) {
         this(className, className, attributes, constructor, operations, references, notifications);
     }
 
+    /**
+     * @deprecated
+     */
     public GBeanInfo(String name, String className, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set notifications) {
         this.name = name;
         this.className = className;

@@ -17,9 +17,10 @@
 package org.apache.geronimo.gbean;
 
 import java.beans.Introspector;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -35,76 +36,348 @@ public class GBeanInfoBuilder {
 
     private final String name;
 
-    private final String className;
+    private final Class gbeanType;
 
     private final Map attributes = new HashMap();
 
-    private GConstructorInfo constructor;
+    private GConstructorInfo constructor = new GConstructorInfo();
 
     private final Map operations = new HashMap();
 
-    private final Set references = new HashSet();
+    private final Map references = new HashMap();
 
-    private final Set notifications = new HashSet();
-
-    public GBeanInfoBuilder(String name) {
-        this(name, name, null);
+    public GBeanInfoBuilder(Class gbeanType) {
+        this(checkNotNull(gbeanType).getName(), gbeanType, null);
     }
 
-    public GBeanInfoBuilder(Class clazz) {
-        this(checkNotNull(clazz).getName(), clazz.getName(), null);
+    public GBeanInfoBuilder(String name, Class gbeanType) {
+        this(name, checkNotNull(gbeanType), null);
     }
 
-    public GBeanInfoBuilder(String name, String className) {
-        this(name, className, null);
+    public GBeanInfoBuilder(Class gbeanType, GBeanInfo source) {
+        this(checkNotNull(gbeanType).getName(), gbeanType, source);
     }
 
-    public GBeanInfoBuilder(String name, Class clazz) {
-        this(name, checkNotNull(clazz).getName(), null);
+    public GBeanInfoBuilder(String name, ClassLoader classLoader) {
+        this(checkNotNull(name), loadClass(classLoader, name), GBeanInfo.getGBeanInfo(name, classLoader));
     }
 
-    public GBeanInfoBuilder(Class clazz, GBeanInfo source) {
-        this(checkNotNull(clazz).getName(), clazz.getName(), source);
-    }
-
-    public GBeanInfoBuilder(String name, GBeanInfo source) {
-        this(checkNotNull(name), name, source);
-    }
-
-    public GBeanInfoBuilder(String name, ClassLoader cl) {
-        this(checkNotNull(name), name, GBeanInfo.getGBeanInfo(name, cl));
-    }
-
-    public GBeanInfoBuilder(String name, Class clazz, GBeanInfo source) {
-        this(name, checkNotNull(clazz).getName(), source);
-    }
-
-    public GBeanInfoBuilder(String name, String className, GBeanInfo source) {
+    public GBeanInfoBuilder(String name, Class gbeanType, GBeanInfo source) {
         checkNotNull(name);
-        checkNotNull(className);
+        checkNotNull(gbeanType);
         this.name = name;
-        this.className = className;
+        this.gbeanType = gbeanType;
         if (source != null) {
-            Set sourceAttributes = source.getAttributes();
-            if (sourceAttributes != null && !sourceAttributes.isEmpty()) {
-                for (Iterator it = sourceAttributes.iterator(); it.hasNext();) {
-                    GAttributeInfo attributeInfo = (GAttributeInfo) it.next();
-                    attributes.put(attributeInfo.getName(), attributeInfo);
-                }
+            for (Iterator i = source.getAttributes().iterator(); i.hasNext();) {
+                GAttributeInfo attributeInfo = (GAttributeInfo) i.next();
+                attributes.put(attributeInfo.getName(), attributeInfo);
             }
-            Set sourceOperations = source.getOperations();
-            if (sourceOperations != null && !sourceOperations.isEmpty()) {
-                for (Iterator it = sourceOperations.iterator(); it.hasNext();) {
-                    GOperationInfo operationInfo = (GOperationInfo) it.next();
-                    operations.put(new GOperationSignature(operationInfo.getName(),
-                            operationInfo.getParameterList()), operationInfo);
-                }
+
+            for (Iterator i = source.getOperations().iterator(); i.hasNext();) {
+                GOperationInfo operationInfo = (GOperationInfo) i.next();
+                operations.put(new GOperationSignature(operationInfo.getName(),
+                        operationInfo.getParameterList()), operationInfo);
             }
-            references.addAll(source.getReferences());
-            notifications.addAll(source.getNotifications());
+
+            for (Iterator iterator = source.getReferences().iterator(); iterator.hasNext();) {
+                GReferenceInfo referenceInfo = (GReferenceInfo) iterator.next();
+                references.put(referenceInfo.getName(), referenceInfo.getReferenceType());
+            }
+
             //in case subclass constructor has same parameters as superclass.
             constructor = source.getConstructor();
         }
+    }
+
+    public void addInterface(Class intf) {
+        addInterface(intf, new String[0]);
+    }
+
+    //do not use beaninfo Introspector to list the properties.  This method is primarily for interfaces,
+    //and it does not process superinterfaces.  It seems to really only work well for classes.
+    public void addInterface(Class intf, String[] persistentAttributes) {
+        Set persistentNames = new HashSet(Arrays.asList(persistentAttributes));
+        Method[] methods = intf.getMethods();
+        for (int i = 0; i < methods.length; i++) {
+            Method method = methods[i];
+            if (isGetter(method)) {
+                String attributeName = getAttributeName(method);
+                GAttributeInfo attribute = (GAttributeInfo) attributes.get(attributeName);
+                String attributeType = method.getReturnType().getName();
+                if (attribute == null) {
+                    attributes.put(attributeName,
+                            new GAttributeInfo(attributeName,
+                                    attributeType,
+                                    persistentNames.contains(attributeName),
+                                    method.getName(),
+                                    null));
+                } else {
+                    if (!attributeType.equals(attribute.getType())) {
+                        throw new IllegalArgumentException("Getter and setter type do not match: " + attributeName);
+                    }
+                    attributes.put(attributeName,
+                            new GAttributeInfo(attributeName,
+                                    attributeType,
+                                    attribute.isPersistent(),
+                                    method.getName(),
+                                    attribute.getSetterName()));
+                }
+            } else if (isSetter(method)) {
+                String attributeName = getAttributeName(method);
+                String attributeType = method.getParameterTypes()[0].getName();
+                GAttributeInfo attribute = (GAttributeInfo) attributes.get(attributeName);
+                if (attribute == null) {
+                    attributes.put(attributeName,
+                            new GAttributeInfo(attributeName,
+                                    attributeType,
+                                    persistentNames.contains(attributeName),
+                                    null,
+                                    method.getName()));
+                } else {
+                    if (!attributeType.equals(attribute.getType())) {
+                        throw new IllegalArgumentException("Getter and setter type do not match: " + attributeName);
+                    }
+                    attributes.put(attributeName,
+                            new GAttributeInfo(attributeName,
+                                    attributeType,
+                                    attribute.isPersistent(),
+                                    attribute.getGetterName(),
+                                    method.getName()));
+                }
+            } else {
+                addOperation(new GOperationInfo(method.getName(), method.getParameterTypes()));
+            }
+        }
+    }
+
+    public void addAttribute(String name, Class type, boolean persistent) {
+        addAttribute(name, type.getName(), persistent);
+    }
+
+    public void addAttribute(String name, String type, boolean persistent) {
+        String getter = searchForGetter(name, type, gbeanType);
+        String setter = searchForSetter(name, type, gbeanType);
+        addAttribute(new GAttributeInfo(name, type, persistent, getter, setter));
+    }
+
+    public void addAttribute(GAttributeInfo info) {
+        attributes.put(info.getName(), info);
+    }
+
+    public void setConstructor(GConstructorInfo constructor) {
+        assert constructor != null;
+        this.constructor = constructor;
+    }
+
+    public void setConstructor(String[] names) {
+        constructor = new GConstructorInfo(names);
+    }
+
+    public void addOperation(GOperationInfo operationInfo) {
+        operations.put(new GOperationSignature(operationInfo.getName(), operationInfo.getParameterList()), operationInfo);
+    }
+
+    public void addOperation(String name) {
+        addOperation(new GOperationInfo(name, NO_ARGS));
+    }
+
+    public void addOperation(String name, Class[] paramTypes) {
+        addOperation(new GOperationInfo(name, paramTypes));
+    }
+
+    public void addReference(GReferenceInfo info) {
+        references.put(info.getName(), info.getReferenceType());
+    }
+
+    public void addReference(String name, Class type) {
+        references.put(name, type.getName());
+    }
+
+    public GBeanInfo getBeanInfo() {
+        // get the types of the constructor args
+        // this also verifies that we have a valid constructor
+        Map constructorTypes = getConstructorTypes();
+
+        // build the reference infos now that we know the constructor types
+        Set referenceInfos = new HashSet();
+        for (Iterator iterator = references.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            String referenceName = (String) entry.getKey();
+            String referenceType = (String) entry.getValue();
+
+            String proxyType = (String) constructorTypes.get(referenceName);
+            String setterName = null;
+            if (proxyType == null) {
+                Method setter = searchForSetterMethod(referenceName, referenceType, gbeanType);
+                if (setter == null) {
+                    setter = searchForSetterMethod(referenceName, Collection.class.getName(), gbeanType);
+                    if (setter == null) {
+                        throw new InvalidConfigurationException("Reference must be a constructor argument or have a setter: name=" + referenceName);
+                    }
+                }
+                proxyType = setter.getParameterTypes()[0].getName();
+
+                setterName = setter.getName();
+            }
+
+            if (!proxyType.equals(Collection.class.getName()) && !proxyType.equals(referenceType)) {
+                throw new InvalidConfigurationException("Reference proxy type must be Collection or " + referenceType + ": name=" + referenceName);
+            }
+
+            referenceInfos.add(new GReferenceInfo(referenceName, referenceType, proxyType, setterName));
+        }
+
+
+        return new GBeanInfo(name, gbeanType.getName(), attributes.values(), constructor, operations.values(), referenceInfos);
+    }
+
+    private Map getConstructorTypes() throws InvalidConfigurationException {
+        List arguments = constructor.getAttributeNames();
+        String[] argumentTypes = new String[arguments.size()];
+        boolean[] isReference = new boolean[arguments.size()];
+        for (int i = 0; i < argumentTypes.length; i++) {
+            String argumentName = (String) arguments.get(i);
+            if (attributes.containsKey(argumentName)) {
+                GAttributeInfo attribute = (GAttributeInfo) attributes.get(argumentName);
+                argumentTypes[i] = attribute.getType();
+                isReference[i] = false;
+            } else if (references.containsKey(argumentName)) {
+                argumentTypes[i] = (String) references.get(argumentName);
+                isReference[i] = true;
+            }
+        }
+
+        Constructor[] constructors = gbeanType.getConstructors();
+        Set validConstructors = new HashSet();
+        for (int i = 0; i < constructors.length; i++) {
+            Constructor constructor = constructors[i];
+            if (isValidConstructor(constructor, argumentTypes, isReference)) {
+                validConstructors.add(constructor);
+            }
+        }
+
+        if (validConstructors.isEmpty()) {
+            throw new InvalidConfigurationException("Could not find a valid constructor for GBean: " + name);
+        }
+        if (validConstructors.size() > 1) {
+            throw new InvalidConfigurationException("More then one valid constructors found for GBean: " + name);
+        }
+
+        Map constructorTypes = new HashMap();
+        Constructor constructor = (Constructor) validConstructors.iterator().next();
+        Class[] parameterTypes = constructor.getParameterTypes();
+        Iterator argumentIterator = arguments.iterator();
+        for (int i = 0; i < parameterTypes.length; i++) {
+            String parameterType = parameterTypes[i].getName();
+            String argumentName = (String) argumentIterator.next();
+            constructorTypes.put(argumentName, parameterType);
+        }
+        return constructorTypes;
+    }
+
+    private static String searchForGetter(String name, String type, Class gbeanType) throws InvalidConfigurationException {
+        Method getterMethod = null;
+
+        // no explicit name give so we must search for a name
+        String getterName = "get" + name;
+        String isName = "is" + name;
+        Method[] methods = gbeanType.getMethods();
+        for (int i = 0; i < methods.length; i++) {
+            if (methods[i].getParameterTypes().length == 0 && methods[i].getReturnType() != Void.TYPE
+                    && (getterName.equalsIgnoreCase(methods[i].getName()) || isName.equalsIgnoreCase(methods[i].getName()))) {
+
+                // found it
+                getterMethod = methods[i];
+                break;
+            }
+        }
+
+        // if the return type of the getter doesn't match, throw an exception
+        if (getterMethod != null && !type.equals(getterMethod.getReturnType().getName())) {
+            throw new InvalidConfigurationException("Incorrect return type for getter method:" +
+                    " name=" + name +
+                    ", targetClass=" + gbeanType.getName() +
+                    ", getter type=" + getterMethod.getReturnType() +
+                    ", expected type=" + type);
+        }
+
+        if (getterMethod == null) {
+            return null;
+        }
+        return getterMethod.getName();
+    }
+
+    private static String searchForSetter(String name, String type, Class gbeanType) throws InvalidConfigurationException {
+        Method method = searchForSetterMethod(name, type, gbeanType);
+        if (method == null) {
+            return null;
+        }
+        return method.getName();
+    }
+
+    private static Method searchForSetterMethod(String name, String type, Class gbeanType) throws InvalidConfigurationException {
+        // no explicit name give so we must search for a name
+        String setterName = "set" + name;
+        Method[] methods = gbeanType.getMethods();
+        for (int i = 0; i < methods.length; i++) {
+            Method method = methods[i];
+            if (method.getParameterTypes().length == 1 &&
+                    method.getParameterTypes()[0].getName().equals(type) &&
+                    method.getReturnType() == Void.TYPE &&
+                    setterName.equalsIgnoreCase(method.getName())) {
+
+                return method;
+            }
+        }
+
+        // a setter is not necessary for this attribute
+        return null;
+    }
+
+    private static boolean isValidConstructor(Constructor constructor, String[] argumentTypes, boolean[] isReference) {
+        Class[] parameterTypes = constructor.getParameterTypes();
+
+        // same number of parameters?
+        if (parameterTypes.length != argumentTypes.length) {
+            return false;
+        }
+
+        // is each parameter the correct type?
+        for (int i = 0; i < parameterTypes.length; i++) {
+            String parameterType = parameterTypes[i].getName();
+            if (isReference[i]) {
+                // reference: does type match
+                // OR is it a java.util.Collection
+                // OR is it a java.util.Set?
+                if (!parameterType.equals(argumentTypes[i]) &&
+                        !parameterType.equals(Collection.class.getName()) &&
+                        !parameterType.equals(Set.class.getName())) {
+                    return false;
+                }
+            } else {
+                // attribute: does type match?
+                if (!parameterType.equals(argumentTypes[i])) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private String getAttributeName(Method method) {
+        String name = method.getName();
+        String attributeName = (name.startsWith("get") || name.startsWith("set")) ? name.substring(3) : name.substring(2);
+        attributeName = Introspector.decapitalize(attributeName);
+        return attributeName;
+    }
+
+    private boolean isSetter(Method method) {
+        return method.getName().startsWith("set") && method.getParameterTypes().length == 1;
+    }
+
+    private static boolean isGetter(Method method) {
+        String name = method.getName();
+        return (name.startsWith("get") || name.startsWith("is")) && method.getParameterTypes().length == 0;
     }
 
     /**
@@ -135,101 +408,11 @@ public class GBeanInfoBuilder {
         return string;
     }
 
-    public void addInterface(Class intf) {
-        addInterface(intf, new String[0]);
-    }
-
-    //do not use beaninfo Introspector to list the properties.  This method is primarily for interfaces,
-    //and it does not process superinterfaces.  It seems to really only work well for classes.
-    public void addInterface(Class intf, String[] persistentAttributes) {
-        Set persistentName = new HashSet(Arrays.asList(persistentAttributes));
-        Method[] methods = intf.getMethods();
-        for (int i = 0; i < methods.length; i++) {
-            Method method = methods[i];
-            String name = method.getName();
-            Class[] parameterTypes = method.getParameterTypes();
-            if ((name.startsWith("get") || name.startsWith("is")) && parameterTypes.length == 0) {
-                String attributeName = (name.startsWith("get")) ? name.substring(3) : name.substring(2);
-                attributeName = Introspector.decapitalize(attributeName);
-                GAttributeInfo attribute = (GAttributeInfo) attributes.get(attributeName);
-                String type = method.getReturnType().getName();
-                if (attribute == null) {
-                    attributes.put(attributeName, new GAttributeInfo(attributeName, type, persistentName.contains(attributeName), name, null));
-                } else {
-                    if (!type.equals(attribute.getType())) {
-                        throw new IllegalArgumentException("Getter and setter type do not match: " + attributeName);
-                    }
-                    attributes.put(attributeName, new GAttributeInfo(attributeName, type, attribute.isPersistent(), name, attribute.getSetterName()));
-                }
-            } else if (name.startsWith("set") && parameterTypes.length == 1) {
-                String attributeName = name.substring(3);
-                attributeName = Introspector.decapitalize(attributeName);
-                GAttributeInfo attribute = (GAttributeInfo) attributes.get(attributeName);
-                String type = method.getParameterTypes()[0].getName();
-                if (attribute == null) {
-                    attributes.put(attributeName, new GAttributeInfo(attributeName, type, persistentName.contains(attributeName), null, name));
-                } else {
-                    if (!type.equals(attribute.getType())) {
-                        throw new IllegalArgumentException("Getter and setter type do not match: " + attributeName);
-                    }
-                    attributes.put(attributeName, new GAttributeInfo(attributeName, type, attribute.isPersistent(), attribute.getGetterName(), name));
-                }
-            } else {
-                List parameters = new ArrayList(parameterTypes.length);
-                for (int j = 0; j < parameterTypes.length; j++) {
-                    parameters.add(parameterTypes[j].getName());
-                }
-                addOperation(new GOperationInfo(name, name, parameters));
-            }
+    private static Class loadClass(ClassLoader classLoader, String name) {
+        try {
+            return classLoader.loadClass(name);
+        } catch (ClassNotFoundException e) {
+            throw new InvalidConfigurationException("Could not load class " + name, e);
         }
-    }
-
-
-    public void addAttribute(String name, Class type, boolean persistent) {
-        addAttribute(new GAttributeInfo(name, type.getName(), persistent));
-    }
-
-    public void addAttribute(String name, String type, boolean persistent) {
-        addAttribute(new GAttributeInfo(name, type, persistent));
-    }
-
-    public void addAttribute(GAttributeInfo info) {
-        attributes.put(info.getName(), info);
-    }
-
-    public void setConstructor(GConstructorInfo constructor) {
-        this.constructor = constructor;
-    }
-
-    public void setConstructor(String[] names) {
-        constructor = new GConstructorInfo(names);
-    }
-
-    public void addOperation(GOperationInfo operationInfo) {
-        operations.put(new GOperationSignature(operationInfo.getName(), operationInfo.getParameterList()), operationInfo);
-    }
-
-    public void addOperation(String name) {
-        addOperation(new GOperationInfo(name, NO_ARGS));
-    }
-
-    public void addOperation(String name, Class[] paramTypes) {
-        addOperation(new GOperationInfo(name, paramTypes));
-    }
-
-    public void addReference(GReferenceInfo info) {
-        references.add(info);
-    }
-
-    public void addReference(String name, Class type) {
-        addReference(new GReferenceInfo(name, type));
-    }
-
-    public void addNotification(GNotificationInfo info) {
-        notifications.add(info);
-    }
-
-    public GBeanInfo getBeanInfo() {
-        return new GBeanInfo(name, className, attributes.values(), constructor, operations.values(), references, notifications);
     }
 }

@@ -31,6 +31,7 @@ import javax.management.NotificationFilterSupport;
 import javax.management.NotificationListener;
 import javax.management.ObjectName;
 import javax.management.NotificationBroadcaster;
+import javax.management.NotificationFilter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -76,7 +77,7 @@ public class LifecycleMonitor implements NotificationListener {
             ObjectName source = (ObjectName) iterator.next();
             try {
                 if (server.isInstanceOf(source, NotificationBroadcaster.class.getName())) {
-                    server.addNotificationListener(source, this, NotificationType.STATE_CHANGE_FILTER, null);
+                    server.addNotificationListener(source, this, STATE_CHANGE_FILTER, null);
                 }
             } catch (InstanceNotFoundException e) {
                 // the instance died before we could get going... not a big deal
@@ -98,7 +99,7 @@ public class LifecycleMonitor implements NotificationListener {
         for (Iterator iterator = boundListeners.keySet().iterator(); iterator.hasNext();) {
             ObjectName target = (ObjectName) iterator.next();
             try {
-                server.removeNotificationListener(target, this, NotificationType.STATE_CHANGE_FILTER, null);
+                server.removeNotificationListener(target, this, STATE_CHANGE_FILTER, null);
             } catch (Exception ignore) {
                 // don't care... we tried
             }
@@ -264,7 +265,7 @@ public class LifecycleMonitor implements NotificationListener {
             if (!boundListeners.containsKey(source)) {
                 // register for state change notifications
                 try {
-                    server.addNotificationListener(source, this, NotificationType.STATE_CHANGE_FILTER, null);
+                    server.addNotificationListener(source, this, STATE_CHANGE_FILTER, null);
                 } catch (InstanceNotFoundException e) {
                     // the instance died before we could get going... not a big deal
                     return;
@@ -290,6 +291,27 @@ public class LifecycleMonitor implements NotificationListener {
             } else if (NotificationType.STATE_FAILED.equals(type)) {
                 fireFailedEvent(source);
             }
+        }
+    }
+
+    /**
+     * A notification filter which only lets all J2EE state change notifications pass.
+     * Specifically this is STATE_STARTING, STATE_RUNNING, STATE_STOPPING, STATE_STOPPED
+     * and STATE_FAILED.
+     */
+    private static final NotificationFilter STATE_CHANGE_FILTER = new J2EEStateChangeFilter();
+
+    private static final class J2EEStateChangeFilter implements NotificationFilter {
+        private J2EEStateChangeFilter() {
+        }
+
+        public boolean isNotificationEnabled(Notification notification) {
+            String type = notification.getType();
+            return NotificationType.STATE_STARTING.equals(type) ||
+                    NotificationType.STATE_RUNNING.equals(type) ||
+                    NotificationType.STATE_STOPPING.equals(type) ||
+                    NotificationType.STATE_STOPPED.equals(type) ||
+                    NotificationType.STATE_FAILED.equals(type);
         }
     }
 }

@@ -17,8 +17,6 @@
 
 package org.apache.geronimo.kernel.management;
 
-import javax.management.Notification;
-import javax.management.NotificationFilter;
 
 /**
  * Static constants class which contains all of the J2EE notification types from the
@@ -78,45 +76,4 @@ public final class NotificationType {
         STATE_STARTING, STATE_RUNNING, STATE_STOPPING, STATE_STOPPED, STATE_FAILED,
         ATTRIBUTE_CHANGED
     };
-
-    /**
-     * A notification filter which lets all J2EE notifications pass
-     */
-    public static final NotificationFilter NOTIFICATION_FILTER = new J2EENotificationFilter();
-
-    private static final class J2EENotificationFilter implements NotificationFilter {
-        private J2EENotificationFilter() {
-        }
-
-        public boolean isNotificationEnabled(Notification notification) {
-            String type = notification.getType();
-            for (int i = 0; i < TYPES.length; i++) {
-                if (TYPES[i].equals(type)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
-
-    /**
-     * A notification filter which only lets all J2EE state change notifications pass.
-     * Specifically this is STATE_STARTING, STATE_RUNNING, STATE_STOPPING, STATE_STOPPED
-     * and STATE_FAILED.
-     */
-    public static final NotificationFilter STATE_CHANGE_FILTER = new J2EEStateChangeFilter();
-
-    private static final class J2EEStateChangeFilter implements NotificationFilter {
-        private J2EEStateChangeFilter() {
-        }
-
-        public boolean isNotificationEnabled(Notification notification) {
-            String type = notification.getType();
-            return STATE_STARTING.equals(type) ||
-                    STATE_RUNNING.equals(type) ||
-                    STATE_STOPPING.equals(type) ||
-                    STATE_STOPPED.equals(type) ||
-                    STATE_FAILED.equals(type);
-        }
-    }
 }

@@ -43,12 +43,12 @@ public class GAttributeInfo implements Serializable {
     /**
      * Is this attribute readable?
      */
-    private final Boolean readable;
+    private final boolean readable;
 
     /**
      * Is this attribute writiable?
      */
-    private final Boolean writable;
+    private final boolean writable;
 
     /**
      * Name of the getter method.
@@ -62,15 +62,11 @@ public class GAttributeInfo implements Serializable {
      */
     private final String setterName;
 
-    public GAttributeInfo(String name, String type, boolean persistent) {
-        this(name, type, persistent, null, null, null, null);
-    }
-
     public GAttributeInfo(String name, String type, boolean persistent, String getterName, String setterName) {
-        this(name, type, persistent, Boolean.valueOf(getterName != null), Boolean.valueOf(setterName != null), getterName, setterName);
+        this(name, type, persistent, getterName != null, setterName != null, getterName, setterName);
     }
 
-    public GAttributeInfo(String name, String type, boolean persistent, Boolean readable, Boolean writable, String getterName, String setterName) {
+    public GAttributeInfo(String name, String type, boolean persistent, boolean readable, boolean writable, String getterName, String setterName) {
         this.name = name;
         this.type = type;
         this.persistent = persistent;
@@ -92,11 +88,11 @@ public class GAttributeInfo implements Serializable {
         return persistent;
     }
 
-    public Boolean isReadable() {
+    public boolean isReadable() {
         return readable;
     }
 
-    public Boolean isWritable() {
+    public boolean isWritable() {
         return writable;
     }
 

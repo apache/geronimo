@@ -163,11 +163,6 @@ public abstract class AbstractPrincipalMappingUserPasswordRealmBridge extends Ab
         infoFactory.addAttribute("userNameTargetCallbackName", String.class, true);
         infoFactory.addAttribute("passwordSourceType", Class.class, true);
 
-        infoFactory.setConstructor(new String[]{
-            "userNameSourceType",
-            "userNameTargetCallbackName",
-            "passwordSourceType"});
-
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

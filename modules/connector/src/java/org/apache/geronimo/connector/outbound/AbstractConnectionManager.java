@@ -32,9 +32,12 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSup
  * @version $Rev$ $Date$
  */
 public abstract class AbstractConnectionManager implements ConnectionManagerFactory, ConnectionManager, LazyAssociatableConnectionManager, PoolingAttributes {
-
     protected final Interceptors interceptors;
 
+    //default constructor for use as endpoint
+    public AbstractConnectionManager() {
+        interceptors = null;
+    }
 
     public AbstractConnectionManager(Interceptors interceptors) {
         this.interceptors = interceptors;
