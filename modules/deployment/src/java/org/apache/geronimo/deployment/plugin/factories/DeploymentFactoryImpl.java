@@ -29,6 +29,7 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
+import org.apache.geronimo.deployment.plugin.DisconnectedDeploymentManager;
 
 /**
  * Implementation of JSR88 DeploymentFactory.
@@ -59,7 +60,7 @@ public class DeploymentFactoryImpl implements DeploymentFactory {
             return null;
         }
 
-        throw new DeploymentManagerCreationException("Not supported");
+        return new DisconnectedDeploymentManager();
     }
 
     public DeploymentManager getDeploymentManager(String uri, String username, String password) throws DeploymentManagerCreationException {
