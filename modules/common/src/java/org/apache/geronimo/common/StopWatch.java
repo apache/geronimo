@@ -61,7 +61,7 @@ import java.io.Serializable;
 /**
  * Simulates a stop watch with a <em>lap</em> counter.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/24 21:05:24 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/30 09:29:37 $
  */
 public class StopWatch
     extends CloneableObject
@@ -218,6 +218,14 @@ public class StopWatch
     }
     
     /**
+     * Convert to a duration value.
+     */
+    public Duration toDuration()
+    {
+        return new Duration(getTime());
+    }
+    
+    /**
      * Return a string representation.
      */
     public String toString()
@@ -308,6 +316,11 @@ public class StopWatch
             return watch.isRunning();
         }
         
+        public Duration toDuration()
+        {
+            return watch.toDuration();
+        }
+        
         public String toString() {
             return watch.toString();
         }
@@ -357,7 +370,12 @@ public class StopWatch
             public synchronized boolean isRunning() {
                 return this.watch.isRunning();
             }
-
+            
+            public synchronized Duration toDuration()
+            {
+                return this.watch.toDuration();
+            }
+            
             public synchronized String toString() {
                 return this.watch.toString();
             }
