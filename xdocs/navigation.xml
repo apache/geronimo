@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.7 $ $Date: 2003/08/16 10:53:45 $ -->
+<!-- $Revision: 1.8 $ $Date: 2003/08/16 12:29:31 $ -->
 
 <project name="Apache Geronimo">
 
@@ -33,14 +33,14 @@
     </menu>
     
     <menu name="Specifications">
-      <item name="JSR-77" href="/specs/jsr77/index.html"/>
-      <item name="JSR-88" href="/specs/jsr88/index.html"/>
-      <item name="JavaMail" href="/specs/javamail/index.html"/>
       <item name="Java Activation Framework" href="/specs/activation/index.html"/>
+      <item name="JavaMail" href="/specs/javamail/index.html"/>
       <item name="Java Connector" href="/specs/j2ee-connector/index.html"/>
-      <item name="Java Message Service" href="/specs/jms/index.html"/>
-      <item name="Enterprise Java Beans" href="/specs/ejb/index.html"/>
       <item name="Java Transaction API" href="/specs/jta/index.html"/>
+      <item name="Enterprise Java Beans" href="/specs/ejb/index.html"/>
+      <item name="Java Message Service" href="/specs/jms/index.html"/>
+      <item name="J2EE Application Management" href="/specs/j2ee-management/index.html"/>
+      <item name="J2EE Application Deployment" href="/specs/j2ee-deployment/index.html"/>
     </menu>
     
     <menu name="Apache Community">
