@@ -14,6 +14,7 @@
     </goal>
 
     <preGoal name="test:test">
+      <j:if test="${context.getVariable('maven.test.skip') != 'true'}">
         <deploy:copy-deps todir="${basedir}/target/lib"/>
         <ant:java classname="org.apache.geronimo.ews.ws4j2ee.utils.PropertyStore" fork="no">
             <ant:arg value="${maven.repo.local}"/>
@@ -41,5 +42,6 @@
                 inheritrefs="true"
                 dir="target/generated/samples"/>
         </j:jelly>
+      </j:if>
     </preGoal>
 </project>
