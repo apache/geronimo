@@ -66,7 +66,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
  * VM. Thus development on Clustering can start before an inter-vm
  * transport layer has been put in place...
  *
- * @version $Revision: 1.7 $ $Date: 2003/12/31 14:51:44 $
+ * @version $Revision: 1.8 $ $Date: 2004/01/02 14:19:04 $
  */
 public class
   LocalCluster
@@ -174,6 +174,7 @@ public class
     GeronimoMBeanInfo mbeanInfo=AbstractCluster.getGeronimoMBeanInfo();
     mbeanInfo.setTargetClass(LocalCluster.class);
     mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Members", true, false, "List of cluster members"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Data",    true, false, "cluster state"));
     return mbeanInfo;
   }
 }

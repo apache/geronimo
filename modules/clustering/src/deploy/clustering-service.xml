@@ -46,4 +46,17 @@
     >
   </mbean>
 
+  <!-- ============================================================ -->
+  <!-- Start a test distributable HttpSessionManager...             -->
+  <!-- ============================================================ -->
+
+  <mbean
+    descriptor="org.apache.geronimo.clustering.web.HttpSessionManager"
+    name="geronimo.clustering:role=HttpSessionManager,context=/dummy,cluster=GERONIMO,node=0"
+    >
+        <attribute name="ClusterName">GERONIMO</attribute>
+        <attribute name="NodeName">0</attribute>
+        <attribute name="ContextPath">/dummy</attribute>
+  </mbean>
+
 </components>

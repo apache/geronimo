@@ -55,8 +55,8 @@
  */
 package org.apache.geronimo.clustering;
 
-import javax.management.ObjectName;
 
+import javax.management.ObjectName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
@@ -69,7 +69,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
  * into the same abstract base.
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/12/31 14:51:44 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/02 14:19:04 $
  */
 public abstract class
   AbstractCluster

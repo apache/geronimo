@@ -62,17 +62,29 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * An object capable of holding the state of multiple applications and
- * tiers.
+ * tiers. This will be a Map of tiers (web, ejb, ...). Each tier may
+ * choose how to organise it's own Map. e.g. Web tier will use a Map
+ * of webapps. Each webapp being represented by a Map of
+ * HttpSessionID:HttpSession. Assuming that all IDs where GUIDs, it
+ * would be posible to collapse all webapps together (and maybe all
+ * tiers), thus avoiding dehashing overhead with each lookup coming
+ * over the Cluster. I've considered this and decided that the extra
+ * partitioning of the data that I am doing, will result in much less
+ * contention on the Map used (particularly upon e.g. session
+ * creation), furthermore, by retaining references into the
+ * above-described structure, and distributing e.g. deltas across
+ * e.g. webapp specific Channels, this dehashing overhead could be
+ * avoided.<p> By using a Map of tiers, we avoid closing the set of
+ * clusterable services, but incur a little more synchronisation
+ * overhead on lookups, consider...
  *
- * @version $Revision: 1.1 $ $Date: 2003/12/30 15:32:20 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/02 14:19:04 $
  */
 public class
   Data
 {
   protected static  Log _log=LogFactory.getLog(Data.class);
+  protected         Map _tiers=new HashMap();
 
-  protected Map    _web=new HashMap(); // Map of webapps context:sessioms
-  protected Map    _ejb=new HashMap(); // Map of ejb ?type?:[stateful]sessions
-  protected Object _jndi;	// ???
-  //...
+  public Map getTiers(){return _tiers;};
 }
