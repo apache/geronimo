@@ -81,6 +81,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
     private final URI defaultClientParentId;
     private final URI defaultServerParentId;
+    private final ObjectName corbaGBeanObjectName;
     private final Kernel kernel;
     private final Repository repository;
     private final ConfigurationStore store;
@@ -94,18 +95,20 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     private final ServiceReferenceBuilder serviceReferenceBuilder;
 
     public AppClientModuleBuilder(URI defaultClientParentId,
-                                  URI defaultServerParentId,
-                                  ObjectName transactionContextManagerObjectName,
-                                  ObjectName connectionTrackerObjectName,
-                                  EJBReferenceBuilder ejbReferenceBuilder,
-                                  ModuleBuilder connectorModuleBuilder,
-                                  ResourceReferenceBuilder resourceReferenceBuilder,
-                                  ServiceReferenceBuilder serviceReferenceBuilder,
-                                  ConfigurationStore store,
-                                  Repository repository,
-                                  Kernel kernel) {
+            URI defaultServerParentId,
+            ObjectName transactionContextManagerObjectName,
+            ObjectName connectionTrackerObjectName,
+            ObjectName corbaGBeanObjectName,
+            EJBReferenceBuilder ejbReferenceBuilder,
+            ModuleBuilder connectorModuleBuilder,
+            ResourceReferenceBuilder resourceReferenceBuilder,
+            ServiceReferenceBuilder serviceReferenceBuilder,
+            ConfigurationStore store,
+            Repository repository,
+            Kernel kernel) {
         this.defaultClientParentId = defaultClientParentId;
         this.defaultServerParentId = defaultServerParentId;
+        this.corbaGBeanObjectName = corbaGBeanObjectName;
         this.kernel = kernel;
         this.repository = repository;
         this.store = store;
@@ -346,7 +349,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                             connectionTrackerObjectName,
                             null,
                             null,
-                            null, RefContext.derivedClientRefContext(earContext.getRefContext(), ejbReferenceBuilder, resourceReferenceBuilder, serviceReferenceBuilder));
+                            corbaGBeanObjectName,
+                            RefContext.derivedClientRefContext(earContext.getRefContext(), ejbReferenceBuilder, resourceReferenceBuilder, serviceReferenceBuilder));
                 } catch (Exception e) {
                     throw new DeploymentException("Could not create a deployment context for the app client", e);
                 }
@@ -582,6 +586,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         infoBuilder.addAttribute("defaultServerParentId", URI.class, true);
         infoBuilder.addAttribute("transactionContextManagerObjectName", ObjectName.class, true);
         infoBuilder.addAttribute("connectionTrackerObjectName", ObjectName.class, true);
+        infoBuilder.addAttribute("corbaGBeanObjectName", ObjectName.class, true);
         infoBuilder.addReference("EJBReferenceBuilder", EJBReferenceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ConnectorModuleBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ResourceReferenceBuilder", ResourceReferenceBuilder.class, NameFactory.MODULE_BUILDER);
@@ -597,6 +602,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                                                 "defaultServerParentId",
                                                 "transactionContextManagerObjectName",
                                                 "connectionTrackerObjectName",
+                                                "corbaGBeanObjectName",
                                                 "EJBReferenceBuilder",
                                                 "ConnectorModuleBuilder",
                                                 "ResourceReferenceBuilder",
