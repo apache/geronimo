@@ -17,6 +17,10 @@
 
 package javax.activation;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
 import junit.framework.TestCase;
 
 
@@ -25,14 +29,7 @@ import junit.framework.TestCase;
  * @version $Rev$ $Date$
  */
 public class MimeTypeTest extends TestCase {
-
-	private final static String DEFAULT_PRIMARY_TYPE = "application";
-	private final static String DEFAULT_SUB_TYPE = "*";
-
-	private String defaultRawdata;
-	private String primary;
-	private String sub;
-	private String withParamsRawdata;
+    private MimeType mimeType;
 
 	public MimeTypeTest(String name) {
 		super(name);
@@ -40,45 +37,249 @@ public class MimeTypeTest extends TestCase {
 
 	public void setUp() throws Exception {
 		super.setUp();
-		defaultRawdata = "application/*;";
-		primary = "primary";
-		sub = "sub";
-		withParamsRawdata = primary + "/" + sub + "; name1 =value1; name2 = value2;";
+        mimeType = new MimeType();
 	}
 
-	public void test1DefaultConstructor() {
-		MimeType mimeType = new MimeType();
-		assertEquals(DEFAULT_PRIMARY_TYPE, mimeType.getPrimaryType());
-		assertEquals(DEFAULT_SUB_TYPE, mimeType.getSubType());
-		assertEquals(0, mimeType.getParameters().size());
+	public void testDefaultConstructor() throws MimeTypeParseException {
+        assertEquals("application/*", mimeType.getBaseType());
+		assertEquals("application", mimeType.getPrimaryType());
+        // not sure as RFC2045 does not allow "*" but this is what the RI does
+		assertEquals("*", mimeType.getSubType());
+
 		assertTrue(mimeType.match(new MimeType()));
+		assertTrue(mimeType.match(new MimeType("application/*")));
+
+        assertNull(mimeType.getParameter("foo"));
+        assertEquals(0, mimeType.getParameters().size());
+        assertTrue(mimeType.getParameters().isEmpty());
 	}
 
-	public void test2OthersConstructor() throws MimeTypeParseException {
-		MimeType mimeType = new MimeType(defaultRawdata);
-		MimeType defaultMimeType = new MimeType();
-		assertEquals(defaultMimeType.getBaseType(), mimeType.getBaseType());
-		assertTrue(mimeType.match(defaultMimeType));
-
-		mimeType = new MimeType(withParamsRawdata);
-		assertEquals(primary, mimeType.getPrimaryType());
-		assertEquals(sub, mimeType.getSubType());
-		assertEquals(2, mimeType.getParameters().size());
-		assertEquals("value1", mimeType.getParameter("name1"));
-
-		MimeType mimeType2 = new MimeType(primary, sub);
-		assertEquals(primary, mimeType2.getPrimaryType());
-		assertEquals(sub, mimeType2.getSubType());
-		assertTrue(mimeType2.match(mimeType));
+	public void testMimeTypeConstructor() throws MimeTypeParseException {
+		mimeType = new MimeType("text/plain");
+        assertEquals("text/plain", mimeType.getBaseType());
+        assertEquals("text", mimeType.getPrimaryType());
+        assertEquals("plain", mimeType.getSubType());
+        assertEquals("text/plain", mimeType.toString());
 	}
 
-	public void test3MatchMethods() throws MimeTypeParseException {
-		assertTrue(new MimeType().match(new MimeType()));
-		assertTrue(new MimeType().match(defaultRawdata));
-	}
+    public void testTypeConstructor() throws MimeTypeParseException {
+        mimeType = new MimeType("text", "plain");
+        assertEquals("text/plain", mimeType.getBaseType());
+        assertEquals("text", mimeType.getPrimaryType());
+        assertEquals("plain", mimeType.getSubType());
+        assertEquals("text/plain", mimeType.toString());
+    }
 
-	public void test4ExternalMethods() {
-		// TODO
-	}
+    public void testConstructorWithParams() throws MimeTypeParseException {
+        mimeType = new MimeType("text/plain; charset=\"iso-8859-1\"");
+        assertEquals("text/plain", mimeType.getBaseType());
+        assertEquals("text", mimeType.getPrimaryType());
+        assertEquals("plain", mimeType.getSubType());
+        MimeTypeParameterList params = mimeType.getParameters();
+        assertEquals(1, params.size());
+        assertEquals("iso-8859-1", params.get("charset"));
+        assertEquals("text/plain; charset=iso-8859-1", mimeType.toString());
+    }
+
+    public void testConstructorWithQuotableParams() throws MimeTypeParseException {
+        mimeType = new MimeType("text/plain; charset=\"iso(8859)\"");
+        assertEquals("text/plain", mimeType.getBaseType());
+        assertEquals("text", mimeType.getPrimaryType());
+        assertEquals("plain", mimeType.getSubType());
+        MimeTypeParameterList params = mimeType.getParameters();
+        assertEquals(1, params.size());
+        assertEquals("iso(8859)", params.get("charset"));
+        assertEquals("text/plain; charset=\"iso(8859)\"", mimeType.toString());
+    }
+
+    public void testWriteExternal() throws MimeTypeParseException, IOException {
+        mimeType = new MimeType("text/plain; charset=iso8859-1");
+        mimeType.writeExternal(new ObjectOutput() {
+            public void writeUTF(String str) {
+                assertEquals("text/plain; charset=iso8859-1", str);
+            }
+
+            public void close() {
+                fail();
+            }
+
+            public void flush() {
+                fail();
+            }
+
+            public void write(int b) {
+                fail();
+            }
+
+            public void write(byte b[]) {
+                fail();
+            }
+
+            public void write(byte b[], int off, int len) {
+                fail();
+            }
+
+            public void writeObject(Object obj) {
+                fail();
+            }
+
+            public void writeDouble(double v) {
+                fail();
+            }
+
+            public void writeFloat(float v) {
+                fail();
+            }
+
+            public void writeByte(int v) {
+                fail();
+            }
+
+            public void writeChar(int v) {
+                fail();
+            }
+
+            public void writeInt(int v) {
+                fail();
+            }
+
+            public void writeShort(int v) {
+                fail();
+            }
+
+            public void writeLong(long v) {
+                fail();
+            }
+
+            public void writeBoolean(boolean v) {
+                fail();
+            }
+
+            public void writeBytes(String s) {
+                fail();
+            }
+
+            public void writeChars(String s){
+                fail();
+            }
+        });
+    }
+
+    public void testReadExternal() throws IOException, ClassNotFoundException {
+        mimeType.readExternal(new ObjectInput() {
+            public String readUTF() {
+                return "text/plain; charset=iso-8859-1";
+            }
+
+            public int available() {
+                fail();
+                throw new AssertionError();
+            }
+
+            public int read() {
+                fail();
+                throw new AssertionError();
+            }
+
+            public void close() {
+                fail();
+                throw new AssertionError();
+            }
+
+            public long skip(long n) {
+                fail();
+                throw new AssertionError();
+            }
+
+            public int read(byte b[]) {
+                fail();
+                throw new AssertionError();
+            }
+
+            public int read(byte b[], int off, int len) {
+                fail();
+                throw new AssertionError();
+            }
+
+            public Object readObject() {
+                fail();
+                throw new AssertionError();
+            }
+
+            public byte readByte() {
+                fail();
+                throw new AssertionError();
+            }
+
+            public char readChar() {
+                fail();
+                throw new AssertionError();
+            }
+
+            public double readDouble() {
+                fail();
+                throw new AssertionError();
+            }
+
+            public float readFloat() {
+                fail();
+                throw new AssertionError();
+            }
+
+            public int readInt() {
+                fail();
+                throw new AssertionError();
+            }
+
+            public int readUnsignedByte() {
+                fail();
+                throw new AssertionError();
+            }
+
+            public int readUnsignedShort() {
+                fail();
+                throw new AssertionError();
+            }
+
+            public long readLong() {
+                fail();
+                throw new AssertionError();
+            }
+
+            public short readShort() {
+                fail();
+                throw new AssertionError();
+            }
+
+            public boolean readBoolean() {
+                fail();
+                throw new AssertionError();
+            }
+
+            public int skipBytes(int n) {
+                fail();
+                throw new AssertionError();
+            }
+
+            public void readFully(byte b[]) {
+                fail();
+            }
+
+            public void readFully(byte b[], int off, int len) {
+                fail();
+            }
+
+            public String readLine() {
+                fail();
+                throw new AssertionError();
+            }
+        });
+        assertEquals("text/plain", mimeType.getBaseType());
+        assertEquals("text", mimeType.getPrimaryType());
+        assertEquals("plain", mimeType.getSubType());
+        MimeTypeParameterList params = mimeType.getParameters();
+        assertEquals(1, params.size());
+        assertEquals("iso-8859-1", params.get("charset"));
+        assertEquals("text/plain; charset=iso-8859-1", mimeType.toString());
+    }
 }
-

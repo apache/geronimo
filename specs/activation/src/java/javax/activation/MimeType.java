@@ -27,13 +27,15 @@ import java.io.ObjectOutput;
  * @version $Rev$ $Date$
  */
 public class MimeType implements Externalizable {
-    private final static String TYPE_SEPARATOR = "/";
-    private final static String PARAMETER_SEPARATOR = ";";
-    private final static String STAR_SUB_TYPE = "*";
+    private static final String SPECIALS = "()<>@,;:\\\"/[]?=";
+
+    static boolean isSpecial(char c) {
+        return Character.isWhitespace(c) || Character.isISOControl(c) || SPECIALS.indexOf(c) != -1;
+    }
 
     private String primaryType = "application";
     private String subType = "*";
-    private MimeTypeParameterList parameterList = new MimeTypeParameterList();;
+    private final MimeTypeParameterList parameterList = new MimeTypeParameterList();;
 
     public MimeType() {
     }
@@ -80,22 +82,18 @@ public class MimeType implements Externalizable {
     }
 
     public String toString() {
-        return getBaseType() +
-                (parameterList == null
-                ? ""
-                : PARAMETER_SEPARATOR + parameterList.toString());
+        return getBaseType() + parameterList.toString();
     }
 
     public String getBaseType() {
-        return getPrimaryType() + TYPE_SEPARATOR + getSubType();
+        return getPrimaryType() + '/' + getSubType();
     }
 
     public boolean match(MimeType type) {
-        return (
-                getPrimaryType().equals(type.getPrimaryType())
-                && (getSubType().equals(STAR_SUB_TYPE)
-                || type.getSubType().equals(STAR_SUB_TYPE)
-                || getSubType().equals(type.getSubType())));
+        if (!primaryType.equals(type.primaryType)) return false;
+        if ("*".equals(subType)) return true;
+        if ("*".equals(type.subType)) return true;
+        return subType.equals(type.subType);
     }
 
     public boolean match(String rawdata) throws MimeTypeParseException {
@@ -104,7 +102,6 @@ public class MimeType implements Externalizable {
 
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeUTF(toString());
-        out.flush();
     }
 
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
@@ -116,25 +113,28 @@ public class MimeType implements Externalizable {
     }
 
     private void parseMimeType(String rawData) throws MimeTypeParseException {
-        int typeSeparatorPos = rawData.indexOf(TYPE_SEPARATOR);
-        int parameterSeparatorPos = rawData.indexOf(PARAMETER_SEPARATOR);
-
-        if (typeSeparatorPos < 0) {
-            throw new MimeTypeParseException("Unable to find subtype");
+        int index = rawData.indexOf('/');
+        if (index == -1) {
+            throw new MimeTypeParseException("Expected '/'");
         }
-
-        setPrimaryType(rawData.substring(0, typeSeparatorPos));
-        if (parameterSeparatorPos < 0) {
-            setSubType(rawData.substring(typeSeparatorPos + 1));
+        setPrimaryType(rawData.substring(0, index));
+        int index2 = rawData.indexOf(';', index+1);
+        if (index2 == -1) {
+            setSubType(rawData.substring(index+1));
         } else {
-            setSubType(rawData.substring(typeSeparatorPos + 1, parameterSeparatorPos));
-            parameterList = new MimeTypeParameterList(rawData.substring(parameterSeparatorPos + 1));
+            setSubType(rawData.substring(index+1, index2));
+            parameterList.parse(rawData.substring(index2));
         }
     }
 
-    private static String parseToken(String tokenString) {
-        // TODO it seems to have unauthorized chars
+    private static String parseToken(String tokenString) throws MimeTypeParseException {
+        tokenString = tokenString.trim();
+        for (int i=0; i < tokenString.length(); i++) {
+            char c = tokenString.charAt(i);
+            if (isSpecial(c)) {
+                throw new MimeTypeParseException("Special '" + c + "' not allowed in token");
+            }
+        }
         return tokenString;
     }
-
 }

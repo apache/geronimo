@@ -20,22 +20,18 @@ package javax.activation;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.StringTokenizer;
 import java.util.Iterator;
+import java.util.Map;
 
 
 /**
  * @version $Rev$ $Date$
  */
 public class MimeTypeParameterList {
-    private final static String PARAMETER_SEPARATOR = ";";
-    private final static String NAME_VALUE_SEPARATOR = "=";
 
-    Map _mimeTypeParameterMap = new HashMap();
+    private final Map params = new HashMap();
 
     public MimeTypeParameterList() {
-
     }
 
     public MimeTypeParameterList(String parameterList) throws MimeTypeParseException {
@@ -44,79 +40,172 @@ public class MimeTypeParameterList {
 
     protected void parse(String parameterList) throws MimeTypeParseException {
         if (parameterList == null) {
-            return;
+            throw new MimeTypeParseException("parameterList is null");
         }
 
-        StringTokenizer tokenizer = new StringTokenizer(parameterList, PARAMETER_SEPARATOR);
-        while (tokenizer.hasMoreTokens()) {
-            String parameter = tokenizer.nextToken();
-            if (parameter.length() == 0) {
-                continue;
-            }
-            int eq = parameter.indexOf(NAME_VALUE_SEPARATOR);
-            String name = null;
-            if (eq > -1) {
-                name = parseToken(parameter.substring(0, eq));
-            }
-            String value = parseToken(parameter.substring(eq + 1));
-            if ((name == null || name.length() == 0) && value.length() == 0) {
-                continue;
-            }
-            if (name.length() == 0 || value.length() == 0) {
-                throw new MimeTypeParseException("Name or value is Missing");
-            }
-            set(name, value);
-
+        RFC2045Parser parser = new RFC2045Parser(parameterList);
+        while (parser.hasMoreParams()) {
+            String attribute = parser.expectAttribute();
+            parser.expectEquals();
+            String value = parser.expectValue();
+            params.put(attribute, value);
         }
-
     }
 
     public int size() {
-        return _mimeTypeParameterMap.size();
+        return params.size();
     }
 
     public boolean isEmpty() {
-        return _mimeTypeParameterMap.isEmpty();
+        return params.isEmpty();
     }
 
     public String get(String name) {
-        return (String) _mimeTypeParameterMap.get(name);
+        return (String) params.get(name);
     }
 
     public void set(String name, String value) {
-        name = parseToken(name);
-        value = parseToken(value);
-        _mimeTypeParameterMap.put(name, value);
+        params.put(name, value);
     }
 
     public void remove(String name) {
-        _mimeTypeParameterMap.remove(name);
+        params.remove(name);
     }
 
     public Enumeration getNames() {
-        return Collections.enumeration(_mimeTypeParameterMap.keySet());
+        return Collections.enumeration(params.keySet());
     }
 
+    /**
+     * String representation of this parameter list.
+     *
+     * @return
+     */
     public String toString() {
-        StringBuffer buf = new StringBuffer(_mimeTypeParameterMap.size() << 4);
-        for (Iterator i = _mimeTypeParameterMap.entrySet().iterator(); i.hasNext();) {
+        StringBuffer buf = new StringBuffer(params.size() << 4);
+        for (Iterator i = params.entrySet().iterator(); i.hasNext();) {
             Map.Entry entry = (Map.Entry) i.next();
-            buf.append("; ").append(entry.getKey()).append('=').append(entry.getValue());
+            buf.append("; ").append(entry.getKey()).append('=');
+            quote(buf, (String) entry.getValue());
         }
         return buf.toString();
     }
 
-    private String parseToken(String token) {
-        // TODO it seems to have unauthorized chars
-        return removeBlank(token);
+    private void quote(StringBuffer buf, String value) {
+        int length = value.length();
+        boolean quote = false;
+        for (int i = 0; i < length; i++) {
+            if (MimeType.isSpecial(value.charAt(i))) {
+                quote = true;
+                break;
+            }
+        }
+        if (quote) {
+            buf.append('"');
+            for (int i = 0; i < length; i++) {
+                char c = value.charAt(i);
+                if (c == '\\' || c == '"') {
+                    buf.append('\\');
+                }
+                buf.append(c);
+            }
+            buf.append('"');
+        } else {
+            buf.append(value);
+        }
     }
 
-    private String removeBlank(String str) {
-        StringBuffer buf = new StringBuffer();
-        StringTokenizer tokenizer = new StringTokenizer(str);
-        while (tokenizer.hasMoreTokens()) {
-            buf.append(tokenizer.nextToken());
+    private static class RFC2045Parser {
+        private final String text;
+        private int index = 0;
+
+        private RFC2045Parser(String text) {
+            this.text = text;
         }
-        return buf.toString();
+
+        /**
+         * Look the next ";" to start a parameter (skipping whitespace)
+         *
+         * @return
+         */
+        private boolean hasMoreParams() throws MimeTypeParseException {
+            char c;
+            do {
+                if (index == text.length()) {
+                    return false;
+                }
+                c = text.charAt(index++);
+            } while (Character.isWhitespace(c));
+            if (c != ';') {
+                throw new MimeTypeParseException("Expected \";\" at " + (index - 1) + " in " + text);
+            }
+            return true;
+        }
+
+        private String expectAttribute() throws MimeTypeParseException {
+            char c;
+            do {
+                if (index == text.length()) {
+                    throw new MimeTypeParseException("Expected attribute at " + (index - 1) + " in " + text);
+                }
+                c = text.charAt(index++);
+            } while (Character.isWhitespace(c));
+            int start = index - 1;
+            while (index != text.length() && !MimeType.isSpecial(text.charAt(index))) {
+                index += 1;
+            }
+            return text.substring(start, index);
+        }
+
+        private void expectEquals() throws MimeTypeParseException {
+            char c;
+            do {
+                if (index == text.length()) {
+                    throw new MimeTypeParseException("Expected \"=\" at " + (index - 1) + " in " + text);
+                }
+                c = text.charAt(index++);
+            } while (Character.isWhitespace(c));
+            if (c != '=') {
+                throw new MimeTypeParseException("Expected \"=\" at " + (index - 1) + " in " + text);
+            }
+        }
+
+        private String expectValue() throws MimeTypeParseException {
+            char c;
+            do {
+                if (index == text.length()) {
+                    throw new MimeTypeParseException("Expected value at " + (index - 1) + " in " + text);
+                }
+                c = text.charAt(index++);
+            } while (Character.isWhitespace(c));
+            if (c == '"') {
+                // quoted-string
+                StringBuffer buf = new StringBuffer();
+                while (true) {
+                    if (index == text.length()) {
+                        throw new MimeTypeParseException("Expected closing quote at " + (index - 1) + " in " + text);
+                    }
+                    c = text.charAt(index++);
+                    if (c == '"') {
+                        break;
+                    }
+                    if (c == '\\') {
+                        if (index == text.length()) {
+                            throw new MimeTypeParseException("Expected escaped char at " + (index - 1) + " in " + text);
+                        }
+                        c = text.charAt(index++);
+                    }
+                    buf.append(c);
+                }
+                return buf.toString();
+            } else {
+                // token
+                int start = index - 1;
+                while (index != text.length() && !MimeType.isSpecial(text.charAt(index))) {
+                    index += 1;
+                }
+                return text.substring(start, index);
+            }
+        }
     }
 }
