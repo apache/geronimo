@@ -84,7 +84,11 @@
         <Arg></Arg>
         <Arg>jmx-console</Arg>
         <Arg><SystemProperty name="jetty.home.dir"/>/geronimo-web-console.war</Arg>
-        <Arg><SystemProperty name="jetty.home.dir"/>/webdefault.xml</Arg>
-        <Arg type="boolean">true</Arg>
+        <Call name="setDefaultsDescriptor">
+          <Arg><SystemProperty name="jetty.home.dir"/>/webdefault.xml</Arg>
+        </Call>
+        <Call name="setExtractWAR">
+          <Arg type="boolean">true</Arg>
+        </Call>
     </Call>
 </Configure>
