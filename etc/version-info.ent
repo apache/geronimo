@@ -57,7 +57,7 @@
 <!ENTITY jaxb-ri-version "SNAPSHOT">
 <!ENTITY jdbm-version "0.20-dev">
 <!ENTITY jelly-velocity-tags-version "SNAPSHOT">
-<!ENTITY jetty-version "5.1.0-SNAPSHOT">
+<!ENTITY jetty-version "5.1-SNAPSHOT">
 <!ENTITY jgroups-version "2.2.5">
 <!ENTITY jrms-version "1.1">
 <!ENTITY junit-version "3.8.1">
