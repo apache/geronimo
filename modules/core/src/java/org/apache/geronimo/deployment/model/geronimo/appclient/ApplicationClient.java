@@ -53,24 +53,26 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.model.appclient;
+package org.apache.geronimo.deployment.model.geronimo.appclient;
 
-import org.apache.geronimo.deployment.model.j2ee.Displayable;
-import org.apache.geronimo.deployment.model.j2ee.EJBRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EJBLocalRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EJBRef;
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
-import org.apache.geronimo.deployment.model.j2ee.MessageDestination;
-import org.apache.geronimo.deployment.model.j2ee.MessageDestinationRef;
-import org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef;
-import org.apache.geronimo.deployment.model.j2ee.ResourceRef;
-import org.apache.geronimo.deployment.model.j2ee.ServiceRef;
-import org.apache.geronimo.deployment.model.j2ee.EJBLocalRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestinationRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.ServiceRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDIEnvironmentRefs;
+import org.apache.geronimo.deployment.model.j2ee.Displayable;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestination;
+
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/05 20:18:03 $
+ * @version $Revision: 1.1 $ $Date: 2003/09/05 20:18:03 $
  */
-public class ApplicationClient extends Displayable {
+public class ApplicationClient extends Displayable implements JNDIEnvironmentRefs {
     private String version;
     private EnvEntry[] envEntry;
     private EJBRef[] ejbRef;

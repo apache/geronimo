@@ -71,10 +71,10 @@ import org.apache.geronimo.deployment.model.geronimo.ejb.Ejb;
 import org.apache.geronimo.deployment.model.geronimo.ejb.MessageDriven;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Entity;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Session;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.EnvEntry;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
+import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EJBRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.JndiContextParam;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbLocalRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EJBLocalRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.SecurityRoleRef;
@@ -82,7 +82,7 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.SecurityRoleRef;
 /**
  * Maps DConfigBeans to POJOs and vice versa.
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/04 05:24:21 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/05 20:18:03 $
  */
 public class EjbConverter {
     private static final Log log = LogFactory.getLog(EjbConverter.class);
@@ -179,8 +179,8 @@ public class EjbConverter {
         while(it.hasNext()) {
             EjbRefBean bean = (EjbRefBean)it.next();
             if(isValid(bean.getJndiName())) {
-                EjbRef ref = new EjbRef();
-                ref.setEjbRefName(bean.getEjbRefName());
+                EJBRef ref = new EJBRef();
+                ref.setEJBRefName(bean.getEjbRefName());
                 ref.setJndiName(bean.getJndiName());
                 ContextParam[] params = bean.getContextParam();
                 List list = new ArrayList();
@@ -198,7 +198,7 @@ public class EjbConverter {
                 outer.add(ref);
             }
         }
-        dest.setEjbRef((EjbRef[])outer.toArray(new EjbRef[outer.size()]));
+        dest.setEjbRef((EJBRef[])outer.toArray(new EJBRef[outer.size()]));
     }
 
     private static void storeEjbLocalRefs(Ejb dest, Iterator it) {
@@ -206,8 +206,8 @@ public class EjbConverter {
         while(it.hasNext()) {
             EjbLocalRefBean bean = (EjbLocalRefBean)it.next();
             if(isValid(bean.getJndiName())) {
-                EjbLocalRef ref = new EjbLocalRef();
-                ref.setEjbRefName(bean.getEjbRefName());
+                EJBLocalRef ref = new EJBLocalRef();
+                ref.setEJBRefName(bean.getEjbRefName());
                 ref.setJndiName(bean.getJndiName());
                 ContextParam[] params = bean.getContextParam();
                 List list = new ArrayList();
@@ -225,7 +225,7 @@ public class EjbConverter {
                 outer.add(ref);
             }
         }
-        dest.setEjbLocalRef((EjbLocalRef[])outer.toArray(new EjbLocalRef[outer.size()]));
+        dest.setEjbLocalRef((EJBLocalRef[])outer.toArray(new EJBLocalRef[outer.size()]));
     }
 
     private static void storeResourceRefs(Ejb dest, Iterator it) {
@@ -432,22 +432,22 @@ public class EjbConverter {
         }
     }
 
-    private static void assignEjbRefs(BaseEjbBean dest, EjbRef[] refs, DDBean[] beans) throws ConfigurationException {
+    private static void assignEjbRefs(BaseEjbBean dest, EJBRef[] refs, DDBean[] beans) throws ConfigurationException {
         Set found = new HashSet();
         for(int i=0; i<refs.length; i++) {
             DDBean match = null;
             for(int j = 0; j < beans.length; j++) {
-                if(beans[j].getText(EjbRefBean.EJB_REF_NAME_XPATH)[0].equals(refs[i].getEjbRefName())) {
+                if(beans[j].getText(EjbRefBean.EJB_REF_NAME_XPATH)[0].equals(refs[i].getEJBRefName())) {
                     match = beans[j];
                 }
             }
             if(match == null) {
-                log.warn("EJB Reference "+refs[i].getEjbRefName()+" in old DD is no longer present; removing.");
+                log.warn("EJB Reference "+refs[i].getEJBRefName()+" in old DD is no longer present; removing.");
                 continue;
             }
             found.add(match);
             EjbRefBean bean = (EjbRefBean)dest.getDConfigBean(match);
-            bean.setEjbRefName(refs[i].getEjbRefName());
+            bean.setEjbRefName(refs[i].getEJBRefName());
             bean.setJndiName(refs[i].getJndiName());
             JndiContextParam[] params = refs[i].getJndiContextParam();
             ContextParam[] cp = new ContextParam[params.length];
@@ -468,22 +468,22 @@ public class EjbConverter {
         }
     }
 
-    private static void assignEjbLocalRefs(BaseEjbBean dest, EjbLocalRef[] refs, DDBean[] beans) throws ConfigurationException {
+    private static void assignEjbLocalRefs(BaseEjbBean dest, EJBLocalRef[] refs, DDBean[] beans) throws ConfigurationException {
         Set found = new HashSet();
         for(int i=0; i<refs.length; i++) {
             DDBean match = null;
             for(int j = 0; j < beans.length; j++) {
-                if(beans[j].getText(EjbLocalRefBean.EJB_REF_NAME_XPATH)[0].equals(refs[i].getEjbRefName())) {
+                if(beans[j].getText(EjbLocalRefBean.EJB_REF_NAME_XPATH)[0].equals(refs[i].getEJBRefName())) {
                     match = beans[j];
                 }
             }
             if(match == null) {
-                log.warn("EJB Reference "+refs[i].getEjbRefName()+" in old DD is no longer present; removing.");
+                log.warn("EJB Reference "+refs[i].getEJBRefName()+" in old DD is no longer present; removing.");
                 continue;
             }
             found.add(match);
             EjbLocalRefBean bean = (EjbLocalRefBean)dest.getDConfigBean(match);
-            bean.setEjbRefName(refs[i].getEjbRefName());
+            bean.setEjbRefName(refs[i].getEJBRefName());
             bean.setJndiName(refs[i].getJndiName());
             JndiContextParam[] params = refs[i].getJndiContextParam();
             ContextParam[] cp = new ContextParam[params.length];

@@ -1,294 +1,100 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="http://java.sun.com/xml/ns/j2ee" xmlns:j2ee="http://java.sun.com/xml/ns/j2ee" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ger="http://geronimo.apache.org/xml/schema/j2ee" elementFormDefault="qualified" attributeFormDefault="unqualified">
+  <xsd:annotation>
+    <xsd:documentation>Redefinition of standard J2EE types to include Geronimo deployment information</xsd:documentation>
+  </xsd:annotation>
+  <xsd:import namespace="http://geronimo.apache.org/xml/schema/j2ee" schemaLocation="geronimo-common.xsd"/>
+  <xsd:redefine schemaLocation="j2ee_1_4.xsd">
+    <xsd:complexType name="ejb-refType">
+      <xsd:complexContent>
+        <xsd:restriction base="j2ee:ejb-refType">
+          <xsd:sequence>
+            <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="ejb-ref-name" type="j2ee:ejb-ref-nameType"/>
+            <xsd:element name="ejb-ref-type" type="j2ee:ejb-ref-typeType"/>
+            <xsd:element name="home" type="j2ee:homeType"/>
+            <xsd:element name="remote" type="j2ee:remoteType"/>
+            <xsd:choice>
+              <xsd:element name="ejb-link" type="j2ee:ejb-linkType"/>
+              <xsd:group ref="ger:jndi-refGroup"/>
+            </xsd:choice>
+          </xsd:sequence>
+        </xsd:restriction>
+      </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="ejb-local-refType">
+      <xsd:complexContent>
+        <xsd:restriction base="j2ee:ejb-local-refType">
+          <xsd:sequence>
+            <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="ejb-ref-name" type="j2ee:ejb-ref-nameType"/>
+            <xsd:element name="ejb-ref-type" type="j2ee:ejb-ref-typeType"/>
+            <xsd:element name="local-home" type="j2ee:local-homeType"/>
+            <xsd:element name="local" type="j2ee:localType"/>
+            <xsd:choice>
+              <xsd:element name="ejb-link" type="j2ee:ejb-linkType"/>
+              <xsd:group ref="ger:jndi-refGroup"/>
+            </xsd:choice>
+          </xsd:sequence>
+        </xsd:restriction>
+      </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="resource-refType">
+      <xsd:complexContent>
+        <xsd:extension base="j2ee:resource-refType">
+          <xsd:sequence>
+            <xsd:group ref="ger:jndi-refGroup"/>
+          </xsd:sequence>
+        </xsd:extension>
+      </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="resource-env-refType">
+      <xsd:complexContent>
+        <xsd:extension base="j2ee:resource-env-refType">
+          <xsd:sequence>
+            <xsd:group ref="ger:jndi-refGroup"/>
+          </xsd:sequence>
+        </xsd:extension>
+      </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="message-destination-refType">
+      <xsd:complexContent>
+        <xsd:restriction base="j2ee:message-destination-refType">
+          <xsd:sequence>
+            <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="message-destination-ref-name" type="j2ee:jndi-nameType">
+              <xsd:annotation>
+                <xsd:documentation>
 
-<xsd:schema xmlns="http://www.w3.org/2001/XMLSchema"
-    targetNamespace="http://geronimo.apache.org/xml/schema/1.0/j2ee14"
-    xmlns:ger="http://geronimo.apache.org/xml/schema/1.0/j2ee14"
-    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    elementFormDefault="qualified"
-    attributeFormDefault="unqualified">
+	    The message-destination-ref-name element specifies
+	    the name of a message destination reference; its
+	    value is the environment entry name used in
+	    Deployment Component code.  The name is a JNDI name
+	    relative to the java:comp/env context and must be
+	    unique within an ejb-jar (for enterprise beans) or a
+	    Deployment File (for others).
 
-    <xsd:annotation>
-        <xsd:documentation>
-            This is the base XML Schema for Apache Geronimo server-specific DDs.  It declares
-            the elements common to all Geronimo DDs, and then each particular DD imports this
-            and declares any extensions.
-        </xsd:documentation>
-    </xsd:annotation>
-
-    <xsd:element name="ejb-local-ref">
-        <xsd:annotation>
-            <xsd:documentation>
-                Configuration for a local EJB reference.  Note that a local
-                EJB must be in the same JVM, so if context parameters are
-                provided, they must almost certainly simply refer to a
-                different application within the same server.
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element ref="ger:ejb-ref-name" minOccurs="1" maxOccurs="1"/>
-                <xsd:element ref="ger:jndi-name" minOccurs="1" maxOccurs="1"/>
-                <xsd:element ref="ger:jndi-context-params" minOccurs="0" maxOccurs="1"/>
-            </xsd:sequence>
-        </xsd:complexType>
-    </xsd:element>
-
-    <xsd:element name="ejb-ref">
-        <xsd:annotation>
-            <xsd:documentation>
-                Configuration for an EJB reference
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element ref="ger:ejb-ref-name" minOccurs="1" maxOccurs="1"/>
-                <xsd:element ref="ger:jndi-name" minOccurs="1" maxOccurs="1"/>
-                <xsd:element ref="ger:jndi-context-params" minOccurs="0" maxOccurs="1"/>
-            </xsd:sequence>
-        </xsd:complexType>
-    </xsd:element>
-
-    <xsd:element name="ejb-ref-name" type="xsd:string">
-        <xsd:annotation>
-            <xsd:documentation>
-                The unique identifier for an EJB reference within this component.
-                This must match the ejb-ref-name for the same EJB reference for
-                the same component in the standard deployment descriptor.
-            </xsd:documentation>
-        </xsd:annotation>
-    </xsd:element>
-
-    <xsd:element name="env-entry">
-        <xsd:annotation>
-            <xsd:documentation>
-                Configuration for an environment entry.  Normally an env-entry
-                is fully configured by the assembler in the standard
-                deployment descriptor.  However, the deployer can specify a
-                value here if there was no value specified in the standard DD,
-                or if the deployer wants to override the value specified there.
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element ref="ger:env-entry-name" minOccurs="1" maxOccurs="1"/>
-                <xsd:element ref="ger:env-entry-value" minOccurs="1" maxOccurs="1"/>
-            </xsd:sequence>
-        </xsd:complexType>
-    </xsd:element>
-
-    <xsd:element name="env-entry-name" type="xsd:string">
-        <xsd:annotation>
-            <xsd:documentation>
-                The unique name for this environment entry.  This must match the
-                env-entry-name for the env-entry in the standard deployment
-                descriptor.
-            </xsd:documentation>
-        </xsd:annotation>
-    </xsd:element>
-
-    <xsd:element name="env-entry-value" type="xsd:string">
-        <xsd:annotation>
-            <xsd:documentation>
-                A value to use for this environment entry.  A value specified here
-                takes precedence over a value in the standard deployment
-                descriptor.
-            </xsd:documentation>
-        </xsd:annotation>
-    </xsd:element>
-
-    <xsd:element name="jndi-context-param">
-        <xsd:annotation>
-            <xsd:documentation>
-                A single JNDI context parameter (name and value)
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element ref="ger:param-name" minOccurs="1" maxOccurs="1"/>
-                <xsd:element ref="ger:param-value" minOccurs="1" maxOccurs="1"/>
-            </xsd:sequence>
-        </xsd:complexType>
-    </xsd:element>
-
-    <xsd:element name="jndi-context-params">
-        <xsd:annotation>
-            <xsd:documentation>
-                Configuration for the JNDI context used to access a remote EJB
-                or resource
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element ref="ger:jndi-context-param" minOccurs="1" maxOccurs="unbounded"/>
-            </xsd:sequence>
-        </xsd:complexType>
-    </xsd:element>
-
-    <xsd:element name="jndi-name" type="xsd:string">
-        <xsd:annotation>
-            <xsd:documentation>
-                A JNDI name.  This may be the location where an EJB should be
-                bound, or the location where an EJB or resource can be found to
-                resolve a reference.
-            </xsd:documentation>
-        </xsd:annotation>
-    </xsd:element>
-
-    <xsd:element name="message-destination-ref">
-        <xsd:annotation>
-            <xsd:documentation>
-                Configuration for a message destination reference for a message
-                destination (usually a JMS topic or queue) which may be within
-                the application server or may be in an external JNDI space.
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element ref="ger:message-destination-ref-name" minOccurs="1" maxOccurs="1"/>
-                <xsd:element ref="ger:jndi-name" minOccurs="1" maxOccurs="1"/>
-                <xsd:element ref="ger:jndi-context-params" minOccurs="0" maxOccurs="1"/>
-            </xsd:sequence>
-        </xsd:complexType>
-    </xsd:element>
-
-    <xsd:element name="message-destination-ref-name" type="xsd:string">
-        <xsd:annotation>
-            <xsd:documentation>
-                The unique name for this message destination reference.  This
-                must match the message-destination-ref-name for the
-                message-destination-ref in the standard deployment descriptor.
-            </xsd:documentation>
-        </xsd:annotation>
-    </xsd:element>
-
-    <xsd:element name="param-name" type="xsd:string">
-        <xsd:annotation>
-            <xsd:documentation>
-                The name of a parameter
-            </xsd:documentation>
-        </xsd:annotation>
-    </xsd:element>
-
-    <xsd:element name="param-value" type="xsd:string">
-        <xsd:annotation>
-            <xsd:documentation>
-                The value of a parameter
-            </xsd:documentation>
-        </xsd:annotation>
-    </xsd:element>
-
-    <xsd:element name="res-ref-name" type="xsd:string">
-        <xsd:annotation>
-            <xsd:documentation>
-                The unique identifier for a resource reference within this component.
-                This must match the res-ref-name for the same resource reference for
-                the same component in the standard deployment descriptor.
-            </xsd:documentation>
-        </xsd:annotation>
-    </xsd:element>
-
-    <xsd:element name="resource-env-ref">
-        <xsd:annotation>
-            <xsd:documentation>
-                Configuration for a resource reference for a resource within
-                the application server.
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element ref="ger:resource-env-ref-name" minOccurs="1" maxOccurs="1"/>
-                <xsd:element ref="ger:jndi-name" minOccurs="1" maxOccurs="1"/>
-            </xsd:sequence>
-        </xsd:complexType>
-    </xsd:element>
-
-    <xsd:element name="resource-env-ref-name" type="xsd:string">
-        <xsd:annotation>
-            <xsd:documentation>
-                The unique identifier for a resource env reference within this
-                component.  This must match the resource-env-ref-name for the same
-                resource env reference for the same component in the standard
-                deployment descriptor.
-            </xsd:documentation>
-        </xsd:annotation>
-    </xsd:element>
-
-    <xsd:element name="resource-ref">
-        <xsd:annotation>
-            <xsd:documentation>
-                Configuration for a resource reference for a resource which may
-                be within the application server or may be an external resource.
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element ref="ger:res-ref-name" minOccurs="1" maxOccurs="1"/>
-                <xsd:element ref="ger:jndi-name" minOccurs="1" maxOccurs="1"/>
-                <xsd:element ref="ger:jndi-context-params" minOccurs="0" maxOccurs="1"/>
-            </xsd:sequence>
-        </xsd:complexType>
-    </xsd:element>
-
-    <xsd:element name="role-link" type="xsd:string">
-        <xsd:annotation>
-            <xsd:documentation>
-                The security role that this security role reference should be
-                linked to.  A role specified here takes precedence over a role
-                specified in the standard deployment descriptor.
-            </xsd:documentation>
-        </xsd:annotation>
-    </xsd:element>
-
-    <xsd:element name="role-name" type="xsd:string">
-        <xsd:annotation>
-            <xsd:documentation>
-                The unique name for this security role.  If used in a security
-                role reference, this must match the role-name for the
-                security-role-ref in the standard deployment descriptor.
-            </xsd:documentation>
-        </xsd:annotation>
-    </xsd:element>
-
-    <xsd:element name="security-role-ref">
-        <xsd:annotation>
-            <xsd:documentation>
-                Configuration for a security role reference.  Normally a
-                security role reference is fully configured by the assembler
-                in the standard deployment descriptor (with the role-link
-                element).  However, the deployer can specify a value here if
-                there was no value specified in the standard DD, or if the
-                deployer wants to override the value specified there.
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element ref="ger:role-name" minOccurs="1" maxOccurs="1"/>
-                <xsd:element ref="ger:role-link" minOccurs="1" maxOccurs="1"/>
-            </xsd:sequence>
-        </xsd:complexType>
-    </xsd:element>
-
-    <xsd:element name="service-ref">
-        <xsd:annotation>
-            <xsd:documentation>
-                Configuration for a Web Service reference.
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element ref="ger:service-ref-name" minOccurs="1" maxOccurs="1"/>
-                <!-- what goes here? -->
-            </xsd:sequence>
-        </xsd:complexType>
-    </xsd:element>
-
-    <xsd:element name="service-ref-name" type="xsd:string">
-        <xsd:annotation>
-            <xsd:documentation>
-                The unique name for this web service.  This must match the
-                service-ref-name for the service-ref in the standard
-                deployment descriptor.
-            </xsd:documentation>
-        </xsd:annotation>
-    </xsd:element>
+	  </xsd:documentation>
+              </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="message-destination-type" type="j2ee:message-destination-typeType"/>
+            <xsd:element name="message-destination-usage" type="j2ee:message-destination-usageType"/>
+            <xsd:choice>
+              <xsd:element name="message-destination-link" type="j2ee:message-destination-linkType"/>
+              <xsd:group ref="ger:jndi-refGroup"/>
+            </xsd:choice>
+          </xsd:sequence>
+        </xsd:restriction>
+      </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="message-destinationType">
+      <xsd:complexContent>
+        <xsd:extension base="j2ee:message-destinationType">
+          <xsd:sequence>
+            <xsd:group ref="ger:jndi-refGroup"/>
+          </xsd:sequence>
+        </xsd:extension>
+      </xsd:complexContent>
+    </xsd:complexType>
+  </xsd:redefine>
 </xsd:schema>

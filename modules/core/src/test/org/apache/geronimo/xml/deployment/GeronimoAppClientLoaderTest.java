@@ -59,27 +59,28 @@ import java.io.File;
 import java.io.FileReader;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.deployment.model.appclient.ApplicationClient;
-import org.apache.geronimo.deployment.model.j2ee.EJBRef;
+import org.apache.geronimo.deployment.model.geronimo.appclient.ApplicationClient;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EJBRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.ServiceRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestinationRef;
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
-import org.apache.geronimo.deployment.model.j2ee.MessageDestination;
-import org.apache.geronimo.deployment.model.j2ee.MessageDestinationRef;
-import org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef;
-import org.apache.geronimo.deployment.model.j2ee.ResourceRef;
-import org.apache.geronimo.deployment.model.j2ee.ServiceRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestination;
+import org.apache.xerces.parsers.DOMParser;
 import org.w3c.dom.Document;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/05 20:18:03 $
+ * @version $Revision: 1.1 $ $Date: 2003/09/05 20:18:03 $
  */
-public class AppClientLoaderTest extends TestCase {
+public class GeronimoAppClientLoaderTest extends TestCase {
     private File docDir;
-    private AppClientLoader loader;
+    private GeronimoAppClientLoader loader;
 
-    public void testSimpleLoad() throws Exception {
-        File f = new File(docDir, "simple-app-client.xml");
+    public void testLoad() throws Exception {
+        File f = new File(docDir, "geronimo-app-client.xml");
         Document doc = LoaderUtil.parseXML(new FileReader(f));
         ApplicationClient client = loader.load(doc);
 
@@ -98,6 +99,7 @@ public class AppClientLoaderTest extends TestCase {
         assertEquals("my.EJB.Home", ejbRef.getHome());
         assertEquals("my.EJB.Remote", ejbRef.getRemote());
         assertNull(ejbRef.getEJBLink());
+        assertEquals("TestEJB", ejbRef.getJndiName());
 
         ServiceRef[] serviceRefs = client.getServiceRef();
         assertEquals(1, serviceRefs.length);
@@ -112,18 +114,21 @@ public class AppClientLoaderTest extends TestCase {
         assertEquals("javax.sql.DataSource", resourceRef.getResType());
         assertEquals("Container", resourceRef.getResAuth());
         assertEquals("Shareable", resourceRef.getResSharingScope());
+        assertEquals("TestDS", resourceRef.getJndiName());
 
         ResourceEnvRef[] resEnvRefs = client.getResourceEnvRef();
         assertEquals(1, resEnvRefs.length);
         ResourceEnvRef resEnvRef = resEnvRefs[0];
         assertEquals("jms/MyOldQueue", resEnvRef.getResourceEnvRefName());
         assertEquals("javax.jms.Queue", resEnvRef.getResourceEnvRefType());
+        assertEquals("TestQueue", resEnvRef.getJndiName());
 
         MessageDestinationRef[] msgDestRefs = client.getMessageDestinationRef();
         assertEquals(1, msgDestRefs.length);
         MessageDestinationRef msgDestRef = msgDestRefs[0];
         assertEquals("jms/MyQueue", msgDestRef.getMessageDestinationRefName());
         assertEquals("javax.jms.Queue", msgDestRef.getMessageDestinationType());
+        assertEquals("TestQueue", msgDestRef.getJndiName());
 
         assertEquals(client.getCallbackHandler(), "my.callback.handler");
 
@@ -131,10 +136,11 @@ public class AppClientLoaderTest extends TestCase {
         assertEquals(1, msgDests.length);
         MessageDestination msgDest = msgDests[0];
         assertEquals("jms/MyOwnQueue", msgDest.getMessageDestinationName());
+        assertEquals("TestQueue", msgDest.getJndiName());
     }
 
     protected void setUp() throws Exception {
         docDir = new File("src/test-data/xml/deployment");
-        loader = new AppClientLoader();
+        loader = new GeronimoAppClientLoader();
     }
 }

@@ -53,30 +53,41 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.model.geronimo.j2ee;
+package org.apache.geronimo.xml.deployment;
+
+import org.apache.geronimo.deployment.model.geronimo.appclient.ApplicationClient;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EJBRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.ServiceRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestinationRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestination;
+import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
- * JavaBean for the Geronimo DD tag env-entry
- *
- * @version $Revision: 1.1 $ $Date: 2003/09/04 04:59:53 $
+ * 
+ * 
+ * @version $Revision: 1.1 $ $Date: 2003/09/05 20:18:03 $
  */
-public class EnvEntry {
-    private String envEntryName;
-    private String envEntryValue;
+public class GeronimoAppClientLoader {
+    private GeronimoJ2EELoader j2eeLoader = new GeronimoJ2EELoader();
 
-    public String getEnvEntryName() {
-        return envEntryName;
-    }
-
-    public void setEnvEntryName(String envEntryName) {
-        this.envEntryName = envEntryName;
-    }
-
-    public String getEnvEntryValue() {
-        return envEntryValue;
-    }
-
-    public void setEnvEntryValue(String envEntryValue) {
-        this.envEntryValue = envEntryValue;
+    public ApplicationClient load(Document geronimoDoc) {
+        Element root = geronimoDoc.getDocumentElement();
+        if (!"application-client".equals(root.getTagName())) {
+            throw new IllegalArgumentException("Document is not an application-client instance");
+        }
+        ApplicationClient appClient = new ApplicationClient();
+        appClient.setEnvEntry(j2eeLoader.loadEnvEntries(root, new EnvEntry[0]));
+        appClient.setEJBRef((EJBRef[])j2eeLoader.loadEJBRefs(root, new EJBRef[0]));
+        appClient.setServiceRef((ServiceRef[])j2eeLoader.loadServiceRefs(root, new ServiceRef[0]));
+        appClient.setResourceRef((ResourceRef[])j2eeLoader.loadResourceRefs(root, new ResourceRef[0]));
+        appClient.setResourceEnvRef((ResourceEnvRef[])j2eeLoader.loadResourceEnvRefs(root, new ResourceEnvRef[0]));
+        appClient.setMessageDestinationRef((MessageDestinationRef[]) j2eeLoader.loadMessageDestinationRefs(root, new MessageDestinationRef[0]));
+        appClient.setCallbackHandler(LoaderUtil.getChildContent(root, "callback-handler"));
+        appClient.setMessageDestination((MessageDestination[])j2eeLoader.loadMessageDestinations(root, new MessageDestination[0]));
+        return appClient;
     }
 }

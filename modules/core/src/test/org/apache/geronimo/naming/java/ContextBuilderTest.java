@@ -58,14 +58,14 @@ package org.apache.geronimo.naming.java;
 import javax.naming.Context;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.deployment.model.appclient.ApplicationClient;
+import org.apache.geronimo.deployment.model.geronimo.appclient.ApplicationClient;
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
-import org.apache.geronimo.deployment.model.j2ee.EJBRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EJBRef;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/04 05:16:18 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/05 20:18:03 $
  */
 public class ContextBuilderTest extends TestCase {
     private ApplicationClient client;

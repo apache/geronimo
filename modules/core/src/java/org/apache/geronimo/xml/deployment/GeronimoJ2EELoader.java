@@ -55,149 +55,89 @@
  */
 package org.apache.geronimo.xml.deployment;
 
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.EnvEntry;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbLocalRef;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.SecurityRoleRef;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.ServiceRef;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.JndiContextParam;
+
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EJBRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EJBLocalRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.ServiceRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestinationRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestination;
+import org.w3c.dom.Element;
 
 /**
  * Loads common Geronimo DD tags
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/04 04:59:53 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/05 20:18:03 $
  */
-public class GeronimoJ2EELoader {
-    public static EnvEntry[] loadEnvEntries(Element parent) {
-        NodeList nodes = parent.getElementsByTagName("env-entry");
-        int length = nodes.getLength();
-        EnvEntry[] result = new EnvEntry[length];
-        for (int i = 0; i < length; i++) {
-            Element e = (Element) nodes.item(i);
-            EnvEntry envEntry = new EnvEntry();
-            envEntry.setEnvEntryName(LoaderUtil.getChildContent(e, "env-entry-name"));
-            envEntry.setEnvEntryValue(LoaderUtil.getChildContent(e, "env-entry-value"));
-            result[i] = envEntry;
-        }
-        return result;
+public class GeronimoJ2EELoader extends J2EELoader {
+    protected org.apache.geronimo.deployment.model.j2ee.EJBRef newEJBRef() {
+        return new EJBRef();
     }
 
-    public static EjbRef[] loadEJBRefs(Element parent) {
-        NodeList nodes = parent.getElementsByTagName("ejb-ref");
-        int length = nodes.getLength();
-        EjbRef[] result = new EjbRef[length];
-        for (int i = 0; i < length; i++) {
-            Element e = (Element) nodes.item(i);
-            EjbRef ejbRef = new EjbRef();
-            ejbRef.setEjbRefName(LoaderUtil.getChildContent(e, "ejb-ref-name"));
-            ejbRef.setJndiName(LoaderUtil.getChildContent(e, "jndi-name"));
-            ejbRef.setJndiContextParam(loadContextParams(LoaderUtil.getChild(e, "jndi-context-params")));
-            result[i] = ejbRef;
-        }
-        return result;
+    protected org.apache.geronimo.deployment.model.j2ee.EJBRef loadEJBRef(Element e) {
+        EJBRef ejbRef = (EJBRef) super.loadEJBRef(e);
+        ejbRef.setJndiName(LoaderUtil.getChildContent(e, "jndi-name"));
+        return ejbRef;
     }
 
-    public static EjbLocalRef[] loadEJBLocalRefs(Element parent) {
-        NodeList nodes = parent.getElementsByTagName("ejb-local-ref");
-        int length = nodes.getLength();
-        EjbLocalRef[] result = new EjbLocalRef[length];
-        for (int i = 0; i < length; i++) {
-            Element e = (Element) nodes.item(i);
-            EjbLocalRef ejbLocalRef = new EjbLocalRef();
-            ejbLocalRef.setEjbRefName(LoaderUtil.getChildContent(e, "ejb-ref-name"));
-            ejbLocalRef.setJndiName(LoaderUtil.getChildContent(e, "jndi-name"));
-            ejbLocalRef.setJndiContextParam(loadContextParams(LoaderUtil.getChild(e, "jndi-context-params")));
-            result[i] = ejbLocalRef;
-        }
-        return result;
+    protected org.apache.geronimo.deployment.model.j2ee.EJBLocalRef newEJBLocalRef() {
+        return new EJBLocalRef();
     }
 
-    private static JndiContextParam[] loadContextParams(Element parent) {
-        if(parent == null) {
-            return new JndiContextParam[0];
-        }
-        Element[] roots = LoaderUtil.getChildren(parent, "jndi-context-param");
-        JndiContextParam[] params = new JndiContextParam[roots.length];
-        for(int i = 0; i < roots.length; i++) {
-            Element root = roots[i];
-            params[i] = new JndiContextParam();
-            params[i].setParamName(LoaderUtil.getChildContent(root, "param-name"));
-            params[i].setParamValue(LoaderUtil.getChildContent(root, "param-value"));
-        }
-        return params;
+    protected org.apache.geronimo.deployment.model.j2ee.EJBLocalRef loadEJBLocalRef(Element e) {
+        EJBLocalRef ejbRef = (EJBLocalRef) super.loadEJBLocalRef(e);
+        ejbRef.setJndiName(LoaderUtil.getChildContent(e, "jndi-name"));
+        return ejbRef;
     }
 
-    public static SecurityRoleRef[] loadSecurityRoleRefs(Element parent) {
-        Element[] roots = LoaderUtil.getChildren(parent, "security-role-ref");
-        SecurityRoleRef[] refs = new SecurityRoleRef[roots.length];
-        for(int i = 0; i < roots.length; i++) {
-            Element root = roots[i];
-            refs[i] = new SecurityRoleRef();
-            refs[i].setRoleName(LoaderUtil.getChildContent(root, "role-name"));
-            refs[i].setRoleLink(LoaderUtil.getChildContent(root, "role-link"));
-        }
-        return refs;
+    protected org.apache.geronimo.deployment.model.j2ee.ResourceRef newResourceRef() {
+        return new ResourceRef();
     }
 
-    public static ServiceRef[] loadServiceRefs(Element parent) {
-        NodeList nodes = parent.getElementsByTagName("service-ref");
-        int length = nodes.getLength();
-        ServiceRef[] result = new ServiceRef[length];
-        for (int i = 0; i < length; i++) {
-            Element e = (Element) nodes.item(i);
-            ServiceRef serviceRef = new ServiceRef();
-            serviceRef.setServiceRefName(LoaderUtil.getChildContent(e, "service-ref-name"));
-            result[i] = serviceRef;
-        }
-        return result;
+    protected org.apache.geronimo.deployment.model.j2ee.ResourceRef loadResourceRef(Element e) {
+        ResourceRef resourceRef = (ResourceRef) super.loadResourceRef(e);
+        resourceRef.setJndiName(LoaderUtil.getChildContent(e, "jndi-name"));
+        return resourceRef;
     }
 
-    public static ResourceRef[] loadResourceRefs(Element parent) {
-        NodeList nodes = parent.getElementsByTagName("resource-ref");
-        int length = nodes.getLength();
-        ResourceRef[] result = new ResourceRef[length];
-        for (int i = 0; i < length; i++) {
-            Element e = (Element) nodes.item(i);
-            ResourceRef resRef = new ResourceRef();
-            resRef.setResRefName(LoaderUtil.getChildContent(e, "res-ref-name"));
-            resRef.setJndiName(LoaderUtil.getChildContent(e, "jndi-name"));
-            resRef.setJndiContextParam(loadContextParams(LoaderUtil.getChild(e, "jndi-context-params")));
-            result[i] = resRef;
-        }
-        return result;
+    protected org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef newResourceEnvRef() {
+        return new ResourceEnvRef();
     }
 
-    public static ResourceEnvRef[] loadResourceEnvRefs(Element parent) {
-        NodeList nodes = parent.getElementsByTagName("resource-env-ref");
-        int length = nodes.getLength();
-        ResourceEnvRef[] result = new ResourceEnvRef[length];
-        for (int i = 0; i < length; i++) {
-            Element e = (Element) nodes.item(i);
-            ResourceEnvRef resEnvRef = new ResourceEnvRef();
-            resEnvRef.setResourceEnvRefName(LoaderUtil.getChildContent(e, "resource-env-ref-name"));
-            resEnvRef.setJndiName(LoaderUtil.getChildContent(e, "jndi-name"));
-            result[i] = resEnvRef;
-        }
-        return result;
+    protected org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef loadResourceEnvRef(Element e) {
+        ResourceEnvRef resourceEnvRef = (ResourceEnvRef) super.loadResourceEnvRef(e);
+        resourceEnvRef.setJndiName(LoaderUtil.getChildContent(e, "jndi-name"));
+        return resourceEnvRef;
     }
 
-    public static MessageDestinationRef[] loadMessageDestinationRefs(Element parent) {
-        NodeList nodes = parent.getElementsByTagName("message-destination-ref");
-        int length = nodes.getLength();
-        MessageDestinationRef[] result = new MessageDestinationRef[length];
-        for (int i = 0; i < length; i++) {
-            Element e = (Element) nodes.item(i);
-            MessageDestinationRef msgDestRef = new MessageDestinationRef();
-            msgDestRef.setMessageDestinationRefName(LoaderUtil.getChildContent(e, "message-destination-ref-name"));
-            msgDestRef.setJndiName(LoaderUtil.getChildContent(e, "jndi-name"));
-            msgDestRef.setJndiContextParam(loadContextParams(LoaderUtil.getChild(e, "jndi-context-params")));
-            result[i] = msgDestRef;
-        }
-        return result;
+    protected org.apache.geronimo.deployment.model.j2ee.ServiceRef newServiceRef() {
+        return new ServiceRef();
+    }
+
+    protected org.apache.geronimo.deployment.model.j2ee.ServiceRef loadServiceRef(Element e) {
+        ServiceRef serviceRef = (ServiceRef) super.loadServiceRef(e);
+        return serviceRef;
+    }
+
+    protected org.apache.geronimo.deployment.model.j2ee.MessageDestinationRef newMessageDestinationRef() {
+        return new MessageDestinationRef();
+    }
+
+    protected org.apache.geronimo.deployment.model.j2ee.MessageDestinationRef loadMessageDestinationRef(Element e) {
+        MessageDestinationRef msgDestRef = (MessageDestinationRef) super.loadMessageDestinationRef(e);
+        msgDestRef.setJndiName(LoaderUtil.getChildContent(e, "jndi-name"));
+        return msgDestRef;
+    }
+
+
+    protected org.apache.geronimo.deployment.model.j2ee.MessageDestination newMessageDestination() {
+        return new MessageDestination();
+    }
+
+    protected org.apache.geronimo.deployment.model.j2ee.MessageDestination loadMessageDestination(Element e) {
+        MessageDestination msgDest = (MessageDestination) super.loadMessageDestination(e);
+        msgDest.setJndiName(LoaderUtil.getChildContent(e, "jndi-name"));
+        return msgDest;
     }
 }

@@ -53,25 +53,38 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.model.j2ee;
+package org.apache.geronimo.deployment.model.geronimo.j2ee;
 
 /**
- * Interface for accessing the objects for a components JNDI context.
- * 
- * @version $Revision: 1.1 $ $Date: 2003/09/03 16:02:06 $
+ * JavaBean for the Geronimo DD tag message-destination-ref
+ *
+ * @version $Revision: 1.1 $ $Date: 2003/09/05 20:18:03 $
  */
-public interface JNDIEnvironmentRefs {
-    EnvEntry[] getEnvEntry();
+public class MessageDestination extends org.apache.geronimo.deployment.model.j2ee.MessageDestination {
+    private String jndiName;
+    private JndiContextParam[] jndiContextParam;
 
-    EJBRef[] getEJBRef();
+    public JndiContextParam[] getJndiContextParam() {
+        return jndiContextParam;
+    }
 
-    EJBLocalRef[] getEJBLocalRef();
+    public JndiContextParam getJndiContextParam(int i) {
+        return jndiContextParam[i];
+    }
 
-    ServiceRef[] getServiceRef();
+    public void setJndiContextParam(JndiContextParam[] jndiContextParam) {
+        this.jndiContextParam = jndiContextParam;
+    }
 
-    ResourceRef[] getResourceRef();
+    public void setJndiContextParam(int i, JndiContextParam jndiContextParam) {
+        this.jndiContextParam[i] = jndiContextParam;
+    }
 
-    ResourceEnvRef[] getResourceEnvRef();
+    public String getJndiName() {
+        return jndiName;
+    }
 
-    MessageDestinationRef[] getMessageDestinationRef();
+    public void setJndiName(String jndiName) {
+        this.jndiName = jndiName;
+    }
 }

@@ -55,29 +55,28 @@
  */
 package org.apache.geronimo.xml.deployment;
 
-import java.util.LinkedList;
-import java.io.Reader;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
-
-import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.Reader;
+import java.util.LinkedList;
 import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Document;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.SAXParseException;
-import org.xml.sax.SAXException;
 import org.xml.sax.InputSource;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.xml.sax.SAXException;
 
 /**
  * Holds utility methods for parsing a DOM tree.
- * 
- * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:21 $
+ *
+ * @version $Revision: 1.3 $ $Date: 2003/09/05 20:18:03 $
  */
 public final class LoaderUtil {
     private static final Log log = LogFactory.getLog(LoaderUtil.class);
@@ -122,7 +121,7 @@ public final class LoaderUtil {
                 continue;
             }
             Element e = (Element) node;
-            if (child.equals(e.getTagName())) {
+            if (child.equals(e.getLocalName())) {
                 return e;
             }
         }
@@ -169,33 +168,17 @@ public final class LoaderUtil {
      * @param context A file name or similar context, included when any warnings
      *                or errors are logged to help the user identify the problem
      */
-    public static Document parseXML(Reader reader, final String context) {
+    public static Document parseXML(Reader reader) throws SAXException, IOException {
+        DocumentBuilderFactory factory = new org.apache.xerces.jaxp.DocumentBuilderFactoryImpl();
+        factory.setNamespaceAware(true);
+        factory.setValidating(true);
+        factory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema");
         try {
-            DocumentBuilderFactory fac = DocumentBuilderFactory.newInstance();
-            fac.setValidating(false); //todo: how does validation work with schemas?
-            DocumentBuilder parser = fac.newDocumentBuilder();
-//            parser.setEntityResolver(...); //todo: implement an EntityResolver so we don't have to be online to validate against the schemas
-            parser.setErrorHandler(new ErrorHandler() {
-                public void warning (SAXParseException exception) throws SAXException {
-                    log.warn("XML: "+context+":"+exception.getLineNumber()+","+exception.getColumnNumber()+" "+exception.getMessage());
-                }
-                public void error (SAXParseException exception) throws SAXException {
-                    log.error("XML: "+context+":"+exception.getLineNumber()+","+exception.getColumnNumber()+" "+exception.getMessage());
-                }
-                public void fatalError (SAXParseException exception) throws SAXException {
-                    log.error("XML: "+context+":"+exception.getLineNumber()+","+exception.getColumnNumber()+" "+exception.getMessage());
-                }
-            });
-            return parser.parse(new InputSource(new BufferedReader(reader)));
-        } catch(ParserConfigurationException e) {
-            log.error("XML: "+context, e);
-        } catch(IOException e) {
-            log.error("XML: "+context, e);
-        } catch(SAXException e) {
-            log.error("XML: "+context, e);
-        } finally {
-            try {reader.close();}catch(IOException e) {}
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            builder.setEntityResolver(new LocalEntityResolver(new File("src/schema"))); // @todo get this from resource
+            return builder.parse(new InputSource(new BufferedReader(reader)));
+        } catch (ParserConfigurationException e) {
+            throw new AssertionError("Unable to obtain suitable DocumentBuilder");
         }
-        return null;
     }
 }

@@ -62,7 +62,7 @@ package javax.enterprise.deploy.spi.exceptions;
 /**
  * This exception reports errors in generating a configuration bean.
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/04 05:41:21 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/05 20:18:03 $
  */
 public class ConfigurationException extends Exception {
     /**
@@ -80,5 +80,13 @@ public class ConfigurationException extends Exception {
      */
     public ConfigurationException(String msg) {
         super(msg);
+    }
+
+    public ConfigurationException(Throwable cause) {
+        super(cause);
+    }
+
+    public ConfigurationException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

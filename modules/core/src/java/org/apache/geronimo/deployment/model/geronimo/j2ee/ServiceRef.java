@@ -59,16 +59,7 @@ package org.apache.geronimo.deployment.model.geronimo.j2ee;
  * JavaBean for the Geronimo DD tag service-ref.
  * INCOMPLETE: it is not know what may be necessary to resolve this reference.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/04 04:59:53 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/05 20:18:03 $
  */
-public class ServiceRef {
-    private String serviceRefName;
-
-    public String getServiceRefName() {
-        return serviceRefName;
-    }
-
-    public void setServiceRefName(String serviceRefName) {
-        this.serviceRefName = serviceRefName;
-    }
+public class ServiceRef extends org.apache.geronimo.deployment.model.j2ee.ServiceRef {
 }

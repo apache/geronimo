@@ -61,14 +61,14 @@ import javax.naming.Context;
 import javax.naming.LinkRef;
 
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.deployment.model.j2ee.EJBRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EJBRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDIEnvironmentRefs;
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
-import org.apache.geronimo.deployment.model.j2ee.JNDIEnvironmentRefs;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/04 05:16:17 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/05 20:18:03 $
  */
 public class ComponentContextBuilder {
     /**
@@ -131,7 +131,8 @@ public class ComponentContextBuilder {
         for (int i = 0; i < ejbRefs.length; i++) {
             EJBRef ejbRef = ejbRefs[i];
             String name = ejbRef.getEJBRefName();
-            LinkRef ref = new LinkRef("jnp://localhost/TestEJB");
+            String jndiName = ejbRef.getJndiName();
+            LinkRef ref = new LinkRef(jndiName);
             if (envMap.put(name, ref) != null) {
                 throw new AssertionError("Duplicate entry for env-entry " + name);
             }

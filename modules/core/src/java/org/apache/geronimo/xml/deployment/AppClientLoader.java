@@ -56,29 +56,37 @@
 package org.apache.geronimo.xml.deployment;
 
 import org.apache.geronimo.deployment.model.appclient.ApplicationClient;
+import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
+import org.apache.geronimo.deployment.model.j2ee.EJBRef;
+import org.apache.geronimo.deployment.model.j2ee.ServiceRef;
+import org.apache.geronimo.deployment.model.j2ee.ResourceRef;
+import org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef;
+import org.apache.geronimo.deployment.model.j2ee.MessageDestinationRef;
+import org.apache.geronimo.deployment.model.j2ee.MessageDestination;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * 
- * 
- * @version $Revision: 1.1 $ $Date: 2003/09/01 22:12:16 $
+ *
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/09/05 20:18:03 $
  */
 public class AppClientLoader {
+    J2EELoader j2eeLoader = new J2EELoader();
     public ApplicationClient load(Document doc) {
         Element root = doc.getDocumentElement();
         if (!"application-client".equals(root.getTagName())) {
             throw new IllegalArgumentException("Document is not an application-client instance");
         }
         ApplicationClient appClient = new ApplicationClient();
-        appClient.setEnvEntry(J2EELoader.loadEnvEntries(root));
-        appClient.setEJBRef(J2EELoader.loadEJBRefs(root));
-        appClient.setServiceRef(J2EELoader.loadServiceRefs(root));
-        appClient.setResourceRef(J2EELoader.loadResourceRefs(root));
-        appClient.setResourceEnvRef(J2EELoader.loadResourceEnvRefs(root));
-        appClient.setMessageDestinationRef(J2EELoader.loadMessageDestinationRefs(root));
+        appClient.setEnvEntry(j2eeLoader.loadEnvEntries(root, new EnvEntry[0]));
+        appClient.setEJBRef(j2eeLoader.loadEJBRefs(root, new EJBRef[0]));
+        appClient.setServiceRef(j2eeLoader.loadServiceRefs(root, new ServiceRef[0]));
+        appClient.setResourceRef(j2eeLoader.loadResourceRefs(root, new ResourceRef[0]));
+        appClient.setResourceEnvRef(j2eeLoader.loadResourceEnvRefs(root, new ResourceEnvRef[0]));
+        appClient.setMessageDestinationRef(j2eeLoader.loadMessageDestinationRefs(root, new MessageDestinationRef[0]));
         appClient.setCallbackHandler(LoaderUtil.getChildContent(root, "callback-handler"));
-        appClient.setMessageDestination(J2EELoader.loadMessageDestinations(root));
+        appClient.setMessageDestination(j2eeLoader.loadMessageDestinations(root, new MessageDestination[0]));
         return appClient;
     }
 }

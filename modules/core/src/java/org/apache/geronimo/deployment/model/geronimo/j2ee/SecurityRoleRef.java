@@ -58,25 +58,7 @@ package org.apache.geronimo.deployment.model.geronimo.j2ee;
 /**
  * JavaBean for the Geronimo DD tag security-role-ref
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/04 04:59:53 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/05 20:18:03 $
  */
-public class SecurityRoleRef {
-    private String roleName;
-    private String roleLink;
-
-    public String getRoleName() {
-        return roleName;
-    }
-
-    public void setRoleName(String roleName) {
-        this.roleName = roleName;
-    }
-
-    public String getRoleLink() {
-        return roleLink;
-    }
-
-    public void setRoleLink(String roleLink) {
-        this.roleLink = roleLink;
-    }
+public class SecurityRoleRef extends org.apache.geronimo.deployment.model.j2ee.SecurityRoleRef {
 }

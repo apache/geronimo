@@ -73,13 +73,14 @@ import org.apache.geronimo.enterprise.deploy.provider.jar.EjbJarRoot;
 import org.apache.geronimo.xml.deployment.GeronimoEjbJarLoader;
 import org.apache.geronimo.xml.deployment.LoaderUtil;
 import org.apache.geronimo.deployment.model.geronimo.ejb.GeronimoEjbJarDocument;
+import org.xml.sax.SAXException;
 
 /**
  * The Geronimo implementation of the JSR-88 DeploymentConfiguration.  This is what
  * knows how to load and save server-specific deployment information, and to
  * generate a default set based on the J2EE deployment descriptors.
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/04 05:24:21 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/05 20:18:03 $
  */
 public class EjbJarDeploymentConfiguration implements DeploymentConfiguration {
     private DeployableObject ejbDD;
@@ -123,7 +124,14 @@ public class EjbJarDeploymentConfiguration implements DeploymentConfiguration {
 
     public void restore(InputStream inputArchive) throws ConfigurationException {
         Reader reader = new InputStreamReader(inputArchive);
-        Document doc = LoaderUtil.parseXML(reader, "geronimo-ejb-jar.xml");
+        Document doc = null;
+        try {
+            doc = LoaderUtil.parseXML(reader);
+        } catch (SAXException e) {
+            throw new ConfigurationException("Invalid deployment descriptor", e);
+        } catch (IOException e) {
+            throw new ConfigurationException("Error reading deployment descriptor", e);
+        }
         GeronimoEjbJarDocument parsed = GeronimoEjbJarLoader.load(doc);
         geronimoDD = EjbConverter.loadDConfigBeans(parsed.getEjbJar(), ejbDD.getDDBeanRoot());
     }

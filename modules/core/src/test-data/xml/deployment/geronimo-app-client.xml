@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application-client
+    xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:ger="http://geronimo.apache.org/xml/schema/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://geronimo.apache.org/xml/schema/j2ee/geronimo-application-client.xsd"
+	version="1.4">
+    <env-entry>
+        <env-entry-name>hello</env-entry-name>
+        <env-entry-type>java.lang.String</env-entry-type>
+        <env-entry-value>Hello World</env-entry-value>
+    </env-entry>
+    <ejb-ref>
+        <ejb-ref-name>ejb/MyEJB</ejb-ref-name>
+        <ejb-ref-type>Session</ejb-ref-type>
+        <home>my.EJB.Home</home>
+        <remote>my.EJB.Remote</remote>
+        <ger:jndi-name>TestEJB</ger:jndi-name>
+    </ejb-ref>
+    <service-ref>
+        <service-ref-name>service/MyService</service-ref-name>
+        <service-interface>javax.xml.rpc.Service</service-interface>
+    </service-ref>
+    <resource-ref>
+        <res-ref-name>jdbc/MyDS</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+        <res-auth>Container</res-auth>
+        <res-sharing-scope>Shareable</res-sharing-scope>
+        <ger:jndi-name>TestDS</ger:jndi-name>
+    </resource-ref>
+    <resource-env-ref>
+        <resource-env-ref-name>jms/MyOldQueue</resource-env-ref-name>
+        <resource-env-ref-type>javax.jms.Queue</resource-env-ref-type>
+        <ger:jndi-name>TestQueue</ger:jndi-name>
+    </resource-env-ref>
+    <message-destination-ref>
+        <message-destination-ref-name>jms/MyQueue</message-destination-ref-name>
+        <message-destination-type>javax.jms.Queue</message-destination-type>
+        <message-destination-usage>Produces</message-destination-usage>
+        <ger:jndi-name>TestQueue</ger:jndi-name>
+    </message-destination-ref>
+    <callback-handler>my.callback.handler</callback-handler>
+    <message-destination>
+        <message-destination-name>jms/MyOwnQueue</message-destination-name>
+        <ger:jndi-name>TestQueue</ger:jndi-name>
+    </message-destination>
+</application-client>

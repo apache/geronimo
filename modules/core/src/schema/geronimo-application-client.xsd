@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="http://java.sun.com/xml/ns/j2ee" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:j2ee="http://java.sun.com/xml/ns/j2ee" elementFormDefault="qualified" attributeFormDefault="unqualified">
+  <xsd:include schemaLocation="geronimo-j2ee.xsd"/>
+  <xsd:element name="application-client" type="j2ee:application-clientType"/>
+  <xsd:complexType name="application-clientType">
+    <xsd:sequence>
+      <xsd:group ref="j2ee:descriptionGroup"/>
+      <xsd:element name="env-entry" type="j2ee:env-entryType" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="ejb-ref" type="j2ee:ejb-refType" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:group ref="j2ee:service-refGroup"/>
+      <xsd:element name="resource-ref" type="j2ee:resource-refType" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="resource-env-ref" type="j2ee:resource-env-refType" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="message-destination-ref" type="j2ee:message-destination-refType" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="callback-handler" type="j2ee:fully-qualified-classType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>
+
+          The callback-handler element names a class provided by
+          the application.  The class must have a no args
+          constructor and must implement the
+          javax.security.auth.callback.CallbackHandler
+          interface.  The class will be instantiated by the
+          application client container and used by the container
+          to collect authentication information from the user.
+
+        </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="message-destination" type="j2ee:message-destinationType" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+    <xsd:attribute name="version" type="j2ee:dewey-versionType" use="required" fixed="1.4">
+      <xsd:annotation>
+        <xsd:documentation>
+
+        The required value for the version is 1.4.
+
+      </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name="id" type="xsd:ID"/>
+  </xsd:complexType>
+</xsd:schema>

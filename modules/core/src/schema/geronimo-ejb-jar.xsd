@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema"
-    targetNamespace="http://geronimo.apache.org/xml/schema/1.0/j2ee14"
-    xmlns:ger="http://geronimo.apache.org/xml/schema/1.0/j2ee14"
+    targetNamespace="http://geronimo.apache.org/xml/schema/j2ee"
+    xmlns:ger="http://geronimo.apache.org/xml/schema/j2ee"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified">

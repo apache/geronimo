@@ -58,20 +58,11 @@ package org.apache.geronimo.deployment.model.geronimo.j2ee;
 /**
  * JavaBean for the Geronimo DD tag message-destination-ref
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/04 04:59:53 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/05 20:18:03 $
  */
-public class MessageDestinationRef {
-    private String messageDestinationRefName;
+public class MessageDestinationRef extends org.apache.geronimo.deployment.model.j2ee.MessageDestinationRef {
     private String jndiName;
     private JndiContextParam[] jndiContextParam;
-
-    public String getMessageDestinationRefName() {
-        return messageDestinationRefName;
-    }
-
-    public void setMessageDestinationRefName(String messageDestinationRefName) {
-        this.messageDestinationRefName = messageDestinationRefName;
-    }
 
     public JndiContextParam[] getJndiContextParam() {
         return jndiContextParam;

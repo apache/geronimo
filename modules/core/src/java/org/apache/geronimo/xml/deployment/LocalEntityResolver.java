@@ -53,53 +53,41 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.validator.ejb;
+package org.apache.geronimo.xml.deployment;
 
-import java.net.URLClassLoader;
-import java.net.URL;
+import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
-import javax.enterprise.deploy.shared.ModuleType;
-import org.apache.geronimo.validator.AbstractValidator;
-import org.apache.geronimo.validator.Validator;
-import org.apache.geronimo.xml.deployment.LoaderUtil;
-import org.apache.geronimo.xml.deployment.EjbJarLoader;
-import org.apache.geronimo.deployment.model.ejb.EjbJarDocument;
-import org.apache.geronimo.deployment.model.DeploymentDescriptor;
-import org.w3c.dom.Document;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
- * The validator class for validating an EJB JAR.  Right now just does enough
- * to prove that this whole thing works.
- *
- * @version $Revision: 1.2 $ $Date: 2003/09/05 20:18:04 $
+ * Implementation of EntityResolver that looks to the local filesystem.
+ * 
+ * @version $Revision: 1.1 $ $Date: 2003/09/05 20:18:03 $
  */
-public class EjbValidator extends AbstractValidator {
-    public Class[] getTestClasses() {
-        return new Class[]{
-            SessionBeanTests.class,
-        };
+public class LocalEntityResolver implements EntityResolver {
+    private final File root;
+
+    public LocalEntityResolver(File root) {
+        this.root = root;
     }
 
-    /**
-     * To try me, pass an EJB JAR file name as the only argument.
-     */
-    public static void main(String[] args) {
-        try {
-            ClassLoader loader = new URLClassLoader(new URL[]{new File(args[0]).toURL()});
-            InputStream in = loader.getResourceAsStream("META-INF/ejb-jar.xml");
-            Document doc = LoaderUtil.parseXML(new BufferedReader(new InputStreamReader(in)));
-            EjbJarLoader jarLoader = new EjbJarLoader();
-            EjbJarDocument jar = jarLoader.load(doc);
-            Validator v =new EjbValidator();
-            v.initialize(new PrintWriter(new OutputStreamWriter(System.out), true), args[0], loader, ModuleType.EJB, new DeploymentDescriptor[]{jar}, null);
-            System.out.println("Validation Result: "+v.validate());
-        } catch(Exception e) {
-            e.printStackTrace();
+    public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+        if (publicId != null || systemId == null) {
+            return null;
         }
+        int index = systemId.lastIndexOf("/");
+        String fileName = systemId.substring(index+1);
+        File file = new File(root, fileName);
+        if (file.exists()) {
+            InputSource is = new InputSource(new BufferedInputStream(new FileInputStream(file)));
+            is.setSystemId(systemId);
+            return is;
+        }
+        return null;
     }
 }

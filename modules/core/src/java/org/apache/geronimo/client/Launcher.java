@@ -58,6 +58,9 @@ package org.apache.geronimo.client;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -83,20 +86,21 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.impl.LogFactoryImpl;
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.deployment.model.appclient.ApplicationClient;
+import org.apache.geronimo.deployment.model.geronimo.appclient.ApplicationClient;
 import org.apache.geronimo.jmx.JMXKernel;
 import org.apache.geronimo.jmx.JMXUtil;
 import org.apache.geronimo.proxy.ProxyInvocation;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.xml.deployment.AppClientLoader;
+import org.apache.geronimo.xml.deployment.GeronimoAppClientLoader;
+import org.apache.geronimo.xml.deployment.LoaderUtil;
 import org.apache.geronimo.common.InvocationResult;
 import org.apache.xerces.parsers.DOMParser;
-import org.xml.sax.SAXException;
 
 /**
  * Launcher for J2EE Application Clients.
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/03 16:02:05 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/05 20:18:04 $
  */
 public class Launcher {
     static {
@@ -262,11 +266,10 @@ public class Launcher {
 
     private ApplicationClient loadAppClientDescriptor() throws DeploymentException {
         try {
-            URL appClientURL = new URL(deploymentURL, "META-INF/application-client.xml");
-            DOMParser parser = new DOMParser();
-            parser.parse(appClientURL.toString());
-            AppClientLoader loader = new AppClientLoader();
-            return loader.load(parser.getDocument());
+            URL appClientURL = new URL(deploymentURL, "META-INF/geronimo-application-client.xml");
+            Reader reader = new BufferedReader(new InputStreamReader(appClientURL.openStream()));
+            GeronimoAppClientLoader loader = new GeronimoAppClientLoader();
+            return loader.load(LoaderUtil.parseXML(reader));
         } catch (Exception e) {
             throw new DeploymentException("Unable to load application-client.xml", e);
         }

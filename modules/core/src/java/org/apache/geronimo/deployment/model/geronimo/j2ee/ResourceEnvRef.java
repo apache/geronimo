@@ -58,19 +58,10 @@ package org.apache.geronimo.deployment.model.geronimo.j2ee;
 /**
  * JavaBean for the Geronimo DD tag resource-env-ref
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/04 04:59:53 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/05 20:18:03 $
  */
-public class ResourceEnvRef {
-    private String resourceEnvRefName;
+public class ResourceEnvRef extends org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef {
     private String jndiName;
-
-    public String getResourceEnvRefName() {
-        return resourceEnvRefName;
-    }
-
-    public void setResourceEnvRefName(String resourceEnvRefName) {
-        this.resourceEnvRefName = resourceEnvRefName;
-    }
 
     public String getJndiName() {
         return jndiName;
