@@ -189,7 +189,7 @@ Configuration for the Geronimo deployer
     </gbean>
    -->
 
-    <gbean name="geronimo.deployer:J2EEApplication=null,J2EEModule=org/apache/geronimo/J2EEDeployer,J2EEServer=geronimo,j2eeType=DefaultServlet,name=StaticContent" class="org.apache.geronimo.jetty.JettyServletHolder">
+    <gbean namePart="StaticContent" class="org.apache.geronimo.jetty.JettyServletHolder">
         <attribute name="servletName">default</attribute>
         <attribute name="servletClass">org.mortbay.jetty.servlet.Default</attribute>
         <attribute name="loadOnStartup">0</attribute>
@@ -203,7 +203,7 @@ Configuration for the Geronimo deployer
         <attribute name="servletMappings">/</attribute>
     </gbean>
 
-    <gbean name="geronimo.deployer:J2EEApplication=null,J2EEModule=org/apache/geronimo/J2EEDeployer,J2EEServer=geronimo,j2eeType=DefaultServlet,name=JSPServlet" class="org.apache.geronimo.jetty.JettyServletHolder">
+    <gbean namePart="JSPServlet" class="org.apache.geronimo.jetty.JettyServletHolder">
         <attribute name="servletName">jsp</attribute>
         <attribute name="servletClass">org.apache.jasper.servlet.JspServlet</attribute>
         <attribute name="loadOnStartup">0</attribute>
