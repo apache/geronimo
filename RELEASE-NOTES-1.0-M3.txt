@@ -16,7 +16,7 @@ System Requirements
 -------------------
 You need a platform that supports JDK 1.4 or JDK 1.5 (and some
 features such as HTTPS currently depend on Sun implementation
-classes, so a Sub JVM would be the best bet)
+classes, so a Sun JVM would be the best bet)
 
 Most testing has been done on Linux, Mac OS X, and Windows.  For a
 list of notes on specific configurations, see
