@@ -106,7 +106,7 @@ public class AxisServiceBuilder {
 
         URL location = getAddressLocation(port);
         serviceDesc.setEndpointURL(location.toExternalForm());
-
+        serviceDesc.setWSDLFile(portInfo.getWsdlURL().toExternalForm());
         Binding binding = port.getBinding();
 
         serviceDesc.setStyle(getStyle(binding));
