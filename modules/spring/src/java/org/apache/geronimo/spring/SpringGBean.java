@@ -17,15 +17,19 @@
 
 package org.apache.geronimo.spring;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
+import net.sf.cglib.proxy.InterfaceMaker;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
@@ -58,6 +62,7 @@ public class SpringGBean
   protected final URL         _configurationBaseUrl;
   protected final URI         _configPath;
 
+  protected ClassLoader                _appClassLoader;
   protected ObjectName                 _jmxName;
   protected DefaultListableBeanFactory _factory;
 
@@ -107,6 +112,12 @@ public class SpringGBean
   // GBeanLifecycle
   //----------------------------------------
 
+  class GeronimoBeanFactory
+    extends DefaultListableBeanFactory
+  {
+    GeronimoBeanFactory(){super();}
+  }
+
   public void
     doStart()
     throws Exception
@@ -125,13 +136,13 @@ public class SpringGBean
       urls[i]=url;
     }
 
-    ClassLoader cl=new URLClassLoader(urls, _classLoader);
+    _appClassLoader=new URLClassLoader(urls, _classLoader);
 
     // delegate work to Spring framework...
-    _factory=new DefaultListableBeanFactory();
+    _factory=new GeronimoBeanFactory();
     XmlBeanDefinitionReader xbdr=new XmlBeanDefinitionReader(_factory);
-    xbdr.setBeanClassLoader(cl);
-    xbdr.loadBeanDefinitions(new ClassPathResource(_configPath.toString(), cl));
+    xbdr.setBeanClassLoader(_appClassLoader);
+    xbdr.loadBeanDefinitions(new ClassPathResource(_configPath.toString(), _appClassLoader));
 
     // install aspects around Spring Bean initialisation...
     _factory.addBeanPostProcessor(new BeanPostProcessor() {
@@ -178,6 +189,7 @@ public class SpringGBean
     tidyUp()
     throws Exception
   {
+    // can we put this as a spring aspect around each POJO ? would be better...
     String pattern=_jmxName.getDomain()+":J2EEApplication="+_jmxName.getKeyProperty("J2EEApplication")+",J2EEServer="+_jmxName.getKeyProperty("J2EEServer")+",SpringModule="+_jmxName.getKeyProperty("name")+",j2eeType=SpringBean,*";
     ObjectName on=new ObjectName(pattern);
 
@@ -186,7 +198,7 @@ public class SpringGBean
     //     props.put("SpringModule" , props.get("name"));
     //     props.put("j2eeType"     , "SpringBean");
     //     props.remove("name");
-    //     props.put("*"           , null);
+    //     props.put("*", "");
     //     ObjectName on=new ObjectName(_jmxName.getDomain(), props);
 
     Set peers=_kernel.listGBeans(on);
@@ -237,8 +249,10 @@ public class SpringGBean
       	_log.warn("No GBean available for name: " + name + " bean: " + bean);
       else
       {
+	_log.info("proxying: "+bean);
 	_log.info("loading: "+gd.getName());
-      	_kernel.loadGBean(gd, _classLoader);
+	//      	_kernel.loadGBeanProxy(bean, gd, _appClassLoader);
+      	_kernel.loadGBean(gd, _appClassLoader);
 	_log.info("starting: "+gd.getName());
 	_kernel.startGBean(gd.getName());
       }
@@ -271,13 +285,75 @@ public class SpringGBean
     return new ObjectName(_jmxName.getDomain(), props);
   }
 
-  protected GBeanData
-    createPOJOGBeanData(Object bean, String name)
-    throws MalformedObjectNameException
-  {
-    GBeanData gbeanData=new GBeanData(createObjectName(name), POJOGBean.GBEAN_INFO);
-    gbeanData.setAttribute("peer", bean);
+  protected int _count=0;	// we should use a Spring generated unique name here - TODO
 
-    return gbeanData;
+  public static class InvocationHandler
+    implements java.lang.reflect.InvocationHandler, java.io.Serializable
+  {
+    protected Object _pojo;
+
+    public
+      InvocationHandler(Object pojo) {_pojo=pojo;}
+
+    public Object
+      invoke(Object proxy, Method method, Object[] args)
+      throws Throwable
+    {
+      return _pojo.getClass().getMethod(method.getName(), method.getParameterTypes()).invoke(_pojo, args);
+    }
+  }
+
+  protected synchronized GBeanData
+    createPOJOGBeanData(Object bean, String name)
+      throws MalformedObjectNameException
+  {
+    Class c=createProxyClass(bean);
+    GBeanInfoBuilder gbif = new GBeanInfoBuilder(c, "POJO["+(_count++)+"]");
+
+    gbif.addAttribute("invocationHandler", java.lang.reflect.InvocationHandler.class, true);
+    gbif.setConstructor(new String[]{"invocationHandler"});
+    // describe the rest of the POJOs public API
+    Set pm=new HashSet();
+    Method[] methods=c.getMethods();
+    for (int i=0;i<methods.length;i++)
+    {
+      Method m=methods[i];
+      String n=m.getName();
+      Class[] pt=m.getParameterTypes();
+      Class rt=m.getReturnType();
+
+      // ugly way of collecting Bean property names - maybe we can get this from Spring ?
+      if ((n.startsWith("get") && pt.length==0) || (n.startsWith("set") && pt.length==1 && rt==Void.TYPE))
+	pm.add(n.substring(3,4).toLowerCase()+n.substring(4));
+    }
+
+    //    pm.remove("class"); // do we want this available ?
+    gbif.addInterface(c, (String[])pm.toArray(new String[pm.size()]));
+    //gbif.addInterface(c);
+    GBeanData gbd=new GBeanData(createObjectName(name), gbif.getBeanInfo());
+    // ensure the injection of the InvocationHandler into the newly instantiated Proxy
+    gbd.setAttribute("invocationHandler"  , new InvocationHandler(bean));
+
+    return gbd;
+  }
+
+  // We have to create a proxy here because the kernel only accepts
+  // classes from which to instantiate GBeanInstance targets, not
+  // instances, which is what we get from Spring. So we create a proxy
+  // that can be instantiated and injected with an InvocationHandler
+  // which will delegate all calls onto the corresponding method on
+  // the bean that we wanted to pass in in the first place. Complex
+  // syntactic sugar - eh...!
+  protected Class
+    createProxyClass(Object pojo)
+  {
+    InterfaceMaker im=new InterfaceMaker();
+    im.add(pojo.getClass());	// add all class' public methods...
+
+    // if POJO does not implement GBeanLifeCycle should we implement
+    // it and dump/reroute it, to be safe ?
+
+    Class c=im.create();
+    return Proxy.getProxyClass(c.getClassLoader(), new Class[] {c});
   }
 }
