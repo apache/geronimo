@@ -210,7 +210,8 @@ by the server.
 
 
     <!-- default WAR container using Jetty -->
-    <gbean namePart="JettyWebContainer" class="org.apache.geronimo.jetty.JettyContainerImpl"/>
+    <gbean namePart="JettyWebContainer" class="org.apache.geronimo.jetty.JettyContainerImpl">
+    </gbean>
 
     <gbean namePart="JettyRequestLog" class="org.apache.geronimo.jetty.requestlog.NCSARequestLog">
         <reference name="JettyContainer">geronimo.server:name=JettyWebContainer,*</reference>
@@ -252,27 +253,7 @@ by the server.
     </gbean>
 
 
-    <!-- HTTP/SOAP Protocol -->
-    <gbean name="openejb:type=NetworkService,name=HTTPSOAP" class="org.openejb.server.StandardServiceStackGBean">
-        <attribute name="name">HTTPSOAP</attribute>
-        <attribute name="port">8000</attribute>
-        <attribute name="address">127.0.0.1</attribute>
-        <attribute name="allowHosts">127.0.0.1</attribute>
-        <attribute name="priority">5</attribute>
-        <attribute name="threads">5</attribute>
-        <attribute name="logOnSuccess">HOST,NAME,THREADID,USERID</attribute>
-        <attribute name="logOnFailure">HOST,NAME</attribute>
-        <reference name="Server">openejb:type=Server,name=HTTPSOAP</reference>
-    </gbean>
-    <gbean name="openejb:type=Server,name=HTTPSOAP" class="org.openejb.server.httpd.HttpServerGBean">
-        <reference name="Listener">openejb:type=SoapHttpListener</reference>
-    </gbean>
-    <gbean name="openejb:type=SoapHttpListener" class="org.openejb.server.xfire.SoapHttpListenerGBean">
-        <reference name="WSContainerIndex">openejb:type=WSContainerIndex</reference>
-    </gbean>
-    <gbean name="openejb:type=WSContainerIndex" class="org.openejb.server.xfire.WSContainerIndexGBean">
-        <reference name="WSContainers">openejb:type=WSContainer,*</reference>
-    </gbean>
+    <!-- HTTP/SOAP Protocol is now run through jetty-->
 
     <!-- JSR77 Management Objects -->
     <gbean name="geronimo.server:j2eeType=J2EEDomain,name=geronimo.server" class="org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl"/>
