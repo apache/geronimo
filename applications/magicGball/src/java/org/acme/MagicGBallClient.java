@@ -41,8 +41,8 @@ public class MagicGBallClient {
 	public void ask(String question) throws Exception {
         Context ctx = new InitialContext();
         MagicGBallHome ejbHome = (MagicGBallHome) ctx.lookup("java:comp/env/mGball");
-        MagicGBall m8ball = ejbHome.create();
-        String answer = m8ball.ask(question);
+        MagicGBall mGball = ejbHome.create();
+        String answer = mGball.ask(question);
 
         System.out.println(answer);
 	}

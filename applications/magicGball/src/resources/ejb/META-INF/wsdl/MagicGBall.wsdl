@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<definitions name="MagicGBallDefinition" targetNamespace="http://acme.org/magicGball"
+    xmlns:test="http://acme.org/magicGball"
+    xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+
+    <types/>
+
+    <message name="askRequest">
+        <part name="String_1" type="xsd:string"/>
+    </message>
+    <message name="askResponse">
+        <part name="result" type="xsd:string"/>
+    </message>
+
+    <portType name="MagicGBallType">
+        <operation name="echo" parameterOrder="String_1">
+            <input message="mgb:askRequest"/>
+            <output message="mgb:askResponse"/>
+        </operation>
+    </portType>
+
+    <binding name="MagicGBallBinding" type="mgb:MagicGBallType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="rpc"/>
+        <operation name="echo">
+            <soap:operation soapAction=""/>
+            <input>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://openejb.org/test-ejb-jar"/>
+            </input>
+            <output>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://openejb.org/test-ejb-jar"/>
+            </output>
+        </operation>
+    </binding>
+
+    <service name="MagicGBallService">
+        <port name="MagicGBallPort" binding="mgb:MagicGBallBinding">
+            <soap:address location="http://localhost:8000/services/MagicGBall"/>
+        </port>
+    </service>
+</definitions>

@@ -21,7 +21,7 @@ package org.acme;
  *
  * @version $Rev: 46301 $ $Date: 2004-09-18 13:03:59 -0700 (Sat, 18 Sep 2004) $
  */
-public interface MagicGBallHome extends javax.ejb.EJBLocalHome {
+public interface MagicGBallHome extends javax.ejb.EJBHome {
 	/**
 	 * Creates a default instance of Session Bean: MagicGBall
 	 */

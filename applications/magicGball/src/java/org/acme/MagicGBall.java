@@ -21,6 +21,6 @@ package org.acme;
  *
  * @version $Rev: 46301 $ $Date: 2004-09-18 13:03:59 -0700 (Sat, 18 Sep 2004) $
  */
-public interface MagicGBall extends javax.ejb.EJBLocalObject {
+public interface MagicGBall extends javax.ejb.EJBObject {
 	public String ask(String question) throws java.rmi.RemoteException;
 }

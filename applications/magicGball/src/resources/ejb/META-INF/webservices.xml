@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<webservices xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:mgb="http://acme.org/magicGball"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://www.ibm.com/webservices/xsd/j2ee_web_services_1_1.xsd"
+    version="1.1">
+
+    <webservice-description>
+        <webservice-description-name>MagicGBallWebService</webservice-description-name>
+        <wsdl-file>META-INF/wsdl/MagicGBall.wsdl</wsdl-file>
+        <jaxrpc-mapping-file>META-INF/wsdl/MagicGBall-mapping.xml</jaxrpc-mapping-file>
+        <port-component>
+            <port-component-name>MagicGBall</port-component-name>
+            <wsdl-port>mgb:MagicGBallPort</wsdl-port>
+            <service-endpoint-interface>org.acme.MagicGBallEndpoint</service-endpoint-interface>
+            <service-impl-bean>
+                <ejb-link>MagicGBall</ejb-link>
+            </service-impl-bean>
+        </port-component>
+    </webservice-description>
+</webservices>
