@@ -95,6 +95,7 @@ Configuration for the Geronimo deployer
         <attribute name="nonTransactionalTimerObjectName" type="javax.management.ObjectName">geronimo.server:type=ThreadPooledTimer,name=JDBCNonTransactionalThreadPooledTimer</attribute>
         <reference name="Repository">*:role=Repository,*</reference>
         <reference name="EJBConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/J2EEDeployer</reference>
+        <reference name="EJBReferenceBuilder">geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/J2EEDeployer</reference>
         <reference name="WebConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=Web,config=org/apache/geronimo/J2EEDeployer</reference>
         <reference name="ConnectorConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=Connector,config=org/apache/geronimo/J2EEDeployer</reference>
     </gbean>

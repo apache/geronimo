@@ -60,7 +60,7 @@ import org.apache.xmlbeans.XmlOptions;
 import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
- * @version $Revision: 1.17 $ $Date: 2004/07/23 06:06:19 $
+ * @version $Revision: 1.18 $ $Date: 2004/08/06 22:44:36 $
  */
 public class RAR_1_5ConfigBuilderTest extends TestCase {
     private URL j2eeDD;
@@ -150,6 +150,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
                     j2eeApplicationName,
                     null,
                     connectionTrackerName,
+                    null,
                     null,
                     null);
 

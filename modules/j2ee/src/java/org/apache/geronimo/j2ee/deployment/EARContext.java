@@ -25,6 +25,7 @@ import java.util.jar.JarOutputStream;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.naming.Reference;
 
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
@@ -32,9 +33,9 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/07/22 03:22:53 $
+ * @version $Revision: 1.8 $ $Date: 2004/08/06 22:44:36 $
  */
-public class EARContext extends DeploymentContext {
+public class EARContext extends DeploymentContext implements EJBReferenceBuilder {
     private final Map ejbRefs = new HashMap();
     private final Map ejbLocalRefs = new HashMap();
     private final Map resourceAdapterModules = new HashMap();
@@ -52,7 +53,9 @@ public class EARContext extends DeploymentContext {
     private final ObjectName transactedTimerName;
     private final ObjectName nonTransactedTimerName;
 
-    public EARContext(JarOutputStream jos, URI id, ConfigurationModuleType moduleType, URI parentID, Kernel kernel, String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactedTimerName, ObjectName nonTransactedTimerName) throws MalformedObjectNameException, DeploymentException {
+    private final EJBReferenceBuilder ejbReferenceBuilder;
+
+    public EARContext(JarOutputStream jos, URI id, ConfigurationModuleType moduleType, URI parentID, Kernel kernel, String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactedTimerName, ObjectName nonTransactedTimerName, EJBReferenceBuilder ejbReferenceBuilder) throws MalformedObjectNameException, DeploymentException {
         super(jos, id, moduleType, parentID, kernel);
         this.j2eeDomainName = j2eeDomainName;
         this.j2eeServerName = j2eeServerName;
@@ -97,6 +100,7 @@ public class EARContext extends DeploymentContext {
         this.connectionTrackerObjectName = connectionTrackerObjectName;
         this.transactedTimerName = transactedTimerName;
         this.nonTransactedTimerName = nonTransactedTimerName;
+        this.ejbReferenceBuilder = ejbReferenceBuilder;
     }
 
     public String getJ2EEDomainName() {
@@ -219,5 +223,19 @@ public class EARContext extends DeploymentContext {
 
     public String getResourceAdapterModule(String resourceAdapterName) {
         return (String) resourceAdapterModules.get(resourceAdapterName);
+    }
+
+    public Reference createEJBLocalReference(String objectName, boolean isSession, String localHome, String local) throws DeploymentException {
+        if (ejbReferenceBuilder != null) {
+            return ejbReferenceBuilder.createEJBLocalReference(objectName, isSession, localHome, local);
+        }
+        throw new DeploymentException("No ejb reference builder");
+    }
+
+    public Reference createEJBRemoteReference(String objectName, boolean isSession, String home, String remote) throws DeploymentException {
+        if (ejbReferenceBuilder != null) {
+            return ejbReferenceBuilder.createEJBRemoteReference(objectName, isSession, home, remote);
+        }
+        throw new DeploymentException("No ejb reference builder");
     }
 }

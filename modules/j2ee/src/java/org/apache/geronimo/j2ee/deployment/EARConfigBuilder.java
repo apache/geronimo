@@ -56,7 +56,7 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 /**
- * @version $Revision: 1.17 $ $Date: 2004/08/01 20:14:19 $
+ * @version $Revision: 1.18 $ $Date: 2004/08/06 22:44:36 $
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
     static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[]{
@@ -72,6 +72,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final ModuleBuilder ejbConfigBuilder;
     private final ModuleBuilderWithUnpack webConfigBuilder;
     private final ModuleBuilderWithUnpack connectorConfigBuilder;
+    private final EJBReferenceBuilder ejbReferenceBuilder;
     private final String j2eeServerName;
     private final String j2eeDomainName;
     private final ObjectName j2eeServer;
@@ -81,7 +82,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final ObjectName nonTransactionalTimerObjectName;
 
 
-    public EARConfigBuilder(ObjectName j2eeServer, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactionalTimerObjectName, ObjectName nonTransactionalTimerObjectName, Repository repository, ModuleBuilder ejbConfigBuilder, ModuleBuilderWithUnpack webConfigBuilder, ModuleBuilderWithUnpack connectorConfigBuilder, Kernel kernel) {
+    public EARConfigBuilder(ObjectName j2eeServer, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactionalTimerObjectName, ObjectName nonTransactionalTimerObjectName, Repository repository, ModuleBuilder ejbConfigBuilder, EJBReferenceBuilder ejbReferenceBuilder, ModuleBuilderWithUnpack webConfigBuilder, ModuleBuilderWithUnpack connectorConfigBuilder, Kernel kernel) {
         this.kernel = kernel;
         this.repository = repository;
         this.j2eeServer = j2eeServer;
@@ -89,6 +90,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         j2eeDomainName = j2eeServer.getDomain();
 
         this.ejbConfigBuilder = ejbConfigBuilder;
+        this.ejbReferenceBuilder = ejbReferenceBuilder;
         this.webConfigBuilder = webConfigBuilder;
         this.connectorConfigBuilder = connectorConfigBuilder;
         this.transactionContextManagerObjectName = transactionContextManagerObjectName;
@@ -348,7 +350,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                         transactionContextManagerObjectName,
                         connectionTrackerObjectName,
                         transactionalTimerObjectName,
-                        nonTransactionalTimerObjectName);
+                        nonTransactionalTimerObjectName, ejbReferenceBuilder);
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException(e);
             }
@@ -645,6 +647,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
         infoFactory.addReference("Repository", Repository.class);
         infoFactory.addReference("EJBConfigBuilder", ModuleBuilder.class);
+        infoFactory.addReference("EJBReferenceBuilder", EJBReferenceBuilder.class);
         infoFactory.addReference("WebConfigBuilder", ModuleBuilderWithUnpack.class);
         infoFactory.addReference("ConnectorConfigBuilder", ModuleBuilderWithUnpack.class);
 
@@ -660,6 +663,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             "nonTransactionalTimerObjectName",
             "Repository",
             "EJBConfigBuilder",
+            "EJBReferenceBuilder",
             "WebConfigBuilder",
             "ConnectorConfigBuilder",
             "kernel"

@@ -26,7 +26,7 @@ import org.apache.geronimo.naming.deployment.RefAdapter;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/25 21:33:27 $
+ * @version $Revision: 1.4 $ $Date: 2004/08/06 22:44:37 $
  *
  * */
 public class JMXReferenceFactory {
@@ -57,5 +57,16 @@ public class JMXReferenceFactory {
         return ref;
     }
 
-    //TODO remotable references should check for externalURI and use a LinkRef if present.
+    public Reference buildEjbReference(RefAdapter refAdapter, Class iface) throws MalformedObjectNameException {
+        Reference ref = new Reference(null, JMXObjectFactory.class.getName(), null);
+        ref.add(new JMXRefAddr(refAdapter.getServerName(), refAdapter.getKernelName(), ObjectName.getInstance(refAdapter.getTargetName()), iface));
+        return ref;
+    }
+
+    public Reference buildEjbLocalReference(RefAdapter refAdapter, Class iface) throws MalformedObjectNameException {
+        Reference ref = new Reference(null, JMXObjectFactory.class.getName(), null);
+        ref.add(new JMXRefAddr(refAdapter.getServerName(), refAdapter.getKernelName(), ObjectName.getInstance(refAdapter.getTargetName()), iface));
+        return ref;
+    }
+
 }

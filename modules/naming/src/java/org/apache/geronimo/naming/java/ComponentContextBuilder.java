@@ -30,7 +30,7 @@ import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 /**
  *
  *
- * @version $Revision: 1.9 $ $Date: 2004/06/25 21:33:27 $
+ * @version $Revision: 1.10 $ $Date: 2004/08/06 22:44:37 $
  */
 public class ComponentContextBuilder {
     private static final String ENV = "env/";
@@ -103,36 +103,45 @@ public class ComponentContextBuilder {
                 throw (NamingException) new NamingException("Could not convert " + refAdapter + " to URL").initCause(e);
             }
         } else {
-            Reference ref = null;
             try {
-                ref = referenceFactory.buildConnectionFactoryReference(refAdapter, iface);
+                bind(name, referenceFactory.buildConnectionFactoryReference(refAdapter, iface));
             } catch (MalformedObjectNameException e) {
                 throw (NamingException) new NamingException("invalid object name").initCause(e);
             }
-            context.internalBind(ENV + name, ref);
         }
     }
 
     public void addResourceEnvRef(String name, Class iface, RefAdapter refAdapter) throws NamingException {
-        Reference ref = null;
         try {
-            ref = referenceFactory.buildAdminObjectReference(refAdapter, iface);
+            bind(name, referenceFactory.buildAdminObjectReference(refAdapter, iface));
         } catch (MalformedObjectNameException e) {
             throw (NamingException) new NamingException("invalid object name").initCause(e);
         }
-        context.internalBind(ENV + name, ref);
     }
 
     //TODO this works only if there is only one kernel running.
     public void addMessageDestinationRef(String name, String linkName, Class iface) throws NamingException {
-        Reference ref = null;
         try {
-            ref = referenceFactory.buildMessageDestinationReference(linkName, iface);
+            bind(name, referenceFactory.buildMessageDestinationReference(linkName, iface));
         } catch (MalformedObjectNameException e) {
             throw (NamingException) new NamingException("invalid object name").initCause(e);
         }
-        context.internalBind(ENV + name, ref);
     }
 
-    // todo methods for other references
+    public void addEjbRef(String name, Class iface, RefAdapter refAdapter) throws NamingException {
+        try {
+            bind(name, referenceFactory.buildEjbReference(refAdapter, iface));
+        } catch (MalformedObjectNameException e) {
+            throw (NamingException) new NamingException("invalid object name").initCause(e);
+        }
+    }
+
+    public void addEjbLocalRef(String name, Class iface, RefAdapter refAdapter) throws NamingException {
+        try {
+            bind(name, referenceFactory.buildEjbLocalReference(refAdapter, iface));
+        } catch (MalformedObjectNameException e) {
+            throw (NamingException) new NamingException("invalid object name").initCause(e);
+        }
+    }
+
 }

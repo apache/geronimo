@@ -28,7 +28,7 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import junit.framework.TestCase;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/07/22 03:22:53 $
+ * @version $Revision: 1.5 $ $Date: 2004/08/06 22:44:37 $
  */
 public class EARContextTest extends TestCase {
     private final URI coffee = URI.create("some/path/coffee.jar");
@@ -142,8 +142,8 @@ public class EARContextTest extends TestCase {
                 ObjectName.getInstance("j2eeDomain:type=TransactionManager"),
                 ObjectName.getInstance("j2eeDomain:type=ConnectionTracker"),
                 ObjectName.getInstance("j2eeDomain:type=TransactionalTimer"),
-                ObjectName.getInstance("j2eeDomain:type=NonTransactionalTimer")
-        );
+                ObjectName.getInstance("j2eeDomain:type=NonTransactionalTimer"),
+                null);
 
         earContext.addEJBRef(coffee, "peaberry", coffee_peaberry);
         earContext.addEJBLocalRef(coffee, "peaberry", coffee_peaberry_local);

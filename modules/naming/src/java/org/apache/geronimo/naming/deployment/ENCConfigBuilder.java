@@ -18,20 +18,23 @@
 package org.apache.geronimo.naming.deployment;
 
 import java.util.Map;
+import java.lang.String;
+import java.net.URI;
 
 import javax.naming.NamingException;
+import javax.transaction.UserTransaction;
 
-import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
-import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
-import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
-import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
+import org.apache.geronimo.xbeans.j2ee.*;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
+import org.apache.geronimo.naming.java.ReadOnlyContext;
+import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
+import org.apache.geronimo.j2ee.deployment.EARContext;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/07/25 08:12:39 $
+ * @version $Revision: 1.5 $ $Date: 2004/08/06 22:44:37 $
  *
  * */
 public class ENCConfigBuilder {
@@ -71,7 +74,7 @@ public class ENCConfigBuilder {
             try {
                 builder.addResourceRef(name, iface, refAdapter);
             } catch (NamingException e) {
-                throw new DeploymentException("Invalid env-entry definition for name: " + name, e);
+                throw new DeploymentException("Invalid resource-ref definition for name: " + name, e);
             }
         }
 
@@ -95,7 +98,7 @@ public class ENCConfigBuilder {
             try {
                 builder.addResourceRef(name, iface, refAdapter);
             } catch (NamingException e) {
-                throw new DeploymentException("Invalid env-entry definition for name: " + name, e);
+                throw new DeploymentException("Invalid resource-env-ref definition for name: " + name, e);
             }
         }
     }
@@ -115,10 +118,161 @@ public class ENCConfigBuilder {
             try {
                 builder.addMessageDestinationRef(name, linkName, iface);
             } catch (NamingException e) {
-                throw new DeploymentException("Invalid env-entry definition for name: " + name, e);
+                throw new DeploymentException("Invalid message-destination-ref definition for name: " + name, e);
             }
 
         }
 
+    }
+
+    public static void addEJBRefs(EARContext earContext, URI uri, EjbRefType[] ejbRefs, Map ejbRefMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+        for (int i = 0; i < ejbRefs.length; i++) {
+            EjbRefType ejbRef = ejbRefs[i];
+
+            String ejbRefName = ejbRef.getEjbRefName().getStringValue();
+
+            String remote = ejbRef.getRemote().getStringValue();
+            assureEJBObjectInterface(remote, cl);
+
+            String home = ejbRef.getHome().getStringValue();
+            assureEJBHomeInterface(home, cl);
+
+            boolean isSession = "Session".equals(ejbRef.getEjbRefType().getStringValue());
+
+            String ejbLink = getJ2eeStringValue(ejbRef.getEjbLink());
+            if (ejbLink != null) {
+                try {
+                    builder.bind(ejbRefName, earContext.getEJBRef(uri, ejbLink));
+                } catch (NamingException e) {
+                    throw new DeploymentException("Unable to to bind ejb-ref: ejb-ref-name=" + ejbRefName);
+                }
+            } else {
+                RefAdapter refAdapter = (RefAdapter) ejbRefMap.get(ejbRefName);
+                if (refAdapter == null) {
+                    throw  new DeploymentException("No geronimo configuration for resource ref named: " + ejbRefName);
+                }
+                try {
+                    builder.bind(ejbRefName, earContext.createEJBRemoteReference(refAdapter.getTargetName(), isSession, home, remote));
+                } catch (NamingException e) {
+                    throw new DeploymentException("Invalid env-entry definition for name: " + ejbRefName, e);
+                }
+            }
+
+        }
+    }
+
+    public static void addEJBLocalRefs(EARContext earContext, URI uri, EjbLocalRefType[] ejbLocalRefs, Map ejbLocalRefMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+        for (int i = 0; i < ejbLocalRefs.length; i++) {
+            EjbLocalRefType ejbLocalRef = ejbLocalRefs[i];
+
+            String ejbRefName = ejbLocalRef.getEjbRefName().getStringValue();
+
+            String local = ejbLocalRef.getLocal().getStringValue();
+            assureEJBLocalObjectInterface(local, cl);
+
+            String localHome = ejbLocalRef.getLocalHome().getStringValue();
+            assureEJBLocalHomeInterface(localHome, cl);
+
+            boolean isSession = "Session".equals(ejbLocalRef.getEjbRefType().getStringValue());
+
+            String ejbLink = getJ2eeStringValue(ejbLocalRef.getEjbLink());
+            if (ejbLink != null) {
+                try {
+                    builder.bind(ejbRefName, earContext.getEJBLocalRef(uri, ejbLink));
+                } catch (NamingException e) {
+                    throw new DeploymentException("Unable to to bind ejb-local-ref: ejb-ref-name=" + ejbRefName);
+                }
+            } else {
+                RefAdapter refAdapter = (RefAdapter) ejbLocalRefMap.get(ejbRefName);
+                if (refAdapter == null) {
+                    throw  new DeploymentException("No geronimo configuration for resource ref named: " + ejbRefName);
+                }
+                try {
+                    builder.bind(ejbRefName, earContext.createEJBLocalReference(refAdapter.getTargetName(), isSession, localHome, local));
+                } catch (NamingException e) {
+                    throw new DeploymentException("Invalid env-entry definition for name: " + ejbRefName, e);
+                }
+            }
+
+
+        }
+    }
+
+    public static void assureEJBObjectInterface(String remote, ClassLoader cl) throws DeploymentException {
+        assureInterface(remote, "javax.ejb.EJBObject", "Remote", cl);
+    }
+
+    public static void assureEJBHomeInterface(String home, ClassLoader cl) throws DeploymentException {
+        assureInterface(home, "javax.ejb.EJBHome", "Home", cl);
+    }
+
+    public static void assureEJBLocalObjectInterface(String local, ClassLoader cl) throws DeploymentException {
+        assureInterface(local, "javax.ejb.EJBLocalObject", "Local", cl);
+    }
+
+    public static void assureEJBLocalHomeInterface(String localHome, ClassLoader cl) throws DeploymentException {
+        assureInterface(localHome, "javax.ejb.EJBLocalHome", "LocalHome", cl);
+    }
+
+    public static void assureInterface(String interfaceName, String superInterfaceName, String interfactType, ClassLoader cl) throws DeploymentException {
+        Class clazz = null;
+        try {
+            clazz = cl.loadClass(interfaceName);
+        } catch (ClassNotFoundException e) {
+            throw new DeploymentException(interfactType + " interface class not found: " + interfaceName);
+        }
+        if (!clazz.isInterface()) {
+            throw new DeploymentException(interfactType + " interface is not an interface: " + interfaceName);
+        }
+        Class superInterface = null;
+        try {
+            superInterface = cl.loadClass(superInterfaceName);
+        } catch (ClassNotFoundException e) {
+            throw new DeploymentException("Class " + superInterfaceName + " could not be loaded");
+        }
+        if (clazz.isAssignableFrom(superInterface)) {
+            throw new DeploymentException(interfactType + " interface does not extend " + superInterfaceName + ": " + interfaceName);
+        }
+    }
+
+    private static String getJ2eeStringValue(org.apache.geronimo.xbeans.j2ee.String string) {
+        if (string == null) {
+            return null;
+        }
+        return string.getStringValue();
+    }
+
+    public static ReadOnlyContext buildComponentContext(EARContext earContext, URI uri, UserTransaction userTransaction, EnvEntryType[] envEntries, EjbRefType[] ejbRefs, Map ejbRefMap, EjbLocalRefType[] ejbLocalRefs, Map ejbLocalRefMap, ResourceRefType[] resourceRefs, Map resourceRefMap, ResourceEnvRefType[] resourceEnvRefs, Map resourceEnvRefMap, MessageDestinationRefType[] messageDestinationRefs, ClassLoader cl) throws DeploymentException {
+        ComponentContextBuilder builder = new ComponentContextBuilder(new JMXReferenceFactory());
+
+        if (userTransaction != null) {
+            try {
+                builder.addUserTransaction(userTransaction);
+            } catch (NamingException e) {
+                throw new DeploymentException("Could not bind UserTransaction", e);
+            }
+        }
+
+        addEnvEntries(envEntries, builder);
+
+        // ejb-ref
+        addEJBRefs(earContext, uri, ejbRefs, ejbRefMap, cl, builder);
+
+        // ejb-local-ref
+        addEJBLocalRefs(earContext, uri, ejbLocalRefs, ejbLocalRefMap, cl, builder);
+
+        // resource-ref
+        if (!resourceRefMap.isEmpty()) {
+            addResourceRefs(resourceRefs, cl, resourceRefMap, builder);
+        }
+
+        // resource-env-ref
+        if (!resourceEnvRefMap.isEmpty()) {
+            addResourceEnvRefs(resourceEnvRefs, cl, resourceEnvRefMap, builder);
+        }
+
+        addMessageDestinationRefs(messageDestinationRefs, cl, builder);
+
+        return builder.getContext();
     }
 }

@@ -242,6 +242,7 @@ by the server.
         <attribute name="nonTransactionalTimerObjectName" type="javax.management.ObjectName">geronimo.server:type=ThreadPooledTimer,name=NonTransactionalThreadPooledTimer</attribute>
         <reference name="Repository">*:role=Repository,*</reference>
         <reference name="EJBConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/Server</reference>
+        <reference name="EJBReferenceBuilder">geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/Server</reference>
         <reference name="WebConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=Web,config=org/apache/geronimo/Server</reference>
         <reference name="ConnectorConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=Connector,config=org/apache/geronimo/Server</reference>
     </gbean>

@@ -70,17 +70,7 @@ import org.apache.geronimo.security.deploy.Realm;
 import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.transaction.UserTransactionImpl;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyDefaultPrincipalType;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyDependencyType;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyGbeanType;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyLocalRefType;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyPrincipalType;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyRealmType;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyRoleMappingsType;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyRoleType;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettySecurityType;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
+import org.apache.geronimo.xbeans.geronimo.jetty.*;
 import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.j2ee.EjbRefType;
 import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
@@ -94,7 +84,7 @@ import org.apache.xmlbeans.XmlBeans;
 
 
 /**
- * @version $Revision: 1.19 $ $Date: 2004/08/04 12:05:34 $
+ * @version $Revision: 1.20 $ $Date: 2004/08/06 22:44:37 $
  */
 public class JettyModuleBuilder implements ModuleBuilderWithUnpack {
     static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[]{
@@ -381,48 +371,35 @@ public class JettyModuleBuilder implements ModuleBuilderWithUnpack {
     }
 
     private ReadOnlyContext buildComponentContext(EARContext earContext, WebModule webModule, WebAppType webApp, JettyWebAppType jettyWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
-        ComponentContextBuilder builder = new ComponentContextBuilder(new JMXReferenceFactory());
-        if (userTransaction != null) {
-            try {
-                builder.addUserTransaction(userTransaction);
-            } catch (NamingException e) {
-                throw new DeploymentException("Unable to bind UserTransaction into ENC", e);
+        Map ejbRefMap = mapRefs(jettyWebApp.getEjbRefArray());
+        Map ejbLocalRefMap = mapRefs(jettyWebApp.getEjbLocalRefArray());
+        Map resourceRefMap = mapRefs(jettyWebApp.getResourceRefArray());
+        Map resourceEnvRefMap = mapRefs(jettyWebApp.getResourceEnvRefArray());
+
+        URI uri = webModule.getURI();
+
+        return ENCConfigBuilder.buildComponentContext(earContext,
+                uri,
+                userTransaction,
+                webApp.getEnvEntryArray(),
+                webApp.getEjbRefArray(), ejbRefMap,
+                webApp.getEjbLocalRefArray(), ejbLocalRefMap,
+                webApp.getResourceRefArray(), resourceRefMap,
+                webApp.getResourceEnvRefArray(), resourceEnvRefMap,
+                webApp.getMessageDestinationRefArray(),
+                cl);
+
+    }
+
+    private static Map mapRefs(JettyRemoteRefType[] refs) {
+        Map refMap = new HashMap();
+        if (refs != null) {
+            for (int i = 0; i < refs.length; i++) {
+                JettyRemoteRefType ref = refs[i];
+                refMap.put(ref.getRefName(), new JettyRefAdapter(ref));
             }
         }
-
-        EnvEntryType[] envEntries = webApp.getEnvEntryArray();
-        ENCConfigBuilder.addEnvEntries(envEntries, builder);
-
-        // ejb-ref
-        EjbRefType[] ejbRefs = webApp.getEjbRefArray();
-        addEJBRefs(earContext, webModule, ejbRefs, cl, builder);
-
-        // ejb-local-ref
-        EjbLocalRefType[] ejbLocalRefs = webApp.getEjbLocalRefArray();
-        addEJBLocalRefs(earContext, webModule, ejbLocalRefs, cl, builder);
-
-
-        // resource-ref
-        Map resourceRefMap = new HashMap();
-        JettyLocalRefType[] jettyResourceRefs = jettyWebApp.getResourceRefArray();
-        for (int i = 0; i < jettyResourceRefs.length; i++) {
-            JettyLocalRefType jettyResourceRef = jettyResourceRefs[i];
-            resourceRefMap.put(jettyResourceRef.getRefName(), new JettyRefAdapter(jettyResourceRef));
-        }
-        ENCConfigBuilder.addResourceRefs(webApp.getResourceRefArray(), cl, resourceRefMap, builder);
-
-        // resource-env-ref
-        Map resourceEnvRefMap = new HashMap();
-        JettyLocalRefType[] jettyResourceEnvRefs = jettyWebApp.getResourceEnvRefArray();
-        for (int i = 0; i < jettyResourceEnvRefs.length; i++) {
-            JettyLocalRefType jettyResourceEnvRef = jettyResourceEnvRefs[i];
-            resourceEnvRefMap.put(jettyResourceEnvRef.getRefName(), new JettyRefAdapter(jettyResourceEnvRef));
-        }
-        ENCConfigBuilder.addResourceEnvRefs(webApp.getResourceEnvRefArray(), cl, resourceEnvRefMap, builder);
-
-        ENCConfigBuilder.addMessageDestinationRefs(webApp.getMessageDestinationRefArray(), cl, builder);
-
-        return builder.getContext();
+        return refMap;
     }
 
     private static Security buildSecurityConfig(JettyWebAppType jettyWebApp) {
@@ -481,64 +458,7 @@ public class JettyModuleBuilder implements ModuleBuilderWithUnpack {
         return principal;
     }
 
-    private static void addEJBRefs(EARContext earContext, WebModule webModule, EjbRefType[] ejbRefs, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
-        for (int i = 0; i < ejbRefs.length; i++) {
-            EjbRefType ejbRef = ejbRefs[i];
-
-            String ejbRefName = ejbRef.getEjbRefName().getStringValue();
-
-            String remote = ejbRef.getRemote().getStringValue();
-            assureEJBObjectInterface(remote, cl);
-
-            String home = ejbRef.getHome().getStringValue();
-            assureEJBHomeInterface(home, cl);
-
-            String ejbLink = getJ2eeStringValue(ejbRef.getEjbLink());
-            Object ejbRefObject;
-            if (ejbLink != null) {
-                ejbRefObject = earContext.getEJBRef(webModule.getURI(), ejbLink);
-            } else {
-                // todo get the id from the geronimo-jetty.xml file
-                throw new IllegalArgumentException("non ejb-link refs not supported");
-            }
-
-            try {
-                builder.bind(ejbRefName, ejbRefObject);
-            } catch (NamingException e) {
-                throw new DeploymentException("Unable to to bind ejb-ref: ejb-ref-name=" + ejbRefName);
-            }
-        }
-    }
-
-    private static void addEJBLocalRefs(EARContext earContext, WebModule webModule, EjbLocalRefType[] ejbLocalRefs, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
-        for (int i = 0; i < ejbLocalRefs.length; i++) {
-            EjbLocalRefType ejbLocalRef = ejbLocalRefs[i];
-
-            String ejbRefName = ejbLocalRef.getEjbRefName().getStringValue();
-
-            String local = ejbLocalRef.getLocal().getStringValue();
-            assureEJBLocalObjectInterface(local, cl);
-
-            String localHome = ejbLocalRef.getLocalHome().getStringValue();
-            assureEJBLocalHomeInterface(localHome, cl);
-
-            String ejbLink = getJ2eeStringValue(ejbLocalRef.getEjbLink());
-            Object ejbLocalRefObject;
-            if (ejbLink != null) {
-                ejbLocalRefObject = earContext.getEJBLocalRef(webModule.getURI(), ejbLink);
-            } else {
-                // todo get the id from the geronimo-jetty.xml file
-                throw new IllegalArgumentException("non ejb-link refs not supported");
-            }
-
-            try {
-                builder.bind(ejbRefName, ejbLocalRefObject);
-            } catch (NamingException e) {
-                throw new DeploymentException("Unable to to bind ejb-local-ref: ejb-ref-name=" + ejbRefName);
-            }
-        }
-    }
-
+ 
     private void setResourceEnvironment(GBeanMBean bean, ResourceRefType[] resourceRefArray, JettyLocalRefType[] jettyResourceRefArray) throws AttributeNotFoundException, ReflectionException {
         Map openejbNames = new HashMap();
         for (int i = 0; i < jettyResourceRefArray.length; i++) {

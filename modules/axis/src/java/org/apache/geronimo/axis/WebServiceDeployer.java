@@ -321,7 +321,7 @@ public class WebServiceDeployer {
            * But this can quickly fix looking at it.      
            */
 
-            ModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(kernel);
+            OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(kernel);
             ClassLoader oldCl =
                     Thread.currentThread().getContextClassLoader();
             ClassLoader cl =
@@ -340,7 +340,7 @@ public class WebServiceDeployer {
                         AxisGeronimoConstants.TRACKEDCONNECTIONASSOCIATOR_NAME, 
                         AxisGeronimoConstants.TRANSACTIONALTIMER_NAME, 
                         AxisGeronimoConstants.NONTRANSACTIONALTIMER_NAME, 
-                        null, moduleBuilder, null, null, null);
+                        null, moduleBuilder, moduleBuilder, null, null, null);
                 XmlObject plan =
                         earConfigBuilder.getDeploymentPlan(earFile.toURL());
 

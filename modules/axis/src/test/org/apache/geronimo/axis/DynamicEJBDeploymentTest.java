@@ -105,7 +105,7 @@ public class DynamicEJBDeploymentTest extends AbstractTestCase{
 
 	}
 	public void testEJBJarDeploy() throws Exception {
-		ModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(kernel);
+		OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(kernel);
 	
 		File earFile =  new File(outDir + "/echo-ewsimpl.jar");
 		if(!earFile.exists()){
@@ -134,6 +134,7 @@ public class DynamicEJBDeploymentTest extends AbstractTestCase{
                             null,
                             null,
                             null,
+                            moduleBuilder,
                             moduleBuilder,
                             null,
                             null,

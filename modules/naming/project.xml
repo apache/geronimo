@@ -17,7 +17,7 @@
 -->
 
 
-<!-- $Revision: 1.13 $ $Date: 2004/06/24 20:59:51 $ -->
+<!-- $Revision: 1.14 $ $Date: 2004/08/06 22:44:37 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -66,6 +66,12 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-deployment</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-j2ee</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
 
