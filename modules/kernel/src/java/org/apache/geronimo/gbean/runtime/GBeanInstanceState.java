@@ -62,7 +62,7 @@ public class GBeanInstanceState {
     /**
      * The broadcaster of lifecycle events
      */
-    private final LifecycleListener lifecycleBroadcaster;
+    private final LifecycleBroadcaster lifecycleBroadcaster;
 
     /**
      * The listener for the of the object blocking the start of this gbean.
@@ -74,7 +74,7 @@ public class GBeanInstanceState {
     // objects check if each other are in one state or another (i.e., classic A calls B while B calls A)
     private volatile State state = State.STOPPED;
 
-    GBeanInstanceState(Kernel kernel, ObjectName objectName, GBeanLifecycle gbeanLifecycle, LifecycleListener lifecycleBroadcaster) {
+    GBeanInstanceState(Kernel kernel, ObjectName objectName, GBeanLifecycle gbeanLifecycle, LifecycleBroadcaster lifecycleBroadcaster) {
         this.kernel = kernel;
         this.dependencyManager = kernel.getDependencyManager();
         this.objectName = objectName;
@@ -110,7 +110,7 @@ public class GBeanInstanceState {
 
         // only fire a notification if we are not already starting
         if (state != State.STARTING) {
-            lifecycleBroadcaster.starting(objectName);
+            lifecycleBroadcaster.fireStartingEvent();
         }
 
         attemptFullStart();
@@ -188,7 +188,7 @@ public class GBeanInstanceState {
 
         // only fire a notification if we are not already stopping
         if (state != State.STOPPING) {
-            lifecycleBroadcaster.stopping(objectName);
+            lifecycleBroadcaster.fireStoppingEvent();
         }
 
         // Don't try to stop dependents from within a synchronized block... this should reduce deadlocks
@@ -231,7 +231,7 @@ public class GBeanInstanceState {
             doSafeFail();
             setStateInstance(State.FAILED);
         }
-        lifecycleBroadcaster.failed(objectName);
+        lifecycleBroadcaster.fireFailedEvent();
     }
 
     /**
@@ -523,23 +523,23 @@ public class GBeanInstanceState {
         assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
         switch (state.toInt()) {
             case State.STOPPED_INDEX:
-                lifecycleBroadcaster.stopped(objectName);
+                lifecycleBroadcaster.fireStoppedEvent();
                 break;
 
             case State.STARTING_INDEX:
-                lifecycleBroadcaster.starting(objectName);
+                lifecycleBroadcaster.fireStartingEvent();
                 break;
 
             case State.RUNNING_INDEX:
-                lifecycleBroadcaster.running(objectName);
+                lifecycleBroadcaster.fireRunningEvent();
                 break;
 
             case State.STOPPING_INDEX:
-                lifecycleBroadcaster.stopping(objectName);
+                lifecycleBroadcaster.fireStoppingEvent();
                 break;
 
             case State.FAILED_INDEX:
-                lifecycleBroadcaster.failed(objectName);
+                lifecycleBroadcaster.fireFailedEvent();
                 break;
         }
     }

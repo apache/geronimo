@@ -43,7 +43,6 @@ import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.LifecycleListener;
 import org.apache.geronimo.kernel.NoSuchAttributeException;
 import org.apache.geronimo.kernel.NoSuchOperationException;
 import org.apache.geronimo.kernel.management.EventProvider;
@@ -99,7 +98,7 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
     /**
      * The single listener to which we broadcast lifecycle change events.
      */
-    private final LifecycleListener lifecycleBroadcaster;
+    private final LifecycleBroadcaster lifecycleBroadcaster;
 
     /**
      * The lifecycle controller given to the instance
@@ -190,7 +189,7 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
      * @throws org.apache.geronimo.gbean.InvalidConfigurationException if the gbeanInfo is inconsistent with the actual java classes, such as
      * mismatched attribute types or the intial data can not be set
      */
-    public GBeanInstance(Kernel kernel, GBeanData gbeanData, LifecycleListener lifecycleBroadcaster, ClassLoader classLoader) throws InvalidConfigurationException {
+    public GBeanInstance(Kernel kernel, GBeanData gbeanData, LifecycleBroadcaster lifecycleBroadcaster, ClassLoader classLoader) throws InvalidConfigurationException {
         this.kernel = kernel;
         this.objectName = gbeanData.getName();
         this.lifecycleBroadcaster = lifecycleBroadcaster;
@@ -297,7 +296,7 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
         for (int i = 0; i < references.length; i++) {
             references[i].online(this.kernel);
         }
-        lifecycleBroadcaster.loaded(objectName);
+        lifecycleBroadcaster.fireLoadedEvent();
     }
 
     public void destroy() {
@@ -308,7 +307,7 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
             destroyed = true;
         }
 
-        lifecycleBroadcaster.unloaded(objectName);
+        lifecycleBroadcaster.fireUnloadedEvent();
 
         // just to be sure, stop all the references again
         for (int i = 0; i < references.length; i++) {

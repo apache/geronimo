@@ -23,7 +23,6 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.LifecycleAdapter;
 import org.apache.geronimo.kernel.MockDynamicGBean;
 import org.apache.geronimo.kernel.MockGBean;
 
@@ -351,11 +350,11 @@ public class GBeanAttributeTest extends TestCase {
 
         gbeanInstance = new GBeanInstance(kernel,
                 new GBeanData(new ObjectName("test:MockGBean=normal"), MockGBean.getGBeanInfo()),
-                new LifecycleAdapter(),
+                new MyLifecycleBroadcaster(),
                 MockGBean.class.getClassLoader());
         dynamicGBeanInstance = new GBeanInstance(kernel,
                 new GBeanData(new ObjectName("test:MockGBean=dynamic"), MockDynamicGBean.getGBeanInfo()),
-                new LifecycleAdapter(),
+                new MyLifecycleBroadcaster(),
                 MockGBean.class.getClassLoader());
         getInvoker = new MethodInvoker() {
 
@@ -376,5 +375,28 @@ public class GBeanAttributeTest extends TestCase {
     protected void tearDown() throws Exception {
         kernel.shutdown();
         gbeanInstance = null;
+    }
+
+    private static class MyLifecycleBroadcaster implements LifecycleBroadcaster {
+        public void fireLoadedEvent() {
+        }
+
+        public void fireStartingEvent() {
+        }
+
+        public void fireRunningEvent() {
+        }
+
+        public void fireStoppingEvent() {
+        }
+
+        public void fireStoppedEvent() {
+        }
+
+        public void fireFailedEvent() {
+        }
+
+        public void fireUnloadedEvent() {
+        }
     }
 }

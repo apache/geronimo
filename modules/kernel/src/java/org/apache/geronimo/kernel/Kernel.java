@@ -24,13 +24,14 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Iterator;
-import java.util.HashSet;
 import javax.management.Attribute;
+import javax.management.AttributeNotFoundException;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.JMException;
@@ -38,17 +39,15 @@ import javax.management.JMRuntimeException;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.MalformedObjectNameException;
-import javax.management.NotificationBroadcasterSupport;
 import javax.management.ObjectName;
-import javax.management.AttributeNotFoundException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.runtime.GBeanInstance;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.gbean.jmx.JMXLifecycleBroadcaster;
+import org.apache.geronimo.gbean.runtime.GBeanInstance;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
@@ -78,7 +77,7 @@ import org.apache.geronimo.kernel.proxy.ProxyManager;
  *
  * @version $Rev$ $Date$
  */
-public class Kernel extends NotificationBroadcasterSupport implements KernelMBean {
+public class Kernel implements KernelMBean {
 
     /**
      * The JMX name used by a Kernel to register itself when it boots.
@@ -559,7 +558,7 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
 
         mbServer = MBeanServerFactory.createMBeanServer(domainName);
         mbServer.registerMBean(this, KERNEL);
-        lifecycleMonitor = new LifecycleMonitor(mbServer);
+        lifecycleMonitor = new LifecycleMonitor(this);
         dependencyManager = new DependencyManager(lifecycleMonitor);
         proxyManager = new ProxyManager(this);
 
@@ -568,7 +567,7 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
         configurationData.setReferencePatterns("Stores", Collections.singleton(CONFIGURATION_STORE_PATTERN));
 
         // create the connfiguration manager instance
-        JMXLifecycleBroadcaster lifecycleBroadcaster = new JMXLifecycleBroadcaster();
+        JMXLifecycleBroadcaster lifecycleBroadcaster = new JMXLifecycleBroadcaster(CONFIGURATION_MANAGER_NAME, lifecycleMonitor.createLifecycleBroadcaster(CONFIGURATION_MANAGER_NAME));
         configurationManagerInstance = new GBeanInstance(this, configurationData, lifecycleBroadcaster, getClass().getClassLoader());
         configurationManagerInstance.start();
         configurationManager = (ConfigurationManager) configurationManagerInstance.getTarget();

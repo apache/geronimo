@@ -205,7 +205,7 @@ public final class GBeanMBean implements DynamicMBean, MBeanRegistration, Notifi
             }
 
             gbeanData.setName(objectName);
-            lifecycleBroadcaster = new JMXLifecycleBroadcaster();
+            lifecycleBroadcaster = new JMXLifecycleBroadcaster(objectName, kernel.getLifecycleMonitor().createLifecycleBroadcaster(objectName));
             gbeanInstance = new GBeanInstance(kernel, gbeanData, lifecycleBroadcaster, classLoader);
             mbeanInfo = GBeanJMXUtil.toMBeanInfo(gbeanInstance.getGBeanInfo());
         }

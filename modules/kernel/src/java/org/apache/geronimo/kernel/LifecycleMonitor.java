@@ -17,34 +17,25 @@
 
 package org.apache.geronimo.kernel;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.Map;
 import java.util.Collections;
 import java.util.HashMap;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanServer;
-import javax.management.MBeanServerNotification;
-import javax.management.Notification;
-import javax.management.NotificationFilterSupport;
-import javax.management.NotificationListener;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import javax.management.ObjectName;
-import javax.management.NotificationBroadcaster;
-import javax.management.NotificationFilter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.management.NotificationType;
+import org.apache.geronimo.gbean.runtime.LifecycleBroadcaster;
 
 /**
  * @version $Rev: 71492 $ $Date: 2004-11-14 21:31:50 -0800 (Sun, 14 Nov 2004) $
  */
-public class LifecycleMonitor implements NotificationListener {
+public class LifecycleMonitor {
     private static final Log log = LogFactory.getLog(LifecycleMonitor.class);
 
-    private final MBeanServer server;
+    private final Kernel kernel;
 
     // todo we should only hold weak references to the listeners
     private final Map boundListeners = new HashMap();
@@ -53,58 +44,17 @@ public class LifecycleMonitor implements NotificationListener {
     /**
      * @deprecated don't use this yet... it may change or go away
      */
-    public LifecycleMonitor(MBeanServer server) {
-        this.server = server;
-
-        // listen for all mbean registration events
-        try {
-            NotificationFilterSupport mbeanServerFilter = new NotificationFilterSupport();
-            mbeanServerFilter.enableType(MBeanServerNotification.REGISTRATION_NOTIFICATION);
-            mbeanServerFilter.enableType(MBeanServerNotification.UNREGISTRATION_NOTIFICATION);
-            server.addNotificationListener(JMXUtil.DELEGATE_NAME, this, mbeanServerFilter, null);
-        } catch (Exception e) {
-            // this will never happen... all of the above is well formed
-            throw new AssertionError(e);
-        }
+    public LifecycleMonitor(Kernel kernel) {
+        this.kernel = kernel;
 
         // register for state change notifications with all mbeans that match the target patterns
-        Set names = server.queryNames(null, null);
+        Set names = this.kernel.listGBeans((ObjectName)null);
         for (Iterator objectNameIterator = names.iterator(); objectNameIterator.hasNext();) {
             addSource((ObjectName) objectNameIterator.next());
-        }
-
-        for (Iterator iterator = boundListeners.keySet().iterator(); iterator.hasNext();) {
-            ObjectName source = (ObjectName) iterator.next();
-            try {
-                if (server.isInstanceOf(source, NotificationBroadcaster.class.getName())) {
-                    server.addNotificationListener(source, this, STATE_CHANGE_FILTER, null);
-                }
-            } catch (InstanceNotFoundException e) {
-                // the instance died before we could get going... not a big deal
-                break;
-            } catch (Throwable e) {
-                log.warn("Could not add state change listener to: " + source + " on behalf of objectName", e);
-            }
         }
     }
 
     public synchronized void destroy() {
-        try {
-            server.removeNotificationListener(JMXUtil.DELEGATE_NAME, this);
-        } catch (Exception ignore) {
-            // don't care... we tried
-        }
-
-        // unregister for all notifications
-        for (Iterator iterator = boundListeners.keySet().iterator(); iterator.hasNext();) {
-            ObjectName target = (ObjectName) iterator.next();
-            try {
-                server.removeNotificationListener(target, this, STATE_CHANGE_FILTER, null);
-            } catch (Exception ignore) {
-                // don't care... we tried
-            }
-        }
-
         boundListeners.clear();
         listenerPatterns.clear();
     }
@@ -257,61 +207,48 @@ public class LifecycleMonitor implements NotificationListener {
         }
     }
 
-    public void handleNotification(Notification notification, Object o) {
-        String type = notification.getType();
-
-        if (MBeanServerNotification.REGISTRATION_NOTIFICATION.equals(type)) {
-            ObjectName source = ((MBeanServerNotification) notification).getMBeanName();
-            if (!boundListeners.containsKey(source)) {
-                // register for state change notifications
-                try {
-                    server.addNotificationListener(source, this, STATE_CHANGE_FILTER, null);
-                } catch (InstanceNotFoundException e) {
-                    // the instance died before we could get going... not a big deal
-                    return;
-                }
-
-                addSource(source);
-                fireLoadedEvent(source);
-            }
-        } else if (MBeanServerNotification.UNREGISTRATION_NOTIFICATION.equals(type)) {
-            ObjectName source = ((MBeanServerNotification) notification).getMBeanName();
-            fireUnloadedEvent(source);
-            removeSource(source);
-        } else {
-            final ObjectName source = (ObjectName) notification.getSource();
-            if (NotificationType.STATE_STARTING.equals(type)) {
-                fireStartingEvent(source);
-            } else if (NotificationType.STATE_RUNNING.equals(type)) {
-                fireRunningEvent(source);
-            } else if (NotificationType.STATE_STOPPING.equals(type)) {
-                fireStoppingEvent(source);
-            } else if (NotificationType.STATE_STOPPED.equals(type)) {
-                fireStoppedEvent(source);
-            } else if (NotificationType.STATE_FAILED.equals(type)) {
-                fireFailedEvent(source);
-            }
-        }
+    /**
+     * @deprecated is this for internal use by the GBeanInstance and will be remove later
+     */
+    public LifecycleBroadcaster createLifecycleBroadcaster(ObjectName objectName) {
+        return new RawLifecycleBroadcaster(objectName);
     }
 
-    /**
-     * A notification filter which only lets all J2EE state change notifications pass.
-     * Specifically this is STATE_STARTING, STATE_RUNNING, STATE_STOPPING, STATE_STOPPED
-     * and STATE_FAILED.
-     */
-    private static final NotificationFilter STATE_CHANGE_FILTER = new J2EEStateChangeFilter();
+    private class RawLifecycleBroadcaster implements LifecycleBroadcaster {
+        private final ObjectName objectName;
 
-    private static final class J2EEStateChangeFilter implements NotificationFilter {
-        private J2EEStateChangeFilter() {
+        public RawLifecycleBroadcaster(ObjectName objectName) {
+            this.objectName = objectName;
         }
 
-        public boolean isNotificationEnabled(Notification notification) {
-            String type = notification.getType();
-            return NotificationType.STATE_STARTING.equals(type) ||
-                    NotificationType.STATE_RUNNING.equals(type) ||
-                    NotificationType.STATE_STOPPING.equals(type) ||
-                    NotificationType.STATE_STOPPED.equals(type) ||
-                    NotificationType.STATE_FAILED.equals(type);
+        public void fireLoadedEvent() {
+            addSource(objectName);
+            LifecycleMonitor.this.fireLoadedEvent(objectName);
+        }
+
+        public void fireStartingEvent() {
+            LifecycleMonitor.this.fireStartingEvent(objectName);
+        }
+
+        public void fireRunningEvent() {
+            LifecycleMonitor.this.fireRunningEvent(objectName);
+        }
+
+        public void fireStoppingEvent() {
+            LifecycleMonitor.this.fireStoppingEvent(objectName);
+        }
+
+        public void fireStoppedEvent() {
+            LifecycleMonitor.this.fireStoppedEvent(objectName);
+        }
+
+        public void fireFailedEvent() {
+            LifecycleMonitor.this.fireFailedEvent(objectName);
+        }
+
+        public void fireUnloadedEvent() {
+            LifecycleMonitor.this.fireUnloadedEvent(objectName);
+            removeSource(objectName);
         }
     }
 }
