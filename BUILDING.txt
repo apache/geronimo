@@ -14,15 +14,17 @@ and then press [enter].
 
 To build Geronimo running all of the unit test cases, compiling 
 all the Geronimo sources and installing them in your local maven
-repository:
+repository, simply type maven in the root of the Geronimo source
+tree:
 
         $>maven
 
 To build and run the server, change into the assembly directory and
 type:
 	
+        $>cd modules/assembly
         $>maven
-        $>cd target
+        $>cd target/geronimo-1.0-SNAPSHOT
         $>java -jar bin/server.jar org/apache/geronimo/Server
 
 To stop the server use ctrl-C or an equivalent; a proper shutdown
