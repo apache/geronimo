@@ -119,7 +119,7 @@
 
       <dependency>
            <groupId>activemq</groupId>
-           <artifactId>activemq</artifactId>
+           <artifactId>activemq-ra</artifactId>
            <version>&activemq-version;</version>
            <type>rar</type>
            <properties>
