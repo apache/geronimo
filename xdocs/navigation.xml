@@ -1,4 +1,7 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Revision: 1.7 $ $Date: 2003/08/16 10:53:45 $ -->
+
 <project name="Apache Geronimo">
 
   <title>Apache Geronimo</title>
@@ -10,26 +13,34 @@
       <item name="Overview"                href="/index.html"/>
       <item name="FAQ"                     href="/faq.html"/>
       <item name="Wiki"                    href="http://nagoya.apache.org/wiki/apachewiki.cgi?ApacheJ2EE"/>
-<!--      
+      
+      <!--
       <item name="To Do List"              href="/todo.html"/>
       <item name="Getting Started"         href="/gettingstarted.html"/>
-      <item name="Tutorial"         	   href="/tutorial.html"/>
+      <item name="Tutorial"          	   href="/tutorial.html"/>
       <item name="Detail"                  href="/overview.html"/>
       <item name="Download"                href="/builds/distributions/"/>
--->      
+      -->
+      
       <item name="Related Projects"        href="/reuse.html"/>
     </menu>
     
     <menu name="Modules">
       <item name="Common"               href="/modules/copmmon/index.html"/>
       <item name="Core Container"		    href="/modules/core/index.html"/>
+      <item name="XML Beans"		        href="/modules/xmlbeans/index.html"/>
       <item name="Twiddle"		   		    href="/modules/twiddle/index.html"/>
     </menu>
     
     <menu name="Specifications">
-      <item name="J2EE" href="/specs/j2ee/index.html"/>
       <item name="JSR-77" href="/specs/jsr77/index.html"/>
       <item name="JSR-88" href="/specs/jsr88/index.html"/>
+      <item name="JavaMail" href="/specs/javamail/index.html"/>
+      <item name="Java Activation Framework" href="/specs/activation/index.html"/>
+      <item name="Java Connector" href="/specs/j2ee-connector/index.html"/>
+      <item name="Java Message Service" href="/specs/jms/index.html"/>
+      <item name="Enterprise Java Beans" href="/specs/ejb/index.html"/>
+      <item name="Java Transaction API" href="/specs/jta/index.html"/>
     </menu>
     
     <menu name="Apache Community">

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: project.xml,v 1.2 2003/08/14 17:06:40 jdillon Exp $ -->
+<!-- $Id: project.xml,v 1.3 2003/08/16 10:53:45 jdillon Exp $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -28,7 +28,7 @@
     
     <dependency>
       <groupId>geronimo-spec</groupId>
-      <artifactId>geronimo-spec-j2ee</artifactId>
+      <artifactId>geronimo-spec-ejb</artifactId>
       <version>DEV</version>
     </dependency>
     

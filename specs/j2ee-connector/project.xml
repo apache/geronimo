@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.2 $ $Date: 2003/08/16 05:37:57 $ -->
+<!-- $Revision: 1.3 $ $Date: 2003/08/16 10:53:45 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -28,20 +28,9 @@
     
     <dependency>
       <groupId>geronimo-spec</groupId>
-      <artifactId>geronimo-spec-j2ee</artifactId>
+      <artifactId>geronimo-spec-jta</artifactId>
       <version>DEV</version>
     </dependency>
-    
-    <!-- Thirdparty -->
-   
-    <!-- nothing right now 
-    <dependency>
-      <groupId>mx4j</groupId>
-      <artifactId>mx4j-jmx</artifactId>
-      <version>SNAPSHOT</version>
-      <url>http://mx4j.sourceforge.net</url>
-    </dependency>
-    -->
     
   </dependencies>
   

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: project.xml,v 1.1 2003/08/16 10:27:14 jdillon Exp $ -->
+<!-- $Id: project.xml,v 1.2 2003/08/16 10:53:45 jdillon Exp $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -16,5 +16,21 @@
   
   <package>javax.ejb</package>
   <currentVersion>DEV</currentVersion>
-
+  
+  <!-- ============ -->
+  <!-- Dependencies -->
+  <!-- ============ -->
+  
+  <dependencies>
+    
+    <!-- Module Dependencies -->
+    
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-jta</artifactId>
+      <version>DEV</version>
+    </dependency>
+    
+  </dependencies>
+  
 </project>
