@@ -56,57 +56,41 @@
 
 package org.apache.geronimo.connector.outbound;
 
-import java.io.PrintWriter;
-
 import javax.resource.ResourceException;
-import javax.resource.spi.ManagedConnection;
-import javax.resource.spi.ConnectionRequestInfo;
-import javax.resource.spi.ConnectionEventListener;
-import javax.resource.spi.LocalTransaction;
-import javax.resource.spi.ManagedConnectionMetaData;
+import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
-import javax.transaction.xa.XAException;
-import javax.security.auth.Subject;
-
-import junit.framework.TestCase;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/12/09 04:17:39 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/10 07:48:12 $
  *
  * */
-public class XAResourceInsertionInterceptorTest extends TestCase
-    implements ConnectionInterceptor {
+public class XAResourceInsertionInterceptorTest extends ConnectionManagerTestUtils
+    {
 
     private XAResourceInsertionInterceptor xaResourceInsertionInterceptor;
     private XAResource xaResource;
 
     protected void setUp() throws Exception {
+        super.setUp();
         xaResourceInsertionInterceptor = new XAResourceInsertionInterceptor(this);
     }
 
     protected void tearDown() throws Exception {
+        super.tearDown();
         xaResourceInsertionInterceptor = null;
     }
 
     public void testInsertXAResource() throws Exception {
-        ManagedConnectionInfo managedConnectionInfo = new ManagedConnectionInfo(null, null);
-        ConnectionInfo connectionInfo = new ConnectionInfo(managedConnectionInfo);
-        xaResourceInsertionInterceptor.getConnection(connectionInfo);
-        assertTrue("Expected the same XAResource", xaResource == managedConnectionInfo.getXAResource());
-    }
-
-    public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
+        ConnectionInfo connectionInfo = makeConnectionInfo();
         xaResource = new TestXAResource();
-        ManagedConnection managedConnection = new TestManagedConnection(xaResource);
-        ManagedConnectionInfo managedConnectionInfo = connectionInfo.getManagedConnectionInfo();
-        managedConnectionInfo.setManagedConnection(managedConnection);
+        managedConnection = new TestManagedConnection(xaResource);
+        xaResourceInsertionInterceptor.getConnection(connectionInfo);
+        assertTrue("Expected the same XAResource", xaResource == connectionInfo.getManagedConnectionInfo().getXAResource());
     }
 
-    public void returnConnection(ConnectionInfo connectionInfo, ConnectionReturnAction connectionReturnAction) {
-    }
 
     private static class TestXAResource implements XAResource {
         public void commit(Xid xid, boolean onePhase) throws XAException {
@@ -146,50 +130,18 @@ public class XAResourceInsertionInterceptorTest extends TestCase
 
     }
 
-    private static class TestManagedConnection implements ManagedConnection {
+    private static class TestManagedConnection extends TestPlainManagedConnection {
 
         private final XAResource xaResource;
 
         public TestManagedConnection(XAResource xaResource) {
             this.xaResource = xaResource;
         }
-        public Object getConnection(Subject subject, ConnectionRequestInfo cxRequestInfo) throws ResourceException {
-            return null;
-        }
-
-        public void destroy() throws ResourceException {
-        }
-
-        public void cleanup() throws ResourceException {
-        }
-
-        public void associateConnection(Object connection) throws ResourceException {
-        }
-
-        public void addConnectionEventListener(ConnectionEventListener listener) {
-        }
-
-        public void removeConnectionEventListener(ConnectionEventListener listener) {
-        }
 
         public XAResource getXAResource() throws ResourceException {
             return xaResource;
         }
 
-        public LocalTransaction getLocalTransaction() throws ResourceException {
-            return null;
-        }
-
-        public ManagedConnectionMetaData getMetaData() throws ResourceException {
-            return null;
-        }
-
-        public void setLogWriter(PrintWriter out) throws ResourceException {
-        }
-
-        public PrintWriter getLogWriter() throws ResourceException {
-            return null;
-        }
 
     }
 }

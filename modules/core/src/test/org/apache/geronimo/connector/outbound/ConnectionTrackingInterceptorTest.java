@@ -56,104 +56,94 @@
 
 package org.apache.geronimo.connector.outbound;
 
-import java.util.HashSet;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
-import java.security.Principal;
-import java.io.PrintWriter;
 
 import javax.resource.ResourceException;
-import javax.resource.spi.ManagedConnection;
-import javax.resource.spi.ConnectionRequestInfo;
-import javax.resource.spi.ConnectionEventListener;
-import javax.resource.spi.LocalTransaction;
-import javax.resource.spi.ManagedConnectionMetaData;
-import javax.resource.spi.DissociatableManagedConnection;
-import javax.security.auth.Subject;
-import javax.transaction.xa.XAResource;
 
-import junit.framework.TestCase;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
 
 /**
  * TODO test unshareable resources.
  * TODO test repeat calls with null/non-null Subject
  *
- * @version $Revision: 1.1 $ $Date: 2003/12/09 04:17:39 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/10 07:48:12 $
  *
  * */
-public class ConnectionTrackingInterceptorTest extends TestCase
-    implements ConnectionTracker, ConnectionInterceptor, SecurityDomain {
+public class ConnectionTrackingInterceptorTest extends ConnectionManagerTestUtils
+    implements ConnectionTracker{
 
     private final static String key = "test-name";
     private ConnectionTrackingInterceptor connectionTrackingInterceptor;
 
-    private Subject subject;
 
     private ConnectionTrackingInterceptor obtainedConnectionTrackingInterceptor;
-    private ConnectionInfo obtainedConnectionInfo;
+    private ConnectionInfo obtainedTrackedConnectionInfo;
 
     private ConnectionTrackingInterceptor releasedConnectionTrackingInterceptor;
-    private ConnectionInfo releasedConnectionInfo;
-    private boolean gotConnection;
-    private boolean returnedConnection;
+    private ConnectionInfo releasedTrackedConnectionInfo;
 
     private Collection connectionInfos;
     private Set unshareable;
 
-    private ManagedConnection managedConnection;
-
     protected void setUp() throws Exception {
+        super.setUp();
         connectionTrackingInterceptor = new ConnectionTrackingInterceptor(this, key, this, this);
     }
 
     protected void tearDown() throws Exception {
+        super.tearDown();
         connectionTrackingInterceptor = null;
-        subject = null;
         managedConnection = null;
         obtainedConnectionTrackingInterceptor = null;
-        obtainedConnectionInfo = null;
+        obtainedTrackedConnectionInfo = null;
         releasedConnectionTrackingInterceptor = null;
-        releasedConnectionInfo = null;
-        gotConnection = false;
-        returnedConnection = false;
+        releasedTrackedConnectionInfo = null;
     }
 
     public void testConnectionRegistration() throws Exception {
-        ConnectionInfo connectionInfo = new ConnectionInfo();
+        ConnectionInfo connectionInfo = makeConnectionInfo();
         connectionTrackingInterceptor.getConnection(connectionInfo);
         assertTrue("Expected handleObtained call with our connectionTrackingInterceptor",
                 connectionTrackingInterceptor == obtainedConnectionTrackingInterceptor);
         assertTrue("Expected handleObtained call with our connectionInfo",
-                connectionInfo == obtainedConnectionInfo);
+                connectionInfo == obtainedTrackedConnectionInfo);
         //release connection handle
         connectionTrackingInterceptor.returnConnection(connectionInfo, ConnectionReturnAction.RETURN_HANDLE);
         assertTrue("Expected handleReleased call with our connectionTrackingInterceptor",
                     connectionTrackingInterceptor == releasedConnectionTrackingInterceptor);
             assertTrue("Expected handleReleased call with our connectionInfo",
-                    connectionInfo == releasedConnectionInfo);
+                    connectionInfo == releasedTrackedConnectionInfo);
 
     }
 
-    //Well, subject is null if this is called directly
+
+
     public void testEnterWithNullSubject() throws Exception {
-        ConnectionInfo connectionInfo = new ConnectionInfo();
-        //easy way to get ManagedConnectionInfo set up
+        getConnectionAndReenter();
+        //expect no re-association
+        assertTrue("Expected no connection asked for", obtainedConnectionInfo == null);
+        assertTrue("Expected no connection returned", returnedConnectionInfo == null);
+    }
+
+    private void getConnectionAndReenter() throws ResourceException {
+        ConnectionInfo connectionInfo = makeConnectionInfo();
         connectionTrackingInterceptor.getConnection(connectionInfo);
         //reset our test indicator
-        gotConnection = false;
+        obtainedConnectionInfo = null;
         connectionInfos = new HashSet();
         connectionInfos.add(connectionInfo);
         unshareable = new HashSet();
         connectionTrackingInterceptor.enter(connectionInfos, unshareable);
-        //expect no re-association
-        assertTrue("Expected no connection asked for", !gotConnection);
-        assertTrue("Expected no connection returned", !returnedConnection);
     }
 
     public void testEnterWithSameSubject() throws Exception {
         makeSubject("foo");
-        testEnterWithNullSubject();
+        getConnectionAndReenter();
+        //decision on re-association happens in subject interceptor
+        assertTrue("Expected connection asked for", obtainedConnectionInfo != null);
+        assertTrue("Expected no connection returned", returnedConnectionInfo == null);
     }
 
     public void testEnterWithChangedSubject() throws Exception {
@@ -161,15 +151,16 @@ public class ConnectionTrackingInterceptorTest extends TestCase
         makeSubject("bar");
         connectionTrackingInterceptor.enter(connectionInfos, unshareable);
         //expect re-association
-        assertTrue("Expected connection asked for", gotConnection);
-        assertTrue("Expected connection returned", returnedConnection);
+        assertTrue("Expected connection asked for", obtainedConnectionInfo != null);
+        //connection is returned by SubjectInterceptor
+        assertTrue("Expected no connection returned", returnedConnectionInfo == null);
     }
 
     public void testExitWithNonDissociatableConnection() throws Exception {
         managedConnection = new TestPlainManagedConnection();
         testEnterWithSameSubject();
         connectionTrackingInterceptor.exit(connectionInfos, unshareable);
-        assertTrue("Expected no connection returned", !returnedConnection);
+        assertTrue("Expected no connection returned", returnedConnectionInfo == null);
         assertEquals("Expected one info in connectionInfos", connectionInfos.size(), 1);
     }
 
@@ -177,14 +168,8 @@ public class ConnectionTrackingInterceptorTest extends TestCase
         managedConnection = new TestDissociatableManagedConnection();
         testEnterWithSameSubject();
         connectionTrackingInterceptor.exit(connectionInfos, unshareable);
-        assertTrue("Expected connection returned", returnedConnection);
+        assertTrue("Expected connection returned", returnedConnectionInfo != null);
         assertEquals("Expected no infos in connectionInfos", connectionInfos.size(), 0);
-    }
-
-    private void makeSubject(String principalName) {
-        subject = new Subject();
-        Set principals = subject.getPrincipals();
-        principals.add(new TestPrincipal(principalName));
     }
 
     //ConnectionTracker interface
@@ -192,14 +177,14 @@ public class ConnectionTrackingInterceptorTest extends TestCase
             ConnectionTrackingInterceptor connectionTrackingInterceptor,
             ConnectionInfo connectionInfo) {
         obtainedConnectionTrackingInterceptor = connectionTrackingInterceptor;
-        obtainedConnectionInfo = connectionInfo;
+        obtainedTrackedConnectionInfo = connectionInfo;
     }
 
     public void handleReleased(
             ConnectionTrackingInterceptor connectionTrackingInterceptor,
             ConnectionInfo connectionInfo) {
         releasedConnectionTrackingInterceptor = connectionTrackingInterceptor;
-        releasedConnectionInfo = connectionInfo;
+        releasedTrackedConnectionInfo = connectionInfo;
     }
 
     public ConnectorTransactionContext getConnectorTransactionContext() {
@@ -208,118 +193,11 @@ public class ConnectionTrackingInterceptorTest extends TestCase
 
     //ConnectionInterceptor interface
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
-        ManagedConnectionInfo managedConnectionInfo = new ManagedConnectionInfo(null, null);
+        super.getConnection(connectionInfo);
+        ManagedConnectionInfo managedConnectionInfo = connectionInfo.getManagedConnectionInfo();
         managedConnectionInfo.setConnectionEventListener(new GeronimoConnectionEventListener(null, managedConnectionInfo));
         managedConnectionInfo.setSubject(subject);
         managedConnectionInfo.setManagedConnection(managedConnection);
-        connectionInfo.setManagedConnectionInfo(managedConnectionInfo);
-        gotConnection = true;
     }
 
-    public void returnConnection(ConnectionInfo connectionInfo, ConnectionReturnAction connectionReturnAction) {
-        returnedConnection = true;
-    }
-
-    //SecurityDomain interface
-    public Subject getSubject() {
-        return subject;
-    }
-
-    private static class TestPrincipal implements Principal {
-
-        private final String name;
-
-        public TestPrincipal(String name) {
-            this.name = name;
-        }
-        public String getName() {
-            return name;
-        }
-
-    }
-
-    private static class TestPlainManagedConnection implements ManagedConnection {
-        public Object getConnection(Subject subject, ConnectionRequestInfo cxRequestInfo) throws ResourceException {
-            return null;
-        }
-
-        public void destroy() throws ResourceException {
-        }
-
-        public void cleanup() throws ResourceException {
-        }
-
-        public void associateConnection(Object connection) throws ResourceException {
-        }
-
-        public void addConnectionEventListener(ConnectionEventListener listener) {
-        }
-
-        public void removeConnectionEventListener(ConnectionEventListener listener) {
-        }
-
-        public XAResource getXAResource() throws ResourceException {
-            return null;
-        }
-
-        public LocalTransaction getLocalTransaction() throws ResourceException {
-            return null;
-        }
-
-        public ManagedConnectionMetaData getMetaData() throws ResourceException {
-            return null;
-        }
-
-        public void setLogWriter(PrintWriter out) throws ResourceException {
-        }
-
-        public PrintWriter getLogWriter() throws ResourceException {
-            return null;
-        }
-
-    }
-
-    private static class TestDissociatableManagedConnection implements ManagedConnection, DissociatableManagedConnection {
-        public void dissociateConnections() throws ResourceException {
-        }
-
-        public Object getConnection(Subject subject, ConnectionRequestInfo cxRequestInfo) throws ResourceException {
-            return null;
-        }
-
-        public void destroy() throws ResourceException {
-        }
-
-        public void cleanup() throws ResourceException {
-        }
-
-        public void associateConnection(Object connection) throws ResourceException {
-        }
-
-        public void addConnectionEventListener(ConnectionEventListener listener) {
-        }
-
-        public void removeConnectionEventListener(ConnectionEventListener listener) {
-        }
-
-        public XAResource getXAResource() throws ResourceException {
-            return null;
-        }
-
-        public LocalTransaction getLocalTransaction() throws ResourceException {
-            return null;
-        }
-
-        public ManagedConnectionMetaData getMetaData() throws ResourceException {
-            return null;
-        }
-
-        public void setLogWriter(PrintWriter out) throws ResourceException {
-        }
-
-        public PrintWriter getLogWriter() throws ResourceException {
-            return null;
-        }
-
-    }
 }

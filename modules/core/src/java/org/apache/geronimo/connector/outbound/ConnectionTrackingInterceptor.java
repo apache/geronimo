@@ -75,7 +75,7 @@ import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrack
  * a connection the CachedConnectionManager is notified.
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/12/09 04:15:20 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/10 07:48:12 $
  */
 public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
 
@@ -113,11 +113,12 @@ public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
             //should probably check to see if subjects are consistent,
             //and if not raise an exception.  Also need to check if
             //the spec says anything about this.
-            return;
+            //this is wrong
         }
         if (securityDomain == null) {
-            return;
+            return;    //this is wrong: need a "bouncing" subjectInterceptor
         }
+
         Subject currentSubject = null;
         try {
             currentSubject = securityDomain.getSubject();
@@ -130,6 +131,8 @@ public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
         }
         for (Iterator i = connectionInfos.iterator(); i.hasNext();) {
             ConnectionInfo connectionInfo = (ConnectionInfo) i.next();
+            getConnection(connectionInfo);
+            /*
             ManagedConnectionInfo originalManagedConnectionInfo = connectionInfo.getManagedConnectionInfo();
             //Is this check correct?  perhaps more credentials got
             //added without changing the relevant credential we use.
@@ -152,6 +155,7 @@ public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
                 //process the removal of the handle from the previous mc
                 returnConnection(returningConnectionInfo, ConnectionReturnAction.RETURN_HANDLE);
             }
+            */
         }
 
     }

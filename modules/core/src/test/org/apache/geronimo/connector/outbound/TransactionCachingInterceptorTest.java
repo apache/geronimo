@@ -57,10 +57,9 @@
 package org.apache.geronimo.connector.outbound;
 
 import javax.resource.ResourceException;
-import javax.transaction.TransactionManager;
 import javax.transaction.Transaction;
+import javax.transaction.TransactionManager;
 
-import junit.framework.TestCase;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
 import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultTransactionContext;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
@@ -68,26 +67,24 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/12/09 04:17:39 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/10 07:48:12 $
  *
  * */
-public class TransactionCachingInterceptorTest extends TestCase
-        implements ConnectionInterceptor, ConnectionTracker {
+public class TransactionCachingInterceptorTest extends ConnectionManagerTestUtils
+        implements ConnectionTracker {
 
     private TransactionManager transactionManager;
     private TransactionCachingInterceptor transactionCachingInterceptor;
     private DefaultTransactionContext defaultTransactionContext;
-    private boolean gotConnection;
-    private boolean returnedConnection;
 
     protected void setUp() throws Exception {
+        super.setUp();
         transactionManager = new TransactionManagerImpl();
         transactionCachingInterceptor = new TransactionCachingInterceptor(this, this);
-        gotConnection = false;
-        returnedConnection = false;
     }
 
     protected void tearDown() throws Exception {
+        super.tearDown();
         transactionManager = null;
         transactionCachingInterceptor = null;
     }
@@ -96,17 +93,18 @@ public class TransactionCachingInterceptorTest extends TestCase
         transactionManager.begin();
         Transaction transaction = transactionManager.getTransaction();
         defaultTransactionContext = new DefaultTransactionContext(transaction);
-        ConnectionInfo connectionInfo1 = new ConnectionInfo();
+        ConnectionInfo connectionInfo1 = makeConnectionInfo();
         transactionCachingInterceptor.getConnection(connectionInfo1);
-        assertTrue("Expected to get an initial connection", gotConnection);
-        assertTrue("Expected nothing returned yet", !returnedConnection);
+        assertTrue("Expected to get an initial connection", obtainedConnectionInfo != null);
+        assertTrue("Expected nothing returned yet", returnedConnectionInfo == null);
         assertTrue("Expected the same ManagedConnectionInfo in the TransactionContext as was returned",
-                connectionInfo1.getManagedConnectionInfo() == defaultTransactionContext.getManagedConnectionInfo(transactionCachingInterceptor));
-        gotConnection = false;
+                connectionInfo1.getManagedConnectionInfo()
+                == defaultTransactionContext.getManagedConnectionInfo(transactionCachingInterceptor));
+        obtainedConnectionInfo = null;
         ConnectionInfo connectionInfo2 = new ConnectionInfo();
         transactionCachingInterceptor.getConnection(connectionInfo2);
-        assertTrue("Expected to not get a second connection", !gotConnection);
-        assertTrue("Expected nothing returned yet", !returnedConnection);
+        assertTrue("Expected to not get a second connection", obtainedConnectionInfo == null);
+        assertTrue("Expected nothing returned yet", returnedConnectionInfo == null);
         assertTrue("Expected the same ManagedConnectionInfo in both ConnectionInfos",
                 connectionInfo1.getManagedConnectionInfo() == connectionInfo2.getManagedConnectionInfo());
         assertTrue("Expected the same ManagedConnectionInfo in the TransactionContext as was returned",
@@ -115,24 +113,24 @@ public class TransactionCachingInterceptorTest extends TestCase
         //we didn't create any handles, so the "ManagedConnection" should be returned.
         assertTrue("Expected TransactionContext to report active", defaultTransactionContext.isActive());
         transactionManager.commit();
-        assertTrue("Expected connection to be returned", returnedConnection);
+        assertTrue("Expected connection to be returned", returnedConnectionInfo != null);
         assertTrue("Expected TransactionContext to report inactive", !defaultTransactionContext.isActive());
 
     }
 
     public void testGetConnectionOutsideTransaction() throws Exception {
         defaultTransactionContext = new DefaultTransactionContext(null);
-        ConnectionInfo connectionInfo1 = new ConnectionInfo();
+        ConnectionInfo connectionInfo1 = makeConnectionInfo();
         transactionCachingInterceptor.getConnection(connectionInfo1);
-        assertTrue("Expected to get an initial connection", gotConnection);
-        assertTrue("Expected nothing returned yet", !returnedConnection);
+        assertTrue("Expected to get an initial connection", obtainedConnectionInfo != null);
+        assertTrue("Expected nothing returned yet", returnedConnectionInfo == null);
         assertTrue("Expected no ManagedConnectionInfo in the TransactionContext",
                 null == defaultTransactionContext.getManagedConnectionInfo(transactionCachingInterceptor));
-        gotConnection = false;
-        ConnectionInfo connectionInfo2 = new ConnectionInfo();
+        obtainedConnectionInfo = null;
+        ConnectionInfo connectionInfo2 = makeConnectionInfo();
         transactionCachingInterceptor.getConnection(connectionInfo2);
-        assertTrue("Expected to get a second connection", gotConnection);
-        assertTrue("Expected nothing returned yet", !returnedConnection);
+        assertTrue("Expected to get a second connection", obtainedConnectionInfo != null);
+        assertTrue("Expected nothing returned yet", returnedConnectionInfo == null);
         assertTrue("Expected different ManagedConnectionInfo in both ConnectionInfos",
                 connectionInfo1.getManagedConnectionInfo() != connectionInfo2.getManagedConnectionInfo());
         assertTrue("Expected no ManagedConnectionInfo in the TransactionContext",
@@ -140,10 +138,10 @@ public class TransactionCachingInterceptorTest extends TestCase
         //we didn't create any handles, so the "ManagedConnection" should be returned.
         assertTrue("Expected TransactionContext to report inactive", !defaultTransactionContext.isActive());
         transactionCachingInterceptor.returnConnection(connectionInfo1, ConnectionReturnAction.RETURN_HANDLE);
-        assertTrue("Expected connection to be returned", returnedConnection);
-        returnedConnection = false;
+        assertTrue("Expected connection to be returned", returnedConnectionInfo != null);
+        returnedConnectionInfo = null;
         transactionCachingInterceptor.returnConnection(connectionInfo2, ConnectionReturnAction.RETURN_HANDLE);
-        assertTrue("Expected connection to be returned", returnedConnection);
+        assertTrue("Expected connection to be returned", returnedConnectionInfo != null);
 
         assertTrue("Expected TransactionContext to report inactive", !defaultTransactionContext.isActive());
 
@@ -154,19 +152,19 @@ public class TransactionCachingInterceptorTest extends TestCase
         Transaction transaction1 = transactionManager.getTransaction();
         defaultTransactionContext = new DefaultTransactionContext(transaction1);
         DefaultTransactionContext defaultTransactionContext1 = defaultTransactionContext;
-        ConnectionInfo connectionInfo1 = new ConnectionInfo();
+        ConnectionInfo connectionInfo1 = makeConnectionInfo();
         transactionCachingInterceptor.getConnection(connectionInfo1);
-        gotConnection = false;
+        obtainedConnectionInfo = null;
 
         //start a second transaction
         transactionManager.suspend();
         transactionManager.begin();
         Transaction transaction2 = transactionManager.getTransaction();
         defaultTransactionContext = new DefaultTransactionContext(transaction2);
-        ConnectionInfo connectionInfo2 = new ConnectionInfo();
+        ConnectionInfo connectionInfo2 = makeConnectionInfo();
         transactionCachingInterceptor.getConnection(connectionInfo2);
-        assertTrue("Expected to get a second connection", gotConnection);
-        assertTrue("Expected nothing returned yet", !returnedConnection);
+        assertTrue("Expected to get a second connection", obtainedConnectionInfo != null);
+        assertTrue("Expected nothing returned yet", returnedConnectionInfo == null);
         assertTrue("Expected different ManagedConnectionInfo in each ConnectionInfos",
                 connectionInfo1.getManagedConnectionInfo() != connectionInfo2.getManagedConnectionInfo());
         assertTrue("Expected the same ManagedConnectionInfo in the TransactionContext as was returned",
@@ -175,28 +173,24 @@ public class TransactionCachingInterceptorTest extends TestCase
         //we didn't create any handles, so the "ManagedConnection" should be returned.
         assertTrue("Expected TransactionContext to report active", defaultTransactionContext.isActive());
         transactionManager.commit();
-        assertTrue("Expected connection to be returned", returnedConnection);
+        assertTrue("Expected connection to be returned", returnedConnectionInfo != null);
         assertTrue("Expected TransactionContext to report inactive", !defaultTransactionContext.isActive());
-        returnedConnection = false;
+        returnedConnectionInfo = null;
         //resume first transaction
         transactionManager.resume(transaction1);
         defaultTransactionContext = defaultTransactionContext1;
         transactionManager.commit();
-        assertTrue("Expected connection to be returned", returnedConnection);
+        assertTrue("Expected connection to be returned", returnedConnectionInfo != null);
         assertTrue("Expected TransactionContext to report inactive", !defaultTransactionContext.isActive());
     }
 
 //interface implementations
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
-        gotConnection = true;
-        ManagedConnectionInfo managedConnectionInfo = new ManagedConnectionInfo(null, null);
+        super.getConnection(connectionInfo);
+        ManagedConnectionInfo managedConnectionInfo = connectionInfo.getManagedConnectionInfo();
         managedConnectionInfo.setConnectionEventListener(new GeronimoConnectionEventListener(null, managedConnectionInfo));
-        connectionInfo.setManagedConnectionInfo(managedConnectionInfo);
     }
 
-    public void returnConnection(ConnectionInfo connectionInfo, ConnectionReturnAction connectionReturnAction) {
-        returnedConnection = true;
-    }
 
     public void handleObtained(
             ConnectionTrackingInterceptor connectionTrackingInterceptor,

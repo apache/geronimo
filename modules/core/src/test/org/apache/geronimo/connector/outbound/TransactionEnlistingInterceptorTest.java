@@ -62,17 +62,16 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import javax.transaction.xa.XAException;
 
-import junit.framework.TestCase;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/12/09 04:17:39 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/10 07:48:12 $
  *
  * */
-public class TransactionEnlistingInterceptorTest extends TestCase
-    implements ConnectionInterceptor, XAResource {
+public class TransactionEnlistingInterceptorTest extends ConnectionManagerTestUtils
+    implements XAResource {
 
     private TransactionEnlistingInterceptor transactionEnlistingInterceptor;
     private TransactionManager transactionManager;
@@ -82,11 +81,13 @@ public class TransactionEnlistingInterceptorTest extends TestCase
     private boolean committed;
 
     protected void setUp() throws Exception {
+        super.setUp();
         transactionManager = new TransactionManagerImpl();
         transactionEnlistingInterceptor = new TransactionEnlistingInterceptor(this, transactionManager);
     }
 
     protected void tearDown() throws Exception {
+        super.tearDown();
         transactionManager = null;
         transactionEnlistingInterceptor = null;
         started = false;
@@ -96,7 +97,7 @@ public class TransactionEnlistingInterceptorTest extends TestCase
     }
 
     public void testNoTransaction() throws Exception {
-        ConnectionInfo connectionInfo = getConnectionInfo();
+        ConnectionInfo connectionInfo = makeConnectionInfo();
         transactionEnlistingInterceptor.getConnection(connectionInfo);
         assertTrue("Expected not started", !started);
         assertTrue("Expected not ended", !ended);
@@ -106,7 +107,7 @@ public class TransactionEnlistingInterceptorTest extends TestCase
     }
 
     public void testTransaction() throws Exception {
-        ConnectionInfo connectionInfo = getConnectionInfo();
+        ConnectionInfo connectionInfo = makeConnectionInfo();
         transactionManager.begin();
         transactionEnlistingInterceptor.getConnection(connectionInfo);
         assertTrue("Expected started", started);
@@ -118,11 +119,6 @@ public class TransactionEnlistingInterceptorTest extends TestCase
         assertTrue("Expected returned", returned);
         transactionManager.commit();
         assertTrue("Expected committed", committed);
-    }
-
-    private ConnectionInfo getConnectionInfo() {
-        ManagedConnectionInfo managedConnectionInfo = new ManagedConnectionInfo(null, null);
-        return new ConnectionInfo(managedConnectionInfo);
     }
 
     //ConnectionInterceptor

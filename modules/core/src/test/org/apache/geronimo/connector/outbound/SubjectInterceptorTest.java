@@ -57,39 +57,31 @@
 package org.apache.geronimo.connector.outbound;
 
 import javax.security.auth.Subject;
-import javax.resource.ResourceException;
-
-import junit.framework.TestCase;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/12/09 04:17:39 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/10 07:48:12 $
  *
  * */
-public class SubjectInterceptorTest extends TestCase
-    implements SecurityDomain, ConnectionInterceptor{
+public class SubjectInterceptorTest extends ConnectionManagerTestUtils {
 
     private SubjectInterceptor subjectInterceptor;
 
-    private Subject subject;
-
-    private ConnectionInfo obtainedConnectionInfo;
-    private ConnectionInfo returnedConnectionInfo;
-
     protected void setUp() throws Exception {
+        super.setUp();
         subjectInterceptor = new SubjectInterceptor(this, this);
     }
 
-    protected void tearDown() throws Exception {
+    protected  void tearDown() throws Exception {
+        super.tearDown();
         subjectInterceptor = null;
-        subject = null;
     }
 
     public void testGetConnection() throws Exception {
         subject = new Subject();
-        ManagedConnectionInfo managedConnectionInfo = new ManagedConnectionInfo(null, null);
-        ConnectionInfo connectionInfo = new ConnectionInfo(managedConnectionInfo);
+        ConnectionInfo connectionInfo = makeConnectionInfo();
+        ManagedConnectionInfo managedConnectionInfo = connectionInfo.getManagedConnectionInfo();
         subjectInterceptor.getConnection(connectionInfo);
         assertTrue("Expected call to next with same connectionInfo", connectionInfo == obtainedConnectionInfo);
         assertTrue("Expected the same managedConnectionInfo", managedConnectionInfo == connectionInfo.getManagedConnectionInfo());
@@ -97,21 +89,36 @@ public class SubjectInterceptorTest extends TestCase
     }
 
     public void testReturnConnection() throws Exception {
-        ConnectionInfo connectionInfo = new ConnectionInfo();
+        ConnectionInfo connectionInfo = makeConnectionInfo();
         subjectInterceptor.returnConnection(connectionInfo, ConnectionReturnAction.RETURN_HANDLE);
         assertTrue("Expected call to next with same connectionInfo", connectionInfo == returnedConnectionInfo);
     }
 
-
-    public Subject getSubject() {
-        return subject;
+    public void testEnterWithSameSubject() throws Exception {
+        makeSubject("foo");
+        ConnectionInfo connectionInfo = makeConnectionInfo();
+        managedConnection = new TestPlainManagedConnection();
+        subjectInterceptor.getConnection(connectionInfo);
+        //reset our test indicator
+        obtainedConnectionInfo = null;
+        subjectInterceptor.getConnection(connectionInfo);
+        assertTrue("Expected connection asked for", obtainedConnectionInfo == null);
+        assertTrue("Expected no connection returned", returnedConnectionInfo == null);
     }
 
-    public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
-        obtainedConnectionInfo = connectionInfo;
+    public void testEnterWithChangedSubject() throws Exception {
+        makeSubject("foo");
+        ConnectionInfo connectionInfo = makeConnectionInfo();
+        managedConnection = new TestPlainManagedConnection();
+        subjectInterceptor.getConnection(connectionInfo);
+        //reset our test indicator
+        obtainedConnectionInfo = null;
+        makeSubject("bar");
+        subjectInterceptor.getConnection(connectionInfo);
+        //expect re-association
+        assertTrue("Expected connection asked for", obtainedConnectionInfo != null);
+        //connection is returned by SubjectInterceptor
+        assertTrue("Expected connection returned", returnedConnectionInfo != null);
     }
 
-    public void returnConnection(ConnectionInfo connectionInfo, ConnectionReturnAction connectionReturnAction) {
-        returnedConnectionInfo = connectionInfo;
-    }
 }

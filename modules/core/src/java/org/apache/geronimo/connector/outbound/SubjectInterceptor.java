@@ -65,7 +65,7 @@ import javax.security.auth.Subject;
  *
  * Created: Mon Oct  6 14:31:56 2003
  *
- * @version $Revision: 1.3 $ $Date: 2003/12/09 04:16:25 $
+ * @version $Revision: 1.4 $ $Date: 2003/12/10 07:48:12 $
  */
 public class SubjectInterceptor implements ConnectionInterceptor {
 
@@ -80,15 +80,39 @@ public class SubjectInterceptor implements ConnectionInterceptor {
     }
 
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
-        Subject subject = null;
+        Subject currentSubject = null;
         try {
-            subject = securityDomain.getSubject();
+            currentSubject = securityDomain.getSubject();
         } catch (SecurityException e) {
             throw new ResourceException("Can not obtain Subject for login", e);
         }
-        ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
-        mci.setSubject(subject);
-        next.getConnection(connectionInfo);
+        assert currentSubject != null;
+        ManagedConnectionInfo originalManagedConnectionInfo = connectionInfo.getManagedConnectionInfo();
+        //No existing managed connection, get an appropriate one and return.
+        if (originalManagedConnectionInfo.getManagedConnection() == null) {
+            originalManagedConnectionInfo.setSubject(currentSubject);
+            next.getConnection(connectionInfo);
+        } else if (!currentSubject.equals(originalManagedConnectionInfo.getSubject())) {
+            //existing managed connection, wrong subject: must re-associate.
+            //make a ConnectionInfo to process removing the handle from the old mc
+            ConnectionInfo returningConnectionInfo = new ConnectionInfo();
+            returningConnectionInfo.setManagedConnectionInfo(originalManagedConnectionInfo);
+            //This should decrement handle count, but not close the handle, when returnConnection is called
+            //I'm not sure how to test/assure this.
+            returningConnectionInfo.setConnectionHandle(connectionInfo.getConnectionHandle());
+
+            //make a new ManagedConnectionInfo for the mc we will ask for
+            ManagedConnectionInfo newManagedConnectionInfo =
+                    new ManagedConnectionInfo(
+                            originalManagedConnectionInfo.getManagedConnectionFactory(),
+                            originalManagedConnectionInfo.getConnectionRequestInfo());
+            newManagedConnectionInfo.setSubject(currentSubject);
+            connectionInfo.setManagedConnectionInfo(newManagedConnectionInfo);
+            next.getConnection(connectionInfo);
+            //process the removal of the handle from the previous mc
+            returnConnection(returningConnectionInfo, ConnectionReturnAction.RETURN_HANDLE);
+        }
+        //otherwise, the current ManagedConnection matches the security info, we keep it.
     }
 
     public void returnConnection(

@@ -63,18 +63,16 @@ import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.connector.deployment.ConnectionManagerFactory;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
-import org.apache.geronimo.kernel.service.AbstractManagedObject;
-import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
-import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
+import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 
 /**
  * ConnectionManagerDeployment is an mbean that sets up a ProxyConnectionManager
  * and connection manager stack according to the policies described in the attributes.
  * It's used by deserialized copies of the proxy to get a reference to the actual stack.
  *
- * @version $Revision: 1.3 $ $Date: 2003/12/09 04:16:25 $
+ * @version $Revision: 1.4 $ $Date: 2003/12/10 07:48:12 $
  * */
 public class ConnectionManagerDeployment
 
@@ -152,16 +150,14 @@ public class ConnectionManagerDeployment
             }
         }
         if (useSubject || useConnectionRequestInfo) {
-            stack =
-                    new MultiPoolConnectionInterceptor(
+            stack = new MultiPoolConnectionInterceptor(
                             stack,
                             maxSize,
                             blockingTimeout,
                             useSubject,
                             useConnectionRequestInfo);
         } else {
-            stack =
-                    new SinglePoolConnectionInterceptor(
+            stack = new SinglePoolConnectionInterceptor(
                             stack,
                             null,
                             null,
@@ -172,19 +168,14 @@ public class ConnectionManagerDeployment
             stack = new SubjectInterceptor(stack, securityDomain);
         }
         if (useTransactions) {
-            stack =
-                    new TransactionEnlistingInterceptor(stack, transactionManager);
+            stack = new TransactionEnlistingInterceptor(stack, transactionManager);
             if (useTransactionCaching) {
-                stack =
-                        new TransactionCachingInterceptor(
-                                stack,
-                                connectionTracker);
+                stack = new TransactionCachingInterceptor(stack, connectionTracker);
             }
         }
         stack = new ConnectionHandleInterceptor(stack);
         if (connectionTracker != null) {
-            stack =
-                    new ConnectionTrackingInterceptor(
+            stack = new ConnectionTrackingInterceptor(
                             stack,
                             jndiName,
                             connectionTracker,
