@@ -54,8 +54,6 @@ public class SocketProtocolStressTest extends TestCase {
     }
 
     public void testSimple() throws Exception {
-        simpleCounter.setCompleted(simpleCompleted = new CountDown(MESSAGE_COUNT));
-
         for (int i = 0; i < MESSAGE_COUNT; i++) {
             sp.sendDown(allocateDownPacket());
         }
@@ -68,8 +66,6 @@ public class SocketProtocolStressTest extends TestCase {
     public void testConcurrentRequests() throws Exception {
 
         final CyclicBarrier barrier = new CyclicBarrier(WORKERS);
-
-        concurrentCounter.setCompleted(concurrentCompleted = new CountDown(WORKERS * MESSAGE_COUNT));
 
         for (int i = 0; i < WORKERS; i++) {
 
@@ -149,8 +145,8 @@ public class SocketProtocolStressTest extends TestCase {
             }
         });
 
-        aps.push(simpleCounter = new TestCountingProtocol(new CountDown(MESSAGE_COUNT)));
-        aps.push(concurrentCounter = new TestCountingProtocol(new CountDown(WORKERS * MESSAGE_COUNT)));
+        aps.push(simpleCounter = new TestCountingProtocol(simpleCompleted =  new CountDown(MESSAGE_COUNT)));
+        aps.push(concurrentCounter = new TestCountingProtocol(concurrentCompleted = new CountDown(WORKERS * MESSAGE_COUNT)));
 
         aps.push(new AbstractProtocol() {
             public void setup() {

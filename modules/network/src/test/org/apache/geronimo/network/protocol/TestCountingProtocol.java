@@ -32,10 +32,6 @@ public class TestCountingProtocol extends AbstractProtocol {
         this.completed = completed;
     }
 
-    public void setCompleted(CountDown completed) {
-        this.completed = completed;
-    }
-
     public void setup() throws ProtocolException {
     }
 
