@@ -348,6 +348,7 @@
   <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  -->
   <!-- Comment out for better performance
   -->
+<!-- todo add this back in when Jetty no longer 404's on an include under /WEB-INF
   <filter>
     <filter-name>jsr154</filter-name>
     <filter-class>org.mortbay.jetty.servlet.JSR154Filter</filter-class>
@@ -360,6 +361,7 @@
       <dispatcher>FORWARD</dispatcher>
       <dispatcher>INCLUDE</dispatcher>
   </filter-mapping>
-  
+-->
+
 </web-app>
 
