@@ -71,6 +71,7 @@ public class GeronimoTransactionManager extends TransactionManagerProxy {
         infoFactory.addReference("ResourceManagers", ResourceManager.class);
 
         infoFactory.addInterface(TransactionManager.class);
+        infoFactory.addInterface(ExtendedTransactionManager.class);
         infoFactory.addInterface(XidImporter.class);
 
         infoFactory.setConstructor(new String[]{"defaultTransactionTimeoutSeconds", "TransactionLog", "ResourceManagers"});

@@ -31,7 +31,6 @@ import javax.transaction.RollbackException;
 import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
 
@@ -151,7 +150,7 @@ public class TransactionManagerProxy implements ExtendedTransactionManager, XidI
     }
 
     public Transaction begin(long transactionTimeoutMilliseconds) throws NotSupportedException, SystemException {
-        Transaction tx = new TransactionProxy(delegate.begin(transactionTimeoutMilliseconds));
+        Transaction tx = delegate.begin(transactionTimeoutMilliseconds);
         threadTx.set(tx);
         return tx;
     }
@@ -178,9 +177,6 @@ public class TransactionManagerProxy implements ExtendedTransactionManager, XidI
     public void resume(Transaction tx) throws IllegalStateException, InvalidTransactionException, SystemException {
         if (threadTx.get() != null) {
             throw new IllegalStateException("Transaction already associated with current thread");
-        }
-        if (tx instanceof TransactionProxy == false) {
-            throw new InvalidTransactionException("Cannot resume foreign transaction: " + tx);
         }
         threadTx.set(tx);
     }
@@ -221,29 +217,25 @@ public class TransactionManagerProxy implements ExtendedTransactionManager, XidI
     //XidImporter implementation. Wrap and unwrap TransactionProxy.
     //the importer functions should not affect the thread context.
     public Transaction importXid(Xid xid, long transactionTimeoutMillis) throws XAException, SystemException {
-//        if (threadTx.get() != null) {
-//            throw new XAException("Transaction already associated with current thread");
-//        }
-        TransactionProxy transactionProxy = new TransactionProxy(importer.importXid(xid, transactionTimeoutMillis));
-//        threadTx.set(transactionProxy);
-        return transactionProxy;
+        Transaction tx = importer.importXid(xid, transactionTimeoutMillis);
+        return tx;
     }
 
     //TODO how do these relate to threadTx???? probably not at all...
     public void commit(Transaction tx, boolean onePhase) throws XAException {
-        importer.commit(((TransactionProxy) tx).getDelegate(), onePhase);
+        importer.commit(tx, onePhase);
     }
 
     public void forget(Transaction tx) throws XAException {
-        importer.forget(((TransactionProxy) tx).getDelegate());
+        importer.forget(tx);
     }
 
     public int prepare(Transaction tx) throws XAException {
-        return importer.prepare(((TransactionProxy) tx).getDelegate());
+        return importer.prepare(tx);
     }
 
     public void rollback(Transaction tx) throws XAException {
-        importer.rollback(((TransactionProxy) tx).getDelegate());
+        importer.rollback(tx);
     }
 
     //Recovery implementation
@@ -279,7 +271,7 @@ public class TransactionManagerProxy implements ExtendedTransactionManager, XidI
         for (Iterator iterator = internal.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
             Transaction tx = (Transaction) entry.getValue();
-            external.put(entry.getKey(), new TransactionProxy(tx));
+            external.put(entry.getKey(), tx);
         }
         return external;
     }
@@ -294,7 +286,7 @@ public class TransactionManagerProxy implements ExtendedTransactionManager, XidI
         infoFactory.addReference("recovery", Recovery.class);
         infoFactory.addReference("resourceManagers", ResourceManager.class);
 
-        infoFactory.addInterface(TransactionManager.class);
+        infoFactory.addInterface(ExtendedTransactionManager.class);
         infoFactory.addInterface(XidImporter.class);
 
         infoFactory.setConstructor(new String[]{"delegate", "xidImporter", "recovery", "resourceManagers"});
