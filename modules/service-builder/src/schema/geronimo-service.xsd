@@ -28,7 +28,7 @@
             Schema for Geronimo Service component definition files .
             Instance documents should begin with the element:
 
-            &gt;gbeans xmlns="http://geronimo.apache.org/xml/ns/deployment"&lt;
+            &gt;service xmlns="http://geronimo.apache.org/xml/ns/deployment"&lt;
         </xs:documentation>
     </xs:annotation>
 

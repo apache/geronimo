@@ -293,6 +293,20 @@
         </contributor>
     </contributors>
 
+    <dependencies>
+        <!-- Used for preprocessing our plans -->
+        <dependency>
+            <groupId>commons-jelly</groupId>
+            <artifactId>commons-jelly-tags-velocity</artifactId>
+            <version>${jelly_velocity_tags_version}</version>
+        </dependency>
+        <dependency>
+            <groupId> velocity</groupId>
+            <artifactId>velocity</artifactId>
+            <version>${velocity_version}</version>
+        </dependency>
+
+    </dependencies>
 
     <!-- =================== -->
     <!-- Build Specification -->
@@ -320,6 +334,12 @@
                 <directory>${basedir}/target/xmlbeans</directory>
                 <includes>
                     <include>schema/**/*.xsb</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}/target/etc</directory>
+                <includes>
+                    <include>META-INF/geronimo-service.xml</include>
                 </includes>
             </resource>
         </resources>

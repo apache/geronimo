@@ -25,6 +25,7 @@
     xmlns:ant="jelly:ant"
     xmlns:maven="jelly:maven"
     xmlns:define="jelly:define"
+    xmlns:velocity="jelly:velocity"
     >
 
     <!-- ================= -->
@@ -83,6 +84,31 @@
             </ant:depend>
         </j:if>
     </preGoal>
+
+    <!-- Copy and filter dependency lists for inclusion in generated jar. -->
+    <postGoal name="java:compile">
+        <u:available file="${basedir}/src/etc/META-INF/geronimo-service.xml">
+            <j:set var="geronimo.service.file.exists" value="true"/>
+        </u:available>
+        <j:if test="${context.getVariable('geronimo.service.file.exists')}">
+            <!-- Preprocess all plans using velocity  -->
+            <ant:mkdir dir="${basedir}/target/etc/META-INF"/>
+            <fileScanner var="plans">
+                <fileset dir="${basedir}/src/etc/META-INF">
+                    <include name="geronimo-service.xml"/>
+                </fileset>
+            </fileScanner>
+
+            <j:forEach var="plan" items="${plans.iterator()}">
+                <j:set var="planName" value="${plan.name}"/>
+                <echo>Preprocessing ${planName}</echo>
+                <velocity:merge
+                    basedir="${basedir}/src/etc/META-INF"
+                    template="${planName}"
+                    name="${basedir}/target/etc/META-INF/${planName}"/>
+            </j:forEach>
+        </j:if>
+    </postGoal>
 
     <!-- Remove the log files -->
     <goal name="clobber"
