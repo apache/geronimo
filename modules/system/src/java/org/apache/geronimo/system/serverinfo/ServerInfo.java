@@ -27,6 +27,9 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 /**
+ * Contains information about the server and functions for resolving
+ * pathnames.
+ *
  * @version $Rev$ $Date$
  */
 public class ServerInfo {
@@ -74,12 +77,38 @@ public class ServerInfo {
         System.setProperty("geronimo.base.dir", base.getAbsolutePath());
     }
 
+    /**
+     * Resolves an abstract pathname to an absolute one.
+     *
+     * @param filename a pathname that can either be 
+     * fully-qualified (i.e. starts with a "/") or
+     * relative (i.e. starts with any character but "/").  If it's
+     * fully-qualified it will be resolved to an absolute pathname
+     * using system-dependent rules (@link java.io.File). If it's relative
+     * it will be resolved relative to the base directory.
+     *
+     * @return an absolute pathname
+     * 
+     * @see java.io.File#File(String pathname)
+     * @see java.io.File#getAbsolutePath()
+     */
     public String resolvePath(final String filename) {
-        File file = new File(base, filename);
-        return file.getAbsolutePath();
+        return resolve(filename).getAbsolutePath();
     }
 
+    /**
+     * Resolves an abstract pathname to a File.
+     *
+     * @param filename a <code>String</code> containing a pathname,
+     * which will be resolved by {@link #resolvePath(String
+     * filename)}.
+     * @return a <code>File</code> value
+     */
     public File resolve(final String filename) {
+        File file = new File(filename);
+        if (file.isAbsolute()) {
+            return file;
+        }
         return new File(base, filename);
     }
 
