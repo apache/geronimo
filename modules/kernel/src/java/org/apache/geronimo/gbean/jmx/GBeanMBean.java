@@ -62,7 +62,7 @@ import org.apache.geronimo.kernel.management.NotificationType;
  * {@link GBeanInfo} instance.  The GBeanMBean also supports caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.28 $ $Date: 2004/07/20 10:06:14 $
+ * @version $Revision: 1.29 $ $Date: 2004/08/30 22:13:56 $
  */
 public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     /**
@@ -82,7 +82,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     private static ClassLoader getContextClassLoader() {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         if (classLoader == null) {
-            classLoader = ClassLoader.getSystemClassLoader();
+            classLoader = GBeanMBean.class.getClassLoader();
         }
         return classLoader;
     }
