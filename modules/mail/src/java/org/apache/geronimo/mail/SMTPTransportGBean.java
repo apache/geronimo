@@ -21,7 +21,6 @@ import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.WaitingException;
@@ -735,27 +734,27 @@ public class SMTPTransportGBean extends ProtocolGBean {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SMTPTransportGBean.class, ProtocolGBean.GBEAN_INFO);
 
-        infoFactory.addAttribute(new GAttributeInfo("port", Integer.class.getName(), true, "getPort", "setPort"));
-        infoFactory.addAttribute(new GAttributeInfo("connectionTimeout", Integer.class.getName(), true, "getConnectionTimeout", "setConnectionTimeout"));
-        infoFactory.addAttribute(new GAttributeInfo("timeout", Integer.class.getName(), true, "getTimeout", "setTimeout"));
-        infoFactory.addAttribute(new GAttributeInfo("from", String.class.getName(), true, "getFrom", "setFrom"));
-        infoFactory.addAttribute(new GAttributeInfo("localhost", String.class.getName(), true, "getLocalhost", "setLocalhost"));
-        infoFactory.addAttribute(new GAttributeInfo("localaddress", String.class.getName(), true, "getLocaladdress", "setLocaladdress"));
-        infoFactory.addAttribute(new GAttributeInfo("localport", Integer.class.getName(), true, "getLocalport", "setLocalport"));
-        infoFactory.addAttribute(new GAttributeInfo("ehlo", Boolean.class.getName(), true, "getEhlo", "setEhlo"));
-        infoFactory.addAttribute(new GAttributeInfo("auth", Boolean.class.getName(), true, "getAuth", "setAuth"));
-        infoFactory.addAttribute(new GAttributeInfo("submitter", String.class.getName(), true, "getSubmitter", "setSubmitter"));
-        infoFactory.addAttribute(new GAttributeInfo("dsnNotify", String.class.getName(), true, "getDsnNotify", "setDsnNotify"));
-        infoFactory.addAttribute(new GAttributeInfo("dsnRet", String.class.getName(), true, "getDsnRet", "setDsnRet"));
-        infoFactory.addAttribute(new GAttributeInfo("allow8bitmime", Boolean.class.getName(), true, "getAllow8bitmime", "setAllow8bitmime"));
-        infoFactory.addAttribute(new GAttributeInfo("sendPartial", Boolean.class.getName(), true, "getSendPartial", "setSendPartial"));
-        infoFactory.addAttribute(new GAttributeInfo("saslRealm", String.class.getName(), true, "getSaslRealm", "setSaslRealm"));
-        infoFactory.addAttribute(new GAttributeInfo("quitWait", Boolean.class.getName(), true, "getQuitWait", "setQuitWait"));
-        infoFactory.addAttribute(new GAttributeInfo("reportSuccess", Boolean.class.getName(), true, "getReportSuccess", "setReportSuccess"));
-        infoFactory.addAttribute(new GAttributeInfo("socketFactoryClass", String.class.getName(), true, "getSocketFactoryClass", "setSocketFactoryClass"));
-        infoFactory.addAttribute(new GAttributeInfo("socketFactoryFallback", Boolean.class.getName(), true, "getSocketFactoryFallback", "setSocketFactoryFallback"));
-        infoFactory.addAttribute(new GAttributeInfo("socketFactoryPort", Integer.class.getName(), true, "getSocketFactoryPort", "setSocketFactoryPort"));
-        infoFactory.addAttribute(new GAttributeInfo("mailExtension", String.class.getName(), true, "getMailExtension", "setMailExtension"));
+        infoFactory.addAttribute("port", Integer.class, true);
+        infoFactory.addAttribute("connectionTimeout", Integer.class, true);
+        infoFactory.addAttribute("timeout", Integer.class, true);
+        infoFactory.addAttribute("from", String.class, true);
+        infoFactory.addAttribute("localhost", String.class, true);
+        infoFactory.addAttribute("localaddress", String.class, true);
+        infoFactory.addAttribute("localport", Integer.class, true);
+        infoFactory.addAttribute("ehlo", Boolean.class, true);
+        infoFactory.addAttribute("auth", Boolean.class, true);
+        infoFactory.addAttribute("submitter", String.class, true);
+        infoFactory.addAttribute("dsnNotify", String.class, true);
+        infoFactory.addAttribute("dsnRet", String.class, true);
+        infoFactory.addAttribute("allow8bitmime", Boolean.class, true);
+        infoFactory.addAttribute("sendPartial", Boolean.class, true);
+        infoFactory.addAttribute("saslRealm", String.class, true);
+        infoFactory.addAttribute("quitWait", Boolean.class, true);
+        infoFactory.addAttribute("reportSuccess", Boolean.class, true);
+        infoFactory.addAttribute("socketFactoryClass", String.class, true);
+        infoFactory.addAttribute("socketFactoryFallback", Boolean.class, true);
+        infoFactory.addAttribute("socketFactoryPort", Integer.class, true);
+        infoFactory.addAttribute("mailExtension", String.class, true);
 
         infoFactory.setConstructor(new String[]{"objectName", "properties", "host", "user",
                                                 "port",

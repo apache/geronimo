@@ -21,7 +21,6 @@ import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.WaitingException;
@@ -768,28 +767,28 @@ public class IMAPStoreGBean extends ProtocolGBean {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(IMAPStoreGBean.class, ProtocolGBean.GBEAN_INFO);
 
-        infoFactory.addAttribute(new GAttributeInfo("port", Integer.class.getName(), true, "getPort", "setPort"));
-        infoFactory.addAttribute(new GAttributeInfo("partialFetch", Boolean.class.getName(), true, "getPartialFetch", "setPartialFetch"));
-        infoFactory.addAttribute(new GAttributeInfo("fetchSize", Integer.class.getName(), true, "getFetchSize", "setFetchSize"));
-        infoFactory.addAttribute(new GAttributeInfo("connectionTimeout", Integer.class.getName(), true, "getConnectionTimeout", "setConnectionTimeout"));
-        infoFactory.addAttribute(new GAttributeInfo("timeout", Integer.class.getName(), true, "getTimeout", "setTimeout"));
-        infoFactory.addAttribute(new GAttributeInfo("statusCacheTimeout", Integer.class.getName(), true, "getStatusCacheTimeout", "setStatusCacheTimeout"));
-        infoFactory.addAttribute(new GAttributeInfo("appendBufferSize", Integer.class.getName(), true, "getAppendBufferSize", "setAppendBufferSize"));
-        infoFactory.addAttribute(new GAttributeInfo("connectionPoolSize", Integer.class.getName(), true, "getConnectionPoolSize", "setConnectionPoolSize"));
-        infoFactory.addAttribute(new GAttributeInfo("connectionPoolTimeout", Integer.class.getName(), true, "getConnectionPoolTimeout", "setConnectionPoolTimeout"));
-        infoFactory.addAttribute(new GAttributeInfo("separateStoreConnection", Boolean.class.getName(), true, "getSeparateStoreConnection", "setSeparateStoreConnection"));
-        infoFactory.addAttribute(new GAttributeInfo("allowReadOnlySelect", Boolean.class.getName(), true, "getAllowReadOnlySelect", "setAllowReadOnlySelect"));
-        infoFactory.addAttribute(new GAttributeInfo("authLoginDisable", Boolean.class.getName(), true, "getAuthLoginDisable", "setAuthLoginDisable"));
-        infoFactory.addAttribute(new GAttributeInfo("authPlainDisable", Boolean.class.getName(), true, "getAuthPlainDisable", "setAuthPlainDisable"));
-        infoFactory.addAttribute(new GAttributeInfo("startTLSEnable", Boolean.class.getName(), true, "getStartTLSEnable", "setStartTLSEnable"));
-        infoFactory.addAttribute(new GAttributeInfo("localaddress", String.class.getName(), true, "getLocaladdress", "setLocaladdress"));
-        infoFactory.addAttribute(new GAttributeInfo("localport", Integer.class.getName(), true, "getLocalport", "setLocalport"));
-        infoFactory.addAttribute(new GAttributeInfo("saslEnable", Boolean.class.getName(), true, "getSaslEnable", "setSaslEnable"));
-        infoFactory.addAttribute(new GAttributeInfo("saslMechanisms", String.class.getName(), true, "getSaslMechanisms", "setSaslMechanisms"));
-        infoFactory.addAttribute(new GAttributeInfo("saslAuthorizationId", String.class.getName(), true, "getSaslAuthorizationId", "setSaslAuthorizationId"));
-        infoFactory.addAttribute(new GAttributeInfo("socketFactoryClass", String.class.getName(), true, "getSocketFactoryClass", "setSocketFactoryClass"));
-        infoFactory.addAttribute(new GAttributeInfo("socketFactoryFallback", Boolean.class.getName(), true, "getSocketFactoryFallback", "setSocketFactoryFallback"));
-        infoFactory.addAttribute(new GAttributeInfo("socketFactoryPort", Integer.class.getName(), true, "getSocketFactoryPort", "setSocketFactoryPort"));
+        infoFactory.addAttribute("port", Integer.class, true);
+        infoFactory.addAttribute("partialFetch", Boolean.class, true);
+        infoFactory.addAttribute("fetchSize", Integer.class, true);
+        infoFactory.addAttribute("connectionTimeout", Integer.class, true);
+        infoFactory.addAttribute("timeout", Integer.class, true);
+        infoFactory.addAttribute("statusCacheTimeout", Integer.class, true);
+        infoFactory.addAttribute("appendBufferSize", Integer.class, true);
+        infoFactory.addAttribute("connectionPoolSize", Integer.class, true);
+        infoFactory.addAttribute("connectionPoolTimeout", Integer.class, true);
+        infoFactory.addAttribute("separateStoreConnection", Boolean.class, true);
+        infoFactory.addAttribute("allowReadOnlySelect", Boolean.class, true);
+        infoFactory.addAttribute("authLoginDisable", Boolean.class, true);
+        infoFactory.addAttribute("authPlainDisable", Boolean.class, true);
+        infoFactory.addAttribute("startTLSEnable", Boolean.class, true);
+        infoFactory.addAttribute("localaddress", String.class, true);
+        infoFactory.addAttribute("localport", Integer.class, true);
+        infoFactory.addAttribute("saslEnable", Boolean.class, true);
+        infoFactory.addAttribute("saslMechanisms", String.class, true);
+        infoFactory.addAttribute("saslAuthorizationId", String.class, true);
+        infoFactory.addAttribute("socketFactoryClass", String.class, true);
+        infoFactory.addAttribute("socketFactoryFallback", Boolean.class, true);
+        infoFactory.addAttribute("socketFactoryPort", Integer.class, true);
 
         infoFactory.setConstructor(new String[]{"objectName", "properties", "host", "user",
                                                 "port",

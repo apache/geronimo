@@ -21,7 +21,6 @@ import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -170,11 +169,11 @@ public class ProtocolGBean implements GBeanLifecycle {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ProtocolGBean.class);
 
-        infoFactory.addAttribute(new GAttributeInfo("objectName", String.class.getName(), false, "getObjectName", null));
-        infoFactory.addAttribute(new GAttributeInfo("protocol", String.class.getName(), true, "getProtocol", null));
-        infoFactory.addAttribute(new GAttributeInfo("properties", Properties.class.getName(), true, "getProperties", "setProperties"));
-        infoFactory.addAttribute(new GAttributeInfo("host", String.class.getName(), true, "getHost", "setHost"));
-        infoFactory.addAttribute(new GAttributeInfo("user", String.class.getName(), true, "getUser", "setUser"));
+        infoFactory.addAttribute("objectName", String.class, false);
+        infoFactory.addAttribute("protocol", String.class, true);
+        infoFactory.addAttribute("properties", Properties.class, true);
+        infoFactory.addAttribute("host", String.class, true);
+        infoFactory.addAttribute("user", String.class, true);
         infoFactory.addOperation("addOverrides", new Class[]{Properties.class});
 
         infoFactory.setConstructor(new String[]{"objectName", "protocol", "properties", "host", "user"});

@@ -25,7 +25,6 @@ import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -351,16 +350,16 @@ public class MailGBean implements GBeanLifecycle {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(MailGBean.class);
 
-        infoFactory.addAttribute(new GAttributeInfo("objectName", String.class.getName(), false, "getObjectName", null));
+        infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addReference("Protocols", ProtocolGBean.class);
-        infoFactory.addAttribute(new GAttributeInfo("useDefault", Boolean.class.getName(), true, "getUseDefault", "setUseDefault"));
-        infoFactory.addAttribute(new GAttributeInfo("properties", Properties.class.getName(), true, "getProperties", "setProperties"));
+        infoFactory.addAttribute("useDefault", Boolean.class, true);
+        infoFactory.addAttribute("properties", Properties.class, true);
         infoFactory.addReference("Authenticator", Authenticator.class);
-        infoFactory.addAttribute(new GAttributeInfo("storeProtocol", String.class.getName(), true, "getStoreProtocol", "setStoreProtocol"));
-        infoFactory.addAttribute(new GAttributeInfo("transportProtocol", String.class.getName(), true, "getTransportProtocol", "setTransportProtocol"));
-        infoFactory.addAttribute(new GAttributeInfo("host", String.class.getName(), true, "getHost", "setHost"));
-        infoFactory.addAttribute(new GAttributeInfo("user", String.class.getName(), true, "getUser", "setUser"));
-        infoFactory.addAttribute(new GAttributeInfo("debug", Boolean.class.getName(), true, "isDebug", "setDebug"));
+        infoFactory.addAttribute("storeProtocol", String.class, true);
+        infoFactory.addAttribute("transportProtocol", String.class, true);
+        infoFactory.addAttribute("host", String.class, true);
+        infoFactory.addAttribute("user", String.class, true);
+        infoFactory.addAttribute("debug", Boolean.class, true);
         infoFactory.addOperation("$getResource");
         infoFactory.addOperation("getProtocols");
 

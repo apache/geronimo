@@ -21,7 +21,6 @@ import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.WaitingException;
@@ -430,17 +429,17 @@ public class POP3StoreGBean extends ProtocolGBean {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(POP3StoreGBean.class, ProtocolGBean.GBEAN_INFO);
 
-        infoFactory.addAttribute(new GAttributeInfo("port", Integer.class.getName(), true, "getPort", "setPort"));
-        infoFactory.addAttribute(new GAttributeInfo("connectionTimeout", Integer.class.getName(), true, "getConnectionTimeout", "setConnectionTimeout"));
-        infoFactory.addAttribute(new GAttributeInfo("timeout", Integer.class.getName(), true, "getTimeout", "setTimeout"));
-        infoFactory.addAttribute(new GAttributeInfo("rsetBeforeQuit", Boolean.class.getName(), true, "getRsetBeforeQuit", "setRsetBeforeQuit"));
-        infoFactory.addAttribute(new GAttributeInfo("messageClass", String.class.getName(), true, "getMessageClass", "setMessageClass"));
-        infoFactory.addAttribute(new GAttributeInfo("localaddress", String.class.getName(), true, "getLocaladdress", "setLocaladdress"));
-        infoFactory.addAttribute(new GAttributeInfo("localport", Integer.class.getName(), true, "getLocalport", "setLocalport"));
-        infoFactory.addAttribute(new GAttributeInfo("apopEnable", Boolean.class.getName(), true, "getApopEnable", "setApopEnable"));
-        infoFactory.addAttribute(new GAttributeInfo("socketFactoryClass", String.class.getName(), true, "getSocketFactoryClass", "setSocketFactoryClass"));
-        infoFactory.addAttribute(new GAttributeInfo("socketFactoryFallback", Boolean.class.getName(), true, "getSocketFactoryFallback", "setSocketFactoryFallback"));
-        infoFactory.addAttribute(new GAttributeInfo("socketFactoryPort", Integer.class.getName(), true, "getSocketFactoryPort", "setSocketFactoryPort"));
+        infoFactory.addAttribute("port", Integer.class, true);
+        infoFactory.addAttribute("connectionTimeout", Integer.class, true);
+        infoFactory.addAttribute("timeout", Integer.class, true);
+        infoFactory.addAttribute("rsetBeforeQuit", Boolean.class, true);
+        infoFactory.addAttribute("messageClass", String.class, true);
+        infoFactory.addAttribute("localaddress", String.class, true);
+        infoFactory.addAttribute("localport", Integer.class, true);
+        infoFactory.addAttribute("apopEnable", Boolean.class, true);
+        infoFactory.addAttribute("socketFactoryClass", String.class, true);
+        infoFactory.addAttribute("socketFactoryFallback", Boolean.class, true);
+        infoFactory.addAttribute("socketFactoryPort", Integer.class, true);
 
         infoFactory.setConstructor(new String[]{"objectName", "properties", "host", "user",
                                                 "port",
