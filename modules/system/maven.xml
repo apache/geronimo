@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.2 $ $Date: 2004/03/10 09:59:30 $ -->
+<!-- $Revision: 1.3 $ $Date: 2004/03/14 02:05:29 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -46,5 +46,16 @@ build.date=${dateFormat.format(now)}
 build.time=${timeFormat.format(now)}
 copyright=Copyright (C) 2003-${yearFormat.format(now)}, The Apache Software Foundation
 </ant:echo>
+    </postGoal>
+
+    <!-- Set up the test files -->
+    <postGoal name="test:test-resources">
+
+        <j:jelly xmlns="jelly:ant">
+            <!-- Create the temporary directory where the configurations will reside -->
+            <delete dir="${maven.build.dir}/tmp"/>
+            <mkdir dir="${maven.build.dir}/tmp"/>
+        </j:jelly>
+
     </postGoal>
 </project>
