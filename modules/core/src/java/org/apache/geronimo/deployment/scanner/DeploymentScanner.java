@@ -87,12 +87,9 @@ import org.apache.geronimo.management.AbstractManagedObject;
  * @jmx:mbean
  *      extends="org.apache.geronimo.management.StateManageable,org.apache.geronimo.management.ManagedObject"
  *
- * @version $Revision: 1.15 $ $Date: 2003/09/03 13:50:29 $
+ * @version $Revision: 1.16 $ $Date: 2003/09/05 05:52:10 $
  */
-public class DeploymentScanner
-    extends AbstractManagedObject
-    implements DeploymentScannerMBean
-{
+public class DeploymentScanner extends AbstractManagedObject implements DeploymentScannerMBean {
     private static final Log log = LogFactory.getLog(DeploymentScanner.class);
 
     private RelationServiceMBean relationService;
@@ -106,43 +103,42 @@ public class DeploymentScanner
      */
     public DeploymentScanner() {
     }
-    
+
     /**
      * @jmx:managed-constructor
      */
-    public DeploymentScanner(final URL[] urls, final boolean recurse) 
-    {
-        for (int i=0; i<urls.length; i++ ) {
+    public DeploymentScanner(final URL[] urls, final boolean recurse) {
+        for (int i = 0; i < urls.length; i++) {
             addURL(urls[i], recurse);
         }
     }
-    
+
     public ObjectName preRegister(MBeanServer server, ObjectName objectName) throws Exception {
         relationService = JMXUtil.getRelationService(server);
         return super.preRegister(server, objectName);
     }
-    
+
     /**
      * @jmx:managed-attribute
      */
     public synchronized long getScanInterval() {
         return scanInterval;
     }
-    
+
     /**
      * @jmx:managed-attribute
      */
     public synchronized void setScanInterval(long scanInterval) {
         this.scanInterval = scanInterval;
     }
-    
+
     /**
      * @jmx:managed-attribute
      */
     public synchronized Set getWatchedURLs() {
         return Collections.unmodifiableSet(new HashSet(scanners.keySet()));
     }
-    
+
     /**
      * @jmx:managed-operation
      */
@@ -152,17 +148,18 @@ public class DeploymentScanner
         //
         addURL(URLFactory.create(url), recurse);
     }
-    
+
     /**
      * @jmx:managed-operation
      */
     public synchronized void addURL(URL url, boolean recurse) {
         if (!scanners.containsKey(url)) {
+            log.debug("Watching URL: " + url);
             Scanner scanner = getScannerForURL(url, recurse);
             scanners.put(url, scanner);
         }
     }
-    
+
     private Scanner getScannerForURL(URL url, boolean recurse) {
         String protocol = url.getProtocol();
         if ("file".equals(protocol)) {
@@ -173,7 +170,7 @@ public class DeploymentScanner
             throw new IllegalArgumentException("Unknown protocol " + protocol);
         }
     }
-    
+
     /**
      * @jmx:managed-operation
      */
@@ -183,14 +180,14 @@ public class DeploymentScanner
         //
         removeURL(URLFactory.create(url));
     }
-    
+
     /**
      * @jmx:managed-operation
      */
     public synchronized void removeURL(URL url) {
         scanners.remove(url);
     }
-    
+
     private synchronized boolean shouldScannerThreadRun() {
         return run;
     }
@@ -220,7 +217,7 @@ public class DeploymentScanner
             scanThread = null;
         }
     }
-    
+
     /**
      * @jmx:managed-operation
      */
