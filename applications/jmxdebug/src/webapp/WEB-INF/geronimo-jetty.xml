@@ -4,6 +4,11 @@
     configId="org/apache/geronimo/DebugConsole"
     parentId="org/apache/geronimo/Server"
     >
+
+    <dependency>
+        <uri>commons-collections/jars/commons-collections-2.1.jar</uri>
+    </dependency>
+    
     <context-root>/debug-tool</context-root>
     <context-priority-classloader>false</context-priority-classloader>
 </web-app>
