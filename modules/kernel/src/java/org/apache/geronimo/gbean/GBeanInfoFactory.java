@@ -67,9 +67,10 @@ import java.util.Arrays;
 /**
  *
  *
- * @version $Revision: 1.9 $ $Date: 2004/02/13 04:07:01 $
+ * @version $Revision: 1.10 $ $Date: 2004/02/20 17:04:27 $
  */
 public class GBeanInfoFactory {
+    private static final Class[] NO_ARGS = {};
     private final String name;
     private final String className;
     private final Set attributes = new HashSet();
@@ -165,6 +166,10 @@ public class GBeanInfoFactory {
 
     public void addOperation(GOperationInfo info) {
         operations.add(info);
+    }
+
+    public void addOperation(String name) {
+        operations.add(new GOperationInfo(name, NO_ARGS));
     }
 
     public void addOperation(String name, Class[] paramTypes) {
