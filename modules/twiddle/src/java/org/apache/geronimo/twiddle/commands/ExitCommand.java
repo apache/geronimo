@@ -58,27 +58,21 @@ package org.apache.geronimo.twiddle.commands;
 
 import java.io.PrintWriter;
 
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.PosixParser;
 import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.ParseException;
-
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
 import org.apache.geronimo.common.NullArgumentException;
-
+import org.apache.geronimo.twiddle.command.AbstractCommand;
 import org.apache.geronimo.twiddle.command.Command;
 import org.apache.geronimo.twiddle.command.CommandInfo;
-import org.apache.geronimo.twiddle.command.CommandContext;
-import org.apache.geronimo.twiddle.command.AbstractCommand;
-
 import org.apache.geronimo.twiddle.util.HelpFormatter;
 
 /**
  * Exit command... terminates the virtual machine.
  *
- * @version <code>$Revision: 1.6 $ $Date: 2003/08/24 09:26:29 $</code>
+ * @version <code>$Revision: 1.7 $ $Date: 2003/08/28 13:32:09 $</code>
  */
 public class ExitCommand
     extends AbstractCommand

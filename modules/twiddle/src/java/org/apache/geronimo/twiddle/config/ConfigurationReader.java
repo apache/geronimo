@@ -56,28 +56,23 @@
 
 package org.apache.geronimo.twiddle.config;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
 import java.io.FileReader;
 import java.io.InputStreamReader;
-import java.io.BufferedReader;
-
+import java.io.Reader;
 import java.net.URL;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.exolab.castor.xml.Unmarshaller;
-import org.exolab.castor.xml.MarshalException;
-
 import org.apache.geronimo.common.NullArgumentException;
 import org.apache.geronimo.common.Strings;
+import org.exolab.castor.xml.Unmarshaller;
 
 /**
  * Creates <code>Configuration</code> objects.
  *
- * @version <code>$Revision: 1.6 $ $Date: 2003/08/24 10:54:43 $</code>
+ * @version <code>$Revision: 1.7 $ $Date: 2003/08/28 13:32:09 $</code>
  */
 public class ConfigurationReader
 {

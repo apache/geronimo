@@ -56,18 +56,18 @@
 
 package org.apache.geronimo.enterprise.deploy.provider.jar;
 
-import java.beans.SimpleBeanInfo;
 import java.beans.BeanDescriptor;
-import java.beans.PropertyDescriptor;
-import java.beans.IndexedPropertyDescriptor;
 import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
+import java.beans.SimpleBeanInfo;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
  * BeanInfo describing the SecurityRoleBean.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/27 10:33:34 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/28 13:32:09 $
  */
 public class EnvEntryBeanBeanInfo extends SimpleBeanInfo {
     private static final Log log = LogFactory.getLog(EnvEntryBeanBeanInfo.class);

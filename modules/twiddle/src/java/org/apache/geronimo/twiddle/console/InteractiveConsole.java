@@ -56,15 +56,13 @@
 
 package org.apache.geronimo.twiddle.console;
 
-import java.io.IOException;
-
 import org.apache.geronimo.common.NullArgumentException;
 import org.apache.geronimo.common.ThrowableHandler;
 
 /**
  * ???
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/27 10:40:37 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/28 13:32:09 $
  */
 public class InteractiveConsole
     implements Runnable

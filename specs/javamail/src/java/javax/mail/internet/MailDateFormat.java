@@ -59,15 +59,12 @@
 // DO NOT add / change / or delete method signatures!
 //
 package javax.mail.internet;
-import java.text.FieldPosition;
 import java.text.NumberFormat;
-import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 // Wed, 02 Jan 2003 23:59:59 -0100
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/16 01:55:48 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/28 13:32:09 $
  */
 public class MailDateFormat extends SimpleDateFormat {
     MailDateFormat() {

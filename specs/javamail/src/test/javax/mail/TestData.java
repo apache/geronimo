@@ -59,13 +59,6 @@
 // DO NOT add / change / or delete method signatures!
 //
 package javax.mail;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Date;
-import java.util.Enumeration;
-import javax.activation.DataHandler;
-import javax.mail.Message.RecipientType;
 import javax.mail.internet.MimeMessage;
 public class TestData {
     public static Store getTestStore() {
