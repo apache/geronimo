@@ -56,27 +56,27 @@
         </dependency>
         <dependency>
             <groupId>axis</groupId>
-            <artifactId>commons-discovery</artifactId>
+            <artifactId>axis-commons-discovery</artifactId>
             <version>&axis-version;</version>
         </dependency>
         <dependency>
             <groupId>axis</groupId>
-            <artifactId>commons-logging</artifactId>
+            <artifactId>axis-commons-logging</artifactId>
             <version>&axis-version;</version>
         </dependency>
         <dependency>
             <groupId>axis</groupId>
-            <artifactId>jaxrpc</artifactId>
+            <artifactId>axis-jaxrpc</artifactId>
             <version>&axis-version;</version>
         </dependency>
         <dependency>
             <groupId>axis</groupId>
-            <artifactId>saaj</artifactId>
+            <artifactId>axis-saaj</artifactId>
             <version>&axis-version;</version>
         </dependency>
         <dependency>
             <groupId>axis</groupId>
-            <artifactId>wsdl4j</artifactId>
+            <artifactId>axis-wsdl4j</artifactId>
             <version>&axis-version;</version>
         </dependency>
         <dependency>
@@ -207,6 +207,7 @@
             <artifactId>ews</artifactId>
             <version>&ews-version;</version>
         </dependency>
+<!--
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-ejb</artifactId>
@@ -257,6 +258,7 @@
             <artifactId>geronimo-spec-servlet</artifactId>
             <version>&geronimo-spec-servlet-version;</version>
         </dependency>
+-->
         <dependency>
             <groupId>hsqldb</groupId>
             <artifactId>hsqldb</artifactId>

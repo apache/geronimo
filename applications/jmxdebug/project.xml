@@ -73,7 +73,7 @@
 
         <dependency>
             <groupId>velocity</groupId>
-            <artifactId>velocity</artifactId>
+            <artifactId>velocity-dep</artifactId>
             <version>&velocity-version;</version>
             <url>http://jakarta.apache.org/velocity/</url>
             <properties>
