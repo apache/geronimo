@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.7 $ $Date: 2003/08/24 20:53:56 $ -->
+<!-- $Revision: 1.8 $ $Date: 2003/08/27 10:24:36 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -76,5 +76,21 @@
     </dependency>
     
   </dependencies>
+  
+  
+  <!-- =================== -->
+  <!-- Build Specification -->
+  <!-- =================== -->
 
+  <build>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/conf</directory>
+        <includes>
+          <include>*.properties</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+  
 </project>
