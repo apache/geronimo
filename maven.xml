@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.48 $ $Date: 2004/01/01 18:32:13 $ -->
+<!-- $Revision: 1.49 $ $Date: 2004/01/16 02:08:18 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -545,6 +545,7 @@
                 failonerror="true"
                 dir="${run.dir}">
 
+                <jvmarg value="-ea"/>
                 <classpath>
                     <pathelement path="${env.JAVA_HOME}/lib/tools.jar"/>
                     <pathelement path="${run.dir}/etc"/>
