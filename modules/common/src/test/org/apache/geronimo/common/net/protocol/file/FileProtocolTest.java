@@ -72,10 +72,11 @@ import org.apache.geronimo.common.net.protocol.URLStreamHandlerFactory;
 /**
  * Unit test for the 'file' protocol.
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/02 03:47:40 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/02 07:52:44 $
  */
 public class FileProtocolTest
-        extends TestCase {
+    extends TestCase
+{
     static {
         //
         // Have to install factory to make sure that our file handler is used
@@ -198,40 +199,43 @@ public class FileProtocolTest
             // OK
         }
     }
-
-    public void testFoo() throws Exception {
+    
+    public void testSyncFDUpdatesFileLength() throws Exception {
         File foo = File.createTempFile("TestFileLength", ".tmp");
         FileOutputStream fos = new FileOutputStream(foo);
         OutputStream out = new BufferedOutputStream(fos);
         try {
             out.write(new byte[10]);
             out.flush();
-//            out.close();
+            // out.close();
             fos.getFD().sync(); // this is required on Windows for foo.length to be updated
             assertEquals(10, foo.length());
         } finally {
             foo.delete();
         }
     }
-
-    /*
-     * This test fails on Windows because File.length() is not updated until the
-     * OutputStream is closed or the underlying FileDescriptor sync()'ed
-     */
-    public void XtestGetOutputStream() throws Exception {
+    
+    public void testGetOutputStream() throws Exception {
         URLConnection c = fileURL.openConnection();
         OutputStream output = c.getOutputStream();
-
+        
         int length = 8;
         writeSomeBytes(output, length);
-        output.close();
-        assertEquals(length, file.length());
+        
+        // Do not check file length, may fail on windows
+        // assertEquals(length, file.length());
+        
+        // This should work, as the connection should sync the fd
         assertEquals(length, c.getContentLength());
 
         writeSomeBytes(output, length);
-        assertEquals(length * 2, file.length());
+        
+        // Do not check file length, may fail on windows
+        // assertEquals(length * 2, file.length());
+        
+        // This should work, as the connection should sync the fd
         assertEquals(length * 2, c.getContentLength());
-
+        
         try {
             output.close();
             writeSomeBytes(output, 1);
