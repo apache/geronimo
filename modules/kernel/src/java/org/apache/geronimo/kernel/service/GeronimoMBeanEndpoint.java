@@ -85,7 +85,7 @@ import net.sf.cglib.reflect.FastMethod;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/10 20:40:40 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/11 16:39:58 $
  */
 public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBeanTarget {
     private static final Log log = LogFactory.getLog(GeronimoMBeanEndpoint.class);
@@ -194,15 +194,24 @@ public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBea
         this(name, type, Collections.singleton(pattern), required);
     }
 
+    public GeronimoMBeanEndpoint(String name, String type, ObjectName pattern, boolean required, String target) {
+        this(name, type, Collections.singleton(pattern), required, target);
+    }
+
     public GeronimoMBeanEndpoint(String name, String type, Collection peers) {
         this(name, type, peers, false);
     }
 
     public GeronimoMBeanEndpoint(String name, String type, Collection peers, boolean required) {
+        this(name, type, peers, required, null);
+    }
+
+    public GeronimoMBeanEndpoint(String name, String type, Collection peers, boolean required, String targetName) {
         this.name = name;
         this.type = type;
         this.peers = new HashSet(peers);
         this.required = required;
+        this.targetName = targetName;
 
         iface = null;
         target = null;
@@ -439,7 +448,6 @@ public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBea
                 Set names = server.queryNames(target, null);
                 for (Iterator objectNameIterator = names.iterator(); objectNameIterator.hasNext();) {
                     ObjectName peer = (ObjectName) objectNameIterator.next();
-
                     // if we haven't seen this one before
                     if (!connections.containsKey(peer)) {
                         // register for state change notifications
@@ -474,7 +482,6 @@ public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBea
                     server.removeNotificationListener(connection.getObjectName(), this);
                 } catch (JMException e) {
                     // no big deal.. just being a good citizen
-                    log.debug("Was not a listener on a connected mbean", e);
                 }
                 if (required) {
                     dependency.removeDependency(objectName, connection.getObjectName());
@@ -497,7 +504,16 @@ public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBea
     }
 
     public synchronized boolean canStart() {
-        return !running || !required || connections.size() == 1;
+        if (running) {
+            return false;
+        }
+        if (required && connections.size() != 1) {
+            return false;
+        }
+        if (singleValued && connections.size() > 1) {
+            return false;
+        }
+        return true;
     }
 
     public synchronized void doStart() {
@@ -505,15 +521,14 @@ public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBea
             throw new IllegalStateException("Endpoint is already running");
         }
 
-        running = true;
         proxies = new HashMap();
 
         // Do we have enough connections?
-        if ((singleValued && connections.size() > 1)
-                || (required && connections.size() == 0)) {
+        if (!canStart()) {
             context.fail();
             return;
         }
+        running = true;
 
         // open all the connections
         for (Iterator iterator = connections.values().iterator(); iterator.hasNext();) {
@@ -747,7 +762,7 @@ public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBea
     private boolean isRunning(ObjectName objectName) {
         try {
             final int state = ((Integer) context.getServer().getAttribute(objectName, "state")).intValue();
-            return state != State.RUNNING_INDEX;
+            return state == State.RUNNING_INDEX;
         } catch (AttributeNotFoundException e) {
             // ok -- mbean is not a startable
             return true;
