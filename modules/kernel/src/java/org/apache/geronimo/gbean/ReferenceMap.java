@@ -16,7 +16,12 @@
  */
 package org.apache.geronimo.gbean;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.HashMap;
+import java.util.Set;
+
 
 public class ReferenceMap implements Map, ReferenceCollectionListener {
     private final ReferenceCollection collection;
