@@ -59,23 +59,29 @@
 // DO NOT add / change / or delete method signatures!
 //
 package javax.mail.internet;
+
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
+
 /**
  * Parses dates of the form
- * 
+ *
  * <code>Wed, 02 Jan 2003 23:59:59 -0100 (GMT)</code>
- * 
+ *
  * <code>EEE,  d MMM yyyy HH:mm:ss Z (z)</code>
- * @version $Revision: 1.3 $ $Date: 2003/09/04 02:14:40 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/23 01:28:36 $
  */
 public class MailDateFormat extends SimpleDateFormat {
-    static final MailDateFormat INSTANCE = new MailDateFormat();
+    static final MailDateFormat INSTANCE = new MailDateFormat(); // @todo jboynes: this does not seem to be used
     private static final String pattern = "EEE, d MMM yyyy HH:mm:ss Z (z)";
+
     public MailDateFormat() {
-        super(pattern);
+        super(pattern, Locale.US);
     }
+
+    // @todo jboynes: are these commented out for a reason?
     //    public StringBuffer format(Date date, StringBuffer buffer, FieldPosition position) {
     //        return super.format(date,buffer,position);
     //    }
@@ -85,6 +91,7 @@ public class MailDateFormat extends SimpleDateFormat {
     public void setCalendar(Calendar calendar) {
         throw new UnsupportedOperationException();
     }
+
     public void setNumberFormat(NumberFormat format) {
         throw new UnsupportedOperationException();
     }
