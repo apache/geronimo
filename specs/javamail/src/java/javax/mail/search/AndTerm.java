@@ -21,38 +21,70 @@ import java.util.Arrays;
 import javax.mail.Message;
 
 /**
+ * Term that implements a logical AND across terms.
+ *
  * @version $Rev$ $Date$
  */
 public final class AndTerm extends SearchTerm {
+    /**
+     * Terms to which the AND operator should be applied.
+     */
     protected SearchTerm[] terms;
 
+    /**
+     * Constructor for performing a binary AND.
+     *
+     * @param a the first term
+     * @param b the second ter,
+     */
     public AndTerm(SearchTerm a, SearchTerm b) {
         terms = new SearchTerm[]{a, b};
     }
 
+    /**
+     * Constructor for performing and AND across an arbitraty number of terms.
+     * @param terms the terms to AND together
+     */
     public AndTerm(SearchTerm[] terms) {
         this.terms = terms;
     }
 
-    public boolean equals(Object other) {
-        return super.equals(other)
-                && Arrays.equals(terms, ((AndTerm) other).terms);
-    }
-
+    /**
+     * Return the terms.
+     * @return the terms
+     */
     public SearchTerm[] getTerms() {
         return terms;
     }
 
-    public int hashCode() {
-        return super.hashCode() + terms.length * 37;
+    /**
+     * Match by applying the terms, in order, to the Message and performing an AND operation
+     * to the result. Comparision will stop immediately if one of the terms returns false.
+     *
+     * @param message the Message to apply the terms to
+     * @return true if all terms match
+     */
+    public boolean match(Message message) {
+        for (int i = 0; i < terms.length; i++) {
+            SearchTerm term = terms[i];
+            if (!term.match(message)) {
+                return false;
+            }
+        }
+        return true;
     }
 
-    public boolean match(Message message) {
-        boolean result = true;
-        for (int i = 0; result && i < terms.length; i++) {
-            SearchTerm term = terms[i];
-            result = term.match(message);
+    public boolean equals(Object other) {
+        if (other == this) return true;
+        if (other instanceof AndTerm == false) return false;
+        return Arrays.equals(terms, ((AndTerm) other).terms);
+    }
+
+    public int hashCode() {
+        int hash = 0;
+        for (int i = 0; i < terms.length; i++) {
+            hash = hash * 37 + terms[i].hashCode();
         }
-        return result;
+        return hash;
     }
 }

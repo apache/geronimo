@@ -34,25 +34,31 @@ public final class OrTerm extends SearchTerm {
         this.terms = terms;
     }
 
-    public boolean equals(Object other) {
-        return super.equals(other)
-                && Arrays.equals(terms, ((OrTerm) other).terms);
-    }
-
     public SearchTerm[] getTerms() {
         return terms;
     }
 
-    public int hashCode() {
-        return super.hashCode() + terms.length * 37;
+    public boolean match(Message message) {
+        for (int i = 0; i < terms.length; i++) {
+            SearchTerm term = terms[i];
+            if (term.match(message)) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    public boolean match(Message message) {
-        boolean result = false;
-        for (int i = 0; (!result) && i < terms.length; i++) {
-            SearchTerm term = terms[i];
-            result = term.match(message);
+    public boolean equals(Object other) {
+        if (other == this) return true;
+        if (other instanceof OrTerm == false) return false;
+        return Arrays.equals(terms, ((OrTerm) other).terms);
+    }
+
+    public int hashCode() {
+        int hash = 0;
+        for (int i = 0; i < terms.length; i++) {
+            hash = hash * 37 + terms[i].hashCode();
         }
-        return result;
+        return hash;
     }
 }

@@ -31,34 +31,34 @@ public final class HeaderTerm extends StringTerm {
         this.headerName = header;
     }
 
-    public boolean equals(Object other) {
-        return super.equals(other)
-                && ((HeaderTerm) other).headerName.equals(headerName);
-    }
-
     public String getHeaderName() {
         return headerName;
-    }
-
-    public int hashCode() {
-        return super.hashCode() + headerName.hashCode();
     }
 
     public boolean match(Message message) {
         try {
             String values[] = message.getHeader(headerName);
-            if (values == null || values.length == 0) {
-                return false;
-            } else {
-                boolean result = false;
-                for (int i = 0; !result && i < values.length; i++) {
+            if (values != null) {
+                for (int i = 0; i < values.length; i++) {
                     String value = values[i];
-                    result = match(value);
+                    if (match(value)) {
+                        return true;
+                    }
                 }
-                return result;
             }
+            return false;
         } catch (MessagingException e) {
             return false;
         }
+    }
+
+    public boolean equals(Object other) {
+        if (other == this) return true;
+        if (other instanceof HeaderTerm == false) return false;
+        return headerName.equalsIgnoreCase(((HeaderTerm) other).headerName);
+    }
+
+    public int hashCode() {
+        return headerName.toLowerCase().hashCode();
     }
 }

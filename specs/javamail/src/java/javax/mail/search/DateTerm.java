@@ -26,30 +26,48 @@ public abstract class DateTerm extends ComparisonTerm {
     protected Date date;
 
     protected DateTerm(int comparison, Date date) {
-        super(comparison);
-        if (date == null) {
-            throw new IllegalArgumentException("Date cannot be null");
-        }
+        super();
+        this.comparison = comparison;
         this.date = date;
-    }
-
-    public boolean equals(Object other) {
-        return super.equals(other) && ((DateTerm) other).date.equals(date);
-    }
-
-    public int getComparison() {
-        return super.getComparison();
     }
 
     public Date getDate() {
         return date;
     }
 
-    public int hashCode() {
-        return super.hashCode() + date.hashCode();
+    public int getComparison() {
+        return comparison;
     }
 
     protected boolean match(Date match) {
-        return compare(date.compareTo(match));
+        long matchTime = match.getTime();
+        long mytime = date.getTime();
+        switch (comparison) {
+        case EQ:
+            return matchTime == mytime;
+        case NE:
+            return matchTime != mytime;
+        case LE:
+            return matchTime <= mytime;
+        case LT:
+            return matchTime < mytime;
+        case GT:
+            return matchTime > mytime;
+        case GE:
+            return matchTime >= mytime;
+        default:
+            return false;
+        }
+    }
+
+    public boolean equals(Object other) {
+        if (other == this) return true;
+        if (other instanceof DateTerm == false) return false;
+        final DateTerm term = (DateTerm) other;
+        return this.comparison == term.comparison && this.date.equals(term.date);
+    }
+
+    public int hashCode() {
+        return date.hashCode();
     }
 }

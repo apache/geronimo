@@ -31,16 +31,15 @@ public final class MessageIDTerm extends StringTerm {
     public boolean match(Message message) {
         try {
             String values[] = message.getHeader("Message-ID");
-            if (values == null || values.length == 0) {
-                return false;
-            } else {
-                boolean result = false;
-                for (int i = 0; !result && i < values.length; i++) {
+            if (values != null) {
+                for (int i = 0; i < values.length; i++) {
                     String value = values[i];
-                    result = match(value);
+                    if (match(value)) {
+                        return true;
+                    }
                 }
-                return result;
             }
+            return false;
         } catch (MessagingException e) {
             return false;
         }

@@ -32,28 +32,34 @@ public final class RecipientTerm extends AddressTerm {
         this.type = type;
     }
 
-    public boolean equals(Object other) {
-        return super.equals(other) && ((RecipientTerm) other).type.equals(type);
-    }
-
     public Message.RecipientType getRecipientType() {
         return type;
-    }
-
-    public int hashCode() {
-        return super.hashCode() + type.hashCode();
     }
 
     public boolean match(Message message) {
         try {
             Address from[] = message.getRecipients(type);
-            boolean result = false;
-            for (int i = 0; !result && i < from.length; i++) {
-                result = match(from[i]);
+            for (int i = 0; i < from.length; i++) {
+                Address address = from[i];
+                if (match(address)) {
+                    return true;
+                }
             }
-            return result;
+            return false;
         } catch (MessagingException e) {
             return false;
         }
+    }
+
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other instanceof RecipientTerm == false) return false;
+
+        final RecipientTerm recipientTerm = (RecipientTerm) other;
+        return address.equals(recipientTerm.address) && type == recipientTerm.type;
+    }
+
+    public int hashCode() {
+        return address.hashCode();
     }
 }

@@ -18,34 +18,54 @@
 package javax.mail.search;
 
 /**
+ * A Term that provides comparisons for integers.
+ *
  * @version $Rev$ $Date$
  */
 public abstract class IntegerComparisonTerm extends ComparisonTerm {
     protected int number;
 
     protected IntegerComparisonTerm(int comparison, int number) {
-        super(comparison);
+        super();
+        this.comparison = comparison;
         this.number = number;
-    }
-
-    public boolean equals(Object other) {
-        return super.equals(other)
-                && ((IntegerComparisonTerm) other).number == number;
-    }
-
-    public int getComparison() {
-        return super.getComparison();
     }
 
     public int getNumber() {
         return number;
     }
 
-    public int hashCode() {
-        return super.hashCode() + number * 47;
+    public int getComparison() {
+        return comparison;
     }
 
     protected boolean match(int match) {
-        return compare(number - match);
+        switch (comparison) {
+        case EQ:
+            return match == number;
+        case NE:
+            return match != number;
+        case GT:
+            return match > number;
+        case GE:
+            return match >= number;
+        case LT:
+            return match < number;
+        case LE:
+            return match <= number;
+        default:
+            return false;
+        }
+    }
+
+    public boolean equals(Object other) {
+        if (other == this) return true;
+        if (other instanceof IntegerComparisonTerm == false) return false;
+        final IntegerComparisonTerm term = (IntegerComparisonTerm) other;
+        return this.comparison == term.comparison && this.number == term.number;
+    }
+
+    public int hashCode() {
+        return number;
     }
 }

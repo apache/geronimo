@@ -20,29 +20,51 @@ package javax.mail.search;
 import javax.mail.Address;
 
 /**
+ * Term that compares two addresses.
+ *
  * @version $Rev$ $Date$
  */
 public abstract class AddressTerm extends SearchTerm {
+    /**
+     * The address.
+     */
     protected Address address;
 
+    /**
+     * Constructor taking the address for this term.
+     * @param address the address
+     */
     protected AddressTerm(Address address) {
         this.address = address;
     }
 
-    public boolean equals(Object other) {
-        return super.equals(other)
-                && ((AddressTerm) other).address.equals(address);
-    }
-
+    /**
+     * Return the address of this term.
+     *
+     * @return the addre4ss
+     */
     public Address getAddress() {
         return address;
     }
 
-    public int hashCode() {
-        return super.hashCode() + address.hashCode();
-    }
-
+    /**
+     * Match to the supplied address.
+     *
+     * @param address the address to match with
+     * @return true if the addresses match
+     */
     protected boolean match(Address address) {
         return this.address.equals(address);
+    }
+
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other instanceof AddressTerm == false) return false;
+
+        return address.equals(((AddressTerm) other).address);
+    }
+
+    public int hashCode() {
+        return address.hashCode();
     }
 }

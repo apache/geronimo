@@ -22,21 +22,27 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 
 /**
+ * Term for matching message {@link Flags}.
+ *
  * @version $Rev$ $Date$
  */
 public final class FlagTerm extends SearchTerm {
-    protected Flags flags;
+    /**
+     * If true, test that all flags are set; if false, test that all flags are clear.
+     */
     protected boolean set;
+    /**
+     * The flags to test.
+     */
+    protected Flags flags;
 
+    /**
+     * @param flags the flags to test
+     * @param set test for set or clear; {@link #set}
+     */
     public FlagTerm(Flags flags, boolean set) {
         this.set = set;
         this.flags = flags;
-    }
-
-    public boolean equals(Object other) {
-        return super.equals(other)
-                && ((FlagTerm) other).flags.equals(flags)
-                && ((FlagTerm) other).set == set;
     }
 
     public Flags getFlags() {
@@ -47,15 +53,42 @@ public final class FlagTerm extends SearchTerm {
         return set;
     }
 
-    public int hashCode() {
-        return super.hashCode() + flags.hashCode() + (set ? 99 : 234);
-    }
-
     public boolean match(Message message) {
         try {
-            return message.getFlags().contains(flags) == set;
+            Flags msgFlags = message.getFlags();
+            if (set) {
+                return msgFlags.contains(flags);
+            } else {
+                // yuk - I wish we could get at the internal state of the Flags
+                Flags.Flag[] system = flags.getSystemFlags();
+                for (int i = 0; i < system.length; i++) {
+                    Flags.Flag flag = system[i];
+                    if (msgFlags.contains(flag)) {
+                        return false;
+                    }
+                }
+                String[] user = flags.getUserFlags();
+                for (int i = 0; i < user.length; i++) {
+                    String flag = user[i];
+                    if (msgFlags.contains(flag)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
         } catch (MessagingException e) {
             return false;
         }
+    }
+
+    public boolean equals(Object other) {
+        if (other == this) return true;
+        if (other instanceof FlagTerm == false) return false;
+        final FlagTerm otherFlags = (FlagTerm) other;
+        return otherFlags.set == this.set && otherFlags.flags.equals(flags);
+    }
+
+    public int hashCode() {
+        return flags.hashCode();
     }
 }

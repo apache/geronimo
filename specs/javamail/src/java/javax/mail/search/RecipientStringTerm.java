@@ -25,36 +25,40 @@ import javax.mail.MessagingException;
  * @version $Rev$ $Date$
  */
 public final class RecipientStringTerm extends AddressStringTerm {
-    private Message.RecipientType _type;
+    private Message.RecipientType type;
 
     public RecipientStringTerm(Message.RecipientType type, String pattern) {
         super(pattern);
-        this._type = type;
-    }
-
-    public boolean equals(Object other) {
-        return super.equals(other)
-                && ((RecipientStringTerm) other)._type == _type;
+        this.type = type;
     }
 
     public Message.RecipientType getRecipientType() {
-        return _type;
-    }
-
-    public int hashCode() {
-        return super.hashCode() + _type.hashCode();
+        return type;
     }
 
     public boolean match(Message message) {
         try {
-            Address from[] = message.getFrom();
-            boolean result = false;
-            for (int i = 0; !result && i < from.length; i++) {
-                result = match(from[i]);
+            Address from[] = message.getRecipients(type);
+            for (int i = 0; i < from.length; i++) {
+                Address address = from[i];
+                if (match(address)) {
+                    return true;
+                }
             }
-            return result;
+            return false;
         } catch (MessagingException e) {
             return false;
         }
+    }
+
+    public boolean equals(Object other) {
+        if (other == this) return true;
+        if (other instanceof RecipientStringTerm == false) return false;
+        final RecipientStringTerm otherTerm = (RecipientStringTerm) other;
+        return this.pattern.equals(otherTerm.pattern) && this.type == otherTerm.type;
+    }
+
+    public int hashCode() {
+        return pattern.hashCode();
     }
 }

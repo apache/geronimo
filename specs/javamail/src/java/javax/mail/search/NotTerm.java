@@ -20,6 +20,8 @@ package javax.mail.search;
 import javax.mail.Message;
 
 /**
+ * Term that implements a logical negation.
+ *
  * @version $Rev$ $Date$
  */
 public final class NotTerm extends SearchTerm {
@@ -29,19 +31,21 @@ public final class NotTerm extends SearchTerm {
         this.term = term;
     }
 
-    public boolean equals(Object other) {
-        return super.equals(other) && ((NotTerm) other).term.equals(term);
-    }
-
     public SearchTerm getTerm() {
         return term;
     }
 
-    public int hashCode() {
-        return super.hashCode() + term.hashCode();
-    }
-
     public boolean match(Message message) {
         return !term.match(message);
+    }
+
+    public boolean equals(Object other) {
+        if (other == this) return true;
+        if (other instanceof NotTerm == false) return false;
+        return term.equals(((NotTerm) other).term);
+    }
+
+    public int hashCode() {
+        return term.hashCode();
     }
 }

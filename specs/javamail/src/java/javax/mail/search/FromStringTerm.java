@@ -32,11 +32,12 @@ public final class FromStringTerm extends AddressStringTerm {
     public boolean match(Message message) {
         try {
             Address from[] = message.getFrom();
-            boolean result = false;
-            for (int i = 0; !result && i < from.length; i++) {
-                result = match(from[i]);
+            for (int i = 0; i < from.length; i++) {
+                if (match(from[i])){
+                    return true;
+                }
             }
-            return result;
+            return false;
         } catch (MessagingException e) {
             return false;
         }

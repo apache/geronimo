@@ -30,4 +30,8 @@ public final class MessageNumberTerm extends IntegerComparisonTerm {
     public boolean match(Message message) {
         return match(message.getMessageNumber());
     }
+
+    public boolean equals(Object other) {
+        return super.equals(other);
+    }
 }
