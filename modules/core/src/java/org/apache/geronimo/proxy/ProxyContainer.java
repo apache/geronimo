@@ -58,12 +58,19 @@ package org.apache.geronimo.proxy;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.lang.reflect.UndeclaredThrowableException;
 
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2003/09/08 04:31:39 $
+ * A local container that is a proxy for some other "real" container.
+ * This container is itself fairly unintelligent; you need to add some
+ * interceptors to get the desired behavior (i.e. contacting the real
+ * server on every request).  For example, see
+ * {@link org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory}
+ *
+ * @version $Revision: 1.4 $ $Date: 2003/10/01 02:30:16 $
  */
 public class ProxyContainer extends SimpleRPCContainer implements InvocationHandler {
 
@@ -74,8 +81,12 @@ public class ProxyContainer extends SimpleRPCContainer implements InvocationHand
         Invocation invocation = new ProxyInvocation();
         ProxyInvocation.putMethod(invocation, method);
         ProxyInvocation.putArguments(invocation, args);
-        InvocationResult result = this.invoke(invocation);
-        return result.getResult();
+        try {
+            InvocationResult result = this.invoke(invocation);
+            return result.getResult();
+        } catch(UndeclaredThrowableException e) {
+            throw e.getCause(); // It's useless to know we got an undeclared throwable, we need the real thing!
+        }
     }
 
     public Object createProxy(Class likeClass) {
