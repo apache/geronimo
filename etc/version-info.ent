@@ -76,6 +76,7 @@
 <!ENTITY maven-version "1.0">
 <!ENTITY mockobjects-version "0.09">
 <!ENTITY mx4j-version "2.0.1">
+<!ENTITY openorb-version "1.4.0-GERONIMO">
 <!ENTITY oro-version "2.0.8">
 <!ENTITY p2psockets-version "1.1.2">
 <!ENTITY regexp-version "1.3">
