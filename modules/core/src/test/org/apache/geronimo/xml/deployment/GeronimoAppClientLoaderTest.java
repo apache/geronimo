@@ -67,13 +67,12 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestinationRef;
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestination;
-import org.apache.xerces.parsers.DOMParser;
 import org.w3c.dom.Document;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/17 01:47:15 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/29 14:15:30 $
  */
 public class GeronimoAppClientLoaderTest extends TestCase {
     private File docDir;
