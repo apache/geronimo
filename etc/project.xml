@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.18 $ $Date: 2004/01/28 21:38:00 $ -->
+<!-- $Revision: 1.19 $ $Date: 2004/02/02 22:05:54 $ -->
 
 <project>
 
@@ -277,6 +277,12 @@
                 <directory>${basedir}/src/resources</directory>
                 <includes>
                     <include>**/*</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}/target/xmlbeans</directory>
+                <includes>
+                    <include>schema/**/*.xsb</include>
                 </includes>
             </resource>
         </resources>
