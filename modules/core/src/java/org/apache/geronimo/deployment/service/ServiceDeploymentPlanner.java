@@ -57,6 +57,8 @@ package org.apache.geronimo.deployment.service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
@@ -77,6 +79,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.goal.DeployURL;
 import org.apache.geronimo.deployment.goal.DeploymentGoal;
@@ -85,10 +89,9 @@ import org.apache.geronimo.deployment.goal.UndeployURL;
 import org.apache.geronimo.deployment.plan.CreateClassSpace;
 import org.apache.geronimo.deployment.plan.CreateMBeanInstance;
 import org.apache.geronimo.deployment.plan.DeploymentPlan;
-import org.apache.geronimo.deployment.plan.DeploymentTask;
 import org.apache.geronimo.deployment.plan.DestroyMBeanInstance;
-import org.apache.geronimo.deployment.plan.RegisterMBeanInstance;
 import org.apache.geronimo.deployment.plan.InitializeMBeanInstance;
+import org.apache.geronimo.deployment.plan.RegisterMBeanInstance;
 import org.apache.geronimo.deployment.plan.StartMBeanInstance;
 import org.apache.geronimo.deployment.plan.StopMBeanInstance;
 import org.apache.geronimo.deployment.scanner.URLType;
@@ -102,9 +105,10 @@ import org.xml.sax.SAXException;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/08/18 22:13:18 $
+ * @version $Revision: 1.6 $ $Date: 2003/08/20 22:42:24 $
  */
 public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, MBeanRegistration {
+    private Log log = LogFactory.getLog(getClass());
     private MBeanServer server;
     private ObjectName objectName;
     private RelationServiceMBean relationService;
@@ -166,6 +170,12 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
     private boolean addURL(DeployURL goal, Set goals, Set plans) throws DeploymentException {
         InputStream is;
         URL url = goal.getUrl();
+        URI baseURI = null;
+        try {
+            baseURI = (new URI(url.toExternalForm())).normalize();
+        } catch (URISyntaxException e) {
+            throw new DeploymentException(e);
+        }
         URLType type = goal.getType();
         if (type == URLType.RESOURCE) {
             if (!url.getPath().endsWith("-service.xml")) {
@@ -227,6 +237,7 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
             }
             metadata.setLoaderName(loaderName);
             metadata.setParentName(deploymentName);
+            metadata.setBaseURI(baseURI);
             CreateMBeanInstance createTask = new CreateMBeanInstance(server, metadata);
             createPlan.addTask(createTask);
             InitializeMBeanInstance initTask = new InitializeMBeanInstance(server, metadata);
