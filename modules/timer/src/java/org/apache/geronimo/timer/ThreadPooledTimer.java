@@ -84,11 +84,20 @@ public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
     }
 
     public WorkInfo schedule(UserTaskFactory userTaskFactory, String key, Object userId, Object userInfo, long delay) throws PersistenceException, RollbackException, SystemException {
+        if (delay < 0) {
+            throw new IllegalArgumentException("Negative delay: " + delay);
+        }
         Date time = new Date(System.currentTimeMillis() + delay);
         return schedule(key, userTaskFactory, userId, userInfo, time);
     }
 
     public WorkInfo schedule(String key, UserTaskFactory userTaskFactory, Object userId, Object userInfo, Date time) throws PersistenceException, RollbackException, SystemException {
+        if (time ==null) {
+            throw new IllegalArgumentException("No time supplied");
+        }
+        if (time.getTime() < 0) {
+            throw new IllegalArgumentException("Negative time: " + time.getTime());
+        }
         WorkInfo worker = createWorker(key, userTaskFactory, executorTaskFactory, userId, userInfo, time, null, false);
         registerSynchronization(new ScheduleSynchronization(worker.getExecutorFeedingTimerTask(), time));
         addWorkInfo(worker);
@@ -96,11 +105,26 @@ public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
     }
 
     public WorkInfo schedule(String key, UserTaskFactory userTaskFactory, Object userInfo, long delay, long period, Object userId) throws PersistenceException, RollbackException, SystemException {
+        if (delay < 0) {
+            throw new IllegalArgumentException("Negative delay: " + delay);
+        }
+        if (period < 0) {
+            throw new IllegalArgumentException("Negative period: " + period);
+        }
         Date time = new Date(System.currentTimeMillis() + delay);
         return schedule(key, userTaskFactory, userId, userInfo, time, period);
     }
 
     public WorkInfo schedule(String key, UserTaskFactory userTaskFactory, Object userId, Object userInfo, Date firstTime, long period) throws PersistenceException, RollbackException, SystemException {
+        if (firstTime ==null) {
+            throw new IllegalArgumentException("No time supplied");
+        }
+        if (firstTime.getTime() < 0) {
+            throw new IllegalArgumentException("Negative time: " + firstTime.getTime());
+        }
+        if (period < 0) {
+            throw new IllegalArgumentException("Negative period: " + period);
+        }
         WorkInfo worker = createWorker(key, userTaskFactory, executorTaskFactory, userId, userInfo, firstTime, new Long(period), false);
         registerSynchronization(new ScheduleRepeatedSynchronization(worker.getExecutorFeedingTimerTask(), firstTime, period));
         addWorkInfo(worker);
@@ -108,11 +132,26 @@ public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
     }
 
     public WorkInfo scheduleAtFixedRate(String key, UserTaskFactory userTaskFactory, Object userId, Object userInfo, long delay, long period) throws PersistenceException, RollbackException, SystemException {
+        if (delay < 0) {
+            throw new IllegalArgumentException("Negative delay: " + delay);
+        }
+        if (period < 0) {
+            throw new IllegalArgumentException("Negative period: " + period);
+        }
         Date time = new Date(System.currentTimeMillis() + delay);
         return scheduleAtFixedRate(key, userTaskFactory, userId, userInfo, time, period);
     }
 
     public WorkInfo scheduleAtFixedRate(String key, UserTaskFactory userTaskFactory, Object userId, Object userInfo, Date firstTime, long period) throws PersistenceException, RollbackException, SystemException {
+        if (firstTime ==null) {
+            throw new IllegalArgumentException("No time supplied");
+        }
+        if (firstTime.getTime() < 0) {
+            throw new IllegalArgumentException("Negative time: " + firstTime.getTime());
+        }
+        if (period < 0) {
+            throw new IllegalArgumentException("Negative period: " + period);
+        }
         WorkInfo worker = createWorker(key, userTaskFactory, executorTaskFactory, userId, userInfo, firstTime, new Long(period), true);
         registerSynchronization(new ScheduleAtFixedRateSynchronization(worker.getExecutorFeedingTimerTask(), firstTime, period));
         addWorkInfo(worker);
@@ -185,6 +224,9 @@ public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
     }
 
     private WorkInfo createWorker(String key, UserTaskFactory userTaskFactory, ExecutorTaskFactory executorTaskFactory, Object userId, Object userInfo, Date time, Long period, boolean atFixedRate) throws PersistenceException {
+        if (time == null) {
+            throw new IllegalArgumentException("Null initial time");
+        }
         WorkInfo workInfo = new WorkInfo(key, userId, userInfo, time, period, atFixedRate);
         //save and assign id
         workerPersistence.save(workInfo);
