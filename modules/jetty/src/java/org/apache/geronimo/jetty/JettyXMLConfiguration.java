@@ -51,7 +51,7 @@ import org.apache.geronimo.security.util.URLPattern;
  * JettyXMLConfiguration reads the web-app configuration and translates them
  * into corresponding JACC policy permissions.
  *
- * @version $Revision: 1.3 $ $Date: 2004/09/09 12:17:52 $
+ * @version $Revision: 1.4 $ $Date: 2004/09/09 18:01:26 $
  */
 public class JettyXMLConfiguration extends XMLConfiguration {
 
@@ -142,11 +142,9 @@ public class JettyXMLConfiguration extends XMLConfiguration {
             transport = data.get("transport-guarantee").toString(false, true).toUpperCase();
         }
 
-        Iterator resourceIiter = node.iterator("web-resource-collection");
-        while (resourceIiter.hasNext()) {
+        for (Iterator resourceIiter = node.iterator("web-resource-collection"); resourceIiter.hasNext(); ) {
             XmlParser.Node collection = (XmlParser.Node) resourceIiter.next();
-            Iterator urlPattermIter = collection.iterator("url-pattern");
-            while (urlPattermIter.hasNext()) {
+            for (Iterator urlPattermIter = collection.iterator("url-pattern"); urlPattermIter.hasNext(); ) {
                 String url = ((XmlParser.Node) urlPattermIter.next()).toString(false, true);
                 URLPattern pattern = (URLPattern) currentPatterns.get(url);
                 if (pattern == null) {
@@ -162,9 +160,8 @@ public class JettyXMLConfiguration extends XMLConfiguration {
                 }
 
                 boolean noMethods = true;
-                Iterator methodIter = collection.iterator("http-method");
-                while (methodIter.hasNext()) {
-                    String method = ((XmlParser.Node) urlPattermIter.next()).toString(false, true);
+                for (Iterator methodIter = collection.iterator("http-method"); methodIter.hasNext(); ) {
+                    String method = ((XmlParser.Node) methodIter.next()).toString(false, true);
                     pattern.addMethod(method);
                     allPattern.addMethod(method);
                     noMethods = false;
@@ -176,8 +173,7 @@ public class JettyXMLConfiguration extends XMLConfiguration {
                 }
 
                 if (currentPatterns == rolesPatterns) {
-                    Iterator roleNameIter = auths.iterator("role-name");
-                    while (roleNameIter.hasNext()) {
+                    for (Iterator roleNameIter = auths.iterator("role-name"); roleNameIter.hasNext(); ) {
                         String role = ((XmlParser.Node) roleNameIter.next()).toString(false, true);
                         if (role.equals("*")) {
                             allRoles.add(pattern);
