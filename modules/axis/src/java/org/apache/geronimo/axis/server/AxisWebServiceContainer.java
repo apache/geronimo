@@ -54,12 +54,16 @@ import org.w3c.dom.Element;
  * @version $Rev$ $Date$
  */
 public class AxisWebServiceContainer implements WebServiceContainer {
+    public static final String REQUEST = AxisWebServiceContainer.class.getName()+"@Request";
+    public static final String RESPONSE = AxisWebServiceContainer.class.getName()+"@Response";
+
     private static Log log = LogFactory.getLog(AxisWebServiceContainer.class);
 
     public static final String XSD_NS = "http://www.w3.org/2001/XMLSchema";
-    protected final URI location;
-    protected final URL wsdlURL;
-    protected final SOAPService service;  //TODO why did i make these protected?
+
+    private final URI location;
+    private final URL wsdlURL;
+    private final SOAPService service;
     
     private final ClassLoader classLoader;
     private final Byte wsdlMutext = new Byte((byte)0);
@@ -75,6 +79,8 @@ public class AxisWebServiceContainer implements WebServiceContainer {
 
     public void invoke(Request req, Response res) throws Exception {
         org.apache.axis.MessageContext context = new org.apache.axis.MessageContext(null);
+        req.setAttribute(MESSAGE_CONTEXT, context);
+
         context.setClassLoader(classLoader);
         
         Message responseMessage = null;
@@ -88,6 +94,8 @@ public class AxisWebServiceContainer implements WebServiceContainer {
         context.setProperty(HTTPConstants.MC_HTTP_SERVLETPATHINFO, req.getURI().getPath());
         context.setProperty(org.apache.axis.MessageContext.TRANS_URL, req.getURI().toString());
         context.setService(service);
+        context.setProperty(REQUEST, req);
+        context.setProperty(RESPONSE, res);
 
         try {
             String characterEncoding = (String) requestMessage.getProperty(SOAPMessage.CHARACTER_SET_ENCODING);

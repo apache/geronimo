@@ -162,6 +162,14 @@ public class JettyEJBWebServiceContext extends HttpContext implements HttpHandle
             return request.getParameters();
         }
 
+        public Object getAttribute(String name) {
+            return request.getAttribute(name);
+        }
+
+        public void setAttribute(String name, Object value){
+            request.setAttribute(name, value);
+        }
+
 
         private static final Map methods = new HashMap();
 

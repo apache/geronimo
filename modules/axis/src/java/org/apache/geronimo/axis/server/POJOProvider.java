@@ -21,18 +21,17 @@ import javax.xml.rpc.holders.IntHolder;
 import org.apache.axis.providers.java.RPCProvider;
 import org.apache.axis.MessageContext;
 import org.apache.axis.Handler;
+import org.apache.geronimo.webservices.WebServiceContainer;
 
 /**
  * @version $Rev$ $Date$
  */
 public class POJOProvider extends RPCProvider {
-    private final Class pojoClass;
-
-    public POJOProvider(Class pojoClass) {
-        this.pojoClass = pojoClass;
+    public POJOProvider() {
     }
 
     public Object getServiceObject(MessageContext msgContext, Handler service, String clsName, IntHolder scopeHolder) throws Exception {
-        return pojoClass.newInstance();
+        WebServiceContainer.Request request = (WebServiceContainer.Request) msgContext.getProperty(AxisWebServiceContainer.REQUEST);
+        return request.getAttribute(WebServiceContainer.POJO_INSTANCE);
     }
 }

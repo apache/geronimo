@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Map;
+import java.util.HashMap;
 
 import org.apache.geronimo.webservices.WebServiceContainer;
 
@@ -14,6 +15,7 @@ public class AxisRequest implements WebServiceContainer.Request {
     private Map parameters;
     private URI uri;
     private Map headers;
+    private Map attributes;
 
     /**
      * 
@@ -32,6 +34,7 @@ public class AxisRequest implements WebServiceContainer.Request {
         this.parameters = parameters;
         this.uri = uri;
         this.headers = headers;
+        this.attributes = new HashMap();
     }
 
     public int getContentLength() {
@@ -66,4 +69,11 @@ public class AxisRequest implements WebServiceContainer.Request {
         return uri;
     }
 
+    public Object getAttribute(String name) {
+        return attributes.get(name);
+    }
+
+    public void setAttribute(String name, Object value){
+        attributes.put(name, value);
+    }
 }

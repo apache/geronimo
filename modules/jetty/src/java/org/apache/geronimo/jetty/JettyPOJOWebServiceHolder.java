@@ -16,32 +16,25 @@
  */
 package org.apache.geronimo.jetty;
 
-import java.io.*;
+import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.Collections;
-import java.security.SignedObject;
-import java.security.PrivateKey;
-import java.security.Signature;
-import java.security.InvalidKeyException;
-import java.security.SignatureException;
-import java.security.PublicKey;
 import javax.security.jacc.PolicyContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.UnavailableException;
-import javax.servlet.Servlet;
-import javax.servlet.ServletConfig;
-import javax.crypto.SealedObject;
+import javax.servlet.ServletContext;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.webservices.WebServiceContainer;
-import org.apache.geronimo.kernel.ObjectInputStreamExt;
 import org.apache.geronimo.kernel.StoredObject;
+import org.apache.geronimo.webservices.WebServiceContainer;
+import org.apache.geronimo.webservices.POJOWebServiceServlet;
+import org.apache.geronimo.webservices.WebServiceContainerInvoker;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.jetty.servlet.ServletHttpRequest;
 
@@ -53,35 +46,38 @@ import org.mortbay.jetty.servlet.ServletHttpRequest;
  * @version $Rev: 154436 $ $Date: 2005-02-19 10:22:02 -0800 (Sat, 19 Feb 2005) $
  */
 public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLifecycle {
-    private WebServiceContainer webServiceContainer;
     private StoredObject storedWebServiceContainer;
-    private ClassLoader webClassLoader;
+    private Set servletMappings;
+    private Map webRoleRefPermissions;
+    private JettyServletRegistration context;
+    private String pojoClassName;
 
     //todo consider interface instead of this constructor for endpoint use.
     public JettyPOJOWebServiceHolder() {
 
     }
 
-    public JettyPOJOWebServiceHolder(String servletName,
-                              Map initParams,
-                              Integer loadOnStartup,
-                              Set servletMappings,
-                              Map webRoleRefPermissions,
-                              StoredObject storedWebServiceContainer,
-                              JettyServletRegistration context) throws Exception {
-        super(context == null? null: context.getServletHandler(), servletName, POJOWebServiceServlet.class.getName(), null);
+    public JettyPOJOWebServiceHolder(String pojoClassName,
+                                     String servletName,
+                                     Map initParams,
+                                     Integer loadOnStartup,
+                                     Set servletMappings,
+                                     Map webRoleRefPermissions,
+                                     StoredObject storedWebServiceContainer,
+                                     JettyServletRegistration context) throws Exception {
+        super(context == null ? null : context.getServletHandler(), servletName, POJOWebServiceServlet.class.getName(), null);
         //context will be null only for use as "default servlet info holder" in deployer.
 
+        this.pojoClassName = pojoClassName;
+        this.context = context;
         this.storedWebServiceContainer = storedWebServiceContainer;
         if (context != null) {
-            this.webClassLoader = context.getWebClassLoader();
             putAll(initParams);
             if (loadOnStartup != null) {
                 setInitOrder(loadOnStartup.intValue());
             }
-            //this now starts the servlet in the appropriate context
-            context.registerServletHolder(this, servletName, servletMappings, webRoleRefPermissions == null? Collections.EMPTY_MAP: webRoleRefPermissions);
-//            start();
+            this.servletMappings = servletMappings;
+            this.webRoleRefPermissions = webRoleRefPermissions == null ? Collections.EMPTY_MAP : webRoleRefPermissions;
         }
     }
 
@@ -100,7 +96,7 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
             throws ServletException, UnavailableException, IOException {
 
         //  TODO There has to be some way to get this in on the Servlet's init method.
-        request.setAttribute(POJOWebServiceServlet.WEBSERVICE_CONTAINER, webServiceContainer);
+//        request.setAttribute(POJOWebServiceServlet.WEBSERVICE_CONTAINER, webServiceContainer);
 
         JettyServletHolder.currentServletHolder.set(this);
         PolicyContext.setHandlerData(ServletHttpRequest.unwrap(request));
@@ -114,7 +110,8 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JettyPOJOWebServiceHolder.class, NameFactory.SERVLET_WEB_SERVICE_TEMPLATE);
         //todo replace with interface
         infoBuilder.addInterface(ServletHolder.class);
-        
+
+        infoBuilder.addAttribute("pojoClassName", String.class, true);
         infoBuilder.addAttribute("servletName", String.class, true);
         infoBuilder.addAttribute("initParams", Map.class, true);
         infoBuilder.addAttribute("loadOnStartup", Integer.class, true);
@@ -123,13 +120,14 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
         infoBuilder.addAttribute("webServiceContainer", StoredObject.class, true);
         infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class);
 
-        infoBuilder.setConstructor(new String[] {"servletName",
-                                                 "initParams",
-                                                 "loadOnStartup", 
-                                                 "servletMappings",
-                                                 "webRoleRefPermissions",
-                                                 "webServiceContainer",
-                                                 "JettyServletRegistration"});
+        infoBuilder.setConstructor(new String[]{"pojoClassName",
+                                                "servletName",
+                                                "initParams",
+                                                "loadOnStartup",
+                                                "servletMappings",
+                                                "webRoleRefPermissions",
+                                                "webServiceContainer",
+                                                "JettyServletRegistration"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
@@ -139,8 +137,31 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
     }
 
     public void doStart() throws Exception {
-        if (webClassLoader != null){
-            webServiceContainer = (WebServiceContainer) storedWebServiceContainer.getObject(webClassLoader);
+        if (context != null) {
+
+            Class pojoClass = context.getWebClassLoader().loadClass(pojoClassName);
+            WebServiceContainer webServiceContainer = (WebServiceContainer) storedWebServiceContainer.getObject(context.getWebClassLoader());
+
+            /* DMB: Hack! I really just want to override initServlet and give a reference of the WebServiceContainer to the servlet before we call init on it.
+             * But this will have to do instead....
+             */
+            ServletContext servletContext = this.context.getServletHandler().getServletContext();
+
+            // Make up an ID for the WebServiceContainer
+            // put a reference the ID in the init-params
+            // put the WebServiceContainer in the webapp context keyed by its ID
+            String webServicecontainerID = getServletName() + WebServiceContainerInvoker.WEBSERVICE_CONTAINER + webServiceContainer.hashCode();
+            put(WebServiceContainerInvoker.WEBSERVICE_CONTAINER, webServicecontainerID);
+            servletContext.setAttribute(webServicecontainerID, webServiceContainer);
+
+            // Same for the POJO Class
+            String pojoClassID = getServletName() + POJOWebServiceServlet.POJO_CLASS + pojoClass.hashCode();
+            put(POJOWebServiceServlet.POJO_CLASS, pojoClassID);
+            servletContext.setAttribute(pojoClassID, pojoClass);
+
+            //this now starts the servlet in the appropriate context
+            context.registerServletHolder(this, getServletName(), this.servletMappings, this.webRoleRefPermissions);
+//            start();
         }
     }
 
@@ -149,7 +170,6 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
 
     public void doFail() {
     }
-
 
 
 }
