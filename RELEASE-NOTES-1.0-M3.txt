@@ -1,9 +1,4 @@
-Provisional Release Notes -- Apache Geronimo -- Version 1.0-M3
-
-These release notes cover resolved JIRA issues up to GERONIMO-447
-with status as of 11/6/2004 (8:40AM EST).  Any issues opened or modified
-after that date will need to be updated here.  We also need summary of
-remaining open issues.
+Release Notes -- Apache Geronimo -- Version 1.0-M3
 
 
 Geronimo URLs
@@ -15,6 +10,31 @@ Mailing Lists: http://geronimo.apache.org/mailing.html
 Source Code:   http://geronimo.apache.org/source.html
 Bug Tracking:  http://nagoya.apache.org/jira/secure/BrowseProject.jspa?id=10220
 Wiki:          http://wiki.apache.org/geronimo
+
+
+System Requirements
+-------------------
+You need a platform that supports JDK 1.4 or JDK 1.5 (and some
+features such as HTTPS currently depend on Sun implementation
+classes, so a Sub JVM would be the best bet)
+
+Most testing has been done on Linux, Mac OS X, and Windows.  For a
+list of notes on specific configurations, see
+http://wiki.apache.org/geronimo/KnownWorkingConfigurations
+
+In general, most things work equally well under JDK 1.4 and JDK 1.5.
+However, some very recent Linux platforms have trouble shutting down
+Geronimo network services under JDK 1.4 (this was observed on
+SuSE 9.2), and the current CORBA features do not support JDK 1.5.
+
+
+Installing & Starting Geronimo
+------------------------------
+To install, simply unpack the zip or tar file containing Geronimo.
+
+To start Geronimo, change to the Geronimo directory and run
+
+   java -jar bin/server.jar
 
 
 Current Project Status at a Glance
