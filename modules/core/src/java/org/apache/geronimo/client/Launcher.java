@@ -56,10 +56,17 @@
 package org.apache.geronimo.client;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
+import javax.management.Attribute;
+import javax.management.AttributeList;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
@@ -77,11 +84,12 @@ import org.apache.commons.logging.impl.LogFactoryImpl;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.jmx.JMXKernel;
 import org.apache.geronimo.jmx.JMXUtil;
+import org.apache.geronimo.proxy.ProxyInvocation;
 
 /**
  * Launcher for J2EE Application Clients.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/16 19:03:09 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/23 22:14:20 $
  */
 public class Launcher {
     static {
@@ -168,7 +176,7 @@ public class Launcher {
 //            throw new DeploymentException(e);
 //        }
 
-        AppClient clientMBean = new AppClient(clientURL);
+        AppClientContainer clientMBean = new AppClientContainer();
         clientName = JMXUtil.getObjectName("geronimo.client:url=" + ObjectName.quote(clientURL.toString()));
         try {
             mbServer.registerMBean(clientMBean, clientName);
@@ -183,6 +191,44 @@ public class Launcher {
         } catch (NotCompliantMBeanException e) {
             throw new DeploymentException(e);
         }
+
+        String mainClassName;
+        try {
+            Manifest manifest;
+            if (clientURL.toString().endsWith("/")) {
+                // unpacked
+                URL manifestURL = new URL(clientURL, "META-INF/MANIFEST.MF");
+                InputStream is = manifestURL.openStream();
+                manifest = new Manifest(is);
+                is.close();
+            } else {
+                URL jarURL = new URL("jar:" + clientURL + "!/");
+                JarURLConnection jarConn = (JarURLConnection) jarURL.openConnection();
+                manifest = jarConn.getManifest();
+            }
+            Attributes attrs = manifest.getMainAttributes();
+            mainClassName = (String) attrs.get(Attributes.Name.MAIN_CLASS);
+            if (mainClassName == null) {
+                throw new DeploymentException("No Main-Class defined in manifest for " + clientURL);
+            }
+        } catch (IOException e) {
+            throw new DeploymentException("Unable to get Main-Class from manifest for " + clientURL, e);
+        }
+
+        try {
+            AttributeList attrs = new AttributeList(2);
+            attrs.add(new Attribute("MainClassName", mainClassName));
+            attrs.add(new Attribute("ClientURL", clientURL));
+            mbServer.setAttributes(clientName, attrs);
+        } catch (Exception e) {
+            throw new DeploymentException(e);
+        }
+
+        try {
+            mbServer.invoke(clientName, "start", null, null);
+        } catch (Exception e) {
+            throw new DeploymentException(e);
+        }
     }
 
     private void undeploy() {
@@ -190,14 +236,20 @@ public class Launcher {
             if (controllerName != null) {
                 MBeanServer mbServer = kernel.getMBeanServer();
                 try {
-                    mbServer.invoke(controllerName, "undeploy", new Object[]{clientURL}, DEPLOY_ARG_TYPES);
-                } catch (InstanceNotFoundException e) {
-                    log.error("Error undeploying client", e);
-                } catch (MBeanException e) {
-                    log.error("Error undeploying client", e);
-                } catch (ReflectionException e) {
-                    log.error("Error undeploying client", e);
+                    mbServer.invoke(clientName, "stop", null, null);
+                } catch (Exception e) {
+                    log.error("Error stopping client", e);
                 }
+
+//                try {
+//                    mbServer.invoke(controllerName, "undeploy", new Object[]{clientURL}, DEPLOY_ARG_TYPES);
+//                } catch (InstanceNotFoundException e) {
+//                    log.error("Error undeploying client", e);
+//                } catch (MBeanException e) {
+//                    log.error("Error undeploying client", e);
+//                } catch (ReflectionException e) {
+//                    log.error("Error undeploying client", e);
+//                }
             }
             kernel.release();
         }
@@ -205,7 +257,9 @@ public class Launcher {
 
     public void run() {
         try {
-            mbServer.invoke(clientName, "runMain", new Object[]{appArgs}, new String[]{appArgs.getClass().getName()});
+            ProxyInvocation invocation = new ProxyInvocation();
+            ProxyInvocation.putArguments(invocation, new Object[] { appArgs });
+            mbServer.invoke(clientName, "invoke", new Object[]{invocation}, new String[]{"org.apache.geronimo.common.Invocation"});
         } catch (InstanceNotFoundException e) {
             IllegalStateException ex = new IllegalStateException("Unable to invoke app client");
             ex.initCause(e);

@@ -55,81 +55,22 @@
  */
 package org.apache.geronimo.client;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.JarURLConnection;
 import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
 
-import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.common.RPCContainer;
+import org.apache.geronimo.management.StateManageable;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/16 19:03:09 $
+ * @version $Revision: 1.1 $ $Date: 2003/08/23 22:14:20 $
  */
-public class AppClient implements AppClientMBean {
-    private static final Class[] MAIN_ARGS = {String[].class};
+public interface AppClientContainerMBean extends RPCContainer,StateManageable {
+    void setMainClassName(String className);
 
-    private final ClassLoader clientCL;
+    String getMainClassName();
 
-    private Method mainMethod;
+    URL getClientURL();
 
-    public AppClient(URL clientURL) throws DeploymentException {
-        clientCL = new URLClassLoader(new URL[]{clientURL}, Thread.currentThread().getContextClassLoader());
-
-        String mainClassName = null;
-        try {
-            mainClassName = getMainClass(clientURL);
-            if (mainClassName == null) {
-                throw new DeploymentException("No Main-Class defined in manifest for " + clientURL);
-            }
-        } catch (IOException e) {
-            throw new DeploymentException("Unable to get Main-Class from manifest for " + clientURL, e);
-        }
-
-        try {
-            Class mainClass = clientCL.loadClass(mainClassName);
-            mainMethod = mainClass.getMethod("main", MAIN_ARGS);
-        } catch (ClassNotFoundException e) {
-            IllegalArgumentException ex = new IllegalArgumentException("Unable to load Main-Class " + mainClassName);
-            ex.initCause(e);
-            throw ex;
-        } catch (NoSuchMethodException e) {
-            IllegalArgumentException ex = new IllegalArgumentException("Main-Class " + mainClassName + " does not have a main method");
-            ex.initCause(e);
-            throw ex;
-        }
-    }
-
-    private String getMainClass(URL url) throws IOException {
-        Manifest manifest;
-        if (url.toString().endsWith("/")) {
-            // unpacked
-            URL manifestURL = new URL(url, "META-INF/MANIFEST.MF");
-            InputStream is = manifestURL.openStream();
-            manifest = new Manifest(is);
-            is.close();
-        } else {
-            URL jarURL = new URL("jar:" + url + "!/");
-            JarURLConnection jarConn = (JarURLConnection) jarURL.openConnection();
-            manifest = jarConn.getManifest();
-        }
-        Attributes attrs = manifest.getMainAttributes();
-        return (String) attrs.get(Attributes.Name.MAIN_CLASS);
-    }
-
-    public void runMain(String[] args) throws InvocationTargetException {
-        try {
-            mainMethod.invoke(null, new Object[]{args});
-        } catch (IllegalAccessException e) {
-            IllegalStateException ex = new IllegalStateException("Unable to invoke main");
-            ex.initCause(e);
-            throw ex;
-        }
-    }
+    void setClientURL(URL clientURL);
 }

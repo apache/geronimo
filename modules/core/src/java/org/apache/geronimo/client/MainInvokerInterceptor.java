@@ -55,13 +55,36 @@
  */
 package org.apache.geronimo.client;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 
+import org.apache.geronimo.common.AbstractInterceptor;
+import org.apache.geronimo.common.InvocationResult;
+import org.apache.geronimo.common.Invocation;
+import org.apache.geronimo.common.SimpleInvocationResult;
+import org.apache.geronimo.proxy.ProxyInvocation;
+
 /**
- *
- *
- * @version $Revision: 1.1 $ $Date: 2003/08/16 19:03:09 $
+ * Basic invoker for the main method of an Application Client
+ * 
+ * @version $Revision: 1.1 $ $Date: 2003/08/23 22:14:20 $
  */
-public interface AppClientMBean {
-    public void runMain(String[] args) throws InvocationTargetException;
+public class MainInvokerInterceptor extends AbstractInterceptor {
+    private final Method mainMethod;
+
+    public MainInvokerInterceptor(Method mainMethod) {
+        this.mainMethod = mainMethod;
+    }
+
+    public InvocationResult invoke(Invocation invocation) throws Exception {
+        assert (mainMethod.equals(ProxyInvocation.getMethod(invocation)));
+        Object[] args = ProxyInvocation.getArguments(invocation);
+        try {
+            mainMethod.invoke(null, args);
+        } catch (InvocationTargetException e) {
+            Throwable cause = e.getCause();
+            return new SimpleInvocationResult(cause);
+        }
+        return new SimpleInvocationResult(null);
+    }
 }
