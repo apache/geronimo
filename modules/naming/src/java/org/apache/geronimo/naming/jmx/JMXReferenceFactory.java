@@ -45,20 +45,31 @@ public class JMXReferenceFactory implements ReferenceFactory {
 
     public Reference buildConnectionFactoryReference(GerLocalRefType localRef, Class iface) throws MalformedObjectNameException {
         Reference ref = new Reference(null, JMXObjectFactory.class.getName(), null);
-        ref.add(new JMXRefAddr(localRef.getServer(), localRef.getKernelName(), ObjectName.getInstance(baseName + BASE_MANAGED_CONNECTION_FACTORY_NAME + localRef.getTargetName()), iface));
+
+        String targetName = localRef.getTargetName();
+        ref.add(new JMXRefAddr(localRef.getServer(), localRef.getKernelName(), createManagedConnectionFactoryObjectName(targetName), iface));
         return ref;
+    }
+
+    public ObjectName createManagedConnectionFactoryObjectName(String targetName) throws MalformedObjectNameException {
+        return ObjectName.getInstance(baseName + BASE_MANAGED_CONNECTION_FACTORY_NAME + targetName);
     }
 
     public Reference buildAdminObjectReference(GerLocalRefType localRef, Class iface) throws MalformedObjectNameException {
         Reference ref = new Reference(null, JMXObjectFactory.class.getName(), null);
-        ref.add(new JMXRefAddr(localRef.getServer(), localRef.getKernelName(), ObjectName.getInstance(baseName + BASE_ADMIN_OBJECT_NAME + localRef.getTargetName()), iface));
+        String targetName = localRef.getTargetName();
+        ref.add(new JMXRefAddr(localRef.getServer(), localRef.getKernelName(), createAdminObjectObjectName(targetName), iface));
         return ref;
+    }
+
+    public ObjectName createAdminObjectObjectName(String targetName) throws MalformedObjectNameException {
+        return ObjectName.getInstance(baseName + BASE_ADMIN_OBJECT_NAME + targetName);
     }
 
     //TODO warning: this only works if there is only one kernel!
     public Reference buildMessageDestinationReference(String linkName, Class iface) throws MalformedObjectNameException {
         Reference ref = new Reference(null, JMXObjectFactory.class.getName(), null);
-        ref.add(new JMXRefAddr(null, null, ObjectName.getInstance(baseName + BASE_ADMIN_OBJECT_NAME + linkName), iface));
+        ref.add(new JMXRefAddr(null, null, createAdminObjectObjectName(linkName), iface));
         return ref;
     }
 

@@ -41,12 +41,11 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.naming.ReferenceFactory;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
-import org.apache.geronimo.naming.ReferenceFactory;
 import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
@@ -152,7 +151,8 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         cmfName = ObjectName.getInstance("test:role=ConnectionManagerFactory");
         kernel.loadGBean(cmfName, cmf);
 
-        managedConnectionFactoryName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo" + JMXReferenceFactory.BASE_MANAGED_CONNECTION_FACTORY_NAME + TARGET_NAME);
+        JMXReferenceFactory refFactory = new JMXReferenceFactory("geronimo.server", "geronimo");
+        managedConnectionFactoryName = refFactory.createManagedConnectionFactoryObjectName(TARGET_NAME);
 
         GBeanMBean mcfw = new GBeanMBean(ManagedConnectionFactoryWrapper.getGBeanInfo());
         mcfw.setAttribute("managedConnectionFactoryClass", MockManagedConnectionFactory.class);

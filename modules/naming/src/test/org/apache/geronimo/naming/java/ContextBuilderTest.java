@@ -32,7 +32,6 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.naming.ReferenceFactory;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
 
@@ -43,6 +42,7 @@ public class ContextBuilderTest extends TestCase {
     private ComponentContextBuilder builder;
 
     private List proxy;
+    private JMXReferenceFactory referenceFactory;
 
     public void testFreeze() {
         ReadOnlyContext context = builder.getContext();
@@ -117,7 +117,7 @@ public class ContextBuilderTest extends TestCase {
         kernel.boot();
         try {
             assertEquals(kernel, Kernel.getKernel("test.kernel"));
-            ObjectName proxyFactoryName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo" + JMXReferenceFactory.BASE_ADMIN_OBJECT_NAME + "testAdminObject");
+            ObjectName proxyFactoryName = referenceFactory.createAdminObjectObjectName("testAdminObject");
             GBeanMBean gbean = new GBeanMBean(getGbeanInfo());
             gbean.setAttribute("Content", proxy);
             kernel.loadGBean(proxyFactoryName, gbean);
@@ -141,7 +141,7 @@ public class ContextBuilderTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        ReferenceFactory referenceFactory = new JMXReferenceFactory("geronimo.server", "geronimo");
+        referenceFactory = new JMXReferenceFactory("geronimo.server", "geronimo");
         builder = new ComponentContextBuilder(referenceFactory);
     }
 

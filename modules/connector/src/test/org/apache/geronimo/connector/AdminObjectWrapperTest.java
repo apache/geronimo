@@ -105,8 +105,8 @@ public class AdminObjectWrapperTest extends TestCase {
     protected void setUp() throws Exception {
         kernel = new Kernel(KERNEL_NAME, "test.domain");
         kernel.boot();
-
-        selfName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo" + JMXReferenceFactory.BASE_ADMIN_OBJECT_NAME + TARGET_NAME);
+        JMXReferenceFactory refFactory = new JMXReferenceFactory("geronimo.server", "geronimo");
+        selfName = refFactory.createAdminObjectObjectName(TARGET_NAME);
 
         GBeanMBean aow = new GBeanMBean(AdminObjectWrapper.getGBeanInfo());
         aow.setAttribute("adminObjectInterface", MockAdminObject.class);
