@@ -53,42 +53,29 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.kernel.deployment.goal;
-
-import org.apache.geronimo.kernel.deployment.GeronimoTargetModule;
-import org.apache.geronimo.kernel.deployment.scanner.URLType;
-
-import java.net.URL;
+package org.apache.geronimo.deployment;
 
 /**
- * Adds support for {@link URLType} to {@link URLDeploymentGoal}.
- * Always normalizes file-protocol based URLs.
+ *
+ *
+ * @version $Revision: 1.1 $ $Date: 2004/01/22 08:10:26 $
  */
-class NormalizedURLDeploymentGoal extends URLDeploymentGoal {
-    private final URLType type;
+public class DeploymentException extends Exception {
 
-    /**
-     * Initializes the NormalizedURLDeploymentGoal.
-     * File-protocol based URLs are normalized.
-     * @param targetModule associated GeronimoTargetModule
-     * @param url associated URL
-     * @param type associated URLType
-     * @throws IllegalArgumentException if either <code>url</code>
-     *  or <code>type</code> parameters are passed as <code>null</code>.
-     */
-    protected NormalizedURLDeploymentGoal(GeronimoTargetModule targetModule, URL url, URLType type) {
-        super(targetModule, url, true);
-        if (type == null) {
-            throw new IllegalArgumentException("URLType is null");
-        }
-        this.type = type;
+
+    public DeploymentException() {
     }
 
-    /**
-     * Returns the URLType used on creation
-     * @return URLType used on creation
-     */
-    public URLType getType() {
-        return type;
+    public DeploymentException(Throwable cause) {
+        super(cause);
     }
+
+    public DeploymentException(String message) {
+        super(message);
+    }
+
+    public DeploymentException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
 }

@@ -74,9 +74,9 @@ import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.deployment.DeploymentModule;
 import org.apache.geronimo.deployment.ModuleFactory;
 import org.apache.geronimo.deployment.util.DeploymentHelper;
-import org.apache.geronimo.kernel.deployment.DeploymentException;
-import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
-import org.apache.geronimo.kernel.deployment.service.XMLUtil;
+import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.deployment.util.URLInfo;
+import org.apache.geronimo.deployment.util.XMLUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -85,7 +85,7 @@ import org.w3c.dom.NodeList;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/01/20 06:10:29 $
+ * @version $Revision: 1.8 $ $Date: 2004/01/22 08:10:26 $
  */
 public class ServiceDeployer implements ModuleFactory {
     private final DocumentBuilder parser;

@@ -78,14 +78,14 @@ import org.apache.geronimo.deployment.DeploymentModule;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.kernel.deployment.DeploymentException;
-import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
-import org.apache.geronimo.kernel.deployment.scanner.URLType;
+import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.deployment.util.URLInfo;
+import org.apache.geronimo.deployment.util.URLType;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/19 06:40:07 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/22 08:10:26 $
  */
 public class ServiceModule implements DeploymentModule {
     private final URI moduleID;

@@ -56,7 +56,7 @@
 package org.apache.geronimo.test.util;
 
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.deployment.service.MBeanRelationshipMetadata;
+//import org.apache.geronimo.kernel.deployment.service.MBeanRelationshipMetadata;
 
 import javax.management.ObjectName;
 import javax.management.MBeanServer;
@@ -69,7 +69,7 @@ import java.util.Set;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/19 02:07:01 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 08:10:26 $
  */
 
 public class ServerUtil {
@@ -102,9 +102,10 @@ public class ServerUtil {
         mbServer.setAttribute(LOADER, new Attribute("RouterTarget", SUBSYSTEM.toString()));
 
         mbServer.createMBean("org.apache.geronimo.remoting.router.JMXRouter", JMX_ROUTER);
-        MBeanRelationshipMetadata relMetadata = new MBeanRelationshipMetadata("/JMX", "Route", "Target", SUBSYSTEM, "Source");
         HashSet relations = new HashSet();
-        relations.add(relMetadata);
+        // DMB: Hacked!
+        //MBeanRelationshipMetadata relMetadata = new MBeanRelationshipMetadata("/JMX", "Route", "Target", SUBSYSTEM, "Source");
+        //relations.add(relMetadata);
         mbServer.invoke(DEPENDS_SERVICE, "addRelationships", new Object[]{JMX_ROUTER, relations}, new String[]{ObjectName.class.getName(), Set.class.getName()});
 
         mbServer.invoke(SUBSYSTEM, "start", null, null);

@@ -53,7 +53,7 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.kernel.deployment.scanner;
+package org.apache.geronimo.deployment.util;
 
 import java.net.URL;
 import java.io.IOException;
@@ -61,7 +61,7 @@ import java.io.IOException;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/17 03:44:38 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/22 08:10:26 $
  */
 public class URLInfo {
     private final URL url;

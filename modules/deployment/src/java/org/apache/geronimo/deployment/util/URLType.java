@@ -53,7 +53,7 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.kernel.deployment.scanner;
+package org.apache.geronimo.deployment.util;
 
 import java.io.File;
 import java.io.IOException;
@@ -75,7 +75,7 @@ import java.util.zip.ZipException;
  *  <li><b>RESOURCE</b> -  none of the above
  * </ul>
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/12 01:31:55 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/22 08:10:26 $
  */
 public class URLType {
     public static final String MANIFEST_LOCATION = "META-INF/MANIFEST.MF";

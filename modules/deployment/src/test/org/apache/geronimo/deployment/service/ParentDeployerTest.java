@@ -72,14 +72,14 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationParent;
-import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
+import org.apache.geronimo.deployment.util.URLInfo;
 import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 import junit.framework.TestCase;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/17 03:44:38 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/22 08:10:26 $
  */
 public class ParentDeployerTest extends TestCase {
     private DocumentBuilder parser;

@@ -74,14 +74,14 @@ import org.apache.geronimo.deployment.BatchDeployer;
 import org.apache.geronimo.deployment.NoDeployerException;
 import org.apache.geronimo.deployment.util.FileUtil;
 import org.apache.geronimo.deployment.service.ServiceDeployer;
-import org.apache.geronimo.kernel.deployment.DeploymentException;
-import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
-import org.apache.geronimo.kernel.deployment.scanner.URLType;
+import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.deployment.util.URLInfo;
+import org.apache.geronimo.deployment.util.URLType;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/19 06:40:07 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/22 08:10:26 $
  */
 public class DeployCommand {
     private final File configFile;

@@ -69,8 +69,8 @@ import org.apache.geronimo.deployment.service.ServiceDeployer;
 import org.apache.geronimo.deployment.util.FileUtil;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.LocalConfigStore;
-import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
-import org.apache.geronimo.kernel.deployment.scanner.URLType;
+import org.apache.geronimo.deployment.util.URLInfo;
+import org.apache.geronimo.deployment.util.URLType;
 
 /**
  * Helper class to bootstrap a Geronimo instance from a service archive.
@@ -78,7 +78,7 @@ import org.apache.geronimo.kernel.deployment.scanner.URLType;
  * and then creates a Kernel to run that configuration. This allows someone
  * to boot a Kernel without pre-deploying and installing the Configuration.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/17 03:44:38 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 08:10:26 $
  */
 public class Bootstrap {
     public static final URI CONFIG_ID = URI.create("org/apache/geronimo/Bootstrap");

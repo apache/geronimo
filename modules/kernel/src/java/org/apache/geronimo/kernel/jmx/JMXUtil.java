@@ -60,13 +60,12 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.relation.RelationServiceMBean;
 
-import org.apache.geronimo.kernel.deployment.DependencyServiceMBean;
 
 /**
  * Helper class for JMX Operations
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:34 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/22 08:10:27 $
  */
 public final class JMXUtil {
     private JMXUtil() {
@@ -93,9 +92,5 @@ public final class JMXUtil {
 
     public static RelationServiceMBean getRelationService(MBeanServer server) {
         return (RelationServiceMBean) MBeanProxyFactory.getProxy(RelationServiceMBean.class, server, RELATION_SERVICE_NAME);
-    }
-
-    public static DependencyServiceMBean getDependencyService(MBeanServer server) {
-        return (DependencyServiceMBean) MBeanProxyFactory.getProxy(DependencyServiceMBean.class, server, DEPENDENCY_SERVICE_NAME);
     }
 }

@@ -58,7 +58,7 @@ package org.apache.geronimo.deployment;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.geronimo.kernel.deployment.DeploymentException;
+import org.apache.geronimo.deployment.DeploymentException;
 
 /**
  * A module representing a resource being deployed. The deployer will call each
@@ -72,7 +72,7 @@ import org.apache.geronimo.kernel.deployment.DeploymentException;
  * problems in the deployment process prevent the other methods being called.
  * complete() may be called without a prior call to init().
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/16 03:48:42 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/22 08:10:26 $
  */
 public interface DeploymentModule {
     /**

@@ -80,7 +80,6 @@ import javax.management.RuntimeOperationsException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.classspace.ClassSpaceUtil;
-import org.apache.geronimo.kernel.deployment.DeploymentException;
 import org.apache.geronimo.kernel.management.NotificationType;
 import org.apache.geronimo.kernel.jmx.MBeanOperationSignature;
 
@@ -92,7 +91,7 @@ import net.sf.cglib.reflect.FastClass;
  * GeronimoMBeanInfo instance.  The GeronimoMBean also support caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.12 $ $Date: 2004/01/04 23:45:09 $
+ * @version $Revision: 1.13 $ $Date: 2004/01/22 08:10:27 $
  */
 public class GeronimoMBean extends AbstractManagedObject2 implements DynamicMBean {
     public static final FastClass fastClass = FastClass.create(GeronimoMBean.class);
@@ -150,7 +149,7 @@ public class GeronimoMBean extends AbstractManagedObject2 implements DynamicMBea
     public ObjectName preRegister(MBeanServer server, ObjectName name) throws Exception {
         super.preRegister(server, name);
         if (mbeanInfo == null) {
-            throw new DeploymentException("No MBean info set for Geronimo MBean");
+            throw new Exception("No MBean info set for Geronimo MBean");
         }
 
         classLoader = ClassSpaceUtil.getClassLoader(server, classSpace);

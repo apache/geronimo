@@ -76,15 +76,15 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.geronimo.deployment.ConfigurationCallback;
 import org.apache.geronimo.deployment.BatchDeployer;
 import org.apache.geronimo.deployment.util.FileUtil;
-import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
-import org.apache.geronimo.kernel.deployment.scanner.URLType;
+import org.apache.geronimo.deployment.util.URLInfo;
+import org.apache.geronimo.deployment.util.URLType;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import junit.framework.TestCase;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/17 03:44:38 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/22 08:10:26 $
  */
 public class ServiceDeployerTest extends TestCase {
     private static final URI MODULE_ID = URI.create("service");

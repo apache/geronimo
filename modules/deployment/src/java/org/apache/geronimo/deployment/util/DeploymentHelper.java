@@ -56,21 +56,13 @@
 
 package org.apache.geronimo.deployment.util;
 
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.util.List;
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 
-import javax.management.ObjectName;
 import javax.xml.parsers.DocumentBuilder;
 
-import org.apache.geronimo.kernel.deployment.service.ClassSpaceMetadata;
-import org.apache.geronimo.kernel.deployment.scanner.URLType;
-import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
-import org.apache.geronimo.kernel.deployment.DeploymentException;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfoXMLLoader;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.deployment.DeploymentException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -78,7 +70,7 @@ import org.xml.sax.SAXException;
  * Helper class that handles locating files in META-INF directory, building
  * class space and dealing with deployments
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/17 01:32:38 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 08:10:26 $
  */
 public class DeploymentHelper {
     protected final URL url;

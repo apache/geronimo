@@ -67,12 +67,12 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDIEnvironmentRefs;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
-import org.apache.geronimo.kernel.deployment.DeploymentException;
+import org.apache.geronimo.deployment.DeploymentException;
 
 /**
  *
  *
- * @version $Revision: 1.11 $ $Date: 2004/01/12 06:19:52 $
+ * @version $Revision: 1.12 $ $Date: 2004/01/22 08:10:26 $
  */
 public class ComponentContextBuilder {
 

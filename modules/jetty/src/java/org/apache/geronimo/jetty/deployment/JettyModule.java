@@ -65,12 +65,12 @@ import org.apache.geronimo.deployment.ConfigurationCallback;
 import org.apache.geronimo.deployment.DeploymentModule;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.jetty.JettyWebApplicationContext;
-import org.apache.geronimo.kernel.deployment.DeploymentException;
+import org.apache.geronimo.deployment.DeploymentException;
 
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/01/22 00:51:09 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/22 08:10:26 $
  */
 public class JettyModule implements DeploymentModule {
     private final URI uri;

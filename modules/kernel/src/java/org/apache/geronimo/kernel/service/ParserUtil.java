@@ -70,10 +70,9 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.kernel.deployment.DeploymentException;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2003/11/16 00:43:24 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/22 08:10:27 $
  */
 public final class ParserUtil {
     private ParserUtil() {
@@ -381,24 +380,6 @@ public final class ParserUtil {
         return editor;
     }
 
-    public static Class[] translateArgs(String[] types, Object[] args, URI baseURI, ClassLoader classloader)
-            throws DeploymentException {
-        Class[] clazz = new Class[types.length];
-        for (int i = 0; i < types.length; i++) {
-            try {
-                clazz[i] = loadClass(types[i], classloader);
-            } catch (ClassNotFoundException e) {
-                throw new DeploymentException(e);
-            }
-
-            Object value = args[i];
-            if (value instanceof String) {
-                value = getValue(clazz[i], (String) value, baseURI);
-                args[i] = value;
-            }
-        }
-        return clazz;
-    }
 
     public static Object instantiate(Class clazz, Object[] args, Class[] types)
             throws InvocationTargetException,
@@ -409,16 +390,5 @@ public final class ParserUtil {
         return c.newInstance(args);
     }
 
-    public static Object instantiate(String className, Object[] args, String[] types, URI baseURI, ClassLoader cl)
-            throws DeploymentException,
-            ClassNotFoundException,
-            NoSuchMethodException,
-            InvocationTargetException,
-            InstantiationException,
-            IllegalAccessException {
-        Class[] typeClazz = translateArgs(types, args, baseURI, cl);
-        Class clazz = cl.loadClass(className);
-        return instantiate(clazz, args, typeClazz);
-    }
 }
 

@@ -57,14 +57,14 @@ package org.apache.geronimo.deployment;
 
 import java.net.URI;
 
-import org.apache.geronimo.kernel.deployment.DeploymentException;
-import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
+import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.deployment.util.URLInfo;
 
 /**
  * A factory for a specific module type capable of returning a module from
  * an external resource.
  * 
- * @version $Revision: 1.1 $ $Date: 2004/01/16 03:48:42 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/22 08:10:26 $
  */
 public interface ModuleFactory {
     /**

@@ -82,8 +82,8 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationParent;
-import org.apache.geronimo.kernel.deployment.DeploymentException;
-import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
+import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.deployment.util.URLInfo;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
@@ -91,7 +91,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/17 03:44:38 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/22 08:10:26 $
  */
 public class BatchDeployer implements ConfigurationCallback {
     private final ConfigurationParent parent;

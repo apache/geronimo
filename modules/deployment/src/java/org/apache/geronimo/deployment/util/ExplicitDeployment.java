@@ -75,13 +75,13 @@ import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.kernel.KernelMBean;
 import org.apache.geronimo.kernel.config.ConfigurationParent;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
-import org.apache.geronimo.kernel.deployment.scanner.URLType;
+import org.apache.geronimo.deployment.util.URLInfo;
+import org.apache.geronimo.deployment.util.URLType;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/22 02:46:27 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 08:10:26 $
  *
  * */
 public class ExplicitDeployment implements GBean {

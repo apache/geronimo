@@ -68,8 +68,8 @@ import org.apache.geronimo.deployment.model.geronimo.connector.GeronimoConnector
 import org.apache.geronimo.deployment.model.connector.ConnectorDocument;
 import org.apache.geronimo.deployment.xml.ParserFactory;
 import org.apache.geronimo.deployment.util.DeploymentHelper;
-import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
-import org.apache.geronimo.kernel.deployment.DeploymentException;
+import org.apache.geronimo.deployment.util.URLInfo;
+import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GAttributeInfo;
@@ -85,7 +85,7 @@ import org.w3c.dom.Document;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/21 22:21:25 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/22 08:10:26 $
  *
  * */
 public class ConnectorDeployer implements ModuleFactory {
