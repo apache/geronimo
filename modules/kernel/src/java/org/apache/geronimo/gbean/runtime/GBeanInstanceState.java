@@ -544,4 +544,8 @@ public class GBeanInstanceState {
         }
     }
 
+    public String toString() {
+        return "GBeanInstanceState for: " + objectName;
+    }
+
 }
