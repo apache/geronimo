@@ -62,6 +62,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Collections;
 import javax.management.Attribute;
 import javax.management.AttributeList;
 import javax.management.InstanceAlreadyExistsException;
@@ -77,6 +78,8 @@ import javax.management.ObjectName;
 import javax.management.ReflectionException;
 import javax.management.relation.RelationServiceMBean;
 import javax.management.relation.Role;
+import javax.management.relation.RoleList;
+import javax.management.relation.RoleInfo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -90,7 +93,7 @@ import org.apache.geronimo.jmx.JMXUtil;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 19:46:28 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/13 04:15:43 $
  */
 public class CreateMBeanInstance extends DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
@@ -165,10 +168,44 @@ public class CreateMBeanInstance extends DeploymentTask {
             try {
                 for (Iterator i = relationships.iterator(); i.hasNext();) {
                     MBeanRelationship relationship = (MBeanRelationship) i.next();
-                    List members = relationService.getRole(relationship.getName(), relationship.getRole());
-                    members.add(actualName);
-                    relationService.setRole(relationship.getName(), new Role(relationship.getRole(), members));
+
+                    // if we don't have a relationship instance create one
+                    String relationshipName = relationship.getName();
+                    String relationshipRole = relationship.getRole();
+                    if (!relationService.hasRelation(relationshipName).booleanValue()) {
+                        // if  we don't have a relationship of the
+                        String relationshipType = relationship.getType();
+                        if (!relationService.getAllRelationTypeNames().contains(relationshipType)) {
+                            throw new DeploymentException("Relationship type is not registered: relationType=" + relationshipType);
+                        }
+
+                        RoleList roleList = new RoleList();
+                        roleList.add(new Role(relationshipRole, Collections.singletonList(actualName)));
+
+                        // if we have a target we need to add it to the role list
+                        String target = relationship.getTarget();
+                        if (target != null && target.length() > 0) {
+                            List roles = relationService.getRoleInfos(relationshipType);
+
+                            String targetRoleName;
+                            if (((RoleInfo) roles.get(0)).getName().equals(relationshipRole)) {
+                                targetRoleName = ((RoleInfo) roles.get(1)).getName();
+                            } else {
+                                targetRoleName = ((RoleInfo) roles.get(0)).getName();
+                            }
+                            roleList.add(new Role(targetRoleName, Collections.singletonList(new ObjectName(target))));
+                        }
+                        relationService.createRelation(relationshipName, relationshipType, roleList);
+
+                    } else {
+                        // We have an exiting relationship -- just add to the existing role
+                        List members = relationService.getRole(relationshipName, relationshipRole);
+                        members.add(actualName);
+                        relationService.setRole(relationshipName, new Role(relationshipRole, members));
+                    }
                 }
+            } catch (DeploymentException e) {
+                throw e;
             } catch (Exception e) {
                 throw new DeploymentException(e);
             }
@@ -245,7 +282,7 @@ public class CreateMBeanInstance extends DeploymentTask {
                 String[] argTypes = (String[]) operation.getTypes().toArray(new String[argCount]);
                 List values = operation.getArgs();
                 Object[] args = new Object[argCount];
-                for (int j=0; j < argCount; j++) {
+                for (int j = 0; j < argCount; j++) {
                     Object value = values.get(j);
                     if (value instanceof String) {
                         value = getValue(newCL, argTypes[j], (String) value);
