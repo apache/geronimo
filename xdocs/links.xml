@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<document>
+
+  <properties>
+    <author email="jstrachan@apache.org">James Strachan</author>
+    <title>Links</title>
+  </properties>
+
+  <body>
+
+    <section name="Links"/>
+    
+    <links>
+      <link>
+        <id>wiki</id>
+        <title>Apache J2EE Wiki</title>
+        <url>http://nagoya.apache.org/wiki/apachewiki.cgi?ApacheJ2EE</url>
+      </link>
+    </links>
+  
+  </body>
+</document>

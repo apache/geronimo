@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="Geronimo">
+
+  <title>Geronimo</title>
+  <organizationLogo href="/images/group-logo.gif">Apache</organizationLogo>
+
+  <body>
+    <search/>
+    <menu name="Geronimo">
+      <item name="Overview"                href="/index.html"/>
+      <item name="FAQ"                     href="/faq.html"/>
+      <item name="Wiki"                    href="http://nagoya.apache.org/wiki/apachewiki.cgi?ApacheJ2EE"/>
+<!--      
+      <item name="To Do List"              href="/todo.html"/>
+      <item name="Getting Started"         href="/gettingstarted.html"/>
+      <item name="Tutorial"         	   href="/tutorial.html"/>
+      <item name="Detail"                  href="/overview.html"/>
+      <item name="Download"                href="/builds/distributions/"/>
+-->      
+      <item name="Related Projects"        href="/reuse.html"/>
+    </menu>
+    <menu name="Modules">
+      <item name="Core Container"		   href="/modules/core/"/>
+    </menu>
+    
+    <menu name="Apache Community">
+  	  <item name="Get Involved"            href="http://jakarta.apache.org/site/getinvolved.html"/>
+  	  <item name="Contributors"            href="http://www.apache.org/dev/contributors.html"/>
+    </menu>
+  </body>
+</project>

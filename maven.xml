@@ -1,0 +1,10 @@
+<project default="jar:install" 
+         xmlns:j="jelly:core" 
+         xmlns:ant="jelly:ant" 
+         xmlns:maven="jelly:maven">
+
+  <preGoal name="xdoc:jelly-transform">
+    <attainGoal name="html2xdoc"/>
+    <attainGoal name="faq"/>
+  </preGoal>
+</project>
