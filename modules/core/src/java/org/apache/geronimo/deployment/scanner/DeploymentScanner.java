@@ -75,11 +75,10 @@ import org.apache.geronimo.jmx.JMXUtil;
 
 /**
  * An MBean that maintains a list of URLs and periodically invokes a Scanner
- * to search them for deployments. The set found is sent out as a JMX
- * Notifiction.
+ * to search them for deployments.
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/11 21:27:18 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/12 23:14:45 $
  */
 public class DeploymentScanner implements DeploymentScannerMBean, MBeanRegistration {
     private static final Log log = LogFactory.getLog(DeploymentScanner.class);
@@ -175,15 +174,21 @@ public class DeploymentScanner implements DeploymentScannerMBean, MBeanRegistrat
     }
 
     public synchronized void scanNow() {
+        boolean logTrace = log.isTraceEnabled();
+
         Set results = new HashSet();
         for (Iterator i = scanners.entrySet().iterator(); i.hasNext();) {
             Map.Entry entry = (Map.Entry) i.next();
             URL url = (URL) entry.getKey();
-            log.debug("Starting scan of " + url);
+            if (logTrace) {
+                log.trace("Starting scan of " + url);
+            }
             Scanner scanner = (Scanner) entry.getValue();
             try {
                 Set result = scanner.scan();
-                log.debug("Finished scan of " + url + ", " + result.size() + " deployment(s) found");
+                if (logTrace) {
+                    log.trace("Finished scan of " + url + ", " + result.size() + " deployment(s) found");
+                }
                 results.addAll(result);
             } catch (IOException e) {
                 log.error("Error scanning url " + url, e);
