@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.21 $ $Date: 2003/09/05 02:48:19 $ -->
+<!-- $Revision: 1.22 $ $Date: 2003/09/05 23:06:46 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -229,15 +229,7 @@
         <runtime>true</runtime>
       </properties>
     </dependency>
-
-    <dependency>
-      <id>servletapi</id>
-      <version>SNAPSHOT</version>
-      <properties>
-        <runtime>true</runtime>
-      </properties>
-    </dependency>
-
+    
     <dependency>
       <id>castor</id>
       <version>0.9.5</version>
