@@ -31,7 +31,7 @@ specific services - those should be provided by children.
     configId="org/apache/geronimo/System"
     >
 
-    <executable mainClass="org.apache.geronimo.system.main.Daemon" classPath="../lib/geronimo-kernel-DEV.jar ../lib/geronimo-system-DEV.jar ../lib/cglib-full-2.0-RC2.jar ../lib/commons-cli-1.0.jar ../lib/commons-logging-1.0.3.jar ../lib/log4j-1.2.8.jar ../lib/mx4j-SNAPSHOT.jar ../lib/xercesImpl-2.6.0.jar ../lib/xmlParserAPIs-2.2.1.jar"/>
+    <executable mainClass="org.apache.geronimo.system.main.Daemon" classPath="../lib/geronimo-kernel-DEV.jar ../lib/geronimo-system-DEV.jar ../lib/cglib-full-2.0.jar ../lib/commons-cli-1.0.jar ../lib/commons-logging-1.0.3.jar ../lib/log4j-1.2.8.jar ../lib/mx4j-SNAPSHOT.jar ../lib/xercesImpl-2.6.0.jar ../lib/xmlParserAPIs-2.2.1.jar"/>
 
     <!-- ServerInfo service -->
     <gbean name="geronimo.system:role=ServerInfo" class="org.apache.geronimo.system.serverinfo.ServerInfo"/>
