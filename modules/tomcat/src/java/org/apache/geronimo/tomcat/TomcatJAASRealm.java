@@ -17,7 +17,6 @@
 package org.apache.geronimo.tomcat;
 
 import java.security.Principal;
-
 import javax.security.auth.Subject;
 import javax.security.auth.login.AccountExpiredException;
 import javax.security.auth.login.CredentialExpiredException;
@@ -29,7 +28,9 @@ import org.apache.catalina.realm.JAASCallbackHandler;
 import org.apache.catalina.realm.JAASRealm;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.geronimo.security.ContextManager;
+
 
 /**
  * @version $Rev: 106522 $ $Date: 2004-11-25 01:28:57 +0100 (Thu, 25 Nov 2004) $
@@ -46,22 +47,28 @@ public class TomcatJAASRealm extends JAASRealm {
      * Descriptive information about this <code>Realm</code> implementation.
      */
     protected static final String name = "TomcatJAASRealm";
+    private String loginDomainName = null;
+
+    public TomcatJAASRealm(String loginDomainName) {
+        super();
+
+        this.loginDomainName = loginDomainName;
+
+    }
 
     /**
      * Return the <code>Principal</code> associated with the specified
      * username and credentials, if there is one; otherwise return
      * <code>null</code>.
-     * 
+     * <p/>
      * If there are any errors with the JDBC connection, executing the query or
      * anything we return null (don't authenticate). This event is also logged,
      * and the connection will be closed so that a subsequent request will
      * automatically re-open it.
-     * 
-     * @param username
-     *            Username of the <code>Principal</code> to look up
-     * @param credentials
-     *            Password or other credentials to use in authenticating this
-     *            username
+     *
+     * @param username    Username of the <code>Principal</code> to look up
+     * @param credentials Password or other credentials to use in authenticating this
+     *                    username
      */
     public Principal authenticate(String username, String credentials) {
 
@@ -83,7 +90,7 @@ public class TomcatJAASRealm extends JAASRealm {
             }
 
             try {
-                loginContext = new LoginContext(appName, new JAASCallbackHandler(this, username, credentials));
+                loginContext = new LoginContext(loginDomainName, new JAASCallbackHandler(this, username, credentials));
             } catch (Throwable e) {
                 log.error(sm.getString("jaasRealm.unexpectedError"), e);
                 return (null);

@@ -18,16 +18,17 @@ package org.apache.geronimo.tomcat;
 
 import java.io.File;
 import java.net.URI;
-import java.util.Collections;
+import java.security.PermissionCollection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
+import org.apache.catalina.authenticator.Constants;
+import org.apache.catalina.deploy.LoginConfig;
 
-import org.apache.catalina.deploy.SecurityConstraint;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
@@ -36,8 +37,9 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.security.SecurityServiceImpl;
-import org.apache.geronimo.security.deploy.MapOfSets;
 import org.apache.geronimo.security.deploy.Principal;
+import org.apache.geronimo.security.deploy.Security;
+import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
 import org.apache.geronimo.security.jaas.JaasLoginService;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
@@ -46,59 +48,38 @@ import org.apache.geronimo.tomcat.connector.HTTPConnector;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 
+
 /**
  * @version $Rev: 111239 $ $Date: 2004-12-08 02:29:11 -0700 (Wed, 08 Dec 2004) $
  */
 public class AbstractWebModuleTest extends TestCase {
 
     protected static final String securityRealmName = "demo-properties-realm";
-
     protected Kernel kernel;
-
     private GBeanData container;
-
     private ObjectName containerName;
-
     private ObjectName connectorName;
-
     private GBeanData connector;
-
     private ObjectName webModuleName;
-
     private ObjectName tmName;
-
     private ObjectName ctcName;
-
     private GBeanData tm;
-
     private GBeanData ctc;
-
     private ObjectName tcmName;
-
     private GBeanData tcm;
-
     private ClassLoader cl;
-
     private J2eeContext moduleContext = new J2eeContextImpl("tomcat.test", "test", "null", "tomcatTest", null, null);
-
     private GBeanData securityServiceGBean;
-
     protected ObjectName securityServiceName;
-
     private ObjectName loginServiceName;
-
     private GBeanData loginServiceGBean;
-
+    private GBeanData loginConfigurationGBean;
+    protected ObjectName loginConfigurationName;
     protected GBeanData propertiesLMGBean;
-
     protected ObjectName propertiesLMName;
-
-    private ObjectName propertiesRealmName;
-
+    protected ObjectName propertiesRealmName;
     private GBeanData propertiesRealmGBean;
-
     private ObjectName serverInfoName;
-
     private GBeanData serverInfoGBean;
 
     public void testDummy() throws Exception {
@@ -107,45 +88,75 @@ public class AbstractWebModuleTest extends TestCase {
     protected void setUpInsecureAppContext() throws Exception {
 
         GBeanData app = new GBeanData(webModuleName, TomcatWebAppContext.GBEAN_INFO);
-        // GBeanData app = new GBeanData(webModuleName,
-        // TomcatWebAppContext.GBEAN_INFO);
         app.setAttribute("webAppRoot", new File("target/var/catalina/webapps/war1/").toURI());
-        // app.setAttribute("componentContext", null);
-        // OnlineUserTransaction userTransaction = new OnlineUserTransaction();
-        // app.setAttribute("userTransaction", userTransaction);
-        // we have no classes or libs.
-        app.setAttribute("webClassPath", new URI[] {});
-        // app.setAttribute("contextPriorityClassLoader", Boolean.FALSE);
+        app.setAttribute("webClassPath", new URI[]{});
         app.setAttribute("configurationBaseUrl", new File("target/var/catalina/webapps/war1/WEB-INF/web.xml").toURL());
-        // app.setReferencePattern("TransactionContextManager", tcmName);
-        // app.setReferencePattern("TrackedConnectionAssociator", ctcName);
         app.setReferencePattern("Container", containerName);
-
-        // app.setAttribute("contextPath", "/test");
         app.setAttribute("path", "/test");
 
         start(app);
     }
 
-    // protected void setUpSecureAppContext(Security securityConfig, Set
-    // uncheckedPermissions, Set excludedPermissions, Map rolePermissions, Set
-    // securityRoles, Map legacySecurityConstraintMap) throws Exception {
-    protected ObjectName setUpSecureAppContext(SecurityConstraint[] securityConstraints, String[] securityRoles)
-            throws Exception {
+    protected ObjectName setUpJAASSecureAppContext(Set securityConstraints, Set securityRoles) throws Exception {
         GBeanData app = new GBeanData(webModuleName, TomcatWebAppContext.GBEAN_INFO);
         app.setAttribute("webAppRoot", new File("target/var/catalina/webapps/war3/").toURI());
-        app.setAttribute("webClassPath", new URI[] {});
+        app.setAttribute("webClassPath", new URI[]{});
         app.setAttribute("configurationBaseUrl", new File("target/var/catalina/webapps/war3/WEB-INF/web.xml").toURL());
         app.setAttribute("path", "/securetest");
-        app.setAttribute("authMethod", "FORM");
-        app.setAttribute("realmName", "Test JAAS Realm");
-        app.setAttribute("loginPage", "/auth/logon.html?param=test");
-        app.setAttribute("errorPage", "/auth/logonError.html?param=test");
+
+        LoginConfig loginConfig = new LoginConfig();
+        loginConfig.setAuthMethod(Constants.FORM_METHOD);
+        loginConfig.setRealmName("Test JAAS Realm");
+        loginConfig.setLoginPage("/auth/logon.html?param=test");
+        loginConfig.setErrorPage("/auth/logonError.html?param=test");
+        app.setAttribute("loginConfig", loginConfig);
+        app.setAttribute("loginConfig", loginConfig);
 
         app.setAttribute("securityConstraints", securityConstraints);
         app.setAttribute("securityRoles", securityRoles);
 
-        TomcatJAASRealm realm = new TomcatJAASRealm();
+        TomcatJAASRealm realm = new TomcatJAASRealm("demo-properties-realm");
+        realm.setUserClassNames("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
+        realm.setRoleClassNames("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
+        app.setAttribute("tomcatRealm", realm);
+
+        app.setReferencePattern("Container", containerName);
+        start(app);
+
+        return webModuleName;
+    }
+
+    protected ObjectName setUpSecureAppContext(Security securityConfig,
+                                               Set securityConstraints,
+                                               PermissionCollection uncheckedPermissions,
+                                               PermissionCollection excludedPermissions,
+                                               Map rolePermissions,
+                                               Set securityRoles)
+            throws Exception {
+
+        GBeanData app = new GBeanData(webModuleName, TomcatWebAppContext.GBEAN_INFO);
+        app.setAttribute("webAppRoot", new File("target/var/catalina/webapps/war3/").toURI());
+        app.setAttribute("webClassPath", new URI[]{});
+        app.setAttribute("configurationBaseUrl", new File("target/var/catalina/webapps/war3/WEB-INF/web.xml").toURL());
+        app.setAttribute("path", "/securetest");
+
+        LoginConfig loginConfig = new LoginConfig();
+        loginConfig.setAuthMethod(Constants.FORM_METHOD);
+        loginConfig.setRealmName("Test JACC Realm");
+        loginConfig.setLoginPage("/auth/logon.html?param=test");
+        loginConfig.setErrorPage("/auth/logonError.html?param=test");
+        app.setAttribute("loginConfig", loginConfig);
+
+        app.setAttribute("securityConstraints", securityConstraints);
+        app.setAttribute("securityRoles", securityRoles);
+
+        TomcatGeronimoRealm realm = new TomcatGeronimoRealm("securetest",
+                                                            securityConfig,
+                                                            "demo-properties-realm",
+                                                            securityRoles,
+                                                            uncheckedPermissions,
+                                                            excludedPermissions,
+                                                            rolePermissions);
         realm.setUserClassNames("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
         realm.setRoleClassNames("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
         app.setAttribute("tomcatRealm", realm);
@@ -157,15 +168,21 @@ public class AbstractWebModuleTest extends TestCase {
     }
 
     protected void setUpSecurity() throws Exception {
-        securityServiceName = new ObjectName("geronimo.security:type=SecurityService");
+
+        loginConfigurationName = new ObjectName("geronimo.security:type=LoginConfiguration");
+        loginConfigurationGBean = new GBeanData(loginConfigurationName, GeronimoLoginConfiguration.getGBeanInfo());
+        Set configurations = new HashSet();
+        configurations.add(new ObjectName("geronimo.server:j2eeType=SecurityRealm,*"));
+        configurations.add(new ObjectName("geronimo.server:j2eeType=ConfigurationEntry,*"));
+        loginConfigurationGBean.setReferencePatterns("Configurations", configurations);
+
+        securityServiceName = new ObjectName("geronimo.server:j2eeType=SecurityService");
         securityServiceGBean = new GBeanData(securityServiceName, SecurityServiceImpl.GBEAN_INFO);
         securityServiceGBean.setAttribute("policyConfigurationFactory", "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory");
 
         loginServiceName = JaasLoginService.OBJECT_NAME;
         loginServiceGBean = new GBeanData(loginServiceName, JaasLoginService.GBEAN_INFO);
-        loginServiceGBean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
-        // loginServiceGBean.setAttribute("reclaimPeriod", new Long(1000 *
-        // 1000));
+        loginServiceGBean.setReferencePattern("Realms", new ObjectName("geronimo.server:j2eeType=SecurityRealm,*"));
         loginServiceGBean.setAttribute("algorithm", "HmacSHA1");
         loginServiceGBean.setAttribute("password", "secret");
 
@@ -177,12 +194,12 @@ public class AbstractWebModuleTest extends TestCase {
         options.setProperty("usersURI", "src/test-resources/data/users.properties");
         options.setProperty("groupsURI", "src/test-resources/data/groups.properties");
         propertiesLMGBean.setAttribute("options", options);
-        propertiesLMGBean.setAttribute("loginDomainName", securityRealmName);
+        propertiesLMGBean.setAttribute("loginDomainName", "demo-properties-realm");
 
-        propertiesRealmName = new ObjectName("geronimo.security:type=SecurityRealm,realm=demo-properties-realm");
+        propertiesRealmName = new ObjectName("geronimo.server:j2eeType=SecurityRealm,name=demo-properties-realm");
         propertiesRealmGBean = new GBeanData(propertiesRealmName, GenericSecurityRealm.GBEAN_INFO);
-        propertiesRealmGBean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfoName));
-        propertiesRealmGBean.setAttribute("realmName", securityRealmName);
+        propertiesRealmGBean.setReferencePattern("ServerInfo", serverInfoName);
+        propertiesRealmGBean.setAttribute("realmName", "demo-properties-realm");
         Properties config = new Properties();
         config.setProperty("LoginModule.1.REQUIRED", propertiesLMName.getCanonicalName());
         propertiesRealmGBean.setAttribute("loginModuleConfiguration", config);
@@ -190,6 +207,7 @@ public class AbstractWebModuleTest extends TestCase {
         principalEditor.setAsText("metro=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
         propertiesRealmGBean.setAttribute("defaultPrincipal", principalEditor.getValue());
 
+        start(loginConfigurationGBean);
         start(securityServiceGBean);
         start(loginServiceGBean);
         start(propertiesLMGBean);
@@ -200,9 +218,9 @@ public class AbstractWebModuleTest extends TestCase {
     protected void tearDownSecurity() throws Exception {
         stop(propertiesRealmName);
         stop(propertiesLMName);
-        stop(serverInfoName);
         stop(loginServiceName);
         stop(securityServiceName);
+        stop(loginConfigurationName);
     }
 
     private void start(GBeanData gbeanData) throws Exception {
@@ -226,6 +244,7 @@ public class AbstractWebModuleTest extends TestCase {
 
         tmName = NameFactory.getComponentName(null, null, null, null, "TransactionManager", NameFactory.JTA_RESOURCE, moduleContext);
         tcmName = NameFactory.getComponentName(null, null, null, null, "TransactionContextManager", NameFactory.JTA_RESOURCE, moduleContext);
+
         ctcName = new ObjectName("geronimo.test:role=ConnectionTrackingCoordinator");
 
         kernel = new Kernel("test.kernel");
@@ -267,6 +286,7 @@ public class AbstractWebModuleTest extends TestCase {
         stop(ctcName);
         stop(tmName);
         stop(containerName);
+        stop(serverInfoName);
         kernel.shutdown();
     }
 }
