@@ -29,7 +29,7 @@ import org.apache.geronimo.transaction.InstanceContext;
 /**
  *
  *
- * @version $Revision: 1.10 $ $Date: 2004/05/24 19:10:35 $
+ * @version $Revision: 1.11 $ $Date: 2004/05/24 22:36:13 $
  *
  * */
 public class ConnectionManagerTest extends ConnectionManagerTestUtils {
@@ -94,6 +94,13 @@ public class ConnectionManagerTest extends ConnectionManagerTestUtils {
         MockXAResource mockXAResource = (MockXAResource) mockManagedConnection.getXAResource();
         assertEquals("XAResource should know 1 xid", 1, mockXAResource.getKnownXids().size());
         assertNotNull("Should be committed", mockXAResource.getCommitted());
+        mockXAResource.clear();
+    }
+
+    public void testConnectionCloseReturnsCxAfterUserTransaction() throws Throwable {
+        for (int i = 0; i < maxSize + 1; i++) {
+            testUserTransactionEnlistingExistingConnections();
+        }
     }
 
     public void testUnshareableConnections() throws Throwable {

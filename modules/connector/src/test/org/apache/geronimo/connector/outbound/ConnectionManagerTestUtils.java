@@ -46,7 +46,7 @@ import org.apache.geronimo.transaction.UserTransactionImpl;
 /**
  *
  *
- * @version $Revision: 1.9 $ $Date: 2004/05/24 19:10:35 $
+ * @version $Revision: 1.10 $ $Date: 2004/05/24 22:36:13 $
  *
  * */
 public class ConnectionManagerTestUtils extends TestCase implements DefaultInterceptor, RealmBridge {
@@ -54,7 +54,7 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
     protected boolean useLocalTransactions = false;
     protected boolean useThreadCaching = false;
     protected boolean useTransactions = true;
-    protected int maxSize = 100;
+    protected int maxSize = 10;
     protected int blockingTimeout = 100;
     protected boolean useConnectionRequestInfo = false;
     protected boolean useSubject = true;

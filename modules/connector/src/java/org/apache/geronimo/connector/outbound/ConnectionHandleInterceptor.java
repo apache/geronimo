@@ -23,7 +23,7 @@ import javax.resource.ResourceException;
  * ConnectionHandleInterceptor.java
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/04/22 17:03:28 $
+ * @version $Revision: 1.5 $ $Date: 2004/05/24 22:36:13 $
  */
 public class ConnectionHandleInterceptor implements ConnectionInterceptor {
 
@@ -47,12 +47,13 @@ public class ConnectionHandleInterceptor implements ConnectionInterceptor {
                     mci.getManagedConnection().getConnection(
                             mci.getSubject(),
                             mci.getConnectionRequestInfo()));
+            mci.addConnectionHandle(connectionInfo);
 
         } else if (!mci.hasConnectionInfo(connectionInfo)) {
             mci.getManagedConnection().associateConnection(
                     connectionInfo.getConnectionHandle());
+            mci.addConnectionHandle(connectionInfo);
         }
-        mci.addConnectionHandle(connectionInfo);
         connectionInfo.setTrace();
     }
 
