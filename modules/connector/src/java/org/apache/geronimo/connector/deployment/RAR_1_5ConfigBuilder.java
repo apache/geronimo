@@ -37,17 +37,7 @@ import javax.resource.spi.security.PasswordCredential;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.connector.AdminObjectWrapper;
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
-import org.apache.geronimo.connector.outbound.GenericConnectionManager;
 import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
-import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
-import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoTransactions;
-import org.apache.geronimo.connector.outbound.connectionmanagerconfig.LocalTransactions;
-import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionLog;
-import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransactions;
-import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PartitionedPool;
-import org.apache.geronimo.connector.outbound.connectionmanagerconfig.SinglePool;
-import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
-import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoPool;
 import org.apache.geronimo.connector.outbound.security.PasswordCredentialRealm;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
@@ -65,7 +55,6 @@ import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
 import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorType;
 import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
@@ -75,6 +64,7 @@ import org.apache.geronimo.xbeans.j2ee.ConfigPropertyType;
 import org.apache.geronimo.xbeans.j2ee.ConnectionDefinitionType;
 import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.ConnectorType;
+import org.apache.geronimo.xbeans.j2ee.FullyQualifiedClassType;
 import org.apache.geronimo.xbeans.j2ee.ResourceadapterType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -83,7 +73,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.11 $ $Date: 2004/05/06 03:58:22 $
+ * @version $Revision: 1.12 $ $Date: 2004/05/29 05:13:52 $
  *
  * */
 public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
@@ -117,31 +107,32 @@ public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
         ResourceadapterType resourceadapter = connector.getResourceadapter();
         GerResourceadapterType geronimoResourceAdapter = geronimoConnector.getResourceadapter();
         //ResourceAdapter setup
-        String resourceAdapterClassName = resourceadapter.getResourceadapterClass().getStringValue();
-        if (resourceAdapterClassName == null) {
-            throw new DeploymentException("No resource adapter class provided for J2ee Connector Architecture 1.5 adapter");
-        }
+        FullyQualifiedClassType resourceadapterClass = resourceadapter.getResourceadapterClass();
         ObjectName resourceAdapterObjectName = null;
-        GBeanInfoFactory resourceAdapterInfoFactory = new GBeanInfoFactory(ResourceAdapterWrapper.class.getName(), ResourceAdapterWrapper.getGBeanInfo());
-        GBeanMBean resourceAdapterGBean = setUpDynamicGBean(resourceAdapterInfoFactory, resourceadapter.getConfigPropertyArray(), geronimoResourceAdapter.getResourceadapterInstance().getConfigPropertySettingArray());
-        try {
-            resourceAdapterGBean.setAttribute("ResourceAdapterClass", cl.loadClass(resourceAdapterClassName));
-        } catch (Exception e) {
-            throw new DeploymentException(e);
+        if (resourceadapterClass != null) {
+            String resourceAdapterClassName = resourceadapterClass.getStringValue();
+            resourceAdapterObjectName = null;
+            GBeanInfoFactory resourceAdapterInfoFactory = new GBeanInfoFactory(ResourceAdapterWrapper.class.getName(), ResourceAdapterWrapper.getGBeanInfo());
+            GBeanMBean resourceAdapterGBean = setUpDynamicGBean(resourceAdapterInfoFactory, resourceadapter.getConfigPropertyArray(), geronimoResourceAdapter.getResourceadapterInstance().getConfigPropertySettingArray());
+            try {
+                resourceAdapterGBean.setAttribute("ResourceAdapterClass", cl.loadClass(resourceAdapterClassName));
+            } catch (Exception e) {
+                throw new DeploymentException(e);
+            }
+            ObjectName bootstrapContextObjectName = null;
+            try {
+                bootstrapContextObjectName = ObjectName.getInstance(geronimoResourceAdapter.getResourceadapterInstance().getBootstrapcontextName().getStringValue());
+            } catch (MalformedObjectNameException e) {
+                throw new DeploymentException("Could not create object name for bootstrap context", e);
+            }
+            resourceAdapterGBean.setReferencePatterns("BootstrapContext", Collections.singleton(bootstrapContextObjectName));
+            try {
+                resourceAdapterObjectName = ObjectName.getInstance(BASE_RESOURCE_ADAPTER_NAME + geronimoResourceAdapter.getResourceadapterInstance().getResourceadapterName() + ",configID=" + context.getConfigID());
+            } catch (MalformedObjectNameException e) {
+                throw new DeploymentException("Could not construct resource adapter object name", e);
+            }
+            context.addGBean(resourceAdapterObjectName, resourceAdapterGBean);
         }
-        ObjectName bootstrapContextObjectName = null;
-        try {
-            bootstrapContextObjectName = ObjectName.getInstance(geronimoResourceAdapter.getResourceadapterInstance().getBootstrapcontextName().getStringValue());
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Could not create object name for bootstrap context", e);
-        }
-        resourceAdapterGBean.setReferencePatterns("BootstrapContext", Collections.singleton(bootstrapContextObjectName));
-        try {
-            resourceAdapterObjectName = ObjectName.getInstance(BASE_RESOURCE_ADAPTER_NAME + geronimoResourceAdapter.getResourceadapterInstance().getResourceadapterName() + ",configID=" + context.getConfigID());
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Could not construct resource adapter object name", e);
-        }
-        context.addGBean(resourceAdapterObjectName, resourceAdapterGBean);
 
         Map connectionDefinitions = new HashMap();
         for (int j = 0; j < resourceadapter.getOutboundResourceadapter().getConnectionDefinitionArray().length; j++) {
@@ -180,7 +171,7 @@ public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
                     managedConnectionFactoryGBean.setAttribute("ConnectionInterface", cl.loadClass(connectionDefinition.getConnectionInterface().getStringValue()));
                     managedConnectionFactoryGBean.setAttribute("ConnectionImplClass", cl.loadClass(connectionDefinition.getConnectionImplClass().getStringValue()));
                     managedConnectionFactoryGBean.setAttribute("GlobalJNDIName", connectionfactoryInstance.getGlobalJndiName());
-                    if (resourceAdapterClassName != null) {
+                    if (resourceAdapterObjectName != null) {
                         managedConnectionFactoryGBean.setReferencePatterns("ResourceAdapterWrapper", Collections.singleton(resourceAdapterObjectName));
                     }
                     managedConnectionFactoryGBean.setReferencePatterns("ConnectionManagerFactory", Collections.singleton(connectionManagerObjectName));
