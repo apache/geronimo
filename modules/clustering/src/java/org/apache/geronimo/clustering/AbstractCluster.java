@@ -55,21 +55,18 @@
  */
 package org.apache.geronimo.clustering;
 
-import javax.management.MBeanRegistration;
-import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.core.service.AbstractManagedComponent;
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
-import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
-
-import org.apache.geronimo.core.service.AbstractManagedContainer;
-import org.apache.geronimo.core.service.ManagedContainer;
 import org.apache.geronimo.core.service.ManagedComponent;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/12/28 16:10:18 $
+ * AbstractCluster abstracts code common to different 'Cluster' impls
+ * into the same abstract base.
+ *
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/12/28 19:12:51 $
  * @jmx:mbean extends="org.apache.geronimo.clustering.Cluster, org.apache.geronimo.kernel.management.StateManageable"
  */
 public abstract class

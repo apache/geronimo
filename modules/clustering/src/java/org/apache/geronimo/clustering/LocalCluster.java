@@ -55,21 +55,16 @@
  */
 package org.apache.geronimo.clustering;
 
-import javax.management.MBeanRegistration;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.core.service.AbstractManagedComponent;
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
-import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
-
-import org.apache.geronimo.core.service.AbstractManagedContainer;
-import org.apache.geronimo.core.service.ManagedContainer;
 
 /**
+ * An initial Cluster impl, which only clusters within a single
+ * VM. Thus development on Clustering can start before an inter-vm
+ * transport layer has been put in place...
+ *
  * @jmx:mbean extends="org.apache.geronimo.clustering.AbstractClusterMBean"
- * @version $Revision: 1.1 $ $Date: 2003/12/28 16:10:18 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/28 19:12:51 $
  */
 public class
   LocalCluster
@@ -80,7 +75,6 @@ public class
 
   public boolean canStart() {return true;}
   public boolean canStop()  {return true;}
-  public void setMBeanContext(GeronimoMBeanContext context) {}
 
   public void
     doStart()
