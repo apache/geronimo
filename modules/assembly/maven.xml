@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Revision: 1.24 $ $Date: 2004/08/19 00:22:23 $ -->
+<!-- $Revision: 1.25 $ $Date: 2004/08/25 11:17:59 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -90,8 +90,35 @@
             <ant:fileset dir="${project.root}/modules/deployment">
                 <ant:include name="src/schema/*.xsd"/>
             </ant:fileset>
+            <ant:fileset dir="${project.root}/modules/j2ee">
+                <ant:include name="src/schema/*.xsd"/>
+            </ant:fileset>
+            <ant:fileset dir="${project.root}/modules/jetty">
+                <ant:include name="src/schema/*.xsd"/>
+            </ant:fileset>
+            <ant:fileset dir="${project.root}/modules/connector">
+                <ant:include name="src/schema/*.xsd"/>
+            </ant:fileset>
+            <ant:fileset dir="${project.root}/modules/naming">
+                <ant:include name="src/schema/*.xsd"/>
+            </ant:fileset>
+            <ant:fileset dir="${project.root}/modules/security">
+                <ant:include name="src/schema/*.xsd"/>
+            </ant:fileset>
             <ant:fileset dir="src/etc"/>
         </ant:copy>
+        <ant:fileScanner var="schemaScanner">
+            <ant:fileset dir="${distDir}/schema">
+                <ant:include name="geronimo-application.xsd"/>
+                <ant:include name="geronimo-jetty.xsd"/>
+                <ant:include name="geronimo-connector_1_5.xsd"/>
+            </ant:fileset>
+        </ant:fileScanner>
+        <j:forEach var="schema" items="${schemaScanner.iterator()}">
+            <ant:replace file="${schema}" token="../../../naming/src/schema/" value=""/>
+            <ant:replace file="${schema}" token="../../../deployment/src/schema/" value=""/>
+            <ant:replace file="${schema}" token="../../../security/src/schema/" value=""/>
+        </j:forEach>
 
         <!-- copy in data files -->
         <ant:copy todir="${distDir}/var">
