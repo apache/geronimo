@@ -63,10 +63,28 @@ public class ConnectionInfo {
 
     /**
      * Set the Connection value.
-     * @param newConnection The new Connection value.
+     * @param connection The new Connection value.
      */
     public void setConnectionHandle(Object connection) {
+        assert this.connection == null;
         this.connection = connection;
+    }
+
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof ConnectionInfo) {
+            ConnectionInfo other = (ConnectionInfo) obj;
+            return (connection == other.connection)
+                    && (mci == other.mci);
+        }
+        return false;
+    }
+
+    public int hashCode() {
+        return ((connection != null) ? connection.hashCode() : 7) ^
+                ((mci != null) ? mci.hashCode() : 7);
     }
 
 } // ConnectionInfo

@@ -39,7 +39,7 @@ import org.apache.geronimo.security.bridge.RealmBridge;
  * a connection the CachedConnectionManager is notified.
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/04/06 00:21:21 $
+ * @version $Revision: 1.7 $ $Date: 2004/04/07 22:37:10 $
  */
 public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
 
@@ -109,7 +109,7 @@ public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
             throw new ResourceException("Can not obtain Subject for login", e);
         }
         //TODO figure out which is right here
-        assert currentSubject != null;
+        //assert currentSubject != null;
         if (currentSubject == null) {
             //check to see if mci.getSubject() is null?
             return;
@@ -132,10 +132,13 @@ public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
             ManagedConnection managedConnection = managedConnectionInfo.getManagedConnection();
             if (managedConnection instanceof DissociatableManagedConnection
                     && managedConnectionInfo.isFirstConnectionInfo(connectionInfo)) {
+                int size = connectionInfos.size();
                 i.remove();
+                assert size - 1 == connectionInfos.size();
                 ((DissociatableManagedConnection) managedConnection).dissociateConnections();
                 managedConnectionInfo.clearConnectionHandles();
                 returnConnection(connectionInfo, ConnectionReturnAction.RETURN_HANDLE);
+                assert size - 1 == connectionInfos.size();
             }
         }
     }

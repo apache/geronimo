@@ -34,6 +34,7 @@ import org.apache.geronimo.connector.outbound.connectiontracking.DefaultComponen
 import org.apache.geronimo.connector.outbound.connectiontracking.DefaultInterceptor;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.bridge.RealmBridge;
+import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.TransactionContext;
@@ -46,7 +47,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/04/06 00:21:21 $
+ * @version $Revision: 1.8 $ $Date: 2004/04/07 22:37:10 $
  *
  * */
 public class ConnectionManagerTest extends TestCase implements DefaultInterceptor, RealmBridge {
@@ -62,7 +63,6 @@ public class ConnectionManagerTest extends TestCase implements DefaultIntercepto
     //dependencies
     protected RealmBridge realmBridge = this;
     protected ConnectionTrackingCoordinator connectionTrackingCoordinator;
-    protected Kernel kernel;
 
     protected TransactionManager transactionManager;
     protected ConnectionManagerDeployment connectionManagerDeployment;
@@ -78,11 +78,10 @@ public class ConnectionManagerTest extends TestCase implements DefaultIntercepto
 
     protected void setUp() throws Exception {
         connectionTrackingCoordinator = new ConnectionTrackingCoordinator();
-        kernel = new Kernel("test.kernel", "testdomain");
-        kernel.boot();
         transactionManager = new TransactionManagerImpl();
         mockManagedConnectionFactory = new MockManagedConnectionFactory();
         subject = new Subject();
+        ContextManager.setCurrentCaller(subject);
         connectionManagerDeployment = new ConnectionManagerDeployment(useConnectionRequestInfo,
                 useSubject,
                 useTransactionCaching,
@@ -101,8 +100,6 @@ public class ConnectionManagerTest extends TestCase implements DefaultIntercepto
 
     protected void tearDown() throws Exception {
         connectionTrackingCoordinator = null;
-        kernel.shutdown();
-        kernel = null;
         transactionManager = null;
         mockManagedConnectionFactory = null;
         connectionManagerDeployment = null;

@@ -24,7 +24,7 @@ import javax.resource.spi.ManagedConnection;
  * MCFConnectionInterceptor.java
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:32 $
+ * @version $Revision: 1.4 $ $Date: 2004/04/07 22:37:10 $
  */
 public class MCFConnectionInterceptor implements ConnectionInterceptor {
 
@@ -43,6 +43,7 @@ public class MCFConnectionInterceptor implements ConnectionInterceptor {
         mci.setManagedConnection(mc);
         GeronimoConnectionEventListener listener = new GeronimoConnectionEventListener(head.getStack(), mci);
         mci.setConnectionEventListener(listener);
+        mc.addConnectionEventListener(listener);
     }
 
     public void returnConnection(

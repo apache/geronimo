@@ -39,7 +39,7 @@ import EDU.oswego.cs.dl.util.concurrent.FIFOSemaphore;
  */
 public class SinglePoolConnectionInterceptor implements ConnectionInterceptor {
 
-    private static Log log = LogFactory.getLog(GeronimoConnectionEventListener.class.getName());
+    private static Log log = LogFactory.getLog(SinglePoolConnectionInterceptor.class.getName());
 
 
     private final ConnectionInterceptor next;
@@ -84,7 +84,7 @@ public class SinglePoolConnectionInterceptor implements ConnectionInterceptor {
                         }
                         return;
                     } else {
-                        newMCI = (ManagedConnectionInfo) pool.removeFirst();
+                        newMCI = pool.removeLast();
                     } // end of else
                     try {
                         ManagedConnection matchedMC =
@@ -164,7 +164,7 @@ public class SinglePoolConnectionInterceptor implements ConnectionInterceptor {
         } else {
             synchronized (pool) {
                 mci.setLastUsed(System.currentTimeMillis());
-                pool.addFirst(mci);
+                pool.addLast(mci);
             }
 
         } // end of else
@@ -188,20 +188,6 @@ public class SinglePoolConnectionInterceptor implements ConnectionInterceptor {
             return first > last;
         }
 
-        public ManagedConnectionInfo removeFirst() {
-            if (isEmpty()) {
-                throw new IllegalStateException("deque is empty");
-            }
-            return deque[first++];
-        }
-
-        public void addFirst(ManagedConnectionInfo mci) {
-            if (first == 0) {
-                throw new IllegalStateException("deque is at first element already");
-            }
-
-            deque[--first] = mci;
-        }
 
         public void addLast(ManagedConnectionInfo mci) {
             if (last == deque.length - 1) {

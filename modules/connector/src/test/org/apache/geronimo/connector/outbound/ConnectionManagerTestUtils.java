@@ -37,7 +37,7 @@ import org.apache.geronimo.security.bridge.RealmBridge;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/04/06 00:21:21 $
+ * @version $Revision: 1.5 $ $Date: 2004/04/07 22:37:10 $
  *
  * */
 public class ConnectionManagerTestUtils extends TestCase implements RealmBridge, ConnectionInterceptor {
@@ -67,7 +67,9 @@ public class ConnectionManagerTestUtils extends TestCase implements RealmBridge,
     //ConnectorInterceptor implementation
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
         ManagedConnectionInfo managedConnectionInfo = connectionInfo.getManagedConnectionInfo();
-        managedConnectionInfo.setManagedConnection(managedConnection);
+        if (managedConnectionInfo.getManagedConnection() == null) {
+            managedConnectionInfo.setManagedConnection(managedConnection);
+        }
         obtainedConnectionInfo = connectionInfo;
     }
 

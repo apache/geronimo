@@ -44,22 +44,6 @@ public class PoolDequeTest extends TestCase {
         }
     }
 
-    public void testFillAndEmptyFirst() throws Exception {
-        SinglePoolConnectionInterceptor.PoolDeque pool = new SinglePoolConnectionInterceptor.PoolDeque(MAX_SIZE);
-        for (int i = 0; i < MAX_SIZE; i++) {
-            pool.addLast(new ManagedConnectionInfo(null, null));
-        }
-        ManagedConnectionInfo[] mcis = new ManagedConnectionInfo[MAX_SIZE];
-        for (int i = 0; i < MAX_SIZE; i++) {
-            mcis[i] = pool.removeFirst();
-        }
-        assertTrue("Expected pool to be empty!", pool.isEmpty());
-
-        for (int i = 0; i < MAX_SIZE; i++) {
-            pool.addFirst(mcis[i]);
-        }
-
-    }
 
     public void testFillAndEmptyLast() throws Exception {
         SinglePoolConnectionInterceptor.PoolDeque pool = new SinglePoolConnectionInterceptor.PoolDeque(MAX_SIZE);

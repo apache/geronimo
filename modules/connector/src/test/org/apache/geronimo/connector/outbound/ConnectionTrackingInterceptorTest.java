@@ -29,7 +29,7 @@ import org.apache.geronimo.transaction.TransactionContext;
  * TODO test unshareable resources.
  * TODO test repeat calls with null/non-null Subject
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:34 $
+ * @version $Revision: 1.5 $ $Date: 2004/04/07 22:37:10 $
  *
  * */
 public class ConnectionTrackingInterceptorTest extends ConnectionManagerTestUtils
@@ -127,9 +127,10 @@ public class ConnectionTrackingInterceptorTest extends ConnectionManagerTestUtil
     public void testExitWithDissociatableConnection() throws Exception {
         managedConnection = new TestDissociatableManagedConnection();
         testEnterWithSameSubject();
+        assertEquals("Expected one info in connectionInfos", 1, connectionInfos.size());
         connectionTrackingInterceptor.exit(connectionInfos, unshareable);
         assertTrue("Expected connection returned", returnedConnectionInfo != null);
-        assertEquals("Expected no infos in connectionInfos", connectionInfos.size(), 0);
+        assertEquals("Expected no infos in connectionInfos", 0, connectionInfos.size());
     }
 
     //ConnectionTracker interface
@@ -157,8 +158,12 @@ public class ConnectionTrackingInterceptorTest extends ConnectionManagerTestUtil
         ManagedConnectionInfo managedConnectionInfo = connectionInfo.getManagedConnectionInfo();
         managedConnectionInfo.setConnectionEventListener(new GeronimoConnectionEventListener(null, managedConnectionInfo));
         managedConnectionInfo.setSubject(subject);
-        managedConnectionInfo.setManagedConnection(managedConnection);
-        connectionInfo.setConnectionHandle(new Object());
+        if (managedConnectionInfo.getManagedConnection() == null) {
+            managedConnectionInfo.setManagedConnection(managedConnection);
+        }
+        if (connectionInfo.getConnectionHandle() == null) {
+            connectionInfo.setConnectionHandle(new Object());
+        }
         managedConnectionInfo.addConnectionHandle(connectionInfo);
     }
 

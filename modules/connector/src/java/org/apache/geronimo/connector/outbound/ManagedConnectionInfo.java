@@ -79,6 +79,7 @@ public class ManagedConnectionInfo {
     }
 
     public void setManagedConnection(ManagedConnection managedConnection) {
+        assert this.managedConnection == null;
         this.managedConnection = managedConnection;
     }
 
