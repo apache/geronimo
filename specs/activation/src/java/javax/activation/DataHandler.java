@@ -63,6 +63,7 @@
 package javax.activation;
 
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,10 +71,10 @@ import java.io.OutputStream;
 import java.net.URL;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/16 18:07:45 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/18 16:57:16 $
  * @deprecated Don't use this for real work; just as a place-holder to compile
  */
-public class DataHandler {
+public class DataHandler implements Transferable {
     private DataSource _ds;
 
     public DataHandler(DataSource ds) {
