@@ -57,27 +57,34 @@
 package org.apache.geronimo.tools.xmlbeans;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.apache.xmlbeans.impl.tool.SchemaCompiler;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.apache.xml.resolver.CatalogManager;
+import org.apache.xml.resolver.tools.CatalogResolver;
+
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/02 22:04:21 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/10 23:06:31 $
  *
  * */
 public class SchemaCompilerWrapper {
 
-    public static void CompileSchemas(String sourceSchemas, String xmlConfigs, String targetDir) throws Exception {
+    public static void CompileSchemas(String sourceDir, String sourceSchemas, String xmlConfigs, String targetDir, String catalogLocation) throws Exception {
         List schemas = new ArrayList();
+        File base = new File(sourceDir);
         for (StringTokenizer st = new StringTokenizer(sourceSchemas, ","); st.hasMoreTokens();) {
             String schemaName = st.nextToken();
-            schemas.add(new File(schemaName));
+            schemas.add(new File(base, schemaName));
         }
         List configs = new ArrayList();
 
@@ -86,6 +93,12 @@ public class SchemaCompilerWrapper {
                 String configName = st.nextToken();
                 configs.add(new File(configName));
             }
+        }
+        EntityResolver entityResolver = null;
+        if (catalogLocation != null) {
+            CatalogManager catalogManager = CatalogManager.getStaticManager();
+            catalogManager.setCatalogFiles(catalogLocation);
+            entityResolver = new PassThroughResolver(new CatalogResolver());
         }
         SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
         params.setBaseDir(null);
@@ -114,6 +127,7 @@ public class SchemaCompilerWrapper {
         params.setExtensions(null);
         params.setJaxb(false);
         params.setMdefNamespaces(null);
+        params.setEntityResolver(entityResolver);
 
         boolean result = SchemaCompiler.compile(params);
         if (!result) {
@@ -127,4 +141,23 @@ public class SchemaCompilerWrapper {
 
     }
 
+    private static class PassThroughResolver implements EntityResolver {
+
+        private final EntityResolver delegate;
+
+        public PassThroughResolver(EntityResolver delegate) {
+            this.delegate = delegate;
+        }
+        public InputSource resolveEntity(String publicId,
+                                         String systemId)
+                throws SAXException, IOException {
+            InputSource is = delegate.resolveEntity(publicId, systemId);
+            if (is != null) {
+                return is;
+            }
+            System.out.println("Could not resolve publicId: " + publicId + ", systemId: " + systemId + " from catalog");
+            return new InputSource(systemId);
+        }
+
+    }
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.3 $ $Date: 2004/02/06 05:28:46 $ -->
+<!-- $Revision: 1.4 $ $Date: 2004/02/10 23:06:31 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -10,9 +10,11 @@
 
     <preGoal name="java:compile">
         <xmlbeans:schema2java
-            sourceschema="${basedir}/src/j2ee_1_3schema/connector_1_0.xsd,${basedir}/src/j2ee_1_4schema/j2ee_1_4.xsd,${basedir}/src/j2ee_1_4schema/connector_1_5.xsd,${basedir}/src/j2ee_1_4schema/ejb-jar_2_1.xsd"
+            sourcedir="${basedir}/src"
+            sourceschema="j2ee_1_3schema/connector_1_0.xsd,j2ee_1_4schema/j2ee_1_4.xsd,j2ee_1_4schema/connector_1_5.xsd,j2ee_1_4schema/ejb-jar_2_1.xsd"
             xmlconfigs="${basedir}/src/conf/xmlconfig.xml"
-            targetdir="${basedir}/target/xmlbeans"/>
+            targetdir="${basedir}/target/xmlbeans"
+            cataloglocation="${basedir}/src/catalog/resolver-catalog.xml"/>
     </preGoal>
 
 </project>

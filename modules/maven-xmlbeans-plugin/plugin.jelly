@@ -19,6 +19,9 @@
             <j:if test="${targetdir == null}">
                 <fail>Missing required attribute: targetdir</fail>
             </j:if>
+            <j:if test="${sourcedir == null}">
+                <fail>Missing required attribute: sourcedir</fail>
+            </j:if>
             <j:if test="${sourceschema == null}">
                 <fail>Missing required attribute: sourceschema</fail>
             </j:if>
@@ -33,14 +36,17 @@
 
                 <uptodate property="${uptodatePropName}"
                     targetfile="${uptodateFile}">
-                    <srcfiles dir="${targetdir}" includes="**/*.xsd*"/>
+                    <srcfiles dir="${sourcedir}"
+                        includes="${sourceschema}"/>
                 </uptodate>
 
                 <j:if test="${context.getVariable(uptodatePropName) == null}">
                     <j:invokeStatic var="dummy" className="org.apache.geronimo.tools.xmlbeans.SchemaCompilerWrapper" method="CompileSchemas">
+                        <j:arg type="java.lang.String" value="${sourcedir}"/>
                         <j:arg type="java.lang.String" value="${sourceschema}"/>
                         <j:arg type="java.lang.String" value="${xmlconfigs}"/>
                         <j:arg type="java.lang.String" value="${targetdir}"/>
+                        <j:arg type="java.lang.String" value="${cataloglocation}"/>
                     </j:invokeStatic>
 
                     <touch file="${uptodateFile}"/>
