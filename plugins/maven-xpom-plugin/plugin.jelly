@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+
+<!-- ================================================================== -->
+<!-- Geronimo deployment plugin                                         -->
+<!-- ================================================================== -->
+<project xmlns:j="jelly:core"
+    xmlns:u="jelly:util"
+    xmlns:ant="jelly:ant"
+    xmlns:maven="jelly:maven"
+    xmlns:define="jelly:define"
+    xmlns:xpom="geronimo:xpom"
+    xmlns:artifact="artifact"
+    xmlns:p="jelly:org.apache.geronimo.maven.xpom.XPomTagLibrary"
+    >
+
+    <define:taglib uri="geronimo:xpom">
+        <define:tag name="dependency">
+            <p:dependency
+                id="${id}"
+                groupId="${groupId}"
+                artifactId="${artifactId}"
+                version="${version}"
+                type="${type}"
+                jar="${jar}"
+                property="${property}"
+                properties="${properties}"
+                />
+        </define:tag>
+
+    </define:taglib>
+
+</project>
