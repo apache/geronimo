@@ -103,7 +103,7 @@ import org.w3c.dom.NodeList;
  *
  * @jmx:mbean extends="org.apache.geronimo.kernel.deployment.DeploymentPlanner"
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:34 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/05 01:37:00 $
  */
 public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, MBeanRegistration {
     private MBeanServer server;
@@ -257,7 +257,21 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
     }
 
     private boolean removeURL(UndeployURL goal, Set goals, Set plans) throws DeploymentException {
+       
         URL url = goal.getUrl();
+       
+        //TODO: better method of determining whether this deployer should
+        //handle this undeploy call. This deployer should only handle the undeploy
+        //if it is something that it would have deployed (ie a service). More context
+        //information needs to be available to make this decision. For now, just handle
+        //the case of the unpacked service, just to prevent this deployer from undeploying everything.
+        
+        if (!url.getPath().endsWith("-service.xml")) { 
+            return false;
+        }
+     
+
+        
         ObjectName deploymentName = null;
         try {
             deploymentName = new ObjectName("geronimo.deployment:role=DeploymentUnit,type=Service,url=" + ObjectName.quote(url.toString()));
@@ -288,12 +302,14 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
         for (Iterator i = mbeans.iterator(); i.hasNext();) {
             ObjectName name = (ObjectName) i.next();
             destroyPlan.addTask(new DestroyMBeanInstance(server, name));
+        
         }
 
         destroyPlan.addTask(new DestroyMBeanInstance(server, deploymentName));
         plans.add(destroyPlan);
 
         goals.remove(goal);
+        
         return true;
     }
 
