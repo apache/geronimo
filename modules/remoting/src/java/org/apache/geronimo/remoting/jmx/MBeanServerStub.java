@@ -71,7 +71,7 @@ import org.apache.geronimo.remoting.router.JMXTarget;
 import org.apache.geronimo.remoting.router.AbstractInterceptorRouter;
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/01/22 06:39:23 $
+ * @version $Revision: 1.8 $ $Date: 2004/01/28 05:45:23 $
  */
 public class MBeanServerStub implements GBean, JMXTarget {
     private ProxyContainer serverContainer;
@@ -90,7 +90,7 @@ public class MBeanServerStub implements GBean, JMXTarget {
     public void doStart() {
         // Setup the server side contianer..
         Interceptor firstInterceptor = new ReflexiveInterceptor(context.getServer());
-        firstInterceptor = new DeMarshalingInterceptor(firstInterceptor, getClass().getClassLoader());
+        demarshaller = new DeMarshalingInterceptor(firstInterceptor, getClass().getClassLoader());
         serverContainer = new ProxyContainer(firstInterceptor);
     }
 
