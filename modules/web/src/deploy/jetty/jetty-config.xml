@@ -71,7 +71,9 @@
     <!-- =============================================================== -->
     <Set name="RequestLog">
         <New class="org.mortbay.http.NCSARequestLog">
-            <Arg><SystemProperty name="jetty.home.dir"/>/yyyy_mm_dd.request.log</Arg>
+            <Arg>
+                <SystemProperty name="jetty.home.dir"/>/yyyy_mm_dd.request.log
+            </Arg>
             <Set name="retainDays">90</Set>
             <Set name="append">true</Set>
             <Set name="extended">true</Set>
@@ -83,23 +85,16 @@
     <Call name="addWebApplication">
         <Arg></Arg>
         <Arg>console</Arg>
-        <Arg><SystemProperty name="jetty.home.dir"/>/geronimo-web-console.war</Arg>
+        <Arg>
+            <SystemProperty name="jetty.home.dir"/>/geronimo-web-console.war
+        </Arg>
         <Call name="setDefaultsDescriptor">
-          <Arg><SystemProperty name="jetty.home.dir"/>/webdefault.xml</Arg>
+            <Arg>
+                <SystemProperty name="jetty.home.dir"/>/webdefault.xml
+            </Arg>
         </Call>
         <Call name="setExtractWAR">
-          <Arg type="boolean">true</Arg>
-        </Call>
-    </Call>
-    <Call name="addWebApplication">
-        <Arg></Arg>
-        <Arg>elba</Arg>
-        <Arg><SystemProperty name="jetty.home.dir"/>/elba-web-console.war</Arg>
-        <Call name="setDefaultsDescriptor">
-          <Arg><SystemProperty name="jetty.home.dir"/>/webdefault.xml</Arg>
-        </Call>
-        <Call name="setExtractWAR">
-          <Arg type="boolean">true</Arg>
+            <Arg type="boolean">true</Arg>
         </Call>
     </Call>
 </Configure>
