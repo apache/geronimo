@@ -47,7 +47,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:33 $
+ * @version $Revision: 1.6 $ $Date: 2004/03/10 19:21:17 $
  *
  * */
 public class RAR_1_5ConfigBuilderTest extends TestCase {
@@ -100,7 +100,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
         } finally {
             kernel.shutdown();
         }
-        assertEquals(9, gbeans.size());
+        assertEquals(10, gbeans.size());
         //we could check what the gbeans are...
     }
 

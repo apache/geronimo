@@ -29,7 +29,7 @@ import org.apache.regexp.RE;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:26 $
+ * @version $Revision: 1.5 $ $Date: 2004/03/10 19:21:17 $
  */
 public abstract class AbstractSecurityRealm implements SecurityRealm, GBean {
 
@@ -86,7 +86,7 @@ public abstract class AbstractSecurityRealm implements SecurityRealm, GBean {
         infoFactory.addOperation(new GOperationInfo("getUserPrincipals", new String[]{RE.class.getName()}));
         infoFactory.addOperation(new GOperationInfo("refresh"));
         infoFactory.addOperation(new GOperationInfo("getAppConfigurationEntry"));
-        infoFactory.setConstructor(new GConstructorInfo(new String[]{"realmName"}, new Class[]{String.class}));
+        infoFactory.setConstructor(new GConstructorInfo(new String[]{"RealmName"}, new Class[]{String.class}));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

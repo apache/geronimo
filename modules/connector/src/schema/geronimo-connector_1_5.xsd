@@ -228,6 +228,9 @@
             <xsd:element name="global-jndi-name"
                 type="xsd:string"
                 minOccurs="0"/>
+            <xsd:element name="credential-interface"
+                type="ger:credential-interfaceType"
+                minOccurs="0"/>
 
         </xsd:sequence>
     </xsd:complexType>
@@ -284,11 +287,11 @@
     </xsd:complexType>
 
     <xsd:simpleType name="versionType">
-      <xsd:restriction base="xsd:string">
-        <xsd:whiteSpace value="collapse"/>
-          <xsd:enumeration value="1.0"/>
-          <xsd:enumeration value="1.5"/>
-      </xsd:restriction>
+        <xsd:restriction base="xsd:string">
+            <xsd:whiteSpace value="collapse"/>
+            <xsd:enumeration value="1.0"/>
+            <xsd:enumeration value="1.5"/>
+        </xsd:restriction>
     </xsd:simpleType>
     <!-- **************************************************** -->
 

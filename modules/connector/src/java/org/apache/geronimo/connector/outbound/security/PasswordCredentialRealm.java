@@ -33,7 +33,7 @@ import org.apache.regexp.RE;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:33 $
+ * @version $Revision: 1.6 $ $Date: 2004/03/10 19:21:17 $
  *
  * */
 public class PasswordCredentialRealm extends AbstractSecurityRealm implements SecurityRealm, ManagedConnectionFactoryListener {
@@ -43,6 +43,10 @@ public class PasswordCredentialRealm extends AbstractSecurityRealm implements Se
     ManagedConnectionFactory managedConnectionFactory;
 
     static final String REALM_INSTANCE = "org.apache.connector.outbound.security.PasswordCredentialRealm";
+
+    public PasswordCredentialRealm(String realmName) {
+        super(realmName);
+    }
 
     public Set getGroupPrincipals() throws GeronimoSecurityException {
         return null;
@@ -89,6 +93,7 @@ public class PasswordCredentialRealm extends AbstractSecurityRealm implements Se
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(PasswordCredentialRealm.class.getName(), AbstractSecurityRealm.getGBeanInfo());
+        infoFactory.addInterface(ManagedConnectionFactoryListener.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

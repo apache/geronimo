@@ -41,6 +41,7 @@
                         <useSubject>true</useSubject>
                     </connectionmanager>
                     <global-jndi-name>connectionfactories/testcf</global-jndi-name>
+                    <credential-interface>javax.resource.spi.security.PasswordCredential</credential-interface>
                 </connectiondefinition-instance>
                 <connectiondefinition-instance>
                     <name>SecondTestOutboundConnectionFactory</name>
