@@ -56,11 +56,12 @@
 package org.apache.geronimo.web;
 
 import org.apache.geronimo.common.AbstractContainer;
+import org.apache.geronimo.common.Component;
 
 /**
  * Base class for web containers.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/18 13:30:41 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/21 15:02:45 $
  */
 public class AbstractWebContainer extends AbstractContainer implements WebContainer {
     /**
@@ -94,4 +95,67 @@ public class AbstractWebContainer extends AbstractContainer implements WebContai
     public void setDefaultWebXmlURL(String url) {
         defaultWebXmlURL = url;
     }
+    
+    /* (non-Javadoc)
+     * @see org.apache.geronimo.common.Container#addComponent(org.apache.geronimo.common.Component)
+     */
+    public void addComponent(Component component)
+    {
+        super.addComponent(component);
+        
+        if (component instanceof WebConnector)
+            webConnectorAdded((WebConnector)component);
+        else if (component instanceof WebApplication)
+            webApplicationAdded((WebApplication)component);
+    }
+
+    /* (non-Javadoc)
+     * @see org.apache.geronimo.common.Container#removeComponent(org.apache.geronimo.common.Component)
+     */
+    public void removeComponent(Component component) throws Exception
+    {
+        if (component instanceof WebConnector)
+            webConnectorRemoval((WebConnector)component);
+        else if (component instanceof WebApplication)
+            webApplicationRemoval((WebApplication)component);
+            
+        super.removeComponent(component);
+    }
+    
+    /**
+     * Method called by addComponent after a WebConnector has been added.
+     * @param connector
+     */
+    protected void webConnectorAdded(WebConnector connector)
+    {
+    }
+
+    
+    /**
+     * Method called by addComponment after a WebApplication has been added.
+     * @param connector
+     */
+    protected void webApplicationAdded(WebApplication connector)
+    {
+    }
+    
+    
+    /**
+     * Method called by addComponent before a WebConnector has been removed.
+     * @param connector
+     */
+    protected void webConnectorRemoval(WebConnector connector)
+    {
+    }
+
+    
+    /**
+     * Method called by removeComponment before a WebApplication has been removed.
+     * @param connector
+     */
+    protected void webApplicationRemoval(WebApplication connector)
+    {
+    }
+    
+
 }
