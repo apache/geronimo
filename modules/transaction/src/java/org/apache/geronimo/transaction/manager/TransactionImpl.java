@@ -42,7 +42,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Basic local transaction with support for multiple resources.
  *
- * @version $Revision: 1.8 $ $Date: 2004/07/22 03:39:01 $
+ * @version $Revision: 1.9 $ $Date: 2004/09/02 00:51:57 $
  */
 public class TransactionImpl implements Transaction {
     private static final Log log = LogFactory.getLog("Transaction");
@@ -213,6 +213,15 @@ public class TransactionImpl implements Transaction {
                 // resourceManagers is now immutable
             }
 
+
+            // no-phase
+            if (resourceManagers.size() == 0) {
+                synchronized (this) {
+                    status = Status.STATUS_COMMITTED;
+                }
+                return;
+            }
+
             // one-phase
             if (resourceManagers.size() == 1) {
                 TransactionBranch manager = (TransactionBranch) resourceManagers.getFirst();
@@ -278,7 +287,6 @@ public class TransactionImpl implements Transaction {
                 if (!rms.isEmpty()) {
                     result = XAResource.XA_OK;
                 }
-
             } else {
                 rollbackResources(rms);
                 throw new RollbackException("Unable to commit");
@@ -325,6 +333,7 @@ public class TransactionImpl implements Transaction {
 
     //helper method used by Transaction.commit and XATerminator prepare.
     private boolean internalPrepare() throws SystemException {
+    	
         for (Iterator rms = resourceManagers.iterator(); rms.hasNext();) {
             synchronized (this) {
                 if (status != Status.STATUS_PREPARING) {
@@ -346,6 +355,7 @@ public class TransactionImpl implements Transaction {
             }
         }
 
+        
         // decision time...
         boolean willCommit;
         synchronized (this) {
@@ -356,7 +366,7 @@ public class TransactionImpl implements Transaction {
         }
 
         // log our decision
-        if (willCommit) {
+        if (willCommit && !resourceManagers.isEmpty()) {
             try {
                 logMark = txnLog.prepare(xid, resourceManagers);
             } catch (LogException e) {
