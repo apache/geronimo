@@ -64,83 +64,76 @@ import java.io.PrintWriter;
 import org.apache.geronimo.common.NullArgumentException;
 
 import org.apache.geronimo.twiddle.config.Configuration;
-import org.apache.geronimo.twiddle.config.ConfigurationReader;
-import org.apache.geronimo.twiddle.config.Properties;
-import org.apache.geronimo.twiddle.config.Property;
-import org.apache.geronimo.twiddle.config.Commands;
-import org.apache.geronimo.twiddle.config.CommandConfig;
+import org.apache.geronimo.twiddle.config.Configurator;
 
 import org.apache.geronimo.twiddle.command.Command;
-import org.apache.geronimo.twiddle.command.CommandInfo;
 import org.apache.geronimo.twiddle.command.CommandContainer;
 import org.apache.geronimo.twiddle.command.CommandExecutor;
-import org.apache.geronimo.twiddle.command.CommandContext;
 import org.apache.geronimo.twiddle.command.CommandException;
-import org.apache.geronimo.twiddle.command.CommandNotFoundException;
 
 /**
- * Twiddle is a command processor.
+ * <em>Twiddle</em> is a command processor.
  *
- * @version <tt>$Revision: 1.2 $ $Date: 2003/08/13 09:12:14 $</tt>
+ * <p><em>Twiddle</em> is a facade over the various components of the 
+ *    command processor, it serves only to facilitate their operation and to
+ *    provide a simple API to execute commands (hence facade).
+ *
+ * @version <tt>$Revision: 1.3 $ $Date: 2003/08/13 10:55:51 $</tt>
  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
  */
 public class Twiddle
 {
+    /** The command container. */
     protected CommandContainer container;
+    
+    /** The command executor. */
     protected CommandExecutor executor;
     
+    /**
+     * Construct a <code>Twiddle</code> command processor.
+     */
     public Twiddle()
     {
         container = new CommandContainer();
         executor = new CommandExecutor(container);
     }
     
+    /**
+     * Get the command container.
+     *
+     * @return The command container.
+     */
+    public CommandContainer getCommandContainer()
+    {
+        return container;
+    }
+    
+    /**
+     * Get the command executor.
+     *
+     * @return The command executor.
+     */
+    public CommandExecutor getCommandExecutor()
+    {
+        return executor;
+    }
+    
+    
+    /////////////////////////////////////////////////////////////////////////
+    //                             Configuration                           //
+    /////////////////////////////////////////////////////////////////////////
+    
+    /**
+     * Configure <em>Twiddle</em> from the given configuration metadata.
+     *
+     * @param config    Configuration metadata.
+     *
+     * @throws CommandException     Failed to configure.
+     */
     public void configure(final Configuration config) throws CommandException
     {
-        if (config == null) {
-            throw new NullArgumentException("config");
-        }
-        
-        // Process properties
-        if (config.getProperties() != null) {
-            Property[] props = config.getProperties().getProperty();
-            for (int i=0; i<props.length; i++) {
-                String name = props[i].getName().trim();
-                String value = props[i].getContent();
-                //
-                // TODO: Handle property value evaluation
-                //
-                System.setProperty(name, value);
-            }
-        }
-        
-        // Process includes
-        try {
-            if (config.getIncludes() != null) {
-                String[] includes = config.getIncludes().getInclude();
-                ConfigurationReader reader = new ConfigurationReader();
-                for (int i=0; i<includes.length; i++) {
-                    URL configURL = new URL(includes[i]);
-                    //
-                    // TODO: Need to properly resolve this URL
-                    //
-                    Configuration iconfig = reader.read(configURL);
-                    this.configure(iconfig);
-                }
-            }
-        }
-        catch (Exception e) {
-            throw new CommandException("Failed to process includes", e);
-        }
-        
-        // Process commands
-        CommandConfig[] commands = config.getCommands().getCommandConfig();
-        if (commands != null) {
-            for (int i=0; i<commands.length; i++) {
-                CommandInfo info = new CommandInfo(commands[i]);
-                container.addCommandInfo(info);
-            }
-        }
+        Configurator c = new Configurator(this);
+        c.configure(config);
     }
     
     
@@ -148,6 +141,16 @@ public class Twiddle
     //                          Command Execution                          //
     /////////////////////////////////////////////////////////////////////////
     
+    /**
+     * Execute a command line.
+     *
+     * <p>The first argument is assumed to be the command name.
+     *
+     * @param args  The command line.
+     * @return      The command status code.
+     *
+     * @throws Exception    An unhandled command failure has occured.
+     */
     public int execute(final String[] args) throws Exception
     {
         return executor.execute(args);

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: twiddle-configuration-binding.xml,v 1.1 2003/08/12 18:18:45 jdillon Exp $ -->
+<!-- $Id: twiddle-configuration-binding.xml,v 1.2 2003/08/13 10:55:51 jdillon Exp $ -->
 
 <binding xmlns="http://www.castor.org/SourceGenerator/Binding"
          defaultBindingType="element">
@@ -32,8 +32,24 @@
   
   <!-- Custom element binding -->
   
+  <elementBinding name="properties">
+    <java-class name="PropertiesConfig"/>
+  </elementBinding>
+  
+  <elementBinding name="property">
+    <java-class name="PropertyConfig"/>
+  </elementBinding>
+  
+  <elementBinding name="includes">
+    <java-class name="IncludesConfig"/>
+  </elementBinding>
+  
   <elementBinding name="environment">
     <java-class name="EnvironmentConfig"/>
+  </elementBinding>
+  
+  <elementBinding name="commands">
+    <java-class name="CommandsConfig"/>
   </elementBinding>
   
   <elementBinding name="command">

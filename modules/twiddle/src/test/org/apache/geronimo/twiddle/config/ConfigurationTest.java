@@ -71,7 +71,7 @@ import junit.framework.Assert;
 /**
  * Tests for <code>Configuration</code>.
  *
- * @version <code>$Id: ConfigurationTest.java,v 1.1 2003/08/13 08:35:33 jdillon Exp $</code>
+ * @version <code>$Id: ConfigurationTest.java,v 1.2 2003/08/13 10:55:51 jdillon Exp $</code>
  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
  */
 public class ConfigurationTest
@@ -153,10 +153,10 @@ public class ConfigurationTest
     {
         Configuration config = read("test1.xml");
         
-        Properties p = config.getProperties();
+        PropertiesConfig p = config.getPropertiesConfig();
         Assert.assertNotNull(p);
         
-        Property[] props = p.getProperty();
+        PropertyConfig[] props = p.getPropertyConfig();
         Assert.assertEquals(2, props.length);
         
         Assert.assertEquals("property1", props[0].getName());
@@ -183,7 +183,7 @@ public class ConfigurationTest
     {
         Configuration config = read("test1.xml");
         
-        Includes i = config.getIncludes();
+        IncludesConfig i = config.getIncludesConfig();
         Assert.assertNotNull(i);
         
         String[] incs = i.getInclude();

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: project.xml,v 1.1 2003/08/12 18:18:45 jdillon Exp $ -->
+<!-- $Id: project.xml,v 1.2 2003/08/13 10:55:51 jdillon Exp $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -72,11 +72,13 @@
       <url>http://jakarta.apache.org/commons/logging.html</url>
     </dependency>
     
+    <!-- Will need this soon, but not right now
     <dependency>
       <id>commons-jexl</id>
       <version>SNAPSHOT</version>
       <url>http://jakarta.apache.org/commons/jexl.html</url>
     </dependency>
+    -->
     
     <dependency>
       <id>commons-cli</id>
