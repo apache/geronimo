@@ -155,11 +155,11 @@
     <build>
         <resources>
             <resource>
-                <directory>${basedir}/src/java</directory>
-                <includes>
-                    <include>**/*.xml</include>
-                    <include>**/*.properties</include>
-                </includes>
+                <directory>${basedir}/src/etc</directory>
+            </resource>
+            <resource>
+                <directory>${basedir}/target/xmlbeans</directory>
+                <includes>schema/**</includes>
             </resource>
         </resources>
         <unitTest>
@@ -169,6 +169,17 @@
             <excludes>
                 <exclude>**/Abstract*.java</exclude>
             </excludes>
+            <resources>
+                <resource>
+                    <directory>${basedir}/src/schema</directory>
+                    <includes>
+                        <include>*.xsd</include>
+                    </includes>
+                </resource>
+                <resource>
+                    <directory>${basedir}/src/test-resources</directory>
+                </resource>
+            </resources>
         </unitTest>
     </build>
 </project>

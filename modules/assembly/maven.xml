@@ -76,6 +76,9 @@
             <j:if test="${dependency.getProperty('server') == 'true'}">
                 <j:set var="server.classpath" value="${server.classpath} ../lib/${artifact.name}"/>
             </j:if>
+            <j:if test="${dependency.getProperty('client') == 'true'}">
+                <j:set var="client.classpath" value="${client.classpath} ../lib/${artifact.name}"/>
+            </j:if>
             <j:if test="${dependency.getProperty('deploy') == 'true'}">
                 <j:set var="deploy.classpath" value="${deploy.classpath} ../lib/${artifact.name}"/>
             </j:if>
@@ -202,7 +205,7 @@
             />
 
         <!-- build the system configuration and server.jar -->
-        <ant:echo>Building system configuration</ant:echo>
+        <ant:echo>Building server.jar</ant:echo>
         <ant:mkdir dir="${distDir}/bin"/>
         <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
@@ -216,7 +219,6 @@
             <ant:arg value="--classPath"/>
             <ant:arg value="${server.classpath}"/>
         </ant:java>
-
 
         <!-- build the J2EEServer configuration -->
         <ant:echo>Building server configuration</ant:echo>
@@ -247,6 +249,30 @@
             <ant:arg value="target/plan/j2ee-secure-plan.xml"/>
         </ant:java>
 
+        <!-- build the system configuration and client.jar -->
+        <ant:echo>Building client.jar</ant:echo>
+        <ant:mkdir dir="${distDir}/bin"/>
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="--install"/>
+            <ant:arg value="--plan"/>
+            <ant:arg value="target/plan/client-system-plan.xml"/>
+            <ant:arg value="--outfile"/>
+            <ant:arg value="${distDir}/bin/client.jar"/>
+            <ant:arg value="--mainClass"/>
+            <ant:arg value="org.apache.geronimo.client.ClientCommandLine"/>
+            <ant:arg value="--classPath"/>
+            <ant:arg value="${client.classpath}"/>
+        </ant:java>
+
+        <!-- build the J2EE client configuration -->
+        <ant:echo>Building J2EE Client configuration</ant:echo>
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="--install"/>
+            <ant:arg value="--plan"/>
+            <ant:arg value="target/plan/j2ee-client-plan.xml"/>
+        </ant:java>
 
         <!-- build the Demo configuration -->
         <ant:echo>Building demo website configuration</ant:echo>

@@ -18,6 +18,7 @@ package org.apache.geronimo.j2ee.management.impl;
 
 import java.util.Hashtable;
 import javax.management.ObjectName;
+import javax.naming.Context;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -32,8 +33,10 @@ public class J2EEAppClientModuleImpl {
     private final String deploymentDescriptor;
     private final J2EEServer server;
     private final J2EEApplication application;
+    private final Context componentContext;
 
-    public J2EEAppClientModuleImpl(String objectName, J2EEServer server, J2EEApplication application, String deploymentDescriptor) {
+    public J2EEAppClientModuleImpl(Context componentContext, String objectName, J2EEServer server, J2EEApplication application, String deploymentDescriptor) {
+        this.componentContext = componentContext;
         ObjectName myObjectName = JMXUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
 
@@ -88,6 +91,10 @@ public class J2EEAppClientModuleImpl {
         return server.getJavaVMs();
     }
 
+    public Context getComponentContext() {
+        return componentContext;
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -95,6 +102,7 @@ public class J2EEAppClientModuleImpl {
         infoFactory.addReference("J2EEServer", J2EEServer.class);
         infoFactory.addReference("J2EEApplication", J2EEApplication.class);
 
+        infoFactory.addAttribute("componentContext", Context.class, true);
         infoFactory.addAttribute("deploymentDescriptor", String.class, true);
 
         infoFactory.addAttribute("objectName", String.class, false);
@@ -103,6 +111,7 @@ public class J2EEAppClientModuleImpl {
         infoFactory.addAttribute("javaVMs", String[].class, false);
 
         infoFactory.setConstructor(new String[]{
+            "componentContext",
             "objectName",
             "J2EEServer",
             "J2EEApplication",

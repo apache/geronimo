@@ -18,6 +18,7 @@ package org.apache.geronimo.client.builder;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -33,7 +34,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
-import java.util.zip.ZipEntry;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -41,6 +41,7 @@ import org.apache.geronimo.common.xml.XmlBeansUtil;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
+import org.apache.geronimo.deployment.util.FileUtil;
 import org.apache.geronimo.deployment.util.JarUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -52,11 +53,10 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.management.impl.J2EEAppClientModuleImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
-import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.geronimo.system.main.CommandLineManifest;
 import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientDocument;
 import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientType;
 import org.apache.geronimo.xbeans.geronimo.client.GerDependencyType;
@@ -80,14 +80,15 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 //        XmlBeans.typeLoaderForClassLoader(GerApplicationClientDocument.class.getClassLoader())
     });
 
-    private static final URI CONFIG_ID = URI.create("application-client");
-
     private final Kernel kernel;
     private final Repository repository;
+    private final ConfigurationStore store;
+    private static final URI PARENT_ID = URI.create("org/apache/geronimo/Client");
 
-    public AppClientModuleBuilder(Kernel kernel, Repository repository) {
+    public AppClientModuleBuilder(Kernel kernel, Repository repository, ConfigurationStore store) {
         this.kernel = kernel;
         this.repository = repository;
+        this.store = store;
     }
 
     public XmlObject parseSpecDD(URL path) throws DeploymentException {
@@ -95,8 +96,9 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         try {
             // check if we have an alt spec dd
             in = path.openStream();
-            XmlObject dd = SchemaConversionUtils.parse(in);
-            ApplicationClientDocument applicationClientDoc = SchemaConversionUtils.convertToApplicationClientSchema(dd);
+//            XmlObject dd = SchemaConversionUtils.parse(in);
+//            ApplicationClientDocument applicationClientDoc = SchemaConversionUtils.convertToApplicationClientSchema(dd);
+            ApplicationClientDocument applicationClientDoc = ApplicationClientDocument.Factory.parse(path);
             return applicationClientDoc.getApplicationClient();
         } catch (Exception e) {
             throw new DeploymentException("Unable to parse " + path, e);
@@ -232,10 +234,15 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         return new AppClientModule(name, moduleURI, moduleFile, targetPath, appClient, geronimoAppClient);
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module appClientModule) throws DeploymentException {
-        // actual module content is coppied in in tha addGBeans section... this is
-        // not a big deal sincee this method is really to install jars that are
-        // used to construct the class loader
+    public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
+        // extract the ejbJar file into a standalone packed jar file and add the contents to the output
+        JarFile moduleFile = module.getModuleFile();
+        try {
+            File appClientJarFile = JarUtil.extractToPackedJar(moduleFile);
+            earContext.addInclude(URI.create(module.getTargetPath()), appClientJarFile.toURL());
+        } catch (IOException e) {
+            throw new DeploymentException("Unable to copy app client module jar into configuration: " + moduleFile.getName());
+        }
     }
 
     public void initContext(EARContext earContext, Module webModule, ClassLoader cl) {
@@ -247,6 +254,22 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
         ApplicationClientType appClient = (ApplicationClientType) appClientModule.getSpecDD();
         GerApplicationClientType geronimoAppClient = (GerApplicationClientType) appClientModule.getVendorDD();
+
+        // get the app client main class
+        JarFile moduleFile = module.getModuleFile();
+        String mainClasss = null;
+        try {
+            Manifest manifest = moduleFile.getManifest();
+            if (manifest == null) {
+                throw new DeploymentException("App client module jar does not contain a manifest: " + moduleFile.getName());
+            }
+            mainClasss = manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
+            if (mainClasss == null) {
+                throw new DeploymentException("App client module jar does not have Main-Class defined in the manifest: " + moduleFile.getName());
+            }
+        } catch (IOException e) {
+            throw new DeploymentException("Could not get manifest from app client module: " + moduleFile.getName());
+        }
 
         // generate the object name for the app client
         Properties nameProps = new Properties();
@@ -277,36 +300,25 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         }
         earContext.addGBean(appClientModuleName, appClientModuleGBean);
 
+
+
         // Create a new executable jar within the ear context
-        JarOutputStream earOutputStream = earContext.getJos();
+        DeploymentContext appClientDeploymentContext = null;
+        File appClientConfiguration = null;
         try {
-            // build the manifest needed by the command line executable gbean
-            Manifest manifest = new Manifest();
-            Attributes mainAttributes = manifest.getMainAttributes();
-            mainAttributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
-            mainAttributes.putValue(Attributes.Name.MAIN_CLASS.toString(), "org.apache.geronimo.system.main.CommandLine");
-            mainAttributes.putValue(CommandLineManifest.MAIN_GBEAN.toString(), appClientModuleName.getCanonicalName());
-            mainAttributes.putValue(CommandLineManifest.MAIN_METHOD.toString(), "deploy");
-            mainAttributes.putValue(CommandLineManifest.CONFIGURATIONS.toString(), CONFIG_ID.toString());
-
-            // add new entry to the main ear context in which we will write the new standalone exectable jar
-            earOutputStream.putNextEntry(new ZipEntry(appClientModule.getTargetPath()));
-            JarOutputStream appClientOutputStream = new JarOutputStream(new BufferedOutputStream(earOutputStream), manifest);
-
-            // this is an executable jar add the magic startup-jar finder file
-            appClientOutputStream.putNextEntry(new ZipEntry("META-INF/startup-jar"));
-            appClientOutputStream.closeEntry();
+            appClientConfiguration = FileUtil.createTempFile();
+            JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(appClientConfiguration)));
 
             // construct the app client deployment context... this is the same class used by the ear context
-            DeploymentContext appClientDeploymentContext;
             try {
-                appClientDeploymentContext = new DeploymentContext(earOutputStream, CONFIG_ID, ConfigurationModuleType.SERVICE, null, kernel);
-            } catch (MalformedObjectNameException e) {
+                URI configId = URI.create(geronimoAppClient.getConfigId());
+                appClientDeploymentContext = new DeploymentContext(jos, configId, ConfigurationModuleType.APP_CLIENT, PARENT_ID, kernel);
+            } catch (Exception e) {
                 throw new DeploymentException("Could not create a deployment context for the app client", e);
             }
 
             // extract the ejbJar file into a standalone packed jar file and add the contents to the output
-            File appClientJarFile = JarUtil.extractToPackedJar(module.getModuleFile());
+            File appClientJarFile = JarUtil.extractToPackedJar(moduleFile);
             appClientDeploymentContext.addInclude(URI.create(module.getTargetPath()), appClientJarFile.toURL());
 
             // add the includes
@@ -350,38 +362,32 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 }
             }
 
-            // add the super duper jndi provider
-            ObjectName jndiProviderName = ObjectName.getInstance("client:type=JNDIProvider");
-            GBeanMBean jndiProvicerGBean = new GBeanMBean("org.apache.geronimo.client.builder.AppClientJNDIProvider", appClientClassLoader);
-            try {
-                jndiProvicerGBean.setAttribute("host", "localhost");
-                jndiProvicerGBean.setAttribute("port", new Integer(4201));
-            } catch (Exception e) {
-                throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
-            }
-            appClientDeploymentContext.addGBean(jndiProviderName, jndiProvicerGBean);
-
             // finally add the app client container
-            ObjectName appClienContainerName = ObjectName.getInstance("client:type=ClientContainer");
-            GBeanMBean appClienContainerGBean = new GBeanMBean("org.apache.geronimo.client.builder.AppClientContainer", appClientClassLoader);
+            ObjectName appClienContainerName = ObjectName.getInstance("geronimo.client:type=ClientContainer");
+            GBeanMBean appClienContainerGBean = new GBeanMBean("org.apache.geronimo.client.AppClientContainer", appClientClassLoader);
             try {
-                appClienContainerGBean.setAttribute("mainClassName", null);
+                appClienContainerGBean.setAttribute("mainClassName", mainClasss);
                 appClienContainerGBean.setAttribute("appClientModuleName", appClientModuleName);
-                appClienContainerGBean.setReferencePattern("JNDIProvider", jndiProviderName);
+                appClienContainerGBean.setReferencePattern("JNDIContext", new ObjectName("geronimo.client:type=JNDIContext"));
             } catch (Exception e) {
                 throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
             }
             appClientDeploymentContext.addGBean(appClienContainerName, appClienContainerGBean);
-
-            appClientDeploymentContext.close();
         } catch (Exception e) {
             throw new DeploymentException(e);
         } finally {
-            try {
-                earOutputStream.closeEntry();
-            } catch (IOException e) {
-                throw new DeploymentException(e);
+            if (appClientDeploymentContext != null) {
+                try {
+                    appClientDeploymentContext.close();
+                } catch (IOException e) {
+                }
             }
+        }
+
+        try {
+            store.install(appClientConfiguration.toURL());
+        } catch (Exception e) {
+            throw new DeploymentException(e);
         }
     }
 
@@ -444,7 +450,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(AppClientModuleBuilder.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addReference("Repository", Repository.class);
-        infoFactory.setConstructor(new String[] {"kernel", "Repository"});
+        infoFactory.addReference("Store", ConfigurationStore.class);
+        infoFactory.setConstructor(new String[] {"kernel", "Repository", "Store"});
         infoFactory.addInterface(ModuleBuilder.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

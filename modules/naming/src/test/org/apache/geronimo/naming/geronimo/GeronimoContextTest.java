@@ -17,11 +17,11 @@
 
 package org.apache.geronimo.naming.geronimo;
 
-import junit.framework.TestCase;
-
+import java.util.Set;
 import javax.naming.Context;
 import javax.naming.NamingException;
-import java.util.Set;
+
+import junit.framework.TestCase;
 
 /**
  *

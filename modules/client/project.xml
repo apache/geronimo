@@ -53,6 +53,12 @@
             <version>${pom.currentVersion}</version>
         </dependency>
 
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-system</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
         <!-- Thirdparty -->
 
         <dependency>

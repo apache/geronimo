@@ -20,7 +20,6 @@ package org.apache.geronimo.naming.geronimo;
 import javax.naming.InitialContext;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.naming.geronimo.GeronimoContextManager;
 
 /**
  *

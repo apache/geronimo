@@ -61,6 +61,7 @@
         <!-- We use the follow properties in this build:                -->
         <!--     lib: copy dependency into lib                          -->
         <!--     server: include dependency in server classpath         -->
+        <!--     client: include dependency in client classpath         -->
         <!--     deploy: include dependency in deployer classpath       -->
         <!--     repository: copy dependency into repository (Note: all -->
         <!--         geronimojars are always copied to repository)      -->
@@ -70,7 +71,8 @@
             <artifactId>geronimo-client</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
-                <deploy>true</deploy>
+                <lib>true</lib>
+                <client>true</client>
                 <repository>true</repository>
             </properties>
         </dependency>
@@ -80,7 +82,6 @@
             <artifactId>geronimo-client-builder</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
-                <deploy>true</deploy>
                 <repository>true</repository>
             </properties>
         </dependency>
@@ -169,6 +170,7 @@
             <properties>
                 <lib>true</lib>
                 <server>true</server>
+                <client>true</client>
                 <deploy>true</deploy>
                 <repository>true</repository>
                 <clideployer>true</clideployer>
@@ -209,6 +211,7 @@
             <properties>
                 <lib>true</lib>
                 <server>true</server>
+                <client>true</client>
                 <deploy>true</deploy>
                 <repository>true</repository>
             </properties>
@@ -335,6 +338,7 @@
             <properties>
                 <lib>true</lib>
                 <server>true</server>
+                <client>true</client>
                 <deploy>true</deploy>
             </properties>
         </dependency>
@@ -347,6 +351,7 @@
             <properties>
                 <lib>true</lib>
                 <server>true</server>
+                <client>true</client>
                 <deploy>true</deploy>
             </properties>
         </dependency>
@@ -389,6 +394,7 @@
             <properties>
                 <lib>true</lib>
                 <server>true</server>
+                <client>true</client>
                 <deploy>true</deploy>
                 <clideployer>true</clideployer>
             </properties>
@@ -430,6 +436,7 @@
             <properties>
                 <lib>true</lib>
                 <server>true</server>
+                <client>true</client>
                 <deploy>true</deploy>
             </properties>
         </dependency>
@@ -441,6 +448,7 @@
             <properties>
                 <lib>true</lib>
                 <server>true</server>
+                <client>true</client>
                 <deploy>true</deploy>
                 <clideployer>true</clideployer>
             </properties>
@@ -453,6 +461,7 @@
             <properties>
                 <lib>true</lib>
                 <server>true</server>
+                <client>true</client>
                 <deploy>true</deploy>
                 <clideployer>true</clideployer>
             </properties>
@@ -485,6 +494,7 @@
             <properties>
                 <lib>true</lib>
                 <server>true</server>
+                <client>true</client>
             </properties>
         </dependency>
 
@@ -495,6 +505,7 @@
             <properties>
                 <lib>true</lib>
                 <server>true</server>
+                <client>true</client>
             </properties>
         </dependency>
 

@@ -164,11 +164,11 @@ public class SchemaConversionUtils {
     }
 
     public static ApplicationClientDocument convertToApplicationClientSchema(XmlObject xmlObject) throws XmlException {
-        if (ApplicationClientDocument.type.equals(xmlObject.schemaType())) {
-            validateDD(xmlObject);
+//        if (ApplicationClientDocument.type.equals(xmlObject.schemaType())) {
+//            validateDD(xmlObject);
             return (ApplicationClientDocument) xmlObject;
-        }
-        throw new UnsupportedOperationException("Deployment of previous version of application not supported");
+//        }
+//        throw new UnsupportedOperationException("Deployment of previous version of application not supported");
     }
 
     public static boolean convertToSchema(XmlCursor cursor, String schemaLocationURL, String version) {

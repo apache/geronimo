@@ -56,10 +56,10 @@ public class UnpackedJarFile extends JarFile {
     }
 
     public Manifest getManifest() throws IOException {
-        if (manifestLoaded) {
+        if (!manifestLoaded) {
             File manifestFile = getFile("META-INF/MANIFEST.MF");
 
-            if (manifestFile.isFile()) {
+            if (manifestFile != null && manifestFile.isFile()) {
                 FileInputStream in = null;
                 try {
                     in = new FileInputStream(manifestFile);

@@ -18,13 +18,10 @@ package org.apache.geronimo.client;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Iterator;
-
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.ReferenceCollection;
 
 /**
  * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
@@ -33,13 +30,13 @@ public final class AppClientContainer {
     private static final Class[] MAIN_ARGS = {String[].class};
 
     private final String mainClassName;
-    private final ReferenceCollection plugins;
+    private final AppClientPlugin jndiContext;
     private final ObjectName appClientModuleName;
     private final Method mainMethod;
 
-    public AppClientContainer(String mainClassName,  ObjectName appClientModuleName, ReferenceCollection plugins ,ClassLoader classLoader) throws Exception {
+    public AppClientContainer(String mainClassName, ObjectName appClientModuleName, AppClientPlugin jndiContext, ClassLoader classLoader) throws Exception {
         this.mainClassName = mainClassName;
-        this.plugins = plugins;
+        this.jndiContext = jndiContext;
         this.appClientModuleName = appClientModuleName;
 
         try {
@@ -63,30 +60,24 @@ public final class AppClientContainer {
     public void main(String[] args) throws Exception {
         Throwable throwable = null;
         try {
-            for (Iterator iterator = plugins.iterator(); iterator.hasNext();) {
-                AppClientPlugin plugin = (AppClientPlugin) iterator.next();
-                plugin.startClient(appClientModuleName);
-            }
+            jndiContext.startClient(appClientModuleName);
 
-            mainMethod.invoke(null, args);
+            mainMethod.invoke(null, new Object[]{args});
 
         } catch (InvocationTargetException e) {
             Throwable cause = e.getCause();
             if (cause instanceof Exception) {
                 throwable = cause;
             } else if (cause instanceof Error) {
-                throwable =  cause;
+                throwable = cause;
             }
             throwable = e;
         } finally {
-            for (Iterator iterator = plugins.iterator(); iterator.hasNext();) {
-                AppClientPlugin plugin = (AppClientPlugin) iterator.next();
-                plugin.stopClient(appClientModuleName);
-            }
+            jndiContext.stopClient(appClientModuleName);
 
             if (throwable instanceof Exception) {
                 throw (Exception) throwable;
-            } else {
+            } else if (throwable instanceof Error) {
                 throw (Error) throwable;
             }
         }
@@ -99,11 +90,11 @@ public final class AppClientContainer {
 
         infoFactory.addOperation("main", new Class[]{String[].class});
         infoFactory.addAttribute("mainClassName", String.class, true);
-        infoFactory.addAttribute("appClientModuleObjectName", ObjectName.class, true);
-        infoFactory.addReference("plugins", AppClientPlugin.class);
+        infoFactory.addAttribute("appClientModuleName", ObjectName.class, true);
+        infoFactory.addReference("JNDIContext", AppClientPlugin.class);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
-        infoFactory.setConstructor(new String[]{"mainClassName", "appClientModuleName", "plugins", "classLoader"});
+        infoFactory.setConstructor(new String[]{"mainClassName", "appClientModuleName", "JNDIContext", "classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -89,7 +89,7 @@ public class NestedJarFile extends JarFile {
     }
 
     public Manifest getManifest() throws IOException {
-        if (manifestLoaded) {
+        if (!manifestLoaded) {
             JarEntry manifestEntry = getBaseEntry("META-INF/MANIFEST.MF");
 
             if (manifestEntry != null && !manifestEntry.isDirectory()) {

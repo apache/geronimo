@@ -18,10 +18,7 @@
 package org.apache.geronimo.naming.geronimo;
 
 import java.util.Hashtable;
-
 import javax.naming.NamingException;
-
-import org.apache.geronimo.naming.geronimo.GeronimoContext;
 
 /**
  *
