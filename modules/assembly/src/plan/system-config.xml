@@ -42,7 +42,7 @@ specific services - those should be provided by children.
         <attribute name="Threshold" type="java.lang.String">DEBUG</attribute>
         <attribute name="LayoutPattern" type="java.lang.String">%d{ABSOLUTE} %-5p [%c{1}] %m%n</attribute>
         <attribute name="Append" type="boolean">true</attribute>
-        <attribute name="File" type="java.lang.String">log/geronimo.log</attribute>
+        <attribute name="File" type="java.lang.String">var/log/geronimo.log</attribute>
         <attribute name="BufferedIO" type="boolean">false</attribute>
         <attribute name="BufferedSize" type="int">8192</attribute>
         <attribute name="MaxBackupIndex" type="int">1</attribute>
