@@ -109,7 +109,7 @@ public class AbstractWebModuleTest extends TestCase {
     protected void setUpInsecureAppContext() throws Exception {
         GBeanData app = new GBeanData(webModuleName, JettyWebAppContext.GBEAN_INFO);
         app.setAttribute("uri", URI.create("war1/"));
-        app.setAttribute("componentContext", null);
+        app.setAttribute("componentContext", Collections.EMPTY_MAP);
         OnlineUserTransaction userTransaction = new OnlineUserTransaction();
         app.setAttribute("userTransaction", userTransaction);
         //we have no classes or libs.
@@ -141,7 +141,7 @@ public class AbstractWebModuleTest extends TestCase {
         app.setAttribute("authenticator", formAuthenticator);
         app.setAttribute("policyContextID", "TEST");
         app.setAttribute("uri", URI.create("war3/"));
-        app.setAttribute("componentContext", null);
+        app.setAttribute("componentContext", Collections.EMPTY_MAP);
 
         OnlineUserTransaction userTransaction = new OnlineUserTransaction();
         app.setAttribute("userTransaction", userTransaction);
