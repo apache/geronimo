@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <components>
     <class-space name="geronimo.system:role=ClassSpace,name=Family">
-        <codebase url="file:target/classes/"/>
-        <codebase url="file:src/java/"/>
+        <codebase url="file:../../../../../../../target/test-classes/"/>
     </class-space>
 
     <mbean code="org.apache.geronimo.deployment.dependency.Person" name="family:role=Grandparent">
