@@ -65,17 +65,13 @@
                                 </single-pool>
                             </connectionmanager>
                         </connectiondefinition-instance>
+                        <!--test defaults for pool and tx-->
                         <connectiondefinition-instance>
                             <name>ThirdTestOutboundConnectionFactory</name>
                             <config-property-setting name="OutboundStringProperty">StringValue3</config-property-setting>
                             <connectionmanager>
                                 <realm-bridge>TargetRealm</realm-bridge>
-                                <xa-transaction>
-                                    <transaction-caching/>
-                                </xa-transaction>
                                 <partitioned-pool>
-                                    <max-size>10</max-size>
-                                    <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
                                     <match-one/>
                                     <partition-by-subject/>
                                 </partitioned-pool>
@@ -139,6 +135,7 @@
                             </connectionmanager>
                         </connectiondefinition-instance>
                     </connection-definition>
+                    <!--test defaults for pool and tx-->
                     <connection-definition>
                         <connectionfactory-interface>org.apache.geronimo.connector.mock.ConnectionFactoryExtension</connectionfactory-interface>
                         <connectiondefinition-instance>
@@ -146,12 +143,7 @@
                             <config-property-setting name="OutboundStringProperty1">StringValue3</config-property-setting>
                             <connectionmanager>
                                 <realm-bridge>TargetRealm</realm-bridge>
-                                <xa-transaction>
-                                    <transaction-caching/>
-                                </xa-transaction>
                                 <partitioned-pool>
-                                    <max-size>10</max-size>
-                                    <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
                                     <match-one/>
                                     <partition-by-subject/>
                                 </partitioned-pool>
@@ -162,18 +154,18 @@
             </resourceadapter>
 
             <adminobject>
-                 <adminobject-interface>org.apache.geronimo.connector.mock.MockAdminObject</adminobject-interface>
-                 <adminobject-class>org.apache.geronimo.connector.mock.MockAdminObjectImpl</adminobject-class>
-                 <adminobject-instance>
-                     <message-destination-name>tweedledee</message-destination-name>
-                     <config-property-setting name="Tweedle">Dee-value</config-property-setting>
-                 </adminobject-instance>
-                 <adminobject-instance>
-                     <message-destination-name>tweedledum</message-destination-name>
-                     <config-property-setting name="Tweedle">Dum-value</config-property-setting>
-                 </adminobject-instance>
-             </adminobject>
-             
+                <adminobject-interface>org.apache.geronimo.connector.mock.MockAdminObject</adminobject-interface>
+                <adminobject-class>org.apache.geronimo.connector.mock.MockAdminObjectImpl</adminobject-class>
+                <adminobject-instance>
+                    <message-destination-name>tweedledee</message-destination-name>
+                    <config-property-setting name="Tweedle">Dee-value</config-property-setting>
+                </adminobject-instance>
+                <adminobject-instance>
+                    <message-destination-name>tweedledum</message-destination-name>
+                    <config-property-setting name="Tweedle">Dum-value</config-property-setting>
+                </adminobject-instance>
+            </adminobject>
+
         </connector>
 
     </module>

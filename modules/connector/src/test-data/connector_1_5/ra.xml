@@ -75,7 +75,7 @@
                 <connection-impl-class>org.apache.geronimo.connector.mock.MockConnection</connection-impl-class>
 
             </connection-definition>
-            <transaction-support>LocalTransaction</transaction-support>
+            <transaction-support>XATransaction</transaction-support>
             <authentication-mechanism>
                 <description>description</description>
                 <authentication-mechanism-type>BasicPassword</authentication-mechanism-type>

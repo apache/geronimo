@@ -67,6 +67,12 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
     private URL geronimoDD;
     XmlOptions xmlOptions;
     private List errors;
+    private boolean defaultXATransactionCaching = true;
+    private boolean defaultXAThreadCaching = false;
+    private int defaultMaxSize = 10;
+    private int defaultMinSize = 0;
+    private int defaultBlockingTimeoutMilliseconds = 5000;
+    private int defaultidleTimeoutMinutes = 15;
 
 
     public void testLoadJ2eeDeploymentDescriptor() throws Exception {
@@ -176,7 +182,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
         ObjectName connectionTrackerName = new ObjectName("geronimo.connector:service=ConnectionTracker");
 
         Kernel kernel = new Kernel("testServer");
-        ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(10, 0, 5000, 15, kernel);
+        ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, kernel);
         File rarFile = action.getRARFile();
 
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
@@ -230,7 +236,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
         JarFile rarFile = null;
         try {
             rarFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear-noger.ear"));
-            EARConfigBuilder configBuilder = new EARConfigBuilder(j2eeServer, null, connectionTrackerName, null, null, null, null, null, null, new ConnectorModuleBuilder(10, 0, 5000, 15, kernel), null, null, kernel);
+            EARConfigBuilder configBuilder = new EARConfigBuilder(j2eeServer, null, connectionTrackerName, null, null, null, null, null, null, new ConnectorModuleBuilder(defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, kernel), null, null, kernel);
             File tempDir = null;
             try {
                 tempDir = DeploymentUtil.createTempDir();

@@ -112,13 +112,17 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     private final int defaultMinSize;
     private final int defaultBlockingTimeoutMilliseconds;
     private final int defaultIdleTimeoutMinutes;
+    private final boolean defaultXATransactionCaching;
+    private final boolean defaultXAThreadCaching;
     private final Kernel kernel;
 
-    public ConnectorModuleBuilder(int defaultMaxSize, int defaultMinSize, int defaultBlockingTimeoutMilliseconds, int defaultIdleTimeoutMinutes, Kernel kernel) {
+    public ConnectorModuleBuilder(int defaultMaxSize, int defaultMinSize, int defaultBlockingTimeoutMilliseconds, int defaultIdleTimeoutMinutes, boolean defaultXATransactionCaching, boolean defaultXAThreadCaching, Kernel kernel) {
         this.defaultMaxSize = defaultMaxSize;
         this.defaultMinSize = defaultMinSize;
         this.defaultBlockingTimeoutMilliseconds = defaultBlockingTimeoutMilliseconds;
         this.defaultIdleTimeoutMinutes = defaultIdleTimeoutMinutes;
+        this.defaultXATransactionCaching = defaultXATransactionCaching;
+        this.defaultXAThreadCaching = defaultXAThreadCaching;
         this.kernel = kernel;
     }
 
@@ -347,6 +351,12 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
     private void addConnectorGBeans(EARContext earContext, J2eeContext j2eeContext, ConnectorType10 connector, GerConnectorType geronimoConnector, ClassLoader cl) throws DeploymentException {
         ResourceadapterType10 resourceAdapter = connector.getResourceadapter();
+        String managedConnectionFactoryClass = resourceAdapter.getManagedconnectionfactoryClass().getStringValue().trim();
+        String connectionFactoryInterface = resourceAdapter.getConnectionfactoryInterface().getStringValue().trim();
+        String connectionFactoryImplClass = resourceAdapter.getConnectionfactoryImplClass().getStringValue().trim();
+        String connectionInterface = resourceAdapter.getConnectionInterface().getStringValue().trim();
+        String connectionImplClass = resourceAdapter.getConnectionImplClass().getStringValue().trim();
+        String transactionSupport = resourceAdapter.getTransactionSupport().getStringValue().trim();
         GerResourceadapterType[] geronimoResourceAdapters = geronimoConnector.getResourceadapterArray();
         for (int k = 0; k < geronimoResourceAdapters.length; k++) {
             GerResourceadapterType geronimoResourceAdapter = geronimoResourceAdapters[k];
@@ -357,14 +367,9 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
                 for (int j = 0; j < geronimoConnectionDefinition.getConnectiondefinitionInstanceArray().length; j++) {
                     GerConnectiondefinitionInstanceType connectionfactoryInstance = geronimoConnectionDefinition.getConnectiondefinitionInstanceArray()[j];
-                    String managedConnectionFactoryClass = resourceAdapter.getManagedconnectionfactoryClass().getStringValue();
-                    String connectionFactoryInterface = resourceAdapter.getConnectionfactoryInterface().getStringValue();
-                    String connectionFactoryImplClass = resourceAdapter.getConnectionfactoryImplClass().getStringValue();
-                    String connectionInterface = resourceAdapter.getConnectionInterface().getStringValue();
-                    String connectionImplClass = resourceAdapter.getConnectionImplClass().getStringValue();
                     ConfigProperty[] configProperties = getConfigProperties(resourceAdapter.getConfigPropertyArray(), connectionfactoryInstance.getConfigPropertySettingArray());
 
-                    addOutboundGBeans(earContext, j2eeContext, null, connectionfactoryInstance, configProperties, managedConnectionFactoryClass, connectionFactoryInterface, connectionFactoryImplClass, connectionInterface, connectionImplClass, cl);
+                    addOutboundGBeans(earContext, j2eeContext, null, connectionfactoryInstance, configProperties, managedConnectionFactoryClass, connectionFactoryInterface, connectionFactoryImplClass, connectionInterface, connectionImplClass, transactionSupport, cl);
                 }
             }
         }
@@ -372,6 +377,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
     private void addConnectorGBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ConnectorType connector, GerConnectorType geronimoConnector, ClassLoader cl) throws DeploymentException {
         ResourceadapterType resourceadapter = connector.getResourceadapter();
+        String transactionSupport = resourceadapter.getOutboundResourceadapter().getTransactionSupport().getStringValue().trim();
         GerResourceadapterType[] geronimoResourceAdapters = geronimoConnector.getResourceadapterArray();
         for (int k = 0; k < geronimoResourceAdapters.length; k++) {
             GerResourceadapterType geronimoResourceAdapter = geronimoResourceAdapters[k];
@@ -433,17 +439,17 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                         if (connectionDefinition == null) {
                             throw new DeploymentException("No connection definition for ConnectionFactory class: " + connectionFactoryInterfaceName);
                         }
+                        String managedConnectionFactoryClass = connectionDefinition.getManagedconnectionfactoryClass().getStringValue().trim();
+                        String connectionFactoryInterface = connectionDefinition.getConnectionfactoryInterface().getStringValue().trim();
+                        String connectionFactoryImplClass = connectionDefinition.getConnectionfactoryImplClass().getStringValue().trim();
+                        String connectionInterface = connectionDefinition.getConnectionInterface().getStringValue().trim();
+                        String connectionImplClass = connectionDefinition.getConnectionImplClass().getStringValue().trim();
 
                         for (int j = 0; j < geronimoConnectionDefinition.getConnectiondefinitionInstanceArray().length; j++) {
                             GerConnectiondefinitionInstanceType connectionfactoryInstance = geronimoConnectionDefinition.getConnectiondefinitionInstanceArray()[j];
-                            String managedConnectionFactoryClass = connectionDefinition.getManagedconnectionfactoryClass().getStringValue();
-                            String connectionFactoryInterface = connectionDefinition.getConnectionfactoryInterface().getStringValue();
-                            String connectionFactoryImplClass = connectionDefinition.getConnectionfactoryImplClass().getStringValue();
-                            String connectionInterface = connectionDefinition.getConnectionInterface().getStringValue();
-                            String connectionImplClass = connectionDefinition.getConnectionImplClass().getStringValue();
                             ConfigProperty[] configProperties = getConfigProperties(connectionDefinition.getConfigPropertyArray(), connectionfactoryInstance.getConfigPropertySettingArray());
 
-                            addOutboundGBeans(earContext, moduleJ2eeContext, resourceAdapterObjectName, connectionfactoryInstance, configProperties, managedConnectionFactoryClass, connectionFactoryInterface, connectionFactoryImplClass, connectionInterface, connectionImplClass, cl);
+                            addOutboundGBeans(earContext, moduleJ2eeContext, resourceAdapterObjectName, connectionfactoryInstance, configProperties, managedConnectionFactoryClass, connectionFactoryInterface, connectionFactoryImplClass, connectionInterface, connectionImplClass, transactionSupport, cl);
                         }
                     }
                 }
@@ -639,7 +645,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         gbean.setAttribute(name, value);
     }
 
-    private ObjectName configureConnectionManager(EARContext earContext, J2eeContext j2eeContext, GerConnectiondefinitionInstanceType connectionfactoryInstance, ClassLoader cl) throws DeploymentException {
+    private ObjectName configureConnectionManager(EARContext earContext, J2eeContext j2eeContext, String ddTransactionSupport, GerConnectiondefinitionInstanceType connectionfactoryInstance, ClassLoader cl) throws DeploymentException {
         if (connectionfactoryInstance.getConnectionmanagerRef() != null) {
             //we don't configure anything, just use the supplied gbean
             try {
@@ -667,15 +673,21 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         } else if (connectionManager.isSetXaTransaction()) {
             transactionSupport = new XATransactions(connectionManager.getXaTransaction().isSetTransactionCaching(),
                     connectionManager.getXaTransaction().isSetThreadCaching());
+        } else if ("NoTransaction".equals(ddTransactionSupport)) {
+            transactionSupport = NoTransactions.INSTANCE;
+        } else if ("LocalTransaction".equals(ddTransactionSupport)) {
+            transactionSupport = LocalTransactions.INSTANCE;
+        } else if ("XATransaction".equals(ddTransactionSupport)) {
+            transactionSupport = new XATransactions(defaultXATransactionCaching, defaultXAThreadCaching);
         } else {
+            //this should not happen
             throw new DeploymentException("Unexpected transaction support element");
         }
         PoolingSupport pooling = null;
         if (connectionManager.getSinglePool() != null) {
             GerSinglepoolType pool = connectionManager.getSinglePool();
 
-            pooling = new SinglePool(
-                    pool.isSetMaxSize() ? pool.getMaxSize() : defaultMaxSize,
+            pooling = new SinglePool(pool.isSetMaxSize() ? pool.getMaxSize() : defaultMaxSize,
                     pool.isSetMinSize() ? pool.getMinSize() : defaultMinSize,
                     pool.isSetBlockingTimeoutMilliseconds() ? pool.getBlockingTimeoutMilliseconds() : defaultBlockingTimeoutMilliseconds,
                     pool.isSetIdleTimeoutMinutes() ? pool.getIdleTimeoutMinutes() : defaultIdleTimeoutMinutes,
@@ -684,8 +696,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                     pool.getSelectOneAssumeMatch() != null);
         } else if (connectionManager.getPartitionedPool() != null) {
             GerPartitionedpoolType pool = connectionManager.getPartitionedPool();
-            pooling = new PartitionedPool(
-                    pool.isSetMaxSize() ? pool.getMaxSize() : defaultMaxSize,
+            pooling = new PartitionedPool(pool.isSetMaxSize() ? pool.getMaxSize() : defaultMaxSize,
                     pool.isSetMinSize() ? pool.getMinSize() : defaultMinSize,
                     pool.isSetBlockingTimeoutMilliseconds() ? pool.getBlockingTimeoutMilliseconds() : defaultBlockingTimeoutMilliseconds,
                     pool.isSetIdleTimeoutMinutes() ? pool.getIdleTimeoutMinutes() : defaultIdleTimeoutMinutes,
@@ -718,9 +729,9 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         return connectionManagerObjectName;
     }
 
-    private void addOutboundGBeans(EARContext earContext, J2eeContext j2eeContext, ObjectName resourceAdapterObjectName, GerConnectiondefinitionInstanceType connectiondefinitionInstance, ConfigProperty[] configProperties, String managedConnectionFactoryClass, String connectionFactoryInterface, String connectionFactoryImplClass, String connectionInterface, String connectionImplClass, ClassLoader cl) throws DeploymentException {
+    private void addOutboundGBeans(EARContext earContext, J2eeContext j2eeContext, ObjectName resourceAdapterObjectName, GerConnectiondefinitionInstanceType connectiondefinitionInstance, ConfigProperty[] configProperties, String managedConnectionFactoryClass, String connectionFactoryInterface, String connectionFactoryImplClass, String connectionInterface, String connectionImplClass, String transactionSupport, ClassLoader cl) throws DeploymentException {
         // ConnectionManager
-        ObjectName connectionManagerObjectName = configureConnectionManager(earContext, j2eeContext, connectiondefinitionInstance, cl);
+        ObjectName connectionManagerObjectName = configureConnectionManager(earContext, j2eeContext, transactionSupport, connectiondefinitionInstance, cl);
 
         // ManagedConnectionFactory
         GBeanInfoBuilder managedConnectionFactoryInfoFactory = new GBeanInfoBuilder("org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper", cl);
@@ -858,13 +869,15 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         infoBuilder.addAttribute("defaultMinSize", int.class, true);
         infoBuilder.addAttribute("defaultBlockingTimeoutMilliseconds", int.class, true);
         infoBuilder.addAttribute("defaultIdleTimeoutMinutes", int.class, true);
+        infoBuilder.addAttribute("defaultXATransactionCaching", boolean.class, true);
+        infoBuilder.addAttribute("defaultXAThreadCaching", boolean.class, true);
 
         infoBuilder.addAttribute("kernel", Kernel.class, false);
 
         infoBuilder.addInterface(ModuleBuilder.class);
         infoBuilder.addInterface(ResourceReferenceBuilder.class);
 
-        infoBuilder.setConstructor(new String[]{"defaultMaxSize", "defaultMinSize", "defaultBlockingTimeoutMilliseconds", "defaultIdleTimeoutMinutes", "kernel"});
+        infoBuilder.setConstructor(new String[]{"defaultMaxSize", "defaultMinSize", "defaultBlockingTimeoutMilliseconds", "defaultIdleTimeoutMinutes", "defaultXATransactionCaching", "defaultXAThreadCaching", "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

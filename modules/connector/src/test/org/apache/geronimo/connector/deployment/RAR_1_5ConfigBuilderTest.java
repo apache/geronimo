@@ -65,6 +65,12 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
     private URL geronimoDD;
     private XmlOptions xmlOptions;
     private List errors;
+    private boolean defaultXATransactionCaching = true;
+    private boolean defaultXAThreadCaching = false;
+    private int defaultMaxSize = 10;
+    private int defaultMinSize = 0;
+    private int defaultBlockingTimeoutMilliseconds = 5000;
+    private int defaultidleTimeoutMinutes = 15;
 
     public void testLoadJ2eeDeploymentDescriptor() throws Exception {
         InputStream j2eeInputStream = j2eeDD.openStream();
@@ -121,7 +127,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
         ObjectName connectionTrackerName = new ObjectName("geronimo.connector:service=ConnectionTracker");
 
         Kernel kernel = new Kernel("testServer");
-        ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(10, 0, 5000, 15, kernel);
+        ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, kernel);
         File rarFile = action.getRARFile();
 
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();

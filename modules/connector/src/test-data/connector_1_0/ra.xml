@@ -33,7 +33,7 @@
         <connectionfactory-impl-class>org.apache.geronimo.connector.mock.MockConnectionFactory</connectionfactory-impl-class>
         <connection-interface>javax.resource.cci.Connection</connection-interface>
         <connection-impl-class>org.apache.geronimo.connector.mock.MockConnection</connection-impl-class>
-        <transaction-support></transaction-support>
+        <transaction-support>XATransaction</transaction-support>
         <config-property>
             <config-property-name>OutboundStringProperty1</config-property-name>
             <config-property-type>java.lang.String</config-property-type>

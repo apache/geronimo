@@ -273,6 +273,8 @@ by the server.
         <attribute name="defaultMinSize" type="int">0</attribute>
         <attribute name="defaultBlockingTimeoutMilliseconds" type="int">5000</attribute>
         <attribute name="defaultIdleTimeoutMinutes" type="int">15</attribute>
+        <attribute name="defaultXATransactionCaching" type="boolean">true</attribute>
+        <attribute name="defaultXAThreadCaching" type="boolean">false</attribute>
     </gbean>
 
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=AppClient,config=org/apache/geronimo/Server" class="org.apache.geronimo.client.builder.AppClientModuleBuilder">

@@ -264,7 +264,7 @@
             <xsd:element name="realm-bridge"
                 type="xsd:string"
                 minOccurs="0"/>
-            <xsd:choice>
+            <xsd:choice minOccurs="0">
                 <xsd:element name="no-transaction"/>
                 <xsd:element name="local-transaction"/>
                 <xsd:element name="xa-transaction" type="ger:xatransaction-Type"/>
