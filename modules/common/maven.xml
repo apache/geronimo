@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.5 $ $Date: 2003/09/01 19:17:07 $ -->
+<!-- $Revision: 1.6 $ $Date: 2003/09/08 04:11:32 $ -->
 
 <project default="default"
-  xmlns:j="jelly:core"
-  xmlns:u="jelly:util"
-  xmlns:ant="jelly:ant"
-  xmlns:xdoclet="common:xdoclet">
-  
-  <preGoal name="test:compile">
-    <attainGoal name="xdoclet:jmxdoclet:test-compile"/>
-  </preGoal>
-  
+    xmlns:j="jelly:core"
+    xmlns:u="jelly:util"
+    xmlns:ant="jelly:ant"
+    xmlns:xdoclet="common:xdoclet">
+
+    <preGoal name="java:compile">
+        <attainGoal name="xdoclet:jmxdoclet:compile"/>
+    </preGoal>
+
 </project>
