@@ -26,7 +26,7 @@ import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
 /**
  * Processor pool.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/18 12:14:05 $
  */
 class Processors {
 
@@ -42,8 +42,6 @@ class Processors {
      */
     private final String name;
     
-    private int idSeq;
-    
     /**
      * Create a Processor pool.
      * 
@@ -56,12 +54,11 @@ class Processors {
             throw new IllegalArgumentException("Name is required.");
         }
         executor = new PooledExecutor();
-        idSeq = 0;
         name = aName;
         executor.setThreadFactory(
             new ThreadFactory() {
                 public Thread newThread(Runnable arg0) {
-                    Thread thread = new Thread(arg0, name + "-" + idSeq);
+                    Thread thread = new Thread(arg0, name);
                     thread.setDaemon(true);
                     return thread;
                 }
@@ -83,6 +80,13 @@ class Processors {
         } catch (InterruptedException e) {
             log.error(e);
         }
+    }
+    
+    /**
+     * Interrupts the Processors currently executed by this instance. 
+     */
+    public void stop() {
+        executor.interruptAll();
     }
     
 }

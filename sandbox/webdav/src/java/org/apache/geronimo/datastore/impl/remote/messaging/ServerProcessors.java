@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Processors associated to a server.
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/11 15:36:14 $
+ * @version $Revision: 1.6 $ $Date: 2004/03/18 12:14:05 $
  */
 class ServerProcessors
 {
@@ -79,6 +79,7 @@ class ServerProcessors
     }
     
     public void stop() {
+        processors.stop();
     }
     
     /**
@@ -87,18 +88,19 @@ class ServerProcessors
      */
     private class OutputQueueDispatcher implements Processor {
         
-        /**
-         * Is this Processor started.
-         */
-        private volatile boolean isStarted = true;
-        
         public void run() {
             HeaderInInterceptor in =
                 new HeaderInInterceptor(
                     new QueueInInterceptor(server.queueOut),
                     MsgHeaderConstants.DEST_NODES);
-            while ( isStarted ) {
-                Msg msg = in.pop();
+            while ( true ) {
+                Msg msg;
+                try {
+                    msg = in.pop();
+                } catch (MsgInterceptorStoppedException e) {
+                    log.info("Stopping OutputQueueDispatcher", e);
+                    return;
+                }
                 Object destNode = in.getHeader();
                 MsgOutInterceptor out;
                 if ( destNode instanceof NodeInfo ) {
@@ -131,10 +133,6 @@ class ServerProcessors
             }
         }
 
-        public void release() {
-            isStarted = false;
-        }
-        
     }
     
 }

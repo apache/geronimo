@@ -35,10 +35,10 @@ import java.util.Map;
  * Based on this knowledge, Topology is able to derive the shortest path - the
  * one having the lowest weight - between two nodes.
  * <BR>
- * This class is intended to be send to a multicast group when a topology event
+ * This class is intended to be sent to a multicast group when a topology event
  * happens.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/16 14:48:59 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/18 12:14:05 $
  */
 public class Topology
     implements Externalizable
@@ -49,28 +49,60 @@ public class Topology
      */
     private Map nodeToPaths;
 
-    private Object nodeAndIdLock = new Object();
-    private Map nodeToID;
-    private Map idToNode;
+    /**
+     * Used to perform atomic operation on nodeToID and idToNode.
+     */
+    private final Object nodeAndIdLock = new Object();
     
+    /**
+     * NodeInfo to Integer (node identifier) mapping.
+     */
+    private final Map nodeToID;
+    
+    /**
+     * Integer (node identifier) to NodeInfo mapping.
+     */
+    private final IndexedMap idToNode;
+
+    /**
+     * TwoNodeInfo to NodeInfo[] mapping. It is a cache of the shortest paths
+     * between two NodeInfos.
+     */
+    private final Map shortestPathCache;
+
+    /**
+     * Used to generate NodeInfo identifiers.
+     */
     private static int seqID = 0;
     
     public Topology() {
         nodeToPaths = new HashMap();
         nodeToID = new HashMap();
-        idToNode = new HashMap();
+        idToNode = new IndexedMap(100);
+        shortestPathCache = new HashMap();
     }
 
+    /**
+     * Registers a node.
+     * 
+     * @param aNodeInfo Node to be registered.
+     */
     private void registerNode(NodeInfo aNodeInfo) {
         synchronized(nodeAndIdLock) {
             if ( null == nodeToID.get(aNodeInfo) ) {
-                Integer id = new Integer(seqID++);
+                int intID = seqID++;
+                Integer id = new Integer(intID);
                 nodeToID.put(aNodeInfo, id);
-                idToNode.put(id, aNodeInfo);
+                idToNode.put(intID, aNodeInfo);
             }
         }
     }
     
+    /**
+     * Unregisters a node.
+     *
+     * @param aNodeInfo Node to be unregistered.
+     */
     private void unregisterNode(NodeInfo aNodeInfo) {
         synchronized(nodeAndIdLock) {
             if ( null == nodeToID.remove(aNodeInfo) ) {
@@ -106,6 +138,9 @@ public class Topology
             }
             related.add(new NodeWrapper(aPath.nodeOne, aPath.weigthTwoToOne));
         }
+        synchronized (shortestPathCache) {
+            shortestPathCache.clear();
+        }
     }
     
     /**
@@ -125,6 +160,9 @@ public class Topology
             }
         }
         unregisterNode(aNode);
+        synchronized (shortestPathCache) {
+            shortestPathCache.clear();
+        }
     }
     
     /**
@@ -164,6 +202,9 @@ public class Topology
                 nodeToPaths.remove(aPath.nodeTwo);
             }
         }
+        synchronized (shortestPathCache) {
+            shortestPathCache.clear();
+        }
     }
 
     /**
@@ -176,6 +217,17 @@ public class Topology
      * returned if these two nodes are not connected.
      */
     public NodeInfo[] getPath(NodeInfo aSource, NodeInfo aTarget) {
+        // First check if the path has already been computed.
+        TwoNodeInfo twoNodeInfo = new TwoNodeInfo(aSource, aTarget);
+        NodeInfo[] result;
+        synchronized(shortestPathCache) {
+            result = (NodeInfo[]) shortestPathCache.get(twoNodeInfo);
+        }
+        if ( null != result ) {
+            return result;
+        }
+        
+        // This is the first time that this path needs to be computed.
         Map tmpNodeToRelated;
         synchronized(nodeToPaths) {
             tmpNodeToRelated = new HashMap(nodeToPaths);
@@ -189,6 +241,7 @@ public class Topology
         int minWeight = -1;
         int minPathIndex = 0;
         int index = 0;
+        // Gets the shortest path amongst the available paths.
         for (Iterator iter = paths.iterator(); iter.hasNext();index++) {
             int weight = 0;
             List nodeList = (List) iter.next();
@@ -202,11 +255,14 @@ public class Topology
             }
         }
         List path = (List) paths.get(minPathIndex);
-        NodeInfo[] result = new NodeInfo[path.size()];
+        result = new NodeInfo[path.size()];
         int i = 0;
         for (Iterator iter = path.iterator(); iter.hasNext();) {
             NodeWrapper wrapper = (NodeWrapper) iter.next();
             result[i++] = wrapper.node;
+        }
+        synchronized(shortestPathCache) {
+            shortestPathCache.put(twoNodeInfo, result);
         }
         return result;
     }
@@ -257,11 +313,14 @@ public class Topology
         return id.intValue();
     }
     
+    /**
+     * Gets the NodeInfo having the specified identifier.
+     * 
+     * @param anId Node identifier.
+     * @return NodeInfo having this identifier.
+     */
     public NodeInfo getNodeById(int anId) {
-        NodeInfo nodeInfo;
-        synchronized(nodeAndIdLock) {
-            nodeInfo = (NodeInfo) idToNode.get(new Integer(anId));
-        }
+        NodeInfo nodeInfo = (NodeInfo) idToNode.get(anId);
         if ( null == nodeInfo ) {
             throw new IllegalArgumentException("Identifier " + anId +
                 " is not registered by this topology.");
@@ -280,7 +339,7 @@ public class Topology
     /**
      * Abstract a weight between two nodes.
      *
-     * @version $Revision: 1.2 $ $Date: 2004/03/16 14:48:59 $
+     * @version $Revision: 1.3 $ $Date: 2004/03/18 12:14:05 $
      */
     public static class PathWeight implements Externalizable {
         private int weight;
@@ -302,7 +361,10 @@ public class Topology
         }
     }
     
-    private static class NodeWrapper implements Externalizable {
+    /**
+     * NodeInfo wrapper. It allows storing a weight with a NodeInfo.
+     */
+    private static class NodeWrapper {
         private PathWeight weigth;
         private NodeInfo node;
         public NodeWrapper(NodeInfo aNode, PathWeight aWeight) {
@@ -318,14 +380,6 @@ public class Topology
         }
         public int hashCode() {
             return node.hashCode();
-        }
-        public void writeExternal(ObjectOutput out) throws IOException {
-            out.writeObject(weigth);
-            out.writeObject(node);
-        }
-        public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-            weigth = (PathWeight) in.readObject();
-            node = (NodeInfo) in.readObject();
         }
     }
     
@@ -380,6 +434,26 @@ public class Topology
             weigthTwoToOne = (PathWeight) in.readObject();
             nodeOne = (NodeInfo) in.readObject();
             nodeTwo = (NodeInfo) in.readObject();
+        }
+    }
+
+    private static class TwoNodeInfo {
+        private final NodeInfo nodeOne;
+        private final NodeInfo nodeTwo;
+        private TwoNodeInfo(NodeInfo aNodeOne, NodeInfo aNodeTwo) {
+            nodeOne = aNodeOne;
+            nodeTwo = aNodeTwo;
+        }
+        public int hashCode() {
+            return nodeOne.hashCode() * nodeTwo.hashCode();
+        }
+        public boolean equals(Object obj) {
+            if ( false == obj instanceof TwoNodeInfo ) {
+                return false;
+            }
+            TwoNodeInfo other = (TwoNodeInfo) obj;
+            return nodeOne.equals(other.nodeOne) &&
+                nodeTwo.equals(other.nodeTwo);
         }
     }
     

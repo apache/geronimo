@@ -35,7 +35,7 @@ import EDU.oswego.cs.dl.util.concurrent.TimeoutException;
  * It is provided by a ServerNode to its Connectors in order to send Msgs to
  * remote Connectors.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/16 14:48:59 $
+ * @version $Revision: 1.5 $ $Date: 2004/03/18 12:14:05 $
  */
 public class RequestSender {
 
@@ -197,7 +197,7 @@ public class RequestSender {
     /**
      * Request identifier.
      */
-    private static class RequestID implements Externalizable {
+    public static class RequestID implements Externalizable {
         private int id;
         /**
          * Required for Externalization.
@@ -205,6 +205,9 @@ public class RequestSender {
         public RequestID() {}
         public RequestID(int anID) {
             id = anID;
+        }
+        public int getID() {
+            return id;
         }
         public void writeExternal(ObjectOutput out) throws IOException {
             out.writeInt(id);

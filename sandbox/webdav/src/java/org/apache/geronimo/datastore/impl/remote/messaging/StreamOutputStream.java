@@ -20,18 +20,54 @@ package org.apache.geronimo.datastore.impl.remote.messaging;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
+import java.io.ObjectStreamClass;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This is the counterpart of StreamInputStream.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/16 14:48:59 $
+ * @version $Revision: 1.5 $ $Date: 2004/03/18 12:14:05 $
  */
 public class StreamOutputStream
     extends ObjectOutputStream
 {
 
+    /**
+     * First byte written by writeClassDescriptor to indicate that the
+     * ObjectStreamClass to be written is new.
+     * <BR>
+     * StreamOutputStream writes just after this byte an int, which will be
+     * used subsequently to send the same ObjectStreamClass (having the same
+     * SUID).
+     * <BR>
+     * After this identifier, the actual ObjectStreamClass is written.
+     */
+    public static final byte NOT_CACHED = 0x01;
+    
+    /**
+     * First byte written by writeClassDescriptor to indicate that the
+     * ObjectStreamClass to be written has already been provided.
+     * <BR>
+     * StreamOutputStream writes just after this byte an int, which is the 
+     * identifier of the ObjectStreamClass being written.\
+     * <BR>
+     * See NOT_CACHED for more details.
+     */
+    public static final byte CACHED = 0x02;
+
+    /**
+     * Used to generate identifiers for cached ObjectStreamClasses.
+     */
+    private int seqID;
+    
     private final StreamManager streamManager;
+
+    /**
+     * ClassDescriptors to Integer map.
+     */
+    private final Map classDescCache;
     
     public StreamOutputStream(OutputStream anOut, StreamManager aManager)
         throws IOException {
@@ -41,6 +77,8 @@ public class StreamOutputStream
             throw new IllegalArgumentException("StreamManager is required.");
         }
         streamManager = aManager;
+        classDescCache = new HashMap();
+        seqID = 0;
     }
 
     public void writeStream(InputStream aStream) throws IOException {
@@ -61,6 +99,29 @@ public class StreamOutputStream
      * It is critical to avoid to write 
      */
     protected void writeStreamHeader() throws IOException {}
+    
+    /**
+     * ObjectStreamClasses are not systematically written to the stream.
+     * Instead, the very first time that a given ObjectStreamClass needs to be
+     * written, this implementation assigns it an identifier.
+     * <BR>
+     * This latter will be written for all the remaining requests.
+     */
+    protected void writeClassDescriptor(ObjectStreamClass desc)
+        throws IOException {
+        Long descKey = new Long(desc.getSerialVersionUID()); 
+        Integer id = (Integer) classDescCache.get(descKey);
+        if ( null == id ) {
+            id = new Integer(seqID++);
+            classDescCache.put(descKey, id);
+            write(NOT_CACHED);
+            writeInt(id.intValue());
+            super.writeClassDescriptor(desc);
+        } else {
+            write(CACHED);
+            writeInt(id.intValue());
+        }
+    }
     
     protected Object replaceObject(Object obj) throws IOException {
         if ( obj instanceof InputStream ) {

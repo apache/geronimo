@@ -26,7 +26,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Reactor in charge of dispatching Msgs to Connectors based on their headers.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/03 13:10:07 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/18 12:14:05 $
  */
 public class HeaderReactor
     implements Processor
@@ -50,11 +50,6 @@ public class HeaderReactor
     private final Processors processors;
     
     /**
-     * Indicates if this Processor is running.
-     */
-    private volatile boolean isStarted; 
-    
-    /**
      * Dispatch the provided Header blocks.
      * 
      * @param anIn Header blocks to be dispatched.
@@ -70,7 +65,6 @@ public class HeaderReactor
         actualIn = anIn;
         connectors = new HashMap();
         processors = aProcessors;
-        isStarted = true;
     }
 
     /**
@@ -98,20 +92,22 @@ public class HeaderReactor
     }
     
     public void run() {
-        while (isStarted) {
-            dispatch();
+        try {
+            while ( true ) {
+                dispatch();
+            }
+        } catch (MsgInterceptorStoppedException e) {
+            log.info("Stopping HeaderReactor", e);
+            return;
         }
     }
 
-    public void release() {
-        isStarted = false;
-    }
-    
     /**
      * Dispatches Msgs to the relevant Connector.
      */
     private void dispatch() {
-        final Msg msg = actualIn.pop();
+        final Msg msg;
+        msg = actualIn.pop();
         Object opaque = actualIn.getHeader();
         final Connector connector;
         synchronized (connectors) {

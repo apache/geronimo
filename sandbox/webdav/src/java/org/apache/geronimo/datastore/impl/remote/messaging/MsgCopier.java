@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
  * Processor in charge of copying Msgs coming from inbound Msg interceptor
  * to outbound Msg interceptors.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/18 12:14:05 $
  */
 public class MsgCopier
     implements Processor
@@ -52,11 +52,6 @@ public class MsgCopier
      * Client callback.
      */
     private final CopierListener listener;
-    
-    /**
-     * Indicates if this Processor is started. 
-     */
-    private volatile boolean isStarted;
     
     /**
      * Creates a copier which copies anIn to anOut and notifies aListener.
@@ -91,13 +86,12 @@ public class MsgCopier
         } else {
             listener = aListener;
         }
-        isStarted = true;
     }
 
     public void run() {
         listener.onStart();
         try {
-            while ( isStarted ) {
+            while ( true ) {
                 copy();
             }
         } catch (Throwable e) {
@@ -108,10 +102,6 @@ public class MsgCopier
         }
     }
 
-    public void release() {
-        isStarted = false;
-    }
-    
     /**
      * Actual copy.
      */

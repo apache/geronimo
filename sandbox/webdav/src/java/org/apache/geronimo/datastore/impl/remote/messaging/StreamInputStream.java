@@ -20,7 +20,10 @@ package org.apache.geronimo.datastore.impl.remote.messaging;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectStreamClass;
 import java.io.StreamCorruptedException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Allows to read an InputStream from the underlying InputStream. More
@@ -28,12 +31,17 @@ import java.io.StreamCorruptedException;
  * underlying InputStream. This identifier is then passed to the StreamManager,
  * which returns the InputStream having the provided identifier.
  * 
- * @version $Revision: 1.4 $ $Date: 2004/03/16 14:48:59 $
+ * @version $Revision: 1.5 $ $Date: 2004/03/18 12:14:05 $
  */
 public class StreamInputStream
     extends ObjectInputStream
 {
 
+    /**
+     * ClassDescriptors cache.
+     */
+    private final List classDescCache;
+    
     /**
      * StreamManager to be used to retrieve InputStream encoded in the
      * underlying InputStream.
@@ -56,6 +64,7 @@ public class StreamInputStream
             throw new IllegalArgumentException("StreamManager is required.");
         }
         streamManager = aManager;
+        classDescCache = new ArrayList();
     }
 
     /**
@@ -102,6 +111,29 @@ public class StreamInputStream
      */
     protected void readStreamHeader()
         throws IOException, StreamCorruptedException {}
+    
+    /**
+     * Counterpart of StreamOutputStream.writeClassDescriptor.
+     */
+    protected ObjectStreamClass readClassDescriptor()
+        throws IOException, ClassNotFoundException {
+        ObjectStreamClass streamClass;
+        int type = read();
+        if ( StreamOutputStream.NOT_CACHED == type ) {
+            int id = readInt();
+            streamClass = super.readClassDescriptor();
+            classDescCache.add(id, streamClass);
+        } else {
+            int id = readInt();
+            try {
+                streamClass = (ObjectStreamClass) classDescCache.get(id);
+            } catch (IndexOutOfBoundsException e) {
+                throw new StreamCorruptedException(
+                    "No ObjectStreamClass has the identifier {" + id + "}");
+            }
+        }
+        return streamClass;
+    }
     
     protected Object resolveObject(Object obj) throws IOException {
         if ( obj instanceof GInputStream ) {

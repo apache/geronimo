@@ -22,7 +22,7 @@ import java.util.List;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/11 15:36:14 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/18 12:14:05 $
  */
 public class DummyConnector implements Connector {
 
@@ -75,10 +75,10 @@ public class DummyConnector implements Connector {
     public void deliver(Msg aMsg) {
         MsgHeader header = aMsg.getHeader();
         MsgBody.Type bodyType =
-        (MsgBody.Type) header.getHeader(MsgHeaderConstants.BODY_TYPE);
-        if ( bodyType.equals(MsgBody.Type.REQUEST) ) {
+            (MsgBody.Type) header.getHeader(MsgHeaderConstants.BODY_TYPE);
+        if ( MsgBody.Type.REQUEST == bodyType ) {
             handleRequest(aMsg);
-        } else if ( bodyType.equals(MsgBody.Type.RESPONSE) ) {
+        } else if ( MsgBody.Type.RESPONSE == bodyType ) {
             handleResponse(aMsg);
         }
     }
@@ -100,18 +100,15 @@ public class DummyConnector implements Connector {
                 MsgHeaderConstants.CORRELATION_ID,
                 id,
                 new HeaderOutInterceptor(
-                    MsgHeaderConstants.DEST_CONNECTOR,
-                    getName(),
+                    MsgHeaderConstants.BODY_TYPE,
+                    MsgBody.Type.RESPONSE,
                     new HeaderOutInterceptor(
-                        MsgHeaderConstants.BODY_TYPE,
-                        MsgBody.Type.RESPONSE,
+                        MsgHeaderConstants.DEST_NODES,
+                        node,
                         new HeaderOutInterceptor(
-                            MsgHeaderConstants.DEST_NODES,
-                            node,
-                            new HeaderOutInterceptor(
-                                MsgHeaderConstants.BODY_TYPE,
-                                MsgBody.Type.RESPONSE,
-                                out)))));
+                            MsgHeaderConstants.BODY_TYPE,
+                            MsgBody.Type.RESPONSE,
+                            out))));
         reqOut.push(msg);
     }
 

@@ -51,7 +51,7 @@ import org.mortbay.util.ThreadedServer;
  *
  * Connector communicates with each other by sending Msgs.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/11 15:36:14 $
+ * @version $Revision: 1.5 $ $Date: 2004/03/18 12:14:05 $
  */
 public class ServerNode
     implements GBean
@@ -301,11 +301,13 @@ public class ServerNode
 
     public void doStop() throws WaitingException, Exception {
         server.stop();
+        metaConnection.stop();
         processors.stop();
     }
 
     public void doFail() {
         server.stop();
+        metaConnection.stop();
         processors.stop();
     }
     

@@ -18,10 +18,14 @@
 package org.apache.geronimo.datastore.impl.remote.messaging;
 
 /**
- * Runnable task.
+ * Exception thrown when a Msg interceptor chain is stopped.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/18 12:14:05 $
+ * @version $Revision: 1.1 $ $Date: 2004/03/18 12:14:05 $
  */
-public interface Processor extends Runnable
-{
+public class MsgInterceptorStoppedException extends RuntimeException {
+
+    public MsgInterceptorStoppedException(Throwable aNested) {
+        super(aNested);
+    }
+    
 }

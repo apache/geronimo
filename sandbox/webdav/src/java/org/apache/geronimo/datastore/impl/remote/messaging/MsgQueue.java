@@ -25,7 +25,7 @@ import EDU.oswego.cs.dl.util.concurrent.LinkedQueue;
 /**
  * A named queue. It is a staging repository for Msgs.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/11 15:36:14 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/18 12:14:05 $
  */
 public class MsgQueue
 {
@@ -68,7 +68,7 @@ public class MsgQueue
             queue.put(aMessage);
         } catch (InterruptedException e) {
             log.error(e);
-            throw new RuntimeException(e);
+            throw new MsgInterceptorStoppedException(e);
         }
         log.trace("Message added to queue {" + name + "}");
     }
@@ -84,7 +84,7 @@ public class MsgQueue
             message = (Msg) queue.take();
         } catch (InterruptedException e) {
             log.error(e);
-            throw new RuntimeException(e);
+            throw new MsgInterceptorStoppedException(e);
         }
         log.trace("Message removed from queue {" + name + "}");
         return message;

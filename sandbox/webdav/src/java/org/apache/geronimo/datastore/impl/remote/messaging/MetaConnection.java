@@ -21,7 +21,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -30,7 +33,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * This is a connection of connections.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/16 14:48:59 $
+ * @version $Revision: 1.5 $ $Date: 2004/03/18 12:14:05 $
  */
 public class MetaConnection
 {
@@ -40,12 +43,17 @@ public class MetaConnection
     /**
      * Node owning this connection.
      */
-    private ServerNode node;
+    private final ServerNode node;
     
     /**
      * NodeInfo to Connection map.
      */
-    private Map connections;
+    private final Map connections;
+    
+    /**
+     * Connections opened by MetaConnection.
+     */
+    private final Collection openedConnections;
     
     /**
      * Node topology to be used to derive the most appropriate path to reach
@@ -57,7 +65,7 @@ public class MetaConnection
      * Logical compression and decompression applied on Msgs pushed and poped 
      * by this meta-connection.
      */
-    private LogicalCompression logicalComp;
+    private final LogicalCompression logicalComp;
     
     /**
      * Creates a meta-connection for the specified node.
@@ -71,6 +79,7 @@ public class MetaConnection
         node = aNode;
         connections = new HashMap();
         logicalComp = new LogicalCompression();
+        openedConnections = new ArrayList();
     }
     
     /**
@@ -204,6 +213,7 @@ public class MetaConnection
             throw new CommunicationException(
                 otherNodeInfo + " already registered");
         }
+        connection.nodeInfo = otherNodeInfo;
         synchronized(connections) {
             connections.put(otherNodeInfo, connection);
         }
@@ -248,6 +258,9 @@ public class MetaConnection
         synchronized (connections) {
             connections.put(aNodeInfo, connection);
         }
+        synchronized (openedConnections) {
+            openedConnections.add(connection);
+        }
         popConnection(connection);
     }
     
@@ -270,9 +283,28 @@ public class MetaConnection
         synchronized (connections) {
             connection = (Connection) connections.remove(aNodeInfo);
         }
+        synchronized (openedConnections) {
+            openedConnections.remove(connection);
+        }
         connection.close();
     }
 
+    /**
+     * Stops the connections. 
+     */
+    public void stop() {
+        // TODO Remote nodes which have join the node owning this
+        // meta-connection need to be notified in order to close on their side
+        // the connection.
+        synchronized(openedConnections) {
+            for (Iterator iter = openedConnections.iterator(); iter.hasNext();) {
+                Connection connection = (Connection) iter.next();
+                connection.close();
+                iter.remove();
+            }
+        }
+    }
+    
     /**
      * Pops the input stream of the connection and fills in the inbound
      * Msg queue with Msgs sent to this node. Otherwise, fills in the
@@ -298,7 +330,7 @@ public class MetaConnection
             }
         };
         MsgCopier copier = new MsgCopier(
-                aConnection.in, out, aConnection.listener);
+            aConnection.in, out, aConnection.listener);
         node.processors.execute(copier);
     }
 
@@ -310,7 +342,7 @@ public class MetaConnection
      * one can replace the NodeInfo instances contained by Msgs by their
      * corresponding identifier. 
      *
-     * @version $Revision: 1.4 $ $Date: 2004/03/16 14:48:59 $
+     * @version $Revision: 1.5 $ $Date: 2004/03/18 12:14:05 $
      */
     private class LogicalCompression implements
         StreamInInterceptor.PopSynchronization,
@@ -326,6 +358,9 @@ public class MetaConnection
          */
         private final static byte TOPOLOGY = 0x01;
         
+        private final static byte REQUEST = 0x01;
+        private final static byte RESPONSE = 0x02;
+        
         public Object beforePop(StreamInputStream anIn)
             throws IOException {
             byte type = anIn.readByte(); 
@@ -335,13 +370,21 @@ public class MetaConnection
             if ( null == topology ) {
                 throw new IllegalArgumentException("No topology is defined.");
             }
-            Object[] result = new Object[2];
+            Object[] result = new Object[4];
             int id = anIn.readInt();
             NodeInfo nodeInfo = topology.getNodeById(id);
             result[0] = nodeInfo;
             id = anIn.readInt();
             nodeInfo = topology.getNodeById(id);
             result[1] = nodeInfo;
+            int bodyType = anIn.read();
+            if ( REQUEST == bodyType ) {
+                result[2] = MsgBody.Type.REQUEST;
+            } else {
+                result[2] = MsgBody.Type.RESPONSE;
+            }
+            int reqID = anIn.readInt();
+            result[3] = new RequestSender.RequestID(reqID);
             return result;
         }
         public void afterPop(StreamInputStream anIn, Msg aMsg, Object anOpaque)
@@ -354,6 +397,8 @@ public class MetaConnection
             header.addHeader(MsgHeaderConstants.SRC_NODE, prePop[0]);
             header.addHeader(MsgHeaderConstants.DEST_NODE, prePop[1]);
             header.addHeader(MsgHeaderConstants.DEST_NODES, prePop[1]);
+            header.addHeader(MsgHeaderConstants.BODY_TYPE, prePop[2]);
+            header.addHeader(MsgHeaderConstants.CORRELATION_ID, prePop[3]);
         }
         
         public Object beforePush(StreamOutputStream anOut, Msg aMsg)
@@ -375,6 +420,16 @@ public class MetaConnection
             // DEST_NODE.
             header.resetHeader(MsgHeaderConstants.DEST_NODES);
             anOut.writeInt(id);
+            MsgBody.Type type  = (MsgBody.Type)
+                header.resetHeader(MsgHeaderConstants.BODY_TYPE);
+            if ( type == MsgBody.Type.REQUEST ) {
+                anOut.write(REQUEST);
+            } else {
+                anOut.write(RESPONSE);
+            }
+            RequestSender.RequestID reqID  = (RequestSender.RequestID)
+                header.resetHeader(MsgHeaderConstants.CORRELATION_ID);
+            anOut.writeInt(reqID.getID());
             return null;
         }
         public void afterPush(StreamOutputStream anOut, Msg aMsg,
@@ -411,6 +466,11 @@ public class MetaConnection
          * Monitor used to wait the end of this connection.
          */
         private final Object endReleaser = new Object();
+        
+        /**
+         * NodeInfo of the client.
+         */
+        private NodeInfo nodeInfo;
         
         /**
          * Creates a connection wrapping the provided input and output streams.
@@ -450,6 +510,7 @@ public class MetaConnection
             if ( null == aNodeInfo ) {
                 throw new IllegalArgumentException("NodeInfo is required.");
             }
+            nodeInfo  = aNodeInfo;
             Socket socket =
                 new Socket(aNodeInfo.getAddress(), aNodeInfo.getPort());
             
@@ -479,6 +540,9 @@ public class MetaConnection
                 rawOut.close();
             } catch (IOException e) {
                 log.error("Can not close output", e);
+            }
+            synchronized(connections) {
+                connections.remove(nodeInfo);
             }
             synchronized(endReleaser) {
                 endReleaser.notify();
