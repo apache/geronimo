@@ -63,10 +63,15 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import javax.management.InstanceNotFoundException;
+import javax.management.ListenerNotFoundException;
+import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.MalformedObjectNameException;
+import javax.management.NotificationBroadcaster;
+import javax.management.NotificationFilter;
+import javax.management.NotificationListener;
 import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
@@ -97,9 +102,10 @@ import org.apache.geronimo.kernel.service.DependencyService2;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/17 03:44:38 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/19 06:34:21 $
  */
-public class Kernel implements Serializable, KernelMBean {
+public class Kernel implements Serializable, KernelMBean, NotificationBroadcaster {
+
     /**
      * The JMX name used by a Kernel to register itself when it boots.
      */
@@ -407,4 +413,15 @@ public class Kernel implements Serializable, KernelMBean {
             }
         }
     }
+
+    public MBeanNotificationInfo[] getNotificationInfo() {
+        return new MBeanNotificationInfo[0];
+    }
+
+    public void addNotificationListener(NotificationListener listener, NotificationFilter filter, Object handback) throws IllegalArgumentException {
+    }
+
+    public void removeNotificationListener(NotificationListener listener) throws ListenerNotFoundException {
+    }
+
 }
