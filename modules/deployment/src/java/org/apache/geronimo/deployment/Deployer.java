@@ -91,7 +91,7 @@ import org.apache.xmlbeans.XmlObject;
  * Command line based deployment utility which combines multiple deployable modules
  * into a single configuration.
  *
- * @version $Revision: 1.6 $ $Date: 2004/02/20 07:40:53 $
+ * @version $Revision: 1.7 $ $Date: 2004/02/20 19:20:59 $
  */
 public class Deployer {
     static {
@@ -110,18 +110,34 @@ public class Deployer {
     }
 
     public void deploy(Command cmd) throws Exception {
-        URL planURL = cmd.plan;
-        XmlObject plan = getLoader().parse(planURL, null, null);
         ConfigurationBuilder builder = null;
-        for (Iterator i = builders.iterator(); i.hasNext();) {
-            builder = (ConfigurationBuilder) i.next();
-            if (builder.canConfigure(plan)) {
-                break;
+        XmlObject plan = null;
+        if (cmd.plan != null) {
+            plan = getLoader().parse(cmd.plan, null, null);
+            for (Iterator i = builders.iterator(); i.hasNext();) {
+                ConfigurationBuilder candidate = (ConfigurationBuilder) i.next();
+                if (candidate.canConfigure(plan)) {
+                    builder = candidate;
+                    break;
+                }
             }
-            builder = null;
-        }
-        if (builder == null) {
-            throw new DeploymentException("No deployer found for this plan type");
+            if (builder == null) {
+                throw new DeploymentException("No deployer found for this plan type");
+            }
+        } else if (cmd.module != null) {
+            for (Iterator i = builders.iterator(); i.hasNext();) {
+                ConfigurationBuilder candidate = (ConfigurationBuilder) i.next();
+                plan = candidate.getDeploymentPlan(cmd.module);
+                if (plan != null) {
+                    builder = candidate;
+                    break;
+                }
+            }
+            if (builder == null) {
+                throw new DeploymentException("No deployer found for this module type");
+            }
+        } else {
+            throw new DeploymentException("No plan or module supplied");
         }
 
         boolean saveOutput;
@@ -233,13 +249,13 @@ public class Deployer {
         try {
             command.plan = cmd.hasOption('p') ? getURL(cmd.getOptionValue('p')) : null;
         } catch (MalformedURLException e) {
-            System.err.println("Invalid URL for plan: "+cmd.getOptionValue('p'));
+            System.err.println("Invalid URL for plan: " + cmd.getOptionValue('p'));
             return null;
         }
         try {
             command.module = cmd.hasOption('m') ? getURL(cmd.getOptionValue('m')) : null;
         } catch (MalformedURLException e) {
-            System.err.println("Invalid URL for module: "+cmd.getOptionValue('m'));
+            System.err.println("Invalid URL for module: " + cmd.getOptionValue('m'));
             return null;
         }
         if (command.module == null && command.plan == null) {
@@ -249,7 +265,7 @@ public class Deployer {
         try {
             command.deployer = cmd.hasOption('d') ? new URI(cmd.getOptionValue('d')) : DEFAULT_CONFIG;
         } catch (URISyntaxException e) {
-            System.err.println("Invalid URI for deployer: "+cmd.getOptionValue('d'));
+            System.err.println("Invalid URI for deployer: " + cmd.getOptionValue('d'));
             return null;
         }
         command.store = cmd.hasOption('s') ? new File(cmd.getOptionValue('s')) : new File("../config-store");
