@@ -78,12 +78,12 @@ import org.apache.geronimo.kernel.log.GeronimoLogging;
 
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/02/24 06:05:37 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/25 07:54:57 $
  */
 public class CommandLine {
     static {
         // This MUST be done before the first log is acquired
-        GeronimoLogging.initialize(GeronimoLogging.INFO);
+        GeronimoLogging.initialize(GeronimoLogging.ERROR);
     }
 
     private CommandLine() {
