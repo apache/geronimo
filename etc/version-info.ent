@@ -60,7 +60,7 @@
 <!ENTITY eclipse-compiler-version "3.0.1">
 <!ENTITY emberio-version "0.3-alpha">
 <!ENTITY ews-version "SNAPSHOT">
-<!ENTITY howl-version "0.1.8-SNAPSHOT">
+<!ENTITY howl-version "0.1.8">
 <!ENTITY hsqldb-version "1.7.2.2">
 <!ENTITY jasper-version "5.5.4">
 <!ENTITY javacc-version "2.1">
