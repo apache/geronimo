@@ -72,7 +72,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:35 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/27 17:22:16 $
  */
 public final class ParserUtil extends ClassUtils {
     private ParserUtil(){
@@ -292,7 +292,7 @@ public final class ParserUtil extends ClassUtils {
             int arrayDimension = 0;
             String componentClassName = className;
             while (componentClassName.endsWith("[]")) {
-                componentClassName = componentClassName.substring(0, className.length() - 2);
+                componentClassName = componentClassName.substring(0, componentClassName.length() - 2);
                 arrayDimension++;
             }
 
