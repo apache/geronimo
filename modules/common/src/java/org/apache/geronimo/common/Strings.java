@@ -24,12 +24,12 @@
  *    if and wherever such third-party acknowledgments normally appear.
  *
  * 4. The names "Apache" and "Apache Software Foundation" and
- *    "Apache Maven" must not be used to endorse or promote products
+ *    "Apache Geronimo" must not be used to endorse or promote products
  *    derived from this software without prior written permission. For
  *    written permission, please contact apache@apache.org.
  *
  * 5. Products derived from this software may not be called "Apache",
- *    "Apache Maven", nor may "Apache" appear in their name, without
+ *    "Apache Geronimo", nor may "Apache" appear in their name, without
  *    prior written permission of the Apache Software Foundation.
  *
  * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
@@ -67,7 +67,7 @@ import java.io.File;
 /**
  * A collection of String utilities.
  *
- * @version <code>$Revision: 1.2 $</code>
+ * @version <code>$Revision: 1.3 $</code>
  */
 public final class Strings
 {
