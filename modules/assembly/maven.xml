@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Revision: 1.26 $ $Date: 2004/09/03 05:48:14 $ -->
+<!-- $Revision: 1.27 $ $Date: 2004/09/03 06:00:39 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -235,7 +235,7 @@
             <ant:arg value="--plan"/>
             <ant:arg value="target/plan/default-database-plan.xml"/>
             <ant:arg value="--module"/>
-            <ant:arg value="${maven.repo.local}/tranql/rars/tranql-connector-SNAPSHOT.rar"/>
+            <ant:arg value="${maven.repo.local}/tranql/rars/tranql-connector-${tranql_connector_version}.rar"/>
         </ant:java>
 
         <!-- build the J2EEServer secure configuration -->
@@ -300,7 +300,7 @@
                 username="system"
                 password="manager"
                 home="${basedir}"
-                module="${maven.repo.local}/tranql/rars/tranql-connector-SNAPSHOT.rar"
+                module="${maven.repo.local}/tranql/rars/tranql-connector-${tranql_connector_version}.rar"
                 plan="target/plan/default-database-plan.xml"
                 />
             <deploy:start
