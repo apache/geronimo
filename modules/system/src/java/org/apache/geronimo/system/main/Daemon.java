@@ -37,7 +37,7 @@ import org.apache.geronimo.system.url.GeronimoURLFactory;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/04 17:27:00 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/04 17:38:45 $
  */
 public class Daemon {
     static {
@@ -123,13 +123,15 @@ public class Daemon {
 
             if (configs.isEmpty()) {
                 // nothing explicit, see what was running before
-                try {
-                    configs = (List) kernel.invoke(PersistentConfigurationList.OBJECT_NAME, "restore");
-                } catch (IOException e) {
-                    System.err.println("Unable to restore last known configurations");
-                    e.printStackTrace();
-                    kernel.shutdown();
-                    System.exit(3);
+                if (kernel.isLoaded(PersistentConfigurationList.OBJECT_NAME)) {
+                    try {
+                        configs = (List) kernel.invoke(PersistentConfigurationList.OBJECT_NAME, "restore");
+                    } catch (IOException e) {
+                        System.err.println("Unable to restore last known configurations");
+                        e.printStackTrace();
+                        kernel.shutdown();
+                        System.exit(3);
+                    }
                 }
             }
 
