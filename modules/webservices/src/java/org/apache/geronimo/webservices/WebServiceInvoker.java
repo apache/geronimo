@@ -25,7 +25,8 @@ import java.net.URI;
  */
 public interface WebServiceInvoker {
 
-    void invoke(InputStream in, OutputStream out) throws Exception;
+    void invoke(InputStream in, OutputStream out, String uri) throws Exception;
 
-    void getWsdl(URI wsdlURi, OutputStream out) throws Exception;
+    void getWsdl(OutputStream out) throws Exception;
+
 }

@@ -60,7 +60,7 @@ public class JettyWebServiceHandler extends HttpContext implements HttpHandler {
         if (request.getParameter("wsdl") != null) {
             OutputStream out = response.getOutputStream();
             try {
-                webServiceInvoker.getWsdl(null, out);
+                webServiceInvoker.getWsdl(out);
             } catch (IOException e) {
                 throw e;
             } catch (Exception e) {
@@ -69,7 +69,7 @@ public class JettyWebServiceHandler extends HttpContext implements HttpHandler {
             //WHO IS RESPONSIBLE FOR CLOSING OUT?
         } else {
             try {
-                webServiceInvoker.invoke(request.getInputStream(), response.getOutputStream());
+                webServiceInvoker.invoke(request.getInputStream(), response.getOutputStream(), request.getURI().getPath());
                 request.setHandled(true);
             } catch (IOException e) {
                 throw e;

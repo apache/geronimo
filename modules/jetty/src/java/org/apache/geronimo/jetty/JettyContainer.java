@@ -19,9 +19,8 @@ package org.apache.geronimo.jetty;
 
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpListener;
-import org.mortbay.http.UserRealm;
 import org.mortbay.http.RequestLog;
-import org.apache.geronimo.webservices.WebServiceInvoker;
+import org.mortbay.http.UserRealm;
 
 /**
  * @version $Rev$ $Date$
@@ -38,11 +37,6 @@ public interface JettyContainer {
     void addRealm(UserRealm realm);
 
     void removeRealm(UserRealm realm);
-
-    //TODO these need to be in a separate interface, they need to be called by an ejb container that doesn't know it this is jetty or tomcat.
-    void addWebService(String contextPath, WebServiceInvoker webServiceInvoker) throws Exception;
-
-    void removeWebService(String contextPath);
 
     void resetStatistics();
 

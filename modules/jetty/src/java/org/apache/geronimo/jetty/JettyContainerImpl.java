@@ -17,26 +17,27 @@
 
 package org.apache.geronimo.jetty;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.webservices.WebServiceContainer;
+import org.apache.geronimo.webservices.WebServiceInvoker;
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpListener;
 import org.mortbay.http.RequestLog;
 import org.mortbay.http.UserRealm;
 import org.mortbay.jetty.Server;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.webservices.WebServiceInvoker;
-
 /**
  * @version $Rev$ $Date$
  */
-public class JettyContainerImpl implements JettyContainer, GBeanLifecycle {
+public class JettyContainerImpl implements JettyContainer, WebServiceContainer, GBeanLifecycle {
     private final Server server;
     private final Map webServices = new HashMap();
+
 
     public JettyContainerImpl() {
         server = new JettyServer();
@@ -177,36 +178,36 @@ public class JettyContainerImpl implements JettyContainer, GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty Web Container", JettyContainerImpl.class);
-        infoFactory.addAttribute("collectStatistics", Boolean.TYPE, true);
-        infoFactory.addAttribute("collectStatisticsStarted", Long.TYPE, false);
-        infoFactory.addAttribute("connections", Integer.TYPE, false);
-        infoFactory.addAttribute("connectionsOpen", Integer.TYPE, false);
-        infoFactory.addAttribute("connectionsOpenMax", Integer.TYPE, false);
-        infoFactory.addAttribute("connectionsDurationAve", Long.TYPE, false);
-        infoFactory.addAttribute("connectionsDurationMax", Long.TYPE, false);
-        infoFactory.addAttribute("connectionsRequestsAve", Integer.TYPE, false);
-        infoFactory.addAttribute("connectionsRequestsMax", Integer.TYPE, false);
-        infoFactory.addAttribute("errors", Integer.TYPE, false);
-        infoFactory.addAttribute("requests", Integer.TYPE, false);
-        infoFactory.addAttribute("requestsActive", Integer.TYPE, false);
-        infoFactory.addAttribute("requestsActiveMax", Integer.TYPE, false);
-        infoFactory.addAttribute("requestsDurationAve", Long.TYPE, false);
-        infoFactory.addAttribute("requestsDurationMax", Long.TYPE, false);
-        infoFactory.addOperation("resetStatistics");
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder("Jetty Web Container", JettyContainerImpl.class);
+        infoBuilder.addAttribute("collectStatistics", Boolean.TYPE, true);
+        infoBuilder.addAttribute("collectStatisticsStarted", Long.TYPE, false);
+        infoBuilder.addAttribute("connections", Integer.TYPE, false);
+        infoBuilder.addAttribute("connectionsOpen", Integer.TYPE, false);
+        infoBuilder.addAttribute("connectionsOpenMax", Integer.TYPE, false);
+        infoBuilder.addAttribute("connectionsDurationAve", Long.TYPE, false);
+        infoBuilder.addAttribute("connectionsDurationMax", Long.TYPE, false);
+        infoBuilder.addAttribute("connectionsRequestsAve", Integer.TYPE, false);
+        infoBuilder.addAttribute("connectionsRequestsMax", Integer.TYPE, false);
+        infoBuilder.addAttribute("errors", Integer.TYPE, false);
+        infoBuilder.addAttribute("requests", Integer.TYPE, false);
+        infoBuilder.addAttribute("requestsActive", Integer.TYPE, false);
+        infoBuilder.addAttribute("requestsActiveMax", Integer.TYPE, false);
+        infoBuilder.addAttribute("requestsDurationAve", Long.TYPE, false);
+        infoBuilder.addAttribute("requestsDurationMax", Long.TYPE, false);
+        infoBuilder.addOperation("resetStatistics");
 
-        infoFactory.addAttribute("requestLog", RequestLog.class, false);
+        infoBuilder.addAttribute("requestLog", RequestLog.class, false);
 
-        infoFactory.addOperation("addListener", new Class[]{HttpListener.class});
-        infoFactory.addOperation("removeListener", new Class[]{HttpListener.class});
-        infoFactory.addOperation("addContext", new Class[]{HttpContext.class});
-        infoFactory.addOperation("removeContext", new Class[]{HttpContext.class});
-        infoFactory.addOperation("addRealm", new Class[]{UserRealm.class});
-        infoFactory.addOperation("removeRealm", new Class[]{UserRealm.class});
-        infoFactory.addOperation("addWebService", new Class[]{String.class, WebServiceInvoker.class});
-        infoFactory.addOperation("removeWebService", new Class[]{String.class});
+        infoBuilder.addOperation("addListener", new Class[]{HttpListener.class});
+        infoBuilder.addOperation("removeListener", new Class[]{HttpListener.class});
+        infoBuilder.addOperation("addContext", new Class[]{HttpContext.class});
+        infoBuilder.addOperation("removeContext", new Class[]{HttpContext.class});
+        infoBuilder.addOperation("addRealm", new Class[]{UserRealm.class});
+        infoBuilder.addOperation("removeRealm", new Class[]{UserRealm.class});
 
-        GBEAN_INFO = infoFactory.getBeanInfo();
+        infoBuilder.addInterface(WebServiceContainer.class);
+
+        GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {

@@ -14,27 +14,15 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.jetty.app;
-
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.webservices.WebServiceInvoker;
+package org.apache.geronimo.webservices;
 
 /**
  * @version $Rev:  $ $Date:  $
  */
-public class MockWebServiceInvoker implements WebServiceInvoker {
-    public void invoke(InputStream in, OutputStream out, String uri) throws Exception {
-        out.write("Hello World".getBytes());
-    }
+public interface WebServiceContainer {
 
-    public void getWsdl(OutputStream out) throws Exception {
+    void addWebService(String contextPath, WebServiceInvoker webServiceInvoker) throws Exception;
 
-    }
+    void removeWebService(String contextPath);
 
 }
