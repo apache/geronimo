@@ -75,7 +75,7 @@ import org.apache.geronimo.deployment.DeploymentException;
  *
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/08/14 08:41:10 $
+ * @version $Revision: 1.6 $ $Date: 2003/08/14 17:23:38 $
  */
 public class Main implements Runnable {
     static {
@@ -221,8 +221,8 @@ public class Main implements Runnable {
     public static void main(String[] args) {
         try {
             // @todo get these from somewhere a little more flexible
-            URL mletURL = new URL("file:modules/core/src/conf/boot.mlet");
-            URL deployURL = new URL("file:modules/core/src/conf/boot-service.xml");
+            URL mletURL = new URL("file:src/conf/boot.mlet");
+            URL deployURL = new URL("file:src/conf/boot-service.xml");
             Main main = new Main("geronimo", mletURL, deployURL);
 
             ThreadGroup group = new ThreadGroup("Geronimo");

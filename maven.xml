@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: maven.xml,v 1.11 2003/08/14 17:08:00 jdillon Exp $ -->
+<!-- $Id: maven.xml,v 1.12 2003/08/14 17:23:38 jdillon Exp $ -->
 
 <project default="default"
   xmlns:j="jelly:core" 
@@ -138,21 +138,12 @@
   
   <!-- jason: need to fix this -->
   
-  <goal name="run" prereqs="set.classpath"
-        description="Runs the Geronimo Server using the current build">
-    <ant:java classname="org.apache.geronimo.Main" fork="yes">
-      <ant:classpath refid="test.classpath"/>
-    </ant:java>
-  </goal>
-  
-  <goal name="set.classpath" prereqs="java:compile, test:compile"
-        description="Sets up the classpath for running things">
-    <ant:path id="test.classpath">
-      <ant:pathelement path="target/test-classes"/>
-      <ant:pathelement path="modules/core/src/conf/"/>
-      <ant:pathelement path="${maven.build.dest}"/>
-      <ant:path refid="maven.dependency.classpath"/>
-    </ant:path>
+  <goal name="run" description="Runs the Geronimo Server using the current build">
+    
+    <j:set var="module" value="core"/>
+    <j:set var="goals" value="run"/>
+    <attainGoal name="modules:reactor"/>
+    
   </goal>
   
 </project>

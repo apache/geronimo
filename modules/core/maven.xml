@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Id: maven.xml,v 1.4 2003/08/14 17:08:00 jdillon Exp $ -->
+<!-- $Id: maven.xml,v 1.5 2003/08/14 17:23:38 jdillon Exp $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -25,5 +25,26 @@
                 javacchome="${maven.repo.local}/javacc/jars"/>
     -->
   </preGoal>
+  
+  <!-- ============================== -->
+  <!-- Helpers to run Apache Geronimo -->
+  <!-- ============================== -->
+  
+  <!-- jason: need to fix this -->
+  
+  <goal name="run" description="Runs the Geronimo Server using the current build">
+  
+    <ant:path id="test.classpath">
+      <ant:pathelement path="target/test-classes"/>
+      <ant:pathelement path="src/conf/"/>
+      <ant:pathelement path="${maven.build.dest}"/>
+      <ant:path refid="maven.dependency.classpath"/>
+    </ant:path>
+    
+    <ant:java classname="org.apache.geronimo.Main" fork="yes">
+      <ant:classpath refid="test.classpath"/>
+    </ant:java>
+    
+  </goal>
   
 </project>
