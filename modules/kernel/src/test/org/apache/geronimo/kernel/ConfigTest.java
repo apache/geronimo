@@ -64,6 +64,7 @@ import java.util.Map;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import javax.management.Attribute;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
@@ -76,7 +77,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/15 00:45:54 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/17 00:14:22 $
  */
 public class ConfigTest extends TestCase {
     private ObjectName gbeanName1;
@@ -109,9 +110,21 @@ public class ConfigTest extends TestCase {
         assertEquals(new Integer(State.RUNNING_INDEX), mbServer.getAttribute(gbeanName1, "state"));
         Object state = mbServer.getAttribute(gbeanName2, "state");
         assertEquals(new Integer(State.RUNNING_INDEX), state);
+        assertEquals(new Integer(1), mbServer.getAttribute(gbeanName1, "FinalInt"));
+        assertEquals(new Integer(2), mbServer.getAttribute(gbeanName1, "MutableInt"));
         assertEquals("1234", mbServer.getAttribute(gbeanName1, "Value"));
+        assertEquals(new Integer(3), mbServer.getAttribute(gbeanName2, "FinalInt"));
+        assertEquals(new Integer(4), mbServer.getAttribute(gbeanName2, "MutableInt"));
+
+        mbServer.setAttribute(gbeanName2, new Attribute("MutableInt", new Integer(44)));
+        assertEquals(new Integer(44), mbServer.getAttribute(gbeanName2, "MutableInt"));
+
         assertEquals("no endpoint", mbServer.invoke(gbeanName1, "checkEndpoint", null, null));
         assertEquals("endpointCheck", mbServer.invoke(gbeanName2, "checkEndpoint", null, null));
+
+        mbServer.setAttribute(gbeanName2, new Attribute("EndpointMutableInt", new Integer(99)));
+        assertEquals(new Integer(99), mbServer.getAttribute(gbeanName2, "EndpointMutableInt"));
+        assertEquals(new Integer(99), mbServer.getAttribute(gbeanName1, "MutableInt"));
 
         mbServer.invoke(configName, "stop", null, null);
         try {
@@ -139,10 +152,14 @@ public class ConfigTest extends TestCase {
         GBeanMBean mockBean1 = new GBeanMBean(MockGBean.getGBeanInfo());
         mockBean1.setAttribute("Value", "1234");
         mockBean1.setAttribute("Name", "child");
+        mockBean1.setAttribute("FinalInt", new Integer(1));
+        mockBean1.setAttribute("MutableInt", new Integer(2));
         gbeanName2 = new ObjectName("geronimo.test:name=MyMockGMBean2");
         GBeanMBean mockBean2 = new GBeanMBean(MockGBean.getGBeanInfo());
         mockBean2.setAttribute("Value", "5678");
         mockBean2.setAttribute("Name", "Parent");
+        mockBean2.setAttribute("FinalInt", new Integer(3));
+        mockBean2.setAttribute("MutableInt", new Integer(4));
         mockBean2.setEndpointPatterns("MockEndpoint", Collections.singleton(gbeanName1));
 
         Map gbeans = new HashMap();

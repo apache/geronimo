@@ -55,8 +55,6 @@
  */
 package org.apache.geronimo.kernel;
 
-import java.util.Collections;
-
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -67,11 +65,13 @@ import org.apache.geronimo.gbean.GOperationInfo;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/16 23:31:21 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/17 00:14:22 $
  */
 public class MockGBean implements MockEndpoint {
     private static final GBeanInfo GBEAN_INFO;
     private final String name;
+    private final int finalInt;
+    private int mutableInt;
     private String value;
 
     private MockEndpoint endpoint;
@@ -84,20 +84,36 @@ public class MockGBean implements MockEndpoint {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("MockGBean", MockGBean.class.getName());
         infoFactory.addAttribute(new GAttributeInfo("Name", true));
         infoFactory.addAttribute(new GAttributeInfo("Value", true));
+        infoFactory.addAttribute(new GAttributeInfo("FinalInt", true));
+        infoFactory.addAttribute(new GAttributeInfo("MutableInt", true));
+        infoFactory.addAttribute(new GAttributeInfo("EndpointMutableInt"));
         infoFactory.addOperation(new GOperationInfo("checkResource", new String[]{"java.lang.String"}));
         infoFactory.addOperation(new GOperationInfo("checkEndpoint"));
         infoFactory.addOperation(new GOperationInfo("doSomething", new String[]{"java.lang.String"}));
         infoFactory.addEndpoint(new GEndpointInfo("MockEndpoint", MockEndpoint.class.getName()));
-        infoFactory.setConstructor(new GConstructorInfo(Collections.singletonList("Name"), Collections.singletonList(String.class)));
+        infoFactory.setConstructor(new GConstructorInfo(new String[]{"Name", "FinalInt"}, new Class[]{String.class, Integer.TYPE}));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
-    public MockGBean(String name) {
+    public MockGBean(String name, int finalInt) {
         this.name = name;
+        this.finalInt = finalInt;
     }
 
     public String getName() {
         return name;
+    }
+
+    public int getFinalInt() {
+        return finalInt;
+    }
+
+    public int getMutableInt() {
+        return mutableInt;
+    }
+
+    public void setMutableInt(int mutableInt) {
+        this.mutableInt = mutableInt;
     }
 
     public String getValue() {
@@ -130,5 +146,13 @@ public class MockGBean implements MockEndpoint {
             return "no endpoint";
         }
         return endpoint.doSomething("endpointCheck");
+    }
+
+    public int getEndpointMutableInt() {
+        return endpoint.getMutableInt();
+    }
+
+    public void setEndpointMutableInt(int mutableInt) {
+        endpoint.setMutableInt(mutableInt);
     }
 }

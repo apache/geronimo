@@ -3,11 +3,15 @@ package org.apache.geronimo.kernel;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/14 20:41:56 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/17 00:14:22 $
  *
  * */
 public interface MockEndpoint {
 
     String doSomething(String name);
+
+    int getMutableInt();
+
+    void setMutableInt(int mutableInt);
 
 }
