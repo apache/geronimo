@@ -221,6 +221,10 @@ public class RefContext {
         return ejbReferenceBuilder.createEJBLocalReference(objectName, isSession, localHome, local);
     }
 
+    public Object getHandleDelegateReference() {
+        return ejbReferenceBuilder.createHandleDelegateReference();
+    }
+
     public Reference getEJBRemoteRef(URI module, String ejbLink, boolean isSession, String home, String remote) throws DeploymentException {
         String name = ejbLink.substring(ejbLink.lastIndexOf('#') + 1);
         String containerId = getContainerId(module, ejbLink, (Map) ejbRemoteIndex.get(name));

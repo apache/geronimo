@@ -108,6 +108,10 @@ public class ConnectorModuleBuilderTest extends TestCase {
         public Reference createEJBRemoteReference(String objectName, boolean isSession, String home, String remote) throws DeploymentException {
             return null;
         }
+
+        public Object createHandleDelegateReference() {
+            return null;
+        }
     };
 
     private ResourceReferenceBuilder resourceReferenceBuilder = new ResourceReferenceBuilder() {

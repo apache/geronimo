@@ -29,4 +29,6 @@ public interface EJBReferenceBuilder {
 
     Reference createEJBRemoteReference(String objectName, boolean isSession, String home, String remote) throws DeploymentException;
 
+    Object createHandleDelegateReference();
+
 }

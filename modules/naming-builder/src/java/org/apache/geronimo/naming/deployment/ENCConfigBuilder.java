@@ -183,8 +183,6 @@ public class ENCConfigBuilder {
                     builder.bind(name, new URL(gerResourceRef.getUrl()));
                 } catch (MalformedURLException e) {
                     throw  new DeploymentException("Could not convert " + gerResourceRef.getUrl() + " to URL", e);
-                } catch (NamingException e) {
-                    throw  new DeploymentException("Could not bind " + name, e);
                 }
             } else {
                 //determine jsr-77 type from interface
@@ -201,11 +199,7 @@ public class ENCConfigBuilder {
                 String containerId = getResourceContainerId(name, j2eeType, uri, gerResourceRef, refContext, j2eeContext, earContext);
 
                 ref = refContext.getConnectionFactoryRef(containerId, iface);
-                try {
-                    builder.bind(name, ref);
-                } catch (NamingException e) {
-                    throw new DeploymentException("Invalid resource-ref definition for name: " + name, e);
-                }
+                builder.bind(name, ref);
             }
         }
 
@@ -260,11 +254,7 @@ public class ENCConfigBuilder {
             String containerId = getAdminObjectContainerId(name, uri, gerResourceEnvRef, refContext, j2eeContext);
             Reference ref = refContext.getAdminObjectRef(containerId, iface);
 
-            try {
-                builder.bind(name, ref);
-            } catch (NamingException e) {
-                throw new DeploymentException("Invalid resource-ref definition for name: " + name, e);
-            }
+            builder.bind(name, ref);
         }
     }
 
@@ -314,11 +304,7 @@ public class ENCConfigBuilder {
             //throws exception if it can't locate ref.
             String containerId = refContext.getAdminObjectContainerId(uri, linkName, earContext.getJ2eeContext());
             Reference ref = refContext.getAdminObjectRef(containerId, iface);
-            try {
-                builder.bind(name, ref);
-            } catch (NamingException e) {
-                throw new DeploymentException("Invalid message-destination-ref definition for name: " + name, e);
-            }
+            builder.bind(name, ref);
 
         }
 
@@ -379,11 +365,7 @@ public class ENCConfigBuilder {
                     ejbReference = refContext.getImplicitEJBRemoteRef(uri, ejbRefName, isSession, home, remote);
                 }
             }
-            try {
-                builder.bind(ejbRefName, ejbReference);
-            } catch (NamingException e) {
-                throw new DeploymentException("Unable to to bind ejb-ref: ejb-ref-name=" + ejbRefName);
-            }
+            builder.bind(ejbRefName, ejbReference);
         }
     }
 
@@ -436,11 +418,7 @@ public class ENCConfigBuilder {
             } else {
                 ejbReference = refContext.getImplicitEJBLocalRef(uri, ejbLink, isSession, localHome, local);
             }
-            try {
-                builder.bind(ejbRefName, ejbReference);
-            } catch (NamingException e) {
-                throw new DeploymentException("Unable to to bind ejb-local-ref: ejb-ref-name=" + ejbRefName);
-            }
+            builder.bind(ejbRefName, ejbReference);
         }
     }
 
@@ -503,11 +481,7 @@ public class ENCConfigBuilder {
 
             //we could get a Reference or the actual serializable Service back.
             Object ref = refContext.getServiceReference(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlerInfos, portLocationMap, earContext, module, cl);
-            try {
-                builder.bind(name, ref);
-            } catch (NamingException e) {
-                throw new DeploymentException("Invalid resource-ref definition for name: " + name, e);
-            }
+            builder.bind(name, ref);
         }
 
     }
@@ -656,11 +630,12 @@ public class ENCConfigBuilder {
         ComponentContextBuilder builder = new ComponentContextBuilder();
 
         if (userTransaction != null) {
-            try {
-                builder.addUserTransaction(userTransaction);
-            } catch (NamingException e) {
-                throw new DeploymentException("Could not bind UserTransaction", e);
-            }
+            builder.addUserTransaction(userTransaction);
+        }
+
+        Object handleDelegateReference = earContext.getRefContext().getHandleDelegateReference();
+        if (handleDelegateReference != null) {
+            builder.addHandleDelegateReference(handleDelegateReference);
         }
 
         URI uri = module.getConfigId();

@@ -76,4 +76,8 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBRe
     public Reference createEJBRemoteReference(String objectName, boolean isSession, String home, String remote) throws DeploymentException {
         return null;
     }
+
+    public Object createHandleDelegateReference() {
+        return null;
+    }
 }

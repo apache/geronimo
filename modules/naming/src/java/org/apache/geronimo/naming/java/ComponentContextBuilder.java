@@ -41,11 +41,15 @@ public class ComponentContextBuilder {
         return context;
     }
 
-    public void addUserTransaction(UserTransaction userTransaction) throws NamingException {
+    public void addUserTransaction(UserTransaction userTransaction) {
         context.put("UserTransaction", userTransaction);
     }
 
-    public void bind(String name, Object value) throws NamingException {
+    public void addHandleDelegateReference(Object handleDelegateReference) {
+        context.put("HandleDelegate", handleDelegateReference);
+    }
+
+    public void bind(String name, Object value) {
         context.put(ENV + name, value);
     }
 
@@ -97,4 +101,5 @@ public class ComponentContextBuilder {
         }
         context.put(ENV + name, value);
     }
+
 }

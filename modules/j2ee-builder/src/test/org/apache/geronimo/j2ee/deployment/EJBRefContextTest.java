@@ -172,6 +172,10 @@ public class EJBRefContextTest extends TestCase {
             public Reference createEJBRemoteReference(String objectName, boolean isSession, String home, String remote) {
                 return new FakeReference(objectName);
             }
+
+            public Object createHandleDelegateReference() {
+                return null;
+            }
         }, new ResourceReferenceBuilder() {
 
             public Reference createResourceRef(String containerId, Class iface) {

@@ -158,6 +158,10 @@ public class JettyModuleBuilderTest extends TestCase {
                     public Reference createEJBRemoteReference(String objectName, boolean isSession, String home, String remote) throws DeploymentException {
                         return null;
                     }
+
+                    public Object createHandleDelegateReference() {
+                        return null;
+                    }
                 },
                 new ResourceReferenceBuilder() {
 
