@@ -56,10 +56,14 @@
 
 package org.apache.geronimo.common;
 
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.SimpleInvocation;
+import org.apache.geronimo.core.service.StringInvocationKey;
+
 import junit.framework.TestCase;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/28 05:12:10 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/08 04:35:59 $
  */
 public class SimpleInvocationTest 
     extends TestCase
@@ -82,8 +86,8 @@ public class SimpleInvocationTest
     }
 
     /**
-     * Test case for {@link SimpleInvocation#getMarshal()}
-     * and {@link SimpleInvocation#putMarshal( Object, Object )}
+     * Test case for {@link org.apache.geronimo.core.service.SimpleInvocation#getMarshal()}
+     * and {@link org.apache.geronimo.core.service.SimpleInvocation#putMarshal( Object, Object )}
      *
      * @throws Exception
      */

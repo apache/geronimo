@@ -56,10 +56,12 @@
 
 package org.apache.geronimo.common;
 
+import org.apache.geronimo.core.service.StackThreadLocal;
+
 import junit.framework.TestCase;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/12 20:07:40 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/08 04:35:59 $
  */
 public class StackThreadLocalTest 
     extends TestCase
@@ -80,8 +82,8 @@ public class StackThreadLocalTest
     }
 
     /**
-     * Test case for {@link StackThreadLocal#push()}, 
-     * {@link StackThreadLocal#peek()} and {@link StackThreadLocal#pop()}
+     * Test case for {@link org.apache.geronimo.core.service.StackThreadLocal#push()},
+     * {@link org.apache.geronimo.core.service.StackThreadLocal#peek()} and {@link org.apache.geronimo.core.service.StackThreadLocal#pop()}
      *
      * @throws Exception
      */

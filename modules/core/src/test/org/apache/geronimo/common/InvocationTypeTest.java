@@ -56,12 +56,14 @@
 
 package org.apache.geronimo.common;
 
+import org.apache.geronimo.core.service.InvocationType;
+
 import junit.framework.TestCase;
 
 /**
- * Unit test for org.apache.geronimo.common.InvocationType
+ * Unit test for org.apache.geronimo.core.service.InvocationType
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/17 10:32:10 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/08 04:35:59 $
  */
 
 public class InvocationTypeTest extends TestCase {
