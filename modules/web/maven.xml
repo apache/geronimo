@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Revision: 1.1 $ $Date: 2003/08/18 13:30:40 $ -->
+
+<project default="default"
+  xmlns:j="jelly:web"
+  xmlns:ant="jelly:ant"
+  xmlns:maven="jelly:maven">
+  
+  <preGoal name="xdoc:jelly-transform">
+    <attainGoal name="html2xdoc"/>
+  </preGoal>
+
+  <preGoal name="java:compile">
+    <!--
+    <j:set var="maven.javacc.compile.src" value="target/gen-src"/>
+    <ant:path id="maven.javacc.compile.src.set" location="${maven.javacc.compile.src}"/>
+    <maven:addPath id="maven.compile.src.set" refid="maven.javacc.compile.src.set"/>
+
+    <ant:mkdir dir="${maven.javacc.compile.src}/geronimo/persistence/ejb/ejbql"/>
+    <ant:jjtree target="src/java/geronimo/persistence/ejb/ejbql/EJBQL20Parser.jjt"
+                outputdirectory="${maven.javacc.compile.src}/geronimo/persistence/ejb/ejbql"
+                javacchome="${maven.repo.local}/javacc/jars" />
+    <ant:javacc target="${maven.javacc.compile.src}/geronimo/persistence/ejb/ejbql/EJBQL20Parser.jj"
+                javacchome="${maven.repo.local}/javacc/jars"/>
+    -->
+  </preGoal>
+  
+  <!-- ============================== -->
+  <!-- Helpers to run Apache Geronimo -->
+  <!-- ============================== -->
+  
+  <!-- jason: need to fix this -->
+  
+  <goal name="run" description="Runs the Geronimo Server using the current build">
+  
+    <ant:path id="test.classpath">
+      <ant:pathelement path="target/test-classes"/>
+      <ant:pathelement path="src/conf/"/>
+      <ant:pathelement path="${maven.build.dest}"/>
+      <ant:path refid="maven.dependency.classpath"/>
+    </ant:path>
+    
+    <ant:java classname="org.apache.geronimo.Main" fork="yes">
+      <ant:classpath refid="test.classpath"/>
+    </ant:java>
+    
+  </goal>
+  
+</project>
