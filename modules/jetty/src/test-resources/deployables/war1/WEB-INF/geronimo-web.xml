@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jetty:web-app xmlns:jetty="http://geronimo.apache.org/xml/ns/web/jetty">
+<jetty:web-app xmlns:jetty="http://geronimo.apache.org/xml/ns/web/jetty"
+    xmlns:ger="http://geronimo.apache.org/xml/ns/j2ee"
+    xmlns:sec="http://geronimo.apache.org/xml/ns/security">
     <jetty:context-root>/test</jetty:context-root>
     <jetty:context-priority-classloader>false</jetty:context-priority-classloader>
+    <jetty:security>
+        <sec:default-principal realm-name="foo">
+            <sec:principal class="org.apache.geronimo.security.DefaultPrincipal"
+                name="bar"/>
+        </sec:default-principal>
+    </jetty:security>
 </jetty:web-app>

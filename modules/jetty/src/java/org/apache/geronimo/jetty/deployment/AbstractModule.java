@@ -58,6 +58,10 @@ package org.apache.geronimo.jetty.deployment;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Properties;
+import java.util.Collection;
+import java.util.ArrayList;
+import java.io.InputStream;
+import java.io.IOException;
 
 import javax.management.ObjectName;
 import javax.naming.Context;
@@ -66,6 +70,7 @@ import javax.transaction.UserTransaction;
 import org.apache.geronimo.deployment.ConfigurationCallback;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentModule;
+import org.apache.geronimo.deployment.util.UnclosableInputStream;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.jetty.JettyWebApplicationContext;
 import org.apache.geronimo.kernel.Kernel;
@@ -73,11 +78,14 @@ import org.apache.geronimo.naming.deployment.ComponentContextBuilder;
 import org.apache.geronimo.naming.java.ProxyFactory;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
+import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlException;
 
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/02/14 01:50:15 $
+ * @version $Revision: 1.6 $ $Date: 2004/02/14 18:49:43 $
  */
 public class AbstractModule implements DeploymentModule {
 
@@ -147,5 +155,24 @@ public class AbstractModule implements DeploymentModule {
     }
 
     public void complete() {
+    }
+
+    protected void extractAndValidateDeploymentDescriptor(InputStream is) throws DeploymentException {
+        try {
+            WebAppDocument webAppDoc = WebAppDocument.Factory.parse(new UnclosableInputStream(is));
+            //validate
+            XmlOptions xmlOptions = new XmlOptions();
+            xmlOptions.setLoadLineNumbers();
+            Collection errors = new ArrayList();
+            xmlOptions.setErrorListener(errors);
+            if (!webAppDoc.validate(xmlOptions)) {
+                throw new DeploymentException("Invalid deployment descriptor: errors: " + errors);
+            }
+            webApp = webAppDoc.getWebApp();
+        } catch (IOException e) {
+            throw new DeploymentException("Unable to read deployment descriptor", e);
+        } catch (XmlException e) {
+            throw new DeploymentException("Unable to parse deployment descriptor", e);
+        }
     }
 }

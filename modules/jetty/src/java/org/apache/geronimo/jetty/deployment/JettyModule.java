@@ -65,16 +65,13 @@ import java.util.zip.ZipInputStream;
 
 import org.apache.geronimo.deployment.ConfigurationCallback;
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.deployment.util.UnclosableInputStream;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
-import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.naming.java.ProxyFactory;
-import org.apache.xmlbeans.XmlException;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
 
 /**
  *
  *
- * @version $Revision: 1.11 $ $Date: 2004/02/14 01:50:15 $
+ * @version $Revision: 1.12 $ $Date: 2004/02/14 18:49:43 $
  */
 public class JettyModule extends AbstractModule {
     private final File moduleDirectory;
@@ -103,44 +100,37 @@ public class JettyModule extends AbstractModule {
             // unpack archive into Configuration
             try {
                 ZipEntry entry;
-                boolean addedClasses= false;
-                while ((entry= zipArchive.getNextEntry()) != null) {
-                    String name= entry.getName();
+                boolean addedClasses = false;
+                while ((entry = zipArchive.getNextEntry()) != null) {
+                    String name = entry.getName();
                     if (name.endsWith("/")) {
                         continue;
                     }
                     callback.addFile(uri.resolve(name), zipArchive);
 
                     if (name.equals("WEB-INF/web-app.xml")) {
-                        WebAppDocument webAppDoc = WebAppDocument.Factory.parse(new UnclosableInputStream(zipArchive));
-                        webApp = webAppDoc.getWebApp();
+                        extractAndValidateDeploymentDescriptor(zipArchive);
                     }
 
                     // If we do not give the context priority over classloading, then we add the standard locations to our classpath.
                     if (!contextPriorityClassLoader) {
                         if (!addedClasses && name.startsWith("WEB-INF/classes/")) {
                             callback.addToClasspath(classes);
-                        }
-                        else if (name.startsWith("WEB-INF/lib/")) {
+                        } else if (name.startsWith("WEB-INF/lib/")) {
                             if (name.indexOf('/', 12) == -1 && (name.endsWith(".jar") || name.endsWith(".zip"))) {
                                 callback.addToClasspath(uri.resolve(name));
                             }
                         }
                     }
                 }
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 throw new DeploymentException("Unable to unpack WAR content", e);
-            } catch (XmlException e) {
-                throw new DeploymentException("Unable to parse WAR content", e);
             }
-        }
-        else {
+        } else {
             // copy directory into Configuration
             try {
                 copyDir(callback, uri, moduleDirectory);
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 throw new DeploymentException("Unable to copy archive directory", e);
             }
         }

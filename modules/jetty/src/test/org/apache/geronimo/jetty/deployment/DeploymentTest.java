@@ -67,6 +67,8 @@ import java.net.URI;
 import java.net.URL;
 import java.net.HttpURLConnection;
 import java.util.Collections;
+import java.util.Collection;
+import java.util.ArrayList;
 import java.util.jar.JarOutputStream;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
@@ -76,16 +78,18 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 import javax.enterprise.deploy.shared.StateType;
 
 import org.apache.geronimo.deployment.URLDeployer;
+import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.plugin.local.LocalServer;
 import org.apache.geronimo.deployment.service.ServiceDeployer;
 import org.apache.geronimo.deployment.util.URLInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
+import org.apache.xmlbeans.XmlOptions;
 
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/02/14 01:50:15 $
+ * @version $Revision: 1.8 $ $Date: 2004/02/14 18:49:43 $
  */
 public class DeploymentTest extends DeployerTestCase {
 //    private byte[] plan;
@@ -94,9 +98,17 @@ public class DeploymentTest extends DeployerTestCase {
 
     public void testReadGeronimoDD() throws Exception {
         File war = new File(URI.create(classLoader.getResource("deployables/war1/").toString()));
-        File dd = new File(war, "geronimo-web2.xml");
+        File dd = new File(war, "WEB-INF/geronimo-web.xml");
         InputStream is = new FileInputStream(dd);
         JettyWebAppDocument doc = JettyWebAppDocument.Factory.parse(is);
+        XmlOptions xmlOptions = new XmlOptions();
+        xmlOptions.setLoadLineNumbers();
+        Collection errors = new ArrayList();
+        xmlOptions.setErrorListener(errors);
+        if (!doc.validate(xmlOptions)) {
+            System.out.println("Errors: " + errors);
+            throw new DeploymentException("Invalid deployment descriptor: errors: " + errors);
+        }
         assertEquals("/test", doc.getWebApp().getContextRoot().getStringValue());
     }
 
@@ -161,6 +173,7 @@ public class DeploymentTest extends DeployerTestCase {
     private void waitFor(ProgressObject result) throws InterruptedException {
         result.addProgressListener(new ProgressListener() {
             public void handleProgressEvent(ProgressEvent event) {
+                System.out.println(event);
                 synchronized (DeploymentTest.this) {
                     DeploymentTest.this.notify();
                 }
