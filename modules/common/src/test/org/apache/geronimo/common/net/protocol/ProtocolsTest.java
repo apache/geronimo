@@ -1,0 +1,160 @@
+/* ====================================================================
+ * The Apache Software License, Version 1.1
+ *
+ * Copyright (c) 2003 The Apache Software Foundation.  All rights
+ * reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *
+ * 3. The end-user documentation included with the redistribution,
+ *    if any, must include the following acknowledgment:
+ *       "This product includes software developed by the
+ *        Apache Software Foundation (http://www.apache.org/)."
+ *    Alternately, this acknowledgment may appear in the software itself,
+ *    if and wherever such third-party acknowledgments normally appear.
+ *
+ * 4. The names "Apache" and "Apache Software Foundation" and
+ *    "Apache Geronimo" must not be used to endorse or promote products
+ *    derived from this software without prior written permission. For
+ *    written permission, please contact apache@apache.org.
+ *
+ * 5. Products derived from this software may not be called "Apache",
+ *    "Apache Geronimo", nor may "Apache" appear in their name, without
+ *    prior written permission of the Apache Software Foundation.
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR
+ * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+ * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ * ====================================================================
+ *
+ * This software consists of voluntary contributions made by many
+ * individuals on behalf of the Apache Software Foundation.  For more
+ * information on the Apache Software Foundation, please see
+ * <http://www.apache.org/>.
+ *
+ * ====================================================================
+ */
+
+package org.apache.geronimo.common.net.protocol;
+
+import java.util.List;
+import java.util.LinkedList;
+
+import junit.framework.TestCase;
+
+/**
+* Unit test for the {@link Protocols} class.
+ *
+ * @version $Revision: 1.1 $ $Date: 2003/08/30 11:57:14 $
+ */
+public class ProtocolsTest
+    extends TestCase
+{
+    protected String originalHandlerPkgs;
+    
+    protected void setUp() throws Exception
+    {
+        originalHandlerPkgs = System.getProperty("java.protocol.handler.pkgs");
+        System.getProperties().remove("java.protocol.handler.pkgs");
+    }
+    
+    protected void tearDown() throws Exception
+    {
+        if (originalHandlerPkgs == null) {
+            System.getProperties().remove("java.protocol.handler.pkgs");
+        }
+        else {
+            System.setProperty("java.protocol.handler.pkgs", originalHandlerPkgs);
+        }
+    }
+    
+    public void testParseHandlerPackages_1()
+    {
+        List packages = Protocols.parseHandlerPackages("a");
+        assertEquals(1, packages.size());
+        assertEquals("a", packages.get(0));
+    }
+    
+    public void testParseHandlerPackages_TrailingSep()
+    {
+        List packages = Protocols.parseHandlerPackages("a|");
+        assertEquals(1, packages.size());
+        assertEquals("a", packages.get(0));
+    }
+    
+    public void testParseHandlerPackages_BeginingSep()
+    {
+        List packages = Protocols.parseHandlerPackages("|a");
+        assertEquals(1, packages.size());
+        assertEquals("a", packages.get(0));
+    }
+    
+    public void testParseHandlerPackages_3()
+    {
+        List packages = Protocols.parseHandlerPackages("a|b|c");
+        assertEquals(3, packages.size());
+        assertEquals("a", packages.get(0));
+        assertEquals("b", packages.get(1));
+        assertEquals("c", packages.get(2));
+    }
+    
+    public void testAppendHandlerPackage()
+    {
+        Protocols.appendHandlerPackage("a");
+        Protocols.appendHandlerPackage("b");
+        Protocols.appendHandlerPackage("c");
+        
+        List packages = Protocols.getHandlerPackages();
+        assertEquals(3, packages.size());
+        assertEquals("a", packages.get(0));
+        assertEquals("b", packages.get(1));
+        assertEquals("c", packages.get(2));
+    }
+    
+    public void testPrependHandlerPackage()
+    {
+        Protocols.prependHandlerPackage("a");
+        Protocols.prependHandlerPackage("b");
+        Protocols.prependHandlerPackage("c");
+        
+        List packages = Protocols.getHandlerPackages();
+        assertEquals(3, packages.size());
+        assertEquals("c", packages.get(0));
+        assertEquals("b", packages.get(1));
+        assertEquals("a", packages.get(2));
+    }
+    
+    public void testSetHandlerPackages()
+    {
+        List packages = Protocols.parseHandlerPackages("a|b|c");
+        Protocols.setHandlerPackages(packages);
+        
+        String raw = System.getProperty(Protocols.HANDLER_PACKAGES);
+        assertEquals("a|b|c", raw);
+        
+        packages = Protocols.getHandlerPackages();
+        assertEquals(3, packages.size());
+        assertEquals("a", packages.get(0));
+        assertEquals("b", packages.get(1));
+        assertEquals("c", packages.get(2));
+    }
+}
