@@ -87,7 +87,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  *
  * @jmx:mbean
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/01 09:55:08 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/15 05:33:09 $
  */
 public class DependencyService2 implements MBeanRegistration, NotificationListener, DependencyService2MBean {
     /**
@@ -275,7 +275,7 @@ public class DependencyService2 implements MBeanRegistration, NotificationListen
      *
      * @jmx:managed-operation
      */
-    public synchronized void addStartHolds(ObjectName objectName, Collection holds) {
+    public synchronized void addStartHolds(ObjectName objectName, java.util.Collection holds) {
         Collection currentHolds = (Collection)startHoldsMap.get(objectName);
         if(currentHolds == null) {
             currentHolds = new LinkedList(holds);
@@ -292,7 +292,7 @@ public class DependencyService2 implements MBeanRegistration, NotificationListen
      *
      * @jmx:managed-operation
      */
-    public synchronized void removeStartHolds(ObjectName objectName, Collection holds) {
+    public synchronized void removeStartHolds(ObjectName objectName, java.util.Collection holds) {
         Collection currentHolds = (Collection)startHoldsMap.get(objectName);
         if(currentHolds != null) {
             currentHolds.removeAll(holds);
