@@ -57,6 +57,7 @@ package org.apache.geronimo.naming.java;
 
 import java.net.URL;
 import javax.management.ObjectName;
+import javax.management.MBeanServer;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NameNotFoundException;
@@ -73,33 +74,38 @@ import org.apache.geronimo.kernel.jmx.JMXKernel;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.naming.jmx.TestObject;
 import org.apache.geronimo.transaction.manager.UserTransactionImpl;
+import org.apache.geronimo.test.util.ServerUtil;
 
 /**
  *
  *
- * @version $Revision: 1.12 $ $Date: 2004/01/12 06:19:52 $
+ * @version $Revision: 1.13 $ $Date: 2004/01/18 22:43:53 $
  */
 public class ContextBuilderTest extends TestCase {
     protected static final String objectName1 = "geronimo.test:name=test1";
     protected static final String objectName2 = "geronimo.test:name=test2";
-    protected static final String objectName3 = "geronimo.test:name=test3";
+    protected static final String objectName3 = "geronimo.j2ee:J2eeType=SessionBean,name=test3";
 
     protected ApplicationClient client;
     protected Session session;
     protected Context compCtx;
-    protected JMXKernel kernel;
     protected ReferenceFactory referenceFactory;
-    protected TestObject testObject1 = new TestObject();
-    protected TestObject testObject2 = new TestObject();
-    protected TestObject testObject3 = new TestObject();
+    protected TestObject testObject1;
+    protected TestObject testObject2;
+    protected TestObject testObject3;
 
     protected void setUp() throws Exception {
-        kernel = new JMXKernel("geronimo.test");
-        kernel.getMBeanServer().registerMBean(testObject1, ObjectName.getInstance(objectName1));
-        kernel.getMBeanServer().registerMBean(testObject2, ObjectName.getInstance(objectName2));
-        kernel.getMBeanServer().registerMBean(testObject3, ObjectName.getInstance(objectName3));
+        MBeanServer server = ServerUtil.newLocalServer();
 
-        referenceFactory = new JMXReferenceFactory(kernel.getMBeanServerId());
+        String agentId = JMXKernel.getMBeanServerId(server);
+        testObject1 = AbstractContextTest.registerTestObject(server, ObjectName.getInstance(objectName1));
+        testObject2 = AbstractContextTest.registerTestObject(server, ObjectName.getInstance(objectName2));
+        testObject3 = AbstractContextTest.registerTestObject(server, ObjectName.getInstance(objectName3));
+        //kernel.getMBeanServer().registerMBean(testObject1, ObjectName.getInstance(objectName1));
+        //kernel.getMBeanServer().registerMBean(testObject2, ObjectName.getInstance(objectName2));
+        //kernel.getMBeanServer().registerMBean(testObject3, ObjectName.getInstance(objectName3));
+
+        referenceFactory = new JMXReferenceFactory(agentId);
         client = new ApplicationClient();
         session = new Session();
         EnvEntry stringEntry = new EnvEntry();
@@ -123,7 +129,7 @@ public class ContextBuilderTest extends TestCase {
         EjbRef ejbLinkRef = new EjbRef();
         ejbLinkRef.setEJBRefName("here/LinkEjb");
         ejbLinkRef.setEJBRefType("Session");
-        ejbLinkRef.setEJBLink(objectName3);
+        ejbLinkRef.setEJBLink("test3");
 
         EjbLocalRef ejbLocalRef = new EjbLocalRef();
         ejbLocalRef.setEJBRefName("local/here/LocalEJB2");
@@ -133,7 +139,7 @@ public class ContextBuilderTest extends TestCase {
         EjbLocalRef ejbLocalLinkRef = new EjbLocalRef();
         ejbLocalLinkRef.setEJBRefName("local/here/LinkLocalEjb");
         ejbLocalLinkRef.setEJBRefType("Entity");
-        ejbLocalLinkRef.setEJBLink(objectName3);
+        ejbLocalLinkRef.setEJBLink("test3");
 
         ResourceRef urlRef = new ResourceRef();
         urlRef.setResRefName("url/testURL");
@@ -179,7 +185,7 @@ public class ContextBuilderTest extends TestCase {
         assertEquals(userTransaction, compCtx.lookup("UserTransaction"));
     }
 
-    public void XtestClientEJBRefs() throws Exception {
+    public void testClientEJBRefs() throws Exception {
         ReadOnlyContext compContext = new ComponentContextBuilder(referenceFactory, null).buildContext(client);
         RootContext.setComponentContext(compContext);
         InitialContext initialContext = new InitialContext();
@@ -191,7 +197,7 @@ public class ContextBuilderTest extends TestCase {
                 initialContext.lookup("java:comp/env/DefaultCF"));
     }
 
-    public void XtestLocalEJBRefs() throws Exception {
+    public void testLocalEJBRefs() throws Exception {
         ReadOnlyContext compContext = new ComponentContextBuilder(referenceFactory, null).buildContext(session);
         RootContext.setComponentContext(compContext);
         InitialContext initialContext = new InitialContext();

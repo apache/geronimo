@@ -76,7 +76,7 @@ import org.apache.geronimo.test.util.ServerUtil;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/12 06:19:52 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/18 22:43:53 $
  *
  * */
 public class ContextTest extends AbstractContextTest {
@@ -96,18 +96,6 @@ public class ContextTest extends AbstractContextTest {
         agentId = JMXKernel.getMBeanServerId(server);
         objectName = new ObjectName(on1);
         mbean = registerTestObject(server, objectName);
-    }
-
-    public static TestObject registerTestObject(MBeanServer server, ObjectName objectName) throws Exception {
-        GeronimoMBeanInfo info = new GeronimoMBeanInfo();
-        TestObject to = new TestObject();
-        info.setTargetClass(TestObject.class.getName());
-        info.setTarget(to);
-        info.addOperationsDeclaredIn(TestObject.class);
-        GeronimoMBean gmb = new GeronimoMBean();
-        gmb.setMBeanInfo(info);
-        server.registerMBean(gmb, objectName);
-        return to;
     }
 
     protected void tearDown() throws Exception {

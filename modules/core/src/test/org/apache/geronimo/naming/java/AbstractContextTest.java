@@ -64,13 +64,18 @@ import javax.naming.InitialContext;
 import javax.naming.LinkRef;
 import javax.naming.Context;
 import javax.naming.NamingException;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.naming.jmx.TestObject;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBean;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/12 06:19:52 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/18 22:43:52 $
  *
  * */
 public class AbstractContextTest extends TestCase {
@@ -107,5 +112,17 @@ public class AbstractContextTest extends TestCase {
 
     protected void bind(String name, Object value) throws NamingException {
         readOnlyContext.internalBind(name, value);
+    }
+
+    public static TestObject registerTestObject(MBeanServer server, ObjectName objectName) throws Exception {
+        GeronimoMBeanInfo info = new GeronimoMBeanInfo();
+        TestObject to = new TestObject();
+        info.setTargetClass(TestObject.class.getName());
+        info.setTarget(to);
+        info.addOperationsDeclaredIn(TestObject.class);
+        GeronimoMBean gmb = new GeronimoMBean();
+        gmb.setMBeanInfo(info);
+        server.registerMBean(gmb, objectName);
+        return to;
     }
 }
