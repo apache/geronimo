@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.messaging.reference;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -34,7 +35,7 @@ import org.apache.geronimo.messaging.io.ReplacerResolver;
 /**
  * ReferenceableManager implementation.
  *
- * @version $Revision: 1.3 $ $Date: 2004/05/27 15:46:54 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/01 13:37:14 $
  */
 public class ReferenceableManagerImpl
     extends AbstractEndPoint
@@ -166,7 +167,7 @@ public class ReferenceableManagerImpl
         }
         public void push(Msg aMsg) {
             Request request = 
-                new Request("invoke",
+                new Request("invoke", new Class[] {int.class, Request.class},
                     new Object[] {refID, aMsg.getBody().getContent()});
             aMsg.getBody().setContent(request);
             out.push(aMsg);

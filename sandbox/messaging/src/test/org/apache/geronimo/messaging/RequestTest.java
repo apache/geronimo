@@ -23,7 +23,7 @@ import junit.framework.TestCase;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/01 13:37:14 $
  */
 public class RequestTest extends TestCase {
     
@@ -35,7 +35,7 @@ public class RequestTest extends TestCase {
     }
     
     public void testExecute0() throws Exception {
-        Request request = new Request("getID", null);
+        Request request = new Request("getID", null, null);
         request.setTarget(target);
         Result result = request.execute();
         assertTrue(result.isSuccess());
@@ -43,7 +43,7 @@ public class RequestTest extends TestCase {
     }
     
     public void testExecute1() throws Exception {
-        Request request = new Request("doesNotExist", null);
+        Request request = new Request("doesNotExist", null, null);
         request.setTarget(target);
         Result result = request.execute();
         assertFalse(result.isSuccess());
@@ -51,7 +51,7 @@ public class RequestTest extends TestCase {
     }
     
     public void testExecute2() throws Exception {
-        Request request = new Request("raiseISException", null);
+        Request request = new Request("raiseISException", null, null);
         request.setTarget(target);
         Result result = request.execute();
         assertFalse(result.isSuccess());
@@ -73,5 +73,5 @@ public class RequestTest extends TestCase {
             throw new IOException();
         }
     }
-    
+
 }

@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
 /**
  * Encapsulates a method invocation.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/01 13:37:14 $
  */
 public class Request
     implements Externalizable
@@ -44,6 +44,11 @@ public class Request
     private String methodName;
     
     /**
+     * Method formal parameters.
+     */
+    private Class[] parameterTypes;
+    
+    /**
      * Parameters of methodName. 
      */
     private Object[] parameters;
@@ -57,10 +62,13 @@ public class Request
      * Wraps a method having the specified name and parameters.
      * 
      * @param aMethodName Method name.
+     * @param anArrOfParamTypes Method formal parameters.
      * @param anArrOfParams Parameters.
      */
-    public Request(String aMethodName, Object[] anArrOfParams) {
+    public Request(String aMethodName, Class[] anArrOfParamTypes,
+        Object[] anArrOfParams) {
         methodName = aMethodName;
+        parameterTypes = anArrOfParamTypes;
         parameters = anArrOfParams;
     }
     
@@ -82,6 +90,15 @@ public class Request
     }
 
     /**
+     * Gets the formal parameter of the method wrapped by this instance. 
+     * 
+     * @return Formal parameters.
+     */
+    public Class[] getParameterTypes() {
+        return parameterTypes;
+    }
+    
+    /**
      * Gets the parameters of the method to be executed.
      * 
      * @return Returns the parameters.
@@ -99,36 +116,28 @@ public class Request
      */
     public Result execute() {
         Class clazz = target.getClass();
-        Method[] methods = clazz.getMethods();
-        for (int i = 0; i < methods.length; i++) {
-            Method method = methods[i];
-            if ( method.getName().equals(methodName) ) {
-                return invokeMethod(method);
-            }
-        }
-        return new Result(false,
-            new NoSuchMethodException("Method {" + methodName + 
-                "} does not exist."));
-    }
-    
-    private Result invokeMethod(Method aMethod) {
         try {
-            Object opaque = aMethod.invoke(target, parameters);
+            Method method = clazz.getMethod(methodName, parameterTypes);
+            Object opaque = method.invoke(target, parameters);
             return new Result(true, opaque);
+        } catch (NoSuchMethodException e) {
+            return new Result(false, e);
         } catch (InvocationTargetException e) {
             return new Result(false, e.getCause());
         } catch (Throwable e) {
             return new Result(false, e);
         }
     }
-
+    
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeUTF(methodName);
+        out.writeObject(parameterTypes);
         out.writeObject(parameters);
     }
 
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         methodName = in.readUTF();
+        parameterTypes = (Class[]) in.readObject();
         parameters = (Object[]) in.readObject();
     }
 

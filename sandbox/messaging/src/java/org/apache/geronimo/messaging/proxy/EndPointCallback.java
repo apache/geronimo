@@ -30,7 +30,7 @@ import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 /**
  * This Callback sends Request to an EndPoint hosted by a set of Nodes. 
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/20 13:37:11 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/01 13:37:14 $
  */
 public class EndPointCallback
     implements MethodInterceptor
@@ -132,7 +132,8 @@ public class EndPointCallback
         }
         try {
             Object opaque = sender.sendSyncRequest(
-                    new Request(arg1.getName(), arg2), out, id, targets);
+                new Request(arg1.getName(), arg1.getParameterTypes(), arg2),
+                    out, id, targets);
             return opaque;
         } catch (RuntimeException e) {
             Throwable nested = e.getCause();

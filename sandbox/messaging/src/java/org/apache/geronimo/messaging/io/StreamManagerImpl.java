@@ -35,7 +35,7 @@ import org.apache.geronimo.messaging.Request;
 /**
  * StreamManager implementation.
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/27 15:46:54 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/01 13:37:14 $
  */
 public class StreamManagerImpl
     extends AbstractEndPoint
@@ -56,7 +56,7 @@ public class StreamManagerImpl
      * Null input stream identifier.
      */
     private static final ID NULL_INPUT_STREAM = new ID(null);
-    
+
     /**
      * Node owning this manager.
      */
@@ -148,7 +148,8 @@ public class StreamManagerImpl
         ID streamID = (ID) anID;
         byte[] result = (byte[])
             sender.sendSyncRequest(
-                new Request("retrieveLocalNext", new Object[] {anID}),
+                new Request("retrieveLocalNext", new Class[] {Object.class},
+                    new Object[] {anID}),
                 out, StreamManager.NAME, streamID.hostingNode); 
         return result;
     }
@@ -158,7 +159,7 @@ public class StreamManagerImpl
      * InputStream calls back its StreamManager when its internal buffer is
      * empty. 
      *
-     * @version $Revision: 1.2 $ $Date: 2004/05/27 15:46:54 $
+     * @version $Revision: 1.3 $ $Date: 2004/06/01 13:37:14 $
      */
     private class ProxyInputStream extends InputStream {
         /**
