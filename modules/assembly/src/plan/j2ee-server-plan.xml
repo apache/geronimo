@@ -91,7 +91,7 @@ by the server.
         <attribute name="Algorithm" type="java.lang.String">HmacSHA1</attribute>
         <attribute name="Password" type="java.lang.String">secret</attribute>
     </gbean>
-    
+
     <gbean name="geronimo.server:type=ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
     </gbean>
 
@@ -124,7 +124,7 @@ by the server.
 <!--        <attribute name="MaxIdleTime" type="int">10</attribute>-->
     </gbean>
 
-    <!-- JMS container 
+    <!-- JMS container
     <gbean name="geronimo.server:type=JMSServer,container=ActiveMQ" class="org.codehaus.activemq.container.ActiveMQContainer">
     </gbean>
 
@@ -135,11 +135,12 @@ by the server.
 -->
 
     <!-- EJB container -->
+    <!-- pattern domain name must match the domain of the j2eeServer attribute of the EAR builder in the deployer plan -->
     <gbean name="openejb:type=ContainerIndex" class="org.openejb.ContainerIndex">
         <references name="EJBContainers">
-            <pattern>openejb:j2eeType=StatelessSessionBean,*</pattern>
-            <pattern>openejb:j2eeType=StatefulSessionBean,*</pattern>
-            <pattern>openejb:j2eeType=EntityBean,*</pattern>
+            <pattern>geronimo.server:j2eeType=StatelessSessionBean,*</pattern>
+            <pattern>geronimo.server:j2eeType=StatefulSessionBean,*</pattern>
+            <pattern>geronimo.server:j2eeType=EntityBean,*</pattern>
         </references>
     </gbean>
 
