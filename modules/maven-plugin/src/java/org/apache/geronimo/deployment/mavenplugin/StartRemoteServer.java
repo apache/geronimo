@@ -24,12 +24,14 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+
 /**
- * @version $Revision: 1.2 $ $Date: 2004/09/01 16:38:14 $
+ * @version $Revision: 1.3 $ $Date: 2004/09/04 20:35:50 $
  */
 public class StartRemoteServer {
 
     private String geronimoTarget;
+    private String vmArgs = "";
     private String configs;
     private String debugPort;
 
@@ -39,6 +41,14 @@ public class StartRemoteServer {
 
     public void setGeronimoTarget(String geronimoTarget) {
         this.geronimoTarget = geronimoTarget;
+    }
+
+    public String getVmArgs() {
+        return vmArgs;
+    }
+
+    public void setVmArgs(String vmArgs) {
+        this.vmArgs = vmArgs;
     }
 
     public String getConfigs() {
@@ -71,6 +81,10 @@ public class StartRemoteServer {
             cmd.add("-Xnoagent");
             cmd.add("-Djava.compiler=NONE");
             cmd.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=" + debugPort);
+        }
+
+        for (StringTokenizer st = new StringTokenizer(getVmArgs()); st.hasMoreTokens();) {
+            cmd.add(st.nextToken());
         }
 
         cmd.add("-ea");
