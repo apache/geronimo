@@ -64,9 +64,12 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Collections;
+import java.util.Properties;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -77,6 +80,8 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.jetty.JettyWebApplicationContext;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyAttributeType;
@@ -95,7 +100,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/20 15:49:56 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/20 16:57:11 $
  */
 public class WARConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
@@ -175,15 +180,81 @@ public class WARConfigBuilder implements ConfigurationBuilder {
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException(e);
             }
+
+            // todo do we need to support include and dependency or can we rely on the parent?
+            // add low-level GBean definitions to the config
 //            addIncludes(context, configType);
 //            addDependencies(context, configType.getDependencyArray());
             ClassLoader cl = context.getClassLoader(repository);
             addGBeans(context, jettyWebApp.getGbeanArray(), cl);
+
+            // add the warfile's content to the configuration
+            URI warRoot = URI.create("war/");
+            context.addArchive(warRoot, module);
+            context.addToClassPath(warRoot);
+
+            // add the GBean for the web application
+            addWebAppGBean(context, jettyWebApp, warRoot);
+
+            // todo do we need to add GBeans to make the servlets JSR77 ManagedObjects?
+
             context.close();
             os.flush();
         } finally {
             fos.close();
         }
+    }
+
+    private void addWebAppGBean(DeploymentContext context, JettyWebAppType webApp, URI warRoot) throws DeploymentException {
+        String contextRoot = webApp.getContextRoot().trim();
+        if (contextRoot.length() == 0) {
+            throw new DeploymentException("Missing value for context-root");
+        }
+        URI configID = context.getConfigID();
+
+        Properties nameProps = new Properties();
+        nameProps.put("J2EEServer", "null");
+        nameProps.put("J2EEApplication", "null");
+        nameProps.put("J2EEType", "WebModule");
+        nameProps.put("ContextRoot", contextRoot);
+        nameProps.put("Config", configID.toString());
+        ObjectName name;
+        try {
+            name = new ObjectName("geronimo.jetty", nameProps);
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Unable to construct ObjectName", e);
+        }
+
+        GBeanMBean gbean = new GBeanMBean(JettyWebApplicationContext.GBEAN_INFO);
+        try {
+            gbean.setAttribute("URI", warRoot);
+            gbean.setAttribute("ContextPath", contextRoot);
+            gbean.setAttribute("ContextPriorityClassLoader", Boolean.valueOf(webApp.getContextPriorityClassloader()));
+            gbean.setAttribute("PolicyContextID", null);
+            //jndi
+/*
+            if (proxyFactory != null) {
+                UserTransaction userTransaction = null;
+                Context componentContext = new ComponentContextBuilder(proxyFactory, cl).buildContext(
+                        webApp.getEjbRefArray(), jettyWebApp.getEjbRefArray(),
+                        webApp.getEjbLocalRefArray(), jettyWebApp.getEjbLocalRefArray(),
+                        webApp.getEnvEntryArray(),
+                        webApp.getMessageDestinationRefArray(), jettyWebApp.getMessageDestinationRefArray(),
+                        webApp.getResourceEnvRefArray(), jettyWebApp.getResourceEnvRefArray(),
+                        webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray(),
+                        userTransaction);
+                gbean.setAttribute("ComponentContext", componentContext);
+            }
+*/
+
+            gbean.setReferencePatterns("Configuration", Collections.singleton(Kernel.getConfigObjectName(configID)));
+            gbean.setReferencePatterns("JettyContainer", Collections.singleton(new ObjectName("geronimo.web:type=WebContainer,container=Jetty"))); // @todo configurable
+            gbean.setReferencePatterns("TransactionManager", Collections.EMPTY_SET);
+            gbean.setReferencePatterns("TrackedConnectionAssociator", Collections.EMPTY_SET);
+        } catch (Exception e) {
+            throw new DeploymentException("Unable to initialize webapp GBean", e);
+        }
+        context.addGBean(name, gbean);
     }
 
     /**
