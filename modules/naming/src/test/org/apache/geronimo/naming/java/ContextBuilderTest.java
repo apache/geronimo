@@ -117,7 +117,7 @@ public class ContextBuilderTest extends TestCase {
         kernel.boot();
         try {
             assertEquals(kernel, Kernel.getKernel("test.kernel"));
-            ObjectName proxyFactoryName = ObjectName.getInstance(JMXReferenceFactory.BASE_ADMIN_OBJECT_NAME + "testAdminObject");
+            ObjectName proxyFactoryName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo" + JMXReferenceFactory.BASE_ADMIN_OBJECT_NAME + "testAdminObject");
             GBeanMBean gbean = new GBeanMBean(getGbeanInfo());
             gbean.setAttribute("Content", proxy);
             kernel.loadGBean(proxyFactoryName, gbean);
