@@ -16,8 +16,9 @@
     limitations under the License.
 -->
   
-
-<!-- $Revision: 1.7 $ $Date: 2004/06/24 20:59:50 $ -->
+<!DOCTYPE project SYSTEM "../../etc/version-info.ent">
+                                          
+<!-- $Revision: 1.8 $ $Date: 2004/09/02 05:27:05 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -35,7 +36,7 @@
 
     <package>javax.servlet</package>
 
-    <currentVersion>2.4-rc2</currentVersion>
+    <currentVersion>&geronimo-spec-servlet-version;</currentVersion>
 
     <build>
         <resources>

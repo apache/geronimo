@@ -16,8 +16,9 @@
     limitations under the License.
 -->
   
+<!DOCTYPE project SYSTEM "../../etc/version-info.ent">
 
-<!-- $Revision: 1.10 $ $Date: 2004/06/24 20:59:48 $ -->
+<!-- $Revision: 1.11 $ $Date: 2004/09/02 05:27:05 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -33,7 +34,7 @@
 
     <package>javax.resource</package>
 
-    <currentVersion>1.5-rc2</currentVersion>
+    <currentVersion>&geronimo-spec-j2ee-connector-version;</currentVersion>
 
     <!-- ============ -->
     <!-- Dependencies -->
@@ -44,7 +45,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
-            <version>1.0.1B-rc2</version>
+            <version>&geronimo-spec-jta-version;</version>
         </dependency>
 
     </dependencies>

@@ -16,8 +16,9 @@
     limitations under the License.
 -->
   
+<!DOCTYPE project SYSTEM "../../etc/version-info.ent">
 
-<!-- $Revision: 1.7 $ $Date: 2004/06/24 20:59:50 $ -->
+<!-- $Revision: 1.8 $ $Date: 2004/09/02 05:27:05 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -33,6 +34,6 @@
 
     <package>javax.transaction</package>
 
-    <currentVersion>1.0.1B-rc2</currentVersion>
+    <currentVersion>&geronimo-spec-jta-version;</currentVersion>
 
 </project>

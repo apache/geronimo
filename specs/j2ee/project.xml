@@ -16,8 +16,9 @@
     limitations under the License.
 -->
   
+<!DOCTYPE project SYSTEM "../../etc/version-info.ent">
 
-<!-- $Revision: 1.10 $ $Date: 2004/06/24 20:59:48 $ -->
+<!-- $Revision: 1.11 $ $Date: 2004/09/02 05:27:05 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -27,7 +28,7 @@
     <groupId>geronimo-spec</groupId>
     <id>geronimo-spec-j2ee</id>
 
-    <currentVersion>1.4-rc2</currentVersion>
+    <currentVersion>&geronimo-spec-j2ee-version;</currentVersion>
 
     <!-- ============ -->
     <!-- Dependencies -->
@@ -37,55 +38,55 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-ejb</artifactId>
-            <version>2.1-rc2</version>
+            <version>&geronimo-spec-ejb-version;</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-connector</artifactId>
-            <version>1.5-rc2</version>
+            <version>&geronimo-spec-j2ee-connector-version;</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
-            <version>1.1-rc2</version>
+            <version>&geronimo-spec-j2ee-deployment-version;</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-jacc</artifactId>
-            <version>1.0-rc2</version>
+            <version>&geronimo-spec-j2ee-jacc-version;</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-management</artifactId>
-            <version>1.0-rc2</version>
+            <version>&geronimo-spec-j2ee-management-version;</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jms</artifactId>
-            <version>1.1-rc2</version>
+            <version>&geronimo-spec-jms-version;</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jsp</artifactId>
-            <version>2.0-rc2</version>
+            <version>&geronimo-spec-jsp-version;</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
-            <version>1.0.1B-rc2</version>
+            <version>&geronimo-spec-jta-version;</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-servlet</artifactId>
-            <version>2.4-rc2</version>
+            <version>&geronimo-spec-servlet-version;</version>
         </dependency>
 
     </dependencies>

@@ -16,8 +16,9 @@
     limitations under the License.
 -->
 
+<!DOCTYPE project SYSTEM "../../etc/version-info.ent">
 
-<!-- $Revision: 1.8 $ $Date: 2004/06/17 06:55:11 $ -->
+<!-- $Revision: 1.9 $ $Date: 2004/09/02 05:27:05 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -54,7 +55,7 @@
         <dependency>
             <groupId>xmlbeans</groupId>
             <artifactId>xbean-apache</artifactId>
-            <version>1.0-DEV</version>
+            <version>&xmlbeans-version;</version>
         </dependency>
 
     </dependencies>

@@ -16,35 +16,36 @@
     limitations under the License.
 -->
   
+<!DOCTYPE project SYSTEM "../../etc/version-info.ent">
 
-<!-- $Revision: 1.9 $ $Date: 2004/06/24 20:59:48 $ -->
+<!-- $Revision: 1.10 $ $Date: 2004/09/02 05:27:05 $ -->
 
 <project>
-  <pomVersion>3</pomVersion>
-  <extend>${basedir}/../../etc/project.xml</extend>
-  
-  <name>Geronimo :: Enterprise JavaBeans Specification</name>
-  <groupId>geronimo-spec</groupId>
-  <id>geronimo-spec-ejb</id>
-  <shortDescription></shortDescription>
-  <description></description>
-  <siteDirectory></siteDirectory>
-  <distributionDirectory></distributionDirectory>
-  
-  <package>javax.ejb</package>
+    <pomVersion>3</pomVersion>
+    <extend>${basedir}/../../etc/project.xml</extend>
 
-  <currentVersion>2.1-rc2</currentVersion>
+    <name>Geronimo :: Enterprise JavaBeans Specification</name>
+    <groupId>geronimo-spec</groupId>
+    <id>geronimo-spec-ejb</id>
+    <shortDescription></shortDescription>
+    <description></description>
+    <siteDirectory></siteDirectory>
+    <distributionDirectory></distributionDirectory>
 
-  <!-- ============ -->
-  <!-- Dependencies -->
-  <!-- ============ -->
-  
-  <dependencies>
-    <dependency>
-      <groupId>geronimo-spec</groupId>
-      <artifactId>geronimo-spec-jta</artifactId>
-      <version>1.0.1B-rc2</version>
-    </dependency>
-  </dependencies>
-  
+    <package>javax.ejb</package>
+
+    <currentVersion>&geronimo-spec-ejb-version;</currentVersion>
+
+    <!-- ============ -->
+    <!-- Dependencies -->
+    <!-- ============ -->
+
+    <dependencies>
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-jta</artifactId>
+            <version>&geronimo-spec-jta-version;</version>
+        </dependency>
+    </dependencies>
+
 </project>

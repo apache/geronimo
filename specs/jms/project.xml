@@ -16,8 +16,9 @@
     limitations under the License.
 -->
   
-
-<!-- $Revision: 1.9 $ $Date: 2004/06/24 20:59:49 $ -->
+<!DOCTYPE project SYSTEM "../../etc/version-info.ent">
+                                                    
+<!-- $Revision: 1.10 $ $Date: 2004/09/02 05:27:05 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -29,20 +30,20 @@
     <description>J2EE Java Message Service Specification</description>
     <package>javax.jms</package>
 
-    <currentVersion>1.1-rc2</currentVersion>
+    <currentVersion>&geronimo-spec-jms-version;</currentVersion>
 
     <dependencies>
         <!-- Plugin Dependencies -->
         <dependency>
             <groupId>mockobjects</groupId>
             <artifactId>mockobjects-jdk1.4-j2ee1.3</artifactId>
-            <version>0.09</version>
+            <version>&mockobjects-version;</version>
         </dependency>
 
         <dependency>
             <groupId>mockobjects</groupId>
             <artifactId>mockobjects-core</artifactId>
-            <version>0.09</version>
+            <version>&mockobjects-version;</version>
         </dependency>
 
     </dependencies>

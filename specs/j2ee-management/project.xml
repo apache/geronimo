@@ -16,8 +16,9 @@
     limitations under the License.
 -->
   
-
-<!-- $Revision: 1.11 $ $Date: 2004/06/24 20:59:49 $ -->
+<!DOCTYPE project SYSTEM "../../etc/version-info.ent">
+                                   
+<!-- $Revision: 1.12 $ $Date: 2004/09/02 05:27:05 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -33,7 +34,7 @@
 
     <package>javax.management</package>
 
-    <currentVersion>1.0-rc2</currentVersion>
+    <currentVersion>&geronimo-spec-j2ee-management-version;</currentVersion>
 
     <!-- ============ -->
     <!-- Dependencies -->
@@ -46,7 +47,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-ejb</artifactId>
-            <version>2.1-rc2</version>
+            <version>&geronimo-spec-ejb-version;</version>
         </dependency>
 
         <!-- Thirdparty -->
@@ -54,7 +55,7 @@
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j-jmx</artifactId>
-            <version>2.0.1</version>
+            <version>&mx4j-version;</version>
             <url>http://mx4j.sourceforge.net</url>
         </dependency>
 
