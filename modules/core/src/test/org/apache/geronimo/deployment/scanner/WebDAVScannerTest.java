@@ -56,22 +56,28 @@
 package org.apache.geronimo.deployment.scanner;
 
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Iterator;
 import java.util.Set;
+import java.io.IOException;
+import java.io.InputStream;
 
 import junit.framework.TestCase;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/12 07:10:16 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/12 20:26:31 $
  */
 public class WebDAVScannerTest extends TestCase {
+    private boolean testedServer;
+    private boolean haveServer;
     private WebDAVScanner scanner;
     private URL baseURL;
 
     public void testScan() throws Exception {
-        scanner = new WebDAVScanner(baseURL, false);
+        if (!haveServer) return;
+
         Set result = scanner.scan();
         for (Iterator i = result.iterator(); i.hasNext();) {
             URLInfo urlInfo = (URLInfo) i.next();
@@ -80,7 +86,8 @@ public class WebDAVScannerTest extends TestCase {
     }
 
     public void testTypes() throws Exception {
-        scanner = new WebDAVScanner(baseURL, false);
+        if (!haveServer) return;
+
         Set result = scanner.scan();
         for (Iterator i = result.iterator(); i.hasNext();) {
             URLInfo urlInfo = (URLInfo) i.next();
@@ -90,5 +97,16 @@ public class WebDAVScannerTest extends TestCase {
 
     protected void setUp() throws Exception {
         baseURL = new URL("http://localhost/testScan/");
+        if (!testedServer) {
+            testedServer = true;
+            try {
+                InputStream is = baseURL.openStream();
+                is.close();
+                haveServer = true;
+            } catch (IOException e) {
+                haveServer = false;
+            }
+        }
+        scanner = new WebDAVScanner(baseURL, false);
     }
 }
