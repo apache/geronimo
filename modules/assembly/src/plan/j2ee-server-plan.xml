@@ -264,10 +264,10 @@ by the server.
     <gbean name="openejb:type=Server,name=HTTPSOAP" class="org.openejb.server.httpd.HttpServerGBean">
         <reference name="Listener">openejb:type=SoapHttpListener</reference>
     </gbean>
-    <gbean name="openejb:type=SoapHttpListener" class="org.openejb.server.soap.SoapHttpListenerGBean">
+    <gbean name="openejb:type=SoapHttpListener" class="org.openejb.server.xfire.SoapHttpListenerGBean">
         <reference name="WSContainerIndex">openejb:type=WSContainerIndex</reference>
     </gbean>
-    <gbean name="openejb:type=WSContainerIndex" class="org.openejb.server.soap.WSContainerIndexGBean">
+    <gbean name="openejb:type=WSContainerIndex" class="org.openejb.server.xfire.WSContainerIndexGBean">
         <reference name="WSContainers">openejb:type=WSContainer,*</reference>
     </gbean>
 
