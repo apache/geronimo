@@ -85,7 +85,7 @@ import net.sf.cglib.reflect.FastMethod;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/11/11 16:39:58 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/16 23:32:29 $
  */
 public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBeanTarget {
     private static final Log log = LogFactory.getLog(GeronimoMBeanEndpoint.class);
@@ -186,14 +186,26 @@ public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBea
         this(name, type, Collections.EMPTY_SET, false);
     }
 
+    public GeronimoMBeanEndpoint(String name, Class type) {
+        this(name, type.getName(), Collections.EMPTY_SET, false);
+    }
+
     public GeronimoMBeanEndpoint(String name, String type, ObjectName pattern) {
         this(name, type, Collections.singleton(pattern), false);
     }
 
+    public GeronimoMBeanEndpoint(String name, Class type, ObjectName pattern) {
+        this(name, type.getName(), Collections.singleton(pattern), false);
+    }
+    
     public GeronimoMBeanEndpoint(String name, String type, ObjectName pattern, boolean required) {
         this(name, type, Collections.singleton(pattern), required);
     }
 
+    public GeronimoMBeanEndpoint(String name, Class type, ObjectName pattern, boolean required) {
+        this(name, type.getName(), Collections.singleton(pattern), required);
+    }    
+    
     public GeronimoMBeanEndpoint(String name, String type, ObjectName pattern, boolean required, String target) {
         this(name, type, Collections.singleton(pattern), required, target);
     }

@@ -84,7 +84,7 @@ import net.sf.cglib.reflect.FastClass;
  * and once the MBean is deployed an imutable copy of will be made.  This class also adds support for multi target
  * POJOs under the MBean.
  *
- * @version $Revision: 1.8 $ $Date: 2003/11/16 00:44:26 $
+ * @version $Revision: 1.9 $ $Date: 2003/11/16 23:32:29 $
  */
 public final class GeronimoMBeanInfo extends MBeanInfo {
 
@@ -202,6 +202,10 @@ public final class GeronimoMBeanInfo extends MBeanInfo {
         return (String) targetClasses.get(DEFAULT_TARGET_NAME);
     }
 
+    public void setTargetClass(Class clazz) {
+       setTargetClass(clazz.getName());
+    }
+    
     public void setTargetClass(String className) {
         if (immutable) {
             throw new IllegalStateException("Data is no longer mutable");

@@ -64,7 +64,7 @@ import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
  * Describes a parameter of an operation.  This extension allows the properties to be mutable during setup,
  * and once the MBean is deployed an imutable copy of will be made.
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/14 16:17:33 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/16 23:32:29 $
  */
 public final class GeronimoParameterInfo extends MBeanParameterInfo {
     private final int hashCode = System.identityHashCode(this);
@@ -75,11 +75,15 @@ public final class GeronimoParameterInfo extends MBeanParameterInfo {
     private final Class typeClass;
 
     public GeronimoParameterInfo() {
-        this(null, null, null);
+        this(null, (String)null, null);
+    }
+
+    public GeronimoParameterInfo(String name, Class type, String description) {
+        this(name, type.getName(), description);
     }
 
     public GeronimoParameterInfo(String name, String type, String description) {
-        super(null, null, null);
+        super("Ignore", "Ignore", null);
         immutable = false;
         typeClass = null;
         this.name = name;
