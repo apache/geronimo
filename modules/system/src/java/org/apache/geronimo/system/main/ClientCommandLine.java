@@ -50,6 +50,6 @@ public class ClientCommandLine extends CommandLine {
 
 
     public ClientCommandLine(URI configuration, String[] args) throws Exception {
-        super(Collections.singletonList(configuration), new ObjectName("geronimo.client:type=ClientContainer"), "main", args);
+        invokeMainGBean(Collections.singletonList(configuration), new ObjectName("geronimo.client:type=ClientContainer"), "main", args);
     }
 }

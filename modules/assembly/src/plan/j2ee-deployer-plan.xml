@@ -68,6 +68,9 @@ Configuration for the Geronimo deployer
     <dependency>
         <uri>geronimo-spec/jars/geronimo-spec-j2ee-${geronimo_spec_j2ee_version}.jar</uri>
     </dependency>
+    <dependency>
+        <uri>geronimo-spec/jars/geronimo-spec-j2ee-deployment-${geronimo_spec_j2ee_deployment_version}.jar</uri>
+    </dependency>
     <!-- required for rar 1.5 to load realms -->
     <dependency>
         <uri>regexp/jars/regexp-${regexp_version}.jar</uri>

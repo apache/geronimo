@@ -22,12 +22,14 @@ import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
 import javax.management.ObjectName;
+import javax.management.InstanceNotFoundException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.system.url.GeronimoURLFactory;
 
@@ -60,7 +62,7 @@ public class CommandLine {
             ObjectName mainGBean = manifest.getMainGBean();
             String mainMethod = manifest.getMainMethod();
 
-            new CommandLine(configurations, mainGBean, mainMethod, args);
+            new CommandLine().invokeMainGBean(configurations, mainGBean, mainMethod, args);
 
             log.info("Server shutdown completed");
         } catch (Exception e) {
@@ -71,33 +73,11 @@ public class CommandLine {
         }
     }
 
-    public CommandLine(List configurations, ObjectName mainGBean, String mainMethod, String[] args) throws Exception {
-        // boot the kernel
-        Kernel kernel = new Kernel("geronimo.kernel", "geronimo");
-        kernel.boot();
+    private Kernel kernel;
+    private GBeanData config;
 
-        // load and start the configuration in this jar
-        ConfigurationManager configurationManager = kernel.getConfigurationManager();
-        GBeanData config = new GBeanData();
-        ClassLoader classLoader = CommandLine.class.getClassLoader();
-        ObjectInputStream ois = new ObjectInputStream(classLoader.getResourceAsStream("META-INF/config.ser"));
-        try {
-            config.readExternal(ois);
-        } finally {
-            ois.close();
-        }
-        configurationManager.load(config, classLoader.getResource("/"), classLoader);
-        kernel.startRecursiveGBean(config.getName());
-
-        // load and start the configurations 
-        for (Iterator i = configurations.iterator(); i.hasNext();) {
-            URI configID = (URI) i.next();
-            List list = configurationManager.loadRecursive(configID);
-            for (Iterator iterator = list.iterator(); iterator.hasNext();) {
-                ObjectName name = (ObjectName) iterator.next();
-                kernel.startRecursiveGBean(name);
-            }
-        }
+    public void invokeMainGBean(List configurations, ObjectName mainGBean, String mainMethod, String[] args) throws Exception {
+        startKernel(configurations);
 
         log.info("Server startup completed");
 
@@ -110,6 +90,43 @@ public class CommandLine {
 
         log.info("Server shutdown begun");
 
+        stopKernel();
+    }
+
+    protected void startKernel(List configurations) throws Exception {
+        // boot the kernel
+        kernel = new Kernel("geronimo.kernel", "geronimo");
+        kernel.boot();
+
+        // load and start the configuration in this jar
+        ConfigurationManager configurationManager = kernel.getConfigurationManager();
+        config = new GBeanData();
+        ClassLoader classLoader = CommandLine.class.getClassLoader();
+        ObjectInputStream ois = new ObjectInputStream(classLoader.getResourceAsStream("META-INF/config.ser"));
+        try {
+            config.readExternal(ois);
+        } finally {
+            ois.close();
+        }
+        configurationManager.load(config, classLoader.getResource("/"), classLoader);
+        kernel.startRecursiveGBean(config.getName());
+
+        // load and start the configurations
+        for (Iterator i = configurations.iterator(); i.hasNext();) {
+            URI configID = (URI) i.next();
+            List list = configurationManager.loadRecursive(configID);
+            for (Iterator iterator = list.iterator(); iterator.hasNext();) {
+                ObjectName name = (ObjectName) iterator.next();
+                kernel.startRecursiveGBean(name);
+            }
+        }
+    }
+
+    protected Kernel getKernel() {
+        return kernel;
+    }
+
+    protected void stopKernel() throws InstanceNotFoundException, InvalidConfigException {
         // stop this configuration
         kernel.stopGBean(config.getName());
 
