@@ -30,7 +30,7 @@ import java.util.Set;
 /**
  * @version $Rev$ $Date$
  */
-public class GBeanInfoFactory {
+public class GBeanInfoBuilder {
     private static final Class[] NO_ARGS = {};
 
     private final String name;
@@ -47,39 +47,39 @@ public class GBeanInfoFactory {
 
     private final Set notifications = new HashSet();
 
-    public GBeanInfoFactory(String name) {
+    public GBeanInfoBuilder(String name) {
         this(name, name, null);
     }
 
-    public GBeanInfoFactory(Class clazz) {
+    public GBeanInfoBuilder(Class clazz) {
         this(checkNotNull(clazz).getName(), clazz.getName(), null);
     }
 
-    public GBeanInfoFactory(String name, String className) {
+    public GBeanInfoBuilder(String name, String className) {
         this(name, className, null);
     }
 
-    public GBeanInfoFactory(String name, Class clazz) {
+    public GBeanInfoBuilder(String name, Class clazz) {
         this(name, checkNotNull(clazz).getName(), null);
     }
 
-    public GBeanInfoFactory(Class clazz, GBeanInfo source) {
+    public GBeanInfoBuilder(Class clazz, GBeanInfo source) {
         this(checkNotNull(clazz).getName(), clazz.getName(), source);
     }
 
-    public GBeanInfoFactory(String name, GBeanInfo source) {
+    public GBeanInfoBuilder(String name, GBeanInfo source) {
         this(checkNotNull(name), name, source);
     }
 
-    public GBeanInfoFactory(String name, ClassLoader cl) {
+    public GBeanInfoBuilder(String name, ClassLoader cl) {
         this(checkNotNull(name), name, GBeanInfo.getGBeanInfo(name, cl));
     }
 
-    public GBeanInfoFactory(String name, Class clazz, GBeanInfo source) {
+    public GBeanInfoBuilder(String name, Class clazz, GBeanInfo source) {
         this(name, checkNotNull(clazz).getName(), source);
     }
 
-    public GBeanInfoFactory(String name, String className, GBeanInfo source) {
+    public GBeanInfoBuilder(String name, String className, GBeanInfo source) {
         checkNotNull(name);
         checkNotNull(className);
         this.name = name;
