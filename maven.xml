@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.25 $ $Date: 2003/08/25 15:41:19 $ -->
+<!-- $Revision: 1.26 $ $Date: 2003/08/25 15:46:39 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -356,17 +356,17 @@
     
     <j:jelly xmlns="jelly:ant">
       <java
-        classname="com.werken.forehead.Forehead"
+        classname="com.werken.classworlds.Launcher"
         fork="true"
         maxmemory="128m"
         failonerror="true"
         dir="${run.dir}">
         
         <classpath>
-          <pathelement location="${run.dir}/lib/forehead-SNAPSHOT.jar"/>
+          <pathelement location="${run.dir}/lib/classworlds-SNAPSHOT.jar"/>
         </classpath>
         
-        <sysproperty key="forehead.conf.file" value="${run.dir}/etc/forehead.conf"/>
+        <sysproperty key="classworlds.conf" value="${run.dir}/etc/classworlds.conf"/>
         <sysproperty key="program.name" value="maven:run"/>
         <sysproperty key="twiddle.home" value="${run.dir}"/>
         
