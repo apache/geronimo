@@ -118,7 +118,6 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
             // parse it
             XmlObject parsed = SchemaConversionUtils.parse(specDD);
-            SchemaConversionUtils.validateDD(parsed);
             WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(parsed);
             webApp = webAppDoc.getWebApp();
         } catch (XmlException xmle) {

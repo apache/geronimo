@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app xsi:schemaLocation="http://java.sun.com/xml/ns/j2eehttp://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" version="2.4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/j2ee">
+  <description>no description</description>
+  <display-name>display name</display-name>
+  <servlet>
+    <description>no description</description>
+    <display-name>servlet display name</display-name>
+    <servlet-name>servletname</servlet-name>
+    <servlet-class>com.nowhere.Servlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>servletname</servlet-name>
+    <url-pattern>/urlPattern</url-pattern>
+  </servlet-mapping>
+  <session-config>
+    <session-timeout>60</session-timeout>
+  </session-config>
+</web-app>
+

@@ -256,6 +256,22 @@ public class SchemaConversionUtilsTest extends TestCase {
         assertTrue("Differences: " + problems, ok2);
     }
 
+    public void testWeb22To24Transform1() throws Exception {
+        File srcXml = new File(basedir, "src/test-data/j2ee_1_2dtd/web-1-22.xml");
+        File expectedOutputXml = new File(basedir, "src/test-data/j2ee_1_2dtd/web-1-24.xml");
+        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
+        xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
+        XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
+//        System.out.println(xmlObject.toString());
+//        System.out.println(expected.toString());
+        List problems = new ArrayList();
+        boolean ok = compareXmlObjects(xmlObject, expected, problems);
+        assertTrue("Differences: " + problems, ok);
+        xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
+        boolean ok2 = compareXmlObjects(xmlObject, expected, problems);
+        assertTrue("Differences: " + problems, ok2);
+    }
+
     public void testEJB21To21DoesNothing() throws Exception {
         File srcXml = new File(basedir, "src/test-data/j2ee_1_4schema/ejb-jar.xml");
         File expectedOutputXml = new File(basedir, "src/test-data/j2ee_1_4schema/ejb-jar.xml");
