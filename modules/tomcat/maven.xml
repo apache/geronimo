@@ -54,6 +54,8 @@
 		   - copy the dependencies (specified in tomcat-plan.xml)
 		   - note the version is explicity referenced
 		  -->
+		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/geronimo/jars"
+		      file="target/${maven.final.name}.jar"/>
 		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/tomcat/jars"
 		      file="${maven.repo.local}/tomcat/jars/catalina-5.0.16.jar"/>
 		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/tomcat/jars"
@@ -88,8 +90,6 @@
             <arg value="--install"/>
             <arg value="--plan"/>
             <arg value="src/plan/tomcat-plan.xml"/>
-            <arg value="--module"/>
-            <arg value="target/${maven.final.name}.jar"/>
         </java>
 	</postGoal>	
 	
