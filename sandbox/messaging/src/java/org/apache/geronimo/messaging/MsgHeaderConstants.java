@@ -22,7 +22,7 @@ package org.apache.geronimo.messaging;
  * <BR>
  * Only these keys are supported by MsgHeaders.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/20 00:08:13 $
  */
 public interface MsgHeaderConstants
 {
@@ -80,5 +80,12 @@ public interface MsgHeaderConstants
      * The value for this key MUST be a MsgBody.Type.
      */
     public static final Object BODY_TYPE = "BodyType";
+    
+    /**
+     * Topology version in which the Msg is to be sent/received.
+     * <BR>
+     * It is used to send Msgs in a prepared (not yet committed) topology.
+     */
+    public static final Object TOPOLOGY_VERSION = "TopologyVersion";
     
 }

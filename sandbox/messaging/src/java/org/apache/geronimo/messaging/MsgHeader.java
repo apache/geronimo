@@ -25,7 +25,7 @@ import java.io.ObjectOutput;
 /**
  * Msg header.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/20 00:08:13 $
  */
 public class MsgHeader
     implements Externalizable
@@ -39,7 +39,8 @@ public class MsgHeader
         MsgHeaderConstants.DEST_NODE_PATH,
         MsgHeaderConstants.DEST_NODES,
         MsgHeaderConstants.SRC_ENDPOINT,
-        MsgHeaderConstants.SRC_NODE};
+        MsgHeaderConstants.SRC_NODE,
+        MsgHeaderConstants.TOPOLOGY_VERSION};
     
     /**
      * Header maps.
