@@ -16,23 +16,24 @@
  */
 package org.apache.geronimo.naming;
 
-import javax.naming.Reference;
 import javax.management.MalformedObjectNameException;
+import javax.naming.Reference;
 
-import org.apache.geronimo.naming.deployment.RefAdapter;
+import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
 
 /**
  * @version $Revision$ $Date$
  */
 public interface ReferenceFactory {
-    Reference buildConnectionFactoryReference(RefAdapter refAdapter, Class iface) throws MalformedObjectNameException;
+    Reference buildConnectionFactoryReference(GerLocalRefType localRef, Class iface) throws MalformedObjectNameException;
 
-    Reference buildAdminObjectReference(RefAdapter refAdapter, Class iface) throws MalformedObjectNameException;
+    Reference buildAdminObjectReference(GerLocalRefType localRef, Class iface) throws MalformedObjectNameException;
 
     //TODO warning: this only works if there is only one kernel!
     Reference buildMessageDestinationReference(String linkName, Class iface) throws MalformedObjectNameException;
 
-    Reference buildEjbReference(RefAdapter refAdapter, Class iface) throws MalformedObjectNameException;
+    Reference buildEjbReference(GerRemoteRefType remoteRef, Class iface) throws MalformedObjectNameException;
 
-    Reference buildEjbLocalReference(RefAdapter refAdapter, Class iface) throws MalformedObjectNameException;
+    Reference buildEjbLocalReference(GerLocalRefType localRef, Class iface) throws MalformedObjectNameException;
 }

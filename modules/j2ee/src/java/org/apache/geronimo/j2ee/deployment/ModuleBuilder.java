@@ -31,9 +31,9 @@ import org.apache.xmlbeans.XmlObject;
 public interface ModuleBuilder {
     XmlObject parseSpecDD(URL path) throws DeploymentException;
 
-    XmlObject parseVendorDD(URL vendorURL) throws XmlException;
+    XmlObject parseVendorDD(URL vendorURL) throws DeploymentException;
 
-    XmlObject getDeploymentPlan(URL module) throws XmlException;
+    XmlObject getDeploymentPlan(URL module) throws DeploymentException;
 
     boolean canHandlePlan(XmlObject plan);
 

@@ -91,13 +91,13 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
         }
     }
 
-    public XmlObject parseVendorDD(URL vendorURL) throws XmlException {
+    public XmlObject parseVendorDD(URL vendorURL) throws DeploymentException {
         InputStream in = null;
         try {
             in = vendorURL.openStream();
             return XmlObject.Factory.newInstance();
         } catch (IOException e) {
-            throw new XmlException(e);
+            throw new DeploymentException(e);
         } finally {
             if (in != null) {
                 try {

@@ -23,8 +23,9 @@ import javax.management.MalformedObjectNameException;
 import javax.naming.NamingException;
 import javax.transaction.UserTransaction;
 
-import org.apache.geronimo.naming.deployment.RefAdapter;
 import org.apache.geronimo.naming.ReferenceFactory;
+import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
 
 /**
  *
@@ -94,25 +95,25 @@ public class ComponentContextBuilder {
         context.internalBind(ENV + name, value);
     }
 
-    public void addResourceRef(String name, Class iface, RefAdapter refAdapter) throws NamingException {
+    public void addResourceRef(String name, Class iface, GerLocalRefType localRef) throws NamingException {
         if (iface == URL.class) {
             try {
-                context.internalBind(ENV + name, new URL(refAdapter.getExternalUri()));
+                context.internalBind(ENV + name, new URL(localRef.getExternalUri()));
             } catch (MalformedURLException e) {
-                throw (NamingException) new NamingException("Could not convert " + refAdapter + " to URL").initCause(e);
+                throw (NamingException) new NamingException("Could not convert " + localRef + " to URL").initCause(e);
             }
         } else {
             try {
-                bind(name, referenceFactory.buildConnectionFactoryReference(refAdapter, iface));
+                bind(name, referenceFactory.buildConnectionFactoryReference(localRef, iface));
             } catch (MalformedObjectNameException e) {
                 throw (NamingException) new NamingException("invalid object name").initCause(e);
             }
         }
     }
 
-    public void addResourceEnvRef(String name, Class iface, RefAdapter refAdapter) throws NamingException {
+    public void addResourceEnvRef(String name, Class iface, GerLocalRefType localRef) throws NamingException {
         try {
-            bind(name, referenceFactory.buildAdminObjectReference(refAdapter, iface));
+            bind(name, referenceFactory.buildAdminObjectReference(localRef, iface));
         } catch (MalformedObjectNameException e) {
             throw (NamingException) new NamingException("invalid object name").initCause(e);
         }
@@ -127,17 +128,17 @@ public class ComponentContextBuilder {
         }
     }
 
-    public void addEjbRef(String name, Class iface, RefAdapter refAdapter) throws NamingException {
+    public void addEjbRef(String name, Class iface, GerRemoteRefType remoteRef) throws NamingException {
         try {
-            bind(name, referenceFactory.buildEjbReference(refAdapter, iface));
+            bind(name, referenceFactory.buildEjbReference(remoteRef, iface));
         } catch (MalformedObjectNameException e) {
             throw (NamingException) new NamingException("invalid object name").initCause(e);
         }
     }
 
-    public void addEjbLocalRef(String name, Class iface, RefAdapter refAdapter) throws NamingException {
+    public void addEjbLocalRef(String name, Class iface, GerLocalRefType localRef) throws NamingException {
         try {
-            bind(name, referenceFactory.buildEjbLocalReference(refAdapter, iface));
+            bind(name, referenceFactory.buildEjbLocalReference(localRef, iface));
         } catch (MalformedObjectNameException e) {
             throw (NamingException) new NamingException("invalid object name").initCause(e);
         }

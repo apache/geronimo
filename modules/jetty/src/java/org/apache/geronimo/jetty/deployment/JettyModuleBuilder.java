@@ -65,10 +65,10 @@ import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyDefaultPrincipalType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyDependencyType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyGbeanType;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyLocalRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyPrincipalType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyRealmType;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyRemoteRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyRoleMappingsType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyRoleType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettySecurityType;
@@ -117,11 +117,19 @@ public class JettyModuleBuilder implements ModuleBuilder {
         return webAppDoc.getWebApp();
     }
 
-    public XmlObject parseVendorDD(URL vendorURL) throws XmlException {
-        return XmlBeansUtil.getXmlObject(vendorURL, JettyWebAppDocument.type);
+    public XmlObject parseVendorDD(URL path) throws DeploymentException {
+        try {
+            XmlObject dd = SchemaConversionUtils.parse(path.openStream());
+            dd = SchemaConversionUtils.convertToGeronimoNamingSchema(dd);
+            dd = dd.changeType(JettyWebAppDocument.type);
+            SchemaConversionUtils.validateDD(dd);
+            return dd;
+        } catch (Exception e) {
+            throw new DeploymentException(e);
+        }
     }
 
-    public XmlObject getDeploymentPlan(URL module) throws XmlException {
+    public XmlObject getDeploymentPlan(URL module) throws DeploymentException {
         try {
             URL moduleBase;
             if (module.toString().endsWith("/")) {
@@ -164,21 +172,21 @@ public class JettyModuleBuilder implements ModuleBuilder {
             if (id.endsWith(".war")) {
                 id = id.substring(0, id.length() - 4);
             }
-            if ( id.endsWith("/") ) {
+            if (id.endsWith("/")) {
                 id = id.substring(0, id.length() - 1);
             }
             id = id.substring(id.lastIndexOf('/') + 1);
         }
         return newJettyWebAppDocument(webApp, id);
     }
-    
+
     private JettyWebAppDocument newJettyWebAppDocument(WebAppType webApp, String id) {
         JettyWebAppDocument jettyWebAppDocument = JettyWebAppDocument.Factory.newInstance();
         JettyWebAppType jettyWebApp = jettyWebAppDocument.addNewWebApp();
 
         // set the parentId, configId and context root
         jettyWebApp.setParentId(PARENT_ID);
-        if ( null != webApp.getId() ) {
+        if (null != webApp.getId()) {
             id = webApp.getId();
         }
         jettyWebApp.setConfigId(id);
@@ -392,12 +400,12 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 cl);
     }
 
-    private static Map mapRefs(JettyRemoteRefType[] refs) {
+    private static Map mapRefs(GerRemoteRefType[] refs) {
         Map refMap = new HashMap();
         if (refs != null) {
             for (int i = 0; i < refs.length; i++) {
-                JettyRemoteRefType ref = refs[i];
-                refMap.put(ref.getRefName(), new JettyRefAdapter(ref));
+                GerRemoteRefType ref = refs[i];
+                refMap.put(ref.getRefName(), ref);
             }
         }
         return refMap;
@@ -459,10 +467,10 @@ public class JettyModuleBuilder implements ModuleBuilder {
         return principal;
     }
 
-    private void setResourceEnvironment(GBeanMBean bean, ResourceRefType[] resourceRefArray, JettyLocalRefType[] jettyResourceRefArray) throws AttributeNotFoundException, ReflectionException {
+    private void setResourceEnvironment(GBeanMBean bean, ResourceRefType[] resourceRefArray, GerLocalRefType[] jettyResourceRefArray) throws AttributeNotFoundException, ReflectionException {
         Map openejbNames = new HashMap();
         for (int i = 0; i < jettyResourceRefArray.length; i++) {
-            JettyLocalRefType jettyLocalRefType = jettyResourceRefArray[i];
+            GerLocalRefType jettyLocalRefType = jettyResourceRefArray[i];
             openejbNames.put(jettyLocalRefType.getRefName(), jettyLocalRefType.getTargetName());
         }
         Set unshareableResources = new HashSet();

@@ -137,11 +137,16 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         throw new DeploymentException("Unable to parse specDD");
     }
 
-    public XmlObject parseVendorDD(URL url) throws XmlException {
-        return XmlBeansUtil.getXmlObject(url, GerConnectorDocument.type);
+    public XmlObject parseVendorDD(URL path) throws DeploymentException {
+        try {
+             XmlObject dd = SchemaConversionUtils.parse(path.openStream());
+             return dd.changeType(GerConnectorDocument.type);
+         } catch (Exception e) {
+             throw new DeploymentException(e);
+         }
     }
 
-    public XmlObject getDeploymentPlan(URL module) throws XmlException {
+    public XmlObject getDeploymentPlan(URL module) throws DeploymentException {
         try {
             URL moduleBase;
             if (module.toString().endsWith("/")) {

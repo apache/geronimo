@@ -41,11 +41,11 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.naming.deployment.RefAdapter;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.naming.ReferenceFactory;
+import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -127,50 +127,11 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
     public void testLocalLookup() throws Exception {
         ReferenceFactory referenceFactory = new JMXReferenceFactory();
         ComponentContextBuilder builder = new ComponentContextBuilder(referenceFactory);
-        builder.addResourceRef("resourceref", ConnectionFactory.class, new RefAdapter() {
-            public XmlObject getXmlObject() {
-                return null;
-            }
-
-            public void setXmlObject(XmlObject xmlObject) {
-            }
-
-            public String getRefName() {
-                return "resourceref";
-            }
-
-            public void setRefName(String name) {
-            }
-
-            public String getServerName() {
-                return null;
-            }
-
-            public void setServerName(String serverName) {
-            }
-
-            public String getKernelName() {
-                return KERNEL_NAME;
-            }
-
-            public void setKernelName(String kernelName) {
-            }
-
-            public String getTargetName() {
-                return TARGET_NAME;
-            }
-
-            public void setTargetName(String targetName) {
-            }
-
-            public String getExternalUri() {
-                return null;
-            }
-
-            public void setExternalUri(String externalURI) {
-            }
-
-        });
+        GerLocalRefType localRef = GerLocalRefType.Factory.newInstance();
+        localRef.setRefName("resourceref");
+        localRef.setKernelName(KERNEL_NAME);
+        localRef.setTargetName(TARGET_NAME);
+        builder.addResourceRef("resourceref", ConnectionFactory.class, localRef);
         ReadOnlyContext roc = builder.getContext();
         Object o = roc.lookup("env/resourceref");
         assertNotNull(o);

@@ -19,12 +19,14 @@
 <xs:schema
     xmlns:geronimo="http://geronimo.apache.org/xml/ns/j2ee/application-client"
     targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/application-client"
+    xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
     version="1.0">
 
-    <xs:include schemaLocation="../../../naming/src/schema/geronimo-naming.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/naming" schemaLocation="../../../naming/src/schema/geronimo-naming.xsd"/>
+    <!--xs:include schemaLocation="../../../naming/src/schema/geronimo-naming.xsd"/-->
     <xs:include schemaLocation="../../../deployment/src/schema/geronimo-common.xsd"/>
 
     <xs:element name="application-client" type="geronimo:application-clientType"/>
@@ -39,18 +41,19 @@
             <!--                type="geronimo:fully-qualified-classType"-->
             <!--                minOccurs="0"/>-->
 
-            <xs:element name="ejb-ref"
-                type="geronimo:remote-refType"
-                minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="resource-ref"
-                type="geronimo:local-refType"
-                minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="resource-env-ref"
-                type="geronimo:local-refType"
-                minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="message-destination-ref"
-                type="geronimo:remote-refType"
-                minOccurs="0" maxOccurs="unbounded"/>
+            <xs:group ref="naming:jndiEnvironmentRefsGroup"/>
+            <!--xs:element name="ejb-ref"
+               type="geronimo:remote-refType"
+               minOccurs="0" maxOccurs="unbounded"/>
+           <xs:element name="resource-ref"
+               type="geronimo:local-refType"
+               minOccurs="0" maxOccurs="unbounded"/>
+           <xs:element name="resource-env-ref"
+               type="geronimo:local-refType"
+               minOccurs="0" maxOccurs="unbounded"/>
+           <xs:element name="message-destination-ref"
+               type="geronimo:remote-refType"
+               minOccurs="0" maxOccurs="unbounded"/-->
 
             <xs:element name="gbean" type="geronimo:gbeanType" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>

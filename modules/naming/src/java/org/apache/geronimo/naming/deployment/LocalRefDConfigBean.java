@@ -20,6 +20,7 @@ package org.apache.geronimo.naming.deployment;
 import javax.enterprise.deploy.model.DDBean;
 
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
+import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
@@ -29,10 +30,10 @@ import org.apache.xmlbeans.SchemaTypeLoader;
  */
 public class LocalRefDConfigBean extends DConfigBeanSupport {
 
-    protected final RefAdapter ref;
+    protected final GerRemoteRefType ref;
 
-    public LocalRefDConfigBean(DDBean ddBean, RefAdapter ref, String namePath) {
-        super(ddBean, ref.getXmlObject());
+    public LocalRefDConfigBean(DDBean ddBean, GerRemoteRefType ref, String namePath) {
+        super(ddBean, ref);
         this.ref = ref;
 
         assert ddBean.getChildBean(namePath)[0].getText().equals(getRefName());

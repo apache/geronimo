@@ -25,6 +25,8 @@ import javax.naming.NamingException;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.xbeans.j2ee.*;
+import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
@@ -67,12 +69,12 @@ public class ENCConfigBuilder {
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("could not load class " + type, e);
             }
-            RefAdapter refAdapter = (RefAdapter) refAdapterMap.get(name);
-            if (refAdapter == null) {
+            GerLocalRefType localRef = (GerLocalRefType) refAdapterMap.get(name);
+            if (localRef == null) {
                 throw  new DeploymentException("No geronimo configuration for resource ref named: " + name);
             }
             try {
-                builder.addResourceRef(name, iface, refAdapter);
+                builder.addResourceRef(name, iface, localRef);
             } catch (NamingException e) {
                 throw new DeploymentException("Invalid resource-ref definition for name: " + name, e);
             }
@@ -91,12 +93,12 @@ public class ENCConfigBuilder {
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("could not load class " + type, e);
             }
-            RefAdapter refAdapter = (RefAdapter) refAdapterMap.get(name);
-            if (refAdapter == null) {
+            GerLocalRefType localRef = (GerLocalRefType) refAdapterMap.get(name);
+            if (localRef == null) {
                 throw  new DeploymentException("No geronimo configuration for resource env ref named: " + name);
             }
             try {
-                builder.addResourceEnvRef(name, iface, refAdapter);
+                builder.addResourceEnvRef(name, iface, localRef);
             } catch (NamingException e) {
                 throw new DeploymentException("Invalid resource-env-ref definition for name: " + name, e);
             }
@@ -147,12 +149,12 @@ public class ENCConfigBuilder {
                     throw new DeploymentException("Unable to to bind ejb-ref: ejb-ref-name=" + ejbRefName);
                 }
             } else {
-                RefAdapter refAdapter = (RefAdapter) ejbRefMap.get(ejbRefName);
-                if (refAdapter == null) {
+                GerRemoteRefType remoteRef = (GerRemoteRefType) ejbRefMap.get(ejbRefName);
+                if (remoteRef == null) {
                     throw  new DeploymentException("No geronimo configuration for resource ref named: " + ejbRefName);
                 }
                 try {
-                    builder.bind(ejbRefName, earContext.createEJBRemoteReference(refAdapter.getTargetName(), isSession, home, remote));
+                    builder.bind(ejbRefName, earContext.createEJBRemoteReference(remoteRef.getTargetName(), isSession, home, remote));
                 } catch (NamingException e) {
                     throw new DeploymentException("Invalid env-entry definition for name: " + ejbRefName, e);
                 }
@@ -183,12 +185,12 @@ public class ENCConfigBuilder {
                     throw new DeploymentException("Unable to to bind ejb-local-ref: ejb-ref-name=" + ejbRefName);
                 }
             } else {
-                RefAdapter refAdapter = (RefAdapter) ejbLocalRefMap.get(ejbRefName);
-                if (refAdapter == null) {
+                GerLocalRefType localRef = (GerLocalRefType) ejbLocalRefMap.get(ejbRefName);
+                if (localRef == null) {
                     throw  new DeploymentException("No geronimo configuration for resource ref named: " + ejbRefName);
                 }
                 try {
-                    builder.bind(ejbRefName, earContext.createEJBLocalReference(refAdapter.getTargetName(), isSession, localHome, local));
+                    builder.bind(ejbRefName, earContext.createEJBLocalReference(localRef.getTargetName(), isSession, localHome, local));
                 } catch (NamingException e) {
                     throw new DeploymentException("Invalid env-entry definition for name: " + ejbRefName, e);
                 }

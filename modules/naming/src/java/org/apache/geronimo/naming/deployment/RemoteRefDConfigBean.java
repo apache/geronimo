@@ -19,6 +19,8 @@ package org.apache.geronimo.naming.deployment;
 
 import javax.enterprise.deploy.model.DDBean;
 
+import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
+
 /**
  *
  *
@@ -27,15 +29,15 @@ import javax.enterprise.deploy.model.DDBean;
  * */
 public class RemoteRefDConfigBean extends LocalRefDConfigBean {
 
-    public RemoteRefDConfigBean(DDBean ddBean, RefAdapter ref, String namePath) {
+    public RemoteRefDConfigBean(DDBean ddBean, GerRemoteRefType ref, String namePath) {
         super (ddBean, ref, namePath);
     }
 
     public String getServerName() {
-        return ref.getServerName();
+        return ref.getServer();
     }
 
     public void setServerName(String serverName) {
-        ref.setServerName(serverName);
+        ref.setServer(serverName);
     }
 }

@@ -94,11 +94,7 @@ public class Deployer {
             }
             for (Iterator i = builders.iterator(); i.hasNext();) {
                 ConfigurationBuilder candidate = (ConfigurationBuilder) i.next();
-                try {
-                    plan = candidate.getDeploymentPlan(moduleURL);
-                } catch (XmlException e) {
-                    throw new DeploymentException(e);
-                }
+                plan = candidate.getDeploymentPlan(moduleURL);
                 if (plan != null) {
                     builder = candidate;
                     break;

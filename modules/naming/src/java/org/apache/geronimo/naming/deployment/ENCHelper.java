@@ -19,12 +19,13 @@ package org.apache.geronimo.naming.deployment;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.spi.DConfigBean;
 import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 
+import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 
@@ -42,7 +43,6 @@ public class ENCHelper {
     public static final String[][] ENC_XPATHS = {
         {"ejb-ref"},
         {"ejb-local-ref"},
-        {"message-destination-ref"},
         {"resource-env-ref"},
         {"resource-ref"},
     };
@@ -50,14 +50,10 @@ public class ENCHelper {
     public static final String[][] NAME_XPATHS = {
         {"ejb-ref-name"},
         {"ejb-ref-name"},
-        {"message-destination-ref-name"},
         {"resource-env-ref-name"},
         {"res-ref-name"}
     };
 
-    private final DDBean ddBean;
-
-    private final XmlEnvRefs envRefs;
 
     private final String[] xpaths;
     private final String[] namePaths;
@@ -65,13 +61,10 @@ public class ENCHelper {
     private LocalRefDConfigBean[] ejbRefs;
 
     private LocalRefDConfigBean[] ejbLocalRefs;
-    private LocalRefDConfigBean[] messageDestinationRefs;
     private LocalRefDConfigBean[] resourceEnvRefs;
     private LocalRefDConfigBean[] resourceRefs;
 
     public ENCHelper(DDBean ddBean, XmlEnvRefs envRefs, String[] xpaths, String[] namePaths) {
-        this.ddBean = ddBean;
-        this.envRefs = envRefs;
         this.xpaths = xpaths;
         this.namePaths = namePaths;
         DDBean[] ddEjbRefs = ddBean.getChildBean(xpaths[0]);
@@ -79,22 +72,22 @@ public class ENCHelper {
             ddEjbRefs = new DDBean[0];
         }
         ejbRefs = new RemoteRefDConfigBean[ddEjbRefs.length];
-        RefAdapter[] xmlEjbRefs = envRefs.getEjbRefs();
+        GerRemoteRefType[] xmlEjbRefs = envRefs.getEjbRefs();
         Map ejbRefMap = new HashMap();
         for (int i = 0; i < xmlEjbRefs.length; i++) {
-            RefAdapter refAdapter = xmlEjbRefs[i];
+            GerRemoteRefType refAdapter = xmlEjbRefs[i];
             ejbRefMap.put(refAdapter.getRefName(), refAdapter);
             envRefs.removeEjbRef(0);
         }
         for (int i = 0; i < ddEjbRefs.length; i++) {
             DDBean ddRef = ddEjbRefs[i];
             String name = ddRef.getText(namePaths[0])[0];
-            RefAdapter refAdapter;
+            GerRemoteRefType refAdapter;
             if (ejbRefMap.get(name) == null) {
                 refAdapter = envRefs.addNewEjbRef();
                 refAdapter.setRefName(name);
             } else {
-                refAdapter = (RefAdapter) ejbRefMap.get(name);
+                refAdapter = (GerRemoteRefType) ejbRefMap.get(name);
                 envRefs.setEjbRef(i, refAdapter);
             }
             ejbRefs[i] = new RemoteRefDConfigBean(ddRef, refAdapter, namePaths[0]);
@@ -105,104 +98,78 @@ public class ENCHelper {
             ddEjbLocalRefs = new DDBean[0];
         }
         ejbLocalRefs = new LocalRefDConfigBean[ddEjbLocalRefs.length];
-        RefAdapter[] xmlEjbLocalRefs = envRefs.getEjbLocalRefs();
+        GerLocalRefType[] xmlEjbLocalRefs = envRefs.getEjbLocalRefs();
         Map ejbLocalRefMap = new HashMap();
         for (int i = 0; i < xmlEjbLocalRefs.length; i++) {
-            RefAdapter refAdapter = xmlEjbLocalRefs[i];
+            GerLocalRefType refAdapter = xmlEjbLocalRefs[i];
             ejbLocalRefMap.put(refAdapter.getRefName(), refAdapter);
             envRefs.removeEjbLocalRef(0);
         }
         for (int i = 0; i < ddEjbLocalRefs.length; i++) {
             DDBean ddRef = ddEjbLocalRefs[i];
             String name = ddRef.getText(namePaths[1])[0];
-            RefAdapter refAdapter;
+            GerLocalRefType refAdapter;
             if (ejbLocalRefMap.get(name) == null) {
                 refAdapter = envRefs.addNewEjbLocalRef();
                 refAdapter.setRefName(name);
             } else {
-                refAdapter = (RefAdapter) ejbLocalRefMap.get(name);
+                refAdapter = (GerLocalRefType) ejbLocalRefMap.get(name);
                 envRefs.setEjbLocalRef(i, refAdapter);
             }
             ejbLocalRefs[i] = new LocalRefDConfigBean(ddRef, refAdapter, namePaths[1]);
         }
 
-        DDBean[] ddMessageDestinationRefs = ddBean.getChildBean(xpaths[2]);
-        if (ddMessageDestinationRefs == null) {
-            ddMessageDestinationRefs = new DDBean[0];
-        }
-        messageDestinationRefs = new LocalRefDConfigBean[ddMessageDestinationRefs.length];
-        RefAdapter[] xmlMessageDestinationRefs = envRefs.getMessageDestinationRefs();
-        Map messageDestinationRefMap = new HashMap();
-        for (int i = 0; i < xmlMessageDestinationRefs.length; i++) {
-            RefAdapter refAdapter = xmlMessageDestinationRefs[i];
-            messageDestinationRefMap.put(refAdapter.getRefName(), refAdapter);
-            envRefs.removeMessageDestinationRef(0);
-        }
-        for (int i = 0; i < ddMessageDestinationRefs.length; i++) {
-            DDBean ddRef = ddMessageDestinationRefs[i];
-            String name = ddRef.getText(namePaths[2])[0];
-            RefAdapter refAdapter;
-            if (messageDestinationRefMap.get(name) == null) {
-                refAdapter = envRefs.addNewMessageDestinationRef();
-                refAdapter.setRefName(name);
-            } else {
-                refAdapter = (RefAdapter) messageDestinationRefMap.get(name);
-                envRefs.setMessageDestinationRef(i, refAdapter);
-            }
-            //??? local or remote
-            messageDestinationRefs[i] = new RemoteRefDConfigBean(ddRef, refAdapter, namePaths[2]);
-        }
 
-        DDBean[] ddResourceEnvRefs = ddBean.getChildBean(xpaths[3]);
+        DDBean[] ddResourceEnvRefs = ddBean.getChildBean(xpaths[2]);
         if (ddResourceEnvRefs == null) {
             ddResourceEnvRefs = new DDBean[0];
         }
         resourceEnvRefs = new LocalRefDConfigBean[ddResourceEnvRefs.length];
-        RefAdapter[] xmlResourceEnvRefs = envRefs.getResourceEnvRefs();
+        GerLocalRefType[] xmlResourceEnvRefs = envRefs.getResourceEnvRefs();
         Map resourceEnvRefMap = new HashMap();
         for (int i = 0; i < xmlResourceEnvRefs.length; i++) {
-            RefAdapter refAdapter = xmlResourceEnvRefs[i];
+            GerLocalRefType refAdapter = xmlResourceEnvRefs[i];
             resourceEnvRefMap.put(refAdapter.getRefName(), refAdapter);
             envRefs.removeResourceEnvRef(0);
         }
         for (int i = 0; i < ddResourceEnvRefs.length; i++) {
             DDBean ddRef = ddResourceEnvRefs[i];
-            String name = ddRef.getText(namePaths[3])[0];
-            RefAdapter refAdapter;
+            String name = ddRef.getText(namePaths[2])[0];
+            GerLocalRefType refAdapter;
             if (resourceEnvRefMap.get(name) == null) {
                 refAdapter = envRefs.addNewResourceEnvRef();
                 refAdapter.setRefName(name);
             } else {
-                refAdapter = (RefAdapter) resourceEnvRefMap.get(name);
+                refAdapter = (GerLocalRefType) resourceEnvRefMap.get(name);
                 envRefs.setResourceEnvRef(i, refAdapter);
             }
-            resourceEnvRefs[i] = new LocalRefDConfigBean(ddRef, refAdapter, namePaths[3]);
+            resourceEnvRefs[i] = new LocalRefDConfigBean(ddRef, refAdapter, namePaths[2]);
         }
 
-        DDBean[] ddResourceRefs = ddBean.getChildBean(xpaths[4]);
+        DDBean[] ddResourceRefs = ddBean.getChildBean(xpaths[3]);
         if (ddResourceRefs == null) {
             ddResourceRefs = new DDBean[0];
         }
         resourceRefs = new LocalRefDConfigBean[ddResourceRefs.length];
-        RefAdapter[] xmlResourceRefs = envRefs.getResourceRefs();
+        GerLocalRefType[] xmlResourceRefs = envRefs.getResourceRefs();
         Map resourceRefMap = new HashMap();
         for (int i = 0; i < xmlResourceRefs.length; i++) {
-            RefAdapter refAdapter = xmlResourceRefs[i];
+            GerLocalRefType refAdapter = xmlResourceRefs[i];
             resourceRefMap.put(refAdapter.getRefName(), refAdapter);
             envRefs.removeResourceRef(0);
         }
         for (int i = 0; i < ddResourceRefs.length; i++) {
             DDBean ddRef = ddResourceRefs[i];
-            String name = ddRef.getText(namePaths[4])[0];
-            RefAdapter refAdapter;
+            String name = ddRef.getText(namePaths[3])[0];
+            GerLocalRefType refAdapter;
             if (resourceRefMap.get(name) == null) {
                 refAdapter = envRefs.addNewResourceRef();
                 refAdapter.setRefName(name);
             } else {
-                refAdapter = (RefAdapter) resourceRefMap.get(name);
+                refAdapter = (GerLocalRefType) resourceRefMap.get(name);
                 envRefs.setResourceRef(i, refAdapter);
             }
-            resourceRefs[i] = new LocalRefDConfigBean(ddRef, refAdapter, namePaths[4]);
+            resourceRefs[i] = new LocalRefDConfigBean(ddRef, refAdapter, namePaths[3]);
         }
 
     }
@@ -229,15 +196,6 @@ public class ENCHelper {
             throw new ConfigurationException("no such ejb-ref-name" + name);
         } else if (xpath.equals(xpaths[2])) {
             String name = ddBean.getText(namePaths[2])[0];
-            for (int i = 0; i < messageDestinationRefs.length; i++) {
-                LocalRefDConfigBean messageDestinationRef = messageDestinationRefs[i];
-                if (messageDestinationRef.getRefName().equals(name)) {
-                    return messageDestinationRef;
-                }
-            }
-            throw new ConfigurationException("no such ejb-ref-name" + name);
-        } else if (xpath.equals(xpaths[3])) {
-            String name = ddBean.getText(namePaths[3])[0];
             for (int i = 0; i < resourceEnvRefs.length; i++) {
                 LocalRefDConfigBean resourceEnvRef = resourceEnvRefs[i];
                 if (resourceEnvRef.getRefName().equals(name)) {
@@ -245,8 +203,8 @@ public class ENCHelper {
                 }
             }
             throw new ConfigurationException("no such ejb-ref-name" + name);
-        } else if (xpath.equals(xpaths[4])) {
-            String name = ddBean.getText(namePaths[4])[0];
+        } else if (xpath.equals(xpaths[3])) {
+            String name = ddBean.getText(namePaths[3])[0];
             for (int i = 0; i < resourceRefs.length; i++) {
                 LocalRefDConfigBean resourceRef = resourceRefs[i];
                 if (resourceRef.getRefName().equals(name)) {
@@ -260,9 +218,9 @@ public class ENCHelper {
     }
 
       public void removeDConfigBean(DConfigBean dcBean) throws BeanNotFoundException {
-          DDBean ddBean = dcBean.getDDBean();
-          String xpath = ddBean.getXpath();
-          String name = ddBean.getText();
+//          DDBean ddBean = dcBean.getDDBean();
+//          String xpath = ddBean.getXpath();
+//          String name = ddBean.getText();
     /*
           if (xpath.endsWith("ejb-ref/ejb-ref-name")) {
               if (ejbRefs.remove(name) == null) {
@@ -288,43 +246,35 @@ public class ENCHelper {
 
 
     public interface XmlEnvRefs {
-        RefAdapter[] getEjbRefs();
+        GerRemoteRefType[] getEjbRefs();
 
-        RefAdapter addNewEjbRef();
+        GerRemoteRefType addNewEjbRef();
 
-        void setEjbRef(int i, RefAdapter refAdapter);
+        GerRemoteRefType setEjbRef(int i, GerRemoteRefType refAdapter);
 
         void removeEjbRef(int i);
 
-        RefAdapter[] getEjbLocalRefs();
+        GerLocalRefType[] getEjbLocalRefs();
 
-        RefAdapter addNewEjbLocalRef();
+        GerLocalRefType addNewEjbLocalRef();
 
-        void setEjbLocalRef(int i, RefAdapter refAdapter);
+        GerLocalRefType setEjbLocalRef(int i, GerLocalRefType refAdapter);
 
         void removeEjbLocalRef(int i);
 
-        RefAdapter[] getMessageDestinationRefs();
+        GerLocalRefType[] getResourceEnvRefs();
 
-        RefAdapter addNewMessageDestinationRef();
+        GerLocalRefType addNewResourceEnvRef();
 
-        void setMessageDestinationRef(int i, RefAdapter refAdapter);
-
-        void removeMessageDestinationRef(int i);
-
-        RefAdapter[] getResourceEnvRefs();
-
-        RefAdapter addNewResourceEnvRef();
-
-        void setResourceEnvRef(int i, RefAdapter refAdapter);
+        GerLocalRefType setResourceEnvRef(int i, GerLocalRefType refAdapter);
 
         void removeResourceEnvRef(int i);
 
-        RefAdapter[] getResourceRefs();
+        GerLocalRefType[] getResourceRefs();
 
-        RefAdapter addNewResourceRef();
+        GerLocalRefType addNewResourceRef();
 
-        void setResourceRef(int i, RefAdapter refAdapter);
+        GerLocalRefType setResourceRef(int i, GerLocalRefType refAdapter);
 
         void removeResourceRef(int i);
 

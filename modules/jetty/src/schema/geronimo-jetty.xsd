@@ -19,17 +19,18 @@
 <xs:schema
     xmlns:jetty="http://geronimo.apache.org/xml/ns/web/jetty"
     xmlns:sec="http://geronimo.apache.org/xml/ns/security"
+    xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
     targetNamespace="http://geronimo.apache.org/xml/ns/web/jetty"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
     version="1.0">
 
-<!--
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/j2ee" schemaLocation="../../../naming/src/schema/geronimo-naming.xsd"/>
--->
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/naming" schemaLocation="../../../naming/src/schema/geronimo-naming.xsd"/>
 
+    <!--
     <xs:include schemaLocation="../../../naming/src/schema/geronimo-naming.xsd"/>
+    -->
     <xs:include schemaLocation="../../../deployment/src/schema/geronimo-common.xsd"/>
     <xs:include schemaLocation="../../../security/src/schema/geronimo-security.xsd"/>
 
@@ -42,16 +43,16 @@
             <xs:element name="context-root" type="xs:string" minOccurs="0" maxOccurs="1"/>
             <xs:element name="context-priority-classloader" type="xs:boolean"/>
 
-            <!--xs:group ref="jetty:jndiEnvironmentRefsGroup"/-->
-            <xs:element name="ejb-ref"
+            <xs:group ref="naming:jndiEnvironmentRefsGroup"/>
+            <!--xs:element name="ejb-ref"
                 type="jetty:remote-refType"
                 minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="ejb-local-ref"
                 type="jetty:local-refType"
-                minOccurs="0" maxOccurs="unbounded"/>
+                minOccurs="0" maxOccurs="unbounded"/-->
             <!-- leave web services out until I know what they do -->
             <!--xsd:group ref="service-refGroup"/-->
-            <xs:element name="resource-ref"
+            <!--xs:element name="resource-ref"
                 type="jetty:local-refType"
                 minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="resource-env-ref"
@@ -59,7 +60,7 @@
                 minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="message-destination-ref"
                 type="jetty:remote-refType"
-                minOccurs="0" maxOccurs="unbounded"/>
+                minOccurs="0" maxOccurs="unbounded"/-->
             <xs:element name="security" type="jetty:securityType" minOccurs="0"/>
 
             <xs:element name="gbean" type="jetty:gbeanType" minOccurs="0" maxOccurs="unbounded"/>

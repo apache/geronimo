@@ -36,7 +36,11 @@ import org.apache.xmlbeans.XmlOptions;
  * @version $Rev$ $Date$
  */
 public class SchemaConversionUtils {
-    private static final String J2EE_NAMESPACE = "http://java.sun.com/xml/ns/j2ee";
+    static final String J2EE_NAMESPACE = "http://java.sun.com/xml/ns/j2ee";
+
+    static final String GERONIMO_NAMING_NAMESPACE = "http://geronimo.apache.org/xml/ns/naming";
+    static final String GERONIMO_NAMING_NAMESPACE_L0CATION = "http://geronimo.apache.org/xml/ns/naming_1_4.xsd";
+    private static final QName TAGLIB = new QName(J2EE_NAMESPACE, "taglib");
 
     private SchemaConversionUtils() {
     }
@@ -75,7 +79,7 @@ public class SchemaConversionUtils {
         String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/application_1_4.xsd";
         String version = "1.4";
         try {
-            convertToSchema(cursor, schemaLocationURL, version);
+            convertToSchema(cursor, J2EE_NAMESPACE, schemaLocationURL, version);
             cursor.toStartDoc();
             cursor.toChild(J2EE_NAMESPACE, "application");
             cursor.toFirstChild();
@@ -94,6 +98,29 @@ public class SchemaConversionUtils {
 
     }
 
+    public static ApplicationClientDocument convertToApplicationClientSchema(XmlObject xmlObject) throws XmlException {
+        if (ApplicationClientDocument.type.equals(xmlObject.schemaType())) {
+            validateDD(xmlObject);
+            return (ApplicationClientDocument) xmlObject;
+        }
+        XmlCursor cursor = xmlObject.newCursor();
+        String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/application-client_1_4.xsd";
+        String version = "1.4";
+        try {
+            convertToSchema(cursor, J2EE_NAMESPACE, schemaLocationURL, version);
+        } finally {
+            cursor.dispose();
+        }
+        XmlObject result = xmlObject.changeType(ApplicationDocument.type);
+        if (result != null) {
+            validateDD(result);
+            return (ApplicationClientDocument) result;
+        }
+        validateDD(xmlObject);
+        return (ApplicationClientDocument) xmlObject;
+
+    }
+
     public static EjbJarDocument convertToEJBSchema(XmlObject xmlObject) throws XmlException {
         if (EjbJarDocument.type.equals(xmlObject.schemaType())) {
             validateDD(xmlObject);
@@ -104,7 +131,7 @@ public class SchemaConversionUtils {
         String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd";
         String version = "2.1";
         try {
-            convertToSchema(cursor, schemaLocationURL, version);
+            convertToSchema(cursor, J2EE_NAMESPACE, schemaLocationURL, version);
             //play with message-driven
             cursor.toStartDoc();
             convertBeans(cursor, moveable);
@@ -131,19 +158,18 @@ public class SchemaConversionUtils {
         String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd";
         String version = "2.4";
         try {
-            convertToSchema(cursor, schemaLocationURL, version);
+            convertToSchema(cursor, J2EE_NAMESPACE, schemaLocationURL, version);
             cursor.toStartDoc();
             cursor.toChild(J2EE_NAMESPACE, "web-app");
             cursor.toFirstChild();
             convertToDescriptionGroup(cursor, moveable);
             convertToJNDIEnvironmentRefsGroup(cursor, moveable);
             cursor.push();
-            QName taglib = new QName(J2EE_NAMESPACE, "taglib");
-            if (cursor.toNextSibling(taglib)) {
+            if (cursor.toNextSibling(TAGLIB)) {
                 cursor.toPrevSibling();
                 moveable.toCursor(cursor);
                 cursor.beginElement("jsp-config", J2EE_NAMESPACE);
-                while (moveable.toNextSibling(taglib)) {
+                while (moveable.toNextSibling(TAGLIB)) {
                     moveable.moveXml(cursor);
                 }
             }
@@ -175,31 +201,72 @@ public class SchemaConversionUtils {
         return (WebAppDocument) xmlObject;
     }
 
-    public static ApplicationClientDocument convertToApplicationClientSchema(XmlObject xmlObject) throws XmlException {
-//        if (ApplicationClientDocument.type.equals(xmlObject.schemaType())) {
-//            validateDD(xmlObject);
-            return (ApplicationClientDocument) xmlObject;
-//        }
-//        throw new UnsupportedOperationException("Deployment of previous version of application not supported");
+    public static XmlObject convertToGeronimoNamingSchema(XmlObject xmlObject) {
+        XmlCursor cursor = xmlObject.newCursor();
+	XmlCursor end = xmlObject.newCursor();
+        String version = "1.0";
+        try {
+            while (cursor.hasNextToken()) {
+                if (cursor.isStart()) {
+                    String localName = cursor.getName().getLocalPart();
+                    if (localName.equals("ejb-ref")
+                        || localName.equals("ejb-local-ref")
+                        || localName.equals("resource-ref")
+                        || localName.equals("resource-env-ref")) {
+                        convertElementToSchema(cursor, end, GERONIMO_NAMING_NAMESPACE, GERONIMO_NAMING_NAMESPACE_L0CATION, version);
+                    }
+		}
+	        cursor.toNextToken();
+            }
+        } finally {
+            cursor.dispose();
+        }
+        return xmlObject;
+
     }
 
-    public static boolean convertToSchema(XmlCursor cursor, String schemaLocationURL, String version) {
+
+    public static boolean convertToSchema(XmlCursor cursor, String namespace, String schemaLocationURL, String version) {
         //convert namespace
         boolean isFirstStart = true;
         while (cursor.hasNextToken()) {
             if (cursor.isStart()) {
-                if (J2EE_NAMESPACE.equals(cursor.getName().getNamespaceURI())) {
+                if (namespace.equals(cursor.getName().getNamespaceURI())) {
                     //already has correct schema, exit
                     return false;
                 }
-                cursor.setName(new QName(J2EE_NAMESPACE, cursor.getName().getLocalPart()));
+                cursor.setName(new QName(namespace, cursor.getName().getLocalPart()));
                 cursor.toNextToken();
                 if (isFirstStart) {
                     cursor.insertNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance");
-                    cursor.insertAttributeWithValue(new QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation", "xsi"), "http://java.sun.com/xml/ns/j2ee " + schemaLocationURL);
+                    cursor.insertAttributeWithValue(new QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation", "xsi"), namespace + schemaLocationURL);
                     cursor.insertAttributeWithValue(new QName("version"), version);
                     isFirstStart = false;
                 }
+            } else {
+                cursor.toNextToken();
+            }
+        }
+        return true;
+    }
+
+    public static boolean convertElementToSchema(XmlCursor cursor, XmlCursor end, String namespace, String schemaLocationURL, String version) {
+        //convert namespace
+	//        boolean isFirstStart = true;
+	end.toCursor(cursor);
+	end.toEndToken();
+        while (cursor.hasNextToken() && cursor.isLeftOf(end)) {
+            if (cursor.isStart()) {
+                if (namespace.equals(cursor.getName().getNamespaceURI())) {
+                    //already has correct schema, exit
+                    return false;
+                }
+                cursor.setName(new QName(namespace, cursor.getName().getLocalPart()));
+                cursor.toNextToken();
+		//      if (isFirstStart) {
+		    //                    cursor.insertAttributeWithValue(new QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation", "xsi"), namespace + " " + schemaLocationURL);
+		//  isFirstStart = false;
+                //}
             } else {
                 cursor.toNextToken();
             }
@@ -334,7 +401,7 @@ public class SchemaConversionUtils {
         Collection errors = new ArrayList();
         xmlOptions.setErrorListener(errors);
         if (!dd.validate(xmlOptions)) {
-            throw new XmlException("Invalid deployment descriptor: " + errors, null, errors);
+            throw new XmlException("Invalid deployment descriptor: " + errors + "\nDescriptor: " + dd.toString(), null, errors);
         }
     }
 

@@ -21,8 +21,9 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Reference;
 
-import org.apache.geronimo.naming.deployment.RefAdapter;
 import org.apache.geronimo.naming.ReferenceFactory;
+import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
 
 /**
  *
@@ -39,15 +40,15 @@ public class JMXReferenceFactory implements ReferenceFactory {
     public JMXReferenceFactory() {
     }
 
-    public Reference buildConnectionFactoryReference(RefAdapter refAdapter, Class iface) throws MalformedObjectNameException {
+    public Reference buildConnectionFactoryReference(GerLocalRefType localRef, Class iface) throws MalformedObjectNameException {
         Reference ref = new Reference(null, JMXObjectFactory.class.getName(), null);
-        ref.add(new JMXRefAddr(refAdapter.getServerName(), refAdapter.getKernelName(), ObjectName.getInstance(BASE_MANAGED_CONNECTION_FACTORY_NAME + refAdapter.getTargetName()), iface));
+        ref.add(new JMXRefAddr(localRef.getServer(), localRef.getKernelName(), ObjectName.getInstance(BASE_MANAGED_CONNECTION_FACTORY_NAME + localRef.getTargetName()), iface));
         return ref;
     }
 
-    public Reference buildAdminObjectReference(RefAdapter refAdapter, Class iface) throws MalformedObjectNameException {
+    public Reference buildAdminObjectReference(GerLocalRefType localRef, Class iface) throws MalformedObjectNameException {
         Reference ref = new Reference(null, JMXObjectFactory.class.getName(), null);
-        ref.add(new JMXRefAddr(refAdapter.getServerName(), refAdapter.getKernelName(), ObjectName.getInstance(BASE_ADMIN_OBJECT_NAME + refAdapter.getTargetName()), iface));
+        ref.add(new JMXRefAddr(localRef.getServer(), localRef.getKernelName(), ObjectName.getInstance(BASE_ADMIN_OBJECT_NAME + localRef.getTargetName()), iface));
         return ref;
     }
 
@@ -58,15 +59,15 @@ public class JMXReferenceFactory implements ReferenceFactory {
         return ref;
     }
 
-    public Reference buildEjbReference(RefAdapter refAdapter, Class iface) throws MalformedObjectNameException {
+    public Reference buildEjbReference(GerRemoteRefType remoteRef, Class iface) throws MalformedObjectNameException {
         Reference ref = new Reference(null, JMXObjectFactory.class.getName(), null);
-        ref.add(new JMXRefAddr(refAdapter.getServerName(), refAdapter.getKernelName(), ObjectName.getInstance(refAdapter.getTargetName()), iface));
+        ref.add(new JMXRefAddr(remoteRef.getServer(), remoteRef.getKernelName(), ObjectName.getInstance(remoteRef.getTargetName()), iface));
         return ref;
     }
 
-    public Reference buildEjbLocalReference(RefAdapter refAdapter, Class iface) throws MalformedObjectNameException {
+    public Reference buildEjbLocalReference(GerLocalRefType localRef, Class iface) throws MalformedObjectNameException {
         Reference ref = new Reference(null, JMXObjectFactory.class.getName(), null);
-        ref.add(new JMXRefAddr(refAdapter.getServerName(), refAdapter.getKernelName(), ObjectName.getInstance(refAdapter.getTargetName()), iface));
+        ref.add(new JMXRefAddr(localRef.getServer(), localRef.getKernelName(), ObjectName.getInstance(localRef.getTargetName()), iface));
         return ref;
     }
 

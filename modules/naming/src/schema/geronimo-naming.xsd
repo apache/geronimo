@@ -17,7 +17,8 @@
 -->
   
 <xsd:schema
-    xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
+    targetNamespace="http://geronimo.apache.org/xml/ns/naming"
+    xmlns:gernaming="http://geronimo.apache.org/xml/ns/naming"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
@@ -33,7 +34,7 @@
         </xsd:documentation>
     </xsd:annotation>
 
-    <xsd:import namespace="http://java.sun.com/xml/ns/j2ee" schemaLocation="j2ee_1_4.xsd"/>
+    <!--xsd:import namespace="http://java.sun.com/xml/ns/j2ee" schemaLocation="j2ee_1_4.xsd"/-->
 
     <xsd:group name="jndiEnvironmentRefsGroup">
         <xsd:annotation>
@@ -49,18 +50,18 @@
                 type="env-entryType"
                 minOccurs="0" maxOccurs="unbounded"/-->
             <xsd:element name="ejb-ref"
-                type="remote-refType"
+                type="gernaming:remote-refType"
                 minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="ejb-local-ref"
-                type="local-refType"
+                type="gernaming:local-refType"
                 minOccurs="0" maxOccurs="unbounded"/>
             <!-- leave web services out until I know what they do -->
             <!--xsd:group ref="service-refGroup"/-->
             <xsd:element name="resource-ref"
-                type="local-refType"
+                type="gernaming:local-refType"
                 minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="resource-env-ref"
-                type="local-refType"
+                type="gernaming:local-refType"
                 minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:group>
@@ -81,7 +82,7 @@
 
     <xsd:complexType name="local-refType">
         <xsd:complexContent>
-            <xsd:restriction base="remote-refType">
+            <xsd:restriction base="gernaming:remote-refType">
                 <xsd:sequence>
                     <xsd:element name="ref-name" type="xsd:string"/>
                     <xsd:choice>

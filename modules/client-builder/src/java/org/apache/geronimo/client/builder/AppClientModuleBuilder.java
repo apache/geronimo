@@ -58,17 +58,17 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
+import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientDocument;
 import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientType;
 import org.apache.geronimo.xbeans.geronimo.client.GerDependencyType;
 import org.apache.geronimo.xbeans.geronimo.client.GerGbeanType;
-import org.apache.geronimo.xbeans.geronimo.client.GerRemoteRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
 import org.apache.geronimo.xbeans.j2ee.ApplicationClientDocument;
 import org.apache.geronimo.xbeans.j2ee.ApplicationClientType;
 import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 
@@ -124,7 +124,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         }
     }
 
-    public XmlObject getDeploymentPlan(URL module) throws XmlException {
+    public XmlObject getDeploymentPlan(URL module) throws DeploymentException {
         try {
             URL moduleBase;
             if (module.toString().endsWith("/")) {
@@ -142,8 +142,14 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         }
     }
 
-    public XmlObject parseVendorDD(URL url) throws XmlException {
-        return XmlBeansUtil.getXmlObject(url, GerApplicationClientDocument.type);
+    public XmlObject parseVendorDD(URL path) throws DeploymentException {
+        try {
+            XmlObject dd = SchemaConversionUtils.parse(path.openStream());
+            dd = SchemaConversionUtils.convertToGeronimoNamingSchema(dd);
+            return dd.changeType(GerApplicationClientDocument.type);
+        } catch (Exception e) {
+            throw new DeploymentException(e);
+        }
     }
 
     private GerApplicationClientDocument createDefaultPlan(URL moduleBase) {
@@ -446,7 +452,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         if (refs != null) {
             for (int i = 0; i < refs.length; i++) {
                 GerRemoteRefType ref = refs[i];
-                refMap.put(ref.getRefName(), new AppClientRefAdapter(ref));
+                refMap.put(ref.getRefName(), ref);
             }
         }
         return refMap;

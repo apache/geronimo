@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.management.ObjectName;
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
@@ -33,14 +32,11 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.naming.deployment.RefAdapter;
-import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.naming.ReferenceFactory;
-import org.apache.xmlbeans.XmlObject;
+import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
+import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
 
 /**
- *
- *
  * @version $Rev$ $Date$
  */
 public class ContextBuilderTest extends TestCase {
@@ -110,50 +106,12 @@ public class ContextBuilderTest extends TestCase {
 
     public void testResourceEnv() throws Exception {
         proxy = new ArrayList();
-        builder.addResourceEnvRef("resourceenvref", List.class, new RefAdapter() {
-            public XmlObject getXmlObject() {
-                return null;
-            }
+        GerLocalRefType localRef = GerLocalRefType.Factory.newInstance();
+        localRef.setRefName("resourceenvref");
+        localRef.setKernelName("test.kernel");
+        localRef.setTargetName("testAdminObject");
+        builder.addResourceEnvRef("resourceenvref", List.class, localRef);
 
-            public void setXmlObject(XmlObject xmlObject) {
-            }
-
-            public String getRefName() {
-                return "resourceenvref";
-            }
-
-            public void setRefName(String name) {
-            }
-
-            public String getServerName() {
-                return null;
-            }
-
-            public void setServerName(String serverName) {
-            }
-
-            public String getKernelName() {
-                return "test.kernel";
-            }
-
-            public void setKernelName(String kernelName) {
-            }
-
-            public String getTargetName() {
-                return "testAdminObject";
-            }
-
-            public void setTargetName(String targetName) {
-            }
-
-            public String getExternalUri() {
-                return null;
-            }
-
-            public void setExternalUri(String externalURI) {
-            }
-
-        });
         ReadOnlyContext roc = builder.getContext();
         Kernel kernel = new Kernel("test.kernel", "test.domain");
         kernel.boot();
@@ -195,7 +153,7 @@ public class ContextBuilderTest extends TestCase {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(TestProxyFactory.class);
         infoFactory.addAttribute("Content", Object.class, true);
         infoFactory.addOperation("getProxy");
-        infoFactory.setConstructor(new String[] {"Content"});
+        infoFactory.setConstructor(new String[]{"Content"});
         return infoFactory.getBeanInfo();
     }
 }

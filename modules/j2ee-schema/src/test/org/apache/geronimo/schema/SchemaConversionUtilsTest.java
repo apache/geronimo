@@ -70,7 +70,7 @@ public class SchemaConversionUtilsTest extends TestCase {
         try {
             String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/application_1_4.xsd";
             String version = "1.4";
-            assertFalse(SchemaConversionUtils.convertToSchema(cursor2, schemaLocationURL, version));
+            assertFalse(SchemaConversionUtils.convertToSchema(cursor2, SchemaConversionUtils.J2EE_NAMESPACE, schemaLocationURL, version));
         } finally {
             cursor2.dispose();
         }
@@ -99,7 +99,7 @@ public class SchemaConversionUtilsTest extends TestCase {
         try {
             String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd";
             String version = "2.1";
-            assertFalse(SchemaConversionUtils.convertToSchema(cursor2, schemaLocationURL, version));
+            assertFalse(SchemaConversionUtils.convertToSchema(cursor2, SchemaConversionUtils.J2EE_NAMESPACE, schemaLocationURL, version));
         } finally {
             cursor2.dispose();
         }
@@ -128,7 +128,7 @@ public class SchemaConversionUtilsTest extends TestCase {
         try {
             String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd";
             String version = "2.1";
-            assertFalse(SchemaConversionUtils.convertToSchema(cursor2, schemaLocationURL, version));
+            assertFalse(SchemaConversionUtils.convertToSchema(cursor2, SchemaConversionUtils.J2EE_NAMESPACE, schemaLocationURL, version));
         } finally {
             cursor2.dispose();
         }
@@ -235,6 +235,21 @@ public class SchemaConversionUtilsTest extends TestCase {
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(xmlObject, expected, problems);
         assertTrue("Differences: " + problems, ok);
+    }
+
+    public void testGeronimoNamingNamespaceChange() throws Exception {
+        File srcXml = new File(basedir, "src/test-data/geronimo/ejb-naming-pre.xml");
+        File expectedOutputXml = new File(basedir, "src/test-data/geronimo/ejb-naming-post.xml");
+        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
+        xmlObject = SchemaConversionUtils.convertToGeronimoNamingSchema(xmlObject);
+	//        System.out.println(xmlObject.toString());
+        XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
+        List problems = new ArrayList();
+        boolean ok = compareXmlObjects(xmlObject, expected, problems);
+        assertTrue("Differences: " + problems, ok);
+        xmlObject = SchemaConversionUtils.convertToGeronimoNamingSchema(xmlObject);
+        boolean ok2 = compareXmlObjects(xmlObject, expected, problems);
+        assertTrue("Differences: " + problems, ok2);
     }
 
     private boolean compareXmlObjects(XmlObject xmlObject, XmlObject expectedObject, List problems) {

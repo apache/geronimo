@@ -23,7 +23,6 @@ import java.net.URL;
 import java.util.jar.Manifest;
 
 import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -47,7 +46,7 @@ public interface ConfigurationBuilder {
      * @param module the URL of the module to examine
      * @return the deployment plan, or null if this module can not handle it
      */
-    XmlObject getDeploymentPlan(URL module) throws XmlException;
+    XmlObject getDeploymentPlan(URL module) throws DeploymentException;
 
     /**
      * Build a configuration from a local file
