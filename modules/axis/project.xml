@@ -361,14 +361,15 @@
     <!-- Build Specification -->
     <!-- =================== -->
     <build>
-<!--
+	 <sourceDirectory>src/java</sourceDirectory>
+	 <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
         <resources>
             <resource>
-                <directory>${basedir}/target/xmlbeans</directory>
+                <directory>src/test-resources</directory>
                 <includes>schema/**</includes>
             </resource>
         </resources>
--->
+
         <unitTest>
             <includes>
 	            <include>**/**Test.java</include>

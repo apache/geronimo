@@ -1,4 +1,4 @@
-package org.apache.ws.echosample;
+package org.apache.geronimo.axis.testData.echosample;
 
 public class EchoBean implements Echo {
     public void ejbCreate() {

@@ -1,4 +1,4 @@
-package org.apache.ws.echosample;
+package org.apache.geronimo.axis.testData.echosample;
 
 import java.io.Serializable;
 

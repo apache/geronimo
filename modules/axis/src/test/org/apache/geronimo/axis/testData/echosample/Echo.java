@@ -1,4 +1,5 @@
-package org.apache.ws.echosample;
+package org.apache.geronimo.axis.testData.echosample;
+
 
 public interface Echo extends java.rmi.Remote {
     public void echoVoid() throws java.rmi.RemoteException;

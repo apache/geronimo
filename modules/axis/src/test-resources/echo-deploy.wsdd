@@ -1,0 +1,136 @@
+<!-- Use this file to deploy some handlers/chains and services      -->
+<!-- Two ways to do this:                                           -->
+<!--   java org.apache.axis.client.AdminClient deploy.wsdd          -->
+<!--      after the axis server is running                          -->
+<!-- or                                                             -->
+<!--   java org.apache.axis.utils.Admin client|server deploy.wsdd   -->
+<!--      from the same directory that the Axis engine runs         -->
+
+<deployment
+    xmlns="http://xml.apache.org/axis/wsdd/"
+    xmlns:java="http://xml.apache.org/axis/wsdd/providers/java">
+
+  <!-- Services from EchoService WSDL service -->
+
+  <service name="echo" provider="java:RPC" style="rpc" use="encoded">
+      <parameter name="wsdlTargetNamespace" value="http://ws.apache.org/echosample"/>
+      <parameter name="wsdlServiceElement" value="EchoService"/>
+      <parameter name="wsdlServicePort" value="echo"/>
+      <parameter name="className" value="org.apache.ws.echosample.EchoSoapBindingImpl"/>
+      <parameter name="wsdlPortType" value="Echo"/>
+      <parameter name="typeMappingVersion" value="1.2"/>
+      <operation name="echoVoid" qname="operNS:echoVoid" xmlns:operNS="http://ws.apache.org/echosample" soapAction="" >
+      </operation>
+      <operation name="echoInt" qname="operNS:echoInt" xmlns:operNS="http://ws.apache.org/echosample" returnQName="echoIntReturn" returnType="rtns:int" xmlns:rtns="http://www.w3.org/2001/XMLSchema" soapAction="" >
+        <parameter qname="in0" type="tns:int" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+      </operation>
+      <operation name="echoDouble" qname="operNS:echoDouble" xmlns:operNS="http://ws.apache.org/echosample" returnQName="echoDoubleReturn" returnType="rtns:double" xmlns:rtns="http://www.w3.org/2001/XMLSchema" soapAction="" >
+        <parameter qname="in0" type="tns:double" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+      </operation>
+      <operation name="echoFloat" qname="operNS:echoFloat" xmlns:operNS="http://ws.apache.org/echosample" returnQName="echoFloatReturn" returnType="rtns:float" xmlns:rtns="http://www.w3.org/2001/XMLSchema" soapAction="" >
+        <parameter qname="in0" type="tns:float" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+      </operation>
+      <operation name="echoBoolean" qname="operNS:echoBoolean" xmlns:operNS="http://ws.apache.org/echosample" returnQName="echoBooleanReturn" returnType="rtns:boolean" xmlns:rtns="http://www.w3.org/2001/XMLSchema" soapAction="" >
+        <parameter qname="in0" type="tns:boolean" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+      </operation>
+      <operation name="echoString" qname="operNS:echoString" xmlns:operNS="http://ws.apache.org/echosample" returnQName="echoStringReturn" returnType="rtns:string" xmlns:rtns="http://schemas.xmlsoap.org/soap/encoding/" soapAction="" >
+        <parameter qname="in0" type="tns:string" xmlns:tns="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </operation>
+      <operation name="echoShort" qname="operNS:echoShort" xmlns:operNS="http://ws.apache.org/echosample" returnQName="echoShortReturn" returnType="rtns:short" xmlns:rtns="http://www.w3.org/2001/XMLSchema" soapAction="" >
+        <parameter qname="in0" type="tns:short" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+      </operation>
+      <operation name="echoLong" qname="operNS:echoLong" xmlns:operNS="http://ws.apache.org/echosample" returnQName="echoLongReturn" returnType="rtns:long" xmlns:rtns="http://www.w3.org/2001/XMLSchema" soapAction="" >
+        <parameter qname="in0" type="tns:long" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+      </operation>
+      <operation name="echoBytes" qname="operNS:echoBytes" xmlns:operNS="http://ws.apache.org/echosample" returnQName="echoBytesReturn" returnType="rtns:base64Binary" xmlns:rtns="http://schemas.xmlsoap.org/soap/encoding/" soapAction="" >
+        <parameter qname="in0" type="tns:base64Binary" xmlns:tns="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </operation>
+      <operation name="echoEvoid" qname="operNS:echoEvoid" xmlns:operNS="http://ws.apache.org/echosample" soapAction="" >
+      </operation>
+      <operation name="echoStruct" qname="operNS:echoStruct" xmlns:operNS="http://ws.apache.org/echosample" returnQName="echoStructReturn" returnType="rtns:EchoStruct" xmlns:rtns="http://ws.apache.org/echosample" soapAction="" >
+        <parameter qname="in0" type="tns:EchoStruct" xmlns:tns="http://ws.apache.org/echosample"/>
+      </operation>
+      <parameter name="allowedMethods" value="echoFloat echoLong echoShort echoVoid echoBoolean echoBytes echoInt echoStruct echoString echoDouble echoEvoid"/>
+
+      <typeMapping
+        xmlns:ns="http://ws.apache.org/echosample"
+        qname="ns:ArrayOf_xsd_float"
+        type="java:float[]"
+        serializer="org.apache.axis.encoding.ser.ArraySerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.ArrayDeserializerFactory"
+        encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+      />
+      <typeMapping
+        xmlns:ns="http://ws.apache.org/echosample"
+        qname="ns:ArrayOf_soapenc_base64Binary"
+        type="java:byte[][]"
+        serializer="org.apache.axis.encoding.ser.ArraySerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.ArrayDeserializerFactory"
+        encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+      />
+      <typeMapping
+        xmlns:ns="http://ws.apache.org/echosample"
+        qname="ns:ArrayOf_xsd_int"
+        type="java:int[]"
+        serializer="org.apache.axis.encoding.ser.ArraySerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.ArrayDeserializerFactory"
+        encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+      />
+      <typeMapping
+        xmlns:ns="http://ws.apache.org/echosample"
+        qname="ns:ArrayOf_xsd_double"
+        type="java:double[]"
+        serializer="org.apache.axis.encoding.ser.ArraySerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.ArrayDeserializerFactory"
+        encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+      />
+      <typeMapping
+        xmlns:ns="http://ws.apache.org/echosample"
+        qname="ns:ArrayOf_xsd_short"
+        type="java:short[]"
+        serializer="org.apache.axis.encoding.ser.ArraySerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.ArrayDeserializerFactory"
+        encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+      />
+      <typeMapping
+        xmlns:ns="http://ws.apache.org/echosample"
+        qname="ns:SmallEchoStruct"
+        type="java:org.apache.ws.echosample.SmallEchoStruct"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+      />
+      <typeMapping
+        xmlns:ns="http://ws.apache.org/echosample"
+        qname="ns:EchoStruct"
+        type="java:org.apache.ws.echosample.EchoStruct"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+      />
+      <typeMapping
+        xmlns:ns="http://ws.apache.org/echosample"
+        qname="ns:ArrayOf_xsd_long"
+        type="java:long[]"
+        serializer="org.apache.axis.encoding.ser.ArraySerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.ArrayDeserializerFactory"
+        encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+      />
+      <typeMapping
+        xmlns:ns="http://ws.apache.org/echosample"
+        qname="ns:ArrayOf_soapenc_string"
+        type="java:java.lang.String[]"
+        serializer="org.apache.axis.encoding.ser.ArraySerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.ArrayDeserializerFactory"
+        encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+      />
+      <typeMapping
+        xmlns:ns="http://ws.apache.org/echosample"
+        qname="ns:ArrayOf_xsd_boolean"
+        type="java:boolean[]"
+        serializer="org.apache.axis.encoding.ser.ArraySerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.ArrayDeserializerFactory"
+        encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+      />
+  </service>
+</deployment>
