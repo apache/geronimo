@@ -47,7 +47,7 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
- * @version $Revision: 1.3 $ $Date: 2004/07/18 22:04:27 $
+ * @version $Revision: 1.4 $ $Date: 2004/09/01 17:38:02 $
  */
 public class JettyWebAppContext extends WebApplicationContext implements GBeanLifecycle {
 
@@ -61,8 +61,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     private final TrackedConnectionAssociator associator;
     private final UserTransactionImpl userTransaction;
     private final ClassLoader classLoader;
-
-    // @todo get these from DD
     private final Set unshareableResources;
     private final Set applicationManagedSecurityResources;
 
@@ -81,9 +79,16 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                               TransactionContextManager transactionContextManager,
                               TrackedConnectionAssociator associator,
                               ConfigurationParent config,
-                              JettyContainer container
-                              ) {
+                              JettyContainer container) {
         super();
+
+        assert container != null;
+        assert compContext != null;
+        assert transactionContextManager != null;
+        assert associator != null;
+        assert userTransaction != null;
+        assert classLoader != null;
+
         this.config = config;
         this.uri = uri;
         this.container = container;
@@ -112,7 +117,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
      * setContextPriorityClassLoader.
      *
      * @param b True if this context should give web application class in preference over the containers
-     * classes, as per the servlet specification recommendations.
+     *          classes, as per the servlet specification recommendations.
      */
     public void setContextPriorityClassLoader(boolean b) {
         contextPriorityClassLoader = b;
@@ -186,16 +191,43 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         } else {
             setWAR(new URL(config.getBaseURL(), uri.toString()).toString());
         }
-        if (userTransaction != null) {
-            userTransaction.setUp(transactionContextManager, associator);
-            userTransaction.setOnline(true);
-        }
+
+        userTransaction.setUp(transactionContextManager, associator);
         container.addContext(this);
 
         ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(classLoader);
-            super.start();
+            ReadOnlyContext oldComponentContext = RootContext.getComponentContext();
+            InstanceContext oldInstanceContext = null;
+            try {
+                RootContext.setComponentContext(componentContext);
+                // Turn on the UserTransaction
+                userTransaction.setOnline(true);
+
+                //TODO should this always create an unspecified context, or might this be executed in a tx?
+                if (transactionContextManager.getContext() == null) {
+                    transactionContextManager.newUnspecifiedTransactionContext();
+                }
+
+                try {
+                    oldInstanceContext = associator.enter(new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources));
+                } catch (ResourceException e) {
+                    throw new RuntimeException(e);
+                }
+
+                super.start();
+            } finally {
+                try {
+                    associator.exit(oldInstanceContext);
+                } catch (ResourceException e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    userTransaction.setOnline(false);
+                    RootContext.setComponentContext(oldComponentContext);
+                }
+                //TODO should we reset the transactioncontext to null if we set it?
+            }
         } finally {
             Thread.currentThread().setContextClassLoader(oldCL);
         }
@@ -205,17 +237,52 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
     public void doStop() throws WaitingException, Exception {
 
-        while (true) {
+        ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(classLoader);
+            ReadOnlyContext oldComponentContext = RootContext.getComponentContext();
+            InstanceContext oldInstanceContext = null;
             try {
-                super.stop();
-                break;
-            } catch (InterruptedException e) {
-                continue;
+                RootContext.setComponentContext(componentContext);
+                // Turn on the UserTransaction
+                userTransaction.setOnline(true);
+
+                //TODO should this always create an unspecified context, or might this be executed in a tx?
+                if (transactionContextManager.getContext() == null) {
+                    transactionContextManager.newUnspecifiedTransactionContext();
+                }
+
+                try {
+                    oldInstanceContext = associator.enter(new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources));
+                } catch (ResourceException e) {
+                    throw new RuntimeException(e);
+                }
+
+                while (true) {
+                    try {
+                        super.stop();
+                        break;
+                    } catch (InterruptedException e) {
+                        continue;
+                    }
+                }
+            } finally {
+                try {
+                    associator.exit(oldInstanceContext);
+                } catch (ResourceException e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    userTransaction.setOnline(false);
+                    RootContext.setComponentContext(oldComponentContext);
+                }
+                //TODO should we reset the transactioncontext to null if we set it?
             }
-        }
-        container.removeContext(this);
-        if (userTransaction != null) {
-            userTransaction.setOnline(false);
+            container.removeContext(this);
+            if (userTransaction != null) {
+                userTransaction.setOnline(false);
+            }
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldCL);
         }
 
         log.info("JettyWebAppContext stopped");
