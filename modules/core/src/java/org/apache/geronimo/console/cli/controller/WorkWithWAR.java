@@ -53,56 +53,66 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.model.geronimo.web;
+package org.apache.geronimo.console.cli.controller;
 
-import java.io.Serializable;
-import java.io.ObjectOutputStream;
 import java.io.IOException;
-import java.io.StringWriter;
-import java.io.ObjectInputStream;
-import java.io.StringReader;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-import org.apache.geronimo.deployment.model.DeploymentDescriptor;
-import org.apache.geronimo.xml.deployment.GeronimoWebAppLoader;
-import org.apache.geronimo.xml.deployment.LoaderUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.cli.TextController;
+import org.apache.geronimo.console.cli.DeploymentContext;
 
 /**
- * Top-level Deployment Descriptor element for the Geronimo Web App DD.
+ * Main screen for operating on a web application WAR
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/19 01:56:14 $
+ * @version $Revision: 1.1 $ $Date: 2003/10/19 01:56:14 $
  */
-public class GeronimoWebAppDocument implements DeploymentDescriptor, Serializable {
-    private transient WebApp webApp;
+public class WorkWithWAR extends TextController {
+    private static final Log log = LogFactory.getLog(WorkWithWAR.class);
 
-    public String getFileName() {
-        return "geronimo-web.xml";
+    public WorkWithWAR(DeploymentContext context) {
+        super(context);
     }
 
-    public WebApp getWebApp() {
-        return webApp;
-    }
-
-    public void setWebApp(WebApp webApp) {
-        this.webApp = webApp;
-    }
-
-    private void writeObject(ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject();
-        StringWriter writer = new StringWriter();
-        //todo: write XML to String
-        out.writeUTF(writer.toString());
-    }
-
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        StringReader reader = new StringReader(in.readUTF());
-        Document doc = null;
-        try {
-            doc = LoaderUtil.parseXML(reader);
-        } catch(SAXException e) {
-            throw new IOException("Unable to read serialized DD: "+e);
+    public void execute() {
+        while(true) {
+            context.out.println("\n\nLoaded a WAR.  Working with the "+context.moduleInfo.getFileName()+" deployment descriptor.");
+            context.out.println("  UN Edit the standard Web App deployment descriptor ("+context.moduleInfo.getFileName()+")");
+            context.out.println("  2) Edit the corresponding server-specific deployment information");
+            context.out.println("  3) Load a saved set of server-specific deployment information");
+            context.out.println("  4) Save the current set of server-specific deployment information");
+            context.out.println("  UN Deploy or redeploy the WAR into the application server");
+            context.out.println("  6) Select a new EJB JAR or WAR to work with"); //todo: adjust text when other modules are accepted
+            context.out.println("  7) Manage existing deployments in the server");
+            String choice;
+            while(true) {
+                context.out.print("Action ([2-4,7,8] or [B]ack): ");
+                context.out.flush();
+                try {
+                    choice = context.in.readLine().trim().toLowerCase();
+                } catch(IOException e) {
+                    log.error("Unable to read user input", e);
+                    return;
+                }
+                if(choice.equals("2")) {
+                    new EditServerSpecificDD(context).execute();
+                    break;
+                } else if(choice.equals("3")) {
+                    new LoadServerSpecificDD(context).execute();
+                    break;
+                } else if(choice.equals("4")) {
+                    new SaveServerSpecificDD(context).execute();
+                    break;
+                } else if(choice.equals("6")) {
+                    new SelectModule(context).execute();
+                    return;
+                } else if(choice.equals("7")) { //todo: prompt to save if modifications were made
+                    context.moduleInfo = null;
+                    return;
+                } else if(choice.equals("b")) {
+                    context.moduleInfo = null;
+                    return;
+                }
+            }
         }
-        webApp = GeronimoWebAppLoader.load(doc).getWebApp();
     }
 }

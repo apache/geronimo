@@ -100,7 +100,7 @@ import org.apache.geronimo.xml.deployment.LoaderUtil;
 /**
  * Launcher for J2EE Application Clients.
  *
- * @version $Revision: 1.7 $ $Date: 2003/10/15 02:53:26 $
+ * @version $Revision: 1.8 $ $Date: 2003/10/19 01:56:13 $
  */
 public class Launcher {
     static {
@@ -261,7 +261,7 @@ public class Launcher {
             URL appClientURL = new URL(deploymentURL, "META-INF/geronimo-application-client.xml");
             Reader reader = new BufferedReader(new InputStreamReader(appClientURL.openStream()));
             GeronimoAppClientLoader loader = new GeronimoAppClientLoader();
-            return loader.load(LoaderUtil.parseXML(reader));
+            return loader.load(LoaderUtil.parseXML(reader)).getApplicationClient();
         } catch (Exception e) {
             throw new DeploymentException("Unable to load geronimo-application-client.xml", e);
         }

@@ -53,64 +53,71 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.app;
+package org.apache.geronimo.console.cli.controller;
 
-import java.io.Serializable;
-import javax.enterprise.deploy.spi.Target;
+import java.io.File;
+import java.io.IOException;
+import java.util.jar.JarFile;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.cli.TextController;
+import org.apache.geronimo.console.cli.DeploymentContext;
+import org.apache.geronimo.console.cli.module.EJBJARInfo;
+import org.apache.geronimo.console.cli.module.WARInfo;
 
 /**
- * A target representing a single (non-clustered) Geronimo server.
+ * Selects a J2EE module to deploy/edit/etc.
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/19 01:56:14 $
+ * @version $Revision: 1.1 $ $Date: 2003/10/19 01:56:14 $
  */
-public class ServerTarget implements Target, Serializable {
-    private String hostname;
-    private String homeDir;
+public class SelectModule extends TextController {
+    private static final Log log = LogFactory.getLog(SelectModule.class);
 
-    public ServerTarget(String hostname) {
-        this.hostname = hostname;
+    public SelectModule(DeploymentContext context) {
+        super(context);
     }
 
-    public String getName() {
-        return hostname;
-    }
+    public void execute() { //todo: handle more than JAR/WAR
+        context.out.println("\nCurrent directory is "+context.saveDir);
+        context.out.println("Select an EJB JAR or WAR file to load.");
+        String choice;
+        File file;
+        while(true) {
+            context.out.print("File Name: ");
+            context.out.flush();
+            try {
+                choice = context.in.readLine().trim();
+            } catch(IOException e) {
+                log.error("Unable to read user input", e);
+                return;
+            }
+            file = new File(context.saveDir, choice);
+            if(!file.canRead() || file.isDirectory()) {
+                context.out.println("ERROR: cannot read from this file.  Please try again.");
+                continue;
+            }
+            context.saveDir = file.getParentFile();
+            break;
+        }
 
-    public String getHostname() {
-        return hostname;
-    }
-
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
-    }
-
-    public String getHomeDir() {
-        return homeDir;
-    }
-
-    public void setHomeDir(String homeDir) {
-        this.homeDir = homeDir;
-    }
-
-    public String getDescription() {
-        return "Geronimo Server"+(homeDir == null ? "" : " at "+homeDir);
-    }
-
-    public boolean equals(Object o) {
-        if(this == o) return true;
-        if(!(o instanceof ServerTarget)) return false;
-
-        final ServerTarget serverTarget = (ServerTarget)o;
-
-        if(!homeDir.equals(serverTarget.homeDir)) return false;
-        if(!hostname.equals(serverTarget.hostname)) return false;
-
-        return true;
-    }
-
-    public int hashCode() {
-        int result;
-        result = hostname.hashCode();
-        result = 29 * result + homeDir.hashCode();
-        return result;
+        if(file.getName().endsWith(".jar")) {
+            context.moduleInfo = new EJBJARInfo(context);
+        } else if(file.getName().endsWith(".war")) {
+            context.moduleInfo = new WARInfo(context);
+        } else {
+            context.out.println("ERROR: Expecting file name to end in .jar or .war");
+        }
+        try {
+            context.moduleInfo.file = file;
+            context.moduleInfo.jarFile = new JarFile(file);
+        } catch(IOException e) {
+            context.out.println("ERROR: "+file+" is not a valid JAR file!");
+            context.moduleInfo = null;
+            return;
+        }
+        if(!context.moduleInfo.initialize()) {
+            context.moduleInfo = null;
+            return;
+        }
     }
 }

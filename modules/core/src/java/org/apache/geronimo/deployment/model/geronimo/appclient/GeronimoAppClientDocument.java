@@ -53,64 +53,56 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.app;
+package org.apache.geronimo.deployment.model.geronimo.appclient;
 
 import java.io.Serializable;
-import javax.enterprise.deploy.spi.Target;
+import java.io.ObjectOutputStream;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.ObjectInputStream;
+import java.io.StringReader;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+import org.apache.geronimo.deployment.model.DeploymentDescriptor;
+import org.apache.geronimo.xml.deployment.LoaderUtil;
+import org.apache.geronimo.xml.deployment.GeronimoAppClientLoader;
 
 /**
- * A target representing a single (non-clustered) Geronimo server.
+ * Top-level Deployment Descriptor element for the Geronimo application client DD.
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/19 01:56:14 $
+ * @version $Revision: 1.1 $ $Date: 2003/10/19 01:56:14 $
  */
-public class ServerTarget implements Target, Serializable {
-    private String hostname;
-    private String homeDir;
+public class GeronimoAppClientDocument implements DeploymentDescriptor, Serializable {
+    private transient ApplicationClient applicationClient;
 
-    public ServerTarget(String hostname) {
-        this.hostname = hostname;
+    public String getFileName() {
+        return "geronimo-application-client.xml";
     }
 
-    public String getName() {
-        return hostname;
+    public ApplicationClient getApplicationClient() {
+        return applicationClient;
     }
 
-    public String getHostname() {
-        return hostname;
+    public void setApplicationClient(ApplicationClient applicationClient) {
+        this.applicationClient = applicationClient;
     }
 
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+        StringWriter writer = new StringWriter();
+        //todo: write XML to String
+        out.writeUTF(writer.toString());
     }
 
-    public String getHomeDir() {
-        return homeDir;
-    }
-
-    public void setHomeDir(String homeDir) {
-        this.homeDir = homeDir;
-    }
-
-    public String getDescription() {
-        return "Geronimo Server"+(homeDir == null ? "" : " at "+homeDir);
-    }
-
-    public boolean equals(Object o) {
-        if(this == o) return true;
-        if(!(o instanceof ServerTarget)) return false;
-
-        final ServerTarget serverTarget = (ServerTarget)o;
-
-        if(!homeDir.equals(serverTarget.homeDir)) return false;
-        if(!hostname.equals(serverTarget.hostname)) return false;
-
-        return true;
-    }
-
-    public int hashCode() {
-        int result;
-        result = hostname.hashCode();
-        result = 29 * result + homeDir.hashCode();
-        return result;
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        StringReader reader = new StringReader(in.readUTF());
+        Document doc = null;
+        try {
+            doc = LoaderUtil.parseXML(reader);
+        } catch(SAXException e) {
+            throw new IOException("Unable to read serialized DD: "+e);
+        }
+        applicationClient = GeronimoAppClientLoader.load(doc).getApplicationClient();
     }
 }

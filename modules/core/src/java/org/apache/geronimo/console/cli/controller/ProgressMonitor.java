@@ -53,64 +53,61 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.app;
+package org.apache.geronimo.console.cli.controller;
 
-import java.io.Serializable;
-import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.status.ProgressObject;
+import javax.enterprise.deploy.spi.status.ProgressListener;
+import javax.enterprise.deploy.spi.status.ProgressEvent;
+import javax.enterprise.deploy.spi.TargetModuleID;
+import org.apache.geronimo.console.cli.TextController;
+import org.apache.geronimo.console.cli.DeploymentContext;
 
 /**
- * A target representing a single (non-clustered) Geronimo server.
+ * Watch the progress of a long-running operation.
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/19 01:56:14 $
+ * @version $Revision: 1.1 $ $Date: 2003/10/19 01:56:14 $
  */
-public class ServerTarget implements Target, Serializable {
-    private String hostname;
-    private String homeDir;
+public class ProgressMonitor extends TextController implements ProgressListener {
+    private ProgressObject progress;
 
-    public ServerTarget(String hostname) {
-        this.hostname = hostname;
+    public ProgressMonitor(DeploymentContext context, ProgressObject progress) {
+        super(context);
+        this.progress = progress;
     }
 
-    public String getName() {
-        return hostname;
+    public void execute() {
+        println("Monitoring the progress of a "+progress.getDeploymentStatus().getCommand()+" operation.");
+        println("This operation can"+(progress.isCancelSupported() ? "" : "not")+" be canceled");
+        println("This operation can"+(progress.isStopSupported() ? "" : "not")+" be stopped");
+        initialize(); //todo: allow cancel/stop
     }
 
-    public String getHostname() {
-        return hostname;
+    private synchronized void initialize() {
+        if(!progress.getDeploymentStatus().isRunning()) {
+            println("--"+progress.getDeploymentStatus().getMessage());
+            printCompletion();
+            return;
+        } else {
+            try {
+                wait();
+            } catch(InterruptedException e) {
+            }
+        }
     }
 
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
+    public synchronized void handleProgressEvent(ProgressEvent event) {
+        println("--"+event.getDeploymentStatus().getMessage());
+        if(!event.getDeploymentStatus().isRunning()) {
+            notifyAll();
+        }
     }
 
-    public String getHomeDir() {
-        return homeDir;
-    }
-
-    public void setHomeDir(String homeDir) {
-        this.homeDir = homeDir;
-    }
-
-    public String getDescription() {
-        return "Geronimo Server"+(homeDir == null ? "" : " at "+homeDir);
-    }
-
-    public boolean equals(Object o) {
-        if(this == o) return true;
-        if(!(o instanceof ServerTarget)) return false;
-
-        final ServerTarget serverTarget = (ServerTarget)o;
-
-        if(!homeDir.equals(serverTarget.homeDir)) return false;
-        if(!hostname.equals(serverTarget.hostname)) return false;
-
-        return true;
-    }
-
-    public int hashCode() {
-        int result;
-        result = hostname.hashCode();
-        result = 29 * result + homeDir.hashCode();
-        return result;
+    private void printCompletion() {
+        println("Operation has "+(progress.getDeploymentStatus().isCompleted() ? "completed" : progress.getDeploymentStatus().isFailed() ? "failed" : "finished"));
+        println("Affected target/modules:");
+        TargetModuleID[] ids = progress.getResultTargetModuleIDs();
+        for(int i = 0; i < ids.length; i++) {
+            println("  "+ids[i]);
+        }
     }
 }

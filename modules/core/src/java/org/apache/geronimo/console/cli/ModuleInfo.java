@@ -53,64 +53,31 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.app;
+package org.apache.geronimo.console.cli;
 
-import java.io.Serializable;
-import javax.enterprise.deploy.spi.Target;
+import java.io.File;
+import java.io.IOException;
+import java.util.jar.JarFile;
+import javax.enterprise.deploy.spi.DConfigBeanRoot;
+import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 
 /**
- * A target representing a single (non-clustered) Geronimo server.
+ * Describes a generic J2EE module.
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/19 01:56:14 $
+ * @version $Revision: 1.1 $ $Date: 2003/10/19 01:56:14 $
  */
-public class ServerTarget implements Target, Serializable {
-    private String hostname;
-    private String homeDir;
+public abstract class ModuleInfo {
+    public File file;
+    public JarFile jarFile;
+    public final DeploymentContext context;
 
-    public ServerTarget(String hostname) {
-        this.hostname = hostname;
+    public ModuleInfo(DeploymentContext context) {
+        this.context = context;
     }
 
-    public String getName() {
-        return hostname;
-    }
-
-    public String getHostname() {
-        return hostname;
-    }
-
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
-    }
-
-    public String getHomeDir() {
-        return homeDir;
-    }
-
-    public void setHomeDir(String homeDir) {
-        this.homeDir = homeDir;
-    }
-
-    public String getDescription() {
-        return "Geronimo Server"+(homeDir == null ? "" : " at "+homeDir);
-    }
-
-    public boolean equals(Object o) {
-        if(this == o) return true;
-        if(!(o instanceof ServerTarget)) return false;
-
-        final ServerTarget serverTarget = (ServerTarget)o;
-
-        if(!homeDir.equals(serverTarget.homeDir)) return false;
-        if(!hostname.equals(serverTarget.hostname)) return false;
-
-        return true;
-    }
-
-    public int hashCode() {
-        int result;
-        result = hostname.hashCode();
-        result = 29 * result + homeDir.hashCode();
-        return result;
-    }
+    public abstract boolean initialize(); //todo: change this up somehow
+    public abstract String getFileName();
+    public abstract DConfigBeanRoot getConfigRoot();
+    public abstract void loadDConfigBean(File source) throws IOException, ConfigurationException;
+    public abstract void saveDConfigBean(File dest) throws IOException, ConfigurationException;
 }

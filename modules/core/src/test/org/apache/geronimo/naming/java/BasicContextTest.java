@@ -79,7 +79,7 @@ import junit.framework.TestCase;
 /**
 * Unit tests for basic ops on an {@link InitialContext}.
  *
- * @version $Revision: 1.5 $ $Date: 2003/09/04 05:16:18 $
+ * @version $Revision: 1.6 $ $Date: 2003/10/19 01:56:15 $
  */
 public class BasicContextTest extends TestCase {
     private Properties syntax;
@@ -112,7 +112,7 @@ public class BasicContextTest extends TestCase {
     }
 
     public void testSchemeLookup() throws NamingException {
-        envContext.lookup("dns:apache.org");
+//        envContext.lookup("dns:apache.org");
         assertEquals("Hello", envContext.lookup("java:comp/env/hello"));
         assertEquals("Hello", compContext.lookup("java:comp/env/hello"));
     }

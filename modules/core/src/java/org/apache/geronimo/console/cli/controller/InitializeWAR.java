@@ -53,64 +53,62 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.app;
+package org.apache.geronimo.console.cli.controller;
 
-import java.io.Serializable;
-import javax.enterprise.deploy.spi.Target;
+import java.net.URLClassLoader;
+import java.net.URL;
+import java.net.MalformedURLException;
+import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
+import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.cli.TextController;
+import org.apache.geronimo.console.cli.DeploymentContext;
+import org.apache.geronimo.console.cli.module.WARInfo;
+import org.apache.geronimo.enterprise.deploy.tool.WebDeployableObject;
 
 /**
- * A target representing a single (non-clustered) Geronimo server.
+ * Loads the deployment descriptor information from the specific WAR
+ * file.
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/19 01:56:14 $
+ * @version $Revision: 1.1 $ $Date: 2003/10/19 01:56:14 $
  */
-public class ServerTarget implements Target, Serializable {
-    private String hostname;
-    private String homeDir;
+public class InitializeWAR extends TextController {
+    private static final Log log = LogFactory.getLog(InitializeWAR.class);
 
-    public ServerTarget(String hostname) {
-        this.hostname = hostname;
+    public InitializeWAR(DeploymentContext context) {
+        super(context);
     }
 
-    public String getName() {
-        return hostname;
-    }
-
-    public String getHostname() {
-        return hostname;
-    }
-
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
-    }
-
-    public String getHomeDir() {
-        return homeDir;
-    }
-
-    public void setHomeDir(String homeDir) {
-        this.homeDir = homeDir;
-    }
-
-    public String getDescription() {
-        return "Geronimo Server"+(homeDir == null ? "" : " at "+homeDir);
-    }
-
-    public boolean equals(Object o) {
-        if(this == o) return true;
-        if(!(o instanceof ServerTarget)) return false;
-
-        final ServerTarget serverTarget = (ServerTarget)o;
-
-        if(!homeDir.equals(serverTarget.homeDir)) return false;
-        if(!hostname.equals(serverTarget.hostname)) return false;
-
-        return true;
-    }
-
-    public int hashCode() {
-        int result;
-        result = hostname.hashCode();
-        result = 29 * result + homeDir.hashCode();
-        return result;
+    public void execute() {
+        if(!(context.moduleInfo instanceof WARInfo)) {
+            throw new IllegalStateException("Tried to load a WAR but the current module is "+context.moduleInfo.getClass().getName());
+        }
+        WARInfo warInfo = (WARInfo)context.moduleInfo;
+        try {
+            ClassLoader loader = new URLClassLoader(new URL[]{warInfo.file.toURL()}, ClassLoader.getSystemClassLoader());
+            context.standardModule = new WebDeployableObject(warInfo.jarFile, loader);
+        } catch(MalformedURLException e) {
+            context.out.println("ERROR: "+warInfo.file+" is not a valid JAR file!");
+            context.moduleInfo = null;
+            return;
+        }
+        try {
+            context.serverModule = context.deployer.createConfiguration(context.standardModule);
+        } catch(InvalidModuleException e) {
+            context.out.println("ERROR: Unable to initialize a Geronimo DD for WAR "+warInfo.file);
+            context.moduleInfo = null;
+            return;
+        }
+        warInfo.war = context.standardModule.getDDBeanRoot();
+        try {
+            warInfo.warConfig = context.serverModule.getDConfigBeanRoot(warInfo.war);
+            initializeDConfigBean(warInfo.warConfig);
+        } catch(ConfigurationException e) {
+            log.error("Unable to initialize server-specific deployment information", e);
+            context.moduleInfo = null;
+            return;
+        }
+        return;
     }
 }

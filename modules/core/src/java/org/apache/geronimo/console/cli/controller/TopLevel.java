@@ -53,64 +53,72 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.app;
+package org.apache.geronimo.console.cli.controller;
 
-import java.io.Serializable;
-import javax.enterprise.deploy.spi.Target;
+import java.io.IOException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.cli.TextController;
+import org.apache.geronimo.console.cli.DeploymentContext;
+import org.apache.geronimo.console.cli.module.EJBJARInfo;
+import org.apache.geronimo.console.cli.module.WARInfo;
 
 /**
- * A target representing a single (non-clustered) Geronimo server.
+ * Top-level menu for working with the DeploymentManager.
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/19 01:56:14 $
+ * @version $Revision: 1.1 $ $Date: 2003/10/19 01:56:14 $
  */
-public class ServerTarget implements Target, Serializable {
-    private String hostname;
-    private String homeDir;
+public class TopLevel extends TextController {
+    private static final Log log = LogFactory.getLog(TopLevel.class);
 
-    public ServerTarget(String hostname) {
-        this.hostname = hostname;
+    public TopLevel(DeploymentContext context) {
+        super(context);
     }
 
-    public String getName() {
-        return hostname;
-    }
-
-    public String getHostname() {
-        return hostname;
-    }
-
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
-    }
-
-    public String getHomeDir() {
-        return homeDir;
-    }
-
-    public void setHomeDir(String homeDir) {
-        this.homeDir = homeDir;
-    }
-
-    public String getDescription() {
-        return "Geronimo Server"+(homeDir == null ? "" : " at "+homeDir);
-    }
-
-    public boolean equals(Object o) {
-        if(this == o) return true;
-        if(!(o instanceof ServerTarget)) return false;
-
-        final ServerTarget serverTarget = (ServerTarget)o;
-
-        if(!homeDir.equals(serverTarget.homeDir)) return false;
-        if(!hostname.equals(serverTarget.hostname)) return false;
-
-        return true;
-    }
-
-    public int hashCode() {
-        int result;
-        result = hostname.hashCode();
-        result = 29 * result + homeDir.hashCode();
-        return result;
+    public void execute() {
+        while(true) {
+            if(context.moduleInfo instanceof EJBJARInfo) {
+                new WorkWithEJBJAR(context).execute();
+                continue;
+            } else if(context.moduleInfo instanceof WARInfo) {
+                new WorkWithWAR(context).execute();
+                continue;
+            }
+            println("\n\nNo J2EE module is currently selected.");
+            println("  "+(context.connected ? "1)" : "--")+" Control existing deployments (review, start, stop, undeploy)");
+            println("  2) Select an EJB JAR or WAR to configure, deploy, or redeploy"); //todo: change text when other modules are supported
+            println("  "+(context.connected ? "3)" : "--")+" Disconnect from the server.");
+            String choice;
+            while(true) {
+                print("Action ([1-3] or [Q]uit): ");
+                context.out.flush();
+                try {
+                    choice = context.in.readLine().trim().toLowerCase();
+                } catch(IOException e) {
+                    log.error("Unable to read user input", e);
+                    return;
+                }
+                if(choice.equals("1")) {
+                    if(!context.connected) {
+                        continue;
+                    }
+                    new ControlDeployments(context).execute();
+                    break;
+                } else if(choice.equals("2")) {
+                    new SelectModule(context).execute();
+                    break;
+                } else if(choice.equals("3")) {
+                    if(!context.connected) {
+                        continue;
+                    }
+                    context.deployer.release();
+                    context.connected = false;
+                    println("Released any server resources and disconnected.");
+                    break;
+                } else if(choice.equals("q")) {
+                    return;
+                }
+            }
+        }
     }
 }

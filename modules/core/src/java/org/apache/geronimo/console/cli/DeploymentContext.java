@@ -53,64 +53,29 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.app;
+package org.apache.geronimo.console.cli;
 
-import java.io.Serializable;
+import java.io.PrintWriter;
+import java.io.BufferedReader;
+import java.io.File;
+import javax.enterprise.deploy.spi.DeploymentManager;
+import javax.enterprise.deploy.spi.DeploymentConfiguration;
 import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.model.DeployableObject;
 
 /**
- * A target representing a single (non-clustered) Geronimo server.
+ * The information required in order to perform deployment operations.
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/19 01:56:14 $
+ * @version $Revision: 1.1 $ $Date: 2003/10/19 01:56:14 $
  */
-public class ServerTarget implements Target, Serializable {
-    private String hostname;
-    private String homeDir;
-
-    public ServerTarget(String hostname) {
-        this.hostname = hostname;
-    }
-
-    public String getName() {
-        return hostname;
-    }
-
-    public String getHostname() {
-        return hostname;
-    }
-
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
-    }
-
-    public String getHomeDir() {
-        return homeDir;
-    }
-
-    public void setHomeDir(String homeDir) {
-        this.homeDir = homeDir;
-    }
-
-    public String getDescription() {
-        return "Geronimo Server"+(homeDir == null ? "" : " at "+homeDir);
-    }
-
-    public boolean equals(Object o) {
-        if(this == o) return true;
-        if(!(o instanceof ServerTarget)) return false;
-
-        final ServerTarget serverTarget = (ServerTarget)o;
-
-        if(!homeDir.equals(serverTarget.homeDir)) return false;
-        if(!hostname.equals(serverTarget.hostname)) return false;
-
-        return true;
-    }
-
-    public int hashCode() {
-        int result;
-        result = hostname.hashCode();
-        result = 29 * result + homeDir.hashCode();
-        return result;
-    }
+public class DeploymentContext {
+    public DeploymentManager deployer;
+    public DeployableObject standardModule;
+    public DeploymentConfiguration serverModule;
+    public PrintWriter out;
+    public BufferedReader in;
+    public ModuleInfo moduleInfo;
+    public File saveDir = new File(System.getProperty("user.dir"));
+    public Target[] targets = new Target[0];
+    public boolean connected = false;
 }

@@ -56,16 +56,17 @@
 package org.apache.geronimo.xml.deployment;
 
 import org.apache.geronimo.deployment.model.geronimo.appclient.ApplicationClient;
+import org.apache.geronimo.deployment.model.geronimo.appclient.GeronimoAppClientDocument;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/17 01:47:14 $
+ * @version $Revision: 1.4 $ $Date: 2003/10/19 01:56:14 $
  */
 public class GeronimoAppClientLoader {
-    public ApplicationClient load(Document geronimoDoc) {
+    public static GeronimoAppClientDocument load(Document geronimoDoc) {
         Element root = geronimoDoc.getDocumentElement();
         if (!"application-client".equals(root.getTagName())) {
             throw new IllegalArgumentException("Document is not an application-client instance");
@@ -79,6 +80,8 @@ public class GeronimoAppClientLoader {
         appClient.setMessageDestinationRef(GeronimoJ2EELoader.loadMessageDestinationRefs(root));
         appClient.setCallbackHandler(LoaderUtil.getChildContent(root, "callback-handler"));
         appClient.setMessageDestination(GeronimoJ2EELoader.loadMessageDestinations(root));
-        return appClient;
+        GeronimoAppClientDocument doc = new GeronimoAppClientDocument();
+        doc.setApplicationClient(appClient);
+        return doc;
     }
 }

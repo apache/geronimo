@@ -72,7 +72,7 @@ import org.w3c.dom.Document;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/09/29 14:15:30 $
+ * @version $Revision: 1.5 $ $Date: 2003/10/19 01:56:15 $
  */
 public class GeronimoAppClientLoaderTest extends TestCase {
     private File docDir;
@@ -81,7 +81,7 @@ public class GeronimoAppClientLoaderTest extends TestCase {
     public void testLoad() throws Exception {
         File f = new File(docDir, "geronimo-app-client.xml");
         Document doc = LoaderUtil.parseXML(new FileReader(f));
-        ApplicationClient client = loader.load(doc);
+        ApplicationClient client = loader.load(doc).getApplicationClient();
 
         EnvEntry[] envEntries = client.getEnvEntry();
         assertEquals(1, envEntries.length);

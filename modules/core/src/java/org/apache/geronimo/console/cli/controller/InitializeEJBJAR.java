@@ -53,64 +53,62 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.app;
+package org.apache.geronimo.console.cli.controller;
 
-import java.io.Serializable;
-import javax.enterprise.deploy.spi.Target;
+import java.net.URLClassLoader;
+import java.net.URL;
+import java.net.MalformedURLException;
+import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
+import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.cli.TextController;
+import org.apache.geronimo.console.cli.DeploymentContext;
+import org.apache.geronimo.console.cli.module.EJBJARInfo;
+import org.apache.geronimo.enterprise.deploy.tool.EjbDeployableObject;
 
 /**
- * A target representing a single (non-clustered) Geronimo server.
+ * Loads the deployment descriptor information from the specific EJB JAR
+ * file.
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/19 01:56:14 $
+ * @version $Revision: 1.1 $ $Date: 2003/10/19 01:56:14 $
  */
-public class ServerTarget implements Target, Serializable {
-    private String hostname;
-    private String homeDir;
+public class InitializeEJBJAR extends TextController {
+    private static final Log log = LogFactory.getLog(InitializeEJBJAR.class);
 
-    public ServerTarget(String hostname) {
-        this.hostname = hostname;
+    public InitializeEJBJAR(DeploymentContext context) {
+        super(context);
     }
 
-    public String getName() {
-        return hostname;
-    }
-
-    public String getHostname() {
-        return hostname;
-    }
-
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
-    }
-
-    public String getHomeDir() {
-        return homeDir;
-    }
-
-    public void setHomeDir(String homeDir) {
-        this.homeDir = homeDir;
-    }
-
-    public String getDescription() {
-        return "Geronimo Server"+(homeDir == null ? "" : " at "+homeDir);
-    }
-
-    public boolean equals(Object o) {
-        if(this == o) return true;
-        if(!(o instanceof ServerTarget)) return false;
-
-        final ServerTarget serverTarget = (ServerTarget)o;
-
-        if(!homeDir.equals(serverTarget.homeDir)) return false;
-        if(!hostname.equals(serverTarget.hostname)) return false;
-
-        return true;
-    }
-
-    public int hashCode() {
-        int result;
-        result = hostname.hashCode();
-        result = 29 * result + homeDir.hashCode();
-        return result;
+    public void execute() {
+        if(!(context.moduleInfo instanceof EJBJARInfo)) {
+            throw new IllegalStateException("Tried to load an EJB JAR but the current module is "+context.moduleInfo.getClass().getName());
+        }
+        EJBJARInfo jarInfo = (EJBJARInfo)context.moduleInfo;
+        try {
+            ClassLoader loader = new URLClassLoader(new URL[]{jarInfo.file.toURL()}, ClassLoader.getSystemClassLoader());
+            context.standardModule = new EjbDeployableObject(jarInfo.jarFile, loader);
+        } catch(MalformedURLException e) {
+            context.out.println("ERROR: "+jarInfo.file+" is not a valid JAR file!");
+            context.moduleInfo = null;
+            return;
+        }
+        try {
+            context.serverModule = context.deployer.createConfiguration(context.standardModule);
+        } catch(InvalidModuleException e) {
+            context.out.println("ERROR: Unable to initialize a Geronimo DD for EJB JAR "+jarInfo.file);
+            context.moduleInfo = null;
+            return;
+        }
+        jarInfo.ejbJar = context.standardModule.getDDBeanRoot();
+        jarInfo.editingEjbJar = true;
+        try {
+            jarInfo.ejbJarConfig = context.serverModule.getDConfigBeanRoot(jarInfo.ejbJar);
+            initializeDConfigBean(jarInfo.ejbJarConfig);
+        } catch(ConfigurationException e) {
+            log.error("Unable to initialize server-specific deployment information", e);
+            context.moduleInfo = null;
+            return;
+        }
     }
 }

@@ -58,11 +58,19 @@ package org.apache.geronimo.deployment.app;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.net.URL;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Iterator;
 import javax.management.MBeanRegistration;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.shared.ModuleType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -74,11 +82,14 @@ import org.apache.commons.logging.LogFactory;
  *
  * @jmx:mbean
  *
- * @version $Revision: 1.1 $ $Date: 2003/10/01 04:46:41 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/19 01:56:14 $
  */
 public class ApplicationDeployer implements ApplicationDeployerMBean,MBeanRegistration {
     private final static Log log = LogFactory.getLog(ApplicationDeployer.class);
     private MBeanServer server;
+    private ServerTarget localServerTarget;
+    private File saveDir;
+    private List deployments = new ArrayList();
 
     /**
      * Creates a new deployer
@@ -86,6 +97,12 @@ public class ApplicationDeployer implements ApplicationDeployerMBean,MBeanRegist
      * @jmx:managed-constructor
      */
     public ApplicationDeployer() {
+        try {
+            localServerTarget = new ServerTarget(InetAddress.getLocalHost().getHostName());
+            localServerTarget.setHomeDir(System.getProperty("geronimo.home"));
+        } catch(UnknownHostException e) {
+            throw new RuntimeException("Unable to look up local hostname", e);
+        }
     }
 
     public ObjectName preRegister(MBeanServer mBeanServer, ObjectName objectName) throws Exception {
@@ -106,49 +123,66 @@ public class ApplicationDeployer implements ApplicationDeployerMBean,MBeanRegist
      * @jmx:managed-attribute
      */
     public Target[] getTargets() { // this should logically be an operation, but it seems that operations must have arguments
-        try {
-            return new Target[]{new ServerTarget(InetAddress.getLocalHost().getHostName())};
-        } catch(UnknownHostException e) {
-            log.error("Unable to look up local hostname", e);
-            return new Target[0];
+        return new Target[]{localServerTarget};
+    }
+
+    /**
+     * @jmx:managed-operation
+     */
+    public TargetModuleID[] getRunningModules(int moduleTypeCode, Target[] targetList) {
+        ModuleType moduleType = ModuleType.getModuleType(moduleTypeCode);
+        return new TargetModuleID[0]; //todo: implement me
+    }
+
+    /**
+     * @jmx:managed-operation
+     */
+    public TargetModuleID[] getNonRunningModules(int moduleTypeCode, Target[] targetList) {
+        ModuleType moduleType = ModuleType.getModuleType(moduleTypeCode);
+        return getAvailableModules(moduleTypeCode, targetList); // currently, nothing can be started; everything is non-running
+        //todo: implement me
+    }
+
+    /**
+     * @jmx:managed-operation
+     */
+    public TargetModuleID[] getAvailableModules(int moduleTypeCode, Target[] targetList) {
+        ModuleType moduleType = ModuleType.getModuleType(moduleTypeCode);
+        List list = new ArrayList();
+        for(Iterator iterator = deployments.iterator(); iterator.hasNext();) {
+            ServerTargetModule module = (ServerTargetModule)iterator.next();
+            if(module.getType().getValue() == moduleTypeCode) {
+                list.add(module);
+            }
         }
+        return (TargetModuleID[])list.toArray(new TargetModuleID[list.size()]);
     }
 
     /**
      * @jmx:managed-operation
      */
-    public TargetModuleID[] getRunningModules(ModuleType moduleType, Target[] targetList) {
-        return new TargetModuleID[0]; //todo: implement me
-    }
-
-    /**
-     * @jmx:managed-operation
-     */
-    public TargetModuleID[] getNonRunningModules(ModuleType moduleType, Target[] targetList) {
-        return new TargetModuleID[0]; //todo: implement me
-    }
-
-    /**
-     * @jmx:managed-operation
-     */
-    public TargetModuleID[] getAvailableModules(ModuleType moduleType, Target[] targetList) {
-        return new TargetModuleID[0]; //todo: implement me
-    }
-
-    /**
-     * @jmx:managed-operation
-     */
-    public void distribute(Target[] targetList, URL moduleArchive, URL deploymentPlan) {
+    public void distribute(Target[] targets, URL moduleArchive, URL deploymentPlan) throws TargetException {
         //todo: what should this return?  Some sort of ID that the ProgressObject can poll?  Perhaps it should use notifications instead?
+        if(targets.length != 1 || !targets[0].equals(localServerTarget)) {
+            throw new TargetException("The deployer can only distribute to the local application server ("+localServerTarget+")");
+        }
         //todo: implement me
     }
 
     /**
      * @jmx:managed-operation
      */
-    public void distribute(Target[] targetList, byte[] moduleArchive, byte[] deploymentPlan) {
+    public void distribute(Target[] targets, String name, byte[] moduleArchive, byte[] deploymentPlan) throws TargetException {
         //todo: what should this return?  Some sort of ID that the ProgressObject can poll?  Perhaps it should use notifications instead?
-        //todo: implement me
+        if(targets.length != 1 || !targets[0].equals(localServerTarget)) {
+            throw new TargetException("The deployer can only distribute to the local application server ("+localServerTarget+")");
+        }
+        File module = saveFile(name, moduleArchive);
+        File dd = saveFile("geronimo-deployment-"+name, deploymentPlan);
+        ModuleType type = verifyDeployment(module, dd);
+        //todo: Create and start an MBean for the deployment, use that later to check status of the deployment
+        ServerTargetModule tm = new ServerTargetModule(type, localServerTarget, name); //todo: specify URL for web apps
+        deployments.add(tm);
     }
 
     /**
@@ -226,5 +260,46 @@ public class ApplicationDeployer implements ApplicationDeployerMBean,MBeanRegist
      */
     public String[] getResourceJndiNames(String resourceClassName) {
         return new String[0]; //todo: implement me
+    }
+
+    // ---------------------- Helper Methods ----------------------
+
+    private File saveFile(String name, byte[] bytes) {
+        if(saveDir == null) {
+            String home = System.getProperty("geronimo.home");
+            if(home.startsWith("file:")) {
+                home = home.substring(5);
+            }
+            saveDir = new File(home, "working");
+            if(!saveDir.exists()) {
+                log.warn("Geronimo working directory ("+saveDir.getAbsolutePath()+") does not exist!");
+                if(!saveDir.mkdir()) {
+                    throw new RuntimeException("Unable to create working directory "+saveDir.getAbsolutePath());
+                }
+            }
+        }
+        try {
+            File target = new File(saveDir, name);
+            log.info("Preparing to save file to "+target.getAbsolutePath());
+            OutputStream out = new FileOutputStream(target, false);
+            out.write(bytes);
+            out.flush();
+            out.close();
+            return target;
+        } catch(IOException e) {
+            throw new RuntimeException("Unable to save file locally");
+        }
+    }
+
+    private ModuleType verifyDeployment(File module, File dd) {
+        //todo: validation
+        if(module.getName().toLowerCase().endsWith(".war")) {
+            return ModuleType.WAR;
+        } else if(module.getName().toLowerCase().endsWith(".jar")) {
+            return ModuleType.EJB;
+        } else {
+            log.error("Validation Error: cannot determine the J2EE module type for "+module.getName());
+            return null;
+        }
     }
 }

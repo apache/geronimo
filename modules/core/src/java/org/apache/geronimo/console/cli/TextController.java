@@ -53,64 +53,83 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.app;
+package org.apache.geronimo.console.cli;
 
-import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.DConfigBean;
+import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
+import javax.enterprise.deploy.model.DDBean;
 
 /**
- * A target representing a single (non-clustered) Geronimo server.
+ * Base class for all controllers for text-based screens.  Generally a subclass
+ * will paint information to the screen and then accept user input, possibly
+ * repeating or invoking other controllers before returning to the caller.
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/19 01:56:14 $
+ * @version $Revision: 1.1 $ $Date: 2003/10/19 01:56:14 $
  */
-public class ServerTarget implements Target, Serializable {
-    private String hostname;
-    private String homeDir;
+public abstract class TextController {
+    protected final DeploymentContext context;
 
-    public ServerTarget(String hostname) {
-        this.hostname = hostname;
+    public TextController(DeploymentContext context) {
+        this.context = context;
     }
 
-    public String getName() {
-        return hostname;
+    protected void newScreen(String title) {
+        context.out.println("\n\n------ "+title+" ------");
     }
 
-    public String getHostname() {
-        return hostname;
+    protected void print(String s) {
+        context.out.print(s);
     }
 
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
+    protected void println(String s) {
+        context.out.println(s);
     }
 
-    public String getHomeDir() {
-        return homeDir;
+    protected String truncate(String s, int size) {
+        if(s.length() <= size) {
+            return s;
+        }
+        if(size < 3) {
+            return "";
+        }
+        return s.substring(0, size-3)+"...";
     }
 
-    public void setHomeDir(String homeDir) {
-        this.homeDir = homeDir;
+    public abstract void execute();
+
+    // Some common utility methods
+    protected Target[] available(Target[] all, Target[] selected) {
+        List list = new ArrayList();
+        for(int i=0; i<all.length; i++) {
+            boolean found = false;
+            for(int j = 0; j < selected.length; j++) {
+                if(all[i].getName().equals(selected[j].getName())) {
+                    found = true;
+                    break;
+                }
+            }
+            if(!found) {
+                list.add(all[i]);
+            }
+        }
+        return (Target[])list.toArray(new Target[list.size()]);
     }
 
-    public String getDescription() {
-        return "Geronimo Server"+(homeDir == null ? "" : " at "+homeDir);
-    }
-
-    public boolean equals(Object o) {
-        if(this == o) return true;
-        if(!(o instanceof ServerTarget)) return false;
-
-        final ServerTarget serverTarget = (ServerTarget)o;
-
-        if(!homeDir.equals(serverTarget.homeDir)) return false;
-        if(!hostname.equals(serverTarget.hostname)) return false;
-
-        return true;
-    }
-
-    public int hashCode() {
-        int result;
-        result = hostname.hashCode();
-        result = 29 * result + homeDir.hashCode();
-        return result;
+    /**
+     * Marches recursively through the DConfigBean tree to initialize
+     * DConfigBeans for all the interesting DDBeans.  Once this is done, and
+     * DDBean changes need to be relayed to the DConfigBeans that listn on them.
+     */
+    protected void initializeDConfigBean(DConfigBean dcb) throws ConfigurationException {
+        String[] xpaths = dcb.getXpaths();
+        for(int i=0; i<xpaths.length; i++) {
+            DDBean[] ddbs = dcb.getDDBean().getChildBean(xpaths[i]);
+            for(int j = 0; j < ddbs.length; j++) {
+                initializeDConfigBean(dcb.getDConfigBean(ddbs[j]));
+            }
+        }
     }
 }

@@ -55,15 +55,26 @@
  */
 package org.apache.geronimo.deployment.model.geronimo.ejb;
 
+import java.io.Serializable;
+import java.io.ObjectOutputStream;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.ObjectInputStream;
+import java.io.StringReader;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 import org.apache.geronimo.deployment.model.DeploymentDescriptor;
+import org.apache.geronimo.xml.deployment.LoaderUtil;
+import org.apache.geronimo.xml.deployment.GeronimoEjbJarLoader;
+import org.apache.geronimo.xml.deployment.GeronimoEjbJarStorer;
 
 /**
  * Top-level Deployment Descriptor element for the Geronimo EJB JAR DD.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/04 04:59:52 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/19 01:56:14 $
  */
-public class GeronimoEjbJarDocument implements DeploymentDescriptor {
-    private EjbJar ejbJar;
+public class GeronimoEjbJarDocument implements DeploymentDescriptor, Serializable {
+    private transient EjbJar ejbJar;
 
     public String getFileName() {
         return "geronimo-ejb-jar.xml";
@@ -75,5 +86,24 @@ public class GeronimoEjbJarDocument implements DeploymentDescriptor {
 
     public void setEjbJar(EjbJar ejbJar) {
         this.ejbJar = ejbJar;
+    }
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+        StringWriter writer = new StringWriter();
+        GeronimoEjbJarStorer.store(this, writer);
+        out.writeUTF(writer.toString());
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        StringReader reader = new StringReader(in.readUTF());
+        Document doc = null;
+        try {
+            doc = LoaderUtil.parseXML(reader);
+        } catch(SAXException e) {
+            throw new IOException("Unable to read serialized DD: "+e);
+        }
+        ejbJar = GeronimoEjbJarLoader.load(doc).getEjbJar();
     }
 }

@@ -56,61 +56,111 @@
 package org.apache.geronimo.deployment.app;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.ArrayList;
+import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.shared.ModuleType;
 
 /**
- * A target representing a single (non-clustered) Geronimo server.
+ * A TargetModuleID for a module deployed to a single server.
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/19 01:56:14 $
+ * @version $Revision: 1.1 $ $Date: 2003/10/19 01:56:14 $
  */
-public class ServerTarget implements Target, Serializable {
-    private String hostname;
-    private String homeDir;
+public class ServerTargetModule implements TargetModuleID, Serializable {
+    private ServerTarget target;
+    private String module;
+    private String webURL;
+    private ServerTargetModule parent;
+    private List children = new ArrayList();
+    private transient ModuleType type;
 
-    public ServerTarget(String hostname) {
-        this.hostname = hostname;
+    public ServerTargetModule(ModuleType type, ServerTarget target, String module) {
+        this.type = type;
+        this.target = target;
+        this.module = module;
     }
 
-    public String getName() {
-        return hostname;
+    public ServerTargetModule(ModuleType type, ServerTarget target, String module, String webURL) {
+        this.type = type;
+        this.target = target;
+        this.module = module;
+        this.webURL = webURL;
     }
 
-    public String getHostname() {
-        return hostname;
+    public ServerTargetModule(ModuleType type, ServerTargetModule parent, ServerTarget target, String module) {
+        this.type = type;
+        this.parent = parent;
+        parent.addChild(this);
+        this.target = target;
+        this.module = module;
     }
 
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
+    public ServerTargetModule(ModuleType type, ServerTargetModule parent, ServerTarget target, String module, String webURL) {
+        this.type = type;
+        this.parent = parent;
+        parent.addChild(this);
+        this.target = target;
+        this.module = module;
+        this.webURL = webURL;
     }
 
-    public String getHomeDir() {
-        return homeDir;
+    public Target getTarget() {
+        return target;
     }
 
-    public void setHomeDir(String homeDir) {
-        this.homeDir = homeDir;
+    public String getModuleID() {
+        return module;
     }
 
-    public String getDescription() {
-        return "Geronimo Server"+(homeDir == null ? "" : " at "+homeDir);
+    public String getWebURL() {
+        return webURL;
+    }
+
+    public TargetModuleID getParentTargetModuleID() {
+        return parent;
+    }
+
+    public void addChild(ServerTargetModule child) {
+        children.add(child);
+    }
+
+    public TargetModuleID[] getChildTargetModuleID() {
+        return (TargetModuleID[])children.toArray(new TargetModuleID[children.size()]);
+    }
+
+    public ModuleType getType() {
+        return type;
     }
 
     public boolean equals(Object o) {
         if(this == o) return true;
-        if(!(o instanceof ServerTarget)) return false;
+        if(!(o instanceof ServerTargetModule)) return false;
 
-        final ServerTarget serverTarget = (ServerTarget)o;
+        final ServerTargetModule serverTargetModule = (ServerTargetModule)o;
 
-        if(!homeDir.equals(serverTarget.homeDir)) return false;
-        if(!hostname.equals(serverTarget.hostname)) return false;
+        if(!module.equals(serverTargetModule.module)) return false;
+        if(parent != null ? !parent.equals(serverTargetModule.parent) : serverTargetModule.parent != null) return false;
+        if(!target.equals(serverTargetModule.target)) return false;
 
         return true;
     }
 
     public int hashCode() {
         int result;
-        result = hostname.hashCode();
-        result = 29 * result + homeDir.hashCode();
+        result = target.hashCode();
+        result = 29 * result + module.hashCode();
+        result = 29 * result + (parent != null ? parent.hashCode() : 0);
         return result;
     }
+
+    public String toString() {
+        if(parent != null) {
+            return parent+"->"+module+" on "+target.getName();
+        } else {
+            return module+" on "+target.getName();
+        }
+    }
+
+    //todo: serialize the ModuleType value
 }

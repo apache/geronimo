@@ -53,64 +53,57 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.app;
+package org.apache.geronimo.console.cli.module;
 
-import java.io.Serializable;
-import javax.enterprise.deploy.spi.Target;
+import java.io.File;
+import java.io.IOException;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
+import javax.enterprise.deploy.model.DDBeanRoot;
+import javax.enterprise.deploy.spi.DConfigBeanRoot;
+import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
+import org.apache.geronimo.console.cli.ModuleInfo;
+import org.apache.geronimo.console.cli.DeploymentContext;
+import org.apache.geronimo.console.cli.controller.InitializeWAR;
 
 /**
- * A target representing a single (non-clustered) Geronimo server.
+ * Holds all the relevent data for a WAR.
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/19 01:56:14 $
+ * @version $Revision: 1.1 $ $Date: 2003/10/19 01:56:14 $
  */
-public class ServerTarget implements Target, Serializable {
-    private String hostname;
-    private String homeDir;
+public class WARInfo extends ModuleInfo {
+    public DDBeanRoot war;
+    public DConfigBeanRoot warConfig;
 
-    public ServerTarget(String hostname) {
-        this.hostname = hostname;
+    public WARInfo(DeploymentContext context) {
+        super(context);
     }
 
-    public String getName() {
-        return hostname;
+    public boolean initialize() {
+        new InitializeWAR(context).execute();
+        return context.moduleInfo != null;
     }
 
-    public String getHostname() {
-        return hostname;
+    public String getFileName() {
+        return "web.xml";
     }
 
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
+    public DConfigBeanRoot getConfigRoot() {
+        return warConfig;
     }
 
-    public String getHomeDir() {
-        return homeDir;
+    public void loadDConfigBean(File source) throws IOException, ConfigurationException {
+        BufferedInputStream fin = new BufferedInputStream(new FileInputStream(source));
+        DConfigBeanRoot root = context.serverModule.restoreDConfigBean(fin, war);
+        fin.close();
+        warConfig = root;
     }
 
-    public void setHomeDir(String homeDir) {
-        this.homeDir = homeDir;
-    }
-
-    public String getDescription() {
-        return "Geronimo Server"+(homeDir == null ? "" : " at "+homeDir);
-    }
-
-    public boolean equals(Object o) {
-        if(this == o) return true;
-        if(!(o instanceof ServerTarget)) return false;
-
-        final ServerTarget serverTarget = (ServerTarget)o;
-
-        if(!homeDir.equals(serverTarget.homeDir)) return false;
-        if(!hostname.equals(serverTarget.hostname)) return false;
-
-        return true;
-    }
-
-    public int hashCode() {
-        int result;
-        result = hostname.hashCode();
-        result = 29 * result + homeDir.hashCode();
-        return result;
+    public void saveDConfigBean(File dest) throws IOException, ConfigurationException {
+        BufferedOutputStream fout = new BufferedOutputStream(new FileOutputStream(dest));
+        context.serverModule.saveDConfigBean(fout, warConfig);
+        fout.close();
     }
 }
