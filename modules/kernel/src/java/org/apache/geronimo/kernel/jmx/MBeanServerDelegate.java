@@ -326,7 +326,19 @@ public class MBeanServerDelegate implements MBeanServer {
     }
 
     public ClassLoaderRepository getClassLoaderRepository() {
-        throw new SecurityException("Operation not allowed");
+        return new ClassLoaderRepository() {
+            public Class loadClass(String className) throws ClassNotFoundException {
+                throw new ClassNotFoundException(className);
+            }
+
+            public Class loadClassWithout(ClassLoader loader, String className) throws ClassNotFoundException {
+                throw new ClassNotFoundException(className);
+            }
+
+            public Class loadClassBefore(ClassLoader loader, String className) throws ClassNotFoundException {
+                throw new ClassNotFoundException(className);
+            }
+        };
     }
 
     public void unregisterMBean(ObjectName objectName) throws InstanceNotFoundException, MBeanRegistrationException {
