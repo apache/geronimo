@@ -20,13 +20,18 @@ import java.net.URI;
 import java.util.jar.JarFile;
 
 import org.apache.xmlbeans.XmlObject;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 
 /**
  * @version $Rev$ $Date$
  */
 public class ConnectorModule extends Module {
-    public ConnectorModule(String name, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
-        super(name, moduleURI, moduleFile, targetPath, specDD, vendorDD, originalSpecDD);
+    public ConnectorModule(String name, URI configId, URI parentId, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
+        super(name, configId, parentId, moduleURI, moduleFile, targetPath, specDD, vendorDD, originalSpecDD);
+    }
+
+    public ConfigurationModuleType getType() {
+        return ConfigurationModuleType.RAR;
     }
 }
 

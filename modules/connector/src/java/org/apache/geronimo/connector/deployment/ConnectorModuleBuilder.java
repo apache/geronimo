@@ -17,6 +17,7 @@
 package org.apache.geronimo.connector.deployment;
 
 import java.beans.PropertyEditor;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -84,8 +85,6 @@ import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConfigPropertyType10;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorDocument10;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorType10;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ResourceadapterType10;
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
@@ -93,110 +92,85 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev$ $Date$
  */
 public class ConnectorModuleBuilder implements ModuleBuilder {
-    private static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[]{
-        XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.j2ee.String.class.getClassLoader()),
-        XmlBeans.typeLoaderForClassLoader(GerConnectorDocument.class.getClassLoader())
-    });
-
     private static final String BASE_REALM_BRIDGE_NAME = "geronimo.security:service=RealmBridge,name=";
     private static final String BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME = "geronimo.security:service=Realm,type=PasswordCredential,name=";
     private static final String BASE_WORK_MANAGER_NAME = "geronimo.server:type=WorkManager,name=";
 
-    public XmlObject parseSpecDD(URL path) throws DeploymentException {
+    public Module createModule(String name, Object plan, JarFile moduleFile, URL appClientXmlUrl, String targetPath) throws DeploymentException {
         String specDD;
+        XmlObject connector;
         try {
-            specDD = IOUtil.readAll(path);
-        } catch (IOException e) {
-            throw new DeploymentException("Unable to read specDD: " + path.toExternalForm());
-        }
-        return parseSpecDD(specDD);
-    }
+            if (appClientXmlUrl == null) {
+                appClientXmlUrl = JarUtil.createJarURL(moduleFile, "META-INF/ra.xml");
+            }
 
-    public XmlObject parseSpecDD(String specDD) throws DeploymentException {
-        try {
-            // try 1.0
-            ConnectorDocument10 connectorDoc = ConnectorDocument10.Factory.parse(specDD);
-            SchemaConversionUtils.validateDD(connectorDoc);
-            return connectorDoc.getConnector();
-        } catch (Exception ignore) {
-            // ignore
-        }
+            specDD = IOUtil.readAll(appClientXmlUrl);
 
-        // that didn't work try 1.5
-        try {
-            ConnectorDocument connectorDoc = ConnectorDocument.Factory.parse(specDD);
-            SchemaConversionUtils.validateDD(connectorDoc);
-            return connectorDoc.getConnector();
+            try {
+                // try 1.0
+                ConnectorDocument10 connectorDoc = ConnectorDocument10.Factory.parse(specDD);
+                SchemaConversionUtils.validateDD(connectorDoc);
+                connector = connectorDoc.getConnector();
+            } catch (Exception ignore) {
+                // that didn't work try 1.5
+                ConnectorDocument connectorDoc = ConnectorDocument.Factory.parse(specDD);
+                SchemaConversionUtils.validateDD(connectorDoc);
+                connector = connectorDoc.getConnector();
+            }
         } catch (Exception e) {
-            // ignore
-        }
-
-        throw new DeploymentException("Unable to parse specDD");
-    }
-
-    public XmlObject validateVendorDD(XmlObject dd) throws DeploymentException {
-        try {
-            dd = SchemaConversionUtils.getNestedObjectAsType(dd, "connector", GerConnectorType.type);
-            SchemaConversionUtils.validateDD(dd);
-            return dd;
-        } catch (Exception e) {
-            throw new DeploymentException(e);
-        }
-    }
-
-    public XmlObject getDeploymentPlan(JarFile module) throws DeploymentException {
-        URL path = null;
-        try {
-            path = JarUtil.createJarURL(module, "META-INF/geronimo-ra.xml");
-        } catch (DeploymentException e) {
             return null;
         }
-        return getGerConnector(path);
-    }
 
-    GerConnectorType getGerConnector(URL path) throws DeploymentException {
+        GerConnectorType gerConnector = null;
         try {
-            XmlObject dd = SchemaConversionUtils.parse(path.openStream());
-            return (GerConnectorType) validateVendorDD(dd);
-        } catch (IOException e) {
-            //todo should this throw an exception? we have already opened the stream!
-            return null;
+            // load the geronimo-application-client.xml from either the supplied plan or from the earFile
+            try {
+                if (plan instanceof XmlObject) {
+                    gerConnector = (GerConnectorType) SchemaConversionUtils.getNestedObjectAsType(
+                            (XmlObject) plan,
+                            "connector",
+                            GerConnectorType.type);
+                } else {
+                    GerConnectorDocument gerConnectorDoc = null;
+                    if (plan != null) {
+                        gerConnectorDoc = GerConnectorDocument.Factory.parse((File)plan);
+                    } else {
+                        URL path = JarUtil.createJarURL(moduleFile, "META-INF/geronimo-ra.xml");
+                        gerConnectorDoc = GerConnectorDocument.Factory.parse(path);
+                    }
+                    if (gerConnectorDoc != null) {
+                        gerConnector = gerConnectorDoc.getConnector();
+                    }
+                }
+            } catch (IOException e) {
+            }
+
+            // if we got one extract the validate it otherwise create a default one
+            if (gerConnector == null) {
+                throw new DeploymentException("A connector module must contain a geronimo-ra.xml");
+            }
+            SchemaConversionUtils.validateDD(gerConnector);
         } catch (XmlException e) {
             throw new DeploymentException(e);
         }
-    }
 
-    public boolean canHandlePlan(XmlObject plan) {
-        return plan instanceof GerConnectorType;
-    }
-
-    public URI getParentId(XmlObject plan) throws DeploymentException {
-        GerConnectorType geronimoConnector = (GerConnectorType) plan;
-        if (geronimoConnector.isSetParentId()) {
-            try {
-                return new URI(geronimoConnector.getParentId());
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid parentId " + geronimoConnector.getParentId(), e);
-            }
-        } else {
-            return null;
-        }
-    }
-
-    public URI getConfigId(XmlObject plan) throws DeploymentException {
-        GerConnectorType geronimoConnector = (GerConnectorType) plan;
+        // get the ids from either the application plan or for a stand alone module from the specific deployer
+        URI configId = null;
         try {
-            return new URI(geronimoConnector.getConfigId());
+            configId = new URI(gerConnector.getConfigId());
         } catch (URISyntaxException e) {
-            throw new DeploymentException("Invalid configId " + geronimoConnector.getConfigId(), e);
+            throw new DeploymentException("Invalid configId " + gerConnector.getConfigId(), e);
         }
-    }
 
-    public Module createModule(String name, JarFile moduleFile, XmlObject vendorDD) throws DeploymentException {
-        return createModule(name, moduleFile, vendorDD, "connector", null);
-    }
+        URI parentId = null;
+        if (gerConnector.isSetParentId()) {
+            try {
+                parentId = new URI(gerConnector.getParentId());
+            } catch (URISyntaxException e) {
+                throw new DeploymentException("Invalid parentId " + gerConnector.getParentId(), e);
+            }
+        }
 
-    public Module createModule(String name, JarFile moduleFile, XmlObject vendorDD, String targetPath, URL specDDUrl) throws DeploymentException {
         URI moduleURI;
         if (targetPath != null) {
             moduleURI = URI.create(targetPath);
@@ -209,33 +183,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
             moduleURI = URI.create("");
         }
 
-
-        if (specDDUrl == null) {
-            specDDUrl = JarUtil.createJarURL(moduleFile, "META-INF/ra.xml");
-        }
-        String specDD;
-        try {
-            specDD = IOUtil.readAll(specDDUrl);
-        } catch (IOException e) {
-            throw new DeploymentException("Unable to read specDD: " + specDDUrl.toExternalForm());
-        }
-        XmlObject connector = parseSpecDD(specDD);
-
-        if (vendorDD == null) {
-            try {
-                URL vendorURL = JarUtil.createJarURL(moduleFile, "META-INF/geronimo-ra.xml");
-                vendorDD = getGerConnector(vendorURL);
-            } catch (Exception e) {
-                throw new DeploymentException("Unable to parse META-INF/geronimo-ra.xml", e);
-            }
-        }
-        if (vendorDD == null) {
-            throw new DeploymentException("No geronimo-ra.xml.");
-        }
-
-        GerConnectorType geronimoConnector = (GerConnectorType) vendorDD;
-
-        return new ConnectorModule(name, moduleURI, moduleFile, targetPath, connector, geronimoConnector, specDD);
+        return new ConnectorModule(name, configId, parentId, moduleURI, moduleFile, targetPath, connector, gerConnector, specDD);
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
@@ -293,10 +241,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         for (int i = 0; i < gbeans.length; i++) {
             GBeanHelper.addGbean(new RARGBeanAdapter(gbeans[i]), cl, earContext);
         }
-    }
-
-    public SchemaTypeLoader getSchemaTypeLoader() {
-        return SCHEMA_TYPE_LOADER;
     }
 
     private void addResourceAdapterModuleGBean(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {

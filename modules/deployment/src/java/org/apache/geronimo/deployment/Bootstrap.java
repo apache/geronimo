@@ -156,7 +156,7 @@ public class Bootstrap {
             // build and install the j2ee-deployer configuration
             File tempFile = File.createTempFile("j2ee-deployer", ".car");
             try {
-                builder.buildConfiguration(tempFile, manifest, null, j2eeDeployerConfig);
+                builder.buildConfiguration(tempFile, manifest, j2eeDeployerConfig, null);
                 configStore.install(tempFile.toURL());
             } finally {
                 tempFile.delete();

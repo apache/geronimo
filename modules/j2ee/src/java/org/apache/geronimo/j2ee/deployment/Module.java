@@ -20,12 +20,15 @@ import java.util.jar.JarFile;
 import java.net.URI;
 
 import org.apache.xmlbeans.XmlObject;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 
 /**
  * @version $Rev$ $Date$
  */
-public class Module {
-    private final String name;
+public abstract class Module {
+    private String name;
+    private final URI configId;
+    private final URI parentId;
     private final URI moduleURI;
     private final JarFile moduleFile;
     private final String targetPath;
@@ -33,8 +36,10 @@ public class Module {
     private final XmlObject vendorDD;
     private final String originalSpecDD;
 
-    public Module(String name, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
+    public Module(String name, URI configId, URI parentId, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
         this.name = name;
+        this.configId = configId;
+        this.parentId = parentId;
         this.moduleURI = moduleURI;
         this.moduleFile = moduleFile;
         this.targetPath = targetPath;
@@ -43,8 +48,22 @@ public class Module {
         this.originalSpecDD = originalSpecDD;
     }
 
+    public abstract ConfigurationModuleType  getType();
+
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public URI getConfigId() {
+        return configId;
+    }
+
+    public URI getParentId() {
+        return parentId;
     }
 
     public URI getModuleURI() {

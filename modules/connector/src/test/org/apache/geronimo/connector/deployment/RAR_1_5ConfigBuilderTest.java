@@ -23,7 +23,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.Connection;
@@ -48,13 +47,11 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.system.configuration.LocalConfigStore;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.tranql.sql.jdbc.JDBCUtil;
 
@@ -129,19 +126,15 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
 
         Thread.currentThread().setContextClassLoader(cl);
 
-        XmlObject plan = moduleBuilder.getDeploymentPlan(JarUtil.createJarFile(rarFile));
-        URI parentId = moduleBuilder.getParentId(plan);
-        URI configId = moduleBuilder.getConfigId(plan);
-        assertEquals(j2eeModuleName, configId.toString());
-
-        Module module = moduleBuilder.createModule(configId.toString(), JarUtil.createJarFile(action.getRARFile()), plan);
+        Module module = moduleBuilder.createModule(j2eeModuleName, null, JarUtil.createJarFile(action.getRARFile()), null, null);
+        assertEquals(j2eeModuleName, module.getConfigId().toString());
 
         File carFile = File.createTempFile("RARTest", ".car");
         try {
             EARContext earContext = new EARContext(new JarOutputStream(new FileOutputStream(carFile)),
-                    configId,
-                    ConfigurationModuleType.RAR,
-                    parentId,
+                    module.getConfigId(),
+                    module.getType(),
+                    module.getParentId(),
                     null,
                     j2eeDomainName,
                     j2eeServerName,

@@ -37,6 +37,7 @@ import javax.management.MalformedObjectNameException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
@@ -46,8 +47,6 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -66,19 +65,20 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         this.kernel = kernel;
     }
 
-    public SchemaTypeLoader[] getTypeLoaders() {
-        return new SchemaTypeLoader[]{XmlBeans.getContextTypeLoader()};
+    public Object getDeploymentPlan(File planFile, JarFile module) throws DeploymentException {
+        if (planFile == null) {
+            return null;
+        }
+
+        try {
+            ConfigurationDocument configurationDoc = ConfigurationDocument.Factory.parse(planFile);
+            return configurationDoc.getConfiguration();
+        } catch (Exception e) {
+            throw new DeploymentException(e);
+        }
     }
 
-    public boolean canConfigure(XmlObject plan) {
-        return plan instanceof ConfigurationType;
-    }
-
-    public XmlObject getDeploymentPlan(JarFile module) {
-        return null;
-    }
-
-    public void buildConfiguration(File outfile, Manifest manifest, JarFile unused, XmlObject plan) throws IOException, DeploymentException {
+    public void buildConfiguration(File outfile, Manifest manifest, Object plan, JarFile unused) throws IOException, DeploymentException {
         FileOutputStream fos = new FileOutputStream(outfile);
         try {
             JarOutputStream os = new JarOutputStream(new BufferedOutputStream(fos), manifest);
@@ -89,7 +89,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
                 os.closeEntry();
             }
 
-            buildConfiguration(os, plan);
+            buildConfiguration(os, (XmlObject) plan);
 
         } finally {
             fos.close();
@@ -97,6 +97,9 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
 
     }
 
+    //
+    // For use by the bootstrap deployer
+    //
     public void buildConfiguration(JarOutputStream os, XmlObject plan) throws DeploymentException, IOException {
         ConfigurationType configType = (ConfigurationType) plan;
         URI configID;

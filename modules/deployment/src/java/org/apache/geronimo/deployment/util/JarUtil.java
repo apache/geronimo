@@ -35,6 +35,8 @@ import org.apache.geronimo.deployment.DeploymentException;
  */
 public class JarUtil {
     public static final File DUMMY_JAR_FILE;
+    private static File file;
+
     static {
         try {
             DUMMY_JAR_FILE = FileUtil.createTempFile();
@@ -43,6 +45,25 @@ public class JarUtil {
             throw new ExceptionInInitializerError(e);
         }
     }
+
+    public static File toFile(JarFile jarFile, String path) throws DeploymentException {
+        if (jarFile instanceof UnpackedJarFile) {
+            File baseDir = ((UnpackedJarFile) jarFile).getBaseDir();
+            file = new File(baseDir, path);
+            if (!file.isFile()) {
+                throw new DeploymentException("No such file: " + file.getAbsolutePath());
+            }
+            return file;
+        } else {
+            try {
+                String urlString = "jar:" + new File(jarFile.getName()).toURL() + "!/" + path;
+                return FileUtil.toTempFile(new URL(urlString));
+            } catch (Exception e) {
+                throw new DeploymentException("Can not create File", e);
+            }
+        }
+    }
+
 
     public static URL createJarURL(JarFile jarFile, String path) throws DeploymentException {
         try {

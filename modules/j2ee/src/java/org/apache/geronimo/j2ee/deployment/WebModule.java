@@ -20,6 +20,7 @@ import java.util.jar.JarFile;
 import java.net.URI;
 
 import org.apache.xmlbeans.XmlObject;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 
 /**
  * @version $Rev$ $Date$
@@ -27,8 +28,8 @@ import org.apache.xmlbeans.XmlObject;
 public class WebModule extends Module {
     private String contextRoot;
 
-    public WebModule(String name, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
-        super(name, moduleURI, moduleFile, targetPath, specDD, vendorDD, originalSpecDD);
+    public WebModule(String name, URI configId, URI parentId, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
+        super(name, configId, parentId, moduleURI, moduleFile, targetPath, specDD, vendorDD, originalSpecDD);
     }
 
     public String getContextRoot() {
@@ -37,6 +38,10 @@ public class WebModule extends Module {
 
     public void setContextRoot(String contextRoot) {
         this.contextRoot = contextRoot;
+    }
+
+    public ConfigurationModuleType getType() {
+        return ConfigurationModuleType.WAR;
     }
 }
 

@@ -19,42 +19,32 @@ package org.apache.geronimo.deployment;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.jar.Manifest;
 import java.util.jar.JarFile;
-
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlObject;
+import java.util.jar.Manifest;
 
 /**
- *
- *
  * @version $Rev$ $Date$
  */
 public interface ConfigurationBuilder {
-    SchemaTypeLoader[] getTypeLoaders();
-
     /**
-     * Determine if this builder can handle the supplied plan.
-     * @param plan the plan to examine
-     * @return true if this builder will handle it
+     * Builds a the deployment plan specific to this builder from a planFile and/or
+     * module if this builder can process it.
+     * @param planFile the deployment plan to examine; can be null
+     * @param module the URL of the module to examine; can be null
+     * @return the deployment plan, or null if this builder can not handle the module
+     * @throws DeploymentException if there was a problem with the configuration
      */
-    boolean canConfigure(XmlObject plan);
-
-    /**
-     * Extract the deployment plan from a module if this builder can
-     * process it.
-     * @param module the URL of the module to examine
-     * @return the deployment plan, or null if this module can not handle it
-     */
-    XmlObject getDeploymentPlan(JarFile module) throws DeploymentException;
+    Object getDeploymentPlan(File planFile, JarFile module) throws DeploymentException;
 
     /**
      * Build a configuration from a local file
+     *
      * @param outfile the file to write the configuration to
-     * @param module the module to build
+     * @param manifest the manifest to add to the output file
      * @param plan the deployment plan
+     * @param module the module to build
      * @throws IOException if there was a problem reading or writing the files
      * @throws DeploymentException if there was a problem with the configuration
      */
-    void buildConfiguration(File outfile, Manifest manifest, JarFile module, XmlObject plan) throws IOException, DeploymentException;
+    void buildConfiguration(File outfile, Manifest manifest, Object plan, JarFile module) throws IOException, DeploymentException;
 }

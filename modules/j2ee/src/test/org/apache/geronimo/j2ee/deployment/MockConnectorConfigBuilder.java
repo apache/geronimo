@@ -16,16 +16,12 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
 import java.net.URL;
+import java.net.URI;
 import java.util.jar.JarFile;
 
 import junit.framework.Assert;
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
@@ -35,28 +31,8 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder 
     public Module connectorModule;
     public ClassLoader cl;
 
-    public XmlObject getDeploymentPlan(JarFile module) {
-        return null;
-    }
-
-    public boolean canHandlePlan(XmlObject plan) {
-        return false;
-    }
-
-    public URI getParentId(XmlObject plan) {
-        return null;
-    }
-
-    public URI getConfigId(XmlObject plan) {
-        return null;
-    }
-
-    public Module createModule(String name, JarFile moduleFile, XmlObject vendorDD) throws DeploymentException {
-        return createModule(name, moduleFile, vendorDD, "connector", null);
-    }
-
-    public Module createModule(String name, JarFile moduleFile, XmlObject vendorDD, String targetPath, URL specDD) throws DeploymentException {
-        return new ConnectorModule(name, URI.create(targetPath), moduleFile, targetPath, null, vendorDD, null);
+    public Module createModule(String name, Object planFile, JarFile moduleFile, URL specDDUrl, String targetPath) throws DeploymentException {
+        return new ConnectorModule(name, null, null, URI.create(targetPath), moduleFile, targetPath, null, null, null);
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module connectorModule) {
@@ -72,27 +48,6 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder 
 //        }
     }
 
-    public XmlObject parseSpecDD(URL path) throws DeploymentException {
-        InputStream in = null;
-        try {
-            in = path.openStream();
-            return XmlObject.Factory.newInstance();
-        } catch (IOException e) {
-            throw new DeploymentException(e);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                }
-            }
-        }
-    }
-
-    public XmlObject validateVendorDD(XmlObject vendorDD) throws DeploymentException {
-        return XmlObject.Factory.newInstance();
-    }
-
     public void initContext(EARContext earContext, Module connectorModule, ClassLoader cl) {
         assertEquals(this.earContext, earContext);
 //        assertEquals(this.connectorModule, connectorModule);
@@ -106,7 +61,4 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder 
         assertEquals(this.cl, cl);
     }
 
-    public SchemaTypeLoader getSchemaTypeLoader() {
-        return null;
-    }
 }

@@ -24,7 +24,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.Connection;
@@ -33,8 +32,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.jar.JarOutputStream;
 import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
 
@@ -44,23 +43,19 @@ import org.apache.geronimo.deployment.util.JarUtil;
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
-import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.system.configuration.LocalConfigStore;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorDocument10;
-import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlCursor;
 import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
@@ -94,7 +89,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
 
     public void testBuildUnpackedModule() throws Exception {
         InstallAction action = new InstallAction() {
-            public URL getVendorDD() {
+            public File getVendorDD() {
                 return null;
             }
 
@@ -117,8 +112,8 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
 
     public void testBuildUnpackedAltSpecDDModule() throws Exception {
         InstallAction action = new InstallAction() {
-            public URL getVendorDD() throws MalformedURLException {
-                return new File(basedir, "target/test-rar-10/META-INF/geronimo-ra.xml").toURL();
+            public File getVendorDD() {
+                return new File(basedir, "target/test-rar-10/META-INF/geronimo-ra.xml");
             }
 
             public URL getSpecDD() throws MalformedURLException {
@@ -144,9 +139,9 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
 
     public void testBuildUnpackedAltVendorDDModule() throws Exception {
         InstallAction action = new InstallAction() {
-            public URL getVendorDD() throws MalformedURLException {
+            public File getVendorDD() {
                 // this file does not exist, one expects a DeploymentException.
-                return new File(basedir, "target/test-rar-10/dummy.xml").toURL();
+                return new File(basedir, "target/test-rar-10/dummy.xml");
             }
 
             public URL getSpecDD() throws MalformedURLException {
@@ -172,9 +167,9 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
 
     public void testBuildUnpackedAltSpecVendorDDModule() throws Exception {
         InstallAction action = new InstallAction() {
-            public URL getVendorDD() throws MalformedURLException {
+            public File getVendorDD() {
                 // this file exists
-                return new File(basedir, "target/test-rar-10/META-INF/geronimo-ra.xml").toURL();
+                return new File(basedir, "target/test-rar-10/META-INF/geronimo-ra.xml");
             }
 
             public URL getSpecDD() throws MalformedURLException {
@@ -196,7 +191,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
 
     public void testBuildPackedModule() throws Exception {
         InstallAction action = new InstallAction() {
-            public URL getVendorDD() {
+            public File getVendorDD() {
                 return null;
             }
 
@@ -233,27 +228,17 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
         Thread.currentThread().setContextClassLoader(cl);
 
         JarFile rarJarFile = JarUtil.createJarFile(rarFile);
-        URL vendorURL = action.getVendorDD();
-        if (vendorURL == null) {
-            vendorURL = JarUtil.createJarURL(rarJarFile, "META-INF/geronimo-ra.xml");
+        Module module = moduleBuilder.createModule(j2eeModuleName, action.getVendorDD(), rarJarFile, action.getSpecDD(), "connector");
+        if (module == null) {
+            throw new DeploymentException("Was not a connector module");
         }
-        XmlObject plan = moduleBuilder.getGerConnector(vendorURL);
-        if (plan == null) {
-            throw new DeploymentException();
-        }
-
-        URI parentId = moduleBuilder.getParentId(plan);
-        URI configId = moduleBuilder.getConfigId(plan);
-        assertEquals(j2eeModuleName, configId.toString());
-
-        Module module = moduleBuilder.createModule(configId.toString(), rarJarFile, plan, "connector", action.getSpecDD());
 
         File carFile = File.createTempFile("RARTest", ".car");
         try {
             EARContext earContext = new EARContext(new JarOutputStream(new FileOutputStream(carFile)),
-                    configId,
-                    ConfigurationModuleType.RAR,
-                    parentId,
+                    module.getConfigId(),
+                    module.getType(),
+                    module.getParentId(),
                     null,
                     j2eeDomainName,
                     j2eeServerName,
@@ -293,12 +278,8 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
             File outFile = File.createTempFile("EARTest", ".car");
             try {
                 File planFile = new File(basedir, "src/test-data/data/external-application-plan.xml");
-                XmlObject planDoc = SchemaConversionUtils.parse(planFile.toURL().openStream());
-                XmlCursor cursor = planDoc.newCursor();
-                cursor.toFirstChild();
-                XmlObject plan = cursor.getObject();
-                cursor.dispose();
-                configBuilder.buildConfiguration(outFile, null, rarFile, plan);
+                Object plan = configBuilder.getDeploymentPlan(planFile, rarFile);
+                configBuilder.buildConfiguration(outFile, null, plan, rarFile);
 
             } finally {
                 outFile.delete();
@@ -473,7 +454,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
 
         void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception;
 
-        URL getVendorDD() throws MalformedURLException;
+        File getVendorDD() throws MalformedURLException;
 
         URL getSpecDD() throws MalformedURLException;
     }

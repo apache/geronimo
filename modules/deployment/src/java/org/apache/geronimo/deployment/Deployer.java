@@ -20,17 +20,11 @@ package org.apache.geronimo.deployment;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
 import java.util.jar.Attributes;
-import java.util.jar.Manifest;
 import java.util.jar.JarFile;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
+import java.util.jar.Manifest;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -43,11 +37,6 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * Command line based deployment utility which combines multiple deployable modules
@@ -64,73 +53,8 @@ public class Deployer {
         this.store = store;
     }
 
-    public URI deploy(File moduleFile, File deploymentPlan) throws DeploymentException {
-        ConfigurationBuilder builder = null;
-
-        XmlObject plan = null;
-        JarFile moduleJarFile = null;
-        if (moduleFile != null) {
-            try {
-                moduleJarFile = JarUtil.createJarFile(moduleFile);
-            } catch (IOException e) {
-                throw new DeploymentException("Could not open module file: " + moduleFile.getAbsolutePath());
-            }
-        }
-        if (deploymentPlan != null) {
-            plan = getPlan(deploymentPlan);
-            for (Iterator i = builders.iterator(); i.hasNext();) {
-                ConfigurationBuilder candidate = (ConfigurationBuilder) i.next();
-                if (candidate.canConfigure(plan)) {
-                    builder = candidate;
-                    break;
-                }
-            }
-            if (builder == null) {
-                throw new DeploymentException("No deployer found for this plan type: " + deploymentPlan);
-            }
-        } else if (moduleFile != null) {
-            for (Iterator i = builders.iterator(); i.hasNext();) {
-                ConfigurationBuilder candidate = (ConfigurationBuilder) i.next();
-                plan = candidate.getDeploymentPlan(moduleJarFile);
-                if (plan != null) {
-                    builder = candidate;
-                    break;
-                }
-            }
-            if (builder == null) {
-                throw new DeploymentException("No deployer found for this module type: " + moduleFile);
-            }
-        }
-        try {
-            File carfile = FileUtil.createTempFile();
-            try {
-
-                Manifest manifest = new Manifest();
-                Attributes mainAttributes = manifest.getMainAttributes();
-                mainAttributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
-                builder.buildConfiguration(carfile, manifest, moduleJarFile, plan);
-                return store.install(carfile.toURL());
-            } catch (InvalidConfigException e) {
-                throw new DeploymentException(e);
-            } finally {
-                carfile.delete();
-            }
-        } catch (IOException e) {
-            throw new DeploymentException(e);
-        }
-    }
-
-    private XmlObject getPlan(File deploymentPlan) throws DeploymentException {
-        try {
-            XmlObject plan = getLoader().parse(deploymentPlan, null, null);
-            XmlCursor cursor = plan.newCursor();
-            cursor.toFirstChild();
-            return cursor.getObject();
-        } catch (XmlException e) {
-            throw new DeploymentException(e);
-        } catch (IOException e) {
-            throw new DeploymentException(e);
-        }
+    public URI deploy(File moduleFile, File planFile) throws DeploymentException {
+        return deploy(planFile, moduleFile, null, true, null, null);
     }
 
     /**
@@ -141,45 +65,57 @@ public class Deployer {
     public void deploy(String[] args) throws Exception {
         Command cmd = parseArgs(args);
         if (cmd == null) {
-            return;
+            return;                                                                     
         }
 
-        ConfigurationBuilder builder = null;
+        File planFile = cmd.planFile;
+        File module = cmd.module;
+        File carfile = cmd.carfile;
+        boolean install = cmd.install;
+        String mainClass = cmd.mainClass;
+        String classPath = cmd.classPath;
 
-        // parse the plan
-        XmlObject plan = null;
-        if (cmd.plan != null) {
-            plan = getPlan(cmd.plan);
-            for (Iterator i = builders.iterator(); i.hasNext();) {
-                ConfigurationBuilder candidate = (ConfigurationBuilder) i.next();
-                if (candidate.canConfigure(plan)) {
-                    builder = candidate;
-                    break;
-                }
+
+        URI uri = deploy(planFile, module, carfile, install, mainClass, classPath);
+        System.out.println("Deployment uri is " + uri);
+    }
+
+    public URI deploy(File planFile, File moduleFile, File carfile, boolean install, String mainClass, String classPath) throws DeploymentException {
+        if (planFile == null && moduleFile == null) {
+            throw new DeploymentException("No plan or module specified");
+        }
+
+        JarFile module = null;
+        if (moduleFile != null) {
+            try {
+                module = JarUtil.createJarFile(moduleFile);
+            } catch (IOException e) {
+                throw new DeploymentException("Cound not open module file: " + moduleFile.getAbsolutePath(), e);
             }
-            if (builder == null) {
-                throw new DeploymentException("No deployer found for this plan type: " + cmd.plan);
+        }
+
+        Object plan = null;
+        ConfigurationBuilder builder = null;
+        for (Iterator i = builders.iterator(); i.hasNext();) {
+            ConfigurationBuilder candidate = (ConfigurationBuilder) i.next();
+            plan = candidate.getDeploymentPlan(planFile, module);
+            if (plan != null) {
+                builder = candidate;
+                break;
             }
-        } else if (cmd.module != null) {
-            for (Iterator i = builders.iterator(); i.hasNext();) {
-                ConfigurationBuilder candidate = (ConfigurationBuilder) i.next();
-                plan = candidate.getDeploymentPlan(cmd.module);
-                if (plan != null) {
-                    builder = candidate;
-                    break;
-                }
-            }
-            if (builder == null) {
-                throw new DeploymentException("No deployer found for this module type: " + cmd.module);
-            }
-        } else {
-            throw new DeploymentException("No plan or module supplied");
+        }
+        if (builder == null) {
+            throw new DeploymentException("No deployer found for this plan type: " + planFile);
         }
 
         boolean saveOutput;
-        if (cmd.carfile == null) {
+        if (carfile == null) {
             saveOutput = false;
-            cmd.carfile = FileUtil.createTempFile();
+            try {
+                carfile = FileUtil.createTempFile();
+            } catch (IOException e) {
+                throw new DeploymentException("Unable to create temp file for deployment", e);
+            }
         } else {
             saveOutput = true;
         }
@@ -187,54 +123,40 @@ public class Deployer {
         Manifest manifest = new Manifest();
         Attributes mainAttributes = manifest.getMainAttributes();
         mainAttributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
-        if (cmd.mainClass != null) {
-            mainAttributes.putValue(Attributes.Name.MAIN_CLASS.toString(), cmd.mainClass);
+        if (mainClass != null) {
+            mainAttributes.putValue(Attributes.Name.MAIN_CLASS.toString(), mainClass);
         }
-        if (cmd.classPath != null) {
-            mainAttributes.putValue(Attributes.Name.CLASS_PATH.toString(), cmd.classPath);
+        if (classPath != null) {
+            mainAttributes.putValue(Attributes.Name.CLASS_PATH.toString(), classPath);
         }
 
 
         try {
-            builder.buildConfiguration(cmd.carfile, manifest, cmd.module, plan);
+            builder.buildConfiguration(carfile, manifest, plan, module);
 
             try {
-                if (cmd.install) {
-                    store.install(cmd.carfile.toURL());
+                if (install) {
+                    return store.install(carfile.toURL());
                 }
+                return null;
             } catch (InvalidConfigException e) {
                 // unlikely as we just built this
                 throw new DeploymentException(e);
             }
-        } catch (Exception e) {
+        } catch (DeploymentException e) {
             saveOutput = false;
             throw e;
+        } catch (Exception e) {
+            saveOutput = false;
+            throw new DeploymentException(e);
         } finally {
             if (!saveOutput) {
-                cmd.carfile.delete();
+                carfile.delete();
             }
         }
     }
 
-    private SchemaTypeLoader getLoader() {
-        List types = new ArrayList(builders.size());
-        for (Iterator i = builders.iterator(); i.hasNext();) {
-            ConfigurationBuilder builder = (ConfigurationBuilder) i.next();
-            types.addAll(Arrays.asList(builder.getTypeLoaders()));
-        }
-        // @todo this should also set up the entity resolver and error handlers
-        SchemaTypeLoader[] loaders = (SchemaTypeLoader[]) types.toArray(new SchemaTypeLoader[types.size()]);
-        return XmlBeans.typeLoaderUnion(loaders);
-    }
-
-    public static ObjectName getDeployerName(URI configID) throws MalformedObjectNameException {
-        Properties props = new Properties();
-        props.put("role", "Deployer");
-        props.put("config", configID.toString());
-        return new ObjectName("geronimo.deployment", props);
-    }
-
-    public static Command parseArgs(String[] args) throws ParseException, DeploymentException {
+    private static Command parseArgs(String[] args) throws ParseException, DeploymentException {
         Options options = new Options();
         options.addOption("h", "help", false, "print this message");
         options.addOption("I", "install", false, "install configuration in store");
@@ -256,17 +178,13 @@ public class Deployer {
             command.carfile = new File(cmd.getOptionValue('o'));
         }
         if (cmd.hasOption('p')) {
-            command.plan = getFile(cmd.getOptionValue('p'));
+            command.planFile = getFile(cmd.getOptionValue('p'));
         }
         if (cmd.hasOption('m')) {
-            try {
-                 command.module = JarUtil.createJarFile(getFile(cmd.getOptionValue('m')));
-            } catch (IOException e) {
-                throw new DeploymentException("Could not open module file: " + cmd.getOptionValue('m'));
-            }
+             command.module = getFile(cmd.getOptionValue('m'));
         }
 
-        if (command.module == null && command.plan == null) {
+        if (command.module == null && command.planFile == null) {
             System.err.println("No plan or module specified");
             return null;
         }
@@ -301,8 +219,8 @@ public class Deployer {
     private static class Command {
         private boolean install;
         private File carfile;
-        private JarFile module;
-        private File plan;
+        private File module;
+        private File planFile;
         private String mainClass;
         private String classPath;
     }
@@ -314,6 +232,7 @@ public class Deployer {
 
         infoFactory.addOperation("deploy", new Class[]{String[].class});
         infoFactory.addOperation("deploy", new Class[]{File.class, File.class});
+        infoFactory.addOperation("deploy", new Class[]{File.class, File.class, File.class, boolean.class, String.class, String.class});
 
         infoFactory.addReference("Builders", ConfigurationBuilder.class);
         infoFactory.addReference("Store", ConfigurationStore.class);

@@ -60,9 +60,7 @@ public class DeploymentManagerImpl implements DeploymentManager {
     private final Collection configurers;
     private final Collection builders = new ArrayList();
 
-    public DeploymentManagerImpl(
-            DeploymentServer server,
-            Collection configurers) {
+    public DeploymentManagerImpl(DeploymentServer server, Collection configurers) {
         this.server = server;
         this.configurers = configurers;
         //make sure context loader is always present
@@ -71,27 +69,10 @@ public class DeploymentManagerImpl implements DeploymentManager {
 
     public synchronized void addConfigurationBuilder(ConfigurationBuilder builder) {
         builders.add(builder);
-        SchemaTypeLoader[] loaders = builder.getTypeLoaders();
-        for (int i = 0; i < loaders.length; i++) {
-            typeLoaders.add(loaders[i]);
-
-        }
-        rebuildSchemaTypeLoader();
     }
 
     public synchronized void removeConfigurationBuilder(ConfigurationBuilder builder) {
         builders.remove(builder);
-        SchemaTypeLoader[] loaders = builder.getTypeLoaders();
-        for (int i = 0; i < loaders.length; i++) {
-            typeLoaders.remove(loaders[i]);
-
-        }
-        rebuildSchemaTypeLoader();
-    }
-
-    private void rebuildSchemaTypeLoader() {
-        SchemaTypeLoader[] loaders = (SchemaTypeLoader[]) typeLoaders.toArray(new SchemaTypeLoader[typeLoaders.size()]);
-        schemaTypeLoader = XmlBeans.typeLoaderUnion(loaders);
     }
 
     public DeploymentConfiguration createConfiguration(DeployableObject deployable) throws InvalidModuleException {
@@ -188,12 +169,15 @@ public class DeploymentManagerImpl implements DeploymentManager {
         } catch (java.io.IOException e) {
             return new FailedProgressObject(CommandType.DISTRIBUTE, "Could not read deployment plan");
         }
-        for (Iterator iterator = builders.iterator(); iterator.hasNext();) {
-            ConfigurationBuilder configurationBuilder = (ConfigurationBuilder) iterator.next();
-            if (configurationBuilder.canConfigure(plan)) {
-                return server.distribute(targetList, configurationBuilder, moduleArchive, plan);
-            }
-        }
+//
+//  DS: I don't think this is every called....
+//
+//        for (Iterator iterator = builders.iterator(); iterator.hasNext();) {
+//            ConfigurationBuilder configurationBuilder = (ConfigurationBuilder) iterator.next();
+//            if (configurationBuilder.canConfigure(plan)) {
+//                return server.distribute(targetList, configurationBuilder, moduleArchive, plan);
+//            }
+//        }
         return new FailedProgressObject(CommandType.DISTRIBUTE, "No configuration builder found for module");
     }
 

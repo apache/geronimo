@@ -20,13 +20,19 @@ import java.util.jar.JarFile;
 import java.net.URI;
 
 import org.apache.xmlbeans.XmlObject;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 
 /**
  * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
  */
 public class AppClientModule extends Module {
-    public AppClientModule(String name, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD) {
-        super(name, moduleURI, moduleFile, targetPath, specDD, vendorDD, null);
+    public AppClientModule(String name, URI configId, URI parentId, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
+        super(name, configId, parentId, moduleURI, moduleFile, targetPath, specDD, vendorDD, originalSpecDD);
+    }
+
+    public ConfigurationModuleType getType() {
+        return ConfigurationModuleType.APP_CLIENT;
     }
 }
+
 

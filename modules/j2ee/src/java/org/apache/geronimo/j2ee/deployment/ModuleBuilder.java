@@ -16,33 +16,16 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
-import java.net.URI;
 import java.net.URL;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
  */
 public interface ModuleBuilder {
-    XmlObject parseSpecDD(URL path) throws DeploymentException;
-
-    XmlObject validateVendorDD(XmlObject vendorDD) throws DeploymentException;
-
-    XmlObject getDeploymentPlan(JarFile module) throws DeploymentException;
-
-    boolean canHandlePlan(XmlObject plan);
-
-    Module createModule(String name, JarFile moduleFile, XmlObject vendorDD) throws DeploymentException;
-
-    Module createModule(String name, JarFile moduleFile, XmlObject vendorDD, String targetPath, URL specDD) throws DeploymentException;
-
-    URI getParentId(XmlObject plan) throws DeploymentException;
-
-    URI getConfigId(XmlObject plan) throws DeploymentException;
+    Module createModule(String name, Object planFile, JarFile moduleFile, URL specDDUrl, String targetPath) throws DeploymentException;
 
     void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException;
 
@@ -50,5 +33,4 @@ public interface ModuleBuilder {
 
     void addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException;
 
-    SchemaTypeLoader getSchemaTypeLoader();
 }

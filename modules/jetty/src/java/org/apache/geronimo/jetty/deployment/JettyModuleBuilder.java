@@ -18,9 +18,9 @@
 package org.apache.geronimo.jetty.deployment;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -30,7 +30,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import javax.management.AttributeNotFoundException;
@@ -39,7 +38,6 @@ import javax.management.ObjectName;
 import javax.management.ReflectionException;
 import javax.transaction.UserTransaction;
 
-import org.apache.geronimo.common.xml.XmlBeansUtil;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
 import org.apache.geronimo.deployment.util.IOUtil;
@@ -70,15 +68,13 @@ import org.apache.geronimo.xbeans.geronimo.jetty.JettyRealmType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyRoleMappingsType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyRoleType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettySecurityType;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
@@ -87,145 +83,78 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev$ $Date$
  */
 public class JettyModuleBuilder implements ModuleBuilder {
-    static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[]{
-        XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.j2ee.String.class.getClassLoader()),
-        XmlBeans.typeLoaderForClassLoader(JettyWebAppType.class.getClassLoader())
-    });
-
     private static final String PARENT_ID = "org/apache/geronimo/Server";
 
-    public XmlObject parseSpecDD(URL path) throws DeploymentException {
+    public Module createModule(String name, Object plan, JarFile moduleFile, URL webXmlUrl, String targetPath) throws DeploymentException {
+        String specDD;
+        WebAppType webApp;
         try {
-            // check if we have an alt spec dd
-            return parseSpecDD(SchemaConversionUtils.parse(path));
-        } catch (Exception e) {
-            throw new DeploymentException("Unable to parse " + path, e);
-        }
-    }
-
-    public XmlObject parseSpecDD(String specDD) throws DeploymentException {
-        try {
-            // check if we have an alt spec dd
-            return parseSpecDD(SchemaConversionUtils.parse(specDD));
-        } catch (Exception e) {
-            throw new DeploymentException("Unable to parse spec dd", e);
-        }
-    }
-
-    private XmlObject parseSpecDD(XmlObject dd) throws XmlException {
-        WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(dd);
-        return webAppDoc.getWebApp();
-    }
-
-    public XmlObject validateVendorDD(XmlObject vendorDD) throws DeploymentException {
-        try {
-            vendorDD = SchemaConversionUtils.getNestedObjectAsType(vendorDD, "web-app", JettyWebAppType.type);
-            vendorDD = SchemaConversionUtils.convertToGeronimoNamingSchema(vendorDD);
-            SchemaConversionUtils.validateDD(vendorDD);
-            return vendorDD;
-        } catch (Exception e) {
-            throw new DeploymentException(e);
-        }
-    }
-
-    public XmlObject getDeploymentPlan(JarFile module) throws DeploymentException {
-        URL path = null;
-        try {
-            path = JarUtil.createJarURL(module, "WEB-INF/geronimo-jetty.xml");
-        } catch (DeploymentException e) {
-            return null;
-        }
-
-        try {
-            JettyWebAppDocument dd = JettyWebAppDocument.Factory.parse(path);
-            JettyWebAppType plan = (JettyWebAppType) validateVendorDD(dd);
-            if (plan == null) {
-                return createDefaultPlan(module);
+            if (webXmlUrl == null) {
+                webXmlUrl = JarUtil.createJarURL(moduleFile, "WEB-INF/web.xml");
             }
-            return plan;
-        } catch (MalformedURLException e) {
+
+            specDD = IOUtil.readAll(webXmlUrl);
+
+            // check if we have an alt spec dd
+            WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(SchemaConversionUtils.parse(specDD));
+            webApp = webAppDoc.getWebApp();
+        } catch (Exception e) {
             return null;
-        } catch (IOException e) {
-            return null;
+        }
+
+
+        JettyWebAppType jettyWebApp = null;
+        try {
+            // load the geronimo-jetty.xml from either the supplied plan or from the earFile
+            try {
+                if (plan instanceof XmlObject) {
+                    jettyWebApp = (JettyWebAppType) SchemaConversionUtils.getNestedObjectAsType(
+                            (XmlObject) plan,
+                            "web-app",
+                            JettyWebAppType.type);
+                } else {
+                    JettyWebAppDocument jettyWebAppdoc = null;
+                    if (plan != null) {
+                        jettyWebAppdoc = JettyWebAppDocument.Factory.parse((File)plan);
+                    } else {
+                        URL path = JarUtil.createJarURL(moduleFile, "WEB-INF/geronimo-jetty.xml");
+                        jettyWebAppdoc = JettyWebAppDocument.Factory.parse(path);
+                    }
+                    if (jettyWebAppdoc != null) {
+                        jettyWebApp = jettyWebAppdoc.getWebApp();
+                    }
+                }
+            } catch (IOException e) {
+            }
+
+            // if we got one extract the validate it otherwise create a default one
+            if (jettyWebApp != null) {
+                jettyWebApp = (JettyWebAppType) SchemaConversionUtils.convertToGeronimoNamingSchema(jettyWebApp);
+                SchemaConversionUtils.validateDD(jettyWebApp);
+            } else {
+                jettyWebApp = createDefaultPlan(name, webApp);
+            }
         } catch (XmlException e) {
             throw new DeploymentException(e);
         }
-    }
 
-    private JettyWebAppType createDefaultPlan(JarFile module) {
-        // load the web.xml
-        URL webXmlUrl;
+        // get the ids from either the application plan or for a stand alone module from the specific deployer
+        URI configId = null;
         try {
-            webXmlUrl = JarUtil.createJarURL(module, "WEB-INF/web.xml");
-        } catch (DeploymentException e) {
-            return null;
-        }
-
-        WebAppType webApp = null;
-        try {
-            webApp = (WebAppType) parseSpecDD(webXmlUrl);
-        } catch (DeploymentException e) {
-            return null;
-        }
-
-        String id = webApp.getId();
-        if (id == null) {
-            // TODO this name is not necessairly the original name specified on the command line which is what we want
-            id = module.getName();
-            if (id.endsWith("!/")) {
-                id = id.substring(0, id.length() - 2);
-            }
-            if (id.endsWith(".war")) {
-                id = id.substring(0, id.length() - 4);
-            }
-            if (id.endsWith("/")) {
-                id = id.substring(0, id.length() - 1);
-            }
-            id = id.substring(id.lastIndexOf('/') + 1);
-        }
-        return newJettyWebAppType(webApp, id);
-    }
-
-    private JettyWebAppType newJettyWebAppType(WebAppType webApp, String id) {
-        JettyWebAppType jettyWebApp = JettyWebAppType.Factory.newInstance();
-
-        // set the parentId, configId and context root
-        jettyWebApp.setParentId(PARENT_ID);
-        if (null != webApp.getId()) {
-            id = webApp.getId();
-        }
-        jettyWebApp.setConfigId(id);
-        jettyWebApp.setContextRoot(id);
-        return jettyWebApp;
-    }
-
-    public boolean canHandlePlan(XmlObject plan) {
-        return plan instanceof JettyWebAppType;
-    }
-
-    public URI getParentId(XmlObject plan) throws DeploymentException {
-        JettyWebAppType jettyWebApp = (JettyWebAppType) plan;
-        try {
-            return new URI(jettyWebApp.getParentId());
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Invalid parentId " + jettyWebApp.getParentId(), e);
-        }
-    }
-
-    public URI getConfigId(XmlObject plan) throws DeploymentException {
-        JettyWebAppType jettyWebApp = (JettyWebAppType) plan;
-        try {
-            return new URI(jettyWebApp.getConfigId());
+            configId = new URI(jettyWebApp.getConfigId());
         } catch (URISyntaxException e) {
             throw new DeploymentException("Invalid configId " + jettyWebApp.getConfigId(), e);
         }
-    }
 
-    public Module createModule(String name, JarFile moduleFile, XmlObject vendorDD) throws DeploymentException {
-        return createModule(name, moduleFile, vendorDD, "war", null);
-    }
+        URI parentId = null;
+        if (jettyWebApp.isSetParentId()) {
+            try {
+                parentId = new URI(jettyWebApp.getParentId());
+            } catch (URISyntaxException e) {
+                throw new DeploymentException("Invalid parentId " + jettyWebApp.getParentId(), e);
+            }
+        }
 
-    public Module createModule(String name, JarFile moduleFile, XmlObject vendorDD, String targetPath, URL specDDUrl) throws DeploymentException {
         URI moduleURI;
         if (targetPath != null) {
             moduleURI = URI.create(targetPath);
@@ -238,40 +167,33 @@ public class JettyModuleBuilder implements ModuleBuilder {
             moduleURI = URI.create("");
         }
 
-        // load the spec dd
-        if (specDDUrl == null) {
-            specDDUrl = JarUtil.createJarURL(moduleFile, "WEB-INF/web.xml");
-        }
-        String specDD;
-        try {
-            specDD = IOUtil.readAll(specDDUrl);
-        } catch (IOException e) {
-            throw new DeploymentException("Unable to read specDD: " + specDDUrl.toExternalForm());
-        }
-        WebAppType webApp = (WebAppType) parseSpecDD(specDD);
-
-        if (vendorDD == null) {
-            try {
-                JarEntry entry = moduleFile.getJarEntry("WEB-INF/geronimo-jetty.xml");
-                if (entry != null) {
-                    InputStream in = moduleFile.getInputStream(entry);
-                    if (in != null) {
-                        vendorDD = XmlBeansUtil.parse(in, JettyWebAppType.type);
-                    }
-                }
-            } catch (Exception e) {
-                throw new DeploymentException("Unable to parse WEB-INF/geronimo-jetty.xml", e);
-            }
-        }
-        if (vendorDD == null) {
-            vendorDD = newJettyWebAppType(webApp, name);
-        }
-
-        JettyWebAppType jettyWebApp = (JettyWebAppType) vendorDD;
-
-        WebModule module = new WebModule(name, moduleURI, moduleFile, targetPath, webApp, jettyWebApp, specDD);
+        WebModule module = new WebModule(name, configId, parentId, moduleURI, moduleFile, targetPath, webApp, jettyWebApp, specDD);
         module.setContextRoot(jettyWebApp.getContextRoot());
         return module;
+    }
+
+    private JettyWebAppType createDefaultPlan(String name, WebAppType webApp) {
+        String id = webApp.getId();
+        if (id == null) {
+            id = name;
+            if (id.endsWith(".war")) {
+                id = id.substring(0, id.length() - 4);
+            }
+            if (id.endsWith("/")) {
+                id = id.substring(0, id.length() - 1);
+            }
+        }
+
+        JettyWebAppType jettyWebApp = JettyWebAppType.Factory.newInstance();
+
+        // set the parentId, configId and context root
+        jettyWebApp.setParentId(PARENT_ID);
+        if (null != webApp.getId()) {
+            id = webApp.getId();
+        }
+        jettyWebApp.setConfigId(id);
+        jettyWebApp.setContextRoot(id);
+        return jettyWebApp;
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
@@ -292,10 +214,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
                     try {
                         earContext.addFile(target, in);
                     } finally {
-                        try {
-                            in.close();
-                        } catch (IOException e) {
-                        }
+                        IOUtil.close(in);
                     }
                 }
             }
@@ -380,10 +299,6 @@ public class JettyModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("Unable to initialize webapp GBean", e);
         }
         earContext.addGBean(name, gbean);
-    }
-
-    public SchemaTypeLoader getSchemaTypeLoader() {
-        return SCHEMA_TYPE_LOADER;
     }
 
     private ReadOnlyContext buildComponentContext(EARContext earContext, WebModule webModule, WebAppType webApp, JettyWebAppType jettyWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
