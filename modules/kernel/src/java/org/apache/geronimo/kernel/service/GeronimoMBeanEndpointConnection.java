@@ -63,19 +63,19 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.jmx.InvokeMBean;
 
+import net.sf.cglib.proxy.CallbackFilter;
 import net.sf.cglib.proxy.Callbacks;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import net.sf.cglib.proxy.SimpleCallbacks;
-import net.sf.cglib.proxy.SimpleFilter;
 import net.sf.cglib.reflect.FastClass;
 
 /**
  * This handles a connection to another mbean.
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/09 20:01:12 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/14 02:36:44 $
  */
 class GeronimoMBeanEndpointConnection {
     /**
@@ -144,7 +144,14 @@ class GeronimoMBeanEndpointConnection {
         // get the factory
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(iface);
-        enhancer.setCallbackFilter(new SimpleFilter(Callbacks.INTERCEPT));
+        enhancer.setCallbackFilter(new CallbackFilter() {
+            public int accept(Method method) {
+                if(Modifier.isStatic(method.getModifiers())) {
+                    return Callbacks.NO_OP;
+                }
+                return Callbacks.INTERCEPT;
+            }
+        });
         enhancer.setCallbacks(new SimpleCallbacks());
         factory = enhancer.create();
 
