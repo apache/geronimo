@@ -124,7 +124,6 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
 
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/RuntimeDeployer" class="org.openejb.deployment.OpenEJBModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
-        <reference name="SecurityService">geronimo.security:type=SecurityService</reference>
 <!--        <reference name="SkeletonGenerator">openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB</reference>-->
     </gbean>
 
