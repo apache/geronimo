@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.3 $ $Date: 2003/08/16 10:53:45 $ -->
+<!-- $Revision: 1.4 $ $Date: 2004/01/04 17:47:09 $ -->
 
 <faqs title="Frequently Asked Questions">
 
@@ -10,11 +10,54 @@
     <faq id="what-is">
       <question>What is Geronimo?</question>
       <answer>
-        Geronimo is Apache's ASF licenced J2EE Server Project.
-        Please see the <a href="index.html">Overiew</a>.
+        Geronimo is Apache's ASF-licenced J2EE server project.
+        Please see the <a href="index.html">Overview</a> for more
+        information.
       </answer>
     </faq>
+
+    <faq id="how-to-help">
+      <question>I'd like to find out more about the project and
+        possibly contribute. What do I do next?
+      </question>
+      <answer>Participation on the project is via the mailing
+        list and the source code repository. You join by subscribing
+        to the mailing list and participating in discussions. You
+        can help by contributing your ideas, enthusiasm, code,
+        documentation, and tests. The fundamental tenet of the Apache
+        Software Foundation is that great communities build great
+        code. The emphasis is on community; the code comes from that.
+        If you want to help, just join the mailing list, see what
+        needs to be done, and do it. Welcome!
+      </answer>
+    </faq> 
     
+    <faq id="mailing-list">
+      <question>Where is the mailing list, and how can I
+        subscribe?
+      </question>
+      <answer>
+        The mailing list is geronimo-dev@incubator.apache.org, a
+        high-volume list currently receiving from 600 to 1,000 messages
+        a month. You can subscribe by sending an e-mail to
+        <a href="mailto:geronimo-dev-subscribe@incubator.apache.org">geronimo-dev-subscribe@incubator.apache.org</a>. To catch up on old messages, read the
+        <a href="http://nagoya.apache.org/eyebrowse/SummarizeList?listId=140">mailing
+        list archive</a>.    
+      </answer>
+    </faq>
+
+    <faq id="introductions">
+      <question>Does this project use a wiki?
+      </question>
+      <answer>
+        It does -- the
+        <a href="http://wiki.apache.org/geronimo/FrontPage">Geronimo wiki</a>
+        compliments the work taking place on the mailing list and provides
+        additional information on the project. To track changes to the wiki,
+        visit the <a href="http://wiki.apache.org/geronimo/RecentChanges">recent
+        changes</a> page.
+      </answer>
+    </faq>
   </part>
   <!--
     <faq id="">
