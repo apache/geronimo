@@ -70,7 +70,7 @@ import java.io.Serializable;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/25 01:47:09 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/10 11:06:27 $
  */
 public class ContextManager {
     private static ThreadLocal currentCallerId = new ThreadLocal();
@@ -145,6 +145,12 @@ public class ContextManager {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(GET_CONTEXT);
 
+        Object caller = currentCaller.get();
+        if (caller == null){
+            return new Principal(){
+                public String getName(){return "";}
+            };
+        }
         Context context = (Context) subjectContexts.get(currentCaller.get());
 
         assert context != null : "No registered context";
@@ -177,6 +183,9 @@ public class ContextManager {
         if (role == null) throw new IllegalArgumentException("Role must not be null");
 
         try {
+            Object caller = currentCaller.get();
+            if (caller == null) return false;
+            
             Context context = (Context) subjectContexts.get(currentCaller.get());
 
             assert context != null : "No registered context";
@@ -266,4 +275,5 @@ public class ContextManager {
         Subject subject;
         Principal principal;
     }
+    
 }
