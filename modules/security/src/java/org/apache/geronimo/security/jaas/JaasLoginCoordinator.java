@@ -69,7 +69,12 @@ public class JaasLoginCoordinator implements LoginModule {
         kernelName = (String) options.get(OPTION_KERNEL);
         service = connect();
         handler = callbackHandler;
-        this.subject = subject;
+        if(subject == null) {
+            this.subject = new Subject();
+        } else {
+            this.subject = subject;
+        }
+        //todo: shared state
     }
 
     public boolean login() throws LoginException {
@@ -190,7 +195,11 @@ public class JaasLoginCoordinator implements LoginModule {
 
         public boolean login() throws LoginException {
             try {
-                handler.handle(callbacks);
+                if(handler != null) {
+                    handler.handle(callbacks);
+                } else if(callbacks != null && callbacks.length > 0) {
+                    System.err.println("No callback handler available for "+callbacks.length+" callbacks!");
+                }
                 return service.performServerLogin(client, index, callbacks);
             } catch (LoginException e) {
                 throw e;

@@ -22,6 +22,7 @@ import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Properties;
 
 import junit.framework.TestCase;
 
@@ -51,6 +52,8 @@ public class BaseSecurityTest extends TestCase {
     protected ObjectName jaasRealmName;
     protected GBeanMBean propertiesRealmGBean;
     protected ObjectName propertiesRealmName;
+    protected GBeanMBean propertiesLMGBean;
+    protected ObjectName propertiesLMName;
     protected ObjectName loginServiceName;
     protected GBeanMBean loginServiceGBean;
     protected ObjectName securityServiceName;
@@ -118,16 +121,27 @@ public class BaseSecurityTest extends TestCase {
         loginServiceGBean.setAttribute("algorithm", "HmacSHA1");
         loginServiceGBean.setAttribute("password", "secret");
 
-        propertiesRealmGBean = new GBeanMBean("org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm");
+        propertiesLMGBean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginModuleGBean");
+        propertiesLMName = new ObjectName("geronimo.security:type=LoginModule,name=demo-properties-login");
+        propertiesLMGBean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
+        propertiesLMGBean.setAttribute("serverSide", Boolean.TRUE);
+        Properties options = new Properties();
+        options.setProperty("usersURI", new File(new File("."), "src/test-resources/data/users.properties").toString());
+        options.setProperty("groupsURI", new File(new File("."), "src/test-resources/data/groups.properties").toString());
+        propertiesLMGBean.setAttribute("options", options);
+
+        propertiesRealmGBean = new GBeanMBean("org.apache.geronimo.security.realm.GenericSecurityRealm");
         propertiesRealmName = new ObjectName("geronimo.security:type=SecurityRealm,realm=demo-properties-realm");
         propertiesRealmGBean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfoName));
         propertiesRealmGBean.setAttribute("realmName", "demo-properties-realm");
-        propertiesRealmGBean.setAttribute("defaultPrincipal", "metro");
-        propertiesRealmGBean.setAttribute("maxLoginModuleAge", new Long(1 * 1000));
-        propertiesRealmGBean.setAttribute("usersURI", (new File(new File("."), "src/test-resources/data/users.properties")).toURI());
-        propertiesRealmGBean.setAttribute("groupsURI", (new File(new File("."), "src/test-resources/data/groups.properties")).toURI());
+        Properties config = new Properties();
+        config.setProperty("LoginModule.1.REQUIRED", propertiesLMName.getCanonicalName());
+        propertiesRealmGBean.setAttribute("loginModuleConfiguration", config);
+        propertiesRealmGBean.setAttribute("autoMapPrincipalClasses", "org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal");
+        propertiesRealmGBean.setAttribute("defaultPrincipal", "metro=org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal");
 
         start(serverInfoName, serverInfoGBean);
+        start(propertiesLMName, propertiesLMGBean);
         start(propertiesRealmName, propertiesRealmGBean);
         start(containerName, container);
         start(securityServiceName, securityServiceGBean);
@@ -158,6 +172,7 @@ public class BaseSecurityTest extends TestCase {
         stop(securityServiceName);
         stop(containerName);
         stop(propertiesRealmName);
+        stop(propertiesLMName);
         stop(serverInfoName);
         kernel.shutdown();
     }

@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
+import java.util.Properties;
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -48,7 +49,8 @@ public class RemoteLoginTest extends TestCase {
     Kernel kernel;
     ObjectName serverInfo;
     ObjectName loginService;
-    ObjectName kerberosRealm;
+    protected ObjectName testCE;
+    protected ObjectName testRealm;
     ObjectName subsystemRouter;
     ObjectName secureSubsystemRouter;
     ObjectName asyncTransport;
@@ -108,14 +110,24 @@ public class RemoteLoginTest extends TestCase {
         gbean.setAttribute("password", "secret");
         kernel.loadGBean(loginService, gbean);
 
-        gbean = new GBeanMBean("org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm");
-        kerberosRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=properties-realm");
+        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginModuleGBean");
+        testCE = new ObjectName("geronimo.security:type=LoginModule,name=properties");
+        gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
+        gbean.setAttribute("serverSide", new Boolean(true));
+        Properties props = new Properties();
+        props.put("usersURI", new File(new File("."), "src/test-data/data/users.properties").toString());
+        props.put("groupsURI", new File(new File("."), "src/test-data/data/groups.properties").toString());
+        gbean.setAttribute("options", props);
+        kernel.loadGBean(testCE, gbean);
+
+        gbean = new GBeanMBean("org.apache.geronimo.security.realm.GenericSecurityRealm");
+        testRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=properties-realm");
         gbean.setAttribute("realmName", "properties-realm");
-        gbean.setAttribute("maxLoginModuleAge", new Long(1 * 1000));
-        gbean.setAttribute("usersURI", (new File(new File("."), "src/test-data/data/users.properties")).toURI());
-        gbean.setAttribute("groupsURI", (new File(new File("."), "src/test-data/data/groups.properties")).toURI());
+        props = new Properties();
+        props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=properties");
+        gbean.setAttribute("loginModuleConfiguration", props);
         gbean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfo));
-        kernel.loadGBean(kerberosRealm, gbean);
+        kernel.loadGBean(testRealm, gbean);
 
         gbean = new GBeanMBean("org.apache.geronimo.remoting.router.SubsystemRouter");
         subsystemRouter = new ObjectName("geronimo.remoting:router=SubsystemRouter");
@@ -159,7 +171,8 @@ public class RemoteLoginTest extends TestCase {
         kernel.loadGBean(serverStub, gbean);
 
         kernel.startGBean(loginService);
-        kernel.startGBean(kerberosRealm);
+        kernel.startGBean(testCE);
+        kernel.startGBean(testRealm);
         kernel.startGBean(subsystemRouter);
         kernel.startGBean(secureSubsystemRouter);
         kernel.startGBean(asyncTransport);
@@ -191,12 +204,14 @@ public class RemoteLoginTest extends TestCase {
         kernel.stopGBean(asyncTransport);
         kernel.stopGBean(secureSubsystemRouter);
         kernel.stopGBean(subsystemRouter);
-        kernel.stopGBean(kerberosRealm);
+        kernel.stopGBean(testRealm);
+        kernel.stopGBean(testCE);
         kernel.stopGBean(loginService);
         kernel.stopGBean(serverInfo);
 
         kernel.unloadGBean(loginService);
-        kernel.unloadGBean(kerberosRealm);
+        kernel.unloadGBean(testCE);
+        kernel.unloadGBean(testRealm);
         kernel.unloadGBean(subsystemRouter);
         kernel.unloadGBean(secureSubsystemRouter);
         kernel.unloadGBean(asyncTransport);

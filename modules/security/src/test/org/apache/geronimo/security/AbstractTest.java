@@ -27,12 +27,13 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
+import java.util.Properties;
 
 import junit.framework.TestCase;
 
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.security.bridge.TestRealm;
+import org.apache.geronimo.security.bridge.TestLoginModule;
 
 
 /**
@@ -41,6 +42,7 @@ import org.apache.geronimo.security.bridge.TestRealm;
 public abstract class AbstractTest extends TestCase {
     protected Kernel kernel;
     protected ObjectName loginService;
+    protected ObjectName testLoginModule;
     protected ObjectName testRealm;
     protected ObjectName subsystemRouter;
     protected ObjectName asyncTransport;
@@ -63,11 +65,18 @@ public abstract class AbstractTest extends TestCase {
         gbean.setAttribute("password", "secret");
         kernel.loadGBean(loginService, gbean);
 
-        gbean = new GBeanMBean("org.apache.geronimo.security.bridge.TestRealm");
-        testRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=testrealm");
-        gbean.setAttribute("realmName", TestRealm.REALM_NAME);
-        gbean.setAttribute("maxLoginModuleAge", new Long(1 * 1000));
-        gbean.setAttribute("debug", new Boolean(true));
+        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginModuleGBean");
+        testLoginModule = new ObjectName("geronimo.security:type=LoginModule,name=TestModule");
+        gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.bridge.TestLoginModule");
+        gbean.setAttribute("serverSide", new Boolean(true));
+        kernel.loadGBean(testLoginModule, gbean);
+
+        gbean = new GBeanMBean("org.apache.geronimo.security.realm.GenericSecurityRealm");
+        testRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm="+TestLoginModule.REALM_NAME);
+        gbean.setAttribute("realmName", TestLoginModule.REALM_NAME);
+        Properties props = new Properties();
+        props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=TestModule");
+        gbean.setAttribute("loginModuleConfiguration", props);
         kernel.loadGBean(testRealm, gbean);
 
         gbean = new GBeanMBean("org.apache.geronimo.remoting.router.SubsystemRouter");
@@ -91,6 +100,7 @@ public abstract class AbstractTest extends TestCase {
         kernel.loadGBean(serverStub, gbean);
 
         kernel.startGBean(loginService);
+        kernel.startGBean(testLoginModule);
         kernel.startGBean(testRealm);
         kernel.startGBean(subsystemRouter);
         kernel.startGBean(asyncTransport);
@@ -108,6 +118,7 @@ public abstract class AbstractTest extends TestCase {
 
         kernel.unloadGBean(loginService);
         kernel.unloadGBean(testRealm);
+        kernel.unloadGBean(testLoginModule);
         kernel.unloadGBean(subsystemRouter);
         kernel.unloadGBean(asyncTransport);
         kernel.unloadGBean(jmxRouter);

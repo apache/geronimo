@@ -42,7 +42,7 @@ public class DecouplingCallbackHandler implements CallbackHandler {
             throws IllegalArgumentException, UnsupportedCallbackException {
         if (exploring) {
             source = callbacks;
-            throw new UnsupportedCallbackException(callbacks.length > 0 ? callbacks[0] : null, "DO NOT PROCEED WITH THIS LOGIN");
+            throw new UnsupportedCallbackException(callbacks != null && callbacks.length > 0 ? callbacks[0] : null, "DO NOT PROCEED WITH THIS LOGIN");
         } else {
             if(callbacks.length != source.length) {
                 throw new IllegalArgumentException("Mismatched callbacks");
@@ -53,7 +53,18 @@ public class DecouplingCallbackHandler implements CallbackHandler {
         }
     }
 
-    public void load(Callback[] callbacks) throws IllegalArgumentException {
+    /**
+     * Within the same VM, the client just populates the callbacks directly
+     * into the array held by this object.  However, remote clients will
+     * serialize their responses, so they need to be manually set back on this
+     * object to take effect.
+     *
+     * @param callbacks The callbacks populated by the client
+     */
+    public void setClientResponse(Callback[] callbacks) throws IllegalArgumentException {
+        if(source == null && callbacks == null) {
+            return; // i.e. The Kerberos LM doesn't need callbacks
+        }
         if(callbacks.length != source.length) {
             throw new IllegalArgumentException("Mismatched callbacks");
         }
@@ -75,7 +86,7 @@ public class DecouplingCallbackHandler implements CallbackHandler {
 
     /**
      * Indicates that the exploring phase is over.
-     */ 
+     */
     public Callback[] finalizeCallbackList() {
         exploring = false;
         return source;

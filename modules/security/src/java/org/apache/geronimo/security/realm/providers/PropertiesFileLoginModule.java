@@ -18,13 +18,14 @@
 package org.apache.geronimo.security.realm.providers;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.Properties;
-import java.util.HashSet;
-import java.net.URI;
+import java.util.Set;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -33,33 +34,60 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.GeronimoSecurityException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.security.realm.GenericSecurityRealm;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
 /**
+ * A LoginModule that reads a list of users and group from files on disk.  The
+ * files should be formatted using standard Java properties syntax.  Expects
+ * to be run by a GenericSecurityRealm (doesn't work on its own).
+ *
  * @version $Rev$ $Date$
  */
 public class PropertiesFileLoginModule implements LoginModule {
+    public final static String USERS_URI = "usersURI";
+    public final static String GROUPS_URI = "groupsURI";
+    private static Log log = LogFactory.getLog(PropertiesFileLoginModule.class);
     final Properties users = new Properties();
     final Properties groups = new Properties();
+
     Subject subject;
     CallbackHandler handler;
     String username;
     String password;
 
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
-
-        URI usersURI = (URI) options.get(PropertiesFileSecurityRealm.USERS_URI);
-        URI groupsURI = (URI) options.get(PropertiesFileSecurityRealm.GROUPS_URI);
-        assert usersURI != null;
-        assert groupsURI != null;
-
+        this.subject = subject;
+        this.handler = callbackHandler;
         try {
-            users.load(usersURI.toURL().openStream());
+            Kernel kernel = Kernel.getKernel((String)options.get(GenericSecurityRealm.KERNEL_LM_OPTION));
+            ServerInfo serverInfo = (ServerInfo) options.get(GenericSecurityRealm.SERVERINFO_LM_OPTION);
+            URI usersURI = new URI((String)options.get(USERS_URI));
+            URI groupsURI = new URI((String)options.get(GROUPS_URI));
+            loadProperties(kernel, serverInfo, usersURI, groupsURI);
+        } catch (Exception e) {
+            log.error(e);
+            throw new IllegalArgumentException("Unable to configure properties file login module: "+e);
+        }
+    }
+
+    public void loadProperties(Kernel kernel, ServerInfo serverInfo, URI userURI, URI groupURI) throws GeronimoSecurityException {
+        try {
+            URI userFile = serverInfo.resolve(userURI);
+            URI groupFile = serverInfo.resolve(groupURI);
+            InputStream stream = userFile.toURL().openStream();
+            users.load(stream);
+            stream.close();
 
             Properties temp = new Properties();
-            temp.load(groupsURI.toURL().openStream());
+            stream = groupFile.toURL().openStream();
+            temp.load(stream);
+            stream.close();
 
             Enumeration e = temp.keys();
             while (e.hasMoreElements()) {
@@ -77,13 +105,12 @@ public class PropertiesFileLoginModule implements LoginModule {
                 }
             }
 
-        } catch (IOException e) {
+        } catch (Exception e) {
+            log.error("Properties File Login Module - data load failed", e);
             throw new GeronimoSecurityException(e);
         }
-
-        this.subject = subject;
-        this.handler = callbackHandler;
     }
+
 
     public boolean login() throws LoginException {
         Callback[] callbacks = new Callback[2];

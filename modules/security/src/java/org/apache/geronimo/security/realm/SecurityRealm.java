@@ -22,6 +22,7 @@ import javax.security.auth.login.AppConfigurationEntry;
 import java.util.Set;
 
 import org.apache.geronimo.common.GeronimoSecurityException;
+import org.apache.geronimo.security.jaas.JaasLoginModuleConfiguration;
 import org.apache.regexp.RE;
 
 
@@ -34,11 +35,7 @@ public interface SecurityRealm {
 
     public String getRealmName();
 
-    public long getMaxLoginModuleAge();
-
-    public AppConfigurationEntry[] getAppConfigurationEntries();
-
-    public boolean isLoginModuleLocal();
+    public JaasLoginModuleConfiguration[] getAppConfigurationEntries();
 
     /**
      * @deprecated Will be removed in favor of (some kind of realm editor object) in
@@ -63,12 +60,4 @@ public interface SecurityRealm {
      *             a future milestone release.
      */
     public Set getUserPrincipals(RE regexExpression) throws GeronimoSecurityException;
-
-    /**
-     * @deprecated Will be removed a future milestone release.  The refreshing should
-     *             be done by a login module or editor when appropriate to its own
-     *             needs.
-     */
-    public void refresh() throws GeronimoSecurityException;
-
 }

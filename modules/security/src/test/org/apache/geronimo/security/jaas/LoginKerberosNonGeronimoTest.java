@@ -22,6 +22,7 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import java.util.Properties;
+import java.util.Collections;
 
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.security.AbstractTest;
@@ -40,6 +41,7 @@ import org.apache.geronimo.security.RealmPrincipal;
 public class LoginKerberosNonGeronimoTest extends AbstractTest {
 
     protected ObjectName kerberosCE;
+    protected ObjectName kerberosLM;
     protected ObjectName loginConfiguration;
 
     /**
@@ -56,20 +58,26 @@ public class LoginKerberosNonGeronimoTest extends AbstractTest {
         loginConfiguration = new ObjectName("geronimo.security:type=LoginConfiguration");
         kernel.loadGBean(loginConfiguration, gbean);
 
-        Properties options = new Properties();
-        options.put("debug", "true");
-        options.put("useTicketCache", "true");
-        options.put("doNotPrompt", "true");
+        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginModuleGBean");
+        kerberosLM = new ObjectName("geronimo.security:type=LoginModule,name=TOOLAZYDOGS.COM");
+        gbean.setAttribute("loginModuleClass", "com.sun.security.auth.module.Krb5LoginModule");
+        gbean.setAttribute("serverSide", new Boolean(true)); // normally not, but in this case, it's treated as server-side
+        Properties props = new Properties();
+        props.put("debug", "true");
+        props.put("useTicketCache", "true");
+        props.put("doNotPrompt", "true");
+        gbean.setAttribute("options", props);
+        kernel.loadGBean(kerberosLM, gbean);
 
-        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.ConfigurationEntryLocal");
+        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.DirectConfigurationEntry");
         kerberosCE = new ObjectName("geronimo.security:type=ConfigurationEntry,jaasId=kerberos-foobar");
         gbean.setAttribute("applicationConfigName", "kerberos-foobar");
-        gbean.setAttribute("loginModuleName", "com.sun.security.auth.module.Krb5LoginModule");
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
-        gbean.setAttribute("options", options);
+        gbean.setReferencePatterns("Module", Collections.singleton(kerberosLM));
         kernel.loadGBean(kerberosCE, gbean);
 
         kernel.startGBean(loginConfiguration);
+        kernel.startGBean(kerberosLM);
         kernel.startGBean(kerberosCE);
     }
 
@@ -81,9 +89,11 @@ public class LoginKerberosNonGeronimoTest extends AbstractTest {
      */
     public void tearDown() throws Exception {
         kernel.stopGBean(kerberosCE);
+        kernel.stopGBean(kerberosLM);
         kernel.stopGBean(loginConfiguration);
 
         kernel.unloadGBean(kerberosCE);
+        kernel.unloadGBean(kerberosLM);
         kernel.unloadGBean(loginConfiguration);
 
         super.tearDown();
@@ -111,6 +121,7 @@ public class LoginKerberosNonGeronimoTest extends AbstractTest {
 
             context.logout();
         } catch (LoginException e) {
+            e.printStackTrace();
             // May not have kerberos
         }
     }

@@ -46,6 +46,7 @@ public class ConfigurationEntryTest extends TestCase {
     protected ObjectName serverInfo;
     protected ObjectName loginConfiguration;
     protected ObjectName loginService;
+    protected ObjectName clientCE;
     protected ObjectName testCE;
     protected ObjectName testRealm;
     protected ObjectName subsystemRouter;
@@ -54,7 +55,7 @@ public class ConfigurationEntryTest extends TestCase {
     protected ObjectName serverStub;
 
     public void test() throws Exception {
-        LoginContext context = new LoginContext("properties", new AbstractTest.UsernamePasswordCallback("alan", "starcraft"));
+        LoginContext context = new LoginContext("properties-client", new AbstractTest.UsernamePasswordCallback("alan", "starcraft"));
 
         context.login();
         Subject subject = context.getSubject();
@@ -104,20 +105,28 @@ public class ConfigurationEntryTest extends TestCase {
         gbean.setAttribute("password", "secret");
         kernel.loadGBean(loginService, gbean);
 
-        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.ConfigurationEntryRealmLocal");
-        testCE = new ObjectName("geronimo.security:type=ConfigurationEntry,jaasId=properties");
-        gbean.setAttribute("applicationConfigName", "properties");
+        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.ServerRealmConfigurationEntry");
+        clientCE = new ObjectName("geronimo.security:type=ConfigurationEntry,jaasId=properties-client");
+        gbean.setAttribute("applicationConfigName", "properties-client");
         gbean.setAttribute("realmName", "properties-realm");
-        gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
-        gbean.setAttribute("options", new Properties());
+        kernel.loadGBean(clientCE, gbean);
+
+        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginModuleGBean");
+        testCE = new ObjectName("geronimo.security:type=LoginModule,name=properties");
+        gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
+        gbean.setAttribute("serverSide", new Boolean(true));
+        Properties props = new Properties();
+        props.put("usersURI", new File(new File("."), "src/test-data/data/users.properties").toString());
+        props.put("groupsURI", new File(new File("."), "src/test-data/data/groups.properties").toString());
+        gbean.setAttribute("options", props);
         kernel.loadGBean(testCE, gbean);
 
-        gbean = new GBeanMBean("org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm");
+        gbean = new GBeanMBean("org.apache.geronimo.security.realm.GenericSecurityRealm");
         testRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=properties-realm");
         gbean.setAttribute("realmName", "properties-realm");
-        gbean.setAttribute("maxLoginModuleAge", new Long(1 * 1000));
-        gbean.setAttribute("usersURI", (new File(new File("."), "src/test-data/data/users.properties")).toURI());
-        gbean.setAttribute("groupsURI", (new File(new File("."), "src/test-data/data/groups.properties")).toURI());
+        props = new Properties();
+        props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=properties");
+        gbean.setAttribute("loginModuleConfiguration", props);
         gbean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfo));
         kernel.loadGBean(testRealm, gbean);
 
@@ -143,6 +152,7 @@ public class ConfigurationEntryTest extends TestCase {
 
         kernel.startGBean(loginConfiguration);
         kernel.startGBean(loginService);
+        kernel.startGBean(clientCE);
         kernel.startGBean(testCE);
         kernel.startGBean(testRealm);
         kernel.startGBean(subsystemRouter);
@@ -158,6 +168,7 @@ public class ConfigurationEntryTest extends TestCase {
         kernel.stopGBean(subsystemRouter);
         kernel.stopGBean(testRealm);
         kernel.stopGBean(testCE);
+        kernel.stopGBean(clientCE);
         kernel.stopGBean(loginService);
         kernel.stopGBean(loginConfiguration);
         kernel.stopGBean(serverInfo);
@@ -165,6 +176,7 @@ public class ConfigurationEntryTest extends TestCase {
         kernel.unloadGBean(loginService);
         kernel.unloadGBean(testCE);
         kernel.unloadGBean(testRealm);
+        kernel.unloadGBean(clientCE);
         kernel.unloadGBean(subsystemRouter);
         kernel.unloadGBean(asyncTransport);
         kernel.unloadGBean(jmxRouter);

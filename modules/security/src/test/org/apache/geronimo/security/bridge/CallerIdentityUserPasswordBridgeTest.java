@@ -37,7 +37,7 @@ public class CallerIdentityUserPasswordBridgeTest extends AbstractBridgeTest {
     protected void setUp() throws Exception {
         super.setUp();
         bridge = new CallerIdentityUserPasswordRealmBridge();
-        bridge.setTargetRealm(TestRealm.JAAS_NAME);
+        bridge.setTargetRealm(TestLoginModule.JAAS_NAME);
     }
 
     public void testCallerIdentityBridge() throws Exception {

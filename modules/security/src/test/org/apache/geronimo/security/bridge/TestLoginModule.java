@@ -36,6 +36,8 @@ import org.apache.geronimo.security.realm.providers.GeronimoPasswordCredential;
  * @version $Rev$ $Date$
  */
 public class TestLoginModule implements LoginModule {
+    public final static String REALM_NAME = "bridge-realm";
+    public final static String JAAS_NAME = "bridge";
 
     private Subject subject;
     private CallbackHandler callbackHandler;

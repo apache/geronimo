@@ -20,6 +20,9 @@ package org.apache.geronimo.security.jaas;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
+import java.util.Collections;
+import java.io.File;
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
@@ -28,6 +31,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
+import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.kernel.management.State;
 
 
@@ -38,6 +42,7 @@ public class LoginSQLTest extends AbstractTest {
 
     private static final String hsqldbURL = "jdbc:hsqldb:target/database/LoginSQLTest";
     protected ObjectName sqlRealm;
+    protected ObjectName sqlModule;
 
     public void setUp() throws Exception {
         super.setUp();
@@ -76,23 +81,37 @@ public class LoginSQLTest extends AbstractTest {
 
         conn.close();
 
-        GBeanMBean gbean = new GBeanMBean("org.apache.geronimo.security.realm.providers.SQLSecurityRealm");
+        GBeanMBean gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginModuleGBean");
+        sqlModule = new ObjectName("geronimo.security:type=LoginModule,name=sql");
+        gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.SQLLoginModule");
+        gbean.setAttribute("serverSide", new Boolean(true));
+        Properties props = new Properties();
+        props.put("jdbcURL", hsqldbURL);
+        props.put("jdbcDriver", "org.hsqldb.jdbcDriver");
+        props.put("jdbcUser", "loginmodule");
+        props.put("jdbcPassword", "password");
+        props.put("userSelect", "SELECT UserName, Password FROM Users");
+        props.put("groupSelect", "SELECT GroupName, UserName FROM Groups");
+        gbean.setAttribute("options", props);
+        kernel.loadGBean(sqlModule, gbean);
+        kernel.startGBean(sqlModule);
+
+        gbean = new GBeanMBean("org.apache.geronimo.security.realm.GenericSecurityRealm");
         sqlRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=sql-realm");
         gbean.setAttribute("realmName", "sql-realm");
-        gbean.setAttribute("maxLoginModuleAge", new Long(1 * 1000));
-        gbean.setAttribute("connectionURL", hsqldbURL);
-        gbean.setAttribute("driver","org.hsqldb.jdbcDriver");
-        gbean.setAttribute("user", "loginmodule");
-        gbean.setAttribute("password", "password");
-        gbean.setAttribute("userSelect", "SELECT UserName, Password FROM Users");
-        gbean.setAttribute("groupSelect", "SELECT GroupName, UserName FROM Groups");
+        props = new Properties();
+        props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=sql");
+        gbean.setAttribute("loginModuleConfiguration", props);
         kernel.loadGBean(sqlRealm, gbean);
         kernel.startGBean(sqlRealm);
+
     }
 
     public void tearDown() throws Exception {
         kernel.stopGBean(sqlRealm);
+        kernel.stopGBean(sqlModule);
         kernel.unloadGBean(sqlRealm);
+        kernel.unloadGBean(sqlModule);
 
         super.tearDown();
 
@@ -109,102 +128,21 @@ public class LoginSQLTest extends AbstractTest {
 
     }
 
-    public void testNothing() {
-    }
-
     public void testLogin() throws Exception {
         LoginContext context = new LoginContext("sql", new UsernamePasswordCallback("alan", "starcraft"));
 
         context.login();
         Subject subject = context.getSubject();
+        assertTrue("expected non-null client-side subject", subject != null);
+        subject = ContextManager.getServerSideSubject(subject);
 
-        assertTrue("expected non-null subject", subject != null);
-//        assertEquals("subject should have five principal", 5, subject.getPrincipals().size());
-//        assertEquals("subject should have two realm principals", 2, subject.getPrincipals(RealmPrincipal.class).size());
-//        assertEquals("subject should have one remote principal", 1, subject.getPrincipals(IdentificationPrincipal.class).size());
+        assertTrue("expected non-null server-side subject", subject != null);
+        assertEquals("server-side subject should have five principal", 5, subject.getPrincipals().size());
+        assertEquals("server-side subject should have two realm principals", 2, subject.getPrincipals(RealmPrincipal.class).size());
+        assertEquals("server-side subject should have one remote principal", 1, subject.getPrincipals(IdentificationPrincipal.class).size());
         IdentificationPrincipal principal = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
         assertTrue("id of principal should be non-zero", principal.getId().getSubjectId().longValue() != 0);
 
         context.logout();
     }
-
-    public void XtestLogoutTimeout() throws Exception {
-
-        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(sqlRealm, "state"));
-
-        ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
-        try {
-            Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
-            LoginContext context = new LoginContext("sql", new UsernamePasswordCallback("alan", "starcraft"));
-
-            context.login();
-            Subject subject = context.getSubject();
-
-            assertTrue("expected non-null subject", subject != null);
-            assertEquals("subject should have five principal", 5, subject.getPrincipals().size());
-            assertEquals("subject should have two realm principals", 2, subject.getPrincipals(RealmPrincipal.class).size());
-            assertEquals("subject should have one remote principal", 1, subject.getPrincipals(IdentificationPrincipal.class).size());
-            IdentificationPrincipal principal = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
-            assertTrue("id of principal should be non-zero", principal.getId().getSubjectId().longValue() != 0);
-
-            Thread.sleep(20 * 1000);
-
-            try {
-                context.logout();
-                fail("The login module should have expired");
-            } catch (ExpiredLoginModuleException e) {
-                context.login();
-
-                subject = context.getSubject();
-
-                assertTrue("expected non-null subject", subject != null);
-                assertEquals("subject should have five principal", 5, subject.getPrincipals().size());
-                assertEquals("subject should have two realm principals", 2, subject.getPrincipals(RealmPrincipal.class).size());
-                assertEquals("subject should have one remote principal", 1, subject.getPrincipals(IdentificationPrincipal.class).size());
-                principal = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
-                assertTrue("id of principal should be non-zero", principal.getId().getSubjectId().longValue() != 0);
-
-                context.logout();
-            }
-        } finally {
-            Thread.currentThread().setContextClassLoader(oldCl);
-        }
-    }
-
-    public void XtestReloginTimeout() throws Exception {
-        LoginContext context = new LoginContext("sql", new UsernamePasswordCallback("alan", "starcraft"));
-
-        context.login();
-        Subject subject = context.getSubject();
-
-        assertTrue("expected non-null subject", subject != null);
-        assertEquals("subject should have five principal", 5, subject.getPrincipals().size());
-        assertEquals("subject should have two realm principals", 2, subject.getPrincipals(RealmPrincipal.class).size());
-        assertEquals("subject should have one remote principal", 1, subject.getPrincipals(IdentificationPrincipal.class).size());
-        IdentificationPrincipal principal = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
-        assertTrue("id of principal should be non-zero", principal.getId().getSubjectId().longValue() != 0);
-
-        context.logout();
-        context.login();
-        context.logout();
-
-        // Waiting this long should cause the login module w/ an artificially
-        // low age limit to expire.  The next call to login should automatically
-        // create a new one.
-        Thread.sleep(4 * 1000);
-
-        context.login();
-
-        subject = context.getSubject();
-
-        assertTrue("expected non-null subject", subject != null);
-        assertEquals("subject should have five principal", 5, subject.getPrincipals().size());
-        assertEquals("subject should have two realm principals", 2, subject.getPrincipals(RealmPrincipal.class).size());
-        assertEquals("subject should have one remote principal", 1, subject.getPrincipals(IdentificationPrincipal.class).size());
-        principal = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
-        assertTrue("id of principal should be non-zero", principal.getId().getSubjectId().longValue() != 0);
-
-        context.logout();
-    }
-
 }

@@ -20,7 +20,11 @@ import org.apache.geronimo.common.GeronimoSecurityException;
 
 import javax.security.auth.spi.LoginModule;
 import java.io.Serializable;
+import java.io.Externalizable;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.rmi.Remote;
 
 /**
  * Describes the configuration of a LoginModule -- its name, class, control
@@ -31,16 +35,22 @@ import java.util.Map;
  */
 public class JaasLoginModuleConfiguration implements Serializable {
     private boolean serverSide;
+    private String name;
     private LoginModuleControlFlag flag;
     private String loginModuleName;
     private Map options;
     private transient LoginModule loginModule;
 
-    public JaasLoginModuleConfiguration(String loginModuleName, LoginModuleControlFlag flag, Map options, boolean serverSide) {
+    public JaasLoginModuleConfiguration(String name, String loginModuleName, LoginModuleControlFlag flag, Map options, boolean serverSide) {
+        this.name = name;
         this.serverSide = serverSide;
         this.flag = flag;
         this.loginModuleName = loginModuleName;
         this.options = options;
+    }
+
+    public String getLoginModuleClassName() {
+        return loginModuleName;
     }
 
     public LoginModule getLoginModule(ClassLoader loader) throws GeronimoSecurityException {
@@ -64,5 +74,26 @@ public class JaasLoginModuleConfiguration implements Serializable {
 
     public Map getOptions() {
         return options;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Strips out stuff that isn't serializable so this can be safely passed to
+     * a remote server.
+     */
+    public JaasLoginModuleConfiguration getSerializableCopy() {
+        Map other = new HashMap();
+        for (Iterator it = options.keySet().iterator(); it.hasNext();) {
+            String key = (String) it.next();
+            Object value = options.get(key);
+            if(value instanceof Serializable || value instanceof Externalizable || value instanceof Remote) {
+                other.put(key, value);
+            }
+        }
+
+        return new JaasLoginModuleConfiguration(name, loginModuleName, flag, other, serverSide);
     }
 }

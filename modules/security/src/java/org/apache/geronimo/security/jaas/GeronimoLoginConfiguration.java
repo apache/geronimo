@@ -19,6 +19,8 @@ package org.apache.geronimo.security.jaas;
 
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.Properties;
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
 
@@ -27,6 +29,8 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.security.SecurityService;
+import org.apache.geronimo.security.realm.SecurityRealm;
+import org.apache.geronimo.kernel.Kernel;
 
 
 /**
@@ -42,32 +46,60 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
 
     private static Map entries = new Hashtable();
     private Configuration oldConfiguration;
+    private Kernel kernel;
+
+    public GeronimoLoginConfiguration(Kernel kernel) {
+        this.kernel = kernel;
+    }
 
     public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
-        ConfigurationEntry entry = (ConfigurationEntry) entries.get(name);
+        AppConfigurationEntry entry = (AppConfigurationEntry) entries.get(name);
 
         if (entry == null) return null;
 
-        return entry.getAppConfigurationEntry();
+//        if(!entry.getOptions().containsKey("kernel")) {
+//            entry.getOptions().put("kernel", kernel.getKernelName());
+//        }
+
+        return new AppConfigurationEntry[]{entry};
     }
 
     public void refresh() {
     }
 
-    public static void register(ConfigurationEntry entry) {
+    /**
+     * Registers a single Geronimo LoginModule
+     */
+    public static void register(JaasLoginModuleConfiguration entry) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(SecurityService.CONFIGURE);
 
-        if (entries.containsKey(entry.getApplicationConfigName())) throw new java.lang.IllegalArgumentException("ConfigurationEntry already registered");
+        if (entries.containsKey(entry.getName())) throw new java.lang.IllegalArgumentException("ConfigurationEntry already registered");
 
-        entries.put(entry.getApplicationConfigName(), entry);
+        entries.put(entry.getName(), getAppConfigurationEntry(entry));
     }
 
-    public static void unRegister(ConfigurationEntry entry) {
+    private static AppConfigurationEntry getAppConfigurationEntry(JaasLoginModuleConfiguration config) {
+        return new AppConfigurationEntry(config.getLoginModuleClassName(), config.getFlag().getFlag(), config.getOptions());
+    }
+
+    /**
+     * Registers a wrapper configuration that will hit a Geronimo security
+     * realm under the covers.
+     */
+    public static void register(SecurityRealm realm) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(SecurityService.CONFIGURE);
 
-        entries.remove(entry.getApplicationConfigName());
+        if (entries.containsKey(realm.getRealmName())) throw new java.lang.IllegalArgumentException("ConfigurationEntry already registered");
+        entries.put(realm.getRealmName(), new AppConfigurationEntry("org.apache.geronimo.security.jaas.JaasLoginCoordinator", AppConfigurationEntry.LoginModuleControlFlag.REQUIRED, new Properties()));
+    }
+
+    public static void unRegister(String name) {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(SecurityService.CONFIGURE);
+
+        entries.remove(name);
     }
 
     public void doStart() throws WaitingException, Exception {
@@ -95,6 +127,8 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(GeronimoLoginConfiguration.class.getName());
+        infoFactory.addAttribute("kernel", Kernel.class, false);
+        infoFactory.setConstructor(new String[]{"kernel"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 }

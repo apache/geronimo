@@ -22,13 +22,13 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.resource.spi.ManagedConnectionFactory;
-import javax.security.auth.login.AppConfigurationEntry;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.realm.SecurityRealm;
-import org.apache.geronimo.security.realm.providers.AbstractSecurityRealm;
+import org.apache.geronimo.security.jaas.JaasLoginModuleConfiguration;
+import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
 import org.apache.regexp.RE;
 
 /**
@@ -37,16 +37,25 @@ import org.apache.regexp.RE;
  * @version $Rev$ $Date$
  *
  * */
-public class PasswordCredentialRealm extends AbstractSecurityRealm implements SecurityRealm, ManagedConnectionFactoryListener {
+public class PasswordCredentialRealm implements SecurityRealm, ManagedConnectionFactoryListener {
 
     private static final GBeanInfo GBEAN_INFO;
 
     ManagedConnectionFactory managedConnectionFactory;
+    String realmName;
 
     static final String REALM_INSTANCE = "org.apache.connector.outbound.security.PasswordCredentialRealm";
 
     public PasswordCredentialRealm(String realmName) {
-        super(realmName);
+        this.realmName = realmName;
+    }
+
+    public String getRealmName() {
+        return realmName;
+    }
+
+    public void setRealmName(String realmName) {
+        this.realmName = realmName;
     }
 
     public Set getGroupPrincipals() throws GeronimoSecurityException {
@@ -68,16 +77,15 @@ public class PasswordCredentialRealm extends AbstractSecurityRealm implements Se
     public void refresh() throws GeronimoSecurityException {
     }
 
-    public AppConfigurationEntry[] getAppConfigurationEntries() {
+    public JaasLoginModuleConfiguration[] getAppConfigurationEntries() {
         Map options = new HashMap();
 
         // TODO: This can be a bad thing, passing a reference to a realm to the login module
         // since the SerializableACE can be sent remotely
         options.put(REALM_INSTANCE, this);
-        AppConfigurationEntry appConfigurationEntry = new AppConfigurationEntry(PasswordCredentialLoginModule.class.getName(),
-                AppConfigurationEntry.LoginModuleControlFlag.REQUISITE,
-                options);
-        return new AppConfigurationEntry[]{appConfigurationEntry};
+        JaasLoginModuleConfiguration config = new JaasLoginModuleConfiguration(getRealmName(), PasswordCredentialLoginModule.class.getName(),
+                LoginModuleControlFlag.REQUISITE, options, true);
+        return new JaasLoginModuleConfiguration[]{config};
     }
 
     public boolean isLoginModuleLocal() {
@@ -93,8 +101,10 @@ public class PasswordCredentialRealm extends AbstractSecurityRealm implements Se
     }
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(PasswordCredentialRealm.class, AbstractSecurityRealm.getGBeanInfo());
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(PasswordCredentialRealm.class);
         infoFactory.addInterface(ManagedConnectionFactoryListener.class);
+        infoFactory.addAttribute("realmName", String.class, true);
+        infoFactory.setConstructor(new String[]{"realmName"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -43,7 +43,7 @@ public class MappingUserPasswordBridgeTest extends AbstractBridgeTest {
     protected void setUp() throws Exception {
         super.setUp();
         bridge = new TestMappingBridge();
-        bridge.setTargetRealm(TestRealm.JAAS_NAME);
+        bridge.setTargetRealm(TestLoginModule.JAAS_NAME);
         bridge.setPrincipalSourceType(TestPrincipalPrincipal.class);
         bridge.setPrincipalTargetCallbackName("Resource Principal");
         Map principalMap = new HashMap();

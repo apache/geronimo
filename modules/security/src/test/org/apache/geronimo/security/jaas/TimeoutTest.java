@@ -31,7 +31,7 @@ import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
-import org.apache.geronimo.security.bridge.TestRealm;
+import org.apache.geronimo.security.bridge.TestLoginModule;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.kernel.Kernel;
 
@@ -43,8 +43,10 @@ public class TimeoutTest extends AbstractTest {
 
     protected ObjectName serverInfo;
     protected ObjectName loginConfiguration;
-    protected ObjectName propertiesRealm;
-    protected ObjectName propertiesCE;
+    protected ObjectName testCE;
+    protected ObjectName testRealm;
+    protected ObjectName clientLM;
+    protected ObjectName clientCE;
 
     public void setUp() throws Exception {
         kernel = new Kernel("test.kernel", "simple.geronimo.test");
@@ -62,13 +64,6 @@ public class TimeoutTest extends AbstractTest {
         gbean.setAttribute("algorithm", "HmacSHA1");
         gbean.setAttribute("password", "secret");
         kernel.loadGBean(loginService, gbean);
-
-        gbean = new GBeanMBean("org.apache.geronimo.security.bridge.TestRealm");
-        testRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=testrealm");
-        gbean.setAttribute("realmName", TestRealm.REALM_NAME);
-        gbean.setAttribute("maxLoginModuleAge", new Long(1 * 1000));
-        gbean.setAttribute("debug", new Boolean(true));
-        kernel.loadGBean(testRealm, gbean);
 
         gbean = new GBeanMBean("org.apache.geronimo.remoting.router.SubsystemRouter");
         subsystemRouter = new ObjectName("geronimo.remoting:router=SubsystemRouter");
@@ -91,7 +86,6 @@ public class TimeoutTest extends AbstractTest {
         kernel.loadGBean(serverStub, gbean);
 
         kernel.startGBean(loginService);
-        kernel.startGBean(testRealm);
         kernel.startGBean(subsystemRouter);
         kernel.startGBean(asyncTransport);
         kernel.startGBean(jmxRouter);
@@ -107,36 +101,62 @@ public class TimeoutTest extends AbstractTest {
         loginConfiguration = new ObjectName("geronimo.security:type=LoginConfiguration");
         kernel.loadGBean(loginConfiguration, gbean);
 
-        gbean = new GBeanMBean("org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm");
-        propertiesRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=properties-realm");
-        gbean.setAttribute("realmName", "properties-realm");
-        gbean.setAttribute("maxLoginModuleAge", new Long(1 * 1000));
-        gbean.setAttribute("usersURI", (new File(new File("."), "src/test-data/data/users.properties")).toURI());
-        gbean.setAttribute("groupsURI", (new File(new File("."), "src/test-data/data/groups.properties")).toURI());
-        gbean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfo));
-        kernel.loadGBean(propertiesRealm, gbean);
+        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginModuleGBean");
+        testCE = new ObjectName("geronimo.security:type=LoginModule,name=properties");
+        gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
+        gbean.setAttribute("serverSide", new Boolean(true));
+        Properties props = new Properties();
+        props.put("usersURI", new File(new File("."), "src/test-data/data/users.properties").toString());
+        props.put("groupsURI", new File(new File("."), "src/test-data/data/groups.properties").toString());
+        gbean.setAttribute("options", props);
+        kernel.loadGBean(testCE, gbean);
 
-        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.ConfigurationEntryRealmLocal");
-        propertiesCE = new ObjectName("geronimo.security:type=ConfigurationEntry,jaasId=properties");
-        gbean.setAttribute("applicationConfigName", "properties");
+        gbean = new GBeanMBean("org.apache.geronimo.security.realm.GenericSecurityRealm");
+        testRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=properties-realm");
         gbean.setAttribute("realmName", "properties-realm");
+        props = new Properties();
+        props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=properties");
+        gbean.setAttribute("loginModuleConfiguration", props);
+        gbean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfo));
+        kernel.loadGBean(testRealm, gbean);
+
+        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginModuleGBean");
+        clientLM = new ObjectName("geronimo.security:type=LoginModule,name=properties-client");
+        gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.jaas.JaasLoginCoordinator");
+        gbean.setAttribute("serverSide", new Boolean(false));
+        props = new Properties();
+        props.put("host", "localhost");
+        props.put("port", "4242");
+        props.put("realm", "properties-realm");
+        gbean.setAttribute("options", props);
+        kernel.loadGBean(clientLM, gbean);
+
+        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.DirectConfigurationEntry");
+        clientCE = new ObjectName("geronimo.security:type=ConfigurationEntry,jaasId=properties-client");
+        gbean.setAttribute("applicationConfigName", "properties-client");
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
-        gbean.setAttribute("options", new Properties());
-        kernel.loadGBean(propertiesCE, gbean);
+        gbean.setReferencePatterns("Module", Collections.singleton(clientLM));
+        kernel.loadGBean(clientCE, gbean);
 
         kernel.startGBean(loginConfiguration);
-        kernel.startGBean(propertiesRealm);
-        kernel.startGBean(propertiesCE);
+        kernel.startGBean(clientLM);
+        kernel.startGBean(clientCE);
+        kernel.startGBean(testCE);
+        kernel.startGBean(testRealm);
     }
 
     public void tearDown() throws Exception {
-        kernel.stopGBean(propertiesCE);
-        kernel.stopGBean(propertiesRealm);
+        kernel.stopGBean(testRealm);
+        kernel.stopGBean(testCE);
+        kernel.stopGBean(clientCE);
+        kernel.stopGBean(clientLM);
         kernel.stopGBean(loginConfiguration);
         kernel.stopGBean(serverInfo);
 
-        kernel.unloadGBean(propertiesRealm);
-        kernel.unloadGBean(propertiesCE);
+        kernel.unloadGBean(testCE);
+        kernel.unloadGBean(testRealm);
+        kernel.unloadGBean(clientCE);
+        kernel.unloadGBean(clientLM);
         kernel.unloadGBean(loginConfiguration);
         kernel.unloadGBean(serverInfo);
 
@@ -144,11 +164,9 @@ public class TimeoutTest extends AbstractTest {
         kernel.stopGBean(jmxRouter);
         kernel.stopGBean(asyncTransport);
         kernel.stopGBean(subsystemRouter);
-        kernel.stopGBean(testRealm);
         kernel.stopGBean(loginService);
 
         kernel.unloadGBean(loginService);
-        kernel.unloadGBean(testRealm);
         kernel.unloadGBean(subsystemRouter);
         kernel.unloadGBean(asyncTransport);
         kernel.unloadGBean(jmxRouter);
@@ -159,7 +177,7 @@ public class TimeoutTest extends AbstractTest {
 
     public void testTimeout() throws Exception {
 
-        LoginContext context = new LoginContext("properties", new AbstractTest.UsernamePasswordCallback("alan", "starcraft"));
+        LoginContext context = new LoginContext("properties-client", new AbstractTest.UsernamePasswordCallback("alan", "starcraft"));
 
         context.login();
         Subject subject = context.getSubject();

@@ -52,6 +52,7 @@ import org.apache.geronimo.network.protocol.control.ControlServerProtocolWaiter;
 import org.apache.geronimo.pool.ClockPool;
 import org.apache.geronimo.pool.ThreadPool;
 import org.apache.geronimo.security.AbstractTest;
+import org.apache.geronimo.security.bridge.TestLoginModule;
 import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
 import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -65,8 +66,8 @@ public class SubjectCarryingProtocolTest extends AbstractTest {
     final static private Log log = LogFactory.getLog(SubjectCarryingProtocolTest.class);
 
     protected ObjectName serverInfo;
-    protected ObjectName propertiesRealm;
-    protected ObjectName propertiesCE;
+    protected ObjectName testCE;
+    protected ObjectName testRealm;
 
     private Subject clientSubject;
     private Subject serverSubject;
@@ -260,7 +261,7 @@ public class SubjectCarryingProtocolTest extends AbstractTest {
     }
 
     public void setUp() throws Exception {
-        Configuration.setConfiguration(new GeronimoLoginConfiguration());
+//        Configuration.setConfiguration(new GeronimoLoginConfiguration());
 
         startLatch = new Latch();
         shutdownLatch = new Latch();
@@ -276,25 +277,27 @@ public class SubjectCarryingProtocolTest extends AbstractTest {
         kernel.loadGBean(serverInfo, gbean);
         kernel.startGBean(serverInfo);
 
-        gbean = new GBeanMBean("org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm");
-        propertiesRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=properties-realm");
+        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginModuleGBean");
+        testCE = new ObjectName("geronimo.security:type=LoginModule,name=properties");
+        gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
+        gbean.setAttribute("serverSide", new Boolean(true));
+        Properties props = new Properties();
+        props.put("usersURI", new File(new File("."), "src/test-data/data/users.properties").toString());
+        props.put("groupsURI", new File(new File("."), "src/test-data/data/groups.properties").toString());
+        gbean.setAttribute("options", props);
+        kernel.loadGBean(testCE, gbean);
+
+        gbean = new GBeanMBean("org.apache.geronimo.security.realm.GenericSecurityRealm");
+        testRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=properties-realm");
         gbean.setAttribute("realmName", "properties-realm");
-        gbean.setAttribute("maxLoginModuleAge", new Long(1 * 1000));
-        gbean.setAttribute("usersURI", (new File(new File("."), "src/test-data/data/users.properties")).toURI());
-        gbean.setAttribute("groupsURI", (new File(new File("."), "src/test-data/data/groups.properties")).toURI());
+        props = new Properties();
+        props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=properties");
+        gbean.setAttribute("loginModuleConfiguration", props);
         gbean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfo));
-        kernel.loadGBean(propertiesRealm, gbean);
+        kernel.loadGBean(testRealm, gbean);
 
-        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.ConfigurationEntryRealmLocal");
-        propertiesCE = new ObjectName("geronimo.security:type=ConfigurationEntry,jaasId=properties");
-        gbean.setAttribute("applicationConfigName", "properties");
-        gbean.setAttribute("realmName", "properties-realm");
-        gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
-        gbean.setAttribute("options", new Properties());
-        kernel.loadGBean(propertiesCE, gbean);
-
-        kernel.startGBean(propertiesRealm);
-        kernel.startGBean(propertiesCE);
+        kernel.startGBean(testCE);
+        kernel.startGBean(testRealm);
 
         LoginContext context = new LoginContext("properties", new AbstractTest.UsernamePasswordCallback("alan", "starcraft"));
         context.login();
@@ -308,11 +311,11 @@ public class SubjectCarryingProtocolTest extends AbstractTest {
     }
 
     public void tearDown() throws Exception {
-        kernel.stopGBean(propertiesCE);
-        kernel.stopGBean(propertiesRealm);
+        kernel.stopGBean(testRealm);
+        kernel.stopGBean(testCE);
         kernel.stopGBean(serverInfo);
-        kernel.unloadGBean(propertiesRealm);
-        kernel.unloadGBean(propertiesCE);
+        kernel.unloadGBean(testCE);
+        kernel.unloadGBean(testRealm);
         kernel.unloadGBean(serverInfo);
 
         super.tearDown();

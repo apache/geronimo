@@ -32,13 +32,12 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
-import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
-
 import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
 import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -61,6 +60,7 @@ import org.apache.geronimo.security.realm.SecurityRealm;
  */
 public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
     public static final ObjectName OBJECT_NAME = JMXUtil.getObjectName("geronimo.security:type=JaasLoginService");
+    public static final Log log = LogFactory.getLog(JaasLoginService.class);
     private final static int DEFAULT_EXPIRED_LOGIN_SCAN_INTERVAL = 300000; // 5 mins
     private final static int DEFAULT_MAX_LOGIN_DURATION =  1000 * 3600 * 24; // 1 day
     private final static ClockDaemon clockDaemon;
@@ -171,7 +171,13 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
         if(context == null) {
             throw new ExpiredLoginModuleException();
         }
-        return context.getModules();
+        JaasLoginModuleConfiguration[] config = context.getModules();
+        // strip out non-serializable configuration options
+        JaasLoginModuleConfiguration[] result = new JaasLoginModuleConfiguration[config.length];
+        for (int i = 0; i < config.length; i++) {
+            result[i] = config[i].getSerializableCopy();
+        }
+        return result;
     }
 
     /**
@@ -192,7 +198,12 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
         JaasLoginModuleConfiguration config = context.getModules()[loginModuleIndex];
         LoginModule module = config.getLoginModule(classLoader);
         //todo: properly handle shared state
-        module.initialize(context.getSubject(), context.getHandler(), new HashMap(), config.getOptions());
+        try {
+            module.initialize(context.getSubject(), context.getHandler(), new HashMap(), config.getOptions());
+        } catch (Exception e) {
+            System.err.println("Failed to initialize module");
+            e.printStackTrace();
+        }
         try {
             module.login();
         } catch (LoginException e) {}
@@ -219,7 +230,7 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
         }
         JaasLoginModuleConfiguration module = context.getModules()[loginModuleIndex];
         try {
-            context.getHandler().load(results);
+            context.getHandler().setClientResponse(results);
         } catch (IllegalArgumentException iae) {
             throw new LoginException(iae.toString());
         }
@@ -315,13 +326,7 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
             id = ++nextLoginModuleId;
         }
         JaasClientId clientId = new JaasClientId(id, hash(id));
-        AppConfigurationEntry[] entries = realm.getAppConfigurationEntries();
-        JaasLoginModuleConfiguration[] modules = new JaasLoginModuleConfiguration[entries.length];
-        for (int i = 0; i < modules.length; i++) {
-            modules[i] = new JaasLoginModuleConfiguration(entries[i].getLoginModuleName(),
-                    LoginModuleControlFlag.getInstance(entries[i].getControlFlag()), entries[i].getOptions(),
-                    realm.isLoginModuleLocal()); //todo: calculate local-ness per module
-        }
+        JaasLoginModuleConfiguration[] modules = realm.getAppConfigurationEntries();
         JaasSecurityContext context = new JaasSecurityContext(realm.getRealmName(), modules);
         activeLogins.put(clientId, context);
         return clientId;

@@ -100,18 +100,30 @@ by the server.
 
 
     <!-- Default security realm using properties files -->
-    <gbean name="geronimo.security:type=SecurityRealm,realm=geronimo-properties-realm" class="org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm">
-        <attribute name="realmName" type="java.lang.String">geronimo-properties-realm</attribute>
-        <attribute name="maxLoginModuleAge" type="long">10000</attribute>
-        <attribute name="usersURI" type="java.net.URI">var/security/users.properties</attribute>
-        <attribute name="groupsURI" type="java.net.URI">var/security/groups.properties</attribute>
-        <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
+    <gbean name="geronimo.security:type=LoginModule,name=properties-login"
+        class="org.apache.geronimo.security.jaas.LoginModuleGBean">
+        <attribute name="loginModuleClass" type="java.lang.String">org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</attribute>
+        <attribute name="serverSide" type="boolean">true</attribute>
+        <attribute name="options" type="java.util.Properties">
+            usersURI=var/security/users.properties
+            groupsURI=var/security/groups.properties
+        </attribute>
     </gbean>
 
-    <gbean name="geronimo.security:type=ConfigurationEntry,jaasId=JMX" class="org.apache.geronimo.security.jaas.ConfigurationEntryRealmLocal">
+    <gbean name="geronimo.security:type=SecurityRealm,realm=geronimo-properties-realm"
+           class="org.apache.geronimo.security.realm.GenericSecurityRealm">
+        <attribute name="realmName" type="java.lang.String">geronimo-properties-realm</attribute>
+        <attribute name="loginModuleConfiguration" type="java.util.Properties">
+            LoginModule.1.REQUIRED=geronimo.security:type=LoginModule,name=properties-login
+        </attribute>
+        <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
+        <attribute name="autoMapPrincipalClasses" type="java.lang.String">org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal</attribute>
+    </gbean>
+
+    <gbean name="geronimo.security:type=ConfigurationEntry,jaasId=JMX"
+           class="org.apache.geronimo.security.jaas.ServerRealmConfigurationEntry">
         <attribute name="applicationConfigName" type="java.lang.String">JMX</attribute>
         <attribute name="realmName" type="java.lang.String">geronimo-properties-realm</attribute>
-        <attribute name="controlFlag" type="org.apache.geronimo.security.jaas.LoginModuleControlFlag">REQUIRED</attribute>
     </gbean>
 
     <!-- Register GeronimoLoginConfiguration as the LoginConfiguration handler -->

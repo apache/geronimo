@@ -33,7 +33,7 @@ public class ConfiguredIdentityUserPasswordBridgeTest extends AbstractBridgeTest
 
     protected void setUp() throws Exception {
         super.setUp();
-        bridge = new ConfiguredIdentityUserPasswordRealmBridge(TestRealm.JAAS_NAME, AbstractBridgeTest.USER, AbstractBridgeTest.PASSWORD);
+        bridge = new ConfiguredIdentityUserPasswordRealmBridge(TestLoginModule.JAAS_NAME, AbstractBridgeTest.USER, AbstractBridgeTest.PASSWORD);
     }
 
     public void testConfiguredIdentityBridge() throws Exception {

@@ -28,34 +28,48 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
+import org.apache.geronimo.security.realm.GenericSecurityRealm;
 
 
 /**
+ * A login module that loads security information from a SQL database.  Expects
+ * to be run by a GenericSecurityRealm (doesn't work on its own).
+ *
  * @version $Rev$ $Date$
  */
-
 public class SQLLoginModule implements LoginModule {
-    private Subject subject;
-    private CallbackHandler handler;
-    private String cbUsername;
-    private String cbPassword;
+    public final static String USER_SELECT = "userSelect";
+    public final static String GROUP_SELECT = "groupSelect";
+    public final static String CONNECTION_URL = "jdbcURL";
+    public final static String USER = "jdbcUser";
+    public final static String PASSWORD = "jdbcPassword";
+    public final static String DRIVER = "jdbcDriver";
+    //todo: support JNDI data sources too
     private String connectionURL;
     private Properties properties;
     private Driver driver;
     private String userSelect;
     private String groupSelect;
+
+    private Subject subject;
+    private CallbackHandler handler;
+    private String cbUsername;
+    private String cbPassword;
     private final Set groups = new HashSet();
 
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
         this.subject = subject;
         this.handler = callbackHandler;
 
-        connectionURL = (String) options.get(SQLSecurityRealm.CONNECTION_URL);
-        properties = (Properties) options.get(SQLSecurityRealm.PROPERTIES);
-        userSelect = (String) options.get(SQLSecurityRealm.USER_SELECT);
-        groupSelect = (String) options.get(SQLSecurityRealm.GROUP_SELECT);
+        connectionURL = (String) options.get(CONNECTION_URL);
+        properties = new Properties();
+        properties.put("user", options.get(USER));
+        properties.put("password", options.get(PASSWORD));
+        userSelect = (String) options.get(USER_SELECT);
+        groupSelect = (String) options.get(GROUP_SELECT);
+        ClassLoader cl = (ClassLoader) options.get(GenericSecurityRealm.CLASSLOADER_LM_OPTION);
         try {
-            this.driver = (Driver) Class.forName((String) options.get(SQLSecurityRealm.DRIVER)).newInstance();
+            this.driver = (Driver) cl.loadClass((String) options.get(DRIVER)).newInstance();
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException("Driver class "+driver+" is not available.  Perhaps you need to add it as a dependency in your deployment plan?");
         } catch(Exception e) {
