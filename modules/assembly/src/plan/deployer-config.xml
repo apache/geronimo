@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+Configuration for the Geronimo deployer
+
+-->
+<configuration
+    xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    configId="org/apache/geronimo/J2EEDeployer"
+    parentId="org/apache/geronimo/System"
+    >
+
+    <dependency>
+        <uri>geronimo/jars/geronimo-jetty-DEV.jar</uri>
+    </dependency>
+
+    <gbean name="geronimo.deployer:role=Deployer,id=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.deployment.Deployer">
+        <reference name="Kernel">geronimo.boot:role=Kernel</reference>
+        <reference name="Builders">geronimo.deployer:role=Builder,id=org/apache/geronimo/J2EEDeployer,*</reference>
+    </gbean>
+
+    <gbean name="geronimo.deployer:role=Builder,type=Service,id=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.deployment.service.ServiceConfigBuilder">
+        <reference name="Kernel">geronimo.boot:role=Kernel</reference>
+        <reference name="Repository">*:role=Repository,*</reference>
+    </gbean>
+
+    <gbean name="geronimo.deployer:role=Builder,type=WAR,id=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.jetty.deployment.WARConfigBuilder">
+        <reference name="Kernel">geronimo.boot:role=Kernel</reference>
+        <reference name="Repository">*:role=Repository,*</reference>
+    </gbean>
+</configuration>

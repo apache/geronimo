@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- $Revision: 1.1 $ $Date: 2004/02/17 07:21:02 $ -->
+<!-- $Revision: 1.2 $ $Date: 2004/02/20 07:41:31 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -160,6 +160,21 @@
             <ant:arg value="src/plan/server-config.xml"/>
             <ant:arg value="--outfile"/>
             <ant:arg value="${distDir}/config/J2EEServer.car"/>
+            <ant:arg value="--store"/>
+            <ant:arg value="${distDir}/config-store"/>
+            <ant:arg value="--deployer"/>
+            <ant:arg value="org/apache/geronimo/ServiceDeployer"/>
+        </ant:java>
+
+        <!-- build the J2EEDeployer configuration -->
+        <ant:echo>Building deployer configuration</ant:echo>
+        <ant:java fork="true" jar="${distDir}/bin/deploy.jar">
+            <ant:sysproperty key="geronimo.base.dir" value="${distDir}"/>
+            <ant:arg value="--install"/>
+            <ant:arg value="--plan"/>
+            <ant:arg value="src/plan/deployer-config.xml"/>
+            <ant:arg value="--outfile"/>
+            <ant:arg value="${distDir}/config/J2EEDeployer.car"/>
             <ant:arg value="--store"/>
             <ant:arg value="${distDir}/config-store"/>
             <ant:arg value="--deployer"/>
