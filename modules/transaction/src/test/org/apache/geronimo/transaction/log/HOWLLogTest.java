@@ -28,10 +28,11 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/25 21:29:34 $
+ * @version $Revision: 1.4 $ $Date: 2004/09/06 07:24:56 $
  *
  * */
 public class HOWLLogTest extends AbstractLogTest {
+    private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
     private static final String LOG_FILE_NAME = "howl_test";
 
 
@@ -58,7 +59,7 @@ public class HOWLLogTest extends AbstractLogTest {
                 2, //                "maxLogFiles",
                 2, //                "minBuffers",
                 10,//                "threadsWaitingForceThreshold"});
-                new ServerInfo("target")
+                new ServerInfo(new File(basedir, "target").getAbsolutePath())
         );
         howlLog.doStart();
         return howlLog;
@@ -66,11 +67,11 @@ public class HOWLLogTest extends AbstractLogTest {
     public static Test suite() {
         return new TestSetup(new TestSuite(HOWLLogTest.class)) {
             protected void setUp() throws Exception {
-                File logFile = new File("target/" + LOG_FILE_NAME + "_1.log");
+                File logFile = new File(basedir, "target/" + LOG_FILE_NAME + "_1.log");
                 if (logFile.exists()) {
                     logFile.delete();
                 }
-                logFile = new File("target/" + LOG_FILE_NAME + "_2.log");
+                logFile = new File(basedir, "target/" + LOG_FILE_NAME + "_2.log");
                 if (logFile.exists()) {
                     logFile.delete();
                 }
