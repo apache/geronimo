@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2004 The Apache Software Foundation
+    Copyright 2004-2005 The Apache Software Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -76,6 +76,7 @@
             <xsd:element name="ref-name" type="xsd:string"/>
             <xsd:choice>
                 <xsd:group ref="gernaming:objectNameGroup"/>
+                <xsd:group ref="gernaming:corbaNameGroup"/>
                 <xsd:element name="ejb-link" type="xsd:string"/>
                 <xsd:element name="target-name" type="xsd:string"/>
             </xsd:choice>
@@ -197,5 +198,37 @@
             <xsd:element name="port" type="gernaming:portType" maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:complexType>
+
+    <xsd:group name="corbaNameGroup">
+        <xsd:annotation>
+            <xsd:documentation>
+                This group contains the location of the CORBA name server, the
+                name, and the client security server used to make interop calls.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="ns-corbaloc" type="xsd:anyURI">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The corbaloc used to access the CORBA name server.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="name" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The name of the object in the name server.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="css-name" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The GBean name of the client security server used to make interop calls.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:group>
 
 </xsd:schema>

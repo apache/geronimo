@@ -37,6 +37,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 
+
 /**
  * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
  */
@@ -217,6 +218,10 @@ public class RefContext {
         return ejbReferenceBuilder.createEJBRemoteReference(objectName, isSession, home, remote);
     }
 
+    public Reference getCORBARemoteRef(URI corbaURL, String objectName, String containerName, String home) throws DeploymentException {
+        return ejbReferenceBuilder.createCORBAReference(corbaURL, objectName, containerName, home);
+    }
+
     public Reference getEJBLocalRef(String objectName, boolean isSession, String localHome, String local) throws DeploymentException {
         return ejbReferenceBuilder.createEJBLocalReference(objectName, isSession, localHome, local);
     }
@@ -274,7 +279,7 @@ public class RefContext {
                 throw new DeploymentException("More than one match for query " + matches);
             }
             if (matches.size() == 1) {
-                return ((ObjectName)matches.iterator().next()).getCanonicalName();
+                return ((ObjectName) matches.iterator().next()).getCanonicalName();
             }
             try {
                 query = NameFactory.getComponentRestrictedQueryName(null, null, name, type, j2eeContext);
@@ -391,7 +396,7 @@ public class RefContext {
             throw new DeploymentException("Duplicate resource adapter module name: " + resourceModuleName);
         }
     }
-    
+
     public GBeanData getResourceAdapterGBeanData(ObjectName resourceAdapterModuleName) throws DeploymentException {
         GBeanData resourceModuleData = (GBeanData) resourceModuleDataMap.get(resourceAdapterModuleName);
         if (resourceModuleData != null) {

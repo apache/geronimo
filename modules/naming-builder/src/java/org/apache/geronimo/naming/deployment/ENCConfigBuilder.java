@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2004-2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -35,6 +35,9 @@ import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.transaction.UserTransaction;
 import javax.xml.namespace.QName;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -345,6 +348,15 @@ public class ENCConfigBuilder {
                 } else if (remoteRef != null) {
                     if (remoteRef.isSetTargetName()) {
                         ejbReference = refContext.getEJBRemoteRef(getStringValue(remoteRef.getTargetName()), isSession, home, remote);
+                    } else if (remoteRef.isSetNsCorbaloc()) {
+                        try {
+                            ejbReference = refContext.getCORBARemoteRef(new URI(getStringValue(remoteRef.getNsCorbaloc())),
+                                                                        getStringValue(remoteRef.getName()),
+                                                                        getStringValue(remoteRef.getCssName()),
+                                                                        home);
+                        } catch (URISyntaxException e) {
+                            throw new DeploymentException("Could not construct CORBA NameServer URI: " + remoteRef.getNsCorbaloc(), e);
+                        }
                     } else {
                         String containerId = null;
                         try {

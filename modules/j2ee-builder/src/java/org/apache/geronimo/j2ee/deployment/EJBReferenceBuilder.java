@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2004-2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import java.net.URI;
 import javax.naming.Reference;
 
 import org.apache.geronimo.common.DeploymentException;
@@ -28,6 +29,8 @@ public interface EJBReferenceBuilder {
     Reference createEJBLocalReference(String objectName, boolean isSession, String localHome, String local) throws DeploymentException;
 
     Reference createEJBRemoteReference(String objectName, boolean isSession, String home, String remote) throws DeploymentException;
+
+    Reference createCORBAReference(URI corbaURL, String objectName, String containerName, String home) throws DeploymentException;
 
     Object createHandleDelegateReference();
 
