@@ -35,7 +35,7 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransact
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.outbound.connectiontracking.DefaultComponentInterceptor;
 import org.apache.geronimo.connector.outbound.connectiontracking.DefaultInterceptor;
-import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultComponentContext;
+import org.apache.geronimo.transaction.DefaultInstanceContext;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.bridge.RealmBridge;
 import org.apache.geronimo.transaction.InstanceContext;
@@ -45,7 +45,7 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 /**
  *
  *
- * @version $Revision: 1.11 $ $Date: 2004/05/31 16:27:44 $
+ * @version $Revision: 1.12 $ $Date: 2004/05/31 23:37:05 $
  *
  * */
 public class ConnectionManagerTestUtils extends TestCase implements DefaultInterceptor, RealmBridge {
@@ -68,7 +68,7 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
     protected AbstractConnectionManager connectionManagerDeployment;
     protected MockConnectionFactory connectionFactory;
     protected MockManagedConnectionFactory mockManagedConnectionFactory;
-    protected DefaultComponentContext defaultComponentContext;
+    protected DefaultInstanceContext defaultComponentContext;
     protected DefaultComponentInterceptor defaultComponentInterceptor;
     protected Set unshareableResources = new HashSet();
     protected Set applicationManagedSecurityResources = new HashSet();
@@ -101,7 +101,7 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
                 connectionTrackingCoordinator);
         connectionManagerDeployment.doStart();
         connectionFactory = (MockConnectionFactory) connectionManagerDeployment.createConnectionFactory(mockManagedConnectionFactory);
-        defaultComponentContext = new DefaultComponentContext(unshareableResources, applicationManagedSecurityResources);
+        defaultComponentContext = new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources);
         defaultComponentInterceptor = new DefaultComponentInterceptor(this, connectionTrackingCoordinator);
     }
 

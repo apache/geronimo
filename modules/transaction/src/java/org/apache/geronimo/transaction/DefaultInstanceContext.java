@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl;
+package org.apache.geronimo.transaction;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,16 +27,16 @@ import org.apache.geronimo.transaction.InstanceContext;
 /**
  * Simple implementation of ComponentContext satisfying invariant.
  *
- * @version $Revision: 1.6 $ $Date: 2004/05/31 16:27:44 $
+ * @version $Revision: 1.1 $ $Date: 2004/05/31 23:37:05 $
  *
  * */
-public class DefaultComponentContext implements InstanceContext {
+public class DefaultInstanceContext implements InstanceContext {
 
     private final Map connectionManagerMap = new HashMap();
     private final Set unshareableResources;
     private final Set applicationManagedSecurityResources;
 
-    public DefaultComponentContext(Set unshareableResources, Set applicationManagedSecurityResources) {
+    public DefaultInstanceContext(Set unshareableResources, Set applicationManagedSecurityResources) {
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
     }

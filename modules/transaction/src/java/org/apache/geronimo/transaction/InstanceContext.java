@@ -23,7 +23,7 @@ import java.util.Set;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/05/31 16:27:44 $
+ * @version $Revision: 1.6 $ $Date: 2004/05/31 23:37:05 $
  *
  * */
 public interface InstanceContext {
@@ -33,9 +33,9 @@ public interface InstanceContext {
 
     Object getContainerId();
 
-    void associate() throws Exception;
+    void associate() throws Throwable;
 
-    void flush() throws Exception;
+    void flush() throws Throwable;
 
     void beforeCommit() throws Exception;
 

@@ -33,7 +33,7 @@ import javax.transaction.TransactionManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultComponentContext;
+import org.apache.geronimo.transaction.DefaultInstanceContext;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -58,7 +58,7 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
- * @version $Revision: 1.16 $ $Date: 2004/05/31 16:27:44 $
+ * @version $Revision: 1.17 $ $Date: 2004/05/31 23:37:05 $
  */
 public class JettyWebApplicationContext extends WebApplicationContext implements GBean {
 
@@ -188,7 +188,7 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
                 TransactionContext.setContext(new UnspecifiedTransactionContext());
             }
             try {
-                oldInstanceContext = associator.enter(new DefaultComponentContext(unshareableResources, applicationManagedSecurityResources));
+                oldInstanceContext = associator.enter(new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources));
             } catch (ResourceException e) {
                 throw new RuntimeException(e);
             }

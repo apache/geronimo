@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.InvalidTransactionException;
@@ -31,7 +32,6 @@ import javax.transaction.Transaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.tranql.cache.InTxCache;
 import org.tranql.cache.SimpleFlushStrategy;
 
@@ -39,7 +39,7 @@ import org.tranql.cache.SimpleFlushStrategy;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/04/11 17:00:05 $
+ * @version $Revision: 1.7 $ $Date: 2004/05/31 23:37:05 $
  */
 public abstract class TransactionContext {
     protected static final Log log = LogFactory.getLog(TransactionContext.class);
@@ -69,7 +69,7 @@ public abstract class TransactionContext {
 
     public abstract void rollback() throws SystemException;
 
-    public final void associate(InstanceContext context) throws Exception {
+    public final void associate(InstanceContext context) throws Throwable {
         if (associatedContexts.put(context.getContainerId(), context.getId(), context) == null) {
             context.associate();
         }
@@ -93,7 +93,7 @@ public abstract class TransactionContext {
         currentContext = caller;
     }
 
-    public final void flushState() throws Exception {
+    public final void flushState() throws Throwable {
         while (dirtyContexts.isEmpty() == false) {
             ArrayList toFlush = new ArrayList(dirtyContexts.values());
             dirtyContexts.clear();

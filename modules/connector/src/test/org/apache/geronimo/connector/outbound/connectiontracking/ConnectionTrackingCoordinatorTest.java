@@ -30,13 +30,13 @@ import org.apache.geronimo.connector.outbound.ConnectionInterceptor;
 import org.apache.geronimo.connector.outbound.ConnectionReturnAction;
 import org.apache.geronimo.connector.outbound.ConnectionTrackingInterceptor;
 import org.apache.geronimo.connector.outbound.ManagedConnectionInfo;
-import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultComponentContext;
+import org.apache.geronimo.transaction.DefaultInstanceContext;
 import org.apache.geronimo.transaction.InstanceContext;
 
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/05/31 16:27:44 $
+ * @version $Revision: 1.8 $ $Date: 2004/05/31 23:37:05 $
  *
  * */
 public class ConnectionTrackingCoordinatorTest extends TestCase
@@ -66,7 +66,7 @@ public class ConnectionTrackingCoordinatorTest extends TestCase
     }
 
     public void testSimpleComponentContextLifecyle() throws Exception {
-        DefaultComponentContext componentContext = new DefaultComponentContext(unshareableResources, applicationManagedSecurityResources);
+        DefaultInstanceContext componentContext = new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources);
         InstanceContext oldInstanceContext = connectionTrackingCoordinator.enter(componentContext);
         assertNull("Expected old instance context to be null", oldInstanceContext);
         //give the context a ConnectionInfo
@@ -90,7 +90,7 @@ public class ConnectionTrackingCoordinatorTest extends TestCase
     }
 
     public void testNestedComponentContextLifecyle() throws Exception {
-        DefaultComponentContext componentContext1 = new DefaultComponentContext(unshareableResources, applicationManagedSecurityResources);
+        DefaultInstanceContext componentContext1 = new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources);
         InstanceContext oldInstanceContext1 = connectionTrackingCoordinator.enter(componentContext1);
         assertNull("Expected old component context to be null", oldInstanceContext1);
         //give the context a ConnectionInfo
@@ -99,7 +99,7 @@ public class ConnectionTrackingCoordinatorTest extends TestCase
         connectionTrackingCoordinator.handleObtained(key1, connectionInfo1);
 
         //Simulate calling another component
-        DefaultComponentContext componentContext2 = new DefaultComponentContext(unshareableResources, applicationManagedSecurityResources);
+        DefaultInstanceContext componentContext2 = new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources);
         InstanceContext oldInstanceContext2 = connectionTrackingCoordinator.enter(componentContext2);
         assertTrue("Expected returned component context to be componentContext1", oldInstanceContext2 == componentContext1);
         //give the context a ConnectionInfo

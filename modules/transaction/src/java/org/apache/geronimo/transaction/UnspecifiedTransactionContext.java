@@ -26,7 +26,7 @@ import org.apache.geronimo.transaction.TransactionContext;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:36 $
+ * @version $Revision: 1.4 $ $Date: 2004/05/31 23:37:05 $
  */
 public class UnspecifiedTransactionContext extends TransactionContext {
     public void begin() {
@@ -41,7 +41,11 @@ public class UnspecifiedTransactionContext extends TransactionContext {
     public void commit() {
         try {
             flushState();
-        } catch (Exception e) {
+        } catch (Error e) {
+            throw e;
+        } catch (RuntimeException re) {
+            throw re;
+        } catch (Throwable e) {
             log.error("Unable to flush state, continuing", e);
         }
     }
