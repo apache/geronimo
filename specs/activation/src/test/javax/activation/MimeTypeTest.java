@@ -104,7 +104,6 @@ public class MimeTypeTest extends TestCase {
             }
 
             public void flush() {
-                fail();
             }
 
             public void write(int b) {

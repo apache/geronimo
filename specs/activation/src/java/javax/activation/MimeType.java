@@ -102,6 +102,7 @@ public class MimeType implements Externalizable {
 
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeUTF(toString());
+        out.flush();
     }
 
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
