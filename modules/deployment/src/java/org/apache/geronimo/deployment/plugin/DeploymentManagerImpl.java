@@ -68,6 +68,7 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Collection;
+import java.util.ArrayList;
 
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.shared.CommandType;
@@ -98,12 +99,13 @@ import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 import org.w3c.dom.Document;
 
 /**
  *
  *
- * @version $Revision: 1.9 $ $Date: 2004/02/09 00:01:19 $
+ * @version $Revision: 1.10 $ $Date: 2004/02/09 07:10:25 $
  */
 public class DeploymentManagerImpl implements DeploymentManager, GBean {
     private final DeploymentServer server;
@@ -241,6 +243,14 @@ public class DeploymentManagerImpl implements DeploymentManager, GBean {
         URI configId;
         try {
             plan = schemaTypeLoader.parse(deploymentPlan, null, null);
+            //validate
+            XmlOptions xmlOptions = new XmlOptions();
+            xmlOptions.setLoadLineNumbers();
+            Collection errors = new ArrayList();
+            xmlOptions.setErrorListener(errors);
+            if (!plan.validate(xmlOptions)) {
+                return new FailedProgressObject(CommandType.DISTRIBUTE, "Invalid deployment plan: errors: " + errors);
+            }
             configId = getConfigID(null);
         } catch (org.apache.xmlbeans.XmlException e) {
             return new FailedProgressObject(CommandType.DISTRIBUTE, "Could not parse deployment plan");

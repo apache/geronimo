@@ -73,7 +73,7 @@ import org.apache.xmlbeans.XmlException;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/06 08:56:42 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/09 07:10:25 $
  *
  * */
 public abstract class AbstractConnectorModule implements DeploymentModule {
@@ -124,7 +124,7 @@ public abstract class AbstractConnectorModule implements DeploymentModule {
         }
     }
 
-    protected abstract void getConnectorDocument(JarInputStream jarInputStream) throws XmlException, IOException;
+    protected abstract void getConnectorDocument(JarInputStream jarInputStream) throws XmlException, IOException, DeploymentException;
 
     public void complete() {
     }

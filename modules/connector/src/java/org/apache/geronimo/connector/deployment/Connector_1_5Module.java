@@ -63,6 +63,8 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Collection;
+import java.util.ArrayList;
 import java.util.jar.JarInputStream;
 
 import javax.management.AttributeNotFoundException;
@@ -100,11 +102,12 @@ import org.apache.geronimo.xbeans.j2ee.ConnectionDefinitionType;
 import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.ResourceadapterType;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlOptions;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/08 20:21:57 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/09 07:10:25 $
  *
  * */
 public class Connector_1_5Module extends AbstractConnectorModule {
@@ -116,8 +119,15 @@ public class Connector_1_5Module extends AbstractConnectorModule {
     }
 
 
-    protected void getConnectorDocument(JarInputStream jarInputStream) throws XmlException, IOException {
+    protected void getConnectorDocument(JarInputStream jarInputStream) throws XmlException, IOException, DeploymentException {
         connectorDocument = ConnectorDocument.Factory.parse(new UnclosableInputStream(jarInputStream));
+        XmlOptions xmlOptions = new XmlOptions();
+        xmlOptions.setLoadLineNumbers();
+        Collection errors = new ArrayList();
+        xmlOptions.setErrorListener(errors);
+        if (!connectorDocument.validate(xmlOptions)) {
+            throw new DeploymentException("Invalid deployment descriptor: errors: " + errors);
+        }
     }
 
     public void defineGBeans(ConfigurationCallback callback, ClassLoader cl) throws DeploymentException {

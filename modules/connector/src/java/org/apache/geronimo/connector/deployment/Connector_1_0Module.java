@@ -61,6 +61,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Collections;
+import java.util.Collection;
+import java.util.ArrayList;
 import java.util.jar.JarInputStream;
 
 import javax.management.AttributeNotFoundException;
@@ -69,6 +71,7 @@ import javax.management.MBeanException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
+import javax.enterprise.deploy.shared.CommandType;
 
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.connector.outbound.ConnectionManagerDeployment;
@@ -76,6 +79,7 @@ import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
 import org.apache.geronimo.deployment.ConfigurationCallback;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentModule;
+import org.apache.geronimo.deployment.plugin.FailedProgressObject;
 import org.apache.geronimo.deployment.util.UnclosableInputStream;
 import org.apache.geronimo.gbean.DynamicGAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -93,11 +97,12 @@ import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConfigPropertyType;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ResourceadapterType;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlOptions;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/08 20:21:57 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/09 07:10:25 $
  *
  * */
 public class Connector_1_0Module extends AbstractConnectorModule implements DeploymentModule {
@@ -109,8 +114,15 @@ public class Connector_1_0Module extends AbstractConnectorModule implements Depl
     }
 
 
-    protected void getConnectorDocument(JarInputStream jarInputStream) throws XmlException, IOException {
+    protected void getConnectorDocument(JarInputStream jarInputStream) throws XmlException, IOException, DeploymentException {
         connectorDocument = ConnectorDocument.Factory.parse(new UnclosableInputStream(jarInputStream));
+        XmlOptions xmlOptions = new XmlOptions();
+        xmlOptions.setLoadLineNumbers();
+        Collection errors = new ArrayList();
+        xmlOptions.setErrorListener(errors);
+        if (!connectorDocument.validate(xmlOptions)) {
+            throw new DeploymentException("Invalid deployment descriptor: errors: " + errors);
+        }
     }
 
     public void defineGBeans(ConfigurationCallback callback, ClassLoader cl) throws DeploymentException {
