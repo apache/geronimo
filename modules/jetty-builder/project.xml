@@ -6,16 +6,16 @@
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-  
+
        http://www.apache.org/licenses/LICENSE-2.0
-  
+
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-  
+
 <!-- $Rev$ $Date$ -->
 
 <project>
@@ -93,19 +93,19 @@
                 <xmlbeans>true</xmlbeans>
             </properties>
         </dependency>
-        
+
        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-jetty</artifactId>
-            <version>${pom.currentVersion}</version>           
+            <version>${pom.currentVersion}</version>
         </dependency>
-        
+
        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee</artifactId>
-            <version>${pom.currentVersion}</version>           
+            <version>${pom.currentVersion}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee-builder</artifactId>
@@ -315,9 +315,9 @@
         </dependency>
 
         <dependency>
-            <groupId>axis</groupId>
-            <artifactId>axis-wsdl4j</artifactId>
-            <version>${axis_wsdl4j_version}</version>
+            <groupId>wsdl4j</groupId>
+            <artifactId>wsdl4j</artifactId>
+            <version>${wsdl4j_version}</version>
         </dependency>
 
     </dependencies>

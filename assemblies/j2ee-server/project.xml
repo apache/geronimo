@@ -507,9 +507,9 @@
         </dependency>
 
         <dependency>
-            <groupId>axis</groupId>
-            <artifactId>axis-wsdl4j</artifactId>
-            <version>${axis_wsdl4j_version}</version>
+            <groupId>wsdl4j</groupId>
+            <artifactId>wsdl4j</artifactId>
+            <version>${wsdl4j_version}</version>
             <properties>
                 <geronimo.assemble>repository</geronimo.assemble>
             </properties>

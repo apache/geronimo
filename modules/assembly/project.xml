@@ -52,7 +52,7 @@
                 <repository>true</repository>
             </properties>
         </dependency>
-        
+
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-corba</artifactId>
@@ -63,7 +63,7 @@
                 <repository>true</repository>
             </properties>
         </dependency>
-        
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-deployment-plugin</artifactId>
@@ -71,7 +71,7 @@
             <type>plugin</type>
         </dependency>
 
-        
+
         <!-- Used for preprocessing our plans -->
         <dependency>
             <groupId>commons-jelly</groupId>
@@ -950,7 +950,7 @@
             <version>${pom.currentVersion}</version>
             <type>war</type>
         </dependency>
-        
+
         <!-- JavaMail -->
         <dependency>
             <groupId>geronimo</groupId>
@@ -1020,15 +1020,6 @@
             <groupId>axis</groupId>
             <artifactId>axis-saaj</artifactId>
             <version>${axis_saaj_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>axis</groupId>
-            <artifactId>axis-wsdl4j</artifactId>
-            <version>${axis_wsdl4j_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>

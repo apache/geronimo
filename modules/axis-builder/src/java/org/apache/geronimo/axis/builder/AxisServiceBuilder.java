@@ -148,9 +148,10 @@ public class AxisServiceBuilder {
         }
 
         Map exceptionMap = WSDescriptorParser.getExceptionMap(portInfo.getJavaWsdlMapping());
-        Map schemaTypeKeyToSchemaTypeMap = WSDescriptorParser.buildSchemaTypeKeyToSchemaTypeMap(portInfo.getDefinition());
-        Map complexTypeMap = WSDescriptorParser.getComplexTypesInWsdl(schemaTypeKeyToSchemaTypeMap);
-        Map elementMap = WSDescriptorParser.getElementToTypeMap(schemaTypeKeyToSchemaTypeMap);
+        SchemaInfoBuilder schemaInfoBuilder = new SchemaInfoBuilder(null, portInfo.getDefinition());
+        Map schemaTypeKeyToSchemaTypeMap = schemaInfoBuilder.getSchemaTypeKeyToSchemaTypeMap();
+        Map complexTypeMap = schemaInfoBuilder.getComplexTypesInWsdl();
+        Map elementMap = schemaInfoBuilder.getElementToTypeMap();
 
         JavaServiceDesc serviceDesc = new JavaServiceDesc();
 

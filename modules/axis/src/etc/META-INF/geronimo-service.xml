@@ -31,13 +31,13 @@
         <uri>axis/jars/axis-saaj-${axis_saaj_version}.jar</uri>
     </dependency-->
     <dependency>
-        <uri>axis/jars/axis-wsdl4j-${axis_wsdl4j_version}.jar</uri>
+        <uri>wsdl4j/jars/wsdl4j-${wsdl4j_version}.jar</uri>
     </dependency>
     <dependency>
         <uri>axis/jars/commons-discovery-${axis_commons_discovery_version}.jar</uri>
     </dependency>
-    <dependency>
-        <uri>ews/jars/ews-${ews_version}.jar</uri>
-    </dependency>
+<!--    <dependency>-->
+<!--        <uri>ews/jars/ews-${ews_version}.jar</uri>-->
+<!--    </dependency>-->
 
 </service>

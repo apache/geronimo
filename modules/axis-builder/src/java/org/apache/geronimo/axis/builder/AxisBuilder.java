@@ -233,9 +233,11 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
         }
 
         Map exceptionMap = WSDescriptorParser.getExceptionMap(mapping);
-        Map schemaTypeKeyToSchemaTypeMap = WSDescriptorParser.buildSchemaTypeKeyToSchemaTypeMap(definition);
-        Map complexTypeMap = WSDescriptorParser.getComplexTypesInWsdl(schemaTypeKeyToSchemaTypeMap);
-        Map elementMap = WSDescriptorParser.getElementToTypeMap(schemaTypeKeyToSchemaTypeMap);
+        JarFile moduleFile = module.getModuleFile();
+        SchemaInfoBuilder schemaInfoBuilder = new SchemaInfoBuilder(moduleFile, definition);
+        Map schemaTypeKeyToSchemaTypeMap = schemaInfoBuilder.getSchemaTypeKeyToSchemaTypeMap();
+        Map complexTypeMap = schemaInfoBuilder.getComplexTypesInWsdl();
+        Map elementMap = schemaInfoBuilder.getElementToTypeMap();
 
         Map wsdlPortMap = service.getPorts();
         for (Iterator iterator = wsdlPortMap.entrySet().iterator(); iterator.hasNext();) {

@@ -38,6 +38,7 @@ import org.apache.geronimo.common.DeploymentException;
  */
 public class ParsingTest extends TestCase {
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
+    private SchemaInfoBuilder schemaInfoBuilder;
 
     public void testSchema1() throws Exception {
         File schema1 = new File(basedir, "src/test-resources/schema/schema1.xsd");
@@ -76,7 +77,8 @@ public class ParsingTest extends TestCase {
         } catch (XmlException e) {
             throw new DeploymentException("Could not compile schema type system", e);
         }
-        Map map = WSDescriptorParser.buildSchemaTypeKeyToSchemaTypeMap(schemaTypeSystem);
+        schemaInfoBuilder = new SchemaInfoBuilder(null, null, schemaTypeSystem);
+        Map map = schemaInfoBuilder.getSchemaTypeKeyToSchemaTypeMap();
         for (Iterator iterator = map.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
             System.out.println(entry.getKey() + " --> " + entry.getValue());
@@ -89,7 +91,7 @@ public class ParsingTest extends TestCase {
         System.out.println("SCHEMA 4");
         Map map = parse(schema1);
         assertEquals(3, map.size());
-        Map elements = WSDescriptorParser.getElementToTypeMap(map);
+        Map elements = schemaInfoBuilder.getElementToTypeMap();
         System.out.println("ELEMENT MAP");
         System.out.println(elements);
         assertEquals(1, elements.size());

@@ -251,8 +251,8 @@ public class ServiceReferenceTest extends TestCase {
         WSDLFactory factory = WSDLFactory.newInstance();
         WSDLReader reader = factory.newWSDLReader();
         Definition definition = reader.readWSDL(wsdlFile.toURI().toString());
-        Map schemaTypeKeyToSchemaTypeMap = WSDescriptorParser.buildSchemaTypeKeyToSchemaTypeMap(definition);
-        Map complexTypeMap = WSDescriptorParser.getComplexTypesInWsdl(schemaTypeKeyToSchemaTypeMap);
+        SchemaInfoBuilder schemaInfoBuilder = new SchemaInfoBuilder(null, definition);
+        Map complexTypeMap = schemaInfoBuilder.getComplexTypesInWsdl();
         assertEquals(7, complexTypeMap.size());
     }
 
@@ -274,6 +274,7 @@ public class ServiceReferenceTest extends TestCase {
     private Definition buildDefinition() throws WSDLException {
         WSDLFactory factory = WSDLFactory.newInstance();
         Definition definition = factory.newDefinition();
+        definition.setDocumentBaseURI("META-INF/wsdl/fake.wsdl");
         ExtensionRegistry extensionRegistry = factory.newPopulatedExtensionRegistry();
         BindingOperation bindingOperation = buildBindingOperation(definition, extensionRegistry);
         Binding binding = definition.createBinding();
