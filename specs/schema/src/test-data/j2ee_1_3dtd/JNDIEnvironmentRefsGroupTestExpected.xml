@@ -4,8 +4,18 @@
     <web-app>
         <something>something</something>
         <taglib>taglib</taglib>
-        <env-entry>enventry1</env-entry>
-        <env-entry>enventry2</env-entry>
+        <env-entry>
+            <description>description1</description>
+            <env-entry-name>env-entry-name1</env-entry-name>
+            <env-entry-type>env-entry-type1</env-entry-type>
+            <env-entry-value>env-entry-value1</env-entry-value>
+        </env-entry>
+        <env-entry>
+            <description>description2</description>
+            <env-entry-name>env-entry-name2</env-entry-name>
+            <env-entry-type>env-entry-type2</env-entry-type>
+            <env-entry-value>env-entry-value2</env-entry-value>
+        </env-entry>
         <ejb-ref>ejbref1</ejb-ref>
         <ejb-ref>ejbref2</ejb-ref>
         <ejb-local-ref>ejblocalref1</ejb-local-ref>
@@ -22,8 +32,18 @@
     <session-bean>
         <something>something</something>
         <transaction-type>transactiontype</transaction-type>
-        <env-entry>enventry1</env-entry>
-        <env-entry>enventry2</env-entry>
+        <env-entry>
+            <description>description1</description>
+            <env-entry-name>env-entry-name1</env-entry-name>
+            <env-entry-type>env-entry-type1</env-entry-type>
+            <env-entry-value>env-entry-value1</env-entry-value>
+        </env-entry>
+        <env-entry>
+            <description>description2</description>
+            <env-entry-name>env-entry-name2</env-entry-name>
+            <env-entry-type>env-entry-type2</env-entry-type>
+            <env-entry-value>env-entry-value2</env-entry-value>
+        </env-entry>
         <ejb-ref>ejbref1</ejb-ref>
         <ejb-ref>ejbref2</ejb-ref>
         <ejb-local-ref>ejblocalref1</ejb-local-ref>

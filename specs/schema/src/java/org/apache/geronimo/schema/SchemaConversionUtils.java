@@ -35,7 +35,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/08/04 21:48:31 $
+ * @version $Revision: 1.7 $ $Date: 2004/08/26 11:42:04 $
  *
  * */
 public class SchemaConversionUtils {
@@ -277,6 +277,24 @@ public class SchemaConversionUtils {
         moveElements("resource-ref", moveable, cursor);
         moveElements("resource-env-ref", moveable, cursor);
         moveElements("message-destination-ref", moveable, cursor);
+        if (cursor.toPrevSibling()) {
+            do {
+                String name = cursor.getName().getLocalPart();
+                if ("env-entry".equals(name)) {
+                    cursor.push();
+                    cursor.toFirstChild();
+                    convertToDescriptionGroup(cursor, moveable);
+                    convertToEnvEntryGroup(cursor, moveable);
+                    cursor.pop();
+                }
+            } while (cursor.toPrevSibling());
+        }
+    }
+    
+    public static void convertToEnvEntryGroup(XmlCursor cursor, XmlCursor moveable) {
+        moveElements("env-entry-name", moveable, cursor);
+        moveElements("env-entry-type", moveable, cursor);
+        moveElements("env-entry-value", moveable, cursor);
     }
 
     public static void validateDD(XmlObject dd) throws XmlException {
