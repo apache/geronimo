@@ -29,7 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import sun.misc.URLClassPath;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/09/09 02:27:31 $
+ * @version $Revision: 1.2 $ $Date: 2004/09/09 03:15:04 $
  */
 public class ToolsJarHack {
     private static boolean installed = false;
@@ -48,7 +48,7 @@ public class ToolsJarHack {
         ClassLoader myClassLoader = ToolsJarHack.class.getClassLoader();
         Class compilerClass = null;
         try {
-            compilerClass = myClassLoader.loadClass("sun/tools/javac/Main");
+            compilerClass = myClassLoader.loadClass("sun.tools.javac.Main");
         } catch (ClassNotFoundException ignored) {
         }
         if (compilerClass != null) {
@@ -76,13 +76,11 @@ public class ToolsJarHack {
     private static File findToolsJarFile() {
         String javaHome = System.getProperty("java.home");
         if (javaHome == null) {
-            log.warn("Could not all find java compiler: java.home system property is null");
             return null;
         }
 
         File javaHomeDir = new File(javaHome);
         if (!javaHomeDir.isDirectory()) {
-            log.warn("Could not all find java compiler: java.home system property does not refer to a directory: java.home=" + javaHome);
             return null;
         }
 
