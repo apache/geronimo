@@ -100,7 +100,7 @@ public abstract class AbstractDistributor {
         try {
             this.storeName = new ObjectName(storeName);
         } catch (MalformedObjectNameException e) {
-            throw new IllegalArgumentException("Invalid storeName: " + storeName, e);
+            throw new IllegalArgumentException("Invalid storeName: " + storeName);
         }
     }
 
