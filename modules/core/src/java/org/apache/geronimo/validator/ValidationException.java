@@ -14,33 +14,69 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.geronimo.validator;
 
-/**
- * Used by the provided validation logic to indicate that a fatal error has
- * occured and the validation has failed.  Typically tests should not use this,
- * instead returning a ValidationResult to indicate an error.  This should only
- * be used when there's an urgent need to abort.
- *
- * It is a runtime exception because no user-provided validation code needs to
- * catch it; it will be trapped by the core validator implementation. 
- *
- * @version $Rev$ $Date$
- */
-public class ValidationException extends RuntimeException {
-    public ValidationException() {
-    }
 
-    public ValidationException(Throwable cause) {
-        super(cause);
-    }
+public class ValidationException extends java.lang.Exception {
+
+    protected static Messages messages = new Messages("");
+
+    protected Object[] details;
+    protected String message;
+
+    protected String prefix;
+
 
     public ValidationException(String message) {
-        super(message);
+        this.message = message;
     }
 
-    public ValidationException(String message, Throwable cause) {
-        super(message, cause);
+    public void setDetails(Object arg1) {
+        this.details = new Object[]{arg1};
     }
+
+    public void setDetails(Object arg1, Object arg2) {
+        this.details = new Object[]{arg1, arg2};
+    }
+
+    public void setDetails(Object arg1, Object arg2, Object arg3) {
+        this.details = new Object[]{arg1, arg2, arg3};
+    }
+
+    public void setDetails(Object arg1, Object arg2, Object arg3, Object arg4) {
+        this.details = new Object[]{arg1, arg2, arg3, arg4};
+    }
+
+    public void setDetails(Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
+        this.details = new Object[]{arg1, arg2, arg3, arg4, arg5};
+    }
+
+    public void setDetails(Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) {
+        this.details = new Object[]{arg1, arg2, arg3, arg4, arg5, arg6};
+    }
+
+    public Object[] getDetails() {
+        return details;
+    }
+
+    public String getSummary() {
+        return getMessage(1);
+    }
+
+    public String getMessage() {
+        return getMessage(2);
+    }
+
+    public String getMessage(int level) {
+        return messages.format(level + "." + message, details);
+    }
+
+    public String getPrefix() {
+        return "";
+    }
+
+    public String getCategory() {
+        return "";
+    }
+
 }

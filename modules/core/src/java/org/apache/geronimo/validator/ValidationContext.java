@@ -14,68 +14,86 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.geronimo.validator;
 
-import java.io.PrintWriter;
+import java.util.Vector;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Set;
 
-import javax.enterprise.deploy.shared.ModuleType;
-
-import org.apache.xmlbeans.XmlObject;
-
-/**
- * Holds all the context information for the current validation process.
- *
- * @version $Rev$ $Date$
- */
 public class ValidationContext {
-    public final PrintWriter out;
-    public final String moduleName;
-    public final ClassLoader loader;
-    public final ModuleType type;
-    public final XmlObject[] standardDD;
-    public final Object[] serverDD;
-    private Object currentStandardDD;
-    private Object currentNode;
+    
+    protected Vector failures = new Vector();
+    protected Vector warnings = new Vector();
+    protected Vector errors   = new Vector();
 
-    public ValidationContext(ClassLoader loader, String moduleName, PrintWriter out, Object[] serverDD, XmlObject[] standardDD, ModuleType type) {
-        this.loader = loader;
-        this.moduleName = moduleName;
-        this.out = out;
-        this.serverDD = serverDD;
-        this.standardDD = standardDD;
-        this.type = type;
+    protected Map attributes = new HashMap();
+
+    protected String jarPath;
+    
+    public ValidationContext(String name){
+        this.jarPath = name;
     }
 
-    /**
-     * At the moment, this is the standard DD we're validating.
-     */
-    public Object getCurrentStandardDD() {
-        return currentStandardDD;
+    public Set entrySet() {
+        return attributes.entrySet();
     }
 
-    /**
-     * At the moment, this is the standard DD we're validating.
-     */
-    void setCurrentStandardDD(Object currentStandardDD) {
-        this.currentStandardDD = currentStandardDD;
+    public Object remove(Object key) {
+        return attributes.remove(key);
     }
 
-    /**
-     * At the moment, this is the node on the standard DD that we're
-     * validating.  It corresponds to the XPath that a particular
-     * test is interested in.
-     */
-    public Object getCurrentNode() {
-        return currentNode;
+    public Object put(Object key, Object value) {
+        return attributes.put(key, value);
     }
 
-    /**
-     * At the moment, this is the node on the standard DD that we're
-     * validating.  It corresponds to the XPath that a particular
-     * test is interested in.
-     */
-    void setCurrentNode(Object currentNode) {
-        this.currentNode = currentNode;
+    public Object get(Object key) {
+        return attributes.get(key);
+    }
+
+    public boolean containsKey(Object key) {
+        return attributes.containsKey(key);
+    }
+
+    public void addWarning( ValidationWarning warning ) {
+        warnings.addElement( warning );
+    }
+    
+    public void addFailure(ValidationFailure failure) {
+        failures.addElement( failure );
+    }
+
+    public void addError(ValidationError error) {
+        errors.addElement( error );
+    }
+
+    public ValidationFailure[] getFailures() {
+        ValidationFailure[] tmp = new ValidationFailure[failures.size()];
+        failures.copyInto( tmp );
+        return tmp;
+    }
+    
+    public ValidationWarning[] getWarnings() {
+        ValidationWarning[] tmp = new ValidationWarning[warnings.size()];
+        warnings.copyInto( tmp );
+        return tmp;
+    }
+    
+    public ValidationError[] getErrors() {
+        ValidationError[] tmp = new ValidationError[errors.size()];
+        errors.copyInto( tmp );
+        return tmp;
+    }
+
+    public boolean hasWarnings(){
+        return warnings.size() > 0;
+    }
+
+    public boolean hasFailures(){
+        return failures.size() > 0;
+    }
+    
+    public boolean hasErrors(){
+        return errors.size() > 0;
     }
 }
