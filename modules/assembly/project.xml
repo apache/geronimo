@@ -329,6 +329,25 @@
         </dependency>
 
         <dependency>
+            <groupId>activemq</groupId>
+            <artifactId>activemq</artifactId>
+            <version>&activemq-version;</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>activemq</groupId>
+            <artifactId>activemq-ra</artifactId>
+            <version>&activemq-version;</version>
+            <type>rar</type>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
             <groupId>derby</groupId>
             <artifactId>derby</artifactId>
             <version>&derby-version;</version>
