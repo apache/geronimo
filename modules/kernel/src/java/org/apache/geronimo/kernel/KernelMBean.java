@@ -33,7 +33,7 @@ import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 
 /**
- * @version $Revision: 1.12 $ $Date: 2004/06/04 04:35:20 $
+ * @version $Revision: 1.13 $ $Date: 2004/06/04 17:27:00 $
  */
 public interface KernelMBean {
     /**
@@ -132,4 +132,8 @@ public interface KernelMBean {
      * @return a Set<ObjectName> of the names of online GBeans that match the query
      */
     Set listGBeans(ObjectName query);
+
+    void registerShutdownHook(Runnable hook);
+
+    void unregisterShutdownHook(Runnable hook);
 }

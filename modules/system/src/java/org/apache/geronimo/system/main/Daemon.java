@@ -18,6 +18,7 @@
 package org.apache.geronimo.system.main;
 
 import java.io.ObjectInputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -29,13 +30,14 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.system.url.GeronimoURLFactory;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:31 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/04 17:27:00 $
  */
 public class Daemon {
     static {
@@ -103,6 +105,7 @@ public class Daemon {
             Runtime.getRuntime().addShutdownHook(new Thread("Shutdown Thread") {
                 public void run() {
                     if (kernel.isRunning()) {
+                        kernel.notifyShutdown();
                         try {
                             // stop this configuration first
                             kernel.stopGBean(configName);
@@ -118,7 +121,19 @@ public class Daemon {
             // start this configuration
             kernel.startRecursiveGBean(configName);
 
-            // load the rest of the configuration listed on the command line
+            if (configs.isEmpty()) {
+                // nothing explicit, see what was running before
+                try {
+                    configs = (List) kernel.invoke(PersistentConfigurationList.OBJECT_NAME, "restore");
+                } catch (IOException e) {
+                    System.err.println("Unable to restore last known configurations");
+                    e.printStackTrace();
+                    kernel.shutdown();
+                    System.exit(3);
+                }
+            }
+
+            // load the rest of the configurations
             try {
                 for (Iterator i = configs.iterator(); i.hasNext();) {
                     URI configID = (URI) i.next();

@@ -24,8 +24,9 @@ import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Hashtable;
-import java.util.Map;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.management.Attribute;
 import javax.management.InstanceAlreadyExistsException;
@@ -69,7 +70,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.31 $ $Date: 2004/06/04 04:35:20 $
+ * @version $Revision: 1.32 $ $Date: 2004/06/04 17:27:00 $
  */
 public class Kernel extends NotificationBroadcasterSupport implements Serializable, KernelMBean {
 
@@ -92,6 +93,7 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
     private transient Log log;
     private transient boolean running;
     private transient MBeanServer mbServer;
+    private transient LinkedList shutdownHooks = new LinkedList();
 
     private transient ConfigurationManager configurationManager;
     private transient GBeanMBean configurationManagerGBean;
@@ -358,6 +360,36 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
 
         running = true;
         log.info("Booted");
+    }
+
+    public void registerShutdownHook(Runnable hook) {
+        assert hook != null : "Shutdown hook was null";
+        synchronized (shutdownHooks) {
+            shutdownHooks.add(hook);
+        }
+    }
+
+    public void unregisterShutdownHook(Runnable hook) {
+        synchronized (shutdownHooks) {
+            shutdownHooks.remove(hook);
+        }
+    }
+
+    /**
+     * @deprecated this should be in shutdown
+     */
+    public void notifyShutdown() {
+        while (!shutdownHooks.isEmpty()) {
+            Runnable hook;
+            synchronized (shutdownHooks) {
+                hook = (Runnable) shutdownHooks.removeFirst();
+            }
+            try {
+                hook.run();
+            } catch (Throwable e) {
+                log.warn("Error from kernel shutdown hook", e);
+            }
+        }
     }
 
     /**

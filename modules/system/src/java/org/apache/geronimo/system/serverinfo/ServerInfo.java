@@ -27,7 +27,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/06/02 05:33:05 $
+ * @version $Revision: 1.9 $ $Date: 2004/06/04 17:27:00 $
  */
 public class ServerInfo {
     private final File base;
@@ -74,6 +74,10 @@ public class ServerInfo {
         return file.getAbsolutePath();
     }
 
+    public File resolve(final String filename) {
+        return new File(base, filename);
+    }
+
     public URI resolve(final URI uri) {
         return baseURI.resolve(uri);
     }
@@ -110,6 +114,7 @@ public class ServerInfo {
         infoFactory.addAttribute("Copyright", String.class, false);
 
         infoFactory.addOperation("resolvePath", new Class[]{String.class});
+        infoFactory.addOperation("resolve", new Class[]{String.class});
         infoFactory.addOperation("resolve", new Class[]{URI.class});
 
         infoFactory.setConstructor(new String[]{"BaseDirectory"});
