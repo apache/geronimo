@@ -33,7 +33,7 @@ public class MockWebServiceContainer implements WebServiceContainer {
         response.getOutputStream().write("Hello World".getBytes());
     }
 
-    public void getWsdl(OutputStream out) throws Exception {
+    public void getWsdl(Request req, Response res) throws Exception {
 
     }
 

@@ -63,6 +63,9 @@ import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.POJOWebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.ClassLoading;
+import org.apache.geronimo.kernel.ObjectInputStreamExt;
+import org.apache.geronimo.kernel.ClassLoaderReference;
+import org.apache.geronimo.kernel.StoredObject;
 import org.apache.geronimo.naming.reference.DeserializingReference;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
 import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
@@ -80,11 +83,9 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
 
 
     //WebServiceBuilder
-    public void configurePOJO(GBeanData targetGBean, Object portInfoObject, String seiClassName) throws DeploymentException {
+    public void configurePOJO(GBeanData targetGBean, Object portInfoObject, String seiClassName, ClassLoader classLoader) throws DeploymentException {
         PortInfo portInfo = (PortInfo) portInfoObject;
-        System.out.println("NOT CONFIGURING WEB SERVICE " + portInfo.getPortComponentName());
 
-        ClassLoader classLoader = this.getClass().getClassLoader(); // TODO need the actual classloader
         JavaServiceDesc serviceDesc = AxisServiceBuilder.createServiceDesc(portInfo, classLoader);
         RPCProvider provider = new RPCProvider();
         SOAPService service = new SOAPService(null, provider, null);
@@ -105,8 +106,14 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
             throw new DeploymentException("Invalid webservice endpoint URI", e);
         }
 
+        classLoader = new ClassLoaderReference(classLoader);
         AxisWebServiceContainer axisWebServiceContainer = new AxisWebServiceContainer(location, wsdlURL, service, classLoader);
-        targetGBean.setAttribute("webServiceContainer", axisWebServiceContainer);
+        //targetGBean.setAttribute("webServiceContainer", axisWebServiceContainer);
+        try {
+            targetGBean.setAttribute("webServiceContainer", new StoredObject(axisWebServiceContainer)); // Hack!
+        } catch (IOException e) {
+            throw new DeploymentException("Unable to serialize the AxisWebServiceContainer", e);
+        }
     }
 
     public void configureEJB(GBeanData targetGBean, Object portInfoObject, String seiClassName) throws DeploymentException {

@@ -86,7 +86,7 @@ public class JettyEJBWebServiceContext extends HttpContext implements HttpHandle
         response.setContentType("text/xml");
 
         if (request.getParameter("wsdl") != null) {
-            doGetWsdl(response);
+            doGetWsdl(request, response);
         } else {
             doInvoke(request, response);
         }
@@ -104,10 +104,9 @@ public class JettyEJBWebServiceContext extends HttpContext implements HttpHandle
         }
     }
 
-    private void doGetWsdl(HttpResponse response) throws IOException {
-        OutputStream out = response.getOutputStream();
+    private void doGetWsdl(HttpRequest request, HttpResponse response) throws IOException {
         try {
-            webServiceContainer.getWsdl(out);
+            webServiceContainer.getWsdl(new RequestAdapter(request), new ResponseAdapter(response));
         } catch (IOException e) {
             throw e;
         } catch (Exception e) {

@@ -19,6 +19,7 @@ package org.apache.geronimo.webservices;
 import java.io.OutputStream;
 import java.io.InputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
 import java.util.Map;
@@ -26,11 +27,11 @@ import java.util.Map;
 /**
  * @version $Rev:  $ $Date:  $
  */
-public interface WebServiceContainer {
+public interface WebServiceContainer extends Serializable {
 
     void invoke(Request request, Response response) throws Exception;
 
-    void getWsdl(OutputStream out) throws Exception;
+    void getWsdl(Request req, Response res) throws Exception;
 
     public interface Request {
         /** the HTTP OPTIONS type */

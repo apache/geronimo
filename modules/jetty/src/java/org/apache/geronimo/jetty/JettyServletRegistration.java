@@ -32,4 +32,6 @@ public interface JettyServletRegistration {
 
     ServletHandler getServletHandler();
 
+    ClassLoader getWebClassLoader();
+
 }

@@ -34,7 +34,7 @@ public interface POJOWebServiceBuilder {
      * @param seiClassName
      * @throws DeploymentException
      */
-    void configurePOJO(GBeanData targetGBean, Object portInfo, String seiClassName) throws DeploymentException;
+    void configurePOJO(GBeanData targetGBean, Object portInfo, String seiClassName, ClassLoader classLoader) throws DeploymentException;
 
     /**
      * configure the supplied EJBContainer gbeandata to implement the ejb web service described in the deployment descriptor

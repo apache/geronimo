@@ -772,7 +772,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 if (portInfo == null) {
                     throw new DeploymentException("No web service deployment info for servlet name " + servletName);
                 }
-                pojoWebServiceBuilder.configurePOJO(servletData, portInfo, servletClassName);
+                pojoWebServiceBuilder.configurePOJO(servletData, portInfo, servletClassName, webClassLoader);
             }
         } else if (servletType.isSetJspFile()) {
             servletData = new GBeanData(servletObjectName, JettyServletHolder.GBEAN_INFO);

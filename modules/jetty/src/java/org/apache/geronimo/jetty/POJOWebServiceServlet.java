@@ -57,6 +57,7 @@ import org.mortbay.util.URI;
  */
 public class POJOWebServiceServlet implements Servlet {
     public static final String WEBSERVICE_CONTAINER = "webServiceContainer";
+    public static final String WEBSERVICE_CONTAINER_BYTES = "webServiceContainerBytes";
 
     public void init(ServletConfig config) throws ServletException {
 

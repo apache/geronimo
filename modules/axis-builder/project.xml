@@ -49,13 +49,6 @@
             <type>plugin</type>
         </dependency>
 
-<!--
-        <dependency>
-            <groupId>openejb</groupId>
-            <artifactId>openejb-core</artifactId>
-            <version>${openejb_version}</version>
-        </dependency>
--->
         <!-- needed for xmlbeans runtime-->
         <dependency>
             <groupId>xmlbeans</groupId>
@@ -85,6 +78,18 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-axis</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-webservices</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
 

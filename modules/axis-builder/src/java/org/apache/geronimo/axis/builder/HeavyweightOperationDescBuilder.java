@@ -351,7 +351,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
             if (!wsdlMessageQName.equals(output.getQName())) {
                 throw new DeploymentException("QName of output message: " + output.getQName() +
                         " does not match mapping message QName: " + wsdlMessageQName + " for operation " + operationName);
-            }
+             }
             part = output.getPart(wsdlMessagePartName);
             if (part == null) {
                 throw new DeploymentException("No part for wsdlMessagePartName " + wsdlMessagePartName + " in output message for operation " + operationName);
@@ -375,4 +375,17 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         ParameterDesc parameterDesc = new ParameterDesc(partQName, mode, partTypeQName, actualParamJavaType, inHeader, outHeader);
         return parameterDesc;
     }
+
+    /**
+     * Supporting the Document/Literal Wrapped pattern
+     *
+     * See http://www-106.ibm.com/developerworks/webservices/library/ws-whichwsdl/ for a nice explanation and example
+     * 
+     * wrapped-element tag is used
+     * WSDL message with a single part
+     * part uses the 'element' attribute to point to an elemement in the types section
+     * the element type and the element's name match the operation name
+     */
+
+
 }

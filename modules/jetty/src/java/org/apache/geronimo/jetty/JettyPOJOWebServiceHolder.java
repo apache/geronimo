@@ -16,12 +16,16 @@
  */
 package org.apache.geronimo.jetty;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Map;
 import java.util.Set;
 import java.util.Collections;
+import java.security.SignedObject;
+import java.security.PrivateKey;
+import java.security.Signature;
+import java.security.InvalidKeyException;
+import java.security.SignatureException;
+import java.security.PublicKey;
 import javax.security.jacc.PolicyContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -29,11 +33,15 @@ import javax.servlet.ServletResponse;
 import javax.servlet.UnavailableException;
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
+import javax.crypto.SealedObject;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.webservices.WebServiceContainer;
+import org.apache.geronimo.kernel.ObjectInputStreamExt;
+import org.apache.geronimo.kernel.StoredObject;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.jetty.servlet.ServletHttpRequest;
 
@@ -44,8 +52,10 @@ import org.mortbay.jetty.servlet.ServletHttpRequest;
  *
  * @version $Rev: 154436 $ $Date: 2005-02-19 10:22:02 -0800 (Sat, 19 Feb 2005) $
  */
-public class JettyPOJOWebServiceHolder extends ServletHolder {
+public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLifecycle {
     private WebServiceContainer webServiceContainer;
+    private StoredObject storedWebServiceContainer;
+    private ClassLoader webClassLoader;
 
     //todo consider interface instead of this constructor for endpoint use.
     public JettyPOJOWebServiceHolder() {
@@ -57,13 +67,14 @@ public class JettyPOJOWebServiceHolder extends ServletHolder {
                               Integer loadOnStartup,
                               Set servletMappings,
                               Map webRoleRefPermissions,
-                              WebServiceContainer webServiceContainer,
+                              StoredObject storedWebServiceContainer,
                               JettyServletRegistration context) throws Exception {
         super(context == null? null: context.getServletHandler(), servletName, POJOWebServiceServlet.class.getName(), null);
         //context will be null only for use as "default servlet info holder" in deployer.
 
-        this.webServiceContainer = webServiceContainer;
+        this.storedWebServiceContainer = storedWebServiceContainer;
         if (context != null) {
+            this.webClassLoader = context.getWebClassLoader();
             putAll(initParams);
             if (loadOnStartup != null) {
                 setInitOrder(loadOnStartup.intValue());
@@ -109,7 +120,7 @@ public class JettyPOJOWebServiceHolder extends ServletHolder {
         infoBuilder.addAttribute("loadOnStartup", Integer.class, true);
         infoBuilder.addAttribute("servletMappings", Set.class, true);
         infoBuilder.addAttribute("webRoleRefPermissions", Map.class, true);
-        infoBuilder.addAttribute("webServiceContainer", WebServiceContainer.class, true);
+        infoBuilder.addAttribute("webServiceContainer", StoredObject.class, true);
         infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class);
 
         infoBuilder.setConstructor(new String[] {"servletName",
@@ -126,4 +137,19 @@ public class JettyPOJOWebServiceHolder extends ServletHolder {
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
+
+    public void doStart() throws Exception {
+        if (webClassLoader != null){
+            webServiceContainer = (WebServiceContainer) storedWebServiceContainer.getObject(webClassLoader);
+        }
+    }
+
+    public void doStop() throws Exception {
+    }
+
+    public void doFail() {
+    }
+
+
+
 }

@@ -268,6 +268,11 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         chain.after(context, httpRequest, httpResponse);
     }
 
+
+    public ClassLoader getWebClassLoader() {
+        return webClassLoader;
+    }
+
     public void doStart() throws Exception {
         // reset the classsloader... jetty likes to set it to null when stopping
         setClassLoader(webClassLoader);
