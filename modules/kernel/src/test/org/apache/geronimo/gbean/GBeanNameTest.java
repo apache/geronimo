@@ -19,6 +19,9 @@ package org.apache.geronimo.gbean;
 import java.util.Properties;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Comparator;
 import java.rmi.MarshalledObject;
 
 import junit.framework.TestCase;
@@ -31,6 +34,7 @@ public class GBeanNameTest extends TestCase {
 
     public void testPropertyConstruction() {
         String domain = "testDomain";
+        Map props = new LinkedHashMap();
         props.put("prop1", "value1");
         props.put("prop2", "value2");
         GBeanName name = new GBeanName(domain, props);
@@ -63,6 +67,20 @@ public class GBeanNameTest extends TestCase {
         assertTrue(name.matches("testDomain", props));
         props.setProperty("prop3", "value3");
         assertFalse(name.matches("testDomain", props));
+    }
+
+    public void testStringForms() {
+        GBeanName name = new GBeanName("testDomain:prop2=value2,prop3=value3,prop1=value1");
+        assertEquals("testDomain:prop1=value1,prop2=value2,prop3=value3", name.toString(new Comparator() {
+            public int compare(Object o1, Object o2) {
+                return ((String)o1).compareTo(o2);
+            }
+        }));
+        assertEquals("testDomain:prop3=value3,prop2=value2,prop1=value1", name.toString(new Comparator() {
+            public int compare(Object o1, Object o2) {
+                return - ((String)o1).compareTo(o2);
+            }
+        }));
     }
 
     public void testInvalidNames() {
