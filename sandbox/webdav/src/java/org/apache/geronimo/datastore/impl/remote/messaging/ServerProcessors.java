@@ -1,0 +1,166 @@
+/**
+ *
+ * Copyright 2004 The Apache Software Foundation
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+package org.apache.geronimo.datastore.impl.remote.messaging;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * Processors associated to a server.
+ *
+ * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ */
+class ServerProcessors
+{
+
+    private static final Log log = LogFactory.getLog(ServerProcessors.class);
+
+    /**
+     * Server owning these processors.
+     */
+    private final ServerNode server;
+
+    /**
+     * StreamManager used by the server to resolve InputStreams.
+     */
+    private final StreamManager streamManager;
+    
+    /**
+     * Processor pool.
+     */
+    private final Processors processors;
+    
+    /**
+     * Creates processors for the provided server.
+     * 
+     * @param aServer Server owning these processors. 
+     */
+    public ServerProcessors(ServerNode aServer) {
+        server = aServer;
+        processors = new Processors(aServer.getName(), 2, 10);
+        streamManager = aServer.getStreamManager();
+    }
+    
+    public Processors getProcessors() {
+        return processors;
+    }
+    
+    /**
+     * Starts popping Msg from the provided connection and adds them to the
+     * inbound Msg queue.
+     * 
+     * @param aConnection Connection to be popped.
+     */
+    public void startConnection(ServerNode.ConnectionWrapper aConnection) {
+        InboundQueueFiller filler = new InboundQueueFiller(aConnection);
+        processors.execute(filler);
+    }
+    
+    /**
+     * Stops popping Msg from the provided connection.
+     * 
+     * @param aConnection Connection to be stopped.
+     */
+    public void stopConnection(ServerNode.ConnectionWrapper aConnection) {
+        Object releaser = aConnection.endReleaser;
+        synchronized(releaser) {
+            releaser.notify();
+        }
+    }
+    /**
+     * Dispatches the Msgs seating in the inbound queue. Pushes the Msg seating
+     * in the outbound queue to the relevant node.
+     */
+    public void start() {
+        processors.execute(server.inReactor);
+        processors.execute(new OutputQueueDispatcher());
+    }
+    
+    public void stop() {
+    }
+    
+    /**
+     * Inbound queue filler.
+     */
+    private class InboundQueueFiller implements Processor {
+
+        /**
+         * Connection to read Msg from.
+         */
+        private final ServerNode.ConnectionWrapper connection;
+        
+        /**
+         * Is this Processor started.
+         */
+        private volatile boolean isStarted = true;
+        
+        /**
+         * Pops Msgs from the specified connection and adds them to the
+         * inbound queue.
+         * 
+         * @param aConnection Connection to read Msg from.
+         */
+        private InboundQueueFiller(ServerNode.ConnectionWrapper aConnection) {
+            connection = aConnection;
+        }
+        
+        public void run() {
+            QueueOutInterceptor out = new QueueOutInterceptor(server.queueIn);
+            while ( isStarted ) {
+                Msg msg = connection.in.pop();
+                out.push(msg);
+            }
+        }
+
+        public void release() {
+            isStarted = false;
+        }
+        
+    }
+    
+    /**
+     * Runnable in charge of dispatching the Msgs seating in the outbound
+     * queue to the relevant node. 
+     */
+    private class OutputQueueDispatcher implements Processor {
+        
+        /**
+         * Is this Processor started.
+         */
+        private volatile boolean isStarted = true;
+        
+        public void run() {
+            HeaderInInterceptor in =
+                new HeaderInInterceptor(
+                    new QueueInInterceptor(server.queueOut),
+                    MsgHeaderConstants.DEST_NODE);
+            while ( isStarted ) {
+                Msg msg = in.pop();
+                Object destNode = in.getHeader();
+                MsgOutInterceptor out = server.getOutForServant(destNode);
+                out.push(msg);
+            }
+        }
+
+        public void release() {
+            isStarted = false;
+        }
+        
+    }
+    
+}
