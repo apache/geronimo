@@ -20,7 +20,7 @@
 	"http://java.sun.com/dtd/connector_1_0.dtd">
 
 <connector>
-  <display-name>test 1.0 adapter spec</display-name>
+  <display-name>test 1.0 adapterHomeHomeHomeHomeHome spec</display-name>
   <description>test ra.xml for jca 1.0</description>
 
   <vendor-name>apache-geronimo</vendor-name>

@@ -23,7 +23,7 @@
   version="1.5">
 
   <description>test ra.xml for jca 1.5</description>
-  <display-name>test 1.5 adapter spec</display-name>
+  <display-name>test 1.5 adapterHomeHomeHomeHomeHome spec</display-name>
 
   <vendor-name>apache-geronimo</vendor-name>
   <eis-type>test</eis-type>
