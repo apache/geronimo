@@ -201,7 +201,7 @@ public class MailcapCommandMap extends CommandMap {
                 index = skipSpace(mail_cap, index);
                 if (fieldName.startsWith("x-java-") && fieldName.length() > 7) {
                     String command = fieldName.substring(7);
-                    addCommand(mimeType, command, value);
+                    addCommand(mimeType, command, value.trim());
                 }
             }
         }
