@@ -1,5 +1,5 @@
 ##
-## $Revision: 1.24 $ $Date: 2004/02/20 23:54:25 $
+## $Revision: 1.25 $ $Date: 2004/02/25 15:55:31 $
 ##
 
 Exit Criteria
@@ -13,7 +13,7 @@ X -- Do all the software in the codebase has its copyright assigned to The
 
 X -- Do All the software in the codebase, are licensed (or multi-licensed) under the
      Apache licence?
-     Yes - all code is currently ASL1.1 and will move soon to ASL2.0
+     Yes - code converted to ASL2.0 on 2004/02/25 (thanks Gianny)
 
 X -- Do all the software in the codebase,are compliant with the
      Specifications set by Java Community Process?(Wherever applicable)
