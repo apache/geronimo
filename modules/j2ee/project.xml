@@ -47,54 +47,19 @@
     <!-- ============ -->
 
     <dependencies>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-xmlbeans-plugin</artifactId>
-            <version>${pom.currentVersion}</version>
-            <type>plugin</type>
-        </dependency>
 
-        <!-- needed for xmlbeans runtime-->
-        <dependency>
-            <groupId>xmlbeans</groupId>
-            <artifactId>xbean-apache</artifactId>
-            <version>&xmlbeans-version;</version>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-common</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-deployment</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
 
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-j2ee-schema</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-ejb</artifactId>
-            <version>&geronimo-spec-ejb-version;</version>
-        </dependency>
-
-        <!-- test only -->
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-full</artifactId>
