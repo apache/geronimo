@@ -110,16 +110,9 @@
 
     <developers>
         <developer>
-            <name>Bruce Snyder</name>
-            <id>bsnyder</id>
-            <email>bsnyder@apache.org</email>
-            <organization></organization>
-        </developer>
-
-        <developer>
-            <name>Dain Sundstrom</name>
-            <id>dain</id>
-            <email>dain@apache.org</email>
+            <name>Jan Bartel</name>
+            <id>janb</id>
+            <email>janb@apache.org</email>
             <organization></organization>
         </developer>
 
@@ -131,44 +124,9 @@
         </developer>
 
         <developer>
-            <name>David Jencks</name>
-            <id>djencks</id>
-            <email>djencks@apache.org</email>
-            <organization></organization>
-        </developer>
-
-        <developer>
-            <name>Geir Magnusson Jr.</name>
-            <id>geirm</id>
-            <email>geirm@apache.org</email>
-            <organization></organization>
-        </developer>
-
-        <developer>
-            <name>Greg Wilkins</name>
-            <id>gregw</id>
-            <email>gregw@apache.org</email>
-            <organization></organization>
-        </developer>
-
-        <developer>
-            <name>James Strachan</name>
-            <id>jstrachan</id>
-            <email>jstrachan@apache.org</email>
-            <organization></organization>
-        </developer>
-
-        <developer>
-            <name>Jan Bartel</name>
-            <id>janb</id>
-            <email>janb@apache.org</email>
-            <organization></organization>
-        </developer>
-
-        <developer>
-            <name>Jason Dillon</name>
-            <id>jdilon</id>
-            <email>jdilon@planet57.com</email>
+            <name>Simone Bordet</name>
+            <id>simon</id>
+            <email>simon@apache.org</email>
             <organization></organization>
         </developer>
 
@@ -180,23 +138,9 @@
         </developer>
 
         <developer>
-            <name>Jim Jagielski</name>
-            <id>jim</id>
-            <email>jim@apache.org</email>
-            <organization></organization>
-        </developer>
-
-        <developer>
-            <name>Jules Golsnell</name>
-            <id>jules</id>
-            <email>jules@apache.org</email>
-            <organization></organization>
-        </developer>
-
-        <developer>
-            <name>Richard Monson-Haefel</name>
-            <id>rmonson</id>
-            <email>rmonson@apache.org</email>
+            <name>Alan D. Cabrera</name>
+            <id>adc</id>
+            <email>adc@apache.org</email>
             <organization></organization>
         </developer>
 
@@ -208,9 +152,65 @@
         </developer>
 
         <developer>
-            <name>Simone Bordet</name>
-            <id>simon</id>
-            <email>simon@apache.org</email>
+            <name>Gianny Damour</name>
+            <id>gdamour</id>
+            <email>gdamour@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>Jason Dillon</name>
+            <id>jdilon</id>
+            <email>jdilon@planet57.com</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>Jeff Genender</name>
+            <id>jgenender</id>
+            <email>jgenender@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>Jules Golsnell</name>
+            <id>jules</id>
+            <email>jules@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>Jim Jagielski</name>
+            <id>jim</id>
+            <email>jim@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>David Jencks</name>
+            <id>djencks</id>
+            <email>djencks@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>Jacek Laskowski</name>
+            <id>jlaskowski</id>
+            <email>jlaskowski@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>Geir Magnusson Jr.</name>
+            <id>geirm</id>
+            <email>geirm@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>Richard Monson-Haefel</name>
+            <id>rmonson</id>
+            <email>rmonson@apache.org</email>
             <organization></organization>
         </developer>
 
@@ -222,31 +222,40 @@
         </developer>
 
         <developer>
-            <name>Alan D. Cabrera</name>
-            <id>adc</id>
-            <email>adc@apache.org</email>
-            <organization></organization>
-        </developer>
-
-        <developer>
-            <name>Gianny Damour</name>
-            <id>gdamour</id>
-            <email>gdamour@apache.org</email>
-            <organization></organization>
-        </developer>
-
-        <developer>
-            <name>Jacek Laskowski</name>
-            <id>jlaskowski</id>
-            <email>jlaskowski@apache.org</email>
-            <organization></organization>
-        </developer>
-        <developer>
             <name>Srinath Perera</name>
             <id>hemapani</id>
             <email>hemapani@apache.org</email>
             <organization></organization>
         </developer>
+
+        <developer>
+            <name>Bruce Snyder</name>
+            <id>bsnyder</id>
+            <email>bsnyder@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>James Strachan</name>
+            <id>jstrachan</id>
+            <email>jstrachan@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>Dain Sundstrom</name>
+            <id>dain</id>
+            <email>dain@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>Greg Wilkins</name>
+            <id>gregw</id>
+            <email>gregw@apache.org</email>
+            <organization></organization>
+        </developer>
+
     </developers>
 
 
