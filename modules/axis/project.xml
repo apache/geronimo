@@ -295,56 +295,6 @@
                 <module>true</module>
             </properties>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>jaxb-ri</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>&jaxb-ri-version;</version>
-            <properties>
-                <module>true</module>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>jaxb-ri</groupId>
-            <artifactId>jaxb-impl</artifactId>
-            <version>&jaxb-ri-version;</version>
-            <properties>
-                <module>true</module>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>jaxb-ri</groupId>
-            <artifactId>jaxb-libs</artifactId>
-            <version>&jaxb-ri-version;</version>
-            <properties>
-                <module>true</module>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>jaxb-ri</groupId>
-            <artifactId>namespace</artifactId>
-            <version>&jaxb-ri-version;</version>
-            <properties>
-                <module>true</module>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>jaxb-ri</groupId>
-            <artifactId>relaxngDatatype</artifactId>
-            <version>&jaxb-ri-version;</version>
-            <properties>
-                <module>true</module>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>jaxb-ri</groupId>
-            <artifactId>xsdlib</artifactId>
-            <version>&jaxb-ri-version;</version>
-            <properties>
-                <module>true</module>
-            </properties>
-        </dependency>
-        -->
         
 		<dependency>
             <groupId>xmlbeans</groupId>
@@ -439,12 +389,10 @@
             </includes>
 
             <excludes>
-                <exclude>**/Abstract*.java</exclude>
+               <exclude>**/Abstract*.java</exclude>
                 <exclude>**/EWSTest.java</exclude>
-                <exclude>**/ComplexTypeWebServiceTest.java</exclude>
-                <!-- Temporary ignore for all tests 
-                <exclude>**/*.java</exclude> -->
-            </excludes>
+                <exclude>**/ComplexTypeWebServiceTest.java</exclude> 
+			</excludes>
 
             <resources>
                 <resource>

@@ -15,20 +15,6 @@
  */
 package org.apache.geronimo.axis;
 
-import org.apache.axis.client.AdminClient;
-import org.apache.axis.client.Call;
-import org.apache.axis.utils.ClassUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.ews.ws4j2ee.toWs.Ws4J2ee;
-import org.apache.geronimo.ews.ws4j2ee.utils.packager.load.PackageModule;
-import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.openejb.deployment.OpenEJBModuleBuilder;
-
-import javax.management.ObjectName;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -43,6 +29,21 @@ import java.util.Properties;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
+import javax.management.ObjectName;
+
+import org.apache.axis.client.AdminClient;
+import org.apache.axis.client.Call;
+import org.apache.axis.utils.ClassUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.ews.ws4j2ee.module.Module;
+import org.apache.geronimo.ews.ws4j2ee.toWs.Ws4J2ee;
+import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.openejb.deployment.OpenEJBModuleBuilder;
 
 /**
  * Class WebServiceDeployer
@@ -168,7 +169,7 @@ public class WebServiceDeployer {
         ws4j2ee.generate();
         log.info("ews code generation done.");
 
-        PackageModule packageModule = deployContext.getModule();
+        Module packageModule = deployContext.getModule();
 
         if (packageModule.getEjbJarfile() != null) {
             this.hasEJB = true;
@@ -297,11 +298,10 @@ public class WebServiceDeployer {
                 axisProperties.setProperty("style", "web");
             }
             
-            //right now class name is not avalible here So we set the default
-            //classloader
             ArrayList classList = AxisGeronimoUtils.getClassFileList(new ZipFile(module));
             for (int i = 0; i < classList.size(); i++) {
                 String className = (String) classList.get(i);
+                System.out.println(className);
                 ClassUtils.setClassLoader(className, classloader);
             }
 

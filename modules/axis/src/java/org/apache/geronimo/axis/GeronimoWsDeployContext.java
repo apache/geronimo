@@ -16,10 +16,11 @@
 package org.apache.geronimo.axis;
 
 import org.apache.axis.wsdl.fromJava.Emitter;
+import org.apache.geronimo.ews.ws4j2ee.module.Module;
+import org.apache.geronimo.ews.ws4j2ee.module.ModuleFactory;
 import org.apache.geronimo.ews.ws4j2ee.toWs.GenerationConstants;
 import org.apache.geronimo.ews.ws4j2ee.toWs.Ws4J2eeDeployContext;
-import org.apache.geronimo.ews.ws4j2ee.utils.packager.load.PackageModule;
-import org.apache.geronimo.ews.ws4j2ee.utils.packager.load.PackageModuleFactory;
+
 
 /**
  * Class GeronimoWsDeployContext
@@ -29,7 +30,7 @@ public class GeronimoWsDeployContext implements Ws4J2eeDeployContext {
     /**
      * Field module
      */
-    private PackageModule module;
+    private Module module;
 
     /**
      * Field moduleLocation
@@ -50,7 +51,7 @@ public class GeronimoWsDeployContext implements Ws4J2eeDeployContext {
     public GeronimoWsDeployContext(String moduleLocation,
                                    String outputLocation) {
         module =
-                PackageModuleFactory.createPackageModule(moduleLocation, true);
+                ModuleFactory.createPackageModule(moduleLocation);
         this.moduleLocation = moduleLocation;
         this.outputLocation = outputLocation;
     }
@@ -78,7 +79,7 @@ public class GeronimoWsDeployContext implements Ws4J2eeDeployContext {
      *
      * @return
      */
-    public PackageModule getModule() {
+    public Module getModule() {
         return module;
     }
 
