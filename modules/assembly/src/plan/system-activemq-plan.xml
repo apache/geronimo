@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- $Rev: 47568 $ $Date: 2004-09-30 01:21:54 -0700 (Thu, 30 Sep 2004) $ -->
+
+<configuration
+    xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    configId="org/apache/geronimo/ActiveMQServer"
+    parentId="org/apache/geronimo/Server">    
+
+    <dependency>
+        <uri>activemq/jars/activemq-${activemq_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>emberio/jars/emberio-0.3-alpha.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>jgroups/jars/jgroups-2.2.5.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>jdbm/jars/jdbm-0.20-dev.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>concurrent/jars/concurrent-${concurrent_version}.jar</uri>
+    </dependency>    
+
+    <!-- message broker -->
+    <gbean name="geronimo.server:type=JMSServer,container=ActiveMQ" class="org.codehaus.activemq.gbean.ActiveMQContainerGBean">
+        <reference name="serverInfo">geronimo.system:role=ServerInfo</reference>
+        <attribute name="brokerName" type="java.lang.String">possibly-unique-broker</attribute>
+        <attribute name="dataDirectory" type="java.lang.String">var/activemq</attribute>    
+    </gbean>
+    <gbean name='geronimo.server:type=JMSConnector,container=ActiveMQ,url="tcp://localhost:61616"' class="org.codehaus.activemq.gbean.ActiveMQConnectorGBean">
+        <attribute name="Url" type="java.lang.String">tcp://localhost:61616</attribute>
+        <reference name="ActiveMQContainer">geronimo.server:type=JMSServer,container=ActiveMQ</reference>
+    </gbean>
+    <gbean name='geronimo.server:type=JMSConnector,container=ActiveMQ,url="vm://localhost"' class="org.codehaus.activemq.gbean.ActiveMQConnectorGBean">
+        <attribute name="Url" type="java.lang.String">vm://localhost</attribute>
+        <reference name="ActiveMQContainer">geronimo.server:type=JMSServer,container=ActiveMQ</reference>
+    </gbean>
+  
+</configuration>

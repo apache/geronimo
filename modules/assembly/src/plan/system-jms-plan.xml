@@ -21,11 +21,11 @@
 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
     version="1.5"
     configId="org/apache/geronimo/SystemJMS"
-    parentId="org/apache/geronimo/Server">
+    parentId="org/apache/geronimo/ActiveMQServer">
   <resourceadapter>
     <resourceadapter-instance>
       <resourceadapter-name>ActiveMQ RA</resourceadapter-name>
-      <config-property-setting name="ServerUrl">vm://localhost</config-property-setting>
+      <config-property-setting name="ServerUrl">tcp://localhost:61616</config-property-setting>
       <config-property-setting name="UserName">geronimo</config-property-setting>
       <config-property-setting name="Password">geronimo</config-property-setting>
       <workmanager-name>DefaultWorkManager</workmanager-name>
@@ -70,18 +70,4 @@
     </adminobject>
   </resourceadapter>
 
-  <!-- message broker -->
-  <gbean name="geronimo.server:type=JMSServer,container=ActiveMQ" class="org.codehaus.activemq.gbean.ActiveMQContainerGBean">
-    <reference name="serverInfo">geronimo.system:role=ServerInfo</reference>
-    <attribute name="brokerName" type="java.lang.String">possibly-unique-broker</attribute>
-    <attribute name="dataDirectory" type="java.lang.String">var/activemq</attribute>    
-  </gbean>
-  <gbean name='geronimo.server:type=JMSConnector,container=ActiveMQ,url="tcp://localhost:61616"' class="org.codehaus.activemq.gbean.ActiveMQConnectorGBean">
-    <attribute name="Url" type="java.lang.String">tcp://localhost:61616</attribute>
-    <reference name="ActiveMQContainer">geronimo.server:type=JMSServer,container=ActiveMQ</reference>
-  </gbean>
-  <gbean name='geronimo.server:type=JMSConnector,container=ActiveMQ,url="vm://localhost"' class="org.codehaus.activemq.gbean.ActiveMQConnectorGBean">
-    <attribute name="Url" type="java.lang.String">vm://localhost</attribute>
-    <reference name="ActiveMQContainer">geronimo.server:type=JMSServer,container=ActiveMQ</reference>
-  </gbean>
 </connector>

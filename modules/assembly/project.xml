@@ -328,6 +328,7 @@
             </properties>
         </dependency>
 
+        <!-- dependencies due to activemq -->
         <dependency>
             <groupId>activemq</groupId>
             <artifactId>activemq</artifactId>
@@ -342,6 +343,30 @@
             <artifactId>activemq-ra</artifactId>
             <version>&activemq-version;</version>
             <type>rar</type>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+          <id>emberio</id>
+          <version>0.3-alpha</version>
+          <properties>
+                <repository>true</repository>
+          </properties>
+        </dependency>       
+    
+        <dependency>
+          <id>jgroups</id>
+          <version>2.2.5</version>
+          <properties>
+                <repository>true</repository>
+          </properties>
+        </dependency>
+    
+        <dependency>
+            <id>jdbm</id>
+            <version>0.20-dev</version>
             <properties>
                 <repository>true</repository>
             </properties>
