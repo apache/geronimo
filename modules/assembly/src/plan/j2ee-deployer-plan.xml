@@ -183,8 +183,9 @@ Configuration for the Geronimo deployer
     <dependency>
         <uri>tomcat/jars/tomcat-util-${tomcat_version}.jar</uri>
     </dependency>
-    <gbean name="geronimo.deployer:role=ModuleBuilder,type=Web,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.tomcat.deployment.TomcatModuleBuilder">
+    <gbean namePart="WebBuilder" class="org.apache.geronimo.tomcat.deployment.TomcatModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Tomcat</attribute>
+        <attribute name="tomcatContainerObjectName">geronimo.server:name=TomcatWebContainer,*</attribute>
     </gbean>
    -->
 
