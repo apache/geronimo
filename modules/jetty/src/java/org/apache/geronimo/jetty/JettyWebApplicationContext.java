@@ -61,6 +61,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.net.URI;
+import java.io.IOException;
 import javax.resource.ResourceException;
 import javax.security.jacc.PolicyContext;
 import javax.transaction.RollbackException;
@@ -84,19 +85,27 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
+import org.mortbay.http.HttpException;
 import org.mortbay.jetty.servlet.WebApplicationContext;
 
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/21 20:01:52 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/22 00:52:22 $
  */
 public class JettyWebApplicationContext extends WebApplicationContext implements GBean {
     private final JettyContainer container;
-    private final ReadOnlyContext compContext;
+    private final ReadOnlyContext componentContext;
     private final String policyContextID;
     private final TransactionManager txManager;
     private final TrackedConnectionAssociator associator;
+
+    // @todo this should be replaced by global tx context handling.
+    private final Map transactionContextMap = Collections.synchronizedMap(new WeakHashMap());
+
+    // @todo get these from DD
+    private final Set unshareableResources = Collections.EMPTY_SET;
+
 
     public JettyWebApplicationContext(
             URI uri,
@@ -107,104 +116,76 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
             TrackedConnectionAssociator associator) {
         super(uri.toString());
         this.container = container;
-        this.compContext = compContext;
+        this.componentContext = compContext;
         this.policyContextID = policyContextID;
         this.txManager = txManager;
         this.associator = associator;
     }
 
-    public Object enterContextScope(HttpRequest httpRequest, HttpResponse httpResponse) {
+    public boolean handle(String pathInContext,
+            String pathParams,
+            HttpRequest httpRequest,
+            HttpResponse httpResponse)
+            throws HttpException, IOException {
+
+
         // save previous state
-        Handle handle = new Handle();
-        handle.compContext = RootContext.getComponentContext();
-        handle.policyContextID = PolicyContext.getContextID();
+        ReadOnlyContext oldComponentContext = RootContext.getComponentContext();
+        String oldPolicyContextID = PolicyContext.getContextID();
+        Set oldUnshareableResources = null;
+        ConnectorComponentContext oldConnectorComponentContext = null;
+        ConnectorTransactionContext oldConnectorTransactionContext = null;
 
         try {
             // set up java:comp JNDI Context
-            RootContext.setComponentContext(compContext);
+            RootContext.setComponentContext(componentContext);
 
             // set up Security Context
             PolicyContext.setContextID(policyContextID);
 
             // set up Transaction Context
             if (txManager != null) {
-                hackedEnterTx(handle);
-            }
+                ConnectorTransactionContext newTxContext;
 
-            // include parent scope
-            handle.scope = super.enterContextScope(httpRequest, httpResponse);
-            return handle;
-        } catch (RuntimeException e) {
-            PolicyContext.setContextID(handle.policyContextID);
-            RootContext.setComponentContext(handle.compContext);
-            throw e;
-        }
-    }
-
-    public void leaveContextScope(HttpRequest httpRequest, HttpResponse httpResponse, Object o) {
-        assert (o instanceof Handle) : "Did not get our handle back";
-
-        Handle handle = (Handle) o;
-        super.leaveContextScope(httpRequest, httpResponse, handle.scope);
-        try {
-            if (txManager != null) {
-                hackedExitTx(handle);
-            }
-        } catch (ResourceException e) {
-            throw new RuntimeException(e);
-        } finally {
-            PolicyContext.setContextID(handle.policyContextID);
-            RootContext.setComponentContext(handle.compContext);
-        }
-    }
-
-    //this should be replaced by global tx context handling.
-    private final Map transactionContextMap = Collections.synchronizedMap(new WeakHashMap());
-
-    // @todo get these from DD
-    private final Set unshareableResources = Collections.EMPTY_SET;
-
-    private void hackedEnterTx(Handle handle) {
-        ConnectorTransactionContext newTxContext;
-
-        // @todo this does not seem to clean up properly if an exception occurs - we need to fix this API
-        try {
-            Transaction tx = txManager.getTransaction();
-            if (tx == null) {
-                newTxContext = new DefaultTransactionContext(null);
-            } else {
-                newTxContext = (ConnectorTransactionContext) transactionContextMap.get(tx);
-                if (newTxContext == null) {
-                    newTxContext = new DefaultTransactionContext(tx);
-                    transactionContextMap.put(tx, newTxContext);
+                // @todo this will not clean up properly if an exception occurs - we need to fix this API
+                try {
+                    Transaction tx = txManager.getTransaction();
+                    if (tx == null) {
+                        newTxContext = new DefaultTransactionContext(null);
+                    } else {
+                        newTxContext = (ConnectorTransactionContext) transactionContextMap.get(tx);
+                        if (newTxContext == null) {
+                            newTxContext = new DefaultTransactionContext(tx);
+                            transactionContextMap.put(tx, newTxContext);
+                        }
+                    }
+                    oldUnshareableResources = associator.setUnshareableResources(unshareableResources);
+                    oldConnectorComponentContext = associator.enter(new DefaultComponentContext());
+                    oldConnectorTransactionContext = associator.setConnectorTransactionContext(newTxContext);
+                } catch (SystemException e) {
+                    throw new RuntimeException(e);
+                } catch (RollbackException e) {
+                    throw new RuntimeException(e);
+                } catch (ResourceException e) {
+                    throw new RuntimeException(e);
                 }
             }
-            handle.unshareableResources = associator.setUnshareableResources(unshareableResources);
-            handle.connectorComponentContext = associator.enter(new DefaultComponentContext());
-            handle.connectorTransactionContext = associator.setConnectorTransactionContext(newTxContext);
-        } catch (SystemException e) {
-            throw new RuntimeException(e);
-        } catch (RollbackException e) {
-            throw new RuntimeException(e);
-        } catch (ResourceException e) {
-            throw new RuntimeException(e);
+
+            return super.handle(pathInContext, pathParams, httpRequest, httpResponse);
+        } finally {
+            try {
+                if (txManager != null) {
+                    associator.exit(oldConnectorComponentContext, unshareableResources);
+                    associator.resetConnectorTransactionContext(oldConnectorTransactionContext);
+                    associator.setUnshareableResources(oldUnshareableResources);
+                }
+            } catch (ResourceException e) {
+                throw new RuntimeException(e);
+            } finally {
+                PolicyContext.setContextID(oldPolicyContextID);
+                RootContext.setComponentContext(oldComponentContext);
+            }
         }
-    }
-
-    private void hackedExitTx(Handle handle) throws ResourceException {
-        associator.exit(handle.connectorComponentContext, unshareableResources);
-        associator.resetConnectorTransactionContext(handle.connectorTransactionContext);
-        associator.setUnshareableResources(handle.unshareableResources);
-    }
-
-    private static class Handle {
-        private Object scope;
-        private ReadOnlyContext compContext;
-        private String policyContextID;
-
-        private Set unshareableResources;
-        private ConnectorComponentContext connectorComponentContext;
-        private ConnectorTransactionContext connectorTransactionContext;
     }
 
     public void doStart() throws WaitingException, Exception {
