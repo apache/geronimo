@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.60 $ $Date: 2004/01/27 20:08:49 $ -->
+<!-- $Revision: 1.61 $ $Date: 2004/01/28 10:29:56 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -569,7 +569,6 @@
                     <pathelement location="${run.dir}/lib/geronimo-core-rmiclassloaderspi.jar"/>
                 </classpath>
 
-                <sysproperty key="java.compiler" value="NONE"/>
                 <sysproperty key="program.name" value="maven:run"/>
                 <sysproperty key="java.rmi.server.RMIClassLoaderSpi" value="org.apache.geronimo.rmi.RMIClassLoaderSpiImpl"/>
 
@@ -587,12 +586,13 @@
         <j:jelly xmlns="jelly:ant">
 
             <property environment="env"/>
-            <java classname="org.apache.geronimo.kernel.Main"
+            <java classname="org.apache.geronimo.Geronimo"
                 fork="true"
                 maxmemory="256m"
                 failonerror="true"
                 dir="${run.dir}">
 
+                <jvmarg value="-ea"/>
 
                 <classpath>
                     <pathelement path="${env.JAVA_HOME}/lib/tools.jar"/>
