@@ -51,10 +51,15 @@ import org.xml.sax.SAXException;
  * </ul>
  *
  * The catalog resolving is based on the OASIS XML Catalog Standard.
- * (see http://www.oasis-open.org/committees/entity/archives/spec-2001-08-01.html
- * and http://www.oasis-open.org/html/a401.htm)
+ * OASIS seems to move it around.  Try
+ * http://www.oasis-open.org/committees/tc_home.php?wg_abbrev=entity
+ * and the list of documents currently at
+ * http://www.oasis-open.org/committees/documents.php?wg_abbrev=entity
+ * An older version may be at
+ * http://www.oasis-open.org/committees/entity/archives/spec-2001-08-01.html
+ * and see http://www.oasis-open.org/html/a401.htm
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/03 09:03:28 $
+ * @version $Revision: 1.6 $ $Date: 2004/03/09 17:50:53 $
  */
 public class LocalEntityResolver implements EntityResolver {
 
