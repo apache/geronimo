@@ -66,7 +66,7 @@ import org.apache.xmlbeans.XmlBeans;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/09 23:13:27 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/10 17:26:58 $
  *
  * */
 public class ConfigPropertySettingDConfigBean extends DConfigBeanSupport {
@@ -78,9 +78,9 @@ public class ConfigPropertySettingDConfigBean extends DConfigBeanSupport {
         String name = ddBean.getText("config-property-name")[0];
         if (configPropertySetting.getName() == null) {
             configPropertySetting.setName(name);
-            String value = ddBean.getText("config-property-value")[0];
-            if (value != null) {
-                configPropertySetting.setStringValue(value);
+            String[] values = ddBean.getText("config-property-value");
+            if (values != null && values.length == 1) {
+                configPropertySetting.setStringValue(values[0]);
             }
         } else {
             assert name.equals(configPropertySetting.getName());

@@ -88,6 +88,8 @@ import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
 import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
+import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
+import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
 import org.apache.geronimo.deployment.DeploymentModule;
 import org.apache.geronimo.deployment.ConfigurationCallback;
 import org.apache.geronimo.deployment.tools.DDBeanRootImpl;
@@ -96,12 +98,15 @@ import org.apache.geronimo.connector.deployment.dconfigbean.ResourceAdapterDConf
 import org.apache.geronimo.connector.deployment.dconfigbean.ConfigPropertySettingDConfigBean;
 import org.apache.geronimo.connector.deployment.dconfigbean.AdminObjectDConfigBean;
 import org.apache.geronimo.connector.deployment.dconfigbean.AdminObjectInstanceDConfigBean;
+import org.apache.geronimo.connector.deployment.dconfigbean.ConnectionDefinitionDConfigBean;
+import org.apache.geronimo.connector.deployment.dconfigbean.ConnectionDefinitionInstanceDConfigBean;
+import org.apache.geronimo.connector.deployment.dconfigbean.ConnectionManagerDConfigBean;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/10 08:04:21 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/10 17:26:58 $
  *
  * */
 public class Connector_1_5Test extends TestCase implements ConfigurationCallback {
@@ -134,7 +139,7 @@ public class Connector_1_5Test extends TestCase implements ConfigurationCallback
         RARDeployable deployable = new RARDeployable(j2eeDD);
         DDBeanRoot ddroot = deployable.getDDBeanRoot();
         DeploymentConfiguration rarConfiguration = new RARConfigurer().createConfiguration(deployable);
-        DConfigBeanRoot root = rarConfiguration.getDConfigBeanRoot(deployable.getDDBeanRoot());
+        DConfigBeanRoot root = rarConfiguration.getDConfigBeanRoot(ddroot);
         assertNotNull(root);
 
         //resource adapter
@@ -167,12 +172,25 @@ public class Connector_1_5Test extends TestCase implements ConfigurationCallback
         ConfigPropertySettingDConfigBean adminObjectSetting2 = (ConfigPropertySettingDConfigBean) adminObjectInstanceDConfigBean2.getDConfigBean(adminObjectConfigPropDDs[0]);
         adminObjectSetting2.setConfigPropertyValue("TestAOValue2");
 
+        //outbound
+        DDBean[] connectionDefinitiondds = resourceAdapterdd.getChildBean(resourceAdapterDConfigBean.getXpaths()[1]);
+        assertEquals(2, connectionDefinitiondds.length);
+        ConnectionDefinitionDConfigBean connectionDefinitionDConfigBean = (ConnectionDefinitionDConfigBean)resourceAdapterDConfigBean.getDConfigBean(connectionDefinitiondds[0]);
+        assertNotNull(connectionDefinitionDConfigBean);
+        ConnectionDefinitionInstanceDConfigBean connectionDefinitionInstanceDConfigBean1 = new ConnectionDefinitionInstanceDConfigBean();
+        connectionDefinitionDConfigBean.setConnectionDefinitionInstance(new ConnectionDefinitionInstanceDConfigBean[] {connectionDefinitionInstanceDConfigBean1});
+        DDBean[] connectionDefinitionConfigPropDDs = connectionDefinitiondds[0].getChildBean(connectionDefinitionInstanceDConfigBean1.getXpaths()[0]);
+        assertEquals(4, connectionDefinitionConfigPropDDs.length);
+        ConfigPropertySettingDConfigBean connectionDefinitionSetting1 = (ConfigPropertySettingDConfigBean) connectionDefinitionInstanceDConfigBean1.getDConfigBean(connectionDefinitionConfigPropDDs[0]);
+        connectionDefinitionSetting1.setConfigPropertyValue("TestCDValue1");
+
         //check the results
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         rarConfiguration.save(baos);
         baos.flush();
-        InputStream is = new ByteArrayInputStream(baos.toByteArray());
+        byte[] bytes = baos.toByteArray();
         baos.close();
+        InputStream is = new ByteArrayInputStream(bytes);
         GerConnectorDocument gcDoc = GerConnectorDocument.Factory.parse(is);
         GerResourceadapterType ra = gcDoc.getConnector().getResourceadapter();
         assertEquals("TestRAName", ra.getResourceadapterName());
@@ -185,6 +203,41 @@ public class Connector_1_5Test extends TestCase implements ConfigurationCallback
         assertEquals("TestAOValue2", adminobjectInstanceType2.getConfigPropertySettingArray(0).getStringValue());
         GerAdminobjectInstanceType adminobjectInstanceType1 = adminobjectType1.getAdminobjectInstanceArray(1);
         assertEquals("TestAOValue1", adminobjectInstanceType1.getConfigPropertySettingArray(0).getStringValue());
+
+        //connection definition
+        GerConnectionDefinitionType connectionDefinitionType = ra.getOutboundResourceadapter().getConnectionDefinitionArray(0);
+        GerConnectiondefinitionInstanceType connectiondefinitionInstanceType = connectionDefinitionType.getConnectiondefinitionInstanceArray(0);
+        assertEquals("TestCDValue1", connectiondefinitionInstanceType.getConfigPropertySettingArray(0).getStringValue());
+
+        //and read back into dconfigbeans
+        rarConfiguration.restore(new ByteArrayInputStream(bytes));
+        //resource adapter
+        resourceAdapterDConfigBean = (ResourceAdapterDConfigBean) root.getDConfigBean(resourceAdapterdd);
+        assertNotNull(resourceAdapterDConfigBean);
+        assertEquals("TestRAName", resourceAdapterDConfigBean.getResourceAdapterName());
+        resourceAdapterSetting = (ConfigPropertySettingDConfigBean)resourceAdapterDConfigBean.getDConfigBean(resourceAdapterProperties[0]);
+        assertNotNull(resourceAdapterSetting);
+        assertEquals("TestRAValue", resourceAdapterSetting.getConfigPropertyValue());
+
+        //admin objects
+        adminObjectDConfigBean = (AdminObjectDConfigBean)resourceAdapterDConfigBean.getDConfigBean(adminObjectdds[0]);
+        assertNotNull(adminObjectDConfigBean);
+        AdminObjectInstanceDConfigBean[] adminObjectInstanceDConfigBeans = adminObjectDConfigBean.getAdminObjectInstance();
+        assertEquals(2, adminObjectInstanceDConfigBeans.length);
+        adminObjectSetting1 = (ConfigPropertySettingDConfigBean) adminObjectInstanceDConfigBeans[1].getDConfigBean(adminObjectConfigPropDDs[0]);
+        assertEquals("TestAOValue1", adminObjectSetting1.getConfigPropertyValue());
+
+        //second admin object is in first position
+        adminObjectSetting2 = (ConfigPropertySettingDConfigBean) adminObjectInstanceDConfigBeans[0].getDConfigBean(adminObjectConfigPropDDs[0]);
+        assertEquals("TestAOValue2", adminObjectSetting2.getConfigPropertyValue());
+
+        //outbound
+        connectionDefinitionDConfigBean = (ConnectionDefinitionDConfigBean)resourceAdapterDConfigBean.getDConfigBean(connectionDefinitiondds[0]);
+        assertNotNull(connectionDefinitionDConfigBean);
+        ConnectionDefinitionInstanceDConfigBean[] connectionDefinitionInstanceDConfigBeans = connectionDefinitionDConfigBean.getConnectionDefinitionInstance();
+        connectionDefinitionSetting1 = (ConfigPropertySettingDConfigBean) connectionDefinitionInstanceDConfigBeans[0].getDConfigBean(connectionDefinitionConfigPropDDs[0]);
+        assertEquals("TestCDValue1", connectionDefinitionSetting1.getConfigPropertyValue());
+
     }
 
     public void testCreateConnector_1_5Module() throws Exception {
