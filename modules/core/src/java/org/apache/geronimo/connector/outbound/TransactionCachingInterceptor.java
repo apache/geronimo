@@ -56,146 +56,73 @@
 
 package org.apache.geronimo.connector.outbound;
 
-import java.util.WeakHashMap;
-import java.util.Iterator;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.HashMap;
-
-import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
-import javax.transaction.SystemException;
-import javax.transaction.Synchronization;
-import javax.transaction.RollbackException;
 import javax.resource.ResourceException;
 
-import org.apache.geronimo.connector.TxUtils;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
 
 /**
  * TransactionCachingInterceptor.java
+ * TODO: This implementation does not take account of unshareable resources
+ * TODO: This implementation does not take account of application security
+ *  where several connections with different security info are obtained.
+ * TODO: This implementation does not take account of container managed security where,
+ *  within one transaction, a security domain boundary is crossed
+ * and connections are obtained with two (or more) different subjects.
+ *
+ * I suggest a state pattern, with the state set in a threadlocal upon entering a component,
+ * will be a usable implementation.
+ *
+ * The afterCompletion method will need to move to an interface,  and that interface include the
+ * security info to distinguish connections.
  *
  *
  * Created: Mon Sep 29 15:07:07 2003
  *
  * @version 1.0
  */
-public class TransactionCachingInterceptor implements ConnectionInterceptor {
+public class TransactionCachingInterceptor implements ConnectionInterceptor, ConnectionReleaser{
 
     private final ConnectionInterceptor next;
-    private final TransactionManager tm;
-    private final Map txToConnectionList = new HashMap();
+    private final ConnectionTracker connectionTracker;
 
-    public TransactionCachingInterceptor(final ConnectionInterceptor next, final TransactionManager tm) {
+    public TransactionCachingInterceptor(final ConnectionInterceptor next, final ConnectionTracker connectionTracker) {
         this.next = next;
-        this.tm = tm;
+        this.connectionTracker = connectionTracker;
     }
 
-    public void getConnection(ConnectionInfo ci) throws ResourceException {
-        try {
-            Transaction tx = tm.getTransaction();
-            if (TxUtils.isActive(tx)) {
-                ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
-                Collection mcis;
-                synchronized (txToConnectionList) {
-                    mcis = (Collection)txToConnectionList.get(tx);
-                    if (mcis == null) {
-                        mcis = new LinkedList();
-                        txToConnectionList.put(tx, mcis);
-                        tx.registerSynchronization(new Synch(tx, this, mcis));
-                    }
-                }
-
-                /*Access to mcis should not need to be synchronized
-                 * unless several requests in the same transaction in
-                 * different threads are being processed at the same
-                 * time.  This cannot occur with transactions imported
-                 * through jca.  I don't know about any other possible
-                 * ways this could occur.*/
-                for (Iterator i = mcis.iterator(); i.hasNext();) {
-                    ManagedConnectionInfo oldmci = (ManagedConnectionInfo) i.next();
-                    if (mci.securityMatches(oldmci)) {
-                        ci.setManagedConnectionInfo(oldmci);
-                        return;
-                    }
-
-                }
-
-                next.getConnection(ci);
-                //put it in the map
-                mcis.add(ci.getManagedConnectionInfo());
-
-            } else {
-                next.getConnection(ci);
-            }
-        } catch (SystemException e) {
-            throw new ResourceException("Could not get transaction from transaction manager", e);
-        } catch (RollbackException e) {
-            throw new ResourceException("Transaction is rolled back, can't enlist synchronization", e);
+    public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
+        ConnectorTransactionContext connectorTransactionContext = connectionTracker.getConnectorTransactionContext();
+        ManagedConnectionInfo managedConnectionInfo = connectorTransactionContext.getManagedConnectionInfo(this);
+        if (managedConnectionInfo != null) {
+            connectionInfo.setManagedConnectionInfo(managedConnectionInfo);
+            return;
+        } else {
+            next.getConnection(connectionInfo);
+            connectorTransactionContext.setManagedConnectionInfo(this, connectionInfo.getManagedConnectionInfo());
         }
     }
 
-    public void returnConnection(ConnectionInfo ci, ConnectionReturnAction cra) {
+    public void returnConnection(ConnectionInfo connectionInfo, ConnectionReturnAction connectionReturnAction) {
 
-        try {
-            if (cra == ConnectionReturnAction.DESTROY) {
-                next.returnConnection(ci, cra);
-            }
-
-            Transaction tx = tm.getTransaction();
-            if (TxUtils.isActive(tx)) {
-                return;
-            }
-            if (ci.getManagedConnectionInfo().hasConnectionHandles()) {
-                return;
-            }
-            //No transaction, no handles, we return it.
-            next.returnConnection(ci, cra);
-        } catch (SystemException e) {
-            //throw new ResourceException("Could not get transaction from transaction manager", e);
+        if (connectionReturnAction == ConnectionReturnAction.DESTROY) {
+            next.returnConnection(connectionInfo, connectionReturnAction);
         }
 
+        ConnectorTransactionContext connectorTransactionContext = connectionTracker.getConnectorTransactionContext();
+        if (connectorTransactionContext.isActive()) {
+            return;
+        }
+        if (connectionInfo.getManagedConnectionInfo().hasConnectionHandles()) {
+            return;
+        }
+        //No transaction, no handles, we return it.
+        next.returnConnection(connectionInfo, connectionReturnAction);
     }
 
-
-    public void afterCompletion(Transaction tx) {
-        Collection connections = (Collection) txToConnectionList.get(tx);
-        if (connections != null) {
-            for (Iterator iterator = connections.iterator(); iterator.hasNext();) {
-                ManagedConnectionInfo managedConnectionInfo = (ManagedConnectionInfo) iterator.next();
-                ConnectionInfo connectionInfo = new ConnectionInfo();
-                connectionInfo.setManagedConnectionInfo(managedConnectionInfo);
-                returnConnection(connectionInfo, ConnectionReturnAction.RETURN_HANDLE);
-            }
-        }
-
-    }
-
-    private static class Synch implements Synchronization {
-
-        private final Transaction transaction;
-        private final TransactionCachingInterceptor returnStack;
-        private final Collection connections;
-
-        public Synch(Transaction transaction, TransactionCachingInterceptor returnStack, Collection connections) {
-            this.transaction = transaction;
-            this.returnStack = returnStack;
-            this.connections = connections;
-        }
-
-        public void beforeCompletion() {
-        }
-
-        public void afterCompletion(int status) {
-            for (Iterator iterator = connections.iterator(); iterator.hasNext();) {
-                ManagedConnectionInfo managedConnectionInfo = (ManagedConnectionInfo) iterator.next();
-                iterator.remove();
-                if (!managedConnectionInfo.hasConnectionHandles()) {
-                    returnStack.returnConnection(new ConnectionInfo(managedConnectionInfo), ConnectionReturnAction.RETURN_HANDLE);
-                }
-            }
-        }
-
+    public void afterCompletion(ManagedConnectionInfo managedConnectionInfo) {
+        ConnectionInfo connectionInfo = new ConnectionInfo();
+        connectionInfo.setManagedConnectionInfo(managedConnectionInfo);
+        returnConnection(connectionInfo, ConnectionReturnAction.RETURN_HANDLE);
     }
 
 }

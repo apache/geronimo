@@ -65,7 +65,7 @@ import javax.security.auth.Subject;
  *
  * Created: Mon Oct  6 14:31:56 2003
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:30 $
+ * @version $Revision: 1.3 $ $Date: 2003/12/09 04:16:25 $
  */
 public class SubjectInterceptor implements ConnectionInterceptor {
 
@@ -77,24 +77,24 @@ public class SubjectInterceptor implements ConnectionInterceptor {
             final SecurityDomain securityDomain) {
         this.next = next;
         this.securityDomain = securityDomain;
-    } // SubjectInterceptor constructor
+    }
 
-    public void getConnection(ConnectionInfo ci) throws ResourceException {
+    public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
         Subject subject = null;
         try {
             subject = securityDomain.getSubject();
         } catch (SecurityException e) {
             throw new ResourceException("Can not obtain Subject for login", e);
-        } // end of try-catch
-        ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
+        }
+        ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
         mci.setSubject(subject);
-        next.getConnection(ci);
+        next.getConnection(connectionInfo);
     }
 
     public void returnConnection(
-            ConnectionInfo ci,
-            ConnectionReturnAction cra) {
-        next.returnConnection(ci, cra);
+            ConnectionInfo connectionInfo,
+            ConnectionReturnAction connectionReturnAction) {
+        next.returnConnection(connectionInfo, connectionReturnAction);
     }
 
-} // SubjectInterceptor
+}

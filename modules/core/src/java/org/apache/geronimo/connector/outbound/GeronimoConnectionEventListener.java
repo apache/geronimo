@@ -61,6 +61,7 @@ import java.util.Set;
 
 import javax.resource.spi.ConnectionEvent;
 import javax.resource.spi.ConnectionEventListener;
+import javax.transaction.Synchronization;
 
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
@@ -87,13 +88,8 @@ public class GeronimoConnectionEventListener
             final ManagedConnectionInfo mci) {
         this.stack = stack;
         this.mci = mci;
-    } // ConnectionEventListener constructor
+    }
 
-    /**
-     * The <code>connectionClosed</code> method
-     *
-     * @param connectionEvent a <code>ConnectionEvent</code> value
-     */
     public void connectionClosed(ConnectionEvent connectionEvent) {
         if (connectionEvent.getSource() != mci.getManagedConnection()) {
             throw new IllegalArgumentException(
@@ -101,7 +97,7 @@ public class GeronimoConnectionEventListener
                     + mci.getManagedConnection()
                     + ", actual "
                     + connectionEvent.getSource());
-        } // end of if ()
+        }
         if (log.isTraceEnabled()) {
             log.trace("connectionClosed called with " + connectionEvent.getConnectionHandle());
         }
@@ -110,11 +106,6 @@ public class GeronimoConnectionEventListener
         stack.returnConnection(ci, ConnectionReturnAction.RETURN_HANDLE);
     }
 
-    /**
-     * The <code>connectionErrorOccurred</code> method
-     *
-     * @param connectionEvent a <code>ConnectionEvent</code> value
-     */
     public void connectionErrorOccurred(ConnectionEvent connectionEvent) {
         if (connectionEvent.getSource() != mci.getManagedConnection()) {
             throw new IllegalArgumentException(
@@ -122,20 +113,15 @@ public class GeronimoConnectionEventListener
                     + mci.getManagedConnection()
                     + ", actual "
                     + connectionEvent.getSource());
-        } // end of if ()
+        }
         log.info("connectionErrorOccurred called with " + connectionEvent.getConnectionHandle(),connectionEvent.getException());
         ConnectionInfo ci = new ConnectionInfo(mci);
         ci.setConnectionHandle(connectionEvent.getConnectionHandle());
         stack.returnConnection(ci, ConnectionReturnAction.DESTROY);
     }
 
-    /**
-     * The <code>localTransactionStarted</code> method
-     *
-     * @param event a <code>ConnectionEvent</code> value
-     * @todo implement this method
-     */
     public void localTransactionStarted(ConnectionEvent event) {
+        //TODO implement this method
     }
 
     /**
@@ -172,4 +158,4 @@ public class GeronimoConnectionEventListener
         connectionHandles.clear();
     }
 
-} // ConnectionEventListener
+}

@@ -63,10 +63,7 @@ import javax.resource.spi.ManagedConnection;
  * MCFConnectionInterceptor.java
  *
  *
- * Created: Thu Sep 25 14:36:26 2003
- *
- * @author <a href="mailto:d_jencks@users.sourceforge.net">David Jencks</a>
- * @version 1.0
+ * @version $Revision: 1.3 $ $Date: 2003/12/09 04:16:25 $
  */
 public class MCFConnectionInterceptor implements ConnectionInterceptor {
 
@@ -74,10 +71,10 @@ public class MCFConnectionInterceptor implements ConnectionInterceptor {
 
     public MCFConnectionInterceptor(ConnectionManagerDeployment head) {
         this.head = head;
-    } // MCFConnectionInterceptor constructor
+    }
 
-    public void getConnection(ConnectionInfo ci) throws ResourceException {
-        ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
+    public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
+        ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
         ManagedConnection mc =
                 mci.getManagedConnectionFactory().createManagedConnection(
                         mci.getSubject(),
@@ -88,15 +85,19 @@ public class MCFConnectionInterceptor implements ConnectionInterceptor {
     }
 
     public void returnConnection(
-            ConnectionInfo ci,
-            ConnectionReturnAction cra) {
-        ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
+            ConnectionInfo connectionInfo,
+            ConnectionReturnAction connectionReturnAction) {
+        ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
         ManagedConnection mc = mci.getManagedConnection();
         try {
             mc.destroy();
         } catch (ResourceException e) {
             //log and forget
-        } // end of try-catch
+        } catch (Error e) {
+            throw e;
+        } catch (Throwable t) {
+            //log and forget
+        }
     }
 
-} // MCFConnectionInterceptor
+}

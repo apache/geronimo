@@ -68,18 +68,17 @@ import javax.transaction.xa.Xid;
  * semantics.
  *
  *
- * Created: Tue Sep 30 00:32:44 2003
- *
- * @version 1.0
+ * @version $Revision: 1.4 $ $Date: 2003/12/09 04:16:25 $
  */
 public class LocalXAResource implements XAResource {
 
-    private final LocalTransaction localTx;
+    //accessible in package for testing
+    final LocalTransaction localTransaction;
     private Xid xid;
-    private int txTimeout;
+    private int transactionTimeout;
 
-    public LocalXAResource(LocalTransaction localTx) {
-        this.localTx = localTx;
+    public LocalXAResource(LocalTransaction localTransaction) {
+        this.localTransaction = localTransaction;
     }
 
     // Implementation of javax.transaction.xa.XAResource
@@ -89,7 +88,7 @@ public class LocalXAResource implements XAResource {
             throw new XAException();
         }
         try {
-            localTx.commit();
+            localTransaction.commit();
         } catch (ResourceException e) {
             XAException xae = new XAException();
             //xae.setLinkedException(e);
@@ -105,7 +104,7 @@ public class LocalXAResource implements XAResource {
     }
 
     public int getTransactionTimeout() throws XAException {
-        return txTimeout;
+        return transactionTimeout;
     }
 
     public boolean isSameRM(XAResource xares) throws XAException {
@@ -121,7 +120,7 @@ public class LocalXAResource implements XAResource {
             throw new XAException();
         }
         try {
-            localTx.rollback();
+            localTransaction.rollback();
         } catch (ResourceException e) {
             XAException xae = new XAException();
             //xae.setLinkedException(e);
@@ -133,7 +132,7 @@ public class LocalXAResource implements XAResource {
     }
 
     public boolean setTransactionTimeout(int txTimeout) throws XAException {
-        this.txTimeout = txTimeout;
+        this.transactionTimeout = txTimeout;
         return true;
     }
 
@@ -145,7 +144,7 @@ public class LocalXAResource implements XAResource {
             }
             this.xid = xid;
             try {
-                localTx.begin();
+                localTransaction.begin();
             } catch (ResourceException e) {
                 throw (XAException) new XAException("could not start local tx").initCause(e);
             }

@@ -23,7 +23,7 @@
     <endpoint name="SecurityDomain" type="org.apache.geronimo.connector.outbound.SecurityDomain" required="false" >
         <peer pattern="geronimo.connector:role=SecurityDomain"/>
     </endpoint>
-    <endpoint name="CachedConnectionManager" type="org.apache.geronimo.connector.outbound.CachedConnectionManager">
-        <peer pattern="geronimo.connector:role=CachedConnectionManager"/>
+    <endpoint name="ConnectionTracker" type="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker">
+        <peer pattern="geronimo.connector:role=ConnectionTrackingCoordinator"/>
     </endpoint>
 </mbean>

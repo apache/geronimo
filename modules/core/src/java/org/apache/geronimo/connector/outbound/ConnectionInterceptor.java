@@ -65,14 +65,12 @@ import javax.resource.ResourceException;
  * or releasing a ManagedConnection.
  *
  *
- * Created: Tue Sep 23 21:57:08 2003
- *
- * @version 1.0
+ * @version $Revision: 1.3 $ $Date: 2003/12/09 04:16:25 $
  */
 
 public interface ConnectionInterceptor {
-    void getConnection(ConnectionInfo ci) throws ResourceException;
+    void getConnection(ConnectionInfo connectionInfo) throws ResourceException;
 
-    void returnConnection(ConnectionInfo ci, ConnectionReturnAction cra);
+    void returnConnection(ConnectionInfo connectionInfo, ConnectionReturnAction connectionReturnAction);
 
 } // ConnectionInterceptor

@@ -69,7 +69,6 @@ import javax.transaction.xa.XAResource;
  *
  * Created: Thu Sep 25 14:29:07 2003
  *
- * @author <a href="mailto:d_jencks@users.sourceforge.net">David Jencks</a>
  * @version 1.0
  */
 public class ManagedConnectionInfo {
@@ -234,4 +233,4 @@ public class ManagedConnectionInfo {
                 : cri.equals(other.getConnectionRequestInfo()));
     }
 
-} // ManagedConnectionInfo
+}

@@ -62,9 +62,8 @@ import javax.resource.ResourceException;
  * LocalXAResourceInsertionInterceptor.java
  *
  *
- * Created: Tue Sep 30 00:50:34 2003
- *
- * @version 1.0
+ * @version $Revision: 1.3 $ $Date: 2003/12/09 04:16:25 $
+
  */
 public class LocalXAResourceInsertionInterceptor
         implements ConnectionInterceptor {
@@ -75,18 +74,18 @@ public class LocalXAResourceInsertionInterceptor
         this.next = next;
     } // XAResourceInsertionInterceptor constructor
 
-    public void getConnection(ConnectionInfo ci) throws ResourceException {
-        next.getConnection(ci);
-        ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
+    public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
+        next.getConnection(connectionInfo);
+        ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
         mci.setXAResource(
                 new LocalXAResource(
                         mci.getManagedConnection().getLocalTransaction()));
     }
 
     public void returnConnection(
-            ConnectionInfo ci,
-            ConnectionReturnAction cra) {
-        next.returnConnection(ci, cra);
+            ConnectionInfo connectionInfo,
+            ConnectionReturnAction connectionReturnAction) {
+        next.returnConnection(connectionInfo, connectionReturnAction);
     }
 
 } // XAResourceInsertionInterceptor

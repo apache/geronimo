@@ -110,16 +110,16 @@ public class SinglePoolConnectionInterceptor implements ConnectionInterceptor {
         pool = new PoolDeque(maxSize);
     }
 
-    public void getConnection(ConnectionInfo ci) throws ResourceException {
-        ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
+    public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
+        ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
         try {
             if (permits.attempt(blockingTimeout)) {
                 ManagedConnectionInfo newMCI = null;
                 synchronized (pool) {
                     if (pool.isEmpty()) {
-                        next.getConnection(ci);
+                        next.getConnection(connectionInfo);
                         if (log.isTraceEnabled()) {
-                            log.trace("Returning new connection " + ci.getManagedConnectionInfo());
+                            log.trace("Returning new connection " + connectionInfo.getManagedConnectionInfo());
                         }
                         return;
                     } else {
@@ -135,9 +135,9 @@ public class SinglePoolConnectionInterceptor implements ConnectionInterceptor {
                                         mci.getSubject(),
                                         mci.getConnectionRequestInfo());
                         if (matchedMC != null) {
-                            ci.setManagedConnectionInfo(newMCI);
+                            connectionInfo.setManagedConnectionInfo(newMCI);
                             if (log.isTraceEnabled()) {
-                                log.trace("Returning pooled connection " + ci.getManagedConnectionInfo());
+                                log.trace("Returning pooled connection " + connectionInfo.getManagedConnectionInfo());
                             }
                             return;
                         } else {
@@ -174,14 +174,14 @@ public class SinglePoolConnectionInterceptor implements ConnectionInterceptor {
     }
 
     public void returnConnection(
-            ConnectionInfo ci,
-            ConnectionReturnAction cra) {
+            ConnectionInfo connectionInfo,
+            ConnectionReturnAction connectionReturnAction) {
         if (log.isTraceEnabled()) {
-            log.trace("returning connection" + ci.getConnectionHandle());
+            log.trace("returning connection" + connectionInfo.getConnectionHandle());
         }
         boolean wasInPool = false;
-        ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
-        if (cra == ConnectionReturnAction.DESTROY) {
+        ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
+        if (connectionReturnAction == ConnectionReturnAction.DESTROY) {
             synchronized (pool) {
                 wasInPool = pool.remove(mci);
             }
@@ -195,11 +195,11 @@ public class SinglePoolConnectionInterceptor implements ConnectionInterceptor {
         try {
             mc.cleanup();
         } catch (ResourceException e) {
-            cra = ConnectionReturnAction.DESTROY;
+            connectionReturnAction = ConnectionReturnAction.DESTROY;
         }
 
-        if (cra == ConnectionReturnAction.DESTROY) {
-            next.returnConnection(ci, cra);
+        if (connectionReturnAction == ConnectionReturnAction.DESTROY) {
+            next.returnConnection(connectionInfo, connectionReturnAction);
         } else {
             synchronized (pool) {
                 mci.setLastUsed(System.currentTimeMillis());

@@ -76,63 +76,63 @@ import org.apache.geronimo.connector.TxUtils;
 public class TransactionEnlistingInterceptor implements ConnectionInterceptor {
 
     private final ConnectionInterceptor next;
-    private final TransactionManager tm;
+    private final TransactionManager transactionManager;
 
     public TransactionEnlistingInterceptor(
             ConnectionInterceptor next,
-            TransactionManager tm) {
+            TransactionManager transactionManager) {
         this.next = next;
-        this.tm = tm;
-    } // TransactionEnlistingInterceptor constructor
+        this.transactionManager = transactionManager;
+    }
 
-    public void getConnection(ConnectionInfo ci) throws ResourceException {
-        next.getConnection(ci);
+    public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
+        next.getConnection(connectionInfo);
         try {
-            Transaction tx = tm.getTransaction();
+            Transaction tx = transactionManager.getTransaction();
             if (TxUtils.isActive(tx)) {
-                ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
+                ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
                 XAResource xares = mci.getXAResource();
                 tx.enlistResource(xares);
                 mci.setTransaction(tx);
-            } // end of if ()
+            }
 
         } catch (SystemException e) {
             throw new ResourceException("Could not get transaction", e);
-        } // end of try-catch
+        }
         catch (RollbackException e) {
             throw new ResourceException(
                     "Could not enlist resource in rolled back transaction",
                     e);
-        } // end of catch
+        }
 
     }
 
     /**
      * The <code>returnConnection</code> method
      *
-     * @todo Probably the logic needs improvement if a connection
+     * todo Probably the logic needs improvement if a connection
      * error occurred and we are destroying the handle.
-     * @param ci a <code>ConnectionInfo</code> value
-     * @param cra a <code>ConnectionReturnAction</code> value
-     * @exception ResourceException if an error occurs
+     * @param connectionInfo a <code>ConnectionInfo</code> value
+     * @param connectionReturnAction a <code>ConnectionReturnAction</code> value
      */
     public void returnConnection(
-            ConnectionInfo ci,
-            ConnectionReturnAction cra) {
+            ConnectionInfo connectionInfo,
+            ConnectionReturnAction connectionReturnAction) {
         try {
-            Transaction tx = tm.getTransaction();
+            Transaction tx = transactionManager.getTransaction();
             if (TxUtils.isActive(tx)) {
-                ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
+                ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
                 XAResource xares = mci.getXAResource();
                 tx.delistResource(xares, XAResource.TMSUSPEND);
                 mci.setTransaction(null);
-            } // end of if ()
+            }
 
         } catch (SystemException e) {
-            //throw new ResourceException("Could not get transaction", e);
-        } // end of try-catch
+            //maybe we should warn???
+            connectionReturnAction = ConnectionReturnAction.DESTROY;
+        }
 
-        next.returnConnection(ci, cra);
+        next.returnConnection(connectionInfo, connectionReturnAction);
     }
 
-} // TransactionEnlistingInterceptor
+}

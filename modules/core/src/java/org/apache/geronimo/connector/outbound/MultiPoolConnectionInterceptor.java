@@ -100,8 +100,8 @@ public class MultiPoolConnectionInterceptor implements ConnectionInterceptor {
         this.useCRI = useCRI;
     }
 
-    public void getConnection(ConnectionInfo ci) throws ResourceException {
-        ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
+    public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
+        ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
         SubjectCRIKey key =
                 new SubjectCRIKey(
                         useSubject ? mci.getSubject() : null,
@@ -122,15 +122,15 @@ public class MultiPoolConnectionInterceptor implements ConnectionInterceptor {
 
         }
         mci.setPoolInterceptor(poolInterceptor);
-        poolInterceptor.getConnection(ci);
+        poolInterceptor.getConnection(connectionInfo);
     }
 
     public void returnConnection(
-            ConnectionInfo ci,
-            ConnectionReturnAction cra) {
-        ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
+            ConnectionInfo connectionInfo,
+            ConnectionReturnAction connectionReturnAction) {
+        ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
         ConnectionInterceptor poolInterceptor = mci.getPoolInterceptor();
-        poolInterceptor.returnConnection(ci, cra);
+        poolInterceptor.returnConnection(connectionInfo, connectionReturnAction);
     }
 
     static class SubjectCRIKey {

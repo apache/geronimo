@@ -62,6 +62,7 @@ import javax.resource.spi.ManagedConnectionFactory;
 import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.connector.deployment.ConnectionManagerFactory;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
 import org.apache.geronimo.kernel.service.AbstractManagedObject;
 import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
@@ -73,7 +74,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * and connection manager stack according to the policies described in the attributes.
  * It's used by deserialized copies of the proxy to get a reference to the actual stack.
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:30 $
+ * @version $Revision: 1.3 $ $Date: 2003/12/09 04:16:25 $
  * */
 public class ConnectionManagerDeployment
 
@@ -121,7 +122,7 @@ public class ConnectionManagerDeployment
     /**
      * Actual CachedConnectionManager we relate to.
      */
-    private CachedConnectionManager cachedConnectionManager;
+    private ConnectionTracker connectionTracker;
 
     public void setMBeanContext(GeronimoMBeanContext context) {
         this.context = context;
@@ -177,16 +178,16 @@ public class ConnectionManagerDeployment
                 stack =
                         new TransactionCachingInterceptor(
                                 stack,
-                                transactionManager);
+                                connectionTracker);
             }
         }
         stack = new ConnectionHandleInterceptor(stack);
-        if (cachedConnectionManager != null) {
+        if (connectionTracker != null) {
             stack =
-                    new MetaCallConnectionInterceptor(
+                    new ConnectionTrackingInterceptor(
                             stack,
                             jndiName,
-                            cachedConnectionManager,
+                            connectionTracker,
                             securityDomain);
         }
 
@@ -211,7 +212,7 @@ public class ConnectionManagerDeployment
         cm = null;
         securityDomain = null;
         transactionManager = null;
-        cachedConnectionManager = null;
+        connectionTracker = null;
 
     }
 
@@ -255,16 +256,16 @@ public class ConnectionManagerDeployment
      * @return
      * @jmx.managed-attribute
      */
-    public CachedConnectionManager getCachedConnectionManager() {
-        return cachedConnectionManager;
+    public ConnectionTracker getConnectionTracker() {
+        return connectionTracker;
     }
 
     /**
-     * @param cachedConnectionManager
+     * @param connectionTracker
      * @jmx.managed-attribute
      */
-    public void setCachedConnectionManager(CachedConnectionManager cachedConnectionManager) {
-        this.cachedConnectionManager = cachedConnectionManager;
+    public void setConnectionTracker(ConnectionTracker connectionTracker) {
+        this.connectionTracker = connectionTracker;
     }
 
     /**
