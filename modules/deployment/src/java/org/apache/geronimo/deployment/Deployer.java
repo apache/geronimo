@@ -91,7 +91,7 @@ import org.apache.xmlbeans.XmlObject;
  * Command line based deployment utility which combines multiple deployable modules
  * into a single configuration.
  *
- * @version $Revision: 1.5 $ $Date: 2004/02/20 07:19:13 $
+ * @version $Revision: 1.6 $ $Date: 2004/02/20 07:40:53 $
  */
 public class Deployer {
     static {
@@ -286,5 +286,9 @@ public class Deployer {
                 new Class[]{Kernel.class, Collection.class}
         ));
         GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
 }
