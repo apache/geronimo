@@ -1,12 +1,10 @@
 package org.apache.geronimo.web;
 
-import org.apache.geronimo.core.service.AbstractManagedComponent;
-import org.apache.geronimo.core.service.Container;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
-
 import java.util.Arrays;
 import java.util.List;
+
+import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 
 
 /**
@@ -15,7 +13,7 @@ import java.util.List;
  *
  * Created: Mon Sep  8 20:39:02 2003
  *
- * @version $Revision: 1.4 $ $Date: 2003/12/30 08:28:57 $
+ * @version $Revision: 1.5 $ $Date: 2003/12/30 21:18:35 $
  */
 public abstract class AbstractWebConnector implements WebConnector {
 
