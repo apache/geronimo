@@ -55,6 +55,10 @@
  */
 package org.apache.geronimo.kernel;
 
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Collections;
+
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -65,7 +69,7 @@ import org.apache.geronimo.gbean.GOperationInfo;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/17 00:32:10 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/19 06:35:36 $
  */
 public class MockGBean implements MockEndpoint {
     private static final GBeanInfo GBEAN_INFO;
@@ -75,6 +79,8 @@ public class MockGBean implements MockEndpoint {
     private String value;
 
     private MockEndpoint endpoint;
+
+    private Collection endpointCollection = Collections.EMPTY_SET;
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
@@ -89,9 +95,11 @@ public class MockGBean implements MockEndpoint {
         infoFactory.addAttribute(new GAttributeInfo("EndpointMutableInt"));
         infoFactory.addOperation(new GOperationInfo("checkResource", new String[]{"java.lang.String"}));
         infoFactory.addOperation(new GOperationInfo("checkEndpoint"));
+        infoFactory.addOperation(new GOperationInfo("checkEndpointCollection"));
         infoFactory.addOperation(new GOperationInfo("doSomething", new String[]{"java.lang.String"}));
         infoFactory.addOperation(new GOperationInfo("doSetMutableInt", new String[] {"int"}));
         infoFactory.addEndpoint(new GEndpointInfo("MockEndpoint", MockEndpoint.class.getName()));
+        infoFactory.addEndpoint(new GEndpointInfo("EndpointCollection", MockEndpoint.class.getName()));
         infoFactory.setConstructor(new GConstructorInfo(new String[]{"Name", "FinalInt"}, new Class[]{String.class, Integer.TYPE}));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
@@ -137,6 +145,14 @@ public class MockGBean implements MockEndpoint {
         this.endpoint = endpoint;
     }
 
+    public Collection getEndpointCollection() {
+        return endpointCollection;
+    }
+
+    public void setEndpointCollection(Collection endpointCollection) {
+        this.endpointCollection = endpointCollection;
+    }
+
     public boolean checkResource(String name) {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         return cl.getResource(name) != null;
@@ -151,6 +167,18 @@ public class MockGBean implements MockEndpoint {
             return "no endpoint";
         }
         return endpoint.doSomething("endpointCheck");
+    }
+
+    public int checkEndpointCollection() {
+        int successCount = 0;
+        for (Iterator iterator = endpointCollection.iterator(); iterator.hasNext();) {
+            MockEndpoint mockEndpoint = (MockEndpoint) iterator.next();
+            String result = mockEndpoint.doSomething("endpointCheck");
+            if ("endpointCheck".equals(result)) {
+                successCount++;
+            }
+        }
+        return successCount;
     }
 
     public int getEndpointMutableInt() {

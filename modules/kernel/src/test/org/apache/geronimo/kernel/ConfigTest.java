@@ -77,7 +77,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/01/17 00:32:10 $
+ * @version $Revision: 1.8 $ $Date: 2004/01/19 06:35:36 $
  */
 public class ConfigTest extends TestCase {
     private ObjectName gbeanName1;
@@ -125,6 +125,9 @@ public class ConfigTest extends TestCase {
         assertEquals("no endpoint", mbServer.invoke(gbeanName1, "checkEndpoint", null, null));
         assertEquals("endpointCheck", mbServer.invoke(gbeanName2, "checkEndpoint", null, null));
 
+        assertEquals(new Integer(0), mbServer.invoke(gbeanName1, "checkEndpointCollection", null, null));
+        assertEquals(new Integer(1), mbServer.invoke(gbeanName2, "checkEndpointCollection", null, null));
+
         mbServer.setAttribute(gbeanName2, new Attribute("EndpointMutableInt", new Integer(99)));
         assertEquals(new Integer(99), mbServer.getAttribute(gbeanName2, "EndpointMutableInt"));
         assertEquals(new Integer(99), mbServer.getAttribute(gbeanName1, "MutableInt"));
@@ -164,6 +167,7 @@ public class ConfigTest extends TestCase {
         mockBean2.setAttribute("FinalInt", new Integer(3));
         mockBean2.setAttribute("MutableInt", new Integer(4));
         mockBean2.setEndpointPatterns("MockEndpoint", Collections.singleton(gbeanName1));
+        mockBean2.setEndpointPatterns("EndpointCollection", Collections.singleton(gbeanName1));
 
         Map gbeans = new HashMap();
         gbeans.put(gbeanName1, mockBean1);
