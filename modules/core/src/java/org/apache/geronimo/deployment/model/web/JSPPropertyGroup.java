@@ -60,10 +60,10 @@ import org.apache.geronimo.deployment.model.j2ee.Displayable;
 /**
  * JavaBean for the web.xml tag jsp-property-group
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class JSPPropertyGroup extends Displayable {
-    private String urlPattern;
+    private String[] urlPattern = new String[0];
     private Boolean elIgnored;
     private String pageEncoding;
     private Boolean scriptingInvalid;
@@ -135,11 +135,19 @@ public class JSPPropertyGroup extends Displayable {
         this.scriptingInvalid = scriptingInvalid;
     }
 
-    public String getURLPattern() {
+    public String[] getURLPattern() {
         return urlPattern;
     }
 
-    public void setURLPattern(String urlPattern) {
+    public String getURLPattern(int i) {
+        return urlPattern[i];
+    }
+
+    public void setURLPattern(String[] urlPattern) {
         this.urlPattern = urlPattern;
+    }
+
+    public void setURLPattern(int i, String urlPattern) {
+        this.urlPattern[i] = urlPattern;
     }
 }
