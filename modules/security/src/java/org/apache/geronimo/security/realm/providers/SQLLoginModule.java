@@ -89,7 +89,11 @@ public class SQLLoginModule implements LoginModule {
         } catch (UnsupportedCallbackException uce) {
             throw (LoginException) new LoginException().initCause(uce);
         }
+        assert callbacks.length == 2;
         cbUsername = ((NameCallback) callbacks[0]).getName();
+        if(cbUsername == null || cbUsername.equals("")) {
+            return false;
+        }
         cbPassword = new String(((PasswordCallback) callbacks[1]).getPassword());
 
         boolean found = false;

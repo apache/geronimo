@@ -126,8 +126,11 @@ public class PropertiesFileLoginModule implements LoginModule, DeploymentSupport
         } catch (UnsupportedCallbackException uce) {
             throw (LoginException) new LoginException().initCause(uce);
         }
+        assert callbacks.length == 2;
         username = ((NameCallback) callbacks[0]).getName();
-        assert username != null;
+        if(username == null || username.equals("")) {
+            return false;
+        }
         password = users.getProperty(username);
 
         return new String(((PasswordCallback) callbacks[1]).getPassword()).equals(password);
