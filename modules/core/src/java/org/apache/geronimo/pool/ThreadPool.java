@@ -30,7 +30,7 @@ import org.apache.geronimo.gbean.WaitingException;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/07/08 22:07:54 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/10 16:07:46 $
  */
 public class ThreadPool implements Executor, ExecutorFactory, GBeanLifecycle {
 
@@ -83,8 +83,7 @@ public class ThreadPool implements Executor, ExecutorFactory, GBeanLifecycle {
     public void doStart() throws WaitingException, Exception {
         PooledExecutor p = new PooledExecutor(new LinkedQueue(), poolSize);
         p.setKeepAliveTime(keepAliveTime);
-        //I think this does nothing with a LinkedQueue present
-        p.setMaximumPoolSize(poolSize);
+        p.setMinimumPoolSize(poolSize);
         p.setThreadFactory(new ThreadFactory() {
             public Thread newThread(Runnable arg0) {
                 return new Thread(arg0, poolName + " " + getNextWorkerID());
