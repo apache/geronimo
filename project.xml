@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.20 $ $Date: 2004/01/16 06:06:38 $ -->
+<!-- $Revision: 1.21 $ $Date: 2004/01/31 16:16:13 $ -->
 
 <project>
 
@@ -10,30 +10,6 @@
   <!-- ===================== -->
   <!-- Module Identification -->
   <!-- ===================== -->
-
-  <name>Apache Geronimo</name>
-  <id>geronimo</id>
-  <currentVersion>DEV</currentVersion>
-
-    <organization>
-        <name>Apache Geronimo Project</name>
-        <url></url>
-        <logo></logo>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
-
-    <url></url>
-    <issueTrackingUrl></issueTrackingUrl>
-
-    <mailingLists>
-        <mailingList>
-            <name></name>
-            <subscribe></subscribe>
-            <unsubscribe></unsubscribe>
-            <archive></archive>
-        </mailingList>
-    </mailingLists>
-
 
     <developers>
         <developer>
