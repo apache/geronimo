@@ -76,7 +76,7 @@ import org.objectweb.asm.Type;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/02/24 06:05:37 $
+ * @version $Revision: 1.7 $ $Date: 2004/02/25 07:50:25 $
  */
 public final class ProxyMethodInterceptor implements MethodInterceptor {
     /**
@@ -157,7 +157,8 @@ public final class ProxyMethodInterceptor implements MethodInterceptor {
         }
         InvokeMBean invoker = methodTable[proxy.getSuperIndex()];
         if (invoker == null) {
-            throw new NoSuchOperationError("No implementation method for " + method);
+            throw new NoSuchOperationError("No implementation method:" +
+                    " objectName=" + objectName + ", method=" + method);
         }
         return invoker.invoke(server, objectName, args);
     }
