@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: project.xml,v 1.6 2003/08/14 19:41:15 jdillon Exp $ -->
+<!-- $Id: project.xml,v 1.7 2003/08/16 02:35:15 jboynes Exp $ -->
 
 <project>
   
@@ -201,16 +201,24 @@
   
   <contributors>
     <contributor>
+      <name>Aaron Mulder</name>
+      <email>ammulder@alumni.princeton.edu</email>
+    </contributor>
+    <contributor>
+      <name>Alex Blewitt</name>
+      <email>Alex.Blewitt@bandlem.com</email>
+    </contributor>
+    <contributor>
+      <name>Brent Worden</name>
+      <email>brent@worden.org</email>
+    </contributor>
+    <contributor>
       <name>Ed Letifov</name>
       <email>e.letifov@chello.nl</email>
     </contributor>
     <contributor>
       <name>Maas van den Berg</name>
       <email>email@dds.nl</email>
-    </contributor>
-    <contributor>
-      <name>Aaron Mulder</name>
-      <email></email>
     </contributor>
   </contributors>
 
