@@ -63,8 +63,46 @@ Release Notes - Apache Geronimo - Version 1.0-M2
 
 ** Unimplemented and Unsupported Features
 
-    * [GERONIMO-172] - EJB 2.1 ServiceEndpoint interface support    * [GERONIMO-173] - EJB 1.1 CMP EntityBean support    * [GERONIMO-174] - Support for security-roles in web.xml    * [GERONIMO-175] - Web to EJB security integration    * [GERONIMO-176] - CMP table mapping support    * [GERONIMO-177] - Support for user defined primary key classes    * [GERONIMO-179] - Support for CMRs    * [GERONIMO-181] - Transaction propogation accross calls to stateful session beans    * [GERONIMO-186] - EJB-QL support    * [GERONIMO-188] - Entity instance caching    * [GERONIMO-191] - Deployment of multiple modules into a single configuration    * [GERONIMO-192] - ejbSelect method support    * [GERONIMO-194] - Date, time and datetime data type support for CMP entitiy beans    * [GERONIMO-195] - BLOB support for CMP entity bean    * [GERONIMO-213] - J2EE 1.4 Application Client (JSR 151) support    * [GERONIMO-215] - Tomcat integration for Servlet 2.4 (JSR 154) and JSP 2.0 (JSR 152) support    * [GERONIMO-217] - JAAS Login from App Client Container    * [GERONIMO-218] - UserTransaction access from App Client Container    * [GERONIMO-226] - Locical dependency support    * [GERONIMO-228] - EJB 2.1 Home methods    * [GERONIMO-234] - Build fails when maven/plugins is not writable    * [GERONIMO-239] - Should be able to dump .car file    * [GERONIMO-241] - GBean proxy code could use improvement    * [GERONIMO-242] - Keep history of running configurations    * [GERONIMO-254] - ServerInfo is too darned useful    * [GERONIMO-264] - exceptions being swallowed at startup    * [GERONIMO-272] - Web Service References in ejb-jar.xml Deployment Descriptor    * [GERONIMO-281] - Optional packages support
+
+
+    * [GERONIMO-172] - EJB 2.1 ServiceEndpoint interface support
+    * [GERONIMO-173] - EJB 1.1 CMP EntityBean support
+    * [GERONIMO-174] - Support for security-roles in web.xml
+    * [GERONIMO-175] - Web to EJB security integration
+    * [GERONIMO-176] - CMP table mapping support
+    * [GERONIMO-177] - Support for user defined primary key classes
+    * [GERONIMO-179] - Support for CMRs
+    * [GERONIMO-181] - Transaction propogation accross calls to stateful session beans
+    * [GERONIMO-186] - EJB-QL support
+    * [GERONIMO-188] - Entity instance caching
+    * [GERONIMO-191] - Deployment of multiple modules into a single configuration
+    * [GERONIMO-192] - ejbSelect method support
+    * [GERONIMO-194] - Date, time and datetime data type support for CMP entitiy beans
+    * [GERONIMO-195] - BLOB support for CMP entity bean
+    * [GERONIMO-213] - J2EE 1.4 Application Client (JSR 151) support
+    * [GERONIMO-215] - Tomcat integration for Servlet 2.4 (JSR 154) and JSP 2.0 (JSR 152) support
+    * [GERONIMO-217] - JAAS Login from App Client Container
+    * [GERONIMO-218] - UserTransaction access from App Client Container
+    * [GERONIMO-226] - Locical dependency support
+    * [GERONIMO-228] - EJB 2.1 Home methods
+    * [GERONIMO-234] - Build fails when maven/plugins is not writable
+    * [GERONIMO-239] - Should be able to dump .car file
+    * [GERONIMO-241] - GBean proxy code could use improvement
+    * [GERONIMO-242] - Keep history of running configurations
+    * [GERONIMO-254] - ServerInfo is too darned useful
+    * [GERONIMO-264] - exceptions being swallowed at startup
+    * [GERONIMO-272] - Web Service References in ejb-jar.xml Deployment Descriptor
+    * [GERONIMO-281] - Optional packages support
 
 ** Known Issues
 
-    * [GERONIMO-249] - Ear, war, ejb-jar, and rar manifest Class-Path entries are ignored by configuration builders    * [GERONIMO-250] - Connector tries to commit after connection error    * [GERONIMO-258] - org.xml.sax.SAXParseException: Attribute "xmlns" must be declared for element type "web-app"    * [GERONIMO-260] - NullPointerException deploying EAR files    * [GERONIMO-261] - NullPointerException deploying EAR jetty module    * [GERONIMO-265] - NPE while deploying resource adapter    * [GERONIMO-268] - Connection Error handling problems    * [GERONIMO-282] - servlet calls ejb: "class not found" at deployment and run time    * [GERONIMO-284] - alt-dd is not implemented    * [GERONIMO-289] - Interface classes for an ejb-ref in a war cannot be loaded from war libs or classes
+    * [GERONIMO-249] - Ear, war, ejb-jar, and rar manifest Class-Path entries are ignored by configuration builders
+    * [GERONIMO-250] - Connector tries to commit after connection error
+    * [GERONIMO-258] - org.xml.sax.SAXParseException: Attribute "xmlns" must be declared for element type "web-app"
+    * [GERONIMO-260] - NullPointerException deploying EAR files
+    * [GERONIMO-261] - NullPointerException deploying EAR jetty module
+    * [GERONIMO-265] - NPE while deploying resource adapter
+    * [GERONIMO-268] - Connection Error handling problems
+    * [GERONIMO-282] - servlet calls ejb: "class not found" at deployment and run time
+    * [GERONIMO-284] - alt-dd is not implemented
+    * [GERONIMO-289] - Interface classes for an ejb-ref in a war cannot be loaded from war libs or classes
