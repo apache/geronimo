@@ -55,14 +55,14 @@
  */
 package org.apache.geronimo.deployment.dependency;
 
-import org.apache.geronimo.common.AbstractStateManageable;
+import org.apache.geronimo.management.AbstractManagedObject;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/20 03:26:06 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/21 04:33:32 $
  */
-public class Person extends AbstractStateManageable implements PersonMBean {
+public class Person extends AbstractManagedObject implements PersonMBean {
     private String name;
     private boolean doStartCalled = false;
     private boolean doStopCalled = false;

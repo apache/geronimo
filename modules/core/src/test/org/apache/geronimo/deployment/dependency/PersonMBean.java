@@ -56,13 +56,14 @@
 package org.apache.geronimo.deployment.dependency;
 
 import org.apache.geronimo.management.StateManageable;
+import org.apache.geronimo.management.ManagedObject;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/20 07:13:40 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/21 04:33:32 $
  */
-public interface PersonMBean extends StateManageable {
+public interface PersonMBean extends ManagedObject, StateManageable {
     String getName();
 
     void setName(String name);
