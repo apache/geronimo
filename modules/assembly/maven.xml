@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- $Revision: 1.1 $ $Date: 2004/02/17 07:21:02 $ -->
+
+<project default="default"
+    xmlns:j="jelly:core"
+    xmlns:ant="jelly:ant">
+
+    <!-- ================= -->
+    <!-- Global Properties -->
+    <!-- ================= -->
+
+    <!-- Determine what the top-level project root is -->
+    <j:set var="project.root" value="${pom.parentBasedir().getParentFile().getCanonicalFile()}"/>
+
+    <!-- Determine what the top-level project root is -->
+    <j:set var="distDir" value="${project.root}/target"/>
+
+    <!-- Load the global properties -->
+    <ant:property file="${project.root}/etc/global.properties"/>
+
+
+    <!-- ==================== -->
+    <!-- Default Global Goals -->
+    <!-- ==================== -->
+
+    <goal name="default">
+        <attainGoal name="build"/>
+    </goal>
+
+    <goal name="build">
+        <attainGoal name="assemble"/>
+    </goal>
+
+    <goal name="rebuild">
+        <attainGoal name="clean"/>
+        <attainGoal name="build"/>
+    </goal>
+
+    <postGoal name="clean:clean">
+        <ant:delete dir="${distDir}"/>
+    </postGoal>
+
+    <!-- ==================================================== -->
+    <!-- Assemble server installation from generated modules  -->
+    <!-- ==================================================== -->
+    <goal name="assemble">
+        <!-- Copy  the runtime dependencies into lib and create a classpath for the server.jar file -->
+        <j:set var="libDir" value="${distDir}/lib"/>
+        <ant:mkdir dir="${libDir}"/>
+        <j:forEach var="artifact" items="${pom.artifacts}">
+            <j:set var="dependency" value="${artifact.dependency}"/>
+            <j:if test="${dependency.getProperty('lib') == 'true'}">
+                <ant:copy todir="${libDir}" file="${artifact.path}"/>
+                <j:set var="classpath" value="${classpath} ../lib/${artifact.name}"/>
+            </j:if>
+            <j:if test="${dependency.getProperty('server') == 'true'}">
+                <j:set var="server.classpath" value="${server.classpath} ../lib/${artifact.name}"/>
+            </j:if>
+            <j:if test="${dependency.getProperty('deploy') == 'true'}">
+                <j:set var="deploy.classpath" value="${deploy.classpath} ../lib/${artifact.name}"/>
+            </j:if>
+            <j:if test="${dependency.artifactId == 'geronimo-system'}">
+                <j:set var="system.artifact" value="${artifact.path}"/>
+            </j:if>
+        </j:forEach>
+
+        <!-- Create directory for XML schema documents -->
+        <ant:mkdir dir="${distDir}/schema"/>
+        <ant:copy todir="${distDir}/schema" flatten="true">
+            <ant:fileset dir="${project.root}/specs/schema">
+                <ant:include name="src/j2ee_1_4schema/*.xsd"/>
+                <ant:include name="src/j2ee_1_3dtd/*.dtd"/>
+            </ant:fileset>
+            <ant:fileset dir="${project.root}/modules/deployment">
+                <ant:include name="src/schema/*.xsd"/>
+            </ant:fileset>
+            <ant:fileset dir="src/etc"/>
+        </ant:copy>
+
+        <!-- Pre-load the server's repository -->
+        <ant:mkdir dir="${distDir}/repository"/>
+        <ant:copy todir="${distDir}/repository">
+            <ant:fileset dir="${maven.repo.local}">
+                <ant:include name="geronimo/**"/>
+                <ant:include name="geronimo-spec/**"/>
+
+                <j:forEach var="artifact" items="${pom.artifacts}">
+                    <j:set var="dependency" value="${artifact.dependency}"/>
+                    <j:if test="${dependency.getProperty('repository') == 'true'}">
+                        <ant:include name="${dependency.getArtifactDirectory()}/${dependency.getType()}s/${dependency.getArtifact()}"/>
+                    </j:if>
+                </j:forEach>
+            </ant:fileset>
+        </ant:copy>
+
+        <ant:copy todir="${distDir}/repository">
+            <mapper type="glob" from="${maven.repo.local}*" to="*"/>
+            <ant:fileset dir="${maven.repo.local}">
+                <j:forEach var="artifact" items="${pom.artifacts}">
+                    <j:set var="dependency" value="${artifact.dependency}"/>
+                    <j:if test="${dependency.getProperty('repository') == 'true'}">
+                        <ant:fileset include="${artifact.path}"/>
+                    </j:if>
+                </j:forEach>
+            </ant:fileset>
+        </ant:copy>
+
+        <!-- Create the server.jar file used to run the server-->
+        <ant:touch file="${distDir}/.empty.temp.file"/>
+        <ant:mkdir dir="${distDir}/bin"/>
+        <ant:jar destfile="${distDir}/bin/server.jar">
+            <zipfileset file="${distDir}/.empty.temp.file" fullpath="META-INF/startup-jar"/>
+            <manifest>
+                <attribute name="Main-Class" value="org.apache.geronimo.Geronimo"/>
+                <attribute name="Class-Path" value="${server.classpath}"/>
+            </manifest>
+        </ant:jar>
+
+        <!-- Create the deploy.jar file used to deploy things -->
+        <ant:jar destfile="${distDir}/bin/deploy.jar">
+            <zipfileset file="${distDir}/.empty.temp.file" fullpath="META-INF/startup-jar"/>
+            <manifest>
+                <attribute name="Main-Class" value="org.apache.geronimo.deployment.Deployer"/>
+                <attribute name="Class-Path" value="${deploy.classpath}"/>
+            </manifest>
+        </ant:jar>
+        <ant:delete file="${distDir}/.empty.temp.file"/>
+
+        <!-- bootstrap the service deployer -->
+        <ant:echo>Bootstrapping service deployer</ant:echo>
+        <ant:mkdir dir="${distDir}/config"/>
+        <ant:mkdir dir="${distDir}/config-store"/>
+        <j:invokeStatic className="org.apache.geronimo.deployment.Bootstrap" method="bootstrap">
+            <j:arg type="java.lang.String" value="${distDir}/config/service-deployer.car"/>
+            <j:arg type="java.lang.String" value="${distDir}/config-store"/>
+            <j:arg type="java.lang.String" value="${system.artifact}"/>
+        </j:invokeStatic>
+
+        <!-- build the system configuration -->
+        <ant:echo>Building system configuration</ant:echo>
+        <ant:java fork="true" jar="${distDir}/bin/deploy.jar">
+            <ant:sysproperty key="geronimo.base.dir" value="${distDir}"/>
+            <ant:arg value="--install"/>
+            <ant:arg value="--plan"/>
+            <ant:arg value="src/plan/system-config.xml"/>
+            <ant:arg value="--outfile"/>
+            <ant:arg value="${distDir}/config/system.car"/>
+            <ant:arg value="--store"/>
+            <ant:arg value="${distDir}/config-store"/>
+            <ant:arg value="--deployer"/>
+            <ant:arg value="org/apache/geronimo/ServiceDeployer"/>
+        </ant:java>
+
+        <!-- build the J2EEServer configuration -->
+        <ant:echo>Building server configuration</ant:echo>
+        <ant:java fork="true" jar="${distDir}/bin/deploy.jar">
+            <ant:sysproperty key="geronimo.base.dir" value="${distDir}"/>
+            <ant:arg value="--install"/>
+            <ant:arg value="--plan"/>
+            <ant:arg value="src/plan/server-config.xml"/>
+            <ant:arg value="--outfile"/>
+            <ant:arg value="${distDir}/config/J2EEServer.car"/>
+            <ant:arg value="--store"/>
+            <ant:arg value="${distDir}/config-store"/>
+            <ant:arg value="--deployer"/>
+            <ant:arg value="org/apache/geronimo/ServiceDeployer"/>
+        </ant:java>
+
+        <!-- build the Debug Tool configuration -->
+<!--
+uncomment to build the debug tool config - but remember to remove the absolute path first
+THIS IS A TEMPORARY HACK AND WILL BE REPLACED BY THE WAR DEPLOYER
+
+        <ant:echo>Building debug tool configuration</ant:echo>
+        <ant:java fork="true" jar="${distDir}/bin/deploy.jar">
+            <ant:sysproperty key="geronimo.base.dir" value="${distDir}"/>
+
+       REMOVE THIS LINE AND THE SPACE BETWEEN THE DASHES BELOW
+            <ant:arg value="- -install"/>
+            <ant:arg value="- -plan"/>
+            <ant:arg value="src/plan/debug-tool.xml"/>
+            <ant:arg value="- -outfile"/>
+            <ant:arg value="${distDir}/config/debug-tool.car"/>
+            <ant:arg value="- -store"/>
+            <ant:arg value="${distDir}/config-store"/>
+            <ant:arg value="- -deployer"/>
+            <ant:arg value="org/apache/geronimo/ServiceDeployer"/>
+        </ant:java>
+-->
+    </goal>
+
+</project>

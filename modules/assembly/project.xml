@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Revision: 1.1 $ $Date: 2004/02/17 07:21:02 $ -->
+
+<project>
+    <pomVersion>3</pomVersion>
+    <extend>${basedir}/../../etc/project.xml</extend>
+
+    <!-- ===================== -->
+    <!-- Module Identification -->
+    <!-- ===================== -->
+
+    <name>Geronimo :: Assembly</name>
+    <id>geronimo-assembly</id>
+    <shortDescription>Geronimo Assembly</shortDescription>
+    <description>Geronimo Assembly</description>
+    <url>http://incubator.apache.org/projects/geronimo/</url>
+    <siteDirectory>/www/incubator.apache.org/projects/geronimo</siteDirectory>
+    <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds</distributionDirectory>
+
+    <currentVersion>DEV</currentVersion>
+
+    <!-- ============ -->
+    <!-- Dependencies -->
+    <!-- ============ -->
+
+    <dependencies>
+        <!-- ========================================================== -->
+        <!-- We use the follow properties in this build:                -->
+        <!--     lib: copy dependency into lib                          -->
+        <!--     server: include dependency in server classpath         -->
+        <!--     deploy: include dependency in deployer classpath       -->
+        <!--     repository: copy dependency into repository (Note: all -->
+        <!--         geronimojars are always copied to repository)      -->
+        <!-- ========================================================== -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-clustering</artifactId>
+            <version>DEV</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-common</artifactId>
+            <version>DEV</version>
+            <properties>
+                <lib>true</lib>
+                <deploy>true</deploy>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-connector</artifactId>
+            <version>DEV</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-core</artifactId>
+            <version>DEV</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-deployment</artifactId>
+            <version>DEV</version>
+            <properties>
+                <lib>true</lib>
+                <deploy>true</deploy>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-jetty</artifactId>
+            <version>DEV</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>DEV</version>
+            <properties>
+                <lib>true</lib>
+                <server>true</server>
+                <deploy>true</deploy>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-naming</artifactId>
+            <version>DEV</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-remoting</artifactId>
+            <version>DEV</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-security</artifactId>
+            <version>DEV</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-system</artifactId>
+            <version>DEV</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-transaction</artifactId>
+            <version>DEV</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee</artifactId>
+            <version>DEV</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ant</groupId>
+            <artifactId>ant</artifactId>
+            <version>1.5</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-full</artifactId>
+            <version>2.0-RC2</version>
+            <url>http://cglib.sf.net/</url>
+            <properties>
+                <lib>true</lib>
+                <server>true</server>
+                <deploy>true</deploy>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-cli</groupId>
+            <artifactId>commons-cli</artifactId>
+            <version>1.0</version>
+            <url>http://jakarta.apache.org/commons/cli/</url>
+            <properties>
+                <lib>true</lib>
+                <deploy>true</deploy>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-el</groupId>
+            <artifactId>commons-el</artifactId>
+            <version>1.0</version>
+            <url>http://jakarta.apache.org/commons/el/</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.0.3</version>
+            <url>http://jakarta.apache.org/commons/logging/</url>
+            <properties>
+                <lib>true</lib>
+                <server>true</server>
+                <deploy>true</deploy>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>jetty</groupId>
+            <artifactId>org.mortbay.jetty</artifactId>
+            <version>5.0.beta0</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.8</version>
+            <url>http://jakarta.apache.org/log4j</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j</artifactId>
+            <version>SNAPSHOT</version>
+            <properties>
+                <lib>true</lib>
+                <server>true</server>
+                <deploy>true</deploy>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>jasper-compiler</artifactId>
+            <version>5.0.16</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>jasper-runtime</artifactId>
+            <version>5.0.16</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xbean-apache</artifactId>
+            <version>1.0-DEV</version>
+            <properties>
+                <lib>true</lib>
+                <deploy>true</deploy>
+            </properties>
+        </dependency>
+    </dependencies>
+</project>
