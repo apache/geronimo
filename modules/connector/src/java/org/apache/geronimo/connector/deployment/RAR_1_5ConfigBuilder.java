@@ -73,7 +73,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.12 $ $Date: 2004/05/29 05:13:52 $
+ * @version $Revision: 1.13 $ $Date: 2004/05/30 18:14:55 $
  *
  * */
 public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
@@ -239,19 +239,16 @@ public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
         return gbean;
     }
 
-//ManagedConnectionFactories are extremely restricted as to the attribute types.
+    //ManagedConnectionFactories are extremely restricted as to the attribute types.
     private void setDynamicAttributes(GBeanMBean gBean, ConfigPropertyType[] configProperties, GerConfigPropertySettingType[] configPropertySettings) throws DeploymentException, ReflectionException, MBeanException, InvalidAttributeValueException, AttributeNotFoundException {
         for (int i = 0; i < configProperties.length; i++) {
             ConfigPropertyType configProperty = configProperties[i];
-            if (configProperty.getConfigPropertyValue() == null) {
-                continue;
-            }
             Object value;
             try {
                 PropertyEditor editor = PropertyEditors.findEditor(configProperty.getConfigPropertyType().getStringValue());
                 String valueString = null;
                 if (editor != null) {
-//look for explicit value setting
+                    //look for explicit value setting
                     for (int j = 0; j < configPropertySettings.length; j++) {
                         GerConfigPropertySettingType configPropertySetting = configPropertySettings[j];
                         if (configPropertySetting.getName().equals(configProperty.getConfigPropertyName().getStringValue())) {
@@ -259,7 +256,7 @@ public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
                             break;
                         }
                     }
-//look for default value
+                    //look for default value
                     if (valueString == null) {
                         if (configProperty.getConfigPropertyValue() != null) {
                             valueString = configProperty.getConfigPropertyValue().getStringValue();
@@ -271,7 +268,7 @@ public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
                         gBean.setAttribute(configProperty.getConfigPropertyName().getStringValue(), value);
                     }
                 } else {
-                    throw new DeploymentException("No property editor for type: " + configProperty.getConfigPropertyType());
+                    throw new DeploymentException("No property editor for type: " + configProperty.getConfigPropertyType().getStringValue());
                 }
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("Could not load attribute class: attribute: " + configProperty.getConfigPropertyName() + ", type: " + configProperty.getConfigPropertyType(), e);
