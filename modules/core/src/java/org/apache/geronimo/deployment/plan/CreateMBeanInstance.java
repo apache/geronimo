@@ -56,7 +56,6 @@
 package org.apache.geronimo.deployment.plan;
 
 import java.beans.PropertyEditor;
-import java.beans.PropertyEditorManager;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
@@ -81,6 +80,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.geronimo.common.StringValueParser;
 import org.apache.geronimo.common.Classes;
+import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.dependency.DependencyServiceMBean;
@@ -92,7 +92,7 @@ import org.apache.geronimo.jmx.JMXUtil;
 /**
  * Creates an new MBean instance and intializes it according to the specified MBeanMetadata metadata
  *
- * @version $Revision: 1.11 $ $Date: 2003/08/28 09:09:24 $
+ * @version $Revision: 1.12 $ $Date: 2003/08/28 11:18:01 $
  */
 public class CreateMBeanInstance implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
@@ -284,7 +284,7 @@ public class CreateMBeanInstance implements DeploymentTask {
         }
 
         // try a property editor
-        PropertyEditor editor = PropertyEditorManager.findEditor(attrType);
+        PropertyEditor editor = PropertyEditors.findEditor(attrType);
         if (editor != null) {
             editor.setAsText(value);
             return editor.getValue();

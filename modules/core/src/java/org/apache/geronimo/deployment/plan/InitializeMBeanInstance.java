@@ -56,7 +56,6 @@
 package org.apache.geronimo.deployment.plan;
 
 import java.beans.PropertyEditor;
-import java.beans.PropertyEditorManager;
 import java.lang.reflect.Constructor;
 import java.util.Iterator;
 import java.util.Map;
@@ -74,6 +73,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.geronimo.common.StringValueParser;
 import org.apache.geronimo.common.Classes;
+import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.MBeanMetadata;
@@ -81,7 +81,7 @@ import org.apache.geronimo.deployment.service.MBeanMetadata;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/28 09:09:24 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/28 11:18:01 $
  */
 public class InitializeMBeanInstance implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
@@ -178,7 +178,7 @@ public class InitializeMBeanInstance implements DeploymentTask {
         }
 
         // try a property editor
-        PropertyEditor editor = PropertyEditorManager.findEditor(attrType);
+        PropertyEditor editor = PropertyEditors.findEditor(attrType);
         if (editor != null) {
             editor.setAsText(value);
             return editor.getValue();
