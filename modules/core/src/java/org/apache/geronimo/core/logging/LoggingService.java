@@ -1,0 +1,127 @@
+/* ====================================================================
+ * The Apache Software License, Version 1.1
+ *
+ * Copyright (c) 2003 The Apache Software Foundation.  All rights
+ * reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *
+ * 3. The end-user documentation included with the redistribution,
+ *    if any, must include the following acknowledgment:
+ *       "This product includes software developed by the
+ *        Apache Software Foundation (http://www.apache.org/)."
+ *    Alternately, this acknowledgment may appear in the software itself,
+ *    if and wherever such third-party acknowledgments normally appear.
+ *
+ * 4. The names "Apache" and "Apache Software Foundation" and
+ *    "Apache Geronimo" must not be used to endorse or promote products
+ *    derived from this software without prior written permission. For
+ *    written permission, please contact apache@apache.org.
+ *
+ * 5. Products derived from this software may not be called "Apache",
+ *    "Apache Geronimo", nor may "Apache" appear in their name, without
+ *    prior written permission of the Apache Software Foundation.
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR
+ * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+ * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ * ====================================================================
+ *
+ * This software consists of voluntary contributions made by many
+ * individuals on behalf of the Apache Software Foundation.  For more
+ * information on the Apache Software Foundation, please see
+ * <http://www.apache.org/>.
+ *
+ * ====================================================================
+ */
+
+package org.apache.geronimo.core.logging;
+
+import java.net.URL;
+
+/**
+ * Interface for the logging services.
+ *
+ * <p>Currently assumes URL based configuration.
+ *
+ * @jmx:mbean
+ *      extends="org.apache.geronimo.management.StateManageable, org.apache.geronimo.management.ManagedObject"
+ *
+ * @version $Revision: 1.1 $ $Date: 2003/09/01 19:31:33 $
+ */
+public interface LoggingService
+    extends LoggingServiceMBean
+{
+    /**
+     * Get the refresh period.
+     *
+     * @return The refresh period (in seconds).
+     *
+     * @jmx:managed-attribute
+     */
+    int getRefreshPeriod();
+    
+    /**
+     * Set the refresh period.
+     *
+     * @param period    The refresh period (in seconds).
+     *
+     * @throws IllegalArgumentException     Refresh period must be > 0
+     *
+     * @jmx:managed-attribute
+     */
+    void setRefreshPeriod(int period);
+    
+    /**
+     * Get the logging configuration URL.
+     *
+     * @return The logging configuration URL.
+     *
+     * @jmx:managed-attribute
+     */
+    URL getConfigurationURL();
+    
+    /**
+     * Set the logging configuration URL.
+     *
+     * @param url   The logging configuration URL.
+     *
+     * @jmx:managed-attribute
+     */
+    void setConfigurationURL(URL url);
+    
+    /**
+     * Force the logging system to reconfigure.
+     *
+     * @jmx:managed-operation
+     */
+    void reconfigure();
+    
+    /**
+     * Force the logging system to configure from the given URL.
+     *
+     * @param url   The URL to configure the logging system from.
+     *
+     * @jmx:managed-operation
+     */
+    void configure(URL url);
+}
