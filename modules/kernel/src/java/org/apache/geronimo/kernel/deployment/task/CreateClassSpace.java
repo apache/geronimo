@@ -55,14 +55,12 @@
  */
 package org.apache.geronimo.kernel.deployment.task;
 
-import java.net.URL;
+import java.lang.reflect.Constructor;
 import java.util.List;
-import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
-import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
@@ -75,7 +73,7 @@ import org.apache.geronimo.kernel.deployment.service.ClassSpaceMetadata;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:34 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/22 02:04:31 $
  */
 public class CreateClassSpace implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
@@ -96,23 +94,68 @@ public class CreateClassSpace implements DeploymentTask {
         ObjectName name = metadata.getName();
         List urls = metadata.getUrls();
         if (!server.isRegistered(name)) {
+            // Get the class object for the class space
+            // Class must be available from the JMX classloader repoistory
+            Class clazz = null;
             try {
-                // @todo add trace logging
-                // @todo use metadata to determine implementation
-                ClassSpace space = new ClassSpace(metadata.getName().toString(), (URL[]) urls.toArray(new URL[urls.size()]));
+                clazz = server.getClassLoaderRepository().loadClass(metadata.getClassName());
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException(e);
+            }
+            if (!ClassSpace.class.isAssignableFrom(clazz)) {
+                throw new DeploymentException("Class does not implement ClassSpace: " + clazz.getName());
+            }
+            if (!ClassLoader.class.isAssignableFrom(clazz)) {
+                throw new DeploymentException("Class is not a ClassLoader: " + clazz.getName());
+            }
+
+            // Get the constructor
+            Constructor constructor = null;
+            try {
+                constructor = clazz.getConstructor(new Class[]{ClassLoader.class, ObjectName.class});
+            } catch (Exception e) {
+                throw new DeploymentException("Class does not have the constructor " +
+                        clazz.getName() + "(Classloader parent, String name)");
+            }
+
+            // Determine the parent classloader
+            ObjectName parentName = metadata.getParent();
+            ClassLoader parent = null;
+            if (parentName != null) {
+                try {
+                    parent = server.getClassLoader(parentName);
+                } catch (InstanceNotFoundException e) {
+                    throw new DeploymentException("Parent class loader not found", e);
+                }
+            } else {
+                Thread.currentThread().getContextClassLoader();
+                if (parent == null) {
+                    parent = ClassLoader.getSystemClassLoader();
+                }
+            }
+
+            // Construct a class space instance
+            ClassSpace space = null;
+            try {
+                space = (ClassSpace) constructor.newInstance(new Object[]{parent, metadata.getName()});
+            } catch (Exception e) {
+                // @todo use a typed exception which carries the object name and class type
+                throw new DeploymentException("Could not create class space instance", e);
+            }
+
+            // Add the URLs from the deployment to the class space
+            space.addDeployment(metadata.getDeploymentName(), metadata.getUrls());
+
+            // Register the class loader witht the MBeanServer
+            try {
                 actualName = server.registerMBean(space, name).getObjectName();
-            } catch (RuntimeException e) {
-                throw new DeploymentException(e);
-            } catch (InstanceAlreadyExistsException e) {
-                throw new DeploymentException(e);
-            } catch (MBeanRegistrationException e) {
-                throw new DeploymentException(e);
-            } catch (NotCompliantMBeanException e) {
-                throw new DeploymentException(e);
+            } catch (Exception e) {
+                // @todo use a typed exception which carries the object name and class type
+                throw new DeploymentException("Could not register class space with MBeanServer", e);
             }
         } else {
             try {
-                server.invoke(name, "addURLs", new Object[]{urls}, new String[]{"java.util.List"});
+                server.invoke(name, "addDeployment", new Object[]{metadata.getDeploymentName(), urls}, new String[]{"javax.management.ObjectName", "java.util.List"});
             } catch (InstanceNotFoundException e) {
                 throw new DeploymentException(e);
             } catch (MBeanException e) {
@@ -124,6 +167,7 @@ public class CreateClassSpace implements DeploymentTask {
     }
 
     public void undo() {
+        // @todo  we have a problem here... class space may have been used so it may now contain bad classes (not a problem when constructing a new space)
         if (actualName != null) {
             try {
                 server.unregisterMBean(actualName);

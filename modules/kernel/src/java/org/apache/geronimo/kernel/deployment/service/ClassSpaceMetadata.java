@@ -62,11 +62,19 @@ import javax.management.ObjectName;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:33 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/22 02:04:31 $
  */
 public class ClassSpaceMetadata {
+    public static final int CREATE_IF_NECESSARY = 0;
+    public static final int CREATE_ALWYAS = 1;
+    public static final int CREATE_NEVER = 2;
+
     private ObjectName name;
+    private ObjectName deploymentName;
+    private String className;
+    private int create;
     private final List urls = new ArrayList();
+    private ObjectName parent;
 
     public ObjectName getName() {
         return name;
@@ -76,7 +84,39 @@ public class ClassSpaceMetadata {
         this.name = name;
     }
 
+    public ObjectName getDeploymentName() {
+        return deploymentName;
+    }
+
+    public void setDeploymentName(ObjectName deploymentName) {
+        this.deploymentName = deploymentName;
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    public int getCreate() {
+        return create;
+    }
+
+    public void setCreate(int create) {
+        this.create = create;
+    }
+
     public List getUrls() {
         return urls;
+    }
+
+    public ObjectName getParent() {
+        return parent;
+    }
+
+    public void setParent(ObjectName parent) {
+        this.parent = parent;
     }
 }

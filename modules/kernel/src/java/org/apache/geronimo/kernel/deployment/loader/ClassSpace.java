@@ -57,8 +57,16 @@ package org.apache.geronimo.kernel.deployment.loader;
 
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.Comparator;
+import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -67,42 +75,108 @@ import org.apache.commons.logging.LogFactory;
  *
  * @jmx:mbean
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/14 11:57:37 $
+ * @version $Revision: 1.3 $ $Date: 2003/10/22 02:04:31 $
  */
 public class ClassSpace extends URLClassLoader implements ClassSpaceMBean {
     private final static Log log = LogFactory.getLog(ClassSpace.class);
 
-    private final String name;
+    /**
+     * Unique name of this class space.
+     */
+    private final ObjectName name;
+
+    /**
+     * Cache of loaded classesByName... used for debugging purposes
+     */
+    private final Map classesByName = new HashMap();
+
+    /**
+     * Deployments handled by this space
+     */
+    private final Map urlsByDeployment = new HashMap();
 
     /**
      * @jmx:managed-constructor
      */
-    public ClassSpace(String name, URL[] urls) {
-        super(urls,
-	      Thread.currentThread().getContextClassLoader() == null?
-	      ClassSpace.class.getClassLoader():
-	      Thread.currentThread().getContextClassLoader());
+    public ClassSpace(ClassLoader parent, ObjectName name) {
+        super(new URL[0], parent);
         this.name = name;
-        for (int i = 0; i < urls.length; i++) {
-            URL url = urls[i];
-            log.debug("Added url to class-space: name=" + name + " url=" + url);
-        }
-    }
-
-    /**
-     * @jmx:managed-operation
-     */
-    public void addURLs(List urls) {
-        for (Iterator i = urls.iterator(); i.hasNext();) {
-            URL url = (URL) i.next();
-            addURL(url);
-        }
     }
 
     /**
      * @jmx:managed-attribute
      */
-    public String getName() {
+    public ObjectName getName() {
         return name;
+    }
+
+    /**
+     * @jmx:managed-operation
+     */
+    public synchronized void addDeployment(ObjectName deployment, List urls) {
+        for (Iterator i = urls.iterator(); i.hasNext();) {
+            URL url = (URL) i.next();
+            addURL(url);
+            log.debug("Added url to class-space: name=" + name + " url=" + url);
+        }
+        urlsByDeployment.put(deployment, Collections.unmodifiableList(new ArrayList(urls)));
+    }
+
+    /**
+     * Returns a sorted list loaded classes.
+     * @jmx:managed-operation
+     */
+    public synchronized SortedSet listLoadedClassNames() {
+        return Collections.unmodifiableSortedSet(new TreeSet(classesByName.keySet()));
+    }
+
+    /**
+     * @jmx:managed-operation
+     */
+    public synchronized Map listUrlsByDeployment() {
+        return Collections.unmodifiableMap(urlsByDeployment);
+    }
+
+    /**
+     * @jmx:managed-operation
+     */
+    public synchronized SortedSet listURLs() {
+        TreeSet urls = new TreeSet(new ToStringComparator());
+        URL[] urlArray = getURLs();
+        for (int i = 0; i < urlArray.length; i++) {
+            urls.add(urlArray[i]);
+
+        }
+        return Collections.unmodifiableSortedSet(urls);
+    }
+
+    /**
+     * @jmx:managed-operation
+     */
+    public synchronized Class loadClass(String name) throws ClassNotFoundException {
+        return super.loadClass(name, false);
+    }
+
+    /**
+     * @jmx:managed-operation
+     */
+    public synchronized Class loadClass(String className, boolean resolve) throws ClassNotFoundException {
+        return super.loadClass(className, resolve);
+    }
+
+    protected Class findClass(final String className) throws ClassNotFoundException {
+        // define the class
+        Class clazz = super.findClass(className);
+
+        // add it to our cache
+        classesByName.put(clazz.getName(), clazz);
+
+        return clazz;
+    }
+
+    private class ToStringComparator implements Comparator {
+        public int compare(Object o1, Object o2) {
+            return o1.toString().compareTo(o2.toString());
+        }
     }
 }

@@ -77,7 +77,7 @@ import org.w3c.dom.NodeList;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:33 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/22 02:04:31 $
  */
 public class ClassSpaceMetadataXMLLoader {
     private final URL baseURL;
@@ -93,6 +93,38 @@ public class ClassSpaceMetadataXMLLoader {
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException(e);
         }
+
+        // implementation class
+        String code = element.getAttribute("code").trim();
+        if (code.length() > 0) {
+            md.setClassName(code);
+        } else {
+            md.setClassName("org.apache.geronimo.kernel.deployment.loader.ClassSpace");
+        }
+
+        // should we be creating the classloader
+        String create = element.getAttribute("create").trim();
+        if (create.length() > 0) {
+            if ((new Boolean(create)).booleanValue()) {
+                md.setCreate(ClassSpaceMetadata.CREATE_ALWYAS);
+            } else {
+                md.setCreate(ClassSpaceMetadata.CREATE_NEVER);
+            }
+        } else {
+            md.setCreate(ClassSpaceMetadata.CREATE_IF_NECESSARY);
+        }
+
+        // what should be the parent of this class space if we end up creating it
+        String parentName = element.getAttribute("parent");
+        if (parentName != null && parentName.length() > 0) {
+            try {
+                md.setParent(new ObjectName(parentName));
+            } catch (MalformedObjectNameException e) {
+                throw new DeploymentException(e);
+            }
+        }
+
+        // get the urls
         List urls = md.getUrls();
         NodeList nl = element.getElementsByTagName("codebase");
         try {

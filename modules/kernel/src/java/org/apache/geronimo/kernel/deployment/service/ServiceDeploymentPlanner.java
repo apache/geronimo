@@ -103,7 +103,7 @@ import org.w3c.dom.NodeList;
  *
  * @jmx:mbean extends="org.apache.geronimo.kernel.deployment.DeploymentPlanner"
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/05 01:37:00 $
+ * @version $Revision: 1.3 $ $Date: 2003/10/22 02:04:31 $
  */
 public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, MBeanRegistration {
     private MBeanServer server;
@@ -168,7 +168,6 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
         InputStream is;
         URL url = goal.getUrl();
         URI baseURI = URI.create(url.toString()).normalize();
-        ;
 
         URLType type = goal.getType();
         if (type == URLType.RESOURCE) {
@@ -207,14 +206,16 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException(e);
         }
-
         ServiceDeployment serviceInfo = new ServiceDeployment(deploymentName, null, url);
         createDeploymentUnitPlan.addTask(new RegisterMBeanInstance(server, deploymentName, serviceInfo));
         MBeanMetadata metadata = new MBeanMetadata(deploymentName);
         createDeploymentUnitPlan.addTask(new StartMBeanInstance(server, metadata));
 
-        ObjectName loaderName = addClassSpaces(doc.getElementsByTagName("class-space"), createDeploymentUnitPlan, url);
+        // add a plan to create a class space
+        ClassSpaceMetadata md = createClassSpaceMetadata((Element) doc.getElementsByTagName("class-space").item(0), deploymentName, url);
+        createDeploymentUnitPlan.addTask(new CreateClassSpace(server, md));
         plans.add(createDeploymentUnitPlan);
+        ObjectName loaderName = md.getName();
 
         // register a plan to create each mbean
         NodeList nl = doc.getElementsByTagName("mbean");
@@ -243,35 +244,41 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
         return true;
     }
 
-    private ObjectName addClassSpaces(NodeList nl, DeploymentPlan plan, URL baseURL) throws DeploymentException {
-        Element classSpaceElement = (Element) nl.item(0);
+    private ClassSpaceMetadata createClassSpaceMetadata(Element classSpaceElement, ObjectName deploymentName, URL baseURL) throws DeploymentException {
+        ClassSpaceMetadata classSpaceMetadata;
         if (classSpaceElement == null) {
-            return null;
+            classSpaceMetadata = new ClassSpaceMetadata();
+            try {
+                classSpaceMetadata.setName(new ObjectName("geronimo.system:role=ClassSpace,name=Application"));
+            } catch (MalformedObjectNameException e) {
+                // this will never happen as above is a valid object name
+                throw new AssertionError(e);
+            }
+            classSpaceMetadata.setClassName("org.apache.geronimo.kernel.deployment.loader.ClassSpace");
+            classSpaceMetadata.setCreate(ClassSpaceMetadata.CREATE_IF_NECESSARY);
+        } else {
+            ClassSpaceMetadataXMLLoader classSpaceLoader = new ClassSpaceMetadataXMLLoader(baseURL);
+            classSpaceMetadata = classSpaceLoader.loadXML(classSpaceElement);
         }
-
-        ClassSpaceMetadataXMLLoader classSpaceLoader = new ClassSpaceMetadataXMLLoader(baseURL);
-        ClassSpaceMetadata md = classSpaceLoader.loadXML(classSpaceElement);
-        CreateClassSpace createTask = new CreateClassSpace(server, md);
-        plan.addTask(createTask);
-        return md.getName();
+        classSpaceMetadata.setDeploymentName(deploymentName);
+        return classSpaceMetadata;
     }
 
     private boolean removeURL(UndeployURL goal, Set goals, Set plans) throws DeploymentException {
-       
+
         URL url = goal.getUrl();
-       
+
         //TODO: better method of determining whether this deployer should
         //handle this undeploy call. This deployer should only handle the undeploy
         //if it is something that it would have deployed (ie a service). More context
         //information needs to be available to make this decision. For now, just handle
         //the case of the unpacked service, just to prevent this deployer from undeploying everything.
-        
-        if (!url.getPath().endsWith("-service.xml")) { 
+
+        if (!url.getPath().endsWith("-service.xml")) {
             return false;
         }
-     
 
-        
+
         ObjectName deploymentName = null;
         try {
             deploymentName = new ObjectName("geronimo.deployment:role=DeploymentUnit,type=Service,url=" + ObjectName.quote(url.toString()));
@@ -302,14 +309,14 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
         for (Iterator i = mbeans.iterator(); i.hasNext();) {
             ObjectName name = (ObjectName) i.next();
             destroyPlan.addTask(new DestroyMBeanInstance(server, name));
-        
+
         }
 
         destroyPlan.addTask(new DestroyMBeanInstance(server, deploymentName));
         plans.add(destroyPlan);
 
         goals.remove(goal);
-        
+
         return true;
     }
 
