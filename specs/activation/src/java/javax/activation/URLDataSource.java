@@ -27,62 +27,61 @@ import java.net.URLConnection;
  * @version $Rev$ $Date$
  */
 public class URLDataSource implements DataSource {
-
-    private URL url;
     private final static String DEFAULT_CONTENT_TYPE = "application/octet-stream";
 
+    private final URL url;
+
     /**
-     * Creates a URLDataSource from a URL object
+     * Creates a URLDataSource from a URL object.
      */
     public URLDataSource(URL url) {
         this.url = url;
     }
 
     /**
-     * Returns the value of the URL content-type header field
+     * Returns the value of the URL content-type header field.
+     * This method calls URL.openConnection() to obtain a connection
+     * from which to obtain the content type. If this fails or
+     * a getContentType() returns null then "application/octet-stream"
+     * is returned.
      */
     public String getContentType() {
-        URLConnection connection = null;
         try {
-            connection = url.openConnection();
+            URLConnection connection = url.openConnection();
+            String type = connection.getContentType();
+            return type == null ? DEFAULT_CONTENT_TYPE : type;
         } catch (IOException e) {
-        }
-        if (connection == null)
             return DEFAULT_CONTENT_TYPE;
-
-        return connection.getContentType();
-
+        }
     }
 
     /**
-     * Returns the file name of the URL object
+     * Returns the file name of the URL object.
+     * @return the name as returned by URL.getFile()
      */
     public String getName() {
         return url.getFile();
     }
 
     /**
-     * Returns an InputStream obtained from the data source
+     * Returns an InputStream obtained from the URL.
+     * @return the InputStream from URL.openStream()
      */
     public InputStream getInputStream() throws IOException {
         return url.openStream();
     }
 
     /**
-     * Returns an OutputStream obtained from the data source
+     * Returns an OutputStream obtained from the URL.
      */
     public OutputStream getOutputStream() throws IOException {
-
         URLConnection connection = url.openConnection();
-        if (connection == null)
-            return null;
-
-        connection.setDoOutput(true); //is it necessary?
+        connection.setDoOutput(true);
         return connection.getOutputStream();
     }
 
     /**
-     * Returns the URL of the data source
+     * Returns the URL of the data source.
      */
     public URL getURL() {
         return url;
