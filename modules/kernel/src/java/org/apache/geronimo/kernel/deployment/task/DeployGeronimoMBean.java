@@ -82,12 +82,12 @@ import org.apache.geronimo.kernel.service.ParserUtil;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2003/11/16 00:48:37 $
+ * @version $Revision: 1.7 $ $Date: 2003/11/17 02:03:17 $
  */
 public class DeployGeronimoMBean implements DeploymentTask {
     private static final Log log = LogFactory.getLog(DeployGeronimoMBean.class);
-    private final MBeanServer server;
-    private final MBeanMetadata metadata;
+    protected final MBeanServer server;
+    protected final MBeanMetadata metadata;
     private boolean registered;
 
     public DeployGeronimoMBean(MBeanServer server, MBeanMetadata mbeanMetadata) {

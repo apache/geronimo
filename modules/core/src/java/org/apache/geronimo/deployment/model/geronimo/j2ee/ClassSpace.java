@@ -53,57 +53,34 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.model.geronimo.ejb;
 
-import org.apache.geronimo.deployment.model.geronimo.j2ee.ClassSpace;
+package org.apache.geronimo.deployment.model.geronimo.j2ee;
 
 /**
- * JavaBean for the geronimo-ejb-jar.xml tag ejb-jar
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/17 02:03:16 $
- */
-public class EjbJar extends org.apache.geronimo.deployment.model.ejb.EjbJar {
+ *
+ * @version $Revision: 1.1 $ $Date: 2003/11/17 02:03:16 $
+ *
+ * */
+public class ClassSpace {
 
-    private ClassSpace classSpace;
-    private String moduleName;
-    private String datasourceName;
+    private String classSpace;
+    private String parentClassSpace;
 
-    public void setEnterpriseBeans(org.apache.geronimo.deployment.model.ejb.EnterpriseBeans beans) {
-        assert (beans instanceof EnterpriseBeans);
-        super.setEnterpriseBeans(beans);
+    public String getParentClassSpace() {
+        return parentClassSpace;
     }
 
-    public EnterpriseBeans getGeronimoEnterpriseBeans() {
-        return (EnterpriseBeans)super.getEnterpriseBeans();
+    public void setParentClassSpace(String parentClassSpace) {
+        this.parentClassSpace = parentClassSpace;
     }
 
-    public void setGeronimoEnterpriseBeans(EnterpriseBeans beans) {
-        super.setEnterpriseBeans(beans);
-    }
-
-    public ClassSpace getClassSpace() {
+    public String getClassSpace() {
         return classSpace;
     }
 
-    public void setClassSpace(ClassSpace classSpace) {
+    public void setClassSpace(String classSpace) {
         this.classSpace = classSpace;
     }
-
-    public String getModuleName() {
-        return moduleName;
-    }
-
-    public void setModuleName(String moduleName) {
-        this.moduleName = moduleName;
-    }
-
-    public String getDatasourceName() {
-        return datasourceName;
-    }
-
-    public void setDatasourceName(String datasourceName) {
-        this.datasourceName = datasourceName;
-    }
-
 
 }

@@ -66,12 +66,13 @@ import org.apache.geronimo.deployment.model.geronimo.ejb.EnterpriseBeans;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Session;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.ClassSpace;
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
 
 /**
  * Tests basic Geronimo EJB JAR DD loading (not very comprehensive)
  *
- * @version $Revision: 1.3 $ $Date: 2003/10/01 19:03:40 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/17 02:03:16 $
  */
 public class GeronimoEjbJarLoaderTest extends TestCase {
     private File docDir;
@@ -87,6 +88,11 @@ public class GeronimoEjbJarLoaderTest extends TestCase {
     static void checkGeronimoJar(GeronimoEjbJarDocument doc) {
         EjbJar jar = doc.getEjbJar();
         EjbJarLoaderTest.checkEjbJar(jar, "OverrideExample");
+        ClassSpace classSpace = jar.getClassSpace();
+        assertEquals("geronimo.system:role=ClassSpace,name=System", classSpace.getParentClassSpace());
+        assertEquals("geronimo.system:role=ClassSpace,name=Test", classSpace.getClassSpace());
+        assertEquals("TestEJBModule", jar.getModuleName());
+        assertEquals("DefaultDS", jar.getDatasourceName());
         EnterpriseBeans beans = jar.getGeronimoEnterpriseBeans();
         Session[] session = beans.getGeronimoSession();
         assertEquals(2, session.length);

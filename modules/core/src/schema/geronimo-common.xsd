@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema targetNamespace="http://geronimo.apache.org/xml/schema/j2ee" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:j2ee="http://java.sun.com/xml/ns/j2ee" elementFormDefault="qualified" attributeFormDefault="unqualified">
-  <xsd:annotation>
-    <xsd:documentation>Schema defining common elements for Geronimo-specific deployment descriptors</xsd:documentation>
-  </xsd:annotation>
-  <xsd:import namespace="http://java.sun.com/xml/ns/j2ee" schemaLocation="j2ee_1_4.xsd"/>
-  <xsd:group name="jndi-refGroup">
     <xsd:annotation>
-      <xsd:documentation>Group defining entries for a reference to another JNDI entry.</xsd:documentation>
+        <xsd:documentation>Schema defining common elements for Geronimo-specific deployment descriptors</xsd:documentation>
     </xsd:annotation>
-    <xsd:sequence>
-      <xsd:element name="jndi-name" type="j2ee:jndi-nameType"/>
-      <xsd:element name="context-param" type="j2ee:param-valueType" minOccurs="0" maxOccurs="unbounded"/>
-    </xsd:sequence>
-  </xsd:group>
+    <xsd:import namespace="http://java.sun.com/xml/ns/j2ee" schemaLocation="j2ee_1_4.xsd"/>
+    <xsd:group name="jndi-refGroup">
+        <xsd:annotation>
+            <xsd:documentation>Group defining entries for a reference to another JNDI entry.</xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="jndi-name" type="j2ee:jndi-nameType"/>
+            <xsd:element name="context-param" type="j2ee:param-valueType" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:group>
+    <xsd:complexType name="class-spaceType">
+        <xsd:attribute name="name" type="xs:string"/>
+        <xsd:attribute name="parent" type="xs:string"/>
+    </xsd:complexType>
 </xsd:schema>

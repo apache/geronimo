@@ -89,7 +89,10 @@
   </xsd:complexType>
   <xsd:complexType name="ejb-jarType">
     <xsd:sequence>
+      <xsd:element name="class-space" type="ger:class-spaceType"/>
       <xsd:group ref="j2ee:descriptionGroup"/>
+      <xsd:element name="module-name" type="j2ee:string" minOccurs="0"/>
+      <xsd:element name="datasource-name" type="j2ee:string"/>
       <xsd:element name="enterprise-beans" type="j2ee:enterprise-beansType"/>
       <xsd:element name="relationships" type="j2ee:relationshipsType" minOccurs="0">
         <xsd:unique name="relationship-name-uniqueness">
@@ -234,6 +237,8 @@
       <xsd:element name="jndi-name" type="xsd:string" minOccurs="0">
         <xsd:annotation>
           <xsd:documentation>
+            Actually, ejbs are located by the module name and ejb name.
+
             The JNDI name controls where this EJB will appear in the application-wide JNDI
             space.  Other application components that want to refer to this EJB can define
             EJB references and map them to this JNDI location.
@@ -344,9 +349,31 @@
       <xsd:element name="query-method" type="j2ee:query-methodType"/>
       <xsd:element name="result-type-mapping" type="j2ee:result-type-mappingType" minOccurs="0"/>
       <xsd:element name="ejb-ql" type="j2ee:xsdStringType"/>
+        <xsd:element name="sql" type="j2ee:xsdStringType"/>
+        <xsd:element name="input-binding" type="ger:input-bindingType" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element name="output-binding" type="ger:output-bindingType"
     </xsd:sequence>
     <xsd:attribute name="id" type="xsd:ID"/>
   </xsd:complexType>
+    <query>
+      <query-method>
+        <method-name>findAllCustomers</method-name>
+    <method-params>
+      <method-param>java.lang.Integer</method-param>
+      <method-param>java.lang.String</method-param>
+    </method-params>
+      </query-method>
+      <ejb-ql>Select OBJECT(a) From Customer a</ejb-ql>
+      <ger:sql>SELECT ID FROM CUSTOMER</ger:sql>
+      <ger:input-binding>
+         <ger:binding type="o.o.n.persistence.jdbc.IntBinding" param="1"/>
+         <ger:binding type="o.o.n.persistence.jdbc.StringBinding" param="2"/>
+      </ger:input-binding>
+      <ger:output-binding>
+         <ger:abstract-schema-name>Customer</ger:abstract-schema-name>
+         <ger:binding type="o.o.n.persistence.jdbc.StringBinding" param="1"/>
+      </ger:output-binding>
+    </query>
   <xsd:complexType name="relationship-role-sourceType">
     <xsd:sequence>
       <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>

@@ -5,8 +5,11 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
          http://geronimo.apache.org/xml/schema/1.0/j2ee14/geronimo-ejb-jar.xsd"
          version="2.1">
+    <class-space name="geronimo.system:role=ClassSpace,name=Test" parent="geronimo.system:role=ClassSpace,name=System"/>
     <description>This is a test EJB JAR DD for JSR-88 purposes</description>
     <display-name>Test EJB JAR</display-name>
+    <module-name>TestEJBModule</module-name>
+    <datasource-name>DefaultDS</datasource-name>
     <enterprise-beans>
         <session>
             <description>This is a sample stateless session bean</description>

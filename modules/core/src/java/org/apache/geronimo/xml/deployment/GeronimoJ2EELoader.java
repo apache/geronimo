@@ -64,12 +64,13 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.ServiceRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestinationRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestination;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.SecurityRoleRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.ClassSpace;
 import org.w3c.dom.Element;
 
 /**
  * Loads common Geronimo DD tags
  *
- * @version $Revision: 1.5 $ $Date: 2003/09/29 14:17:23 $
+ * @version $Revision: 1.6 $ $Date: 2003/11/17 02:03:16 $
  */
 public final class GeronimoJ2EELoader {
     public static EjbRef[] loadEJBRefs(Element e) {
@@ -188,5 +189,13 @@ public final class GeronimoJ2EELoader {
         J2EELoader.loadMessageDestination(e, messageDestination);
         messageDestination.setJndiName(LoaderUtil.getChildContent(e, "jndi-name"));
         return messageDestination;
+    }
+
+    public static ClassSpace loadClassSpace(Element e) {
+        Element cs = LoaderUtil.getChild(e, "class-space");
+        ClassSpace classSpace = new ClassSpace();
+        classSpace.setClassSpace(LoaderUtil.getAttribute(cs, "name"));
+        classSpace.setParentClassSpace((LoaderUtil.getAttribute(cs, "parent")));
+        return classSpace;
     }
 }

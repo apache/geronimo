@@ -71,7 +71,7 @@ import org.apache.geronimo.deployment.model.geronimo.ejb.GeronimoEjbJarDocument;
 /**
  * Knows how to store geronimo-ejb-jar.xml POJOs to a DOM
  *
- * @version $Revision: 1.1 $ $Date: 2003/10/01 19:03:40 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/17 02:03:16 $
  */
 public class GeronimoEjbJarStorer {
     public static void store(GeronimoEjbJarDocument jarDoc, Writer out) throws IOException {
@@ -85,7 +85,14 @@ public class GeronimoEjbJarStorer {
             root.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "xsi:schemaLocation", "http://java.sun.com/xml/ns/j2ee http://geronimo.apache.org/xml/schema/1.0/j2ee14/geronimo-ejb-jar.xsd");
             root.setAttribute("version", jar.getVersion());
             doc.appendChild(root);
+            Element cs = StorerUtil.createChild(root, "class-space");
+            cs.setAttribute("name", jar.getClassSpace().getClassSpace());
+            cs.setAttribute("parent", jar.getClassSpace().getParentClassSpace());
             J2EEStorer.storeDisplayable(root, jar);
+            StorerUtil.createChildText(root, "module-name", jar.getModuleName());
+            if (jar.getDatasourceName() != null) {
+                StorerUtil.createChildText(root, "datasource-name", jar.getDatasourceName());
+            }
             if(jar.getEnterpriseBeans() != null && jar.getEnterpriseBeans().hasBeans()) {
                 storeEjbs(StorerUtil.createChild(root, "enterprise-beans"), jar.getGeronimoEnterpriseBeans());
             }
