@@ -17,15 +17,21 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.util.jar.JarFile;
+import java.util.LinkedHashSet;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.io.IOException;
 
 import org.apache.xmlbeans.XmlObject;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.deployment.DeploymentContext;
 
 /**
  * @version $Rev$ $Date$
  */
 public class WebModule extends Module {
+
+    private final LinkedHashSet webClassPath = new LinkedHashSet();
     private String contextRoot;
 
     public WebModule(boolean standAlone, URI configId, URI parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
@@ -43,5 +49,20 @@ public class WebModule extends Module {
     public ConfigurationModuleType getType() {
         return ConfigurationModuleType.WAR;
     }
+
+    public void addClass(URI location, String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException {
+        context.addClass(location, fqcn, bytes, false);
+        addToWebClasspath(location);
+    }
+
+    public void addToWebClasspath(URI location) {
+        webClassPath.add(location);
+    }
+
+    public URI[] getWebClasspath() {
+        URI[] uris = new URI[webClassPath.size()];
+        return (URI[])webClassPath.toArray(uris);
+    }
+
 }
 

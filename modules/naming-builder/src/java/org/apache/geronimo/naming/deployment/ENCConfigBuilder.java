@@ -39,6 +39,7 @@ import javax.xml.namespace.QName;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.RefContext;
+import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
@@ -417,7 +418,7 @@ public class ENCConfigBuilder {
     }
 
     //TODO current implementation does not deal with portComponentRefs or handlers.
-    public static void addServiceRefs(EARContext earContext, URI uri, ServiceRefType[] serviceRefs, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+    public static void addServiceRefs(EARContext earContext, Module module, ServiceRefType[] serviceRefs, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
         RefContext refContext = earContext.getRefContext();
 
         for (int i = 0; i < serviceRefs.length; i++) {
@@ -466,7 +467,7 @@ public class ENCConfigBuilder {
             List handlers = Arrays.asList(handlerTypes);
 
             //we could get a Reference or the actual serializable Service back.
-            Object ref = refContext.getServiceReference(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlers, earContext, cl);
+            Object ref = refContext.getServiceReference(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlers, earContext, module, cl);
             try {
                 builder.bind(name, ref);
             } catch (NamingException e) {
@@ -559,7 +560,7 @@ public class ENCConfigBuilder {
         builder.setApplicationManagedSecurityResources(applicationManagedSecurityResources);
     }
 
-    public static ReadOnlyContext buildComponentContext(EARContext earContext, URI uri, UserTransaction userTransaction, EnvEntryType[] envEntries, EjbRefType[] ejbRefs, GerEjbRefType[] gerEjbRefs, EjbLocalRefType[] ejbLocalRefs, GerEjbLocalRefType[] gerEjbLocalRef, ResourceRefType[] resourceRefs, GerResourceRefType[] gerResourceRef, ResourceEnvRefType[] resourceEnvRefs, GerResourceEnvRefType[] gerResourceEnvRef, MessageDestinationRefType[] messageDestinationRefs, ServiceRefType[] serviceRefs, ClassLoader cl) throws DeploymentException {
+    public static ReadOnlyContext buildComponentContext(EARContext earContext, Module module, UserTransaction userTransaction, EnvEntryType[] envEntries, EjbRefType[] ejbRefs, GerEjbRefType[] gerEjbRefs, EjbLocalRefType[] ejbLocalRefs, GerEjbLocalRefType[] gerEjbLocalRef, ResourceRefType[] resourceRefs, GerResourceRefType[] gerResourceRef, ResourceEnvRefType[] resourceEnvRefs, GerResourceEnvRefType[] gerResourceEnvRef, MessageDestinationRefType[] messageDestinationRefs, ServiceRefType[] serviceRefs, ClassLoader cl) throws DeploymentException {
         ComponentContextBuilder builder = new ComponentContextBuilder();
 
         if (userTransaction != null) {
@@ -569,6 +570,8 @@ public class ENCConfigBuilder {
                 throw new DeploymentException("Could not bind UserTransaction", e);
             }
         }
+
+        URI uri = module.getConfigId();
 
         addEnvEntries(envEntries, builder, cl);
 
@@ -586,7 +589,7 @@ public class ENCConfigBuilder {
 
         addMessageDestinationRefs(earContext, uri, messageDestinationRefs, cl, builder);
 
-        addServiceRefs(earContext, uri, serviceRefs, cl, builder);
+        addServiceRefs(earContext, module, serviceRefs, cl, builder);
 
         return builder.getContext();
     }

@@ -315,6 +315,12 @@ public class SchemaConversionUtilsTest extends TestCase {
         }
     }
 
+    public void testParseWeb24() throws Exception {
+        File srcXml = new File(basedir, "src/test-data/j2ee_1_4schema/web-2-24.xml");
+        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
+        xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
+    }
+
     public void testEJB21To21DoesNothing() throws Exception {
         File srcXml = new File(basedir, "src/test-data/j2ee_1_4schema/ejb-jar.xml");
         File expectedOutputXml = new File(basedir, "src/test-data/j2ee_1_4schema/ejb-jar.xml");
@@ -331,7 +337,7 @@ public class SchemaConversionUtilsTest extends TestCase {
         File expectedOutputXml = new File(basedir, "src/test-data/geronimo/ejb-naming-post.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         xmlObject = SchemaConversionUtils.convertToGeronimoNamingSchema(xmlObject);
-	//        System.out.println(xmlObject.toString());
+        //        System.out.println(xmlObject.toString());
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(xmlObject, expected, problems);

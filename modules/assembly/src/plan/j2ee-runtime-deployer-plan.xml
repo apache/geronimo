@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2004 The Apache Software Foundation
+    Copyright 2004-2005 The Apache Software Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -73,13 +73,11 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
 
     <gbean namePart="ServiceBuilder" type="ConfigBuilder" class="org.apache.geronimo.deployment.service.ServiceConfigBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
-        <attribute name="j2eeServer" type="javax.management.ObjectName">geronimo.server:j2eeType=J2EEServer,name=geronimo</attribute>
         <reference name="Repository">*:name=Repository,*</reference>
     </gbean>
 
     <gbean namePart="EARBuilder" type="ConfigBuilder" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
-        <attribute name="j2eeServer" type="javax.management.ObjectName">geronimo.server:j2eeType=J2EEServer,name=geronimo</attribute>
         <attribute name="transactionContextManagerObjectName" type="javax.management.ObjectName">geronimo.server:name=TransactionContextManager,*</attribute>
         <attribute name="connectionTrackerObjectName" type="javax.management.ObjectName">geronimo.server:name=ConnectionTracker,*</attribute>
         <attribute name="transactionalTimerObjectName" type="javax.management.ObjectName">geronimo.server:name=TransactionalThreadPooledTimer,*</attribute>
@@ -91,7 +89,7 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
         <reference name="ConnectorConfigBuilder">geronimo.server:name=ConnectorBuilder,J2EEModule=org/apache/geronimo/RuntimeDeployer,*</reference>
         <reference name="ResourceReferenceBuilder">geronimo.server:name=ConnectorBuilder,J2EEModule=org/apache/geronimo/RuntimeDeployer,*</reference>
         <reference name="AppClientConfigBuilder">geronimo.server:name=AppClientBuilder,J2EEModule=org/apache/geronimo/RuntimeDeployer,*</reference>
-        <reference name="ServiceReferenceBuilder">geronimo.server:name=WebServiceBuilder,J2EEModule=org/apache/geronimo/RuntimeDeployer,*</reference>
+        <reference name="ServiceReferenceBuilder">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/RuntimeDeployer,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=WebServiceBuilder</reference>
     </gbean>
 
     <gbean namePart="WebBuilder" type="ModuleBuilder" class="org.apache.geronimo.jetty.deployment.JettyModuleBuilder">
@@ -138,24 +136,24 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
 
     <gbean namePart="ConnectorBuilder" type="ModuleBuilder" class="org.apache.geronimo.connector.deployment.ConnectorModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
-        <attribute name="defaultMaxSize" type="int">10</attribute>
-        <attribute name="defaultMinSize" type="int">0</attribute>
-        <attribute name="defaultBlockingTimeoutMilliseconds" type="int">5000</attribute>
-        <attribute name="defaultIdleTimeoutMinutes" type="int">15</attribute>
-        <attribute name="defaultXATransactionCaching" type="boolean">true</attribute>
-        <attribute name="defaultXAThreadCaching" type="boolean">false</attribute>
+        <attribute name="defaultMaxSize">10</attribute>
+        <attribute name="defaultMinSize">0</attribute>
+        <attribute name="defaultBlockingTimeoutMilliseconds">5000</attribute>
+        <attribute name="defaultIdleTimeoutMinutes">15</attribute>
+        <attribute name="defaultXATransactionCaching">true</attribute>
+        <attribute name="defaultXAThreadCaching">false</attribute>
         <reference name="Repository">*:name=Repository,*</reference>
     </gbean>
 
     <gbean namePart="AppClientBuilder" type="ModuleBuilder" class="org.apache.geronimo.client.builder.AppClientModuleBuilder">
         <attribute name="defaultClientParentId">org/apache/geronimo/Client</attribute>
         <attribute name="defaultServerParentId">org/apache/geronimo/Server</attribute>
-        <attribute name="transactionContextManagerObjectName" type="javax.management.ObjectName">geronimo.server:name=TransactionContextManager,*</attribute>
-        <attribute name="connectionTrackerObjectName" type="javax.management.ObjectName">geronimo.server:name=ConnectionTracker,*</attribute>
+        <attribute name="transactionContextManagerObjectName">geronimo.client:name=TransactionContextManager,*</attribute>
+        <attribute name="connectionTrackerObjectName">geronimo.client:name=ConnectionTracker,*</attribute>
         <reference name="EJBReferenceBuilder">geronimo.server:name=ClientEJBReferenceBuilder,J2EEModule=org/apache/geronimo/RuntimeDeployer,*</reference>
         <reference name="ConnectorModuleBuilder">geronimo.server:name=ConnectorBuilder,J2EEModule=org/apache/geronimo/RuntimeDeployer,*</reference>
         <reference name="ResourceReferenceBuilder">geronimo.server:name=ConnectorBuilder,J2EEModule=org/apache/geronimo/RuntimeDeployer,*</reference>
-        <reference name="ServiceReferenceBuilder">geronimo.server:name=WebServiceBuilder,J2EEModule=org/apache/geronimo/RuntimeDeployer,*</reference>
+        <reference name="ServiceReferenceBuilder">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/RuntimeDeployer,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=WebServiceBuilder</reference>
         <reference name="Store">*:j2eeType=ConfigurationStore,*</reference>
         <reference name="Repository">*:name=Repository,*</reference>
     </gbean>

@@ -131,7 +131,6 @@ public class AbstractWebServiceTest extends AbstractTestCase {
         
        EARConfigBuilder earConfigBuilder =
                 new EARConfigBuilder(defaultParentId,
-                        new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),
                         transactionManagerObjectName,
                         connectionTrackerObjectName,
                         null,

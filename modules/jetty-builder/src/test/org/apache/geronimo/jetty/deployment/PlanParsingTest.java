@@ -37,4 +37,8 @@ public class PlanParsingTest extends TestCase {
         SchemaConversionUtils.validateDD(jettyWebAppType);
         System.out.println(jettyWebAppType.toString());
     }
+
+    public void testParseSpecDD() {
+
+    }
 }

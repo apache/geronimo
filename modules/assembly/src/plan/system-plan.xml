@@ -29,7 +29,8 @@ specific services - those should be provided by children.
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment"
     configId="org/apache/geronimo/System"
-    parentId=""
+    domain="geronimo.server"
+    server="geronimo"
     >
 
     <!-- ServerInfo service -->

@@ -80,6 +80,8 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingDocument;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
 import org.apache.geronimo.xbeans.j2ee.PackageMappingType;
+import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.EJBModule;
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -94,13 +96,15 @@ public class ServiceReferenceTest extends TestCase {
     private ClassLoader isolatedCl = new URLClassLoader(new URL[0], this.getClass().getClassLoader());
     private final String operationName = "doMockOperation";
 
+    private final Module module = new EJBModule(true, configID, null, null, "ejb", null, null, null);
+
     private boolean runExternalWSTest;
 
     protected void setUp() throws Exception {
         tmpbasedir = File.createTempFile("car", "tmp");
         tmpbasedir.delete();
         tmpbasedir.mkdirs();
-        context = new DeploymentContext(tmpbasedir, configID, ConfigurationModuleType.CAR, null, null);
+        context = new DeploymentContext(tmpbasedir, configID, ConfigurationModuleType.CAR, null, "foo", "geronimo", null);
 
         runExternalWSTest = System.getProperty("geronimo.run.external.webservicetest", "false").equals("true");
     }
@@ -127,8 +131,7 @@ public class ServiceReferenceTest extends TestCase {
         Map portMap = new HashMap();
         portMap.put("MockPort", new MockSEIFactory());
         AxisBuilder builder = new AxisBuilder();
-        org.apache.axis.client.Service delegate = new org.apache.axis.client.Service();
-        Service service = builder.createService(MockService.class, portMap, context, isolatedCl);
+        Service service = builder.createService(MockService.class, portMap, context, module, isolatedCl);
         assertTrue(service instanceof MockService);
         MockService mockService = (MockService) service;
         MockPort mockPort = mockService.getMockPort();
@@ -145,7 +148,7 @@ public class ServiceReferenceTest extends TestCase {
 
         OperationInfo op = buildOperationInfoForMockOperation(builder);
         OperationInfo[] operationInfos = new OperationInfo[]{op};
-        Class serviceEndpointClass = builder.enhanceServiceEndpointInterface(isolatedCl, MockPort.class, context);
+        Class serviceEndpointClass = builder.enhanceServiceEndpointInterface(MockPort.class, context, module, isolatedCl);
         SEIFactory serviceInterfaceFactory = builder.createSEIFactory(serviceEndpointClass, serviceInstance, typeMappings, location, operationInfos, context, isolatedCl);
         assertNotNull(serviceInterfaceFactory);
         Remote serviceInterface = serviceInterfaceFactory.createServiceEndpoint();
@@ -165,7 +168,7 @@ public class ServiceReferenceTest extends TestCase {
         JavaWsdlMappingType mapping = buildLightweightMappingType();
         QName serviceQName = new QName(NAMESPACE, "MockService");
         AxisBuilder builder = new AxisBuilder();
-        Object proxy = builder.createService(MockService.class, definition, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, context, isolatedCl);
+        Object proxy = builder.createService(MockService.class, definition, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, context, module, isolatedCl);
         assertNotNull(proxy);
         assertTrue(proxy instanceof MockService);
         MockPort mockPort = ((MockService) proxy).getMockPort();
@@ -182,7 +185,7 @@ public class ServiceReferenceTest extends TestCase {
         JavaWsdlMappingType mapping = mappingDocument.getJavaWsdlMapping();
         QName serviceQName = new QName("http://www.Monson-Haefel.com/jwsbook/BookQuote", "BookQuoteService");
         AxisBuilder builder = new AxisBuilder();
-        Object proxy = builder.createService(BookQuoteService.class, definition, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, context, isolatedCl);
+        Object proxy = builder.createService(BookQuoteService.class, definition, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, context, module, isolatedCl);
         assertNotNull(proxy);
         assertTrue(proxy instanceof BookQuoteService);
         BookQuote bookQuote = ((BookQuoteService) proxy).getBookQuotePort();
@@ -199,7 +202,7 @@ public class ServiceReferenceTest extends TestCase {
         JavaWsdlMappingType mapping = mappingDocument.getJavaWsdlMapping();
         QName serviceQName = new QName("http://tempuri.org/4s4c/1/3/wsdl/def/interopLab", "interopLab");
         AxisBuilder builder = new AxisBuilder();
-        Object proxy = builder.createService(InteropLab.class, definition, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, context, isolatedCl);
+        Object proxy = builder.createService(InteropLab.class, definition, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, context, module, isolatedCl);
         assertNotNull(proxy);
         assertTrue(proxy instanceof InteropLab);
         InteropTestPortType interopTestPort = ((InteropLab) proxy).getinteropTestPort();
@@ -215,14 +218,18 @@ public class ServiceReferenceTest extends TestCase {
 
     public void testBuildInteropProxyFromURIs() throws Exception {
         File wsdldir = new File(basedir, "src/test-resources/interop");
-        ClassLoader cl = new URLClassLoader(new URL[]{wsdldir.toURL()}, isolatedCl);
-        URI wsdlURI = new URI("interop.wsdl");
-        URI jaxrpcmappingURI = new URI("interop-jaxrpcmapping.xml");
+        //ejb is from the EJBModule "ejb" targetPath.
+        context.addFile(new URI("ejb/META-INF/wsdl/interop.wsdl"), new File(wsdldir, "interop.wsdl"));
+        context.addFile(new URI("ejb/META-INF/wsdl/interop-jaxrpcmapping.xml"), new File(wsdldir, "interop-jaxrpcmapping.xml"));
+        ClassLoader cl = context.getClassLoader(null);
+                //new URLClassLoader(new URL[]{wsdldir.toURL()}, isolatedCl);
+        URI wsdlURI = new URI("META-INF/wsdl/interop.wsdl");
+        URI jaxrpcmappingURI = new URI("META-INF/wsdl/interop-jaxrpcmapping.xml");
         QName serviceQName = new QName("http://tempuri.org/4s4c/1/3/wsdl/def/interopLab", "interopLab");
         AxisBuilder builder = new AxisBuilder();
         Map portComponentRefMap = null;
         List handlers = null;
-        Object proxy = builder.createService(InteropLab.class, wsdlURI, jaxrpcmappingURI, serviceQName, portComponentRefMap, handlers, context, cl);
+        Object proxy = builder.createService(InteropLab.class, wsdlURI, jaxrpcmappingURI, serviceQName, portComponentRefMap, handlers, context, module, cl);
         assertNotNull(proxy);
         ClassLoader contextCl = context.getClassLoader(null);
         proxy = reserialize(proxy, contextCl);

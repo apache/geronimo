@@ -123,6 +123,9 @@ public class Configuration implements GBeanLifecycle {
      */
     private final ConfigurationStore configurationStore;
 
+    private final String domain;
+    private final String server;
+
     /**
      * The names of all GBeans contained in this configuration.
      */
@@ -139,6 +142,7 @@ public class Configuration implements GBeanLifecycle {
      * is deserialized and started.
      */
     private byte[] gbeanState;
+
 
     /**
      * Constructor that can be used to create an offline Configuration, typically
@@ -159,6 +163,8 @@ public class Configuration implements GBeanLifecycle {
             URL baseURL,
             URI parentID,
             ConfigurationParent parent,
+            String domain,
+            String server,
             List classPath,
             byte[] gbeanState,
             Collection repositories,
@@ -174,6 +180,9 @@ public class Configuration implements GBeanLifecycle {
         this.gbeanState = gbeanState;
 
         this.configurationStore = configurationStore;
+
+        this.domain = domain;
+        this.server = server;
 
         // build configurationClassLoader
         URL[] urls = resolveClassPath(classPath, baseURL, dependencies, repositories);
@@ -257,6 +266,14 @@ public class Configuration implements GBeanLifecycle {
 
     public String getObjectName() {
         return objectNameString;
+    }
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public String getServer() {
+        return server;
     }
 
     private static void setGBeanBaseUrl(GBeanData gbeanData, URL baseUrl) {
@@ -441,6 +458,8 @@ public class Configuration implements GBeanLifecycle {
         infoFactory.addAttribute("ID", URI.class, true);
         infoFactory.addAttribute("type", ConfigurationModuleType.class, true);
         infoFactory.addAttribute("parentID", URI.class, true);
+        infoFactory.addAttribute("domain", String.class, true);
+        infoFactory.addAttribute("server", String.class, true);
         infoFactory.addAttribute("classPath", List.class, true);
         infoFactory.addAttribute("dependencies", List.class, true);
         infoFactory.addAttribute("gBeanState", byte[].class, true);
@@ -459,6 +478,8 @@ public class Configuration implements GBeanLifecycle {
             "baseURL",
             "parentID",
             "Parent",
+            "domain",
+            "server",
             "classPath",
             "gBeanState",
             "Repositories",

@@ -79,22 +79,16 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final ServiceReferenceBuilder serviceReferenceBuilder;
 
     private final URI defaultParentId;
-    private final String j2eeServerName;
-    private final String j2eeDomainName;
-    private final ObjectName j2eeServer;
     private final ObjectName transactionContextManagerObjectName;
     private final ObjectName connectionTrackerObjectName;
     private final ObjectName transactionalTimerObjectName;
     private final ObjectName nonTransactionalTimerObjectName;
 
 
-    public EARConfigBuilder(URI defaultParentId, ObjectName j2eeServer, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactionalTimerObjectName, ObjectName nonTransactionalTimerObjectName, Repository repository, ModuleBuilder ejbConfigBuilder, EJBReferenceBuilder ejbReferenceBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ModuleBuilder appClientConfigBuilder, ServiceReferenceBuilder serviceReferenceBuilder, Kernel kernel) {
+    public EARConfigBuilder(URI defaultParentId, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactionalTimerObjectName, ObjectName nonTransactionalTimerObjectName, Repository repository, ModuleBuilder ejbConfigBuilder, EJBReferenceBuilder ejbReferenceBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ModuleBuilder appClientConfigBuilder, ServiceReferenceBuilder serviceReferenceBuilder, Kernel kernel) {
         this.kernel = kernel;
         this.repository = repository;
         this.defaultParentId = defaultParentId;
-        this.j2eeServer = j2eeServer;
-        j2eeServerName = j2eeServer.getKeyProperty("name");
-        j2eeDomainName = j2eeServer.getDomain();
 
         this.ejbConfigBuilder = ejbConfigBuilder;
         this.ejbReferenceBuilder = ejbReferenceBuilder;
@@ -282,8 +276,6 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                         applicationType,
                         applicationInfo.getParentId(),
                         kernel,
-                        j2eeDomainName,
-                        j2eeServerName,
                         applicationInfo.getApplicationName(),
                         transactionContextManagerObjectName,
                         connectionTrackerObjectName,
@@ -340,7 +332,11 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 } catch (Exception e) {
                     throw new DeploymentException("Error initializing J2EEApplication managed object");
                 }
-                gbeanData.setReferencePatterns("j2eeServer", Collections.singleton(j2eeServer));
+                try {
+                    gbeanData.setReferencePattern("j2eeServer", NameFactory.getServerName(earContext.getDomain(), earContext.getServer(), earContext.getJ2eeContext()));
+                } catch (MalformedObjectNameException e) {
+                    throw new DeploymentException("Error constructing J2EEServer name for application", e);
+                }
                 earContext.addGBean(gbeanData);
             }
 
@@ -523,7 +519,6 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(EARConfigBuilder.class);
         infoFactory.addAttribute("defaultParentId", URI.class, true);
-        infoFactory.addAttribute("j2eeServer", ObjectName.class, true);
         infoFactory.addAttribute("transactionContextManagerObjectName", ObjectName.class, true);
         infoFactory.addAttribute("connectionTrackerObjectName", ObjectName.class, true);
         infoFactory.addAttribute("transactionalTimerObjectName", ObjectName.class, true);
@@ -544,7 +539,6 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
         infoFactory.setConstructor(new String[]{
             "defaultParentId",
-            "j2eeServer",
             "transactionContextManagerObjectName",
             "connectionTrackerObjectName",
             "transactionalTimerObjectName",

@@ -18,10 +18,14 @@ package org.apache.geronimo.j2ee.deployment;
 
 import java.util.jar.JarFile;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.io.IOException;
+import java.io.File;
 
 import org.apache.xmlbeans.XmlObject;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.deployment.DeploymentContext;
 
 /**
  * @version $Rev$ $Date$
@@ -34,9 +38,12 @@ public abstract class Module {
     private final URI moduleURI;
     private final JarFile moduleFile;
     private final String targetPath;
+    private final URI targetPathURI;
     private final XmlObject specDD;
     private final XmlObject vendorDD;
     private final String originalSpecDD;
+
+    private URI uniqueModuleLocation;
 
     protected Module(boolean standAlone, URI configId, URI parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
         assert targetPath != null: "targetPath is null";
@@ -57,9 +64,11 @@ public abstract class Module {
             name = targetPath;
             moduleURI = URI.create(targetPath);
         }
+
+        targetPathURI = URI.create(targetPath + "/");
     }
 
-    public abstract ConfigurationModuleType  getType();
+    public abstract ConfigurationModuleType getType();
 
     public String getName() {
         return name;
@@ -87,6 +96,10 @@ public abstract class Module {
 
     public String getTargetPath() {
         return targetPath;
+    }
+
+    public URI getTargetPathURI() {
+        return targetPathURI;
     }
 
     public XmlObject getSpecDD() {
@@ -119,4 +132,28 @@ public abstract class Module {
     public void close() {
         DeploymentUtil.close(moduleFile);
     }
+
+    public void addClass(String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException {
+        URI location = getUniqueModuleLocation(context);
+        addClass(location, fqcn, bytes, context);
+    }
+
+    private URI getUniqueModuleLocation(DeploymentContext context) {
+        if (uniqueModuleLocation == null) {
+            String suffix = "";
+            URI candidateURI;
+            File candidateFile;
+            int i = 1;
+            do {
+                candidateURI = URI.create(targetPath + "-generated" + suffix + "/");
+                candidateFile = context.getTargetFile(candidateURI);
+                suffix = "" + i++;
+            } while (candidateFile.exists());
+            candidateFile.mkdirs();
+            uniqueModuleLocation = candidateURI;
+        }
+        return uniqueModuleLocation;
+    }
+
+    public abstract void addClass(URI location, String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException;
 }

@@ -43,7 +43,16 @@
             <xs:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="configId" type="xs:string" use="required"/>
-        <xs:attribute name="parentId" type="xs:string" use="optional"/>
+        <xs:attribute name="parentId" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                You are required to specify either parentId or both domain and server.  domain and server form
+                the domain and J2EEServer key for gbeans in this configuration and any descendant configurations.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="domain" type="xs:string" use="optional"/>
+        <xs:attribute name="server" type="xs:string" use="optional"/>
     </xs:complexType>
 
     <xs:element name="dependency" type="sys:dependencyType"/>

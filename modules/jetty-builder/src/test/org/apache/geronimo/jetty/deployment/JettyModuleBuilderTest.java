@@ -17,7 +17,11 @@
 package org.apache.geronimo.jetty.deployment;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
 import java.net.URI;
+import java.net.URL;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -25,6 +29,7 @@ import java.util.Set;
 import java.util.Map;
 import java.util.List;
 import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 import javax.naming.Reference;
 import javax.xml.namespace.QName;
 
@@ -34,6 +39,8 @@ import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrack
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -46,7 +53,13 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty.JettyContainerImpl;
 import org.apache.geronimo.jetty.connector.HTTPConnector;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.registry.BasicGBeanRegistry;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
@@ -62,7 +75,6 @@ public class JettyModuleBuilderTest extends TestCase {
     private ObjectName containerName;
     private ObjectName connectorName;
     private GBeanData connector;
-    private ObjectName webModuleName;
     private ObjectName tmName;
     private ObjectName ctcName;
     private GBeanData tm;
@@ -73,6 +85,7 @@ public class JettyModuleBuilderTest extends TestCase {
     private J2eeContext moduleContext = new J2eeContextImpl("jetty.test", "test", "null", "jettyTest", null, null);
     private JettyModuleBuilder builder;
     private File basedir = new File(System.getProperty("basedir", "."));
+    private URI parentId = URI.create("org/apache/geronimo/Foo");
 
     public void testDeployWar4() throws Exception {
         File outputPath = new File(basedir, "target/test-resources/deployables/war4");
@@ -82,31 +95,26 @@ public class JettyModuleBuilderTest extends TestCase {
         UnpackedJarFile jarFile = new UnpackedJarFile(path);
         Module module = builder.createModule(null, jarFile);
         URI id = new URI("war4");
-        URI parentId = null;//new URI("org/apache/geronimo/Server");
-        EARContext earContext = new EARContext(
-                outputPath,
+        EARContext earContext = new EARContext(outputPath,
                 id,
                 ConfigurationModuleType.WAR,
                 parentId,
                 kernel,
-                moduleContext.getJ2eeDomainName(),
-                moduleContext.getJ2eeServerName(),
                 moduleContext.getJ2eeApplicationName(),
                 tcmName,
                 ctcName,
                 null,
                 null,
-                new RefContext(
-                        new EJBReferenceBuilder() {
+                new RefContext(new EJBReferenceBuilder() {
 
-                            public Reference createEJBLocalReference(String objectName, boolean isSession, String localHome, String local) throws DeploymentException {
-                                return null;
-                            }
+                    public Reference createEJBLocalReference(String objectName, boolean isSession, String localHome, String local) throws DeploymentException {
+                        return null;
+                    }
 
-                            public Reference createEJBRemoteReference(String objectName, boolean isSession, String home, String remote) throws DeploymentException {
-                                return null;
-                            }
-                        },
+                    public Reference createEJBRemoteReference(String objectName, boolean isSession, String home, String remote) throws DeploymentException {
+                        return null;
+                    }
+                },
                         new ResourceReferenceBuilder() {
 
                             public Reference createResourceRef(String containerId, Class iface) throws DeploymentException {
@@ -137,12 +145,12 @@ public class JettyModuleBuilderTest extends TestCase {
                                 return null;
                             }
                         },
-                         new ServiceReferenceBuilder() {
-                             //it could return a Service or a Reference, we don't care
-                             public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, ClassLoader classLoader) throws DeploymentException {
-                                 return null;
-                             }
-                         }));
+                        new ServiceReferenceBuilder() {
+                            //it could return a Service or a Reference, we don't care
+                            public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
+                                return null;
+                            }
+                        }));
         builder.initContext(earContext, module, cl);
         builder.addGBeans(earContext, module, cl);
         earContext.close();
@@ -150,15 +158,19 @@ public class JettyModuleBuilderTest extends TestCase {
         GBeanData configData = earContext.getConfigurationGBeanData();
         configData.setAttribute("baseURL", path.toURL());
         kernel.loadGBean(configData, cl);
+
         kernel.startRecursiveGBean(configData.getName());
-        Set names = kernel.listGBeans(ObjectName.getInstance("jetty.test:J2EEApplication=null,J2EEServer=test,WebModule=war4,*"));
+        if (((Integer) kernel.getAttribute(configData.getName(), "state")).intValue() != State.RUNNING_INDEX) {
+            fail("gbean not started: " + configData.getName());
+        }
+        Set names = kernel.listGBeans(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=bar,WebModule=war4,*"));
         System.out.println("Object names: " + names);
         for (Iterator iterator = names.iterator(); iterator.hasNext();) {
             ObjectName objectName = (ObjectName) iterator.next();
             assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(objectName, "state"));
         }
-        GBeanData filterMapping2Data = kernel.getGBeanData(ObjectName.getInstance("jetty.test:J2EEApplication=null,J2EEServer=test,Servlet=Servlet1,WebFilter=Filter2,WebModule=war4,j2eeType=WebFilterMapping"));
-        assertEquals(Collections.singleton(ObjectName.getInstance("jetty.test:J2EEApplication=null,J2EEServer=test,Servlet=Servlet1,WebFilter=Filter1,WebModule=war4,j2eeType=WebFilterMapping")), filterMapping2Data.getReferencePatterns("Previous"));
+        GBeanData filterMapping2Data = kernel.getGBeanData(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=bar,Servlet=Servlet1,WebFilter=Filter2,WebModule=war4,j2eeType=WebFilterMapping"));
+        assertEquals(Collections.singleton(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=bar,Servlet=Servlet1,WebFilter=Filter1,WebModule=war4,j2eeType=WebFilterMapping")), filterMapping2Data.getReferencePatterns("Previous"));
 
         kernel.stopGBean(configData.getName());
         kernel.unloadGBean(configData.getName());
@@ -172,7 +184,7 @@ public class JettyModuleBuilderTest extends TestCase {
     private void recursiveDelete(File path) {
         //does not delete top level dir passed in
         File[] listing = path.listFiles();
-        for (int i = 0; i < ((listing == null)? 0: listing.length); i++) {
+        for (int i = 0; i < ((listing == null) ? 0 : listing.length); i++) {
             File file = listing[i];
             if (file.isDirectory()) {
                 recursiveDelete(file);
@@ -185,14 +197,23 @@ public class JettyModuleBuilderTest extends TestCase {
         cl = this.getClass().getClassLoader();
         containerName = NameFactory.getWebComponentName(null, null, null, null, "jettyContainer", "WebResource", moduleContext);
         connectorName = NameFactory.getWebComponentName(null, null, null, null, "jettyConnector", "WebResource", moduleContext);
-        webModuleName = NameFactory.getWebComponentName(null, null, null, null, NameFactory.WEB_MODULE, "WebResource", moduleContext);
+//        webModuleName = NameFactory.getWebComponentName(null, null, null, null, NameFactory.WEB_MODULE, "WebResource", moduleContext);
 
         tmName = NameFactory.getComponentName(null, null, null, null, "TransactionManager", NameFactory.JTA_RESOURCE, moduleContext);
         tcmName = NameFactory.getComponentName(null, null, null, null, "TransactionContextManager", NameFactory.JTA_RESOURCE, moduleContext);
         ctcName = new ObjectName("geronimo.test:role=ConnectionTrackingCoordinator");
 
-        kernel = new Kernel("test.kernel");
+        kernel = new Kernel("foo", new BasicGBeanRegistry());
         kernel.boot();
+
+        GBeanData store = new GBeanData(JMXUtil.getObjectName("foo:j2eeType=ConfigurationStore,name=mock"), MockConfigStore.GBEAN_INFO);
+        kernel.loadGBean(store, this.getClass().getClassLoader());
+        kernel.startGBean(store.getName());
+
+        GBeanData baseConfig = (GBeanData) kernel.invoke(store.getName(), "getConfiguration", new Object[]{parentId}, new String[]{URI.class.getName()});
+        kernel.loadGBean(baseConfig, this.getClass().getClassLoader());
+        kernel.startGBean(baseConfig.getName());
+
         ObjectName defaultServlets = ObjectName.getInstance("test:name=test,type=none,*");
         //install the policy configuration factory
         SecurityServiceImpl securityService = new SecurityServiceImpl("org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory");
@@ -228,18 +249,90 @@ public class JettyModuleBuilderTest extends TestCase {
         stop(containerName);
         kernel.shutdown();
     }
-    private void start(GBeanData gbeanData) throws Exception {
-         kernel.loadGBean(gbeanData, cl);
-         kernel.startGBean(gbeanData.getName());
-         if (((Integer)kernel.getAttribute(gbeanData.getName(), "state")).intValue() != State.RUNNING_INDEX ) {
-             fail("gbean not started: " + gbeanData.getName());
-         }
-     }
 
-     private void stop(ObjectName name) throws Exception {
-         kernel.stopGBean(name);
-         kernel.unloadGBean(name);
-     }
+    private void start(GBeanData gbeanData) throws Exception {
+        kernel.loadGBean(gbeanData, cl);
+        kernel.startGBean(gbeanData.getName());
+        if (((Integer) kernel.getAttribute(gbeanData.getName(), "state")).intValue() != State.RUNNING_INDEX) {
+            fail("gbean not started: " + gbeanData.getName());
+        }
+    }
+
+    private void stop(ObjectName name) throws Exception {
+        kernel.stopGBean(name);
+        kernel.unloadGBean(name);
+    }
+
+    public static class MockConfigStore implements ConfigurationStore {
+        public URI install(URL source) throws IOException, InvalidConfigException {
+            return null;
+        }
+
+        public URI install(File source) throws IOException, InvalidConfigException {
+            return null;
+        }
+
+        public void uninstall(URI configID) throws NoSuchConfigException, IOException {
+
+        }
+
+        public boolean containsConfiguration(URI configID) {
+            return true;
+        }
+
+        public GBeanData getConfiguration(URI id) throws NoSuchConfigException, IOException, InvalidConfigException {
+            GBeanData configData = null;
+            try {
+                configData = new GBeanData(Configuration.getConfigurationObjectName(id), Configuration.GBEAN_INFO);
+            } catch (MalformedObjectNameException e) {
+                throw new InvalidConfigException(e);
+            }
+            configData.setAttribute("ID", id);
+            configData.setAttribute("domain", "test");
+            configData.setAttribute("server", "bar");
+            configData.setAttribute("gBeanState", NO_OBJECTS_OS);
+            return configData;
+        }
+
+        public void updateConfiguration(Configuration configuration) throws NoSuchConfigException, Exception {
+
+        }
+
+        public URL getBaseURL(URI id) throws NoSuchConfigException {
+            return null;
+        }
+
+        public String getObjectName() {
+            return null;
+        }
+
+        public List listConfiguations() {
+            return null;
+        }
+
+        public File createNewConfigurationDir() {
+            return null;
+        }
+
+        public final static GBeanInfo GBEAN_INFO;
+
+        private static final byte[] NO_OBJECTS_OS;
+
+        static {
+            GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(MockConfigStore.class);
+            infoBuilder.addInterface(ConfigurationStore.class);
+            GBEAN_INFO = infoBuilder.getBeanInfo();
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try {
+                ObjectOutputStream oos = new ObjectOutputStream(baos);
+                oos.flush();
+                NO_OBJECTS_OS = baos.toByteArray();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    };
 
 
 }

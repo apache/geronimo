@@ -17,6 +17,7 @@
 package org.apache.geronimo.axis.builder;
 
 import java.beans.Introspector;
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -64,26 +65,26 @@ import org.apache.axis.description.ParameterDesc;
 import org.apache.axis.enum.Style;
 import org.apache.axis.enum.Use;
 import org.apache.axis.soap.SOAPConstants;
-import org.apache.geronimo.axis.client.GenericServiceEndpoint;
 import org.apache.geronimo.axis.client.GenericServiceEndpointWrapper;
+import org.apache.geronimo.axis.client.NoOverrideCallbackFilter;
 import org.apache.geronimo.axis.client.OperationInfo;
 import org.apache.geronimo.axis.client.SEIFactory;
 import org.apache.geronimo.axis.client.SEIFactoryImpl;
-import org.apache.geronimo.axis.client.ServiceEndpointMethodInterceptor;
+import org.apache.geronimo.axis.client.SerializableNoOp;
 import org.apache.geronimo.axis.client.ServiceImpl;
 import org.apache.geronimo.axis.client.ServiceMethodInterceptor;
 import org.apache.geronimo.axis.client.ServiceReference;
-import org.apache.geronimo.axis.client.SerializableNoOp;
-import org.apache.geronimo.axis.client.NoOverrideCallbackFilter;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
-import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingDocument;
-import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
+import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingDocument;
+import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
 import org.apache.xmlbeans.XmlException;
 import org.objectweb.asm.Type;
+import org.xml.sax.InputSource;
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -91,7 +92,7 @@ import org.objectweb.asm.Type;
 public class AxisBuilder implements ServiceReferenceBuilder {
     private static final Class[] SERVICE_CONSTRUCTOR_TYPES = new Class[]{Map.class};
 
-    private static final URI ENHANCED_LOCATION = URI.create("cglib");
+    private static final URI ENHANCED_LOCATION = URI.create("cglib/");
     private static final SOAPConstants SOAP_VERSION = SOAPConstants.SOAP11_CONSTANTS;
 
     public ServiceReference createServiceReference(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, ClassLoader classLoader) throws DeploymentException {
@@ -111,8 +112,17 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         return new ServiceReference(enhanced, null, null);
     }
 
-    public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, ClassLoader classLoader) throws DeploymentException {
-        URL wsdlURL = classLoader.getResource(wsdlURI.toString());
+    public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
+        String wsdlFile = null;
+        try {
+            wsdlFile = deploymentContext.getTargetFile(module.getTargetPathURI().resolve(wsdlURI)).toURL().toString();
+        } catch (MalformedURLException e) {
+            throw new DeploymentException("Could not resolve wsdlfile", e);
+        }
+        //TODO trying to read in the doc from the wsdlFile directly doesn't work in running geronimo, but does work in
+        //unit tests.  You get a java.net.UnknownServiceException with message "no content-type".  Perhaps something
+        //is wrong with the geronimo url handler??
+        InputSource is = new InputSource(wsdlFile);
         WSDLFactory wsdlFactory = null;
         try {
             wsdlFactory = WSDLFactory.newInstance();
@@ -120,17 +130,18 @@ public class AxisBuilder implements ServiceReferenceBuilder {
             throw new DeploymentException("Could not create WSDLFactory", e);
         }
         WSDLReader wsdlReader = wsdlFactory.newWSDLReader();
+        wsdlReader.setFeature("javax.wsdl.importDocuments", false);
         Definition definition = null;
         try {
-            definition = wsdlReader.readWSDL(wsdlURL.toString());
+            definition = wsdlReader.readWSDL(null, is);
         } catch (WSDLException e) {
             throw new DeploymentException("Failed to read wsdl document", e);
         }
 
-        URL jaxrpcMappingURL = classLoader.getResource(jaxrpcMappingURI.toString());
+        File jaxrpcMappingFile = deploymentContext.getTargetFile(module.getTargetPathURI().resolve(jaxrpcMappingURI));
         JavaWsdlMappingDocument mappingDocument = null;
         try {
-            mappingDocument = JavaWsdlMappingDocument.Factory.parse(jaxrpcMappingURL);
+            mappingDocument = JavaWsdlMappingDocument.Factory.parse(jaxrpcMappingFile);
         } catch (XmlException e) {
             throw new DeploymentException("Could not parse jaxrpc mapping document", e);
         } catch (IOException e) {
@@ -138,17 +149,17 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         }
         JavaWsdlMappingType mapping = mappingDocument.getJavaWsdlMapping();
 
-        return createService(serviceInterface, definition, mapping, serviceQName, SOAP_VERSION, deploymentContext, classLoader);
+        return createService(serviceInterface, definition, mapping, serviceQName, SOAP_VERSION, deploymentContext, module, classLoader);
     }
 
-    public javax.xml.rpc.Service createService(Class serviceInterface, Definition definition, JavaWsdlMappingType mapping, QName serviceQName, SOAPConstants soapVersion, DeploymentContext context, ClassLoader classloader) throws DeploymentException {
+    public javax.xml.rpc.Service createService(Class serviceInterface, Definition definition, JavaWsdlMappingType mapping, QName serviceQName, SOAPConstants soapVersion, DeploymentContext context, Module module, ClassLoader classloader) throws DeploymentException {
         Map seiFactoryMap = new HashMap();
-        ServiceImpl serviceInstance = createService(serviceInterface, seiFactoryMap, context, classloader);
-        buildSEIFactoryMap(serviceInterface, definition, mapping, serviceQName, soapVersion, seiFactoryMap, serviceInstance, context, classloader);
+        ServiceImpl serviceInstance = createService(serviceInterface, seiFactoryMap, context, module, classloader);
+        buildSEIFactoryMap(serviceInterface, definition, mapping, serviceQName, soapVersion, seiFactoryMap, serviceInstance, context, module, classloader);
         return serviceInstance;
     }
 
-    public ServiceImpl createService(Class serviceInterface, Map seiFactoryMap, DeploymentContext deploymentContext, ClassLoader classLoader) throws DeploymentException {
+    public ServiceImpl createService(Class serviceInterface, Map seiFactoryMap, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
 
         Callback callback = new ServiceMethodInterceptor(seiFactoryMap);
         Callback[] methodInterceptors = new Callback[]{SerializableNoOp.INSTANCE, callback};
@@ -164,7 +175,13 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         enhancer.setStrategy(strategy);
         Class serviceClass = enhancer.createClass();
 
-        saveClass(deploymentContext, serviceClass.getName(), strategy.getClassBytes());
+        try {
+            module.addClass(serviceClass.getName(), strategy.getClassBytes(), deploymentContext);
+        } catch (IOException e) {
+            throw new DeploymentException("Could not write out class bytes", e);
+        } catch (URISyntaxException e) {
+            throw new DeploymentException("Could not constuct URI for location of enhanced class", e);
+        }
         Enhancer.registerCallbacks(serviceClass, methodInterceptors);
         FastConstructor constructor = FastClass.create(serviceClass).getConstructor(SERVICE_CONSTRUCTOR_TYPES);
         try {
@@ -174,7 +191,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         }
     }
 
-    public Map buildSEIFactoryMap(Class serviceInterface, Definition definition, JavaWsdlMappingType mapping, QName serviceQName, SOAPConstants soapVersion, Map seiFactoryMap, ServiceImpl serviceImpl, DeploymentContext context, ClassLoader classloader) throws DeploymentException {
+    public Map buildSEIFactoryMap(Class serviceInterface, Definition definition, JavaWsdlMappingType mapping, QName serviceQName, SOAPConstants soapVersion, Map seiFactoryMap, ServiceImpl serviceImpl, DeploymentContext context, Module module, ClassLoader classloader) throws DeploymentException {
 
         //find the service we are working with
         javax.wsdl.Service service = definition.getService(serviceQName);
@@ -189,7 +206,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
             String portName = (String) entry.getKey();
             Port port = (Port) entry.getValue();
             Class serviceEndpointInterface = getServiceEndpointInterface(serviceInterface, port);
-            Class enhancedServiceEndpointClass = enhanceServiceEndpointInterface(classloader, serviceEndpointInterface, context);
+            Class enhancedServiceEndpointClass = enhanceServiceEndpointInterface(serviceEndpointInterface, context, module, classloader);
 
             SOAPAddress soapAddress = (SOAPAddress) getExtensibilityElement(SOAPAddress.class, port.getExtensibilityElements());
             String locationURIString = soapAddress.getLocationURI();
@@ -290,7 +307,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         return factory;
     }
 
-    public Class enhanceServiceEndpointInterface(ClassLoader classLoader, Class serviceEndpointInterface, DeploymentContext deploymentContext) throws DeploymentException {
+    public Class enhanceServiceEndpointInterface(Class serviceEndpointInterface, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
         Enhancer enhancer = new Enhancer();
         enhancer.setClassLoader(classLoader);
         enhancer.setSuperclass(GenericServiceEndpointWrapper.class);
@@ -302,7 +319,13 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         enhancer.setStrategy(strategy);
         Class serviceEndpointClass = enhancer.createClass();
 
-        saveClass(deploymentContext, serviceEndpointClass.getName(), strategy.getClassBytes());
+        try {
+            module.addClass(serviceEndpointClass.getName(), strategy.getClassBytes(), deploymentContext);
+        } catch (IOException e) {
+            throw new DeploymentException("Could not write out class bytes", e);
+        } catch (URISyntaxException e) {
+            throw new DeploymentException("Could not constuct URI for location of enhanced class", e);
+        }
         return serviceEndpointClass;
     }
 
@@ -402,7 +425,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
 
     private void saveClass(DeploymentContext deploymentContext, String className, byte[] classBytes) throws DeploymentException {
         try {
-            deploymentContext.addClass(ENHANCED_LOCATION, className, classBytes);
+            deploymentContext.addClass(ENHANCED_LOCATION, className, classBytes, true);
         } catch (IOException e) {
             throw new DeploymentException("Could not save enhanced class bytes", e);
         } catch (URISyntaxException e) {

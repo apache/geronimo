@@ -17,10 +17,13 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.jar.JarFile;
+import java.io.IOException;
 
 import org.apache.xmlbeans.XmlObject;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.deployment.DeploymentContext;
 
 /**
  * @version $Rev$ $Date$
@@ -33,5 +36,10 @@ public class ConnectorModule extends Module {
     public ConfigurationModuleType getType() {
         return ConfigurationModuleType.RAR;
     }
+
+    public void addClass(URI location, String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException {
+        context.addClass(location, fqcn, bytes, true);
+    }
+
 }
 

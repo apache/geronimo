@@ -163,38 +163,42 @@ public class Bootstrap {
                 startupJarTag.createNewFile();
 
                 // jar up the directory
-                DeploymentUtil.jarDirectory(configurationDir,  new File(deployerJar));
+                DeploymentUtil.jarDirectory(configurationDir, new File(deployerJar));
 
                 // delete the startup file before moving this to the config store
                 startupJarTag.delete();
 
                 // install the configuration
                 configStore.install(configurationDir);
-            } catch(Throwable e) {
+            } catch (Throwable e) {
                 DeploymentUtil.recursiveDelete(configurationDir);
                 if (e instanceof Error) {
-                    throw (Error)e;
+                    throw (Error) e;
                 } else if (e instanceof Exception) {
-                    throw (Exception)e;
+                    throw (Exception) e;
                 }
                 throw new Error(e);
             }
+            
+            //get the domain and server from the parent xml config
+            String domain = deployerSystemConfig.getDomain();
+            String server = deployerSystemConfig.getServer();
 
             // build and install the j2ee-deployer configuration
             try {
                 configurationDir = configStore.createNewConfigurationDir();
 
                 // build the j2ee-deployer configuration into the configurationDir
-                builder.buildConfiguration(j2eeDeployerConfig, null, configurationDir);
+                builder.buildConfiguration(j2eeDeployerConfig, domain, server, configurationDir);
 
                 // install the configuration
                 configStore.install(configurationDir);
-            } catch(Throwable e) {
+            } catch (Throwable e) {
                 DeploymentUtil.recursiveDelete(configurationDir);
                 if (e instanceof Error) {
-                    throw (Error)e;
+                    throw (Error) e;
                 } else if (e instanceof Exception) {
-                    throw (Exception)e;
+                    throw (Exception) e;
                 }
                 throw new Error(e);
             }

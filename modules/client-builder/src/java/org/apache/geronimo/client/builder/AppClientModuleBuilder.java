@@ -18,6 +18,7 @@ package org.apache.geronimo.client.builder;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -84,8 +85,6 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     private final Repository repository;
     private final ConfigurationStore store;
 
-    private final String clientDomainName = "geronimo.client";
-    private final String clientServerName = "client";
     private final String clientApplicationName = "client-application";
     private final ObjectName transactionContextManagerObjectName;
     private final ObjectName connectionTrackerObjectName;
@@ -250,7 +249,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
-        // extract the ejbJar file into a standalone packed jar file and add the contents to the output
+        // extract the app client jar file into a standalone packed jar file and add the contents to the output
         JarFile moduleFile = module.getModuleFile();
         try {
             earContext.addIncludeAsPackedJar(URI.create(module.getTargetPath()), moduleFile);
@@ -311,8 +310,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             }
             appClientModuleGBeanData.setAttribute("deploymentDescriptor", null);
 
-            componentContext = buildComponentContext(earContext, appClientModule, appClient, geronimoAppClient, earClassLoader);
-            appClientModuleGBeanData.setAttribute("componentContext", componentContext);
+//            componentContext = buildComponentContext(earContext, appClientModule, appClient, geronimoAppClient, earClassLoader);
+//            appClientModuleGBeanData.setAttribute("componentContext", componentContext);
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
         }
@@ -340,8 +339,6 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                             ConfigurationModuleType.APP_CLIENT,
                             clientParentId,
                             kernel,
-                            clientDomainName,
-                            clientServerName,
                             clientApplicationName,
                             transactionContextManagerObjectName,
                             connectionTrackerObjectName,
@@ -388,15 +385,33 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                             JarFile connectorFile;
                             if (resource.isSetExternalRar()) {
                                 path = resource.getExternalRar();
-                                URI pathURI = new URI(path);
+                                URI pathURI = null;
+                                try {
+                                    pathURI = new URI(path);
+                                } catch (URISyntaxException e) {
+                                    throw new DeploymentException("Bad path to external rar", e);
+                                }
                                 if (!repository.hasURI(pathURI)) {
                                     throw new DeploymentException("Missing rar in repository: " + path);
                                 }
-                                URL pathURL = repository.getURL(pathURI);
-                                connectorFile = new JarFile(pathURL.getFile());
+                                URL pathURL = null;
+                                try {
+                                    pathURL = repository.getURL(pathURI);
+                                } catch (MalformedURLException e) {
+                                    throw new DeploymentException("Could not locate external rar in repository", e);
+                                }
+                                try {
+                                    connectorFile = new JarFile(pathURL.getFile());
+                                } catch (IOException e) {
+                                    throw new DeploymentException("Could not access rar contents", e);
+                                }
                             } else {
                                 path = resource.getInternalRar();
-                                connectorFile = new NestedJarFile(appClientModule.getEarFile(), path);
+                                try {
+                                    connectorFile = new NestedJarFile(appClientModule.getEarFile(), path);
+                                } catch (IOException e) {
+                                    throw new DeploymentException("Could not locate connector inside ear", e);
+                                }
                             }
                             XmlObject connectorPlan = resource.getConnector();
                             Module connectorModule = connectorModuleBuilder.createModule(connectorPlan, connectorFile, path, null, null);
@@ -542,8 +557,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     private ReadOnlyContext buildComponentContext(EARContext earContext, AppClientModule appClientModule, ApplicationClientType appClient, GerApplicationClientType geronimoAppClient, ClassLoader cl) throws DeploymentException {
 
         return ENCConfigBuilder.buildComponentContext(earContext,
-                appClientModule.getModuleURI(),
-                null,
+                appClientModule,
+                null, //no user transaction yet
                 appClient.getEnvEntryArray(),
                 appClient.getEjbRefArray(), geronimoAppClient.getEjbRefArray(),
                 new EjbLocalRefType[0], null,
@@ -553,27 +568,6 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 appClient.getServiceRefArray(),
                 cl);
 
-    }
-
-
-    private URI getDependencyURI(DependencyType dep) throws DeploymentException {
-        URI uri;
-        if (dep.isSetUri()) {
-            try {
-                uri = new URI(dep.getUri());
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid dependency URI " + dep.getUri(), e);
-            }
-        } else {
-            // @todo support more than just jars
-            String id = dep.getGroupId() + "/jars/" + dep.getArtifactId() + '-' + dep.getVersion() + ".jar";
-            try {
-                uri = new URI(id);
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Unable to construct URI for groupId=" + dep.getGroupId() + ", artifactId=" + dep.getArtifactId() + ", version=" + dep.getVersion(), e);
-            }
-        }
-        return uri;
     }
 
     public static final GBeanInfo GBEAN_INFO;

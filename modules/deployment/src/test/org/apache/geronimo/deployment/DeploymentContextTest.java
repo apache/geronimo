@@ -42,7 +42,7 @@ public class DeploymentContextTest extends TestCase {
         try {
             basedir.deleteOnExit();
             URI configID = new URI("test");
-            DeploymentContext context = new DeploymentContext(basedir, configID, ConfigurationModuleType.CAR, null, null);
+            DeploymentContext context = new DeploymentContext(basedir, configID, ConfigurationModuleType.CAR, null, "foo", "bar", null);
             Enhancer enhancer = new Enhancer();
             enhancer.setInterfaces(new Class[]{DataSource.class});
             enhancer.setCallbackType(MethodInterceptor.class);
@@ -54,8 +54,8 @@ public class DeploymentContextTest extends TestCase {
             });
             enhancer.setClassLoader(new URLClassLoader(new URL[0], this.getClass().getClassLoader()));
             Class type = enhancer.createClass();
-            URI location = new URI("cglib");
-            context.addClass(location, type.getName(), classBytes);
+            URI location = new URI("cglib/");
+            context.addClass(location, type.getName(), classBytes, true);
             ClassLoader cl = context.getClassLoader(null);
             Class loadedType = cl.loadClass(type.getName());
             assertTrue(DataSource.class.isAssignableFrom(loadedType));

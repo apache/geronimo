@@ -82,6 +82,10 @@ public class DeploymentContext {
     private final ClassLoader parentCL;
 
     public DeploymentContext(File baseDir, URI configID, ConfigurationModuleType type, URI parentID, Kernel kernel) throws MalformedObjectNameException, DeploymentException {
+        this(baseDir,  configID,  type, parentID, null, null, kernel);
+    }
+
+    public DeploymentContext(File baseDir, URI configID, ConfigurationModuleType type, URI parentID, String domain, String server, Kernel kernel) throws MalformedObjectNameException, DeploymentException {
         assert baseDir != null: "baseDir is null";
         assert configID != null: "configID is null";
         assert type != null: "type is null";
@@ -105,6 +109,8 @@ public class DeploymentContext {
             config.setAttribute("ID", configID);
             config.setAttribute("type", type);
             config.setAttribute("parentID", parentID);
+            config.setAttribute("domain", domain);
+            config.setAttribute("server", server);
         } catch (Exception e) {
             // we created this GBean ...
             throw new AssertionError();
@@ -113,11 +119,18 @@ public class DeploymentContext {
         if (kernel != null && parentID != null) {
             ConfigurationManager configurationManager = kernel.getConfigurationManager();
             ObjectName parentName = Configuration.getConfigurationObjectName(parentID);
-            config.setReferencePatterns("Parent", Collections.singleton(parentName));
+            config.setReferencePattern("Parent", parentName);
             try {
                 loadedAncestors = configurationManager.loadRecursive(parentID);
             } catch (Exception e) {
                 throw new DeploymentException("Unable to load parents", e);
+            }
+
+            try {
+                config.setAttribute("domain", kernel.getAttribute(parentName, "domain"));
+                config.setAttribute("server", kernel.getAttribute(parentName, "server"));
+            } catch (Exception e) {
+                throw new DeploymentException("Unable to copy domain and server from parent configuration", e);
             }
 
             try {
@@ -159,6 +172,12 @@ public class DeploymentContext {
             // which is normally the system class loader but not always, so be safe
             parentCL = getClass().getClassLoader();
         }
+
+        //check that domain and server are now known
+        if (config.getAttribute("domain") == null || config.getAttribute("server") == null) {
+            throw new IllegalStateException("Domain or server could not be determined from explicit args or parent configuration. ParentID: " + parentID + ", domain: " + config.getAttribute("domain") + ", server: " + config.getAttribute("server"));
+        }
+
     }
 
     private static boolean isRunning(Kernel kernel, ObjectName name) throws Exception {
@@ -175,6 +194,14 @@ public class DeploymentContext {
 
     public File getBaseDir() {
         return baseDir;
+    }
+
+    public String getDomain() {
+        return (String) config.getAttribute("domain");
+    }
+
+    public String getServer() {
+        return (String) config.getAttribute("server");
     }
 
     /**
@@ -341,10 +368,14 @@ public class DeploymentContext {
         addFile(getTargetFile(targetPath), new ByteArrayInputStream(source.getBytes()));
     }
 
-    public void addClass(URI location, String fqcn, byte[] bytes) throws IOException, URISyntaxException {
-        classPath.add(location);
+    public void addClass(URI location, String fqcn, byte[] bytes, boolean addToClasspath) throws IOException, URISyntaxException {
+        assert location.toString().endsWith("/");
+
+        if (addToClasspath) {
+            classPath.add(location);
+        }
         String classFileName = fqcn.replace('.', '/') + ".class";
-        addFile(getTargetFile(new URI(location.toString() + "/" + classFileName)), new ByteArrayInputStream(bytes));
+        addFile(getTargetFile(new URI(location.toString() + classFileName)), new ByteArrayInputStream(bytes));
     }
 
     private void addFile(File targetFile, ZipFile zipFile, ZipEntry zipEntry) throws IOException {

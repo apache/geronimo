@@ -17,9 +17,14 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.jar.JarFile;
+import java.util.Collection;
+import java.util.Set;
+import java.io.IOException;
 
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -27,6 +32,7 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class AppClientModule extends Module {
     private JarFile earFile;
+    private Collection resourceModules;
 
     public AppClientModule(boolean standAlone, URI configId, URI parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
         super(standAlone, configId, parentId, moduleFile, targetPath, specDD, vendorDD, originalSpecDD);
@@ -42,6 +48,18 @@ public class AppClientModule extends Module {
 
     public void setEarFile(JarFile earFile) {
         this.earFile = earFile;
+    }
+
+    public void addClass(URI location, String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException {
+        context.addClass(location, fqcn, bytes, true);
+    }
+
+    public void setResourceModules(Collection resourceModules) {
+        this.resourceModules = resourceModules;
+    }
+
+    public Collection getResourceModules() {
+        return resourceModules;
     }
 }
 

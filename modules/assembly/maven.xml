@@ -222,7 +222,7 @@
             deployerSystemPlan="${basedir}/target/plan/deployer-system-plan.xml"
             j2eeDeployerPlan="${basedir}/target/plan/j2ee-deployer-plan.xml"
             deployerClassPath="${deploy.classpath}"
-            deployerGBean="geronimo.server:name=Deployer,J2EEApplication=null,J2EEModule=org/apache/geronimo/J2EEDeployer,j2eeType=Deployer,J2EEServer=geronimo"
+            deployerGBean="geronimo.deployer:name=Deployer,J2EEApplication=null,J2EEModule=org/apache/geronimo/J2EEDeployer,j2eeType=Deployer,J2EEServer=deployer"
             deploymentFactory="org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl"
             />
 

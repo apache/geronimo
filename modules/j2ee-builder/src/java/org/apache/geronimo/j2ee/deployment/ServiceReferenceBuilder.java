@@ -31,7 +31,7 @@ import org.apache.geronimo.deployment.DeploymentContext;
 public interface ServiceReferenceBuilder {
 
     //it could return a Service or a Reference, we don't care
-    Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, ClassLoader classLoader) throws DeploymentException;
+    Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException;
 
     //TODO a locate port method for links.
 }

@@ -33,7 +33,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -331,7 +330,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
         JettyWebAppType jettyWebApp = (JettyWebAppType) webModule.getVendorDD();
 
         // construct the webClassLoader
-        URI[] webClassPath = getWebClassPath(earContext, webModule);
+        getWebClassPath(earContext, webModule);
+        URI[] webClassPath = webModule.getWebClasspath();
         URI baseUri = earContext.getTargetFile(URI.create(webModule.getTargetPath() + "/")).toURI();
         URL[] webClassPathURLs = new URL[webClassPath.length];
         for (int i = 0; i < webClassPath.length; i++) {
@@ -369,6 +369,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         }
 
         UserTransaction userTransaction = new OnlineUserTransaction();
+        //this may add to the web classpath with enhanced classes.
         ReadOnlyContext compContext = buildComponentContext(earContext, webModule, webApp, jettyWebApp, userTransaction, webClassLoader);
 
         GBeanData webModuleData = new GBeanData(webModuleName, JettyWebAppContext.GBEAN_INFO);
@@ -388,7 +389,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
             webModuleData.setAttribute("uri", URI.create(module.getTargetPath() + "/"));
             webModuleData.setAttribute("componentContext", compContext);
             webModuleData.setAttribute("userTransaction", userTransaction);
-            webModuleData.setAttribute("webClassPath", webClassPath);
+            //classpath may have been augmented with enhanced classes
+            webModuleData.setAttribute("webClassPath", webModule.getWebClasspath());
             // unsharableResources, applicationManagedSecurityResources
             GBeanResourceEnvironmentBuilder rebuilder = new GBeanResourceEnvironmentBuilder(webModuleData);
             ENCConfigBuilder.setResourceEnvironment(earContext, webModule.getModuleURI(), rebuilder, webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray());
@@ -936,15 +938,14 @@ public class JettyModuleBuilder implements ModuleBuilder {
         return roleNames;
     }
 
-    private static URI[] getWebClassPath(EARContext earContext, WebModule webModule) {
-        LinkedList webClassPath = new LinkedList();
-        File baseDir = earContext.getTargetFile(URI.create(webModule.getTargetPath() + "/"));
+    private static void getWebClassPath(EARContext earContext, WebModule webModule) {
+        File baseDir = earContext.getTargetFile(webModule.getTargetPathURI());
         File webInfDir = new File(baseDir, "WEB-INF");
 
         // check for a classes dir
         File classesDir = new File(webInfDir, "classes");
         if (classesDir.isDirectory()) {
-            webClassPath.add(URI.create("WEB-INF/classes/"));
+            webModule.addToWebClasspath(URI.create("WEB-INF/classes/"));
         }
 
         // add all of the libs
@@ -959,17 +960,22 @@ public class JettyModuleBuilder implements ModuleBuilder {
             if (libs != null) {
                 for (int i = 0; i < libs.length; i++) {
                     File lib = libs[i];
-                    webClassPath.add(URI.create("WEB-INF/lib/" + lib.getName()));
+                    webModule.addToWebClasspath(URI.create("WEB-INF/lib/" + lib.getName()));
                 }
             }
         }
-        return (URI[]) webClassPath.toArray(new URI[webClassPath.size()]);
     }
 
-    private ReadOnlyContext buildComponentContext(EARContext earContext, WebModule webModule, WebAppType webApp, JettyWebAppType jettyWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
+    private ReadOnlyContext buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, JettyWebAppType jettyWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
 
+        URI targetPathUri = null;
+        try {
+            targetPathUri = new URI(webModule.getTargetPath() + "/");
+        } catch (URISyntaxException e) {
+            throw new DeploymentException("Could not locate module within configuration", e);
+        }
         return ENCConfigBuilder.buildComponentContext(earContext,
-                webModule.getModuleURI(),
+                webModule,
                 userTransaction,
                 webApp.getEnvEntryArray(),
                 webApp.getEjbRefArray(), jettyWebApp.getEjbRefArray(),

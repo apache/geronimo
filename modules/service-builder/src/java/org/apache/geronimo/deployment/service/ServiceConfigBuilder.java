@@ -20,15 +20,15 @@ package org.apache.geronimo.deployment.service;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.MalformedURLException;
 import java.net.URLClassLoader;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.HashSet;
 import java.util.jar.JarFile;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -47,12 +47,12 @@ import org.apache.geronimo.deployment.xbeans.ServiceDocument;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.xmlbeans.XmlException;
 
 /**
@@ -62,18 +62,13 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     private final URI defaultParentId;
     private final Repository repository;
     private final Kernel kernel;
-    private final String j2eeServerName;
-    private final String j2eeDomainName;
 
-    public ServiceConfigBuilder(URI defaultParentId, Repository repository) throws MalformedObjectNameException {
-        //todo include the objectname as a constructor arg
-        this(defaultParentId, new ObjectName("geronimo.server:name=geronimo"), repository, null);
+    public ServiceConfigBuilder(URI defaultParentId, Repository repository) {
+        this(defaultParentId, repository, null);
     }
 
-    public ServiceConfigBuilder(URI defaultParentId, ObjectName j2eeServer, Repository repository, Kernel kernel) {
+    public ServiceConfigBuilder(URI defaultParentId, Repository repository, Kernel kernel) {
         this.defaultParentId = defaultParentId;
-        j2eeServerName = j2eeServer.getKeyProperty("name");
-        j2eeDomainName = j2eeServer.getDomain();
         this.repository = repository;
         this.kernel = kernel;
     }
@@ -96,35 +91,56 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
 
     public List buildConfiguration(Object plan, JarFile unused, File outfile) throws IOException, DeploymentException {
         ConfigurationType configType = (ConfigurationType) plan;
+        String domain = null;
+        String server = null;
+
+        buildConfiguration(configType, domain, server, outfile);
+
+        return Collections.EMPTY_LIST;
+    }
+
+    public void buildConfiguration(ConfigurationType configType, String domain, String server, File outfile) throws DeploymentException, IOException {
+        URI parentID = null;
+        if (configType.isSetParentId()) {
+            try {
+                parentID = new URI(configType.getParentId());
+            } catch (URISyntaxException e) {
+                throw new DeploymentException("Invalid parentId " + configType.getParentId(), e);
+            }
+        } else {
+            if (configType.isSetDomain()) {
+                if (!configType.isSetServer()) {
+                    throw new DeploymentException("You must set both domain and server");
+                }
+                domain = configType.getDomain();
+                server = configType.getServer();
+            } else {
+                parentID = defaultParentId;
+            }
+        }
+
+        if (domain == null) {
+            //get from parent id
+            if (kernel == null) {
+                throw new DeploymentException("You must supply a kernel or the domain and server names");
+            }
+        }
+
         URI configID;
         try {
             configID = new URI(configType.getConfigId());
         } catch (URISyntaxException e) {
             throw new DeploymentException("Invalid configId " + configType.getConfigId(), e);
         }
-        URI parentID;
-        if (configType.isSetParentId()) {
-            if (configType.getParentId().equals("")) {
-                parentID = null;
-            } else {
-                try {
-                    parentID = new URI(configType.getParentId());
-                } catch (URISyntaxException e) {
-                    throw new DeploymentException("Invalid parentId " + configType.getParentId(), e);
-                }
-            }
-        } else {
-            parentID = defaultParentId;
-        }
 
         DeploymentContext context = null;
         try {
-            context = new DeploymentContext(outfile, configID, ConfigurationModuleType.SERVICE, parentID, kernel);
+            context = new DeploymentContext(outfile, configID, ConfigurationModuleType.SERVICE, parentID, domain, server, kernel);
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException(e);
         }
 
-        J2eeContext j2eeContext = new J2eeContextImpl(j2eeDomainName, j2eeServerName, NameFactory.NULL, configID.toString(), null, null);
+        J2eeContext j2eeContext = new J2eeContextImpl(context.getDomain(), context.getServer(), NameFactory.NULL, configID.toString(), null, null);
         DependencyType[] includes = configType.getIncludeArray();
         addIncludes(context, includes, repository);
         addDependencies(context, configType.getDependencyArray(), repository);
@@ -132,8 +148,6 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         GbeanType[] gbeans = configType.getGbeanArray();
         addGBeans(gbeans, cl, j2eeContext, context);
         context.close();
-
-        return Collections.EMPTY_LIST;
     }
 
     public static void addIncludes(DeploymentContext context, DependencyType[] includes, Repository repository) throws DeploymentException {
@@ -277,11 +291,10 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         infoFactory.addInterface(ConfigurationBuilder.class);
 
         infoFactory.addAttribute("defaultParentId", URI.class, true);
-        infoFactory.addAttribute("j2eeServer", ObjectName.class, true);
         infoFactory.addReference("Repository", Repository.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
 
-        infoFactory.setConstructor(new String[]{"defaultParentId", "j2eeServer", "Repository", "kernel"});
+        infoFactory.setConstructor(new String[]{"defaultParentId", "Repository", "kernel"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
