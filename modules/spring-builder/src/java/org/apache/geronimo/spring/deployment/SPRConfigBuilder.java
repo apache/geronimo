@@ -29,6 +29,8 @@ import java.util.zip.ZipEntry;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -50,6 +52,7 @@ import org.springframework.core.io.ClassPathResource;
 public class SPRConfigBuilder
   implements ConfigurationBuilder
 {
+  private final Log        log=LogFactory.getLog(SPRConfigBuilder.class);
   private final Kernel     kernel;
   private final Repository repository;
   private final URI        defaultParentId;
@@ -89,7 +92,7 @@ public class SPRConfigBuilder
   {
     if (sprFile==null || !sprFile.getName().endsWith(".spr")) return null;
 
-    System.out.println("PLANNING: "+sprFile.getName());
+    log.info("Planning: "+sprFile.getName());
 
     // N.B.
     // - we should check out META-INF/geronimo-spring.xml
@@ -114,7 +117,7 @@ public class SPRConfigBuilder
 
     XmlBeanDefinitionReader xbdr=(XmlBeanDefinitionReader)plan;
 
-    System.out.println("BUILDING: "+sprFile.getName());
+    log.info("Building: "+sprFile.getName());
 
     try
     {
