@@ -70,7 +70,7 @@ import org.apache.geronimo.gbean.InvalidConfigurationException;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/29 06:03:35 $
+ * @version $Revision: 1.6 $ $Date: 2004/02/11 02:55:28 $
  */
 public class GBeanMBeanAttribute {
     private static final Log log = LogFactory.getLog(GBeanMBeanAttribute.class);
@@ -274,14 +274,20 @@ public class GBeanMBeanAttribute {
         return mbeanAttributeInfo;
     }
 
-    public void online() throws ReflectionException {
+    public void online() throws Exception {
         if (persistent && !isConstructorArg && setInvoker != null) {
             ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
                 Thread.currentThread().setContextClassLoader(gmbean.getClassLoader());
                 setInvoker.invoke(gmbean.getTarget(), new Object[]{persistentValue});
-            } catch (Throwable throwable) {
-                throw new ReflectionException(new InvocationTargetException(throwable));
+            } catch (InvocationTargetException e) {
+                Throwable targetException = e.getTargetException();
+                if(targetException instanceof Exception) {
+                    throw (Exception)targetException;
+                } else if (targetException instanceof Error) {
+                    throw (Error)targetException;
+                }
+                throw e;
             } finally {
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
             }
