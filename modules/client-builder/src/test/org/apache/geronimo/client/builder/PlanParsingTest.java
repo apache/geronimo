@@ -12,7 +12,7 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
  */
 public class PlanParsingTest extends TestCase {
 
-    private AppClientModuleBuilder builder = new AppClientModuleBuilder(null, null, null, null,null, null, null, null, null, null);
+    private AppClientModuleBuilder builder = new AppClientModuleBuilder(null, null, null, null,null, null, null, null, null, null, null);
     File basedir = new File(System.getProperty("basedir", "."));
 
     public void testResourceRef() throws Exception {

@@ -143,6 +143,7 @@ public class AbstractWebServiceTest extends AbstractTestCase {
                         null,
                         TestingUtils.RESOURCE_REFERANCE_BUILDER,
                         null,
+                        null,
                         null);
         return earConfigBuilder;
     }

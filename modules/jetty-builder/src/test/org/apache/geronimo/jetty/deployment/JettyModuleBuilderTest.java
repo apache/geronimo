@@ -22,19 +22,24 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Map;
+import java.util.List;
 import javax.management.ObjectName;
 import javax.naming.Reference;
+import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
+import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
+import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -131,8 +136,13 @@ public class JettyModuleBuilderTest extends TestCase {
                             public GBeanData locateConnectionFactoryInfo(ObjectName resourceAdapterModuleName, String connectionFactoryInterfaceName) throws DeploymentException {
                                 return null;
                             }
-                        }
-                ));
+                        },
+                         new ServiceReferenceBuilder() {
+                             //it could return a Service or a Reference, we don't care
+                             public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, ClassLoader classLoader) throws DeploymentException {
+                                 return null;
+                             }
+                         }));
         builder.initContext(earContext, module, cl);
         builder.addGBeans(earContext, module, cl);
         earContext.close();

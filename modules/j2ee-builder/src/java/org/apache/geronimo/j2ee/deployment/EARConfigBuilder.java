@@ -76,6 +76,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final ModuleBuilder appClientConfigBuilder;
     private final EJBReferenceBuilder ejbReferenceBuilder;
     private final ResourceReferenceBuilder resourceReferenceBuilder;
+    private final ServiceReferenceBuilder serviceReferenceBuilder;
 
     private final URI defaultParentId;
     private final String j2eeServerName;
@@ -87,7 +88,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final ObjectName nonTransactionalTimerObjectName;
 
 
-    public EARConfigBuilder(URI defaultParentId, ObjectName j2eeServer, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactionalTimerObjectName, ObjectName nonTransactionalTimerObjectName, Repository repository, ModuleBuilder ejbConfigBuilder, EJBReferenceBuilder ejbReferenceBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ModuleBuilder appClientConfigBuilder, Kernel kernel) {
+    public EARConfigBuilder(URI defaultParentId, ObjectName j2eeServer, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactionalTimerObjectName, ObjectName nonTransactionalTimerObjectName, Repository repository, ModuleBuilder ejbConfigBuilder, EJBReferenceBuilder ejbReferenceBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ModuleBuilder appClientConfigBuilder, ServiceReferenceBuilder serviceReferenceBuilder, Kernel kernel) {
         this.kernel = kernel;
         this.repository = repository;
         this.defaultParentId = defaultParentId;
@@ -101,6 +102,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         this.webConfigBuilder = webConfigBuilder;
         this.connectorConfigBuilder = connectorConfigBuilder;
         this.appClientConfigBuilder = appClientConfigBuilder;
+        this.serviceReferenceBuilder = serviceReferenceBuilder;
         this.transactionContextManagerObjectName = transactionContextManagerObjectName;
         this.connectionTrackerObjectName = connectionTrackerObjectName;
         this.transactionalTimerObjectName = transactionalTimerObjectName;
@@ -287,7 +289,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                         connectionTrackerObjectName,
                         transactionalTimerObjectName,
                         nonTransactionalTimerObjectName,
-                        new RefContext(ejbReferenceBuilder, resourceReferenceBuilder));
+                        new RefContext(ejbReferenceBuilder, resourceReferenceBuilder, serviceReferenceBuilder));
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException(e);
             }
@@ -534,6 +536,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         infoFactory.addReference("ConnectorConfigBuilder", ModuleBuilder.class);
         infoFactory.addReference("ResourceReferenceBuilder", ResourceReferenceBuilder.class);
         infoFactory.addReference("AppClientConfigBuilder", ModuleBuilder.class);
+        infoFactory.addReference("ServiceReferenceBuilder", ServiceReferenceBuilder.class);
 
         infoFactory.addAttribute("kernel", Kernel.class, false);
 
@@ -553,6 +556,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             "ConnectorConfigBuilder",
             "ResourceReferenceBuilder",
             "AppClientConfigBuilder",
+            "ServiceReferenceBuilder",
             "kernel"
         });
 

@@ -34,15 +34,18 @@ import java.util.Map;
 import java.util.Set;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
+import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.RefContext;
+import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -53,6 +56,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
 import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.xmlbeans.XmlOptions;
 import org.tranql.sql.jdbc.JDBCUtil;
 
@@ -122,10 +126,6 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
     
     private void executeTestBuildModule(InstallAction action) throws Exception {
         J2eeContext j2eeContext = new J2eeContextImpl("test.domain", "testServer", "null", "org/apache/geronimo/j2ee/deployment/test", null, null);
-//        String j2eeDomainName = "geronimo.server";
-//        String j2eeServerName = "TestGeronimoServer";
-//        String j2eeApplicationName = "null";
-//        String j2eeModuleName = "org/apache/geronimo/j2ee/deployment/test";
         String resourceAdapterName = "testRA";
         ObjectName connectionTrackerName = new ObjectName("geronimo.connector:service=ConnectionTracker");
 
@@ -156,7 +156,14 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
                     connectionTrackerName,
                     null,
                     null,
-                    new RefContext(null, null));
+                    new RefContext(null,
+                            moduleBuilder, 
+                            new ServiceReferenceBuilder() {
+                         //it could return a Service or a Reference, we don't care
+                         public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, ClassLoader classLoader) throws DeploymentException {
+                             return null;
+                         }
+                     }));
 
             action.install(moduleBuilder, earContext, module);
             earContext.getClassLoader(null);

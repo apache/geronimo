@@ -32,13 +32,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 import java.util.jar.JarFile;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
+import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
@@ -46,6 +49,7 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.RefContext;
+import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -200,7 +204,14 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
                     connectionTrackerName,
                     null,
                     null,
-                    new RefContext(null, moduleBuilder));
+                    new RefContext(null,
+                            moduleBuilder,
+                            new ServiceReferenceBuilder() {
+                        //it could return a Service or a Reference, we don't care
+                        public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, ClassLoader classLoader) throws DeploymentException {
+                            return null;
+                        }
+                    }));
 
             action.install(moduleBuilder, earContext, module);
             earContext.getClassLoader(null);
@@ -225,7 +236,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
         JarFile rarFile = null;
         try {
             rarFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear-noger.ear"));
-            EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, j2eeServer, null, connectionTrackerName, null, null, null, null, null, null, new ConnectorModuleBuilder(defaultParentId, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, null, kernel), null, null, kernel);
+            EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, j2eeServer, null, connectionTrackerName, null, null, null, null, null, null, new ConnectorModuleBuilder(defaultParentId, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, null, kernel), null, null, null, kernel);
             File tempDir = null;
             try {
                 tempDir = DeploymentUtil.createTempDir();

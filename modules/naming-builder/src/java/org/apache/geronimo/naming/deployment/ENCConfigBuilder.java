@@ -19,39 +19,46 @@ package org.apache.geronimo.naming.deployment;
 
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Iterator;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.transaction.UserTransaction;
+import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanLocatorType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanLocatorType;
 import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.j2ee.EjbRefType;
 import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
 import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
+import org.apache.geronimo.xbeans.j2ee.PortComponentRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
+import org.apache.geronimo.xbeans.j2ee.ServiceRefHandlerType;
+import org.apache.geronimo.xbeans.j2ee.ServiceRefType;
 import org.apache.geronimo.xbeans.j2ee.XsdStringType;
-import org.apache.geronimo.kernel.Kernel;
 
 /**
  * @version $Rev$ $Date$
@@ -95,7 +102,7 @@ public class ENCConfigBuilder {
                     if (matches.size() != 1) {
                         throw new DeploymentException("No or ambiguous match for gbean link: " + linkName + " using query " + query + ", matches: " + matches);
                     }
-                    containerId = (ObjectName)matches.iterator().next();
+                    containerId = (ObjectName) matches.iterator().next();
                 }
             }
         } else if (gerGbeanLocator.isSetTargetName()) {
@@ -329,12 +336,12 @@ public class ENCConfigBuilder {
                     String containerId = null;
                     try {
                         containerId = NameFactory.getEjbComponentNameString(getStringValue(remoteRef.getDomain()),
-                                                    getStringValue(remoteRef.getServer()),
-                                                    getStringValue(remoteRef.getApplication()),
-                                                    getStringValue(remoteRef.getModule()),
-                                                    getStringValue(remoteRef.getName()),
-                                                    getStringValue(remoteRef.getType()),
-                                                    j2eeContext);
+                                getStringValue(remoteRef.getServer()),
+                                getStringValue(remoteRef.getApplication()),
+                                getStringValue(remoteRef.getModule()),
+                                getStringValue(remoteRef.getName()),
+                                getStringValue(remoteRef.getType()),
+                                j2eeContext);
                     } catch (MalformedObjectNameException e) {
                         throw new DeploymentException("Could not construct ejb object name: " + remoteRef.getName(), e);
                     }
@@ -386,12 +393,12 @@ public class ENCConfigBuilder {
                     String containerId = null;
                     try {
                         containerId = NameFactory.getEjbComponentNameString(getStringValue(localRef.getDomain()),
-                                                    getStringValue(localRef.getServer()),
-                                                    getStringValue(localRef.getApplication()),
-                                                    getStringValue(localRef.getModule()),
-                                                    getStringValue(localRef.getName()),
-                                                    getStringValue(localRef.getType()),
-                                                    j2eeContext);
+                                getStringValue(localRef.getServer()),
+                                getStringValue(localRef.getApplication()),
+                                getStringValue(localRef.getModule()),
+                                getStringValue(localRef.getName()),
+                                getStringValue(localRef.getType()),
+                                j2eeContext);
                     } catch (MalformedObjectNameException e) {
                         throw new DeploymentException("Could not construct ejb object name: " + localRef.getName(), e);
                     }
@@ -409,6 +416,67 @@ public class ENCConfigBuilder {
         }
     }
 
+    //TODO current implementation does not deal with portComponentRefs or handlers.
+    public static void addServiceRefs(EARContext earContext, URI uri, ServiceRefType[] serviceRefs, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+        RefContext refContext = earContext.getRefContext();
+
+        for (int i = 0; i < serviceRefs.length; i++) {
+            ServiceRefType serviceRef = serviceRefs[i];
+            String name = getStringValue(serviceRef.getServiceRefName());
+            String serviceInterfaceName = getStringValue(serviceRef.getServiceInterface());
+            assureInterface(serviceInterfaceName, "javax.xml.rpc.Service", "[Web]Service", cl);
+            Class serviceInterface = null;
+            try {
+                serviceInterface = cl.loadClass(serviceInterfaceName);
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException("Could not load service interface class: " + serviceInterfaceName, e);
+            }
+            URI wsdlURI = null;
+            try {
+                wsdlURI = new URI(getStringValue(serviceRef.getWsdlFile().getStringValue()));
+            } catch (URISyntaxException e) {
+                throw new DeploymentException("could not construct wsdl uri from " + serviceRef.getWsdlFile().getStringValue(), e);
+            }
+            URI jaxrpcMappingURI = null;
+            try {
+                jaxrpcMappingURI = new URI(getStringValue(serviceRef.getJaxrpcMappingFile()));
+            } catch (URISyntaxException e) {
+                throw new DeploymentException("Could not construct jaxrpc mapping uri from " + serviceRef.getJaxrpcMappingFile(), e);
+            }
+            QName serviceQName = serviceRef.getServiceQname().getQNameValue();
+            Map portComponentRefMap = new HashMap();
+            PortComponentRefType[] portComponentRefs = serviceRef.getPortComponentRefArray();
+            if (portComponentRefs != null) {
+                for (int j = 0; j < portComponentRefs.length; j++) {
+                    PortComponentRefType portComponentRef = portComponentRefs[j];
+                    String portComponentLink = getStringValue(portComponentRef.getPortComponentLink());
+                    String serviceEndpointInterfaceType = getStringValue(portComponentRef.getServiceEndpointInterface());
+                    assureInterface(serviceEndpointInterfaceType, "javax.rmi.Remote", "ServiceEndpoint", cl);
+                    Class serviceEndpointClass;
+                    try {
+                        serviceEndpointClass = cl.loadClass(serviceEndpointInterfaceType);
+                    } catch (ClassNotFoundException e) {
+                        throw new DeploymentException("could not load service endpoint class " + serviceEndpointInterfaceType, e);
+                    }
+                    portComponentRefMap.put(serviceEndpointClass, portComponentLink);
+                }
+            }
+            //TODO this sucks, but the handlers aren't implemented yet anyway.
+            ServiceRefHandlerType[] handlerTypes = serviceRef.getHandlerArray();
+            List handlers = Arrays.asList(handlerTypes);
+
+            //we could get a Reference or the actual serializable Service back.
+            Object ref = refContext.getServiceReference(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlers, earContext, cl);
+            try {
+                builder.bind(name, ref);
+            } catch (NamingException e) {
+                throw new DeploymentException("Invalid resource-ref definition for name: " + name, e);
+            }
+        }
+
+    }
+
+
     public static void assureEJBObjectInterface(String remote, ClassLoader cl) throws DeploymentException {
         assureInterface(remote, "javax.ejb.EJBObject", "Remote", cl);
     }
@@ -425,15 +493,15 @@ public class ENCConfigBuilder {
         assureInterface(localHome, "javax.ejb.EJBLocalHome", "LocalHome", cl);
     }
 
-    public static void assureInterface(String interfaceName, String superInterfaceName, String interfactType, ClassLoader cl) throws DeploymentException {
+    public static void assureInterface(String interfaceName, String superInterfaceName, String interfaceType, ClassLoader cl) throws DeploymentException {
         Class clazz = null;
         try {
             clazz = cl.loadClass(interfaceName);
         } catch (ClassNotFoundException e) {
-            throw new DeploymentException(interfactType + " interface class not found: " + interfaceName);
+            throw new DeploymentException(interfaceType + " interface class not found: " + interfaceName);
         }
         if (!clazz.isInterface()) {
-            throw new DeploymentException(interfactType + " interface is not an interface: " + interfaceName);
+            throw new DeploymentException(interfaceType + " interface is not an interface: " + interfaceName);
         }
         Class superInterface = null;
         try {
@@ -442,7 +510,7 @@ public class ENCConfigBuilder {
             throw new DeploymentException("Class " + superInterfaceName + " could not be loaded");
         }
         if (clazz.isAssignableFrom(superInterface)) {
-            throw new DeploymentException(interfactType + " interface does not extend " + superInterfaceName + ": " + interfaceName);
+            throw new DeploymentException(interfaceType + " interface does not extend " + superInterfaceName + ": " + interfaceName);
         }
     }
 
@@ -491,7 +559,7 @@ public class ENCConfigBuilder {
         builder.setApplicationManagedSecurityResources(applicationManagedSecurityResources);
     }
 
-    public static ReadOnlyContext buildComponentContext(EARContext earContext, URI uri, UserTransaction userTransaction, EnvEntryType[] envEntries, EjbRefType[] ejbRefs, GerEjbRefType[] gerEjbRefs, EjbLocalRefType[] ejbLocalRefs, GerEjbLocalRefType[] gerEjbLocalRef, ResourceRefType[] resourceRefs, GerResourceRefType[] gerResourceRef, ResourceEnvRefType[] resourceEnvRefs, GerResourceEnvRefType[] gerResourceEnvRef, MessageDestinationRefType[] messageDestinationRefs, ClassLoader cl) throws DeploymentException {
+    public static ReadOnlyContext buildComponentContext(EARContext earContext, URI uri, UserTransaction userTransaction, EnvEntryType[] envEntries, EjbRefType[] ejbRefs, GerEjbRefType[] gerEjbRefs, EjbLocalRefType[] ejbLocalRefs, GerEjbLocalRefType[] gerEjbLocalRef, ResourceRefType[] resourceRefs, GerResourceRefType[] gerResourceRef, ResourceEnvRefType[] resourceEnvRefs, GerResourceEnvRefType[] gerResourceEnvRef, MessageDestinationRefType[] messageDestinationRefs, ServiceRefType[] serviceRefs, ClassLoader cl) throws DeploymentException {
         ComponentContextBuilder builder = new ComponentContextBuilder();
 
         if (userTransaction != null) {
@@ -517,6 +585,8 @@ public class ENCConfigBuilder {
         addResourceEnvRefs(earContext, uri, resourceEnvRefs, mapResourceEnvRefs(gerResourceEnvRef), cl, builder);
 
         addMessageDestinationRefs(earContext, uri, messageDestinationRefs, cl, builder);
+
+        addServiceRefs(earContext, uri, serviceRefs, cl, builder);
 
         return builder.getContext();
     }

@@ -1,0 +1,52 @@
+/**
+ *
+ * Copyright 2003-2004 The Apache Software Foundation
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.geronimo.axis.client;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+
+import net.sf.cglib.proxy.CallbackFilter;
+
+/**
+ * @version $Rev:  $ $Date:  $
+ */
+public class NoOverrideCallbackFilter implements CallbackFilter {
+    private Class superClass;
+
+    public NoOverrideCallbackFilter(Class superClass) {
+        this.superClass = superClass;
+    }
+
+    public int accept(Method method) {
+        // we don't intercept non-public methods like finalize
+        if (!Modifier.isPublic(method.getModifiers())) {
+            return 0;
+        }
+
+        if (method.getName().equals("remove") && Modifier.isAbstract(method.getModifiers())) {
+            return 1;
+        }
+
+        try {
+            // if the super class defined this method don't intercept
+            superClass.getMethod(method.getName(), method.getParameterTypes());
+            return 0;
+        } catch (Throwable e) {
+            return 1;
+        }
+    }
+}

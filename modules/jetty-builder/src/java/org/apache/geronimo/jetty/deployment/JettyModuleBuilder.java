@@ -977,6 +977,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray(),
                 webApp.getResourceEnvRefArray(), jettyWebApp.getResourceEnvRefArray(),
                 webApp.getMessageDestinationRefArray(),
+                webApp.getServiceRefArray(),
                 cl);
     }
 

@@ -15,7 +15,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<project default="jar"
+<project default="default"
     xmlns:j="jelly:core"
     xmlns:maven="jelly:maven"
     xmlns:deploy="deploy"
@@ -60,18 +60,19 @@
                 <taskdef name="ews" classname="org.apache.geronimo.ews.ws4j2ee.utils.EWSTask">
                     <classpath refid="maven.dependency.classpath"/>
                 </taskdef>
-                <ews outDir="target/generated/samples/echo-jar" module="target/samples/echo.jar">
+ <!--               <ews outDir="target/generated/samples/echo-jar" module="target/samples/echo.jar">
                     <ant:classpath refid="maven.dependency.classpath"/>
                 </ews>
                 <ews outDir="target/generated/samples/echo-war" module="target/samples/echo.war">
                     <ant:classpath refid="maven.dependency.classpath"/>
                 </ews>
-
+-->
                 <!-- The following ant task cause the build to break
                      if building with JAVA 5.  The JAVA 5 'enum' reserved
                  word is used in the source code being compiled. 
                  The generated ANT file might need to pass the
                  -source 1.4 option to the java compiler -->
+<!--
                 <ant:ant antfile="build.xml"
                     inheritall="true"
                     inheritrefs="true"
@@ -80,6 +81,7 @@
                     inheritall="true"
                     inheritrefs="true"
                     dir="target/generated/samples/echo-war"/>
+-->
             </j:jelly>
         </j:if>
     </preGoal>

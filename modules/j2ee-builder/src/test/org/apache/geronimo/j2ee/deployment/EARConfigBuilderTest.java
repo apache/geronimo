@@ -41,7 +41,8 @@ public class EARConfigBuilderTest extends TestCase {
     private static MockWARConfigBuilder webConfigBuilder = new MockWARConfigBuilder();
     private static MockConnectorConfigBuilder connectorConfigBuilder = new MockConnectorConfigBuilder();
     private static ResourceReferenceBuilder resourceReferenceBuilder = null;
-    private static ModuleBuilder appClientConfigBuilder;
+    private static ModuleBuilder appClientConfigBuilder = null;
+    private static ServiceReferenceBuilder serviceReferenceBuilder = null;
 
     private static final String j2eeServerName = "someDomain";
     private static final ObjectName j2eeServer = JMXUtil.getObjectName(j2eeServerName + ":j2eeType=J2EEServer,name=J2EEServerName");
@@ -207,7 +208,7 @@ public class EARConfigBuilderTest extends TestCase {
     }
 
     public void testBuildConfiguration() throws Exception {
-        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, ejbConfigBuilder, null, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, null);
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, ejbConfigBuilder, null, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, null);
 
         File tempDir = null;
         try {
@@ -220,7 +221,7 @@ public class EARConfigBuilderTest extends TestCase {
     }
 
     public void testNoEJBDeployer() throws Exception {
-        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, null, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, null);
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, null, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, null);
 
         File tempDir = null;
         try {
@@ -236,7 +237,7 @@ public class EARConfigBuilderTest extends TestCase {
     }
 
     public void testNoWARDeployer() throws Exception {
-        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, ejbConfigBuilder, null, null, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, null);
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, ejbConfigBuilder, null, null, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, null);
 
         File tempDir = null;
         try {
@@ -252,7 +253,7 @@ public class EARConfigBuilderTest extends TestCase {
     }
 
     public void testNoConnectorDeployer() throws Exception {
-        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, ejbConfigBuilder, null, webConfigBuilder, null, resourceReferenceBuilder, appClientConfigBuilder, null);
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, ejbConfigBuilder, null, webConfigBuilder, null, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, null);
 
         File tempDir = null;
         try {

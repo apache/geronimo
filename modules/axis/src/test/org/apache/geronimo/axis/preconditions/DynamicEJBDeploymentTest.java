@@ -89,10 +89,11 @@ public class DynamicEJBDeploymentTest extends AbstractTestCase {
                         null,
                         resourceReferenceBuilder,
                         null,
+                        null,
                         null);
 
         
-            ObjectName config = TestingUtils.installAndStartEJB(jarFile,AxisGeronimoConstants.STORE,earConfigBuilder,kernel);
+//            ObjectName config = TestingUtils.installAndStartEJB(jarFile,AxisGeronimoConstants.STORE,earConfigBuilder,kernel);
             
 //            ObjectName ejbname = new ObjectName("test:name=ejbwsGBean");
 //            GBeanMBean ejbBean = new GBeanMBean(EJBWSGBean.getGBeanInfo());

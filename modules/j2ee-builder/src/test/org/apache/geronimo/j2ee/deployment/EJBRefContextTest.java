@@ -17,8 +17,11 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.net.URI;
+import java.util.Map;
+import java.util.List;
 import javax.naming.Reference;
 import javax.management.ObjectName;
+import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
@@ -26,6 +29,7 @@ import org.apache.geronimo.common.AmbiguousEJBRefException;
 import org.apache.geronimo.common.UnknownEJBRefException;
 import org.apache.geronimo.common.UnresolvedEJBRefException;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.deployment.DeploymentContext;
 
 /**
  * @version $Rev$ $Date$
@@ -194,6 +198,11 @@ public class EJBRefContextTest extends TestCase {
             public GBeanData locateConnectionFactoryInfo(ObjectName resourceAdapterModuleName, String connectionFactoryInterfaceName) throws DeploymentException {
                 return null;
             }
+        }, new ServiceReferenceBuilder() {
+            //it could return a Service or a Reference, we don't care
+            public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, ClassLoader classLoader) throws DeploymentException {
+                return null;
+            }
         });
 
         refContext.addEJBRemoteId(coffee, "peaberry", coffee_peaberry, true, "CoffeeHome", "CoffeeRemote");
@@ -213,7 +222,7 @@ public class EJBRefContextTest extends TestCase {
     }
 
     private void assertReferenceEqual(String expected, Reference reference) {
-        FakeReference fakeReference = (FakeReference)reference;
+        FakeReference fakeReference = (FakeReference) reference;
         String containerId = null;
         if (fakeReference != null) {
             containerId = fakeReference.containerId;

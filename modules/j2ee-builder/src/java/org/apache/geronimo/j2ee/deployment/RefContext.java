@@ -20,10 +20,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Reference;
+import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.AmbiguousEJBRefException;
@@ -32,6 +34,7 @@ import org.apache.geronimo.common.UnresolvedEJBRefException;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.deployment.DeploymentContext;
 
 /**
  * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
@@ -40,6 +43,7 @@ public class RefContext {
 
     private final EJBReferenceBuilder ejbReferenceBuilder;
     private final ResourceReferenceBuilder resourceReferenceBuilder;
+    private final ServiceReferenceBuilder serviceReferenceBuilder;
 
     private final Map ejbRemoteIndex;
     private final Map ejbLocalIndex;
@@ -52,9 +56,10 @@ public class RefContext {
     private final Map resourceModuleDataMap;
 
 
-    public RefContext(EJBReferenceBuilder ejbReferenceBuilder, ResourceReferenceBuilder resourceReferenceBuilder) {
+    public RefContext(EJBReferenceBuilder ejbReferenceBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ServiceReferenceBuilder serviceReferenceBuilder) {
         assert ejbReferenceBuilder != null: "ejbReferenceBuilder is null";
         assert resourceReferenceBuilder != null: "resourceReferenceBuilder is null";
+        assert serviceReferenceBuilder != null: "serviceReferenceBuilder is null";
 
         ejbRemoteIndex = new HashMap();
         ejbLocalIndex = new HashMap();
@@ -65,19 +70,21 @@ public class RefContext {
         resourceModuleDataMap = new HashMap();
         this.ejbReferenceBuilder = ejbReferenceBuilder;
         this.resourceReferenceBuilder = resourceReferenceBuilder;
+        this.serviceReferenceBuilder = serviceReferenceBuilder;
     }
 
-    public static RefContext derivedClientRefContext(RefContext refContext, EJBReferenceBuilder ejbReferenceBuilder, ResourceReferenceBuilder resourceReferenceBuilder) {
-        return new RefContext(refContext, ejbReferenceBuilder, resourceReferenceBuilder);
+    public static RefContext derivedClientRefContext(RefContext refContext, EJBReferenceBuilder ejbReferenceBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ServiceReferenceBuilder serviceReferenceBuilder) {
+        return new RefContext(refContext, ejbReferenceBuilder, resourceReferenceBuilder, serviceReferenceBuilder);
     }
 
-    private RefContext(RefContext refContext, EJBReferenceBuilder ejbReferenceBuilder, ResourceReferenceBuilder resourceReferenceBuilder) {
+    private RefContext(RefContext refContext, EJBReferenceBuilder ejbReferenceBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ServiceReferenceBuilder serviceReferenceBuilder) {
         assert ejbReferenceBuilder != null: "ejbReferenceBuilder is null";
         assert resourceReferenceBuilder != null: "resourceReferenceBuilder is null";
         assert refContext != null: "ejbRefContext is null";
 
         this.ejbReferenceBuilder = ejbReferenceBuilder;
         this.resourceReferenceBuilder = resourceReferenceBuilder;
+        this.serviceReferenceBuilder = serviceReferenceBuilder;
         this.ejbRemoteIndex = refContext.ejbRemoteIndex;
         this.ejbLocalIndex = new HashMap();//no local ejb refs
         this.ejbInterfaceIndex = refContext.ejbInterfaceIndex;
@@ -276,6 +283,10 @@ public class RefContext {
             ObjectName containerName = resourceReferenceBuilder.locateResourceName(query);
             return containerName.getCanonicalName();
         }
+    }
+
+    public Object getServiceReference(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, ClassLoader classLoader) throws DeploymentException {
+        return serviceReferenceBuilder.createService(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlers, deploymentContext, classLoader);
     }
 
     private String getContainerId(URI module, String ejbLink, Map references) throws AmbiguousEJBRefException, UnknownEJBRefException {

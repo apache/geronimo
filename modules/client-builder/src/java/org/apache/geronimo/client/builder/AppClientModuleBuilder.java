@@ -52,6 +52,7 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
+import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEAppClientModuleImpl;
@@ -91,6 +92,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     private final EJBReferenceBuilder ejbReferenceBuilder;
     private final ModuleBuilder connectorModuleBuilder;
     private final ResourceReferenceBuilder resourceReferenceBuilder;
+    private final ServiceReferenceBuilder serviceReferenceBuilder;
 
     public AppClientModuleBuilder(URI defaultClientParentId,
                                   URI defaultServerParentId,
@@ -99,6 +101,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                                   EJBReferenceBuilder ejbReferenceBuilder,
                                   ModuleBuilder connectorModuleBuilder,
                                   ResourceReferenceBuilder resourceReferenceBuilder,
+                                  ServiceReferenceBuilder serviceReferenceBuilder,
                                   ConfigurationStore store,
                                   Repository repository,
                                   Kernel kernel) {
@@ -112,6 +115,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         this.ejbReferenceBuilder = ejbReferenceBuilder;
         this.connectorModuleBuilder = connectorModuleBuilder;
         this.resourceReferenceBuilder = resourceReferenceBuilder;
+        this.serviceReferenceBuilder = serviceReferenceBuilder;
     }
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
@@ -343,7 +347,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                             connectionTrackerObjectName,
                             null,
                             null,
-                            RefContext.derivedClientRefContext(earContext.getRefContext(), ejbReferenceBuilder, resourceReferenceBuilder));
+                            RefContext.derivedClientRefContext(earContext.getRefContext(), ejbReferenceBuilder, resourceReferenceBuilder, serviceReferenceBuilder));
                 } catch (Exception e) {
                     throw new DeploymentException("Could not create a deployment context for the app client", e);
                 }
@@ -546,6 +550,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 appClient.getResourceRefArray(), geronimoAppClient.getResourceRefArray(),
                 appClient.getResourceEnvRefArray(), geronimoAppClient.getResourceEnvRefArray(),
                 appClient.getMessageDestinationRefArray(),
+                appClient.getServiceRefArray(),
                 cl);
 
     }
@@ -582,6 +587,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         infoBuilder.addReference("EJBReferenceBuilder", EJBReferenceBuilder.class);
         infoBuilder.addReference("ConnectorModuleBuilder", ModuleBuilder.class);
         infoBuilder.addReference("ResourceReferenceBuilder", ResourceReferenceBuilder.class);
+        infoBuilder.addReference("ServiceReferenceBuilder", ServiceReferenceBuilder.class);
         infoBuilder.addReference("Store", ConfigurationStore.class);
         infoBuilder.addReference("Repository", Repository.class);
 
@@ -596,6 +602,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                                                 "EJBReferenceBuilder",
                                                 "ConnectorModuleBuilder",
                                                 "ResourceReferenceBuilder",
+                                                "ServiceReferenceBuilder",
                                                 "Store",
                                                 "Repository",
                                                 "kernel"});
