@@ -10,4 +10,8 @@
     <goal name="default">
         <attainGoal name="war:install"/>
     </goal>
+
+    <goal name="jar:deploy">
+        <attainGoal name="war:deploy"/>
+    </goal>
 </project>
