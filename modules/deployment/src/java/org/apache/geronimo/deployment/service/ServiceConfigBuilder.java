@@ -58,11 +58,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     }
 
     public ServiceConfigBuilder(URI defaultParentId, Repository repository, Kernel kernel) {
-        if (defaultParentId == null) {
-            this.defaultParentId = null;
-        } else {
-            this.defaultParentId = defaultParentId;
-        }
+        this.defaultParentId = defaultParentId;
         this.repository = repository;
         this.kernel = kernel;
     }

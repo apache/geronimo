@@ -28,6 +28,7 @@ specific services - those should be provided by children.
 -->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    parentId=""
     configId="org/apache/geronimo/ClientSystem"
     >
 
