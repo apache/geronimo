@@ -58,6 +58,8 @@ package org.apache.geronimo.system.serverinfo;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.JarURLConnection;
+import java.net.URL;
 
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -66,7 +68,7 @@ import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/02/12 18:12:52 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/13 23:21:39 $
  */
 public class ServerInfo {
     private String baseDirectory;
@@ -78,7 +80,7 @@ public class ServerInfo {
         baseURI = null;
     }
 
-    public ServerInfo(String baseDirectory) {
+    public ServerInfo(String baseDirectory) throws Exception {
         // force load of server constants
         ServerConstants.getVersion();
 
@@ -94,8 +96,21 @@ public class ServerInfo {
                 this.baseDirectory = baseDirectory;
             } else {
                 // last chance - guess where the base directory shoul be
-                throw new IllegalArgumentException("Could not find base directory. Please use the -Dgeronimo.base.dir=<your-directory> command line option.");
+                URL url = getClass().getClassLoader().getResource("META-INF/startup-jar");
+                if(url != null) {
+                    try {
+                        JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
+                        URI uri = new URI(jarConnection.getJarFileURL().toString()).resolve("..");
+                        this.baseDirectory = uri.getPath();
+                    } catch (Exception e) {
+                        // ignore exception is thrown below
+                    }
+                }
             }
+        }
+
+        if(this.baseDirectory == null) {
+            throw new IllegalArgumentException("Could not find base directory. Please use the -Dgeronimo.base.dir=<your-directory> command line option.");
         }
 
         // now that we have the base directory, check that it is a valid directory
