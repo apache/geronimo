@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.connector.outbound;
+package org.apache.geronimo.connector;
 
 import java.lang.reflect.Method;
 import java.io.Serializable;
@@ -31,19 +31,19 @@ import org.apache.geronimo.kernel.Kernel;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/09 18:02:02 $
+ * @version $Revision: 1.1 $ $Date: 2004/03/09 20:15:43 $
  *
  * */
-public class CFMethodInterceptor implements MethodInterceptor, Serializable {
+public class ConnectorMethodInterceptor implements MethodInterceptor, Serializable {
 
     private final String kernelName;
-    private final ObjectName managedConnectionFactoryWrapperName;
+    private final ObjectName targetName;
 
     private transient Object internalProxy;
 
-    public CFMethodInterceptor(String kernelName, ObjectName managedConnectionFactoryWrapperName) {
+    public ConnectorMethodInterceptor(String kernelName, ObjectName targetName) {
         this.kernelName = kernelName;
-        this.managedConnectionFactoryWrapperName = managedConnectionFactoryWrapperName;
+        this.targetName = targetName;
     }
 
     public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
@@ -53,14 +53,14 @@ public class CFMethodInterceptor implements MethodInterceptor, Serializable {
         return methodProxy.invoke(internalProxy, objects);
     }
 
-    public void setConnectionFactory(Object connectionFactory) {
-        internalProxy = connectionFactory;
+    public void setInternalProxy(Object internalProxy) {
+        this.internalProxy = internalProxy;
     }
 
     private Object readResolve() throws ObjectStreamException {
         Kernel kernel = Kernel.getKernel(kernelName);
         try {
-            return kernel.invoke(managedConnectionFactoryWrapperName, "getMethodInterceptor");
+            return kernel.invoke(targetName, "getMethodInterceptor");
         } catch (Exception e) {
             throw (InvalidObjectException)new InvalidObjectException("could not get method interceptor from ManagedConnectionFactoryWrapper").initCause(e);
         }

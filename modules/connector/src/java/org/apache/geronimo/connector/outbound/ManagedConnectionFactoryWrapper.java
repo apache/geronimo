@@ -23,10 +23,10 @@ import javax.management.ObjectName;
 
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
+import org.apache.geronimo.connector.ConnectorMethodInterceptor;
 import org.apache.geronimo.connector.outbound.security.ManagedConnectionFactoryListener;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
@@ -42,7 +42,7 @@ import org.apache.geronimo.kernel.KernelMBean;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/09 18:02:03 $
+ * @version $Revision: 1.6 $ $Date: 2004/03/09 20:15:43 $
  *
  * */
 public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
@@ -72,9 +72,9 @@ public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
 
     private boolean registered = false;
     private Object proxy;
-    private CFMethodInterceptor interceptor;
-    private KernelMBean kernel;
-    private ObjectName selfName;
+    private ConnectorMethodInterceptor interceptor;
+    private final KernelMBean kernel;
+    private final ObjectName selfName;
 
     //default constructor for enhancement proxy endpoint
     public ManagedConnectionFactoryWrapper() {
@@ -83,6 +83,8 @@ public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
         connectionFactoryImplClass = null;
         connectionInterface = null;
         connectionImplClass = null;
+        kernel = null;
+        selfName = null;
     }
 
     public ManagedConnectionFactoryWrapper(
@@ -114,6 +116,7 @@ public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
         this.managedConnectionFactoryListener = managedConnectionFactoryListener;
         this.kernel = kernel;
         this.selfName = selfName;
+
     }
 
     public Class getManagedConnectionFactoryClass() {
@@ -139,12 +142,6 @@ public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
     public String getGlobalJNDIName() {
         return globalJNDIName;
     }
-
-    /*
-    public Object getConnectionFactory() {
-        return connectionFactory;
-    }
-     */
 
     public ResourceAdapterWrapper getResourceAdapterWrapper() {
         return resourceAdapterWrapper;
@@ -179,17 +176,18 @@ public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
 
         //create a new ConnectionFactory
         connectionFactory = connectionManagerFactory.createConnectionFactory(managedConnectionFactory);
-        //build a proxy that can be turned off
+        //build proxy
         if (proxy == null) {
             Enhancer enhancer = new Enhancer();
             enhancer.setSuperclass(connectionFactoryInterface);
-            enhancer.setCallbackType(MethodInterceptor.class);
+            enhancer.setCallbackType(net.sf.cglib.proxy.MethodInterceptor.class);
             enhancer.setUseFactory(false);//????
-            interceptor = new CFMethodInterceptor(kernel.getKernelName(), selfName);
+            interceptor = new ConnectorMethodInterceptor(kernel.getKernelName(), selfName);
             enhancer.setCallbacks(new Callback[] {interceptor});
             proxy = enhancer.create(new Class[0], new Object[0]);
         }
-        interceptor.setConnectionFactory(connectionFactory);
+        //connect proxy
+        interceptor.setInternalProxy(connectionFactory);
         //If a globalJNDIName is supplied, bind it.
         if (globalJNDIName != null) {
             GeronimoContextManager.bind(globalJNDIName, proxy);
@@ -199,7 +197,7 @@ public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
     }
 
     public void doStop() throws WaitingException {
-        interceptor.setConnectionFactory(null);
+        interceptor.setInternalProxy(null);
         //tear down login if present
         if (managedConnectionFactoryListener != null) {
             managedConnectionFactoryListener.setManagedConnectionFactory(null);

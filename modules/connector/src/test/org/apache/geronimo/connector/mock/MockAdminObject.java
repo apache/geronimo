@@ -17,11 +17,16 @@
 
 package org.apache.geronimo.connector.mock;
 
+import java.io.Serializable;
+
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:57:12 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/09 20:15:43 $
  *
  * */
-public interface MockAdminObject {
+public interface MockAdminObject extends Serializable {
+
+    MockAdminObject getSomething();
+
 }
