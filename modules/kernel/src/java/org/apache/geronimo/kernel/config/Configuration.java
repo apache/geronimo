@@ -74,19 +74,23 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import javax.management.AttributeNotFoundException;
+import javax.management.InvalidAttributeValueException;
+import javax.management.MBeanException;
+import javax.management.ReflectionException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GEndpointInfo;
-import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.jmx.GMBean;
 import org.apache.geronimo.gbean.jmx.GMBeanTarget;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  * A Configuration represents a collection of runnable services that can be
@@ -115,7 +119,7 @@ import org.apache.geronimo.gbean.jmx.GMBeanTarget;
  * a startRecursive() for all the GBeans it contains. Similarly, if the
  * Configuration is stopped then all of its GBeans will be stopped as well.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:39:46 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/14 08:31:07 $
  */
 public class Configuration implements GMBeanTarget {
     private static final Log log = LogFactory.getLog(Configuration.class);
@@ -131,6 +135,7 @@ public class Configuration implements GMBeanTarget {
     private ObjectName objectName;
 
     private ClassLoader classLoader;
+    private byte[] savedState;
 
     /**
      * Constructor that can be used to create an offline Configuration, typically
@@ -192,6 +197,11 @@ public class Configuration implements GMBeanTarget {
         }
 
         // save state
+        try {
+            savedState = storeGBeans(gbeans);
+        } catch (InvalidConfigException e) {
+            log.info(e);
+        }
         gbeans = null;
     }
 
@@ -242,6 +252,10 @@ public class Configuration implements GMBeanTarget {
         this.objectName = objectName;
     }
 
+    public byte[] getSavedState() {
+        return savedState;
+    }
+
     private static class ConfigInputStream extends ObjectInputStream {
         private final ClassLoader cl;
 
@@ -271,10 +285,7 @@ public class Configuration implements GMBeanTarget {
                     ObjectName objectName = (ObjectName) ois.readObject();
                     GBeanInfo info = (GBeanInfo) ois.readObject();
                     GMBean gbean = new GMBean(info, cl);
-                    for (Iterator iterator = info.getPersistentAttributes().iterator(); iterator.hasNext();) {
-                        GAttributeInfo attributeInfo = (GAttributeInfo) iterator.next();
-                        gbean.setAttribute(attributeInfo.getName(), ois.readObject());
-                    }
+                    loadGMBeanState(gbean, ois);
                     gbeans.put(objectName, gbean);
                 }
             } catch (EOFException e) {
@@ -285,6 +296,17 @@ public class Configuration implements GMBeanTarget {
             return gbeans;
         } catch (Exception e) {
             throw new InvalidConfigException("Unable to deserialize GBeanState", e);
+        }
+    }
+
+    static void loadGMBeanState(GMBean gbean, ObjectInputStream ois) throws IOException, AttributeNotFoundException, InvalidAttributeValueException, MBeanException, ReflectionException, ClassNotFoundException {
+        int attributeCount = ois.readInt();
+        for (int i = 0; i < attributeCount; i ++) {
+            gbean.setAttribute((String)ois.readObject(), ois.readObject());
+        }
+        int endpointCount = ois.readInt();
+        for (int i = 0; i < endpointCount; i ++) {
+            gbean.setEndpointPatterns((String)ois.readObject(), (Set)ois.readObject());
         }
     }
 
@@ -305,15 +327,30 @@ public class Configuration implements GMBeanTarget {
                 GMBean gbean = (GMBean) entry.getValue();
                 oos.writeObject(objectName);
                 oos.writeObject(gbean.getGBeanInfo());
-                for (Iterator j = gbean.getGBeanInfo().getPersistentAttributes().iterator(); j.hasNext();) {
-                    GAttributeInfo attributeInfo = (GAttributeInfo) j.next();
-                    oos.writeObject(gbean.getAttribute(attributeInfo.getName()));
-                }
+                storeGMBeanState(gbean, oos);
             }
+            oos.flush();
         } catch (Exception e) {
             throw new InvalidConfigException("Unable to serialize GBeanState", e);
         }
         return baos.toByteArray();
+    }
+
+    static void storeGMBeanState(GMBean gbean, ObjectOutputStream oos) throws IOException, AttributeNotFoundException, MBeanException, ReflectionException {
+        List persistentAttributes = gbean.getGBeanInfo().getPersistentAttributes();
+        oos.writeInt(persistentAttributes.size());
+        for (Iterator j = persistentAttributes.iterator(); j.hasNext();) {
+            GAttributeInfo attributeInfo = (GAttributeInfo) j.next();
+            oos.writeObject(attributeInfo.getName());
+            oos.writeObject(gbean.getAttribute(attributeInfo.getName()));
+        }
+        Set endpointsSet = gbean.getGBeanInfo().getEndpointsSet();
+        oos.writeInt(endpointsSet.size());
+        for (Iterator iterator = endpointsSet.iterator(); iterator.hasNext();) {
+            GEndpointInfo gEndpointInfo = (GEndpointInfo) iterator.next();
+            oos.writeObject(gEndpointInfo.getName());
+            oos.writeObject(gbean.getEndpointPatterns(gEndpointInfo.getName()));
+        }
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -327,6 +364,7 @@ public class Configuration implements GMBeanTarget {
         attrs.add(new GAttributeInfo("MBeanServer"));
         attrs.add(new GAttributeInfo("ObjectName"));
         attrs.add(new GAttributeInfo("ClassLoader"));
+        attrs.add(new GAttributeInfo("SavedState"));
         List ctrNames = new ArrayList();
         ctrNames.add("ID");
         ctrNames.add("Parent");

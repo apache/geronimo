@@ -70,7 +70,7 @@ import org.apache.geronimo.gbean.GAttributeInfo;
  * and once the MBean is deployed an imutable copy of will be made.  This class also adds support for multi target
  * POJOs under the MBean.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:38:55 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/14 08:31:06 $
  */
 public final class GBeanInfo implements Serializable {
     /**
@@ -108,7 +108,6 @@ public final class GBeanInfo implements Serializable {
     private final Set operations;
     private final Set notifications;
     private final Set endpoints;
-    private final List persistentAttributes;
 
     public GBeanInfo(String className, Set attributes, GConstructorInfo constructor, Set operations, Set endpoints, Set notifications) {
         this(className, null, className, attributes, constructor, operations, endpoints, notifications);
@@ -128,14 +127,6 @@ public final class GBeanInfo implements Serializable {
         this.endpoints = Collections.unmodifiableSet(endpoints);
         this.notifications = Collections.unmodifiableSet(notifications);
 
-        List attrs = new ArrayList();
-        for (Iterator i = attributes.iterator(); i.hasNext();) {
-            GAttributeInfo info = (GAttributeInfo) i.next();
-            if (info.isPersistent()) {
-                attrs.add(info);
-            }
-        }
-        persistentAttributes = Collections.unmodifiableList(attrs);
     }
 
     public String getName() {
@@ -155,7 +146,14 @@ public final class GBeanInfo implements Serializable {
     }
 
     public List getPersistentAttributes() {
-        return persistentAttributes;
+        List attrs = new ArrayList();
+        for (Iterator i = attributes.iterator(); i.hasNext();) {
+            GAttributeInfo info = (GAttributeInfo) i.next();
+            if (info.isPersistent()) {
+                attrs.add(info);
+            }
+        }
+        return attrs;
     }
 
     public GConstructorInfo getConstructor() {

@@ -72,9 +72,9 @@ import org.apache.geronimo.gbean.jmx.GMBean;
 import junit.framework.TestCase;
 
 /**
- * 
- * 
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:40:08 $
+ *
+ *
+ * @version $Revision: 1.2 $ $Date: 2004/01/14 08:31:07 $
  */
 public class LocalConfigStoreTest extends TestCase {
     private File root;
@@ -106,10 +106,7 @@ public class LocalConfigStoreTest extends TestCase {
         JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(sourceFile)));
         jos.putNextEntry(new ZipEntry("META-INF/config.ser"));
         ObjectOutputStream oos = new ObjectOutputStream(jos);
-        for (Iterator i = gbean.getGBeanInfo().getPersistentAttributes().iterator(); i.hasNext();) {
-            GAttributeInfo attributeInfo = (GAttributeInfo) i.next();
-            oos.writeObject(gbean.getAttribute(attributeInfo.getName()));
-        }
+        Configuration.storeGMBeanState(gbean, oos);
         oos.flush();
         jos.closeEntry();
         jos.close();

@@ -80,14 +80,14 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
+import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.gbean.jmx.GMBean;
 import org.apache.geronimo.gbean.jmx.GMBeanTarget;
-import org.apache.geronimo.gbean.WaitingException;
 
 /**
  * Implementation of ConfigurationStore using the local filesystem.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:39:46 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/14 08:31:07 $
  */
 public class LocalConfigStore implements ConfigurationStore, GMBeanTarget {
     private static final String INDEX_NAME = "index.properties";
@@ -225,17 +225,15 @@ public class LocalConfigStore implements ConfigurationStore, GMBeanTarget {
             try {
                 config = new GMBean(gbeanInfo);
             } catch (InvalidConfigurationException e) {
-                throw new InvalidConfigException("Unable to instanciate Configuration GMBean", e);
+                throw new InvalidConfigException("Unable to instantiate Configuration GMBean", e);
             }
-            for (Iterator i = gbeanInfo.getPersistentAttributes().iterator(); i.hasNext();) {
-                GAttributeInfo attr = (GAttributeInfo) i.next();
-                try {
-                    config.setAttribute(attr.getName(), ois.readObject());
-                } catch (ClassNotFoundException e) {
-                    throw new InvalidConfigException("Unable to read attribute " + attr.getName(), e);
-                } catch (Exception e) {
-                    throw new InvalidConfigException("Unable to set attribute " + attr.getName(), e);
-                }
+            try {
+                Configuration.loadGMBeanState(config, ois);
+            } catch (ClassNotFoundException e) {
+                //TODO more informative exceptions
+                throw new InvalidConfigException("Unable to read attribute ", e);
+            } catch (Exception e) {
+                throw new InvalidConfigException("Unable to set attribute ", e);
             }
             return config;
         } finally {

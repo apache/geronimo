@@ -62,6 +62,9 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Collections;
+import java.util.Map;
+import java.util.HashMap;
+
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -77,7 +80,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:40:08 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/14 08:31:07 $
  */
 public class ConfigTest extends TestCase {
     private ObjectName gbeanName;
@@ -136,16 +139,9 @@ public class ConfigTest extends TestCase {
         mockBean.setAttribute("Value", "1234");
         mockBean.setAttribute("Name", "Name");
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(gbeanName);
-        oos.writeObject(mockBean.getGBeanInfo());
-        for (Iterator i = mockBean.getGBeanInfo().getPersistentAttributes().iterator(); i.hasNext();) {
-            GAttributeInfo attr = (GAttributeInfo) i.next();
-            oos.writeObject(mockBean.getAttribute(attr.getName()));
-        }
-        oos.close();
-        state = baos.toByteArray();
+        Map gbeans = new HashMap();
+        gbeans.put(gbeanName, mockBean);
+        state = Configuration.storeGBeans(gbeans);
     }
 
     protected void tearDown() throws Exception {

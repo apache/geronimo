@@ -98,7 +98,7 @@ import net.sf.cglib.reflect.FastClass;
  * GeronimoMBeanInfo instance.  The GeronimoMBean also support caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:38:55 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/14 08:31:07 $
  */
 public class GMBean extends AbstractManagedObject implements DynamicMBean {
     public static final FastClass fastClass = FastClass.create(GMBean.class);
@@ -215,9 +215,9 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
 
     /**
      * "Bootstrapping" constructor.  The class specified is loaded and the static method
-     * "getGeronimoMBeanInfo" is called to get the mbean info.  Usually one will include
-     * this static method in the class to be wrapped in the GeronimoMBean instance.
-     * @param className name of the class to call getGeronimoMBeanInfo on
+     * "getGBeanInfo" is called to get the gbean info.  Usually one will include
+     * this static method in the class to be wrapped in the GMBean instance.
+     * @param className name of the class to call getGBeanInfo on
      * @param classLoader the class loader for this GBean
      * @throws java.lang.Exception if an exception occurs while getting the GeronimoMBeanInfo from the class
      */
@@ -227,9 +227,9 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
 
     /**
      * "Bootstrapping" constructor.  The class specified is loaded and the static method
-     * "getGeronimoMBeanInfo" is called to get the mbean info.  Usually one will include
-     * this static method in the class to be wrapped in the GeronimoMBean instance.
-     * @param className name of the class to call getGeronimoMBeanInfo on
+     * "getGBeanInfo" is called to get the gbean info.  Usually one will include
+     * this static method in the class to be wrapped in the GMBean instance.
+     * @param className name of the class to call getGBeanInfo on
      * @throws java.lang.Exception if an exception occurs while getting the GeronimoMBeanInfo from the class
      */
     public GMBean(String className) throws Exception {

@@ -60,17 +60,15 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import javax.management.ObjectName;
 
-import org.apache.geronimo.kernel.config.LocalConfigStore;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.gbean.GBeanInfo;
 import junit.framework.TestCase;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.kernel.config.LocalConfigStore;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:40:08 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/14 08:31:07 $
  */
 public class BootstrapTest extends TestCase {
     private File configRoot;
