@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.49 $ $Date: 2004/01/16 02:08:18 $ -->
+<!-- $Revision: 1.50 $ $Date: 2004/01/19 06:43:32 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -144,7 +144,7 @@
                 </j:when>
             </j:choose>
 
-            <!-- Set resctor projects in parent scope so goals have access to it -->
+            <!-- Set reactor projects in parent scope so goals have access to it -->
             <j:set var="reactorProjects" value="${reactorProjects}" scope="parent"/>
 
             <!-- Optionaly perform module aggregation -->
@@ -585,6 +585,152 @@
                     <!-- temporary addition allows RMI to be used, such as with the JMX RMI connector -->
                     <pathelement location="${run.dir}/lib/geronimo-core-rmiclassloaderspi.jar"/>
                 </classpath>
+
+                <jvmarg value="-Xdebug"/>
+                <jvmarg value="-Xnoagent"/>
+                <jvmarg value="-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y"/>
+
+                <sysproperty key="java.compiler" value="NONE"/>
+                <sysproperty key="program.name" value="maven:run"/>
+                <sysproperty key="java.rmi.server.RMIClassLoaderSpi" value="org.apache.geronimo.rmi.RMIClassLoaderSpiImpl"/>
+            </java>
+        </j:jelly>
+    </goal>
+
+    <goal name="bootstrap:run">
+        <j:set var="run.dir" value="${basedir}/modules"/>
+
+        <j:jelly xmlns="jelly:ant">
+
+            <property environment="env"/>
+            <java classname="org.apache.geronimo.deployment.Bootstrap"
+                fork="true"
+                maxmemory="256m"
+                failonerror="true"
+                dir="${run.dir}">
+
+                <jvmarg value="-ea"/>
+                <classpath>
+                    <pathelement path="${env.JAVA_HOME}/lib/tools.jar"/>
+                    <!--pathelement path="${run.dir}/etc"/-->
+                    <fileset dir="${maven.repo.local}/cglib/jars">
+                          <include name="cglib-HEAD-20031111.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/commons-logging/jars">
+                          <include name="commons-logging-1.0.3.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/log4j/jars">
+                          <include name="log4j-1.2.8.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/mx4j/jars">
+                          <include name="mx4j-SNAPSHOT.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/xerces/jars">
+                          <include name="xercesImpl-2.6.0.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/xml-apis/jars">
+                          <include name="xml-apis-1.0.b2.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/xml-commons-resolver/jars">
+                          <include name="xml-commons-resolver-1.1.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/geronimo/jars">
+                        <include name="geronimo-kernel-${pom.currentVersion}.jar"/>
+                        <include name="geronimo-deployment-${pom.currentVersion}.jar"/>
+                        <include name="geronimo-common-${pom.currentVersion}.jar"/>
+                        <!-- not needed for boot, but I'm not sure how to load otherwise-->
+                        <include name="geronimo-web-${pom.currentVersion}.jar"/>
+                        <include name="geronimo-core-${pom.currentVersion}.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/geronimo-spec/jars">
+                        <include name="geronimo-spec-jta-${pom.currentVersion}.jar"/>
+                        <include name="geronimo-spec-j2ee-connector-${pom.currentVersion}.jar"/>
+                        <include name="geronimo-spec-j2ee-jacc-${pom.currentVersion}.jar"/>
+                        <include name="geronimo-spec-jsp-${pom.currentVersion}.jar"/>
+                        <include name="geronimo-spec-servlet-${pom.currentVersion}.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/jetty/jars">
+                          <include name="jetty-SNAPSHOT.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/ant/jars">
+                          <include name="ant-1.5.2.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/tomcat/jars">
+                        <include name="jasper-compiler-4.0.4.jar"/>
+                        <include name="jasper-runtime-4.0.4.jar"/>
+                    </fileset>
+                </classpath>
+
+                <arg value="file:${run.dir}/deployment/src/test-resources/etc/bootstrapped-service.xml"/>
+
+            </java>
+        </j:jelly>
+    </goal>
+
+    <goal name="bootstrap:debug">
+        <j:set var="run.dir" value="${basedir}/modules"/>
+        <j:jelly xmlns="jelly:ant">
+
+            <property environment="env"/>
+            <java classname="org.apache.geronimo.deployment.Bootstrap"
+                fork="true"
+                maxmemory="256m"
+                failonerror="true"
+                dir="${run.dir}">
+
+
+                <classpath>
+                    <pathelement path="${env.JAVA_HOME}/lib/tools.jar"/>
+                    <!--pathelement path="${run.dir}/etc"/-->
+                    <fileset dir="${maven.repo.local}/cglib/jars">
+                          <include name="cglib-HEAD-20031111.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/commons-logging/jars">
+                          <include name="commons-logging-1.0.3.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/log4j/jars">
+                          <include name="log4j-1.2.8.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/mx4j/jars">
+                          <include name="mx4j-SNAPSHOT.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/xerces/jars">
+                          <include name="xercesImpl-2.6.0.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/xml-apis/jars">
+                          <include name="xml-apis-1.0.b2.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/xml-commons-resolver/jars">
+                          <include name="xml-commons-resolver-1.1.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/geronimo/jars">
+                        <include name="geronimo-kernel-${pom.currentVersion}.jar"/>
+                        <include name="geronimo-deployment-${pom.currentVersion}.jar"/>
+                        <include name="geronimo-common-${pom.currentVersion}.jar"/>
+                        <!-- not needed for boot, but I'm not sure how to load otherwise-->
+                        <include name="geronimo-web-${pom.currentVersion}.jar"/>
+                        <include name="geronimo-core-${pom.currentVersion}.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/geronimo-spec/jars">
+                        <include name="geronimo-spec-jta-${pom.currentVersion}.jar"/>
+                        <include name="geronimo-spec-j2ee-connector-${pom.currentVersion}.jar"/>
+                        <include name="geronimo-spec-j2ee-jacc-${pom.currentVersion}.jar"/>
+                        <include name="geronimo-spec-jsp-${pom.currentVersion}.jar"/>
+                        <include name="geronimo-spec-servlet-${pom.currentVersion}.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/jetty/jars">
+                          <include name="jetty-SNAPSHOT.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/ant/jars">
+                          <include name="ant-1.5.2.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/tomcat/jars">
+                        <include name="jasper-compiler-4.0.4.jar"/>
+                        <include name="jasper-runtime-4.0.4.jar"/>
+                    </fileset>
+                </classpath>
+
+                <arg value="file:${run.dir}/deployment/src/test-resources/etc/bootstrapped-service.xml"/>
 
                 <jvmarg value="-Xdebug"/>
                 <jvmarg value="-Xnoagent"/>

@@ -1,0 +1,73 @@
+<gbeans>
+
+    <gbean class="org.apache.geronimo.deployment.xml.LocalEntityResolver" objectName="geronimo.system:type=EntityResolver">
+        <!--default attribute="CatalogFileURI" type="java.net.URI">file:/Users/david/geronimo/head2/incubator-geronimo/modules/core/src/conf/resolver-catalog.xml</default-->
+        <default attribute="CatalogFileURI" type="java.net.URI">core/src/conf/resolver-catalog.xml</default>
+        <default attribute="FailOnUnresolvable" type="boolean">false</default>
+    </gbean>
+
+    <gbean class="org.apache.geronimo.deployment.xml.ParserFactoryImpl" objectName="geronimo.system:type=ParserFactory">
+        <endpoint name="EntityResolver">
+            <pattern>geronimo.system:type=EntityResolver</pattern>
+        </endpoint>
+    </gbean>
+
+    <gbean class="org.apache.geronimo.deployment.BatchDeployerFactory" objectName="geronimo.system:type=BatchDeployerFactory">
+        <endpoint name="Deployers">
+            <pattern>geronimo.deployment:*</pattern>
+        </endpoint>
+    </gbean>
+
+    <gbean class="org.apache.geronimo.web.jetty.JettyWebContainer" objectName="geronimo.web:type=WebContainer,container=Jetty">
+        <default attribute="DefaultWebXmlURI" type="java.net.URI">web/src/deploy/jetty/webdefault.xml</default>
+        <endpoint name="WebAccessLogs">
+            <pattern>geronimo.web:type=WebAccessLog,container=Jetty,*</pattern>
+        </endpoint>
+        <endpoint name="WebApplications">
+            <pattern>geronimo.web:type=WebApplication,container=Jetty,*</pattern>
+        </endpoint>
+        <endpoint name="WebConnectors">
+            <pattern>geronimo.web:type=WebConnector,container=Jetty,*</pattern>
+        </endpoint>
+    </gbean>
+
+    <gbean class="org.apache.geronimo.web.jetty.JettyWebConnector" objectName="geronimo.web:type=WebConnector,container=Jetty,port=8080">
+        <default attribute="Protocol" type="java.lang.String">http</default>
+        <!-- IMPORTANT localhost here will result in access only from 127.0.0.1-->
+        <!--default attribute="Interface" type="java.lang.String">localhost</default-->
+        <default attribute="Interface" type="java.lang.String">192.168.1.1</default>
+        <default attribute="Port" type="int">8080</default>
+        <default attribute="MaxConnections" type="int">10</default>
+        <default attribute="MaxIdleTime" type="int">10</default>
+        <!--default attribute="Contexts" type="java.lang.String[]"></default-->
+    </gbean>
+
+    <gbean class="org.apache.geronimo.web.deployment.WebDeployer" objectName="geronimo.deployment:type=Web">
+        <default attribute="Type" type="java.lang.String">Jetty</default>
+        <default attribute="WebApplicationClass" type="java.lang.String">org.apache.geronimo.web.jetty.JettyWebApplication</default>
+        <default attribute="Java2ClassLoadingCompliance" type="boolean">false</default>
+        <default attribute="TransactionManagerNamePattern" type="javax.management.ObjectName">geronimo.transaction:service=TransactionManager</default>
+        <default attribute="TrackedConnectionAssociatorNamePattern" type="javax.management.ObjectName">geronimo.connector:service=ConnectionTrackingCoordinator</default>
+        <endpoint name="ParserFactory">
+            <pattern>geronimo.system:type=ParserFactory</pattern>
+        </endpoint>
+    </gbean>
+
+    <gbean class="org.apache.geronimo.transaction.TransactionManagerProxy" objectName="geronimo.transaction:service=TransactionManager"/>
+
+    <gbean class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator" objectName="geronimo.connector:service=ConnectionTrackingCoordinator"/>
+
+    <gbean class="org.apache.geronimo.deployment.util.ExplicitDeployment" objectName="geronimo.app:name=WebConsole">
+        <default attribute="ConfigID" type="java.net.URI">org/apache/geronimo/WebConsole</default>
+        <default attribute="PackageURL" type="java.net.URL">console-web/target/geronimo-web-console.war</default>
+        <endpoint name="ConfigurationParent">
+            <pattern>geronimo.config:name="org/apache/geronimo/Bootstrap"</pattern>
+        </endpoint>
+        <endpoint name="BatchDeployerFactory">
+            <pattern>geronimo.system:type=BatchDeployerFactory</pattern>
+        </endpoint>
+        <endpoint name="Kernel">
+            <pattern>geronimo.boot:role=Kernel</pattern>
+        </endpoint>
+    </gbean>
+</gbeans>
