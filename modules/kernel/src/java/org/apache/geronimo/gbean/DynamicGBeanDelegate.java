@@ -69,7 +69,7 @@ import net.sf.cglib.reflect.FastMethod;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/16 23:31:21 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/16 23:55:54 $
  */
 public class DynamicGBeanDelegate implements DynamicGBean {
     protected final Map getters = new HashMap();
@@ -113,14 +113,14 @@ public class DynamicGBeanDelegate implements DynamicGBean {
         if (!method.getName().startsWith("set")) {
             throw new IllegalArgumentException("Method method name must start with 'set' " + method);
         }
-        addGetter(method.getName().substring(3), target, method);
+        addSetter(method.getName().substring(3), target, method);
     }
 
     public void addSetter(String name, Object target, Method method) {
         if (method.getParameterTypes().length == 1 && method.getReturnType() == Void.TYPE) {
             throw new IllegalArgumentException("Method must take one parameter and not return anything " + method);
         }
-        getters.put(method.getName().substring(3), new Operation(target, method));
+        setters.put(method.getName().substring(3), new Operation(target, method));
     }
 
     public void addOperation(Object target, Method method) {
