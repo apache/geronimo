@@ -32,7 +32,7 @@ import org.apache.geronimo.transaction.manager.TransactionLog;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/11 19:20:55 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/19 17:17:13 $
  *
  * */
 public abstract class AbstractLogTest extends TestCase {
@@ -50,7 +50,7 @@ public abstract class AbstractLogTest extends TestCase {
 
     public void testDummy() throws Exception {}
 
-    public void xtestTransactionLog() throws Exception {
+    public void testTransactionLog() throws Exception {
         File resultFileXML = new File(getResultFileName() + ".xml");
         resultsXML = new FileWriter(resultFileXML);
         resultsXML.write("<log-test>\n");

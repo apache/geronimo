@@ -19,9 +19,9 @@ package org.apache.geronimo.transaction.manager;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+
 import javax.transaction.xa.Xid;
 
-import org.apache.geronimo.transaction.log.XidImpl2;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 
@@ -32,7 +32,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
  * <li>4 byte system id</li>
  * <li>4 or 16 byte IP address of host</li>
  * <ol>
- * @version $Revision: 1.3 $ $Date: 2004/06/08 17:33:43 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/19 17:17:13 $
  * todo Should have a way of setting baseId
  */
 public class XidFactoryImpl implements XidFactory {
@@ -72,7 +72,7 @@ public class XidFactoryImpl implements XidFactory {
         globalId[5] = (byte) (id >>> 40);
         globalId[6] = (byte) (id >>> 48);
         globalId[7] = (byte) (id >>> 56);
-        return new XidImpl2(globalId);
+        return new XidImpl(globalId);
     }
 
     public Xid createBranch(Xid globalId, int branch) {
@@ -81,7 +81,7 @@ public class XidFactoryImpl implements XidFactory {
         branchId[1] = (byte) (branch >>> 8);
         branchId[2] = (byte) (branch >>> 16);
         branchId[3] = (byte) (branch >>> 24);
-        return new XidImpl2(globalId, branchId);
+        return new XidImpl(globalId, branchId);
     }
 
     public boolean matchesGlobalId(byte[] globalTransactionId) {
@@ -109,7 +109,7 @@ public class XidFactoryImpl implements XidFactory {
     }
 
     public Xid recover(int formatId, byte[] globalTransactionid, byte[] branchQualifier) {
-        return new XidImpl2(formatId, globalTransactionid, branchQualifier);
+        return new XidImpl(formatId, globalTransactionid, branchQualifier);
     }
 
     public static final GBeanInfo GBEAN_INFO;

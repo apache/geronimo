@@ -32,7 +32,7 @@ import javax.transaction.xa.Xid;
  *
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/06/11 19:20:55 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/19 17:17:13 $
  */
 public class XATransactionTester {
     private TransactionLog log;
@@ -95,7 +95,7 @@ public class XATransactionTester {
      */
     private XADataSource getDataSource(String[] args) throws Exception {
 //        oracle.jdbc.xa.client.OracleXADataSource ds = new oracle.jdbc.xa.client.OracleXADataSource();
-//        ds.setURL("jdbc:oracle:thin:@localhost:1521:ABU");
+//        ds.setConnectionURL("jdbc:oracle:thin:@localhost:1521:ABU");
 //        return ds;
         return null;
     }

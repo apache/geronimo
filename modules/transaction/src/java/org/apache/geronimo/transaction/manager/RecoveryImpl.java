@@ -38,7 +38,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/11 19:20:55 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/19 17:17:13 $
  *
  * */
 public class RecoveryImpl implements Recovery {
@@ -70,6 +70,7 @@ public class RecoveryImpl implements Recovery {
             Map.Entry entry = (Map.Entry) iterator.next();
             Xid xid = (Xid) entry.getKey();
             if (xidFactory.matchesGlobalId(xid.getGlobalTransactionId())) {
+                Object o = entry.getValue();
                 XidBranchesPair xidBranchesPair = new XidBranchesPair(xid, (Set) entry.getValue());
                 ourXids.put(new ByteArrayWrapper(xid.getGlobalTransactionId()), xidBranchesPair);
                 for (Iterator branches = xidBranchesPair.branches.iterator(); branches.hasNext();) {
@@ -81,6 +82,7 @@ public class RecoveryImpl implements Recovery {
                     transactionsForName.add(xidBranchesPair);
                 }
             } else {
+                Object o = entry.getValue();
                 TransactionImpl externalTx = new ExternalTransaction(xid, txLog, (Set) entry.getValue());
                 externalXids.put(xid, externalTx);
                 externalGlobalIdMap.put(xid.getGlobalTransactionId(), externalTx);
