@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.5 $ $Date: 2004/07/11 21:48:46 $ -->
+<!-- $Revision: 1.6 $ $Date: 2004/07/17 03:54:13 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -76,6 +76,9 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-network</artifactId>
             <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
         </dependency>
 
         <!-- TODO START reverse dependency -->

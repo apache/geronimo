@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+  
+<!--
+Template of the standard org/apache/geronimo/System configuration, except that
+the RMI port is a dynamic token, namely @rmiPort@.
+-->
+<configuration
+    xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    configId="org/apache/geronimo/System"
+    >
+
+    <!-- ServerInfo service -->
+    <gbean name="geronimo.system:role=ServerInfo" class="org.apache.geronimo.system.serverinfo.ServerInfo"/>
+
+    <!-- URLFactory service -->
+    <gbean name="geronimo.system:role=URLFactory" class="org.apache.geronimo.system.url.GeronimoURLFactory"/>
+
+    <!-- Configuration Store service -->
+    <gbean name="geronimo.system:role=ConfigurationStore,type=Local" class="org.apache.geronimo.system.configuration.LocalConfigStore">
+        <attribute name="root" type="java.net.URI">config-store</attribute>
+        <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
+    </gbean>
+
+    <!-- Persistent List of running Configurations service -->
+    <gbean name="geronimo.boot:role=PersistentConfigurationList" class="org.apache.geronimo.system.configuration.FileConfigurationList">
+        <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
+        <attribute name="configFile" type="java.lang.String">var/config/config.list</attribute>
+    </gbean>
+
+    <!-- Repository -->
+    <gbean name="geronimo.system:role=Repository" class="org.apache.geronimo.system.repository.ReadOnlyRepository">
+        <attribute name="root" type="java.net.URI">repository/</attribute>
+        <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
+    </gbean>
+
+    <!-- Logging service -->
+    <gbean name="geronimo.system:role=Logger" class="org.apache.geronimo.system.logging.log4j.Log4jService">
+        <attribute name="rootLoggerLevel" type="java.lang.String">DEBUG</attribute>
+        <attribute name="refreshPeriod" type="int">60</attribute>
+        <attribute name="configurationFile" type="java.lang.String">var/log/log4j.xml</attribute>
+        <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
+    </gbean>
+
+    <gbean name="geronimo.system:role=LogAppender,type=ConsoleAppender" class="org.apache.geronimo.system.logging.log4j.appender.ConsoleAppenderService">
+        <attribute name="threshold" type="java.lang.String">INFO</attribute>
+        <attribute name="layoutPattern" type="java.lang.String">%d{ABSOLUTE} %-5p [%c{1}] %m%n</attribute>
+        <attribute name="target" type="java.lang.String">System.out</attribute>
+    </gbean>
+
+    <gbean name="geronimo.system:role=LogAppender,type=DailyRollingFileAppender" class="org.apache.geronimo.system.logging.log4j.appender.RollingFileAppenderService">
+        <attribute name="threshold" type="java.lang.String">DEBUG</attribute>
+        <attribute name="layoutPattern" type="java.lang.String">%d{ABSOLUTE} %-5p [%c{1}] %m%n</attribute>
+        <attribute name="append" type="boolean">true</attribute>
+        <attribute name="file" type="java.lang.String">var/log/geronimo.log</attribute>
+        <attribute name="bufferedIO" type="boolean">false</attribute>
+        <attribute name="bufferedSize" type="int">8192</attribute>
+        <attribute name="maxBackupIndex" type="int">1</attribute>
+        <attribute name="maxFileSize" type="java.lang.String">10MB</attribute>
+        <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
+    </gbean>
+
+    <!-- RMI Registry -->
+    <gbean name="geronimo.server:role=RMIRegistry" class="org.apache.geronimo.system.RMIRegistryService">
+        <attribute name="port" type="int">@rmiPort@</attribute>
+    </gbean>
+</configuration>

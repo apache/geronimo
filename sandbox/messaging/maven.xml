@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- $Revision: 1.1 $ $Date: 2004/07/17 03:54:13 $ -->
+
+<project default="default"
+    xmlns:u="jelly:util"
+    xmlns:j="jelly:core"
+    xmlns:ant="jelly:ant">
+
+    <!-- Determine what the top-level project root is -->
+    <j:set var="project.root" value="${pom.parentBasedir().getParentFile().getCanonicalFile()}"/>
+
+    <!-- Determine what the top-level project root is -->
+    <j:set var="distDir" value="${project.root}/target"/>
+
+    <!--
+    Patch the distribution directory in order to simplify the test of the proto.
+    After having patched the distribution, the following commands can be used
+    to debug/test the proto:
+    Start the leader server:
+    java -jar target/bin/server.jar org/apache/geronimo/LeaderCluster
+
+    Start some other nodes of this cluster:
+    java -jar target/bin/server-1101.jar org/apache/geronimo/Cluster8091
+    java -jar target/bin/server-1102.jar org/apache/geronimo/Cluster8092
+    java -jar target/bin/server-1103.jar org/apache/geronimo/Cluster8093
+    java -jar target/bin/server-1104.jar org/apache/geronimo/Cluster8094
+    -->
+    <goal name="patch">
+        <j:set var="destDir" value="${distDir}/repository/geronimo-sandbox/jars"/>
+        <ant:mkdir dir="${destDir}"/>
+        <ant:copy file="target/geronimo-sandbox-messaging-${pom.currentVersion}.jar" todir="${destDir}"/>
+        <ant:copy todir="${distDir}/repository">
+            <ant:fileset dir="${maven.repo.local}">
+                <j:forEach var="artifact" items="${pom.artifacts}">
+                    <j:set var="dependency" value="${artifact.dependency}"/>
+                    <j:if test="${dependency.getProperty('repository') == 'true'}">
+                        <ant:include name="${dependency.getArtifactDirectory()}/${dependency.getType()}s/${dependency.getArtifact()}"/>
+                    </j:if>
+                </j:forEach>
+            </ant:fileset>
+        </ant:copy>
+        
+
+        <j:set var="srcPlan" value="src/plan"/>
+        <j:set var="destPlan" value="target/instantiated-plan"/>
+        
+        <u:tokenize var="tokenRMIPorts" delim=";">1101;1102;1103;1104</u:tokenize>
+        <j:forEach var="port" items="${tokenRMIPorts}">
+            <j:set var="curPlan" value="${destPlan}/system-${port}-plan.xml"/>
+            <ant:copy tofile="${curPlan}" overwrite="true" file="${srcPlan}/template-system-plan.xml"/>
+            <ant:replace file="${curPlan}" token="@rmiPort@" value="${port}"/>
+            <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+                <ant:jvmarg value="-ea"/>
+                <ant:arg value="--install"/>
+                <ant:arg value="--plan"/>
+                <ant:arg value="${curPlan}"/>
+                <ant:arg value="--outfile"/>
+                <ant:arg value="${distDir}/bin/server-${port}.jar"/>
+                <ant:arg value="--mainClass"/>
+                <ant:arg value="org.apache.geronimo.system.main.Daemon"/>
+                <ant:arg value="--classPath"/>
+                <ant:arg value="../lib/geronimo-kernel-1.0-SNAPSHOT.jar ../lib/geronimo-system-1.0-SNAPSHOT.jar ../lib/cglib-full-2.0.jar ../lib/commons-cli-1.0.jar ../lib/commons-logging-1.0.3.jar ../lib/log4j-1.2.8.jar ../lib/mx4j-2.0.1.jar ../lib/mx4j-remote-2.0.1.jar ../lib/xercesImpl-2.6.0.jar ../lib/xmlParserAPIs-2.2.1.jar"/>
+            </ant:java>
+        </j:forEach>
+
+        <j:set var="clusterInfo" value="235.0.0.1,1066"/>
+        <u:tokenize var="tokenNodes" delim=";">Node1,127.0.0.1,8091;Node2,127.0.0.1,8092;Node3,127.0.0.1,8093;Node4,127.0.0.1,8094</u:tokenize>
+        <j:forEach var="node" items="${tokenNodes}">
+            <u:tokenize var="nodeInfo" delim=",">${node}</u:tokenize>
+            <j:forEach var="curInfo" items="${nodeInfo}">
+                <j:set var="port" value="${curInfo}"/>
+            </j:forEach>
+            <j:set var="curPlan" value="${destPlan}/clustered-${port}-plan.xml"/>
+            <ant:copy tofile="${curPlan}" overwrite="true" file="${srcPlan}/template-clustered-plan.xml"/>
+            <ant:replace file="${curPlan}" token="@port@" value="${port}"/>
+            <ant:replace file="${curPlan}" token="@nodeInfo@" value="${node}"/>
+            <ant:replace file="${curPlan}" token="@clusterInfo@" value="${clusterInfo}"/>
+            <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+                <ant:jvmarg value="-ea"/>
+                <ant:arg value="--install"/>
+                <ant:arg value="--plan"/>
+                <ant:arg value="${curPlan}"/>
+            </ant:java>
+        </j:forEach>
+
+        <j:set var="curPlan" value="${destPlan}/leader-clustered-plan.xml"/>
+        <ant:copy tofile="${curPlan}" overwrite="true" file="${srcPlan}/template-leader-clustered-plan.xml"/>
+        <ant:replace file="${curPlan}" token="@nodeInfo@" value="LeaderNode,127.0.0.1,8090"/>
+        <ant:replace file="${curPlan}" token="@clusterInfo@" value="${clusterInfo}"/>
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="--install"/>
+            <ant:arg value="--plan"/>
+            <ant:arg value="${curPlan}"/>
+        </ant:java>
+
+    </goal>
+
+</project>

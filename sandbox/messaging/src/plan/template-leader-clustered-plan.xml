@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+
+<!--
+This is a template plan for the leader node of a cluster. The dynamic tokens 
+are:
+- @clusterInfo@: cluster info as per the ClusterInfoEditor format; and
+- @nodeInfo@: node info as per the NodeInfoEditor format.
+-->
+<configuration
+    xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    configId="org/apache/geronimo/LeaderCluster"
+    >
+
+    <dependency>
+        <uri>concurrent/jars/concurrent-1.3.4.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-core-1.0-SNAPSHOT.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-network-1.0-SNAPSHOT.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo-sandbox/jars/geronimo-sandbox-messaging-1.0-SNAPSHOT.jar</uri>
+    </dependency>
+
+    <gbean name="geronimo.cluster:type=ThreadPool" class="org.apache.geronimo.pool.ThreadPool">
+        <attribute name="keepAliveTime" type="long">1000</attribute>
+        <attribute name="poolSize" type="int">10</attribute>
+        <attribute name="poolName" type="java.lang.String">TP Node</attribute>
+    </gbean>
+
+    <gbean name="geronimo.cluster:type=ClockPool" class="org.apache.geronimo.pool.ClockPool">
+        <attribute name="poolName" type="java.lang.String">CP Node</attribute>
+    </gbean>
+
+    <gbean name="geronimo.cluster:type=SelectorManager" class="org.apache.geronimo.network.SelectorManager">
+        <attribute name="timeout" type="long">500</attribute>
+        <reference name="ThreadPool">geronimo.cluster:type=ThreadPool</reference>
+        <attribute name="threadName" type="java.lang.String">SM Node</attribute>
+    </gbean>
+
+    <gbean name="geronimo.cluster:type=MessagingTransportFactory" class="org.apache.geronimo.messaging.remotenode.network.NetworkTransportFactory">
+        <reference name="SelectorManager">geronimo.cluster:type=SelectorManager</reference>
+        <reference name="ClockPool">geronimo.cluster:type=ClockPool</reference>
+    </gbean>
+
+    <gbean name="geronimo.cluster:type=Node" class="org.apache.geronimo.messaging.NodeImpl">
+        <attribute name="nodeInfo" type="org.apache.geronimo.messaging.NodeInfo">@nodeInfo@</attribute>
+        <reference name="ThreadPool">geronimo.cluster:type=ThreadPool</reference>
+        <reference name="ClockPool">geronimo.cluster:type=ClockPool</reference>
+        <reference name="MessagingTransportFactory">geronimo.cluster:type=MessagingTransportFactory</reference>
+    </gbean>
+
+    <gbean name="geronimo.cluster:type=Cluster" class="org.apache.geronimo.messaging.cluster.ClusterImpl">
+        <attribute name="clusterInfo" type="org.apache.geronimo.messaging.cluster.ClusterInfo">@clusterInfo@</attribute>
+        <reference name="Node">geronimo.cluster:type=Node</reference>
+        <attribute name="topologyManager" type="org.apache.geronimo.messaging.cluster.topology.TopologyManager">Ring</attribute>
+    </gbean>
+
+    <gbean name="geronimo.cluster:type=ClusterHBSender" class="org.apache.geronimo.messaging.cluster.ClusterHBSender">
+        <reference name="Node">geronimo.cluster:type=Node</reference>
+        <reference name="Cluster">geronimo.cluster:type=Cluster</reference>
+        <reference name="ClockPool">geronimo.cluster:type=ClockPool</reference>
+        <attribute name="delay" type="long">500</attribute>
+    </gbean>
+
+    <gbean name="geronimo.cluster:type=ClusterHBReceiver" class="org.apache.geronimo.messaging.cluster.ClusterHBReceiver">
+        <reference name="Cluster">geronimo.cluster:type=Cluster</reference>
+        <reference name="ClockPool">geronimo.cluster:type=ClockPool</reference>
+        <attribute name="nbMissed" type="int">3</attribute>
+    </gbean>
+
+</configuration>
