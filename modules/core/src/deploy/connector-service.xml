@@ -6,7 +6,7 @@
     <!-- Starts the Work Manager                                      -->
     <!-- ============================================================ -->
     <mbean descriptor="org.apache.geronimo.connector.work.GeronimoWorkManager"
-    	name="geronimo.jca:role=WorkManager">
+    	name="geronimo.connector:role=WorkManager">
         <constructor>
             <arg type="int">0</arg> <!-- synchronous-->
             <arg type="int">10</arg>
@@ -19,10 +19,20 @@
 
 
 
-    <!-- ============================================================ -->
-    <!-- ============================================================ -->
-    <mbean name="geronimo.transaction:role=BootstrapContext"
+    <!-- ============================================================== -->
+    <!-- bootstrap context.  The endpoint reference to the work manager -->
+    <!-- is concealed in the geronimo mbean info                        -->
+    <!-- ============================================================== -->
+    <mbean name="geronimo.connector:role=BootstrapContext"
            descriptor="org.apache.geronimo.connector.BootstrapContext">
+    </mbean>
+
+    <mbean name="geronimo.connector:role=ConnectionTrackingCoordinator"
+           descriptor="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
+    </mbean>
+
+    <mbean descriptor="org.apache.geronimo.connector.deployment.ConnectorDeploymentPlanner"
+           name="geronimo.deployment:role=DeploymentPlanner,type=Connector">
     </mbean>
 
 </components>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.23 $ $Date: 2003/11/17 10:51:53 $ -->
+<!-- $Revision: 1.24 $ $Date: 2003/12/09 04:20:48 $ -->
 
 <components>
     <class-space name="geronimo.system:role=ClassSpace,name=System">
@@ -9,6 +9,17 @@
         </codebase>
     </class-space>
 
+
+    <mbean code="org.apache.geronimo.xml.deployment.LocalEntityResolver" name="geronimo.xml:role=LocalEntityResolver">
+        <constructor>
+            <arg type="java.io.File">
+                src/schema
+            </arg>
+        </constructor>
+        <attribute name="ConfigFile">
+            ${geronimo.home}/etc/resolver.properties
+        </attribute>
+    </mbean>
 
     <!-- Log4j Logging Service -->
     <!--
@@ -33,12 +44,5 @@
            descriptor="org.apache.geronimo.transaction.TransactionManagerProxy">
     </mbean>
 
-    <mbean name="geronimo.connector:role=CachedConnectionManager"
-           descriptor="org/apache/geronimo/connector/outbound/CachedConnectionManager.xml">
-    </mbean>
-
-    <mbean descriptor="org.apache.geronimo.connector.deployment.ConnectorDeploymentPlanner"
-           name="geronimo.deployment:role=DeploymentPlanner,type=Connector">
-    </mbean>
 
 </components>
