@@ -19,22 +19,21 @@ package org.apache.geronimo.interop.generator;
 
 import java.util.Vector;
 
-
 public class JBlockStatement extends JStatement {
-    protected Vector _localVars;
-    protected Vector _statements;
+    private Vector    localVars;
+    private Vector    statements;
 
     public JBlockStatement() {
-        _localVars = new Vector();
-        _statements = new Vector();
+        localVars = new Vector();
+        statements = new Vector();
     }
 
     public boolean hasVariables() {
-        return _localVars.size() > 0;
+        return localVars.size() > 0;
     }
 
     public boolean hasStatements() {
-        return _statements.size() > 0;
+        return statements.size() > 0;
     }
 
     public JLocalVariable newLocalVariable(Class type, String name) {
@@ -46,26 +45,26 @@ public class JBlockStatement extends JStatement {
 
         v.setInitExpression(initExpr);
 
-        _localVars.add(v);
+        localVars.add(v);
 
         return v;
     }
 
     public void deleteLocalVariable(JLocalVariable f) {
-        _localVars.remove(f);
+        localVars.remove(f);
     }
 
     public Vector getLocalVariables() {
-        return _localVars;
+        return localVars;
     }
 
     public void addStatement(JStatement s) {
         if (s != this) {
-            _statements.add(s);
+            statements.add(s);
         }
     }
 
     public Vector getStatements() {
-        return _statements;
+        return statements;
     }
 }

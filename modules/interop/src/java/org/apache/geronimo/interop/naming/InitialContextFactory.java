@@ -19,7 +19,6 @@ package org.apache.geronimo.interop.naming;
 
 import java.util.Hashtable;
 
-
 public class InitialContextFactory
         implements javax.naming.spi.InitialContextFactory {
     public javax.naming.Context getInitialContext(Hashtable env) {

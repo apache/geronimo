@@ -19,32 +19,31 @@ package org.apache.geronimo.interop.generator;
 
 import java.util.Vector;
 
-
 public class JTryCatchFinallyStatement extends JStatement {
-    protected JTryStatement _TryStatement;
-    protected Vector _catchStatements;
-    protected JFinallyStatement _FinallyStatement;
+    private JTryStatement         tryStatement;
+    private Vector                catchStatements;
+    private JFinallyStatement     finallyStatement;
 
     public JTryCatchFinallyStatement() {
-        _TryStatement = new JTryStatement();
-        _catchStatements = new Vector();
-        _FinallyStatement = new JFinallyStatement();
+        tryStatement = new JTryStatement();
+        catchStatements = new Vector();
+        finallyStatement = new JFinallyStatement();
     }
 
     public void addTryStatement(JStatement s) {
-        _TryStatement.addStatement(s);
+        tryStatement.addStatement(s);
     }
 
     public JTryStatement getTryStatement() {
-        return _TryStatement;
+        return tryStatement;
     }
 
     public JCatchStatement getCatch(JVariable v) {
         JCatchStatement rc = null;
-        int index = _catchStatements.indexOf(v);
+        int index = catchStatements.indexOf(v);
 
         if (index >= 0) {
-            rc = (JCatchStatement) _catchStatements.get(index);
+            rc = (JCatchStatement) catchStatements.get(index);
         }
 
         return rc;
@@ -55,7 +54,7 @@ public class JTryCatchFinallyStatement extends JStatement {
 
         if (rc == null) {
             rc = new JCatchStatement(v);
-            _catchStatements.add(rc);
+            catchStatements.add(rc);
         }
 
         return rc;
@@ -72,14 +71,14 @@ public class JTryCatchFinallyStatement extends JStatement {
     }
 
     public Vector getCatches() {
-        return _catchStatements;
+        return catchStatements;
     }
 
     public void addFinallyStatement(JStatement s) {
-        _FinallyStatement.addStatement(s);
+        finallyStatement.addStatement(s);
     }
 
     public JFinallyStatement getFinallyStatement() {
-        return _FinallyStatement;
+        return finallyStatement;
     }
 }

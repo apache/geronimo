@@ -17,30 +17,27 @@
  */
 package org.apache.geronimo.interop.generator;
 
-
-
-
 public class JForStatement extends JBlockStatement {
-    protected JStatement _initStmt;
-    protected JExpression _loopExpr;
-    protected JStatement _iterStmt;
+    private JStatement    initStmt;
+    private JExpression   loopExpr;
+    private JStatement    iterStmt;
 
     public JForStatement(JStatement init, JExpression loop, JStatement iter) {
         super();
-        _initStmt = init;
-        _loopExpr = loop;
-        _iterStmt = iter;
+        initStmt = init;
+        loopExpr = loop;
+        iterStmt = iter;
     }
 
     public JStatement getInitStatement() {
-        return _initStmt;
+        return initStmt;
     }
 
     public JExpression getLoopExpression() {
-        return _loopExpr;
+        return loopExpr;
     }
 
     public JStatement getIterStatement() {
-        return _iterStmt;
+        return iterStmt;
     }
 }

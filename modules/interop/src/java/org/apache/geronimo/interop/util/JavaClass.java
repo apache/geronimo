@@ -26,9 +26,6 @@ import org.apache.geronimo.interop.properties.SystemProperties;
 
 
 public abstract class JavaClass {
-    // -----------------------------------------------------------------------
-    // properties
-    // -----------------------------------------------------------------------
 
     public static final StringProperty classDirProperty =
             new StringProperty(SystemProperties.class, "org.apache.geronimo.interop.classDir")
@@ -48,21 +45,10 @@ public abstract class JavaClass {
                           + File.pathSeparator
                           + FileUtil.pretty(SystemProperties.getHome() + "/genfiles/java/src"));
 
-    // -----------------------------------------------------------------------
-    // private data
-    // -----------------------------------------------------------------------
-
     private static String _classDir = classDirProperty.getString();
-
     private static List _classPath = ListUtil.getPathList(classPathProperty.getString());
-
     private static String _sourceDir = sourceDirProperty.getString();
-
     private static List _sourcePath = ListUtil.getPathList(sourcePathProperty.getString());
-
-    // -----------------------------------------------------------------------
-    // public methods
-    // -----------------------------------------------------------------------
 
     public static String addPackageSuffix(String className, String suffix) {
         String jp = getPackagePrefix(className);

@@ -68,23 +68,23 @@ public class SystemProperties extends PropertyMap {
 
     // privata data
 
-    private static SystemProperties _instance;
-    private boolean _canAccessFileSystem = true;
-    private boolean _rmiTrace;
-    private boolean _debug;
-    private boolean _quiet;
-    private boolean _verbose;
-    private String _home;
-    private String _repository;
-    private String _tempDir;
+    private static SystemProperties     instance;
+    private boolean                     canAccessFileSystem = true;
+    private boolean                     rmiTrace;
+    private boolean                     debug;
+    private boolean                     quiet;
+    private boolean                     verbose;
+    private String                      home;
+    private String                      repository;
+    private String                      tempDir;
 
     static {
-        _instance = new SystemProperties();
-        _instance.init();
+        instance = new SystemProperties();
+        instance.init();
     }
 
     public static SystemProperties getInstance() {
-        return _instance;
+        return instance;
     }
 
     // private methods
@@ -94,52 +94,52 @@ public class SystemProperties extends PropertyMap {
             putAll(System.getProperties());
         } catch (Exception ignore) // e.g. due to Applet Security Manager
         {
-            _canAccessFileSystem = false;
+            canAccessFileSystem = false;
         }
     }
 
     private void init() {
-        _debug = debugProperty.getBoolean();
-        _quiet = quietProperty.getBoolean();
-        _verbose = verboseProperty.getBoolean();
+        debug = debugProperty.getBoolean();
+        quiet = quietProperty.getBoolean();
+        verbose = verboseProperty.getBoolean();
 
-        if (_verbose) {
-            System.out.println("System Property org.apache.geronimo.interop.debug = " + _debug);
+        if (verbose) {
+            System.out.println("System Property org.apache.geronimo.interop.debug = " + debug);
             System.out.println("System Property org.apache.geronimo.interop.verbose = true");
         }
 
-        _rmiTrace = rmiTraceProperty.getBoolean();
+        rmiTrace = rmiTraceProperty.getBoolean();
 
         homeProperty.defaultValue("/org.apache.geronimo.interop");
-        _home = homeProperty.getString();
+        home = homeProperty.getString();
 
-        repositoryProperty.defaultValue(_home + "/Repository");
-        _repository = repositoryProperty.getString();
+        repositoryProperty.defaultValue(home + "/Repository");
+        repository = repositoryProperty.getString();
 
-        tempDirProperty.defaultValue(_home + "/temp");
-        _tempDir = tempDirProperty.getString();
+        tempDirProperty.defaultValue(home + "/temp");
+        tempDir = tempDirProperty.getString();
     }
 
     // public methods
 
     public static boolean rmiTrace() {
-        return getInstance()._rmiTrace;
+        return getInstance().rmiTrace;
     }
 
     public static boolean debug() {
-        return getInstance()._debug;
+        return getInstance().debug;
     }
 
     public static boolean quiet() {
-        return getInstance()._quiet;
+        return getInstance().quiet;
     }
 
     public static boolean verbose() {
-        return getInstance()._verbose;
+        return getInstance().verbose;
     }
 
     public static boolean canAccessFileSystem() {
-        return getInstance()._canAccessFileSystem;
+        return getInstance().canAccessFileSystem;
     }
 
     public static String logFile() {
@@ -156,14 +156,14 @@ public class SystemProperties extends PropertyMap {
     }
 
     public static String getHome() {
-        return getInstance()._home;
+        return getInstance().home;
     }
 
     public static String getRepository() {
-        return getInstance()._repository;
+        return getInstance().repository;
     }
 
     public static String getTempDir() {
-        return getInstance()._tempDir;
+        return getInstance().tempDir;
     }
 }

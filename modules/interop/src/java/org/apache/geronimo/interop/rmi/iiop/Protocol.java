@@ -17,52 +17,57 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-public abstract class Protocol {
-    public static final int IIOP = 1;
+public abstract class Protocol
+{
+    public static final int IIOP  = 1;
     public static final int IIOPS = 2;
-    public static final int HTTP = 3;
+    public static final int HTTP  = 3;
     public static final int HTTPS = 4;
 
-    public static String getName(int protocol) {
-        switch (protocol) {
-            case IIOP:
-                return "iiop";
-            case IIOPS:
-                return "iiop";
-            case HTTP:
-                return "http";
-            case HTTPS:
-                return "https";
-            default:
-                throw new IllegalArgumentException("protocol = " + protocol);
+    public static String getName(int protocol)
+    {
+        switch (protocol)
+        {
+            case IIOP: return "iiop";
+            case IIOPS: return "iiop";
+            case HTTP: return "http";
+            case HTTPS: return "https";
+            default: throw new IllegalArgumentException("protocol = " + protocol);
         }
     }
 
-    public static String getScheme(int protocol) {
-        switch (protocol) {
-            case IIOP:
-                return "iiop:";
-            case IIOPS:
-                return "iiop:";
-            case HTTP:
-                return "http:";
-            case HTTPS:
-                return "https:";
-            default:
-                throw new IllegalArgumentException("protocol = " + protocol);
+    public static String getScheme(int protocol)
+    {
+        switch (protocol)
+        {
+            case IIOP: return "iiop:";
+            case IIOPS: return "iiop:";
+            case HTTP: return "http:";
+            case HTTPS: return "https:";
+            default: throw new IllegalArgumentException("protocol = " + protocol);
         }
     }
 
-    public static int getNumber(String protocol) {
-        if (protocol.equals("iiop")) {
+    public static int getNumber(String protocol)
+    {
+        if (protocol.equals("iiop"))
+        {
             return IIOP;
-        } else if (protocol.equals("iiops")) {
+        }
+        else if (protocol.equals("iiops"))
+        {
             return IIOPS;
-        } else if (protocol.equals("http")) {
+        }
+        else if (protocol.equals("http"))
+        {
             return HTTP;
-        } else if (protocol.equals("https")) {
+        }
+        else if (protocol.equals("https"))
+        {
             return HTTPS;
-        } else {
+        }
+        else
+        {
             throw new IllegalArgumentException("protocol = " + protocol);
         }
     }

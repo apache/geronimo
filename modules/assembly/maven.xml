@@ -263,6 +263,14 @@
             <ant:arg value="target/plan/j2ee-server-plan.xml"/>
         </ant:java>
 
+        <!-- build the J2EEInteropServer configuration -->
+        <ant:echo>Building interop server configuration</ant:echo>
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="distribute"/>
+            <ant:arg value="target/plan/interop-server-plan.xml"/>
+        </ant:java>
+
         <!-- build the runtime deployer configuration -->
         <ant:echo>Building runtime deployer configuration</ant:echo>
         <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">

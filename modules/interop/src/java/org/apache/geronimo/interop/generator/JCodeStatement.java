@@ -17,17 +17,14 @@
  */
 package org.apache.geronimo.interop.generator;
 
-
-
-
 public class JCodeStatement extends JStatement {
-    protected String _code;
+    private String    code;
 
     public JCodeStatement(String code) {
-        _code = code;
+        this.code = code;
     }
 
     public String getCode() {
-        return _code;
+        return code;
     }
 }

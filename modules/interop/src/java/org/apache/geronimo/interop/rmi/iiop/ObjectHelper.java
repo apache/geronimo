@@ -17,7 +17,8 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-public interface ObjectHelper {
+public interface ObjectHelper
+{
     public Object read(ObjectInputStream input);
 
     public void write(ObjectOutputStream output, Object value);

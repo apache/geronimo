@@ -19,55 +19,45 @@ package org.apache.geronimo.interop.rmi.iiop.compiler;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.io.File;
+import java.util.*;
 
-import org.apache.geronimo.interop.generator.GenOptions;
-import org.apache.geronimo.interop.generator.JCaseStatement;
-import org.apache.geronimo.interop.generator.JCatchStatement;
-import org.apache.geronimo.interop.generator.JClass;
-import org.apache.geronimo.interop.generator.JCodeStatement;
-import org.apache.geronimo.interop.generator.JConstructor;
-import org.apache.geronimo.interop.generator.JDeclareStatement;
-import org.apache.geronimo.interop.generator.JExpression;
-import org.apache.geronimo.interop.generator.JField;
-import org.apache.geronimo.interop.generator.JLocalVariable;
-import org.apache.geronimo.interop.generator.JMethod;
-import org.apache.geronimo.interop.generator.JPackage;
-import org.apache.geronimo.interop.generator.JParameter;
-import org.apache.geronimo.interop.generator.JReturnType;
-import org.apache.geronimo.interop.generator.JSwitchStatement;
-import org.apache.geronimo.interop.generator.JTryCatchFinallyStatement;
-import org.apache.geronimo.interop.generator.JTryStatement;
-import org.apache.geronimo.interop.generator.JVariable;
-import org.apache.geronimo.interop.generator.JavaGenerator;
+import org.apache.geronimo.interop.generator.*;
+import org.apache.geronimo.interop.util.JavaClass;
+import org.apache.geronimo.interop.util.ProcessUtil;
+import org.apache.geronimo.interop.adapter.Adapter;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-public class SkelCompiler
-        extends Compiler {
-    protected ValueTypeContext _vtc = new ValueTypeContext();
-    protected static JParameter _objInputVar = new JParameter(org.apache.geronimo.interop.rmi.iiop.ObjectInputStream.class, "input");
-    protected static JParameter _objOutputVar = new JParameter(org.apache.geronimo.interop.rmi.iiop.ObjectOutputStream.class, "output");
+public class SkelCompiler extends Compiler {
+    private final Log log = LogFactory.getLog(SkelCompiler.class);
 
-    public SkelCompiler(Class remoteInterface) {
-        super(remoteInterface);
+    private ValueTypeContext      vtc = new ValueTypeContext();
+
+    private static JParameter     objInputVar = new JParameter(org.apache.geronimo.interop.rmi.iiop.ObjectInputStream.class, "input");
+    private static JParameter     objOutputVar = new JParameter(org.apache.geronimo.interop.rmi.iiop.ObjectOutputStream.class, "output");
+
+    private String                  inStreamName = "getInputStream";
+    private String                  outStreamName = "getOutputStream";
+
+    private HashMap                 packages = new HashMap();
+
+    public SkelCompiler(GenOptions go, ClassLoader cl) {
+        super(go, cl);
     }
-
-    public SkelCompiler(Class remoteInterface, GenOptions go) {
-        super(remoteInterface, go);
-    }
-
-    //
-    // Methods
-    //
 
     public void addMethodGetIds(JClass jc) {
-        /*
-        public String[] getIds()
-        {
-            return _ids;
-        }
-        */
+        //
+        // Method Template:
+        //
+        // public String[] getIds()
+        // {
+        //     return _ids;
+        // }
+        //
 
-        JMethod jm = jc.newMethod(new JReturnType(String.class, true),
+        JMethod jm = jc.newMethod(new JReturnType(String[].class),
                                   "getIds",
                                   (JParameter[]) null,
                                   (Class[]) null);
@@ -76,12 +66,14 @@ public class SkelCompiler
     }
 
     public void addMethodRegisterMethod(JClass jc) {
-        /*
-        public void registerMethod( String name, int id )
-        {
-            _methodMap.put( name, new Integer(id) );
-        }
-        */
+        //
+        // Method Template:
+        //
+        // public void registerMethod( String name, int id )
+        // {
+        //     _methodMap.put( name, new Integer(id) );
+        // }
+        //
 
         JMethod jm = jc.newMethod(new JReturnType(void.class),
                                   "registerMethod",
@@ -93,18 +85,20 @@ public class SkelCompiler
     }
 
     public void addMethodGetObjectRef(JClass jc, Class c) {
-        /*
-        public ObjectRef $getObjectRef()
-        {
-            ObjectRef or = new ObjectRef();
-            or.$setID("RMI:mark.comps.Add:0000000000000000");
-            or.$setObjectKey( "mark.comps.Add" );
-            return or;
-        }
-        */
+        //
+        // Method Template:
+        //
+        //  public ObjectRef getObjectRef()
+        // {
+        //     ObjectRef or = new ObjectRef();
+        //     or.$setID("RMI:mark.comps.Add:0000000000000000");
+        //     or.$setObjectKey( "mark.comps.Add" );
+        //     return or;
+        // }
+        //
 
-        JMethod jm = jc.newMethod(new JReturnType("ObjectRef"),
-                                  "$getObjectRef",
+        JMethod jm = jc.newMethod(new JReturnType(org.apache.geronimo.interop.rmi.iiop.ObjectRef.class),
+                                  "getObjectRef",
                                   (JParameter[]) null,
                                   (Class[]) null);
 
@@ -115,14 +109,16 @@ public class SkelCompiler
     }
 
     public void addMethodGetSkeleton(JClass jc) {
-        /*
-        public RemoteInterface $getSkeleton()
-        {
-            return this;
-        }
-        */
+        //
+        // Method Template
+        //
+        // public RemoteInterface $getSkeleton()
+        // {
+        //     return this;
+        // }
+        //
 
-        JMethod jm = jc.newMethod(new JReturnType("RemoteInterface"),
+        JMethod jm = jc.newMethod(new JReturnType(org.apache.geronimo.interop.rmi.iiop.RemoteInterface.class),
                                   "$getSkeleton",
                                   (JParameter[]) null,
                                   (Class[]) null);
@@ -143,17 +139,20 @@ public class SkelCompiler
         return rc;
     }
 
-    public void addMethod(Method m, JClass jc) {
+    public void addMethod(MethodOverload mo, JClass jc, GenOptions go) {
         String invokeCall;
+        Method m = mo.method;
         String name = m.getName();
         JParameter[] sparms = getMethodParms(m);
-        JParameter[] iparms = new JParameter[]{_objInputVar, _objOutputVar};
+        JParameter[] iparms = new JParameter[]{objInputVar, objOutputVar};
+        String vtVarName = null;
+        JCodeStatement codeStmt = null;
 
-        if (!isSimpleIDL() && !throwsAnRMIRemoteException(m)) {
+        if (!go.isSimpleIdl() && !throwsAnRMIRemoteException(m)) {
             error("Method " + m.getName() + " does not throw java.rmi.RemoteException or subclass, unable to generate its skeleton method.");
         }
 
-        JMethod jm = jc.newMethod(new JReturnType(void.class), name, iparms, null);
+        JMethod jm = jc.newMethod(new JReturnType(void.class), mo.iiop_name, iparms, null);
 
         JVariable jrc = null;
         String rc = m.getReturnType().getName();
@@ -161,8 +160,8 @@ public class SkelCompiler
             jrc = jm.newLocalVariable(m.getReturnType(), "rc");
         }
 
-        JTryCatchFinallyStatement tcfs = new JTryCatchFinallyStatement();
-        JTryStatement ts = tcfs.getTryStatement();
+        ArrayList   declareStatementList = new ArrayList( 20 );
+        JStatement  invokeStatement = null;
 
         invokeCall = "_servant." + name + "(";
 
@@ -178,7 +177,7 @@ public class SkelCompiler
 
                     jcs = new JCodeStatement("input." + readMethod + "()");
                 } else {
-                    String vtVarName = _vtc.getValueTypeVarName(jc, sparms[i]);
+                    vtVarName = vtc.getValueTypeVarName(jc, sparms[i]);
                     if (vtVarName != null) {
                         jcs = new JCodeStatement("(" + sparms[i].getTypeDecl() + ") input.readObject( " + vtVarName + " )");
                     } else {
@@ -186,7 +185,7 @@ public class SkelCompiler
                     }
                 }
 
-                ts.addStatement(new JDeclareStatement(sparms[i], new JExpression(jcs)));
+                declareStatementList.add(new JDeclareStatement(sparms[i], new JExpression(jcs)));
 
                 invokeCall += " " + sparms[i].getName();
                 if (i + 1 < sparms.length) {
@@ -203,37 +202,118 @@ public class SkelCompiler
 
         invokeCall = invokeCall + ";";
 
-        ts.addStatement(new JCodeStatement(invokeCall));
+        invokeStatement = new JCodeStatement(invokeCall);
 
-        JVariable jv = new JVariable(java.lang.Exception.class, "ex");
-        JCatchStatement cs = tcfs.newCatch(jv);
-        cs.addStatement(new JCodeStatement(jv.getName() + ".printStackTrace();"));
-
-        jv = new JVariable(java.lang.Error.class, "er");
-        cs = tcfs.newCatch(jv);
-        cs.addStatement(new JCodeStatement(jv.getName() + ".printStackTrace();"));
-
-        jm.addStatement(tcfs);
-
+        JStatement writeResultStatement = null;
         if (jrc != null) {
             String writeMethod = getWriteMethod(jrc);
-            JCodeStatement jcs = null;
+            codeStmt = null;
 
             if (writeMethod != null) {
                 // Primitive Type
                 // Cast not needed since each method returns the primitive datatype.
 
-                jcs = new JCodeStatement("output." + writeMethod + "( " + jrc.getName() + " );");
+                codeStmt = new JCodeStatement("output." + writeMethod + "( " + jrc.getName() + " );");
             } else {
-                String vtVarName = _vtc.getValueTypeVarName(jc, jrc);
+                vtVarName = vtc.getValueTypeVarName(jc, jrc);
                 if (vtVarName != null) {
-                    jcs = new JCodeStatement("output.writeObject( " + vtVarName + ", " + jrc.getName() + " );");
+                    codeStmt = new JCodeStatement("output.writeObject( " + vtVarName + ", " + jrc.getName() + " );");
                 } else {
-                    jcs = new JCodeStatement("// Code Gen Error: Class '" + jrc.getTypeDecl() + " is not a valid value type.");
+                    codeStmt = new JCodeStatement("// Code Gen Error: Class '" + jrc.getTypeDecl() + " is not a valid value type.");
                 }
             }
 
-            ts.addStatement(jcs);
+            writeResultStatement = codeStmt;
+        }
+
+        //
+        // The exception handling block:
+        //
+        //            try
+        //            {
+        //                invoke method()
+        //            }
+        //            catch (java.lang.Exception $ex_1)
+        //            {
+        //                Listed here are the individual catches that the method can throw
+        //                if ($ex_1 instanceof com.sybase.djc.org.omg.CosNaming.NamingContextPackage.NotFound)
+        //                {
+        //                    $output.writeException(type$4, $ex_1);
+        //                    return;
+        //                }
+        //                if ($ex_1 instanceof com.sybase.djc.org.omg.CosNaming.NamingContextPackage.CannotProceed)
+        //                {
+        //                    $output.writeException(type$5, $ex_1);
+        //                    return;
+        //                }
+        //                throw $ex_1;
+        //            }
+
+        Class[] excepts = m.getExceptionTypes();
+        JVariable jvExcept = null;
+        JVariable jvTmp = null;
+
+        JCatchStatement catchStmt = null;
+
+        if (excepts != null && excepts.length > 0)
+        {
+            JTryCatchFinallyStatement tcfs = new JTryCatchFinallyStatement();
+            JTryStatement ts = tcfs.getTryStatement();
+
+            if (declareStatementList.size() > 0)
+            {
+                for( int i=0; i<declareStatementList.size(); i++ )
+                {
+                    ts.addStatement( (JStatement)declareStatementList.get(i) );
+                }
+            }
+
+            ts.addStatement( invokeStatement );
+
+            jvExcept = new JVariable(java.lang.Exception.class, "ex");
+            catchStmt = tcfs.newCatch(jvExcept);
+
+            for( int i=0; excepts != null && i < excepts.length; i++ )
+            {
+                jvTmp = new JVariable( excepts[i], "exvar" );
+                vtVarName = vtc.getValueTypeVarName(jc, jvTmp);
+                codeStmt = null;
+                if (vtVarName != null) {
+                    codeStmt = new JCodeStatement("output.writeException( " + vtVarName + ", " + jvExcept.getName() + ");" );
+                } else {
+                    codeStmt = new JCodeStatement("// Code Gen Error: Class '" + sparms[i].getTypeDecl() + " is not a valid value type.");
+                }
+
+                JIfStatement ifs = new JIfStatement( new JExpression(
+                        new JCodeStatement( jvExcept.getName() + " instanceof " + excepts[i].getName() ) ));
+                ifs.addStatement( codeStmt );
+                ifs.addStatement( new JCodeStatement( "return;" ));
+                catchStmt.addStatement( ifs );
+            }
+
+            if (writeResultStatement != null)
+            {
+                ts.addStatement( writeResultStatement );
+            }
+
+            jm.addStatement(tcfs);
+        }
+        else
+        {
+            if (declareStatementList.size() > 0)
+            {
+                for( int i=0; i<declareStatementList.size(); i++ )
+                {
+                    jm.addStatement( (JStatement)declareStatementList.get(i) );
+                }
+            }
+
+            jm.addStatement( invokeStatement );
+
+            if (writeResultStatement != null)
+            {
+                jm.addStatement( writeResultStatement );
+            }
         }
     }
 
@@ -288,132 +368,203 @@ public class SkelCompiler
         return rc;
     }
 
-    protected void error(String msg) {
-        System.out.println("Error: " + msg);
-    }
+    public void generate() throws GenException {
 
-    protected void error(String msg, Throwable t) {
-        error(msg);
-        t.printStackTrace();
-    }
+        GenOptions go = getGenOptions();
+        List interfaces = go.getInterfaces();
+        Iterator intf = null;
 
-    public void generate()
-            throws Exception {
-        _vtc.clear();
-
-        if (!isSimpleIDL() && !isClassARMIRemote(_riClass)) {
-            error("Class '" + _riClass.getName() + "' must be an instance of either java.rmi.Remote or of a subclass.");
+        if (interfaces != null) {
+            intf = interfaces.iterator();
         }
 
-        ClassLoader cl = _riClass.getClassLoader();
-        if (cl == null) {
-            cl = ClassLoader.getSystemClassLoader();
-        }
+        JavaGenerator jg = new JavaGenerator(genOptions);
 
-        String fullGenDir = _genOptions.getGenDir();
-
-        JavaGenerator jg = new JavaGenerator(_genOptions);
-
-        String className = _riClass.getName();
-
-        JPackage p = new JPackage("");
-        if (_riClass.getPackage() != null) {
-            p = new JPackage(_riClass.getPackage().getName());
-            className = className.substring(className.lastIndexOf(".") + 1);
-        }
-
-        JClass jc = p.newClass(className + "_Skeleton");
-
-        /*
-        jw.comment( "" );
-        jw.comment( "CORBA RMI-IIOP Skeleton Generator" );
-        jw.comment( "  Interface: " + c.getName() );
-        jw.comment( "  Date: " + (new Date(System.currentTimeMillis())).toString() );
-        jw.comment( "" );
-        */
-
-        jc.addImport("org.apache.geronimo.interop.rmi.iiop", "ObjectInputStream");
-        jc.addImport("org.apache.geronimo.interop.rmi.iiop", "ObjectOutputStream");
-        jc.addImport("org.apache.geronimo.interop.rmi.iiop", "RemoteInterface");
-        jc.addImport("org.apache.geronimo.interop.rmi.iiop", "RemoteInterface");
-        jc.addImport("org.apache.geronimo.interop.rmi.iiop", "ObjectRef");
-        jc.addImport("org.apache.geronimo.interop.rmi.iiop", "RemoteObject");
-        jc.addImport("org.apache.geronimo.interop.rmi.iiop.server", "Adapter");
-        jc.addImport("java.util", "HashMap");
-
-        jc.setExtends("RemoteObject");
-        jc.addImplements("RemoteInterface");
-
-        JField idsField = jc.newField(String[].class, "_ids", new JExpression(new JCodeStatement("{ \"" + _riClass.getName() + "\", \"RMI:" + _riClass.getName() + ":0000000000000000\"}")), true);
-        JField methodsField = jc.newField(java.util.HashMap.class, "_methods", new JExpression(new JCodeStatement("new HashMap(10)")));
-        JField servantField = jc.newField(_riClass, "_servant", new JExpression(new JCodeStatement("null")));
-
-        JConstructor jcCon = jc.newConstructor((JParameter[]) null, (Class[]) null);
-        jcCon.addStatement(new JCodeStatement("super();"));
-
-        addMethodRegisterMethod(jc);
-        addMethodGetIds(jc);
-        addMethodGetSkeleton(jc);
-        addMethodGetObjectRef(jc, _riClass);
-
-        JMethod jmInvoke = jc.newMethod(new JReturnType(void.class),
-                                        "$invoke",
-                                        new JParameter[]{new JParameter(String.class, "methodName"),
-                                                         new JParameter(byte[].class, "objectKey"),
-                                                         new JParameter(Object.class, "instance"),
-                                                         _objInputVar,
-                                                         _objOutputVar},
-                                        (Class[]) null);
-
-        jmInvoke.setModifier(Modifier.PUBLIC, true);
-
-        JLocalVariable jvM = jmInvoke.newLocalVariable(Integer.class, "m", new JExpression(new JCodeStatement("(Integer)_methods.get(methodName)")));
-
-        jmInvoke.addStatement(new JCodeStatement("if (m == null)"));
-        jmInvoke.addStatement(new JCodeStatement("{"));
-        jmInvoke.addStatement(new JCodeStatement("    throw new org.omg.CORBA.BAD_OPERATION(methodName);"));
-        jmInvoke.addStatement(new JCodeStatement("}"));
-        jmInvoke.addStatement(new JCodeStatement(""));
-        jmInvoke.addStatement(new JCodeStatement("_servant = (" + _riClass.getName() + ")instance;"));
-        jmInvoke.addStatement(new JCodeStatement(""));
-        jmInvoke.addStatement(new JCodeStatement("if (m.intValue() < 0)"));
-        jmInvoke.addStatement(new JCodeStatement("{"));
-        jmInvoke.addStatement(new JCodeStatement("    super.invoke( m.intValue(), objectKey, instance, input, output );"));
-        jmInvoke.addStatement(new JCodeStatement("}"));
-        jmInvoke.addStatement(new JCodeStatement(""));
-
-        JSwitchStatement ss = new JSwitchStatement(new JExpression(new JCodeStatement("m.intValue()")));
-        JCaseStatement cs = null;
-        jmInvoke.addStatement(ss);
-
-        Method m[] = null;
-
-        if (isSimpleIDL()) {
-            m = _riClass.getMethods();
+        if (go.isSimpleIdl()) {
+            inStreamName = "getSimpleInputStream";
+            outStreamName = "getSimpleOutputStream";
         } else {
-            m = _riClass.getDeclaredMethods();
+            inStreamName = "getInputStream";
+            outStreamName = "getOutputStream";
         }
 
-        if (m != null && m.length > 0) {
-            int i;
-            for (i = 0; i < m.length; i++) {
+        String riClassName = "";
+        Class  riClass = null;
+        String skelClassName = "";
+        String pkgName = "";
+        JPackage pkg = null;
+
+        while (intf != null && intf.hasNext() ) {
+            // Clear the value type cache.
+            vtc.clear();
+
+            riClassName = (String)intf.next();
+
+
+            try {
+                riClass = getClassLoader().loadClass( riClassName );
+            } catch (Exception ex) {
+                throw new GenException( "Generate Skels Failed:", ex );
+            }
+
+            if (!go.isSimpleIdl() && !isClassARMIRemote(riClass)) {
+                error("Class '" + riClass.getName() + "' must be an instance of either java.rmi.Remote or of a subclass.");
+            }
+
+            pkgName = JavaClass.getNamePrefix(riClassName);
+            skelClassName = JavaClass.getNameSuffix(riClassName);
+            pkg = (JPackage) packages.get( pkgName );
+            if (pkg == null)
+            {
+                pkg = new JPackage( pkgName );
+                packages.put( pkgName, pkg );
+            }
+
+            JClass jc = pkg.newClass(skelClassName + "_Skeleton");
+
+            jc.addImport("org.apache.geronimo.interop.rmi.iiop", "RemoteInterface");
+            jc.addImport("org.apache.geronimo.interop.rmi.iiop", "ObjectRef");
+            jc.addImport("org.apache.geronimo.interop.rmi.iiop", "RemoteObject");            
+
+            jc.setExtends("RemoteObject");
+            jc.addImplements("RemoteInterface");
+
+            JField idsField = jc.newField(String[].class, "_ids", new JExpression(new JCodeStatement("{ \"" + riClass.getName() + "\", \"RMI:" + riClass.getName() + ":0000000000000000\"}")), true);
+            idsField.setModifiers(Modifier.PRIVATE | Modifier.STATIC | Modifier.FINAL);
+
+            JField servantField = jc.newField(riClass, "_servant", new JExpression(new JCodeStatement("null")));
+            servantField.setModifiers(Modifier.PRIVATE);
+
+            JConstructor jcCon = jc.newConstructor((JParameter[]) null, (Class[]) null);
+            jcCon.addStatement(new JCodeStatement("super();"));
+
+            // Replaced with the method in the RemoteObject parent class
+            //addMethodRegisterMethod(jc);
+
+            addMethodGetIds(jc);
+
+            // Not used anymore
+            //addMethodGetSkeleton(jc);
+
+            addMethodGetObjectRef(jc, riClass);
+
+            JMethod jmInvoke = jc.newMethod(new JReturnType(void.class),
+                                            "invoke",
+                                            new JParameter[]{new JParameter(String.class, "methodName"),
+                                                             new JParameter(byte[].class, "objectKey"),
+                                                             new JParameter(Adapter.class, "adapter"),
+                                                             objInputVar,
+                                                             objOutputVar},
+                                            (Class[]) null);
+
+            jmInvoke.setModifier(Modifier.PUBLIC);
+
+            JLocalVariable jvM = jmInvoke.newLocalVariable(Integer.class, "m", new JExpression(new JCodeStatement("getMethodId(methodName); // (Integer)_methods.get(methodName)")));
+
+            JIfStatement jis = new JIfStatement(new JExpression(new JCodeStatement(jvM.getName() + " == null")));
+            jis.addStatement(new JCodeStatement("throw new org.omg.CORBA.BAD_OPERATION(methodName);"));
+            jmInvoke.addStatement(jis);
+
+            jmInvoke.addStatement(new JCodeStatement("_servant = (" + riClass.getName() + ")adapter.getServant(); //instance;"));
+
+            JIfStatement jis2 = new JIfStatement(new JExpression(new JCodeStatement(jvM.getName() + ".intValue() < 0")));
+            jis2.addStatement(new JCodeStatement("super.invoke( " + jvM.getName() + ".intValue(), objectKey, adapter, input, output );"));
+            jmInvoke.addStatement(jis2);
+
+            JTryCatchFinallyStatement tcfs = new JTryCatchFinallyStatement();
+            JTryStatement ts = tcfs.getTryStatement();
+
+            JSwitchStatement switchStmt = new JSwitchStatement(new JExpression(new JCodeStatement("m.intValue()")));
+            JCaseStatement caseStmt = null;
+            ts.addStatement(switchStmt);
+
+            Method m[] = getMethods( riClass, go );
+            MethodOverload mo[] = null;
+            mo = getMethodOverloads( m );
+
+            for (int i = 0; mo != null && i < mo.length; i++)
+            {
                 // Enter a new method id in the _methods hashtable.
-                jcCon.addStatement(new JCodeStatement("registerMethod( \"" + m[i].getName() + "\", " + i + ");"));
+                jcCon.addStatement(new JCodeStatement("registerMethod( \"" + mo[i].iiop_name + "\", " + i + ");"));
 
                 // Add a new case statement to the invoke swtich
-                cs = ss.newCase(new JExpression(new JCodeStatement("" + i)));
-                cs.addStatement(new JCodeStatement(m[i].getName() + "(input,output);"));
+                caseStmt = switchStmt.newCase(new JExpression(new JCodeStatement("" + i)));
+                caseStmt.addStatement(new JCodeStatement(mo[i].iiop_name + "(input,output);"));
 
                 // Generate the method wrapper
-                addMethod(m[i], jc);
+                addMethod(mo[i], jc, go);
             }
+
+            JCatchStatement catchStmt = null;
+            JVariable jvExcept = null;
+
+            jvExcept = new JVariable(java.lang.Error.class, "erEx");
+            catchStmt = tcfs.newCatch(jvExcept);
+            catchStmt.addStatement(new JCodeStatement( "throw new org.apache.geronimo.interop.SystemException( " + jvExcept.getName() + " );" ) );
+
+            jvExcept = new JVariable(java.lang.RuntimeException.class, "rtEx");
+            catchStmt = tcfs.newCatch(jvExcept);
+            catchStmt.addStatement(new JCodeStatement( "throw " + jvExcept.getName() + ";" ) );
+
+            jvExcept = new JVariable(java.lang.Exception.class, "exEx");
+            catchStmt = tcfs.newCatch(jvExcept);
+            catchStmt.addStatement(new JCodeStatement( "throw new org.apache.geronimo.interop.SystemException( " + jvExcept.getName() + " );" ) );
+
+            jmInvoke.addStatement( tcfs );
         }
 
-        jg.generate(p);
+        Set pkgSet = packages.keySet();
+        Iterator pkgIt = pkgSet.iterator();
+        String skelPkg = "";
+
+        while (pkgIt.hasNext())
+        {
+            skelPkg = (String) pkgIt.next();
+            pkg = (JPackage)packages.get(skelPkg);
+            System.out.println("Generating Package: " + skelPkg);
+            jg.generate(pkg);
+        }
     }
 
     public void compile()
             throws Exception {
+
+        Set pkg = packages.keySet();
+        Iterator pkgIt = pkg.iterator();
+        String skelPkg = "";
+
+        /*
+         * Each of the packages were generated under go.getGenSrcDir().
+         *
+         * Go through all the packages and run the compiler on *.java
+         */
+
+        GenOptions  go = getGenOptions();
+        String classpath = adjustPath(go.getClasspath());
+        String srcpath = adjustPath(go.getGenSrcDir());
+
+        String filesToCompile = "";
+        String javacCmd = "";
+
+        while (pkgIt.hasNext())
+        {
+            skelPkg = (String) pkgIt.next();
+            skelPkg = skelPkg.replace( '.', File.separatorChar );
+            filesToCompile = adjustPath(go.getGenSrcDir() + File.separator + skelPkg + File.separator + "*.java");
+
+            System.out.println("Compiling Package: " + filesToCompile);
+
+            javacCmd = "javac -d " + go.getGenClassDir() +
+                            ( go.isCompileDebug() ? " -g" : "" ) +
+                            " -classpath " + classpath + " " +
+                            " -sourcepath " + srcpath + " " + filesToCompile;
+
+            System.out.println( "Lauching: " + javacCmd );
+
+            ProcessUtil pu = ProcessUtil.getInstance();
+            pu.setEcho(System.out);
+            pu.run(javacCmd, (String[]) null, "./" );
+        }
     }
 
     public Class getSkelClass() {
@@ -429,62 +580,27 @@ public class SkelCompiler
         return c;
     }
 
-    public static void main(String args[])
-            throws Exception {
-        boolean generate = false;
-        boolean compile = false;
-        boolean simpleIDL = false;
-        String ri = "";
-        GenOptions go = new GenOptions();
+    public static void main(String args[]) throws Exception {
+        GenOptions go = null;
 
-        go.setGenDir("./src");
-        go.setOverwrite(false);
-        go.setVerbose(false);
-
-        for (int i = 0; i < args.length; i++) {
-            if (args[i].equals("-g")) {
-                generate = true;
-            } else if (args[i].equals("-c")) {
-                compile = true;
-            } else if (args[i].equals("-d") && ((i + 1) < args.length)) {
-                go.setGenDir(args[++i]);
-            } else if (args[i].equals("-v")) {
-                go.setVerbose(true);
-            } else if (args[i].equals("-o")) {
-                go.setOverwrite(true);
-            } else if (args[i].equals("-s")) {
-                simpleIDL = true;
-            } else if (args[i].startsWith("-")) {
-                System.out.println("Warning: Ignoring unrecognized options: '" + args[i] + "'");
-            } else {
-                ri = args[i];
-            }
+        try
+        {
+            go = new GenOptions( "./skels", args );
+        }
+        catch( GenWarning gw )
+        {
+            gw.printStackTrace();
         }
 
-        Class riClass = Class.forName(ri);
+        ClassLoader cl = ClassLoader.getSystemClassLoader();
+        SkelCompiler sg = new SkelCompiler( go, cl );
 
-        SkelCompiler sg = new SkelCompiler(riClass, go);
-
-        sg.setSimpleIDL(simpleIDL);
-
-        if (generate) {
-            if (go.isVerbose()) {
-                System.out.println("Generating: " + ri);
-            }
-
+        if (go.isGenerate()) {
             sg.generate();
         }
 
-        if (compile) {
-            if (go.isVerbose()) {
-                System.out.println("Compiling: " + ri);
-            }
-
+        if (go.isCompile()) {
             sg.compile();
         }
-
-        // sg.setSimpleIDL( true );
-        // sg.generate( "org.apache.geronimo.interop.rmi.iiop.NameServiceOperations");
     }
 }
-

@@ -17,42 +17,61 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-import java.lang.reflect.Array;
-
-import org.apache.geronimo.interop.SystemException;
 import org.apache.geronimo.interop.util.ArrayUtil;
 
+import java.lang.reflect.*;
 
-public class ArrayHelper implements ObjectHelper {
+public class ArrayHelper implements ObjectHelper
+{
     private ValueType _element;
 
-    public ArrayHelper(Class elementClass) {
-        if (elementClass.isPrimitive()) {
-            throw new SystemException("TODO");
-        } else {
+    private ObjectHelper _primitive;
+
+    public ArrayHelper(Class elementClass)
+    {
+        if (elementClass.isPrimitive())
+        {
+            _primitive = PrimitiveType.getArrayHelper(elementClass);
+        }
+        else
+        {
             _element = ValueType.getInstance(elementClass);
         }
     }
 
-    public Object read(ObjectInputStream input) {
+    public Object read(ObjectInputStream input)
+    {
+        if (_primitive != null)
+        {
+            return _primitive.read(input);
+        }
         CdrInputStream cdrInput = input._cdrInput;
         int n = cdrInput.read_long();
-        Object[] array = (Object[]) Array.newInstance(_element._class, n);
-        for (int i = 0; i < n; i++) {
+        Object[] array = (Object[])Array.newInstance(_element._class, n);
+        for (int i = 0; i < n; i++)
+        {
             array[i] = input.readObject(_element);
         }
         return array;
     }
 
-    public void write(ObjectOutputStream output, Object value) {
+    public void write(ObjectOutputStream output, Object value)
+    {
+        if (_primitive != null)
+        {
+            _primitive.write(output, value);
+            return;
+        }
         CdrOutputStream cdrOutput = output._cdrOutput;
-        Object[] array = (Object[]) value;
-        if (array == null) {
+        Object[] array = (Object[])value;
+        if (array == null)
+        {
             array = ArrayUtil.EMPTY_OBJECT_ARRAY;
         }
         int n = array.length;
         cdrOutput.write_long(n);
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++)
+        {
             output.writeObject(_element, array[i]);
         }
     }

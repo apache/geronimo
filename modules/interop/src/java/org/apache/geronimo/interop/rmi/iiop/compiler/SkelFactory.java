@@ -23,55 +23,26 @@ import org.apache.geronimo.interop.SystemException;
 import org.apache.geronimo.interop.rmi.iiop.RemoteObject;
 import org.apache.geronimo.interop.util.ThreadContext;
 
-
 public class SkelFactory {
-    protected static SkelFactory _sf = new SkelFactory();
+    private static SkelFactory sf = new SkelFactory();
 
     protected SkelFactory() {
     }
 
     public static SkelFactory getInstance() {
-        return _sf;
+        return sf;
     }
 
-    // private data
-
-    private static HashMap _skelClassMap;
-
-    // internal methods
+    private static HashMap skelClassMap;
 
     protected void init() {
-        _skelClassMap = new HashMap();
+        skelClassMap = new HashMap();
     }
 
+    /*
     protected Class loadStub(Class remoteInterface) {
         String className = remoteInterface.getName();
         String skelClassName = className + "_Skeleton";
-
-        /*
-        StubClass sc = new StubClass();
-        if (sc.skelClass == null)
-        {
-            // Try generating skel class now.
-            System.out.println( "TODO: StubFactory.loadStub(): className = " + className );
-            StubCompiler skelCompiler = StubCompiler.getInstance(remoteInterface);
-            sc.skelClass = skelCompiler.getStubClass();
-        }
-
-        if (sc.skelClass != null)
-        {
-            try
-            {
-                sc.getInstance = sc.skelClass.getMethod("$getInstance", ArrayUtil.EMPTY_CLASS_ARRAY);
-            }
-            catch (Exception ex)
-            {
-                throw new SystemException(ex);
-            }
-        }
-
-        return sc;
-        */
 
         Class sc = null;
         try {
@@ -84,19 +55,19 @@ public class SkelFactory {
 
         return sc;
     }
+    */
 
-    // public methods
-
+    /*
     public RemoteObject getSkel(Class remoteInterface) {
         System.out.println("SkelFactory.getSkel(): remoteInterface: " + remoteInterface);
         try {
-            Class sc = (Class) _skelClassMap.get(remoteInterface);
+            Class sc = (Class) skelClassMap.get(remoteInterface);
             if (sc == null) {
-                synchronized (_skelClassMap) {
-                    sc = (Class) _skelClassMap.get(remoteInterface);
+                synchronized (skelClassMap) {
+                    sc = (Class) skelClassMap.get(remoteInterface);
                     if (sc == null) {
                         sc = loadStub(remoteInterface);
-                        _skelClassMap.put(remoteInterface, sc);
+                        skelClassMap.put(remoteInterface, sc);
                     }
                 }
             }
@@ -106,8 +77,11 @@ public class SkelFactory {
             throw new SystemException(ex);
         }
     }
+    */
 
+    /*
     public Object getSkel(String remoteInterface) {
         return getSkel(ThreadContext.loadClass(remoteInterface));
     }
+    */
 }

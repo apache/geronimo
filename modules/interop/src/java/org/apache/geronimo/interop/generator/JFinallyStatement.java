@@ -17,27 +17,24 @@
  */
 package org.apache.geronimo.interop.generator;
 
-
-
-
 public class JFinallyStatement extends JStatement {
-    protected JBlockStatement _finallyStatements;
-    protected boolean _hasStatements = false;
+    private JBlockStatement   finallyStatements;
+    private boolean           hasStatements = false;
 
     public JFinallyStatement() {
-        _finallyStatements = new JBlockStatement();
+        finallyStatements = new JBlockStatement();
     }
 
     public void addStatement(JStatement s) {
-        _finallyStatements.addStatement(s);
-        _hasStatements = true;
+        finallyStatements.addStatement(s);
+        hasStatements = true;
     }
 
     public JBlockStatement getStatement() {
-        return _finallyStatements;
+        return finallyStatements;
     }
 
     public boolean hasStatements() {
-        return _hasStatements;
+        return hasStatements;
     }
 }

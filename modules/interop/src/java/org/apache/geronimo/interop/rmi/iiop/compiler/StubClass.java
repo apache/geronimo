@@ -21,7 +21,22 @@ import java.lang.reflect.Method;
 
 
 public class StubClass {
-    public Class stubClass;
+    private Class stubClass;
+    private Method getInstanceMethod;
 
-    public Method getInstance;
+    public StubClass( Class stubClass, Method getInstanceMethod )
+    {
+        this.stubClass = stubClass;
+        this.getInstanceMethod = getInstanceMethod;
+    }
+
+    public Class getStubClass()
+    {
+        return stubClass;
+    }
+
+    public Method getGetInstanceMethod()
+    {
+        return getInstanceMethod;
+    }
 }

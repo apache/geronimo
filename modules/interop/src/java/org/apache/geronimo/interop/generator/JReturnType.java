@@ -17,73 +17,9 @@
  */
 package org.apache.geronimo.interop.generator;
 
-public class JReturnType {
-    protected Class _type;
-    protected String _typeName;
-    protected boolean _isArray;
+public class JReturnType extends JType {
 
     public JReturnType(Class type) {
-        this(type, false);
-    }
-
-    public JReturnType(Class type, boolean isArray) {
-        _type = type;
-        _typeName = type.getName();
-        _isArray = isArray;
-    }
-
-    public JReturnType(String typeName) {
-        this(typeName, false);
-    }
-
-    public JReturnType(String typeName, boolean isArray) {
-        _typeName = typeName;
-        _isArray = isArray;
-
-        try {
-            _type = Class.forName(_typeName);
-        } catch (Exception e) {
-            // Ignore;
-        }
-    }
-
-    public void setType(Class type) {
-        _type = type;
-        _typeName = type.getName();
-    }
-
-    public Class getType() {
-        return _type;
-    }
-
-    public void setTypeName(String typeName) {
-        _type = null;
-        _typeName = typeName;
-    }
-
-    public String getTypeName() {
-        return _typeName;
-    }
-
-    public boolean isArray() {
-        return _isArray;
-    }
-
-    public int hashCode() {
-        return _type.hashCode();
-    }
-
-    public boolean equals(Object other) {
-        boolean rc = false;
-
-        if (other == this) {
-            rc = true;
-        } else if (other instanceof org.apache.geronimo.interop.generator.JReturnType) {
-            org.apache.geronimo.interop.generator.JReturnType jr = (org.apache.geronimo.interop.generator.JReturnType) other;
-
-            rc = jr._typeName.equals(_typeName);
-        }
-
-        return rc;
+        super(type);
     }
 }

@@ -36,25 +36,19 @@ public class SecurityInfo {
         (byte) 'P', (byte) 'A', (byte) 'S', (byte) 'S'
     });
 
-    public static Random _seedFactory = new Random();
+    public static Random        seedFactory = new Random();
+    public String               username;
+    public String               password;
 
-    public String username;
-
-    public String password;
-
-    // private data
-
-    private static ThreadLocal _current = new ThreadLocal();
+    private static ThreadLocal  current = new ThreadLocal();
 
     public static SecurityInfo getCurrent() {
-        return (SecurityInfo) _current.get();
+        return (SecurityInfo) current.get();
     }
 
     public static void setCurrent(SecurityInfo info) {
-        _current.set(info);
+        current.set(info);
     }
-
-    // TODO: delegate to use DataProtection class
 
     /**
      * * Encode a username or password to prevent accidental disclosure
@@ -66,7 +60,7 @@ public class SecurityInfo {
      * * similar requirements in Random.java.
      */
     public static byte[] encode(String plainText) {
-        int seed = _seedFactory.nextInt(); // data race, but we don't care
+        int seed = seedFactory.nextInt(); // data race, but we don't care
         Random random = new Random(seed);
         byte[] utf8 = UTF8.fromString(plainText);
         int n = utf8.length;

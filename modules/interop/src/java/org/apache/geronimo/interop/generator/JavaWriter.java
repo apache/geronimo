@@ -23,16 +23,13 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
-
 public class JavaWriter extends CodeWriter {
-    protected GenOptions _genOptions;
-
-    protected PrintWriter _pw;
-
-    protected boolean _needIndent = true;
-    protected int _indentPos = 0;
-    protected String _indentStr = "";
-    protected String _spaces = "                                                        ";
+    private GenOptions      genOptions;
+    private PrintWriter     pw;
+    private boolean         needIndent = true;
+    private int             indentPos = 0;
+    private String          indentStr = "";
+    private String          spaces = "                                                        ";
 
     public JavaWriter(GenOptions genOptions, String fileName, String ext) {
         super(genOptions, fileName, ext);
@@ -45,15 +42,15 @@ public class JavaWriter extends CodeWriter {
         String fileName = getFileName() + getFileExt();
 
         try {
-            file = new File(go.getGenDir(), fileName);
+            file = new File(go.getGenSrcDir(), fileName);
 
             if (file.exists() && !go.isOverwrite()) {
                 fileName = fileName + ".new";
 
-                file = new File(go.getGenDir(), fileName);
+                file = new File(go.getGenSrcDir(), fileName);
             }
         } catch (Exception ex) {
-            throw new GenException("Error: Unable to open output dir: " + go.getGenDir() + ", file: " + fileName, ex);
+            throw new GenException("Error: Unable to open output dir: " + go.getGenSrcDir() + ", file: " + fileName, ex);
         }
 
         return file;
@@ -63,96 +60,96 @@ public class JavaWriter extends CodeWriter {
             throws GenException {
         OutputStream os = null;
 
-        if (_file != null) {
+        if (file != null) {
             //System.out.println( "Output file already opened" );
             return;
         }
 
-        _file = getFile();
+        file = getFile();
 
-        if (_file == null) {
+        if (file == null) {
             throw new GenException("Error: Unable to obtain output file.");
         }
 
         if (getGenOptions().isVerbose()) {
-            System.out.println("Generating: " + _file);
+            System.out.println("Generating: " + file);
         }
 
         os = null;
 
         //if (_file.isFile())
         //{
-        _file.getParentFile().mkdirs();
+        file.getParentFile().mkdirs();
         //}
 
-        if (_file.exists() && !_file.canWrite()) {
-            throw new GenException("Error: Unable to write to file: " + _file);
+        if (file.exists() && !file.canWrite()) {
+            throw new GenException("Error: Unable to write to file: " + file);
         }
 
-        if (!_file.exists() && !_file.getParentFile().canWrite()) {
-            throw new GenException("Error: Unable to write to directory: " + _file.getParentFile());
-        }
-
-        try {
-            os = new FileOutputStream(_file);
-        } catch (Exception ex) {
-            throw new GenException("Error: Unable to init output file: " + _file, ex);
+        if (!file.exists() && !file.getParentFile().canWrite()) {
+            throw new GenException("Error: Unable to write to directory: " + file.getParentFile());
         }
 
         try {
-            _pw = new PrintWriter(new OutputStreamWriter(os));
+            os = new FileOutputStream(file);
         } catch (Exception ex) {
-            throw new GenException("Error: Unable to init output file: " + _file, ex);
+            throw new GenException("Error: Unable to init output file: " + file, ex);
+        }
+
+        try {
+            pw = new PrintWriter(new OutputStreamWriter(os));
+        } catch (Exception ex) {
+            throw new GenException("Error: Unable to init output file: " + file, ex);
         }
     }
 
     public void closeFile()
             throws GenException {
-        if (_pw != null) {
+        if (pw != null) {
             try {
-                _pw.flush();
-                _pw.close();
+                pw.flush();
+                pw.close();
             } catch (Exception e) {
-                throw new GenException("Error: Unable to close output file: " + _file, e);
+                throw new GenException("Error: Unable to close output file: " + file, e);
             }
 
-            _pw = null;
+            pw = null;
         }
 
-        _file = null;
+        file = null;
     }
 
     public void indent() {
-        _indentPos += 4;
-        if (_indentPos > _spaces.length()) {
-            _indentPos -= 4;
+        indentPos += 4;
+        if (indentPos > spaces.length()) {
+            indentPos -= 4;
         }
-        _indentStr = _spaces.substring(0, _indentPos);
+        indentStr = spaces.substring(0, indentPos);
     }
 
     public void outdent() {
-        _indentPos -= 4;
-        if (_indentPos < 0) {
-            _indentPos = 0;
+        indentPos -= 4;
+        if (indentPos < 0) {
+            indentPos = 0;
         }
-        _indentStr = _spaces.substring(0, _indentPos);
+        indentStr = spaces.substring(0, indentPos);
     }
 
     public void begin() {
-        _needIndent = true;
+        needIndent = true;
         println("{");
         indent();
     }
 
     public void end() {
         outdent();
-        _needIndent = true;
+        needIndent = true;
         println("}");
     }
 
     public void newln() {
         println("");
-        _needIndent = true;
+        needIndent = true;
     }
 
     public void comment(String msg) {
@@ -160,21 +157,21 @@ public class JavaWriter extends CodeWriter {
     }
 
     public void println(String line) {
-        if (_needIndent) {
-            _needIndent = false;
-            _pw.print(_indentStr);
+        if (needIndent) {
+            needIndent = false;
+            pw.print(indentStr);
         }
 
-        _pw.println(line);
-        _needIndent = true;
+        pw.println(line);
+        needIndent = true;
     }
 
     public void print(String line) {
-        if (_needIndent) {
-            _needIndent = false;
-            _pw.print(_indentStr);
+        if (needIndent) {
+            needIndent = false;
+            pw.print(indentStr);
         }
 
-        _pw.print(line);
+        pw.print(line);
     }
 }

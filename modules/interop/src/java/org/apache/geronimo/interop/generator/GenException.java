@@ -17,12 +17,6 @@
  */
 package org.apache.geronimo.interop.generator;
 
-/**
- * User: Mark
- * Date: Dec 21, 2004
- * Time: 3:49:45 PM
- */
-
 public class GenException
         extends Exception {
     public GenException() {

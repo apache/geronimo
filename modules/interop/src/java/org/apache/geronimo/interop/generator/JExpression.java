@@ -18,17 +18,17 @@
 package org.apache.geronimo.interop.generator;
 
 public class JExpression extends JStatement {
-    protected JStatement _statement;
+    private JStatement    statement;
 
     public JExpression(JStatement s) {
-        _statement = s;
+        statement = s;
     }
 
     public void setStatement(JStatement s) {
-        _statement = s;
+        statement = s;
     }
 
     public JStatement getStatement() {
-        return _statement;
+        return statement;
     }
 }

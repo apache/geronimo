@@ -19,116 +19,98 @@ package org.apache.geronimo.interop.rmi.iiop.server;
 
 import java.net.InetAddress;
 import java.net.Socket;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.InputStream;
 
 import org.apache.geronimo.interop.GIOP.*;
 import org.apache.geronimo.interop.IOP.*;
 import org.apache.geronimo.interop.SystemException;
-import org.apache.geronimo.interop.adapter.Adapter;
+import org.apache.geronimo.interop.adapter.HomeAdapter;
 import org.apache.geronimo.interop.adapter.AdapterManager;
+import org.apache.geronimo.interop.adapter.Adapter;
 import org.apache.geronimo.interop.naming.NameService;
-import org.apache.geronimo.interop.properties.BooleanProperty;
-import org.apache.geronimo.interop.properties.SystemProperties;
-import org.apache.geronimo.interop.rmi.iiop.BadMagicException;
-import org.apache.geronimo.interop.rmi.iiop.CdrInputStream;
-import org.apache.geronimo.interop.rmi.iiop.CdrOutputStream;
-import org.apache.geronimo.interop.rmi.iiop.GiopMessage;
-import org.apache.geronimo.interop.rmi.iiop.ListenerInfo;
-import org.apache.geronimo.interop.rmi.iiop.UnsupportedProtocolVersionException;
-import org.apache.geronimo.interop.util.ExceptionUtil;
-import org.apache.geronimo.interop.util.ThreadContext;
+import org.apache.geronimo.interop.rmi.iiop.*;
 import org.apache.geronimo.interop.util.UTF8;
+import org.openejb.server.ServiceException;
 
+public class MessageHandler {
 
-public class MessageHandler extends Thread {
-    public static MessageHandler getInstance(ListenerInfo listenerInfo, Socket socket) {
-        MessageHandler object = new MessageHandler();
-        object.init(listenerInfo, socket);
-        return object;
+    private AdapterManager      adapterManager;
+    private boolean             simpleIDL;
+    private boolean             writeSystemExceptionStackTrace;
+    private NameService         nameService = NameService.getInstance();
+
+    public MessageHandler( AdapterManager adapterManager, boolean simpleIDL,
+                           boolean writeSystemExceptionStackTrace )
+    {
+        this.adapterManager = adapterManager;
+        this.simpleIDL = simpleIDL;
+        this.writeSystemExceptionStackTrace = writeSystemExceptionStackTrace;
     }
 
-    // -----------------------------------------------------------------------
-    // properties
-    // -----------------------------------------------------------------------
+    public void service(Socket socket) throws ServiceException, IOException {
 
+        InputStream in;
+        OutputStream out;
 
-    public static final BooleanProperty simpleIDLProperty =
-            new BooleanProperty(SystemProperties.class, "org.apache.geronimo.interop.simpleIDL");
+        String clientHostName;
+        String clientHostAddress;
+        String clientInfo;
 
-    public static BooleanProperty writeSystemExceptionStackTraceProperty =
-            new BooleanProperty(SystemProperties.class, "org.apache.geronimo.interop.rmi.iiop.writeSystemExceptionStackTrace")
-            .defaultValue(true);
+        in = socket.getInputStream();
+        out = socket.getOutputStream();
 
-    // -----------------------------------------------------------------------
-    // private data
-    // -----------------------------------------------------------------------
+        InetAddress addr = socket.getInetAddress();
+        clientHostName = addr.getHostName();
+        clientHostAddress = addr.getHostAddress();
+        clientInfo = clientHostName;
 
-    private static final boolean SIMPLE_IDL = simpleIDLProperty.getBoolean();
+        if (!clientHostAddress.equals(clientHostName)) {
+            clientInfo += " (" + clientHostAddress + ")";
+        }
 
-    private static boolean _writeSystemExceptionStackTrace = writeSystemExceptionStackTraceProperty.getBoolean();
-
-    private static RequestHandler[] _handlers = new RequestHandler[128];
-
-    private NameService _nameService;
-    private ListenerInfo _listenerInfo;
-    private java.net.Socket _socket;
-    private java.io.InputStream _socketIn;
-    private java.io.OutputStream _socketOut;
-    private String _clientHostName;
-    private String _clientHostAddress;
-    private String _clientInfo;
-    private org.apache.geronimo.interop.rmi.iiop.ObjectInputStream _objectInput;
-    private org.apache.geronimo.interop.rmi.iiop.ObjectOutputStream _objectOutput;
-    private org.apache.geronimo.interop.rmi.iiop.ObjectInputStream _simpleInput;
-    private org.apache.geronimo.interop.rmi.iiop.ObjectOutputStream _simpleOutput;
-
-    // -----------------------------------------------------------------------
-    // public methods
-    // -----------------------------------------------------------------------
-
-    public static void registerHandler(char keyType, RequestHandler handler) {
-        _handlers[keyType] = handler;
-    }
-
-    public void run() {
-        ThreadContext.setDefaultRmiHost(_listenerInfo.host);
-        ThreadContext.setDefaultRmiPort(_listenerInfo.port);
         boolean firstMessage = true;
         CdrInputStream input = CdrInputStream.getInstance();
         CdrOutputStream output = CdrOutputStream.getInstance();
         CdrOutputStream results = CdrOutputStream.getInstance();
+
         for (; ;) {
             boolean sendResponse = true;
             GiopMessage inputMessage;
+
             try {
-                inputMessage = input.receive_message(_socketIn, _clientInfo);
+                inputMessage = input.receive_message( in, clientInfo );
                 firstMessage = false;
             } catch (BadMagicException ex) {
                 if (firstMessage) {
-                    warnBadMagic(_clientInfo, ex);
+                    warnBadMagic(clientInfo, ex);
                 } else {
-                    warnBadMagicBadSize(_clientInfo, ex);
+                    warnBadMagicBadSize(clientInfo, ex);
                 }
-                closeSocket();
+                closeStreams( in, out );
                 return;
             } catch (UnsupportedProtocolVersionException ex) {
-                warnGiopVersion(_clientInfo, ex);
-                closeSocket();
+                warnGiopVersion( clientInfo, ex);
+                closeStreams( in, out );
                 return;
             } catch (Exception ex) {
                 if (input.getOffset() > 0) {
                     ex.printStackTrace();
-                    warnReceiveFailed(_clientInfo, ex);
+                    warnReceiveFailed( clientInfo, ex);
                 }
                 // Otherwise client shutdown was not in the middle of a
                 // request, i.e. probably 'normal' and unworthy of a
                 // log message.
-                closeSocket();
+                closeStreams( in, out );
                 return;
             }
+
             output.setGiopVersion(input.getGiopVersion());
+
             switch (inputMessage.type) {
                 case MsgType_1_1._Request:
-                    processRequest(input, output, results, inputMessage.request);
+                    processRequest(input, output, results, inputMessage.request, clientInfo);
                     if ((inputMessage.request.response_flags & 1) == 0) {
                         sendResponse = false; // oneway request
                     }
@@ -139,61 +121,35 @@ public class MessageHandler extends Thread {
                 default:
                     throw new SystemException("TODO: message type = " + inputMessage.type);
             }
+
             if (sendResponse) {
                 try {
-                    output.send_message(_socketOut, _clientInfo);
+                    output.send_message( out, clientInfo );
                 } catch (Exception ex) {
-                    warnSendFailed(_clientInfo, ex);
-                    closeSocket();
+                    warnSendFailed(clientInfo, ex);
+                    closeStreams( in, out );
                     return;
                 }
             }
+
             input.reset();
             output.reset();
             results.reset();
         }
     }
 
-    // -----------------------------------------------------------------------
-    // protected methods
-    // -----------------------------------------------------------------------
-
-    protected void init(ListenerInfo listenerInfo, Socket socket) {
-        setDaemon(true);
-        _nameService = NameService.getInstance();
-        _listenerInfo = listenerInfo;
-        _socket = socket;
+    protected void closeStreams( InputStream in, OutputStream out ) {
         try {
-            _socketIn = _socket.getInputStream();
-            _socketOut = _socket.getOutputStream();
-            InetAddress addr = _socket.getInetAddress();
-            _clientHostName = addr.getHostName();
-            _clientHostAddress = addr.getHostAddress();
-            _clientInfo = _clientHostName;
-            if (!_clientHostAddress.equals(_clientHostName)) {
-                _clientInfo += " (" + _clientHostAddress + ")";
-            }
-        } catch (Throwable ex) {
-            closeSocket();
-            throw ExceptionUtil.rethrow(ex);
-        }
-    }
-
-    protected void closeSocket() {
-        try {
-            if (_socketIn != null) {
-                _socketIn.close();
+            if (in != null) {
+                in.close();
             }
         } catch (Exception ignore) {
         }
+
         try {
-            if (_socketOut != null) {
-                _socketOut.close();
+            if (out != null) {
+                out.close();
             }
-        } catch (Exception ignore) {
-        }
-        try {
-            _socket.close();
         } catch (Exception ignore) {
         }
     }
@@ -210,25 +166,23 @@ public class MessageHandler extends Thread {
         }
     }
 
-    protected void processRequest(CdrInputStream parameters, CdrOutputStream output, CdrOutputStream results, RequestHeader_1_2 request) {
+    protected void processRequest(CdrInputStream parameters,
+                                  CdrOutputStream output,
+                                  CdrOutputStream results,
+                                  RequestHeader_1_2 request,
+                                  String clientInfo
+                                  ) {
         byte[] objectKey = getObjectKey(request.target);
         int keyLength = objectKey.length;
         int keyType = keyLength == 0 ? 0 : objectKey[0];
-        if (keyType >= 'A' && keyType <= 'Z') {
-            RequestHandler handler = _handlers[keyType];
-            if (handler != null) {
-                handler.processRequest(objectKey, request.operation, parameters, output);
-                return;
-            }
-        }
 
         ReplyHeader_1_2 reply = new ReplyHeader_1_2();
         reply.request_id = request.request_id;
 
-        org.apache.geronimo.interop.rmi.iiop.ObjectInputStream objectIn;
-        org.apache.geronimo.interop.rmi.iiop.ObjectOutputStream objectOut;
+        ObjectInputStream objectIn;
+        ObjectOutputStream objectOut;
 
-        if (SIMPLE_IDL || keyType == 'N' || keyType == 'J') {
+        if (simpleIDL || keyType == 'N' || keyType == 'J') {
             // Name Service and JMS use simple IDL interoperability.
             objectIn = org.apache.geronimo.interop.rmi.iiop.SimpleObjectInputStream.getInstance(parameters);
             objectOut = org.apache.geronimo.interop.rmi.iiop.SimpleObjectOutputStream.getInstance(results);
@@ -255,82 +209,38 @@ public class MessageHandler extends Thread {
                 objectName = UTF8.toString(objectKey);
             }
 
-            /*
-            if (objectName.startsWith("EJB~"))
-            {
-                // Compact encoding of component class names,
-                // saves 11 bytes per request.
-                objectName = "ejb.components." + objectName.substring(4);
-            }
-            */
-
             processServiceContext(request);
 
-            /*
             Object object;
             try
             {
-                object = null; //_nameService.lookup(objectName);
+                object = nameService.lookup(objectName);
             }
             catch (javax.naming.NameNotFoundException notFound)
             {
-                warnLookupFailed(_clientInfo, notFound);
+                warnLookupFailed(clientInfo, notFound);
                 throw new org.omg.CORBA.OBJECT_NOT_EXIST(objectName);
             }
 
-            if (object instanceof RemoteInterface)
+            Adapter adapter = (Adapter)object;
+            if (adapter != null)
             {
-                RemoteInterface skeleton = ((RemoteInterface)object).$getSkeleton();
-                skeleton.$invoke(request.operation, objectKey, objectIn, objectOut);
-                if (objectOut.hasException())
-                {
-                    reply.reply_status = ReplyStatusType_1_2.USER_EXCEPTION;
-                }
-                else
-                {
-                    reply.reply_status = ReplyStatusType_1_2.NO_EXCEPTION;
-                }
-                output.write_reply(reply, results);
-            }
-            else
-            {
-                warnInvokeFailedNoRemoteInterface(_clientInfo, object, object.getClass());
-                throw new org.omg.CORBA.OBJECT_NOT_EXIST(objectName);
-            }
-            */
-
-            Object object;
-            try {
-                object = _nameService.lookup(objectName);
-            } catch (javax.naming.NameNotFoundException notFound) {
-                object = AdapterManager.getInstance().getAdapter(objectName);
-
-                if (object == null) {
-                    warnLookupFailed(_clientInfo, notFound);
-                    throw new org.omg.CORBA.OBJECT_NOT_EXIST(objectName);
-                }
-            }
-
-//            Adapter a = AdapterManager.getInstance().getAdapter(objectName);
-//            if (a != null)
-            if (object != null && object instanceof Adapter) {
-                Adapter a = (Adapter) object;
-                //RemoteInterface skeleton = a.getRemoteInterface();
-                a.invoke(request.operation, objectKey, objectIn, objectOut);
+                adapter.invoke(request.operation, objectKey, objectIn, objectOut);
 
                 if (objectOut.hasException()) {
                     reply.reply_status = ReplyStatusType_1_2.USER_EXCEPTION;
                 } else {
                     reply.reply_status = ReplyStatusType_1_2.NO_EXCEPTION;
                 }
+
                 output.write_reply(reply, results);
             } else {
                 throw new org.omg.CORBA.OBJECT_NOT_EXIST(objectName);
             }
         } catch (Exception ex) {
-            warnSystemException(_clientInfo, ex);
+            warnSystemException(clientInfo, ex);
             results = CdrOutputStream.getInstance(); // in case we already wrote to it
-            results.write_SystemException(ex, _writeSystemExceptionStackTrace);
+            results.write_SystemException(ex, writeSystemExceptionStackTrace);
             reply.reply_status = ReplyStatusType_1_2.SYSTEM_EXCEPTION;
             output.write_reply(reply, results);
         }
@@ -365,26 +275,9 @@ public class MessageHandler extends Thread {
                 password = SecurityInfo.decode(context.context_data);
             }
             */
-            // Otherwise OK to ignore unknown tags.
-        }
 
-        // Default security info.
-        /*
-        if (username == null)
-        {
-            username = User.GUEST;
+            // TODO: Is the ServiceContext a CSIv2 Security Context?
         }
-        if (password == null)
-        {
-            password = "";
-        }
-
-        // Check if the password is correct.
-        User user = User.getInstance(username);
-        user.login(password); // may throw SecurityException
-        User.setCurrent(user);
-        SimpleSubject.setCurrent(new SimpleSubject(username, password));
-        */
     }
 
     // log methods

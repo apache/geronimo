@@ -18,30 +18,30 @@
 package org.apache.geronimo.interop.rmi.iiop.client;
 
 public class ValueInfo {
-    public String _nameToBeResolved = null;
-    public Object _objectToBeBound = null;
+    public String   nameToBeResolved = null;
+    public Object   objectToBeBound = null;
 
     public ValueInfo(String nameToBeResolved) {
-        _nameToBeResolved = nameToBeResolved;
+        this.nameToBeResolved = nameToBeResolved;
     }
 
     public ValueInfo(Object objectToBeBound) {
-        _objectToBeBound = objectToBeBound;
+        this.objectToBeBound = objectToBeBound;
     }
 
     public void setNameToBeResolved(String name) {
-        _nameToBeResolved = name;
+        nameToBeResolved = name;
     }
 
     public String getNameToBeResolved() {
-        return _nameToBeResolved;
+        return nameToBeResolved;
     }
 
     public void setObjectToBeBound(Object object) {
-        _objectToBeBound = object;
+        objectToBeBound = object;
     }
 
     public Object getObjectToBeBound() {
-        return _objectToBeBound;
+        return objectToBeBound;
     }
 }

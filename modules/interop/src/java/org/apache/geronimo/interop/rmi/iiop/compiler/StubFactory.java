@@ -24,34 +24,29 @@ import org.apache.geronimo.interop.rmi.iiop.ObjectRef;
 import org.apache.geronimo.interop.util.JavaClass;
 import org.apache.geronimo.interop.util.ThreadContext;
 
-
 public class StubFactory {
-    protected static StubFactory _sf;
+    protected static StubFactory sf;
 
     protected StubFactory() {
     }
 
     public static StubFactory getInstance() {
-        if (_sf == null) {
+        if (sf == null) {
             synchronized (StubFactory.class) {
-                if (_sf == null) {
-                    _sf = new StubFactory();
-                    _sf.init();
+                if (sf == null) {
+                    sf = new StubFactory();
+                    sf.init();
                 }
             }
         }
 
-        return _sf;
+        return sf;
     }
 
-    // private data
-
-    private static HashMap _stubClassMap;
-
-    // internal methods
+    private static HashMap stubClassMap;
 
     protected void init() {
-        _stubClassMap = new HashMap();
+        stubClassMap = new HashMap();
     }
 
     protected Class loadStub(Class remoteInterface) {
@@ -76,9 +71,9 @@ public class StubFactory {
             // Try generating stub class now.
             //
 
-            StubCompiler stubCompiler = new StubCompiler(remoteInterface);
-            System.out.println("StubFactory.loadStub(): stubCompiler: " + stubCompiler);
-            sc = stubCompiler.getStubClass();
+            //StubCompiler stubCompiler = new StubCompiler(remoteInterface);
+            //System.out.println("StubFactory.loadStub(): stubCompiler: " + stubCompiler);
+            //sc = stubCompiler.getStubClass();
             System.out.println("StubFactory.loadStub(): sc: " + sc);
         }
 
@@ -99,20 +94,18 @@ public class StubFactory {
         return sc;
     }
 
-    // public methods
-
     public ObjectRef getStub(Class remoteInterface) {
         System.out.println("StubFactory.getStub(): remoteInterface: " + remoteInterface);
         try {
-            Class sc = (Class) _stubClassMap.get(remoteInterface);
+            Class sc = (Class) stubClassMap.get(remoteInterface);
             System.out.println("StubFactory.getStub(): sc: " + sc);
             if (sc == null) {
-                synchronized (_stubClassMap) {
-                    sc = (Class) _stubClassMap.get(remoteInterface);
+                synchronized (stubClassMap) {
+                    sc = (Class) stubClassMap.get(remoteInterface);
                     if (sc == null) {
                         sc = loadStub(remoteInterface);
                         System.out.println("StubFactory.getStub(): sc: " + sc);
-                        _stubClassMap.put(remoteInterface, sc);
+                        stubClassMap.put(remoteInterface, sc);
                     }
                 }
             }

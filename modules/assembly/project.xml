@@ -181,6 +181,15 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-interop</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
