@@ -72,7 +72,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.12 $ $Date: 2004/03/09 18:03:52 $
+ * @version $Revision: 1.13 $ $Date: 2004/03/09 22:49:07 $
  */
 public class WARConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
@@ -297,6 +297,13 @@ public class WARConfigBuilder implements ConfigurationBuilder {
         }
         ENCConfigBuilder.addResourceRefs(webApp.getResourceRefArray(), cl, resourceRefMap, builder);
         // todo resource-env-ref
+        Map resourceEnvRefMap = new HashMap();
+        JettyLocalRefType[] jettyResourceEnvRefs = jettyWebApp.getResourceEnvRefArray();
+        for (int i = 0; i < jettyResourceEnvRefs.length; i++) {
+            JettyLocalRefType jettyResourceEnvRef = jettyResourceEnvRefs[i];
+            resourceEnvRefMap.put(jettyResourceEnvRef.getRefName(), new JettyRefAdapter(jettyResourceEnvRef));
+        }
+        ENCConfigBuilder.addResourceEnvRefs(webApp.getResourceEnvRefArray(), cl, resourceEnvRefMap, builder);
         // todo message-destination-ref
         // todo usertransaction
         return builder.getContext();

@@ -23,13 +23,14 @@ import javax.naming.NamingException;
 
 import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
+import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/09 18:03:11 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/09 22:49:07 $
  *
  * */
 public class ENCConfigBuilder {
@@ -70,5 +71,25 @@ public class ENCConfigBuilder {
             }
         }
 
+    }
+
+    public static void addResourceEnvRefs(ResourceEnvRefType[] resourceEnvRefArray, ClassLoader cl, Map refAdapterMap, ComponentContextBuilder builder) throws DeploymentException {
+        for (int i = 0; i < resourceEnvRefArray.length; i++) {
+            ResourceEnvRefType resourceEnvRef = resourceEnvRefArray[i];
+            String name = resourceEnvRef.getResourceEnvRefName().getStringValue();
+            String type = resourceEnvRef.getResourceEnvRefType().getStringValue();
+            Class iface = null;
+            try {
+                iface = cl.loadClass(type);
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException("could not load class " + type, e);
+            }
+            RefAdapter refAdapter = (RefAdapter) refAdapterMap.get(name);
+            try {
+                builder.addResourceRef(name, iface, refAdapter);
+            } catch (NamingException e) {
+                throw new DeploymentException("Invalid env-entry definition for name: " + name, e);
+            }
+        }
     }
 }
