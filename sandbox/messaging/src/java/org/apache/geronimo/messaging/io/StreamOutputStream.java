@@ -24,13 +24,11 @@ import java.io.ObjectStreamClass;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.WeakHashMap;
-
 
 /**
  * This is the counterpart of StreamInputStream.
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/31 13:18:22 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/10 23:05:36 $
  */
 public class StreamOutputStream
     extends ObjectOutputStream
