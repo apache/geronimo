@@ -55,6 +55,8 @@
  */
 package org.apache.geronimo.security;
 
+import org.apache.geronimo.security.util.ContextManager;
+
 import javax.security.auth.spi.LoginModule;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
@@ -64,6 +66,8 @@ import java.util.Set;
 import java.util.Iterator;
 import java.security.Principal;
 import java.security.PrivilegedActionException;
+import java.security.AccessControlContext;
+import java.security.AccessController;
 
 
 /**
@@ -72,7 +76,7 @@ import java.security.PrivilegedActionException;
  * which, in turn, also get placed into the subject.  It is these RealmPrincipals
  * that are used in the principal to role mapping.
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/10 20:31:54 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/12 04:30:35 $
  */
 public class LoginModuleWrapper implements LoginModule {
     private String realm;
@@ -135,6 +139,14 @@ public class LoginModuleWrapper implements LoginModule {
         externalSubject.getPrivateCredentials().addAll(internalSubject.getPrivateCredentials());
         externalSubject.getPublicCredentials().addAll(internalSubject.getPublicCredentials());
 
+        AccessControlContext context = (AccessControlContext)Subject.doAsPrivileged(externalSubject, new java.security.PrivilegedAction() {
+            public Object run() {
+                return AccessController.getContext();
+            }
+        }, null);
+        externalSubject.getPrivateCredentials().add(new AccessControlContextCredential(context));
+        ContextManager.registerContext(externalSubject, context);
+
         return true;
     }
 
@@ -143,6 +155,8 @@ public class LoginModuleWrapper implements LoginModule {
     }
 
     public boolean logout() throws LoginException {
+        ContextManager.unregisterContext(externalSubject);
+
         return module.logout();
     }
 }
