@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.6 $ $Date: 2003/09/08 04:11:32 $ -->
+<!-- $Revision: 1.7 $ $Date: 2004/01/22 09:00:04 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
     xmlns:u="jelly:util"
-    xmlns:ant="jelly:ant"
-    xmlns:xdoclet="common:xdoclet">
+    xmlns:ant="jelly:ant">
 
-    <preGoal name="java:compile">
-        <attainGoal name="xdoclet:jmxdoclet:compile"/>
-    </preGoal>
 
 </project>
