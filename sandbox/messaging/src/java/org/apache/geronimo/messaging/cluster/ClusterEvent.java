@@ -22,7 +22,7 @@ import org.apache.geronimo.messaging.NodeInfo;
 /**
  * A cluster-wide event.
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/10 23:12:25 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/17 03:35:31 $
  */
 public class ClusterEvent
 {
@@ -57,7 +57,7 @@ public class ClusterEvent
             throw new IllegalArgumentException("Cluster is required");
         } else if ( null == aMember ) {
             throw new IllegalArgumentException("Member is required");
-        } else if ( aType != MEMBER_ADDED || aType != MEMBER_REMOVED ) {
+        } else if ( aType != MEMBER_ADDED && aType != MEMBER_REMOVED ) {
             throw new IllegalArgumentException("Wrong type");
         }
         cluster = aCluster;
