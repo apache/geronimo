@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.Realm;
+import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.deploy.LoginConfig;
 import org.apache.catalina.deploy.SecurityConstraint;
 import org.apache.commons.logging.Log;
@@ -35,6 +36,18 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.security.deploy.Security;
+import org.apache.geronimo.naming.reference.KernelAwareReference;
+import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
+import org.apache.geronimo.naming.java.SimpleReadOnlyContext;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.tomcat.valve.ComponentContextValve;
+import org.apache.geronimo.tomcat.valve.TransactionContextValve;
+import org.apache.geronimo.tomcat.valve.PolicyContextValve;
+import org.apache.geronimo.transaction.OnlineUserTransaction;
+import org.apache.geronimo.transaction.TrackedConnectionAssociator;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
+
+import javax.naming.NamingException;
 
 
 /**
@@ -52,10 +65,15 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
     private final URI webAppRoot;
     private String path = null;
     private String docBase = null;
+
     private final LoginConfig loginConfig;
     private final Realm tomcatRealm;
     private final Set securityConstraints;
     private final Set securityRoles;
+    private final Map componentContext;
+    private final Kernel kernel;
+    private final TransactionContextManager transactionContextManager;
+    private final String policyContextID;
 
     public TomcatWebAppContext(URI webAppRoot,
                                URI[] webClassPath,
@@ -71,12 +89,19 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
                                PermissionCollection uncheckedPermissions,
                                PermissionCollection excludedPermissions,
                                Map rolePermissions,
-
-                               TomcatContainer container) {
+                               Map componentContext,
+                               OnlineUserTransaction userTransaction,
+                               TransactionContextManager transactionContextManager,
+                               TrackedConnectionAssociator trackedConnectionAssociator,
+                               TomcatContainer container,
+                               Kernel kernel) throws NamingException {
 
         assert webAppRoot != null;
         assert webClassPath != null;
         assert configurationBaseUrl != null;
+        assert transactionContextManager != null;
+        assert trackedConnectionAssociator != null;
+        assert componentContext != null;
         assert container != null;
 
         this.webAppRoot = webAppRoot;
@@ -84,9 +109,17 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
 
         this.setDocBase(this.webAppRoot.getPath());
         this.tomcatRealm = tomcatRealm;
+        this.policyContextID = policyContextID;
         this.securityConstraints = securityConstraints;
         this.securityRoles = securityRoles;
         this.loginConfig = loginConfig;
+
+        this.componentContext = componentContext;
+        this.transactionContextManager = transactionContextManager;
+        this.kernel = kernel;
+
+        userTransaction.setUp(transactionContextManager, trackedConnectionAssociator);
+
     }
 
     public String getDocBase() {
@@ -127,6 +160,41 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
             while (secIterator.hasNext()) {
                 context.addSecurityRole((String) secIterator.next());
             }
+        }
+
+        // create ReadOnlyContext
+        javax.naming.Context enc = null;
+        try {
+            if (componentContext != null) {
+                for (Iterator iterator = componentContext.values().iterator(); iterator.hasNext();) {
+                    Object value = iterator.next();
+                    if (value instanceof KernelAwareReference) {
+                        ((KernelAwareReference) value).setKernel(kernel);
+                    }
+                    if (value instanceof ClassLoaderAwareReference) {
+                        ((ClassLoaderAwareReference) value).setClassLoader(context.getLoader().getClassLoader());
+                    }
+                }
+                enc = new SimpleReadOnlyContext(componentContext);
+            }
+        } catch (NamingException ne) {
+            log.error(ne);
+        }
+
+        //Set the valves for the context
+        if (enc != null){
+            ComponentContextValve contextValve = new ComponentContextValve(enc);
+            ((StandardContext) context).addValve(contextValve);
+        }
+
+        if (transactionContextManager != null){
+            TransactionContextValve transactionValve = new TransactionContextValve(transactionContextManager);
+            ((StandardContext) context).addValve(transactionValve);
+        }
+
+        if (policyContextID != null){
+            PolicyContextValve policyValve = new PolicyContextValve(policyContextID);
+            ((StandardContext) context).addValve(policyValve);
         }
     }
 
@@ -192,7 +260,13 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
         infoFactory.addAttribute("excludedPermissions", PermissionCollection.class, true);
         infoFactory.addAttribute("rolePermissions", Map.class, true);
 
+        infoFactory.addAttribute("componentContext", Map.class, true);
+        infoFactory.addAttribute("userTransaction", OnlineUserTransaction.class, true);
+        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class);
+        infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class);
+
         infoFactory.addReference("Container", TomcatContainer.class);
+        infoFactory.addAttribute("kernel", Kernel.class, false);
 
         infoFactory.setConstructor(new String[]{
             "webAppRoot",
@@ -208,7 +282,12 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
             "uncheckedPermissions",
             "excludedPermissions",
             "rolePermissions",
-            "Container"
+            "componentContext",
+            "userTransaction",
+            "TransactionContextManager",
+            "TrackedConnectionAssociator",
+            "Container",
+            "kernel"
         });
 
         GBEAN_INFO = infoFactory.getBeanInfo();
