@@ -41,7 +41,7 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoTransact
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -144,21 +144,23 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
     protected void setUp() throws Exception {
         kernel = new Kernel(KERNEL_NAME);
         kernel.boot();
-        GBeanMBean ctc = new GBeanMBean(MockConnectionTrackingCoordinator.getGBeanInfo());
+        ClassLoader cl = MockConnectionTrackingCoordinator.class.getClassLoader();
         ctcName = ObjectName.getInstance("test:role=ConnectionTrackingCoordinator");
-        kernel.loadGBean(ctcName, ctc);
-        GBeanMBean cmf = new GBeanMBean(GenericConnectionManager.getGBeanInfo());
+        GBeanData ctc = new GBeanData(ctcName, MockConnectionTrackingCoordinator.getGBeanInfo());
+        kernel.loadGBean(ctc, cl);
+
+        cmfName = ObjectName.getInstance("test:role=ConnectionManagerFactory");
+        GBeanData cmf = new GBeanData(cmfName, GenericConnectionManager.getGBeanInfo());
         cmf.setAttribute("transactionSupport", NoTransactions.INSTANCE);
         cmf.setAttribute("pooling", new NoPool());
         cmf.setAttribute("name", "TestCF");
         cmf.setReferencePatterns("ConnectionTracker", Collections.singleton(ctcName));
-        cmfName = ObjectName.getInstance("test:role=ConnectionManagerFactory");
-        kernel.loadGBean(cmfName, cmf);
+        kernel.loadGBean(cmf, cl);
 
         J2eeContext j2eeContext = new J2eeContextImpl("test.domain", "geronimo", "testapplication", "noModuleType", "testmodule", TARGET_NAME, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         managedConnectionFactoryName = NameFactory.getComponentName(null, null, null, NameFactory.JCA_RESOURCE, null, null, null, j2eeContext);
 
-        GBeanMBean mcfw = new GBeanMBean(ManagedConnectionFactoryWrapper.getGBeanInfo());
+        GBeanData mcfw = new GBeanData(managedConnectionFactoryName, ManagedConnectionFactoryWrapper.getGBeanInfo());
         mcfw.setAttribute("managedConnectionFactoryClass", MockManagedConnectionFactory.class.getName());
         mcfw.setAttribute("connectionFactoryInterface", ConnectionFactory.class.getName());
         mcfw.setAttribute("implementedInterfaces", new String[] {Serializable.class.getName(), ConnectionFactoryExtension.class.getName()});
@@ -169,7 +171,7 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         //"ResourceAdapterWrapper",
         mcfw.setReferencePatterns("ConnectionManagerFactory", Collections.singleton(cmfName));
         //"ManagedConnectionFactoryListener",
-        kernel.loadGBean(managedConnectionFactoryName, mcfw);
+        kernel.loadGBean(mcfw, cl);
 
         kernel.startGBean(ctcName);
         kernel.startGBean(cmfName);
