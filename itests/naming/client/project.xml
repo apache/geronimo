@@ -19,128 +19,84 @@
 <!-- $Rev: 47116 $ $Date: 2004-09-23 13:35:58 -0700 (Thu, 23 Sep 2004) $ -->
 
 
-
 <project>
-  <!-- the version of maven's project object model -->
+    <!-- the version of maven's project object model -->
 
-  <pomVersion>3</pomVersion>
-  <extend>../../../etc/project.xml</extend>
-  
-  <groupId>geronimo-itest</groupId>
-  <artifactId>geronimo-itest-naming-client</artifactId>
-  <!-- a short but descriptive name for the project -->
+    <pomVersion>3</pomVersion>
+    <extend>${basedir}/../../../etc/project.xml</extend>
 
-  <name>Geronimo :: Itest :: Naming :: Client</name>
-  <!-- The version of the project under development, e.g.
-       1.1, 1.2, 2.0-SNAPSHOT -->
+    <groupId>geronimo-itests</groupId>
+    <artifactId>geronimo-itests-naming-client</artifactId>
+    <!-- a short but descriptive name for the project -->
 
-  <shortDescription>Itest naming application client component</shortDescription>
+    <name>Geronimo :: Itest :: Naming :: Client</name>
+    <!-- The version of the project under development, e.g.
+         1.1, 1.2, 2.0-SNAPSHOT -->
 
-  <dependencies>
-      <dependency>
-           <groupId>geronimo</groupId>
-           <artifactId>geronimo-kernel</artifactId>
-           <version>${pom.currentVersion}</version>
-       </dependency>
+    <shortDescription>Itest naming application client component</shortDescription>
 
-      <dependency>
-          <groupId>mx4j</groupId>
-          <artifactId>mx4j</artifactId>
-          <version>${mx4j_version}</version>
-      </dependency>
+    <dependencies>
 
-      <dependency>
+        <dependency>
+            <groupId>geronimo-itests</groupId>
+            <artifactId>geronimo-itests-naming-common</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-itests</groupId>
+            <artifactId>geronimo-itests-naming-common</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j</artifactId>
+            <version>${mx4j_version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-naming</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
 
-      <dependency>
+        <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jms</artifactId>
             <version>${geronimo_spec_jms_version}</version>
         </dependency>
 
-        <dependency>
-           <groupId>axion</groupId>
-           <artifactId>axion</artifactId>
-           <version>${axion_version}</version>
-           <properties>
-               <repository>true</repository>
-           </properties>
-       </dependency>
 
-      <dependency>
-          <groupId>tranql</groupId>
-          <artifactId>tranql-connector</artifactId>
-          <version>${tranql_connector_version}</version>
-          <type>rar</type>
-          <properties>
-              <repository>true</repository>
-          </properties>
-      </dependency>
+    </dependencies>
 
-      <dependency>
-           <!--axion only-->
-           <groupId>commons-collections</groupId>
-           <artifactId>commons-collections</artifactId>
-           <version>${commons_collections_version}</version>
-           <properties>
-               <repository>true</repository>
-           </properties>
-       </dependency>
+    <!-- build information for the project -->
 
-      <dependency>
-          <!--axion-->
-          <groupId>commons-primitives</groupId>
-          <artifactId>commons-primitives</artifactId>
-          <version>${commons_primitives_version}</version>
-          <properties>
-              <repository>true</repository>
-          </properties>
-      </dependency>
-
-      <dependency>
-          <!--axion-->
-          <groupId>regexp</groupId>
-          <artifactId>regexp</artifactId>
-          <version>${regexp_version}</version>
-          <properties>
-              <repository>true</repository>
-          </properties>
-          <url>http://jakarta.apache.org/regexp</url>
-      </dependency>
-
-      <dependency>
-           <groupId>activemq</groupId>
-           <artifactId>activemq-ra</artifactId>
-           <version>${activemq_version}</version>
-           <type>rar</type>
-           <properties>
-               <repository>true</repository>
-           </properties>
-      </dependency>
-
-  </dependencies>
-
-  <!-- build information for the project -->
-
-  <build>
-    <nagEmailAddress>turbine-maven-dev@jakarta.apache.org</nagEmailAddress>
-    <sourceDirectory>src/java</sourceDirectory>
-    <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
-    <unitTest>
-      <includes>
-        <include>**/*Test.java</include>
-      </includes>
-    </unitTest>
-    <resources>
-      <resource>
-        <directory>src/client</directory>
-        <includes>
-          <include>META-INF/application-client.xml</include>
-        </includes>
-      </resource>
-    </resources>
-  </build>
+    <build>
+        <nagEmailAddress>turbine-maven-dev@jakarta.apache.org</nagEmailAddress>
+        <sourceDirectory>src/java</sourceDirectory>
+        <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+        <unitTest>
+            <includes>
+                <include>**/*Test.java</include>
+            </includes>
+        </unitTest>
+        <resources>
+            <resource>
+                <directory>src/client</directory>
+                <includes>
+                    <include>META-INF/application-client.xml</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 </project>

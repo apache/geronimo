@@ -16,7 +16,12 @@
  */
 package org.apache.notgeronimo.itests.naming.common;
 
+import java.sql.Connection;
 import javax.naming.InitialContext;
+import javax.sql.DataSource;
+import javax.jms.Topic;
+import javax.jms.Queue;
+import javax.jms.ConnectionFactory;
 
 import org.apache.notgeronimo.itests.naming.common.webservice.interop.InteropLab;
 import org.apache.notgeronimo.itests.naming.common.webservice.interop.InteropTestPortType;
@@ -34,4 +39,24 @@ public class Test {
             throw new Exception("Result was not 1 but " + result);
         }
     }
+
+    public void testResourceRefLookup() throws Exception {
+         InitialContext initialContext = new InitialContext();
+         Object o = initialContext.lookup("java:comp/env/jdbc/DefaultDatasource");
+         DataSource ds = (DataSource) o;
+         Connection jdbcConnection = ds.getConnection();
+         jdbcConnection.close();
+
+         o = initialContext.lookup("java:comp/env/jms/JMSConnectionFactory");
+         ConnectionFactory connectionFactory = (ConnectionFactory) o;
+         javax.jms.Connection jmsConnection = connectionFactory.createConnection();
+         jmsConnection.close();
+
+         o = initialContext.lookup("java:comp/env/jms/Queue");
+         Queue jmsQueue = (Queue) o;
+
+         o = initialContext.lookup("java:comp/env/jms/Topic");
+         Topic jmsTopic = (Topic) o;
+     }
+    
 }

@@ -1,6 +1,8 @@
 package org.apache.geronimo.itest.naming.client;
 
 import java.sql.Connection;
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 import javax.naming.InitialContext;
 import javax.naming.Name;
 import javax.naming.NamingException;
@@ -12,33 +14,33 @@ import javax.jms.Topic;
 import org.apache.geronimo.naming.java.javaURLContextFactory;
 import org.apache.geronimo.naming.java.RootContext;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.notgeronimo.itests.naming.common.Test;
 
 
-public class App 
-{
-    public static void main( String[] args ) throws Exception
-    {
+public class App {
+    public static void main(String[] args) throws Exception {
+
+        String methodName = args[0];
+        Method m = App.class.getMethod(methodName, new Class[] {});
+
         App app = new App();
-        app.testResourceRefLookup();
-        System.out.println( "Hello World!" );
+        try {
+            m.invoke(app, new Object[] {});
+            System.out.println(methodName + " OK");
+        } catch (Throwable e) {
+            e.printStackTrace(System.out);
+        }
+    }
+
+    public void testWebService() throws Exception {
+        Test test = new Test();
+        test.testWebServiceLookup();
+
     }
 
     public void testResourceRefLookup() throws Exception {
-        InitialContext initialContext = new InitialContext();
-        Object o = initialContext.lookup("java:comp/env/jdbc/DefaultDatasource");
-        DataSource ds = (DataSource) o;
-        Connection jdbcConnection = ds.getConnection();
-        jdbcConnection.close();
-
-        o = initialContext.lookup("java:comp/env/jms/JMSConnectionFactory");
-        ConnectionFactory connectionFactory = (ConnectionFactory) o;
-        javax.jms.Connection jmsConnection = connectionFactory.createConnection();
-        jmsConnection.close();
-
-        o = initialContext.lookup("java:comp/env/jms/Queue");
-        Queue jmsQueue = (Queue) o;
-
-        o = initialContext.lookup("java:comp/env/jms/Topic");
-        Topic jmsTopic = (Topic) o;
+        Test test = new Test();
+        test.testResourceRefLookup();
     }
+
 }

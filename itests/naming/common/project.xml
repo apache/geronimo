@@ -102,6 +102,12 @@
             <version>${axis_wsdl4j_version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-jms</artifactId>
+            <version>${geronimo_spec_jms_version}</version>
+        </dependency>
+
     </dependencies>
     <!-- build information for the project -->
 
