@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: project.xml,v 1.1 2003/08/30 01:55:12 dblevins Exp $ -->
+<!-- $Id: project.xml,v 1.2 2003/08/30 12:08:16 jdillon Exp $ -->
 
 <project>
   <pomVersion>3</pomVersion>
   <extend>${basedir}/../../etc/project.xml</extend>
   
-  <name>Geronimo :: JSR 115 Specification</name>
+  <name>Geronimo :: Java Authorization Contract for Containers Specification</name>
   <groupId>geronimo-spec</groupId>
   <id>geronimo-spec-j2ee-jacc</id>
   <shortDescription>Java Authorization Contract for Containers</shortDescription>
-  <description></description>
+  <description>
+    See http://www.jcp.org/en/jsr/detail?id=115
+  </description>
   <siteDirectory></siteDirectory>
   <distributionDirectory></distributionDirectory>
   
