@@ -55,6 +55,9 @@
  */
 package org.apache.geronimo.enterprise.deploy.server;
 
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Iterator;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 import javax.enterprise.deploy.spi.status.DeploymentStatus;
 import javax.enterprise.deploy.spi.status.ClientConfiguration;
@@ -66,22 +69,48 @@ import javax.enterprise.deploy.shared.StateType;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.shared.ActionType;
 import javax.management.MBeanServer;
+import javax.management.NotificationListener;
+import javax.management.Notification;
+import javax.management.ObjectName;
+import javax.management.NotificationFilter;
+import javax.management.InstanceNotFoundException;
+import javax.management.ListenerNotFoundException;
+import javax.management.MBeanException;
+import javax.management.ReflectionException;
 import javax.swing.event.EventListenerList;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.kernel.deployment.client.DeploymentNotification;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
  * A ProgressObject implementation that listens for JMX notifications
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/17 10:51:53 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/17 20:31:07 $
  */
 public class JmxProgressObject implements ProgressObject {
+    private final static Log log = LogFactory.getLog(JmxProgressObject.class);
+    private final static ObjectName CONTROLLER = JMXUtil.getObjectName("geronimo.deployment:role=DeploymentController");
     private int jobID;
     private MBeanServer server;
     private JobDeploymentStatus status = new JobDeploymentStatus();
     private EventListenerList listenerList = new EventListenerList();
+    private NotificationListener listener;
 //todo: this class is just a beginning
     public JmxProgressObject(int jobID, MBeanServer server) {
         this.jobID = jobID;
         this.server = server;
+        try {
+            server.addNotificationListener(CONTROLLER, listener = new PONotificationListener(),
+                    new PONotificationFilter(),null);
+            server.invoke(CONTROLLER, "startDeploymentJob", new Object[]{new Integer(jobID)}, new String[]{Integer.TYPE.toString()});
+        } catch(InstanceNotFoundException e) {
+            throw new RuntimeException("ProgressObject unable to register with server");
+        } catch(MBeanException e) {
+            throw new RuntimeException("ProgressObject unable to start deployment job on server");
+        } catch(ReflectionException e) {
+            throw new RuntimeException("ProgressObject unable to start deployment job on server");
+        }
     }
 
     /**
@@ -198,13 +227,25 @@ public class JmxProgressObject implements ProgressObject {
     }
 
     private static class TMDeploymentStatus implements DeploymentStatus {
+        private JobDeploymentStatus parent;
+        private String message;
+        private StateType stateType;
+
+        public TMDeploymentStatus(JobDeploymentStatus parent) {
+            this.parent = parent;
+        }
+
         /**
          * Retrieve the StateType value.
          *
          * @return the StateType object
          */
         public StateType getState() {
-            return null;
+            return stateType;
+        }
+
+        public void setStateType(StateType stateType) {
+            this.stateType = stateType;
         }
 
         /**
@@ -231,7 +272,12 @@ public class JmxProgressObject implements ProgressObject {
          * @return message text
          */
         public String getMessage() {
-            return null;
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+            parent.setMessage(message);
         }
 
         /**
@@ -263,13 +309,50 @@ public class JmxProgressObject implements ProgressObject {
     }
 
     private static class JobDeploymentStatus implements DeploymentStatus {
+        private String message;
+        private Map tms = new HashMap();
+        private StateType stateType = StateType.RUNNING;
+        private boolean failed = false;
+
+        public TMDeploymentStatus getTargetModule(TargetModuleID id) {
+            TMDeploymentStatus tm = (TMDeploymentStatus)tms.get(id);
+            if(tm == null) {
+                tm = new TMDeploymentStatus(this);
+                tms.put(id, tm);
+            }
+            return tm;
+        }
+
+        public TMDeploymentStatus closeTargetModule(TargetModuleID id, boolean success, String message) {
+            TMDeploymentStatus tm = (TMDeploymentStatus)tms.get(id);
+            if(tm != null) {
+                tm.setMessage(message);
+                tm.setStateType(success ? StateType.COMPLETED : StateType.FAILED);
+                if(!success) {
+                    failed = true;
+                }
+                boolean finished = true;
+                for(Iterator it = tms.values().iterator(); it.hasNext();) {
+                    TMDeploymentStatus status = (TMDeploymentStatus)it.next();
+                    if(status.isRunning()) {
+                        finished = false;
+                        break;
+                    }
+                }
+                if(finished) {
+                    stateType = failed ? StateType.FAILED : StateType.COMPLETED;
+                }
+            }
+            return tm;
+        }
+
         /**
          * Retrieve the StateType value.
          *
          * @return the StateType object
          */
         public StateType getState() {
-            return null;
+            return stateType;
         }
 
         /**
@@ -296,7 +379,11 @@ public class JmxProgressObject implements ProgressObject {
          * @return message text
          */
         public String getMessage() {
-            return null;
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
         }
 
         /**
@@ -324,6 +411,55 @@ public class JmxProgressObject implements ProgressObject {
          */
         public boolean isRunning() {
             return false;
+        }
+    }
+
+    private class PONotificationListener implements NotificationListener {
+        /**
+         * Called when a notification occurs.
+         *
+         * @param notification The notification object
+         * @param handback Helps in associating information regarding the listener.
+         */
+        public void handleNotification(Notification notification, Object handback) {
+            DeploymentNotification dn = (DeploymentNotification)notification;
+            if(dn.getDeploymentID() == jobID) {
+                TMDeploymentStatus st = null;
+                if(dn.getType().equals(DeploymentNotification.DEPLOYMENT_UPDATE)) {
+                    st = status.getTargetModule(dn.getTargetModuleID());
+                    st.setMessage(dn.getMessage());
+                } else if(dn.getType().equals(DeploymentNotification.DEPLOYMENT_COMPLETED)) {
+                    st = status.closeTargetModule(dn.getTargetModuleID(), true, dn.getMessage());
+                } else if(dn.getType().equals(DeploymentNotification.DEPLOYMENT_FAILED)) {
+                    st = status.closeTargetModule(dn.getTargetModuleID(), false, dn.getMessage());
+                }
+                if(st != null) {
+                    fireProgressEvent(dn.getTargetModuleID(), st);
+                }
+                if(status.isCompleted() || status.isFailed()) {
+                    try {
+                        server.removeNotificationListener(CONTROLLER, listener);
+                    } catch(InstanceNotFoundException e) {
+                        log.error("Unable to remove notification listener", e);
+                    } catch(ListenerNotFoundException e) {
+                        log.error("Unable to remove notification listener", e);
+                    }
+                }
+            }
+        }
+    }
+
+    private static class PONotificationFilter implements NotificationFilter {
+        /**
+         * Invoked before sending the <code>Notification</code> to the listener.
+         *
+         * @return boolean true if the Notification should be sent, false otherwise
+         *
+         */
+        public boolean isNotificationEnabled(Notification notification) {
+            return notification.getType().equals(DeploymentNotification.DEPLOYMENT_COMPLETED) ||
+                    notification.getType().equals(DeploymentNotification.DEPLOYMENT_FAILED) ||
+                    notification.getType().equals(DeploymentNotification.DEPLOYMENT_UPDATE);
         }
     }
 }

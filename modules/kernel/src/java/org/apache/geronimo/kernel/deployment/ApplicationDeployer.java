@@ -98,7 +98,7 @@ import org.apache.geronimo.kernel.deployment.goal.DistributeURL;
  * Presumably, it will also be invoked by the local directory scanner
  * when a deployable J2EE module is encountered.
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/17 10:57:40 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/17 20:31:07 $
  */
 public class ApplicationDeployer implements GeronimoMBeanTarget {
     private final static Log log = LogFactory.getLog(ApplicationDeployer.class);
@@ -111,6 +111,7 @@ public class ApplicationDeployer implements GeronimoMBeanTarget {
         GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
         mbeanInfo.setAutostart(true);
         mbeanInfo.setTargetClass(ApplicationDeployer.class.getName());
+        // Methods taken over from DeploymentController
         mbeanInfo.addOperationInfo(new GeronimoOperationInfo("planDeployment",
                 new GeronimoParameterInfo[] {
                     new GeronimoParameterInfo("Source", ObjectName.class.getName(), "Good question!"),
@@ -137,6 +138,83 @@ public class ApplicationDeployer implements GeronimoMBeanTarget {
                 0,
                 "Undeploy the URL"));
         //todo: add the rest of the operation methods to support the JSR-88 client
+        // Methods supporting JSR-88 client
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getTargets",
+                new GeronimoParameterInfo[] {},
+                0,
+                "Gets a list of the targets available for deployment"));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getRunningModules",
+                new GeronimoParameterInfo[] {
+                    new GeronimoParameterInfo("moduleTypeCode", Integer.TYPE.getName(), "The module type to search for, from ModuleType"),
+                    new GeronimoParameterInfo("targetList", "[L"+Target.class.getName()+";", "The list of targets to search"),
+                },
+                0,
+                "Gets a list of the modules running in the server"));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getNonRunningModules",
+                new GeronimoParameterInfo[] {
+                    new GeronimoParameterInfo("moduleTypeCode", Integer.TYPE.getName(), "The module type to search for, from ModuleType"),
+                    new GeronimoParameterInfo("targetList", "[L"+Target.class.getName()+";", "The list of targets to search"),
+                },
+                0,
+                "Gets a list of the modules distributed but not running in the server"));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getAvailableModules",
+                new GeronimoParameterInfo[] {
+                    new GeronimoParameterInfo("moduleTypeCode", Integer.TYPE.getName(), "The module type to search for, from ModuleType"),
+                    new GeronimoParameterInfo("targetList", "[L"+Target.class.getName()+";", "The list of targets to search"),
+                },
+                0,
+                "Gets a list of the all the modules in the server, whether running or not"));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("prepareDistribute",
+                new GeronimoParameterInfo[] {
+                    new GeronimoParameterInfo("targets", "[L"+Target.class.getName()+";", "The list of targets to distribute to"),
+                    new GeronimoParameterInfo("moduleArchive", URL.class.getName(), "A URL to the module to distribute"),
+                    new GeronimoParameterInfo("deploymentPlan", URL.class.getName(), "A URL to the deployment plan of the module in question"),
+                },
+                0,
+                "Begins the process of distributing a new module.  You must start the deployment job with the returned ID."));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("prepareDistribute",
+                new GeronimoParameterInfo[] {
+                    new GeronimoParameterInfo("targets", "[L"+Target.class.getName()+";", "The list of targets to distribute to"),
+                    new GeronimoParameterInfo("name", String.class.getName(), "The name of the module"),
+                    new GeronimoParameterInfo("moduleArchive", "[B", "The content of the module to distribute"),
+                    new GeronimoParameterInfo("deploymentPlan", "[B", "The content of the deployment plan of the module in question"),
+                },
+                0,
+                "Begins the process of distributing a new module.  You must start the deployment job with the returned ID."));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("prepareStart",
+                new GeronimoParameterInfo[] {
+                    new GeronimoParameterInfo("modules", "[L"+TargetModuleID.class.getName()+";", "The list of modules to start"),
+                },
+                0,
+                "Begins the process of starting one or more modules.  You must start the deployment job with the returned ID."));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("prepareStop",
+                new GeronimoParameterInfo[] {
+                    new GeronimoParameterInfo("modules", "[L"+TargetModuleID.class.getName()+";", "The list of modules to stop"),
+                },
+                0,
+                "Begins the process of stopping one or more modules.  You must start the deployment job with the returned ID."));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("prepareUndeploy",
+                new GeronimoParameterInfo[] {
+                    new GeronimoParameterInfo("modules", "[L"+TargetModuleID.class.getName()+";", "The list of modules to undeploy"),
+                },
+                0,
+                "Begins the process of undeploying one or more modules.  You must start the deployment job with the returned ID."));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("prepareRedeploy",
+                new GeronimoParameterInfo[] {
+                    new GeronimoParameterInfo("moduleIDList", "[L"+TargetModuleID.class.getName()+";", "The list of modules to redeploy"),
+                    new GeronimoParameterInfo("moduleArchive", URL.class.getName(), "A URL to the module to distribute"),
+                    new GeronimoParameterInfo("deploymentPlan", URL.class.getName(), "A URL to the deployment plan of the module in question"),
+                },
+                0,
+                "Begins the process of stopping one or more modules.  You must start the deployment job with the returned ID."));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("prepareRedeploy",
+                new GeronimoParameterInfo[] {
+                    new GeronimoParameterInfo("moduleIDList", "[L"+TargetModuleID.class.getName()+";", "The list of modules to redeploy"),
+                    new GeronimoParameterInfo("moduleArchive", "[B", "The content of the module to distribute"),
+                    new GeronimoParameterInfo("deploymentPlan", "[B", "The content of the deployment plan of the module in question"),
+                },
+                0,
+                "Begins the process of stopping one or more modules.  You must start the deployment job with the returned ID."));
         return mbeanInfo;
     }
 
@@ -251,22 +329,26 @@ public class ApplicationDeployer implements GeronimoMBeanTarget {
         //todo: Create and start an MBean for the deployment, use that later to check status of the deployment
         GeronimoTargetModule tm = new GeronimoTargetModule(localServerTarget, name); //todo: specify URL for web apps
         try {
-            Integer id = (Integer)context.getServer().invoke(DEPLOYER_NAME, "prepareDeploymentJob", new Object[]{
-                new DistributeURL(tm, module.toURL(), URLType.PACKED_ARCHIVE)}, new String[]{
+            Integer id = (Integer)context.getServer().invoke(DEPLOYER_NAME, "prepareDeploymentJob", new Object[]{new DeploymentGoal[]{
+                new DistributeURL(tm, module.toURL(), URLType.PACKED_ARCHIVE)}}, new String[]{
                     "[L"+DeploymentGoal.class.getName()+";"});
             return id.intValue();
 //            if(!deployments.contains(tm)) {
 //                deployments.add(tm);
 //            }
-        } catch(Exception e) {
+        } catch(Throwable e) {
             log.error("Unable to prepare a deployment job", e);
+            while(e.getCause() != null) {
+                e = e.getCause();
+                log.error("Unable to prepare a deployment job", e);
+            }
             return -1;
         }
     }
 
     /**
      */
-    public int start(TargetModuleID[] modules) {
+    public int prepareStart(TargetModuleID[] modules) {
         validateModules(modules, false);
         //todo: implement me
         return -1;
@@ -274,7 +356,7 @@ public class ApplicationDeployer implements GeronimoMBeanTarget {
 
     /**
      */
-    public int stop(TargetModuleID[] modules) {
+    public int prepareStop(TargetModuleID[] modules) {
         validateModules(modules, true);
         //todo: implement me
         return -1;
@@ -282,7 +364,7 @@ public class ApplicationDeployer implements GeronimoMBeanTarget {
 
     /**
      */
-    public int undeploy(TargetModuleID[] modules) {
+    public int prepareUndeploy(TargetModuleID[] modules) {
         validateModules(modules, false);
         //todo: implement me
         return -1;
@@ -290,14 +372,14 @@ public class ApplicationDeployer implements GeronimoMBeanTarget {
 
     /**
      */
-    public int redeploy(TargetModuleID[] moduleIDList, URL moduleArchive, URL deploymentPlan) {
+    public int prepareRedeploy(TargetModuleID[] moduleIDList, URL moduleArchive, URL deploymentPlan) {
         //todo: implement me
         return -1;
     }
 
     /**
      */
-    public int redeploy(TargetModuleID[] moduleIDList, byte[] moduleArchive, byte[] deploymentPlan) {
+    public int prepareRedeploy(TargetModuleID[] moduleIDList, byte[] moduleArchive, byte[] deploymentPlan) {
         //todo: implement me
         return -1;
     }

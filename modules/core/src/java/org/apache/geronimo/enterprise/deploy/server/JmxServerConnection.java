@@ -16,15 +16,18 @@ import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
  * Knows how to execute all the relevant JSR-88 operations on a remote
  * Geronimo server via JMX.  Doesn't currently handle clusters.
  *
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class JmxServerConnection implements ServerConnection {
+    private final static Log log = LogFactory.getLog(JmxServerConnection.class);
     private final static ObjectName DEPLOYER_NAME = JMXUtil.getObjectName("geronimo.deployment:role=ApplicationDeployer");
     private MBeanServer server;
 
@@ -40,10 +43,12 @@ public class JmxServerConnection implements ServerConnection {
 
     public Target[] getTargets() throws IllegalStateException, RemoteException {
         try {
-            return (Target[]) server.getAttribute(DEPLOYER_NAME, "Targets");
+//            return (Target[]) server.getAttribute(DEPLOYER_NAME, "Targets");
+            return (Target[]) server.invoke(DEPLOYER_NAME, "getTargets", new Object[0], new String[0]);
         } catch(UndeclaredThrowableException e) {
             throw new RemoteException("Server request failed", e.getCause());
         } catch(Exception e) {
+            e.printStackTrace();
             throw new RemoteException("Server request failed", e);
         }
     }
@@ -96,7 +101,7 @@ public class JmxServerConnection implements ServerConnection {
             //todo: figure out if the targets are all local and place the files and pass URLs via JMX
             Object moduleData = getBytes(new BufferedInputStream(new FileInputStream(moduleArchive)));
             Object ddData = getBytes(new BufferedInputStream(new FileInputStream(deploymentPlan)));
-            Object result = server.invoke(DEPLOYER_NAME, "distribute", new Object[]{targetList,
+            Object result = server.invoke(DEPLOYER_NAME, "prepareDistribute", new Object[]{targetList,
                                                                                         moduleArchive.getName(),
                                                                                         moduleData,
                                                                                         ddData},
@@ -105,11 +110,16 @@ public class JmxServerConnection implements ServerConnection {
             if(result instanceof Exception) {
                 throw (Exception)result;
             } else {
-                return null; //todo: return a proper P.O. based on whatever the server ends up returning
+                return new JmxProgressObject(((Integer)result).intValue(), server);
             }
         } catch(UndeclaredThrowableException e) {
             throw new RemoteException("Server request failed", e.getCause());
         } catch(Exception e) {
+            Throwable t = e;
+            do {
+                log.error("Problem from server", t);
+                t = t.getCause();
+            } while(t != null);
             throw new RemoteException("Server request failed", e);
         }
     }
@@ -118,15 +128,20 @@ public class JmxServerConnection implements ServerConnection {
         //todo: find a way to stream the content to the server
         try {
             //todo: figure out if the targets are all local and place the files and pass URLs via JMX
-            Object result = server.invoke(DEPLOYER_NAME, "distribute", new Object[]{targetList, getBytes(moduleArchive),getBytes(deploymentPlan)}, new String[]{getArrayType(Target.class.getName()), getByteArrayType(), getByteArrayType()});
+            Object result = server.invoke(DEPLOYER_NAME, "prepareDistribute", new Object[]{targetList, getBytes(moduleArchive),getBytes(deploymentPlan)}, new String[]{getArrayType(Target.class.getName()), getByteArrayType(), getByteArrayType()});
             if(result instanceof Exception) {
                 throw (Exception)result;
             } else {
-                return null; //todo: return a proper P.O. based on whatever the server ends up returning
+                return new JmxProgressObject(((Integer)result).intValue(), server);
             }
         } catch(UndeclaredThrowableException e) {
             throw new RemoteException("Server request failed", e.getCause());
         } catch(Exception e) {
+            Throwable t = e;
+            do {
+                log.error("Problem from server", t);
+                t = t.getCause();
+            } while(t != null);
             throw new RemoteException("Server request failed", e);
         }
     }
@@ -135,11 +150,15 @@ public class JmxServerConnection implements ServerConnection {
         //todo: find a way to stream the content to the server
         try {
             //todo: figure out if the targets are all local and place the files and pass URLs via JMX
-            server.invoke(DEPLOYER_NAME, "redeploy", new Object[]{moduleIDList,
+            Object result = server.invoke(DEPLOYER_NAME, "prepareRedeploy", new Object[]{moduleIDList,
                                                                   getBytes(new BufferedInputStream(new FileInputStream(moduleArchive))),
                                                                   getBytes(new BufferedInputStream(new FileInputStream(deploymentPlan)))},
                           new String[]{getArrayType(TargetModuleID.class.getName()), getByteArrayType(), getByteArrayType()});
-            return null; //todo: return a proper P.O. based on whatever the server ends up returning
+            if(result instanceof Exception) {
+                throw (Exception)result;
+            } else {
+                return new JmxProgressObject(((Integer)result).intValue(), server);
+            }
         } catch(UndeclaredThrowableException e) {
             throw new RemoteException("Server request failed", e.getCause());
         } catch(Exception e) {
@@ -151,8 +170,12 @@ public class JmxServerConnection implements ServerConnection {
         //todo: find a way to stream the content to the server
         try {
             //todo: figure out if the targets are all local and place the files and pass URLs via JMX
-            server.invoke(DEPLOYER_NAME, "redeploy", new Object[]{moduleIDList, getBytes(moduleArchive),getBytes(deploymentPlan)}, new String[]{getArrayType(TargetModuleID.class.getName()), getByteArrayType(), getByteArrayType()});
-            return null; //todo: return a proper P.O. based on whatever the server ends up returning
+            Object result = server.invoke(DEPLOYER_NAME, "prepareRedeploy", new Object[]{moduleIDList, getBytes(moduleArchive),getBytes(deploymentPlan)}, new String[]{getArrayType(TargetModuleID.class.getName()), getByteArrayType(), getByteArrayType()});
+            if(result instanceof Exception) {
+                throw (Exception)result;
+            } else {
+                return new JmxProgressObject(((Integer)result).intValue(), server);
+            }
         } catch(UndeclaredThrowableException e) {
             throw new RemoteException("Server request failed", e.getCause());
         } catch(Exception e) {
@@ -162,9 +185,13 @@ public class JmxServerConnection implements ServerConnection {
 
     public ProgressObject start(TargetModuleID[] moduleIDList) throws IllegalStateException, RemoteException {
         try {
-            server.invoke(DEPLOYER_NAME, "start", new Object[]{moduleIDList},
+            Object result = server.invoke(DEPLOYER_NAME, "prepareStart", new Object[]{moduleIDList},
                           new String[]{getArrayType(TargetModuleID.class.getName())});
-            return null; //todo: return a proper P.O. based on whatever the server ends up returning
+            if(result instanceof Exception) {
+                throw (Exception)result;
+            } else {
+                return new JmxProgressObject(((Integer)result).intValue(), server);
+            }
         } catch(UndeclaredThrowableException e) {
             throw new RemoteException("Server request failed", e.getCause());
         } catch(Exception e) {
@@ -174,9 +201,13 @@ public class JmxServerConnection implements ServerConnection {
 
     public ProgressObject stop(TargetModuleID[] moduleIDList) throws IllegalStateException, RemoteException {
         try {
-            server.invoke(DEPLOYER_NAME, "stop", new Object[]{moduleIDList},
+            Object result = server.invoke(DEPLOYER_NAME, "prepareStop", new Object[]{moduleIDList},
                           new String[]{getArrayType(TargetModuleID.class.getName())});
-            return null; //todo: return a proper P.O. based on whatever the server ends up returning
+            if(result instanceof Exception) {
+                throw (Exception)result;
+            } else {
+                return new JmxProgressObject(((Integer)result).intValue(), server);
+            }
         } catch(UndeclaredThrowableException e) {
             throw new RemoteException("Server request failed", e.getCause());
         } catch(Exception e) {
@@ -186,9 +217,13 @@ public class JmxServerConnection implements ServerConnection {
 
     public ProgressObject undeploy(TargetModuleID[] moduleIDList) throws IllegalStateException, RemoteException {
         try {
-            server.invoke(DEPLOYER_NAME, "undeploy", new Object[]{moduleIDList},
+            Object result = server.invoke(DEPLOYER_NAME, "prepareUndeploy", new Object[]{moduleIDList},
                           new String[]{getArrayType(TargetModuleID.class.getName())});
-            return null; //todo: return a proper P.O. based on whatever the server ends up returning
+            if(result instanceof Exception) {
+                throw (Exception)result;
+            } else {
+                return new JmxProgressObject(((Integer)result).intValue(), server);
+            }
         } catch(UndeclaredThrowableException e) {
             throw new RemoteException("Server request failed", e.getCause());
         } catch(Exception e) {
