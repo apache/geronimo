@@ -45,28 +45,28 @@ public class XidImporterTest extends TestCase{
 
     public void testImportXid() throws Exception {
         Xid externalXid = xidFactory.createXid();
-        Transaction tx = tm.importXid(externalXid);
+        Transaction tx = tm.importXid(externalXid, 0);
         assertNotNull(tx);
         assertEquals(Status.STATUS_ACTIVE, tx.getStatus());
     }
 
     public void testNoResourcesCommitOnePhase() throws Exception {
         Xid externalXid = xidFactory.createXid();
-        Transaction tx = tm.importXid(externalXid);
+        Transaction tx = tm.importXid(externalXid, 0);
         tm.commit(tx, true);
         assertEquals(Status.STATUS_NO_TRANSACTION, tx.getStatus());
     }
 
     public void testNoResourcesCommitTwoPhase() throws Exception {
         Xid externalXid = xidFactory.createXid();
-        Transaction tx = tm.importXid(externalXid);
+        Transaction tx = tm.importXid(externalXid, 0);
         assertEquals(XAResource.XA_RDONLY, tm.prepare(tx));
         assertEquals(Status.STATUS_NO_TRANSACTION, tx.getStatus());
     }
 
     public void testNoResourcesMarkRollback() throws Exception {
         Xid externalXid = xidFactory.createXid();
-        Transaction tx = tm.importXid(externalXid);
+        Transaction tx = tm.importXid(externalXid, 0);
         tx.setRollbackOnly();
         try {
             tm.prepare(tx);
@@ -78,14 +78,14 @@ public class XidImporterTest extends TestCase{
 
     public void testNoResourcesRollback() throws Exception {
         Xid externalXid = xidFactory.createXid();
-        Transaction tx = tm.importXid(externalXid);
+        Transaction tx = tm.importXid(externalXid, 0);
         tm.rollback(tx);
         assertEquals(Status.STATUS_NO_TRANSACTION, tx.getStatus());
     }
 
     public void testOneResourceOnePhaseCommit() throws Exception {
         Xid externalXid = xidFactory.createXid();
-        Transaction tx = tm.importXid(externalXid);
+        Transaction tx = tm.importXid(externalXid, 0);
         tx.enlistResource(r1_1);
         tx.delistResource(r1_1, XAResource.TMSUCCESS);
         tm.commit(tx, true);
@@ -94,7 +94,7 @@ public class XidImporterTest extends TestCase{
 
     public void testOneResourceTwoPhaseCommit() throws Exception {
         Xid externalXid = xidFactory.createXid();
-        Transaction tx = tm.importXid(externalXid);
+        Transaction tx = tm.importXid(externalXid, 0);
         tx.enlistResource(r1_1);
         tx.delistResource(r1_1, XAResource.TMSUCCESS);
         assertEquals(XAResource.XA_OK, tm.prepare(tx));
@@ -110,7 +110,7 @@ public class XidImporterTest extends TestCase{
 
     public void testFourResourceTwoPhaseCommit() throws Exception {
         Xid externalXid = xidFactory.createXid();
-        Transaction tx = tm.importXid(externalXid);
+        Transaction tx = tm.importXid(externalXid, 0);
         tx.enlistResource(r1_1);
         tx.enlistResource(r1_2);
         tx.enlistResource(r2_1);

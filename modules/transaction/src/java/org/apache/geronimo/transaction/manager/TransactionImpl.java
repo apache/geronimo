@@ -18,14 +18,13 @@
 package org.apache.geronimo.transaction.manager;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.IdentityHashMap;
-
+import java.util.TimerTask;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.RollbackException;
@@ -45,7 +44,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @version $Rev$ $Date$
  */
-public class TransactionImpl implements Transaction {
+public class TransactionImpl extends TimerTask implements Transaction {
     private static final Log log = LogFactory.getLog("Transaction");
 
     private final XidFactory xidFactory;
@@ -57,6 +56,8 @@ public class TransactionImpl implements Transaction {
     private final IdentityHashMap suspendedXaResources = new IdentityHashMap(3);
     private int status = Status.STATUS_NO_TRANSACTION;
     private Object logMark;
+
+    private Thread currentThread;
 
     TransactionImpl(XidFactory xidFactory, TransactionLog txnLog) throws SystemException {
         this(xidFactory.createXid(), xidFactory, txnLog);
@@ -222,6 +223,7 @@ public class TransactionImpl implements Transaction {
         try {
             if (status == Status.STATUS_MARKED_ROLLBACK) {
                 rollbackResources(resourceManagers);
+                cancel();
                 throw new RollbackException("Unable to commit");
             }
             synchronized (this) {
@@ -246,6 +248,7 @@ public class TransactionImpl implements Transaction {
                 synchronized (this) {
                     status = Status.STATUS_COMMITTED;
                 }
+                cancel();
                 return;
             }
 
@@ -253,6 +256,7 @@ public class TransactionImpl implements Transaction {
             if (resourceManagers.size() == 1) {
                 TransactionBranch manager = (TransactionBranch) resourceManagers.getFirst();
                 try {
+                    cancel();
                     manager.getCommitter().commit(manager.getBranchId(), true);
                     synchronized (this) {
                         status = Status.STATUS_COMMITTED;
@@ -262,9 +266,7 @@ public class TransactionImpl implements Transaction {
                     synchronized (this) {
                         status = Status.STATUS_ROLLEDBACK;
                     }
-                    RollbackException ex = new RollbackException("Error during one-phase commit");
-                    ex.initCause(e);
-                    throw ex;
+                    throw (RollbackException) new RollbackException("Error during one-phase commit").initCause(e);
                 }
             }
 
@@ -296,6 +298,7 @@ public class TransactionImpl implements Transaction {
                 if (status == Status.STATUS_ACTIVE) {
                     if (resourceManagers.size() == 0) {
                         // nothing to commit
+                        cancel();
                         status = Status.STATUS_COMMITTED;
                         return result;
                     } else {
@@ -395,6 +398,8 @@ public class TransactionImpl implements Transaction {
                 status = Status.STATUS_PREPARED;
             }
         }
+        //cancel timeout.
+        cancel();
 
         // log our decision
         if (willCommit && !resourceManagers.isEmpty()) {
@@ -413,6 +418,7 @@ public class TransactionImpl implements Transaction {
     }
 
     public void rollback() throws IllegalStateException, SystemException {
+        cancel();
         List rms;
         synchronized (this) {
             switch (status) {
@@ -616,6 +622,23 @@ public class TransactionImpl implements Transaction {
         TransactionBranch manager = new TransactionBranch(xaRes, branchId);
         resourceManagers.add(manager);
         return manager;
+    }
+
+
+    //TimerTask implementation
+    public synchronized void run() {
+        try {
+            setRollbackOnly();
+            if (currentThread != null) {
+                currentThread.interrupt();
+            }
+        } catch (SystemException e) {
+            //in the wrong state.
+        }
+    }
+
+    public synchronized void setCurrentThread(Thread currentThread) {
+        this.currentThread = currentThread;
     }
 
     private static class TransactionBranch implements TransactionBranchInfo {

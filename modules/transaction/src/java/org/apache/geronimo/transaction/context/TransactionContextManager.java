@@ -26,13 +26,13 @@ import javax.transaction.NotSupportedException;
 import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.transaction.ExtendedTransactionManager;
 import org.apache.geronimo.transaction.ImportedTransactionActiveException;
 import org.apache.geronimo.transaction.XAWork;
 import org.apache.geronimo.transaction.manager.Recovery;
@@ -47,7 +47,7 @@ public class TransactionContextManager implements XATerminator, XAWork {
     private static final boolean IN_RECOVERY = true;
 
 
-    private final TransactionManager transactionManager;
+    private final ExtendedTransactionManager transactionManager;
     private final XidImporter importer;
     private final Recovery recovery;
     private final Map importedTransactions = new HashMap();
@@ -59,7 +59,7 @@ public class TransactionContextManager implements XATerminator, XAWork {
         this(null, null, null);
     }
 
-    public TransactionContextManager(TransactionManager transactionManager, XidImporter importer, Recovery recovery) {
+    public TransactionContextManager(ExtendedTransactionManager transactionManager, XidImporter importer, Recovery recovery) {
         this.transactionManager = transactionManager;
         this.importer = importer;
         this.recovery = recovery;
@@ -79,7 +79,7 @@ public class TransactionContextManager implements XATerminator, XAWork {
         return transactionContext;
     }
 
-    public BeanTransactionContext newBeanTransactionContext() throws NotSupportedException, SystemException {
+    public BeanTransactionContext newBeanTransactionContext(long transactionTimeoutMilliseconds) throws NotSupportedException, SystemException {
         TransactionContext ctx = TransactionContext.getContext();
         if (ctx instanceof UnspecifiedTransactionContext == false) {
             throw new NotSupportedException("Previous Transaction has not been committed");
@@ -88,7 +88,7 @@ public class TransactionContextManager implements XATerminator, XAWork {
         BeanTransactionContext transactionContext = new BeanTransactionContext(transactionManager, oldContext);
         oldContext.suspend();
         try {
-            transactionContext.begin();
+            transactionContext.begin(transactionTimeoutMilliseconds);
         } catch (SystemException e) {
             oldContext.resume();
             throw e;
@@ -112,10 +112,6 @@ public class TransactionContextManager implements XATerminator, XAWork {
 
     public void setRollbackOnly() throws SystemException {
         transactionManager.setRollbackOnly();
-    }
-
-    public void setTransactionTimeout(int seconds) throws SystemException {
-        transactionManager.setTransactionTimeout(seconds);
     }
 
 
@@ -248,7 +244,7 @@ public class TransactionContextManager implements XATerminator, XAWork {
             containerTransactionContext = (ContainerTransactionContext) importedTransactions.get(xid);
             if (containerTransactionContext == null) {
                 //this does not associate tx with current thread.
-                Transaction transaction = importer.importXid(xid);
+                Transaction transaction = importer.importXid(xid, txTimeoutMillis);
                 containerTransactionContext = new ContainerTransactionContext(transactionManager, transaction);
                 importedTransactions.put(xid, containerTransactionContext);
             } else {
@@ -258,7 +254,6 @@ public class TransactionContextManager implements XATerminator, XAWork {
             }
             containerTransactionContext.resume();
         }
-        importer.setTransactionTimeout(txTimeoutMillis);
         TransactionContext.setContext(containerTransactionContext);
     }
 
@@ -284,13 +279,12 @@ public class TransactionContextManager implements XATerminator, XAWork {
         infoFactory.addOperation("getContext");
         infoFactory.addOperation("setContext", new Class[]{TransactionContext.class});
         infoFactory.addOperation("newContainerTransactionContext");
-        infoFactory.addOperation("newBeanTransactionContext");
+        infoFactory.addOperation("newBeanTransactionContext", new Class[] {long.class});
         infoFactory.addOperation("newUnspecifiedTransactionContext");
         infoFactory.addOperation("getStatus");
         infoFactory.addOperation("setRollbackOnly");
-        infoFactory.addOperation("setTransactionTimeout", new Class[] {int.class});
 
-        infoFactory.addReference("TransactionManager", TransactionManager.class);
+        infoFactory.addReference("TransactionManager", ExtendedTransactionManager.class);
         infoFactory.addReference("XidImporter", XidImporter.class);
         infoFactory.addReference("Recovery", Recovery.class);
 

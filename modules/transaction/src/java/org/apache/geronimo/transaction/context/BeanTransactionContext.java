@@ -25,7 +25,8 @@ import javax.transaction.RollbackException;
 import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
+
+import org.apache.geronimo.transaction.ExtendedTransactionManager;
 
 /**
  *
@@ -33,12 +34,12 @@ import javax.transaction.TransactionManager;
  * @version $Rev$ $Date$
  */
 public class BeanTransactionContext extends InheritableTransactionContext {
-    private final TransactionManager txnManager;
+    private final ExtendedTransactionManager txnManager;
     private final UnspecifiedTransactionContext oldContext;
     private Transaction transaction;
 
 
-    public BeanTransactionContext(TransactionManager txnManager, UnspecifiedTransactionContext oldContext) {
+    public BeanTransactionContext(ExtendedTransactionManager txnManager, UnspecifiedTransactionContext oldContext) {
         this.txnManager = txnManager;
         this.oldContext = oldContext;
     }
@@ -47,9 +48,8 @@ public class BeanTransactionContext extends InheritableTransactionContext {
         return oldContext;
     }
 
-    public void begin() throws SystemException, NotSupportedException {
-        txnManager.begin();
-        transaction = txnManager.getTransaction();
+    public void begin(long transactionTimeoutMilliseconds) throws SystemException, NotSupportedException {
+        transaction = txnManager.begin(transactionTimeoutMilliseconds);
     }
 
     public void suspend() throws SystemException {

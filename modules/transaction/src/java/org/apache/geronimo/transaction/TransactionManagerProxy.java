@@ -57,10 +57,11 @@ import org.apache.geronimo.transaction.manager.XidImporter;
  *
  * @version $Rev$ $Date$
  */
-public class TransactionManagerProxy implements TransactionManager, XidImporter, Recovery, GBeanLifecycle {
+
+public class TransactionManagerProxy implements ExtendedTransactionManager, XidImporter, Recovery, GBeanLifecycle {
     private static final Log recoveryLog = LogFactory.getLog("RecoveryController");
 
-    private final TransactionManager delegate;
+    private final ExtendedTransactionManager delegate;
     private final XidImporter importer;
     private final ThreadLocal threadTx = new ThreadLocal();
     private final Recovery recovery;
@@ -72,7 +73,7 @@ public class TransactionManagerProxy implements TransactionManager, XidImporter,
      *
      * @param delegate the TransactionManager that should be wrapped
      */
-    public TransactionManagerProxy(TransactionManager delegate, XidImporter importer, Recovery recovery, Collection resourceManagers) {
+    public TransactionManagerProxy(ExtendedTransactionManager delegate, XidImporter importer, Recovery recovery, Collection resourceManagers) {
         assert delegate != null;
         assert importer != null;
         assert recovery != null;
@@ -84,7 +85,7 @@ public class TransactionManagerProxy implements TransactionManager, XidImporter,
     }
 
     public static class ConstructorParams {
-        TransactionManager delegate;
+        ExtendedTransactionManager delegate;
         XidImporter xidImporter;
         Recovery recovery;
         ReferenceCollection resourceManagers;
@@ -149,9 +150,14 @@ public class TransactionManagerProxy implements TransactionManager, XidImporter,
         delegate.setTransactionTimeout(timeout);
     }
 
+    public Transaction begin(long transactionTimeoutMilliseconds) throws NotSupportedException, SystemException {
+        Transaction tx = new TransactionProxy(delegate.begin(transactionTimeoutMilliseconds));
+        threadTx.set(tx);
+        return tx;
+    }
+
     public void begin() throws NotSupportedException, SystemException {
-        delegate.begin();
-        threadTx.set(new TransactionProxy(delegate.getTransaction()));
+        begin(0L);
     }
 
     public int getStatus() throws SystemException {
@@ -214,11 +220,11 @@ public class TransactionManagerProxy implements TransactionManager, XidImporter,
 
     //XidImporter implementation. Wrap and unwrap TransactionProxy.
     //the importer functions should not affect the thread context.
-    public Transaction importXid(Xid xid) throws XAException, SystemException {
+    public Transaction importXid(Xid xid, long transactionTimeoutMillis) throws XAException, SystemException {
 //        if (threadTx.get() != null) {
 //            throw new XAException("Transaction already associated with current thread");
 //        }
-        TransactionProxy transactionProxy = new TransactionProxy(importer.importXid(xid));
+        TransactionProxy transactionProxy = new TransactionProxy(importer.importXid(xid, transactionTimeoutMillis));
 //        threadTx.set(transactionProxy);
         return transactionProxy;
     }
@@ -238,10 +244,6 @@ public class TransactionManagerProxy implements TransactionManager, XidImporter,
 
     public void rollback(Transaction tx) throws XAException {
         importer.rollback(((TransactionProxy) tx).getDelegate());
-    }
-
-    public void setTransactionTimeout(long milliseconds) {
-        importer.setTransactionTimeout(milliseconds);
     }
 
     //Recovery implementation
@@ -287,7 +289,7 @@ public class TransactionManagerProxy implements TransactionManager, XidImporter,
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(TransactionManagerProxy.class);
 
-        infoFactory.addReference("delegate", TransactionManager.class);
+        infoFactory.addReference("delegate", ExtendedTransactionManager.class);
         infoFactory.addReference("xidImporter", XidImporter.class);
         infoFactory.addReference("recovery", Recovery.class);
         infoFactory.addReference("resourceManagers", ResourceManager.class);

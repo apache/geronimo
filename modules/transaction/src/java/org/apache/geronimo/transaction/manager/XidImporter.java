@@ -32,11 +32,10 @@ import javax.transaction.SystemException;
  * */
 public interface XidImporter {
 
-    Transaction importXid(Xid xid) throws XAException, SystemException;
+    Transaction importXid(Xid xid, long transactionTimeoutMillis) throws XAException, SystemException;
 
     void commit(Transaction tx, boolean onePhase) throws XAException;
     void forget(Transaction tx) throws XAException;
     int prepare(Transaction tx) throws XAException;
     void rollback(Transaction tx) throws XAException;
-    void setTransactionTimeout(long milliseconds);
 }

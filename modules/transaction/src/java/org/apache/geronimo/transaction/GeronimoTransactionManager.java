@@ -52,7 +52,7 @@ public class GeronimoTransactionManager extends TransactionManagerProxy {
         if (transactionLog == null) {
             transactionLog = new UnrecoverableLog();
         }
-        TransactionManager delegate = new TransactionManagerImpl(defaultTransactionTimeoutSeconds, transactionLog, xidFactory);
+        ExtendedTransactionManager delegate = new TransactionManagerImpl(defaultTransactionTimeoutSeconds, transactionLog, xidFactory);
         Recovery recovery = new RecoveryImpl(transactionLog, xidFactory);
         params.delegate = delegate;
         params.xidImporter = (XidImporter) delegate;

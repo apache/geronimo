@@ -18,7 +18,6 @@
 package org.apache.geronimo.transaction.manager;
 
 import java.util.Timer;
-import java.util.TimerTask;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.InvalidTransactionException;
@@ -32,6 +31,7 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
 
 import org.apache.geronimo.transaction.log.UnrecoverableLog;
+import org.apache.geronimo.transaction.ExtendedTransactionManager;
 
 /**
  * Simple implementation of a transaction manager.
@@ -40,7 +40,7 @@ import org.apache.geronimo.transaction.log.UnrecoverableLog;
  *
  * @version $Rev$ $Date$
  */
-public class TransactionManagerImpl implements TransactionManager, XidImporter {
+public class TransactionManagerImpl implements ExtendedTransactionManager, XidImporter {
     private final TransactionLog txnLog;
     private final XidFactory xidFactory;
     private final int defaultTransactionTimeoutMilliseconds;
@@ -86,17 +86,25 @@ public class TransactionManagerImpl implements TransactionManager, XidImporter {
     }
 
     public void begin() throws NotSupportedException, SystemException {
+        begin(transactionTimeoutMilliseconds);
+    }
+
+    public Transaction begin(long transactionTimeoutMilliseconds) throws NotSupportedException, SystemException {
         if (getStatus() != Status.STATUS_NO_TRANSACTION) {
             throw new NotSupportedException("Nested Transactions are not supported");
         }
         TransactionImpl tx = new TransactionImpl(xidFactory, txnLog);
-        TimerTask timeout = new TransactionTimeout(tx);
-        timeoutTimer.schedule(timeout, transactionTimeoutMilliseconds);
+        timeoutTimer.schedule(tx, transactionTimeoutMilliseconds == 0? this.transactionTimeoutMilliseconds: transactionTimeoutMilliseconds);
         threadTx.set(tx);
+        ((TransactionImpl)tx).setCurrentThread(Thread.currentThread());
+        return tx;
     }
 
     public Transaction suspend() throws SystemException {
         Transaction tx = getTransaction();
+        if (tx != null) {
+            ((TransactionImpl)tx).setCurrentThread(null);
+        }
         threadTx.set(null);
         return tx;
     }
@@ -109,6 +117,7 @@ public class TransactionManagerImpl implements TransactionManager, XidImporter {
             throw new InvalidTransactionException("Cannot resume foreign transaction: " + tx);
         }
         threadTx.set(tx);
+        ((TransactionImpl)tx).setCurrentThread(Thread.currentThread());
     }
 
     public void setRollbackOnly() throws IllegalStateException, SystemException {
@@ -128,6 +137,7 @@ public class TransactionManagerImpl implements TransactionManager, XidImporter {
             tx.commit();
         } finally {
             threadTx.set(null);
+            ((TransactionImpl)tx).setCurrentThread(null);
         }
     }
 
@@ -140,12 +150,17 @@ public class TransactionManagerImpl implements TransactionManager, XidImporter {
             tx.rollback();
         } finally {
             threadTx.set(null);
+            ((TransactionImpl)tx).setCurrentThread(null);
         }
     }
 
     //XidImporter implementation
-    public Transaction importXid(Xid xid) throws XAException, SystemException {
+    public Transaction importXid(Xid xid, long transactionTimeoutMilliseconds) throws XAException, SystemException {
         TransactionImpl tx = new TransactionImpl(xid, xidFactory, txnLog);
+        if (transactionTimeoutMilliseconds == 0) {
+            transactionTimeoutMilliseconds = this.transactionTimeoutMilliseconds;
+        }
+        timeoutTimer.schedule(tx, transactionTimeoutMilliseconds);
         return tx;
     }
 
@@ -154,35 +169,36 @@ public class TransactionManagerImpl implements TransactionManager, XidImporter {
             try {
                 tx.commit();
             } catch (HeuristicMixedException e) {
-                throw new XAException();
+                throw (XAException) new XAException().initCause(e);
             } catch (HeuristicRollbackException e) {
-                throw new XAException();
+                throw (XAException) new XAException().initCause(e);
             } catch (RollbackException e) {
-                throw new XAException();
+                throw (XAException) new XAException().initCause(e);
             } catch (SecurityException e) {
-                throw new XAException();
+                throw (XAException) new XAException().initCause(e);
             } catch (SystemException e) {
-                throw new XAException();
+                throw (XAException) new XAException().initCause(e);
             }
         } else {
             try {
                 ((TransactionImpl) tx).preparedCommit();
             } catch (SystemException e) {
-                throw new XAException();
+                throw (XAException) new XAException().initCause(e);
             }
         }
     }
 
     public void forget(Transaction tx) throws XAException {
+        //TODO implement this!
     }
 
     public int prepare(Transaction tx) throws XAException {
         try {
             return ((TransactionImpl) tx).prepare();
         } catch (SystemException e) {
-            throw new XAException();
+            throw (XAException) new XAException().initCause(e);
         } catch (RollbackException e) {
-            throw new XAException();
+            throw (XAException) new XAException().initCause(e);
         }
     }
 
@@ -190,31 +206,9 @@ public class TransactionManagerImpl implements TransactionManager, XidImporter {
         try {
             tx.rollback();
         } catch (IllegalStateException e) {
-            throw new XAException();
+            throw (XAException) new XAException().initCause(e);
         } catch (SystemException e) {
-            throw new XAException();
-        }
-    }
-
-    public void setTransactionTimeout(long milliseconds) {
-    }
-
-    private static class TransactionTimeout extends TimerTask {
-
-        private final TransactionImpl tx;
-
-        public TransactionTimeout(TransactionImpl tx) {
-            this.tx = tx;
-        }
-
-        public void run() {
-            try {
-                tx.setRollbackOnly();
-            } catch (SystemException e) {
-                //??
-            } catch (IllegalStateException ise) {
-                //transaction was committed
-            }
+            throw (XAException) new XAException().initCause(e);
         }
     }
 

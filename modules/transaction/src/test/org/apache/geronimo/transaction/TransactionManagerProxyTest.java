@@ -262,7 +262,7 @@ public class TransactionManagerProxyTest extends TestCase {
     public void testSimpleRecovery() throws Exception {
         //create a transaction in our own transaction manager
         Xid xid = xidFactory.createXid();
-        Transaction tx = tm.importXid(xid);
+        Transaction tx = tm.importXid(xid, 0);
         tm.resume(tx);
         assertSame(tx, tm.getTransaction());
         tx.enlistResource(r1_2);
@@ -285,7 +285,7 @@ public class TransactionManagerProxyTest extends TestCase {
         //create a transaction from an external transaction manager.
         XidFactory xidFactory2 = new XidFactoryImpl("tm2".getBytes());
         Xid xid = xidFactory2.createXid();
-        Transaction tx = tm.importXid(xid);
+        Transaction tx = tm.importXid(xid, 0);
         tm.resume(tx);
         assertSame(tx, tm.getTransaction());
         tx.enlistResource(r1_2);
