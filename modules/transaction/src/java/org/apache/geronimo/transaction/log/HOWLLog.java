@@ -18,7 +18,6 @@
 package org.apache.geronimo.transaction.log;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -48,16 +47,17 @@ import org.objectweb.howl.log.LogRecordSizeException;
 import org.objectweb.howl.log.LogRecordType;
 import org.objectweb.howl.log.ReplayListener;
 import org.objectweb.howl.log.xa.XACommittingTx;
-import org.objectweb.howl.log.xa.XALogger;
 import org.objectweb.howl.log.xa.XALogRecord;
+import org.objectweb.howl.log.xa.XALogger;
 
 /**
  * @version $Rev$ $Date$
  */
 public class HOWLLog implements TransactionLog, GBeanLifecycle {
-    static final byte PREPARE = 1;
-    static final byte COMMIT = 2;
-    static final byte ROLLBACK = 3;
+//    static final byte PREPARE = 1;
+    //these are used as debugging aids only
+    private static final byte COMMIT = 2;
+    private static final byte ROLLBACK = 3;
 
     static final String[] TYPE_NAMES = {null, "PREPARE", "COMMIT", "ROLLBACK"};
 
@@ -236,12 +236,11 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
 
     public Object prepare(Xid xid, List branches) throws LogException {
         int branchCount = branches.size();
-        byte[][] data = new byte[4 + 2 * branchCount][];
-        data[0] = new byte[]{PREPARE};
-        data[1] = intToBytes(xid.getFormatId());
-        data[2] = xid.getGlobalTransactionId();
-        data[3] = xid.getBranchQualifier();
-        int i = 4;
+        byte[][] data = new byte[3 + 2 * branchCount][];
+        data[0] = intToBytes(xid.getFormatId());
+        data[1] = xid.getGlobalTransactionId();
+        data[2] = xid.getBranchQualifier();
+        int i = 3;
         for (Iterator iterator = branches.iterator(); iterator.hasNext();) {
             TransactionBranchInfo transactionBranchInfo = (TransactionBranchInfo) iterator.next();
             data[i++] = transactionBranchInfo.getBranchXid().getBranchQualifier();
@@ -264,6 +263,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
     }
 
     public void commit(Xid xid, Object logMark) throws LogException {
+        //the data is theoretically unnecessary but is included to help with debugging and because HOWL currently requires it.
         byte[][] data = new byte[4][];
         data[0] = new byte[]{COMMIT};
         data[1] = intToBytes(xid.getFormatId());
@@ -285,6 +285,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
     }
 
     public void rollback(Xid xid, Object logMark) throws LogException {
+        //the data is theoretically unnecessary but is included to help with debugging and because HOWL currently requires it.
         byte[][] data = new byte[4][];
         data[0] = new byte[]{ROLLBACK};
         data[1] = intToBytes(xid.getFormatId());
@@ -352,19 +353,16 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
 
                 byte[][] data = tx.getRecord();
 
-                //first byte is our type, which always should be COMMIT
-                assert data[0].length == 1;
-
-                assert data[1].length == 4;
+                assert data[0].length == 4;
                 int formatId = bytesToInt(data[1]);
-                byte[] globalId = data[2];
-                byte[] branchId = data[3];
+                byte[] globalId = data[1];
+                byte[] branchId = data[2];
                 Xid masterXid = xidFactory.recover(formatId, globalId, branchId);
 
                 Recovery.XidBranchesPair xidBranchesPair = new Recovery.XidBranchesPair(masterXid, tx);
                 recoveredTx.put(masterXid, xidBranchesPair);
                 log.info("recovered prepare record for master xid: " + masterXid);
-                for (int i = 4; i < data.length; i += 2) {
+                for (int i = 3; i < data.length; i += 2) {
                     byte[] branchBranchId = data[i];
                     String name = new String(data[i + 1]);
 

@@ -35,7 +35,8 @@ public class HOWLLogRecoveryTest extends AbstractRecoveryTest {
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
     private static final String LOG_FILE_NAME = "howl_test_";
     private static final String logFileDir = "txlog";
-    private String targetDir;
+    private static final String targetDir = new File(basedir, "target").getAbsolutePath();
+    private static final File txlogDir = new File(basedir, "target/" + logFileDir);
 
     public void test2Again() throws Exception {
         test2ResOnlineAfterRecoveryStart();
@@ -47,7 +48,7 @@ public class HOWLLogRecoveryTest extends AbstractRecoveryTest {
 
     protected void setUp() throws Exception {
         // Deletes the previous transaction log files.
-        File[] files = new File(targetDir, logFileDir).listFiles();
+        File[] files = txlogDir.listFiles();
         if ( null != files ) {
             for (int i = 0; i < files.length; i++) {
                 files[i].delete();
@@ -57,7 +58,6 @@ public class HOWLLogRecoveryTest extends AbstractRecoveryTest {
     }
 
     private void setUpHowlLog() throws Exception {
-        targetDir = new File(basedir, "target").getAbsolutePath();
         HOWLLog howlLog = new HOWLLog(
                 "org.objectweb.howl.log.BlockLogBuffer", //                "bufferClassName",
                 4, //                "bufferSizeKBytes",
@@ -91,11 +91,11 @@ public class HOWLLogRecoveryTest extends AbstractRecoveryTest {
     public static Test suite() {
         return new TestSetup(new TestSuite(HOWLLogRecoveryTest.class)) {
             protected void setUp() throws Exception {
-                File logFile = new File(basedir, "target/" + LOG_FILE_NAME + "_1.log");
+                File logFile = new File(txlogDir, LOG_FILE_NAME + "_1.log");
                 if (logFile.exists()) {
                     logFile.delete();
                 }
-                logFile = new File(basedir, "target/" + LOG_FILE_NAME + "_2.log");
+                logFile = new File(txlogDir, LOG_FILE_NAME + "_2.log");
                 if (logFile.exists()) {
                     logFile.delete();
                 }
