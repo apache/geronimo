@@ -17,11 +17,8 @@
 
 package org.apache.geronimo.network.protocol;
 
-import com.sun.security.sasl.preview.SaslClientFactory;
-
-
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/17 03:11:59 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/21 20:40:23 $
  */
 public class SASLServerProtocol extends AbstractProtocol {
     public void setup() throws ProtocolException {
