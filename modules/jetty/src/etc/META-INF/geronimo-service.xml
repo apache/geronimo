@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gbeans>
     <path>geronimo-jetty-DEV.jar</path>
+    <path>org.mortbay.jetty-5.0.beta0.jar</path>
+    <path>geronimo-spec-servlet-DEV.jar</path>
+    <path>geronimo-spec-jsp-DEV.jar</path>
+    <path>jasper-compiler-4.0.4.jar</path>
+    <path>jasper-runtime-4.0.4.jar</path>
 
     <gbean class="org.apache.geronimo.jetty.JettyContainerImpl" objectName="geronimo.web:type=WebContainer,container=Jetty">
     </gbean>

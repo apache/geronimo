@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.8 $ $Date: 2004/01/26 06:50:46 $ -->
+<!-- $Revision: 1.9 $ $Date: 2004/01/28 23:02:07 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -30,7 +30,6 @@
             <artifactId>geronimo-kernel</artifactId>
             <version>DEV</version>
             <properties>
-                <module>true</module>
             </properties>
         </dependency>
 
@@ -39,7 +38,6 @@
             <artifactId>geronimo-deployment</artifactId>
             <version>DEV</version>
             <properties>
-                <module>true</module>
             </properties>
         </dependency>
 
@@ -48,7 +46,6 @@
             <artifactId>geronimo-common</artifactId>
             <version>DEV</version>
             <properties>
-                <module>true</module>
             </properties>
         </dependency>
 
@@ -57,7 +54,6 @@
             <artifactId>geronimo-core</artifactId>
             <version>DEV</version>
             <properties>
-                <module>true</module>
             </properties>
         </dependency>
 
@@ -66,7 +62,6 @@
             <artifactId>geronimo-connector</artifactId>
             <version>DEV</version>
             <properties>
-                <module>true</module>
             </properties>
         </dependency>
 
@@ -75,7 +70,6 @@
             <artifactId>geronimo-spec-jta</artifactId>
             <version>DEV</version>
             <properties>
-                <module>true</module>
             </properties>
         </dependency>
 
@@ -84,7 +78,6 @@
             <artifactId>geronimo-spec-j2ee-jacc</artifactId>
             <version>DEV</version>
             <properties>
-                <module>true</module>
             </properties>
         </dependency>
 
@@ -93,7 +86,6 @@
             <artifactId>geronimo-spec-j2ee-connector</artifactId>
             <version>DEV</version>
             <properties>
-                <module>true</module>
             </properties>
         </dependency>
 
@@ -102,7 +94,6 @@
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
             <version>DEV</version>
             <properties>
-                <module>true</module>
             </properties>
         </dependency>
 
@@ -112,7 +103,6 @@
             <version>5.0.beta0</version>
             <properties>
                 <package>true</package>
-                <runtime>true</runtime>
             </properties>
         </dependency>
 
@@ -120,7 +110,6 @@
             <id>mx4j</id>
             <version>SNAPSHOT</version>
             <properties>
-                <runtime>false</runtime>
             </properties>
         </dependency>
 
@@ -130,7 +119,7 @@
             <artifactId>geronimo-spec-servlet</artifactId>
             <version>DEV</version>
             <properties>
-                <runtime>true</runtime>
+                <package>true</package>
             </properties>
         </dependency>
 
@@ -139,7 +128,7 @@
             <artifactId>geronimo-spec-jsp</artifactId>
             <version>DEV</version>
             <properties>
-                <runtime>true</runtime>
+                <package>true</package>
             </properties>
         </dependency>
 
@@ -148,7 +137,6 @@
             <version>1.0.3</version>
             <url>http://jakarta.apache.org/commons/logging/</url>
             <properties>
-                <runtime>true</runtime>
             </properties>
         </dependency>
 
@@ -158,7 +146,7 @@
             <artifactId>jasper-compiler</artifactId>
             <version>4.0.4</version>
             <properties>
-                <runtime>true</runtime>
+                <package>true</package>
             </properties>
         </dependency>
 
@@ -167,7 +155,7 @@
             <artifactId>jasper-runtime</artifactId>
             <version>4.0.4</version>
             <properties>
-                <runtime>true</runtime>
+                <package>true</package>
             </properties>
         </dependency>
 
@@ -176,7 +164,6 @@
             <artifactId>xercesImpl</artifactId>
             <version>2.6.0</version>
             <properties>
-                <runtime>true</runtime>
             </properties>
         </dependency>
 
@@ -185,7 +172,6 @@
             <artifactId>xmlParserAPIs</artifactId>
             <version>2.2.1</version>
             <properties>
-                <runtime>true</runtime>
             </properties>
         </dependency>
 
@@ -194,7 +180,6 @@
             <version>2.0-RC2</version>
             <url>http://cglib.sf.net/</url>
             <properties>
-                <runtime>true</runtime>
             </properties>
         </dependency>
     </dependencies>
