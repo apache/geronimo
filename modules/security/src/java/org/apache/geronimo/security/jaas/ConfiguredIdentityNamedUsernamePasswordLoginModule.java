@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.security.auth.spi.LoginModule;
 import javax.security.auth.Subject;
+import javax.security.auth.DestroyFailedException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.callback.CallbackHandler;
 
@@ -72,6 +73,11 @@ public class ConfiguredIdentityNamedUsernamePasswordLoginModule implements Login
             pvtCreds.remove(namedUsernamePasswordCredential);
         }
 
+        try {
+            namedUsernamePasswordCredential.destroy();
+        } catch (DestroyFailedException e) {
+            // do nothing
+        }
         namedUsernamePasswordCredential = null;
 
         return true;

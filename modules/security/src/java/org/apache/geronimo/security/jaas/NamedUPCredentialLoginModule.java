@@ -19,8 +19,8 @@ package org.apache.geronimo.security.jaas;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
-import javax.security.auth.Subject;
 import javax.security.auth.DestroyFailedException;
+import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
@@ -31,18 +31,21 @@ import javax.security.auth.spi.LoginModule;
 
 
 /**
- * Inserts Username/Password credential into private credentials of Subject.
+ * Inserts named Username/Password credential into private credentials of Subject.
  * <p/>
  * If either the username or password is not passed in the callback handler,
  * then the credential is not placed into the Subject.
  *
  * @version $Revision: $ $Date: $
  */
-public class UPCredentialLoginModule implements LoginModule {
+public class NamedUPCredentialLoginModule implements LoginModule {
 
+    public static final String CREDENTIAL_NAME = "org.apache.geronimo.jaas.NamedUPCredentialLoginModule.Name";
+
+    private String name;
     private Subject subject;
     private CallbackHandler callbackHandler;
-    private UsernamePasswordCredential upCredential;
+    private NamedUsernamePasswordCredential nupCredential;
 
     public boolean abort() throws LoginException {
 
@@ -56,8 +59,8 @@ public class UPCredentialLoginModule implements LoginModule {
         }
 
         Set pvtCreds = subject.getPrivateCredentials();
-        if (upCredential != null && !pvtCreds.contains(upCredential)) {
-            pvtCreds.add(upCredential);
+        if (nupCredential != null && !pvtCreds.contains(nupCredential)) {
+            pvtCreds.add(nupCredential);
         }
 
         return true;
@@ -82,26 +85,26 @@ public class UPCredentialLoginModule implements LoginModule {
 
         if (username == null || password == null) return true;
 
-        upCredential = new UsernamePasswordCredential(username, password);
+        nupCredential = new NamedUsernamePasswordCredential(username, password, name);
 
         return true;
     }
 
     public boolean logout() throws LoginException {
 
-        if (upCredential == null) return true;
+        if (nupCredential == null) return true;
 
-        Set pvtCreds = subject.getPrivateCredentials(UsernamePasswordCredential.class);
-        if (pvtCreds.contains(upCredential)) {
-            pvtCreds.remove(upCredential);
+        Set pvtCreds = subject.getPrivateCredentials(NamedUsernamePasswordCredential.class);
+        if (pvtCreds.contains(nupCredential)) {
+            pvtCreds.remove(nupCredential);
         }
 
         try {
-            upCredential.destroy();
+            nupCredential.destroy();
         } catch (DestroyFailedException e) {
             // do nothing
         }
-        upCredential = null;
+        nupCredential = null;
 
         return true;
     }
@@ -110,5 +113,6 @@ public class UPCredentialLoginModule implements LoginModule {
 
         this.subject = subject;
         this.callbackHandler = callbackHandler;
+        this.name = (String) options.get(CREDENTIAL_NAME);
     }
 }
