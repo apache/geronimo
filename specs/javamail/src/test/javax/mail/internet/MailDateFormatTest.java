@@ -58,18 +58,20 @@ package javax.mail.internet;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
+import java.util.SimpleTimeZone;
 
 import junit.framework.TestCase;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/09/04 01:31:41 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/05 01:35:48 $
  */
 public class MailDateFormatTest extends TestCase {
     public void testMailDateFormat() throws ParseException {
         MailDateFormat mdf = new MailDateFormat();
         Date date = mdf.parse("Wed, 27 Aug 2003 13:43:38 +0100 (BST)");
         // don't we just love the Date class?
-        Calendar cal = Calendar.getInstance();
+        Calendar cal = Calendar.getInstance(new SimpleTimeZone(+1 * 60 * 60 * 1000, "BST"), Locale.getDefault());
         cal.setTime(date);
         assertEquals(2003, cal.get(Calendar.YEAR));
         assertEquals(Calendar.AUGUST, cal.get(Calendar.MONTH));
