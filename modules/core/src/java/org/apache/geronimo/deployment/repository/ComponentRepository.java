@@ -62,19 +62,17 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.List;
-import java.util.Collections;
 
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
-import javax.management.ReflectionException;
-import javax.management.MBeanServerFactory;
 import javax.management.MBeanRegistration;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import javax.management.ReflectionException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -85,7 +83,7 @@ import org.apache.geronimo.jmx.JMXUtil;
  * A proxy for a repository of components that can accessed remotely and
  * downloaded to the local machine.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/12 04:16:47 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/14 08:41:10 $
  */
 public class ComponentRepository implements ComponentRepositoryMBean,MBeanRegistration {
     private final Log log = LogFactory.getLog(getClass().getName());

@@ -59,23 +59,23 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.Properties;
+
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.management.loading.MLet;
 
-import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.impl.LogFactoryImpl;
+import org.apache.geronimo.deployment.DeploymentException;
 
 /**
  *
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/11 21:04:56 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/14 08:41:10 $
  */
 public class Main implements Runnable {
     static {

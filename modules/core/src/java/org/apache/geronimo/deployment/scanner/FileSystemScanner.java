@@ -61,15 +61,12 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
-import java.util.zip.ZipException;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 
 /**
  *
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/12 07:10:15 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/14 08:41:10 $
  */
 public class FileSystemScanner implements Scanner {
     private final File root;
