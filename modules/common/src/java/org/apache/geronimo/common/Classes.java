@@ -61,73 +61,21 @@ import java.io.File;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.ClassUtils;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 
 /**
  * A collection of <code>Class</code> utilities.
  *
- * @version $Revision: 1.8 $ $Date: 2003/11/17 00:46:39 $
+ * @version $Revision: 1.9 $ $Date: 2004/01/17 03:09:48 $
  */
-public class Classes extends ClassUtils {
+public class Classes {
     private static final Class[] stringArg = new Class[]{String.class};
-
-    /**
-     * Force the given class to be loaded fully.
-     *
-     * <p>This method attempts to locate a static method on the given class
-     *    the attempts to invoke it with dummy arguments in the hope that
-     *    the virtual machine will prepare the class for the method call and
-     *    call all of the static class initializers.
-     *
-     * @param type    Class to force load.
-     *
-     * @throws NullArgumentException    Type is <i>null</i>.
-     */
-    public static void forceLoad(final Class type) {
-        if (type == null)
-            throw new NullArgumentException("type");
-
-        // don't attempt to force primitives to load
-        if (type.isPrimitive()) return;
-
-        // don't attempt to force java.* classes to load
-        String packageName = ClassUtils.getPackageName(type);
-        assert packageName != null;
-
-        if (packageName.startsWith("java.") ||
-                packageName.startsWith("javax.")) {
-            return;
-        }
-
-        try {
-            Method methods[] = type.getDeclaredMethods();
-            Method method = null;
-            for (int i = 0; i < methods.length; i++) {
-                int modifiers = methods[i].getModifiers();
-                if (Modifier.isStatic(modifiers)) {
-                    method = methods[i];
-                    break;
-                }
-            }
-
-            if (method != null) {
-                method.invoke(null, null);
-            } else {
-                type.newInstance();
-            }
-        } catch (Exception ignore) {
-            ThrowableHandler.add(ignore);
-        }
-    }
-
 
     /////////////////////////////////////////////////////////////////////////
     //                              Primitives                             //
