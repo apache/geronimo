@@ -133,17 +133,21 @@ public class AddDependency extends BaseTagSupport {
 
     public void doTag(XMLOutput output) throws MissingAttributeException, JellyTagException {
         try {
-            Artifact artifact = DefaultArtifactFactory.createArtifact(dependency);
-
-            // Munge the paths
-            File jarFile = new File(dependency.getJar());
-            artifact.setPath(jarFile.getAbsolutePath());
-            dependency.setJar(jarFile.getName());
-
-            // Add artifact and dependency to project
-            Project project = getMavenContext().getProject();
-            project.addDependency(dependency);
-            project.getArtifacts().add(artifact);
+            if (dependency.getJar() != null){
+                Artifact artifact = DefaultArtifactFactory.createArtifact(dependency);
+                // Munge the paths
+                File jarFile = new File(dependency.getJar());
+                artifact.setPath(jarFile.getAbsolutePath());
+                dependency.setJar(jarFile.getName());
+                // Add artifact and dependency to project
+                Project project = getMavenContext().getProject();
+                project.addDependency(dependency);
+                project.getArtifacts().add(artifact);
+            } else {
+                Project project = getMavenContext().getProject();
+                project.addDependency(dependency);
+                project.buildArtifactList();
+            }
         } catch (Exception e) {
             throw new JellyTagException(e);
         }
