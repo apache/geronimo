@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Revision: 1.1 $ $Date: 2003/12/10 10:49:44 $ -->
+
+<project default="default"
+  xmlns:j="jelly:core"
+  xmlns:ant="jelly:ant">
+
+  <preGoal name="java:compile">
+    <!-- Define the standard XDoclet task -->
+    <taskdef name="xdoclet" classname="xdoclet.DocletTask">
+      <classpath>
+        <path refid="maven.dependency.classpath"/>
+      </classpath>
+    </taskdef>
+
+    <!-- Generate the xdoclet.xml file -->
+    <mkdir dir="${basedir}/src/resources/META-INF"/>
+    <xdoclet destdir="${basedir}/src/resources/META-INF">
+      <fileset dir="${basedir}/src/java">
+        <include name="**/*Handler.java" />
+        <include name="**/*SubTask.java" />
+      </fileset>
+      <template
+        templateFile="${basedir}/src/conf/xdoclet-xml.xdt"
+        destinationFile="xdoclet.xml"
+      />
+    </xdoclet>
+  </preGoal>
+
+</project>
