@@ -39,6 +39,8 @@ public abstract class Module {
     private final String originalSpecDD;
 
     protected Module(boolean standAlone, URI configId, URI parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
+        assert targetPath != null: "targetPath is null";
+
         this.standAlone = standAlone;
         this.configId = configId;
         this.parentId = parentId;
