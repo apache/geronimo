@@ -19,11 +19,7 @@ package org.apache.geronimo.jetty;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.webservices.WebServiceInvoker;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpException;
 import org.mortbay.http.HttpHandler;
@@ -33,18 +29,16 @@ import org.mortbay.http.HttpResponse;
 /**
  * @version $Rev:  $ $Date:  $
  */
-public class JettyWebServiceHandler extends HttpContext implements HttpHandler, GBeanLifecycle {
+public class JettyWebServiceHandler extends HttpContext implements HttpHandler {
 
     private final String contextPath;
     private final WebServiceInvoker webServiceInvoker;
-    private final JettyContainer jettyContainer;
 
     private HttpContext httpContext;
 
-    public JettyWebServiceHandler(String contextPath, WebServiceInvoker webServiceInvoker, JettyContainer jettyContainer) {
+    public JettyWebServiceHandler(String contextPath, WebServiceInvoker webServiceInvoker) {
         this.contextPath = contextPath;
         this.webServiceInvoker = webServiceInvoker;
-        this.jettyContainer = jettyContainer;
     }
 
     public String getName() {
@@ -60,7 +54,7 @@ public class JettyWebServiceHandler extends HttpContext implements HttpHandler, 
         this.httpContext = httpContext;
     }
 
-    public void handle(String pathInContext, String pathParams, HttpRequest request, HttpResponse response) throws HttpException, IOException {
+    public void handle(HttpRequest request, HttpResponse response) throws HttpException, IOException {
         response.setContentType("text/xml");
 
         if (request.getParameter("wsdl") != null) {
@@ -76,6 +70,7 @@ public class JettyWebServiceHandler extends HttpContext implements HttpHandler, 
         } else {
             try {
                 webServiceInvoker.invoke(request.getInputStream(), response.getOutputStream());
+                request.setHandled(true);
             } catch (IOException e) {
                 throw e;
             } catch (Exception e) {
@@ -87,34 +82,6 @@ public class JettyWebServiceHandler extends HttpContext implements HttpHandler, 
 
     public String getContextPath() {
         return contextPath;
-    }
-
-    public void doStart() throws Exception {
-        jettyContainer.addContext(this);
-    }
-
-    public void doStop() throws Exception {
-        jettyContainer.removeContext(this);
-    }
-
-    public void doFail() {
-        jettyContainer.removeContext(this);
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JettyWebServiceHandler.class, NameFactory.WEB_MODULE);
-        infoBuilder.addAttribute("contextPath", String.class, true);
-        infoBuilder.addReference("WebServiceInvoker", WebServiceInvoker.class);
-        infoBuilder.addReference("JettyContainer", JettyContainer.class);
-
-        infoBuilder.setConstructor(new String[] {"contextPath", "WebServiceInvoker", "JettyContainer"});
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 
 }

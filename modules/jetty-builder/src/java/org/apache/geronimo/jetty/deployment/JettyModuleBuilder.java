@@ -43,8 +43,8 @@ import javax.management.ObjectName;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebRoleRefPermission;
 import javax.security.jacc.WebUserDataPermission;
-import javax.transaction.UserTransaction;
 import javax.servlet.Servlet;
+import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
@@ -58,7 +58,6 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
-import org.apache.geronimo.j2ee.deployment.EJBWebServiceDeployer;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -67,7 +66,6 @@ import org.apache.geronimo.jetty.JettyFilterHolder;
 import org.apache.geronimo.jetty.JettyFilterMapping;
 import org.apache.geronimo.jetty.JettyServletHolder;
 import org.apache.geronimo.jetty.JettyWebAppContext;
-import org.apache.geronimo.jetty.JettyWebServiceHandler;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
@@ -115,7 +113,7 @@ import org.mortbay.jetty.servlet.FormAuthenticator;
 /**
  * @version $Rev$ $Date$
  */
-public class JettyModuleBuilder implements ModuleBuilder, EJBWebServiceDeployer {
+public class JettyModuleBuilder implements ModuleBuilder {
     private final URI defaultParentId;
     private final ObjectName jettyContainerObjectName;
     private final ObjectName defaultServlets;
@@ -1054,20 +1052,6 @@ public class JettyModuleBuilder implements ModuleBuilder, EJBWebServiceDeployer 
         if (webApp.getLoginConfigArray().length > 1) throw new DeploymentException("Multiple <login-config> elements found");
     }
 
-
-    public void addEJBWebService(ObjectName containerId, String contextPath, String name, J2eeContext j2eeModuleContext, EARContext earContext) throws DeploymentException {
-        ObjectName webServiceHandlerName = null;
-        try {
-            webServiceHandlerName = NameFactory.getWebComponentName(null, null, null, null, name, NameFactory.WEB_MODULE, j2eeModuleContext);
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Could not construct web service handler name", e);
-        }
-        GBeanData webServiceGBeanData = new GBeanData(webServiceHandlerName, JettyWebServiceHandler.GBEAN_INFO);
-        webServiceGBeanData.setAttribute("contextPath", contextPath);
-        webServiceGBeanData.setReferencePattern("WebServiceInvoker", containerId);
-        webServiceGBeanData.setReferencePattern("JettyContainer", jettyContainerObjectName);
-        earContext.addGBean(webServiceGBeanData);
-    }
 
     public static final GBeanInfo GBEAN_INFO;
 

@@ -21,20 +21,26 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.jetty.connector.HTTPConnector;
+import org.apache.geronimo.jetty.app.MockWebServiceInvoker;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.registry.BasicGBeanRegistry;
+import org.apache.geronimo.webservices.WebServiceInvoker;
 
 /**
  * @version $Rev$ $Date$
  */
 public class ContainerTest extends TestCase {
+    private ClassLoader cl = this.getClass().getClassLoader();
     private Kernel kernel;
-    private GBeanMBean container;
+    private GBeanData container;
     private ObjectName containerName;
     private Set containerPatterns;
     private ObjectName connectorName;
@@ -44,10 +50,10 @@ public class ContainerTest extends TestCase {
     }
 
     public void testHTTPConnector() throws Exception {
-        GBeanMBean connector = new GBeanMBean(HTTPConnector.GBEAN_INFO);
+        GBeanData connector = new GBeanData(connectorName, HTTPConnector.GBEAN_INFO);
         connector.setAttribute("port", new Integer(5678));
         connector.setReferencePatterns("JettyContainer", containerPatterns);
-        start(connectorName, connector);
+        start(connector);
 
         assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(connectorName, "state"));
 
@@ -63,9 +69,42 @@ public class ContainerTest extends TestCase {
         stop(connectorName);
     }
 
-    private void start(ObjectName name, GBeanMBean instance) throws Exception {
-        kernel.loadGBean(name, instance);
-        kernel.startGBean(name);
+    public void testWebServiceHandler() throws Exception {
+        GBeanData connector = new GBeanData(connectorName, HTTPConnector.GBEAN_INFO);
+        connector.setAttribute("port", new Integer(5678));
+        connector.setReferencePatterns("JettyContainer", containerPatterns);
+        start(connector);
+
+        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(connectorName, "state"));
+
+        String contextPath = "/foo/webservice.ws";
+        MockWebServiceInvoker webServiceInvoker = new MockWebServiceInvoker();
+        kernel.invoke(containerName, "addWebService", new Object[] {contextPath, webServiceInvoker}, new String[] {String.class.getName(), WebServiceInvoker.class.getName()});
+
+        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678" + contextPath).openConnection();
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
+            assertEquals("Hello World", reader.readLine());
+        } finally {
+            connection.disconnect();
+        }
+        kernel.invoke(containerName, "removeWebService", new Object[] {contextPath}, new String[] {String.class.getName()});
+        connection = (HttpURLConnection) new URL("http://localhost:5678" + contextPath).openConnection();
+        try {
+            connection.getInputStream();
+            fail();
+        } catch (Exception e) {
+            // see if we removed the ws.
+            assertEquals(HttpURLConnection.HTTP_NOT_FOUND, connection.getResponseCode());
+            connection.disconnect();
+        }
+        stop(connectorName);
+    }
+
+    private void start(GBeanData instance) throws Exception {
+        kernel.loadGBean(instance, cl);
+        kernel.startGBean(instance.getName());
     }
 
     private void stop(ObjectName name) throws Exception {
@@ -78,10 +117,10 @@ public class ContainerTest extends TestCase {
         containerPatterns = new HashSet();
         containerPatterns.add(containerName);
         connectorName = new ObjectName("geronimo.jetty:role=Connector");
-        kernel = new Kernel("test.kernel", "test");
+        kernel = new Kernel("test.kernel", new BasicGBeanRegistry());
         kernel.boot();
-        container = new GBeanMBean(JettyContainerImpl.GBEAN_INFO);
-        start(containerName, container);
+        container = new GBeanData(containerName, JettyContainerImpl.GBEAN_INFO);
+        start(container);
     }
 
     protected void tearDown() throws Exception {

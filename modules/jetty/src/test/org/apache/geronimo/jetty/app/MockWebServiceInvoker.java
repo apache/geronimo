@@ -14,19 +14,27 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.j2ee.deployment;
+package org.apache.geronimo.jetty.app;
 
-import javax.management.ObjectName;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
 
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.webservices.WebServiceInvoker;
 
 /**
  * @version $Rev:  $ $Date:  $
  */
-public interface EJBWebServiceDeployer {
+public class MockWebServiceInvoker implements WebServiceInvoker {
+    public void invoke(InputStream in, OutputStream out) throws Exception {
+        out.write("Hello World".getBytes());
+    }
 
-    void addEJBWebService(ObjectName containerId, String contextPath, String name, J2eeContext j2eeContext, EARContext earContext) throws DeploymentException;
+    public void getWsdl(URI wsdlURi, OutputStream out) throws Exception {
+
+    }
 
 }

@@ -17,6 +17,9 @@
 
 package org.apache.geronimo.jetty;
 
+import java.util.Map;
+import java.util.HashMap;
+
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpListener;
 import org.mortbay.http.RequestLog;
@@ -26,12 +29,14 @@ import org.mortbay.jetty.Server;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.webservices.WebServiceInvoker;
 
 /**
  * @version $Rev$ $Date$
  */
 public class JettyContainerImpl implements JettyContainer, GBeanLifecycle {
     private final Server server;
+    private final Map webServices = new HashMap();
 
     public JettyContainerImpl() {
         server = new JettyServer();
@@ -129,6 +134,18 @@ public class JettyContainerImpl implements JettyContainer, GBeanLifecycle {
         server.removeRealm(realm.getName());
     }
 
+    public void addWebService(String contextPath, WebServiceInvoker webServiceInvoker) throws Exception {
+        JettyWebServiceHandler webServiceHandler = new JettyWebServiceHandler(contextPath, webServiceInvoker);
+        addContext(webServiceHandler);
+        webServiceHandler.start();
+        webServices.put(contextPath, webServiceHandler);
+    }
+
+    public void removeWebService(String contextPath) {
+        JettyWebServiceHandler webServiceHandler = (JettyWebServiceHandler) webServices.get(contextPath);
+        removeContext(webServiceHandler);
+    }
+
     public void setRequestLog(RequestLog log) {
         server.setRequestLog(log);
     }
@@ -186,6 +203,8 @@ public class JettyContainerImpl implements JettyContainer, GBeanLifecycle {
         infoFactory.addOperation("removeContext", new Class[]{HttpContext.class});
         infoFactory.addOperation("addRealm", new Class[]{UserRealm.class});
         infoFactory.addOperation("removeRealm", new Class[]{UserRealm.class});
+        infoFactory.addOperation("addWebService", new Class[]{String.class, WebServiceInvoker.class});
+        infoFactory.addOperation("removeWebService", new Class[]{String.class});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

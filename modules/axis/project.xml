@@ -111,9 +111,6 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-security</artifactId>
             <version>${pom.currentVersion}</version>
-            <properties>
-                <xmlbeans>true</xmlbeans>
-            </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
@@ -152,9 +149,11 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-timer</artifactId>
             <version>${pom.currentVersion}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-webservices</artifactId>
+            <version>${pom.currentVersion}</version>
         </dependency>
         <dependency>
             <groupId>geronimo-spec</groupId>

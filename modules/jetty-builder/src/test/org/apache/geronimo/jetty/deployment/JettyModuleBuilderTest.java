@@ -16,28 +16,28 @@
  */
 package org.apache.geronimo.jetty.deployment;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
-import java.util.Map;
 import java.util.List;
-import javax.management.ObjectName;
+import java.util.Map;
+import java.util.Set;
 import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import javax.naming.Reference;
 import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
-import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -51,20 +51,19 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty.JettyContainerImpl;
-import org.apache.geronimo.jetty.app.MockWebServiceInvoker;
 import org.apache.geronimo.jetty.connector.HTTPConnector;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.registry.BasicGBeanRegistry;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.registry.BasicGBeanRegistry;
 import org.apache.geronimo.security.SecurityServiceImpl;
-import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 
 /**
  * @version $Rev$ $Date$
@@ -125,45 +124,6 @@ public class JettyModuleBuilderTest extends TestCase {
         kernel.startRecursiveGBean(configData.getName());
         kernel.stopGBean(configData.getName());
         kernel.unloadGBean(configData.getName());
-    }
-
-    public void testAddEJBWebService() throws Exception {
-        File outputPath = new File(basedir, "target/test-resources/deployables/ejbjar1");
-        recursiveDelete(outputPath);
-        outputPath.mkdirs();
-//        File path = new File(basedir, "src/test-resources/deployables/war4");
-//        UnpackedJarFile jarFile = new UnpackedJarFile(path);
-//        Module module = builder.createModule(null, jarFile);
-        URI id = new URI("ejbjar1");
-        EARContext earContext = createEARContext(outputPath, id);
-        ObjectName containerId = NameFactory.getEjbComponentName(null, null, null, null, "foo", NameFactory.STATELESS_SESSION_BEAN, moduleContext);
-        builder.addEJBWebService(containerId, "path/to/webservice.ws", "foo", moduleContext, earContext);
-        GBeanData ejbData = new GBeanData(containerId, MockWebServiceInvoker.GBEAN_INFO);
-        earContext.addGBean(ejbData);
-        earContext.close();
-        GBeanData configData = earContext.getConfigurationGBeanData();
-        configData.setAttribute("baseURL", outputPath.toURL());
-        kernel.loadGBean(configData, cl);
-
-        kernel.startRecursiveGBean(configData.getName());
-        if (((Integer) kernel.getAttribute(configData.getName(), "state")).intValue() != State.RUNNING_INDEX) {
-            fail("gbean not started: " + configData.getName());
-        }
-        Set names = kernel.listGBeans(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=bar,WebModule=war4,*"));
-        System.out.println("Object names: " + names);
-        for (Iterator iterator = names.iterator(); iterator.hasNext();) {
-            ObjectName objectName = (ObjectName) iterator.next();
-            assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(objectName, "state"));
-        }
-
-        kernel.stopGBean(configData.getName());
-        kernel.unloadGBean(configData.getName());
-
-        kernel.loadGBean(configData, cl);
-        kernel.startRecursiveGBean(configData.getName());
-        kernel.stopGBean(configData.getName());
-        kernel.unloadGBean(configData.getName());
-
     }
 
     private EARContext createEARContext(File outputPath, URI id) throws MalformedObjectNameException, DeploymentException {
