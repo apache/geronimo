@@ -42,7 +42,6 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
@@ -51,16 +50,9 @@ import org.apache.xmlbeans.XmlObject;
  * Command line based deployment utility which combines multiple deployable modules
  * into a single configuration.
  *
- * @version $Revision: 1.12 $ $Date: 2004/02/25 09:57:35 $
+ * @version $Revision: 1.13 $ $Date: 2004/02/27 00:58:30 $
  */
 public class Deployer {
-    static {
-        // This MUST be done before the first log is acquired
-        GeronimoLogging.initialize(GeronimoLogging.ERROR);
-    }
-
-    public static final URI DEFAULT_CONFIG = URI.create("org/apache/geronimo/J2EEDeployer");
-
     private final Collection builders;
     private final ConfigurationStore store;
 
