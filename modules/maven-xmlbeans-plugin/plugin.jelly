@@ -32,10 +32,8 @@
             <!-- set up classpath for already-compiled schemas -->
             <j:forEach var="artifact" items="${pom.artifacts}">
                 <j:set var="dependency" value="${artifact.dependency}"/>
-                <j:set var="pathseparator" value=""/>
                 <j:if test="${dependency.getProperty('xmlbeans') == 'true'}">
-                    <j:set var="xmlbeans.classpath" value="${classpath}${pathseparator}${artifact.path}"/>
-                    <j:set var="pathseparator" value=","/>
+                    <j:set var="xmlbeans.classpath" value="${xmlbeans.classpath},${artifact.path}"/>
                 </j:if>
             </j:forEach>
 
