@@ -59,124 +59,221 @@
 // DO NOT add / change / or delete method signatures!
 //
 package javax.mail;
+
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/16 04:29:52 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/18 20:53:05 $
  */
 public class URLName {
-    private String _file;
-    private String _host;
-    private String _password;
-    private int _port = -1;
-    private String _protocol;
-    private String _ref;
-    private String _username;
+    private String file;
+    private String host;
+    private String password;
+    private int port;
+    private String protocol;
+    private String ref;
+    private String username;
     protected String fullURL;
+
     public URLName(String url) {
         parseString(url);
     }
-    public URLName(
-        String protocol,
-        String host,
-        int port,
-        String file,
-        String username,
-        String password) {
-        _protocol = protocol;
-        _host = host;
-        _port = port;
-        _file = file;
-        int pos;
-        if (file != null && (pos = file.indexOf("#")) != -1) {
-            _file = file.substring(0, pos);
-            _ref = file.substring(pos + 1);
-        }
-        _username = username;
-        _password = password;
-        updateFullURL();
-    }
-    public URLName(URL url) {
-        parseURL(url);
-    }
-    public boolean equals(Object other) {
-        if (other == null || other.getClass() != this.getClass()) {
-            return false;
-        }
-        URLName name = (URLName) other;
-        return fullURL.equals(name.fullURL);
-    }
-    public String getFile() {
-        return _file;
-    }
-    public String getHost() {
-        return _host;
-    }
-    public String getPassword() {
-        return _password;
-    }
-    public int getPort() {
-        return _port;
-    }
-    public String getProtocol() {
-        return _protocol;
-    }
-    public String getRef() {
-        return _ref;
-    }
-    public URL getURL() throws MalformedURLException {
-        return new URL(fullURL);
-    }
-    public String getUsername() {
-        return _username;
-    }
-    public int hashCode() {
-        return fullURL.hashCode();
-    }
-    protected void parseString(String name) {
+
+    protected void parseString(String url) {
+        URI uri;
         try {
-            // TODO Implement this not using URL
-            // The URL doesn't handle unknown protocol
-            // types, at least, without registering ahandler
-            // first of all -- and it may not like user:pw@host
-            // either
-            URL url = new URL(name);
-            parseURL(url);
-        } catch (MalformedURLException e) {
-            throw new IllegalArgumentException(e.getMessage());
+            if (url == null) {
+                uri = null;
+            } else {
+                uri = new URI(url);
+            }
+        } catch (URISyntaxException e) {
+            uri = null;
         }
-    }
-    private void parseURL(URL url) {
-        _file = checkBlank(url.getFile());
-        _host = checkBlank(url.getHost());
-        _port = url.getPort();
-        _protocol = checkBlank(url.getProtocol());
-        _ref = checkBlank(url.getRef());
-        _username = checkBlank(url.getUserInfo());
+        if (uri == null) {
+            protocol = null;
+            host = null;
+            port = -1;
+            file = null;
+            ref = null;
+            username = null;
+            password = null;
+            return;
+        }
+
+        protocol = checkBlank(uri.getScheme());
+        host = checkBlank(uri.getHost());
+        port = uri.getPort();
+        file = checkBlank(uri.getPath());
+        ref = checkBlank(uri.getFragment());
+        String userInfo = checkBlank(uri.getUserInfo());
+        if (userInfo == null) {
+            username = null;
+            password = null;
+        } else {
+            int pos = userInfo.indexOf(':');
+            if (pos == -1) {
+                username = userInfo;
+                password = null;
+            } else {
+                username = userInfo.substring(0, pos);
+                password = userInfo.substring(pos + 1);
+            }
+        }
         updateFullURL();
     }
-    private String checkBlank(String target) {
-        if (target == null) {
-            return target;
-        } else if (target.equals("")) {
+
+    public URLName(String protocol, String host, int port, String file, String username, String password) {
+        this.protocol = checkBlank(protocol);
+        this.host = checkBlank(host);
+        this.port = port;
+        if (file == null || file.length() == 0) {
+            this.file = null;
+            ref = null;
+        } else {
+            int pos = file.indexOf('#');
+            if (pos == -1) {
+                this.file = file;
+                ref = null;
+            } else {
+                this.file = file.substring(0, pos);
+                ref = file.substring(pos + 1);
+            }
+        }
+        this.username = checkBlank(username);
+        if (this.username != null) {
+            this.password = checkBlank(password);
+        } else {
+            this.password = null;
+        }
+        updateFullURL();
+    }
+
+    public URLName(URL url) {
+        protocol = checkBlank(url.getProtocol());
+        host = checkBlank(url.getHost());
+        port = url.getPort();
+        file = checkBlank(url.getFile());
+        ref = checkBlank(url.getRef());
+        String userInfo = checkBlank(url.getUserInfo());
+        if (userInfo == null) {
+            username = null;
+            password = null;
+        } else {
+            int pos = userInfo.indexOf(':');
+            if (pos == -1) {
+                username = userInfo;
+                password = null;
+            } else {
+                username = userInfo.substring(0, pos);
+                password = userInfo.substring(pos + 1);
+            }
+        }
+        updateFullURL();
+    }
+
+    private static String checkBlank(String target) {
+        if (target == null || target.length() == 0) {
             return null;
         } else {
             return target;
         }
     }
+
+    private void updateFullURL() {
+        StringBuffer buf = new StringBuffer(100);
+        if (protocol != null) {
+            buf.append(protocol).append(':');
+            if (host != null) {
+                buf.append("//");
+                if (username != null) {
+                    buf.append(username);
+                    if (password != null) {
+                        buf.append(':').append(password);
+                    }
+                    buf.append('@');
+                }
+                buf.append(host);
+                if (port != -1) {
+                    buf.append(':').append(port);
+                }
+                if (file != null) {
+                    buf.append(file);
+                }
+                if (ref != null) {
+                    buf.append('#').append(ref);
+                }
+            }
+        }
+        fullURL = buf.toString();
+    }
+
+    public boolean equals(Object o) {
+        if (o instanceof URLName == false) {
+            return false;
+        }
+        URLName other = (URLName) o;
+        // check same protocol - false if either is null
+        if (protocol == null || other.protocol == null || !protocol.equals(other.protocol)) {
+            return false;
+        }
+
+        if (port != other.port) {
+            return false;
+        }
+
+        // check host - false if not (both null or both equal)
+        return areSame(host, other.host) && areSame(file, other.file) && areSame(username, other.username) && areSame(password, other.password);
+    }
+
+    private static boolean areSame(String s1, String s2) {
+        if (s1 == null) {
+            return s2 == null;
+        } else {
+            return s1.equals(s2);
+        }
+    }
+
+    public int hashCode() {
+        return fullURL.hashCode();
+    }
+
     public String toString() {
         return fullURL;
     }
-    private void updateFullURL() {
-        // what happens with user/password? Are they needed here?
-        fullURL =
-            _protocol
-                + "://"
-                + (_username == null ? "" : _username + "@")
-                + (_password == null ? "" : ":" + _password)
-                + _host
-                + ":"
-                + (_port == -1 ? "" : String.valueOf(_port))
-                + (_file == null ? "" : _file + (_ref == null ? "" : "#" + _ref));
+
+    public String getFile() {
+        return file;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public String getProtocol() {
+        return protocol;
+    }
+
+    public String getRef() {
+        return ref;
+    }
+
+    public URL getURL() throws MalformedURLException {
+        return new URL(fullURL);
+    }
+
+    public String getUsername() {
+        return username;
     }
 }
