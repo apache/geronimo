@@ -15,7 +15,7 @@
  */
 package org.apache.geronimo.axis;
 
-import org.apache.geronimo.ews.ws4j2ee.wsutils.GeronimoUtils;
+
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 
@@ -39,32 +39,37 @@ public class WebServiceTest extends AbstractTestCase {
     }
 
     public void testLoad() throws Exception {
-        ClassLoader cl = getClass().getClassLoader();
-		ClassLoader myCl = null;
-        
-		URL toolsURL = null;
-        String tools = System.getProperty("java.home");
-			   
-		if (tools != null) {
-		   File f = new File(tools,"./../lib/tools.jar");
-		   System.out.println("tools.jar is "+f.getAbsolutePath());
-		   if (f.exists()) {
-			    toolsURL = f.toURL();
-			    myCl =  new URLClassLoader(new URL[]{toolsURL}, cl);
-		   }
-		}   
-		
-        GBeanMBean deploygbean =
-            new GBeanMBean(WebServiceDeployerGbean.getGBeanInfo(), myCl);
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+		ClassLoader myCl =   new URLClassLoader(new URL[]{}, cl);
+
+//      This code trying to lad the tools.jar and set it to the Context ClassLoader.
+//      It does not seem to help.   
+//		URL toolsURL = null;
+//        String tools = System.getProperty("java.home");
+//        assertNotNull(tools);		
+//        //File f = new File(tools,"./../lib/tools.jar");
+//        File f = new File("H:/j2sdk1.4.1_01/lib/","tools.jar");
+//	    System.out.println("tools.jar is "+f.getAbsolutePath());
+//	    if (f.exists()) {
+//		    toolsURL = f.toURL();
+//		    myCl =  new URLClassLoader(new URL[]{toolsURL}, cl);
+//	    }
+//        Thread.currentThread().setContextClassLoader(myCl);
+//		
+//        GBeanMBean deploygbean =
+//            new GBeanMBean(WebServiceDeployerGbean.getGBeanInfo(), myCl);
+  
+      GBeanMBean deploygbean =
+          new GBeanMBean(WebServiceDeployerGbean.getGBeanInfo(), cl);
         kernel.loadGBean(deployGbeanName, deploygbean);
         kernel.startGBean(deployGbeanName);
         System.out.println(
             kernel.getMBeanServer().getAttribute(deployGbeanName, "state"));
         kernel.getMBeanServer().invoke(
             deployGbeanName,
-            "deploy",
+            "deployEWSModule",
             new Object[] {
-                getTestFile("target/samples/echo.jar"),
+                getTestFile("target/generated/samples/echo-ewsimpl.jar"),
                 null,
                 "ws/apache/axis/echo" },
             new String[] {
@@ -82,7 +87,7 @@ public class WebServiceTest extends AbstractTestCase {
         //invoke the ejb just in the same way it is invoked by the webservice 
         String msg = "Hi Hello";
         String result =
-            (String) GeronimoUtils.invokeEJB(
+            (String) AxisGeronimoUtils.invokeEJB(
                 "echo",
                 "echoString",
                 new Class[] { String.class },
@@ -90,13 +95,13 @@ public class WebServiceTest extends AbstractTestCase {
         System.out.println(result);
         assertEquals(msg, result);
 
-        GeronimoUtils.invokeEJB("echo", "echoVoid", new Class[] {
+        AxisGeronimoUtils.invokeEJB("echo", "echoVoid", new Class[] {
         }, new Object[] {
         });
 
         int valInt = 2345;
         Integer intObj =
-            (Integer) GeronimoUtils.invokeEJB(
+            (Integer) AxisGeronimoUtils.invokeEJB(
                 "echo",
                 "echoInt",
                 null,
@@ -105,7 +110,7 @@ public class WebServiceTest extends AbstractTestCase {
 
         double valDouble = 2425.57;
         Double doubleObj =
-            (Double) GeronimoUtils.invokeEJB(
+            (Double) AxisGeronimoUtils.invokeEJB(
                 "echo",
                 "echoDouble",
                 null,
@@ -114,7 +119,7 @@ public class WebServiceTest extends AbstractTestCase {
 
         float valfloat = 2425.57f;
         Float floatObj =
-            (Float) GeronimoUtils.invokeEJB(
+            (Float) AxisGeronimoUtils.invokeEJB(
                 "echo",
                 "echoFloat",
                 null,
@@ -123,7 +128,7 @@ public class WebServiceTest extends AbstractTestCase {
 
         boolean valBoolean = true;
         Boolean booleanObj =
-            (Boolean) GeronimoUtils.invokeEJB(
+            (Boolean) AxisGeronimoUtils.invokeEJB(
                 "echo",
                 "echoBoolean",
                 null,
@@ -132,7 +137,7 @@ public class WebServiceTest extends AbstractTestCase {
 
         long valLong = 2425573566l;
         Long longObj =
-            (Long) GeronimoUtils.invokeEJB(
+            (Long) AxisGeronimoUtils.invokeEJB(
                 "echo",
                 "echoLong",
                 null,
@@ -141,7 +146,7 @@ public class WebServiceTest extends AbstractTestCase {
 
         short valShort = 242;
         Short shortObj =
-            (Short) GeronimoUtils.invokeEJB(
+            (Short) AxisGeronimoUtils.invokeEJB(
                 "echo",
                 "echoShort",
                 null,
@@ -150,7 +155,7 @@ public class WebServiceTest extends AbstractTestCase {
 
         byte[] byteVal = "Hi Hello".getBytes();
         byte[] byteValreturn =
-            (byte[]) GeronimoUtils.invokeEJB(
+            (byte[]) AxisGeronimoUtils.invokeEJB(
                 "echo",
                 "echoBytes",
                 new Class[] { byte[].class },
@@ -169,6 +174,7 @@ public class WebServiceTest extends AbstractTestCase {
         kernel.boot();
         jettyService = new JettyServiceWrapper(kernel);
         jettyService.doStart();
+        AxisGeronimoUtils.delete(file);
         file.getParentFile().mkdirs();
     }
 

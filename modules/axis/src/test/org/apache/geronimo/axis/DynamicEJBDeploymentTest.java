@@ -40,6 +40,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * <p>This test case show the infomation about openEJB that we assumed. And the
+ * simmlier code code is used in the real code. As the OpenEJB is developing and 
+ * rapidly changing this test case act as a notifier for saying things has chaged</p>   
+ */
 public class DynamicEJBDeploymentTest extends AbstractTestCase{
 	private static final String j2eeDomainName = "openejb.server";
 	private static final String j2eeServerName = "TestOpenEJBServer";
@@ -84,7 +89,7 @@ public class DynamicEJBDeploymentTest extends AbstractTestCase{
 		Set patterns = new HashSet();
 		patterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
 		patterns.add(ObjectName.getInstance("geronimo.server:j2eeType=ActivationSpec,*"));
-		tmGBean.setReferencePatterns("resourceManagers", patterns);
+		tmGBean.setReferencePatterns("ResourceManagers", patterns);
 		kernel.loadGBean(transactionManagerObjectName, tmGBean);
 		kernel.startGBean(transactionManagerObjectName);
 		assertRunning(kernel, transactionManagerObjectName);
@@ -119,8 +124,9 @@ public class DynamicEJBDeploymentTest extends AbstractTestCase{
 		Thread.currentThread().setContextClassLoader(cl);
 	
 		File carFile = File.createTempFile("OpenEJBTest", ".car");
+		ObjectName j2eeServerObjectName = new ObjectName(j2eeDomainName 
+				+ ":j2eeType=J2EEServer,name=" + j2eeServerName);
 		try {
-
             EARConfigBuilder earConfigBuilder =
                     new EARConfigBuilder(new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),
                             transactionManagerObjectName,
@@ -132,6 +138,13 @@ public class DynamicEJBDeploymentTest extends AbstractTestCase{
                             null,
                             null,
                             null);
+//			new EARConfigBuilder(	null,
+//									null,
+//									j2eeServerObjectName,
+//									moduleBuilder,
+//									null,	// web
+//									null, //connector
+//								transactionManagerObjectName, connectionTrackerObjectName);
 
 			XmlObject plan = earConfigBuilder.getDeploymentPlan(earFile.toURL());
 			earConfigBuilder.buildConfiguration(carFile, null, earFile, plan);

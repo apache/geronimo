@@ -23,6 +23,10 @@ import org.apache.geronimo.kernel.Kernel;
 import javax.management.ObjectName;
 import java.net.URL;
 import java.net.URLClassLoader;
+/**
+ * <p>Simple stanalone Axis Service started via a GBean. This is a test utility only</p>  
+ * @author hemapani@opensource.lk
+ */
 
 public class TestServer {
     private Kernel kernel;
@@ -50,12 +54,6 @@ public class TestServer {
         
 		jettyService.doStop();
         kernel.shutdown();
-    }
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#finalize()
-     */
-    protected void finalize() throws Throwable {
     }
 
 }

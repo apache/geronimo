@@ -22,6 +22,7 @@ import org.apache.geronimo.jetty.JettyContainerImpl;
 import org.apache.geronimo.jetty.connector.HTTPConnector;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.transaction.GeronimoTransactionManager;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
@@ -31,7 +32,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * @author hemapani@opensource.lk
+ * <p>This class wrap the Jetty service, This is a test utility only</p>
  */
 public class JettyServiceWrapper {
 	private ObjectName containerName;
@@ -39,6 +40,7 @@ public class JettyServiceWrapper {
 	private ObjectName tmName;
 	private ObjectName tcaName;
 	private ObjectName connectorName;
+    private ObjectName tcmName;
 	
 	private final MBeanServer mbServer;
 	
@@ -49,8 +51,8 @@ public class JettyServiceWrapper {
             containerPatterns = Collections.singleton(containerName);
             connectorName = new ObjectName(AxisGeronimoConstants.WEB_CONNECTOR_NAME);
             tmName = new ObjectName(AxisGeronimoConstants.TRANSACTION_MANAGER_NAME);
-            tcaName = 
-            	new ObjectName(AxisGeronimoConstants.CONNTECTION_TRACKING_COORDINATOR);
+            tcaName = new ObjectName(AxisGeronimoConstants.CONNTECTION_TRACKING_COORDINATOR);
+            tcmName = new ObjectName(AxisGeronimoConstants.TRANSACTION_CONTEXT_MANAGER_NAME);    
 	}
 
 	public void doStart() throws Exception {
@@ -58,20 +60,37 @@ public class JettyServiceWrapper {
 		GBeanMBean tm;
 		GBeanMBean ctc;
 		GBeanMBean container;
+
 		container = new GBeanMBean(JettyContainerImpl.GBEAN_INFO);
+
 		connector = new GBeanMBean(HTTPConnector.GBEAN_INFO);
 		connector.setAttribute("port", new Integer(AxisGeronimoConstants.AXIS_SERVICE_PORT));
 		connector.setReferencePatterns("JettyContainer", containerPatterns);
+
 		start(containerName, container);
 		start(connectorName, connector);
-		tm = new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
-		Set patterns = new HashSet();
-		patterns.add(
-				ObjectName.getInstance(
-						"geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
-		tm.setReferencePatterns("resourceManagers", patterns);
-		start(tmName, tm);
-		ctc = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
+
+//		tm = new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
+//		Set patterns = new HashSet();
+//		patterns.add(
+//				ObjectName.getInstance(
+//						"geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
+//		tm.setReferencePatterns("ResourceManagers", patterns);
+//		start(tmName, tm);
+//		ctc = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
+        
+        
+        
+        tm = new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
+        Set patterns = new HashSet();
+        patterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
+        tm.setReferencePatterns("ResourceManagers", patterns);
+        start(tmName, tm);
+        GBeanMBean tcm = new GBeanMBean(TransactionContextManager.GBEAN_INFO);
+        tcm.setReferencePattern("TransactionManager", tmName);
+        start(tcmName, tcm);
+        ctc = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
+
 		start(tcaName, ctc);
 	}
 	

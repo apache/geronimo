@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.3 $ $Date: 2004/07/22 14:57:48 $ -->
+<!-- $Revision: 1.4 $ $Date: 2004/07/28 14:24:47 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -64,7 +64,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-core</artifactId>
-            <version>1.0-M1</version>
+            <version>${pom.currentVersion}</version>
             <properties>
                 <module>true</module>
             </properties>
@@ -127,6 +127,15 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-timer</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
         </dependency>
 
         <dependency>
@@ -422,16 +431,12 @@
             <includes>
                 <include>**/*Test.java</include>
             </includes>
+
             <excludes>
                 <exclude>**/Abstract*.java</exclude>
-                <exclude>**/AdminClientDeploymentTest.java</exclude>
-                <exclude>**/DynamicEJBDeploymentTest.java</exclude>
-                <exclude>**/EWSTest.java</exclude>
-                <exclude>**/WebServiceDeploymentTest.java</exclude>
-                <exclude>**/WebServiceTest.java</exclude>
-                <exclude>**/AxisGBeanTest.java</exclude>
-                <exclude>**/EchoHeadersTest.java</exclude>
+                <exclude>**/EWSTest.java</exclude> 
             </excludes>
+
             <resources>
                 <resource>
                     <directory>${basedir}/src/test-resources</directory>

@@ -24,7 +24,10 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLClassLoader;
-
+/**
+ * <p> This test case start the AxisGbean and test retiving the index.html of the 
+ * Axis Service</p>   
+ */
 public class AxisGBeanTest extends AbstractTestCase {
     private ObjectName name;
     private Kernel kernel;
@@ -37,7 +40,7 @@ public class AxisGBeanTest extends AbstractTestCase {
         super(testName);
     }
 
-    public void testLoad() throws Exception {
+    public void testStartAxisService() throws Exception {
         String textFileurl = "http://localhost:"+AxisGeronimoConstants.AXIS_SERVICE_PORT+"/axis/index.html";
         ClassLoader cl = getClass().getClassLoader();
         ClassLoader myCl = new URLClassLoader(new URL[0], cl);
@@ -46,10 +49,10 @@ public class AxisGBeanTest extends AbstractTestCase {
         kernel.loadGBean(name, gbean);
         kernel.startGBean(name);
         System.out.println(kernel.getMBeanServer().getAttribute(name, "state"));
-        System.out.println(
-                kernel.getMBeanServer().invoke(name, "echo",
-                        new Object[]{"Hello"},
-                        new String[]{String.class.getName()}));
+//        System.out.println(
+//                kernel.getMBeanServer().invoke(name, "echo",
+//                        new Object[]{"Hello"},
+//                        new String[]{String.class.getName()}));
         HttpURLConnection connection = (HttpURLConnection) new URL(textFileurl).openConnection();
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(connection.getInputStream()));

@@ -15,8 +15,19 @@
  */
 package org.apache.geronimo.axis;
 
+import java.io.File;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+
+import javax.management.ObjectName;
+
 import org.apache.axis.AxisEngine;
 import org.apache.axis.MessageContext;
+import org.apache.axis.client.AdminClient;
+import org.apache.axis.client.Call;
 import org.apache.axis.deployment.wsdd.WSDDDeployment;
 import org.apache.axis.deployment.wsdd.WSDDDocument;
 import org.apache.axis.encoding.SerializationContextImpl;
@@ -27,18 +38,16 @@ import org.apache.geronimo.ews.ws4j2ee.toWs.Ws4J2ee;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.w3c.dom.Document;
-
-import javax.management.ObjectName;
-import java.io.File;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.net.URL;
-import java.net.URLClassLoader;
+/**
+ * <p>This test case shows the possible two ways of add a entry to the Axis 
+ * server-config.wsdd Deployment Discrypter.</p>
+ */
 
 public class AdminClientDeploymentTest extends AbstractTestCase {
     private ObjectName name;
     private Kernel kernel;
     private JettyServiceWrapper jettyService;
+    private File jarFile;
 
     /**
      * @param testName
@@ -47,30 +56,10 @@ public class AdminClientDeploymentTest extends AbstractTestCase {
         super(testName);
     }
 
-	public void testDeployWithAdminClient() throws Exception{
-		File jarFile =  new File(outDir + "/echo-ewsimpl.jar");
-		if(!jarFile.exists()){
-			GeronimoWsDeployContext deployContext =
-				 new GeronimoWsDeployContext(
-					 getTestFile("target/samples/echo.jar"),
-					 outDir);
-			Ws4J2ee ws4j2ee = new Ws4J2ee(deployContext, null);
-					ws4j2ee.generate();
-		}
-		
+	public void testDeployWithAdminClientStatically() throws Exception{
 		URLClassLoader cl = new  URLClassLoader(new URL[]{jarFile.toURL()});
 		InputStream deplydd = cl.getResourceAsStream("deploy.wsdd");
 		assertNotNull(deplydd);  
-
-
-//		AdminClient adminClient = new AdminClient();
-//		URL requestUrl = new URL("http://localhost:"
-//			 +AxisGeronimConstants.AXIS_SERVICE_PORT
-//			 +"/axis/services/AdminService");
-//		Call call = adminClient.getCall();
-//		call.setTargetEndpointAddress(requestUrl);
-//		String result = adminClient.process(null,deplydd);
-//		System.out.println(result);
 
 		Admin admin = new Admin();
 		InputStream wsddconf = getClass().getClassLoader().getResourceAsStream("org/apache/axis/server/server-config.wsdd");
@@ -89,6 +78,30 @@ public class AdminClientDeploymentTest extends AbstractTestCase {
 		deployment.writeToContext(new SerializationContextImpl(w));
 		w.close();
    	}
+    public void testDeployWithAdminClientDinamically() throws Exception{
+        URLClassLoader cl = new  URLClassLoader(new URL[]{jarFile.toURL()});
+        InputStream deplydd = cl.getResourceAsStream("deploy.wsdd");
+        assertNotNull(deplydd);  
+
+        AdminClient adminClient = new AdminClient();
+        URL requestUrl = new URL("http://localhost:"
+             +AxisGeronimoConstants.AXIS_SERVICE_PORT
+             +"/axis/services/AdminService");
+        Call call = adminClient.getCall();
+        call.setTargetEndpointAddress(requestUrl);
+        String result = adminClient.process(null,deplydd);
+        System.out.println(result);
+    }
+
+
+    public void testURLFileTest() throws MalformedURLException{
+      ClassLoader contextLoader = Thread.currentThread().getContextClassLoader(); 
+      URL url = contextLoader.getResource("deployables/axis/WEB-INF/web.xml");
+      assertNotNull(url);
+      File file = new File(url.getFile());
+      assertTrue(file.exists());
+      assertTrue(url.sameFile(file.toURL()));
+    }
 
 
     protected void setUp() throws Exception {
@@ -104,6 +117,16 @@ public class AdminClientDeploymentTest extends AbstractTestCase {
 		gbean.setAttribute("Name", "Test");
 		kernel.loadGBean(name, gbean);
 		kernel.startGBean(name);
+        
+        jarFile =  new File(outDir + "/echo-ewsimpl.jar");
+        if(!jarFile.exists()){
+            GeronimoWsDeployContext deployContext =
+                 new GeronimoWsDeployContext(
+                     getTestFile("target/samples/echo.jar"),
+                     outDir);
+            Ws4J2ee ws4j2ee = new Ws4J2ee(deployContext, null);
+                    ws4j2ee.generate();
+        }
     }
 
     protected void tearDown() throws Exception {

@@ -14,21 +14,6 @@
  * limitations under the License.
  */
 package org.apache.geronimo.axis;
-
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
-import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.transaction.GeronimoTransactionManager;
-import org.openejb.ContainerIndex;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,16 +21,42 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.connector.ActivationSpecWrapper;
+import org.apache.geronimo.connector.ResourceAdapterWrapper;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
+import org.apache.geronimo.connector.work.GeronimoWorkManager;
+import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.pool.ThreadPool;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.timer.vm.VMStoreThreadPooledNonTransactionalTimer;
+import org.apache.geronimo.timer.vm.VMStoreThreadPooledTransactionalTimer;
+import org.apache.geronimo.transaction.GeronimoTransactionManager;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.openejb.ContainerIndex;
 
 /**
  * Class DependancyEJBManager
  */
 public class DependancyEJBManager {
-
+    protected final Log log = LogFactory.getLog(getClass());
     /**
      * Field j2eeServerObjectName
      */
@@ -74,6 +85,7 @@ public class DependancyEJBManager {
      */
     private static final ObjectName connectionTrackerObjectName =
             JMXUtil.getObjectName(j2eeDomainName + ":type=ConnectionTracker");
+
 
     /**
      * Field containerIndexObjectName
@@ -108,6 +120,7 @@ public class DependancyEJBManager {
     public DependancyEJBManager(Kernel kernel) {
         this.kernel = kernel;
         configStore = new File(AxisGeronimoConstants.AXIS_CONFIG_STORE);
+        log.debug("configuration Store is "+configStore.getAbsolutePath());
         dependedEJBs = new Vector();
     }
 
@@ -120,15 +133,18 @@ public class DependancyEJBManager {
      */
     public void startDependancies(Hashtable properites)
             throws MalformedObjectNameException, DeploymentException {
+        //start the J2EE server        
         startJ2EEServer();
+        log.debug("start the J2ee server");
+        //start the ContinerIndex
         startContainerIndex();
-
+        log.debug("start the Continer Index");
+        
+        //start the each dependent EJB
         Enumeration enu = properites.keys();
-
         while (enu.hasMoreElements()) {
             String dir = (String) enu.nextElement();
             String serviceName = (String) properites.get(dir);
-
             startDependancy(dir, serviceName);
         }
     }
@@ -141,15 +157,18 @@ public class DependancyEJBManager {
     public void stopDependancies() throws DeploymentException {
         // stop strated ejbs
         for (int i = 0; i < dependedEJBs.size(); i++) {
-            AxisGeronimoUtils.stopGBean((ObjectName) dependedEJBs.get(i),
-                    kernel);
+            ObjectName gbeanName = (ObjectName) dependedEJBs.get(i);
+            AxisGeronimoUtils.stopGBean(gbeanName,kernel);
+            System.out.println("stop the dependent EJB name="+gbeanName);
+            log.debug("stop the dependent EJB name="+gbeanName);
         }
 
         // stop the continer Index
         stopContainerIndex();
-
+        log.debug("stop the Continer Index");
         // stop the j2ee server
         stopJ2EEServer();
+        log.debug("stop the J2EE server");
     }
 
     /**
@@ -175,7 +194,14 @@ public class DependancyEJBManager {
 
             // start the configuration
             kernel.startRecursiveGBean(objectName);
-        } catch (Exception e) {
+            
+            System.out.println("start dependent EJB name="+objectName
+            +" dir="+unpackedDir.getAbsolutePath());
+            log.debug("start dependent EJB name="+objectName
+                +" dir="+unpackedDir.getAbsolutePath());
+        } catch (DeploymentException e) {
+           throw e;
+        }catch (Exception e) {
             throw new DeploymentException(e);
         }
     }
@@ -226,7 +252,6 @@ public class DependancyEJBManager {
         try {
             String str =
                     System.getProperty(javax.naming.Context.URL_PKG_PREFIXES);
-
             if (str == null) {
                 str = ":org.apache.geronimo.naming";
             } else {
@@ -235,51 +260,85 @@ public class DependancyEJBManager {
 
             System.setProperty(javax.naming.Context.URL_PKG_PREFIXES, str);
 
+            setUpTransactionManager(kernel);
+            setUpTimer(kernel);
+
             GBeanMBean serverInfoGBean = new GBeanMBean(ServerInfo.GBEAN_INFO);
-
             serverInfoGBean.setAttribute("baseDirectory", ".");
-
-            this.serverInfoObjectName = ObjectName.getInstance(j2eeDomainName
-                    + ":type=ServerInfo");
-
-            AxisGeronimoUtils.startGBean(serverInfoObjectName, serverInfoGBean,
-                    kernel);
-
-            GBeanMBean j2eeServerGBean =
-                    new GBeanMBean(J2EEServerImpl.GBEAN_INFO);
-
+            ObjectName serverInfoObjectName = ObjectName.getInstance(j2eeDomainName + ":type=ServerInfo");
+            kernel.loadGBean(serverInfoObjectName, serverInfoGBean);
+            kernel.startGBean(serverInfoObjectName);
+            
+            GBeanMBean j2eeServerGBean = new GBeanMBean(J2EEServerImpl.GBEAN_INFO);
             j2eeServerGBean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfoObjectName));
-
-            this.j2eeServerObjectName = ObjectName.getInstance(j2eeDomainName
-                    + ":j2eeType=J2EEServer,name=" + j2eeServerName);
-
-            AxisGeronimoUtils.startGBean(j2eeServerObjectName, j2eeServerGBean,
-                    kernel);
-
-            GBeanMBean tmGBean =
-                    new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
-            Set patterns = new HashSet();
-
-            patterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
-            patterns.add(ObjectName.getInstance("geronimo.server:j2eeType=ActivationSpec,*"));
-            tmGBean.setReferencePatterns("resourceManagers", patterns);
-            AxisGeronimoUtils.startGBean(transactionManagerObjectName, tmGBean,
-                    kernel);
-
-            GBeanMBean connectionTrackerGBean =
-                    new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
-            ObjectName connectionTrackerObjectName =
-                    ObjectName.getInstance(j2eeDomainName
-                    + ":type=ConnectionTracker");
-
-            AxisGeronimoUtils.startGBean(connectionTrackerObjectName,
-                    connectionTrackerGBean, kernel);
+            ObjectName j2eeServerObjectName = ObjectName.getInstance(AxisGeronimoConstants.J2EE_SERVER_OBJECT_NAME);
+            kernel.loadGBean(j2eeServerObjectName, j2eeServerGBean);
+            kernel.startGBean(j2eeServerObjectName);
+                    
 
             // //load mock resource adapter for mdb
-            // DeploymentHelper.setUpResourceAdapter(kernel);
+           // setUpResourceAdapter(kernel);
         } catch (Exception e) {
             throw new DeploymentException(e);
         }
+    }
+    
+    
+    private void setUpTransactionManager(Kernel kernel) throws DeploymentException{
+        try {
+            GBeanMBean tmGBean = new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
+            Set rmpatterns = new HashSet();
+            rmpatterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
+            tmGBean.setReferencePatterns("ResourceManagers", rmpatterns);
+            AxisGeronimoUtils.startGBean(AxisGeronimoConstants.TRANSACTIONMANAGER_NAME, tmGBean,kernel);
+            GBeanMBean tcmGBean = new GBeanMBean(TransactionContextManager.GBEAN_INFO);
+            tcmGBean.setReferencePattern("TransactionManager", AxisGeronimoConstants.TRANSACTIONMANAGER_NAME);
+            AxisGeronimoUtils.startGBean(AxisGeronimoConstants.TRANSACTIONCONTEXTMANAGER_NAME, tcmGBean,kernel);
+            GBeanMBean trackedConnectionAssociator = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
+            AxisGeronimoUtils.startGBean(AxisGeronimoConstants.TRACKEDCONNECTIONASSOCIATOR_NAME, trackedConnectionAssociator,kernel);
+        } catch (Exception e) {
+            throw new DeploymentException(e);
+        } 
+    }
+    
+    public static void setUpTimer(Kernel kernel) throws Exception {
+            GBeanMBean threadPoolGBean = new GBeanMBean(ThreadPool.GBEAN_INFO);
+            threadPoolGBean.setAttribute("keepAliveTime", new Integer(5000));
+            threadPoolGBean.setAttribute("poolSize", new Integer(5));
+            threadPoolGBean.setAttribute("poolName", "DefaultThreadPool");
+            AxisGeronimoUtils.startGBean(AxisGeronimoConstants.THREADPOOL_NAME, threadPoolGBean,kernel);
+            GBeanMBean transactionalTimerGBean = new GBeanMBean(VMStoreThreadPooledTransactionalTimer.GBEAN_INFO);
+            transactionalTimerGBean.setAttribute("repeatCount", new Integer(5));
+            transactionalTimerGBean.setReferencePattern("TransactionContextManager", AxisGeronimoConstants.TRANSACTIONCONTEXTMANAGER_NAME);
+            transactionalTimerGBean.setReferencePattern("ThreadPool", AxisGeronimoConstants.THREADPOOL_NAME);
+            AxisGeronimoUtils.startGBean(AxisGeronimoConstants.TRANSACTIONALTIMER_NAME, transactionalTimerGBean,kernel);
+            GBeanMBean nonTransactionalTimerGBean = new GBeanMBean(VMStoreThreadPooledNonTransactionalTimer.GBEAN_INFO);
+            nonTransactionalTimerGBean.setReferencePattern("ThreadPool", AxisGeronimoConstants.THREADPOOL_NAME);
+            AxisGeronimoUtils.startGBean(AxisGeronimoConstants.NONTRANSACTIONALTIMER_NAME, nonTransactionalTimerGBean,kernel);
+        }
+
+    public void setUpResourceAdapter(Kernel kernel) throws Exception {
+        GBeanMBean geronimoWorkManagerGBean = new GBeanMBean(GeronimoWorkManager.getGBeanInfo());
+        geronimoWorkManagerGBean.setAttribute("syncMaximumPoolSize", new Integer(5));
+        geronimoWorkManagerGBean.setAttribute("startMaximumPoolSize", new Integer(5));
+        geronimoWorkManagerGBean.setAttribute("scheduledMaximumPoolSize", new Integer(5));
+        geronimoWorkManagerGBean.setReferencePattern("XAServices", AxisGeronimoConstants.TRANSACTIONMANAGER_NAME);
+        AxisGeronimoUtils.startGBean(AxisGeronimoConstants.WORKMANAGER_NAME, geronimoWorkManagerGBean,kernel);
+
+        GBeanMBean resourceAdapterGBean = new GBeanMBean(ResourceAdapterWrapper.getGBeanInfo());
+        Map activationSpecInfoMap = new HashMap();
+//        ActivationSpecInfo activationSpecInfo = new ActivationSpecInfo(MockActivationSpec.class, ActivationSpecWrapper.getGBeanInfo());
+//        activationSpecInfoMap.put(MockActivationSpec.class.getName(), activationSpecInfo);
+//        resourceAdapterGBean.setAttribute("resourceAdapterClass", MockResourceAdapter.class);
+//        resourceAdapterGBean.setAttribute("activationSpecInfoMap", activationSpecInfoMap);
+        resourceAdapterGBean.setReferencePattern("WorkManager", AxisGeronimoConstants.WORKMANAGER_NAME);
+        AxisGeronimoUtils.startGBean(AxisGeronimoConstants.RESOURCE_ADAPTER_NAME, resourceAdapterGBean,kernel);
+
+        GBeanMBean activationSpecGBean = new GBeanMBean(ActivationSpecWrapper.getGBeanInfo());
+//        activationSpecGBean.setAttribute("activationSpecClass", MockActivationSpec.class);
+        activationSpecGBean.setAttribute("containerId", AxisGeronimoConstants.CONTAINER_NAME.getCanonicalName());
+        activationSpecGBean.setReferencePattern("ResourceAdapterWrapper", AxisGeronimoConstants.RESOURCE_ADAPTER_NAME);
+        AxisGeronimoUtils.startGBean(AxisGeronimoConstants.ACTIVATIONSPEC_NAME, activationSpecGBean,kernel);
     }
 
     /**

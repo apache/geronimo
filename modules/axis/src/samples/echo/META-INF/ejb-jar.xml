@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ejb-jar xmlns="http://java.sun.com/xml/ns/j2ee"
+	     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	     xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+		 http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd"
+	     version="2.1">
+	<display-name>BookQuoteService</display-name>
+	<enterprise-beans>
+		<session>
+			<display-name>echo</display-name>
+			<ejb-name>echo</ejb-name>
+			<home>org.apache.ws.echosample.EchoHome</home>
+			<remote>org.apache.ws.echosample.EchoEJB</remote>
+			<ejb-class>org.apache.ws.echosample.EchoBean</ejb-class>
+			<session-type>Stateless</session-type>
+			<transaction-type>Bean</transaction-type>
+		</session>
+	</enterprise-beans>
+	<assembly-descriptor>
+        <method-permission>
+            <unchecked/>
+            <method>
+                <ejb-name>echo</ejb-name>
+                <method-name>*</method-name>
+            </method>
+        </method-permission>
+     </assembly-descriptor>
+</ejb-jar>

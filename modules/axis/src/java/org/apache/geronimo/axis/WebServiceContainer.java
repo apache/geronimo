@@ -15,6 +15,8 @@
  */
 package org.apache.geronimo.axis;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.jetty.JettyWebAppContext;
 import org.apache.geronimo.kernel.Kernel;
@@ -40,7 +42,7 @@ import java.util.Vector;
  * Class WebServiceContainer
  */
 public class WebServiceContainer {
-
+    protected final Log log = LogFactory.getLog(getClass());
     /**
      * Field kernel
      */
@@ -80,6 +82,8 @@ public class WebServiceContainer {
      * Field ejbManager
      */
     private DependancyEJBManager ejbManager;
+    
+    private ObjectName tcmName;
 
     /**
      * Constructor WebServiceContainer
@@ -98,12 +102,10 @@ public class WebServiceContainer {
             containerPatterns = Collections.singleton(containerName);
             appName =
                     new ObjectName(AxisGeronimoConstants.APPLICATION_NAME);
-            tmName =
-                    new ObjectName(AxisGeronimoConstants.TRANSACTION_MANAGER_NAME);
+            tmName = new ObjectName(AxisGeronimoConstants.TRANSACTION_MANAGER_NAME);
+            tcmName = new ObjectName(AxisGeronimoConstants.TRANSACTION_CONTEXT_MANAGER_NAME);
             tcaName = new ObjectName(AxisGeronimoConstants.CONNTECTION_TRACKING_COORDINATOR);
         } catch (MalformedObjectNameException e) {
-            e.printStackTrace();
-
             throw new RuntimeException(e);
         }
     }
@@ -121,7 +123,11 @@ public class WebServiceContainer {
      */
     public void doStart() throws Exception {
         ejbManager = new DependancyEJBManager(kernel);
-
+        
+        //The code needed a axis.properties file. If it is not there it is created.
+        //the ideal case is this information should be in the server-config.wsdd file
+        //but still the Axis is stanalone. I do not like the idea of yet another 
+        //deployment discrypter.    
         File axisPopertiesfile =
                 new File(new File(AxisGeronimoConstants.AXIS_CONFIG_STORE),
                         "axis.properties");
@@ -129,9 +135,11 @@ public class WebServiceContainer {
 
         if (axisPopertiesfile.exists()) {
             axisProperties.load(new FileInputStream(axisPopertiesfile));
+            log.debug(axisPopertiesfile.getAbsoluteFile() + " file found and loaded");
         } else {
             axisPopertiesfile.getParentFile().mkdirs();
             axisPopertiesfile.createNewFile();
+            log.debug(" axis.properties file not found and created");
         }
 
         // TODO deployed webservices should be stored in the local config store
@@ -141,28 +149,43 @@ public class WebServiceContainer {
 
         // Start the EJB's that depend on the webservices
         ejbManager.startDependancies(axisProperties);
-
+        log.debug("start dependent EJBs ");
+        
+        //This code is taken from the org.apache.geronimo.jetty.ApplicationTest in the 
+        //jetty module tests .. If something is not working we got to test weather the 
+        //test has changed
+        
         GBeanMBean app = new GBeanMBean(JettyWebAppContext.GBEAN_INFO, myCl);
         URL url =
                 Thread.currentThread().getContextClassLoader().getResource("deployables/axis/");
 
-        app.setAttribute("URI", URI.create(url.toString()));
+//        app.setAttribute("uri", URI.create(url.toString()));
+//        app.setAttribute("contextPath", "/axis");
+//        app.setAttribute("componentContext", null);
+//        UserTransactionImpl userTransaction = new UserTransactionImpl();
+//        app.setAttribute("userTransaction", userTransaction);
+//        app.setReferencePatterns("Configuration", Collections.EMPTY_SET);
+//        app.setReferencePatterns("JettyContainer", containerPatterns);
+//        app.setReferencePatterns("TransactionContextManager",
+//                Collections.singleton(tmName));
+//        app.setReferencePatterns("TrackedConnectionAssociator",
+//                Collections.singleton(tcaName));
+                
+        app.setAttribute("uri", URI.create(url.toString()));
         app.setAttribute("contextPath", "/axis");
         app.setAttribute("componentContext", null);
-
         UserTransactionImpl userTransaction = new UserTransactionImpl();
-
         app.setAttribute("userTransaction", userTransaction);
         app.setReferencePatterns("Configuration", Collections.EMPTY_SET);
         app.setReferencePatterns("JettyContainer", containerPatterns);
-        app.setReferencePatterns("TransactionManager",
-                Collections.singleton(tmName));
-        app.setReferencePatterns("TrackedConnectionAssociator",
-                Collections.singleton(tcaName));
+        app.setReferencePattern("TransactionContextManager", tcmName);
+        app.setReferencePattern("TrackedConnectionAssociator", tcaName);
+
 
         // TODO add a dependancy to such that to this service to started the
         // jetty must have been started
         start(appName, app);
+        log.debug("Axis started as a web application inside Jetty");
     }
 
     /**
@@ -222,6 +245,7 @@ public class WebServiceContainer {
                     for (int i = 0; i < jars.length; i++) {
                         if (jars[i].getAbsolutePath().endsWith(".jar")) {
                             urls.add(jars[i].toURL());
+                            log.debug("found a jar" + jars[i].getAbsolutePath());
                         }
                     }
                 }

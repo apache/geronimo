@@ -15,17 +15,71 @@
  */
 package org.apache.geronimo.axis;
 
+import java.io.File;
+import java.lang.reflect.Method;
+
+import javax.ejb.EJBHome;
+import javax.management.ObjectName;
+
+import org.apache.axis.AxisFault;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.ews.ws4j2ee.wsutils.GeronimoUtils;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
-
-import javax.management.ObjectName;
-import java.io.File;
+import org.openejb.ContainerIndex;
+import org.openejb.EJBContainer;
 
 /**
  * Class AxisGeronimoUtils
  */
 public class AxisGeronimoUtils {
+    
+    public static final Log log = LogFactory.getLog(GeronimoUtils.class);
+    public static Object invokeEJB(
+        String ejbName,
+        String methodName,
+        Class[] parmClasses,
+        Object[] parameters)throws AxisFault{
+            try {
+                ContainerIndex index = ContainerIndex.getInstance();
+                int length = index.length();
+                System.out.println("number of continers "+length);
+                for(int i = 0;i<length;i++){
+                    EJBContainer contianer = index.getContainer(i);
+                    if(contianer!= null){
+                        String name = contianer.getEJBName();
+                        System.out.println("found the ejb "+name);
+                        log.debug("found the ejb "+name);
+                        if(ejbName.equals(name)){
+                            EJBHome statelessHome = contianer.getEJBHome();
+                            Object stateless = statelessHome.getClass().getMethod("create", null).invoke(statelessHome, null);
+                            if(parmClasses!= null){
+                                Object obj = stateless.getClass().getMethod(methodName,parmClasses).invoke(stateless, parameters);
+                                return obj; 
+                            }else{
+                                Method[] methods = stateless.getClass().getMethods();
+                                for(int j = 0;i< methods.length;j++){
+                                    if(methods[j].getName().equals(methodName)){
+                                        return methods[j].invoke(stateless, parameters);
+                                    }
+                                }
+                                throw new NoSuchMethodException(methodName+" not found");
+                            }
+                        }                   
+                    }else{
+                        System.out.println("Continer is null");
+                        log.debug("Continer is null");
+                    }
+                }
+                throw new AxisFault("Dependancy ejb "+ejbName+" not found ");
+            } catch (Exception e) {
+                throw AxisFault.makeFault(e);
+            } 
+    
+    }
+
     /**
      * Method startGBean
      *

@@ -15,6 +15,10 @@
  */
 package org.apache.geronimo.axis;
 
+import javax.management.ObjectName;
+
+import org.apache.geronimo.kernel.jmx.JMXUtil;
+
 /**
  * Class AxisGeronimoConstants
  */
@@ -52,7 +56,7 @@ public class AxisGeronimoConstants {
      */
     public static final String TRANSACTION_MANAGER_NAME =
             "geronimo.test:role=TransactionManager";
-
+    public static final String TRANSACTION_CONTEXT_MANAGER_NAME = "geronimo.test:role=TransactionContextManager";
     /**
      * Field CONNTECTION_TRACKING_COORDINATOR
      */
@@ -73,4 +77,18 @@ public class AxisGeronimoConstants {
      * Field AXIS_SERVICE_PORT
      */
     public static final int AXIS_SERVICE_PORT = 5678;
+    
+    public static final String J2EE_SERVER_OBJECT_NAME  = J2EE_DOMAIN_NAME + ":j2eeType=J2EEServer,name=" + J2EE_SERVER_NAME;
+    
+    public static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
+    public static final ObjectName TRANSACTIONMANAGER_NAME = JMXUtil.getObjectName(J2EE_DOMAIN_NAME + ":type=TransactionManager");
+    public static final ObjectName TRANSACTIONCONTEXTMANAGER_NAME = JMXUtil.getObjectName(J2EE_SERVER_NAME + ":type=TransactionContextManager");
+    public static final ObjectName TRACKEDCONNECTIONASSOCIATOR_NAME = JMXUtil.getObjectName("geronimo.test:role=TrackedConnectionAssociator");
+    public static final ObjectName WORKMANAGER_NAME = JMXUtil.getObjectName("geronimo.server:type=WorkManager,name=DefaultWorkManager");
+    public static final ObjectName RESOURCE_ADAPTER_NAME = JMXUtil.getObjectName("openejb.server:j2eeType=ResourceAdapter,J2EEServer=TestOpenEJBServer,name=MockRA");
+    public static final ObjectName ACTIVATIONSPEC_NAME = JMXUtil.getObjectName("geronimo.server:j2eeType=ActivationSpec,name=MockMDB");
+    public static final ObjectName THREADPOOL_NAME = JMXUtil.getObjectName(J2EE_SERVER_NAME + ":type=ThreadPool,name=DefaultThreadPool");
+    public static final ObjectName TRANSACTIONALTIMER_NAME = JMXUtil.getObjectName(J2EE_SERVER_NAME + ":type=ThreadPooledTimer,name=TransactionalThreaPooledTimer");
+    public static final ObjectName NONTRANSACTIONALTIMER_NAME = JMXUtil.getObjectName(J2EE_SERVER_NAME + ":type=ThreadPooledTimer,name=NonTransactionalThreaPooledTimer");
+
 }

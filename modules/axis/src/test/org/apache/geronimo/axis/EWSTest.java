@@ -18,23 +18,24 @@ package org.apache.geronimo.axis;
 import org.apache.geronimo.ews.ws4j2ee.toWs.Ws4J2ee;
 
 import java.io.File;
-
+/**
+ * <p>This test case represents the code generation with the EWS module. 
+ * This test case needed the $JAVA_HOME/lib.tools.jar at the classapth.</p>
+ */
 public class EWSTest extends AbstractTestCase {
-    /**
-     * @param testName
-     */
     public EWSTest(String testName) {
         super(testName);
     }
 
     public void testEcho() throws Exception {
-        System.out.println(new File(".").getAbsolutePath());
         GeronimoWsDeployContext deployContext =
             new GeronimoWsDeployContext(
                 getTestFile("target/samples/echo.jar"),
                 outDir);
         Ws4J2ee ws4j2ee = new Ws4J2ee(deployContext, null);
         ws4j2ee.generate();
+        File out = new File(outDir,"echo-ewsimpl.jar");
+        assertTrue(out.exists());
     }
 
     protected void setUp() throws Exception {
@@ -43,5 +44,4 @@ public class EWSTest extends AbstractTestCase {
 
     protected void tearDown() throws Exception {
     }
-
 }

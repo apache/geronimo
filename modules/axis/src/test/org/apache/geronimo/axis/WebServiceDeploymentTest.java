@@ -20,9 +20,6 @@ import org.apache.geronimo.kernel.Kernel;
 
 import java.io.File;
 
-/**
- * @author hemapani@opensource.lk
- */
 public class WebServiceDeploymentTest extends AbstractTestCase{
 	private Kernel kernel;
 	public WebServiceDeploymentTest(String name){
@@ -39,15 +36,15 @@ public class WebServiceDeploymentTest extends AbstractTestCase{
 	protected void tearDown() throws Exception {
 		kernel.shutdown();
 		File file = new File(tempDir);
+        AxisGeronimoUtils.delete(file);
+        file = new File(AxisGeronimoConstants.AXIS_CONFIG_STORE);
 		AxisGeronimoUtils.delete(file);
 	}
-    
-   
     
     public void testDeployEJB() throws Exception{
 		WebServiceDeployer deployer 
 			= new WebServiceDeployer(tempDir,kernel);
-		deployer.deploy(getTestFile("target/samples/echo.jar"),
+		deployer.deployEWSModule(getTestFile("target/generated/samples/echo-ewsimpl.jar"),
 				null,
 				"ws/apache/axis/test2");
     }

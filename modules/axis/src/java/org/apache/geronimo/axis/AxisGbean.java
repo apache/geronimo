@@ -65,7 +65,6 @@ public class AxisGbean implements GBeanLifecycle {
         infoFactory.addAttribute("objectName", String.class, false);
 
         // operations
-        infoFactory.addOperation("echo", new Class[]{String.class});
         infoFactory.setConstructor(new String[]{"kernel", "Name",
                                                 "objectName"});
 
@@ -115,16 +114,6 @@ public class AxisGbean implements GBeanLifecycle {
     public void doStop() throws WaitingException, Exception {
         System.out.println("Axis GBean has stoped");
         wscontiner.doStop();
-    }
-
-    /**
-     * Method echo
-     *
-     * @param msg
-     * @return
-     */
-    public String echo(String msg) {
-        return msg;
     }
 
     /**

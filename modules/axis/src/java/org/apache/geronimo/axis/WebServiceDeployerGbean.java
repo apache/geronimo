@@ -60,8 +60,12 @@ public class WebServiceDeployerGbean implements GBeanLifecycle {
         infoFactory.addOperation("deploy", new Class[]{String.class,
                                                        String.class,
                                                        String.class});
-        infoFactory.setConstructor(new String[]{"kernel", "Name",
-                                                "objectName"});
+                                                       
+        infoFactory.addOperation("deployEWSModule", new Class[]{String.class,
+                                                       String.class,
+                                                       String.class});
+        
+        infoFactory.setConstructor(new String[]{"kernel", "Name"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
@@ -134,6 +138,11 @@ public class WebServiceDeployerGbean implements GBeanLifecycle {
     public void deploy(String module, String j2eeApplicationName, String j2eeModuleName)
             throws Exception {
         wsdeployer.deploy(module, j2eeApplicationName, j2eeModuleName);
+    }
+    
+    public void deployEWSModule(String module, String j2eeApplicationName, String j2eeModuleName)
+            throws Exception {
+        wsdeployer.deployEWSModule(module, j2eeApplicationName, j2eeModuleName);
     }
 
     /**
