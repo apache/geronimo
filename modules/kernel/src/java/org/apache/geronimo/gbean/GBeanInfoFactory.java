@@ -67,7 +67,7 @@ import java.util.Arrays;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/02/08 21:52:59 $
+ * @version $Revision: 1.9 $ $Date: 2004/02/13 04:07:01 $
  */
 public class GBeanInfoFactory {
     private final String name;
@@ -147,6 +147,10 @@ public class GBeanInfoFactory {
         attributes.addAll(tempAttributes.values());
     }
 
+    public void addAttribute(String name, boolean persistent) {
+        attributes.add(new GAttributeInfo(name, persistent));
+    }
+
     public void addAttribute(GAttributeInfo info) {
         attributes.add(info);
     }
@@ -155,12 +159,24 @@ public class GBeanInfoFactory {
         this.constructor = constructor;
     }
 
+    public void setConstructor(String[] names, Class[] types) {
+        constructor = new GConstructorInfo(names, types);
+    }
+
     public void addOperation(GOperationInfo info) {
         operations.add(info);
     }
 
+    public void addOperation(String name, Class[] paramTypes) {
+        operations.add(new GOperationInfo(name, paramTypes));
+    }
+
     public void addReference(GReferenceInfo info) {
         references.add(info);
+    }
+
+    public void addReference(String name, Class type) {
+        references.add(new GReferenceInfo(name, type));
     }
 
     public void addNotification(GNotificationInfo info) {
