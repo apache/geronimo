@@ -90,6 +90,7 @@ import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
+import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
 import org.apache.geronimo.deployment.DeploymentModule;
 import org.apache.geronimo.deployment.ConfigurationCallback;
 import org.apache.geronimo.deployment.tools.DDBeanRootImpl;
@@ -100,13 +101,12 @@ import org.apache.geronimo.connector.deployment.dconfigbean.AdminObjectDConfigBe
 import org.apache.geronimo.connector.deployment.dconfigbean.AdminObjectInstanceDConfigBean;
 import org.apache.geronimo.connector.deployment.dconfigbean.ConnectionDefinitionDConfigBean;
 import org.apache.geronimo.connector.deployment.dconfigbean.ConnectionDefinitionInstanceDConfigBean;
-import org.apache.geronimo.connector.deployment.dconfigbean.ConnectionManagerDConfigBean;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/02/10 17:26:58 $
+ * @version $Revision: 1.6 $ $Date: 2004/02/10 19:59:14 $
  *
  * */
 public class Connector_1_5Test extends TestCase implements ConfigurationCallback {
@@ -183,6 +183,8 @@ public class Connector_1_5Test extends TestCase implements ConfigurationCallback
         assertEquals(4, connectionDefinitionConfigPropDDs.length);
         ConfigPropertySettingDConfigBean connectionDefinitionSetting1 = (ConfigPropertySettingDConfigBean) connectionDefinitionInstanceDConfigBean1.getDConfigBean(connectionDefinitionConfigPropDDs[0]);
         connectionDefinitionSetting1.setConfigPropertyValue("TestCDValue1");
+        //connection manager properties
+        connectionDefinitionInstanceDConfigBean1.setBlockingTimeout(3000);
 
         //check the results
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -208,6 +210,9 @@ public class Connector_1_5Test extends TestCase implements ConfigurationCallback
         GerConnectionDefinitionType connectionDefinitionType = ra.getOutboundResourceadapter().getConnectionDefinitionArray(0);
         GerConnectiondefinitionInstanceType connectiondefinitionInstanceType = connectionDefinitionType.getConnectiondefinitionInstanceArray(0);
         assertEquals("TestCDValue1", connectiondefinitionInstanceType.getConfigPropertySettingArray(0).getStringValue());
+        //connection manager
+        GerConnectionmanagerType connectionmanagerType = connectiondefinitionInstanceType.getConnectionmanager();
+        assertEquals(3000, connectionmanagerType.getBlockingTimeout().intValue());
 
         //and read back into dconfigbeans
         rarConfiguration.restore(new ByteArrayInputStream(bytes));
@@ -237,6 +242,8 @@ public class Connector_1_5Test extends TestCase implements ConfigurationCallback
         ConnectionDefinitionInstanceDConfigBean[] connectionDefinitionInstanceDConfigBeans = connectionDefinitionDConfigBean.getConnectionDefinitionInstance();
         connectionDefinitionSetting1 = (ConfigPropertySettingDConfigBean) connectionDefinitionInstanceDConfigBeans[0].getDConfigBean(connectionDefinitionConfigPropDDs[0]);
         assertEquals("TestCDValue1", connectionDefinitionSetting1.getConfigPropertyValue());
+        //connection manager
+        assertEquals(3000, connectionDefinitionInstanceDConfigBeans[0].getBlockingTimeout());
 
     }
 

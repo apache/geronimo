@@ -107,7 +107,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/02/10 08:04:21 $
+ * @version $Revision: 1.8 $ $Date: 2004/02/10 19:59:14 $
  *
  * */
 public class Connector_1_5Module extends AbstractConnectorModule {
@@ -184,7 +184,7 @@ public class Connector_1_5Module extends AbstractConnectorModule {
                     throw new DeploymentException("Unable to create GMBean", e);
                 }
                 try {
-                    connectionManagerFactoryGBean.setAttribute("Name", connectionManagerFactory.getName());
+                    connectionManagerFactoryGBean.setAttribute("Name", connectionfactoryInstance.getName());
                     connectionManagerFactoryGBean.setAttribute("BlockingTimeout", new Integer(connectionManagerFactory.getBlockingTimeout().intValue()));
                     connectionManagerFactoryGBean.setAttribute("MaxSize", new Integer(connectionManagerFactory.getMaxSize().intValue()));
                     connectionManagerFactoryGBean.setAttribute("UseTransactions", Boolean.valueOf(connectionManagerFactory.getUseTransactions()));

@@ -58,6 +58,7 @@ package org.apache.geronimo.connector.deployment.dconfigbean;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.math.BigInteger;
 
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.spi.DConfigBean;
@@ -73,7 +74,7 @@ import org.apache.xmlbeans.XmlBeans;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/09 23:13:27 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/10 19:59:14 $
  *
  * */
 public class ConnectionDefinitionInstanceDConfigBean extends DConfigBeanSupport {
@@ -82,8 +83,6 @@ public class ConnectionDefinitionInstanceDConfigBean extends DConfigBeanSupport 
     private final static String[] CONNECTION_DEFINITION_INSTANCE_XPATHS = {
         "config-property"};
     private Map configPropertiesMap = new HashMap();
-
-    private ConnectionManagerDConfigBean connectionManagerDConfigBean;
 
     public ConnectionDefinitionInstanceDConfigBean() {
         super(null, null, SCHEMA_TYPE_LOADER);
@@ -110,22 +109,18 @@ public class ConnectionDefinitionInstanceDConfigBean extends DConfigBeanSupport 
             }
 
         }, configPropertiesMap);
-        GerConnectionmanagerType connectionmanagerType;
         if (connectiondefinitionInstance.getConnectionmanager() == null) {
-            connectionmanagerType = connectiondefinitionInstance.addNewConnectionmanager();
-        } else {
-            connectionmanagerType = connectiondefinitionInstance.getConnectionmanager();
-        }
-        if (connectionManagerDConfigBean == null) {
-        connectionManagerDConfigBean = new ConnectionManagerDConfigBean(ddBean, connectionmanagerType);
-        } else {
-            connectionManagerDConfigBean.setParent(ddBean, connectionmanagerType);
+            connectiondefinitionInstance.addNewConnectionmanager();
         }
     }
 
 
     GerConnectiondefinitionInstanceType getConnectiondefinitionInstance() {
         return (GerConnectiondefinitionInstanceType)getXmlObject();
+    }
+
+    GerConnectionmanagerType getConnectionManager() {
+        return getConnectiondefinitionInstance().getConnectionmanager();
     }
 
     public String getName() {
@@ -144,8 +139,68 @@ public class ConnectionDefinitionInstanceDConfigBean extends DConfigBeanSupport 
         getConnectiondefinitionInstance().setGlobalJndiName(globalJNDIName);
     }
 
-    public ConnectionManagerDConfigBean getConnectionManagerDConfigBean() {
-        return connectionManagerDConfigBean;
+    public boolean isUseConnectionRequestInfo() {
+        return getConnectionManager().getUseConnectionRequestInfo();
+    }
+
+    public void setUseConnectionRequestInfo(boolean useConnectionRequestInfo) {
+        getConnectionManager().setUseConnectionRequestInfo(useConnectionRequestInfo);
+    }
+
+    public boolean isUseSubject() {
+        return getConnectionManager().getUseSubject();
+    }
+
+    public void setUseSubject(boolean useSubject) {
+        getConnectionManager().setUseSubject(useSubject);
+    }
+
+    public boolean isUseTransactionCaching() {
+        return getConnectionManager().getUseTransactionCaching();
+    }
+
+    public void setUseTransactionCaching(boolean useTransactionCaching) {
+        getConnectionManager().setUseTransactionCaching(useTransactionCaching);
+    }
+
+    public boolean isUseLocalTransactions() {
+        return getConnectionManager().getUseLocalTransactions();
+    }
+
+    public void setUseLocalTransactions(boolean useLocalTransactions) {
+        getConnectionManager().setUseLocalTransactions(useLocalTransactions);
+    }
+
+    public boolean isUseTransactions() {
+        return getConnectionManager().getUseTransactions();
+    }
+
+    public void setUseTransactions(boolean useTransactions) {
+        getConnectionManager().setUseTransactions(useTransactions);
+    }
+
+    public int getMaxSize() {
+        return getConnectionManager().getMaxSize().intValue();
+    }
+
+    public void setMaxSize(int maxSize) {
+        getConnectionManager().setMaxSize(BigInteger.valueOf(maxSize));
+    }
+
+    public int getBlockingTimeout() {
+        return getConnectionManager().getBlockingTimeout().intValue();
+    }
+
+    public void setBlockingTimeout(int blockingTimeout) {
+        getConnectionManager().setBlockingTimeout(BigInteger.valueOf(blockingTimeout));
+    }
+
+    public String getRealmBridgeName() {
+        return getConnectionManager().getRealmBridge();
+    }
+
+    public void setRealmBridgeName(String realmBridgeName) {
+        getConnectionManager().setRealmBridge(realmBridgeName);
     }
 
     public DConfigBean getDConfigBean(DDBean bean) throws ConfigurationException {
