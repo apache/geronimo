@@ -65,11 +65,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
 import org.apache.geronimo.kernel.deployment.service.MBeanMetadata;
+import org.apache.geronimo.kernel.classspace.ClassSpaceUtil;
+import org.apache.geronimo.kernel.classspace.ClassSpaceException;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:34 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/27 21:32:20 $
  */
 public class StartMBeanInstance implements DeploymentTask {
     private final Log log = LogFactory.getLog(getClass());
@@ -89,11 +91,10 @@ public class StartMBeanInstance implements DeploymentTask {
         ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
         ClassLoader newCL;
         try {
-            // Get the class loader
+            // Set the class loader
             try {
-                newCL = server.getClassLoader(metadata.getLoaderName());
-                Thread.currentThread().setContextClassLoader(newCL);
-            } catch (InstanceNotFoundException e) {
+                newCL = ClassSpaceUtil.setContextClassLoader(server, metadata.getLoaderName());
+            } catch (ClassSpaceException e) {
                 throw new DeploymentException(e);
             }
 
@@ -124,12 +125,11 @@ public class StartMBeanInstance implements DeploymentTask {
         ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
         ClassLoader newCL;
         try {
-            // Get the class loader
+            // Set the class loader
             try {
-                newCL = server.getClassLoader(metadata.getLoaderName());
-                Thread.currentThread().setContextClassLoader(newCL);
-            } catch (InstanceNotFoundException e) {
-                log.warn("Class loader not found", e);
+                newCL = ClassSpaceUtil.setContextClassLoader(server, metadata.getLoaderName());
+            } catch (ClassSpaceException e) {
+                log.warn("Could not set context class loader", e);
                 return;
             }
 

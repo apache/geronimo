@@ -55,38 +55,39 @@
  */
 package org.apache.geronimo.kernel.deployment.task;
 
+import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
+import javax.management.JMException;
 import javax.management.relation.RelationServiceMBean;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.kernel.service.ParserUtil;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.deployment.service.MBeanRelationshipMetadata;
 import org.apache.geronimo.kernel.deployment.DependencyServiceMBean;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
 import org.apache.geronimo.kernel.deployment.service.MBeanDependencyMetadata;
 import org.apache.geronimo.kernel.deployment.service.MBeanMetadata;
+import org.apache.geronimo.kernel.deployment.service.MBeanRelationshipMetadata;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.service.GeronimoMBean;
+import org.apache.geronimo.kernel.service.ParserUtil;
+import org.apache.geronimo.kernel.classspace.ClassSpaceUtil;
+import org.apache.geronimo.kernel.classspace.ClassSpaceException;
 
 /**
  * Creates an new MBean instance and intializes it according to the specified MBeanMetadata metadata
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:34 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/27 21:32:20 $
  */
 public class CreateMBeanInstance implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
@@ -110,7 +111,7 @@ public class CreateMBeanInstance implements DeploymentTask {
 
         ObjectName loaderName = metadata.getLoaderName();
         if (loaderName != null && !server.isRegistered(loaderName)) {
-            log.trace("Cannot run because class loader is not registered: loaderName=" + loaderName);
+            log.trace("Cannot run because class space is not registered: loaderName=" + loaderName);
             canRun = false;
         }
 
@@ -139,11 +140,10 @@ public class CreateMBeanInstance implements DeploymentTask {
 
         // create an MBean instance
         try {
-            // Get the class loader
+            // Set the class loader
             try {
-                newCL = server.getClassLoader(metadata.getLoaderName());
-                Thread.currentThread().setContextClassLoader(newCL);
-            } catch (InstanceNotFoundException e) {
+                newCL = ClassSpaceUtil.setContextClassLoader(server, metadata.getLoaderName());
+            } catch (ClassSpaceException e) {
                 throw new DeploymentException(e);
             }
 
@@ -154,14 +154,9 @@ public class CreateMBeanInstance implements DeploymentTask {
                 List constructorTypes = new ArrayList(constructorTypeStrings.size());
                 List constructorValues = metadata.getConstructorArgs();
                 for (int i = 0; i < constructorTypeStrings.size(); i++) {
-                    String typeString = (String) constructorTypeStrings.get(i);
                     Class type = null;
                     try {
-                        type = ParserUtil.loadClass(typeString, newCL);
-
-                        // set the type string based on the loaded class
-                        // load class code is more friendly then the Sun code
-                        constructorTypeStrings.set(i, type.getName());
+                        type = ParserUtil.loadClass((String) constructorTypeStrings.get(i), newCL);
                     } catch (ClassNotFoundException e) {
                         throw new DeploymentException(e, metadata);
                     }
@@ -178,8 +173,8 @@ public class CreateMBeanInstance implements DeploymentTask {
                     if (log.isTraceEnabled()) {
                         log.trace("Creating GeronimoMBean name=" + metadata.getName());
                     }
-                    GeronimoMBean mbean = (GeronimoMBean) server.instantiate("org.apache.geronimo.kernel.jmx.GeronimoMBean");
-                    mbean.setClassLoader(newCL);
+                    GeronimoMBean mbean = (GeronimoMBean) server.instantiate("org.apache.geronimo.kernel.service.GeronimoMBean");
+                    mbean.setClassSpace(metadata.getLoaderName());
                     mbean.setMBeanInfo(metadata.getGeronimoMBeanInfo());
                     server.registerMBean(mbean, metadata.getName());
                     actualName = metadata.getName();
@@ -188,13 +183,11 @@ public class CreateMBeanInstance implements DeploymentTask {
                     if (log.isTraceEnabled()) {
                         log.trace("Creating MBean name=" + metadata.getName() + " class=" + metadata.getCode());
                     }
-                    actualName = server.createMBean(
-                            metadata.getCode(),
-                            metadata.getName(),
-                            metadata.getLoaderName(),
-                            constructorValues.toArray(),
-                            (String[]) constructorTypeStrings.toArray(new String[constructorTypes.size()])
-                    ).getObjectName();
+
+                    Class mbeanClass = newCL.loadClass(metadata.getCode());
+                    Constructor mbeanConstructor = mbeanClass.getConstructor((Class[]) constructorTypes.toArray(new Class[constructorTypes.size()]));
+                    Object mbean = mbeanConstructor.newInstance(constructorValues.toArray());
+                    actualName = server.registerMBean(mbean, metadata.getName()).getObjectName();
                     if (log.isTraceEnabled() && !actualName.equals(metadata.getName())) {
                         log.trace("Actual MBean name is " + actualName);
                     }
@@ -216,19 +209,7 @@ public class CreateMBeanInstance implements DeploymentTask {
                 dependencyService.addStartDependencies(actualName, dependencies);
                 dependencyService.addStartDependency(actualName, metadata.getParentName());
                 dependencyService.addRelationships(actualName, metadata.getRelationships());
-            } catch (MalformedObjectNameException e) {
-                throw new DeploymentException(e, metadata);
-            } catch (RuntimeException e) {
-                throw new DeploymentException(e, metadata);
-            } catch (InstanceNotFoundException e) {
-                throw new DeploymentException(e, metadata);
-            } catch (ReflectionException e) {
-                throw new DeploymentException(e, metadata);
-            } catch (InstanceAlreadyExistsException e) {
-                throw new DeploymentException(e, metadata);
-            } catch (MBeanException e) {
-                throw new DeploymentException(e, metadata);
-            } catch (NotCompliantMBeanException e) {
+            } catch (Exception e) {
                 throw new DeploymentException(e, metadata);
             }
         } catch (DeploymentException e) {
@@ -248,12 +229,11 @@ public class CreateMBeanInstance implements DeploymentTask {
         ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
         ClassLoader newCL;
         try {
-            // Get the class loader
+            // Set the class loader
             try {
-                newCL = server.getClassLoader(metadata.getLoaderName());
-                Thread.currentThread().setContextClassLoader(newCL);
-            } catch (InstanceNotFoundException e) {
-                log.warn("Class loader not found", e);
+                newCL = ClassSpaceUtil.setContextClassLoader(server, metadata.getLoaderName());
+            } catch (ClassSpaceException e) {
+                log.warn("Could not set context class loader", e);
                 return;
             }
 
