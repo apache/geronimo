@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.64 $ $Date: 2004/01/29 05:17:25 $ -->
+<!-- $Revision: 1.65 $ $Date: 2004/02/11 07:36:44 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -208,6 +208,11 @@
     </goal>
 
     <goal name="default">
+        <attainGoal name="modules:default"/>
+    </goal>
+
+    <goal name="plugins">
+        <j:set var="modules" value="maven-xmlbeans-plugin"/>
         <attainGoal name="modules:default"/>
     </goal>
 
