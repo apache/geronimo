@@ -30,7 +30,7 @@ import org.apache.geronimo.pool.ClockPool;
 
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/07/08 05:13:29 $
+ * @version $Revision: 1.8 $ $Date: 2004/08/01 03:52:20 $
  */
 public class ProtocolFactory implements ServerSocketAcceptorListener {
 
@@ -129,13 +129,20 @@ public class ProtocolFactory implements ServerSocketAcceptorListener {
     }
 
     public void drain() throws Exception {
+
         synchronized (connectionCache) {
             Iterator keys = connectionCache.keySet().iterator();
             while (keys.hasNext()) {
                 ConnectionCacheMonitor ccm = (ConnectionCacheMonitor) connectionCache.get(keys.next());
 
                 ClockDaemon.cancel(ccm.clockTicket);
-                ccm.connection.drain();
+                if (!ccm.connection.isDone()) {
+                    try {
+                        ccm.connection.drain();
+                    } catch(ProtocolException pe) {
+                        // DO NOTHING: protocol may have already stopped
+                    }
+                }
 
                 log.trace("Connection [" + ccm.key + "] reclaimed");
             }
