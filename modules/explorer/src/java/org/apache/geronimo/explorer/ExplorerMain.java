@@ -58,27 +58,29 @@ package org.apache.geronimo.explorer;
 
 import groovy.lang.GroovyObject;
 
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanRegistrationException;
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-import javax.management.MalformedObjectNameException;
-import javax.management.NotCompliantMBeanException;
-import javax.management.ObjectName;
+import java.net.URISyntaxException;
 
+import javax.management.MBeanServer;
+
+import org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory;
 import org.codehaus.groovy.runtime.InvokerHelper;
 
 /**
  * A temporary bootstap mechanism for the Groovy script until
  * Groovy reaches beta-1 and can support static main(String[]) methods
  * 
- * @version <code>$Revision: 1.1 $ $Date: 2003/10/29 09:01:53 $</code>
+ * @version <code>$Revision: 1.2 $ $Date: 2003/11/11 21:55:16 $</code>
  */
 public class ExplorerMain {
     public static void main(String[] args) {
+        
+        String host="localhost";
+        if( args.length > 0 )
+            host = args[0];
+        
         try {
             GroovyObject explorer = (GroovyObject) ExplorerMain.class.getClassLoader().loadClass("org.apache.geronimo.explorer.Explorer").newInstance();
-            InvokerHelper.setProperty(explorer, "treeModel", getMBeanTreeModel());
+            InvokerHelper.setProperty(explorer, "treeModel", getMBeanTreeModel(host));
             explorer.invokeMethod("run", null);
         }
         catch (Exception e) {
@@ -87,12 +89,13 @@ public class ExplorerMain {
         }
     }
 
-    public static MBeanTreeModel getMBeanTreeModel()
+    public static MBeanTreeModel getMBeanTreeModel(String host)
         throws Exception {
-        return new MBeanTreeModel(getMBeanServer());
+        return new MBeanTreeModel(getMBeanServer(host));
     }
     
-    public static MBeanServer getMBeanServer() {
-        return MBeanServerFactory.createMBeanServer();
+    public static MBeanServer getMBeanServer(String host) throws URISyntaxException {
+        return RemoteMBeanServerFactory.create(host);
+        //return MBeanServerFactory.createMBeanServer();
     }
 }
