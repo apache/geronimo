@@ -85,7 +85,7 @@ import net.sf.cglib.reflect.FastMethod;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/09 20:01:12 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/10 20:40:40 $
  */
 public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBeanTarget {
     private static final Log log = LogFactory.getLog(GeronimoMBeanEndpoint.class);
@@ -483,7 +483,7 @@ public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBea
             }
             connections.clear();
             connections = null;
-            if(proxies != null) {
+            if (proxies != null) {
                 proxies.clear();
                 proxies = null;
             }
@@ -509,7 +509,8 @@ public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBea
         proxies = new HashMap();
 
         // Do we have enough connections?
-        if (singleValued && connections.size() != 1) {
+        if ((singleValued && connections.size() > 1)
+                || (required && connections.size() == 0)) {
             context.fail();
             return;
         }
@@ -523,12 +524,16 @@ public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBea
 
         // set the collection or instance proxy into the target
         if (singleValued) {
-            // we must block all other mbeans with matching name from starting
-            dependency.addStartHolds(context.getObjectName(), peers);
+            if (connections.isEmpty()) {
+                setEndpointProxy(null);
+            } else {
+                // we must block all other mbeans with matching name from starting
+                dependency.addStartHolds(context.getObjectName(), peers);
 
-            // set the connection into the target
-            GeronimoMBeanEndpointConnection connection = (GeronimoMBeanEndpointConnection) connections.values().iterator().next();
-            setEndpointProxy(connection.getProxy());
+                // set the connection into the target
+                GeronimoMBeanEndpointConnection connection = (GeronimoMBeanEndpointConnection) connections.values().iterator().next();
+                setEndpointProxy(connection.getProxy());
+            }
         } else {
             setEndpointProxy(Collections.unmodifiableCollection(proxies.values()));
         }
@@ -539,7 +544,7 @@ public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBea
     }
 
     public synchronized void doStop() {
-        if(!running) {
+        if (!running) {
             return;
         }
 
@@ -678,7 +683,7 @@ public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBea
             connection.open();
             proxies.put(connection.getObjectName(), connection.getProxy());
 
-            if(singleValued) {
+            if (singleValued) {
                 setEndpointProxy(connection.getProxy());
             }
         }
@@ -722,9 +727,10 @@ public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBea
                     log.warn("A problem occured while attemping to start", e);
                 }
             }
-        } if (running) {
+        }
+        if (running) {
             // connection died... clean up
-            if(singleValued) {
+            if (singleValued) {
                 setEndpointProxy(null);
             }
 
