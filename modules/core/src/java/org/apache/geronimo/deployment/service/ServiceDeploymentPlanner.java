@@ -105,7 +105,7 @@ import org.xml.sax.SAXException;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2003/08/20 22:42:24 $
+ * @version $Revision: 1.7 $ $Date: 2003/08/26 11:04:01 $
  */
 public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, MBeanRegistration {
     private Log log = LogFactory.getLog(getClass());
@@ -171,11 +171,13 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
         InputStream is;
         URL url = goal.getUrl();
         URI baseURI = null;
+        
         try {
             baseURI = (new URI(url.toExternalForm())).normalize();
-        } catch (URISyntaxException e) {
-            throw new DeploymentException(e);
+        } catch (Exception e) {
+            throw new DeploymentException("Could not determine base URI", e);
         }
+        
         URLType type = goal.getType();
         if (type == URLType.RESOURCE) {
             if (!url.getPath().endsWith("-service.xml")) {
@@ -184,7 +186,7 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
             try {
                 is = url.openConnection().getInputStream();
             } catch (IOException e) {
-                throw new DeploymentException(e);
+                throw new DeploymentException("Failed to open stream for URL: " + url, e);
             }
         } else if (type == URLType.UNPACKED_ARCHIVE) {
             try {
@@ -198,14 +200,11 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
             return false;
         }
 
-
         Document doc;
         try {
             doc = parser.parse(is);
-        } catch (SAXException e) {
-            throw new DeploymentException(e);
-        } catch (IOException e) {
-            throw new DeploymentException(e);
+        } catch (Exception e) {
+            throw new DeploymentException("Failed to parse document", e);
         }
 
         // Create a plan to register the deployment unit and create the class loader
