@@ -284,6 +284,9 @@
             <artifactId>tranql-connector</artifactId>
             <version>&tranql-connector-version;</version>
             <type>rar</type>
+            <properties>
+                <repository>true</repository>
+            </properties>
         </dependency>
 
         <dependency>
