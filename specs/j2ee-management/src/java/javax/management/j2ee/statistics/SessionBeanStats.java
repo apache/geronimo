@@ -65,8 +65,8 @@ package javax.management.j2ee.statistics;
  *
  *
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
-public interface SessionBeanStats {
+public interface SessionBeanStats extends EJBStats {
     public RangeStatistic getMethodReadyCount();
 }
