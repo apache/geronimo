@@ -48,14 +48,14 @@
                     <config-property-setting name="OutboundStringProperty4">newvalue3</config-property-setting>
                     <config-property-setting name="OutboundStringProperty1">newvalue4</config-property-setting>
                     <connectionmanager>
-                        <!--realm-bridge>TargetRealm</realm-bridge-->
+                        <realm-bridge>TargetRealm</realm-bridge>
                         <blockingTimeout>5000</blockingTimeout>
                         <maxSize>10</maxSize>
                         <useTransactions>true</useTransactions>
                         <useLocalTransactions>false</useLocalTransactions>
                         <useTransactionCaching>true</useTransactionCaching>
-                        <useConnectionRequestInfo>false</useConnectionRequestInfo>
-                        <useSubject>true</useSubject>
+                        <useConnectionRequestInfo>true</useConnectionRequestInfo>
+                        <useSubject>false</useSubject>
                     </connectionmanager>
                 </connectiondefinition-instance>
             </connection-definition>

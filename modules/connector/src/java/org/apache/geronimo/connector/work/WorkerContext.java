@@ -35,7 +35,7 @@ import EDU.oswego.cs.dl.util.concurrent.Latch;
 /**
  * Work wrapper providing an execution context to a Work instance.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:33 $
+ * @version $Revision: 1.5 $ $Date: 2004/04/08 20:35:32 $
  */
 public class WorkerContext implements Work {
 
@@ -213,7 +213,7 @@ public class WorkerContext implements Work {
      * @return true if the Work has timed out and false otherwise.
      */
     public synchronized boolean isTimedOut() {
-        assert !isAccepted: "The work is not accepted.";
+        assert isAccepted: "The work is not accepted.";
         // A value of 0 means that the work never times out.
         if (0 == startTimeOut) {
             return false;

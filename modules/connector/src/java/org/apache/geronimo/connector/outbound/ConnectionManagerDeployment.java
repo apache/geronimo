@@ -34,15 +34,17 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.KernelMBean;
 import org.apache.geronimo.security.bridge.RealmBridge;
+import org.apache.geronimo.deployment.DeploymentException;
 
 /**
  * ConnectionManagerDeployment is an mbean that sets up a ProxyConnectionManager
  * and connection manager stack according to the policies described in the attributes.
  * It's used by deserialized copies of the proxy to get a reference to the actual stack.
  *
- * @version $Revision: 1.6 $ $Date: 2004/03/10 09:58:32 $
+ * @version $Revision: 1.7 $ $Date: 2004/04/08 20:35:32 $
  * */
 public class ConnectionManagerDeployment implements ConnectionManagerFactory, GBean, ConnectionManager, LazyAssociatableConnectionManager {
 
@@ -93,7 +95,7 @@ public class ConnectionManagerDeployment implements ConnectionManagerFactory, GB
     public void setGBeanContext(GBeanContext context) {
     }
 
-    public void doStart() {
+    public void doStart()  throws WaitingException, Exception{
         setUpConnectionManager();
 
     }
@@ -110,10 +112,10 @@ public class ConnectionManagerDeployment implements ConnectionManagerFactory, GB
      * LocalXAResourceInsertionInterceptor or XAResourceInsertionInterceptor (useTransactions (&localTransactions))
      * MCFConnectionInterceptor
      */
-    private void setUpConnectionManager() {
+    private void setUpConnectionManager() throws DeploymentException {
         //check for consistency between attributes
-        if (realmBridge == null) {
-            assert useSubject == false: "To use Subject in pooling, you need a SecurityDomain";
+        if (realmBridge == null && useSubject) {
+            throw new  DeploymentException("To use Subject in pooling, you need a SecurityDomain");
         }
 
         //Set up the interceptor stack
