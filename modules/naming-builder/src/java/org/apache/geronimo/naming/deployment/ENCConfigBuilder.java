@@ -334,40 +334,46 @@ public class ENCConfigBuilder {
             String home = getStringValue(ejbRef.getHome());
             assureEJBHomeInterface(home, cl);
 
+            Reference ejbReference;
             boolean isSession = "Session".equals(getStringValue(ejbRef.getEjbRefType()));
 
-            String ejbLink = null;
-            GerEjbRefType remoteRef = (GerEjbRefType) ejbRefMap.get(ejbRefName);
-            if (remoteRef != null && remoteRef.isSetEjbLink()) {
-                ejbLink = remoteRef.getEjbLink();
-            } else if (ejbRef.isSetEjbLink()) {
-                ejbLink = getStringValue(ejbRef.getEjbLink());
-            }
-
-            Reference ejbReference;
-            if (ejbLink != null) {
-                ejbReference = refContext.getEJBRemoteRef(uri, ejbLink, isSession, home, remote);
-            } else if (remoteRef != null) {
-                if (remoteRef.isSetTargetName()) {
-                    ejbReference = refContext.getEJBRemoteRef(getStringValue(remoteRef.getTargetName()), isSession, home, remote);
-                } else {
-                    String containerId = null;
-                    try {
-                        containerId = NameFactory.getEjbComponentNameString(getStringValue(remoteRef.getDomain()),
-                                getStringValue(remoteRef.getServer()),
-                                getStringValue(remoteRef.getApplication()),
-                                getStringValue(remoteRef.getModule()),
-                                getStringValue(remoteRef.getName()),
-                                getStringValue(remoteRef.getType()),
-                                j2eeContext);
-                    } catch (MalformedObjectNameException e) {
-                        throw new DeploymentException("Could not construct ejb object name: " + remoteRef.getName(), e);
-                    }
-                    ejbReference = refContext.getEJBRemoteRef(containerId, isSession, home, remote);
-
-                }
+            if (isSession && remote.equals("javax.management.j2ee.Management") && home.equals("javax.management.j2ee.ManagementHome")) {
+                String mejbName = refContext.getMEJBName();
+                ejbReference = refContext.getEJBRemoteRef(mejbName, isSession, home, remote);
             } else {
-                ejbReference = refContext.getImplicitEJBRemoteRef(uri, ejbRefName, isSession, home, remote);
+
+                String ejbLink = null;
+                GerEjbRefType remoteRef = (GerEjbRefType) ejbRefMap.get(ejbRefName);
+                if (remoteRef != null && remoteRef.isSetEjbLink()) {
+                    ejbLink = remoteRef.getEjbLink();
+                } else if (ejbRef.isSetEjbLink()) {
+                    ejbLink = getStringValue(ejbRef.getEjbLink());
+                }
+
+                if (ejbLink != null) {
+                    ejbReference = refContext.getEJBRemoteRef(uri, ejbLink, isSession, home, remote);
+                } else if (remoteRef != null) {
+                    if (remoteRef.isSetTargetName()) {
+                        ejbReference = refContext.getEJBRemoteRef(getStringValue(remoteRef.getTargetName()), isSession, home, remote);
+                    } else {
+                        String containerId = null;
+                        try {
+                            containerId = NameFactory.getEjbComponentNameString(getStringValue(remoteRef.getDomain()),
+                                    getStringValue(remoteRef.getServer()),
+                                    getStringValue(remoteRef.getApplication()),
+                                    getStringValue(remoteRef.getModule()),
+                                    getStringValue(remoteRef.getName()),
+                                    getStringValue(remoteRef.getType()),
+                                    j2eeContext);
+                        } catch (MalformedObjectNameException e) {
+                            throw new DeploymentException("Could not construct ejb object name: " + remoteRef.getName(), e);
+                        }
+                        ejbReference = refContext.getEJBRemoteRef(containerId, isSession, home, remote);
+
+                    }
+                } else {
+                    ejbReference = refContext.getImplicitEJBRemoteRef(uri, ejbRefName, isSession, home, remote);
+                }
             }
             try {
                 builder.bind(ejbRefName, ejbReference);
@@ -434,7 +440,7 @@ public class ENCConfigBuilder {
         }
     }
 
-    //TODO current implementation does not deal with portComponentRefs or handlers.
+    //TODO current implementation does not deal with portComponentRefs.
     public static void addServiceRefs(EARContext earContext, Module module, ServiceRefType[] serviceRefs, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
         RefContext refContext = earContext.getRefContext();
 

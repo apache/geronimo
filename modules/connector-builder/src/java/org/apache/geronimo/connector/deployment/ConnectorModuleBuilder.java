@@ -790,14 +790,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         return new ResourceReference(containerId, iface);
     }
 
-    public ObjectName locateResourceName(ObjectName query) throws DeploymentException {
-        Set names = kernel.listGBeans(query);
-        if (names.size() != 1) {
-            throw new DeploymentException("Unknown or ambiguous resource name query: " + query + " match count: " + names.size());
-        }
-        return (ObjectName) names.iterator().next();
-    }
-
     public GBeanData locateActivationSpecInfo(ObjectName resourceAdapterModuleName, String messageListenerInterface) throws DeploymentException {
         Map activationSpecInfos = null;
         try {

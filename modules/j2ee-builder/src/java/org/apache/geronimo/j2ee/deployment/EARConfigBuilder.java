@@ -286,7 +286,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                         connectionTrackerObjectName,
                         transactionalTimerObjectName,
                         nonTransactionalTimerObjectName,
-                        new RefContext(ejbReferenceBuilder, resourceReferenceBuilder, serviceReferenceBuilder));
+                        new RefContext(ejbReferenceBuilder, resourceReferenceBuilder, serviceReferenceBuilder, kernel));
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException(e);
             }

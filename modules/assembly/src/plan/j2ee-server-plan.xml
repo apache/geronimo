@@ -288,4 +288,6 @@ by the server.
 
     <gbean namePart="eis/JAXR" class="org.apache.geronimo.webservices.jaxr.JAXRGBean"/>
 
+    <gbean namePart="ejb/mgmt/MEJB" class="org.openejb.mejb.MEJB"/>
+
 </configuration>

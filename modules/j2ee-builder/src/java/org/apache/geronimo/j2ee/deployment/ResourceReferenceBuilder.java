@@ -30,8 +30,6 @@ public interface ResourceReferenceBuilder {
 
     Reference createAdminObjectRef(String containerId, Class iface) throws DeploymentException;
 
-    ObjectName locateResourceName(ObjectName query) throws DeploymentException;
-
     GBeanData locateActivationSpecInfo(ObjectName resourceAdapterName, String messageListenerInterface) throws DeploymentException;
 
     GBeanData locateResourceAdapterGBeanData(ObjectName resourceAdapterModuleName) throws DeploymentException;

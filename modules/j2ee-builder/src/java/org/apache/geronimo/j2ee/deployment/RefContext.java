@@ -19,24 +19,23 @@ package org.apache.geronimo.j2ee.deployment;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Reference;
 import javax.xml.namespace.QName;
 
-import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.AmbiguousEJBRefException;
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.UnknownEJBRefException;
 import org.apache.geronimo.common.UnresolvedEJBRefException;
+import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.xbeans.j2ee.ServiceRefHandlerType;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
@@ -46,6 +45,7 @@ public class RefContext {
     private final EJBReferenceBuilder ejbReferenceBuilder;
     private final ResourceReferenceBuilder resourceReferenceBuilder;
     private final ServiceReferenceBuilder serviceReferenceBuilder;
+    private final Kernel kernel;
 
     private final Map ejbRemoteIndex;
     private final Map ejbLocalIndex;
@@ -58,7 +58,7 @@ public class RefContext {
     private final Map resourceModuleDataMap;
 
 
-    public RefContext(EJBReferenceBuilder ejbReferenceBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ServiceReferenceBuilder serviceReferenceBuilder) {
+    public RefContext(EJBReferenceBuilder ejbReferenceBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ServiceReferenceBuilder serviceReferenceBuilder, Kernel kernel) {
         assert ejbReferenceBuilder != null: "ejbReferenceBuilder is null";
         assert resourceReferenceBuilder != null: "resourceReferenceBuilder is null";
         assert serviceReferenceBuilder != null: "serviceReferenceBuilder is null";
@@ -73,6 +73,7 @@ public class RefContext {
         this.ejbReferenceBuilder = ejbReferenceBuilder;
         this.resourceReferenceBuilder = resourceReferenceBuilder;
         this.serviceReferenceBuilder = serviceReferenceBuilder;
+        this.kernel = kernel;
     }
 
     public static RefContext derivedClientRefContext(RefContext refContext, EJBReferenceBuilder ejbReferenceBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ServiceReferenceBuilder serviceReferenceBuilder) {
@@ -87,6 +88,7 @@ public class RefContext {
         this.ejbReferenceBuilder = ejbReferenceBuilder;
         this.resourceReferenceBuilder = resourceReferenceBuilder;
         this.serviceReferenceBuilder = serviceReferenceBuilder;
+        this.kernel = refContext.kernel;
         this.ejbRemoteIndex = refContext.ejbRemoteIndex;
         this.ejbLocalIndex = new HashMap();//no local ejb refs
         this.ejbInterfaceIndex = refContext.ejbInterfaceIndex;
@@ -246,7 +248,7 @@ public class RefContext {
             } catch (MalformedObjectNameException e1) {
                 throw new DeploymentException("Could not construct resource adapter object name query", e);
             }
-            ObjectName containerName = resourceReferenceBuilder.locateResourceName(query);
+            ObjectName containerName = locateUniqueName(query, "resource");
             return containerName.getCanonicalName();
         }
     }
@@ -275,7 +277,7 @@ public class RefContext {
             } catch (MalformedObjectNameException e1) {
                 throw new DeploymentException("Could not construct connection factory object name query", e);
             }
-            ObjectName containerName = resourceReferenceBuilder.locateResourceName(query);
+            ObjectName containerName = locateUniqueName(query, "resource");
             return containerName.getCanonicalName();
         }
     }
@@ -295,7 +297,7 @@ public class RefContext {
             } catch (MalformedObjectNameException e1) {
                 throw new DeploymentException("Could not construct admin object object name query", e);
             }
-            ObjectName containerName = resourceReferenceBuilder.locateResourceName(query);
+            ObjectName containerName = locateUniqueName(query, "resource");
             return containerName.getCanonicalName();
         }
     }
@@ -424,4 +426,24 @@ public class RefContext {
     public GBeanData getResourceAdapterModuleData(ObjectName resourceAdapterModuleName) {
         return (GBeanData) resourceModuleDataMap.get(resourceAdapterModuleName);
     }
+
+    public String getMEJBName() throws DeploymentException {
+        ObjectName query = null;
+        try {
+            query = ObjectName.getInstance("*:name=ejb/mgmt/MEJB,*");
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("We built this name...");
+        }
+        ObjectName mejbName = locateUniqueName(query, "Management EJB");
+        return mejbName.getCanonicalName();
+    }
+
+    private ObjectName locateUniqueName(ObjectName query, String type) throws DeploymentException {
+        Set names = kernel.listGBeans(query);
+        if (names.size() != 1) {
+            throw new DeploymentException("Unknown or ambiguous " + type + " name query: " + query + " match count: " + names.size());
+        }
+        return (ObjectName) names.iterator().next();
+    }
+
 }

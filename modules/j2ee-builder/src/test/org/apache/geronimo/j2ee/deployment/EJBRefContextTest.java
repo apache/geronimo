@@ -31,6 +31,7 @@ import org.apache.geronimo.common.UnresolvedEJBRefException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.xbeans.j2ee.ServiceRefHandlerType;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  * @version $Rev$ $Date$
@@ -54,6 +55,7 @@ public class EJBRefContextTest extends TestCase {
     private final String car_gt_local = "car_gt_local";
     private final String car_enzo = "car_enzo";
     private final String car_enzo_local = "car_enzo_local";
+    private Kernel kernel = null;
     private RefContext refContext;
 
     public void testSimpleRefs() throws Exception {
@@ -204,7 +206,7 @@ public class EJBRefContextTest extends TestCase {
             public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
                 return null;
             }
-        });
+        }, kernel);
 
         refContext.addEJBRemoteId(coffee, "peaberry", coffee_peaberry, true, "CoffeeHome", "CoffeeRemote");
         refContext.addEJBLocalId(coffee, "peaberry", coffee_peaberry_local, true, "CoffeeLocalHome", "CoffeeLocal");

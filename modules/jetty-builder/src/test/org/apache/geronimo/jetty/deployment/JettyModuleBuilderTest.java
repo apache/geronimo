@@ -183,7 +183,7 @@ public class JettyModuleBuilderTest extends TestCase {
                             public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
                                 return null;
                             }
-                        }));
+                        }, kernel));
         return earContext;
     }
 

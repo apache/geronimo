@@ -26,7 +26,8 @@ public class NamingTestServlet extends HttpServlet {
 
         Test test = new Test();
         try {
-            test.testWebServiceLookup();
+//            test.testWebServiceLookup();
+            test.testMEJBLookup();
         } catch (Exception e) {
             throw new ServletException(e);
         }

@@ -40,7 +40,6 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.MBeanServerDelegate;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
  
 /**
  * GBean implementing Management interface and supplying proxies to act as the MEJB container.
@@ -122,7 +121,7 @@ public class MEJB implements Management {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(MEJB.class, NameFactory.STATELESS_SESSION_BEAN);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(MEJB.class);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addInterface(Management.class);
 

@@ -22,6 +22,8 @@ import javax.sql.DataSource;
 import javax.jms.Topic;
 import javax.jms.Queue;
 import javax.jms.ConnectionFactory;
+import javax.management.j2ee.Management;
+import javax.management.j2ee.ManagementHome;
 
 import org.apache.notgeronimo.itests.naming.common.webservice.interop.InteropLab;
 import org.apache.notgeronimo.itests.naming.common.webservice.interop.InteropTestPortType;
@@ -58,5 +60,13 @@ public class Test {
          o = initialContext.lookup("java:comp/env/jms/Topic");
          Topic jmsTopic = (Topic) o;
      }
-    
+
+    public void testMEJBLookup() throws Exception {
+        InitialContext initialContext = new InitialContext();
+        Object o = initialContext.lookup("java:comp/env/ejb/mgmt/MEJB");
+        ManagementHome home = (ManagementHome)o;
+        Management mejb = home.create();
+        mejb.getMBeanCount();
+    }
+
 }

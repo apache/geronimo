@@ -325,7 +325,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
                         null,
                         new RefContext(ejbReferenceBuilder,
                                 moduleBuilder,
-                                serviceReferenceBuilder));
+                                serviceReferenceBuilder, kernel));
 
                 action.install(moduleBuilder, earContext, module);
                 earContext.getClassLoader(null);
