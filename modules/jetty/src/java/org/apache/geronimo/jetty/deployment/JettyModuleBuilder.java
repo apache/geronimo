@@ -38,7 +38,6 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 import javax.transaction.UserTransaction;
-import javax.xml.namespace.QName;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
@@ -84,7 +83,6 @@ import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
 
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
 
 
 /**
@@ -121,6 +119,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
             // parse it
             WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(SchemaConversionUtils.parse(specDD));
             webApp = webAppDoc.getWebApp();
+        } catch (XmlException xmle) {
+            throw new DeploymentException("Error parsing web.xml", xmle);
         } catch (Exception e) {
             return null;
         }
@@ -524,7 +524,9 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
         FilterMappingType[] filterMappings = webApp.getFilterMappingArray();
         for (int i = 0; i < filterMappings.length; i++) {
-            checkString(filterMappings[i].getUrlPattern().getStringValue());
+            if (filterMappings[i].isSetUrlPattern()) {
+                checkString(filterMappings[i].getUrlPattern().getStringValue());
+            }
         }
 
         ServletMappingType[] servletMappings = webApp.getServletMappingArray();
