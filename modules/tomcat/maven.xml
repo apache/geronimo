@@ -53,4 +53,25 @@
 	</preGoal>
 -->
 
+    <preGoal name="test:test">
+        <mkdir dir="${maven.build.dir}/endorsed"/>
+        <mkdir dir="${maven.build.dir}/var"/>
+        <mkdir dir="${maven.build.dir}/var/catalina"/>
+        <mkdir dir="${maven.build.dir}/var/catalina/webapps"/>
+        <mkdir dir="${maven.build.dir}/var/catalina/conf"/>
+        <copy todir="${maven.build.dir}/var/catalina/conf" file="src/var/web.xml"/>
+        <copy todir="${maven.build.dir}/var/catalina/webapps">
+            <fileset dir="src/test-resources/deployables">
+                <include name="war1/**"/>
+                <include name="war3/**"/>
+            </fileset>
+        </copy>
+
+        <j:forEach var="dep" items="${pom.dependencies}">
+            <j:if test="${dep.artifactId.equals('xercesImpl') || dep.artifactId.equals('xml-apis')}">
+                <copy file="${maven.repo.local}/${dep.groupId}/jars/${dep.artifact}" todir="${maven.build.dir}/endorsed"/>
+            </j:if>
+        </j:forEach>
+    </preGoal>
+
 </project>

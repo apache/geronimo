@@ -94,11 +94,11 @@ public class TomcatContainer implements GBeanLifecycle {
     private int port;
 
     // Required as it's referenced by deployed webapps
-    public TomcatContainer(){
+    public TomcatContainer() {
         setCatalinaHome(DEFAULT_CATALINA_HOME);
         setPort(DEFAULT_HTTP_CONNECTOR_PORT);
     }
-    
+
     /**
      * GBean constructor (invoked dynamically when the gbean is declared in a
      * plan)
@@ -148,6 +148,12 @@ public class TomcatContainer implements GBeanLifecycle {
         engine = embedded.createEngine();
         engine.setName("tomcat.engine");
         engine.setDefaultHost("localhost");
+
+        // Set a default realm for Geronimo, or Tomcat will use JAASRealm
+        // TomcatJAASRealm realm = new TomcatJAASRealm();
+        // realm.setUserClassNames("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
+        // realm.setRoleClassNames("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
+        // engine.setRealm(realm);
 
         // 4. Call createHost() to create at least one virtual Host associated
         // with the newly created Engine, and then call its property setters as
@@ -212,21 +218,26 @@ public class TomcatContainer implements GBeanLifecycle {
      * @see org.apache.catalina.startup.Embedded
      * @see org.apache.catalina.Host
      */
-    public void addContext(Context ctx) {
-        // TODO: Rethink what we're doing here
-        // The param - ctx - extends StandardContext, but at the same time we
-        // don't leverage it.
-        // TomcatContainer creates it again - so in fact there're two classes
-        // for the same thing.
-        // The question comes up what do we get from having the
-        // TomcatWebAppContext class extend Tomcat's StandardContext?
+    public void addContext(TomcatContext ctx) {
         Context anotherCtxObj = embedded.createContext(ctx.getPath(), ctx.getDocBase());
         anotherCtxObj.setParentClassLoader(this.getClass().getClassLoader());
+
+        // Set the context for thew Tomcat implementation
+        ctx.setContext(anotherCtxObj);
+
+        // Have the context to set its properties
+        ctx.setContextProperties();
+
         host.addChild(anotherCtxObj);
     }
 
-    public void removeContext(Context ctx) {
-        embedded.removeContext(ctx);
+    public void removeContext(TomcatContext ctx) {
+        Context context = ctx.getContext();
+
+        if (context != null)
+            embedded.removeContext(context);
+
+        ctx.setContext(null);
     }
 
     public void setCatalinaHome(String catalinaHome) {
@@ -251,8 +262,8 @@ public class TomcatContainer implements GBeanLifecycle {
         infoFactory.addAttribute("catalinaHome", String.class, true);
         infoFactory.addAttribute("port", int.class, true);
 
-        infoFactory.addOperation("addContext", new Class[] { Context.class });
-        infoFactory.addOperation("removeContext", new Class[] { Context.class });
+        infoFactory.addOperation("addContext", new Class[] { TomcatContext.class });
+        infoFactory.addOperation("removeContext", new Class[] { TomcatContext.class });
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -41,7 +41,18 @@
     <!-- ============ -->
 
     <dependencies>
-		<!-- temporary solution until appropriate xmlbeans code is ready -->
+        <!-- temporary solution until appropriate xmlbeans code is ready -->
+        <dependency>
+          <groupId>cglib</groupId>
+          <artifactId>cglib-full</artifactId>
+          <version>${cglib_version}</version>
+          <url>http://cglib.sf.net/</url>
+        </dependency>
+        <dependency>
+             <groupId>concurrent</groupId>
+             <artifactId>concurrent</artifactId>
+             <version>${concurrent_version}</version>
+         </dependency>        
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-jetty-builder</artifactId>
@@ -67,6 +78,11 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-connector</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-deployment</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
@@ -82,7 +98,17 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-security</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-transaction</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
         <dependency>
@@ -209,6 +235,11 @@
             <groupId>xerces</groupId>
             <artifactId>xmlParserAPIs</artifactId>
             <version>${xml_parser_apis_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+            <version>${xml_apis_version}</version>
         </dependency>
         <dependency>
             <groupId>xmlbeans</groupId>

@@ -21,8 +21,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 
-import org.apache.catalina.LifecycleException;
-import org.apache.catalina.core.StandardContext;
+import org.apache.catalina.Context;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -35,13 +34,19 @@ import org.apache.geronimo.gbean.WaitingException;
  * 
  * @version $Rev: 56022 $ $Date: 2004-10-30 07:16:18 +0200 (Sat, 30 Oct 2004) $
  */
-public class TomcatWebAppContext extends StandardContext implements GBeanLifecycle {
+public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
 
     private static Log log = LogFactory.getLog(TomcatWebAppContext.class);
 
-    private final TomcatContainer container;
+    protected final TomcatContainer container;
+
+    protected Context context = null;
 
     private final URI webAppRoot;
+
+    private String path = null;
+
+    private String docBase = null;
 
     public TomcatWebAppContext(URI webAppRoot, URI[] webClassPath, URL configurationBaseUrl, TomcatContainer container)
             throws MalformedURLException {
@@ -57,6 +62,35 @@ public class TomcatWebAppContext extends StandardContext implements GBeanLifecyc
         this.setDocBase(this.webAppRoot.getPath());
     }
 
+    public String getDocBase() {
+        return docBase;
+    }
+
+    public void setDocBase(String docBase) {
+        this.docBase = docBase;
+    }
+
+    public void setContextProperties() {
+        context.setDocBase(webAppRoot.getPath());
+        context.setPath(path);
+    }
+
+    public Context getContext() {
+        return context;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
     public void doStart() throws WaitingException, Exception {
 
         // See the note of TomcatContainer::addContext
@@ -68,18 +102,12 @@ public class TomcatWebAppContext extends StandardContext implements GBeanLifecyc
     }
 
     public void doStop() throws Exception {
-        super.stop();
         container.removeContext(this);
 
         log.info("TomcatWebAppContext stopped");
     }
 
     public void doFail() {
-        try {
-            super.stop();
-        } catch (LifecycleException e) {
-        }
-
         container.removeContext(this);
         log.info("TomcatWebAppContext failed");
     }
@@ -97,7 +125,7 @@ public class TomcatWebAppContext extends StandardContext implements GBeanLifecyc
 
         infoFactory.addReference("Container", TomcatContainer.class);
 
-        infoFactory.setConstructor(new String[] { "webAppRoot", "webClassPath", "configurationBaseUrl", "Container", });
+        infoFactory.setConstructor(new String[] { "webAppRoot", "webClassPath", "configurationBaseUrl", "Container" });
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
