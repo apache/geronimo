@@ -78,17 +78,16 @@ public class TypeDescBuilder {
                 ElementDesc elementDesc = new ElementDesc();
                 elementDesc.setFieldName(fieldName);
                 Class javaType = (Class) properties.get(fieldName);
-                if (javaType != null) {
-                    elementDesc.setJavaType(javaType);
-                } else {
+                if (javaType == null) {
                     //see if it is a public field
                     try {
                         Field field = javaClass.getField(fieldName);
-                        elementDesc.setJavaType(field.getType());
+                        javaType = field.getType();
                     } catch (NoSuchFieldException e) {
                         throw new DeploymentException("field name " + fieldName + " not found in " + properties);
                     }
                 }
+                elementDesc.setJavaType(javaType);
                 //TODO correct namespace???
                 String namespace = "";
                 QName xmlName = new QName(namespace, variableMapping.getXmlElementName().getStringValue().trim());
@@ -96,10 +95,13 @@ public class TypeDescBuilder {
                 QName xmlType = schemaType.getName();
                 elementDesc.setXmlType(xmlType);
                 //TODO figure out how to find these:
+//                if (javaType.isArray()) {
 //                    elementDesc.setArrayType(null);
 //                    elementDesc.setMinOccurs(0);
 //                    elementDesc.setMaxOccurs(0);
-//                    elementDesc.setNillable(false);
+//                }
+                //TODO I have no evidence this is what nillable is supposed to mean, but it's more plausible than constant true or false.
+                elementDesc.setNillable(!javaType.isPrimitive());
                 fields[i] = elementDesc;
             }
         }
