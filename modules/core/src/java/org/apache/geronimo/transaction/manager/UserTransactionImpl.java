@@ -55,6 +55,8 @@
  */
 package org.apache.geronimo.transaction.manager;
 
+import java.io.Serializable;
+
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.NotSupportedException;
@@ -70,11 +72,11 @@ import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnecti
  * TODO this needs to notify the TrackedConnectionAssociator when a tx starts.
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/30 08:28:57 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/16 23:38:50 $
  */
-public class UserTransactionImpl implements UserTransaction {
-    private TransactionManager transactionManager;
-    private TrackedConnectionAssociator trackedConnectionAssociator;
+public class UserTransactionImpl implements UserTransaction, Serializable{
+    private transient TransactionManager transactionManager;
+    private transient TrackedConnectionAssociator trackedConnectionAssociator;
 
     public UserTransactionImpl() {
     }
