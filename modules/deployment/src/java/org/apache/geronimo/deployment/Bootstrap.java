@@ -30,7 +30,7 @@ import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;
 import org.apache.geronimo.system.configuration.LocalConfigStore;
-import org.apache.geronimo.system.main.CommandLine;
+import org.apache.geronimo.system.main.CommandLineManifest;
 import org.apache.geronimo.system.repository.ReadOnlyRepository;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
@@ -38,7 +38,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * Helper class to bootstrap the Geronimo deployer.
  *
- * @version $Revision: 1.13 $ $Date: 2004/04/03 22:37:57 $
+ * @version $Revision: 1.14 $ $Date: 2004/04/05 05:54:11 $
  */
 public class Bootstrap {
     private String deployerJar;
@@ -123,11 +123,11 @@ public class Bootstrap {
             Manifest manifest = new Manifest();
             Attributes mainAttributes = manifest.getMainAttributes();
             mainAttributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
-            mainAttributes.putValue(Attributes.Name.MAIN_CLASS.toString(), CommandLine.class.getName());
+            mainAttributes.putValue(Attributes.Name.MAIN_CLASS.toString(), "org.apache.geronimo.system.main.CommandLine");
             mainAttributes.putValue(Attributes.Name.CLASS_PATH.toString(), deployerClassPath);
-            mainAttributes.putValue(CommandLine.MAIN_GBEAN.toString(), deployerGBean);
-            mainAttributes.putValue(CommandLine.MAIN_METHOD.toString(), "deploy");
-            mainAttributes.putValue(CommandLine.CONFIGURATIONS.toString(), j2eeDeployerConfig.getConfigId());
+            mainAttributes.putValue(CommandLineManifest.MAIN_GBEAN.toString(), deployerGBean);
+            mainAttributes.putValue(CommandLineManifest.MAIN_METHOD.toString(), "deploy");
+            mainAttributes.putValue(CommandLineManifest.CONFIGURATIONS.toString(), j2eeDeployerConfig.getConfigId());
 
             // build and install the deployer-system configuration
             // write the deployer system out to a jar

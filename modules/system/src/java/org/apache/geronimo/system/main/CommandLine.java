@@ -17,19 +17,9 @@
 
 package org.apache.geronimo.system.main;
 
-import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.net.JarURLConnection;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
-import java.util.StringTokenizer;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
@@ -41,7 +31,7 @@ import org.apache.geronimo.system.url.GeronimoURLFactory;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:59:31 $
+ * @version $Revision: 1.6 $ $Date: 2004/04/05 05:54:11 $
  */
 public class CommandLine {
     static {
@@ -55,10 +45,6 @@ public class CommandLine {
     private CommandLine() {
     }
 
-    public static final Attributes.Name MAIN_GBEAN = new Attributes.Name("Main-GBean");
-    public static final Attributes.Name MAIN_METHOD = new Attributes.Name("Main-Method");
-    public static final Attributes.Name CONFIGURATIONS = new Attributes.Name("Configurations");
-
     /**
      * Command line entry point called by executable jar
      * @param args command line args
@@ -66,7 +52,7 @@ public class CommandLine {
     public static void main(String[] args) {
         try {
             // the interesting entries from the manifest
-            ManifestEntries manifestEntries = getManifestEntries();
+            CommandLineManifest manifest = CommandLineManifest.getManifestEntries();
 
             // boot the kernel
             Kernel kernel = new Kernel("geronimo.kernel", "geronimo");
@@ -86,7 +72,7 @@ public class CommandLine {
             kernel.startRecursiveGBean(configName);
 
             // load and start the configurations listested in the manifest
-            for (Iterator iterator = manifestEntries.configurations.iterator(); iterator.hasNext();) {
+            for (Iterator iterator = manifest.getConfigurations().iterator(); iterator.hasNext();) {
                 URI configurationID = (URI) iterator.next();
                 ObjectName configurationName = configurationManager.load(configurationID);
                 kernel.startRecursiveGBean(configurationName);
@@ -94,8 +80,8 @@ public class CommandLine {
 
             // invoke the main method
             kernel.invoke(
-                    manifestEntries.mainGBean,
-                    manifestEntries.mainMethod,
+                    manifest.getMainGBean(),
+                    manifest.getMainMethod(),
                     new Object[]{args},
                     new String[]{String[].class.getName()});
 
@@ -111,71 +97,4 @@ public class CommandLine {
         }
     }
 
-    private static ManifestEntries getManifestEntries() {
-        ManifestEntries manifestEntries = new ManifestEntries();
-
-        // find the startup jar
-        ClassLoader classLoader = CommandLine.class.getClassLoader();
-        URL url = classLoader.getResource("META-INF/startup-jar");
-        if (url == null) {
-            throw new IllegalArgumentException("Unable to determine location of startup jar");
-        }
-
-        // extract the manifest
-        Manifest manifest;
-        try {
-            JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
-            manifest = jarConnection.getManifest();
-        } catch (IOException e) {
-            System.err.println("Startup jar does not contain a manifest: " + url);
-            System.exit(1);
-            throw new AssertionError();
-        }
-        Attributes mainAttributes = manifest.getMainAttributes();
-
-        // get the main gbean class
-        String mainGBeanString = mainAttributes.getValue(MAIN_GBEAN);
-        if (mainGBeanString == null) {
-            System.err.println("Manifest does not conatin a Main-GBean entry");
-            System.exit(1);
-            throw new AssertionError();
-        }
-        try {
-            manifestEntries.mainGBean = new ObjectName(mainGBeanString);
-        } catch (MalformedObjectNameException e) {
-            System.err.println("Invalid Main-GBean name: " + mainGBeanString);
-            System.exit(1);
-            throw new AssertionError();
-        }
-
-        // get the main method
-        manifestEntries.mainMethod = mainAttributes.getValue(MAIN_METHOD);
-        if (mainGBeanString == null) {
-            System.err.println("Manifest does not conatin a Main-Method entry");
-            System.exit(1);
-            throw new AssertionError();
-        }
-
-        // get the list of extra configurations to load
-        String configurationsString = mainAttributes.getValue(CONFIGURATIONS);
-        if (configurationsString != null) {
-            for (StringTokenizer tokenizer = new StringTokenizer(configurationsString, " "); tokenizer.hasMoreTokens();) {
-                String configuration = tokenizer.nextToken();
-                try {
-                    manifestEntries.configurations.add(new URI(configuration));
-                } catch (URISyntaxException e) {
-                    System.err.println("Invalid URI in Manifest Configurations entry: " + configuration);
-                    System.exit(1);
-                    throw new AssertionError();
-                }
-            }
-        }
-        return manifestEntries;
-    }
-
-    private static class ManifestEntries {
-        private ObjectName mainGBean;
-        private String mainMethod;
-        private final List configurations = new ArrayList();
-    }
 }
