@@ -56,6 +56,8 @@
 package org.apache.geronimo.jetty.deployment;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -68,8 +70,10 @@ import java.util.Collections;
 import java.util.Properties;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
+import java.util.zip.ZipEntry;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.naming.NamingException;
 
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -90,6 +94,10 @@ import org.apache.geronimo.xbeans.geronimo.jetty.JettyReferencesType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
+import org.apache.geronimo.xbeans.j2ee.WebAppType;
+import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
+import org.apache.geronimo.naming.java.ReadOnlyContext;
+import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
@@ -99,7 +107,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/02/20 23:18:00 $
+ * @version $Revision: 1.7 $ $Date: 2004/02/21 17:41:55 $
  */
 public class WARConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
@@ -124,7 +132,7 @@ public class WARConfigBuilder implements ConfigurationBuilder {
             if (module.toString().endsWith("/")) {
                 moduleBase = module;
             } else {
-                moduleBase = new URL("jar:"+module.toString()+"!/");
+                moduleBase = new URL("jar:" + module.toString() + "!/");
             }
             XmlObject plan = getPlan(new URL(moduleBase, "WEB-INF/geronimo-jetty.xml"), JettyWebAppDocument.type);
 // todo needs generic web XMLBeans
@@ -158,6 +166,7 @@ public class WARConfigBuilder implements ConfigurationBuilder {
     }
 
     public void buildConfiguration(File outfile, JarInputStream module, XmlObject plan) throws IOException, DeploymentException {
+        WebAppType webApp = null;
         JettyWebAppType jettyWebApp = ((JettyWebAppDocument) plan).getWebApp();
         URI configID;
         try {
@@ -188,7 +197,26 @@ public class WARConfigBuilder implements ConfigurationBuilder {
 
             // add the warfile's content to the configuration
             URI warRoot = URI.create("war/");
-            context.addArchive(warRoot, module);
+            ZipEntry src;
+            while ((src = module.getNextEntry()) != null) {
+                URI target = warRoot.resolve(src.getName());
+                if ("WEB-INF/web.xml".equals(src.getName())) {
+                    byte[] buffer = getBytes(module);
+                    context.addFile(target, new ByteArrayInputStream(buffer));
+                    try {
+                        WebAppDocument doc = (WebAppDocument) XmlBeans.getContextTypeLoader().parse(new ByteArrayInputStream(buffer), WebAppDocument.type, null);
+                        webApp = doc.getWebApp();
+                    } catch (XmlException e) {
+                        throw new DeploymentException("Unable to parse web.xml");
+                    }
+                } else {
+                    context.addFile(target, module);
+                }
+            }
+
+            if (webApp == null) {
+                throw new DeploymentException("Did not find WEB-INF/web.xml in module");
+            }
             context.addToClassPath(warRoot);
 
             // todo do we need to support include and dependency or can we rely on the parent?
@@ -200,7 +228,7 @@ public class WARConfigBuilder implements ConfigurationBuilder {
 
 
             // add the GBean for the web application
-            addWebAppGBean(context, jettyWebApp, warRoot);
+            addWebAppGBean(context, webApp, jettyWebApp, warRoot);
 
             // todo do we need to add GBeans to make the servlets JSR77 ManagedObjects?
 
@@ -211,8 +239,18 @@ public class WARConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    private void addWebAppGBean(DeploymentContext context, JettyWebAppType webApp, URI warRoot) throws DeploymentException {
-        String contextRoot = webApp.getContextRoot().trim();
+    private byte[] getBytes(InputStream is) throws IOException {
+        byte[] buffer = new byte[4096];
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        int count;
+        while ((count = is.read(buffer)) > 0) {
+            baos.write(buffer, 0, count);
+        }
+        return baos.toByteArray();
+    }
+
+    private void addWebAppGBean(DeploymentContext context, WebAppType webApp, JettyWebAppType jettyWebApp, URI warRoot) throws DeploymentException {
+        String contextRoot = jettyWebApp.getContextRoot().trim();
         if (contextRoot.length() == 0) {
             throw new DeploymentException("Missing value for context-root");
         }
@@ -231,28 +269,15 @@ public class WARConfigBuilder implements ConfigurationBuilder {
             throw new DeploymentException("Unable to construct ObjectName", e);
         }
 
+        ReadOnlyContext compContext = buildComponentContext(webApp, jettyWebApp);
+
         GBeanMBean gbean = new GBeanMBean(JettyWebApplicationContext.GBEAN_INFO);
         try {
             gbean.setAttribute("URI", warRoot);
             gbean.setAttribute("ContextPath", contextRoot);
-            gbean.setAttribute("ContextPriorityClassLoader", Boolean.valueOf(webApp.getContextPriorityClassloader()));
+            gbean.setAttribute("ContextPriorityClassLoader", Boolean.valueOf(jettyWebApp.getContextPriorityClassloader()));
             gbean.setAttribute("PolicyContextID", null);
-            //jndi
-/*
-            if (proxyFactory != null) {
-                UserTransaction userTransaction = null;
-                Context componentContext = new ComponentContextBuilder(proxyFactory, cl).buildContext(
-                        webApp.getEjbRefArray(), jettyWebApp.getEjbRefArray(),
-                        webApp.getEjbLocalRefArray(), jettyWebApp.getEjbLocalRefArray(),
-                        webApp.getEnvEntryArray(),
-                        webApp.getMessageDestinationRefArray(), jettyWebApp.getMessageDestinationRefArray(),
-                        webApp.getResourceEnvRefArray(), jettyWebApp.getResourceEnvRefArray(),
-                        webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray(),
-                        userTransaction);
-                gbean.setAttribute("ComponentContext", componentContext);
-            }
-*/
-
+            gbean.setAttribute("ComponentContext", compContext);
             gbean.setReferencePatterns("Configuration", Collections.singleton(Kernel.getConfigObjectName(configID)));
             gbean.setReferencePatterns("JettyContainer", Collections.singleton(new ObjectName("*:type=WebContainer,container=Jetty"))); // @todo configurable
             gbean.setReferencePatterns("TransactionManager", Collections.EMPTY_SET);
@@ -261,6 +286,31 @@ public class WARConfigBuilder implements ConfigurationBuilder {
             throw new DeploymentException("Unable to initialize webapp GBean", e);
         }
         context.addGBean(name, gbean);
+    }
+
+    private ReadOnlyContext buildComponentContext(WebAppType webApp, JettyWebAppType jettyWebApp) throws DeploymentException {
+        ComponentContextBuilder builder = new ComponentContextBuilder();
+        EnvEntryType[] envEntries = webApp.getEnvEntryArray();
+        for (int i = 0; i < envEntries.length; i++) {
+            EnvEntryType envEntry = envEntries[i];
+            String name = envEntry.getEnvEntryName().getStringValue();
+            String type = envEntry.getEnvEntryType().getStringValue();
+            String text = envEntry.getEnvEntryValue().getStringValue();
+            try {
+                builder.addEnvEntry(name, type, text);
+            } catch (NumberFormatException e) {
+                throw new DeploymentException("Invalid env-entry value for name: " + name, e);
+            } catch (NamingException e) {
+                throw new DeploymentException("Invalid env-entry definition for name: " + name, e);
+            }
+        }
+        // todo ejb-ref
+        // todo ejb-local-ref
+        // todo resource-ref
+        // todo resource-env-ref
+        // todo message-destination-ref
+        // todo usertransaction
+        return builder.getContext();
     }
 
     /**
