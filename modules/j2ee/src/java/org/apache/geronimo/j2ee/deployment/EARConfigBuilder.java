@@ -42,6 +42,7 @@ import javax.management.ObjectName;
 import org.apache.geronimo.common.xml.XmlBeansUtil;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.deployment.service.GBeanHelper;
 import org.apache.geronimo.deployment.util.FileUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -51,6 +52,8 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationDocument;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationType;
+import org.apache.geronimo.xbeans.geronimo.j2ee.GerDependencyType;
+import org.apache.geronimo.xbeans.geronimo.j2ee.GerGbeanType;
 import org.apache.geronimo.xbeans.j2ee.ApplicationDocument;
 import org.apache.geronimo.xbeans.j2ee.ApplicationType;
 import org.apache.geronimo.xbeans.j2ee.ModuleType;
@@ -60,7 +63,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.9 $ $Date: 2004/06/22 04:47:47 $
+ * @version $Revision: 1.10 $ $Date: 2004/06/23 20:24:45 $
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
     private final Kernel kernel;
@@ -195,6 +198,15 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 }
             }
 
+            // add dependencies declared in the geronimo-application.xml
+            if (plan instanceof GerApplicationDocument) {
+                GerApplicationDocument geronimoDoc = (GerApplicationDocument) plan;
+                GerDependencyType[] dependencies = geronimoDoc.getApplication().getDependencyArray();
+                for (int i = 0; i < dependencies.length; i++) {
+                    earContext.addDependency(getDependencyURI(dependencies[i]));
+                }
+            }
+
             // each module installs it's files into the output context.. this is differenct for each module type
             for (Iterator iterator = modules.iterator(); iterator.hasNext();) {
                 Module module = (Module) iterator.next();
@@ -206,6 +218,15 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             for (Iterator iterator = modules.iterator(); iterator.hasNext();) {
                 Module module = (Module) iterator.next();
                 getBuilder(module).initContext(earContext, module, cl);
+            }
+
+            // add gbeans declared in the geronimo-application.xml
+            if (plan instanceof GerApplicationDocument) {
+                GerApplicationDocument geronimoDoc = (GerApplicationDocument) plan;
+                GerGbeanType[] gbeans = geronimoDoc.getApplication().getGbeanArray();
+                for (int i = 0; i < gbeans.length; i++) {
+                    GBeanHelper.addGbean(new GerGBeanAdapter(gbeans[i]), cl, earContext);
+                }
             }
 
             // Create the J2EEApplication managed object
@@ -377,6 +398,26 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         }
 
         throw new DeploymentException("Could not determine config id");
+    }
+
+    private URI getDependencyURI(GerDependencyType dep) throws DeploymentException {
+        URI uri;
+        if (dep.isSetUri()) {
+            try {
+                uri = new URI(dep.getUri());
+            } catch (URISyntaxException e) {
+                throw new DeploymentException("Invalid dependency URI " + dep.getUri(), e);
+            }
+        } else {
+            // @todo support more than just jars
+            String id = dep.getGroupId() + "/jars/" + dep.getArtifactId() + '-' + dep.getVersion() + ".jar";
+            try {
+                uri = new URI(id);
+            } catch (URISyntaxException e) {
+                throw new DeploymentException("Unable to construct URI for groupId=" + dep.getGroupId() + ", artifactId=" + dep.getArtifactId() + ", version=" + dep.getVersion(), e);
+            }
+        }
+        return uri;
     }
 
     public static final GBeanInfo GBEAN_INFO;

@@ -27,7 +27,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/06/04 22:31:56 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/23 20:24:45 $
  */
 public class J2EEDomainImpl {
     private final Kernel kernel;
@@ -44,7 +44,7 @@ public class J2EEDomainImpl {
     /**
      * ObjectName must match this pattern:
      * <p/>
-     * domain:j2eeType=J2EEServer,name=MyName
+     * domain:j2eeType=J2EEDomain,name=domain
      */
     private void verifyObjectName(ObjectName objectName) {
         if (objectName.isPattern()) {

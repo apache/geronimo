@@ -29,6 +29,11 @@
     <xs:element name="application" type="geronimo:applicationType"/>
 
     <xs:complexType name="applicationType">
+        <xs:sequence>
+            <xs:element name="dependency" type="geronimo:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="gbean" type="geronimo:gbeanType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+
         <xs:attribute name="configId" type="xs:string" use="required"/>
         <xs:attribute name="parentId" type="xs:string" use="optional"/>
     </xs:complexType>
