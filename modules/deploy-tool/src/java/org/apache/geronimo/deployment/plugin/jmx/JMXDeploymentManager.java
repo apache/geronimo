@@ -51,21 +51,23 @@ import org.apache.geronimo.kernel.jmx.KernelDelegate;
 import org.apache.geronimo.kernel.jmx.KernelMBean;
 import org.apache.geronimo.kernel.management.State;
 
+
 /**
- *
- *
  * @version $Rev$ $Date$
  */
 public class JMXDeploymentManager implements DeploymentManager {
     private JMXConnector jmxConnector;
     private MBeanServerConnection mbServerConnection;
     private KernelMBean kernel;
-	private CommandContext commandContext;
+    private CommandContext commandContext;
 
     public JMXDeploymentManager(JMXConnector jmxConnector) throws IOException {
         this.jmxConnector = jmxConnector;
         mbServerConnection = jmxConnector.getMBeanServerConnection();
         kernel = new KernelDelegate(mbServerConnection);
+        commandContext = new CommandContext();
+        commandContext.setLogErrors(true);
+        commandContext.setVerbose(true);
     }
 
     public void release() {
@@ -264,17 +266,17 @@ public class JMXDeploymentManager implements DeploymentManager {
         throw new InvalidModuleException("Not supported");
     }
 
-	public void setCommandContext(CommandContext commandContext) {
-		this.commandContext = commandContext;
-	}
-    
+    public void setCommandContext(CommandContext commandContext) {
+        this.commandContext = commandContext;
+    }
+
     public static class CommandContext {
         private boolean logErrors;
         private boolean verbose;
-        
+
         public CommandContext() {
         }
-        
+
         public boolean isLogErrors() {
             return logErrors;
         }
@@ -282,11 +284,11 @@ public class JMXDeploymentManager implements DeploymentManager {
         public void setLogErrors(boolean logErrors) {
             this.logErrors = logErrors;
         }
-        
+
         public boolean isVerbose() {
             return verbose;
         }
-        
+
         public void setVerbose(boolean verbose) {
             this.verbose = verbose;
         }
