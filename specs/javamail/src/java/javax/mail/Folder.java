@@ -74,7 +74,7 @@ import javax.mail.event.MessageCountListener;
 import javax.mail.event.TransportListener;
 import javax.mail.search.SearchTerm;
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/16 04:29:52 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/04 00:41:10 $
  */
 public abstract class Folder {
     // Constants from J2SE 1.4 doc (Constant Values)
@@ -215,20 +215,19 @@ public abstract class Folder {
             event.dispatch(listener);
         }
     }
-    protected void notifyFolderListeners(int type, Folder folder) {
+    protected void notifyFolderListeners(int type) {
         Iterator it = _folderListeners.iterator();
-        FolderEvent event = new FolderEvent(this, folder, type);
+        FolderEvent event = new FolderEvent(this,this,type);
         while (it.hasNext()) {
             FolderListener listener = (FolderListener) it.next();
             event.dispatch(listener);
         }
     }
     protected void notifyFolderRenamedListeners(
-        Folder oldFolder,
         Folder newFolder) {
         Iterator it = _folderListeners.iterator();
         FolderEvent event =
-            new FolderEvent(this, oldFolder, newFolder, FolderEvent.RENAMED);
+            new FolderEvent(this, this, newFolder, FolderEvent.RENAMED);
         while (it.hasNext()) {
             FolderListener listener = (FolderListener) it.next();
             event.dispatch(listener);
