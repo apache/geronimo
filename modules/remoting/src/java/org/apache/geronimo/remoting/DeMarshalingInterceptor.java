@@ -63,7 +63,7 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/02/15 18:23:28 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/16 17:51:02 $
  */
 public class DeMarshalingInterceptor implements Interceptor {
 
@@ -77,13 +77,6 @@ public class DeMarshalingInterceptor implements Interceptor {
     public DeMarshalingInterceptor(Interceptor next, ClassLoader classloader) {
         this.next = next;
         this.classloader = classloader;
-    }
-
-    public static class ThrowableWrapper implements Serializable {
-        ThrowableWrapper(Throwable exception) {
-            this.exception = exception;
-        }
-        public Throwable exception;
     }
 
     /**
@@ -112,21 +105,16 @@ public class DeMarshalingInterceptor implements Interceptor {
                 marshalledInvocation = (Invocation) mo.get();
             } catch (Throwable e) {
                 // Could not deserialize the invocation...
-                mo.set(new ThrowableWrapper(e));
+                mo.set(e);
                 return new SimpleInvocationResult(false, mo);                
             }
 
             try {
                 InvocationResult rc = next.invoke(marshalledInvocation);
-                if (rc.isNormal()) {
-                    mo.set(rc.getResult());
-                    return new SimpleInvocationResult(true, mo);
-                } else {
-                    mo.set(new ThrowableWrapper((Throwable)rc.getResult()));
-                    return new SimpleInvocationResult(false, mo);
-                }
+                mo.set(rc);
+                return new SimpleInvocationResult(true, mo);
             } catch (Throwable e) {
-                mo.set(new ThrowableWrapper(e));
+                mo.set(e);
                 return new SimpleInvocationResult(false, mo);
             }
 

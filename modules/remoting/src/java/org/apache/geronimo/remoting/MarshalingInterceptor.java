@@ -63,7 +63,7 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2003/11/26 20:54:28 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/16 17:51:02 $
  */
 public class MarshalingInterceptor implements Interceptor, Serializable {
     TransportInterceptor next;
@@ -86,22 +86,20 @@ public class MarshalingInterceptor implements Interceptor, Serializable {
 
             // Demarshal the result.
             mo = (MarshalledObject) rc.getResult();
-            Object result;
+            InvocationResult result;
             try {
             
-                result = mo.get();
+                result = (InvocationResult)mo.get();
 
             } catch ( ClassNotFoundException e ) {      
                 // Weird.
                 Thread.currentThread().setContextClassLoader(MarshalingInterceptor.class.getClassLoader());
-                result = mo.get();
+                result = (InvocationResult)mo.get();
             }
 
             // Are we demarshalling a thrown exception.
-            if (result instanceof DeMarshalingInterceptor.ThrowableWrapper) {
-                throw ((DeMarshalingInterceptor.ThrowableWrapper) result).exception;
-            }
-            return new SimpleInvocationResult(true, result);
+            if (result.isException()) throw result.getException();
+            return new SimpleInvocationResult(result.isNormal(), result.getResult());
             
         } finally {
             Thread.currentThread().setContextClassLoader(originalLoader);
