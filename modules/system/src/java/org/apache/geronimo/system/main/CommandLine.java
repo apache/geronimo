@@ -65,6 +65,7 @@ public class CommandLine {
 
             log.info("Server shutdown completed");
         } catch (Exception e) {
+            ExceptionUtil.trimStackTrace(e);
             e.printStackTrace();
             System.exit(2);
             throw new AssertionError();

@@ -16,11 +16,12 @@
  */
 package org.apache.geronimo.client;
 
-import java.util.Collections;
 import java.net.URI;
+import java.util.Collections;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.system.main.CommandLine;
+import org.apache.geronimo.system.main.ExceptionUtil;
 
 /**
  * @version $Revision$ $Date$
@@ -40,6 +41,7 @@ public class ClientCommandLine extends CommandLine {
 
             log.info("Client shutdown completed");
         } catch (Exception e) {
+            ExceptionUtil.trimStackTrace(e);
             e.printStackTrace();
             System.exit(2);
             throw new AssertionError();

@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.deployment;
+package org.apache.geronimo.system.main;
 
 import java.util.ArrayList;
 
@@ -25,6 +25,10 @@ public class ExceptionUtil {
 
     private static final String[] excludedPackages = {
         "org.apache.geronimo.gbean.jmx.", "mx4j.", "net.sf.cglib.reflect"
+    };
+
+    private static final String[] excludedStrings = {
+        "$$EnhancerByCGLIB$$","$$FastClassByCGLIB$$"
     };
 
     public static void trimStackTrace(Throwable t) {
@@ -39,6 +43,11 @@ public class ExceptionUtil {
             String className = trace[i].getClassName();
             for (int j = 0; j < excludedPackages.length; j++) {
                 if (className.startsWith(excludedPackages[j])) {
+                    continue TRIM;
+                }
+            }
+            for (int j = 0; j < excludedStrings.length; j++) {
+                if (className.indexOf(excludedStrings[j]) != -1) {
                     continue TRIM;
                 }
             }

@@ -27,22 +27,18 @@ public class DeploymentException extends Exception {
 
 
     public DeploymentException() {
-        ExceptionUtil.trimStackTrace(this);
     }
 
     public DeploymentException(Throwable cause) {
         super(cause);
-        ExceptionUtil.trimStackTrace(this);
     }
 
     public DeploymentException(String message) {
         super(message);
-        ExceptionUtil.trimStackTrace(this);
     }
 
     public DeploymentException(String message, Throwable cause) {
         super(message, cause);
-        ExceptionUtil.trimStackTrace(this);
     }
 
 }
