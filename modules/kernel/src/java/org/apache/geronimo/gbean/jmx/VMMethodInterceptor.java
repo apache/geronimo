@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.gbean.jmx;
 
+import java.beans.Introspector;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -31,7 +32,7 @@ import org.apache.geronimo.gbean.GOperationSignature;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/02 06:49:23 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/27 02:14:14 $
  */
 public class VMMethodInterceptor implements ProxyMethodInterceptor, InvocationHandler {
     private final Class proxyType;
@@ -146,16 +147,31 @@ public class VMMethodInterceptor implements ProxyMethodInterceptor, InvocationHa
 
         String name = method.getName();
         if (name.startsWith("get")) {
-            if (attributes.containsKey(name.substring(3))) {
-                return new JMXGetAttributeInvoker(server, method);
+            String attrName = method.getName().substring(3);
+            if (attributes.containsKey(attrName)) {
+                return new JMXGetAttributeInvoker(server, method, attrName);
+            }
+            attrName = Introspector.decapitalize(attrName);
+            if (attributes.containsKey(attrName)) {
+                return new JMXGetAttributeInvoker(server, method, attrName);
             }
         } else if (name.startsWith("is")) {
-            if (attributes.containsKey(name.substring(2))) {
-                return new JMXGetAttributeInvoker(server, method);
+            String attrName = method.getName().substring(2);
+            if (attributes.containsKey(attrName)) {
+                return new JMXGetAttributeInvoker(server, method, attrName);
+            }
+            attrName = Introspector.decapitalize(attrName);
+            if (attributes.containsKey(attrName)) {
+                return new JMXGetAttributeInvoker(server, method, attrName);
             }
         } else if (name.startsWith("set")) {
-            if (attributes.containsKey(name.substring(3))) {
-                return new JMXSetAttributeInvoker(server, method);
+            String attrName = method.getName().substring(3);
+            if (attributes.containsKey(attrName)) {
+                return new JMXSetAttributeInvoker(server, method, attrName);
+            }
+            attrName = Introspector.decapitalize(attrName);
+            if (attributes.containsKey(attrName)) {
+                return new JMXSetAttributeInvoker(server, method, attrName);
             }
         }
         return null;

@@ -27,21 +27,16 @@ import javax.management.RuntimeMBeanException;
 import javax.management.RuntimeOperationsException;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/07/14 00:27:42 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/27 02:14:13 $
  */
 public final class JMXGetAttributeInvoker implements GBeanInvoker {
     private final MBeanServerConnection server;
     private final String name;
     private final Class[] declaredExceptions;
 
-    public JMXGetAttributeInvoker(MBeanServerConnection server, Method method) {
+    public JMXGetAttributeInvoker(MBeanServerConnection server, Method method, String name) {
         this.server = server;
-
-        if (method.getName().startsWith("is")) {
-            name = method.getName().substring(2);
-        } else {
-            name = method.getName().substring(3);
-        }
+        this.name = name;
         
         declaredExceptions = method.getExceptionTypes();
     }

@@ -37,7 +37,7 @@ import org.objectweb.asm.Type;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/07/14 00:34:47 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/27 02:14:14 $
  */
 public class CGLibMethodInterceptor implements ProxyMethodInterceptor, MethodInterceptor {
     /**
@@ -245,16 +245,31 @@ public class CGLibMethodInterceptor implements ProxyMethodInterceptor, MethodInt
 
         String name = method.getName();
         if (name.startsWith("get")) {
-            if (attributes.containsKey(method.getName().substring(3))) {
-                return new JMXGetAttributeInvoker(server, method);
+            String attrName = method.getName().substring(3);
+            if (attributes.containsKey(attrName)) {
+                return new JMXGetAttributeInvoker(server, method, attrName);
+            }
+            attrName = Introspector.decapitalize(attrName);
+            if (attributes.containsKey(attrName)) {
+                return new JMXGetAttributeInvoker(server, method, attrName);
             }
         } else if (name.startsWith("is")) {
-            if (attributes.containsKey(method.getName().substring(2))) {
-                return new JMXGetAttributeInvoker(server, method);
+            String attrName = method.getName().substring(2);
+            if (attributes.containsKey(attrName)) {
+                return new JMXGetAttributeInvoker(server, method, attrName);
+            }
+            attrName = Introspector.decapitalize(attrName);
+            if (attributes.containsKey(attrName)) {
+                return new JMXGetAttributeInvoker(server, method, attrName);
             }
         } else if (name.startsWith("set")) {
-            if (attributes.containsKey(method.getName().substring(3))) {
-                return new JMXSetAttributeInvoker(server, method);
+            String attrName = method.getName().substring(3);
+            if (attributes.containsKey(attrName)) {
+                return new JMXSetAttributeInvoker(server, method, attrName);
+            }
+            attrName = Introspector.decapitalize(attrName);
+            if (attributes.containsKey(attrName)) {
+                return new JMXSetAttributeInvoker(server, method, attrName);
             }
         }
         return null;
