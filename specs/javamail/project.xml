@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.3 $ $Date: 2003/08/16 19:31:46 $ -->
+<!-- $Revision: 1.4 $ $Date: 2003/08/18 17:29:24 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -9,12 +9,22 @@
   <name>Geronimo :: JavaMail Specification</name>
   <groupId>geronimo-spec</groupId>
   <id>geronimo-spec-javamail</id>
-  <shortDescription></shortDescription>
-  <description></description>
+  <shortDescription>
+    These classes represent the API of the JavaMail Specification,
+    taken from J2EE 1.4 API documentation and on the JavaMail 1.3
+    specification PDF.
+  </shortDescription>
+  <description>
+    The JavaMail API allows programs to send mail messages and to be able to
+    interrogate a remote mail store (e.g. POP/IMAP inbox) for the message
+    location. This provides only the API; there are no implemented stores or
+    transports here (but you may provide your own, or use the ones developed
+    in geronimo-mail).
+  </description>
   <siteDirectory></siteDirectory>
   <distributionDirectory></distributionDirectory>
   
-  <package>javax</package>
+  <package>javax.mail</package>
   <currentVersion>DEV</currentVersion>
   
   <!-- ============ -->
