@@ -113,7 +113,7 @@ public abstract class AbstractGBeanReference implements GBeanReference {
                 }
             }
 
-            public void stoping(ObjectName objectName) {
+            public void stopping(ObjectName objectName) {
                 removeTarget(objectName);
             }
 

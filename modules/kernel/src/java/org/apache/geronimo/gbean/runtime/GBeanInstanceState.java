@@ -167,14 +167,15 @@ public class GBeanInstanceState {
      * because this method sends JMX notifications.  Sending a general notification from a synchronized block
      * is a bad idea and therefore not allowed.
      *
-     * @throws Exception If an exception occurs while stoping this MBean or any of the childern
+     * @throws Exception If an exception occurs while stopping this MBean or any of the children
      */
     public final void stop() throws Exception {
-        assert !Thread.holdsLock(this): "This method cannot be called while holding a syncrhonized lock on this";
+        assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
 
         // move to the stopping state
+        State state;
         synchronized (this) {
-            State state = getStateInstance();
+            state = getStateInstance();
             if (state == State.STOPPED) {
                 return;
             }
