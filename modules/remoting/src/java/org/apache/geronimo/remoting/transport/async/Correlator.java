@@ -56,22 +56,26 @@
  */
 package org.apache.geronimo.remoting.transport.async;
 
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.WeakHashMap;
+
+import EDU.oswego.cs.dl.util.concurrent.Slot;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import EDU.oswego.cs.dl.util.concurrent.Slot;
 
 /**
  * Allows you to create a request to which
- * you can at a later time wait for the response to 
+ * you can at a later time wait for the response to
  * arrive asynchrously.
- * 
- * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:33 $
+ *
+ * @version $Revision: 1.2 $ $Date: 2004/02/05 03:24:26 $
  */
 public class Correlator {
+    private final ReferenceQueue queue = new ReferenceQueue();
 
     static public class FutureResult extends Slot {
         private final HashKey key;
@@ -89,8 +93,8 @@ public class Correlator {
 
     /**
      * Since a incrementing int is used as a key to a HashMap,
-     * this class is used to calculate a hashCode that is more 
-     * spred to get better hashing. 
+     * this class is used to calculate a hashCode that is more
+     * spred to get better hashing.
      */
     private static class HashKey {
         final int value;
@@ -104,20 +108,31 @@ public class Correlator {
             rc *= Integer.MAX_VALUE / 7;
             hashCode = (int) (rc % Integer.MAX_VALUE);
         }
+
         /**
          * Not a very proper equals since it takes
          * shortcuts, but since this class is not used
-         * in a general case, it's ok. 
+         * in a general case, it's ok.
          */
         public boolean equals(Object obj) {
             return ((HashKey) obj).value == value;
         }
+
         public int hashCode() {
             return hashCode;
         }
     }
 
-    private Map slots = new WeakHashMap(100);
+    private class SlotReference extends WeakReference {
+        private final Object key;
+
+        public SlotReference(Object key, Object lock) {
+            super(lock, queue);
+            this.key = key;
+        }
+    }
+
+    private Map slots = new HashMap(100);
     private int nextFutureResultID = 0;
     private Object nextFutureResultIDLock = new Object();
 
@@ -131,7 +146,7 @@ public class Correlator {
         HashKey key = new HashKey(getNextFutureResultID());
         FutureResult s = new FutureResult(key);
         synchronized (slots) {
-            slots.put(key, s);
+            slots.put(key, new SlotReference(key, s));
         }
         if (log.isTraceEnabled())
             log.trace("Created Request: " + key.value);
@@ -142,9 +157,13 @@ public class Correlator {
         if (log.isTraceEnabled())
             log.trace("Received resposne for request: " + id);
 
-        FutureResult s;
+        FutureResult s = null;
         synchronized (slots) {
-            s = (FutureResult) slots.get(new HashKey(id));
+            processQueue();
+            SlotReference ref = (SlotReference) slots.get(new HashKey(id));
+            if (ref != null) {
+                s = (FutureResult) ref.get();
+            }
         }
         if (s != null) {
             try {
@@ -156,5 +175,14 @@ public class Correlator {
             log.trace("The request may have timed out.  Request slot was not found");
         }
 
+    }
+
+    private void processQueue() {
+        SlotReference slotRef;
+        while ((slotRef = (SlotReference) queue.poll()) != null) {
+            synchronized (slots) {
+                slots.remove(slotRef.key);
+            }
+        }
     }
 }
