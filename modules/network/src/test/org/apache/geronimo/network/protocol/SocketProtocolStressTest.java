@@ -32,7 +32,7 @@ import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
- * @version $Revision: 1.9 $ $Date: 2004/07/08 05:13:28 $
+ * @version $Revision: 1.10 $ $Date: 2004/07/08 22:07:54 $
  */
 public class SocketProtocolStressTest extends TestCase {
 
@@ -101,8 +101,7 @@ public class SocketProtocolStressTest extends TestCase {
 
         tp = new ThreadPool();
         tp.setKeepAliveTime(60 * 1000);
-        tp.setMinimumPoolSize(5);
-        tp.setMaximumPoolSize(25);
+        tp.setPoolSize(5);
         tp.setPoolName("TP");
         tp.doStart();
 

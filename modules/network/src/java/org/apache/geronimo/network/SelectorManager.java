@@ -40,7 +40,7 @@ import org.apache.geronimo.pool.ThreadPool;
  * The SelectorManager will manage one Selector and the thread that checks
  * the selector.
  *
- * @version $Revision: 1.12 $ $Date: 2004/07/08 05:13:29 $
+ * @version $Revision: 1.13 $ $Date: 2004/07/08 22:07:54 $
  */
 public class SelectorManager implements Runnable, GBeanLifecycle {
 
@@ -183,17 +183,17 @@ public class SelectorManager implements Runnable, GBeanLifecycle {
                         if (key.isReadable()) {
                             log.trace("-OP_READ " + key);
                             key.interestOps(key.interestOps() & (~SelectionKey.OP_READ));
-                            threadPool.getWorkManager().execute(new Event(key, SelectionKey.OP_READ));
+                            threadPool.getExecutor().execute(new Event(key, SelectionKey.OP_READ));
                         }
                         if (key.isWritable()) {
                             log.trace("-OP_WRITE " + key);
                             key.interestOps(key.interestOps() & (~SelectionKey.OP_WRITE));
-                            threadPool.getWorkManager().execute(new Event(key, SelectionKey.OP_WRITE));
+                            threadPool.getExecutor().execute(new Event(key, SelectionKey.OP_WRITE));
                         }
                         if (key.isAcceptable()) {
                             log.trace("-OP_ACCEPT " + key);
                             key.interestOps(key.interestOps() & (~SelectionKey.OP_ACCEPT));
-                            threadPool.getWorkManager().execute(new Event(key, SelectionKey.OP_ACCEPT));
+                            threadPool.getExecutor().execute(new Event(key, SelectionKey.OP_ACCEPT));
                         }
 
                         i.remove(); // Remove the key from the set of selected keys

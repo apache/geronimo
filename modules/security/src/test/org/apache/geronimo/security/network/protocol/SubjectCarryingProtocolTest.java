@@ -58,7 +58,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
 /**
- * @version $Revision: 1.12 $ $Date: 2004/07/08 05:13:29 $
+ * @version $Revision: 1.13 $ $Date: 2004/07/08 22:07:54 $
  */
 public class SubjectCarryingProtocolTest extends AbstractTest {
 
@@ -96,8 +96,7 @@ public class SubjectCarryingProtocolTest extends AbstractTest {
         public Object run() throws Exception {
             ThreadPool tp = new ThreadPool();
             tp.setKeepAliveTime(1 * 1000);
-            tp.setMinimumPoolSize(1);
-            tp.setMaximumPoolSize(5);
+            tp.setPoolSize(1);
             tp.setPoolName("Client TP");
             tp.doStart();
 
@@ -176,8 +175,7 @@ public class SubjectCarryingProtocolTest extends AbstractTest {
         public Object run() throws Exception {
             ThreadPool tp = new ThreadPool();
             tp.setKeepAliveTime(1 * 1000);
-            tp.setMinimumPoolSize(1);
-            tp.setMaximumPoolSize(5);
+            tp.setPoolSize(1);
             tp.setPoolName("Server TP");
             tp.doStart();
 

@@ -20,6 +20,7 @@ package org.apache.geronimo.pool;
 import EDU.oswego.cs.dl.util.concurrent.Executor;
 import EDU.oswego.cs.dl.util.concurrent.PooledExecutor;
 import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
+import EDU.oswego.cs.dl.util.concurrent.LinkedQueue;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -29,22 +30,22 @@ import org.apache.geronimo.gbean.WaitingException;
 
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/07/08 05:13:29 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/08 22:07:54 $
  */
-public class ThreadPool implements GBeanLifecycle {
+public class ThreadPool implements Executor, ExecutorFactory, GBeanLifecycle {
 
     static private final Log log = LogFactory.getLog(ThreadPool.class);
 
-    private PooledExecutor workManager;
+    private PooledExecutor executor;
     private long keepAliveTime;
-    private int minimumPoolSize;
+    private int poolSize;
     private int maximumPoolSize;
     private String poolName;
 
     private int nextWorkerID = 0;
 
-    public Executor getWorkManager() {
-        return workManager;
+    public Executor getExecutor() {
+        return new ExecutorWrapper(executor);
     }
 
     public long getKeepAliveTime() {
@@ -55,24 +56,20 @@ public class ThreadPool implements GBeanLifecycle {
         this.keepAliveTime = keepAliveTime;
     }
 
-    public int getMinimumPoolSize() {
-        return minimumPoolSize;
+    public int getPoolSize() {
+        return poolSize;
     }
 
-    public void setMinimumPoolSize(int minimumPoolSize) {
-        this.minimumPoolSize = minimumPoolSize;
-    }
-
-    public int getMaximumPoolSize() {
-        return maximumPoolSize;
-    }
-
-    public void setMaximumPoolSize(int maximumPoolSize) {
-        this.maximumPoolSize = maximumPoolSize;
+    public void setPoolSize(int poolSize) {
+        this.poolSize = poolSize;
     }
 
     public String getPoolName() {
         return poolName;
+    }
+
+    public void execute(Runnable command) throws InterruptedException {
+        executor.execute(command);
     }
 
     public void setPoolName(String poolName) {
@@ -84,23 +81,25 @@ public class ThreadPool implements GBeanLifecycle {
     }
 
     public void doStart() throws WaitingException, Exception {
-        PooledExecutor p = new PooledExecutor();
+        PooledExecutor p = new PooledExecutor(new LinkedQueue(), poolSize);
         p.setKeepAliveTime(keepAliveTime);
-        p.setMinimumPoolSize(minimumPoolSize);
-        p.setMaximumPoolSize(maximumPoolSize);
+        //I think this does nothing with a LinkedQueue present
+        p.setMaximumPoolSize(poolSize);
         p.setThreadFactory(new ThreadFactory() {
             public Thread newThread(Runnable arg0) {
                 return new Thread(arg0, poolName + " " + getNextWorkerID());
             }
         });
+        //I think this does nothing with a LinkedQueue present
+        p.waitWhenBlocked();
 
-        workManager = p;
+        executor = p;
 
         log.info("Thread pool " + poolName + " started");
     }
 
     public void doStop() throws WaitingException, Exception {
-        workManager.shutdownNow();
+        executor.shutdownNow();
         log.info("Thread pool " + poolName + " stopped");
     }
 
@@ -108,7 +107,19 @@ public class ThreadPool implements GBeanLifecycle {
         try {
             doStop();
         } catch (Exception e) {
-            log.error("Failded to shutdown", e);
+            log.error("Failed to shutdown", e);
+        }
+    }
+
+    private static class ExecutorWrapper implements Executor {
+        private final Executor delegate;
+
+        public ExecutorWrapper(Executor delegate) {
+            this.delegate = delegate;
+        }
+
+        public void execute(Runnable command) throws InterruptedException {
+            delegate.execute(command);
         }
     }
 
@@ -118,10 +129,12 @@ public class ThreadPool implements GBeanLifecycle {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ThreadPool.class);
 
         infoFactory.addAttribute("keepAliveTime", long.class, true);
-        infoFactory.addAttribute("minimumPoolSize", int.class, true);
-        infoFactory.addAttribute("maximumPoolSize", int.class, true);
+        infoFactory.addAttribute("poolSize", int.class, true);
         infoFactory.addAttribute("poolName", String.class, true);
-        infoFactory.addOperation("getWorkManager");
+        infoFactory.addOperation("getExecutor");
+
+        infoFactory.addInterface(Executor.class);
+        infoFactory.addInterface(ExecutorFactory.class);
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
@@ -129,4 +142,6 @@ public class ThreadPool implements GBeanLifecycle {
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
+
+
 }

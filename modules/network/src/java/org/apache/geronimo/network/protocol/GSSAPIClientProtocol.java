@@ -36,7 +36,7 @@ import EDU.oswego.cs.dl.util.concurrent.Latch;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/07/08 05:13:29 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/08 22:07:54 $
  */
 public class GSSAPIClientProtocol extends AbstractProtocol {
 
@@ -119,7 +119,7 @@ public class GSSAPIClientProtocol extends AbstractProtocol {
             context.requestInteg(integrity);
             context.requestCredDeleg(true);
 
-            threadPool.getWorkManager().execute(new Runnable() {
+            threadPool.getExecutor().execute(new Runnable() {
                 public void run() {
                     try {
                         byte[] token = new byte[0];
@@ -164,7 +164,7 @@ public class GSSAPIClientProtocol extends AbstractProtocol {
                     if (context.getMutualAuthState()) log.trace("MUTUAL AUTHENTICATION IN PLACE");
                     if (context.getConfState()) log.trace("CONFIDENTIALITY IN PLACE");
                     if (context.getIntegState()) log.trace("INTEGRITY IN PLACE");
-                    
+
                     log.trace("RELEASING " + startupLatch);
                     startupLatch.release();
                     log.trace("RELEASED " + startupLatch);

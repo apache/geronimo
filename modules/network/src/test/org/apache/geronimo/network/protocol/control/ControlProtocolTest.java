@@ -38,7 +38,7 @@ import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/07/08 05:13:29 $
+ * @version $Revision: 1.9 $ $Date: 2004/07/08 22:07:54 $
  */
 public class ControlProtocolTest extends TestCase {
 
@@ -49,8 +49,7 @@ public class ControlProtocolTest extends TestCase {
     public void test() throws Exception {
         ThreadPool tp = new ThreadPool();
         tp.setKeepAliveTime(100 * 1000);
-        tp.setMinimumPoolSize(5);
-        tp.setMaximumPoolSize(25);
+        tp.setPoolSize(5);
         tp.setPoolName("TP");
         tp.doStart();
 

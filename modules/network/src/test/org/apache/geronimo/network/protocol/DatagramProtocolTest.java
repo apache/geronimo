@@ -30,15 +30,14 @@ import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/07/08 05:13:28 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/08 22:07:54 $
  */
 public class DatagramProtocolTest extends TestCase {
 
     public void test() throws Exception {
         ThreadPool tp = new ThreadPool();
         tp.setKeepAliveTime(100);
-        tp.setMinimumPoolSize(5);
-        tp.setMaximumPoolSize(25);
+        tp.setPoolSize(5);
         tp.setPoolName("TP");
         tp.doStart();
 
@@ -118,8 +117,7 @@ public class DatagramProtocolTest extends TestCase {
     public void testClone() throws Exception {
         ThreadPool tp = new ThreadPool();
         tp.setKeepAliveTime(100);
-        tp.setMinimumPoolSize(5);
-        tp.setMaximumPoolSize(25);
+        tp.setPoolSize(5);
         tp.setPoolName("TP");
         tp.doStart();
 
