@@ -32,9 +32,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.ArrayList;
 import java.util.jar.JarFile;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
@@ -61,6 +63,7 @@ import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlOptions;
 
 /**
  * @version $Rev$ $Date$
@@ -73,6 +76,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     //TODO this being static is a really good argument that all other builders should have a reference to this gbean, not use static methods on it.
     private static final Map xmlAttributeBuilderMap = new HashMap();
     private Map refMap;
+    private static final QName SERVICE_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment", "configuration");
 
     public ServiceConfigBuilder(URI defaultParentId, Repository repository) {
         this(defaultParentId, repository, null, null);
@@ -98,14 +102,29 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
             return null;
         }
 
-        // todo tell the difference between an invalid plan and one that's not for me
         try {
             ConfigurationDocument configurationDoc = ConfigurationDocument.Factory.parse(planFile);
+            XmlCursor cursor = configurationDoc.newCursor();
+            try {
+                cursor.toFirstChild();
+                if (!SERVICE_QNAME.equals(cursor.getName())) {
+                    return null;
+                }
+            } finally {
+                cursor.dispose();
+            }
+            XmlOptions xmlOptions = new XmlOptions();
+            xmlOptions.setLoadLineNumbers();
+            Collection errors = new ArrayList();
+            xmlOptions.setErrorListener(errors);
+            if (!configurationDoc.validate(xmlOptions)) {
+                throw new DeploymentException("Invalid deployment descriptor: " + errors + "\nDescriptor: " + configurationDoc.toString());
+            }
             return configurationDoc.getConfiguration();
         } catch (XmlException e) {
-            return null;
-        } catch (Exception e) {
-            throw new DeploymentException(e);
+            throw new DeploymentException("Could not parse xml in plan", e);
+        } catch (IOException e) {
+            throw new DeploymentException("no plan at " + planFile, e);
         }
     }
 
