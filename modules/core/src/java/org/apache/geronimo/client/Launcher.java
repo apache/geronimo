@@ -55,12 +55,12 @@
  */
 package org.apache.geronimo.client;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
-import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -85,28 +85,26 @@ import javax.naming.Context;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.impl.LogFactoryImpl;
-import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.deployment.model.geronimo.appclient.ApplicationClient;
-import org.apache.geronimo.jmx.JMXKernel;
-import org.apache.geronimo.jmx.JMXUtil;
-import org.apache.geronimo.proxy.ProxyInvocation;
+import org.apache.geronimo.kernel.deployment.DeploymentException;
+import org.apache.geronimo.kernel.jmx.JMXKernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
-import org.apache.geronimo.xml.deployment.AppClientLoader;
+import org.apache.geronimo.proxy.ProxyInvocation;
 import org.apache.geronimo.xml.deployment.GeronimoAppClientLoader;
 import org.apache.geronimo.xml.deployment.LoaderUtil;
-import org.apache.geronimo.common.InvocationResult;
-import org.apache.xerces.parsers.DOMParser;
 
 /**
  * Launcher for J2EE Application Clients.
  *
- * @version $Revision: 1.4 $ $Date: 2003/09/05 20:18:04 $
+ * @version $Revision: 1.5 $ $Date: 2003/09/08 04:22:00 $
  */
 public class Launcher {
     static {
         // Add our default Commons Logger that support the trace level
         if (System.getProperty(LogFactoryImpl.LOG_PROPERTY) == null) {
-            System.setProperty(LogFactoryImpl.LOG_PROPERTY, "org.apache.geronimo.common.log.log4j.Log4jLog");
+            System.setProperty(LogFactoryImpl.LOG_PROPERTY, "org.apache.geronimo.kernel.log.Log4jLog");
         }
     }
 
@@ -309,7 +307,7 @@ public class Launcher {
         try {
             ProxyInvocation invocation = new ProxyInvocation();
             ProxyInvocation.putArguments(invocation, new Object[] { appArgs });
-            result = (InvocationResult) mbServer.invoke(clientName, "invoke", new Object[]{invocation}, new String[]{"org.apache.geronimo.common.Invocation"});
+            result = (InvocationResult) mbServer.invoke(clientName, "invoke", new Object[]{invocation}, new String[]{"org.apache.geronimo.core.service.Invocation"});
         } catch (InstanceNotFoundException e) {
             IllegalStateException ex = new IllegalStateException("Unable to invoke app client");
             ex.initCause(e);

@@ -57,14 +57,14 @@ package org.apache.geronimo.client;
 
 import java.util.Set;
 
-import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.kernel.deployment.DeploymentException;
 
 /**
  *
  * @jmx:mbean
- *      extends="org.apache.geronimo.deployment.DeploymentPlanner"
+ *      extends="org.apache.geronimo.kernel.deployment.DeploymentPlanner"
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/01 20:38:49 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/08 04:22:00 $
  */
 public class ClientDeploymentPlanner implements ClientDeploymentPlannerMBean {
     public boolean plan(Set goals, Set plans) throws DeploymentException {
