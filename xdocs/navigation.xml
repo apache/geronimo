@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.13 $ $Date: 2003/11/23 16:10:45 $ -->
+<!-- $Revision: 1.14 $ $Date: 2003/11/25 04:42:06 $ -->
 
 <project name="Apache Geronimo">
 
@@ -65,5 +65,9 @@
       <item name="Source"                  href="http://jakarta.apache.org/site/source.html"/>
       <item name="CVS Repositories"        href="http://jakarta.apache.org/site/cvsindex.html"/>
     </menu>
+    
+    <footer><div>Java, J2EE, and JCP are trademarks or registered trademarks of
+      Sun Microsystems, Inc. in the United States and other countries.</div></footer>
+      
   </body>
 </project>
