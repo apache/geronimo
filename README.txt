@@ -37,7 +37,7 @@ To removal all build generated files:
 
 To try run the Geronimo server type:
 
-	maven run
+	maven run:main
 		
 For the HTML website:
 
