@@ -55,105 +55,113 @@
  */
 package org.apache.geronimo.clustering;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.Vector;
-import java.util.List;
-import java.util.Collections;
-
 /**
- * An initial Cluster impl, which only clusters within a single
- * VM. Thus development on Clustering can start before an inter-vm
- * transport layer has been put in place...
+ * A uniquely identifiable n->n intra-vm event-raising communications channel...
  *
- * @jmx:mbean extends="org.apache.geronimo.clustering.AbstractClusterMBean"
- * @version $Revision: 1.3 $ $Date: 2003/12/29 18:50:11 $
+ * @version $Revision: 1.1 $ $Date: 2003/12/29 18:50:11 $
  */
 public class
-  LocalCluster
-  extends AbstractCluster
-  implements LocalClusterMBean, MembershipChangedListener
+  LocalChannel
 {
-  protected Log _log=LogFactory.getLog(LocalCluster.class);
+  // class
+  protected static Log _log=LogFactory.getLog(LocalChannel.class);
+  protected static Map _map=new HashMap();
 
+  public static LocalChannel
+    find(String name)
+    {
+      synchronized (_map)
+      {
+	LocalChannel channel=(LocalChannel)_map.get(name);
 
-  // LocalCluster
+	if (channel==null)
+	{
+	  channel=new LocalChannel(name);
+	  _map.put(name, channel);
 
-  protected LocalChannel _channel;
+	  _log.trace("created channel: "+name);
+	}
+	else
+	{
+	  _log.trace("found channel: "+name);
+	}
 
-  /**
-   * @jmx.managed-attribute
-   */
-  public List getMembers(){return _channel.getMembers();}
+	return channel;
+      }
+    }
 
-  public void join()  {_channel.join(this);}
-  public void leave() {_channel.leave(this);}
+  // instance
+  protected String _name;
+  protected List   _members=new Vector();
 
-  // StateManageable
-  public boolean canStart() {return true;}
-  public boolean canStop()  {return true;}
+  protected LocalChannel(String name) {_name=name;}
+
+  public List getMembers(){synchronized (_members){return Collections.unmodifiableList(_members);}}
+
+  // membership
+
+  protected void
+    notifyMembershipChanged(List members)
+    {
+      for (Iterator i=members.iterator(); i.hasNext();)
+	try
+	{
+	  ((MembershipChangedListener)i.next()).membershipChanged(members);
+	}
+	catch (Exception e)
+	{
+	  _log.warn("problem notifying membership changed", e);
+	}
+    }
 
   public void
-    doStart()
+    join(MembershipChangedListener member)
     {
-      _log=LogFactory.getLog(getClass().getName()+"#"+getName()+"/"+getNode());
-      _log.info("starting");
-      _channel=LocalChannel.find(getName());
-      synchronized (_channel)
+      // first one in could turn on the lights...
+      synchronized (_members)
       {
-	setCurrentState(_channel.getCurrentState());
-	join();
+	_members.add(member);
+	notifyMembershipChanged(_members);
       }
     }
 
   public void
-    doStop()
+    leave(MembershipChangedListener member)
     {
-      _log.info("stopping");
-      leave();
+      synchronized (_members)
+      {
+	_members.remove(member);
+	notifyMembershipChanged(_members);
+      }
+
+      // last one out could turn out the lights...
     }
 
-  public void
-    doFail()
-    {
-      _log.info("failing");
-      leave();			// ??
-    }
+  // state
 
-  // MembershipChangedListener
-  public void
-    membershipChanged(List newMembers)
-    {
-      _log.info("membership changed: "+newMembers);
-    }
-
-  // initial state
-  protected Object _currentState;
-
-  // TODO - should probably return byte[] - needs renaming
-  protected Object
+  public synchronized Object
     getCurrentState()
     {
-      return _currentState;
-    }
+      // TODO - we need a pluggable election policy to decide who will
+      // be asked for state...
 
-  // TODO - should probably expect byte[] - needs renaming
-  protected void
-    setCurrentState(Object currentState)
-    {
-      String xtra="we must be the first node up";
-
-      if (currentState!=null)
+      synchronized (_members)
       {
-	xtra="we are joining an extant cluster";
-	_currentState=currentState;
+	if (_members.isEmpty())
+	  return null;
+	else
+	  // TODO - we need to do a deep copy of the state here -
+	  // serialise and deserialise...
+	  return ((LocalCluster)_members.get(0)).getCurrentState();
       }
-      else
-      {
-	_currentState=new Object();
-      }
-
-      _log.debug("initialising state - "+xtra);
     }
 }

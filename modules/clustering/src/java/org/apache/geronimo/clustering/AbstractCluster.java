@@ -66,7 +66,7 @@ import org.apache.geronimo.core.service.ManagedComponent;
  * into the same abstract base.
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/28 19:12:51 $
+ * @version $Revision: 1.3 $ $Date: 2003/12/29 18:50:11 $
  * @jmx:mbean extends="org.apache.geronimo.clustering.Cluster, org.apache.geronimo.kernel.management.StateManageable"
  */
 public abstract class
@@ -92,5 +92,22 @@ public abstract class
       }
 
       return name;
+    }
+
+  /**
+   * @jmx.managed-attribute
+   */
+  public String
+    getNode()
+    {
+      String node=objectName.getKeyProperty("node");
+
+      if (node==null)
+      {
+	node="0";
+	_log.warn("MBean name should contain 'node' property - defaulting to: "+node);
+      }
+
+      return node;
     }
 }

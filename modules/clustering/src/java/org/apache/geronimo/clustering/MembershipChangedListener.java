@@ -55,12 +55,7 @@
  */
 package org.apache.geronimo.clustering;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.util.Vector;
 import java.util.List;
-import java.util.Collections;
 
 /**
  * An initial Cluster impl, which only clusters within a single
@@ -68,92 +63,13 @@ import java.util.Collections;
  * transport layer has been put in place...
  *
  * @jmx:mbean extends="org.apache.geronimo.clustering.AbstractClusterMBean"
- * @version $Revision: 1.3 $ $Date: 2003/12/29 18:50:11 $
+ * @version $Revision: 1.1 $ $Date: 2003/12/29 18:50:11 $
  */
-public class
-  LocalCluster
-  extends AbstractCluster
-  implements LocalClusterMBean, MembershipChangedListener
+public interface
+  MembershipChangedListener
 {
-  protected Log _log=LogFactory.getLog(LocalCluster.class);
-
-
-  // LocalCluster
-
-  protected LocalChannel _channel;
-
-  /**
-   * @jmx.managed-attribute
-   */
-  public List getMembers(){return _channel.getMembers();}
-
-  public void join()  {_channel.join(this);}
-  public void leave() {_channel.leave(this);}
-
-  // StateManageable
-  public boolean canStart() {return true;}
-  public boolean canStop()  {return true;}
-
-  public void
-    doStart()
-    {
-      _log=LogFactory.getLog(getClass().getName()+"#"+getName()+"/"+getNode());
-      _log.info("starting");
-      _channel=LocalChannel.find(getName());
-      synchronized (_channel)
-      {
-	setCurrentState(_channel.getCurrentState());
-	join();
-      }
-    }
-
-  public void
-    doStop()
-    {
-      _log.info("stopping");
-      leave();
-    }
-
-  public void
-    doFail()
-    {
-      _log.info("failing");
-      leave();			// ??
-    }
-
-  // MembershipChangedListener
-  public void
-    membershipChanged(List newMembers)
-    {
-      _log.info("membership changed: "+newMembers);
-    }
-
-  // initial state
-  protected Object _currentState;
-
-  // TODO - should probably return byte[] - needs renaming
-  protected Object
-    getCurrentState()
-    {
-      return _currentState;
-    }
-
-  // TODO - should probably expect byte[] - needs renaming
-  protected void
-    setCurrentState(Object currentState)
-    {
-      String xtra="we must be the first node up";
-
-      if (currentState!=null)
-      {
-	xtra="we are joining an extant cluster";
-	_currentState=currentState;
-      }
-      else
-      {
-	_currentState=new Object();
-      }
-
-      _log.debug("initialising state - "+xtra);
-    }
+  // this is better than a memberLeft/memberJoined notification as it
+  // can handle multiple concurrent leave/joins, this may occur in the
+  // case of event elysion...
+  public void membershipChanged(List newMembers);
 }
