@@ -52,6 +52,9 @@ public class GBeanBuilder {
             // @todo we should not need all of common just for this
             if (type == null) {
                 GAttributeInfo attribute = gbean.getGBeanInfo().getAttribute(name);
+                if (attribute == null) {
+                    throw new DeploymentException("Unknown attribute " + name + " on " + gbean.getName());
+                }
                 type = attribute.getType();
             }
 
