@@ -18,13 +18,11 @@
 package org.apache.geronimo.transaction;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Collection;
 
 import javax.resource.spi.XATerminator;
 import javax.transaction.HeuristicMixedException;
@@ -60,9 +58,11 @@ import org.apache.geronimo.transaction.manager.XidImporter;
  * are delegated to the wrapped TransactionManager; all other operations are delegated to the
  * wrapped Transaction.
  *
- * @version $Revision: 1.10 $ $Date: 2004/06/11 19:20:54 $
+ * @version $Revision: 1.11 $ $Date: 2004/07/11 21:25:21 $
  */
 public class TransactionManagerProxy implements TransactionManager, XATerminator, XAWork, GBeanLifecycle {
+    private static final boolean NOT_IN_RECOVERY = false;
+    private static final boolean IN_RECOVERY = true;
 
     private static final Log recoveryLog = LogFactory.getLog("RecoveryController");
 
@@ -70,10 +70,7 @@ public class TransactionManagerProxy implements TransactionManager, XATerminator
     private final XidImporter importer;
     private final ThreadLocal threadTx = new ThreadLocal();
     private final Map importedTransactions = new HashMap();
-    private Set activeTransactions = new HashSet();
     private boolean recoveryState = NOT_IN_RECOVERY;
-    private static final boolean NOT_IN_RECOVERY = false;
-    private static final boolean IN_RECOVERY = true;
     private final Recovery recovery;
     private final ReferenceCollection resourceManagers;
     private List recoveryErrors = new ArrayList();
@@ -230,10 +227,14 @@ public class TransactionManagerProxy implements TransactionManager, XATerminator
      * @see javax.resource.spi.XATerminator#commit(javax.transaction.xa.Xid, boolean)
      */
     public void commit(Xid xid, boolean onePhase) throws XAException {
-        TransactionProxy tx = (TransactionProxy) importedTransactions.remove(xid);
-        if (tx == null) {
+        ImportedTransactionInfo txInfo;
+        synchronized (importedTransactions) {
+            txInfo = (ImportedTransactionInfo) importedTransactions.remove(xid);
+        }
+        if (txInfo == null) {
             throw new XAException("No imported transaction for xid: " + xid);
         }
+        TransactionProxy tx = txInfo.getTransactionProxy();
 
         try {
             int status = tx.getStatus();
@@ -248,10 +249,14 @@ public class TransactionManagerProxy implements TransactionManager, XATerminator
      * @see javax.resource.spi.XATerminator#forget(javax.transaction.xa.Xid)
      */
     public void forget(Xid xid) throws XAException {
-        TransactionProxy tx = (TransactionProxy) importedTransactions.remove(xid);
-        if (tx == null) {
+        ImportedTransactionInfo txInfo;
+        synchronized (importedTransactions) {
+            txInfo = (ImportedTransactionInfo) importedTransactions.remove(xid);
+        }
+        if (txInfo == null) {
             throw new XAException("No imported transaction for xid: " + xid);
         }
+        TransactionProxy tx = txInfo.getTransactionProxy();
         //todo is there a correct status test here?
 //        try {
 //            int status = tx.getStatus();
@@ -266,11 +271,14 @@ public class TransactionManagerProxy implements TransactionManager, XATerminator
      * @see javax.resource.spi.XATerminator#prepare(javax.transaction.xa.Xid)
      */
     public int prepare(Xid xid) throws XAException {
-        TransactionProxy tx = (TransactionProxy) importedTransactions.get(xid);
-        if (tx == null) {
+        ImportedTransactionInfo txInfo;
+        synchronized (importedTransactions) {
+            txInfo = (ImportedTransactionInfo) importedTransactions.get(xid);
+        }
+        if (txInfo == null) {
             throw new XAException("No imported transaction for xid: " + xid);
         }
-
+        TransactionProxy tx = txInfo.getTransactionProxy();
         try {
             int status = tx.getStatus();
             assert status == Status.STATUS_ACTIVE;
@@ -296,8 +304,19 @@ public class TransactionManagerProxy implements TransactionManager, XATerminator
         //we always return all xids in first call.
         //calling "startrscan" repeatedly starts at beginning of list again.
         if ((flag & XAResource.TMSTARTRSCAN) != 0) {
-            importedTransactions.putAll(recovery.getExternalXids());
-            return (Xid[]) importedTransactions.keySet().toArray(new Xid[importedTransactions.size()]);
+            Map recoveredXidMap = recovery.getExternalXids();
+            Xid[] recoveredXids = new Xid[recoveredXidMap.size()];
+            int i = 0;
+            synchronized (importedTransactions) {
+                for (Iterator iterator = recoveredXidMap.entrySet().iterator(); iterator.hasNext();) {
+                    Map.Entry entry = (Map.Entry) iterator.next();
+                    Xid xid = (Xid) entry.getKey();
+                    recoveredXids[i++] = xid;
+                    ImportedTransactionInfo txInfo = new ImportedTransactionInfo(new TransactionProxy((Transaction)entry.getValue()));
+                    importedTransactions.put(xid, txInfo);
+                }
+            }
+            return recoveredXids;
         } else {
             return new Xid[0];
         }
@@ -307,10 +326,14 @@ public class TransactionManagerProxy implements TransactionManager, XATerminator
      * @see javax.resource.spi.XATerminator#rollback(javax.transaction.xa.Xid)
      */
     public void rollback(Xid xid) throws XAException {
-        TransactionProxy tx = (TransactionProxy) importedTransactions.remove(xid);
-        if (tx == null) {
+        ImportedTransactionInfo txInfo;
+        synchronized (importedTransactions) {
+            txInfo = (ImportedTransactionInfo) importedTransactions.remove(xid);
+        }
+        if (txInfo == null) {
             throw new XAException("No imported transaction for xid: " + xid);
         }
+        TransactionProxy tx = txInfo.getTransactionProxy();
 
         try {
             int status = tx.getStatus();
@@ -321,31 +344,65 @@ public class TransactionManagerProxy implements TransactionManager, XATerminator
         importer.rollback(tx.getDelegate());
     }
 
-    public void begin(Xid xid, long txTimeoutMillis) throws XAException {
-        TransactionProxy tx = (TransactionProxy) importedTransactions.get(xid);
-        if (tx == null) {
-            try {
-                tx = new TransactionProxy(importer.importXid(xid));
-            } catch (SystemException e) {
-                throw (XAException) new XAException("Could not import xid").initCause(e);
+    public void begin(Xid xid, long txTimeoutMillis) throws XAException, InvalidTransactionException, SystemException {
+        ImportedTransactionInfo txInfo;
+        boolean old = true;
+        synchronized (importedTransactions) {
+             txInfo = (ImportedTransactionInfo) importedTransactions.get(xid);
+            if (txInfo == null) {
+                try {
+                    txInfo = new ImportedTransactionInfo(new TransactionProxy(importer.importXid(xid)));
+                    old = false;
+                } catch (SystemException e) {
+                    throw (XAException) new XAException("Could not import xid").initCause(e);
+                }
+                importedTransactions.put(xid, txInfo);
             }
-            importedTransactions.put(xid, tx);
+            if (txInfo.isActive()) {
+                throw new XAException("Xid already active");
+            }
+            txInfo.setActive(true);
         }
-        if (activeTransactions.contains(tx)) {
-            throw new XAException("Xid already active");
+        threadTx.set(txInfo.getTransactionProxy());
+        if (old) {
+            delegate.resume(txInfo.getTransactionProxy().getDelegate());
         }
-        activeTransactions.add(tx);
-        threadTx.set(tx);
         importer.setTransactionTimeout(txTimeoutMillis);
     }
 
-    public void end(Xid xid) throws XAException {
-        TransactionProxy tx = (TransactionProxy) importedTransactions.get(xid);
-        if (tx == null) {
-            throw new XAException("No imported transaction for xid: " + xid);
+    public void end(Xid xid) throws XAException, SystemException {
+        synchronized (importedTransactions) {
+            ImportedTransactionInfo txInfo = (ImportedTransactionInfo) importedTransactions.get(xid);
+            if (txInfo == null) {
+                throw new XAException("No imported transaction for xid: " + xid);
+            }
+            if (!txInfo.isActive()) {
+                throw new XAException("tx not active for xid: " + xid);
+            }
+            txInfo.setActive(false);
         }
-        if (!activeTransactions.remove(tx)) {
-            throw new XAException("tx not active for xid: " + xid);
+        threadTx.set(null);
+        delegate.suspend();
+    }
+
+    private static class ImportedTransactionInfo {
+        private final TransactionProxy transactionProxy;
+        private boolean active;
+
+        public ImportedTransactionInfo(TransactionProxy transactionProxy) {
+            this.transactionProxy = transactionProxy;
+        }
+
+        public TransactionProxy getTransactionProxy() {
+            return transactionProxy;
+        }
+
+        public boolean isActive() {
+            return active;
+        }
+
+        public void setActive(boolean active) {
+            this.active = active;
         }
     }
 

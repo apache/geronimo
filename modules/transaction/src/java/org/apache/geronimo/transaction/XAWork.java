@@ -19,14 +19,16 @@ package org.apache.geronimo.transaction;
 
 import javax.transaction.xa.Xid;
 import javax.transaction.xa.XAException;
+import javax.transaction.SystemException;
+import javax.transaction.InvalidTransactionException;
 
 /**
  * primarily an interface between the WorkManager/ExecutionContext and the tm.
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:58:19 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/11 21:25:21 $
  *
  * */
 public interface XAWork {
-    void begin(Xid xid, long txTimeout) throws XAException;
-    void end(Xid xid) throws XAException;
+    void begin(Xid xid, long txTimeout) throws XAException, InvalidTransactionException, SystemException;
+    void end(Xid xid) throws XAException, SystemException;
 }
