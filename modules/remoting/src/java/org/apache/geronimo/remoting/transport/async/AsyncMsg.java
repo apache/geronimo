@@ -64,7 +64,7 @@ import org.apache.geronimo.remoting.transport.BytesMsg;
 import org.apache.geronimo.remoting.transport.Msg;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/23 10:56:35 $
  */
 public class AsyncMsg extends BytesMsg {
 
@@ -76,6 +76,15 @@ public class AsyncMsg extends BytesMsg {
     int requestId;
     String to;
 
+    
+    /**
+     * @param transportContext
+     */
+    public AsyncMsg() {
+        super(Registry.transportContext);
+    }
+
+    
     /**
      * @see org.apache.geronimo.remoting.transport.BytesMsg#createMsg()
      */

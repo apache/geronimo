@@ -73,17 +73,20 @@ import org.apache.geronimo.remoting.MarshalledObject;
 import org.apache.geronimo.remoting.TransportContext;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/11/19 11:15:03 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/23 10:56:35 $
  */
 public class BytesMarshalledObject implements MarshalledObject, Externalizable {
 
     public class ObjectInputStreamExt extends ObjectInputStream {
 
         private ClassLoader classloader;
+        private TransportContext transportContext;
 
-        public ObjectInputStreamExt(InputStream in, ClassLoader loader) throws IOException {
+        public ObjectInputStreamExt(InputStream in, ClassLoader loader, TransportContext transportContext) throws IOException {
             super(in);
+            this.transportContext = transportContext;
             this.classloader = loader;
+            this.enableResolveObject(transportContext!=null);
         }
 
         /**
@@ -109,6 +112,13 @@ public class BytesMarshalledObject implements MarshalledObject, Externalizable {
 
         }
 
+        
+        /**
+         * @see java.io.ObjectInputStream#resolveObject(java.lang.Object)
+         */
+        protected Object resolveObject(Object obj) throws IOException {
+            return transportContext.readReplace(obj);
+        }
     }
 
     static class ObjectOutputStreamExt extends ObjectOutputStream {
@@ -132,12 +142,6 @@ public class BytesMarshalledObject implements MarshalledObject, Externalizable {
             return transportContext.writeReplace(obj);
         }
         
-    }
-
-    static class NullTransportContext extends TransportContext {
-        public Object writeReplace(Object proxy) throws IOException {
-            return proxy;
-        }
     }
 
     private byte data[];
@@ -187,7 +191,7 @@ public class BytesMarshalledObject implements MarshalledObject, Externalizable {
 
     public Object get(ClassLoader classloader) throws IOException, ClassNotFoundException {
         ByteArrayInputStream bais = new ByteArrayInputStream(data);
-        ObjectInputStreamExt is = new ObjectInputStreamExt(bais, classloader);
+        ObjectInputStreamExt is = new ObjectInputStreamExt(bais, classloader, transportContext);
         Object rc = is.readObject();
         is.close();
         return rc;

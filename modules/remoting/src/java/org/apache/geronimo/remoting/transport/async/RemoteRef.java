@@ -53,47 +53,31 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.remoting;
+package org.apache.geronimo.remoting.transport.async;
 
-import java.util.HashMap;
+import java.io.Serializable;
+import java.net.URI;
 
-import org.apache.geronimo.core.service.Interceptor;
 
-/**
- * @version $Revision: 1.2 $ $Date: 2003/11/23 10:56:35 $
- */
-public class InterceptorRegistry {
-
-    static final public InterceptorRegistry instance = new InterceptorRegistry();
-
-    private InterceptorRegistry() {
-
+class RemoteRef implements Serializable {
+    URI remoteURI;
+    Class interfaces[];
+    
+    /**
+     * @see java.lang.Object#hashCode()
+     */
+    public int hashCode() {
+        int rc = remoteURI.hashCode();
+        return rc;
     }
-
-    long nextID = System.currentTimeMillis();
-    private synchronized long getNextID() {
-        return nextID++;
-    }
-    HashMap map = new HashMap();
-
-    public Long register(Interceptor o) {
-        Long id = new Long(getNextID());
-        synchronized (map) {
-            map.put(id, o);
-        }
-        return id;
-    }
-
-    public Interceptor unregister(Long id) {
-        synchronized (map) {
-            return (Interceptor) map.remove(id);
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    public boolean equals(Object obj) {
+        try {
+            return remoteURI.equals(((RemoteRef)obj).remoteURI);
+        } catch (Throwable e) {
+            return false;
         }
     }
-
-    public Interceptor lookup(Long id) {
-        synchronized (map) {
-            return (Interceptor) map.get(id);
-        }
-    }
-
 }

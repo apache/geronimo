@@ -58,7 +58,7 @@ package org.apache.geronimo.remoting;
 import java.io.IOException;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/11/19 11:15:03 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/23 10:56:35 $
  */
 abstract public class TransportContext {
 
@@ -73,4 +73,10 @@ abstract public class TransportContext {
     }
     
     public abstract Object writeReplace(Object proxy) throws IOException;
+
+    /**
+     * @param obj
+     * @return
+     */
+    public abstract Object readReplace(Object obj) throws IOException;
 }

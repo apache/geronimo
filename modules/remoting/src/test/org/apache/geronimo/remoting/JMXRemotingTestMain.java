@@ -61,9 +61,12 @@ import java.rmi.Remote;
 import javax.management.MBeanServer;
 import javax.management.Notification;
 import javax.management.NotificationListener;
+import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory;
+
+import EDU.oswego.cs.dl.util.concurrent.Latch;
 
 /**
  * this test needs for a geronimo instance to be running and
@@ -72,6 +75,8 @@ import org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory;
  */
 public class JMXRemotingTestMain {
 
+    Latch eventLatch = new Latch(); 
+    
     public void XtestCheckClassLoaders() throws Exception {
         MBeanServer server = RemoteMBeanServerFactory.create("localhost");
         String[] strings = server.getDomains();
@@ -87,7 +92,8 @@ public class JMXRemotingTestMain {
          */
         public void handleNotification(Notification arg0, Object arg1) {
             System.out.println("Got notification: "+arg0);
-            System.out.println("                : "+arg1);            
+            System.out.println("                : "+arg1);
+            eventLatch.release();
         }
         
     }
@@ -95,9 +101,14 @@ public class JMXRemotingTestMain {
     public void testNotificationListner() throws Exception {
         System.out.println("adding listner..");
         MBeanServer server = RemoteMBeanServerFactory.create("localhost");
-        server.addNotificationListener(JMXUtil.getObjectName("geronimo.deployment:role=DeploymentController"),new MyListner(),null,null);
-        Thread.sleep(1000*60*5);
-        System.out.println("done..");
+        ObjectName name = JMXUtil.getObjectName("geronimo.deployment:role=DeploymentController");
+        MyListner listner = new MyListner();
+        server.addNotificationListener(name,listner,null,null);
+        eventLatch.acquire();
+        System.out.println("Event received.");
+        server.removeNotificationListener(name, listner, null, null);
+        System.out.println("Notifications removed.");
+        Thread.sleep(1000*60);
     }
 
     public static void main(String[] args) throws Exception {

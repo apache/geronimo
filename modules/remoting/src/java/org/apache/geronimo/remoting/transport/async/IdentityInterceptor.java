@@ -53,97 +53,62 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.remoting.transport;
+package org.apache.geronimo.remoting.transport.async;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.DataOutput;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
+import java.io.Serializable;
+import java.lang.reflect.Method;
 
-import org.apache.geronimo.remoting.MarshalledObject;
-import org.apache.geronimo.remoting.TransportContext;
+import org.apache.geronimo.common.Classes;
+import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.SimpleInvocationResult;
+import org.apache.geronimo.proxy.ProxyInvocation;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/11/23 10:56:35 $
+ * @version $Revision: 1.1 $ $Date: 2003/11/23 10:56:35 $
  */
-public class BytesMsg implements Msg {
+public class IdentityInterceptor implements Interceptor, Serializable {
 
-    transient TransportContext transportContext;
-    ArrayList objectStack = new ArrayList(5);
+    private static final Method EQUALS_METHOD = Classes.getMethod(Object.class, "equals");
+    private static final Method HASHCODE_METHOD = Classes.getMethod(Object.class, "hashCode");
+    
+    private RemoteRef ref;
+    private Interceptor next;
 
-    
     /**
-     * @param transportContext
+     * @param ref
      */
-    public BytesMsg(TransportContext transportContext) {
-        this.transportContext = transportContext;
-    }
-    
-    /**
-     * @see org.apache.geronimo.remoting.transport.Msg#pushMarshaledObject(org.apache.geronimo.remoting.MarshalledObject)
-     */
-    public void pushMarshaledObject(MarshalledObject mo) throws IOException {
-        objectStack.add((BytesMarshalledObject) mo);
+    public IdentityInterceptor(RemoteRef ref) {
+        this.ref = ref;
     }
 
     /**
-     * @see org.apache.geronimo.remoting.transport.Msg#popMarshaledObject()
+     * @see org.apache.geronimo.core.service.AbstractInterceptor#invoke(org.apache.geronimo.core.service.Invocation)
      */
-    public MarshalledObject popMarshaledObject() throws IOException {
-        if (objectStack.size() == 0)
-            throw new ArrayIndexOutOfBoundsException("Object stack is empty.");
-        return (MarshalledObject) objectStack.remove(objectStack.size() - 1);
-    }
-    
-    public int getStackSize() {
-        return objectStack.size();
+    public InvocationResult invoke(Invocation invocation) throws Throwable {
+        Method method = ProxyInvocation.getMethod(invocation);
+        if( method.equals(EQUALS_METHOD) ) {
+            Object proxy = ProxyInvocation.getProxy(invocation);
+            Object[] args = ProxyInvocation.getArguments(invocation);
+            return new SimpleInvocationResult( true, proxy == args[0] ? Boolean.TRUE : Boolean.FALSE);  
+        } else if( method.equals(HASHCODE_METHOD) ) {
+            return new SimpleInvocationResult( true, new Integer(ref.hashCode()) );
+        }        
+        return next.invoke(invocation);
     }
 
     /**
-     * @see org.apache.geronimo.remoting.transport.Msg#createMsg()
+     * @see org.apache.geronimo.core.service.Interceptor#getNext()
      */
-    public Msg createMsg() {
-        return new BytesMsg(transportContext);
+    public Interceptor getNext() {
+        return next;
     }
 
-    public void writeExternal(DataOutput out) throws IOException {
-        out.writeByte(objectStack.size());
-        for (int i = 0; i < objectStack.size(); i++) {
-            BytesMarshalledObject mo = (BytesMarshalledObject) objectStack.get(i);
-            byte[] bs = mo.getBytes();
-            out.writeInt(bs.length);
-            out.write(bs);
-        }
-    }
-
-    public void readExternal(DataInput in) throws IOException {
-        objectStack.clear();
-        int s = in.readByte();
-        for (int i = 0; i < s; i++) {
-            int l = in.readInt();
-            byte t[] = new byte[l];
-            in.readFully(t);
-            BytesMarshalledObject mo = new BytesMarshalledObject(transportContext);
-            mo.setBytes(t);
-            objectStack.add(mo);
-        }
-    }
-    
-    public byte[] getAsBytes() throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        DataOutputStream os = new DataOutputStream(baos);
-        writeExternal(os);
-        os.close();
-        return baos.toByteArray();
-    }
-    
-    public void setFromBytes(byte data[]) throws IOException {
-        ByteArrayInputStream bais = new ByteArrayInputStream(data);
-        DataInputStream is = new DataInputStream(bais);
-        readExternal(is);
+    /**
+     * @see org.apache.geronimo.core.service.Interceptor#setNext(org.apache.geronimo.core.service.Interceptor)
+     */
+    public void setNext(Interceptor interceptor) throws IllegalStateException {
+        this.next = interceptor;
     }
 }

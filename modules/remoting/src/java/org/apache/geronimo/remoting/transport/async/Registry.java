@@ -58,17 +58,20 @@ package org.apache.geronimo.remoting.transport.async;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
+import java.rmi.Remote;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.proxy.ProxyContainer;
 import org.apache.geronimo.proxy.ReflexiveInterceptor;
 import org.apache.geronimo.remoting.DeMarshalingInterceptor;
-import org.apache.geronimo.remoting.InterVMRoutingInterceptor;
 import org.apache.geronimo.remoting.InterceptorRegistry;
-import org.apache.geronimo.remoting.IntraVMRoutingInterceptor;
+import org.apache.geronimo.remoting.MarshalingInterceptor;
+import org.apache.geronimo.remoting.TransportContext;
 import org.apache.geronimo.remoting.router.InterceptorRegistryRouter;
 import org.apache.geronimo.remoting.router.SubsystemRouter;
 import org.apache.geronimo.remoting.transport.RemoteTransportInterceptor;
@@ -83,7 +86,7 @@ import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
  * An application wide registry to hold objects that
  * must be shared accross application components. 
  * 
- * @version $Revision: 1.2 $ $Date: 2003/11/19 11:15:03 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/23 10:56:35 $
  */
 public class Registry {
 
@@ -245,68 +248,101 @@ public class Registry {
     }
 
     // Keeps track of the exported objects.
-    HashMap exportedObjects = new HashMap();
-    static class ExportedObjec {
-        
+    Map exportedObjects = Collections.synchronizedMap(new HashMap());
+
+    static class ExportedObject {
+        RemoteRef remoteRef;
+        ProxyContainer serverContainer;
     }
-    
+
     /**
      * @param proxy
      * @return
      */
-    public Object exportObject(Object object) throws IOException {
+    public RemoteRef exportObject(Object object) throws IOException {
 
         ObjectKey key = new ObjectKey(object);
 
         // Have we allready exported that object??
-        Object proxy = exportedObjects.get(key);
-        if (proxy == null) {
-
-            // we need to export it.
-            AbstractServer server = getServerForClientRequest();
-            // TODO Auto-generated method stub
+        ExportedObject eo = (ExportedObject) exportedObjects.get(key);
+        if (eo == null) {
 
             // Setup the server side contianer..
             DeMarshalingInterceptor demarshaller = new DeMarshalingInterceptor();
             demarshaller.setClassloader(object.getClass().getClassLoader());
             Long dmiid = InterceptorRegistry.instance.register(demarshaller);
 
-            ProxyContainer serverContainer = new ProxyContainer();
-            serverContainer.addInterceptor(demarshaller);
-            serverContainer.addInterceptor(new ReflexiveInterceptor(object));
+            eo = new ExportedObject();
+            eo.serverContainer = new ProxyContainer();
+            eo.serverContainer.addInterceptor(demarshaller);
+            eo.serverContainer.addInterceptor(new ReflexiveInterceptor(object));
 
-            // Setup client container...
-            RemoteTransportInterceptor transport;
+            // Build the RemoteRef for the object.
+            eo.remoteRef = new RemoteRef();
             try {
-                // Setup the client side container..
-                transport = new RemoteTransportInterceptor();
+
+                AbstractServer server = getServerForClientRequest();
                 URI uri = server.getClientConnectURI();
                 uri = URISupport.setPath(uri, "/Remoting");
                 uri = URISupport.setFragment(uri, "" + dmiid);
-                transport.setRemoteURI(uri);
-            } catch (URISyntaxException e) {
+                eo.remoteRef.remoteURI = uri;
+            } catch (Exception e) {
                 throw new IOException("Remote URI could not be constructed.");
             }
-            InterVMRoutingInterceptor remoteRouter = new InterVMRoutingInterceptor();
-            IntraVMRoutingInterceptor localRouter = new IntraVMRoutingInterceptor();
-            localRouter.setDeMarshalingInterceptorID(dmiid);
-            localRouter.setNext(demarshaller.getNext());
-            remoteRouter.setLocalInterceptor(localRouter);
-            remoteRouter.setTransportInterceptor(transport);
+            eo.remoteRef.interfaces = object.getClass().getInterfaces();
 
-            ProxyContainer clientContainer = new ProxyContainer();
-            clientContainer.addInterceptor(remoteRouter);
-            clientContainer.addInterceptor(localRouter);
-            //clientContainer.addInterceptor(demarshaller.getNext());
-            proxy = clientContainer.createProxy(object.getClass().getClassLoader(), object.getClass().getInterfaces());
-
-            exportedObjects.put(key, proxy);
+            exportedObjects.put(key, eo);
+            log.debug("Exported object: "+eo.remoteRef.remoteURI);
         }
-        return proxy;
+        return eo.remoteRef;
     }
-    
+
     public boolean unexportObject(Object object) {
         ObjectKey key = new ObjectKey(object);
-        return exportedObjects.remove(key)!=null;        
+        return exportedObjects.remove(key) != null;
     }
+
+    // Keep a weak map of the objects that we have imported.
+    // This allows == comparions to work on previously imported objects.
+    Map importedObjects = new WeakHashMap();
+
+    /**
+     * @param obj
+     * @return
+     */
+    synchronized protected Object importObject(RemoteRef ref) {
+
+        Object object = importedObjects.get(ref);
+        if (object == null) {
+
+            RemoteTransportInterceptor transport = new RemoteTransportInterceptor();
+            transport.setRemoteURI(ref.remoteURI);
+
+            ProxyContainer clientContainer = new ProxyContainer();
+            clientContainer.addInterceptor(new IdentityInterceptor(ref));
+            clientContainer.addInterceptor(new MarshalingInterceptor());
+            clientContainer.addInterceptor(transport);
+
+            object = clientContainer.createProxy(Thread.currentThread().getContextClassLoader(), ref.interfaces);
+            log.trace("Imported object: "+ref.remoteURI);
+            importedObjects.put(ref, object);
+        }
+        return object;
+    }
+
+    public static final TransportContext transportContext = new TransportContext() {
+        public Object writeReplace(Object proxy) throws IOException {
+            if (proxy instanceof Remote) {
+                return Registry.instance.exportObject(proxy);
+            }
+            return proxy;
+        }
+        public Object readReplace(Object obj) throws IOException {
+            if (obj instanceof RemoteRef) {
+                return Registry.instance.importObject((RemoteRef) obj);
+            }
+            return obj;
+        }
+    };
+
 }
