@@ -56,7 +56,6 @@
 package org.apache.geronimo.kernel.deployment.task;
 
 import java.net.URL;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.management.InstanceNotFoundException;
@@ -65,7 +64,6 @@ import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
-import javax.management.MBeanAttributeInfo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -82,7 +80,7 @@ import org.apache.geronimo.kernel.service.ParserUtil;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2003/11/17 02:03:17 $
+ * @version $Revision: 1.8 $ $Date: 2003/11/18 02:19:37 $
  */
 public class DeployGeronimoMBean implements DeploymentTask {
     private static final Log log = LogFactory.getLog(DeployGeronimoMBean.class);
@@ -144,11 +142,13 @@ public class DeployGeronimoMBean implements DeploymentTask {
                 Map metadataAttributes = metadata.getAttributeValues();
                 for (int i = 0; i < geronimoMBeanInfo.getAttributes().length; i++) {
                     GeronimoAttributeInfo attributeInfo = (GeronimoAttributeInfo) geronimoMBeanInfo.getAttributes()[i];
-                    attributeInfo.setInitialValue(metadataAttributes.get(attributeInfo.getName()));
+                    if (attributeInfo.getInitialValue() == null) {
+                        attributeInfo.setInitialValue(metadataAttributes.get(attributeInfo.getName()));
+                    }
                 }
                 mbean.setMBeanInfo(geronimoMBeanInfo);
                 //If there are constructor args, build the default target ourselves.
-                if (metadata.getConstructorArgs() != null) {
+                if (geronimoMBeanInfo.getTarget() == null && metadata.getConstructorArgs() != null) {
                     Object target = ParserUtil.instantiate(geronimoMBeanInfo.getTargetClass(),
                         metadata.getConstructorArgs(),
                         metadata.getConstructorTypes(),
