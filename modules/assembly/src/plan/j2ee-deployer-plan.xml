@@ -28,6 +28,9 @@ Configuration for the Geronimo deployer
     >
 
     <dependency>
+        <uri>geronimo-spec/jars/geronimo-spec-corba-${geronimo_spec_corba_version}.jar</uri>
+    </dependency>
+    <dependency>
         <uri>geronimo/jars/geronimo-j2ee-schema-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
