@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.20 $ $Date: 2003/09/01 20:47:04 $ -->
+<!-- $Revision: 1.21 $ $Date: 2003/09/01 22:06:55 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -198,12 +198,12 @@
       </j:if>
       
       <j:set var="uptodatePropName" value="xdoclet.jmx.uptodate"/>
-      <j:remove var="${uptodatePropName}"/>
+      <j:expr value="${context.setVariable(uptodatePropName, null)}"/>
       <j:set var="uptodateFile" value="${destdir}/tstamp"/>
       
       <uptodate property="${uptodatePropName}"
                 targetfile="${uptodateFile}">
-        <srcfiles dir="${srcdic}" includes="**/*.java"/>
+        <srcfiles dir="${srcdir}" includes="**/*.java"/>
       </uptodate>
       
       <j:if test="${context.getVariable(uptodatePropName) == null}">
