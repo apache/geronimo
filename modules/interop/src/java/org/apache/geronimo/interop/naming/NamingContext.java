@@ -20,6 +20,7 @@ package org.apache.geronimo.interop.naming;
 import java.util.HashMap;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
+import javax.naming.Context;
 
 import org.apache.geronimo.interop.adapter.Adapter;
 import org.apache.commons.logging.Log;
@@ -48,6 +49,7 @@ public class NamingContext {
     private static boolean          verbose = true; // TODO: Configure
     private String                  logContext;
     private HashMap                 map = new HashMap();
+    private HashMap                 failedBindings = new HashMap();
 
     public static final NamingContext getCurrent() {
         return (NamingContext) current.get();
@@ -88,6 +90,14 @@ public class NamingContext {
             if (value != null) {
                 map.put(name, value); // TODO: allow refresh.
             }
+        }
+
+        // If it is corbaname type bind, give it one more chance to bind 
+        // if not already bound.
+
+        if (value == null)
+        {
+            value = tryBindCorbaName(name);
         }
 
         if (value == null) {
@@ -135,12 +145,108 @@ public class NamingContext {
         return false;
     }
 
+    /*
+     * The allows the server to bind an object whose name beings with "lookup=".
+     * The lookup= instructs the name service to perform a lookup on another name
+     * service.
+     */
+    protected Object bindCorbaName(String name, String value)
+    {
+        String url = value.substring("lookup=".length());
+
+        /*
+         * value will only have the following two patterns:
+         *
+         * lookup=corbaname...
+         * lookup=corbaloc...
+         *
+         * These are placed into the URL that is sent to the context factory.
+         * The context factory then determine how to perform a lookup on a
+         * given corbaname or corbaloc url.
+         */
+
+        java.util.Properties p = new java.util.Properties();
+
+        /*
+         * corbaname and corbaloc urls are not supported by the OpenEJB name service
+         */
+        p.put(Context.INITIAL_CONTEXT_FACTORY, "" ); // org.openejb.client.RemoteInitialContextFactory ??
+        p.put(Context.PROVIDER_URL, url);
+
+        Context initialContext = null;
+        Object object = null;
+        try
+        {
+            initialContext = new javax.naming.InitialContext(p);
+            object = initialContext.lookup("");
+        }
+        catch (javax.naming.NamingException ne)
+        {
+            failedBindings(name, value);
+            NameServiceLog.getInstance().warnBindFailed(logContext, name, url, ne);
+            return null;
+        }
+        catch (java.lang.IllegalArgumentException ie)
+        {
+            NameServiceLog.getInstance().warnBindFailed(logContext, name, url, ie);
+            return null;
+        }
+        catch (Exception ex)
+        {
+            failedBindings(name, value);
+            NameServiceLog.getInstance().warnBindFailed(logContext, name, url, ex);
+            return null;
+        }
+
+        if (object == null)
+        {
+            NameServiceLog.getInstance().warnIllegalBindValue(logContext, Object.class, name, url);
+            return null;
+        }
+
+        map.put(name, object);
+
+        return object;
+    }
+
     protected Object dynamicLookup(String name) {
         return null;
     }
 
     protected String formatEmptyName() {
         return "formatEmptyName:";
+    }
+
+    // bind for corbaname failed at server startup. We will try to bind once
+    // again.
+    private Object tryBindCorbaName(String name)
+    {
+        Object obj = null;
+        Object val = failedBindings.get(name);
+        if( val != null)
+        {
+            obj = bindCorbaName(name, (String)val);
+        }
+        return obj;
+    }
+
+    /**
+     * If corbaname bindings fail, give it one more chance at the time of
+     * lookup
+     */
+    private void failedBindings(String name, String value)
+    {
+        Object val = failedBindings.get(name);
+        if( val == null)
+        {
+            failedBindings.put(name, value);
+        }
+        else
+        {
+            //If the binding already exists in the map, then we have already given
+            //it one more chance to bind. Time to remove it.
+            failedBindings.remove(name);
+        }
     }
 
 }

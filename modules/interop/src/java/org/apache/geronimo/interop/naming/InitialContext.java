@@ -26,7 +26,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.OperationNotSupportedException;
 
-
 public class InitialContext implements Context, java.io.Serializable {
     private static HashMap EMPTY_MAP = new HashMap();
     private String prefix;
