@@ -72,15 +72,16 @@ import java.security.PrivilegedAction;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.apache.commons.lang.StringUtils;
+
 import org.apache.geronimo.common.NullArgumentException;
-import org.apache.geronimo.common.Strings;
 import org.apache.geronimo.common.Classes;
 import org.apache.geronimo.common.ThrowableHandler;
 
 /**
  * Protocol utilties.
  *
- * @version $Revision: 1.5 $ $Date: 2003/09/03 17:50:17 $
+ * @version $Revision: 1.6 $ $Date: 2003/09/03 17:54:20 $
  */
 public class Protocols
 {
@@ -126,7 +127,7 @@ public class Protocols
             System.getProperties().remove(HANDLER_PACKAGES);
         }
         else {
-            String pkgs = Strings.join(packages.toArray(), "|");
+            String pkgs = StringUtils.join(packages.toArray(), "|");
             System.setProperty(HANDLER_PACKAGES, pkgs);
         }
     }
