@@ -26,6 +26,9 @@ import java.io.ByteArrayInputStream;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 import javax.activation.DataHandler;
 import javax.mail.Address;
 import javax.mail.Flags;
@@ -243,8 +246,19 @@ public class MimeMessage extends Message implements MimePart {
     }
 
     public Address[] getAllRecipients() throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        List recipients = new ArrayList();
+        addRecipientsToList(recipients, RecipientType.TO);
+        addRecipientsToList(recipients, RecipientType.CC);
+        addRecipientsToList(recipients, RecipientType.BCC);
+        addRecipientsToList(recipients, RecipientType.NEWSGROUPS);
+        return (Address[]) recipients.toArray(new Address[recipients.size()]);
+    }
+
+    private void addRecipientsToList(List list, Message.RecipientType type) throws MessagingException {
+        Address[] recipients = getHeaderAsAddresses(getHeaderForRecipientType(type), isStrictAddressing());
+        if (recipients != null) {
+            list.addAll(Arrays.asList(recipients));
+        }
     }
 
     public void setRecipients(Message.RecipientType type, Address[] addresses) throws MessagingException {
