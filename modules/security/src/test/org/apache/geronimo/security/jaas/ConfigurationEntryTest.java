@@ -48,6 +48,7 @@ public class ConfigurationEntryTest extends TestCase {
     protected ObjectName loginConfiguration;
     protected ObjectName loginService;
     protected ObjectName clientCE;
+    protected ObjectName testUPCred;
     protected ObjectName testCE;
     protected ObjectName testRealm;
     protected ObjectName serverStub;
@@ -79,6 +80,7 @@ public class ConfigurationEntryTest extends TestCase {
         assertTrue("server subject should be associated with remote id", ContextManager.getRegisteredSubject(remote.getId()) != null);
         assertTrue("server subject should have two realm principals ("+subject.getPrincipals(RealmPrincipal.class).size()+")", subject.getPrincipals(RealmPrincipal.class).size() == 2);
         assertTrue("server subject should have five principals ("+subject.getPrincipals().size()+")", subject.getPrincipals().size() == 5);
+        assertTrue("server subject should have one private credential ("+subject.getPrivateCredentials().size()+")", subject.getPrivateCredentials().size() == 1);
         RealmPrincipal principal = (RealmPrincipal) subject.getPrincipals(RealmPrincipal.class).iterator().next();
         assertTrue("id of principal should be non-zero", principal.getId() != 0);
 
@@ -108,6 +110,7 @@ public class ConfigurationEntryTest extends TestCase {
         assertTrue("server subject should be associated with remote id", ContextManager.getRegisteredSubject(remote.getId()) != null);
         assertTrue("server subject should have two realm principals ("+subject.getPrincipals(RealmPrincipal.class).size()+")", subject.getPrincipals(RealmPrincipal.class).size() == 2);
         assertTrue("server subject should have five principals ("+subject.getPrincipals().size()+")", subject.getPrincipals().size() == 5);
+        assertTrue("server subject should have one private credential ("+subject.getPrivateCredentials().size()+")", subject.getPrivateCredentials().size() == 1);
         principal = (RealmPrincipal) subject.getPrincipals(RealmPrincipal.class).iterator().next();
         assertTrue("id of principal should be non-zero", principal.getId() != 0);
 
@@ -166,6 +169,13 @@ public class ConfigurationEntryTest extends TestCase {
         kernel.loadGBean(testCE, gbean);
 
         gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginModuleGBean");
+        testUPCred = new ObjectName("geronimo.security:type=LoginModule,name=UPCred");
+        gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.jaas.UPCredentialLoginModule");
+        gbean.setAttribute("serverSide", new Boolean(true));
+        gbean.setAttribute("options", new Properties());
+        kernel.loadGBean(testUPCred, gbean);
+
+        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginModuleGBean");
         testCE = new ObjectName("geronimo.security:type=LoginModule,name=audit");
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.FileAuditLoginModule");
         gbean.setAttribute("serverSide", new Boolean(true));
@@ -178,7 +188,8 @@ public class ConfigurationEntryTest extends TestCase {
         testRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=properties-realm");
         gbean.setAttribute("realmName", "properties-realm");
         props = new Properties();
-        props.setProperty("LoginModule.2.OPTIONAL","geronimo.security:type=LoginModule,name=audit");
+        props.setProperty("LoginModule.3.REQUIRED","geronimo.security:type=LoginModule,name=UPCred");
+        props.setProperty("LoginModule.2.REQUIRED","geronimo.security:type=LoginModule,name=audit");
         props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=properties");
         gbean.setAttribute("loginModuleConfiguration", props);
         gbean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfo));
@@ -194,6 +205,7 @@ public class ConfigurationEntryTest extends TestCase {
         kernel.startGBean(loginService);
         kernel.startGBean(clientCE);
         kernel.startGBean(testCE);
+        kernel.startGBean(testUPCred);
         kernel.startGBean(testRealm);
         kernel.startGBean(serverStub);
     }
@@ -201,6 +213,7 @@ public class ConfigurationEntryTest extends TestCase {
     protected void tearDown() throws Exception {
         kernel.stopGBean(serverStub);
         kernel.stopGBean(testRealm);
+        kernel.stopGBean(testUPCred);
         kernel.stopGBean(testCE);
         kernel.stopGBean(clientCE);
         kernel.stopGBean(loginService);
@@ -209,6 +222,7 @@ public class ConfigurationEntryTest extends TestCase {
 
         kernel.unloadGBean(loginService);
         kernel.unloadGBean(testCE);
+        kernel.unloadGBean(testUPCred);
         kernel.unloadGBean(testRealm);
         kernel.unloadGBean(clientCE);
         kernel.unloadGBean(serverStub);
