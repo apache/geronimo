@@ -34,10 +34,10 @@ import org.apache.geronimo.kernel.management.State;
  *
  * @version $Rev$ $Date$
  */
-public class MBeanServerHelper {
+public class KernelHelper {
     private final Kernel kernel;
 
-    public MBeanServerHelper() {
+    public KernelHelper() {
         kernel = Kernel.getSingleKernel();
     }
 
@@ -50,8 +50,8 @@ public class MBeanServerHelper {
      *
      * @return Collection of InstanceObjects
      */
-    public Collection getMBeans() {
-        return getMBeans("*:*");
+    public Collection getGBeanNames() {
+        return getGBeanNames("*:*");
     }
 
     /**
@@ -60,7 +60,7 @@ public class MBeanServerHelper {
      * @param filterString filter to use.  Defaults to *:* if null
      * @return Collection of InstanceObjects that match the filter
      */
-    public Collection getMBeans(String filterString) {
+    public Collection getGBeanNames(String filterString) {
         if (filterString == null) {
             filterString = "*:*";
         }
@@ -79,7 +79,7 @@ public class MBeanServerHelper {
                 e.printStackTrace();
             }
         } else {
-            System.out.println("MBeanServerHelper : error : no mbean server");
+            System.out.println("KernelHelper : error : no mbean server");
         }
 
         return null;

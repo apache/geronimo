@@ -20,7 +20,7 @@
     <b>State: </b>
   </td>
   <td>
-    $mbctx.getState($name)
+    $beanInfo.getState()
   </td>
 </tr>
 </table>
@@ -34,13 +34,13 @@
   <th>Value</th>
 </tr>
 
-#foreach($i in $beanInfo.getAttributes().values())
+#foreach($i in $beanInfo.getAttributes().entrySet())
 
-#set($name = $i.name)
+#set($name = $i.getKey())
 #if($name != "objectName" && $name != "statisticsProvider" && $name != "stateManageable" && $name != "eventProvider" && $name != "state" && $name != "startTime")
 <tr>
   <td>$name</td>
-  <td>$!i.value</td>
+  <td>$i.getValue()</td>
 </tr>
 #end
 

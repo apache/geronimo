@@ -24,8 +24,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.geronimo.jmxdebug.web.beanlib.MBeanInfoHelper;
-import org.apache.geronimo.jmxdebug.web.beanlib.MBeanServerHelper;
+import org.apache.geronimo.jmxdebug.web.beanlib.GBeanInfoHelper;
+import org.apache.geronimo.jmxdebug.web.beanlib.KernelHelper;
 import org.apache.velocity.VelocityContext;
 
 /**
@@ -57,7 +57,7 @@ public class DebugServlet extends BasicVelocityActionServlet {
 
         VelocityContext vc = new VelocityContext();
 
-        MBeanServerHelper kernelHelper = new MBeanServerHelper();
+        KernelHelper kernelHelper = new KernelHelper();
         vc.put("mbctx", kernelHelper);
         vc.put("encoder", new KickSunInHead());
         vc.put(OBJECT_NAME_FILTER_KEY, filterKey);
@@ -66,7 +66,7 @@ public class DebugServlet extends BasicVelocityActionServlet {
             vc.put("template", "nobean.vm");
         } else {
             try {
-                vc.put("beanInfo", new MBeanInfoHelper(kernelHelper, beanName));
+                vc.put("beanInfo", new GBeanInfoHelper(kernelHelper, beanName));
             } catch (Exception e) {
                 e.printStackTrace();
             }

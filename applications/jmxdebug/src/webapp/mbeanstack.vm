@@ -12,7 +12,7 @@
 #set($filterParam = $encoder.encode($ObjectNameFilter, "UTF-8"))
 #set($currentDomain = "")
 #set($i = 0)
-#set($mbeanList = $mbctx.getMBeans($ObjectNameFilter))
+#set($mbeanList = $mbctx.getGBeanNames($ObjectNameFilter))
 
 <hr/>
 
