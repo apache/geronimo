@@ -57,59 +57,99 @@
 package org.apache.geronimo.common;
 
 /**
- * Thrown to indicate that a method argument was <code>null</code> and 
- * should <b>not</b> have been.
+ * Thrown to inidcate an invalid value used for a method argument.
  *
- * @version $Revision: 1.9 $ $Date: 2003/09/01 15:09:26 $
+ * @version $Revision: 1.1 $ $Date: 2003/09/01 15:09:26 $
  */
-public class NullArgumentException
-    extends InvalidArgumentException
+public class InvalidArgumentException
+    extends IllegalArgumentException
 {
     /**
-     * A simple helper method to check that the given argument value
-     * is not null. If it is <code>null</code> then a 
-     * <code>NullArgumentException</code> is thrown.
-     * 
-     * @param name name of the argument
-     * @param value the value of the argument
-     *
-     * @throws NullArgumentException if the argument is <code>null</code>
+     * Make a execption message for the given reasons
      */
-    public static void checkForNull(String name, Object value)
-        throws NullArgumentException
+    private static String makeMessage(String name, Object value, Object index, String reason)
     {
-        if (value == null) {
-            throw new NullArgumentException(name);
-        }
+        assert name != null;
+        
+        return "'" + name + "'"
+            + (index == null ? "" : "[" + index + "]")
+            + "='" + value + "'"
+            + (reason == null ? " (invalid value)" : " (" + reason + ")");
+        
+        // TODO I18N internationalise reason
     }
     
+    /** The index of the argument or null if no index. */
+    private final Object index;
+    
+    /** The name of the argument that was invalid. */
+    private final String name;
+    
+    /** The value of the argument or null if no value. */
+    private final Object value;
+    
     /**
-     * Construct a <code>NullArgumentException</code>.
+     * Construct a <code>InvalidArgumentException</code>.
      *
      * @param name    Argument name.
      */
-    public NullArgumentException(final String name) {
-        this(name,null);
+    public InvalidArgumentException(String name, Object value) {
+        this(name, value, null, null);
     }
     
     /**
-     * Construct a <code>NullArgumentException</code>.
+     * Construct a <code>InvalidArgumentException</code>.
      *
      * @param name    Argument name.
-     * @param index   Argument index.
      */
-    public NullArgumentException(final String name, final long index) {
-        this(name, new Long(index));
+    public InvalidArgumentException(String name, Object value, String reason) {
+        this(name, value, null, reason);
+    }
+
+    /**
+     * Construct a <code>InvalidArgumentException</code>.
+     *
+     * @param name      The name of the argument
+     * @param value     The value of the argument, or <code>null</code>
+     * @param index     The index of the argument, or <code>null</code> if none.
+     * @param reason    The reason (short description) of why it is invalid, 
+     *                  or <code>null</code> for the default
+     */
+    public InvalidArgumentException(String name, Object value, Object index, String reason)
+    {
+        super(makeMessage(name, value, index, reason));
+        
+        this.name = name;
+        this.value = value;
+        this.index = index;
     }
     
     /**
-     * Construct a <code>NullArgumentException</code>.
+     * Returns the index associated with this argument.
+     * May be <code>null</code> if there is no such index.
      *
-     * @param name    Argument name.
-     * @param index   Argument index.
+     * @return the index associated with this argument
      */
-    public NullArgumentException(final String name, final Object index) {
-        super(name, null, index, "cannot be null");
+    public Object getIndex() {
+        return index;
+    }
+
+    /**
+     * Returns the name of the argument.
+     *
+     * @return the name of the argument
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Returns the value of the argument.
+     *
+     * @return The value of the argument or <code>null</code> if not specified.
+     */
+    public Object getValue() {
+        return value;
     }
 
 }
