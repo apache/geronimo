@@ -43,7 +43,7 @@ import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.ClassLoading;
 
 /**
- * @version $Revision: 1.9 $ $Date: 2004/06/03 15:27:28 $
+ * @version $Revision: 1.10 $ $Date: 2004/06/24 01:46:30 $
  */
 public class GBeanMBeanReference implements NotificationListener {
     private static final Log log = LogFactory.getLog(GBeanMBeanReference.class);
@@ -241,12 +241,22 @@ public class GBeanMBeanReference implements NotificationListener {
     }
 
     public synchronized void start() throws WaitingException {
+        if (proxy == null) {
+            log.debug("Stop should not be called on an offline reference");
+            return;
+        }
+
         if (!patterns.isEmpty()) {
             proxy.start();
         }
     }
 
     public synchronized void stop() {
+        if (proxy == null) {
+            log.debug("Stop should not be called on an offline reference");
+            return;
+        }
+
         if (!patterns.isEmpty()) {
             proxy.stop();
         }
