@@ -56,6 +56,7 @@
 package org.apache.geronimo.kernel.service;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -91,7 +92,7 @@ import net.sf.cglib.reflect.FastClass;
  * GeronimoMBeanInfo instance.  The GeronimoMBean also support caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.6 $ $Date: 2003/11/11 16:00:59 $
+ * @version $Revision: 1.7 $ $Date: 2003/11/13 18:21:56 $
  */
 public class GeronimoMBean extends AbstractManagedObject2 implements DynamicMBean {
     public static final FastClass fastClass = FastClass.create(GeronimoMBean.class);
@@ -109,6 +110,23 @@ public class GeronimoMBean extends AbstractManagedObject2 implements DynamicMBea
 
     public GeronimoMBean(GeronimoMBeanInfo mbeanInfo) {
         this.mbeanInfo = mbeanInfo;
+    }
+
+    /**
+     * "Bootstrapping" constructor.  The class specified is loaded and the static method
+     * "getGeronimoMBeanInfo" is called to get the mbean info.  Usually one will include
+     * this static method in the class to be wrapped in the GeronimoMBean instance.
+     * @param className
+     * @throws Exception
+     */
+    public GeronimoMBean(String className) throws Exception {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        if (cl == null) {
+            cl = ClassLoader.getSystemClassLoader();
+        }
+        Class clazz = cl.loadClass(className);
+        Method m = clazz.getDeclaredMethod("getGeronimoMBeanInfo", new Class[] {});
+        mbeanInfo = (GeronimoMBeanInfo)m.invoke(clazz, new Object[] {});
     }
 
     public ObjectName preRegister(MBeanServer server, ObjectName name) throws Exception {
