@@ -60,7 +60,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/06/15 03:00:37 $
+ * @version $Revision: 1.8 $ $Date: 2004/06/21 20:29:00 $
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
     private final Kernel kernel;
@@ -187,8 +187,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
             // Copy over all files that are _NOT_ modules
             if (application != null) {
-                for (Enumeration enum = earFile.entries(); enum.hasMoreElements();) {
-                    ZipEntry entry = (ZipEntry) enum.nextElement();
+                for (Enumeration e = earFile.entries(); e.hasMoreElements();) {
+                    ZipEntry entry = (ZipEntry) e.nextElement();
                     if (!moduleLocations.contains(entry.getName())) {
                         earContext.addFile(URI.create(entry.getName()), earFile.getInputStream(entry));
                     }
