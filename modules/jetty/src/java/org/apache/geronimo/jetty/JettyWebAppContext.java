@@ -254,7 +254,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         FilterHolder jsr154FilterHolder = new FilterHolder(handler, "jsr154", JSR154Filter.class.getName());
         handler.addFilterHolder(jsr154FilterHolder);
         jsr154FilterHolder.setInitParameter("unwrappedDispatch", "true");
-        handler.addFilterPathMapping("/*", "jsr154", JettyFilterHolder.__REQUEST | JettyFilterHolder.__FORWARD | JettyFilterHolder.__INCLUDE);
+        handler.addFilterPathMapping("/*", "jsr154", JettyFilterHolder.__REQUEST | JettyFilterHolder.__FORWARD | JettyFilterHolder.__INCLUDE | JettyFilterHolder.__ERROR );
     }
 
     public Object enterContextScope(HttpRequest httpRequest, HttpResponse httpResponse) {
