@@ -117,8 +117,8 @@
     <goal name="m:default" prereqs="m:init">
         <!-- don't run the active mq tests they take way too long and don't complete successfully -->
         <u:available file="${basedir}/activemq">
-            <mkdir dir="${basedir}/activemq/target/test-reports/"/>
-            <ant:touch file="${basedir}/activemq/target/test-reports/tstamp"/>
+            <mkdir dir="${basedir}/activemq/modules/core/target/test-reports/"/>
+            <ant:touch file="${basedir}/activemq/modules/core/target/test-reports/tstamp"/>
         </u:available>
         <j:set var="goal" value="default"/>
         <attainGoal name="multiproject:goal"/>

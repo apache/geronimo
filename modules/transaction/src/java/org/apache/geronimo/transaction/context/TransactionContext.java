@@ -21,20 +21,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.InvalidTransactionException;
-import javax.transaction.NotSupportedException;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.transaction.InstanceContext;
-import org.apache.geronimo.transaction.DoubleKeyedHashMap;
 import org.apache.geronimo.transaction.ConnectionReleaser;
+import org.apache.geronimo.transaction.DoubleKeyedHashMap;
+import org.apache.geronimo.transaction.InstanceContext;
 import org.tranql.cache.InTxCache;
 import org.tranql.cache.SimpleFlushStrategy;
 
@@ -123,11 +121,25 @@ public abstract class TransactionContext {
     }
 
     protected void afterCommit(boolean status) throws Exception {
-        // @todo allow for enrollment during pre-commit
+        Throwable firstThrowable = null;
         ArrayList toFlush = new ArrayList(associatedContexts.values());
         for (Iterator i = toFlush.iterator(); i.hasNext();) {
             InstanceContext context = (InstanceContext) i.next();
-            context.afterCommit(status);
+            try {
+                context.afterCommit(status);
+            } catch (Throwable e) {
+                if (firstThrowable == null) {
+                    firstThrowable = e;
+                }
+            }
+        }
+
+        if (firstThrowable instanceof Error) {
+            throw (Error) firstThrowable;
+        } else if (firstThrowable instanceof Exception) {
+            throw (Exception) firstThrowable;
+        } else if (firstThrowable != null) {
+            throw (SystemException) new SystemException().initCause(firstThrowable);
         }
     }
 

@@ -199,7 +199,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
             assertNotNull(activationSpecInfo);
             GBeanInfo activationSpecGBeanInfo = activationSpecInfo.getActivationSpecGBeanInfo();
             List attributes = activationSpecGBeanInfo.getPersistentAttributes();
-            assertEquals(3, attributes.size());
+            assertEquals(2, attributes.size());
 
             //startRecursive can only be invoked if GBean is stopped.
             kernel.stopGBean(objectName);

@@ -21,7 +21,6 @@ import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.InvalidTransactionException;
 import javax.transaction.NotSupportedException;
-import javax.transaction.RollbackException;
 import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
@@ -59,61 +58,117 @@ public class ContainerTransactionContext extends InheritableTransactionContext {
         threadAssociated = true;
     }
 
-    /**
-     * TODO the exceptions thrown here are not all correct.  Don't throw a RollbackException after
-     * a successful commit...??
-     *
-     * @throws javax.transaction.HeuristicMixedException
-     *
-     * @throws javax.transaction.HeuristicRollbackException
-     *
-     * @throws javax.transaction.RollbackException
-     *
-     * @throws javax.transaction.SystemException
-     *
-     */
-    public void commit() throws HeuristicMixedException, HeuristicRollbackException, RollbackException, SystemException {
+    public void commit() throws HeuristicMixedException, HeuristicRollbackException, SystemException {
+        boolean wasCommitted = false;
         try {
-            try {
-                flushState();
-            } catch (Throwable t) {
-                try {
-                    txnManager.rollback();
-                } catch (Throwable t1) {
-                    log.error("Unable to roll back transaction", t1);
-                }
-                throw (RollbackException) new RollbackException("Could not flush state before commit").initCause(t);
+            if (checkRolledback()) {
+                return;
             }
-            try {
-                beforeCommit();
-            } catch (Exception e) {
-                try {
-                    txnManager.rollback();
-                } catch (Throwable t1) {
-                    log.error("Unable to roll back transaction", t1);
-                }
-                throw (RollbackException) new RollbackException("Could not flush state before commit").initCause(e);
+
+            flushState();
+
+            if (checkRolledback()) {
+                return;
             }
+
+            // todo we need to flush anyone enrolled during before and then call before on any flushed...
+            beforeCommit();
+
+            if (checkRolledback()) {
+                return;
+            }
+
             txnManager.commit();
-            try {
-                afterCommit(true);
-            } catch (Exception e) {
-                try {
-                    txnManager.rollback();
-                } catch (Throwable t1) {
-                    log.error("Unable to roll back transaction", t1);
-                }
-                throw (RollbackException) new RollbackException("Could not flush state before commit").initCause(e);
-            }
+            wasCommitted = true;
+        } catch (Throwable t) {
+            rollbackAndThrow("Unable to commit container transaction", t);
         } finally {
-            connectorAfterCommit();
-            transaction = null;
+            try {
+                afterCommit(wasCommitted);
+            } catch (Exception e) {
+                rollbackAndThrow("After commit of container transaction failed", e);
+            } finally {
+                connectorAfterCommit();
+                transaction = null;
+            }
+        }
+    }
+
+    private boolean checkRolledback() throws SystemException {
+        int status;
+        try {
+            status = transaction.getStatus();
+        } catch (SystemException e) {
+            txnManager.rollback();
+            throw e;
+        }
+
+        if (status == Status.STATUS_MARKED_ROLLBACK) {
+            // we need to rollback
+            txnManager.rollback();
+            return true;
+        } else if (status == Status.STATUS_ROLLEDBACK ||
+                status == Status.STATUS_ROLLING_BACK) {
+            // already rolled back
+            return true;
+        }
+        return false;
+    }
+
+    private void rollbackAndThrow(String message, Throwable throwable) throws HeuristicMixedException, HeuristicRollbackException, SystemException {
+        try {
+            // just incase there is a junk transaction on the thread
+            if (txnManager.getStatus() != Status.STATUS_NO_TRANSACTION) {
+                txnManager.rollback();
+            }
+        } catch (Throwable t) {
+            log.error("Unable to roll back transaction", t);
+        }
+
+        if (throwable instanceof HeuristicMixedException) {
+            throw (HeuristicMixedException) throwable;
+        } else if (throwable instanceof HeuristicRollbackException) {
+            throw (HeuristicRollbackException) throwable;
+        } else if (throwable instanceof SystemException) {
+            throw (SystemException) throwable;
+        } else if (throwable instanceof Error) {
+            throw (Error) throwable;
+        } else if (throwable instanceof RuntimeException) {
+            throw (RuntimeException) throwable;
+        } else {
+            throw (SystemException) new SystemException(message).initCause(throwable);
         }
     }
 
     public void rollback() throws SystemException {
         try {
-            txnManager.rollback();
+            try {
+                if (txnManager.getStatus() != Status.STATUS_NO_TRANSACTION) {
+                    txnManager.rollback();
+                }
+            } finally {
+                try {
+                    afterCommit(false);
+                } catch (Throwable e) {
+                    try {
+                        // just incase there is a junk transaction on the thread
+                        if (txnManager.getStatus() != Status.STATUS_NO_TRANSACTION) {
+                            txnManager.rollback();
+                        }
+                    } catch (Throwable t1) {
+                        log.error("Unable to roll back transaction", t1);
+                    }
+
+                    if (e instanceof SystemException) {
+                        throw (SystemException) e;
+                    } else if (e instanceof Error) {
+                        throw (Error) e;
+                    } else if (e instanceof RuntimeException) {
+                        throw (RuntimeException) e;
+                    }
+                    throw (SystemException) new SystemException("After commit of container transaction failed").initCause(e);
+                }
+            }
         } finally {
             connectorAfterCommit();
             transaction = null;

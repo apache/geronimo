@@ -88,7 +88,6 @@ public class TransactionImpl implements Transaction {
     }
 
     public synchronized void setRollbackOnly() throws IllegalStateException, SystemException {
-        log.info("in setRollbackOnly, txImpl", new Exception("stack trace"));
         switch (status) {
             case Status.STATUS_ACTIVE:
             case Status.STATUS_PREPARING:

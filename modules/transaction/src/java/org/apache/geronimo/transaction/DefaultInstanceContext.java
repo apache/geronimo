@@ -21,8 +21,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.geronimo.transaction.InstanceContext;
-
 
 /**
  * Simple implementation of ComponentContext satisfying invariant.
