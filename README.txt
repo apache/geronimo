@@ -1,8 +1,7 @@
 ======================================================
-Apache Geronimo milestone build M2  (Aug 4, 2004)
+Apache Geronimo milestone build M3  (Nov 10, 2004)
 
-http://wiki.apache.org/geronimo
-http://geronimo.apache.org
+http://geronimo.apache.org/
 ------------------------------------------------------
 
 ___________________
@@ -12,17 +11,8 @@ Documentation
  This README serves as five minute overview of Geronimo, but better
  documentation can be found here:
  
-   -  http://wiki.apache.org/geronimo/Deployment
-   -  http://wiki.apache.org/geronimo/Running
-   
- Those are wiki pages that will be updated as we collect feedback from
- this release.
+   -  http://geronimo.apache.org/documentation.html
 
- O'Reilly has released two chapters of the forthcoming Geronimo Developer's 
- Notebook by David Blevins (O'Reilly 2004-ish) to help Geronimo reach its M2 
- goals and to grow the community.  The chapters are located at:
-  
- http://today.java.net/pub/a/today/2004/08/02/geronimo.html 
 ___________________
 Release Notes
 ===================
@@ -30,15 +20,19 @@ Release Notes
  Please read the RELEASE_NOTES for a complete list of things that are
  not yet functional.  We wrote those up to save you time trying to get
  things to work we know are not implemented.
+
  
 ___________________
 Installation
 ===================
 
  If you've downloaded and unpacked a binary distribution of Geronimo,
- then you are finished with installation.  If you downloaded a source
- distribution, then see the BUILDING.txt file for more instructions
- before continuing any further.
+ then you are finished with installation.  Note that the source
+ distribution is provided for reference purposes, but you may not
+ actually be able to build a working server from it -- it refers to
+ snapshot versions of some third-party libraries which might have
+ changed since the time M3 was originally built.
+
  
 ___________________
 Geronimo Home
@@ -53,21 +47,27 @@ Geronimo Home
  The GERONIMO_HOME directory is referred to in various parts of the
  documentation, so it's good to remember where it is.
 
+
 ___________________
 Deploying
 ===================
 
  The Geronimo deployment tool is packaged in the executable jar
  bin/deployer.jar under the GERONIMO_HOME and can be executed like
- this:
+ this (assuming the server is already running):
 
-   C:\geronimo> java -jar bin\deployer.jar --install --module myDataSource.rar
-   C:\geronimo> java -jar bin\deployer.jar --install --module myEJB.jar
-   C:\geronimo> java -jar bin\deployer.jar --install --module myWebapp.war
+   C:\geronimo> java -jar bin\deployer.jar deploy myDataSource.rar
+   C:\geronimo> java -jar bin\deployer.jar deploy myEJB.jar
+   C:\geronimo> java -jar bin\deployer.jar deploy myWebapp.war
+   C:\geronimo> java -jar bin\deployer.jar deploy myApp.ear
 
  Notice that the deployer.jar is capable of handling a number of
- different archive types; rar, war, and ejb jar.  At this time ear
- archives are not supported.
+ different archive types; rar, war, ejb jar, and EAR.
+
+ The deployer will prompt you for a username and password; the
+ default administrative account has username "system" and password
+ "manager".
+
 
 ___________________
 Starting
@@ -76,15 +76,26 @@ Starting
  The main server class is also packed in an executable jar,
  bin/server.jar, and can be ran in a way similar to the deploy tool.
 
-   C:\geronimo> java -jar bin\server.jar  org/apache/geronimo/DebugConsole
+   C:\geronimo> java -jar bin\server.jar
+
+ Once the server is running, you can start the debug console with a
+ command like this:
+
+   c:\geronimo> java -jar bin\deployer.jar start \
+                          org/apache/geronimo/DebugConsole
+
+ Then you can access the debug console by pointing your browser to:
+
+   http://localhost:8080/debug-tool/
    
  I know what you're thinking, "Why does 'bin\server.jar' use
  back-slashes and 'org/apache/geronimo/DebugConsole' use
  forward-slashes?"  The answer is 'org/apache/geronimo/DebugConsole'
  is a URI; a unique identifier that Geronimo uses to find the app you
  want to start.  URI's use forward-slashes only, never back-slashes.
- So, no matter what operating system your on, the URI will always look
+ So, no matter what operating system you're on, the URI will always look
  similar to the one above.
+
 
 ___________________
 Support
