@@ -75,6 +75,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.NoDeployerException;
 import org.apache.geronimo.deployment.URLDeployer;
+import org.apache.geronimo.deployment.JARDeployer;
 import org.apache.geronimo.deployment.service.ServiceDeployer;
 import org.apache.geronimo.deployment.util.FileUtil;
 import org.apache.geronimo.deployment.util.URLInfo;
@@ -83,7 +84,7 @@ import org.apache.geronimo.deployment.util.URLType;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/24 19:50:04 $
+ * @version $Revision: 1.7 $ $Date: 2004/02/06 02:57:23 $
  */
 public class DeployCommand {
     private final File configFile;
@@ -188,14 +189,16 @@ public class DeployCommand {
     }
 
     private static List getDeployers() {
+        DocumentBuilder parser;
         try {
-            List deployers = new ArrayList();
-            DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            deployers.add(new ServiceDeployer(parser));
-            return deployers;
+            parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         } catch (ParserConfigurationException e) {
             throw new AssertionError("Unable to instantiate XML Parser");
         }
+        List deployers = new ArrayList();
+        deployers.add(new ServiceDeployer(parser));
+        deployers.add(new JARDeployer());
+        return deployers;
     }
 
     private static File createWorkDir() throws IOException {
