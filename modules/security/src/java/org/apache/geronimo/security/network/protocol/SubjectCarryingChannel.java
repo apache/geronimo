@@ -151,12 +151,12 @@ public class SubjectCarryingChannel extends FilterAsynchChannel {
         os.writeLong(subjectId.longValue());
         os.writeInt(hash.length);
         os.close();
-        return new AppendedPacket(header.flip(), new ByteArrayPacket(hash));
+        return AppendedPacket.join(header.flip(), new ByteArrayPacket(hash));
     }
 
     private Packet createPassthroughPacket(Packet packet) {
         header.clear().write(PASSTHROUGH);        
-        return new AppendedPacket(header.flip(),packet);
+        return AppendedPacket.join(header.flip(),packet);
     }
 
     public Subject getLocalSubject() {

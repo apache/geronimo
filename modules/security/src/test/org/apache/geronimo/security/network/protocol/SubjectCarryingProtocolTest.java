@@ -37,9 +37,9 @@ import org.activeio.Packet;
 import org.activeio.RequestChannel;
 import org.activeio.RequestListener;
 import org.activeio.SynchChannel;
-import org.activeio.adapter.ASynchToSynchChannelAdapter;
 import org.activeio.adapter.AsynchChannelToClientRequestChannel;
 import org.activeio.adapter.AsynchChannelToServerRequestChannel;
+import org.activeio.adapter.AsynchToSynchChannelAdapter;
 import org.activeio.adapter.SynchToAsynchChannelAdapter;
 import org.activeio.adapter.SynchToAsynchChannelServerAdapter;
 import org.activeio.filter.PacketAggregatingAsynchChannel;
@@ -81,10 +81,10 @@ public class SubjectCarryingProtocolTest extends AbstractTest implements Request
         SocketSynchChannelFactory factory = new SocketSynchChannelFactory();
         final RequestChannel channel = 
             new AsynchChannelToClientRequestChannel(
-                new ASynchToSynchChannelAdapter(
+                AsynchToSynchChannelAdapter.adapt(
                     new SubjectCarryingChannel(
                         new PacketAggregatingAsynchChannel( 
-                            new SynchToAsynchChannelAdapter(
+                            SynchToAsynchChannelAdapter.adapt(
                                  factory.openSynchChannel(serverURI))))));        
         try { 
             channel.start();

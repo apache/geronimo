@@ -104,7 +104,7 @@ public class JaasLoginServiceRemotingServer implements GBeanLifecycle {
         
         return new AsynchChannelToServerRequestChannel( 
                 new PacketAggregatingAsynchChannel(
-                        new SynchToAsynchChannelAdapter(channel))) {            
+                        SynchToAsynchChannelAdapter.adapt(channel))) {            
             /**
              * close out the channel once one request has been serviced.
              */
