@@ -82,6 +82,7 @@ import org.apache.geronimo.kernel.management.NotificationType;
 import org.apache.geronimo.kernel.service.AbstractManagedObject;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
+import org.apache.geronimo.kernel.classspace.ClassSpaceUtil;
 
 /**
  * A GeronimoMBean is a J2EE Management Managed Object, and is standard base for Geronimo services.
@@ -89,7 +90,7 @@ import org.apache.geronimo.kernel.deployment.DeploymentException;
  * GeronimoMBeanInfo instance.  The GeronimoMBean also support caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/24 22:41:56 $
+ * @version $Revision: 1.3 $ $Date: 2003/10/27 21:36:15 $
  */
 public class GeronimoMBean extends AbstractManagedObject implements DynamicMBean {
     private final Log log = LogFactory.getLog(getClass());
@@ -97,30 +98,30 @@ public class GeronimoMBean extends AbstractManagedObject implements DynamicMBean
     private final Map operationInfoMap = new HashMap();
     private GeronimoMBeanContext context;
     private GeronimoMBeanInfo mbeanInfo;
+    private ObjectName classSpace;
     private ClassLoader classLoader;
 
     public ObjectName preRegister(MBeanServer server, ObjectName name) throws Exception {
         super.preRegister(server, name);
-        if (classLoader == null) {
-            throw new DeploymentException("No class loader set for Geronimo MBean");
-        }
         if (mbeanInfo == null) {
             throw new DeploymentException("No MBean info set for Geronimo MBean");
         }
 
+        classLoader = ClassSpaceUtil.getClassLoader(server, classSpace);
         context = new GeronimoMBeanContext(server, this, name);
         return this.objectName;
     }
 
     public void postRegister(Boolean registrationDone) {
         super.postRegister(registrationDone);
-        if(!registrationDone.booleanValue()) {
+        if (!registrationDone.booleanValue()) {
             context = null;
             return;
         }
 
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
+            // Set the class loader
             Thread.currentThread().setContextClassLoader(classLoader);
 
             addManagedObjectMBeanInfo();
@@ -128,7 +129,18 @@ public class GeronimoMBean extends AbstractManagedObject implements DynamicMBean
             Set attributes = mbeanInfo.getAttributeSet();
             for (Iterator iterator = attributes.iterator(); iterator.hasNext();) {
                 GeronimoAttributeInfo attributeInfo = (GeronimoAttributeInfo) iterator.next();
-                attributeInfoMap.put(attributeInfo.getName(), attributeInfo);
+                final String name = attributeInfo.getName();
+                attributeInfoMap.put(name, attributeInfo);
+
+                if (attributeInfo.isReadable()) {
+                    String getterName = (attributeInfo.isIs() ? "is" : "get") +
+                            Character.toUpperCase(name.charAt(0)) + name.substring(1);
+                    operationInfoMap.put(new MethodKey(getterName, null), attributeInfo);
+                }
+                if (attributeInfo.isWritable()) {
+                    String setterName = "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
+                    operationInfoMap.put(new MethodKey(setterName, new String[]{attributeInfo.getType()}), attributeInfo);
+                }
             }
             Set operations = mbeanInfo.getOperationsSet();
             for (Iterator iterator = operations.iterator(); iterator.hasNext();) {
@@ -155,24 +167,32 @@ public class GeronimoMBean extends AbstractManagedObject implements DynamicMBean
         super.postDeregister();
         ObjectName objectName = context.getObjectName();
         context = null;
-        for (Iterator i = mbeanInfo.targets.values().iterator(); i.hasNext();) {
-            Object target = i.next();
-            if (target instanceof GeronimoMBeanTarget) {
-                try {
-                    ((GeronimoMBeanTarget) target).setMBeanContext(null);
-                } catch (RuntimeException e) {
-                    log.warn("Ignoring RuntimeException from setMBeanContext(null): objectName" + objectName, e);
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            // Set the class loader
+            Thread.currentThread().setContextClassLoader(classLoader);
+            for (Iterator i = mbeanInfo.targets.values().iterator(); i.hasNext();) {
+                Object target = i.next();
+                if (target instanceof GeronimoMBeanTarget) {
+                    try {
+                        ((GeronimoMBeanTarget) target).setMBeanContext(null);
+                    } catch (RuntimeException e) {
+                        log.warn("Ignoring RuntimeException from setMBeanContext(null): objectName" + objectName, e);
+                    }
                 }
             }
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+            classLoader = null;
         }
     }
 
-    public ClassLoader getClassLoader() {
-        return classLoader;
+    public ObjectName getClassSpace() {
+        return classSpace;
     }
 
-    public void setClassLoader(ClassLoader classLoader) {
-        this.classLoader = classLoader;
+    public void setClassSpace(ObjectName classSpace) {
+        this.classSpace = classSpace;
     }
 
     public MBeanInfo getMBeanInfo() {
@@ -523,6 +543,17 @@ public class GeronimoMBean extends AbstractManagedObject implements DynamicMBean
         notificationInfo.setDescription("J2EE Notifications");
         notificationInfo.addAllNotificationTypes(NotificationType.TYPES);
         mbeanInfo.addNotificationInfo(notificationInfo);
+
+        // Geronimo MBean Extra attibutes
+        attributeInfo = new GeronimoAttributeInfo();
+        attributeInfo.setName("classSpace");
+        attributeInfo.target = this;
+        attributeInfo.setDescription("Class Space for this MBean");
+        attributeInfo.setReadable(true);
+        attributeInfo.setWritable(false);
+        attributeInfo.setCacheTimeLimit(-1);
+        mbeanInfo.addAttributeInfo(attributeInfo);
+
     }
 
     private final static String[] NO_TYPES = new String[0];
