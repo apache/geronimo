@@ -29,9 +29,10 @@ import org.apache.xmlbeans.XmlObject;
  * ejb 1.1 dtd appears to be a subset of ejb 2.0 dtd so the same xsl should
  * work for both.
  *
- * @version $Revision: 1.1 $ $Date: 2004/09/02 06:25:08 $
+ * @version $Revision: 1.2 $ $Date: 2004/09/06 02:16:21 $
  */
 public class SchemaConversionUtilsTest extends TestCase {
+    private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
 
 //comment on validity of j2ee 1.4 schemas: validation doesn't work...
 //        From: "Radu Preotiuc-Pietro" <radup@bea.com>
@@ -53,8 +54,8 @@ public class SchemaConversionUtilsTest extends TestCase {
     //I've taken option (1) and fixed the schemas
 
     public void testApplication13ToApplication14Transform() throws Exception {
-        File srcXml = new File("src/test-data/j2ee_1_3dtd/application-13.xml");
-        File expectedOutputXml = new File("src/test-data/j2ee_1_3dtd/application-14.xml");
+        File srcXml = new File(basedir, "src/test-data/j2ee_1_3dtd/application-13.xml");
+        File expectedOutputXml = new File(basedir, "src/test-data/j2ee_1_3dtd/application-14.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         SchemaConversionUtils.validateDD(expected);
@@ -82,8 +83,8 @@ public class SchemaConversionUtilsTest extends TestCase {
     }
 
     public void testEJB20ToEJB21Transform() throws Exception {
-        File srcXml = new File("src/test-data/j2ee_1_3dtd/ejb-jar.xml");
-        File expectedOutputXml = new File("src/test-data/j2ee_1_3dtd/ejb-jar-21.xml");
+        File srcXml = new File(basedir, "src/test-data/j2ee_1_3dtd/ejb-jar.xml");
+        File expectedOutputXml = new File(basedir, "src/test-data/j2ee_1_3dtd/ejb-jar-21.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         SchemaConversionUtils.validateDD(expected);
@@ -111,8 +112,8 @@ public class SchemaConversionUtilsTest extends TestCase {
     }
 
     public void testMDB20To21Transform() throws Exception {
-        File srcXml = new File("src/test-data/j2ee_1_3dtd/mdb-ejb-jar-20.xml");
-        File expectedOutputXml = new File("src/test-data/j2ee_1_3dtd/mdb-ejb-jar-21.xml");
+        File srcXml = new File(basedir, "src/test-data/j2ee_1_3dtd/mdb-ejb-jar-20.xml");
+        File expectedOutputXml = new File(basedir, "src/test-data/j2ee_1_3dtd/mdb-ejb-jar-21.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         SchemaConversionUtils.validateDD(expected);
@@ -140,8 +141,8 @@ public class SchemaConversionUtilsTest extends TestCase {
     }
 
     public void testOrderDescriptionGroup() throws Exception {
-        File srcXml = new File("src/test-data/j2ee_1_3dtd/DescriptionGroupTestSource.xml");
-        File expectedOutputXml = new File("src/test-data/j2ee_1_3dtd/DescriptionGroupTestExpected.xml");
+        File srcXml = new File(basedir, "src/test-data/j2ee_1_3dtd/DescriptionGroupTestSource.xml");
+        File expectedOutputXml = new File(basedir, "src/test-data/j2ee_1_3dtd/DescriptionGroupTestExpected.xml");
         XmlObject srcObject = XmlObject.Factory.parse(srcXml);
         XmlCursor srcCursor = srcObject.newCursor();
         XmlCursor moveable = srcObject.newCursor();
@@ -166,8 +167,8 @@ public class SchemaConversionUtilsTest extends TestCase {
     }
 
     public void testOrderJNDIEnvironmentRefsGroup() throws Exception {
-        File srcXml = new File("src/test-data/j2ee_1_3dtd/JNDIEnvironmentRefsGroupTestSource.xml");
-        File expectedOutputXml = new File("src/test-data/j2ee_1_3dtd/JNDIEnvironmentRefsGroupTestExpected.xml");
+        File srcXml = new File(basedir, "src/test-data/j2ee_1_3dtd/JNDIEnvironmentRefsGroupTestSource.xml");
+        File expectedOutputXml = new File(basedir, "src/test-data/j2ee_1_3dtd/JNDIEnvironmentRefsGroupTestExpected.xml");
         XmlObject srcObject = XmlObject.Factory.parse(srcXml);
         XmlCursor srcCursor = srcObject.newCursor();
         XmlCursor moveable = srcObject.newCursor();
@@ -195,8 +196,8 @@ public class SchemaConversionUtilsTest extends TestCase {
     }
 
     public void testWeb23To24Transform() throws Exception {
-        File srcXml = new File("src/test-data/j2ee_1_3dtd/web-23.xml");
-        File expectedOutputXml = new File("src/test-data/j2ee_1_3dtd/web-24.xml");
+        File srcXml = new File(basedir, "src/test-data/j2ee_1_3dtd/web-23.xml");
+        File expectedOutputXml = new File(basedir, "src/test-data/j2ee_1_3dtd/web-24.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
@@ -209,8 +210,8 @@ public class SchemaConversionUtilsTest extends TestCase {
     }
 
     public void testWeb23To24OtherTransform() throws Exception {
-        File srcXml = new File("src/test-data/j2ee_1_3dtd/web-1-23.xml");
-        File expectedOutputXml = new File("src/test-data/j2ee_1_3dtd/web-1-24.xml");
+        File srcXml = new File(basedir, "src/test-data/j2ee_1_3dtd/web-1-23.xml");
+        File expectedOutputXml = new File(basedir, "src/test-data/j2ee_1_3dtd/web-1-24.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
 //        System.out.println(xmlObject.toString());
@@ -224,8 +225,8 @@ public class SchemaConversionUtilsTest extends TestCase {
     }
 
     public void testEJB21To21DoesNothing() throws Exception {
-        File srcXml = new File("src/test-data/j2ee_1_4schema/ejb-jar.xml");
-        File expectedOutputXml = new File("src/test-data/j2ee_1_4schema/ejb-jar.xml");
+        File srcXml = new File(basedir, "src/test-data/j2ee_1_4schema/ejb-jar.xml");
+        File expectedOutputXml = new File(basedir, "src/test-data/j2ee_1_4schema/ejb-jar.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         xmlObject = SchemaConversionUtils.convertToEJBSchema(xmlObject);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
