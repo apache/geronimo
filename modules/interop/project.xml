@@ -60,12 +60,6 @@
             <version>${geronimo_spec_ejb_version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>openejb</groupId>
-            <artifactId>openejb-core</artifactId>
-            <version>${openejb_version}</version>
-        </dependency>
-
         <!-- Thirdparty -->
 
         <dependency>
