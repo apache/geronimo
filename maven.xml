@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.51 $ $Date: 2004/01/20 01:36:58 $ -->
+<!-- $Revision: 1.52 $ $Date: 2004/01/20 06:13:38 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -663,6 +663,10 @@
                     <fileset dir="${maven.repo.local}/regexp/jars">
                           <include name="regexp-1.3-dev.jar"/>
                     </fileset>
+                    <!-- connector work manager -->
+                    <fileset dir="${maven.repo.local}/concurrent/jars">
+                          <include name="concurrent-1.3.2.jar"/>
+                    </fileset>
                 </classpath>
 
                 <arg value="file:${run.dir}/deployment/src/test-resources/etc/bootstrapped-service.xml"/>
@@ -735,6 +739,10 @@
                     <!-- security -->
                     <fileset dir="${maven.repo.local}/regexp/jars">
                           <include name="regexp-1.3-dev.jar"/>
+                    </fileset>
+                    <!-- connector work manager -->
+                    <fileset dir="${maven.repo.local}/concurrent/jars">
+                          <include name="concurrent-1.3.2.jar"/>
                     </fileset>
                 </classpath>
 

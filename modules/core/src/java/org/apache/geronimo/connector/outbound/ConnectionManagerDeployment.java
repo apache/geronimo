@@ -57,12 +57,22 @@
 package org.apache.geronimo.connector.outbound;
 
 import javax.management.MBeanOperationInfo;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnectionFactory;
 
 import org.apache.geronimo.connector.deployment.ConnectionManagerFactory;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GOperationInfo;
+import org.apache.geronimo.kernel.KernelMBean;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
@@ -77,11 +87,11 @@ import org.apache.geronimo.security.bridge.RealmBridge;
  * and connection manager stack according to the policies described in the attributes.
  * It's used by deserialized copies of the proxy to get a reference to the actual stack.
  *
- * @version $Revision: 1.10 $ $Date: 2004/01/15 01:20:53 $
+ * @version $Revision: 1.11 $ $Date: 2004/01/20 06:13:38 $
  * */
-public class ConnectionManagerDeployment
+public class ConnectionManagerDeployment implements GeronimoMBeanTarget, ConnectionManagerFactory, GBean {
 
-        implements GeronimoMBeanTarget, ConnectionManagerFactory {
+    private static final GBeanInfo GBEAN_INFO;
 
     private final static String MBEAN_SERVER_DELEGATE =
             "JMImplementation:type=MBeanServerDelegate";
@@ -103,12 +113,11 @@ public class ConnectionManagerDeployment
     /**
      * Identifying string used by unshareable resource detection
      */
-    private String jndiName;
+    private String name;
     //dependencies
     private RealmBridge realmBridge;
     private ConnectionTracker connectionTracker;
-
-    private String globalJNDIName;
+    private KernelMBean kernel;
 
     //GeronimoMBeanTarget support.
     private GeronimoMBeanContext context;
@@ -117,17 +126,17 @@ public class ConnectionManagerDeployment
     public ConnectionManagerDeployment() {
     }
 
-    //constructor primarily for testing.  Connection manager/connection factory will not be serializable.
     public ConnectionManagerDeployment(boolean useConnectionRequestInfo,
-     boolean useSubject,
-     boolean useTransactionCaching,
-     boolean useLocalTransactions,
-     boolean useTransactions,
-     int maxSize,
-     int blockingTimeout,
-     RealmBridge realmBridge,
-     String jndiName,
-     ConnectionTracker connectionTracker) {
+                                       boolean useSubject,
+                                       boolean useTransactionCaching,
+                                       boolean useLocalTransactions,
+                                       boolean useTransactions,
+                                       int maxSize,
+                                       int blockingTimeout,
+                                       String name,
+                                       RealmBridge realmBridge,
+                                       ConnectionTracker connectionTracker,
+                                       KernelMBean kernel) {
         this.useConnectionRequestInfo = useConnectionRequestInfo;
         this.useLocalTransactions = useLocalTransactions;
         this.useSubject = useSubject;
@@ -136,9 +145,9 @@ public class ConnectionManagerDeployment
         this.maxSize = maxSize;
         this.blockingTimeout = blockingTimeout;
         this.realmBridge = realmBridge;
-        this.jndiName = jndiName;
+        this.name = name;
         this.connectionTracker = connectionTracker;
-        setUpConnectionManager(null, null);
+        this.kernel = kernel;
     }
 
     public void setMBeanContext(GeronimoMBeanContext context) {
@@ -150,13 +159,28 @@ public class ConnectionManagerDeployment
     }
 
     public void doStart() {
-        ObjectName connectionManagerName = context.getObjectName();
+        MBeanServer mbeanServer = null;
+        if (kernel != null) {
+            mbeanServer = kernel.getMBeanServer();
+        } else if (context != null) {
+            mbeanServer = context.getServer();
+        } else {
+            throw new IllegalStateException("Neither kernel nor context is set, but you're trying to start");
+        }
+
         String agentID;
         try {
             ObjectName name = ObjectName.getInstance(MBEAN_SERVER_DELEGATE);
-            agentID = (String) context.getServer().getAttribute(name, "MBeanServerId");
+            agentID = (String) mbeanServer.getAttribute(name, "MBeanServerId");
         } catch (Exception e) {
             throw new RuntimeException("Problem getting agentID from MBeanServerDelegate", e);
+        }
+
+        ObjectName connectionManagerName = null;
+        try {
+            connectionManagerName = ObjectName.getInstance("geronimo.management:j2eeType=ConnectionManager,name=" + name);
+        } catch (MalformedObjectNameException e) {
+            throw new RuntimeException("could not construct an object name for ConnectionManagerDeployment mbean", e);
         }
         setUpConnectionManager(agentID, connectionManagerName);
 
@@ -217,7 +241,7 @@ public class ConnectionManagerDeployment
         if (connectionTracker != null) {
             stack = new ConnectionTrackingInterceptor(
                     stack,
-                    jndiName,
+                    name,
                     connectionTracker,
                     realmBridge);
         }
@@ -267,12 +291,12 @@ public class ConnectionManagerDeployment
         this.connectionTracker = connectionTracker;
     }
 
-    public String getJndiName() {
-        return jndiName;
+    public String getName() {
+        return name;
     }
 
-    public void setJndiName(String jndiName) {
-        this.jndiName = jndiName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public int getMaxSize() {
@@ -334,6 +358,45 @@ public class ConnectionManagerDeployment
         this.useTransactionCaching = useTransactionCaching;
     }
 
+    public KernelMBean getKernel() {
+        return kernel;
+    }
+
+    public void setKernel(KernelMBean kernel) {
+        this.kernel = kernel;
+    }
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConnectionManagerDeployment.class.getName());
+
+        infoFactory.addAttribute(new GAttributeInfo("BlockingTimeout", true));
+        infoFactory.addAttribute(new GAttributeInfo("Name", true));
+        infoFactory.addAttribute(new GAttributeInfo("MaxSize", true));
+        infoFactory.addAttribute(new GAttributeInfo("UseConnectionRequestInfo", true));
+        infoFactory.addAttribute(new GAttributeInfo("UseTransactions", true));
+        infoFactory.addAttribute(new GAttributeInfo("UseLocalTransactions", true));
+        infoFactory.addAttribute(new GAttributeInfo("UseTransactionCaching", true));
+        infoFactory.addAttribute(new GAttributeInfo("UseSubject", true));
+
+        infoFactory.addOperation(new GOperationInfo("getStack"));
+        infoFactory.addOperation(new GOperationInfo("createConnectionFactory", new String[]{ManagedConnectionFactory.class.getName()}));
+
+        infoFactory.addEndpoint(new GEndpointInfo("ConnectionTracker", ConnectionTracker.class.getName()));
+        infoFactory.addEndpoint(new GEndpointInfo("RealmBridge", RealmBridge.class.getName()));
+        infoFactory.addEndpoint(new GEndpointInfo("Kernel", KernelMBean.class.getName()));
+
+        infoFactory.setConstructor(new GConstructorInfo(
+                new String[]{"UseConnectionRequestInfo", "UseSubject", "UseTransactionCaching", "UseLocalTransactions", "UseTransactions",
+                             "MaxSize", "BlockingTimeout", "Name", "RealmBridge", "ConnectionTracker", "Kernel"},
+                new Class[]{Boolean.TYPE, Boolean.TYPE, Boolean.TYPE, Boolean.TYPE, Boolean.TYPE,
+                            Integer.TYPE, Integer.TYPE, String.class, RealmBridge.class, ConnectionTracker.class, KernelMBean.class}));
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
     public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
         GeronimoMBeanInfo mBeanInfo = new GeronimoMBeanInfo();
 
@@ -353,7 +416,7 @@ public class ConnectionManagerDeployment
         mBeanInfo.addOperationInfo(new GeronimoOperationInfo("getStack"));
 
         mBeanInfo.addOperationInfo(new GeronimoOperationInfo("createConnectionFactory",
-                new GeronimoParameterInfo[] {new GeronimoParameterInfo("ManagedConnectionFactory", ManagedConnectionFactory.class, "ManagedConnectionFactory that will create the ConnectionFactory")},
+                new GeronimoParameterInfo[]{new GeronimoParameterInfo("ManagedConnectionFactory", ManagedConnectionFactory.class, "ManagedConnectionFactory that will create the ConnectionFactory")},
                 MBeanOperationInfo.ACTION,
                 "PRIVATE OPERATION. Have the supplied ManagedConnectionFactory create a connection factory"));
         return mBeanInfo;

@@ -55,6 +55,7 @@
  */
 
 package org.apache.geronimo.connector.work;
+
 import javax.resource.spi.work.ExecutionContext;
 import javax.resource.spi.work.Work;
 import javax.resource.spi.work.WorkException;
@@ -67,6 +68,11 @@ import org.apache.geronimo.connector.work.pool.SyncWorkExecutorPool;
 import org.apache.geronimo.connector.work.pool.WorkExecutorPool;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GOperationInfo;
+import org.apache.geronimo.gbean.GConstructorInfo;
 
 /**
  * WorkManager implementation which uses under the cover three WorkExecutorPool
@@ -79,12 +85,14 @@ import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
  * TODO There needs to be better lifecycle support.  The individual pools can be stopped now, but
  * not restarted AFAIK.
  *
-* @version $Revision: 1.5 $ $Date: 2003/11/27 02:30:21 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/20 06:13:38 $
  */
 public class GeronimoWorkManager implements WorkManager {
 
     private final static int DEFAULT_MIN_POOL_SIZE = 0;
     private final static int DEFAULT_MAX_POOL_SIZE = 10;
+
+    private static final GBeanInfo GBEAN_INFO;
 
     /**
      * Pool of threads used by this WorkManager in order to process
@@ -192,13 +200,13 @@ public class GeronimoWorkManager implements WorkManager {
      * @see javax.resource.spi.work.WorkManager#doWork(javax.resource.spi.work.Work, long, javax.resource.spi.work.ExecutionContext, javax.resource.spi.work.WorkListener)
      */
     public void doWork(
-        Work work,
-        long startTimeout,
-        ExecutionContext execContext,
-        WorkListener workListener)
-        throws WorkException {
+            Work work,
+            long startTimeout,
+            ExecutionContext execContext,
+            WorkListener workListener)
+            throws WorkException {
         WorkerContext workWrapper =
-            new WorkerContext(work, startTimeout, execContext, workListener);
+                new WorkerContext(work, startTimeout, execContext, workListener);
         workWrapper.setThreadPriority(Thread.currentThread().getPriority());
         syncWorkExecutorPool.executeWork(workWrapper);
     }
@@ -217,13 +225,13 @@ public class GeronimoWorkManager implements WorkManager {
      * @see javax.resource.spi.work.WorkManager#startWork(javax.resource.spi.work.Work, long, javax.resource.spi.work.ExecutionContext, javax.resource.spi.work.WorkListener)
      */
     public long startWork(
-        Work work,
-        long startTimeout,
-        ExecutionContext execContext,
-        WorkListener workListener)
-        throws WorkException {
+            Work work,
+            long startTimeout,
+            ExecutionContext execContext,
+            WorkListener workListener)
+            throws WorkException {
         WorkerContext workWrapper =
-            new WorkerContext(work, startTimeout, execContext, workListener);
+                new WorkerContext(work, startTimeout, execContext, workListener);
         workWrapper.setThreadPriority(Thread.currentThread().getPriority());
         startWorkExecutorPool.executeWork(workWrapper);
         return System.currentTimeMillis() - workWrapper.getAcceptedTime();
@@ -242,17 +250,43 @@ public class GeronimoWorkManager implements WorkManager {
      * @see javax.resource.spi.work.WorkManager#scheduleWork(javax.resource.spi.work.Work, long, javax.resource.spi.work.ExecutionContext, javax.resource.spi.work.WorkListener)
      */
     public void scheduleWork(
-        Work work,
-        long startTimeout,
-        ExecutionContext execContext,
-        WorkListener workListener)
-        throws WorkException {
+            Work work,
+            long startTimeout,
+            ExecutionContext execContext,
+            WorkListener workListener)
+            throws WorkException {
         WorkerContext workWrapper =
-            new WorkerContext(work, startTimeout, execContext, workListener);
+                new WorkerContext(work, startTimeout, execContext, workListener);
         workWrapper.setThreadPriority(Thread.currentThread().getPriority());
         scheduledWorkExecutorPool.executeWork(workWrapper);
     }
 
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(GeronimoWorkManager.class.getName());
+        infoFactory.addAttribute(new GAttributeInfo("SyncThreadCount", true));
+        infoFactory.addAttribute(new GAttributeInfo("SyncMinimumPoolSize", true));
+        infoFactory.addAttribute(new GAttributeInfo("SyncMaximumPoolSize", true));
+        infoFactory.addAttribute(new GAttributeInfo("StartThreadCount", true));
+        infoFactory.addAttribute(new GAttributeInfo("StartMinimumPoolSize", true));
+        infoFactory.addAttribute(new GAttributeInfo("StartMaximumPoolSize", true));
+        infoFactory.addAttribute(new GAttributeInfo("ScheduledThreadCount", true));
+        infoFactory.addAttribute(new GAttributeInfo("ScheduledMinimumPoolSize", true));
+        infoFactory.addAttribute(new GAttributeInfo("ScheduledMaximumPoolSize", true));
+        infoFactory.addOperation(new GOperationInfo("doWork", new String[]{Work.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("doWork", new String[]{Work.class.getName(), Long.TYPE.getName(), ExecutionContext.class.getName(), WorkListener.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("startWork", new String[]{Work.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("startWork", new String[]{Work.class.getName(), Long.TYPE.getName(), ExecutionContext.class.getName(), WorkListener.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("scheduleWork", new String[]{Work.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("scheduleWork", new String[]{Work.class.getName(), Long.TYPE.getName(), ExecutionContext.class.getName(), WorkListener.class.getName()}));
+        infoFactory.setConstructor(new GConstructorInfo(
+                new String[] {"SyncMinimumPoolSize", "SyncMaximumPoolSize", "StartMinimumPoolSize", "StartMaximumPoolSize", "ScheduledMinimumPoolSize", "ScheduledMaximumPoolSize"},
+                new Class[] {Integer.TYPE, Integer.TYPE, Integer.TYPE, Integer.TYPE, Integer.TYPE, Integer.TYPE}));
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
 
     /**
      * Provides the GeronimoMBean description for this class

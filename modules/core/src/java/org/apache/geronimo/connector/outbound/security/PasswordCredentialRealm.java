@@ -59,14 +59,15 @@ package org.apache.geronimo.connector.outbound.security;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.security.Principal;
 
 import javax.resource.spi.ManagedConnectionFactory;
-import javax.resource.spi.security.PasswordCredential;
 import javax.security.auth.login.AppConfigurationEntry;
 
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.security.AbstractSecurityRealm;
 import org.apache.geronimo.security.GeronimoSecurityException;
 import org.apache.geronimo.security.SecurityRealm;
 import org.apache.regexp.RE;
@@ -74,10 +75,12 @@ import org.apache.regexp.RE;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/11 08:28:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/20 06:13:38 $
  *
  * */
 public class PasswordCredentialRealm implements SecurityRealm {
+
+    private static final GBeanInfo GBEAN_INFO;
 
     private String realmName;
 
@@ -85,12 +88,6 @@ public class PasswordCredentialRealm implements SecurityRealm {
 
     static final String REALM_INSTANCE = "org.apache.connector.outbound.security.PasswordCredentialRealm";
 
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
-        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
-        mbeanInfo.setTargetClass(PasswordCredentialRealm.class);
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Realm", true, true, "Name of this realm"));
-        return mbeanInfo;
-    }
 
     public void setRealmName(String realmName) {
         this.realmName = realmName;
@@ -136,4 +133,19 @@ public class PasswordCredentialRealm implements SecurityRealm {
         return managedConnectionFactory;
     }
 
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(PasswordCredentialRealm.class.getName(), AbstractSecurityRealm.getGBeanInfo());
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
+        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
+        mbeanInfo.setTargetClass(PasswordCredentialRealm.class);
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Realm", true, true, "Name of this realm"));
+        return mbeanInfo;
+    }
 }

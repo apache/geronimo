@@ -74,11 +74,12 @@ import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.Def
 import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultInterceptor;
 import org.apache.geronimo.security.bridge.RealmBridge;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/11 08:28:15 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/20 06:13:38 $
  *
  * */
 public class ConnectionManagerTest extends TestCase implements DefaultInterceptor, RealmBridge {
@@ -90,10 +91,11 @@ public class ConnectionManagerTest extends TestCase implements DefaultIntercepto
     protected boolean useTransactions = true;
     protected int maxSize = 5;
     protected int blockingTimeout = 100;
-    protected String jndiName = "testCF";
+    protected String name = "testCF";
     //dependencies
     protected RealmBridge realmBridge = this;
     protected ConnectionTrackingCoordinator connectionTrackingCoordinator;
+    protected Kernel kernel;
 
     protected TransactionManager transactionManager;
     protected ConnectionManagerDeployment connectionManagerDeployment;
@@ -107,6 +109,8 @@ public class ConnectionManagerTest extends TestCase implements DefaultIntercepto
 
     protected void setUp() throws Exception {
         connectionTrackingCoordinator = new ConnectionTrackingCoordinator();
+        kernel = new Kernel("testdomain");
+        kernel.boot();
         transactionManager = new TransactionManagerImpl();
         mockManagedConnectionFactory = new MockManagedConnectionFactory();
         subject = new Subject();
@@ -117,9 +121,11 @@ public class ConnectionManagerTest extends TestCase implements DefaultIntercepto
                 useTransactions,
                 maxSize,
                 blockingTimeout,
+                name,
                 realmBridge,
-                jndiName,
-                connectionTrackingCoordinator);
+                connectionTrackingCoordinator,
+                kernel);
+        connectionManagerDeployment.doStart();
         connectionFactory = (MockConnectionFactory)connectionManagerDeployment.createConnectionFactory(mockManagedConnectionFactory);
         defaultComponentContext = new DefaultComponentContext();
         defaultComponentInterceptor = new DefaultComponentInterceptor(this, connectionTrackingCoordinator, unshareableResources, transactionManager);
@@ -127,6 +133,8 @@ public class ConnectionManagerTest extends TestCase implements DefaultIntercepto
 
     protected void tearDown() throws Exception {
         connectionTrackingCoordinator = null;
+        kernel.shutdown();
+        kernel = null;
         transactionManager = null;
         mockManagedConnectionFactory = null;
         connectionManagerDeployment = null;

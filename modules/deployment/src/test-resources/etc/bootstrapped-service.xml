@@ -35,6 +35,70 @@
         <default attribute="GroupsURI" type="java.net.URI">file:./core/src/test-data/data/groups.properties</default>
     </gbean>
 
+    <gbean class="org.apache.geronimo.security.bridge.CallerIdentityUserPasswordRealmBridge" objectName="geronimo.security:service=RealmBridge,type=CallerIdentity">
+        <default attribute="TargetRealm" type="java.lang.String">Foo</default>
+    </gbean>
+
+    <gbean class="org.apache.geronimo.security.bridge.ConfiguredIdentityUserPasswordRealmBridge" objectName="geronimo.security:service=RealmBridge,type=ConfiguredIdentity">
+        <default attribute="TargetRealm" type="java.lang.String">Foo</default>
+        <default attribute="ConfiguredUser" type="java.lang.String">user</default>
+        <default attribute="ConfiguredPassword" type="java.lang.String">password</default>
+    </gbean>
+
+    <gbean class="org.apache.geronimo.security.bridge.PropertiesFilePrincipalMappingUserPasswordRealmBridge" objectName="geronimo.security:service=RealmBridge,type=MappedIdentity">
+        <default attribute="TargetRealm" type="java.lang.String">Foo</default>
+        <default attribute="PrincipalSourceType" type="java.lang.Class">org.apache.geronimo.security.providers.PropertiesFileUserPrincipal</default>
+        <default attribute="PrincipalTargetCallbackName" type="java.lang.String">user name</default>
+        <default attribute="UserNameSourceType" type="java.lang.Class">org.apache.geronimo.security.providers.PropertiesFileUserPrincipal</default>
+        <default attribute="UserNameTargetCallbackName" type="java.lang.String">user name</default>
+        <default attribute="PasswordSourceType" type="java.lang.Class">org.apache.geronimo.security.providers.PropertiesFileUserPrincipal</default>
+        <default attribute="PropertyFileURL" type="java.net.URL">file:./core/src/test-data/data/mapping.properties</default>
+    </gbean>
+
+    <!-- transaction -->
+    <gbean class="org.apache.geronimo.transaction.TransactionManagerProxy" objectName="geronimo.transaction:service=TransactionManager"/>
+
+    <!-- connector -->
+    <gbean class="org.apache.geronimo.connector.work.GeronimoWorkManager" objectName="geronimo.connector:service=WorkManager">
+        <default attribute="SyncMinimumPoolSize" type="int">0</default>
+        <default attribute="SyncMaximumPoolSize" type="int">10</default>
+        <default attribute="StartMinimumPoolSize" type="int">0</default>
+        <default attribute="StartMaximumPoolSize" type="int">10</default>
+        <default attribute="ScheduledMinimumPoolSize" type="int">0</default>
+        <default attribute="ScheduledMaximumPoolSize" type="int">10</default>
+    </gbean>
+
+    <gbean class="org.apache.geronimo.connector.BootstrapContext" objectName="geronimo.connector:role=BootstrapContext">
+        <endpoint name="WorkManager">
+            <pattern>geronimo.connector:service=WorkManager</pattern>
+        </endpoint>
+        <endpoint name="XATerminator">
+            <pattern>geronimo.transaction:service=TransactionManager</pattern>
+        </endpoint>
+    </gbean>
+
+    <gbean class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator" objectName="geronimo.connector:service=ConnectionTrackingCoordinator"/>
+
+    <gbean class="org.apache.geronimo.connector.outbound.ConnectionManagerDeployment" objectName="geronimo.management:j2eeType=ConnectionManager,name=test">
+        <default attribute="UseConnectionRequestInfo" type="boolean">false</default>
+        <default attribute="UseSubject" type="boolean">false</default>
+        <default attribute="UseTransactionCaching" type="boolean">true</default>
+        <default attribute="UseLocalTransactions" type="boolean">true</default>
+        <default attribute="UseTransactions" type="boolean">true</default>
+        <default attribute="MaxSize" type="int">10</default>
+        <default attribute="BlockingTimeout" type="int">1000</default>
+        <default attribute="Name" type="java.lang.String">test</default>
+        <endpoint name="RealmBridge">
+            <pattern>geronimo.security:service=RealmBridge,type=CallerIdentity</pattern>
+        </endpoint>
+        <endpoint name="ConnectionTracker">
+            <pattern>geronimo.connector:service=ConnectionTrackingCoordinator</pattern>
+        </endpoint>
+        <endpoint name="Kernel">
+            <pattern>geronimo.boot:role=Kernel</pattern>
+        </endpoint>
+    </gbean>
+
     <!-- web -->
 
     <gbean class="org.apache.geronimo.web.jetty.JettyWebContainer" objectName="geronimo.web:type=WebContainer,container=Jetty">
@@ -72,9 +136,6 @@
         </endpoint>
     </gbean>
 
-    <gbean class="org.apache.geronimo.transaction.TransactionManagerProxy" objectName="geronimo.transaction:service=TransactionManager"/>
-
-    <gbean class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator" objectName="geronimo.connector:service=ConnectionTrackingCoordinator"/>
 
     <gbean class="org.apache.geronimo.deployment.util.ExplicitDeployment" objectName="geronimo.app:name=WebConsole">
         <default attribute="ConfigID" type="java.net.URI">org/apache/geronimo/WebConsole</default>

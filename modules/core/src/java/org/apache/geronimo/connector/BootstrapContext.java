@@ -64,11 +64,18 @@ import javax.resource.spi.work.WorkManager;
 
 import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GOperationInfo;
+import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GConstructorInfo;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/11/26 02:17:40 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/20 06:13:38 $
  */
 public class BootstrapContext implements javax.resource.spi.BootstrapContext {
+
+    private static final GBeanInfo GBEAN_INFO;
 
     private WorkManager workManager;
     private XATerminator xATerminator;
@@ -117,6 +124,22 @@ public class BootstrapContext implements javax.resource.spi.BootstrapContext {
         return new Timer();
     }
 
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(BootstrapContext.class.getName());
+        infoFactory.addOperation(new GOperationInfo("getWorkManager"));
+        infoFactory.addOperation(new GOperationInfo("getXATerminator"));
+        infoFactory.addOperation(new GOperationInfo("createTimer"));
+        infoFactory.addEndpoint(new GEndpointInfo("WorkManager", WorkManager.class.getName()));
+        infoFactory.addEndpoint(new GEndpointInfo("XATerminator", XATerminator.class.getName()));
+        infoFactory.setConstructor(new GConstructorInfo(
+                new String[] {"WorkManager", "XATerminator"},
+                new Class[] {WorkManager.class, XATerminator.class}));
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
 
     public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
         GeronimoMBeanInfo rc = new GeronimoMBeanInfo();
