@@ -25,7 +25,7 @@ import junit.framework.TestCase;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/20 23:03:06 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/21 14:27:09 $
  */
 public class PacketStreamTest extends TestCase {
 
@@ -33,13 +33,16 @@ public class PacketStreamTest extends TestCase {
     Latch startLatch;
     boolean failed;
 
+    public void testDummy() throws Exception { }
+
     public void testStream() throws Exception {
         new Thread(new WriterThread((short) 1024), "Test Writer").start();
 
         PacketInputStream in = new PacketInputStream(eup);
-        ObjectInputStream objIn = new ObjectInputStream(in);
 
         startLatch.release();
+
+        ObjectInputStream objIn = new ObjectInputStream(in);
         String msg = (String) objIn.readObject();
 
         assertEquals(msg, "Hello World!");
@@ -50,9 +53,10 @@ public class PacketStreamTest extends TestCase {
         new Thread(new WriterThread((short) 2), "Test Writer").start();
 
         PacketInputStream in = new PacketInputStream(eup);
-        ObjectInputStream objIn = new ObjectInputStream(in);
 
         startLatch.release();
+
+        ObjectInputStream objIn = new ObjectInputStream(in);
         String msg = (String) objIn.readObject();
 
         assertEquals(msg, "Hello World!");
