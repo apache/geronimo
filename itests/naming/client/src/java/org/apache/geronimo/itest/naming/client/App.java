@@ -7,6 +7,7 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
+import javax.jms.Topic;
 
 import org.apache.geronimo.naming.java.javaURLContextFactory;
 import org.apache.geronimo.naming.java.RootContext;
@@ -36,5 +37,8 @@ public class App
 
         o = initialContext.lookup("java:comp/env/jms/Queue");
         Queue jmsQueue = (Queue) o;
+
+        o = initialContext.lookup("java:comp/env/jms/Topic");
+        Topic jmsTopic = (Topic) o;
     }
 }

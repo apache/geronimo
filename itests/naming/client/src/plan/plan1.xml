@@ -96,7 +96,7 @@
                       <match-one/>
                     </single-pool>
                   </connectionmanager>
-                  <!--credential-interface>javax.resource.spi.security.PasswordCredential</credential-interface-->
+                  <credential-interface>javax.resource.spi.security.PasswordCredential</credential-interface>
                 </connectiondefinition-instance>
               </connection-definition>
             </outbound-resourceadapter>
@@ -109,11 +109,11 @@
               </adminobject-instance>
             </adminobject>
             <adminobject>
-              <adminobject-interface>javax.jms.Queue</adminobject-interface>
-              <adminobject-class>org.codehaus.activemq.message.ActiveMQQueue</adminobject-class>
+              <adminobject-interface>javax.jms.Topic</adminobject-interface>
+              <adminobject-class>org.codehaus.activemq.message.ActiveMQTopic</adminobject-class>
               <adminobject-instance>
-                <message-destination-name>SendReceiveQueue</message-destination-name>
-                <config-property-setting name="PhysicalName">SendReceiveQueue</config-property-setting>
+                <message-destination-name>SampleTopic</message-destination-name>
+                <config-property-setting name="PhysicalName">SampleTopic</config-property-setting>
               </adminobject-instance>
             </adminobject>
           </resourceadapter>
