@@ -33,7 +33,7 @@ import javax.security.auth.spi.LoginModule;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/06/22 02:07:37 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/25 08:14:42 $
  */
 public class PropertiesFileLoginModule implements LoginModule {
     PropertiesFileSecurityRealm realm;
@@ -44,6 +44,7 @@ public class PropertiesFileLoginModule implements LoginModule {
 
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
         realm = (PropertiesFileSecurityRealm) options.get(PropertiesFileSecurityRealm.REALM_INSTANCE);
+        assert realm != null;
 
         this.subject = subject;
         this.handler = callbackHandler;
@@ -62,6 +63,7 @@ public class PropertiesFileLoginModule implements LoginModule {
             throw (LoginException) new LoginException().initCause(uce);
         }
         username = ((NameCallback) callbacks[0]).getName();
+        assert username != null;
         password = realm.users.getProperty(username);
 
         return new String(((PasswordCallback) callbacks[1]).getPassword()).equals(password);

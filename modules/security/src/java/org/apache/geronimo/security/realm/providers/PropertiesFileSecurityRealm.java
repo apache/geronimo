@@ -37,7 +37,7 @@ import org.apache.regexp.RE;
 
 
 /**
- * @version $Revision: 1.9 $ $Date: 2004/07/12 06:07:51 $
+ * @version $Revision: 1.10 $ $Date: 2004/07/25 08:14:42 $
  */
 public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
     private static Log log = LogFactory.getLog(PropertiesFileSecurityRealm.class);
@@ -47,8 +47,8 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
     private boolean running = false;
     private URI usersURI;
     private URI groupsURI;
-    Properties users = new Properties();
-    Properties groups = new Properties();
+    final Properties users = new Properties();
+    final Properties groups = new Properties();
 
     final static String REALM_INSTANCE = "org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm";
 
