@@ -81,7 +81,7 @@ import org.apache.geronimo.twiddle.command.CommandException;
 /**
  * Handles the details of Twiddle configuration.
  *
- * @version <code>$Revision: 1.8 $ $Date: 2003/08/24 20:09:25 $</code>
+ * @version <code>$Revision: 1.9 $ $Date: 2003/08/26 08:23:07 $</code>
  */
 public class Configurator
 {
@@ -161,6 +161,16 @@ public class Configurator
         }
     }
     
+    /**
+     * Parse an array of URLs from a glob.
+     *
+     * <p>Only supports '*' glob token.
+     *
+     * @param globspec  The glob to parse.
+     * @return          An array of URLs
+     *
+     * @throws MalformedURLException
+     */
     protected URL[] parseGlobURLs(final String globspec) throws MalformedURLException
     {
         assert globspec != null;
@@ -186,6 +196,11 @@ public class Configurator
         }
         
         int i = glob.indexOf("*");
+        if (i < 0) {
+            // no glob
+            return new URL[] { baseURL };
+        }
+        
         final String prefix = glob.substring(0, i);
         final String suffix = glob.substring(i + 1);
         if (trace) {
@@ -193,17 +208,16 @@ public class Configurator
             log.trace("Suffix: " + suffix);
         }
         
-        File[] matches = dir.listFiles(new FilenameFilter()
+        File[] matches = dir.listFiles(new FilenameFilter() {
+            public boolean accept(final File dir, final String name)
             {
-                public boolean accept(final File dir, final String name)
-                {
-                    if (!name.startsWith(prefix) || !name.endsWith(suffix)) {
-                        return false;
-                    }
-                    
-                    return true;
+                if (!name.startsWith(prefix) || !name.endsWith(suffix)) {
+                    return false;
                 }
-            });
+                
+                return true;
+            }
+        });
         
         List list = new LinkedList();
         if (matches != null) {
