@@ -81,7 +81,7 @@ import org.apache.geronimo.kernel.repository.Repository;
  * a startRecursive() for all the GBeans it contains. Similarly, if the
  * Configuration is stopped then all of its GBeans will be stopped as well.
  *
- * @version $Revision: 1.23 $ $Date: 2004/06/05 07:53:22 $
+ * @version $Revision: 1.24 $ $Date: 2004/06/05 20:33:40 $
  */
 public class Configuration implements GBeanLifecycle {
     private static final Log log = LogFactory.getLog(Configuration.class);
@@ -185,7 +185,7 @@ public class Configuration implements GBeanLifecycle {
                     }
                     throw e;
                 }
-                mbServer.invoke(Kernel.DEPENDENCY_SERVICE, "addDependency", new Object[]{name, objectName}, new String[]{ObjectName.class.getName(), ObjectName.class.getName()});
+                kernel.getDependencyManager().addDependency(name, objectName);
             }
         } finally {
             Thread.currentThread().setContextClassLoader(oldCl);
@@ -201,12 +201,7 @@ public class Configuration implements GBeanLifecycle {
         MBeanServer mbServer = kernel.getMBeanServer();
         for (Iterator i = gbeans.keySet().iterator(); i.hasNext();) {
             ObjectName name = (ObjectName) i.next();
-            try {
-                mbServer.invoke(Kernel.DEPENDENCY_SERVICE, "removeDependency", new Object[]{name, objectName}, new String[]{ObjectName.class.getName(), ObjectName.class.getName()});
-            } catch (Exception e) {
-                // ignore
-                log.warn("Could not remove dependency for child " + name, e);
-            }
+            kernel.getDependencyManager().removeDependency(name, objectName);
             try {
                 log.trace("Unregistering GBean " + name);
                 mbServer.unregisterMBean(name);

@@ -27,7 +27,7 @@ import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.management.State;
 
 /**
- * @version $Revision: 1.12 $ $Date: 2004/06/02 06:49:23 $
+ * @version $Revision: 1.13 $ $Date: 2004/06/05 20:33:40 $
  */
 public class SingleProxy implements Proxy {
     private static final Log log = LogFactory.getLog(SingleProxy.class);
@@ -104,7 +104,7 @@ public class SingleProxy implements Proxy {
             if (targets.size() == 1) {
                 // will be more then one target... remove the dependency
                 ObjectName currentTarget = (ObjectName) targets.iterator().next();
-                gmbean.getDependencyService().removeDependency(gmbean.getObjectNameObject(), currentTarget);
+                gmbean.getDependencyManager().removeDependency(gmbean.getObjectNameObject(), currentTarget);
             }
 
             targets.add(target);
@@ -114,7 +114,7 @@ public class SingleProxy implements Proxy {
                 gmbean.fail();
             } else if (targets.size() == 1) {
                 // there is now just one target... add a dependency
-                gmbean.getDependencyService().addDependency(gmbean.getObjectNameObject(), target);
+                gmbean.getDependencyManager().addDependency(gmbean.getObjectNameObject(), target);
                 if (waitingForMe) {
                     attemptFullStart();
                 }
@@ -132,14 +132,14 @@ public class SingleProxy implements Proxy {
             } else if (targets.size() == 1) {
                 // we only have one target remaining... add a dependency
                 ObjectName remainingTarget = (ObjectName) targets.iterator().next();
-                gmbean.getDependencyService().addDependency(gmbean.getObjectNameObject(), remainingTarget);
+                gmbean.getDependencyManager().addDependency(gmbean.getObjectNameObject(), remainingTarget);
 
                 if (waitingForMe) {
                     attemptFullStart();
                 }
             } else if (targets.isEmpty()) {
                 // that was our last target... remove the dependency
-                gmbean.getDependencyService().removeDependency(gmbean.getObjectNameObject(), target);
+                gmbean.getDependencyManager().removeDependency(gmbean.getObjectNameObject(), target);
             }
 
         }
@@ -169,13 +169,13 @@ public class SingleProxy implements Proxy {
             throw new WaitingException("More then one targets are running for " + name + " reference");
         }
         waitingForMe = false;
-        gmbean.getDependencyService().addStartHolds(gmbean.getObjectNameObject(), patterns);
+        gmbean.getDependencyManager().addStartHolds(gmbean.getObjectNameObject(), patterns);
         methodInterceptor.connect(gmbean.getServer(), (ObjectName) targets.iterator().next());
     }
 
     public synchronized void stop() {
         waitingForMe = false;
         methodInterceptor.disconnect();
-        gmbean.getDependencyService().removeStartHolds(gmbean.getObjectNameObject(), patterns);
+        gmbean.getDependencyManager().removeStartHolds(gmbean.getObjectNameObject(), patterns);
     }
 }

@@ -40,6 +40,8 @@ import javax.management.ReflectionException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.kernel.DependencyManager;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.EventProvider;
 import org.apache.geronimo.kernel.management.ManagedObject;
@@ -52,7 +54,7 @@ import org.apache.geronimo.kernel.management.StateManageable;
  * Implementors of StateManageable may use this class and simply provide
  * {@link #doStart()}, {@link #doStop()} and {@link #sendNotification(String)} methods.
  *
- * @version $Revision: 1.11 $ $Date: 2004/06/04 22:31:56 $
+ * @version $Revision: 1.12 $ $Date: 2004/06/05 20:33:40 $
  */
 public abstract class AbstractManagedObject implements ManagedObject, StateManageable, EventProvider, NotificationListener, MBeanRegistration, NotificationEmitter {
     protected final Log log = LogFactory.getLog(getClass());
@@ -73,9 +75,9 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
     private final Set notificationTypes = new HashSet();
 
     /**
-     * A dynamic proxy to the dependency service.
+     * The dependency manager
      */
-    private DependencyServiceMBean dependencyService;
+    private DependencyManager dependencyManager;
 
     /**
      * The sequence number of the events.
@@ -141,7 +143,14 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
     public synchronized ObjectName preRegister(MBeanServer server, ObjectName objectName) throws Exception {
         this.server = server;
         this.objectName = objectName;
-        dependencyService = new DependencyServiceProxy(server);
+        Kernel kernel;
+        try {
+            String kernelName = (String) server.getAttribute(Kernel.KERNEL, "KernelName");
+            kernel = Kernel.getKernel(kernelName);
+        } catch (Exception e) {
+            throw new IllegalStateException("No kernel is registered in this MBeanServer");
+        }
+        dependencyManager = kernel.getDependencyManager();
         return objectName;
     }
 
@@ -159,7 +168,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
         synchronized (this) {
             server = null;
             objectName = null;
-            dependencyService = null;
+            dependencyManager = null;
         }
     }
 
@@ -175,8 +184,8 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
         return objectName;
     }
 
-    public DependencyServiceMBean getDependencyService() {
-        return dependencyService;
+    public DependencyManager getDependencyManager() {
+        return dependencyManager;
     }
 
     public final boolean isStateManageable() {
@@ -294,7 +303,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
         start();
 
         // startRecursive all of objects that depend on me
-        Set dependents = dependencyService.getChildren(objectName);
+        Set dependents = dependencyManager.getChildren(objectName);
         for (Iterator iterator = dependents.iterator(); iterator.hasNext();) {
             ObjectName dependent = (ObjectName) iterator.next();
             try {
@@ -335,7 +344,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
         // Don't try to stop dependents from within a synchronized block... this should reduce deadlocks
 
         // stop all of my dependent objects
-        Set dependents = dependencyService.getChildren(objectName);
+        Set dependents = dependencyManager.getChildren(objectName);
         for (Iterator iterator = dependents.iterator(); iterator.hasNext();) {
             ObjectName child = (ObjectName) iterator.next();
             try {
@@ -396,7 +405,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
                     }
 
                     // check if an mbean is blocking us from starting
-                    blocker = dependencyService.checkBlocker(objectName);
+                    blocker = dependencyManager.checkBlocker(objectName);
                     if (blocker != null) {
                         try {
                             // register for state change with the blocker
@@ -419,7 +428,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
                     }
 
                     // check if all of the mbeans we depend on are running
-                    Set parents = dependencyService.getParents(objectName);
+                    Set parents = dependencyManager.getParents(objectName);
                     for (Iterator i = parents.iterator(); i.hasNext();) {
                         ObjectName parent = (ObjectName) i.next();
                         if (!server.isRegistered(parent)) {
@@ -511,7 +520,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
                 }
                 try {
                     // check if all of the mbeans depending on us are stopped
-                    Set children = dependencyService.getChildren(objectName);
+                    Set children = dependencyManager.getChildren(objectName);
                     for (Iterator i = children.iterator(); i.hasNext();) {
                         ObjectName child = (ObjectName) i.next();
                         if (server.isRegistered(child)) {

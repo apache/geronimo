@@ -42,7 +42,6 @@ import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.jmx.DependencyService;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
@@ -59,7 +58,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * with an MBeanServer that is used to register the Configurations themselves
  * and the MBeans they define.
  * <p/>
- * Dependencies between MBeans are handled by a dedicated DependencyService
+ * Dependencies between MBeans are handled by a dedicated DependencyManager
  * that is responsible for tracking those dependencies and ensuring that the
  * dependent objects follow the appropriate lifecycle and receive appropriate
  * notifications.
@@ -69,7 +68,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.36 $ $Date: 2004/06/05 19:30:43 $
+ * @version $Revision: 1.37 $ $Date: 2004/06/05 20:33:40 $
  */
 public class Kernel extends NotificationBroadcasterSupport implements KernelMBean {
 
@@ -77,12 +76,6 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
      * The JMX name used by a Kernel to register itself when it boots.
      */
     public static final ObjectName KERNEL = JMXUtil.getObjectName("geronimo.boot:role=Kernel");
-
-    /**
-     * The JMX name of the DependencyService.
-     */
-    public static final ObjectName DEPENDENCY_SERVICE = JMXUtil.getObjectName("geronimo.boot:role=DependencyService");
-
 
     private static final Map kernels = new HashMap();
     private static final ReferenceQueue queue = new ReferenceQueue();
@@ -93,6 +86,8 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
     private boolean running;
     private MBeanServer mbServer;
     private LinkedList shutdownHooks = new LinkedList();
+
+    private DependencyManager dependencyManager;
 
     private ConfigurationManager configurationManager;
     private GBeanMBean configurationManagerGBean;
@@ -181,6 +176,10 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
             }
             return result;
         }
+    }
+
+    public DependencyManager getDependencyManager() {
+        return dependencyManager;
     }
 
     public ConfigurationManager getConfigurationManager() {
@@ -331,8 +330,8 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
     }
 
     /**
-     * Boot this Kernel, triggering the instantiation of the MBeanServer and
-     * the registration of the DependencyService and ConfigurationStore
+     * Boot this Kernel, triggering the instantiation of the MBeanServer and DependencyManager,
+     * and the registration ConfigurationStore
      *
      * @throws java.lang.Exception if the boot fails
      */
@@ -352,7 +351,7 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
 
         mbServer = MBeanServerFactory.createMBeanServer(domainName);
         mbServer.registerMBean(this, KERNEL);
-        mbServer.registerMBean(new DependencyService(), DEPENDENCY_SERVICE);
+        dependencyManager = new DependencyManager(mbServer);
 
         configurationManagerGBean = new GBeanMBean(ConfigurationManagerImpl.GBEAN_INFO);
         configurationManagerGBean.setReferencePatterns("Stores", Collections.singleton(CONFIGURATION_STORE_PATTERN));
@@ -396,11 +395,9 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
         } catch (Exception e) {
             // ignore
         }
-        try {
-            mbServer.unregisterMBean(DEPENDENCY_SERVICE);
-        } catch (Exception e) {
-            // ignore
-        }
+
+        dependencyManager.close();
+        dependencyManager = null;
 
         MBeanServerFactory.releaseMBeanServer(mbServer);
         mbServer = null;

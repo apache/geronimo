@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.gbean.jmx;
+package org.apache.geronimo.kernel;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.management.JMException;
-import javax.management.MBeanRegistration;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerNotification;
 import javax.management.Notification;
@@ -35,27 +34,26 @@ import javax.management.NotificationFilterSupport;
 import javax.management.NotificationListener;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
- * DependencyService is the record keeper of the dependencies in Geronimo.  The DependencyService
+ * DependencyManager is the record keeper of the dependencies in Geronimo.  The DependencyManager
  * does not enforce any dependencies, it is simply a place where components can register their intent
  * to be dependent on another component.  Since a JMX Component can pretty much do whatever it wants
  * a component must watch the components it depends on to assure that they are following the
  * J2EE-Management state machine.
  * <p/>
- * The DependencyService uses the nomenclature of parent-child where a child is dependent on a parent.
+ * The DependencyManager uses the nomenclature of parent-child where a child is dependent on a parent.
  * The names parent and child have no other meaning are just a convience to make the code readable.
  *
- * @version $Revision: 1.5 $ $Date: 2004/05/27 01:05:59 $
+ * @version $Revision: 1.1 $ $Date: 2004/06/05 20:33:40 $
  * @jmx:mbean
  */
-public class DependencyService implements MBeanRegistration, NotificationListener, DependencyServiceMBean {
+public class DependencyManager implements NotificationListener {
     /**
      * The mbean server we are registered with.
      */
-    private MBeanServer server;
+    private MBeanServer mbeanServer;
 
     /**
      * A map from child names to a list of parents.
@@ -73,37 +71,24 @@ public class DependencyService implements MBeanRegistration, NotificationListene
      */
     private final Map startHoldsMap = new HashMap();
 
-    public ObjectName preRegister(MBeanServer server, ObjectName objectName) throws Exception {
-        if (objectName == null) {
-            objectName = Kernel.DEPENDENCY_SERVICE;
-        }
-        this.server = server;
-
+    public DependencyManager(MBeanServer mbeanServer) throws Exception {
+        assert mbeanServer != null;
+        this.mbeanServer = mbeanServer;
         NotificationFilterSupport mbeanServerFilter = new NotificationFilterSupport();
         mbeanServerFilter.enableType(MBeanServerNotification.UNREGISTRATION_NOTIFICATION);
-        server.addNotificationListener(JMXUtil.DELEGATE_NAME, this, mbeanServerFilter, null);
-
-        return objectName;
+        mbeanServer.addNotificationListener(JMXUtil.DELEGATE_NAME, this, mbeanServerFilter, null);
     }
 
-    public void postRegister(Boolean aBoolean) {
-    }
-
-    public void preDeregister() throws Exception {
-    }
-
-    public void postDeregister() {
+    public synchronized void close() {
         try {
-            server.removeNotificationListener(JMXUtil.DELEGATE_NAME, this);
+            mbeanServer.removeNotificationListener(JMXUtil.DELEGATE_NAME, this);
         } catch (JMException ignored) {
             // no big deal... just good citizen clean up code
         }
-        synchronized (this) {
-            server = null;
-            childToParentMap.clear();
-            parentToChildMap.clear();
-            startHoldsMap.clear();
-        }
+        mbeanServer = null;
+        childToParentMap.clear();
+        parentToChildMap.clear();
+        startHoldsMap.clear();
     }
 
     /**
@@ -234,7 +219,7 @@ public class DependencyService implements MBeanRegistration, NotificationListene
      * @param holds a collection of object name patterns which should not start
      * @jmx:managed-operation
      */
-    public synchronized void addStartHolds(ObjectName objectName, java.util.Collection holds) {
+    public synchronized void addStartHolds(ObjectName objectName, Collection holds) {
         Collection currentHolds = (Collection) startHoldsMap.get(objectName);
         if (currentHolds == null) {
             currentHolds = new LinkedList(holds);
@@ -251,7 +236,7 @@ public class DependencyService implements MBeanRegistration, NotificationListene
      * @param holds a collection of the holds to remove
      * @jmx:managed-operation
      */
-    public synchronized void removeStartHolds(ObjectName objectName, java.util.Collection holds) {
+    public synchronized void removeStartHolds(ObjectName objectName, Collection holds) {
         Collection currentHolds = (Collection) startHoldsMap.get(objectName);
         if (currentHolds != null) {
             currentHolds.removeAll(holds);

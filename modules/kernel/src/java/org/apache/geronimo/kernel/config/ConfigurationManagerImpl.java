@@ -41,7 +41,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/06/05 19:30:43 $
+ * @version $Revision: 1.8 $ $Date: 2004/06/05 20:33:40 $
  */
 public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLifecycle {
     private static final Log log = LogFactory.getLog(ConfigurationManagerImpl.class);
