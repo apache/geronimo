@@ -77,6 +77,12 @@
             <artifactId>geronimo-spec-jta</artifactId>
             <version>&geronimo-spec-jta-version;</version>
         </dependency>
+        
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee-connector</artifactId>
+            <version>&geronimo-spec-j2ee-connector-version;</version>
+        </dependency>
 
           <!-- Thirdparty -->
 
