@@ -183,6 +183,15 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-tomcat</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-jetty-builder</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
@@ -690,6 +699,17 @@
             <groupId>jetty</groupId>
             <artifactId>org.mortbay.jetty</artifactId>
             <version>&jetty-version;</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>catalina</artifactId>
+            <!-- Don't want to break the other modules that rely on the libs -->
+            <!--version>&tomcat-version;</version-->
+            <version>5.5.4</version>
+            <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
                 <repository>true</repository>
             </properties>

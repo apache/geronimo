@@ -49,6 +49,16 @@
     <dependencies>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-deployment</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-j2ee-builder</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
@@ -63,6 +73,19 @@
             <version>&geronimo-spec-j2ee-version;</version>
             <properties>
                 <repository>true</repository>
+            </properties>
+        </dependency>
+       <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-j2ee</artifactId>
+            <version>${pom.currentVersion}</version>           
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-j2ee-schema</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <xmlbeans>true</xmlbeans>
             </properties>
         </dependency>
         <dependency>
@@ -168,6 +191,16 @@
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
             <version>&xerces-version;</version>
+        </dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xmlParserAPIs</artifactId>
+            <version>&xml-parser-apis-version;</version>
+        </dependency>
+        <dependency>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xbean-apache</artifactId>
+            <version>&xmlbeans-version;</version>
         </dependency>
         <dependency>
             <groupId>commons-beanutils</groupId>

@@ -68,11 +68,6 @@
         <uri>xerces/jars/xercesImpl-2.6.0.jar</uri>
     </dependency>
 
-    <gbean name="geronimo.server:type=WebContainer,container=Apache Tomcat" class="org.apache.geronimo.tomcat.TomcatContainer">
-        <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
-    	<attribute name="CatalinaHome" type="java.lang.String">var/catalina</attribute>
-    	<attribute name="CatalinaBase" type="java.lang.String">var/catalina</attribute>
-    	<attribute name="CatalinaConfig" type="java.lang.String">conf/server.xml</attribute>
-    </gbean>
+    <gbean name="geronimo.server:type=WebContainer,container=Tomcat" class="org.apache.geronimo.tomcat.TomcatContainer"/>
 
 </configuration>

@@ -83,6 +83,22 @@ Configuration for the Geronimo deployer
     <dependency>
         <uri>geronimo/jars/geronimo-jetty-${geronimo_version}.jar</uri>
     </dependency>
+    <!--
+       - Uncomment it to run Apache Tomcat
+       -
+    <dependency>
+        <uri>geronimo/jars/geronimo-tomcat-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/catalina-5.5.4.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/naming-resources-5.5.4.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/tomcat-util-5.5.4.jar</uri>
+    </dependency>
+    -->
     <dependency>
         <uri>geronimo/jars/geronimo-naming-${geronimo_version}.jar</uri>
     </dependency>
@@ -143,6 +159,11 @@ Configuration for the Geronimo deployer
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
         <!-- reference name="SecurityService">geronimo.security:type=SecurityService</reference -->
     </gbean>
+    <!--
+       - Uncomment it to run Apache Tomcat module builder
+       -
+    <gbean name="geronimo.deployer:role=ModuleBuilder,type=Web,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.tomcat.deployment.TomcatModuleBuilder"/>
+    -->
 
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/J2EEDeployer" class="org.openejb.deployment.OpenEJBModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>

@@ -79,12 +79,7 @@
 		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/mx4j/jars"
 		      file="${maven.repo.local}/mx4j/jars/mx4j-&mx4j-version;.jar"/>
         
-        <copy todir="${geronimoHome}/var/catalina/conf" file="src/var/server.xml"/>
         <copy todir="${geronimoHome}/var/catalina/conf" file="src/var/web.xml"/>
-        
-        <j:set var="tomcatWebappDir" value="${geronimoHome}/var/catalina/webapps"/>
-        <echo>Deploy your webapps to ${tomcatWebappDir}</echo>
-		<mkdir dir="${tomcatWebappDir}"/>
         
         <echo>Deploying Apache Tomcat configuration</echo>
         <java fork="true" jar="../assembly/target/geronimo-${pom.currentVersion}/bin/deployer.jar" failonerror="true">
