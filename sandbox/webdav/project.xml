@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.1 $ $Date: 2004/01/23 02:25:51 $ -->
+<!-- $Revision: 1.2 $ $Date: 2004/01/23 02:29:00 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -10,14 +10,15 @@
     <!-- Module Identification -->
     <!-- ===================== -->
 
-    <name>Geronimo :: Web</name>
-    <id>geronimo-web</id>
-    <shortDescription>Geronimo Web Container</shortDescription>
-    <description>Geronimo Web Container</description>
-    <url>http://incubator.apache.org/projects/geronimo/web/</url>
-    <siteDirectory>/www/incubator.apache.org/projects/geronimo/web</siteDirectory>
-    <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/web</distributionDirectory>
+    <name>Geronimo :: WebDav</name>
+    <id>geronimo-webdav</id>
+    <shortDescription>Geronimo WebDav</shortDescription>
+    <description>Geronimo WebDav</description>
+    <url>http://incubator.apache.org/projects/geronimo/webdav/</url>
+    <siteDirectory>/www/incubator.apache.org/projects/geronimo/webdav</siteDirectory>
+    <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/webdav</distributionDirectory>
 
+    <package>org.apache.geronimo.webdav</package>
     <currentVersion>DEV</currentVersion>
 
     <!-- ============ -->
