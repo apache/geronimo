@@ -55,11 +55,8 @@
  */
 package org.apache.geronimo.deployment.plan;
 
-import java.beans.PropertyEditor;
-import java.io.File;
-import java.lang.reflect.Constructor;
-import java.net.MalformedURLException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -77,22 +74,19 @@ import javax.management.relation.RelationServiceMBean;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.apache.geronimo.common.StringValueParser;
 import org.apache.geronimo.common.Classes;
-import org.apache.geronimo.common.propertyeditor.PropertyEditors;
-
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.dependency.DependencyServiceMBean;
 import org.apache.geronimo.deployment.service.MBeanDependency;
 import org.apache.geronimo.deployment.service.MBeanMetadata;
 import org.apache.geronimo.deployment.service.MBeanRelationship;
+import org.apache.geronimo.jmx.GeronimoMBean;
 import org.apache.geronimo.jmx.JMXUtil;
 
 /**
  * Creates an new MBean instance and intializes it according to the specified MBeanMetadata metadata
  *
- * @version $Revision: 1.12 $ $Date: 2003/08/28 11:18:01 $
+ * @version $Revision: 1.13 $ $Date: 2003/09/05 02:35:59 $
  */
 public class CreateMBeanInstance implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
@@ -156,25 +150,50 @@ public class CreateMBeanInstance implements DeploymentTask {
             // Create and register the MBean
             try {
                 // Get the constructor arguments
-                Object[] consValues = metadata.getConstructorArgs().toArray();
-                List constructorTypes = metadata.getConstructorTypes();
-                String[] consTypes = (String[]) constructorTypes.toArray(new String[constructorTypes.size()]);
-                for (int i = 0; i < consTypes.length; i++) {
-                    String consType = consTypes[i];
-                    Object value = consValues[i];
+                List constructorTypeStrings = metadata.getConstructorTypes();
+                List constructorTypes = new ArrayList(constructorTypeStrings.size());
+                List constructorValues = metadata.getConstructorArgs();
+                for (int i = 0; i < constructorTypeStrings.size(); i++) {
+                    String typeString = (String) constructorTypeStrings.get(i);
+                    Class type = null;
+                    try {
+                        type = Classes.loadClass(typeString, newCL);
+                    } catch (ClassNotFoundException e) {
+                        throw new DeploymentException(e);
+                    }
+                    constructorTypes.add(type);
+
+                    Object value = constructorValues.get(i);
                     if (value instanceof String) {
-                        value = getValue(newCL, consType, (String) value);
-                        consValues[i] = value;
+                        value = Classes.getValue(type, (String) value, baseURI);
+                        constructorValues.set(i, value);
                     }
                 }
 
-                // Create the mbean
-                if (log.isTraceEnabled()) {
-                    log.trace("Creating MBean name=" + metadata.getName() + " class=" + metadata.getCode());
-                }
-                actualName = server.createMBean(metadata.getCode(), metadata.getName(), metadata.getLoaderName(), consValues, consTypes).getObjectName();
-                if (log.isTraceEnabled() && !actualName.equals(metadata.getName())) {
-                    log.trace("Actual MBean name is " + actualName);
+                if (metadata.getGeronimoMBeanInfo() != null) {
+                    if (log.isTraceEnabled()) {
+                        log.trace("Creating GeronimoMBean name=" + metadata.getName());
+                    }
+                    GeronimoMBean mbean = (GeronimoMBean) server.instantiate("org.apache.geronimo.jmx.GeronimoMBean");
+                    mbean.setClassLoader(newCL);
+                    mbean.setMBeanInfo(metadata.getGeronimoMBeanInfo());
+                    server.registerMBean(mbean, metadata.getName());
+                    actualName = metadata.getName();
+                } else {
+                    // Create the mbean
+                    if (log.isTraceEnabled()) {
+                        log.trace("Creating MBean name=" + metadata.getName() + " class=" + metadata.getCode());
+                    }
+                    actualName = server.createMBean(
+                            metadata.getCode(),
+                            metadata.getName(),
+                            metadata.getLoaderName(),
+                            constructorValues.toArray(),
+                            (String[]) constructorTypeStrings.toArray(new String[constructorTypes.size()])
+                    ).getObjectName();
+                    if (log.isTraceEnabled() && !actualName.equals(metadata.getName())) {
+                        log.trace("Actual MBean name is " + actualName);
+                    }
                 }
                 metadata.setName(actualName);
 
@@ -216,6 +235,7 @@ public class CreateMBeanInstance implements DeploymentTask {
         }
     }
 
+
     public void undo() {
         if (actualName == null) {
             return;
@@ -253,49 +273,6 @@ public class CreateMBeanInstance implements DeploymentTask {
             }
         } finally {
             Thread.currentThread().setContextClassLoader(oldCL);
-        }
-    }
-
-    private static final Class[] stringArg = new Class[]{String.class};
-
-    private Object getValue(ClassLoader cl, String typeName, String value) throws DeploymentException {
-        StringValueParser parser = new StringValueParser();
-        value = parser.parse(value);
-        
-        if("java.net.URI".equals(typeName)) {
-            return baseURI.resolve(value);
-        }
-        if("java.net.URL".equals(typeName)) {
-            try {
-                return baseURI.resolve(value).toURL();
-            } catch (MalformedURLException e) {
-                throw new DeploymentException(e);
-            }
-        }
-        if("java.io.File".equals(typeName)) {
-            return new File(baseURI.resolve(value));
-        }
-
-        Class attrType = null;
-        try {
-            attrType = Classes.loadClass(typeName, cl);
-        } catch (ClassNotFoundException e) {
-            throw new DeploymentException(e);
-        }
-
-        // try a property editor
-        PropertyEditor editor = PropertyEditors.findEditor(attrType);
-        if (editor != null) {
-            editor.setAsText(value);
-            return editor.getValue();
-        }
-
-        // try a String constructor
-        try {
-            Constructor cons = attrType.getConstructor(stringArg);
-            return cons.newInstance(new Object[]{value});
-        } catch (Exception e) {
-            throw new DeploymentException("Could not create value of type " + typeName);
         }
     }
 

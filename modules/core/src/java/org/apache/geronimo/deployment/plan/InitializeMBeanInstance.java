@@ -55,8 +55,6 @@
  */
 package org.apache.geronimo.deployment.plan;
 
-import java.beans.PropertyEditor;
-import java.lang.reflect.Constructor;
 import java.util.Iterator;
 import java.util.Map;
 import javax.management.Attribute;
@@ -70,18 +68,14 @@ import javax.management.ReflectionException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.apache.geronimo.common.StringValueParser;
-import org.apache.geronimo.common.Classes;
-import org.apache.geronimo.common.propertyeditor.PropertyEditors;
-
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.MBeanMetadata;
+import org.apache.geronimo.common.Classes;
 
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/08/28 11:18:01 $
+ * @version $Revision: 1.6 $ $Date: 2003/09/05 02:35:59 $
  */
 public class InitializeMBeanInstance implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
@@ -133,7 +127,11 @@ public class InitializeMBeanInstance implements DeploymentTask {
                 }
                 Object value = attributeValues.get(attributeName);
                 if (value instanceof String) {
-                    value = getValue(newCL, attributeInfo.getType(), (String) value);
+                    try {
+                        value = Classes.getValue(newCL, attributeInfo.getType(), (String) value, metadata.getBaseURI());
+                    } catch (ClassNotFoundException e) {
+                        throw new DeploymentException(e);
+                    }
                 }
 
                 attributeList.add(new Attribute(attributeName, value));
@@ -162,35 +160,6 @@ public class InitializeMBeanInstance implements DeploymentTask {
     }
 
     public void undo() {
-    }
-
-    private static final Class[] stringArg = new Class[]{String.class};
-
-    private Object getValue(ClassLoader cl, String typeName, String value) throws DeploymentException {
-        StringValueParser parser = new StringValueParser();
-        value = parser.parse(value);
-        
-        Class attrType = null;
-        try {
-            attrType = Classes.loadClass(typeName, cl);
-        } catch (ClassNotFoundException e) {
-            throw new DeploymentException(e);
-        }
-
-        // try a property editor
-        PropertyEditor editor = PropertyEditors.findEditor(attrType);
-        if (editor != null) {
-            editor.setAsText(value);
-            return editor.getValue();
-        }
-
-        // try a String constructor
-        try {
-            Constructor cons = attrType.getConstructor(stringArg);
-            return cons.newInstance(new Object[]{value});
-        } catch (Exception e) {
-            throw new DeploymentException("Could not create value of type " + typeName);
-        }
     }
 
     public String toString() {
