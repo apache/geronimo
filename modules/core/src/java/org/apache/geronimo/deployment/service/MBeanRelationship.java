@@ -60,7 +60,7 @@ import javax.management.ObjectName;
 /**
  * This class contains metadata necessary to enroll an MBean in a relationship.
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/16 23:16:34 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/18 22:10:12 $
  */
 public class MBeanRelationship {
     /**
@@ -88,7 +88,13 @@ public class MBeanRelationship {
      * The name of the role to assign the target MBean.  This is only used if a new relationship is created during
      * deployment.  This is only neccessary if the relationship has more then two roles.
      */
-    private final String targetRole;
+    private String targetRole;
+
+    /**
+     * Did this MBean create the relationship instance.  If it did, the MBean will attempt to remove the
+     * relationship when stopped
+     */
+    private boolean createdRelationship;
 
     /**
      * Creates a new MBeanRelationship, which is used during deployment to enroll the new MBean in a relationship.
@@ -147,5 +153,31 @@ public class MBeanRelationship {
      */
     public String getTargetRole() {
         return targetRole;
+    }
+
+    /**
+     * Sets the name of the role that was assigned to the target MBean.
+     * @param targetRole the name of the role that was assigned to the target MBean
+     */
+    public void setTargetRole(String targetRole) {
+        this.targetRole = targetRole;
+    }
+
+    /**
+     * Did this MBean create the relationship instance.  If it did, the MBean will attempt to remove the
+     * relationship when stopped.
+     * @return true if this MBean created the relationship
+     */
+    public boolean getCreatedRelationship() {
+        return createdRelationship;
+    }
+
+    /**
+     * Sets the created relationship flag.  If this MBean created the relationship, it will attempt to
+     * remove the relationship when stopped.
+     * @param createdRelationship the new created relationship flag
+     */
+    public void setCreatedRelationship(boolean createdRelationship) {
+        this.createdRelationship = createdRelationship;
     }
 }
