@@ -93,7 +93,16 @@ public class PropertyEditors
             type = ClassLoading.loadClass(typeName + "$PropertyEditor", classLoader);
         }
 
-        return findEditor(type);
+        // PropertyEditorManager uses the classloader for object, then system, them context
+        // We need to force the context loader to that of the user as the Editor may be
+        // located in a child loader from the type being loader 
+        ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(classLoader);
+            return findEditor(type);
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldLoader);
+        }
     }
 
     /**
