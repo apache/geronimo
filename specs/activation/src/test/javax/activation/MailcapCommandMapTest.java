@@ -40,9 +40,39 @@ public class MailcapCommandMapTest extends TestCase {
         assertEquals("Bar", info.getCommandClass());
     }
 
+    public void testExplicitWildcard() {
+        map.addMailcap("foo/bar ;; x-java-view=Bar");
+        map.addMailcap("foo/* ;; x-java-view=Star");
+        CommandInfo info = map.getCommand("foo/bar", "view");
+        assertEquals("view", info.getCommandName());
+        assertEquals("Bar", info.getCommandClass());
+        info = map.getCommand("foo/foo", "view");
+        assertEquals("view", info.getCommandName());
+        assertEquals("Star", info.getCommandClass());
+        info = map.getCommand("foo/*", "view");
+        assertEquals("view", info.getCommandName());
+        assertEquals("Star", info.getCommandClass());
+        info = map.getCommand("foo", "view");
+        assertEquals("view", info.getCommandName());
+        assertEquals("Star", info.getCommandClass());
+    }
+
+    public void testImplicitWildcard() {
+        map.addMailcap("foo/bar ;; x-java-view=Bar");
+        map.addMailcap("foo ;; x-java-view=Star");
+        CommandInfo info = map.getCommand("foo/bar", "view");
+        assertEquals("view", info.getCommandName());
+        assertEquals("Bar", info.getCommandClass());
+        info = map.getCommand("foo/foo", "view");
+        assertEquals("view", info.getCommandName());
+        assertEquals("Star", info.getCommandClass());
+        info = map.getCommand("foo", "view");
+        assertEquals("view", info.getCommandName());
+        assertEquals("Star", info.getCommandClass());
+    }
+
     protected void setUp() throws Exception {
         super.setUp();
         map = new MailcapCommandMap();
     }
-
 }

@@ -31,8 +31,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Collection;
-import java.util.Collections;
 
 /**
  * @version $Rev$ $Date$
@@ -273,14 +271,20 @@ public class MailcapCommandMap extends CommandMap {
     }
 
     public synchronized CommandInfo getCommand(String mimeType, String cmdName) {
-        HashMap commands = (HashMap) preferredCommands.get(mimeType.toLowerCase());
+        // search for an exact match
+        Map commands = (Map) preferredCommands.get(mimeType.toLowerCase());
+        if(commands != null) {
+            return (CommandInfo) commands.get(cmdName.toLowerCase());
+        }
+        int i = mimeType.indexOf('/');
+        if (i == -1) {
+            mimeType = mimeType + "/*";
+        } else {
+            mimeType = mimeType.substring(0, i + 1) + "*";
+        }
+        commands = (Map) preferredCommands.get(mimeType.toLowerCase());
         if(commands != null)
             return (CommandInfo) commands.get(cmdName.toLowerCase());
-        int i = mimeType.indexOf('/');
-        String mimeType2 = mimeType.substring(0, i + 1) + "*";
-        HashMap commands2 = (HashMap) preferredCommands.get(mimeType2.toLowerCase());
-        if(commands2 != null)
-            return (CommandInfo) commands2.get(cmdName.toLowerCase());
         return null;
     }
 
