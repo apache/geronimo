@@ -62,6 +62,7 @@
       <item name="Web Console"              href="/modules/console-web/index.html"/>
       <item name="Core Container"           href="/modules/core/index.html"/>
       <item name="Deployment"               href="/modules/deployment/index.html"/>
+      <item name="Interop"                  href="/modules/interop/index.html"/>
       <item name="Jetty"                    href="/modules/jetty/index.html"/>
       <item name="Kernel"                   href="/modules/kernel/index.html"/>
       <item name="Naming"                   href="/modules/naming/index.html"/>
