@@ -41,7 +41,7 @@ import org.apache.geronimo.system.ThreadPool;
  * The SelectorManager will manage one Selector and the thread that checks
  * the selector.
  *
- * @version $Revision: 1.5 $ $Date: 2004/04/24 17:55:02 $
+ * @version $Revision: 1.6 $ $Date: 2004/04/25 02:03:37 $
  */
 public class SelectorManager implements Runnable, GBean {
 
@@ -144,9 +144,18 @@ public class SelectorManager implements Runnable, GBean {
                 for (Iterator i = keys.iterator(); i.hasNext();) {
                     final SelectionKey key = (SelectionKey) i.next();
 
-                    if (key.isReadable())key.interestOps(key.interestOps() & (~SelectionKey.OP_READ));
-                    if (key.isWritable())key.interestOps(key.interestOps() & (~SelectionKey.OP_WRITE));
-                    if (key.isAcceptable())key.interestOps(key.interestOps() & (~SelectionKey.OP_ACCEPT));
+                    if (key.isReadable()) { 
+                        log.trace("-OP_READ " + key);
+                        key.interestOps(key.interestOps() & (~SelectionKey.OP_READ));
+                    }
+                    if (key.isWritable()) {
+                        log.trace("-OP_WRITE " + key);
+                        key.interestOps(key.interestOps() & (~SelectionKey.OP_WRITE));
+                    }
+                    if (key.isAcceptable()) {
+                        log.trace("-OP_ACCEPT " + key);
+                        key.interestOps(key.interestOps() & (~SelectionKey.OP_ACCEPT));
+                    }
 
                     threadPool.getWorkManager().execute(new Runnable() {
                         public void run() {
@@ -180,10 +189,10 @@ public class SelectorManager implements Runnable, GBean {
         }
     }
 
-    public void setInterestOps(SelectionKey selectorKey, int setOps, int resetOps) {
+    public void addInterestOps(SelectionKey selectorKey, int addOpts) {
         synchronized (guard) {
             selector.wakeup();
-            selectorKey.interestOps((selectorKey.interestOps() & (~resetOps)) | setOps);
+            selectorKey.interestOps( selectorKey.interestOps() | addOpts );
         }
     }
 

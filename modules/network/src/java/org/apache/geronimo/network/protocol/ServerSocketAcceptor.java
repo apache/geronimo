@@ -35,7 +35,7 @@ import org.apache.geronimo.network.URISupport;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/04/19 16:30:32 $
+ * @version $Revision: 1.6 $ $Date: 2004/04/25 02:03:37 $
  */
 public class ServerSocketAcceptor implements SelectionEventListner {
 
@@ -171,7 +171,7 @@ public class ServerSocketAcceptor implements SelectionEventListner {
                 channel.socket().setTcpNoDelay(enableTcpNoDelay);
                 acceptorListener.accept(channel);
 
-                selectorManager.setInterestOps(selectionKey, SelectionKey.OP_ACCEPT, 0);
+                selectorManager.addInterestOps(selectionKey, SelectionKey.OP_ACCEPT);
             } catch (IOException e) {
                 // this should be ok
             }

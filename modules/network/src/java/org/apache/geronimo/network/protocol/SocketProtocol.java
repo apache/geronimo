@@ -37,7 +37,7 @@ import org.apache.geronimo.network.SelectorManager;
 
 
 /**
- * @version $Revision: 1.9 $ $Date: 2004/04/24 21:34:34 $
+ * @version $Revision: 1.10 $ $Date: 2004/04/25 02:03:37 $
  */
 public class SocketProtocol implements AcceptableProtocol, SelectionEventListner {
 
@@ -188,7 +188,7 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
         try {
             socketChannel.configureBlocking(false);
             selectionKey = selectorManager.register(socketChannel, SelectionKey.OP_READ, this);
-            log.trace("OP_READ " + selectionKey);
+            log.trace("+OP_READ " + selectionKey);
         } catch (ClosedChannelException e) {
             state = STOPPED;
             throw new ProtocolException(e);
@@ -241,8 +241,8 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
             sendBuffer[0].putInt(size);
             sendBuffer[0].flip();
 
-            log.trace("OP_READ, OP_WRITE " + selectionKey);
-            selectorManager.setInterestOps(selectionKey, SelectionKey.OP_READ | SelectionKey.OP_WRITE, 0);
+            log.trace("+OP_WRITE " + selectionKey);
+            selectorManager.addInterestOps(selectionKey, SelectionKey.OP_WRITE);
 
         } catch (InterruptedException e) {
             log.debug("Communications error, closing connection: ", e);
@@ -285,8 +285,8 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
                 if (sendBuffer[i].hasRemaining()) {
                     // not all was delivered in this call setup selector
                     // so we setup to finish sending async.
-                    log.trace("OP_READ, OP_WRITE " + selectionKey);
-                    selectorManager.setInterestOps(selectionKey, SelectionKey.OP_READ | SelectionKey.OP_WRITE, 0);
+                    log.trace("+OP_WRITE " + selectionKey);
+                    selectorManager.addInterestOps(selectionKey, SelectionKey.OP_WRITE);
 
                     return;
                 }
@@ -299,10 +299,6 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
             sendMutex.release();
             log.trace("RELEASED " + sendMutex);
 
-
-            // We are done writing.
-            log.trace("OP_READ " + selectionKey);
-            selectorManager.setInterestOps(selectionKey, SelectionKey.OP_READ, 0);
         } catch (IOException e) {
             log.debug("Communications error, closing connection: ", e);
             close();
@@ -345,8 +341,8 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
 
                     if (size == 0) {
                         headerBuffer.clear();
-                        log.trace("OP_READ " + selectionKey);
-                        selectorManager.setInterestOps(selectionKey, SelectionKey.OP_READ, 0);
+                        log.trace("+OP_READ " + selectionKey);
+                        selectorManager.addInterestOps(selectionKey, SelectionKey.OP_READ);
                         return;
                     }
 
@@ -382,8 +378,8 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
 
                 }
             }
-            log.trace("OP_READ " + selectionKey);
-            selectorManager.setInterestOps(selectionKey, SelectionKey.OP_READ, 0);
+            log.trace("+OP_READ " + selectionKey);
+            selectorManager.addInterestOps(selectionKey, SelectionKey.OP_READ);
             if (tracing) log.trace("No more data available to be read.");
 
         } catch (CancelledKeyException e) {

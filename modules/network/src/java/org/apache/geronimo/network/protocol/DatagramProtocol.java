@@ -37,7 +37,7 @@ import org.apache.geronimo.network.SelectorManager;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/17 03:11:59 $
+ * @version $Revision: 1.5 $ $Date: 2004/04/25 02:03:37 $
  */
 public class DatagramProtocol implements Protocol, SelectionEventListner {
 
@@ -230,7 +230,7 @@ public class DatagramProtocol implements Protocol, SelectionEventListner {
 
             receiveBuffer.clear();
 
-            selectorManager.setInterestOps(selectionKey, SelectionKey.OP_READ, 0);
+            selectorManager.addInterestOps(selectionKey, SelectionKey.OP_READ);
         } catch (IOException e) {
             log.debug("Communications error, closing connection: ", e);
             close();
