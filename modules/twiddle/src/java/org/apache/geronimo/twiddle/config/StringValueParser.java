@@ -61,7 +61,7 @@ import org.apache.geronimo.common.NullArgumentException;
 /**
  * Handles pasring expressions from a string.
  *
- * @version <code>$Revision: 1.4 $ $Date: 2003/08/16 15:14:12 $</code>
+ * @version <code>$Revision: 1.5 $ $Date: 2003/08/24 10:54:43 $</code>
  */
 public class StringValueParser
 {
@@ -69,12 +69,39 @@ public class StringValueParser
     {
     }
     
-    public String parse(String value)
+    protected String evaluate(final String expr)
     {
         //
-        // TODO: Implement me with JEXL or something...
+        // TODO: Hook up JEXL here
         //
         
-        return value;
+        return System.getProperty(expr);
+    }
+    
+    public String parse(final String input)
+    {
+        StringBuffer buff = new StringBuffer();
+
+        int cur = 0;
+        int prefixLoc = 0;
+        int suffixLoc = 0;
+
+        while (cur < input.length()) {
+            prefixLoc = input.indexOf("${", cur);
+
+            if (prefixLoc < 0) {
+                break;
+            }
+
+            suffixLoc = input.indexOf("}", prefixLoc);
+            String expr = input.substring(prefixLoc + 2, suffixLoc);
+            buff.append(input.substring(cur, prefixLoc));
+            buff.append(evaluate(expr));
+            cur = suffixLoc + 1;
+        }
+        
+        buff.append(input.substring(cur));
+        
+        return buff.toString();
     }
 }

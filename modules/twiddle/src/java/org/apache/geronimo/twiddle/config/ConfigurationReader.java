@@ -65,18 +65,24 @@ import java.io.BufferedReader;
 
 import java.net.URL;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.exolab.castor.xml.Unmarshaller;
 import org.exolab.castor.xml.MarshalException;
 
+import org.apache.geronimo.common.NullArgumentException;
 import org.apache.geronimo.common.Strings;
 
 /**
  * Creates <code>Configuration</code> objects.
  *
- * @version <code>$Revision: 1.5 $ $Date: 2003/08/16 15:14:12 $</code>
+ * @version <code>$Revision: 1.6 $ $Date: 2003/08/24 10:54:43 $</code>
  */
 public class ConfigurationReader
 {
+    private static final Log log = LogFactory.getLog(ConfigurationReader.class);
+    
     /** The Castor unmarshaller used to tranform XML->Objects */
     protected Unmarshaller unmarshaller;
     
@@ -98,6 +104,14 @@ public class ConfigurationReader
      */
     public Configuration read(final URL url) throws Exception
     {
+        if (url == null) {
+            throw new NullArgumentException("url");
+        }
+        
+        if (log.isDebugEnabled()) {
+            log.debug("Reading: " + url);
+        }
+        
         return doRead(new BufferedReader(new InputStreamReader(url.openStream())));
     }
     
@@ -111,6 +125,10 @@ public class ConfigurationReader
      */
     public Configuration read(final String urlspec) throws Exception
     {
+        if (urlspec == null) {
+            throw new NullArgumentException("urlspec");
+        }
+        
         return read(Strings.toURL(urlspec));
     }
     
@@ -124,6 +142,14 @@ public class ConfigurationReader
      */
     public Configuration read(final File file) throws Exception
     {
+        if (file == null) {
+            throw new NullArgumentException("file");
+        }
+        
+        if (log.isDebugEnabled()) {
+            log.debug("Reading: " + file);
+        }
+        
         return doRead(new BufferedReader(new FileReader(file)));
     }
     
@@ -137,6 +163,10 @@ public class ConfigurationReader
      */
     public Configuration read(final Reader reader) throws Exception
     {
+        if (reader == null) {
+            throw new NullArgumentException("reader");
+        }
+        
         return (Configuration)unmarshaller.unmarshal(reader);
     }
     
@@ -151,6 +181,8 @@ public class ConfigurationReader
      */
     protected Configuration doRead(final Reader reader) throws Exception
     {
+        assert reader != null;
+        
         Configuration config = null;
         try {
             config = read(reader);

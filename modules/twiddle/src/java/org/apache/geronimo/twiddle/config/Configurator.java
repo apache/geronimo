@@ -57,6 +57,16 @@
 package org.apache.geronimo.twiddle.config;
 
 import java.net.URL;
+import java.net.MalformedURLException;
+
+import java.io.File;
+import java.io.FilenameFilter;
+
+import java.util.List;
+import java.util.LinkedList;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.geronimo.common.NullArgumentException;
 import org.apache.geronimo.common.Strings;
@@ -70,10 +80,12 @@ import org.apache.geronimo.twiddle.command.CommandException;
 /**
  * Handles the details of Twiddle configuration.
  *
- * @version <code>$Revision: 1.5 $ $Date: 2003/08/16 15:14:12 $</code>
+ * @version <code>$Revision: 1.6 $ $Date: 2003/08/24 10:54:43 $</code>
  */
 public class Configurator
 {
+    private static final Log log = LogFactory.getLog(Configurator.class);
+    
     protected StringValueParser valueParser;
     protected Twiddle twiddle;
     
@@ -135,15 +147,75 @@ public class Configurator
                 
                 try {
                     String value = valueParser.parse(includes[i]);
-                    URL configURL = Strings.toURL(value);
-                    Configuration iconfig = reader.read(configURL);
-                    this.configure(iconfig);
+                    URL[] urls = parseGlobURLs(value);
+                    for (int j=0; j<urls.length; j++) {
+                        Configuration iconfig = reader.read(urls[j]);
+                        this.configure(iconfig);
+                    }
                 }
                 catch (Exception e) {
                     throw new ConfigurationException("Failed to process include: " + includes[i], e);
                 }
             }
         }
+    }
+    
+    protected URL[] parseGlobURLs(final String globspec) throws MalformedURLException
+    {
+        assert globspec != null;
+        
+        boolean debug = log.isDebugEnabled();
+        if (debug) {
+            log.debug("Parsing glob URLs from spec: " + globspec);
+        }
+        
+        URL baseURL = Strings.toURL(globspec);
+        if (!baseURL.getProtocol().equals("file")) {
+            // only can glob on file urls
+            return new URL[] { baseURL };
+        }
+        
+        File dir = new File(baseURL.getPath());
+        String glob = dir.getName();
+        dir = dir.getParentFile();
+        
+        if (debug) {
+            log.debug("Base dir: " + dir);
+            log.debug("Glob: " + glob);
+        }
+        
+        int i = glob.indexOf("*");
+        final String prefix = glob.substring(0, i);
+        final String suffix = glob.substring(i + 1);
+        if (debug) {
+            log.debug("Prefix: " + prefix);
+            log.debug("Suffix: " + suffix);
+        }
+        
+        File[] matches = dir.listFiles(new FilenameFilter()
+            {
+                public boolean accept(final File dir, final String name)
+                {
+                    if (!name.startsWith(prefix) || !name.endsWith(suffix)) {
+                        return false;
+                    }
+                    
+                    return true;
+                }
+            });
+        
+        List list = new LinkedList();
+        if (matches != null) {
+            for (i=0; i < matches.length; ++i) {
+                list.add(matches[i].toURL());
+            }
+        }
+        
+        if (debug) {
+            log.debug("Parsed URLs: " + list);
+        }
+        
+        return (URL[])list.toArray(new URL[list.size()]);
     }
     
     protected void configureCommands(final CommandsConfig config) throws CommandException
