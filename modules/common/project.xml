@@ -70,11 +70,6 @@
             <url>http://mx4j.sourceforge.net</url>
         </dependency>
 
-        <dependency>
-            <groupId>xmlbeans</groupId>
-            <artifactId>xbean-apache</artifactId>
-            <version>${xmlbeans_version}</version>
-        </dependency>
     </dependencies>
 
 
