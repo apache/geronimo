@@ -59,7 +59,7 @@ package org.apache.geronimo.common;
 import junit.framework.TestCase;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/12 09:14:43 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/12 20:07:40 $
  */
 public class StackThreadLocalTest 
     extends TestCase
@@ -75,6 +75,7 @@ public class StackThreadLocalTest
     protected void setUp()
         throws Exception
     {
+        stack = new StackThreadLocal();
         value = new Object();
     }
 
