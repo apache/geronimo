@@ -17,6 +17,12 @@
 -->
   
 
+<!DOCTYPE project [
+<!ENTITY % locator SYSTEM "file:locator.ent">
+%locator;
+%versions;
+]>
+
 <!-- $Rev$ $Date$ -->
 
 <project>
@@ -46,6 +52,6 @@
 
     <package>javax.enterprise.deploy</package>
 
-    <currentVersion>1.1-rc2</currentVersion>
+    <currentVersion>&geronimo-spec-j2ee-deployment-version;</currentVersion>
 
 </project>
