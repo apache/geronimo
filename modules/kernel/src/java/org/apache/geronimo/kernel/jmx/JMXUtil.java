@@ -55,17 +55,15 @@
  */
 package org.apache.geronimo.kernel.jmx;
 
-import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.management.relation.RelationServiceMBean;
 
 
 /**
  * Helper class for JMX Operations
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/22 08:10:27 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/26 04:40:06 $
  */
 public final class JMXUtil {
     private JMXUtil() {
@@ -73,7 +71,6 @@ public final class JMXUtil {
 
     /** the ObjectName of the MBeanServerDelegate */
     public static final ObjectName DELEGATE_NAME = getObjectName("JMImplementation:type=MBeanServerDelegate");
-    public static final ObjectName RELATION_SERVICE_NAME = getObjectName("geronimo.boot:role=RelationService");
     public static final ObjectName DEPENDENCY_SERVICE_NAME = getObjectName("geronimo.boot:role=DependencyService");
 
     /**
@@ -88,9 +85,5 @@ public final class JMXUtil {
         } catch (MalformedObjectNameException e) {
             throw new IllegalArgumentException("Malformed ObjectName: " + name);
         }
-    }
-
-    public static RelationServiceMBean getRelationService(MBeanServer server) {
-        return (RelationServiceMBean) MBeanProxyFactory.getProxy(RelationServiceMBean.class, server, RELATION_SERVICE_NAME);
     }
 }
