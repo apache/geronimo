@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: maven.xml,v 1.6 2003/08/12 14:48:56 jdillon Exp $ -->
+<!-- $Id: maven.xml,v 1.7 2003/08/13 08:57:00 jstrachan Exp $ -->
 
-<project default="jar:install" 
+<project default="modules:build" 
          xmlns:j="jelly:core" 
          xmlns:ant="jelly:ant" 
          xmlns:maven="jelly:maven">
