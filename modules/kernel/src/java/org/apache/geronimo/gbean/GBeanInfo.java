@@ -69,7 +69,7 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 /**
  * Describes a GBean.
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/22 02:46:27 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/22 06:38:21 $
  */
 public final class GBeanInfo implements Serializable {
     /**
@@ -114,15 +114,31 @@ public final class GBeanInfo implements Serializable {
     public GBeanInfo(String name, String className, Set attributes, GConstructorInfo constructor, Set operations, Set endpoints, Set notifications) {
         this.name = name;
         this.className = className;
-        this.attributes = Collections.unmodifiableSet(new HashSet(attributes));
-        if (constructor != null) {
-            this.constructor = constructor;
+        if(attributes == null) {
+            this.attributes = Collections.EMPTY_SET;
         } else {
-            this.constructor = new GConstructorInfo(Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+            this.attributes = Collections.unmodifiableSet(new HashSet(attributes));
         }
-        this.operations = Collections.unmodifiableSet(new HashSet(operations));
-        this.endpoints = Collections.unmodifiableSet(new HashSet(endpoints));
-        this.notifications = Collections.unmodifiableSet(new HashSet(notifications));
+        if (constructor == null) {
+            this.constructor = new GConstructorInfo(Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+        } else {
+            this.constructor = constructor;
+        }
+        if(operations == null) {
+            this.operations = Collections.EMPTY_SET;
+        } else {
+            this.operations = Collections.unmodifiableSet(new HashSet(operations));
+        }
+        if(endpoints == null) {
+            this.endpoints = Collections.EMPTY_SET;
+        } else {
+            this.endpoints = Collections.unmodifiableSet(new HashSet(endpoints));
+        }
+        if (notifications == null) {
+            this.notifications = Collections.EMPTY_SET;
+        } else {
+            this.notifications = Collections.unmodifiableSet(new HashSet(notifications));
+        }
     }
 
     public String getName() {
