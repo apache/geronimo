@@ -67,7 +67,7 @@ import org.apache.geronimo.core.service.InvocationKey;
  *
  *
  *
- * @version $Revision: 1.7 $ $Date: 2003/09/08 04:28:26 $
+ * @version $Revision: 1.8 $ $Date: 2003/11/01 16:25:58 $
  */
 public final class EJBInvocationUtil implements Serializable, InvocationKey {
     
@@ -134,7 +134,7 @@ public final class EJBInvocationUtil implements Serializable, InvocationKey {
     private final transient boolean isTransient;
 
     private EJBInvocationUtil(String name, int ordinal, boolean isTransient) {
-        assert ordinal < MAX_ORDINAL;
+        assert ordinal <= MAX_ORDINAL;
         assert values[ordinal] == null;
         this.name = name;
         this.ordinal = ordinal;
