@@ -30,7 +30,7 @@ import org.apache.geronimo.kernel.ClassLoading;
  *
  * <p>Allows editors to be nested sub-classes named PropertyEditor.
  *
- * @version $Revision: 1.10 $ $Date: 2004/06/03 07:24:15 $
+ * @version $Revision: 1.11 $ $Date: 2004/07/25 08:27:17 $
  */
 public class PropertyEditors
 {
@@ -42,6 +42,7 @@ public class PropertyEditors
     {
         // Append our package to the serach path
         appendEditorSearchPath("org.apache.geronimo.common.propertyeditor");
+        PropertyEditorManager.registerEditor(Boolean.class, BooleanEditor.class);
     }
 
     /**
