@@ -63,9 +63,9 @@ import java.beans.PropertyEditor;
 import junit.framework.TestCase;
 
 /**
- * Unit test for {@link ArrayPropertyEditorAdapter} class.
+ * Unit test for {@link org.apache.geronimo.kernel.service.ArrayPropertyEditorAdapter} class.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/30 21:08:08 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/08 04:10:57 $
  */
 public class ArrayPropertyEditorAdapterTest
     extends TestCase
