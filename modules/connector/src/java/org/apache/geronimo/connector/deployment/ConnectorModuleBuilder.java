@@ -41,12 +41,10 @@ import javax.management.AttributeNotFoundException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
-import javax.resource.spi.security.PasswordCredential;
 
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.common.xml.XmlBeansUtil;
 import org.apache.geronimo.connector.ActivationSpecInfo;
-import org.apache.geronimo.connector.outbound.GenericConnectionManager;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.LocalTransactions;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoPool;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoTransactions;
@@ -97,7 +95,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/07/12 06:07:51 $
+ * @version $Revision: 1.8 $ $Date: 2004/07/15 17:00:42 $
  */
 public class ConnectorModuleBuilder implements ModuleBuilder {
     private static final String BASE_REALM_BRIDGE_NAME = "geronimo.security:service=RealmBridge,name=";
@@ -247,6 +245,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
         // connectors do not add anything to the shared context
+        //TODO should the 1.5 ActivationSpecInfos be processed here?
     }
 
     public void addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
