@@ -54,11 +54,8 @@ import org.objectweb.howl.log.Logger;
 import org.objectweb.howl.log.ReplayListener;
 
 /**
- *
- *
  * @version $Rev$ $Date$
- *
- * */
+ */
 public class HOWLLog implements TransactionLog, GBeanLifecycle {
     static final byte PREPARE = 1;
     static final byte COMMIT = 2;
@@ -77,21 +74,19 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
 
     private final SortedSet marks = new TreeSet();
 
-    public HOWLLog(
-            String bufferClassName,
-            int bufferSize,
-            boolean checksumEnabled,
-            int flushSleepTimeMilliseconds,
-            String logFileDir,
-            String logFileExt,
-            String logFileName,
-            int maxBlocksPerFile,
-            int maxBuffers,
-            int maxLogFiles,
-            int minBuffers,
-            int threadsWaitingForceThreshold,
-            ServerInfo serverInfo
-            ) throws IOException, LogConfigurationException {
+    public HOWLLog(String bufferClassName,
+                   int bufferSize,
+                   boolean checksumEnabled,
+                   int flushSleepTimeMilliseconds,
+                   String logFileDir,
+                   String logFileExt,
+                   String logFileName,
+                   int maxBlocksPerFile,
+                   int maxBuffers,
+                   int maxLogFiles,
+                   int minBuffers,
+                   int threadsWaitingForceThreshold,
+                   ServerInfo serverInfo) throws IOException, LogConfigurationException {
         this.serverInfo = serverInfo;
         setBufferClassName(bufferClassName);
         setBufferSizeKBytes(bufferSize);
@@ -324,8 +319,10 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
         boolean doMark = false;
         Long mark = new Long(logMark);
         synchronized (marks) {
-            doMark = (mark.equals(marks.first()));
-            marks.remove(mark);
+            if (!marks.isEmpty()) {
+                doMark = (mark.equals(marks.first()));
+                marks.remove(mark);
+            }
         }
         return doMark;
     }
