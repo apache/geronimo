@@ -55,12 +55,12 @@
  */
 package org.apache.geronimo.xml.deployment;
 
-import junit.framework.TestCase;
+import java.io.FileReader;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/01/01 20:34:27 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/05 00:05:36 $
  */
-public class LoaderUtilTest extends TestCase {
+public class LoaderUtilTest extends AbstractLoaderUtilTest {
 
     public void testGetContent() {
         assertNull(LoaderUtil.getContent(null));
@@ -97,4 +97,16 @@ public class LoaderUtilTest extends TestCase {
         } catch (Exception expected) {
         }
     }
+
+    public void testParseNoneValidXML() {
+
+        try {
+            LoaderUtil.parseXML(new FileReader("src/test-data/xml/deployment/simple-dtd-example.xml"));
+            LoaderUtil.parseXML2(new FileReader("src/test-data/xml/deployment/simple-dtd-example.xml"));
+            //fail("should throw a SAXParserException");
+        } catch (Exception expected) {
+
+        }
+    }
+
 }

@@ -3,7 +3,7 @@
         xmlns="http://java.sun.com/xml/ns/j2ee"
         xmlns:ger="http://geronimo.apache.org/xml/schema/j2ee"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://geronimo.apache.org/xml/schema/j2ee/geronimo-web-app.xsd">
+	xsi:schemaLocation="http://geronimo.apache.org/xml/schema/j2ee/geronimo-web-app.xsd">
 
     <security/>
 

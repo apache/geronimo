@@ -81,7 +81,7 @@ import org.apache.xerces.parsers.DOMParser;
 /**
  * Holds utility methods for parsing a DOM tree.
  *
- * @version $Revision: 1.11 $ $Date: 2004/01/02 23:32:38 $
+ * @version $Revision: 1.12 $ $Date: 2004/01/05 00:05:35 $
  */
 public final class LoaderUtil {
 
@@ -209,7 +209,7 @@ public final class LoaderUtil {
      * @throws SAXException if there was a parsing problem
      * @throws IOException if there was a problem reading the input
      */
-    public static Document parseXML2(Reader reader)
+    public static Document parseXML(Reader reader)
             throws SAXException, IOException {
         DOMParser parser = new DOMParser();
         parser.setFeature("http://xml.org/sax/features/validation", true);
@@ -240,7 +240,7 @@ public final class LoaderUtil {
     }
 
     //It looks to me as if this does the same things, but with jaxp.
-    public static Document parseXML(Reader reader)
+    public static Document parseXML2(Reader reader)
             throws SAXException, IOException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);

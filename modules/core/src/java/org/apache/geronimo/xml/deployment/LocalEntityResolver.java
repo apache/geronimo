@@ -94,10 +94,11 @@ import org.xml.sax.SAXException;
  * (see http://www.oasis-open.org/committees/entity/spec-2001-08-01.html
  * and http://www.oasis-open.org/html/a401.htm)
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/02 23:32:38 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/05 00:05:35 $
  */
 public class LocalEntityResolver implements EntityResolver {
 
+    private static final String INTERNAL_CATALOG = "resolver-catalog.xml";
     /**
      * used Logger
      */
@@ -130,12 +131,15 @@ public class LocalEntityResolver implements EntityResolver {
      */
     private boolean failOnUnresolvable = false;
 
+    private String internalCatalog;
+
     public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
         GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
         mbeanInfo.setTargetClass(LocalEntityResolver.class);
         mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("FailOnUnresolvable", true, true, "Should null be returned or an exception thrown when an entity cannot be resolved"));
         mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("LocalRepository", true, true, "Location of dtds and schemas"));
         mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("CatalogFile", true, true, "Location of xml catalog file"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("InternalCatalog", true, false, "Name of catalog file in a schema jar file, for classpath access"));
         mbeanInfo.addOperationInfo(new GeronimoOperationInfo("resolveEntity", new GeronimoParameterInfo[]{
             new GeronimoParameterInfo("PublicID", String.class, "PublicID of entity to resolve"),
             new GeronimoParameterInfo("SystemID", String.class, "SystemID of entity to resolve")},
@@ -156,6 +160,11 @@ public class LocalEntityResolver implements EntityResolver {
     }
 
     public LocalEntityResolver(String catalogFile, String localRepository, boolean failOnUnresolvable) {
+        this(catalogFile, localRepository, INTERNAL_CATALOG, failOnUnresolvable);
+    }
+
+    public LocalEntityResolver(String catalogFile, String localRepository, String internalCatalog, boolean failOnUnresolvable) {
+        this.internalCatalog = internalCatalog;
         setLocalRepository(localRepository);
         setFailOnUnresolvable(failOnUnresolvable);
         setCatalogFile(catalogFile);
@@ -204,6 +213,10 @@ public class LocalEntityResolver implements EntityResolver {
 
     public void setLocalRepository(String string) {
         localRepository = string;
+    }
+
+    public String getInternalCatalog() {
+        return internalCatalog;
     }
 
     public void addPublicMapping(final String publicId, final String uri) {
@@ -286,7 +299,7 @@ public class LocalEntityResolver implements EntityResolver {
      * @throws MalformedURLException
      * @throws IOException
      */
-    private InputSource resolveWithCatalog(
+    InputSource resolveWithCatalog(
             final String publicId,
             final String systemId)
             throws MalformedURLException, IOException {
@@ -320,7 +333,7 @@ public class LocalEntityResolver implements EntityResolver {
      * @param systemId the SystemId
      * @return InputSource if the entity could be resolved. null otherwise
      */
-    private InputSource resolveWithRepository(
+    InputSource resolveWithRepository(
             final String publicId,
             final String systemId) {
 
@@ -360,7 +373,7 @@ public class LocalEntityResolver implements EntityResolver {
      * @param systemId the SystemId
      * @return InputSource if the entity could be resolved. null otherwise
      */
-    private InputSource resolveWithClasspath(
+    InputSource resolveWithClasspath(
             final String publicId,
             final String systemId) {
 
@@ -407,7 +420,7 @@ public class LocalEntityResolver implements EntityResolver {
             return null;
         }
 
-        int indexBackSlash = systemId.lastIndexOf(File.separator);
+        int indexBackSlash = systemId.lastIndexOf("\\");
         int indexSlash = systemId.lastIndexOf("/");
 
         int index = Math.max(indexBackSlash, indexSlash);
@@ -457,7 +470,20 @@ public class LocalEntityResolver implements EntityResolver {
         manager.setCatalogFiles(this.catalogFileURI.toString());
         manager.setIgnoreMissingProperties(true);
         catalog = manager.getCatalog();
-
+        //This is an attempt to use a catalog in gerionimo-schema.jar.  It is not yet clear
+        //if it works, and is pretty much untestable until schemas are in a different module.
+        if (internalCatalog != null) {
+            URL url = getClass().getClassLoader().getResource(internalCatalog);
+            if (url == null) {
+                log.info("Could not locate internal catalog " + internalCatalog);
+            } else {
+                try {
+                    catalog.parseCatalog(url);
+                } catch (IOException e) {
+                    log.info("Could not add internal catalog: " + url, e);
+                }
+            }
+        }
     }
 
 }

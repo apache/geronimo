@@ -61,7 +61,7 @@ import junit.framework.TestCase;
 
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/01/02 23:32:39 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/05 00:05:36 $
  */
 public abstract class AbstractLoaderUtilTest extends TestCase {
 
@@ -72,7 +72,6 @@ public abstract class AbstractLoaderUtilTest extends TestCase {
 
     protected void setUp() throws Exception {
         setUp(catalogFile.toURI().toString(), repoDir.toURI().toString());
-        resolver.setFailOnUnresolvable(false);
     }
 
     protected void setUp(String catalogFile, String docDirectory) {
