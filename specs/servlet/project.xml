@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Revision: 1.1 $ $Date: 2003/09/05 22:55:58 $ -->
+
+<project>
+  <pomVersion>3</pomVersion>
+  <extend>${basedir}/../../etc/project.xml</extend>
+  
+  <name>Geronimo :: Servlet Specification</name>
+  <groupId>geronimo-spec</groupId>
+  <id>geronimo-spec-servlet</id>
+  <shortDescription>
+  </shortDescription>
+  <description>
+  </description>
+  <siteDirectory></siteDirectory>
+  <distributionDirectory></distributionDirectory>
+  
+  <package>javax.servlet</package>
+  <currentVersion>DEV</currentVersion>
+  
+</project>
