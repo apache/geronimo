@@ -41,7 +41,7 @@ import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.transaction.GeronimoTransactionManager;
-import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.OnlineUserTransaction;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 
@@ -107,7 +107,7 @@ public class SecurityTest extends TestCase {
 
         app.setAttribute("uri", URI.create("war3/"));
         app.setAttribute("componentContext", null);
-        UserTransactionImpl userTransaction = new UserTransactionImpl();
+        OnlineUserTransaction userTransaction = new OnlineUserTransaction();
         app.setAttribute("userTransaction", userTransaction);
         app.setAttribute("webClassPath", new URI[0]);
         app.setAttribute("contextPriorityClassLoader", Boolean.FALSE);

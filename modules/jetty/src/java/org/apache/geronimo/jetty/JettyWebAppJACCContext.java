@@ -54,6 +54,7 @@ import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.OnlineUserTransaction;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.mortbay.http.Authenticator;
 import org.mortbay.http.HttpException;
@@ -98,7 +99,7 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
     public JettyWebAppJACCContext(
             URI uri,
             ReadOnlyContext componentContext,
-            UserTransactionImpl userTransaction,
+            OnlineUserTransaction userTransaction,
             ClassLoader classLoader,
             URI[] webClassPath,
             boolean contextPriorityClassLoader,

@@ -1,7 +1,5 @@
 package org.apache.geronimo.transaction.manager;
 
-import java.util.List;
-
 import javax.transaction.SystemException;
 
 /**

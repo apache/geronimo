@@ -23,6 +23,10 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Set;
 import javax.resource.ResourceException;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.RollbackException;
+import javax.transaction.SystemException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,8 +38,9 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
 import org.apache.geronimo.transaction.DefaultInstanceContext;
 import org.apache.geronimo.transaction.InstanceContext;
+import org.apache.geronimo.transaction.OnlineUserTransaction;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
-import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.context.InheritableTransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.mortbay.http.HttpException;
@@ -52,7 +57,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     private static Log log = LogFactory.getLog(JettyWebAppContext.class);
 
     private final ReadOnlyContext componentContext;
-    private final UserTransactionImpl userTransaction;
+    private final OnlineUserTransaction userTransaction;
     private final ClassLoader classLoader;
     private final Set unshareableResources;
     private final Set applicationManagedSecurityResources;
@@ -78,17 +83,17 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     }
 
     public JettyWebAppContext(URI uri,
-            ReadOnlyContext componentContext,
-            UserTransactionImpl userTransaction,
-            ClassLoader classLoader,
-            URI[] webClassPath,
-            boolean contextPriorityClassLoader,
-            URL configurationBaseUrl,
-            Set unshareableResources,
-            Set applicationManagedSecurityResources,
-            TransactionContextManager transactionContextManager,
-            TrackedConnectionAssociator trackedConnectionAssociator,
-            JettyContainer jettyContainer) throws MalformedURLException {
+                              ReadOnlyContext componentContext,
+                              OnlineUserTransaction userTransaction,
+                              ClassLoader classLoader,
+                              URI[] webClassPath,
+                              boolean contextPriorityClassLoader,
+                              URL configurationBaseUrl,
+                              Set unshareableResources,
+                              Set applicationManagedSecurityResources,
+                              TransactionContextManager transactionContextManager,
+                              TrackedConnectionAssociator trackedConnectionAssociator,
+                              JettyContainer jettyContainer) throws MalformedURLException {
 
         assert uri != null;
         assert componentContext != null;
@@ -124,10 +129,11 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         setClassLoader(this.classLoader);
     }
 
+    //TODO tx logic may not be complete.  exceptions are certainly wrong!
     public void handle(String pathInContext,
-            String pathParams,
-            HttpRequest httpRequest,
-            HttpResponse httpResponse)
+                       String pathParams,
+                       HttpRequest httpRequest,
+                       HttpResponse httpResponse)
             throws HttpException, IOException {
 
         // save previous state
@@ -139,14 +145,11 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             // set up java:comp JNDI Context
             RootContext.setComponentContext(componentContext);
 
-            // Turn on the UserTransaction
-            userTransaction.setOnline(true);
 
-            TransactionContext transactionContext = transactionContextManager.getContext();
-            if (transactionContext == null) {
-                transactionContext = transactionContextManager.newUnspecifiedTransactionContext();
-            } else {
-                transactionContext = null;
+            TransactionContext oldTransactionContext = transactionContextManager.getContext();
+            TransactionContext newTransactionContext = null;
+            if (oldTransactionContext == null || !(oldTransactionContext instanceof InheritableTransactionContext)) {
+                newTransactionContext = transactionContextManager.newUnspecifiedTransactionContext();
             }
 
             try {
@@ -158,14 +161,34 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
                 super.handle(pathInContext, pathParams, httpRequest, httpResponse);
             } finally {
-                if (transactionContext != null) {
-                    transactionContextManager.setContext(null);
-                    try {
-                        transactionContext.commit();
-                    } catch (Exception e) {
-                        //TODO this is undoubtedly the wrong error code!
-                        throw (HttpException) new HttpException(500, "Problem committing unspecified transaction context").initCause(e);
+                try {
+                    if (newTransactionContext != null) {
+                        if (newTransactionContext != transactionContextManager.getContext()) {
+                            transactionContextManager.getContext().rollback();
+                            newTransactionContext.rollback();
+                            throw new HttpException(500, "WRONG EXCEPTION! returned from servlet call with wrong tx context");
+                        }
+                        newTransactionContext.commit();
+
+                    } else {
+                        if (oldTransactionContext != transactionContextManager.getContext()) {
+                            if (transactionContextManager.getContext() != null) {
+                                transactionContextManager.getContext().rollback();
+                            }
+                            throw new HttpException(500, "WRONG EXCEPTION! returned from servlet call with wrong tx context");
+                        }
                     }
+                } catch (SystemException e) {
+                    throw (HttpException) new HttpException(500, "WRONG EXCEPTION!").initCause(e);
+                } catch (HeuristicMixedException e) {
+                    throw (HttpException) new HttpException(500, "WRONG EXCEPTION!").initCause(e);
+                } catch (HeuristicRollbackException e) {
+                    throw (HttpException) new HttpException(500, "WRONG EXCEPTION!").initCause(e);
+                } catch (RollbackException e) {
+                    throw (HttpException) new HttpException(500, "WRONG EXCEPTION!").initCause(e);
+                } finally {
+                    //this is redundant when we enter with an inheritable context and nothing goes wrong.
+                    transactionContextManager.setContext(oldTransactionContext);
                 }
             }
         } finally {
@@ -174,10 +197,8 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             } catch (ResourceException e) {
                 throw new RuntimeException(e);
             } finally {
-                userTransaction.setOnline(false);
                 RootContext.setComponentContext(oldComponentContext);
             }
-            //TODO should we reset the transactioncontext to null if we set it?
         }
     }
 
@@ -194,6 +215,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         setWAR(webAppRoot.toString());
 
         userTransaction.setUp(transactionContextManager, trackedConnectionAssociator);
+
         jettyContainer.addContext(this);
 
         ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
@@ -203,9 +225,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             InstanceContext oldInstanceContext = null;
             try {
                 RootContext.setComponentContext(componentContext);
-                // Turn on the UserTransaction
-                userTransaction.setOnline(true);
-
+//TODO FIXME!!!
                 TransactionContext transactionContext = transactionContextManager.getContext();
                 if (transactionContext == null) {
                     transactionContext = transactionContextManager.newUnspecifiedTransactionContext();
@@ -239,7 +259,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                 } catch (ResourceException e) {
                     throw new RuntimeException(e);
                 } finally {
-                    userTransaction.setOnline(false);
                     RootContext.setComponentContext(oldComponentContext);
                 }
                 //TODO should we reset the transactioncontext to null if we set it?
@@ -265,8 +284,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             InstanceContext oldInstanceContext = null;
             try {
                 RootContext.setComponentContext(componentContext);
-                // Turn on the UserTransaction
-                userTransaction.setOnline(true);
 
                 TransactionContext transactionContext = transactionContextManager.getContext();
                 if (transactionContext == null) {
@@ -307,15 +324,11 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                 } catch (ResourceException e) {
                     throw new RuntimeException(e);
                 } finally {
-                    userTransaction.setOnline(false);
                     RootContext.setComponentContext(oldComponentContext);
                 }
                 //TODO should we reset the transactioncontext to null if we set it?
             }
             jettyContainer.removeContext(this);
-            if (userTransaction != null) {
-                userTransaction.setOnline(false);
-            }
         } finally {
             Thread.currentThread().setContextClassLoader(oldCL);
         }
@@ -340,7 +353,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
         infoFactory.addAttribute("uri", URI.class, true);
         infoFactory.addAttribute("componentContext", ReadOnlyContext.class, true);
-        infoFactory.addAttribute("userTransaction", UserTransactionImpl.class, true);
+        infoFactory.addAttribute("userTransaction", OnlineUserTransaction.class, true);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addAttribute("webClassPath", URI[].class, true);
         infoFactory.addAttribute("contextPriorityClassLoader", boolean.class, true);

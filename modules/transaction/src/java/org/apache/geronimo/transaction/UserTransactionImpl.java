@@ -19,7 +19,6 @@ package org.apache.geronimo.transaction;
 
 import java.io.Serializable;
 
-import javax.resource.ResourceException;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.NotSupportedException;
@@ -28,9 +27,6 @@ import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.transaction.context.BeanTransactionContext;
-import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
 
 /**
  * Implementation of UserTransaction for use in an EJB.
@@ -40,9 +36,6 @@ import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
  * @version $Rev$ $Date$
  */
 public class UserTransactionImpl implements UserTransaction, Serializable {
-    private transient TransactionContextManager transactionContextManager;
-    private transient TrackedConnectionAssociator trackedConnectionAssociator;
-
     private final ThreadLocal state = new StateThreadLocal();
     private static class StateThreadLocal extends ThreadLocal implements Serializable {
         protected Object initialValue() {
@@ -56,8 +49,7 @@ public class UserTransactionImpl implements UserTransaction, Serializable {
 
     public void setUp(TransactionContextManager transactionContextManager, TrackedConnectionAssociator trackedConnectionAssociator) {
         assert !isOnline() : "Only set the tx manager when UserTransaction is offline";
-        this.transactionContextManager = transactionContextManager;
-        this.trackedConnectionAssociator = trackedConnectionAssociator;
+        this.ONLINE.setUp(transactionContextManager, trackedConnectionAssociator);
     }
 
     public boolean isOnline() {
@@ -67,7 +59,7 @@ public class UserTransactionImpl implements UserTransaction, Serializable {
     public void setOnline(boolean online) {
         //too bad there's no implies operation
         // online implies transactionContextManager != null
-        assert !online || transactionContextManager != null : "online requires a tx manager";
+        assert !online || ONLINE.isActive() : "online requires a tx manager";
         state.set(online ? ONLINE : OFFLINE);
     }
 
@@ -99,62 +91,7 @@ public class UserTransactionImpl implements UserTransaction, Serializable {
         getUserTransaction().setTransactionTimeout(timeout);
     }
 
-    private final UserTransaction ONLINE = new OnlineUserTransaction();
-    private final class OnlineUserTransaction implements UserTransaction, Serializable {
-        public int getStatus() throws SystemException {
-            return transactionContextManager.getStatus();
-        }
-
-        public void setRollbackOnly() throws IllegalStateException, SystemException {
-            transactionContextManager.setRollbackOnly();
-        }
-
-        public void setTransactionTimeout(int seconds) throws SystemException {
-            transactionContextManager.setTransactionTimeout(seconds);
-        }
-
-        public void begin() throws NotSupportedException, SystemException {
-            transactionContextManager.newBeanTransactionContext();
-
-            if(trackedConnectionAssociator != null) {
-                try {
-                    trackedConnectionAssociator.newTransaction();
-                } catch (ResourceException e) {
-                    throw (SystemException)new SystemException().initCause(e);
-                }
-            }
-        }
-
-        public void commit() throws HeuristicMixedException, HeuristicRollbackException, IllegalStateException, RollbackException, SecurityException, SystemException {
-            TransactionContext ctx = transactionContextManager.getContext();
-            if (ctx instanceof BeanTransactionContext == false) {
-                throw new IllegalStateException("Transaction has not been started");
-            }
-            BeanTransactionContext beanContext = (BeanTransactionContext) ctx;
-            try {
-                beanContext.commit();
-            } finally {
-                UnspecifiedTransactionContext oldContext = beanContext.getOldContext();
-                transactionContextManager.setContext(oldContext);
-                oldContext.resume();
-            }
-        }
-
-        public void rollback() throws IllegalStateException, SecurityException, SystemException {
-            TransactionContext ctx = transactionContextManager.getContext();
-            if (ctx instanceof BeanTransactionContext == false) {
-                throw new IllegalStateException("Transaction has not been started");
-            }
-            BeanTransactionContext beanContext = (BeanTransactionContext) ctx;
-            try {
-                beanContext.rollback();
-            } finally {
-                UnspecifiedTransactionContext oldContext = beanContext.getOldContext();
-                transactionContextManager.setContext(oldContext);
-                oldContext.resume();
-            }
-        }
-    };
+    private final OnlineUserTransaction ONLINE = new OnlineUserTransaction();
 
     private static final UserTransaction OFFLINE = new OfflineUserTransaction();
     private static final class OfflineUserTransaction implements UserTransaction, Serializable {

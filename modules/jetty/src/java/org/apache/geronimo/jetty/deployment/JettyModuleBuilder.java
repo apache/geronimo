@@ -61,7 +61,7 @@ import org.apache.geronimo.security.deploy.Principal;
 import org.apache.geronimo.security.deploy.Realm;
 import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
-import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.OnlineUserTransaction;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyDefaultPrincipalType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyDependencyType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyGbeanType;
@@ -303,7 +303,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("Unable to construct ObjectName", e);
         }
 
-        UserTransaction userTransaction = new UserTransactionImpl();
+        UserTransaction userTransaction = new OnlineUserTransaction();
         ReadOnlyContext compContext = buildComponentContext(earContext, webModule, webApp, jettyWebApp, userTransaction, webClassLoader);
 
         Security security = buildSecurityConfig(jettyWebApp);

@@ -17,23 +17,12 @@
 
 package org.apache.geronimo.transaction.manager;
 
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Arrays;
-import java.util.HashSet;
-
-import javax.transaction.SystemException;
 import javax.transaction.xa.XAException;
-import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  *

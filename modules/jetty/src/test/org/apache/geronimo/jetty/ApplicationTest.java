@@ -34,7 +34,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.jetty.connector.HTTPConnector;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.transaction.GeronimoTransactionManager;
-import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.OnlineUserTransaction;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
@@ -63,7 +63,7 @@ public class ApplicationTest extends TestCase {
         GBeanMBean app = new GBeanMBean(JettyWebAppContext.GBEAN_INFO);
         app.setAttribute("uri", URI.create("war1/"));
         app.setAttribute("componentContext", null);
-        UserTransactionImpl userTransaction = new UserTransactionImpl();
+        OnlineUserTransaction userTransaction = new OnlineUserTransaction();
         app.setAttribute("userTransaction", userTransaction);
         app.setAttribute("webClassPath", new URI[0]);
         app.setAttribute("contextPriorityClassLoader", Boolean.FALSE);
