@@ -23,28 +23,45 @@ import javax.security.jacc.PolicyConfiguration;
 import javax.security.jacc.PolicyConfigurationFactory;
 import javax.security.jacc.PolicyContextException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.geronimo.security.GeronimoSecurityPermission;
 
 
 /**
- *
  * @version $Rev$ $Date$
  */
 public class GeronimoPolicyConfigurationFactory extends PolicyConfigurationFactory {
+
+    private final Log log = LogFactory.getLog(GeronimoPolicyConfigurationFactory.class);
+    private static GeronimoPolicyConfigurationFactory singleton;
     private Map configurations = new HashMap();
+
+    public GeronimoPolicyConfigurationFactory() {
+        if (singleton != null) {
+            log.warn("Singleton already assigned.  There may be more than one GeronimoPolicyConfigurationFactory being used.");
+        }
+        singleton = this;
+    }
 
     public void setPolicyConfiguration(String contextID, GeronimoPolicyConfiguration configuration) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(new GeronimoSecurityPermission("setPolicyConfiguration"));
 
         configurations.put(contextID, configuration);
+        
+        log.trace("Set policy configuration " + contextID);
     }
 
     public GeronimoPolicyConfiguration getGeronimoPolicyConfiguration(String contextID) throws PolicyContextException {
         GeronimoPolicyConfiguration configuration = (GeronimoPolicyConfiguration) configurations.get(contextID);
+
         if (configuration == null) {
             throw new PolicyContextException("No policy configuration registered for contextID: " + contextID);
         }
+
+        log.trace("Get policy configuration " + contextID);
         return configuration;
     }
 
@@ -58,13 +75,18 @@ public class GeronimoPolicyConfigurationFactory extends PolicyConfigurationFacto
             configuration.open(remove);
         }
 
+        log.trace("Get " + (remove ? "CLEANED" : "") + " policy configuration " + contextID);
         return configuration;
     }
 
     public boolean inService(String contextID) throws PolicyContextException {
         PolicyConfiguration configuration = getPolicyConfiguration(contextID, false);
 
+        log.trace("Policy configuration " + contextID + " put into service");
         return configuration.inService();
     }
 
+    static GeronimoPolicyConfigurationFactory getSingleton() {
+        return singleton;
+    }
 }
