@@ -71,7 +71,7 @@ import javax.management.ObjectName;
  * the MBean is invoked, an InvocationTargetException is thrown, which contains an
  * NoSuchMethodException.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/30 16:32:38 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/30 17:49:17 $
  */
 public final class MBeanProxyFactory
 {
@@ -98,7 +98,7 @@ public final class MBeanProxyFactory
         LocalHandler handler =  new LocalHandler(iface, server, objectName);
         
         return Proxy.newProxyInstance(
-            cl, new Class[] { iface, MBeanProxyInstance.class }, handler
+            cl, new Class[] { iface, MBeanProxy.class }, handler
         );
     }
     
