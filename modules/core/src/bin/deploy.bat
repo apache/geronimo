@@ -6,7 +6,7 @@
 @rem ##########################################################################
 
 @rem 
-@rem $Revision: 1.1 $ $Date: 2003/09/04 05:24:21 $
+@rem $Revision: 1.2 $ $Date: 2003/09/29 14:07:05 $
 @rem 
 
 @rem Set local scope for the variables with windows NT shell
@@ -14,6 +14,9 @@ if "%OS%"=="Windows_NT" setlocal
 
 @rem The path of the command to execute
 set COMMAND_PATH=geronimo/deploy
+
+@rem Turn on assertions, and must put memory arg here too or twiddle.bat will skip it
+set JAVA_OPTS=%JAVA_OPTS% -ea -Xmx128m
 
 :begin
 @rem Determine what directory it is in.
