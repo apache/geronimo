@@ -38,6 +38,12 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.transaction.GeronimoTransactionManager;
 import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.security.deploy.Security;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.security.deploy.Principal;
+import org.apache.geronimo.security.deploy.Role;
+import org.apache.geronimo.security.deploy.Realm;
 
 
 /**
@@ -60,27 +66,58 @@ public class SecurityTest extends TestCase {
     private ObjectName propertiesRealmName;
     private ObjectName loginServiceName;
     private GBeanMBean loginServiceGBean;
+    private ObjectName securityServiceName;
+    private GBeanMBean securityServiceGBean;
     private ObjectName appName;
     private ObjectName tmName;
     private ObjectName tcaName;
     private GBeanMBean tm;
     private GBeanMBean ctc;
+    private ObjectName tcmName;
+    private GBeanMBean tcm;
 
     public void testDummy() throws Exception {
     }
 
-    public void XtestApplication() throws Exception {
+    public void testApplication() throws Exception {
+        Security securityConfig = new Security();
+        securityConfig.setUseContextHandler(false);
+
+        DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
+        defaultPrincipal.setRealmName("demo-properties-realm");
+        Principal principal = new Principal();
+        principal.setClassName("org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal");
+        principal.setPrincipalName("izumi");
+        defaultPrincipal.setPrincipal(principal);
+
+        securityConfig.setDefaultPrincipal(defaultPrincipal);
+
+        Role role = new Role();
+        role.setRoleName("content-administrator");
+        principal = new Principal();
+        principal.setClassName("org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal");
+        principal.setPrincipalName("it");
+        Realm realm = new Realm();
+        realm.setRealmName("demo-properties-realm");
+        realm.getPrincipals().add(principal);
+        role.getRealms().add(realm);
+        
+        securityConfig.getRoleMappings().add(role);
+
         URL url = Thread.currentThread().getContextClassLoader().getResource("deployables/war3/");
-        GBeanMBean app = new GBeanMBean(JettyWebAppContext.GBEAN_INFO);
-        app.setAttribute("URI", URI.create(url.toString()));
+        GBeanMBean app = new GBeanMBean(JettyWebAppJACCContext.GBEAN_INFO);
+        app.setAttribute("uri", URI.create(url.toString()));
         app.setAttribute("contextPath", "/test");
         app.setAttribute("componentContext", null);
         UserTransactionImpl userTransaction = new UserTransactionImpl();
         app.setAttribute("userTransaction", userTransaction);
+        app.setAttribute("securityConfig", securityConfig);
+        app.setAttribute("policyContextID", "TEST");
         app.setReferencePatterns("Configuration", Collections.EMPTY_SET);
         app.setReferencePatterns("JettyContainer", containerPatterns);
-        app.setReferencePatterns("TransactionManager", Collections.singleton(tmName));
-        app.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(tcaName));
+        app.setReferencePattern("TransactionContextManager", tcmName);
+        app.setReferencePattern("TrackedConnectionAssociator", tcaName);
+        app.setReferencePattern("TrackedConnectionAssociator", tcaName);
         start(appName, app);
 
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678/test/protected/hello.txt").openConnection();
@@ -126,6 +163,7 @@ public class SecurityTest extends TestCase {
         appName = new ObjectName("geronimo.jetty:app=test");
 
         tmName = new ObjectName("geronimo.test:role=TransactionManager");
+        tcmName = new ObjectName("geronimo.test:role=TransactionContextManager");
         tcaName = new ObjectName("geronimo.test:role=ConnectionTrackingCoordinator");
 
         kernel = new Kernel("geronimo.kernel", "test");
@@ -147,6 +185,11 @@ public class SecurityTest extends TestCase {
         jaasRealmGBean.setAttribute("name", "Test JAAS Realm");
         jaasRealmGBean.setAttribute("loginModuleName", "jaasTest");
 
+        securityServiceGBean = new GBeanMBean("org.apache.geronimo.security.SecurityService");
+        securityServiceName = new ObjectName("geronimo.security:type=SecurityService");
+        securityServiceGBean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
+        securityServiceGBean.setAttribute("policyConfigurationFactory", "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory");
+
         loginServiceGBean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginService");
         loginServiceName = new ObjectName("geronimo.security:type=LoginService");
         loginServiceGBean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
@@ -165,25 +208,31 @@ public class SecurityTest extends TestCase {
         start(serverInfoName, serverInfoGBean);
         start(propertiesRealmName, propertiesRealmGBean);
         start(containerName, container);
+        start(securityServiceName, securityServiceGBean);
         start(loginServiceName, loginServiceGBean);
         start(jaasRealmName, jaasRealmGBean);
         start(connectorName, connectorGBean);
 
         tm = new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
         Set patterns = new HashSet();
-        patterns.add(ObjectName.getInstance("geronimo.management:J2eeType=ManagedConnectionFactory,*"));
+        patterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
         tm.setReferencePatterns("ResourceManagers", patterns);
         start(tmName, tm);
+        tcm = new GBeanMBean(TransactionContextManager.GBEAN_INFO);
+        tcm.setReferencePattern("TransactionManager", tmName);
+        start(tcmName, tcm);
         ctc = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
         start(tcaName, ctc);
     }
 
     protected void tearDown() throws Exception {
         stop(tcaName);
+        stop(tcmName);
         stop(tmName);
         stop(connectorName);
         stop(jaasRealmName);
         stop(loginServiceName);
+        stop(securityServiceName);
         stop(containerName);
         stop(propertiesRealmName);
         stop(serverInfoName);

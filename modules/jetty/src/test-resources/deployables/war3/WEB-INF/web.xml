@@ -51,7 +51,7 @@
     </login-config>
 
     <security-role>
-        <role-name>FOO</role-name>
+        <role-name>content-administrator</role-name>
     </security-role>
 
     <ejb-ref>
