@@ -28,7 +28,7 @@ import org.apache.geronimo.network.protocol.ProtocolException;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/17 03:12:00 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/22 03:26:23 $
  */
 public class ControlServerProtocolStack extends AcceptableProtocolStack implements ControlServerListener, BootstrapChef {
 
@@ -51,6 +51,7 @@ public class ControlServerProtocolStack extends AcceptableProtocolStack implemen
 
         if (result instanceof ControlServerProtocol) {
             ((ControlServerProtocol) result).setControlServerListener(null);
+            ((ControlServerProtocol) result).setBootstrapChef(null);
         } else if (result instanceof ControlServerProtocolWaiter) {
             waiter = null;
         }
