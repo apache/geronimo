@@ -26,16 +26,11 @@ import java.util.List;
  *
  * @version $Rev$ $Date$
  */
-public class ListEditor
-    extends CollectionEditor
-{
+public class ListEditor extends AbstractCollectionEditor {
+
     protected Collection createCollection()
-    {
-        return createList();
-    }
-    
-    protected List createList()
     {
         return new LinkedList();
     }
+    
 }

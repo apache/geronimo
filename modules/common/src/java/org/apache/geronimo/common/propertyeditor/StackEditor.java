@@ -19,17 +19,17 @@ package org.apache.geronimo.common.propertyeditor;
 
 import java.util.List;
 import java.util.Stack;
+import java.util.Collection;
 
 /**
  * A property editor for {@link Stack}
  *
  * @version $Rev$ $Date$
  */
-public class StackEditor
-    extends ListEditor
-{
-    protected List createList()
-    {
+public class StackEditor extends AbstractCollectionEditor {
+
+    protected Collection createCollection() {
         return new Stack();
     }
+
 }

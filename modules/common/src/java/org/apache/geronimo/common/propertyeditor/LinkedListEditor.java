@@ -19,17 +19,17 @@ package org.apache.geronimo.common.propertyeditor;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Collection;
 
 /**
  * A property editor for {@link LinkedList}.
  *
  * @version $Rev$ $Date$
  */
-public class LinkedListEditor
-    extends ListEditor
-{
-    protected List createList()
-    {
+public class LinkedListEditor extends AbstractCollectionEditor {
+
+    protected Collection createCollection() {
         return new LinkedList();
     }
+    
 }

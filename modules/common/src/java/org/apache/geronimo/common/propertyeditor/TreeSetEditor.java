@@ -19,17 +19,18 @@ package org.apache.geronimo.common.propertyeditor;
 
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.Collection;
 
 /**
  * A property editor for {@link TreeSet}.
  *
  * @version $Rev$ $Date$
  */
-public class TreeSetEditor
-    extends SetEditor
-{
-    protected Set createSet()
+public class TreeSetEditor extends AbstractCollectionEditor {
+
+    protected Collection createCollection()
     {
         return new TreeSet();
     }
+    
 }

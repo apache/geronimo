@@ -19,17 +19,17 @@ package org.apache.geronimo.common.propertyeditor;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Collection;
 
 /**
  * A property editor for {@link HashSet}.
  *
  * @version $Rev$ $Date$
  */
-public class HashSetEditor
-    extends SetEditor
-{
-    protected Set createSet()
-    {
+public class HashSetEditor extends AbstractCollectionEditor {
+
+    protected Collection createCollection() {
         return new HashSet();
     }
+    
 }

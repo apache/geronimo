@@ -17,10 +17,8 @@
 
 package org.apache.geronimo.common.propertyeditor;
 
-import java.util.List;
-
-import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
+import java.util.List;
 
 import junit.framework.TestCase;
 

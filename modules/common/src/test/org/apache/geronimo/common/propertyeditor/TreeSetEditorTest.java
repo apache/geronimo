@@ -17,22 +17,30 @@
 
 package org.apache.geronimo.common.propertyeditor;
 
-import java.beans.PropertyEditorSupport;
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.StringTokenizer;
+import java.util.TreeSet;
 
 /**
- * A property editor for {@link Collection}.
+ * Unit test for {@link TreeSetEditor} class.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
  */
-public class CollectionEditor extends AbstractCollectionEditor {
-    protected Collection createCollection() {
-        return new LinkedList();
+public class TreeSetEditorTest extends AbstractCollectionEditorTest {
+
+    protected void setUp() {
+        editor = PropertyEditors.findEditor(TreeSet.class);
+        ordered = true;
     }
 
-    public void setValue(Object value) {
-        super.setValue((Collection)value);
+    public void testEditorClass() throws Exception {
+        assertEquals(TreeSetEditor.class, editor.getClass());
+    }
+
+    protected void checkType(Object output) {
+        assertTrue("editor returned a: " + output.getClass(), output instanceof TreeSet);
+    }
+
+    protected Collection createCollection() {
+        return new TreeSet();
     }
 }

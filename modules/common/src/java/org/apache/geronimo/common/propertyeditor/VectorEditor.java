@@ -19,17 +19,17 @@ package org.apache.geronimo.common.propertyeditor;
 
 import java.util.List;
 import java.util.Vector;
+import java.util.Collection;
 
 /**
  * A property editor for {@link Vector}.
  *
  * @version $Rev$ $Date$
  */
-public class VectorEditor
-    extends ListEditor
-{
-    protected List createList()
-    {
+public class VectorEditor extends AbstractCollectionEditor {
+
+    protected Collection createCollection() {
         return new Vector();
     }
+
 }

@@ -17,22 +17,30 @@
 
 package org.apache.geronimo.common.propertyeditor;
 
-import java.beans.PropertyEditorSupport;
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.StringTokenizer;
+import java.util.HashSet;
 
 /**
- * A property editor for {@link Collection}.
+ * Unit test for {@link HashSetEditor} class.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
  */
-public class CollectionEditor extends AbstractCollectionEditor {
-    protected Collection createCollection() {
-        return new LinkedList();
+public class HashSetEditorTest extends AbstractCollectionEditorTest {
+
+    protected void setUp() {
+        editor = PropertyEditors.findEditor(HashSet.class);
+        ordered = false;
     }
 
-    public void setValue(Object value) {
-        super.setValue((Collection)value);
+    public void testEditorClass() throws Exception {
+        assertEquals(HashSetEditor.class, editor.getClass());
+    }
+
+    protected void checkType(Object output) {
+        assertTrue("editor returned a: " + output.getClass(), output instanceof HashSet);
+    }
+
+    protected Collection createCollection() {
+        return new HashSet();
     }
 }

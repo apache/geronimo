@@ -17,9 +17,8 @@
 
 package org.apache.geronimo.common.propertyeditor;
 
-import java.net.URL;
-
 import java.beans.PropertyEditor;
+import java.net.URL;
 
 import junit.framework.TestCase;
 

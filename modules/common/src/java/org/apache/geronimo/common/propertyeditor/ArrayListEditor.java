@@ -19,17 +19,17 @@ package org.apache.geronimo.common.propertyeditor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collection;
 
 /**
  * A property editor for {@link ArrayList}.
  *
  * @version $Rev$ $Date$
  */
-public class ArrayListEditor
-    extends ListEditor
-{
-    protected List createList()
-    {
+public class ArrayListEditor extends AbstractCollectionEditor {
+
+    protected Collection createCollection() {
         return new ArrayList();
     }
+    
 }

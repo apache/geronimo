@@ -27,26 +27,10 @@ import java.util.Set;
  *
  * @version $Rev$ $Date$
  */
-public class SetEditor
-    extends PropertyEditorSupport
-{
-    protected Collection createCollection()
-    {
-        return createSet();
-    }
-    
-    protected Set createSet()
-    {
+public class SetEditor extends AbstractCollectionEditor {
+
+    protected Collection createCollection() {
         return new HashSet();
     }
     
-    protected void setValue(Set list)
-    {
-        super.setValue(list);
-    }
-    
-    public void setValue(Collection bag)
-    {
-        setValue((Set)bag);
-    }
 }
