@@ -57,16 +57,16 @@ package org.apache.geronimo.ejb;
 
 import javax.ejb.EnterpriseBean;
 
-import org.apache.geronimo.common.Container;
+import org.apache.geronimo.common.RPCContainer;
 
 /**
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/15 14:12:19 $
  */
 public final class SimpleEnterpriseContext implements EnterpriseContext {
-    private Container container;
+    private RPCContainer container;
     private Object id;
     private EnterpriseBean instance;
     private boolean valid = false;
@@ -80,11 +80,11 @@ public final class SimpleEnterpriseContext implements EnterpriseContext {
         instance = null;
     }
 
-    public Container getContainer() {
+    public RPCContainer getContainer() {
         return container;
     }
 
-    public void setContainer(Container container) {
+    public void setContainer(RPCContainer container) {
         this.container = container;
     }
 

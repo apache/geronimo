@@ -62,6 +62,7 @@ import javax.ejb.SessionBean;
 
 import org.apache.geronimo.cache.InstanceFactory;
 import org.apache.geronimo.common.AbstractComponent;
+import org.apache.geronimo.common.RPCContainer;
 import org.apache.geronimo.ejb.EnterpriseContext;
 import org.apache.geronimo.ejb.GeronimoSessionContext;
 import org.apache.geronimo.ejb.SimpleEnterpriseContext;
@@ -71,7 +72,7 @@ import org.apache.geronimo.ejb.container.EJBPlugins;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/15 14:12:19 $
  */
 public class StatelessInstanceFactory extends AbstractComponent implements InstanceFactory {
     private Class beanClass;
@@ -79,7 +80,7 @@ public class StatelessInstanceFactory extends AbstractComponent implements Insta
 
     public void start() throws Exception {
         super.start();
-        beanClass = EJBPlugins.getEJBMetadata(getContainer()).getBeanClass();
+        beanClass = EJBPlugins.getEJBMetadata((RPCContainer)getContainer()).getBeanClass();
         ejbCreate = beanClass.getMethod("ejbCreate", null);
     }
 
@@ -94,7 +95,7 @@ public class StatelessInstanceFactory extends AbstractComponent implements Insta
         SessionBean instance = (SessionBean) beanClass.newInstance();
 
         // initialize the instance
-        instance.setSessionContext(new GeronimoSessionContext(getContainer()));
+        instance.setSessionContext(new GeronimoSessionContext((RPCContainer)getContainer()));
         try {
             ejbCreate.invoke(instance, null);
         } catch (IllegalAccessException e) {

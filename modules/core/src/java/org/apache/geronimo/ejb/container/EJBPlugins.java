@@ -60,7 +60,7 @@ import javax.transaction.TransactionManager;
 import org.apache.geronimo.cache.InstanceCache;
 import org.apache.geronimo.cache.InstanceFactory;
 import org.apache.geronimo.cache.InstancePool;
-import org.apache.geronimo.common.Container;
+import org.apache.geronimo.common.RPCContainer;
 import org.apache.geronimo.ejb.EJBProxyFactoryManager;
 import org.apache.geronimo.ejb.metadata.EJBMetadata;
 import org.apache.geronimo.lock.LockDomain;
@@ -69,7 +69,7 @@ import org.apache.geronimo.lock.LockDomain;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/15 14:12:19 $
  */
 public final class EJBPlugins {
     // only static methods are allowed for this class
@@ -85,67 +85,67 @@ public final class EJBPlugins {
     public static String PERSISTENCE_MANAGER = "Persustence Manager";
     public static String LOCK_DOMAIN = "Lock Domain";
 
-    public static EJBProxyFactoryManager getEJBProxyFactoryManager(Container container) {
+    public static EJBProxyFactoryManager getEJBProxyFactoryManager(RPCContainer container) {
         return (EJBProxyFactoryManager) container.getPluginObject(EJB_PROXY_FACTORY_MANAGER);
     }
 
-    public static void putEJBProxyFactoryManager(Container container, EJBProxyFactoryManager ejbProxyFactoryManager) {
+    public static void putEJBProxyFactoryManager(RPCContainer container, EJBProxyFactoryManager ejbProxyFactoryManager) {
         container.putPluginObject(EJB_PROXY_FACTORY_MANAGER, ejbProxyFactoryManager);
     }
 
-    public static EJBMetadata getEJBMetadata(Container container) {
+    public static EJBMetadata getEJBMetadata(RPCContainer container) {
         return (EJBMetadata) container.getPluginObject(EJB_METADATA);
     }
 
-    public static void putEJBMetadata(Container container, EJBMetadata ejbMetadata) {
+    public static void putEJBMetadata(RPCContainer container, EJBMetadata ejbMetadata) {
         container.putPluginObject(EJB_METADATA, ejbMetadata);
     }
 
-    public static TransactionManager getTransactionManager(Container container) {
+    public static TransactionManager getTransactionManager(RPCContainer container) {
         return (TransactionManager) container.getPluginObject(TRANSACTION_MANAGER);
     }
 
-    public static void putTransactionManager(Container container, TransactionManager transactionManager) {
+    public static void putTransactionManager(RPCContainer container, TransactionManager transactionManager) {
         container.putPluginObject(TRANSACTION_MANAGER, transactionManager);
     }
 
-    public static InstanceFactory getInstanceFactory(Container container) {
+    public static InstanceFactory getInstanceFactory(RPCContainer container) {
         return (InstanceFactory) container.getPluginObject(EJB_CONTEXT_INSTANCE_FACTORY);
     }
 
-    public static void putInstanceFactory(Container container, InstanceFactory instanceFactory) {
+    public static void putInstanceFactory(RPCContainer container, InstanceFactory instanceFactory) {
         container.putPluginObject(EJB_CONTEXT_INSTANCE_FACTORY, instanceFactory);
     }
 
-    public static InstancePool getInstancePool(Container container) {
+    public static InstancePool getInstancePool(RPCContainer container) {
         return (InstancePool) container.getPluginObject(EJB_CONTEXT_INSTANCE_POOL);
     }
 
-    public static void putInstancePool(Container container, InstancePool instancePool) {
+    public static void putInstancePool(RPCContainer container, InstancePool instancePool) {
         container.putPluginObject(EJB_CONTEXT_INSTANCE_POOL, instancePool);
     }
 
-    public static InstanceCache getInstanceCache(Container container) {
+    public static InstanceCache getInstanceCache(RPCContainer container) {
         return (InstanceCache) container.getPluginObject(EJB_CONTEXT_INSTANCE_CACHE);
     }
 
-    public static void putInstanceCache(Container container, InstanceCache instanceCache) {
+    public static void putInstanceCache(RPCContainer container, InstanceCache instanceCache) {
         container.putPluginObject(EJB_CONTEXT_INSTANCE_CACHE, instanceCache);
     }
 
-    public static PersistenceManager getPersistenceManager(Container container) {
+    public static PersistenceManager getPersistenceManager(RPCContainer container) {
         return (PersistenceManager) container.getPluginObject(EJB_CONTEXT_INSTANCE_CACHE);
     }
 
-    public static void putPersistenceManager(Container container, PersistenceManager persistenceManager) {
+    public static void putPersistenceManager(RPCContainer container, PersistenceManager persistenceManager) {
         container.putPluginObject(EJB_CONTEXT_INSTANCE_CACHE, persistenceManager);
     }
 
-    public static LockDomain getLockDomain(Container container) {
+    public static LockDomain getLockDomain(RPCContainer container) {
         return (LockDomain) container.getPluginObject(LOCK_DOMAIN);
     }
 
-    public static void putLockDomain(Container container, LockDomain lockDomain) {
+    public static void putLockDomain(RPCContainer container, LockDomain lockDomain) {
         container.putPluginObject(LOCK_DOMAIN, lockDomain);
     }
 }

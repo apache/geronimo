@@ -58,11 +58,10 @@ package org.apache.geronimo.web;
 
 
 
-import javax.management.ObjectName;
+
 
 import org.apache.geronimo.common.AbstractContainer;
-import org.apache.geronimo.common.Invocation;
-import org.apache.geronimo.common.InvocationResult;
+
 
 
 
@@ -71,7 +70,7 @@ import org.apache.geronimo.common.InvocationResult;
  * AbstractWebContainer
  * 
  * 
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class AbstractWebContainer
 	extends  AbstractContainer
@@ -138,63 +137,6 @@ public class AbstractWebContainer
 	   defaultWebXmlURL = url;
 	}
 
-	/* -------------------------------------------------------------------------------------- */
-	/* @todo work out if this method can be delegated to some other subclass
-	 * @param invocation
-	 * @return
-	 * @throws Exception
-	 * @see org.apache.geronimo.common.Container#invoke(org.apache.geronimo.common.Invocation)
-	 */
-	public InvocationResult invoke(Invocation invocation) throws Exception {
-		// TODO
-		return null;
-	}
 
-	/* -------------------------------------------------------------------------------------- */
-	/* @todo work out what relationship, if any, this has to Component
-	 * @param logicalPluginName
-	 * @return
-	 * @see org.apache.geronimo.common.Container#getPlugin(java.lang.String)
-	 */
-	public ObjectName getPlugin(String logicalPluginName) {
-		// TODO
-		return null;
-	}
-
-	/* -------------------------------------------------------------------------------------- */
-	/* @todo Work out if this is the method to add Components. 
-     * 
-	 * @param logicalPluginName
-	 * @param objectName
-	 * @see org.apache.geronimo.common.Container#putPlugin(java.lang.String, javax.management.ObjectName)
-	 */
-	public void putPlugin(String logicalPluginName, ObjectName objectName) {
-		// TODO
-		
-	}
-
-	/* -------------------------------------------------------------------------------------- */
-	/* @todo work out what relationship if any this has to Components
-	 * @param logicalPluginName
-	 * @return
-	 * @deprecated
-	 * @see org.apache.geronimo.common.Container#getPluginObject(java.lang.String)
-	 */
-	public Object getPluginObject(String logicalPluginName) {
-		// TODO
-		return null;
-	}
-
-	/* -------------------------------------------------------------------------------------- */
-	/* @todo workout what relationship, if any, this has to Components
-	 * @param logicalPluginName
-	 * @param plugin
-	 * @deprecated
-	 * @see org.apache.geronimo.common.Container#putPluginObject(java.lang.String, java.lang.Object)
-	 */
-	public void putPluginObject(String logicalPluginName, Object plugin) {
-		// TODO
-		
-	}
 
 }

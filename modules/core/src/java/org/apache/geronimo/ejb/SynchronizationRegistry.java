@@ -68,7 +68,7 @@ import javax.transaction.TransactionManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.common.Container;
+import org.apache.geronimo.common.RPCContainer;
 import org.apache.geronimo.ejb.container.EJBPlugins;
 import org.apache.geronimo.ejb.context.ExecutionContext;
 import org.apache.geronimo.ejb.context.TxExecutionContext;
@@ -77,7 +77,7 @@ import org.apache.geronimo.ejb.metadata.EJBMetadata;
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/15 14:12:19 $
  */
 public class SynchronizationRegistry {
     private static final String EJB_REGISTRY_KEY = "EJB_REGISTRY_KEY";
@@ -130,7 +130,7 @@ public class SynchronizationRegistry {
 
     public void beginInvocation(EnterpriseContext ctx) throws Exception {
         Registry registry = getRegistry();
-        Container container = ctx.getContainer();
+        RPCContainer container = ctx.getContainer();
 
         // load if not valid
         if (!ctx.isValid()) {
@@ -213,7 +213,7 @@ public class SynchronizationRegistry {
      * Gets the EnterpriseContext for the current transaction in the
      * specified container with the specified key.
      */
-    public EnterpriseContext getContext(Container container, Object id) {
+    public EnterpriseContext getContext(RPCContainer container, Object id) {
         Registry registry = getRegistry();
         ContextKey key = new ContextKey(container, id);
         return (EnterpriseContext) registry.getAssociatedMap().get(key);
@@ -269,7 +269,7 @@ public class SynchronizationRegistry {
     }
 
     private void synchronizeEntity(Registry registry, EnterpriseContext ctx) throws Exception {
-        Container container = ctx.getContainer();
+        RPCContainer container = ctx.getContainer();
         EJBMetadata ejbMetadata = EJBPlugins.getEJBMetadata(container);
 
         // any one can mark the tx rollback at any time so check
@@ -326,7 +326,7 @@ public class SynchronizationRegistry {
      */
     private void disassociateEntity(boolean rollback, Object id, EnterpriseContext ctx) {
         // Get the container associated with this context
-        Container container = ctx.getContainer();
+        RPCContainer container = ctx.getContainer();
         EJBMetadata ejbMetadata = EJBPlugins.getEJBMetadata(container);
 
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
@@ -418,10 +418,10 @@ public class SynchronizationRegistry {
     }
 
     private final class ContextKey {
-        private final Container container;
+        private final RPCContainer container;
         private final Object id;
 
-        public ContextKey(final Container container, final Object id) {
+        public ContextKey(final RPCContainer container, final Object id) {
             if (container == null) {
                 throw new IllegalArgumentException("Container is null");
             }
@@ -432,7 +432,7 @@ public class SynchronizationRegistry {
             this.id = id;
         }
 
-        public Container getContainer() {
+        public RPCContainer getContainer() {
             return container;
         }
 

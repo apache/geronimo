@@ -67,7 +67,7 @@ import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.cache.InstanceCache;
 import org.apache.geronimo.common.AbstractInterceptor;
-import org.apache.geronimo.common.Container;
+import org.apache.geronimo.common.RPCContainer;
 import org.apache.geronimo.common.Invocation;
 import org.apache.geronimo.common.InvocationResult;
 import org.apache.geronimo.common.InvocationType;
@@ -82,7 +82,7 @@ import org.apache.geronimo.ejb.metadata.EJBMetadata;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/15 14:12:19 $
  */
 public final class StatefulSessionSynchronizationInterceptor extends AbstractInterceptor {
     protected TransactionManager tm;
@@ -91,7 +91,7 @@ public final class StatefulSessionSynchronizationInterceptor extends AbstractInt
 
     public void start() throws Exception {
         super.start();
-        Container container = getContainer();
+        RPCContainer container = (RPCContainer)getContainer();
         tm = EJBPlugins.getTransactionManager(container);
         cache = EJBPlugins.getInstanceCache(container);
         EJBMetadata ejbMetadata = EJBPlugins.getEJBMetadata(container);

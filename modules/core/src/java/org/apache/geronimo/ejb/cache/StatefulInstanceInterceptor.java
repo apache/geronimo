@@ -60,7 +60,7 @@ import java.rmi.RemoteException;
 import org.apache.geronimo.cache.InstanceCache;
 import org.apache.geronimo.cache.InstancePool;
 import org.apache.geronimo.common.AbstractInterceptor;
-import org.apache.geronimo.common.Container;
+import org.apache.geronimo.common.RPCContainer;
 import org.apache.geronimo.common.Invocation;
 import org.apache.geronimo.common.InvocationResult;
 import org.apache.geronimo.common.InvocationType;
@@ -76,7 +76,7 @@ import org.apache.geronimo.lock.LockReentranceException;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/15 14:12:19 $
  */
 public final class StatefulInstanceInterceptor extends AbstractInterceptor {
     private InstancePool pool;
@@ -85,7 +85,7 @@ public final class StatefulInstanceInterceptor extends AbstractInterceptor {
 
     public void start() throws Exception {
         super.start();
-        Container container = getContainer();
+        RPCContainer container = (RPCContainer)getContainer();
         lockDomain = EJBPlugins.getLockDomain(container);
         pool = EJBPlugins.getInstancePool(container);
         cache = EJBPlugins.getInstanceCache(container);

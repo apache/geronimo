@@ -64,12 +64,13 @@ import org.apache.geronimo.cache.LRUInstanceCache;
 import org.apache.geronimo.cache.LRURunner;
 import org.apache.geronimo.common.AbstractComponent;
 import org.apache.geronimo.common.Container;
+import org.apache.geronimo.common.RPCContainer;
 import org.apache.geronimo.ejb.EnterpriseContext;
 import org.apache.geronimo.ejb.container.EJBPlugins;
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/15 14:12:19 $
  */
 public final class EnterpriseContextInstanceCache extends AbstractComponent implements InstanceCache {
     private LRUInstanceCache cache;
@@ -108,7 +109,7 @@ public final class EnterpriseContextInstanceCache extends AbstractComponent impl
                 // create a new context
                 Container container = getContainer();
                 try {
-                    ctx = (EnterpriseContext) EJBPlugins.getInstanceFactory(container).createInstance();
+                    ctx = (EnterpriseContext) EJBPlugins.getInstanceFactory((RPCContainer)container).createInstance();
                 } catch (Exception e) {
                     throw new NoSuchObjectException("An error occured while getting a new context");
                 }
@@ -116,7 +117,7 @@ public final class EnterpriseContextInstanceCache extends AbstractComponent impl
                 // set the id of the new context
                 ctx.setId(id);
 
-                EJBPlugins.getPersistenceManager(container).activate(ctx);
+                EJBPlugins.getPersistenceManager((RPCContainer)container).activate(ctx);
                 cache.putActive(id, ctx);
             }
         }
@@ -281,7 +282,7 @@ public final class EnterpriseContextInstanceCache extends AbstractComponent impl
         public void remove(Object key, Object value) {
             try {
                 EnterpriseContext context = (EnterpriseContext) value;
-                EJBPlugins.getPersistenceManager(getContainer()).passivate(context);
+                EJBPlugins.getPersistenceManager((RPCContainer)getContainer()).passivate(context);
             } catch (Throwable e) {
                 log.error("Could not passivate ejb: id=" + key, e);
             }

@@ -54,7 +54,6 @@
 * ====================================================================
 */
 
-
 package org.apache.geronimo.web;
 
 import org.apache.geronimo.common.Container;
@@ -63,33 +62,30 @@ import org.apache.geronimo.common.Container;
  * WebContainer
  *  
  * 
- * @version $Revision: 1.1 $ 
+ * @version $Revision: 1.2 $  $Date: 2003/08/15 14:12:56 $
  */
-public interface WebContainer extends Container {
+public interface WebContainer extends Container
+{
 
-	
-	/*-------------------------------------------------------------------------------- */
-	/** Deploy a web application. Convenience method to 
+    /*-------------------------------------------------------------------------------- */
+    /** Deploy a web application. Convenience method to 
      * have the container create the WebApplication and add it to itself.
-	* @param url 
-	* @throws Exception
-	*/
-	public void deploy (String url) throws Exception;
-	
-    
+    * @param url 
+    * @throws Exception
+    */
+    public void deploy(String url) throws Exception;
 
-	/*-------------------------------------------------------------------------------- */
-	/** Set up a web.xml descriptor for the Container to use as
+    /*-------------------------------------------------------------------------------- */
+    /** Set up a web.xml descriptor for the Container to use as
      * defaults.
-	* @param url 
-	*/
-	public void setDefaultWebXmlURL (String url);
-	
-	
-	/*-------------------------------------------------------------------------------- */
-	/** Get the url of the default web.xml descriptor used 
+    * @param url 
+    */
+    public void setDefaultWebXmlURL(String url);
+
+    /*-------------------------------------------------------------------------------- */
+    /** Get the url of the default web.xml descriptor used 
      * by this container.
-	* @return
-	*/
-	public String getDefaultWebXmlURL ();
+    * @return
+    */
+    public String getDefaultWebXmlURL();
 }

@@ -62,6 +62,7 @@ import javax.ejb.EJBException;
 import org.apache.geronimo.common.AbstractInterceptor;
 import org.apache.geronimo.common.Invocation;
 import org.apache.geronimo.common.InvocationResult;
+import org.apache.geronimo.common.RPCContainer;
 import org.apache.geronimo.common.SimpleInvocationResult;
 import org.apache.geronimo.ejb.container.EJBPlugins;
 import org.apache.geronimo.ejb.metadata.EJBMetadata;
@@ -73,7 +74,7 @@ import org.apache.geronimo.ejb.metadata.MethodMetadata;
  * object.  This should be the last interceptor in the chain.
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/15 14:12:19 $
  */
 public final class CallbackInterceptor extends AbstractInterceptor {
     public InvocationResult invoke(Invocation invocation) throws Exception {
@@ -88,7 +89,7 @@ public final class CallbackInterceptor extends AbstractInterceptor {
         }
 
         // Method metadata
-        EJBMetadata ejbMetadata = EJBPlugins.getEJBMetadata(getContainer());
+        EJBMetadata ejbMetadata = EJBPlugins.getEJBMetadata((RPCContainer)getContainer());
         Method interfaceMethod = EJBInvocationUtil.getMethod(invocation);
         MethodMetadata methodMetadata = ejbMetadata.getMethodMetadata(interfaceMethod);
 

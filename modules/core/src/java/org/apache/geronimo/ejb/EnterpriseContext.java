@@ -57,13 +57,13 @@ package org.apache.geronimo.ejb;
 
 import javax.ejb.EnterpriseBean;
 
-import org.apache.geronimo.common.Container;
+import org.apache.geronimo.common.RPCContainer;
 
 /**
  *
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:11 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/15 14:12:19 $
  */
 public interface EnterpriseContext {
     void clear();
@@ -74,7 +74,7 @@ public interface EnterpriseContext {
 
     void setId(Object id);
 
-    Container getContainer();
+    RPCContainer getContainer();
 
     EnterpriseBean getInstance();
 

@@ -62,6 +62,7 @@ import javax.ejb.EJBObject;
 import org.apache.geronimo.common.AbstractInterceptor;
 import org.apache.geronimo.common.Invocation;
 import org.apache.geronimo.common.InvocationResult;
+import org.apache.geronimo.common.RPCContainer;
 import org.apache.geronimo.common.SimpleInvocationResult;
 import org.apache.geronimo.ejb.container.EJBPlugins;
 import org.apache.geronimo.ejb.metadata.EJBMetadata;
@@ -70,7 +71,7 @@ import org.apache.geronimo.ejb.metadata.EJBMetadata;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/15 14:12:19 $
  */
 public class StatelessLifeCycleInterceptor extends AbstractInterceptor {
     private static final Method removeRemote;
@@ -90,7 +91,7 @@ public class StatelessLifeCycleInterceptor extends AbstractInterceptor {
 
     public void start() throws Exception {
         super.start();
-        EJBMetadata ejbMetadata = EJBPlugins.getEJBMetadata(getContainer());
+        EJBMetadata ejbMetadata = EJBPlugins.getEJBMetadata((RPCContainer)getContainer());
         Class homeInterface = ejbMetadata.getHomeInterface();
         if (homeInterface != null) {
             createRemote = homeInterface.getMethod("create", null);
@@ -118,14 +119,14 @@ public class StatelessLifeCycleInterceptor extends AbstractInterceptor {
             // remove for a stateless bean does nothing
             return new SimpleInvocationResult();
         } else if (method.equals(createRemote)) {
-            EJBProxyFactoryManager ejbProxyFactoryManager = EJBPlugins.getEJBProxyFactoryManager(getContainer());
+            EJBProxyFactoryManager ejbProxyFactoryManager = EJBPlugins.getEJBProxyFactoryManager((RPCContainer)getContainer());
             EJBProxyFactory ejbProxyFactory = ejbProxyFactoryManager.getThreadEJBProxyFactory();
             if (ejbProxyFactory == null) {
                 throw new IllegalStateException("No remote proxy factory set");
             }
             return new SimpleInvocationResult(ejbProxyFactory.getEJBObject());
         } else if (method.equals(createLocal)) {
-            EJBProxyFactoryManager ejbProxyFactoryManager = EJBPlugins.getEJBProxyFactoryManager(getContainer());
+            EJBProxyFactoryManager ejbProxyFactoryManager = EJBPlugins.getEJBProxyFactoryManager((RPCContainer)getContainer());
             EJBProxyFactory ejbProxyFactory = ejbProxyFactoryManager.getEJBProxyFactory("local");
             if (ejbProxyFactory == null) {
                 throw new IllegalStateException("No local proxy factoy set");

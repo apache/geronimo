@@ -59,6 +59,7 @@ import org.apache.geronimo.common.Container;
 import org.apache.geronimo.common.Interceptor;
 import org.apache.geronimo.common.Invocation;
 import org.apache.geronimo.common.InvocationResult;
+import org.apache.geronimo.common.RPCContainer;
 import org.apache.geronimo.common.State;
 import org.apache.geronimo.ejb.container.EJBPlugins;
 import org.apache.geronimo.ejb.metadata.EJBMetadata;
@@ -67,7 +68,7 @@ import org.apache.geronimo.ejb.metadata.EJBMetadata;
  *
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/08/14 07:14:34 $
+ * @version $Revision: 1.6 $ $Date: 2003/08/15 14:12:19 $
  */
 public class TransactionInterceptor implements Interceptor {
     private Interceptor transactionInterceptor;
@@ -103,7 +104,7 @@ public class TransactionInterceptor implements Interceptor {
     }
 
     public void start() throws Exception {
-        EJBMetadata ejbMetadata = EJBPlugins.getEJBMetadata(container);
+        EJBMetadata ejbMetadata = EJBPlugins.getEJBMetadata((RPCContainer)container);
         if (ejbMetadata.getTransactionDemarcation().isContainer()) {
             transactionInterceptor = new CMTInterceptor();
         } else {
@@ -130,5 +131,19 @@ public class TransactionInterceptor implements Interceptor {
 
     public InvocationResult invoke(Invocation invocation) throws Exception {
         return transactionInterceptor.invoke(invocation);
+    }
+
+
+    /**
+     * For compliance with Component interface.
+     * NOTE: This Interceptor should probably implement
+     * AbstractComponent!
+     *
+     * @todo need to return a decent name if Interceptors are Components
+     * @return a <code>String</code> value
+     */
+    public String getObjectName ()
+    {
+        return null;
     }
 }

@@ -61,13 +61,14 @@ import java.util.Map;
 import javax.ejb.EJBException;
 
 import org.apache.geronimo.common.AbstractComponent;
+import org.apache.geronimo.common.RPCContainer;
 import org.apache.geronimo.ejb.container.EJBPlugins;
 
 /**
  *
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/13 02:12:40 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/15 14:12:19 $
  */
 public class EJBProxyFactoryManager extends AbstractComponent {
     private Map proxies = new HashMap();
@@ -75,25 +76,25 @@ public class EJBProxyFactoryManager extends AbstractComponent {
 
 
     public void doStart() throws Exception {
-        log.debug("Starting EJBProxyFactoryManager: ejbName=" + EJBPlugins.getEJBMetadata(getContainer()).getName());
+        log.debug("Starting EJBProxyFactoryManager: ejbName=" + EJBPlugins.getEJBMetadata((RPCContainer)getContainer()).getName());
 
         // @todo This should be handled by startRecursive()
         for (Iterator iterator = proxies.keySet().iterator(); iterator.hasNext();) {
             String proxyName = (String) iterator.next();
             EJBProxyFactory ejbProxyFactory = getEJBProxyFactory(proxyName);
-            log.debug("Starting EJBProxyFactory: proxyName=" + proxyName + " ejbName=" + EJBPlugins.getEJBMetadata(getContainer()).getName());
+            log.debug("Starting EJBProxyFactory: proxyName=" + proxyName + " ejbName=" + EJBPlugins.getEJBMetadata((RPCContainer)getContainer()).getName());
             ejbProxyFactory.start();
         }
     }
 
     public void doStop() {
-        log.debug("Stopping EJBProxyFactoryManager: ejbName=" + EJBPlugins.getEJBMetadata(getContainer()).getName());
+        log.debug("Stopping EJBProxyFactoryManager: ejbName=" + EJBPlugins.getEJBMetadata((RPCContainer)getContainer()).getName());
  
         // @todo This will not work when this is a container, as children must be stopped before stop() is called.
         for (Iterator iterator = proxies.keySet().iterator(); iterator.hasNext();) {
             String proxyName = (String) iterator.next();
             EJBProxyFactory ejbProxyFactory = getEJBProxyFactory(proxyName);
-            log.debug("Stopping EJBProxyFactory: proxyName=" + proxyName + " ejbName=" + EJBPlugins.getEJBMetadata(getContainer()).getName());
+            log.debug("Stopping EJBProxyFactory: proxyName=" + proxyName + " ejbName=" + EJBPlugins.getEJBMetadata((RPCContainer)getContainer()).getName());
             ejbProxyFactory.stop();
         }
     }

@@ -54,14 +54,12 @@
 * ====================================================================
 */
 
-
 package org.apache.geronimo.web;
 
 import java.net.URL;
 
 import org.apache.geronimo.common.AbstractComponent;
 import org.w3c.dom.Document;
-
 
 /* -------------------------------------------------------------------------------------- */
 /**
@@ -72,16 +70,14 @@ import org.w3c.dom.Document;
  *  deploy() on the container passing in the identity of the WebApplication.
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2003/08/14 09:55:11 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 14:12:56 $
  */
-public class AbstractWebApplication  extends AbstractComponent implements WebApplication {
+public class AbstractWebApplication
+    extends AbstractComponent
+    implements WebApplication
+{
 
-	   
-    public AbstractWebApplication ()
-    {
-    }
-	
-
+    
 
     /* -------------------------------------------------------------------------------------- */
     /* Start the webapp. Called by the container or management interface
@@ -89,79 +85,78 @@ public class AbstractWebApplication  extends AbstractComponent implements WebApp
      * @throws IllegalStateException
      * @see org.apache.geronimo.common.Component#start()
      */
-    public  void doStart() throws Exception {
+    public void doStart() 
+        throws Exception
+    {
         if (getContainer() == null)
-            throw new IllegalStateException ("WebApplication must have a container set before START can be called");
-            
-            //start the webapp
+            throw new IllegalStateException("WebApplication must have a container set before START can be called");
+
+        //start the webapp
     }
 
-
-	
-	/* -------------------------------------------------------------------------------------- */
-	/* Stop the webapp. Called by the container, or by mangement
+    /* -------------------------------------------------------------------------------------- */
+    /* Stop the webapp. Called by the container, or by mangement
      * interface
-	 * 
-	 * @see org.apache.geronimo.common.Component#stop()
-	 */
-	public void doStop() {	
-		
-	}
+     * 
+     * @see org.apache.geronimo.common.Component#stop()
+     */
+    public void doStop()
+    {
 
+    }
 
+    /* -------------------------------------------------------------------------------------- */
+    /* Return the list of Servlets of this webapp
+     * @return
+     * @see org.apache.geronimo.web.WebApplication#getServlets()
+     */
+    public String[] getServlets()
+    {
+        return null;
+    }
 
-	
+    /* -------------------------------------------------------------------------------------- */
+    /* Get the context path of this webapp
+     * @return
+     * @see org.apache.geronimo.web.WebApplication#getContextName()
+     */
+    public String getContextPath()
+    {
+        // TODO
+        return null;
+    }
 
+    /* -------------------------------------------------------------------------------------- */
+    /* 
+     * @return
+     * @see org.apache.geronimo.web.WebApplication#getDeploymentDescriptor()
+     */
+    public Document getDeploymentDescriptor()
+    {
+        // TODO
+        return null;
+    }
 
-	
-	/* -------------------------------------------------------------------------------------- */
-	/* Return the list of Servlets of this webapp
-	 * @return
-	 * @see org.apache.geronimo.web.WebApplication#getServlets()
-	 */
-	public String[] getServlets() {
-		return null;
-	}
+    /* -------------------------------------------------------------------------------------- */
+    /* 
+     * @return
+     * @see org.apache.geronimo.web.WebApplication#getDeploymentDescriptorURL()
+     */
+    public URL getDeploymentDescriptorURL()
+    {
+        // TODO
+        return null;
+    }
 
-	
-	/* -------------------------------------------------------------------------------------- */
-	/* Get the context path of this webapp
-	 * @return
-	 * @see org.apache.geronimo.web.WebApplication#getContextName()
-	 */
-	public String getContextPath() {
-		// TODO
-		return null;
-	}
-
-	/* -------------------------------------------------------------------------------------- */
-	/* 
-	 * @return
-	 * @see org.apache.geronimo.web.WebApplication#getDeploymentDescriptor()
-	 */
-	public Document getDeploymentDescriptor() {
-		// TODO
-		return null;
-	}
-
-	/* -------------------------------------------------------------------------------------- */
-	/* 
-	 * @return
-	 * @see org.apache.geronimo.web.WebApplication#getDeploymentDescriptorURL()
-	 */
-	public URL getDeploymentDescriptorURL() {
-		// TODO
-		return null;
-	}
-
-	/* -------------------------------------------------------------------------------------- */
-	/* 
-	 * @return
-	 * @see org.apache.geronimo.web.WebApplication#getURL()
-	 */
-	public URL getURL() {
-		// TODO
-		return null;
-	}
+    /* -------------------------------------------------------------------------------------- */
+    /* 
+     * @return
+     * @see org.apache.geronimo.web.WebApplication#getURL()
+     */
+    public URL getURL()
+    {
+        // TODO
+        return null;
+    }
 
 }

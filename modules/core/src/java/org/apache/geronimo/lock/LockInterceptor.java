@@ -59,7 +59,7 @@ import java.rmi.RemoteException;
 import javax.ejb.EJBException;
 
 import org.apache.geronimo.common.AbstractInterceptor;
-import org.apache.geronimo.common.Container;
+import org.apache.geronimo.common.RPCContainer;
 import org.apache.geronimo.common.Invocation;
 import org.apache.geronimo.common.InvocationResult;
 import org.apache.geronimo.common.InvocationType;
@@ -70,14 +70,14 @@ import org.apache.geronimo.ejb.context.ExecutionContext;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:12 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/15 14:14:06 $
  */
 public final class LockInterceptor extends AbstractInterceptor {
     private LockDomain lockDomain;
 
     public void start() throws Exception {
         super.start();
-        Container container = getContainer();
+        RPCContainer container = (RPCContainer)getContainer();
         lockDomain = EJBPlugins.getLockDomain(container);
     }
 

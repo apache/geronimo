@@ -65,13 +65,14 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.cache.InstancePool;
 import org.apache.geronimo.cache.SimpleInstancePool;
 import org.apache.geronimo.common.AbstractComponent;
+import org.apache.geronimo.common.RPCContainer;
 import org.apache.geronimo.ejb.EnterpriseContext;
 import org.apache.geronimo.ejb.container.EJBPlugins;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/13 02:12:40 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/15 14:12:19 $
  */
 public final class EnterpriseContextInstancePool extends AbstractComponent implements InstancePool {
     private SimpleInstancePool pool;
@@ -81,7 +82,7 @@ public final class EnterpriseContextInstancePool extends AbstractComponent imple
 
     public void doStart() throws Exception {
         if (pool==null)
-            pool = new SimpleInstancePool(EJBPlugins.getInstanceFactory(getContainer()), maxSize, hardLimit);
+            pool = new SimpleInstancePool(EJBPlugins.getInstanceFactory((RPCContainer)getContainer()), maxSize, hardLimit);
         if (discardQueue==null)
             discardQueue = new DiscardQueue();
         

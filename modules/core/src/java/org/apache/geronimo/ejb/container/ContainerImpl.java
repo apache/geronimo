@@ -55,19 +55,7 @@
  */
 package org.apache.geronimo.ejb.container;
 
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.ListIterator;
-import java.util.Map;
-import javax.management.ObjectName;
-
-import org.apache.geronimo.common.AbstractContainer;
-import org.apache.geronimo.common.Component;
-import org.apache.geronimo.common.Interceptor;
-import org.apache.geronimo.common.Invocation;
-import org.apache.geronimo.common.InvocationResult;
-import org.apache.geronimo.common.State;
+import org.apache.geronimo.common.AbstractRPCContainer;
 
 /**
  *
@@ -76,122 +64,12 @@ import org.apache.geronimo.common.State;
  * the JSR77 lifecycle. This should be moved to the AbstractContainer class
  * @todo The stop method is implemented as stopRecursive, which should be moved
  * to an abstractContainer class
- * @version $Revision: 1.5 $ $Date: 2003/08/14 07:14:34 $
+ * @version $Revision: 1.6 $ $Date: 2003/08/15 14:12:19 $
  */
-public class ContainerImpl extends AbstractContainer
+public class ContainerImpl extends AbstractRPCContainer
 {
-    private final Map plugins= new LinkedHashMap();
-    private final Map pluginObjects= new LinkedHashMap();
-    private final LinkedList interceptors= new LinkedList();
-    // for efficency keep a reference to the first interceptor
-    private Interceptor firstInterceptor;
-
-    public InvocationResult invoke(Invocation invocation) throws Exception
-    {
-        return firstInterceptor.invoke(invocation);
-    }
-
-    public void addInterceptor(Interceptor interceptor)
-    {
-        if (firstInterceptor == null)
-        {
-            firstInterceptor= interceptor;
-            interceptors.addLast(interceptor);
-        }
-        else
-        {
-            Interceptor lastInterceptor= (Interceptor)interceptors.getLast();
-            lastInterceptor.setNext(interceptor);
-            interceptors.addLast(interceptor);
-        }
-    }
-
-    public void startRecursive() throws Exception
-    {
-        try
-        {
-            // start this component
-            setState(State.STARTING);
-
-            // Start all the components in forward insertion order
-            for (Iterator iterator= pluginObjects.values().iterator(); iterator.hasNext();)
-            {
-                Object object= iterator.next();
-                if (object instanceof Component)
-                {
-                    Component component= (Component)object;
-                    component.startRecursive();
-                }
-            }
-
-            // Start this component
-            doStart();
-
-            setState(State.RUNNING);
-        }
-        finally
-        {
-            if (getStateInstance() != State.RUNNING)
-                setState(State.FAILED);
-        }
-    }
-
-    public void doStart() throws Exception
-    {
-        // Start all the plugins in forward insertion order
-        for (Iterator iterator= interceptors.iterator(); iterator.hasNext();)
-        {
-            Interceptor interceptor= (Interceptor)iterator.next();
-            interceptor.start();
-        }
-    }
-
-    public void stop()
-    {
-        try
-        {
-            setState(State.STOPPING);
-
-            // @todo this is actually a stopRecursive, which is not supported
-            // by JSR77
-            // Stop all the plugins in reverse insertion order
-            LinkedList list= new LinkedList();
-            for (Iterator iterator= pluginObjects.values().iterator(); iterator.hasNext();)
-            {
-                Object object= iterator.next();
-                if (object instanceof Component)
-                {
-                    list.addFirst(object);
-                }
-            }
-            for (Iterator iterator= list.iterator(); iterator.hasNext();)
-            {
-                Component component= (Component)iterator.next();
-                component.stop();
-            }
-
-            // Stop this component
-            doStop();
-
-            setState(State.STOPPED);
-        }
-        finally
-        {
-            if (getStateInstance() != State.STOPPED)
-                setState(State.FAILED);
-        }
-    }
-
-    public void doStop()
-    {
-        // Stop all the interceptors in reverse insertion order
-        for (ListIterator iterator= interceptors.listIterator(interceptors.size()); iterator.hasPrevious();)
-        {
-            Interceptor interceptor= (Interceptor)iterator.previous();
-            interceptor.stop();
-        }
-    }
-
+  
+ 
     // @todo destroy not supported in JSR77 lifecycle, needs to be
     // integrated or removed.
     public void destroy()
@@ -200,35 +78,5 @@ public class ContainerImpl extends AbstractContainer
         pluginObjects.clear();
     }
 
-    public ObjectName getPlugin(String logicalPluginName)
-    {
-        return (ObjectName)plugins.get(logicalPluginName);
-    }
 
-    public void putPlugin(String logicalPluginName, ObjectName objectName)
-    {
-        State state= getStateInstance();
-        if (state != State.STOPPED)
-        {
-            throw new IllegalStateException(
-                "putPluginObject can only be called while in the stopped state: state=" + state);
-        }
-        plugins.put(logicalPluginName, objectName);
-    }
-
-    public Object getPluginObject(String logicalPluginName)
-    {
-        return pluginObjects.get(logicalPluginName);
-    }
-
-    public void putPluginObject(String logicalPluginName, Object plugin)
-    {
-        State state= getStateInstance();
-        if (state != State.STOPPED)
-        {
-            throw new IllegalStateException(
-                "putPluginObject can only be called while in the not-created or destroyed states: state=" + state);
-        }
-        pluginObjects.put(logicalPluginName, plugin);
-    }
 }
