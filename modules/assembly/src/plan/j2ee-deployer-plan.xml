@@ -58,6 +58,9 @@ Configuration for the Geronimo deployer
         <uri>geronimo/jars/geronimo-naming-&version;.jar</uri>
     </dependency>
     <dependency>
+        <uri>geronimo/jars/geronimo-timer-&version;.jar</uri>
+    </dependency>
+    <dependency>
         <uri>geronimo/jars/geronimo-transaction-&version;.jar</uri>
     </dependency>
     <dependency>
