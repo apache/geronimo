@@ -65,7 +65,7 @@ import junit.framework.TestCase;
 /**
  * Unit test for {@link PropertyEditors} class.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/28 09:40:52 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/30 21:10:33 $
  */
 public class PropertyEditorsTest
     extends TestCase
@@ -85,12 +85,5 @@ public class PropertyEditorsTest
         List path = PropertyEditors.getEditorSearchPath();
         assertNotNull(path);
         assertEquals(element, path.get(path.size() - 1));
-    }
-    
-    public void testFindEditor_DefaultExplicitRegistered()
-    {
-        PropertyEditor editor = PropertyEditors.findEditor(String[].class);
-        assertNotNull(editor);
-        assertEquals(StringArrayEditor.class, editor.getClass());
     }
 }
