@@ -17,7 +17,7 @@
 -->
 
 
-<!-- $Revision: 1.25 $ $Date: 2004/06/20 07:40:52 $ -->
+<!-- $Revision: 1.26 $ $Date: 2004/06/23 09:03:38 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -208,7 +208,7 @@
         <dependency>
              <groupId>howl</groupId>
             <artifactId>howl-logger</artifactId>
-            <version>GERONIMO-PRIVATE-0.1</version>
+            <version>0.1.1</version>
             <url>http://forge.objectweb.org/projects/howl</url>
             <properties>
                 <repository>true</repository>
@@ -470,6 +470,7 @@
             <properties>
                 <lib>true</lib>
                 <deploy>true</deploy>
+                <repository>true</repository>
             </properties>
         </dependency>
 

@@ -69,7 +69,7 @@ by the server.
         <uri>activemq/jars/activemq-1.0-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-        <uri>howl/jars/howl-logger-GERONIMO-PRIVATE-0.1.jar</uri>
+        <uri>howl/jars/howl-logger-0.1.1.jar</uri>
     </dependency>
 
     <!-- required for rar 1.5 to load realms -->
