@@ -31,9 +31,11 @@ import org.activeio.RequestChannel;
 import org.activeio.SynchChannel;
 import org.activeio.SynchChannelServer;
 import org.activeio.adapter.AsynchChannelToServerRequestChannel;
+import org.activeio.adapter.AsynchToSynchChannelAdapter;
 import org.activeio.adapter.SynchToAsynchChannelAdapter;
 import org.activeio.adapter.SynchToAsynchChannelServerAdapter;
 import org.activeio.filter.PacketAggregatingAsynchChannel;
+import org.activeio.net.SocketMetadata;
 import org.activeio.net.SocketSynchChannelFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -78,7 +80,11 @@ public class JaasLoginServiceRemotingServer implements GBeanLifecycle {
             public void onAccept(Channel channel) {
                 RequestChannel requestChannel=null;
                 try {
-                    requestChannel = createRequestChannel((SynchChannel) channel);     
+                    SynchChannel synchChannel = AsynchToSynchChannelAdapter.adapt(channel);
+                    SocketMetadata socket = (SocketMetadata) synchChannel.narrow(SocketMetadata.class);
+                    socket.setTcpNoDelay(true);
+                    
+                    requestChannel = createRequestChannel(synchChannel);     
                     
                     RequestChannelInterceptorInvoker invoker = new RequestChannelInterceptorInvoker(loginServiceInterceptor, loginService.getClass().getClassLoader() ); 
                     requestChannel.setRequestListener(invoker);
