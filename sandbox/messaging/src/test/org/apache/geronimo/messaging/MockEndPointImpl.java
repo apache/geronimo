@@ -20,18 +20,17 @@ package org.apache.geronimo.messaging;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.messaging.interceptors.HeaderOutInterceptor;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/02 11:29:24 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/10 23:12:24 $
  */
 public class MockEndPointImpl
-    extends AbstractEndPoint
-    implements EndPoint, GBean, MockEndPoint {
+    extends GBeanBaseEndPoint
+    implements EndPoint, MockEndPoint {
 
     private final List received;
     private final NodeInfo[] targetNodes;
@@ -68,7 +67,7 @@ public class MockEndPointImpl
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory factory = new GBeanInfoFactory(MockEndPointImpl.class, AbstractEndPoint.GBEAN_INFO);
+        GBeanInfoFactory factory = new GBeanInfoFactory(MockEndPointImpl.class, GBeanBaseEndPoint.GBEAN_INFO);
         factory.setConstructor(
             new String[] {"Node", "ID", "TargetNodes"});
         factory.addAttribute("TargetNodes", NodeInfo[].class, true);

@@ -17,25 +17,24 @@
 
 package org.apache.geronimo.messaging.remotenode.network;
 
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.messaging.NodeInfo;
 import org.apache.geronimo.messaging.io.IOContext;
 import org.apache.geronimo.messaging.remotenode.MessagingTransportFactory;
 import org.apache.geronimo.messaging.remotenode.NodeServer;
 import org.apache.geronimo.messaging.remotenode.RemoteNode;
 import org.apache.geronimo.messaging.remotenode.RemoteNodeConnection;
-import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.network.SelectorManager;
 import org.apache.geronimo.system.ClockPool;
 
 /**
  * MessagingTransportFactory using Geronimo network as the transport layer.
  * 
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:42 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/10 23:12:25 $
  */
 public class NetworkTransportFactory
-    implements GBean, MessagingTransportFactory
+    implements GBeanLifecycle, MessagingTransportFactory
 {
     
     private final SelectorManager sm;
@@ -50,9 +49,6 @@ public class NetworkTransportFactory
         cp = aClockPool;
     }
     
-    public void setGBeanContext(GBeanContext context) {
-    }
-
     public void doStart() throws WaitingException, Exception {
     }
 

@@ -26,7 +26,7 @@ import org.apache.geronimo.messaging.EndPoint;
 /**
  * Tracks InputStream instances.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/10 23:12:25 $
  */
 public interface StreamManager extends EndPoint
 {
@@ -35,7 +35,17 @@ public interface StreamManager extends EndPoint
      * A StreamManager is registered automatically by a Node with this name.
      */
     public static final String NAME = "StreamManager";
-    
+
+    /**
+     * Starts.
+     */
+    public void start();
+
+    /**
+     * Stops.
+     */
+    public void stop();
+
     /**
      * Registers the provided InputStream.
      * 

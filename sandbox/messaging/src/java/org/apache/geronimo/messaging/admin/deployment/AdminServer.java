@@ -38,7 +38,7 @@ import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.plugin.DeploymentServer;
 import org.apache.geronimo.deployment.plugin.FailedProgressObject;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.messaging.AbstractEndPoint;
+import org.apache.geronimo.messaging.GBeanBaseEndPoint;
 import org.apache.geronimo.messaging.Node;
 import org.apache.geronimo.messaging.NodeInfo;
 import org.apache.geronimo.messaging.io.ReplacerResolver;
@@ -56,10 +56,10 @@ import org.apache.xmlbeans.XmlObject;
  *
  * TODO This implementation assumes that the set of Targets is static.
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/03 14:32:50 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/10 23:12:25 $
  */
 public class AdminServer
-    extends AbstractEndPoint
+    extends GBeanBaseEndPoint
     implements DeploymentServer
 {
 
@@ -84,7 +84,7 @@ public class AdminServer
         
         nameToInfo = new HashMap();
         NodeInfo[] nodes =
-            (NodeInfo[]) node.getRemoteNodeInfos().toArray(new NodeInfo[0]);
+            (NodeInfo[]) node.getTopology().getNodes().toArray(new NodeInfo[0]);
         for (int i = 0; i < nodes.length; i++) {
             NodeInfo nodeInfo = nodes[i];
             EndPointProxyInfo proxyInfo =

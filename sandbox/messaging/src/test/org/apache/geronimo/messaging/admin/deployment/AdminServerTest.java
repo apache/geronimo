@@ -24,6 +24,7 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.Manifest;
@@ -38,13 +39,14 @@ import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.messaging.MockNode;
 import org.apache.geronimo.messaging.NodeInfo;
+import org.apache.geronimo.messaging.NodeTopology;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/27 14:45:58 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/10 23:12:24 $
  */
 public class AdminServerTest
     extends TestCase
@@ -69,6 +71,27 @@ public class AdminServerTest
         nodes.add(nodeInfo1);
         nodeInfo2 = new NodeInfo("node2", address, 1234);
         nodes.add(nodeInfo2);
+
+        node.setTopology(new NodeTopology() {
+            public Set getNeighbours(NodeInfo aRoot) {
+                throw new AssertionError();
+            }
+            public NodeInfo[] getPath(NodeInfo aSource, NodeInfo aTarget) {
+                throw new AssertionError();
+            }
+            public int getIDOfNode(NodeInfo aNodeInfo) {
+                throw new AssertionError();
+            }
+            public NodeInfo getNodeById(int anId) {
+                throw new AssertionError();
+            }
+            public Set getNodes() {
+                Set nodes = new HashSet();
+                nodes.add(nodeInfo1);
+                nodes.add(nodeInfo2);
+                return nodes;
+            }
+        });
         
         Map factories = node.getMockFactoryEndPointProxy();
         server1 = new MockServer(1);

@@ -15,21 +15,21 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.messaging.proxy;
-
+package org.apache.geronimo.messaging.cluster;
 
 /**
- * EndPointProxyFactory creates EndPoint proxies, which automatically implement
- * this interface.
- *
- * @version $Revision: 1.2 $ $Date: 2004/06/10 23:12:24 $
+ * Cluster event listener.
+ * 
+ * @version $Revision: 1.1 $ $Date: 2004/06/10 23:12:25 $
  */
-public interface EndPointProxy
+public interface ClusterEventListener
 {
-    
+
     /**
-     * Releases the EndPoint proxy resources.
+     * To be notified when a cluster event occcurs.
+     * 
+     * @param anEvent Event.
      */
-    public void release();
+    public void fireClusterMemberEvent(ClusterEvent anEvent);
     
 }

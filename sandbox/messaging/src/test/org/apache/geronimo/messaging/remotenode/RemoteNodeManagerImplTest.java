@@ -18,7 +18,9 @@
 package org.apache.geronimo.messaging.remotenode;
 
 import java.net.InetAddress;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -27,19 +29,19 @@ import org.apache.geronimo.messaging.MsgHeader;
 import org.apache.geronimo.messaging.MsgHeaderConstants;
 import org.apache.geronimo.messaging.NodeInfo;
 import org.apache.geronimo.messaging.NodeTopology;
-import org.apache.geronimo.messaging.NodeTopology.NodePath;
-import org.apache.geronimo.messaging.NodeTopology.PathWeight;
 import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 import org.apache.geronimo.messaging.io.IOContext;
+import org.apache.geronimo.system.ClockPool;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:43 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/10 23:12:25 $
  */
 public class RemoteNodeManagerImplTest extends TestCase
 {
     
     private RemoteNodeManager manager;
+    private ClockPool cp;
     
     protected void setUp() throws Exception {
         InetAddress address = InetAddress.getLocalHost();
@@ -47,8 +49,11 @@ public class RemoteNodeManagerImplTest extends TestCase
         IOContext ioContext = new IOContext();
         MockMessagingTransportFactory factory = new MockMessagingTransportFactory();
         factory.setUpFactoryServer(new MockNodeServer());
-        
-        manager = new RemoteNodeManagerImpl(nodeInfo1, ioContext, factory);
+
+        cp = new ClockPool();
+        cp.setPoolName("CP");
+
+        manager = new RemoteNodeManagerImpl(nodeInfo1, ioContext, cp, factory);
     }
     
     public void testRegisterRemoteNode() throws Exception {
@@ -86,34 +91,52 @@ public class RemoteNodeManagerImplTest extends TestCase
     
     public void testGetMsgOut() throws Exception {
         InetAddress address = InetAddress.getLocalHost();
-        NodeInfo srcNodeInfo = new NodeInfo("SrcNode1", address, 8081);
-        NodeInfo nodeInfo1 = new NodeInfo("Node1", address, 8081);
-        NodeInfo nodeInfo2 = new NodeInfo("Node2", address, 8081);
-        NodePath path = new NodePath(srcNodeInfo, nodeInfo1,
-            new PathWeight(10), new PathWeight(10));
-        NodeTopology topology = new NodeTopology();
-        topology.addPath(path);
-        path = new NodePath(srcNodeInfo, nodeInfo2,
-            new PathWeight(10), new PathWeight(10));
-        topology.addPath(path);
-        
-        manager.setTopology(topology);
+        final NodeInfo srcNode = new NodeInfo("SrcNode1", address, 8081);
+        final NodeInfo node1 = new NodeInfo("Node1", address, 8081);
+        final NodeInfo node2 = new NodeInfo("Node2", address, 8081);
         
         MockRemoteNode remoteNode1 = new MockRemoteNode();
-        remoteNode1.setNodeInfo(nodeInfo1);
+        remoteNode1.setNodeInfo(node1);
         manager.registerRemoteNode(remoteNode1);
         
         MockRemoteNode remoteNode2 = new MockRemoteNode();
-        remoteNode2.setNodeInfo(nodeInfo2);
+        remoteNode2.setNodeInfo(node2);
         manager.registerRemoteNode(remoteNode2);
+
+        NodeTopology topology = new NodeTopology() {
+            public Set getNeighbours(NodeInfo aRoot) {
+                Set result = new HashSet();
+                result.add(node1);
+                result.add(node2);
+                return result;
+            }
+            public NodeInfo[] getPath(NodeInfo aSource, NodeInfo aTarget) {
+                if ( aSource.equals(srcNode) && aTarget.equals(node1) ) {
+                    return new NodeInfo[] {node1};
+                } else if ( aSource.equals(srcNode) && aTarget.equals(node2) ) {
+                    return new NodeInfo[] {node2};
+                }
+                return null;
+            }
+            public int getIDOfNode(NodeInfo aNodeInfo) {
+                return 0;
+            }
+            public NodeInfo getNodeById(int anId) {
+                return null;
+            }
+            public Set getNodes() {
+                return null;
+            }
+        };
+        manager.setTopology(topology);
 
         MsgOutInterceptor out = manager.getMsgConsumerOut();
         Msg msg = new Msg();
         MsgHeader header = msg.getHeader();
         Integer id = new Integer(1234);
         header.addHeader(MsgHeaderConstants.CORRELATION_ID, id);
-        header.addHeader(MsgHeaderConstants.SRC_NODE, srcNodeInfo);
-        header.addHeader(MsgHeaderConstants.DEST_NODES, nodeInfo1);
+        header.addHeader(MsgHeaderConstants.SRC_NODE, srcNode);
+        header.addHeader(MsgHeaderConstants.DEST_NODES, node1);
         out.push(msg);
         
         List receivedMsgs = remoteNode1.getPushedMsg();
@@ -128,8 +151,8 @@ public class RemoteNodeManagerImplTest extends TestCase
         msg = new Msg();
         header = msg.getHeader();
         header.addHeader(MsgHeaderConstants.CORRELATION_ID, id);
-        header.addHeader(MsgHeaderConstants.SRC_NODE, srcNodeInfo);
-        header.addHeader(MsgHeaderConstants.DEST_NODES, nodeInfo2);
+        header.addHeader(MsgHeaderConstants.SRC_NODE, srcNode);
+        header.addHeader(MsgHeaderConstants.DEST_NODES, node2);
         out.push(msg);
         
         receivedMsgs = remoteNode2.getPushedMsg();
@@ -147,6 +170,30 @@ public class RemoteNodeManagerImplTest extends TestCase
         public void fireRemoteNodeEvent(RemoteNodeEvent anEvent) {
             event = anEvent;
         }
+    }
+
+    private class MockTopology implements NodeTopology {
+
+        public Set getNeighbours(NodeInfo aRoot) {
+            return null;
+        }
+
+        public NodeInfo[] getPath(NodeInfo aSource, NodeInfo aTarget) {
+            return null;
+        }
+
+        public int getIDOfNode(NodeInfo aNodeInfo) {
+            return 0;
+        }
+
+        public NodeInfo getNodeById(int anId) {
+            return null;
+        }
+
+        public Set getNodes() {
+            return null;
+        }
+
     }
     
 }

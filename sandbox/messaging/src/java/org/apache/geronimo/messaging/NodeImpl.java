@@ -17,21 +17,21 @@
 
 package org.apache.geronimo.messaging;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.messaging.interceptors.HeaderOutInterceptor;
 import org.apache.geronimo.messaging.interceptors.MsgOutDispatcher;
 import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 import org.apache.geronimo.messaging.interceptors.ThrowableTrapOutInterceptor;
 import org.apache.geronimo.messaging.io.IOContext;
-import org.apache.geronimo.messaging.io.NullReplacerResolver;
 import org.apache.geronimo.messaging.io.ReplacerResolver;
 import org.apache.geronimo.messaging.io.StreamManager;
 import org.apache.geronimo.messaging.io.StreamManagerImpl;
@@ -47,15 +47,16 @@ import org.apache.geronimo.messaging.remotenode.RemoteNodeEvent;
 import org.apache.geronimo.messaging.remotenode.RemoteNodeEventListener;
 import org.apache.geronimo.messaging.remotenode.RemoteNodeManager;
 import org.apache.geronimo.messaging.remotenode.RemoteNodeManagerImpl;
+import org.apache.geronimo.system.ClockPool;
 import org.apache.geronimo.system.ThreadPool;
 
 /**
  * Node implementation.
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/02 11:29:24 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/10 23:12:24 $
  */
 public class NodeImpl
-    implements Node, GBean
+    implements Node, GBeanLifecycle
 {
 
     private static final Log log = LogFactory.getLog(NodeImpl.class);
@@ -106,27 +107,42 @@ public class NodeImpl
      * Used to dispatch async requests.
      */
     private final ThreadPool threadPool;
+
+    /**
+     * Used to execute periodical tasks.
+     */
+    private final ClockPool clockPool;
+
+    /**
+     * NodeTopology within which this node is operating.
+     */
+    private NodeTopology nodeTopology;
     
     /**
      * Creates a Node.
      * 
      * @param aNodeInfo Node meta-data.
      * @param aThreadPool Pool of threads.
+     * @param aClockPool To execute period tasks.
      * @param aFactory Transport layer factory.
      */
     public NodeImpl(NodeInfo aNodeInfo, ThreadPool aThreadPool,
-        MessagingTransportFactory aFactory) {
+        ClockPool aClockPool, MessagingTransportFactory aFactory) {
         if ( null == aNodeInfo ) {
             throw new IllegalArgumentException("NodeInfo is required.");
         } else if ( null == aThreadPool ) {
-            throw new IllegalArgumentException("Pool is required.");
+            throw new IllegalArgumentException("Thread Pool is required.");
+        } else if ( null == aClockPool ) {
+            throw new IllegalArgumentException("Clock Pool is required.");
         } else if ( null == aFactory ) {
             throw new IllegalArgumentException("Factory is required.");
         }
         nodeInfo = aNodeInfo;
         threadPool = aThreadPool; 
+        clockPool = aClockPool;
         
-        replacerResolver = new NullReplacerResolver();
+        replacerResolver = new MsgReplacerResolver();
+
         streamManager = newStreamManager();
         referenceableManager = newReferenceableManager();
         endPointProxyFactory = newEndPointProxyFactory();
@@ -138,15 +154,18 @@ public class NodeImpl
         ioContext.setReplacerResolver(replacerResolver);
         ioContext.setStreamManager(streamManager);
         
-        nodeManager = new RemoteNodeManagerImpl(aNodeInfo, ioContext, aFactory);
+        nodeManager = new RemoteNodeManagerImpl(aNodeInfo, ioContext, 
+            aClockPool, aFactory);
         nodeManager.addListener(new RemoteNodeTracker());
         
-        // The incoming messages are dispatched to the EndPoints.
+        // The incoming messages are dispatched to the EndPoints based on
+        // their destination endpoint header.
         inDispatcher = new MsgOutDispatcher(MsgHeaderConstants.DEST_ENDPOINT);
-        inDispatcher.register(StreamManager.NAME, streamManager.getMsgConsumerOut());
 
-        MsgOutInterceptor out = newOutboundMsgProviderOut();
-        streamManager.setMsgProducerOut(out);
+        addEndPoint(endPointProxyFactory);
+        addEndPoint(referenceableManager);
+        addEndPoint(streamManager);
+        addEndPoint(new NodeEndPointViewImpl());
     }
 
     public ReplacerResolver getReplacerResolver() {
@@ -158,16 +177,54 @@ public class NodeImpl
     }
     
     public void setTopology(NodeTopology aTopology) {
-        compression.setTopology(aTopology);
+        cascadeTopology(aTopology, Collections.EMPTY_SET);
+    }
+
+    private void cascadeTopology(NodeTopology aTopology, Set aSetOfProcessed) {
+        // Applies the new topology.
         nodeManager.setTopology(aTopology);
+
+        // Computes the neighbours which have not yet received the topology
+        // reconfiguration.
+        Set neighbours = new HashSet(aTopology.getNeighbours(nodeInfo));
+        neighbours.removeAll(aSetOfProcessed);
+        
+        // Computes the nodes which have already received the topology
+        // reconfiguration.
+        Set processed = new HashSet(aSetOfProcessed);
+        processed.add(nodeInfo);
+        processed.addAll(neighbours);
+
+        NodeInfo[] targets = (NodeInfo[]) neighbours.toArray(new NodeInfo[0]);
+        // No more nodes to process.
+        if ( 0 == targets.length ) {
+            return;
+        }
+      
+        // Acquires a proxy on the NodeEndPointViews of all the neighbours,
+        // which have not yet been processed.
+        EndPointProxyInfo proxyInfo =
+            new EndPointProxyInfo(NodeEndPointView.NODE_ID,
+                new Class[] {NodeEndPointView.class}, targets);
+        NodeEndPointView topologyEndPoint = (NodeEndPointView)
+            endPointProxyFactory.factory(proxyInfo);
+        try {
+            // Cascades the new topology to all of them.
+            topologyEndPoint.cascadeTopology(aTopology, processed);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        } finally {
+            endPointProxyFactory.releaseProxy(topologyEndPoint);
+        }
+        
+        // TODO re-introduces logical compression when dynamic reconfiguration
+        // of topology will support 2PC.
+//        compression.setTopology(aTopology);
+        nodeTopology = aTopology;
     }
     
-    public void join(NodeInfo aNodeInfo) throws NodeException {
-        nodeManager.findOrJoinRemoteNode(aNodeInfo);
-    }
-    
-    public void leave(NodeInfo aNodeInfo) throws NodeException {
-        nodeManager.leaveRemoteNode(aNodeInfo);
+    public NodeTopology getTopology() {
+        return nodeTopology;
     }
     
     public void addEndPoint(EndPoint anEndPoint) {
@@ -191,26 +248,38 @@ public class NodeImpl
         endPointProxyFactory.releaseProxy(aProxy);
     }
     
-    public Set getRemoteNodeInfos() {
-        return compression.getTopology().getNodes();
-    }
-    
-    public void setGBeanContext(GBeanContext aContext) {
-    }
-
     public void doStart() throws WaitingException, Exception {
-        endPointProxyFactory.doStart();
-        referenceableManager.doStart();
-        streamManager.doStart();
+        endPointProxyFactory.start();
+        referenceableManager.start();
+        streamManager.start();
         nodeManager.start();
-        
+        NodeTopology topology = new NodeTopology() {
+            public Set getNeighbours(NodeInfo aRoot) {
+                return Collections.EMPTY_SET;
+            }
+            public NodeInfo[] getPath(NodeInfo aSource, NodeInfo aTarget) {
+                throw new UnsupportedOperationException();
+            }
+            public int getIDOfNode(NodeInfo aNodeInfo) {
+                throw new UnsupportedOperationException();
+            }
+            public NodeInfo getNodeById(int anId) {
+                throw new UnsupportedOperationException();
+            }
+            public Set getNodes() {
+                Set result = new HashSet();
+                result.add(nodeInfo);
+                return result;
+            }
+        };
+        setTopology(topology);
     }
 
     public void doStop() throws WaitingException, Exception {
         nodeManager.stop();
-        streamManager.doStop();
-        referenceableManager.doStop();
-        endPointProxyFactory.doStop();
+        streamManager.stop();
+        referenceableManager.stop();
+        endPointProxyFactory.stop();
     }
 
     public void doFail() {
@@ -219,9 +288,9 @@ public class NodeImpl
         } catch (NodeException e) {
             log.error("Can not stop node manager.", e);
         }
-        streamManager.doFail();
-        referenceableManager.doFail();
-        endPointProxyFactory.doFail();
+        streamManager.stop();
+        referenceableManager.stop();
+        endPointProxyFactory.stop();
     }
     
     public String toString() {
@@ -245,11 +314,22 @@ public class NodeImpl
     protected ReferenceableManager newReferenceableManager() {
         return new ReferenceableManagerImpl(this, "ReferenceableManager");
     }
-    
+
+    /**
+     * Returns an EndPointProxyFactory implementation.
+     * 
+     * @return EndPointProxyFactory
+     */
     protected EndPointProxyFactory newEndPointProxyFactory() {
         return new EndPointProxyFactoryImpl(this, "EndPointProxyFactory");
     }
     
+    /**
+     * Creates a MsgConsumer input for outbound Msgs (Msgs pushed to
+     * the RemoteNodeManager).  
+     * 
+     * @return Output to be used to push Msgs to the RemoteNodeManager. 
+     */
     private MsgOutInterceptor newOutboundMsgProviderOut() {
         return
             new HeaderOutInterceptor(
@@ -286,10 +366,9 @@ public class NodeImpl
                 });
             } catch (InterruptedException e) {
                 log.error("Async Msg dispatcher failure.", e);
-                throw new RuntimeException(e);
+                throw new CommunicationException(e);
             }
         }
-        
     }
     
     /**
@@ -313,12 +392,19 @@ public class NodeImpl
 
     /**
      * Tracks the Msgs which are not successfully delivered/processed.
+     * <BR>
+     * Sends them back to their source in case of an exception during their
+     * processing.
      */
     private class ExceptionTracker
         implements ThrowableTrapOutInterceptor.ThrowableTrapHandler {
 
         public void push(Msg aMsg, Throwable aThrowable) {
             log.error("Can not deliver " + aMsg, aThrowable);
+            // Send the Msg back to the caller and provide the exception.
+            Msg msg = aMsg.reply();
+            msg.getBody().setContent(new Result(false, aThrowable));
+            nodeManager.getMsgConsumerOut().push(aMsg);
         }
         
     }
@@ -345,6 +431,16 @@ public class NodeImpl
         }
         
     }
+
+    private class NodeEndPointViewImpl extends BaseEndPoint
+        implements NodeEndPointView {
+        private NodeEndPointViewImpl() {
+            super(NodeImpl.this, NODE_ID);
+        }
+        public void cascadeTopology(NodeTopology aTopology, Set aSetOfProcessed) {
+            NodeImpl.this.cascadeTopology(aTopology, aSetOfProcessed);
+        }
+    }
     
     public static final GBeanInfo GBEAN_INFO;
 
@@ -354,8 +450,6 @@ public class NodeImpl
         factory.addAttribute("NodeInfo", NodeInfo.class, true);
         factory.addAttribute("MessagingTransportFactory", MessagingTransportFactory.class, true);
         factory.addAttribute("Topology", NodeTopology.class, true);
-        factory.addOperation("join", new Class[]{NodeInfo.class});
-        factory.addOperation("leave", new Class[]{NodeInfo.class});
         factory.addOperation("addEndPoint", new Class[]{EndPoint.class});
         factory.addOperation("removeEndPoint", new Class[]{EndPoint.class});
         GBEAN_INFO = factory.getBeanInfo();

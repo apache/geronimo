@@ -41,7 +41,7 @@ import org.apache.geronimo.deployment.plugin.local.StopCommand;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.KernelMBean;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.messaging.AbstractEndPoint;
+import org.apache.geronimo.messaging.GBeanBaseEndPoint;
 import org.apache.geronimo.messaging.Node;
 import org.apache.geronimo.messaging.io.ReplacerResolver;
 import org.apache.geronimo.messaging.reference.ReferenceableEnhancer;
@@ -58,10 +58,10 @@ import org.apache.xmlbeans.XmlObject;
  * result. Results are consolidated by the admin server, which provides a 
  * consistent view of the deployment operations.
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/03 14:32:50 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/10 23:12:25 $
  */
 public class ManagedServer
-    extends AbstractEndPoint
+    extends GBeanBaseEndPoint
     implements DeploymentServer
 {
 

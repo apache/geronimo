@@ -17,9 +17,6 @@
 
 package org.apache.geronimo.messaging;
 
-import org.apache.geronimo.gbean.GBean;
-
-
 /**
  * EndPoints are registered by Nodes and abstract end-points of inter-node
  * communication channels.
@@ -30,10 +27,10 @@ import org.apache.geronimo.gbean.GBean;
  * Conversely, an EndPoint provides to this Node a mean to push Msgs to it via
  * the MsgConsumer interface.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/10 23:12:24 $
  */
 public interface EndPoint
-    extends MsgConsProd, GBean
+    extends MsgConsProd
 {
  
     /**

@@ -23,7 +23,7 @@ import junit.framework.TestCase;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/01 13:37:14 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/10 23:12:24 $
  */
 public class RequestTest extends TestCase {
     
@@ -47,7 +47,7 @@ public class RequestTest extends TestCase {
         request.setTarget(target);
         Result result = request.execute();
         assertFalse(result.isSuccess());
-        assertTrue(result.getException() instanceof NoSuchMethodException);
+        assertTrue(result.getThrowable() instanceof NoSuchMethodException);
     }
     
     public void testExecute2() throws Exception {
@@ -55,7 +55,7 @@ public class RequestTest extends TestCase {
         request.setTarget(target);
         Result result = request.execute();
         assertFalse(result.isSuccess());
-        assertTrue(result.getException() instanceof IllegalStateException);
+        assertTrue(result.getThrowable() instanceof IllegalStateException);
     }
 
     private static class DummyTarget {

@@ -25,8 +25,7 @@ import java.io.ObjectOutput;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.messaging.AbstractEndPoint;
+import org.apache.geronimo.messaging.BaseEndPoint;
 import org.apache.geronimo.messaging.EndPoint;
 import org.apache.geronimo.messaging.Node;
 import org.apache.geronimo.messaging.NodeInfo;
@@ -35,10 +34,10 @@ import org.apache.geronimo.messaging.Request;
 /**
  * StreamManager implementation.
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/01 13:37:14 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/10 23:12:25 $
  */
 public class StreamManagerImpl
-    extends AbstractEndPoint
+    extends BaseEndPoint
     implements EndPoint, StreamManager
 {
 
@@ -85,19 +84,12 @@ public class StreamManagerImpl
         replacerResolver = new InputStreamReplacerResolver();
     }
     
-    public void doStart() throws WaitingException, Exception {
-        super.doStart();
+    public void start() {
         replacerResolver.online();
         node.getReplacerResolver().append(replacerResolver);
     }
     
-    public void doStop() throws WaitingException, Exception {
-        super.doStop();
-        replacerResolver.offline();
-    }
-    
-    public void doFail() {
-        super.doFail();
+    public void stop() {
         replacerResolver.offline();
     }
     
@@ -159,7 +151,7 @@ public class StreamManagerImpl
      * InputStream calls back its StreamManager when its internal buffer is
      * empty. 
      *
-     * @version $Revision: 1.3 $ $Date: 2004/06/01 13:37:14 $
+     * @version $Revision: 1.4 $ $Date: 2004/06/10 23:12:25 $
      */
     private class ProxyInputStream extends InputStream {
         /**

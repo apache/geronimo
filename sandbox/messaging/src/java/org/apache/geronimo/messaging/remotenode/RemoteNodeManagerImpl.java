@@ -22,8 +22,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,22 +36,22 @@ import org.apache.geronimo.messaging.MsgHeaderConstants;
 import org.apache.geronimo.messaging.NodeException;
 import org.apache.geronimo.messaging.NodeInfo;
 import org.apache.geronimo.messaging.NodeTopology;
-import org.apache.geronimo.messaging.RequestSender;
 import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 import org.apache.geronimo.messaging.io.IOContext;
 import org.apache.geronimo.messaging.remotenode.admin.JoinRequest;
+import org.apache.geronimo.system.ClockPool;
 
 /**
  * RemoteNode implementation.
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/03 14:39:44 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/10 23:12:25 $
  */
 public class RemoteNodeManagerImpl
     implements RemoteNodeManager
 {
 
     private static final Log log = LogFactory.getLog(RemoteNodeManagerImpl.class);
-    
+
     private final MessagingTransportFactory factory;
     private final IOContext ioContext;
     private final Collection listeners;
@@ -57,6 +59,7 @@ public class RemoteNodeManagerImpl
     private final RemoteNodeRouter router;
     private final NodeServer server;
     private final NodeInfo nodeInfo;
+    private final RemoteNodeMonitor remoteNodeMonitor;
     
     /**
      * Node topology to be used to derive the most appropriate path to reach
@@ -65,11 +68,13 @@ public class RemoteNodeManagerImpl
     private NodeTopology topology;
     
     public RemoteNodeManagerImpl(NodeInfo aNodeInfo, IOContext anIOContext,
-        MessagingTransportFactory aFactory) {
+        ClockPool aClockPool, MessagingTransportFactory aFactory) {
         if ( null == aNodeInfo ) {
             throw new IllegalArgumentException("NodeInfo is required.");
         } else if ( null == anIOContext ) {
             throw new IllegalArgumentException("IOContext is required.");
+        } else if ( null == aClockPool ) {
+            throw new IllegalArgumentException("Clock Pool is required.");
         } else if ( null == aFactory ) {
             throw new IllegalArgumentException("Factory is required.");
         }
@@ -80,6 +85,7 @@ public class RemoteNodeManagerImpl
         listeners = new ArrayList();
         remoteNodes = new HashMap();
         router = new RemoteNodeRouter();
+        remoteNodeMonitor = new RemoteNodeMonitor(this, aClockPool);
         server = aFactory.factoryServer(aNodeInfo, anIOContext);
         server.setRemoteNodeManager(this);
     }
@@ -92,9 +98,11 @@ public class RemoteNodeManagerImpl
         } catch (CommunicationException e) {
             throw new NodeException("Can not start server.", e);
         }
+        remoteNodeMonitor.start();
     }
     
     public void stop() throws NodeException {
+        remoteNodeMonitor.stop();
         synchronized(remoteNodes) {
             for (Iterator iter = remoteNodes.values().iterator(); iter.hasNext();) {
                 RemoteNode node = (RemoteNode) iter.next();
@@ -120,7 +128,55 @@ public class RemoteNodeManagerImpl
     }
 
     public void setTopology(NodeTopology aTopology) {
-       topology = aTopology; 
+        Set neighbours = aTopology.getNeighbours(nodeInfo);
+        
+        // Makes sure that one does not try to remove the new neighbours 
+        // during the reconfiguration.
+        remoteNodeMonitor.unscheduleNodeDeletion(neighbours);
+
+        Set newNeighbours = new HashSet();
+        Set oldNeighbours;
+        if ( null == topology ) {
+            oldNeighbours = Collections.EMPTY_SET;
+        } else {
+            oldNeighbours = topology.getNeighbours(nodeInfo);
+        }
+        // Tries to join all the neighbours declared by the specified
+        // topology.
+        for (Iterator iter = neighbours.iterator(); iter.hasNext();) {
+            NodeInfo node = (NodeInfo) iter.next();
+            if ( !oldNeighbours.contains(node) ) {
+                try {
+                    findOrJoinRemoteNode(node);
+                    newNeighbours.add(node);
+                } catch (NodeException e) {
+                    log.error("Can not apply topology change", e);
+                    break;
+                }
+            }
+            iter.remove();
+            oldNeighbours.remove(node);
+        }
+        // One neighbour has not been joined successfully. Rolls-back the
+        // physical connections created until now.
+        if ( 0 < neighbours.size() ) {
+            for (Iterator iter = newNeighbours.iterator(); iter.hasNext();) {
+                NodeInfo node = (NodeInfo) iter.next();
+                try {
+                    leaveRemoteNode(node);
+                } catch (NodeException e) {
+                    log.error("Error roll-backing topology change", e);
+                }
+            }
+            return;
+        }
+
+        // Schedules the deletion of the old neighbours.
+        remoteNodeMonitor.scheduleNodeDeletion(oldNeighbours);
+        // Ensures that the new neighbours will not be leaved.
+        remoteNodeMonitor.unscheduleNodeDeletion(newNeighbours);
+        
+        topology = aTopology;
     }
     
     public void addListener(RemoteNodeEventListener aListener) {

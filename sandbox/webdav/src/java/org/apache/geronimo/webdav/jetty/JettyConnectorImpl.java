@@ -19,10 +19,9 @@ package org.apache.geronimo.webdav.jetty;
 
 import java.lang.reflect.Constructor;
 
-import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.webdav.AbstractConnector;
 
@@ -35,9 +34,12 @@ import org.mortbay.util.ThreadedServer;
 /**
  * Connector using under the cover a Jetty HttpListener.
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/02 11:29:24 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/10 23:12:24 $
  */
-public class JettyConnectorImpl extends AbstractConnector implements GBean, JettyConnector {
+public class JettyConnectorImpl extends AbstractConnector
+    implements GBeanLifecycle, JettyConnector
+{
+    
     private static final String HTTP_PROTOCOL = "http";
     private static final String HTTPS_PROTOCOL = "https";
     private static final String AJP13_PROTOCOL = "ajp13";
@@ -51,16 +53,16 @@ public class JettyConnectorImpl extends AbstractConnector implements GBean, Jett
      * When the underlying listener is undefined, the GBean operations are
      * delegated to this state.
      */
-    private final GBean undefinedListenerState;
+    private final GBeanLifecycle undefinedListenerState;
 
     /**
      * When the underlying listener is defined, the GBean operations are
      * delegated to this state.
      */
-    private final GBean definedListenerState;
+    private final GBeanLifecycle definedListenerState;
 
     private HttpListener listener;
-    private GBean lifeCycleState;
+    private GBeanLifecycle lifeCycleState;
 
     public JettyConnectorImpl(String aProtocol, String anHost, int aPort,
             int aMaxCon, int aMaxIdle) {
@@ -81,9 +83,6 @@ public class JettyConnectorImpl extends AbstractConnector implements GBean, Jett
         } else {
             lifeCycleState = definedListenerState;
         }
-    }
-
-    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws WaitingException, Exception {
@@ -114,9 +113,7 @@ public class JettyConnectorImpl extends AbstractConnector implements GBean, Jett
         return GBEAN_INFO;
     }
 
-    private class DefinedListenerState implements GBean {
-        public void setGBeanContext(GBeanContext context) {
-        }
+    private class DefinedListenerState implements GBeanLifecycle {
 
         public void doStart() throws WaitingException, Exception {
             if (listener.isStarted()) {
@@ -147,9 +144,7 @@ public class JettyConnectorImpl extends AbstractConnector implements GBean, Jett
 
     }
 
-    private class UndefinedListenerState implements GBean {
-        public void setGBeanContext(GBeanContext context) {
-        }
+    private class UndefinedListenerState implements GBeanLifecycle {
 
         public void doStart() throws WaitingException, Exception {
             HttpListener tmpListener;

@@ -21,8 +21,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
-import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.messaging.AbstractEndPoint;
+import org.apache.geronimo.messaging.BaseEndPoint;
 import org.apache.geronimo.messaging.Msg;
 import org.apache.geronimo.messaging.Node;
 import org.apache.geronimo.messaging.NodeInfo;
@@ -34,10 +33,10 @@ import org.apache.geronimo.messaging.io.ReplacerResolver;
 /**
  * ReferenceableManager implementation.
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/02 11:52:22 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/10 23:12:24 $
  */
 public class ReferenceableManagerImpl
-    extends AbstractEndPoint
+    extends BaseEndPoint
     implements ReferenceableManager
 {
 
@@ -76,19 +75,12 @@ public class ReferenceableManagerImpl
         replacerResolver = new ReferenceReplacerResolver(this);
     }
 
-    public void doStart() throws WaitingException, Exception {
-        super.doStart();
+    public void start() {
         replacerResolver.online();
         node.getReplacerResolver().append(replacerResolver);
     }
     
-    public void doStop() throws WaitingException, Exception {
-        super.doStop();
-        replacerResolver.offline();
-    }
-    
-    public void doFail() {
-        super.doFail();
+    public void stop() {
         replacerResolver.offline();
     }
     
@@ -137,7 +129,7 @@ public class ReferenceableManagerImpl
         }
     }
     
-    public Object invoke(int anId, Request aRequest) throws Exception {
+    public Object invoke(int anId, Request aRequest) throws Throwable {
         Referenceable reference;
         synchronized(mapsLock) {
             reference = (Referenceable) idToReferenceable.get(new Integer(anId));
@@ -150,7 +142,7 @@ public class ReferenceableManagerImpl
         if ( result.isSuccess() ) {
             return result.getResult();
         } else {
-            throw result.getException();
+            throw result.getThrowable();
         }
     }
     

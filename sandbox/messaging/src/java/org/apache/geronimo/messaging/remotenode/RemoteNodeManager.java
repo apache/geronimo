@@ -27,7 +27,7 @@ import org.apache.geronimo.messaging.NodeTopology;
 /**
  * RemoteNode manager.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:42 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/10 23:12:25 $
  */
 public interface RemoteNodeManager
     extends MsgConsumer
@@ -48,8 +48,12 @@ public interface RemoteNodeManager
     public void stop() throws NodeException;
     
     /**
-     * Sets the Topology to be used to derive the most efficient path between
-     * two nodes.
+     * Sets the Topology to be used to derive the path between two nodes.
+     * <BR>
+     * When the topology is set, the manager tries to "apply" it: it creates
+     * physical connections with all of its neighbours as defined by the
+     * specified topology and drops the physical connections no more
+     * required by the topology change.
      * 
      * @param aTopology Topology.
      */

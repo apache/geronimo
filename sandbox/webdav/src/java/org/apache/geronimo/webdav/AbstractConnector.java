@@ -22,16 +22,19 @@ import java.net.UnknownHostException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 
 /**
  * Base implementation for the Connector contracts.
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/02 11:29:24 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/10 23:12:25 $
  */
-public abstract class AbstractConnector implements Connector, GBean {
+public abstract class AbstractConnector
+    implements Connector, GBeanLifecycle
+{
+ 
     protected final Log log = LogFactory.getLog(getClass());
 
     /**

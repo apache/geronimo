@@ -17,9 +17,7 @@
 
 package org.apache.geronimo.messaging;
 
-import java.util.Set;
-
-import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.messaging.io.ReplacerResolver;
 import org.apache.geronimo.messaging.proxy.EndPointProxyInfo;
 
@@ -29,14 +27,14 @@ import org.apache.geronimo.messaging.proxy.EndPointProxyInfo;
  * A Node knows how to join, leave other nodes. It also registers EndPoints
  * and provide them a mean to exchange Msgs with other EndPoints.
  * <BR>
- * The following diagram shows how Node and EndPoints are combined together:
+ * The following diagram shows how Nodes and EndPoints are combined together:
  * <PRE>
  * EndPoint -- MTO -- Node -- MTM -- Node -- OTM -- EndPoint
  * </PRE>
  *
- * @version $Revision: 1.3 $ $Date: 2004/05/27 14:34:46 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/10 23:12:24 $
  */
-public interface Node extends GBean
+public interface Node extends GBeanLifecycle
 {
     
     /**
@@ -47,29 +45,25 @@ public interface Node extends GBean
     public NodeInfo getNodeInfo();
     
     /**
-     * Sets the node topology in which this instance is operating. 
+     * Sets the node topology in which this instance is operating.
+     * <BR>
+     * When the topology is set, this node tries to "apply" it: it creates
+     * physical connections with all of its neighbours as defined by the
+     * specified topology and drops the physical connections no more
+     * required by the topology change. It should also cascade the topology
+     * change to all of its neighbours. These latter should then applied it
+     * locally.
      * 
      * @param aTopology Topology of the nodes constituting the network layout.
      */
     public void setTopology(NodeTopology aTopology);
-    
+
     /**
-     * Joins the specified node.
+     * Gets the node topology in which this instance is operating.
      * 
-     * @param aNodeInfo NodeInfo of the node to join.
-     * @exception NodeException Indicates that the remote node can not be
-     * joined.
+     * @return Node topology.
      */
-    public void join(NodeInfo aNodeInfo) throws NodeException;
-    
-    /**
-     * Leaves the specified node.
-     * 
-     * @param aNodeInfo NodeInfo of the node to leave.
-     * @exception NodeException Indicates that the remote node has not been
-     * leaved successfully.
-     */
-    public void leave(NodeInfo aNodeInfo) throws NodeException;
+    public NodeTopology getTopology();
     
     /**
      * Gets the root ReplacerResolver used by this node in order to replace and
@@ -114,12 +108,5 @@ public interface Node extends GBean
      * is not a proxy.
      */
     public void releaseEndPointProxy(Object aProxy);
-    
-    /**
-     * Gets the NodeInfo of the Nodes which can be reached from this Node.
-     * 
-     * @return Set of NodeInfos.
-     */
-    public Set getRemoteNodeInfos();
     
 }

@@ -20,13 +20,11 @@ package org.apache.geronimo.messaging.io;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.geronimo.gbean.GBeanContext;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:43 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/10 23:12:25 $
  */
 public class MockStreamManager
     implements StreamManager
@@ -55,16 +53,10 @@ public class MockStreamManager
     public void setMsgProducerOut(MsgOutInterceptor aMsgOut) {
     }
 
-    public void setGBeanContext(GBeanContext context) {
+    public void start() {
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void stop() {
     }
 
-    public void doStop() throws WaitingException, Exception {
-    }
-
-    public void doFail() {
-    }
-    
 }

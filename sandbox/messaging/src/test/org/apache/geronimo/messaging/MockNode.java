@@ -22,15 +22,15 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.messaging.cluster.topology.TopologyManager;
 import org.apache.geronimo.messaging.io.NullReplacerResolver;
 import org.apache.geronimo.messaging.io.ReplacerResolver;
 import org.apache.geronimo.messaging.proxy.EndPointProxyInfo;
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2004/05/27 14:34:46 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/10 23:12:24 $
  */
 public class MockNode implements Node
 {
@@ -39,6 +39,7 @@ public class MockNode implements Node
     private ReplacerResolver replacerResolver = new NullReplacerResolver();
     private final Map factoryEndPointProxy = new HashMap();
     private final Set getRemoteNodeInfos = new HashSet();
+    private NodeTopology nodeTopology;
     
     public Map getMockFactoryEndPointProxy() {
         return factoryEndPointProxy;
@@ -57,12 +58,11 @@ public class MockNode implements Node
     }
 
     public void setTopology(NodeTopology aTopology) {
+        nodeTopology = aTopology;
     }
 
-    public void join(NodeInfo aNodeInfo) throws NodeException {
-    }
-
-    public void leave(NodeInfo aNodeInfo) throws NodeException {
+    public NodeTopology getTopology() {
+        return nodeTopology;
     }
 
     public ReplacerResolver getReplacerResolver() {
@@ -73,9 +73,6 @@ public class MockNode implements Node
     }
 
     public void removeEndPoint(EndPoint aConnector) {
-    }
-
-    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws WaitingException, Exception {
@@ -92,10 +89,6 @@ public class MockNode implements Node
     }
 
     public void releaseEndPointProxy(Object aProxy) {
-    }
-
-    public Set getRemoteNodeInfos() {
-        return getRemoteNodeInfos;
     }
     
 }

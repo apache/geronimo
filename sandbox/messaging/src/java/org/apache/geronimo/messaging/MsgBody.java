@@ -25,7 +25,7 @@ import java.io.ObjectOutput;
 /**
  * Msg body.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/10 23:12:24 $
  */
 public class MsgBody
     implements Externalizable
@@ -67,42 +67,6 @@ public class MsgBody
     public void setContent(Object aContent) {
         content = aContent;
     }
-    
-    /**
-     * Type-safe enumeration of body types.
-     */
-    public static class Type implements Externalizable {
-        private int code;
-        /**
-         * Required for Externalization.
-         */
-        public Type() {}
-        private Type(int aCode) {code = aCode;}
-        public boolean equals(Object obj) {
-            if ( false == obj instanceof Type ) {
-                return false;
-            }
-            Type type = (Type) obj;
-            return type.code == code;
-        }
-        /**
-         * The content is a request.
-         */
-        public static final Type REQUEST = new Type(0);
-        /**
-         * The content is a response.
-         */
-        public static final Type RESPONSE = new Type(1);
-        public void writeExternal(ObjectOutput out) throws IOException {
-            out.write(code);
-        }
-        public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-            code = in.read();
-        }
-        public String toString() {
-            return (0 == code ? "Request" : "Response");
-        }
-    }
 
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeObject(content);
@@ -115,5 +79,43 @@ public class MsgBody
     public String toString() {
         return "MsgBody=" + content;
     }
-    
+
+    /**
+     * Type-safe enumeration of body types.
+     */
+    public static class Type {
+
+        /**
+         * The content is a request.
+         */
+        public static final Type REQUEST = new Type(0);
+        /**
+         * The content is a response.
+         */
+        public static final Type RESPONSE = new Type(1);
+
+        private static final Type[] types = new Type[] {REQUEST , RESPONSE};
+
+        private int code;
+
+        public static Type getByCode(int aCode) {
+            return types[aCode]; 
+        }
+
+        /**
+         * Required for Externalization.
+         */
+        public Type() {}
+        
+        private Type(int aCode) {code = aCode;}
+        
+        public int getCode() {
+            return code;
+        }
+        
+        public String toString() {
+            return (0 == code ? "Request" : "Response");
+        }
+    }
+
 }

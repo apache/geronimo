@@ -20,12 +20,12 @@ package org.apache.geronimo.messaging;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
-import org.apache.geronimo.messaging.NodeTopology.NodePath;
-import org.apache.geronimo.messaging.NodeTopology.PathWeight;
 import org.apache.geronimo.messaging.remotenode.MessagingTransportFactory;
 import org.apache.geronimo.messaging.remotenode.network.NetworkTransportFactory;
 import org.apache.geronimo.network.SelectorManager;
@@ -34,7 +34,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/03 14:39:44 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/10 23:12:24 $
  */
 public class NodeImplTest
     extends TestCase
@@ -59,16 +59,16 @@ public class NodeImplTest
     
     protected void setUp() throws Exception {
         InetAddress address = InetAddress.getLocalHost();
-        NodeInfo nodeInfo1 = new NodeInfo("Node1", address, 8081);
-        NodeInfo nodeInfo2 = new NodeInfo("Node2", address, 8082);
-        NodeInfo nodeInfo3 = new NodeInfo("Node3", address, 8083);
-        NodeInfo nodeInfo4 = new NodeInfo("Node4", address, 8084);
+        final NodeInfo nodeInfo1 = new NodeInfo("Node1", address, 8081);
+        final NodeInfo nodeInfo2 = new NodeInfo("Node2", address, 8082);
+        final NodeInfo nodeInfo3 = new NodeInfo("Node3", address, 8083);
+        final NodeInfo nodeInfo4 = new NodeInfo("Node4", address, 8084);
 
         // Set-up the first Node.
         ctx1 = new ProtocolContext();
         ctx1.init("Node1");
         ctx1.start();
-        node1 = new NodeImpl(nodeInfo1, ctx1.tp, ctx1.factoryTransport());
+        node1 = new NodeImpl(nodeInfo1, ctx1.tp, ctx1.cp, ctx1.factoryTransport());
         endPoint11 = new MockEndPointImpl(node1, "dummy1",
             new NodeInfo[] {nodeInfo2, nodeInfo4});
         endPoint12 = new MockEndPointImpl(node1, "dummy11",
@@ -81,7 +81,7 @@ public class NodeImplTest
         ctx2 = new ProtocolContext();
         ctx2.init("Node2");
         ctx2.start();
-        node2 = new NodeImpl(nodeInfo2, ctx2.tp, ctx2.factoryTransport());
+        node2 = new NodeImpl(nodeInfo2, ctx2.tp, ctx2.cp, ctx2.factoryTransport());
         endPoint21 = new MockEndPointImpl(node2, "dummy1",
             new NodeInfo[] {nodeInfo1, nodeInfo4}); 
         endPoint22 = new MockEndPointImpl(node2, "dummy11",
@@ -89,41 +89,28 @@ public class NodeImplTest
         node2.doStart();
         endPoint21.doStart();
         endPoint22.doStart();
-        node2.join(nodeInfo1);
 
         // Set-up the third Node.
         ctx3 = new ProtocolContext();
         ctx3.init("Node3");
         ctx3.start();
-        node3 = new NodeImpl(nodeInfo3, ctx3.tp, ctx3.factoryTransport());
+        node3 = new NodeImpl(nodeInfo3, ctx3.tp, ctx3.cp, ctx3.factoryTransport());
         node3.doStart();
-        node3.join(nodeInfo2);
         
         // Set-up the fourth Node.
         ctx4 = new ProtocolContext();
         ctx4.init("Node4");
         ctx4.start();
-        node4 = new NodeImpl(nodeInfo4, ctx4.tp, ctx4.factoryTransport());
+        node4 = new NodeImpl(nodeInfo4, ctx4.tp, ctx4.cp, ctx4.factoryTransport());
         endPoint41 = new MockEndPointImpl(node4, "dummy1",
             new NodeInfo[] {nodeInfo1, nodeInfo2}); 
         node4.doStart();
         endPoint41.doStart();
-        node4.join(nodeInfo3);
         
         // Sets the topology.
-        NodeTopology topology = new NodeTopology();
-        PathWeight weight = new PathWeight(10);
-        NodePath path = new NodePath(nodeInfo1, nodeInfo2, weight, weight);
-        topology.addPath(path);
-        path = new NodePath(nodeInfo2, nodeInfo3, weight, weight);
-        topology.addPath(path);
-        path = new NodePath(nodeInfo3, nodeInfo4, weight, weight);
-        topology.addPath(path);
-
+        NodeTopology topology =
+                new MockTopology(nodeInfo1, nodeInfo2, nodeInfo3, nodeInfo4);
         node1.setTopology(topology);
-        node2.setTopology(topology);
-        node3.setTopology(topology);
-        node4.setTopology(topology);
     }
 
     protected void tearDown() throws Exception {
@@ -244,6 +231,88 @@ public class NodeImplTest
             sm.doStop();
             cp.doStop();
             tp.doStop();
+        }
+    }
+ 
+    private static class MockTopology implements NodeTopology {
+
+        private final NodeInfo nodeInfo1;
+        private final NodeInfo nodeInfo2;
+        private final NodeInfo nodeInfo3;
+        private final NodeInfo nodeInfo4;
+
+        private MockTopology(NodeInfo aNodeInfo1,
+            NodeInfo aNodeInfo2,
+            NodeInfo aNodeInfo3,
+            NodeInfo aNodeInfo4) {
+            nodeInfo1 = aNodeInfo1;
+            nodeInfo2 = aNodeInfo2;
+            nodeInfo3 = aNodeInfo3;
+            nodeInfo4 = aNodeInfo4;
+        }
+        
+        public Set getNeighbours(NodeInfo aRoot) {
+            Set result = new HashSet();
+            if ( aRoot.equals(nodeInfo1) ) {
+                result.add(nodeInfo2);
+            } else if ( aRoot.equals(nodeInfo2) ) {
+                result.add(nodeInfo3);
+            } else if ( aRoot.equals(nodeInfo3) ) {
+                result.add(nodeInfo4);
+            } else if ( aRoot.equals(nodeInfo4) ) {
+            } else {
+                throw new IllegalArgumentException("Not expected");
+            }
+            return result;
+        }
+        public NodeInfo[] getPath(NodeInfo aSource, NodeInfo aTarget) {
+            if ( aSource.equals(nodeInfo1) && aTarget.equals(nodeInfo2) ) {
+                return new NodeInfo[] {nodeInfo2};
+            } else if ( aSource.equals(nodeInfo2) && aTarget.equals(nodeInfo1) ) {
+                return new NodeInfo[] {nodeInfo1};
+            } else if ( aSource.equals(nodeInfo2) && aTarget.equals(nodeInfo3) ) {
+                return new NodeInfo[] {nodeInfo3};
+            } else if ( aSource.equals(nodeInfo3) && aTarget.equals(nodeInfo2) ) {
+                return new NodeInfo[] {nodeInfo2};
+            } else if ( aSource.equals(nodeInfo3) && aTarget.equals(nodeInfo4) ) {
+                return new NodeInfo[] {nodeInfo4};
+            } else if ( aSource.equals(nodeInfo4) && aTarget.equals(nodeInfo3) ) {
+                return new NodeInfo[] {nodeInfo3};
+            } else if ( aSource.equals(nodeInfo1) && aTarget.equals(nodeInfo4) ) {
+                return new NodeInfo[] {nodeInfo2, nodeInfo3, nodeInfo4};
+            } else if ( aSource.equals(nodeInfo4) && aTarget.equals(nodeInfo1) ) {
+                return new NodeInfo[] {nodeInfo3, nodeInfo2, nodeInfo1};
+            }
+            throw new IllegalArgumentException("Not expected");
+        }
+        public int getIDOfNode(NodeInfo aNodeInfo) {
+            if ( aNodeInfo.equals(nodeInfo1) ) {
+                return 1;
+            } else if ( aNodeInfo.equals(nodeInfo2) ) {
+                return 2;
+            } else if ( aNodeInfo.equals(nodeInfo3) ) {
+                return 3;
+            } else if ( aNodeInfo.equals(nodeInfo4) ) {
+                return 4;
+            }
+            throw new IllegalArgumentException("Not expected");
+        }
+        public NodeInfo getNodeById(int anId) {
+            switch (anId) {
+                case 1:
+                    return nodeInfo1;
+                case 2:
+                    return nodeInfo2;
+                case 3:
+                    return nodeInfo3;
+                case 4:
+                    return nodeInfo4;
+                default:
+                    throw new IllegalArgumentException("Not expected");
+            }
+        }
+        public Set getNodes() {
+            throw new IllegalArgumentException("Not expected");
         }
     }
     

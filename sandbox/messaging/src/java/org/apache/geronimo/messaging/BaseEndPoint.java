@@ -17,25 +17,20 @@
 
 package org.apache.geronimo.messaging;
 
-import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.messaging.interceptors.HeaderOutInterceptor;
 import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 
 /**
- * Based implementation for the EndPoint contracts.
+ * Base class for EndPoint implementations.
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/02 11:29:24 $
+ * @version $Revision: 1.1 $ $Date: 2004/06/10 23:12:24 $
  */
-public abstract class AbstractEndPoint
-    implements EndPoint, GBean
+public abstract class BaseEndPoint
+    implements EndPoint
 {
 
     /**
-     * Node which has mounted this EndPoint. 
+     * Node which has mounted this EndPoint.
      */
     protected final Node node;
 
@@ -43,7 +38,7 @@ public abstract class AbstractEndPoint
      * EndPoint identifier.
      */
     protected final Object id;
-    
+
     /**
      * To send requests.
      */
@@ -53,7 +48,7 @@ public abstract class AbstractEndPoint
      * Used to communicate with remote EndPoints.
      */
     protected MsgOutInterceptor out;
-    
+
     /**
      * Creates an EndPoint, which is mounted by the specified Node and having
      * the specified identifier.
@@ -61,39 +56,38 @@ public abstract class AbstractEndPoint
      * @param aNode Node owning this connector.
      * @param anID EndPoint identifier.
      */
-    public AbstractEndPoint(Node aNode, Object anID) {
-        if ( null == aNode ) {
+    public BaseEndPoint(Node aNode, Object anID) {
+        if (null == aNode) {
             throw new IllegalArgumentException("Node is required.");
-        } else if ( null == anID ) {
+        } else if (null == anID) {
             throw new IllegalArgumentException("Identifier is required.");
         }
         node = aNode;
         id = anID;
-        
+
         sender = new RequestSender();
     }
-    
+
     public final Object getID() {
         return id;
     }
-    
+
     public MsgOutInterceptor getMsgConsumerOut() {
         return new MsgDispatcher();
     }
-    
+
     public void setMsgProducerOut(MsgOutInterceptor aMsgOut) {
         // When an EndPoint is unregistered by a Node, this latter resets its
         // MsgProducer output.
-        if ( null == aMsgOut ) {
+        if (null == aMsgOut) {
             out = null;
             return;
         }
         // Automatically adds the identifier of this EndPoint to produced Msgs.
-        out =
-            new HeaderOutInterceptor(
-                MsgHeaderConstants.SRC_ENDPOINT, id, aMsgOut);
+        out = new HeaderOutInterceptor(MsgHeaderConstants.SRC_ENDPOINT, id,
+            aMsgOut);
     }
-    
+
     /**
      * Handles a request Msg. A request Msg MUST contain a Request object.
      * 
@@ -108,7 +102,7 @@ public abstract class AbstractEndPoint
         msg.getBody().setContent(result);
         out.push(msg);
     }
-    
+
     /**
      * Handles a response Msg. A response Msg MUST contain a Result object.
      * 
@@ -119,62 +113,30 @@ public abstract class AbstractEndPoint
         MsgHeader header = aMsg.getHeader();
         Result result = (Result) body.getContent();
         sender.setResponse(
-            header.getHeader(MsgHeaderConstants.CORRELATION_ID),
-            result);
-    }
-
-    public void setGBeanContext(GBeanContext context) {
-    }
-
-    public void doStart() throws WaitingException, Exception {
-        node.addEndPoint(this);
-    }
-
-    public void doStop() throws WaitingException, Exception {
-        node.removeEndPoint(this);
-    }
-
-    public void doFail() {
-        node.removeEndPoint(this);
+            header.getHeader(MsgHeaderConstants.CORRELATION_ID), result);
     }
 
     /**
-     * Dispatches Msgs delivered to this EndPoint. 
+     * Dispatches Msgs delivered to this EndPoint.
      */
     private class MsgDispatcher implements MsgOutInterceptor {
 
         public void push(Msg aMsg) {
             MsgHeader header = aMsg.getHeader();
-            MsgBody.Type bodyType =
-                (MsgBody.Type) header.getHeader(MsgHeaderConstants.BODY_TYPE);
-            if ( MsgBody.Type.REQUEST == bodyType ) {
+            MsgBody.Type bodyType = (MsgBody.Type)
+                header.getHeader(MsgHeaderConstants.BODY_TYPE);
+            if (MsgBody.Type.REQUEST == bodyType) {
                 handleRequest(aMsg);
-            } else if ( MsgBody.Type.RESPONSE == bodyType ) {
+            } else if (MsgBody.Type.RESPONSE == bodyType) {
                 handleResponse(aMsg);
             } else {
                 // This "should" neither happen as we are using a type-safe
                 // enumeration. However, as Msgs are marshalled it is possible
                 // to have an unknown bodyType. Just to be sure.
-                throw new IllegalArgumentException("Unknown body type.");
+                throw new AssertionError("Unknown body type.");
             }
         }
-        
-    }
-    
-    public static final GBeanInfo GBEAN_INFO;
 
-    static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Abstract EndPoint", AbstractEndPoint.class.getName());
-        infoFactory.addReference("Node", Node.class);
-        infoFactory.addAttribute("ID", Object.class, true);
-        infoFactory.addAttribute("MsgConsumerOut", MsgOutInterceptor.class, false);
-        infoFactory.addAttribute("MsgProducerOut", MsgOutInterceptor.class, false);
-        infoFactory.setConstructor(new String[]{"Node", "ID"});
-        GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-    
 }

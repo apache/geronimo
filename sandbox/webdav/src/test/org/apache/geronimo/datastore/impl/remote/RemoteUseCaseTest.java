@@ -19,6 +19,8 @@ package org.apache.geronimo.datastore.impl.remote;
 
 import java.io.File;
 import java.net.InetAddress;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.geronimo.datastore.GFileManager;
 import org.apache.geronimo.datastore.Util;
@@ -29,8 +31,6 @@ import org.apache.geronimo.messaging.Node;
 import org.apache.geronimo.messaging.NodeImpl;
 import org.apache.geronimo.messaging.NodeInfo;
 import org.apache.geronimo.messaging.NodeTopology;
-import org.apache.geronimo.messaging.NodeTopology.NodePath;
-import org.apache.geronimo.messaging.NodeTopology.PathWeight;
 import org.apache.geronimo.messaging.remotenode.MessagingTransportFactory;
 import org.apache.geronimo.messaging.remotenode.network.NetworkTransportFactory;
 import org.apache.geronimo.messaging.proxy.EndPointProxyInfo;
@@ -41,7 +41,7 @@ import org.apache.geronimo.system.ThreadPool;
 /**
  * This is a remote use-case.
  *
- * @version $Revision: 1.7 $ $Date: 2004/06/03 14:39:45 $
+ * @version $Revision: 1.8 $ $Date: 2004/06/10 23:12:25 $
  */
 public class RemoteUseCaseTest extends AbstractUseCaseTest {
 
@@ -65,8 +65,8 @@ public class RemoteUseCaseTest extends AbstractUseCaseTest {
         LockManager lockManager = new LockManager();
 
         InetAddress address = InetAddress.getLocalHost();
-        NodeInfo nodeInfo1 = new NodeInfo("Node1", address, 8080);
-        NodeInfo nodeInfo2 = new NodeInfo("Node2", address, 8082);
+        final NodeInfo nodeInfo1 = new NodeInfo("Node1", address, 8080);
+        final NodeInfo nodeInfo2 = new NodeInfo("Node2", address, 8082);
 
         String fileSystem = "FileSystem";
         
@@ -74,7 +74,7 @@ public class RemoteUseCaseTest extends AbstractUseCaseTest {
         ctx1 = new ProtocolContext();
         ctx1.init("Node1");
         ctx1.start();
-        node1 = new NodeImpl(nodeInfo1, ctx1.tp, ctx1.factoryTransport());
+        node1 = new NodeImpl(nodeInfo1, ctx1.tp, ctx1.cp, ctx1.factoryTransport());
         GFileManager localManager =
             new LocalGFileManager(fileSystem, root, lockManager);
         GFileManagerProxy proxy =
@@ -87,22 +87,17 @@ public class RemoteUseCaseTest extends AbstractUseCaseTest {
         ctx2 = new ProtocolContext();
         ctx2.init("Node2");
         ctx2.start();
-        node2 = new NodeImpl(nodeInfo2, ctx2.tp, ctx2.factoryTransport());
+        node2 = new NodeImpl(nodeInfo2, ctx2.tp, ctx2.cp, ctx2.factoryTransport());
         EndPointProxyInfo proxyInfo =
             new EndPointProxyInfo(fileSystem,
                 new Class[] {GFileManager.class},
                 new NodeInfo[] {nodeInfo1});
         fileManager = (GFileManager) node2.factoryEndPointProxy(proxyInfo);
         node2.doStart();
-        node2.join(nodeInfo1);
         
-        NodeTopology topology = new NodeTopology();
-        PathWeight weight = new PathWeight(10);
-        NodePath path = new NodePath(nodeInfo1, nodeInfo2, weight, weight);
-        topology.addPath(path);
-
+        // Sets the topology.
+        NodeTopology topology = new MockTopology(nodeInfo1, nodeInfo2);
         node1.setTopology(topology);
-        node2.setTopology(topology);
     }
     
     protected void tearDown() throws Exception {
@@ -145,6 +140,58 @@ public class RemoteUseCaseTest extends AbstractUseCaseTest {
             cp.doStop();
             tp.doStop();
         }
+    }
+    
+    private static class MockTopology implements NodeTopology {
+
+        private final NodeInfo nodeInfo1;
+        private final NodeInfo nodeInfo2;
+
+        private MockTopology(NodeInfo aNodeInfo1, NodeInfo aNodeInfo2) {
+            nodeInfo1 = aNodeInfo1;
+            nodeInfo2 = aNodeInfo2;
+        }
+        
+        public Set getNeighbours(NodeInfo aRoot) {
+            Set result = new HashSet();
+            if ( aRoot.equals(nodeInfo1) ) {
+                result.add(nodeInfo2);
+            } else if ( aRoot.equals(nodeInfo2) ) {
+            } else {
+                throw new IllegalArgumentException("Not expected");
+            }
+            return result;
+        }
+        public NodeInfo[] getPath(NodeInfo aSource, NodeInfo aTarget) {
+            if ( aSource.equals(nodeInfo1) && aTarget.equals(nodeInfo2) ) {
+                return new NodeInfo[] {nodeInfo2};
+            } else if ( aSource.equals(nodeInfo2) && aTarget.equals(nodeInfo1) ) {
+                return new NodeInfo[] {nodeInfo1};
+            }
+            throw new IllegalArgumentException("Not expected");
+        }
+        public int getIDOfNode(NodeInfo aNodeInfo) {
+            if ( aNodeInfo.equals(nodeInfo1) ) {
+                return 1;
+            } else if ( aNodeInfo.equals(nodeInfo2) ) {
+                return 2;
+            }
+            throw new IllegalArgumentException("Not expected");
+        }
+        public NodeInfo getNodeById(int anId) {
+            switch (anId) {
+                case 1:
+                    return nodeInfo1;
+                case 2:
+                    return nodeInfo2;
+                default:
+                    throw new IllegalArgumentException("Not expected");
+            }
+        }
+        public Set getNodes() {
+            throw new IllegalArgumentException("Not expected");
+        }
+        
     }
     
 }

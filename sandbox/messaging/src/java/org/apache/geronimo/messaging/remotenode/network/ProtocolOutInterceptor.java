@@ -24,6 +24,7 @@ import java.util.Collections;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.messaging.CommunicationException;
 import org.apache.geronimo.messaging.Msg;
 import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 import org.apache.geronimo.messaging.io.PushSynchronization;
@@ -37,7 +38,7 @@ import org.apache.geronimo.network.protocol.ProtocolException;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:42 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/10 23:12:25 $
  */
 public class ProtocolOutInterceptor
     implements MsgOutInterceptor
@@ -110,7 +111,7 @@ public class ProtocolOutInterceptor
             streamOutputStream.flush();
         } catch (IOException e) {
             log.error(e);
-            throw new RuntimeException(e);
+            throw new CommunicationException(e);
         }
         PlainDownPacket downPacket = new PlainDownPacket();
         ByteBuffer buffer = ByteBuffer.allocate(memOut.size());

@@ -17,7 +17,7 @@
 
 package org.apache.geronimo.datastore;
 
-import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 
 /**
  * GFile manager. It allows to retrieve files from the data store and perform
@@ -25,9 +25,9 @@ import org.apache.geronimo.gbean.GBean;
  * <BR>
  * An interaction is delimited by a start and an end invocations. 
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/24 11:42:57 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/10 23:12:25 $
  */
-public interface GFileManager extends GBean
+public interface GFileManager extends GBeanLifecycle
 {
 
     /**

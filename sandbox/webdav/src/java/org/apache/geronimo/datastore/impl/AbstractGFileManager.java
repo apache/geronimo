@@ -29,7 +29,6 @@ import java.util.Set;
 import org.apache.geronimo.datastore.GFile;
 import org.apache.geronimo.datastore.GFileManager;
 import org.apache.geronimo.datastore.GFileManagerException;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
@@ -42,7 +41,7 @@ import org.apache.geronimo.gbean.WaitingException;
  * Indeed, a full GFileManager just have to provide its own GFileDAO
  * implementation in order to support all the GFileManager contract.
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/02 11:29:25 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/10 23:12:25 $
  */
 public abstract class AbstractGFileManager
     implements GFileManager
@@ -222,8 +221,6 @@ public abstract class AbstractGFileManager
         }
         return stateManagers;
     }
-    
-    public void setGBeanContext(GBeanContext context) {}
 
     public void doStart() throws WaitingException, Exception{}
 

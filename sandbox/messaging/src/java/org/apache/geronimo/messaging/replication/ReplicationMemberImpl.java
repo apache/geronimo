@@ -29,10 +29,9 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.LazyLoader;
 import net.sf.cglib.proxy.MethodInterceptor;
 
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.messaging.AbstractEndPoint;
+import org.apache.geronimo.messaging.GBeanBaseEndPoint;
 import org.apache.geronimo.messaging.Node;
 import org.apache.geronimo.messaging.NodeInfo;
 import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
@@ -42,11 +41,11 @@ import org.apache.geronimo.messaging.proxy.HOPPFilter;
 /**
  * ReplicationMember implementation.
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/02 11:29:25 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/10 23:12:24 $
  */
 public class ReplicationMemberImpl
-    extends AbstractEndPoint
-    implements ReplicationMember, GBean 
+    extends GBeanBaseEndPoint
+    implements ReplicationMember 
 {
 
     /**
@@ -227,7 +226,7 @@ public class ReplicationMemberImpl
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Replication Member", ReplicationMemberImpl.class.getName(), AbstractEndPoint.GBEAN_INFO);
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Replication Member", ReplicationMemberImpl.class.getName(), GBeanBaseEndPoint.GBEAN_INFO);
         infoFactory.addAttribute("TargetNodes",  NodeInfo[].class, true);
         infoFactory.addOperation("registerReplicantCapable", new Class[] {ReplicationCapable.class});
         infoFactory.addOperation("retrieveReplicantCapable", new Class[] {Object.class});

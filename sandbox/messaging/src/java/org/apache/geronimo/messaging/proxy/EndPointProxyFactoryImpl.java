@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.messaging.proxy;
 
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -26,27 +27,28 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.LazyLoader;
 import net.sf.cglib.proxy.MethodInterceptor;
 
-import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.messaging.AbstractEndPoint;
+import org.apache.geronimo.messaging.BaseEndPoint;
 import org.apache.geronimo.messaging.Node;
 import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 
 /**
  * EndPointProxyFactory implementation.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/20 13:37:11 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/10 23:12:24 $
  */
 public class EndPointProxyFactoryImpl
-    extends AbstractEndPoint
+    extends BaseEndPoint
     implements EndPointProxyFactory
 {
 
     /**
+     * Collection<SoftReference>.
+     * <BR>
      * EndPoint call-backs of the proxies created by this factory. They are
      * tracked in order to update their Msg output when the factory is started
      * or stopped.
      */
-    private final Collection endPointCallbacks;
+    private final Collection callbacks;
     
     /**
      * Creates a factory mounted by the specified node and having the specified
@@ -57,7 +59,7 @@ public class EndPointProxyFactoryImpl
      */
     public EndPointProxyFactoryImpl(Node aNode, Object anID) {
         super(aNode, anID);
-        endPointCallbacks = new ArrayList();
+        callbacks = new ArrayList();
     }
 
     /**
@@ -99,8 +101,8 @@ public class EndPointProxyFactoryImpl
         enhancer.setCallbackFilter(new HOPPFilter(anInfo.getInterfaces()));
         Object opaque = enhancer.create();
         
-        synchronized(endPointCallbacks) {
-            endPointCallbacks.add(endPointCB);
+        synchronized(callbacks) {
+            callbacks.add(new SoftReference(endPointCB));
         }
         
         return opaque;
@@ -126,30 +128,30 @@ public class EndPointProxyFactoryImpl
         super.setMsgProducerOut(aMsgOut);
         // When the factory is started or stopped, one also updates the
         // Msg output of the endpoint call-backs.
-        synchronized(endPointCallbacks) {
-            for (Iterator iter = endPointCallbacks.iterator(); iter.hasNext();) {
-                EndPointCallback callback = (EndPointCallback) iter.next();
-                callback.setOut(out);
+        synchronized(callbacks) {
+            for (Iterator iter = callbacks.iterator(); iter.hasNext();) {
+                EndPointCallback callback =
+                    (EndPointCallback) ((SoftReference) iter.next()).get();
+                if ( null == callback ) {
+                    iter.remove();
+                } else {
+                    callback.setOut(out);
+                }
             }
         }
     }
     
-    public void doStop() throws WaitingException, Exception {
-        super.doStop();
-        synchronized(endPointCallbacks) {
+    public void start() {
+    }
+
+    public void stop() {
+        synchronized(callbacks) {
             // Does not need to reset the Msg output of the call-backs as this
             // is already done via setMsgProducerOut.
-            endPointCallbacks.clear();
+            callbacks.clear();
         }
     }
 
-    public void doFail() {
-        super.doFail();
-        synchronized(endPointCallbacks) {
-            endPointCallbacks.clear();
-        }
-    }
-    
     /**
      * Implements the local half of an EndPoint proxy. 
      */
@@ -160,8 +162,15 @@ public class EndPointProxyFactoryImpl
         }
         public void release() {
             endPointCallback.setOut(null);
-            synchronized(endPointCallbacks) {
-                endPointCallbacks.remove(endPointCallback);
+            synchronized(callbacks) {
+                for (Iterator iter = callbacks.iterator(); iter.hasNext();) {
+                    EndPointCallback callback =
+                        (EndPointCallback) ((SoftReference) iter.next()).get();
+                    if ( null == callback || callback == endPointCallback ) {
+                        iter.remove();
+                    }
+                }
+                callbacks.remove(endPointCallback);
             }
         }
     }

@@ -20,17 +20,17 @@ package org.apache.geronimo.messaging.jmx;
 import javax.management.MBeanServer;
 
 import org.apache.geronimo.kernel.KernelMBean;
-import org.apache.geronimo.messaging.AbstractEndPoint;
+import org.apache.geronimo.messaging.GBeanBaseEndPoint;
 import org.apache.geronimo.messaging.Node;
 import org.apache.geronimo.messaging.reference.ReferenceableEnhancer;
 
 /**
  * MBeanServerEndPoint implementation.
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/27 14:23:21 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/10 23:12:25 $
  */
 public class MBeanServerEndPointImpl
-    extends AbstractEndPoint
+    extends GBeanBaseEndPoint
     implements MBeanServerEndPoint
 {
 

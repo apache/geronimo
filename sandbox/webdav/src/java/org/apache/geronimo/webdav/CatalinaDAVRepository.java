@@ -27,10 +27,9 @@ import org.apache.catalina.Globals;
 import org.apache.catalina.servlets.WebdavServlet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.naming.resources.FileDirContext;
 
@@ -38,9 +37,11 @@ import org.apache.naming.resources.FileDirContext;
  * DAVRepository implementation using the Tomcat WebDAV servlet as the
  * processing servlet.
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/02 11:29:24 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/10 23:12:25 $
  */
-public class CatalinaDAVRepository implements DAVRepository, GBean {
+public class CatalinaDAVRepository
+    implements DAVRepository, GBeanLifecycle
+{
 
     private static final Log log = LogFactory.getLog(CatalinaDAVRepository.class);
 
@@ -142,9 +143,6 @@ public class CatalinaDAVRepository implements DAVRepository, GBean {
 
     public Map getServletInitParam() {
         return Collections.unmodifiableMap(servletInitParam);
-    }
-
-    public void setGBeanContext(GBeanContext aContext) {
     }
 
     public void doStart() throws WaitingException, Exception {

@@ -22,17 +22,17 @@ import org.apache.geronimo.datastore.GFileManager;
 import org.apache.geronimo.datastore.GFileManagerException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.messaging.AbstractEndPoint;
+import org.apache.geronimo.messaging.GBeanBaseEndPoint;
 import org.apache.geronimo.messaging.Node;
 
 /**
  * It is a wrapper/proxy for a GFileManager, whose services need to be exposed
  * via a Node.
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/02 11:29:24 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/10 23:12:24 $
  */
 public class GFileManagerProxy
-    extends AbstractEndPoint
+    extends GBeanBaseEndPoint
     implements GFileManager
 {
 
@@ -88,7 +88,7 @@ public class GFileManagerProxy
     public static final GBeanInfo GBEAN_INFO;
     
     static {
-        GBeanInfoFactory factory = new GBeanInfoFactory(GFileManagerProxy.class, AbstractEndPoint.GBEAN_INFO);
+        GBeanInfoFactory factory = new GBeanInfoFactory(GFileManagerProxy.class, GBeanBaseEndPoint.GBEAN_INFO);
         factory.setConstructor(new String[] {"Node", "Delegate"});
         factory.addReference("Delegate", GFileManager.class);
         GBEAN_INFO = factory.getBeanInfo();

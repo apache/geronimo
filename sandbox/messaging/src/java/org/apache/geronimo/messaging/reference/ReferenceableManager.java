@@ -23,11 +23,21 @@ import org.apache.geronimo.messaging.Request;
 /**
  * Referenceable manager.
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/02 11:52:22 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/10 23:12:24 $
  */
 public interface ReferenceableManager extends EndPoint
 {
-    
+
+    /**
+     * Starts.
+     */
+    public void start();
+
+    /**
+     * Stops.
+     */
+    public void stop();
+
     /**
      * Builds a proxy for the provided Referenceable.
      * <BR>
@@ -71,9 +81,9 @@ public interface ReferenceableManager extends EndPoint
      * @param anId Referenceable identifier.
      * @param aRequest Request to be executed.
      * @return Result.
-     * @exception Exception raised by the execution of aRequest against the
+     * @exception Throwable raised by the execution of aRequest against the
      * Referenceable identified by anId.
      */
-    public Object invoke(int anId, Request aRequest) throws Exception;
+    public Object invoke(int anId, Request aRequest) throws Throwable;
 
 }

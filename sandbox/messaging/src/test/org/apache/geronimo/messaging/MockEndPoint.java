@@ -19,11 +19,13 @@ package org.apache.geronimo.messaging;
 
 import java.util.List;
 
+import org.apache.geronimo.gbean.GBeanLifecycle;
+
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/10 23:12:24 $
  */
-public interface MockEndPoint extends EndPoint
+public interface MockEndPoint extends EndPoint, GBeanLifecycle
 {
     
     public void sendRawObject(Object anObject);

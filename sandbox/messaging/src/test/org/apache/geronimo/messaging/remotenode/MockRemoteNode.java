@@ -24,14 +24,14 @@ import java.util.List;
 import org.apache.geronimo.messaging.CommunicationException;
 import org.apache.geronimo.messaging.Msg;
 import org.apache.geronimo.messaging.NodeInfo;
-import org.apache.geronimo.messaging.NodeTopology;
 import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/03 14:39:45 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/10 23:12:25 $
  */
-public class MockRemoteNode implements RemoteNode
+public class MockRemoteNode
+    implements RemoteNode
 {
 
     private NodeInfo nodeInfo;
@@ -47,9 +47,6 @@ public class MockRemoteNode implements RemoteNode
     
     public NodeInfo getNodeInfo() {
         return nodeInfo;
-    }
-
-    public void setTopology(NodeTopology aTopology) {
     }
 
     public RemoteNodeConnection newConnection() throws IOException, CommunicationException {
