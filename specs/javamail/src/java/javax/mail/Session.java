@@ -73,7 +73,7 @@ import javax.mail.Provider.Type;
 import javax.mail.internet.ParameterList;
 import javax.mail.internet.ParseException;
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/16 04:29:52 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/04 00:55:38 $
  */
 public final class Session {
     private static final Map _addressMap = new HashMap();
@@ -86,6 +86,9 @@ public final class Session {
         loadProviders();
         loadAddressMap();
     }
+
+    private Session(){}
+
     public synchronized static Session getDefaultInstance(Properties properties) {
         if (DEFAULT_SESSION == null) {
             DEFAULT_SESSION = getInstance(properties);
