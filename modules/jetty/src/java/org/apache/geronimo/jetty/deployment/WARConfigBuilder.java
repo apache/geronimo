@@ -43,6 +43,7 @@ import javax.naming.NamingException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.deployment.util.XmlBeansUtil;
 import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -74,7 +75,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.10 $ $Date: 2004/02/25 09:57:44 $
+ * @version $Revision: 1.11 $ $Date: 2004/02/27 07:35:03 $
  */
 public class WARConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
@@ -101,7 +102,7 @@ public class WARConfigBuilder implements ConfigurationBuilder {
             } else {
                 moduleBase = new URL("jar:" + module.toString() + "!/");
             }
-            XmlObject plan = getPlan(new URL(moduleBase, "WEB-INF/geronimo-jetty.xml"), JettyWebAppDocument.type);
+            XmlObject plan = XmlBeansUtil.getPlan(new URL(moduleBase, "WEB-INF/geronimo-jetty.xml"), JettyWebAppDocument.type);
 // todo needs generic web XMLBeans
 //            if (plan == null) {
 //                plan = getPlan(new URL(moduleBase, "WEB-INF/geronimo-web.xml"));
@@ -116,21 +117,6 @@ public class WARConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    private XmlObject getPlan(URL planURL, SchemaType type) {
-        InputStream is;
-        try {
-            is = planURL.openStream();
-            try {
-                return parse(is, type);
-            } finally {
-                is.close();
-            }
-        } catch (IOException e) {
-            return null;
-        } catch (XmlException e) {
-            return null;
-        }
-    }
 
     public void buildConfiguration(File outfile, File module, XmlObject plan) throws IOException, DeploymentException {
         if (!module.isDirectory()) {
@@ -189,7 +175,7 @@ public class WARConfigBuilder implements ConfigurationBuilder {
         FileInputStream is = new FileInputStream(dd);
         try {
             try {
-                WebAppDocument doc = (WebAppDocument) parse(new BufferedInputStream(is), WebAppDocument.type);
+                WebAppDocument doc = (WebAppDocument) XmlBeansUtil.parse(new BufferedInputStream(is), WebAppDocument.type);
                 return doc.getWebApp();
             } catch (XmlException e) {
                 throw new DeploymentException("Unable to parse web.xml", e);
@@ -228,7 +214,7 @@ public class WARConfigBuilder implements ConfigurationBuilder {
                     byte[] buffer = getBytes(module);
                     context.addFile(target, new ByteArrayInputStream(buffer));
                     try {
-                        WebAppDocument doc = (WebAppDocument) parse(new ByteArrayInputStream(buffer), WebAppDocument.type);
+                        WebAppDocument doc = (WebAppDocument) XmlBeansUtil.parse(new ByteArrayInputStream(buffer), WebAppDocument.type);
                         webApp = doc.getWebApp();
                     } catch (XmlException e) {
                         throw new DeploymentException("Unable to parse web.xml");
@@ -363,14 +349,6 @@ public class WARConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    private XmlObject parse(InputStream is, SchemaType type) throws IOException, XmlException {
-        ArrayList errors = new ArrayList();
-        SchemaTypeLoader loader = XmlBeans.getContextTypeLoader();
-        XmlOptions options = new XmlOptions();
-        options.setLoadLineNumbers();
-        options.setErrorListener(errors);
-        return loader.parse(is, type, options);
-    }
 
     private URI getParentID(JettyWebAppType jettyWebApp) throws DeploymentException {
         URI parentID;

@@ -34,6 +34,16 @@ Configuration for the Geronimo deployer
         <reference name="Store">geronimo.deployment:role=ConfigurationStore,type=Local</reference>
     </gbean>
 
+    <gbean name="geronimo.deployer:role=Builder,type=RAR_1_0,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.connector.deployment.RAR_1_0ConfigBuilder">
+        <reference name="Kernel">geronimo.boot:role=Kernel</reference>
+        <reference name="Repository">*:role=Repository,*</reference>
+    </gbean>
+
+    <gbean name="geronimo.deployer:role=Builder,type=RAR_1_5,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.connector.deployment.RAR_1_5ConfigBuilder">
+        <reference name="Kernel">geronimo.boot:role=Kernel</reference>
+        <reference name="Repository">*:role=Repository,*</reference>
+    </gbean>
+
     <gbean name="geronimo.deployer:role=Builder,type=Service,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.deployment.service.ServiceConfigBuilder">
         <reference name="Kernel">geronimo.boot:role=Kernel</reference>
         <reference name="Repository">*:role=Repository,*</reference>

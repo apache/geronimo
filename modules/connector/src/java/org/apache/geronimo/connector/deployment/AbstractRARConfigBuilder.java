@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.MalformedURLException;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
@@ -36,6 +37,7 @@ import javax.management.ObjectName;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.deployment.util.XmlBeansUtil;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -54,7 +56,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/25 09:57:09 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/27 07:35:03 $
  *
  * */
 public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
@@ -117,8 +119,17 @@ public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
     protected abstract XmlObject getConnectorDocument(JarInputStream jarInputStream) throws XmlException, IOException, DeploymentException;
 
     public XmlObject getDeploymentPlan(URL module) {
-        //for starters we require an external geronimo dd.
-        return null;
+         try {
+            URL moduleBase = new URL("jar:" + module.toString() + "!/");
+            XmlObject plan = XmlBeansUtil.getPlan(new URL(moduleBase, "META-INF/geronimo-ra.xml"), GerConnectorDocument.type);
+             if (plan != null && canConfigure(plan)) {
+                 return plan;
+             } else {
+                 return null;
+             }
+         } catch (MalformedURLException e) {
+            return null;
+        }
     }
 
     public void buildConfiguration(File outfile, File module, XmlObject plan) throws IOException, DeploymentException {
