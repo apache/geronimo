@@ -16,11 +16,8 @@
  */
 package org.apache.geronimo.gbean;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
 import java.beans.Introspector;
-import java.beans.MethodDescriptor;
-import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -142,56 +139,51 @@ public class GBeanInfoFactory {
         addInterface(intf, new String[0]);
     }
 
+    //do not use beaninfo Introspector to list the properties.  This method is primarily for interfaces,
+    //and it does not process superinterfaces.  It seems to really only work well for classes.
     public void addInterface(Class intf, String[] persistentAttributes) {
         Set persistentName = new HashSet(Arrays.asList(persistentAttributes));
-        BeanInfo beanInfo;
-        try {
-            beanInfo = Introspector.getBeanInfo(intf);
-        } catch (IntrospectionException e) {
-            IllegalArgumentException ex = new IllegalArgumentException("Can not introspect interface");
-            ex.initCause(e);
-            throw ex;
-        }
-        
-        PropertyDescriptor[] attDescriptors = beanInfo.getPropertyDescriptors();
-        Set processed = new HashSet();
-        for (int i = 0; i < attDescriptors.length; i++) {
-            PropertyDescriptor desc = attDescriptors[i];
-            GAttributeInfo info = (GAttributeInfo) attributes.get(desc.getName());
-            String oldGetter = null;
-            String oldSetter = null;
-            if ( null != info ) {
-                oldGetter = info.getGetterName();
-                oldSetter = info.getSetterName();
+        Method[] methods = intf.getMethods();
+        for (int i = 0; i < methods.length; i++) {
+            Method method = methods[i];
+            String name = method.getName();
+            Class[] parameterTypes = method.getParameterTypes();
+            if ((name.startsWith("get") || name.startsWith("is")) && parameterTypes.length == 0) {
+                String attributeName = (name.startsWith("get")) ? name.substring(3) : name.substring(2);
+                attributeName = Introspector.decapitalize(attributeName);
+                GAttributeInfo attribute = (GAttributeInfo) attributes.get(attributeName);
+                String type = method.getReturnType().getName();
+                if (attribute == null) {
+                    attributes.put(attributeName, new GAttributeInfo(attributeName, type, persistentName.contains(attributeName), name, null));
+                } else {
+                    if (!type.equals(attribute.getType())) {
+                        throw new IllegalArgumentException("Getter and setter type do not match: " + attributeName);
+                    }
+                    attributes.put(attributeName, new GAttributeInfo(attributeName, type, attribute.isPersistent(), name, attribute.getSetterName()));
+                }
+            } else if (name.startsWith("set") && parameterTypes.length == 1) {
+                String attributeName = name.substring(3);
+                attributeName = Introspector.decapitalize(attributeName);
+                GAttributeInfo attribute = (GAttributeInfo) attributes.get(attributeName);
+                String type = method.getParameterTypes()[0].getName();
+                if (attribute == null) {
+                    attributes.put(attributeName, new GAttributeInfo(attributeName, type, persistentName.contains(attributeName), null, name));
+                } else {
+                    if (!type.equals(attribute.getType())) {
+                        throw new IllegalArgumentException("Getter and setter type do not match: " + attributeName);
+                    }
+                    attributes.put(attributeName, new GAttributeInfo(attributeName, type, attribute.isPersistent(), attribute.getGetterName(), name));
+                }
+            } else {
+                List parameters = new ArrayList(parameterTypes.length);
+                for (int j = 0; j < parameterTypes.length; j++) {
+                    parameters.add(parameterTypes[j].getName());
+                }
+                addOperation(new GOperationInfo(name, name, parameters));
             }
-            attributes.put(desc.getName(),
-                new GAttributeInfo(desc.getName(),
-                    desc.getPropertyType().getName(), 
-                    persistentName.contains(desc.getName()),
-                    null == desc.getReadMethod() ? oldGetter : desc.getReadMethod().getName(), 
-                    null == desc.getWriteMethod() ? oldSetter : desc.getWriteMethod().getName()));
-            if ( null != desc.getReadMethod() ) {
-                processed.add(desc.getReadMethod());
-            }
-            if ( null != desc.getWriteMethod() ) {
-                processed.add(desc.getWriteMethod());
-            }
-        }
-        
-        MethodDescriptor[] opDescriptors = beanInfo.getMethodDescriptors();
-        for (int i = 0; i < opDescriptors.length; i++) {
-            MethodDescriptor desc = opDescriptors[i];
-            if ( processed.contains(desc.getMethod()) ) {
-                continue;
-            }
-            Class[] params = desc.getMethod().getParameterTypes();
-            List parameters = new ArrayList(params.length);
-            for (int j = 0; j < params.length; j++) {
-                parameters.add(params[j].getName());
-            }
-            addOperation(new GOperationInfo(desc.getName(), desc.getName(), parameters));
         }
     }
+
 
     public void addAttribute(String name, Class type, boolean persistent) {
         addAttribute(new GAttributeInfo(name, type.getName(), persistent));
