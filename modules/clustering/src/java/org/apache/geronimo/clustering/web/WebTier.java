@@ -56,12 +56,14 @@
 package org.apache.geronimo.clustering.web;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.clustering.AbstractTier;
 import org.apache.geronimo.clustering.Cluster;
 import org.apache.geronimo.clustering.Data;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
@@ -70,111 +72,58 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 
 /**
- * An HttpSessionManager for &lt;distributable/&gt; webapps, which
- * backs onto the generic Geronimo clustering framework.
+ * Responsible for maintaining state stored in the Web tier -
+ * i.e. HttpSessions.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/02 17:52:30 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/02 17:52:30 $
  */
 public class
-  HttpSessionManager
- implements GeronimoMBeanTarget
+  WebTier
+  extends AbstractTier
+  implements GeronimoMBeanTarget
 {
-  protected Log _log=LogFactory.getLog(HttpSessionManager.class);
+  protected Log _log=LogFactory.getLog(WebTier.class);
 
   //----------------------------------------
-  // HttpSessionManager
+  // WebTier
   //----------------------------------------
 
-  protected Map _sessions=new HashMap();
+  protected Object alloc(){return new HashMap();}
+  public Object registerData(String uid, Object data) {synchronized (_tier) {return ((Map)_tier).put(uid, data);}}
+  public Object deregisterData(String uid) {synchronized (_tier){return ((Map)_tier).remove(uid);}}
 
-  public int getSize(){return _sessions.size();}
+  public int
+    getWebAppCount()
+  {
+    return ((Map)_tier).size();
+  }
 
-  protected ObjectName _tier;
-  public ObjectName getTier(){return _tier;}
-
-  protected String _clusterName;
-  public String getClusterName(){return _clusterName;}
-  public void setClusterName(String clusterName){_clusterName=clusterName;}
-
-  protected String _nodeName;
-  public String getNodeName(){return _nodeName;}
-  public void setNodeName(String nodeName){_nodeName=nodeName;}
-
-  protected String _contextPath;
-  public String getContextPath(){return _contextPath;}
-  public void setContextPath(String contextPath){_contextPath=contextPath;}
-
-  protected String _uid;
-  public String getUID(){return _uid;}
+  public int
+    getHttpSessionCount()
+  {
+    int count=0;
+    synchronized (_tier)	// values() returns a view, so we need to hold a lock...
+    {
+      for (Iterator i=((Map)_tier).values().iterator(); i.hasNext();)
+      {
+	Map webapp=(Map)i.next();
+	// TODO - how we synchronise here depends on the webapps locking strategy - NYI...
+	synchronized (webapp){count+=webapp.size();}
+      }
+    }
+    return count;
+  }
 
   //----------------------------------------
   // GeronimoMBeanTarget
   //----------------------------------------
-
-  protected MBeanServer _server;
-
-  public boolean canStart() {return true;}
-  public boolean canStop() {return true;}
-
-  public void
-    doStart()
-  {
-    _uid=_contextPath;		// TODO - what does Greg say ?
-    _log=LogFactory.getLog(getClass().getName()+"#"+getUID());
-    _log.info("starting");
-    // find our tier
-
-    try
-    {
-      _tier=new ObjectName("geronimo.clustering:role=Tier,name=web,cluster="+getClusterName()+",node="+getNodeName()); // TODO - should be a static in AbstractTier
-      _server.invoke(_tier, "registerData", new Object[]{getUID(),_sessions}, new String[]{String.class.getName(),Object.class.getName()});
-      _log.info("sessions registered: "+getUID());
-    }
-    catch (Exception e)
-    {
-      _log.error("could not retrieve Cluster state", e);
-    }
-
-      // test stuff
-    _sessions.put("aaa", new Object());
-    _sessions.put("bbb", new Object());
-    _sessions.put("ccc", new Object());
-  }
-
-  public void
-    doStop()
-  {
-    _log.info("stopping");
-
-    // TODO - remove our session map from cluster Data
-    // TODO - leave cluster
-  }
-
-  public void
-    doFail()
-  {
-    _log.info("failing");
-    // leave cluster ?
-  }
-
-  public void
-    setMBeanContext(GeronimoMBeanContext context)
-  {
-    //    _objectName=(context==null)?null:context.getObjectName();
-    _server=(context==null)?null:context.getServer();
-  }
-
   public static GeronimoMBeanInfo
     getGeronimoMBeanInfo()
   {
-    GeronimoMBeanInfo mbeanInfo=new GeronimoMBeanInfo();
-    mbeanInfo.setTargetClass(HttpSessionManager.class);
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Size",        true, false, "number of extant HttpSessions within this webapp"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UID",         true, false, "unique identity for this webapp within this vm"));
-    // TODO - these should probably become RO...
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ClusterName", true, true, "name of Cluster upon which this webapp is deployed"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("NodeName",    true, true, "name of Cluster Node upon which this webapp is deployed"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ContextPath", true, true, "context path at which this webapp is deployed"));
+    GeronimoMBeanInfo mbeanInfo=AbstractTier.getGeronimoMBeanInfo();
+    mbeanInfo.setTargetClass(WebTier.class);
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("WebAppCount", true, false, "Number of WebApps deployed in this Tier"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("HttpSessionCount", true, false, "Number of HttpSessions stored in this Tier"));
     return mbeanInfo;
   }
 }

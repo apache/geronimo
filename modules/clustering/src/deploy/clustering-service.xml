@@ -13,7 +13,7 @@
     </class-space>
 
   <!-- ============================================================ -->
-  <!-- Sets up the Cluster                                          -->
+  <!-- Start two Clusters containing 5 nodes (all Local)            -->
   <!-- ============================================================ -->
 
   <mbean
@@ -47,6 +47,25 @@
   </mbean>
 
   <!-- ============================================================ -->
+  <!-- Web Tier Manager                                             -->
+  <!-- ============================================================ -->
+  <mbean
+    descriptor="org.apache.geronimo.clustering.web.WebTier"
+    name="geronimo.clustering:role=Tier,name=web,cluster=GERONIMO,node=0"
+    >
+  </mbean>
+
+  <!-- ============================================================ -->
+  <!-- EJB Tier Manager                                             -->
+  <!-- ============================================================ -->
+
+  <mbean
+    descriptor="org.apache.geronimo.clustering.ejb.EJBTier"
+    name="geronimo.clustering:role=Tier,name=ejb,cluster=GERONIMO,node=0"
+    >
+  </mbean>
+
+  <!-- ============================================================ -->
   <!-- Start a test distributable HttpSessionManager...             -->
   <!-- ============================================================ -->
 
@@ -54,6 +73,7 @@
     descriptor="org.apache.geronimo.clustering.web.HttpSessionManager"
     name="geronimo.clustering:role=HttpSessionManager,context=/dummy,cluster=GERONIMO,node=0"
     >
+        <!-- I use attributes here because these Objects will be created dynamically insinde the WebContainer -->
         <attribute name="ClusterName">GERONIMO</attribute>
         <attribute name="NodeName">0</attribute>
         <attribute name="ContextPath">/dummy</attribute>

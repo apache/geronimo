@@ -53,114 +53,116 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.clustering.web;
+package org.apache.geronimo.clustering;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import javax.management.MBeanOperationInfo;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.clustering.Cluster;
-import org.apache.geronimo.clustering.Data;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
+import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
+import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
 
 /**
- * An HttpSessionManager for &lt;distributable/&gt; webapps, which
- * backs onto the generic Geronimo clustering framework.
+ * AbstractTier abstracts code common to different 'Cluster' impls
+ * into the same abstract base.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/02 17:52:30 $
+ *
+ * @version $Revision: 1.1 $ $Date: 2004/01/02 17:52:30 $
  */
-public class
-  HttpSessionManager
- implements GeronimoMBeanTarget
+public abstract class
+  AbstractTier
+  implements GeronimoMBeanTarget
 {
-  protected Log _log=LogFactory.getLog(HttpSessionManager.class);
+  protected static Log  _log=LogFactory.getLog(AbstractTier.class);
+  protected ObjectName  _objectName;
+  protected ObjectName  _cluster;
+  protected MBeanServer _server;
+  protected Data        _data;
+  protected Map         _tiers;
+  protected Object      _tier;
 
   //----------------------------------------
-  // HttpSessionManager
+  // Tier
   //----------------------------------------
 
-  protected Map _sessions=new HashMap();
+  // share with other classes ?
+  protected String
+    getKeyProperty(String key, String dft)
+  {
+    String value=_objectName.getKeyProperty(key);
 
-  public int getSize(){return _sessions.size();}
+    if (value==null)
+    {
+      value=dft;
+      _log.warn("MBean name should contain '"+key+"' property - defaulting to: "+value);
+    }
 
-  protected ObjectName _tier;
-  public ObjectName getTier(){return _tier;}
+    return value;
+  }
 
-  protected String _clusterName;
-  public String getClusterName(){return _clusterName;}
-  public void setClusterName(String clusterName){_clusterName=clusterName;}
+  public String getClusterName() {return getKeyProperty("cluster", "GERONIMO");}
+  public String getNodeName() {return getKeyProperty("node", "0");}
+  public String getName() {return getKeyProperty("name", "unknown_tier");}
 
-  protected String _nodeName;
-  public String getNodeName(){return _nodeName;}
-  public void setNodeName(String nodeName){_nodeName=nodeName;}
-
-  protected String _contextPath;
-  public String getContextPath(){return _contextPath;}
-  public void setContextPath(String contextPath){_contextPath=contextPath;}
-
-  protected String _uid;
-  public String getUID(){return _uid;}
+  protected abstract Object alloc();
+  public abstract Object registerData(String uid, Object data);
+  public abstract Object deregisterData(String uid);
 
   //----------------------------------------
   // GeronimoMBeanTarget
   //----------------------------------------
 
-  protected MBeanServer _server;
-
   public boolean canStart() {return true;}
-  public boolean canStop() {return true;}
 
-  public void
+  public synchronized void
     doStart()
   {
-    _uid=_contextPath;		// TODO - what does Greg say ?
-    _log=LogFactory.getLog(getClass().getName()+"#"+getUID());
     _log.info("starting");
-    // find our tier
 
+    // find our cluster
     try
     {
-      _tier=new ObjectName("geronimo.clustering:role=Tier,name=web,cluster="+getClusterName()+",node="+getNodeName()); // TODO - should be a static in AbstractTier
-      _server.invoke(_tier, "registerData", new Object[]{getUID(),_sessions}, new String[]{String.class.getName(),Object.class.getName()});
-      _log.info("sessions registered: "+getUID());
+      _cluster=new ObjectName("geronimo.clustering:role=Cluster,name="+getClusterName()+",node="+getNodeName()); // TODO - should be a static in AbstractCluster
+      // register our session map with it's Data object
+      // perhaps we need an intermediate Object representing the WebTier here  // TODO - YES, abstract out..
+      Data data=(Data)_server.getAttribute(_cluster, "Data");
+      _log.info("Data:"+data);
+      _tiers=data.getTiers(); // immutable, so doesn't need synchronisation
     }
     catch (Exception e)
     {
       _log.error("could not retrieve Cluster state", e);
     }
 
-      // test stuff
-    _sessions.put("aaa", new Object());
-    _sessions.put("bbb", new Object());
-    _sessions.put("ccc", new Object());
+    _tier=null;
+    synchronized (_tiers)
+    {
+      _tier=_tiers.get(getName());
+      if (_tier==null)
+      {
+	_tier=alloc();
+	_tiers.put(getName(), _tier);
+      }
+      // tier storage now initialised...
+    }
   }
 
-  public void
-    doStop()
-  {
-    _log.info("stopping");
 
-    // TODO - remove our session map from cluster Data
-    // TODO - leave cluster
-  }
-
-  public void
-    doFail()
-  {
-    _log.info("failing");
-    // leave cluster ?
-  }
+  public boolean canStop() {return true;}
+  public void doStop() {}
+  public void doFail() {}
 
   public void
     setMBeanContext(GeronimoMBeanContext context)
   {
-    //    _objectName=(context==null)?null:context.getObjectName();
+    _objectName=(context==null)?null:context.getObjectName();
     _server=(context==null)?null:context.getServer();
   }
 
@@ -168,13 +170,14 @@ public class
     getGeronimoMBeanInfo()
   {
     GeronimoMBeanInfo mbeanInfo=new GeronimoMBeanInfo();
-    mbeanInfo.setTargetClass(HttpSessionManager.class);
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Size",        true, false, "number of extant HttpSessions within this webapp"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UID",         true, false, "unique identity for this webapp within this vm"));
-    // TODO - these should probably become RO...
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ClusterName", true, true, "name of Cluster upon which this webapp is deployed"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("NodeName",    true, true, "name of Cluster Node upon which this webapp is deployed"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ContextPath", true, true, "context path at which this webapp is deployed"));
+    //set target class in concrete subclass
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Name",        true, false, "Name of this Tier"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("NodeName",    true, false, "Name of this Tier's Node"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ClusterName", true, false, "Name of this Tier's Node's Cluster"));
+    mbeanInfo.addOperationInfo(new GeronimoOperationInfo("registerData",
+							 new GeronimoParameterInfo[] {new GeronimoParameterInfo("uid", String.class, "uid of webapp"),new GeronimoParameterInfo("data", Object.class, "data to be held")},
+							 MBeanOperationInfo.ACTION,
+							 "Register data with Tier state manager"));
     return mbeanInfo;
   }
 }
