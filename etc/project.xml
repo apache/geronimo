@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: project.xml,v 1.3 2003/08/13 19:42:07 jboynes Exp $ -->
+<!-- $Id: project.xml,v 1.4 2003/08/14 10:54:42 jstrachan Exp $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -203,10 +203,14 @@
       <name>Ed Letifov</name>
       <email>e.letifov@chello.nl</email>
     </contributor>
-      <contributor>
-        <name>Maas van den Berg</name>
-        <email>email@dds.nl</email>
-      </contributor>
+    <contributor>
+      <name>Maas van den Berg</name>
+      <email>email@dds.nl</email>
+    </contributor>
+    <contributor>
+      <name>Aaron Mulder</name>
+      <email></email>
+    </contributor>
   </contributors>
 
 
