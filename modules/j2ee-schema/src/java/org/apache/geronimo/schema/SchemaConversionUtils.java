@@ -225,7 +225,7 @@ public class SchemaConversionUtils {
                             || localName.equals("ejb-local-ref")
                             || localName.equals("resource-ref")
                             || localName.equals("resource-env-ref")) {
-                        convertElementToSchema(cursor, end, GERONIMO_NAMING_NAMESPACE, GERONIMO_NAMING_NAMESPACE_L0CATION, version);
+                        convertElementToSchema(cursor, end, GERONIMO_NAMING_NAMESPACE);
                     }
                 }
                 cursor.toNextToken();
@@ -245,7 +245,9 @@ public class SchemaConversionUtils {
                     String localName = cursor.getName().getLocalPart();
                     if (localName.equals(desiredElement)) {
                         XmlObject child = cursor.getObject();
-                        XmlObject result = child.changeType(type);
+                        //The copy seems to be needed to make the type change work for some documents!
+                        XmlObject result = child.copy().changeType(type);
+                        assert result.schemaType() == type;
                         return result;
                     }
                 }
@@ -282,9 +284,7 @@ public class SchemaConversionUtils {
         return true;
     }
 
-    public static boolean convertElementToSchema(XmlCursor cursor, XmlCursor end, String namespace, String schemaLocationURL, String version) {
-        //convert namespace
-        //        boolean isFirstStart = true;
+    public static boolean convertElementToSchema(XmlCursor cursor, XmlCursor end, String namespace) {
         end.toCursor(cursor);
         end.toEndToken();
         while (cursor.hasNextToken() && cursor.isLeftOf(end)) {
@@ -295,10 +295,6 @@ public class SchemaConversionUtils {
                 }
                 cursor.setName(new QName(namespace, cursor.getName().getLocalPart()));
                 cursor.toNextToken();
-                //      if (isFirstStart) {
-                //                    cursor.insertAttributeWithValue(new QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation", "xsi"), namespace + " " + schemaLocationURL);
-                //  isFirstStart = false;
-                //}
             } else {
                 cursor.toNextToken();
             }
@@ -435,6 +431,7 @@ public class SchemaConversionUtils {
         if (!dd.validate(xmlOptions)) {
             throw new XmlException("Invalid deployment descriptor: " + errors + "\nDescriptor: " + dd.toString(), null, errors);
         }
+//        System.out.println("descriptor: " + dd.toString());
     }
 
     private static void moveElements(String localName, XmlCursor moveable, XmlCursor toHere) {
