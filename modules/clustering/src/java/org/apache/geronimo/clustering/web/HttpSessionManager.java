@@ -62,8 +62,9 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.clustering.Cluster;
+import org.apache.geronimo.clustering.LocalCluster;
 import org.apache.geronimo.clustering.Data;
+import org.apache.geronimo.clustering.Tier;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
@@ -73,7 +74,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
  * An HttpSessionManager for &lt;distributable/&gt; webapps, which
  * backs onto the generic Geronimo clustering framework.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/02 17:52:30 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/03 01:42:56 $
  */
 public class
   HttpSessionManager
@@ -126,13 +127,13 @@ public class
 
     try
     {
-      _tier=new ObjectName("geronimo.clustering:role=Tier,name=web,cluster="+getClusterName()+",node="+getNodeName()); // TODO - should be a static in AbstractTier
+      _tier=Tier.makeObjectName(getClusterName(), getNodeName(), "web");
       _server.invoke(_tier, "registerData", new Object[]{getUID(),_sessions}, new String[]{String.class.getName(),Object.class.getName()});
       _log.info("sessions registered: "+getUID());
     }
     catch (Exception e)
     {
-      _log.error("could not retrieve Cluster state", e);
+      _log.error("could not retrieve Tier state", e);
     }
 
       // test stuff

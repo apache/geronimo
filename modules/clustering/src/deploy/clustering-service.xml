@@ -16,39 +16,55 @@
   <!-- Start two Clusters containing 5 nodes (all Local)            -->
   <!-- ============================================================ -->
 
+<!--
   <mbean
     descriptor="org.apache.geronimo.clustering.LocalCluster"
-    name="geronimo.clustering:role=Cluster,name=GERONIMO,node=0"
+    name="geronimo.clustering:role=Cluster,name=GERONIMO"
+    >
+  </mbean>
+-->
+  <mbean
+    descriptor="org.apache.geronimo.clustering.Node"
+    name="geronimo.clustering:role=Node,name=0,cluster=GERONIMO"
     >
   </mbean>
 
   <mbean
-    descriptor="org.apache.geronimo.clustering.LocalCluster"
-    name="geronimo.clustering:role=Cluster,name=GERONIMO,node=1"
+    descriptor="org.apache.geronimo.clustering.Node"
+    name="geronimo.clustering:role=Node,name=1,cluster=GERONIMO"
     >
   </mbean>
 
   <mbean
+    descriptor="org.apache.geronimo.clustering.Node"
+    name="geronimo.clustering:role=Node,name=2,cluster=GERONIMO"
+    >
+  </mbean>
+
+<!--
+  <mbean
     descriptor="org.apache.geronimo.clustering.LocalCluster"
-    name="geronimo.clustering:role=Cluster,name=GERONIMO,node=2"
+    name="geronimo.clustering:role=Cluster,name=GERONIMO2"
+    >
+  </mbean>
+-->
+
+  <mbean
+    descriptor="org.apache.geronimo.clustering.Node"
+    name="geronimo.clustering:role=Node,name=0,cluster=GERONIMO2"
     >
   </mbean>
 
   <mbean
-    descriptor="org.apache.geronimo.clustering.LocalCluster"
-    name="geronimo.clustering:role=Cluster,name=GERONIMO2,node=0"
-    >
-  </mbean>
-
-  <mbean
-    descriptor="org.apache.geronimo.clustering.LocalCluster"
-    name="geronimo.clustering:role=Cluster,name=GERONIMO2,node=1"
+    descriptor="org.apache.geronimo.clustering.Node"
+    name="geronimo.clustering:role=Node,name=1,cluster=GERONIMO2"
     >
   </mbean>
 
   <!-- ============================================================ -->
   <!-- Web Tier Manager                                             -->
   <!-- ============================================================ -->
+
   <mbean
     descriptor="org.apache.geronimo.clustering.web.WebTier"
     name="geronimo.clustering:role=Tier,name=web,cluster=GERONIMO,node=0"
@@ -73,7 +89,6 @@
     descriptor="org.apache.geronimo.clustering.web.HttpSessionManager"
     name="geronimo.clustering:role=HttpSessionManager,context=/dummy,cluster=GERONIMO,node=0"
     >
-        <!-- I use attributes here because these Objects will be created dynamically insinde the WebContainer -->
         <attribute name="ClusterName">GERONIMO</attribute>
         <attribute name="NodeName">0</attribute>
         <attribute name="ContextPath">/dummy</attribute>

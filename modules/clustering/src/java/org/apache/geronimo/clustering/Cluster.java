@@ -55,7 +55,12 @@
  */
 package org.apache.geronimo.clustering;
 
-import org.apache.geronimo.core.service.ManagedComponent;
+import java.util.List;
+import javax.management.ObjectName;
+import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 
 /**
  * A 'Cluster' is the in-vm representative of a Cluster of Geronimo
@@ -65,8 +70,59 @@ import org.apache.geronimo.core.service.ManagedComponent;
  * every other node and CleverCluster, which automagically partitions
  * data into SubClusters etc...
  *
- * @version $Revision: 1.4 $ $Date: 2003/12/31 14:51:44 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/03 01:42:56 $
  */
-public interface Cluster {
-  public String getName();
+public abstract class
+  Cluster
+  implements GeronimoMBeanTarget
+{
+  public static ObjectName
+    makeObjectName(String clusterName)
+    throws Exception
+  {
+    return new ObjectName("geronimo.clustering:role=Cluster,name="+clusterName);
+  }
+
+  /**
+   * Return current Cluster members.
+   *
+   * @return a <code>List</code> value
+   */
+  public abstract List getMembers();
+
+  public abstract Data getData();
+
+  /**
+   * Add the given node to this Cluster.
+   *
+   * @param member an <code>Object</code> value
+   */
+  public abstract void join(Object member);
+
+
+  /**
+   * Remove the given node from this Cluster.
+   *
+   * @param member an <code>Object</code> value
+   */
+  public abstract void leave(Object member);
+
+  //----------------------------------------
+  // GeronimoMBeanTarget
+  //----------------------------------------
+
+  public boolean canStart(){return true;}
+  public boolean canStop(){return true;}
+  public void doStart(){}
+  public void doStop(){}
+  public void doFail(){}
+  public void setMBeanContext(GeronimoMBeanContext context){}
+
+  public static GeronimoMBeanInfo
+    getGeronimoMBeanInfo()
+  {
+    GeronimoMBeanInfo mbeanInfo=new GeronimoMBeanInfo();
+    // set target class in concrete subclasses...
+    return mbeanInfo;
+  }
 }

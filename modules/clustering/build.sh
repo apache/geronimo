@@ -17,8 +17,6 @@ export ANT_HOME
 ## rebuild clustering service
 ## install result into dev tree
 ## run dev tree
-time maven --emacs clean build jar:install javadoc && \
-cp target/*.jar ../../target/geronimo-DEV/lib/ && \
-cp src/deploy/*.xml ../../target/geronimo-DEV/deploy/ && \
-cd ../../ &&
-time maven --emacs run:main
+time maven --emacs clean javadoc && \
+cd ../../ && \
+time maven --emacs -Dmodules=clustering build run:main

@@ -55,7 +55,10 @@
  */
 package org.apache.geronimo.clustering;
 
-
+import java.util.HashMap;
+import java.util.Map;
+import javax.management.MBeanOperationInfo;
+import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -63,67 +66,122 @@ import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
+import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
+import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
 
 /**
- * AbstractCluster abstracts code common to different 'Cluster' impls
+ * Tier abstracts code common to different Tier impls
  * into the same abstract base.
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/02 14:19:04 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/03 01:42:56 $
  */
 public abstract class
-  AbstractCluster
-  implements Cluster, GeronimoMBeanTarget
+  Tier
+  implements GeronimoMBeanTarget
 {
-  protected static Log _log=LogFactory.getLog(AbstractCluster.class);
-  protected ObjectName _objectName;
+  protected static Log  _log=LogFactory.getLog(Tier.class);
+  protected ObjectName  _objectName;
+  protected ObjectName  _node;
+  protected MBeanServer _server;
+  protected Data        _data;
+  protected Map         _tiers;
+  protected Object      _tier;
 
   //----------------------------------------
-  // Cluster
+  // Tier
   //----------------------------------------
 
-  public String
-    getName()
+  public String getClusterName() {return _objectName.getKeyProperty("cluster");}
+  public String getNodeName() {return _objectName.getKeyProperty("node");}
+  public String getName() {return _objectName.getKeyProperty("name");}
+
+  protected abstract Object alloc();
+  public abstract Object registerData(String uid, Object data);
+  public abstract Object deregisterData(String uid);
+
+  public static ObjectName
+    makeObjectName(String clusterName, String nodeName, String tierName)
+    throws Exception
   {
-    String name=_objectName.getKeyProperty("name");
-
-    if (name==null)
-    {
-      name="GERONIMO";
-      _log.warn("MBean name should contain 'name' property - defaulting to: "+name);
-    }
-
-    return name;
-  }
-
-  public String
-    getNode()
-  {
-    String node=_objectName.getKeyProperty("node");
-
-    if (node==null)
-    {
-      node="0";
-      _log.warn("MBean name should contain 'node' property - defaulting to: "+node);
-    }
-
-    return node;
+    return new ObjectName("geronimo.clustering:role=Tier,name="+tierName+",node="+nodeName+",cluster="+clusterName);
   }
 
   //----------------------------------------
   // GeronimoMBeanTarget
   //----------------------------------------
 
-  public boolean canStart() {return true;}
-  public void doStart() {}
+  public boolean
+    canStart()
+  {
+    if (_objectName.getKeyProperty("name")==null)
+    {
+      _log.warn("TierMBean name must contain a 'name' property");
+      return false;
+    }
+
+    if (_objectName.getKeyProperty("node")==null)
+    {
+      _log.warn("NodeMBean name must contain a 'node' property");
+      return false;
+    }
+
+    if (_objectName.getKeyProperty("cluster")==null)
+    {
+      _log.warn("NodeMBean name must contain a 'cluster' property");
+      return false;
+    }
+
+    return true;
+  }
+
   public boolean canStop() {return true;}
-  public void doStop() {}
+
+  public synchronized void
+    doStart()
+  {
+    _log.info("starting");
+
+    // find our node
+    try
+    {
+      _node=Node.makeObjectName(getClusterName(), getNodeName());
+      // register our session map with it's Data object
+      Data data=(Data)_server.getAttribute(_node, "Data");
+      _log.info("Data:"+data);
+      _tiers=data.getTiers(); // immutable, so doesn't need synchronisation
+    }
+    catch (Exception e)
+    {
+      _log.error("could not retrieve Node state", e);
+    }
+
+    _tier=null;
+    synchronized (_tiers)
+    {
+      _tier=_tiers.get(getName());
+      if (_tier==null)
+      {
+	_tier=alloc();
+	_tiers.put(getName(), _tier);
+      }
+      // tier storage now initialised...
+    }
+  }
+
+  public void
+    doStop()
+  {
+    // TODO
+  }
+
   public void doFail() {}
 
   public void
     setMBeanContext(GeronimoMBeanContext context)
   {
     _objectName=(context==null)?null:context.getObjectName();
+    _server    =(context==null)?null:context.getServer();
   }
 
   public static GeronimoMBeanInfo
@@ -131,8 +189,13 @@ public abstract class
   {
     GeronimoMBeanInfo mbeanInfo=new GeronimoMBeanInfo();
     //set target class in concrete subclass
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Name", true, false, "Name of cluster we are a part of"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Node", true, false, "Node id within the cluster"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Name",        true, false, "Name of this Tier"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("NodeName",    true, false, "Name of this Tier's Node"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ClusterName", true, false, "Name of this Tier's Node's Cluster"));
+    mbeanInfo.addOperationInfo(new GeronimoOperationInfo("registerData",
+							 new GeronimoParameterInfo[] {new GeronimoParameterInfo("uid", String.class, "uid of webapp"),new GeronimoParameterInfo("data", Object.class, "data to be held")},
+							 MBeanOperationInfo.ACTION,
+							 "Register data with Tier state manager"));
     return mbeanInfo;
   }
 }

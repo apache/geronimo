@@ -55,128 +55,183 @@
  */
 package org.apache.geronimo.clustering;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 
 /**
- * An initial Cluster impl, which only clusters within a single
- * VM. Thus development on Clustering can start before an inter-vm
- * transport layer has been put in place...
+ * A uniquely identifiable n->n intra-vm event-raising communications
+ * channel. A number of nodes which are part of the same cluster and
+ * reside in the same VM should share a single Cluster object.
  *
- * @version $Revision: 1.9 $ $Date: 2004/01/02 19:46:30 $
+ * @version $Revision: 1.10 $ $Date: 2004/01/03 01:42:56 $
  */
 public class
   LocalCluster
-  extends AbstractCluster
-  implements MetaDataListener, DataListener, DataDeltaListener
+  extends Cluster
 {
-  protected Log          _log=LogFactory.getLog(LocalCluster.class);
-  protected LocalChannel _channel;
-
-  //----------------------------------------
-  // LocalCluster
-  //----------------------------------------
+  // class
+  protected static Log _log=LogFactory.getLog(LocalCluster.class);
+  protected static Map _map=new HashMap();
 
   /**
-   * Returns a List of current Cluster members.
+   * Return either an existing Cluster, or a freshly created one.
+   *
+   * @param name a <code>String</code> value
+   * @return a <code>LocalCluster</code> value
    */
-  public List getMembers(){return _channel.getMembers();}
-
-  //----------------------------------------
-  // MetaDataListener
-  //----------------------------------------
-
-  public void
-    setMetaData(List members)
+  public static LocalCluster
+    find(String name)
   {
-    _log.info("membership changed: "+members);
-  }
-
-  //----------------------------------------
-  // DataListener
-  //----------------------------------------
-
-  protected Data _data;
-
-  public Data getData() {return _data;}
-
-  public void
-    setData(Data data)
-  {
-    String xtra="we must be the first node up";
-
-    if (data!=null)
+    synchronized (_map)
     {
-      xtra="we are joining an extant cluster";
-      _data=data;
+      LocalCluster cluster=(LocalCluster)_map.get(name);
+
+      if (cluster==null)
+      {
+	cluster=new LocalCluster(name);
+	_map.put(name, cluster);
+
+	_log.trace("created cluster: "+name);
+      }
+      else
+      {
+	_log.trace("found cluster: "+name);
+      }
+
+      return cluster;
     }
-    else
+  }
+
+  // instance
+  protected String _name;
+  protected List   _members=new Vector();
+
+
+  /**
+   * Creates a new <code>LocalCluster</code> instance.
+   *
+   * @param name a <code>String</code> value
+   */
+  protected LocalCluster(String name) {_name=name;}
+
+  public List getMembers(){synchronized (_members){return Collections.unmodifiableList(_members);}}
+
+  // MetaData
+
+  /**
+   * Notify interested Cluster members of a change in membership,
+   * including the node which generated it.
+   *
+   * @param members a <code>List</code> value
+   */
+  protected void
+    notifyMembershipChanged(List members)
+  {
+    for (Iterator i=members.iterator(); i.hasNext();)
+      try
+      {
+	Object member=i.next();
+	if (member instanceof MetaDataListener)
+	  ((MetaDataListener)member).setMetaData(members);
+      }
+      catch (Exception e)
+      {
+	_log.warn("problem notifying membership changed", e);
+      }
+  }
+
+  public void
+    join(Object member)
+  {
+    // first one in could turn on the lights...
+    synchronized (_members)
     {
-      _data=new Data();
+      _members.add(member);
+      notifyMembershipChanged(_members);
     }
-
-    _log.debug("initialising data - "+xtra);
   }
 
-  //----------------------------------------
-  // DataDeltaListener
-  //----------------------------------------
-
   public void
-    applyDataDelta(DataDelta delta)
+    leave(Object member)
   {
-    _log.trace("applying data delta - "+delta);
-  }
-
-  //----------------------------------------
-  // GeronimoMBeanTarget
-  //----------------------------------------
-
-  public void
-    doStart()
-  {
-    _log=LogFactory.getLog(getClass().getName()+"#"+getName()+"/"+getNode());
-    _log.info("starting");
-    _channel=LocalChannel.find(getName());
-    synchronized (_channel)
+    synchronized (_members)
     {
-      Data data=_channel.getData();
-      _log.info("state transfer - sending: "+data);
-      setData(data);
-      _channel.join(this);
+      _members.remove(member);
+      notifyMembershipChanged(_members);
     }
 
-    super.doStart();
+    // last one out could turn off the lights...
   }
 
-  public void
-    doStop()
-  {
-    super.doStop();
+  // Data
 
-    _log.info("stopping");
-    _channel.leave(this);
+  /**
+   * Get the Cluster's Data - uses an election policy (currently
+   * hardwired) to decide which node to get it from.
+   *
+   * @return a <code>Data</code> value - The data
+   */
+  public synchronized Data
+    getData()
+  {
+    // TODO - we need a pluggable election policy to decide who will
+    // be asked for state...
+
+    synchronized (_members)
+    {
+      if (_members.isEmpty())
+	return null;
+      else
+      {
+	for (Iterator i=_members.iterator(); i.hasNext();)
+	{
+	  Object member=i.next();
+	  // TODO - we need to do a deep copy of the state here -
+	  // serialise and deserialise...
+	  if (member instanceof DataListener)
+	    return ((DataListener)member).getData();
+	}
+	return null;
+      }
+    }
   }
 
+  /**
+   * Apply the given delta to all interested members of the cluster,
+   * excluding the member which generated it.
+   *
+   * @param l a <code>DataDeltaListener</code> value - The node that generated the delta
+   * @param delta a <code>DataDelta</code> value - The delta
+   */
   public void
-    doFail()
+    notifyDataDelta(DataDeltaListener l, DataDelta delta)
   {
-    super.doFail();
-
-    _log.info("failing");
-    _channel.leave(this);	// TODO - ??
+    synchronized (_members)
+    {
+      for (Iterator i=_members.iterator(); i.hasNext();)
+      {
+	Object member=i.next();
+	if (member != l && member instanceof DataDeltaListener)
+	  ((DataDeltaListener)member).applyDataDelta(delta);
+      }
+    }
   }
 
   public static GeronimoMBeanInfo
     getGeronimoMBeanInfo()
   {
-    GeronimoMBeanInfo mbeanInfo=AbstractCluster.getGeronimoMBeanInfo();
+    GeronimoMBeanInfo mbeanInfo=Cluster.getGeronimoMBeanInfo();
     mbeanInfo.setTargetClass(LocalCluster.class);
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Members", true, false, "List of cluster members"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Data",    true, false, "cluster state"));
     return mbeanInfo;
   }
 }

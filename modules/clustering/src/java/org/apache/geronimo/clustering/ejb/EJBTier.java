@@ -63,8 +63,7 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.clustering.AbstractTier;
-import org.apache.geronimo.clustering.Cluster;
+import org.apache.geronimo.clustering.Tier;
 import org.apache.geronimo.clustering.Data;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
@@ -75,11 +74,11 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
  * Responsible for maintaining state stored in the EJB tier -
  * i.e. StatefulSessions.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/02 17:52:30 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/03 01:42:56 $
  */
 public class
   EJBTier
-  extends AbstractTier
+  extends Tier
   implements GeronimoMBeanTarget
 {
   protected Log _log=LogFactory.getLog(EJBTier.class);
@@ -120,7 +119,7 @@ public class
   public static GeronimoMBeanInfo
     getGeronimoMBeanInfo()
   {
-    GeronimoMBeanInfo mbeanInfo=AbstractTier.getGeronimoMBeanInfo();
+    GeronimoMBeanInfo mbeanInfo=Tier.getGeronimoMBeanInfo();
     mbeanInfo.setTargetClass(EJBTier.class);
     mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("AppCount", true, false, "Number of Apps deployed in this Tier"));
     mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("StatefulSessionCount", true, false, "Number of Stateful Sessions stored in this Tier"));
