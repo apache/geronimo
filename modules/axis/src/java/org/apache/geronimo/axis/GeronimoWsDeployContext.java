@@ -16,31 +16,14 @@
 package org.apache.geronimo.axis;
 
 import org.apache.axis.wsdl.fromJava.Emitter;
-import org.apache.geronimo.ews.ws4j2ee.module.Module;
-import org.apache.geronimo.ews.ws4j2ee.module.ModuleFactory;
 import org.apache.geronimo.ews.ws4j2ee.toWs.GenerationConstants;
 import org.apache.geronimo.ews.ws4j2ee.toWs.Ws4J2eeDeployContext;
+import org.apache.geronimo.ews.ws4j2ee.toWs.impl.Ws4J2eeDeployContextImpl;
 
 /**
  * @version $Rev$ $Date$
  */
-public class GeronimoWsDeployContext implements Ws4J2eeDeployContext {
-
-    /**
-     * Field module
-     */
-    private Module module;
-
-    /**
-     * Field moduleLocation
-     */
-    private String moduleLocation;
-
-    /**
-     * Field outputLocation
-     */
-    private String outputLocation;
-
+public class GeronimoWsDeployContext extends Ws4J2eeDeployContextImpl implements Ws4J2eeDeployContext {
     /**
      * Constructor GeronimoWsDeployContext
      *
@@ -49,10 +32,7 @@ public class GeronimoWsDeployContext implements Ws4J2eeDeployContext {
      */
     public GeronimoWsDeployContext(String moduleLocation,
                                    String outputLocation) {
-        module =
-                ModuleFactory.createPackageModule(moduleLocation);
-        this.moduleLocation = moduleLocation;
-        this.outputLocation = outputLocation;
+        super(moduleLocation,outputLocation,Thread.currentThread().getContextClassLoader());
     }
 
     /**
@@ -73,23 +53,6 @@ public class GeronimoWsDeployContext implements Ws4J2eeDeployContext {
         return null;
     }
 
-    /**
-     * Method getModule
-     *
-     * @return
-     */
-    public Module getModule() {
-        return module;
-    }
-
-    /**
-     * Method getModuleLocation
-     *
-     * @return
-     */
-    public String getModuleLocation() {
-        return moduleLocation;
-    }
 
     /**
      * Method getContanier

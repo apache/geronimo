@@ -94,7 +94,7 @@ public class WSConfigBuilder implements ConfigurationBuilder {
                 GBeanMBean wsGbean = new GBeanMBean(EJBWSGBean.getGBeanInfo());
                 ArrayList classList = AxisGeronimoUtils.getClassFileList(new ZipFile(wsplan.getModule()));
                 wsGbean.setAttribute("classList", classList);
-                wsGbean.setReferencePattern("ejbConfig", wsplan.getEjbConfName());
+                wsGbean.setReferencePattern("EjbConfig", wsplan.getEjbConfName());
                 Map gbeans = new HashMap();
                 gbeans.put(wsplan.getWsName(), wsGbean);
 //      
