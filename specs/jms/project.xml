@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Id: project.xml,v 1.1 2003/08/16 02:29:57 jboynes Exp $ -->
+
+<project>
+  <pomVersion>3</pomVersion>
+  <extend>${basedir}/../../etc/project.xml</extend>
+  
+  <name>Geronimo :: JMS Specification</name>
+  <groupId>geronimo-spec</groupId>
+  <id>geronimo-spec-jms</id>
+  <shortDescription>J2EE JMS Specification</shortDescription>
+  <description>J2EE Java Message Service Specification</description>
+  <siteDirectory></siteDirectory>
+  <distributionDirectory></distributionDirectory>
+  
+  <package>javax.jms</package>
+  <currentVersion>DEV</currentVersion>
+  
+</project>
