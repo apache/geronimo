@@ -55,12 +55,18 @@ public class SecurityServiceImpl {
         ConfigurationUtil.registerPolicyContextHandler(new PolicyContextHandlerSOAPMessage(), true);
         ConfigurationUtil.registerPolicyContextHandler(new PolicyContextHandlerHttpServletRequest(), true);
 
+        /**
+         * javax.security.jacc.PolicyConfigurationFactory.provider gets preference over policyConfigurationFactory
+         */
+        String sysFactory = System.getProperty("javax.security.jacc.PolicyConfigurationFactory.provider");
+        if (sysFactory != null)
+            policyConfigurationFactory = sysFactory;
         if (policyConfigurationFactory != null) {
             System.setProperty("javax.security.jacc.PolicyConfigurationFactory.provider", policyConfigurationFactory);
         }
 
         /**
-         * javax.security.jacc.policy.provider get preference over policyProvider
+         * javax.security.jacc.policy.provider gets preference over policyProvider
          */
         String sysProvider = System.getProperty("javax.security.jacc.policy.provider");
         if (sysProvider != null)
