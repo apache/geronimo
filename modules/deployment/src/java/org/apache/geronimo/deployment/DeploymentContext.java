@@ -51,6 +51,7 @@ import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -115,16 +116,20 @@ public class DeploymentContext {
                 throw new DeploymentException("Unable to load parents", e);
             }
 
-            for (Iterator i = ancestors.iterator(); i.hasNext();) {
-                ObjectName name = (ObjectName) i.next();
-                try {
-                    // start the config to get the classloaders going,
-                    // by not specfying startRecursive none of the GBeans should start
-                    kernel.startGBean(name);
-                } catch (Exception e) {
-                    throw new DeploymentException(e);
+            try {
+                ObjectName currentConfig = parentName;
+                while ( State.RUNNING != State.fromInteger((Integer) kernel.getAttribute(currentConfig, "state")) ) {
+                    kernel.startGBean(currentConfig);
+                    URI currentParentID = (URI) kernel.getAttribute(currentConfig, "parentID");
+                    if ( null == currentParentID ) {
+                        break;
+                    }
+                    currentConfig = Configuration.getConfigurationObjectName(currentParentID);
                 }
+            } catch (Exception e) {
+                throw new DeploymentException(e);
             }
+                
             try {
                 parentCL = (ClassLoader) kernel.getAttribute(parentName, "configurationClassLoader");
             } catch (Exception e) {
