@@ -93,7 +93,7 @@ public class DistributeCommand extends CommandSupport {
 
             Object[] args = {moduleArchive, deploymentPlan};
             List objectNames = (List) kernel.invoke(deployer, "deploy", args, DEPLOY_SIG);
-            System.err.println("deploy returned id " + objectNames.get(0));
+//            System.err.println("deploy returned id " + objectNames.get(0));
             if (objectNames != null && !objectNames.isEmpty()) {
                 String parentName = (String) objectNames.get(0);
                 String[] childIDs = new String[objectNames.size()-1];
@@ -102,7 +102,7 @@ public class DistributeCommand extends CommandSupport {
                 }
 
                 TargetModuleID moduleID = new TargetModuleIDImpl(targetList[0], parentName.toString(), childIDs);
-                System.err.println("Distributed moduleId " + moduleID);
+//                System.err.println("Distributed moduleId " + moduleID);
                 addModule(moduleID);
             } else {
                 DeploymentException deploymentException = new DeploymentException("Got empty list");
@@ -111,8 +111,6 @@ public class DistributeCommand extends CommandSupport {
             }
             complete("Completed");
         } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println(e.getMessage());
             doFail(e);
         } finally {
             if (spool) {

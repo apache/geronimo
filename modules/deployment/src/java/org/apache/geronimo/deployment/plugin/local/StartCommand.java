@@ -44,7 +44,7 @@ public class StartCommand extends CommandSupport {
                 TargetModuleID module = modules[i];
 
                 URI moduleID = URI.create(module.getModuleID());
-                System.err.println("Starting module " + moduleID);
+//                System.err.println("Starting module " + moduleID);
                 kernel.startConfiguration(moduleID);
                 addModule(module);
             }
