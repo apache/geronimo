@@ -17,26 +17,27 @@
 
 package org.apache.geronimo.transaction.manager;
 
-import java.util.Map;
-
-import javax.transaction.xa.Xid;
-import javax.transaction.xa.XAException;
-import javax.transaction.Transaction;
-import javax.transaction.SystemException;
-
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/05/06 04:00:51 $
+ * @version $Revision: 1.1 $ $Date: 2004/05/06 04:00:51 $
  *
  * */
-public interface XidImporter {
+public class LogException extends Exception {
 
-    Transaction importXid(Xid xid) throws XAException, SystemException;
+       public LogException() {
+	super();
+    }
 
-    void commit(Transaction tx, boolean onePhase) throws XAException;
-    void forget(Transaction tx) throws XAException;
-    int prepare(Transaction tx) throws XAException;
-    void rollback(Transaction tx) throws XAException;
-    void setTransactionTimeout(long milliseconds);
+    public LogException(String message) {
+	super(message);
+    }
+
+    public LogException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public LogException(Throwable cause) {
+        super(cause);
+    }
 }

@@ -24,21 +24,23 @@ import javax.transaction.xa.Xid;
 /**
  * Unique id for a transaction.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:37 $
+ * @version $Revision: 1.5 $ $Date: 2004/05/06 04:00:51 $
  */
 public class XidImpl implements Xid, Serializable {
     private static int FORMAT_ID = 0x4765526f;  // Gero
+    private final int formatId;
     private final byte[] globalId;
     private final byte[] branchId;
-    private final int hash;
+    private int hash;   //apparently never used by our code, so don't compute it.
 
     /**
      * Constructor taking a global id (for the main transaction)
      * @param globalId the global transaction id
      */
     public XidImpl(byte[] globalId) {
+        this.formatId = FORMAT_ID;
         this.globalId = globalId;
-        this.hash = hash(0, globalId);
+        //this.hash = hash(0, globalId);
         branchId = new byte[Xid.MAXBQUALSIZE];
     }
 
@@ -48,16 +50,23 @@ public class XidImpl implements Xid, Serializable {
      * @param branch the branch id
      */
     public XidImpl(Xid global, byte[] branch) {
-        int hash;
+        this.formatId = FORMAT_ID;
+        //int hash;
         if (global instanceof XidImpl) {
             globalId = ((XidImpl) global).globalId;
-            hash = ((XidImpl) global).hash;
+            //hash = ((XidImpl) global).hash;
         } else {
             globalId = global.getGlobalTransactionId();
-            hash = hash(0, globalId);
+            //hash = hash(0, globalId);
         }
         branchId = branch;
-        this.hash = hash(hash, branchId);
+        //this.hash = hash(hash, branchId);
+    }
+
+    public XidImpl(int formatId, byte[] globalId, byte[] branchId) {
+        this.formatId = formatId;
+        this.globalId = globalId;
+        this.branchId = branchId;
     }
 
     private int hash(int hash, byte[] id) {
@@ -68,7 +77,7 @@ public class XidImpl implements Xid, Serializable {
     }
 
     public int getFormatId() {
-        return FORMAT_ID;
+        return formatId;
     }
 
     public byte[] getGlobalTransactionId() {
@@ -84,10 +93,15 @@ public class XidImpl implements Xid, Serializable {
             return false;
         }
         XidImpl other = (XidImpl) obj;
-        return Arrays.equals(globalId, other.globalId) && Arrays.equals(branchId, other.branchId);
+        return formatId == other.formatId
+                && Arrays.equals(globalId, other.globalId)
+                && Arrays.equals(branchId, other.branchId);
     }
 
     public int hashCode() {
+        if (hash == 0) {
+            hash = hash(hash(0, globalId), branchId);
+        }
         return hash;
     }
 

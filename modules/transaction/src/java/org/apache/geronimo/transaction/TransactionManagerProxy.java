@@ -34,6 +34,7 @@ import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
+import javax.transaction.xa.XAResource;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -42,6 +43,7 @@ import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.transaction.manager.XidImporter;
+import org.apache.geronimo.transaction.manager.Recovery;
 
 /**
  * A wrapper for a TransactionManager that wraps all Transactions in a TransactionProxy
@@ -49,7 +51,7 @@ import org.apache.geronimo.transaction.manager.XidImporter;
  * are delegated to the wrapped TransactionManager; all other operations are delegated to the
  * wrapped Transaction.
  *
- * @version $Revision: 1.7 $ $Date: 2004/03/12 17:55:34 $
+ * @version $Revision: 1.8 $ $Date: 2004/05/06 04:00:51 $
  */
 public class TransactionManagerProxy implements TransactionManager, XATerminator, XAWork {
 
@@ -60,6 +62,10 @@ public class TransactionManagerProxy implements TransactionManager, XATerminator
     private final ThreadLocal threadTx = new ThreadLocal();
     private final Map importedTransactions = new HashMap();
     private Set activeTransactions = new HashSet();
+    private boolean recoveryState = NOT_IN_RECOVERY;
+    private static final boolean NOT_IN_RECOVERY = false;
+    private static final boolean IN_RECOVERY = true;
+    private Recovery recovery;
 
     /**
      * Constructor taking the TransactionManager to wrap.
@@ -75,7 +81,7 @@ public class TransactionManagerProxy implements TransactionManager, XATerminator
      */
     public TransactionManagerProxy() {
         this.delegate = new TransactionManagerImpl();
-        this.importer = (XidImporter)delegate;
+        this.importer = (XidImporter) delegate;
     }
 
     public void setTransactionTimeout(int timeout) throws SystemException {
@@ -201,8 +207,24 @@ public class TransactionManagerProxy implements TransactionManager, XATerminator
     /**
      * @see javax.resource.spi.XATerminator#recover(int)
      */
-    public Xid[] recover(int arg0) throws XAException {
-        throw new XAException("Not implemented.");
+    public Xid[] recover(int flag) throws XAException {
+        if (recoveryState == NOT_IN_RECOVERY) {
+            if ((flag & XAResource.TMSTARTRSCAN) == 0) {
+                throw new XAException(XAException.XAER_PROTO);
+            }
+            recoveryState = IN_RECOVERY;
+        }
+        if ((flag & XAResource.TMENDRSCAN) != 0) {
+            recoveryState = NOT_IN_RECOVERY;
+        }
+        //we always return all xids in first call.
+        //calling "startrscan" repeatedly starts at beginning of list again.
+        if ((flag & XAResource.TMSTARTRSCAN) != 0) {
+            importedTransactions.putAll(recovery.getExternalXids());
+            return (Xid[]) importedTransactions.keySet().toArray(new Xid[importedTransactions.size()]);
+        } else {
+            return new Xid[0];
+        }
     }
 
     /**
@@ -229,7 +251,7 @@ public class TransactionManagerProxy implements TransactionManager, XATerminator
             try {
                 tx = new TransactionProxy(importer.importXid(xid));
             } catch (SystemException e) {
-                throw (XAException)new XAException("Could not import xid").initCause(e);
+                throw (XAException) new XAException("Could not import xid").initCause(e);
             }
             importedTransactions.put(xid, tx);
         }

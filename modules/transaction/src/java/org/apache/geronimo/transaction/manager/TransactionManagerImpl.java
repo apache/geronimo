@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.transaction.manager;
 
+import java.util.Map;
+
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.InvalidTransactionException;
@@ -34,11 +36,11 @@ import org.apache.geronimo.transaction.log.UnrecoverableLog;
 /**
  * Simple implementation of a local transaction manager.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:37 $
+ * @version $Revision: 1.5 $ $Date: 2004/05/06 04:00:51 $
  */
 public class TransactionManagerImpl implements TransactionManager, XidImporter {
     private final TransactionLog txnLog;
-    private final XidFactory xidFactory = new XidFactory();
+    private final XidFactory xidFactory = new XidFactoryImpl();
     private volatile int timeout;
     private final ThreadLocal threadTx = new ThreadLocal();
 
@@ -177,4 +179,5 @@ public class TransactionManagerImpl implements TransactionManager, XidImporter {
 
     public void setTransactionTimeout(long milliseconds) {
     }
+
 }

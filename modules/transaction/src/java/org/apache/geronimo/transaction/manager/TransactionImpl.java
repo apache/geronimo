@@ -17,7 +17,6 @@
 
 package org.apache.geronimo.transaction.manager;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -43,7 +42,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Basic local transaction with support for multiple resources.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:37 $
+ * @version $Revision: 1.5 $ $Date: 2004/05/06 04:00:51 $
  */
 public class TransactionImpl implements Transaction {
     private static final Log log = LogFactory.getLog("Transaction");
@@ -66,13 +65,21 @@ public class TransactionImpl implements Transaction {
         this.xid = xid;
         try {
             txnLog.begin(xid);
-        } catch (IOException e) {
+        } catch (LogException e) {
             status = Status.STATUS_MARKED_ROLLBACK;
             SystemException ex = new SystemException("Error logging begin; transaction marked for roll back)");
             ex.initCause(e);
             throw ex;
         }
         status = Status.STATUS_ACTIVE;
+    }
+
+    //reconstruct a tx for an external tx found in recovery
+    public TransactionImpl(Xid xid, TransactionLog txLog) {
+        this.xidFactory = null;
+        this.txnLog = txLog;
+        this.xid = xid;
+        status = Status.STATUS_PREPARED;
     }
 
     public synchronized int getStatus() throws SystemException {
@@ -148,9 +155,7 @@ public class TransactionImpl implements Transaction {
 
             Xid branchId = xidFactory.createBranch(xid, resourceManagers.size() + 1);
             xaRes.start(branchId, XAResource.TMNOFLAGS);
-            ResourceManager manager = new ResourceManager(xaRes, branchId);
-            resourceManagers.add(manager);
-            xaResources.put(xaRes, manager);
+            addBranchXid(xaRes,  branchId);
             return true;
         } catch (XAException e) {
             log.warn("Unable to enlist XAResource " + xaRes, e);
@@ -321,7 +326,7 @@ public class TransactionImpl implements Transaction {
     private boolean internalPrepare() throws SystemException {
         try {
             txnLog.prepare(xid);
-        } catch (IOException e) {
+        } catch (LogException e) {
             try {
                 rollbackResources(resourceManagers);
             } catch (Exception se) {
@@ -366,7 +371,7 @@ public class TransactionImpl implements Transaction {
             } else {
                 txnLog.rollback(xid);
             }
-        } catch (IOException e) {
+        } catch (LogException e) {
             try {
                 rollbackResources(resourceManagers);
             } catch (Exception se) {
@@ -397,7 +402,7 @@ public class TransactionImpl implements Transaction {
         try {
             try {
                 txnLog.rollback(xid);
-            } catch (IOException e) {
+            } catch (LogException e) {
                 try {
                     rollbackResources(rms);
                 } catch (Exception se) {
@@ -559,6 +564,12 @@ public class TransactionImpl implements Transaction {
         } else {
             return false;
         }
+    }
+
+    public void addBranchXid(XAResource xaRes, Xid branchId) {
+        ResourceManager manager = new ResourceManager(xaRes, branchId);
+        resourceManagers.add(manager);
+        xaResources.put(xaRes, manager);
     }
 
 

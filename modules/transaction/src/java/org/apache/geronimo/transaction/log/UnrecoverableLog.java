@@ -18,27 +18,47 @@
 package org.apache.geronimo.transaction.log;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.ArrayList;
+
 import javax.transaction.xa.Xid;
 
 import org.apache.geronimo.transaction.manager.TransactionLog;
+import org.apache.geronimo.transaction.manager.LogException;
 
 /**
  * A log sink that doesn't actually do anything.
  * Not recommended for production use as heuristic recovery will be needed if
  * the transaction coordinator dies.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:37 $
+ * @version $Revision: 1.4 $ $Date: 2004/05/06 04:00:51 $
  */
 public class UnrecoverableLog implements TransactionLog {
-    public void begin(Xid xid) throws IOException {
+    public void begin(Xid xid) throws LogException {
     }
 
-    public void prepare(Xid xid) throws IOException {
+    public void prepare(Xid xid) throws LogException {
     }
 
-    public void commit(Xid xid) throws IOException {
+    public void commit(Xid xid) throws LogException {
     }
 
-    public void rollback(Xid xid) throws IOException {
+    public void rollback(Xid xid) throws LogException {
+    }
+
+    public List recover() throws LogException {
+        return new ArrayList();
+    }
+
+    public String getXMLStats() {
+        return null;
+    }
+
+    public int getAverageForceTime() {
+        return 0;
+    }
+
+    public int getAverageBytesPerForce() {
+        return 0;
     }
 }

@@ -19,19 +19,19 @@ package org.apache.geronimo.transaction.manager;
 
 import java.sql.Connection;
 import java.sql.Statement;
-import java.io.IOException;
+import java.util.List;
+
 import javax.sql.XAConnection;
 import javax.sql.XADataSource;
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
-import javax.transaction.xa.XAException;
 
 /**
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:37 $
+ * @version $Revision: 1.4 $ $Date: 2004/05/06 04:00:51 $
  */
 public class XATransactionTester {
     private TransactionLog log;
@@ -100,17 +100,33 @@ public class XATransactionTester {
 
     private class DummyLog implements TransactionLog {
 
-        public void begin(Xid xid) throws IOException {
+        public void begin(Xid xid) throws LogException {
             XATransactionTester.this.xid = xid;
         }
 
-        public void prepare(Xid xid) throws IOException {
+        public void prepare(Xid xid) throws LogException {
         }
 
-        public void commit(Xid xid) throws IOException {
+        public void commit(Xid xid) throws LogException {
         }
 
-        public void rollback(Xid xid) throws IOException {
+        public void rollback(Xid xid) throws LogException {
+        }
+
+        public List recover() throws LogException {
+            return null;
+        }
+
+        public String getXMLStats() {
+            return null;
+        }
+
+        public int getAverageForceTime() {
+            return 0;
+        }
+
+        public int getAverageBytesPerForce() {
+            return 0;
         }
     }
 }

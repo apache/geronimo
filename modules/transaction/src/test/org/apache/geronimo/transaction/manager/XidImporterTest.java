@@ -28,7 +28,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 18:05:51 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/06 04:00:51 $
  *
  * */
 public class XidImporterTest extends TestCase{
@@ -41,7 +41,7 @@ public class XidImporterTest extends TestCase{
     MockResource r2_2 = new MockResource(rm2);
 
     XidImporter tm = new TransactionManagerImpl();
-    XidFactory xidFactory = new XidFactory();
+    XidFactory xidFactory = new XidFactoryImpl();
 
     public void testImportXid() throws Exception {
         Xid externalXid = xidFactory.createXid();
