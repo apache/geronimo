@@ -56,41 +56,35 @@
 package org.apache.geronimo.kernel.config;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.OutputStream;
-import java.io.BufferedOutputStream;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 
 /**
  * Implementation of ConfigurationStore using the local filesystem.
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/23 16:31:21 $
+ * @version $Revision: 1.6 $ $Date: 2004/02/13 04:58:16 $
  */
 public class LocalConfigStore implements ConfigurationStore, GBean {
     private static final String INDEX_NAME = "index.properties";
@@ -101,14 +95,10 @@ public class LocalConfigStore implements ConfigurationStore, GBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        Set attrs = new HashSet();
-        attrs.add(new GAttributeInfo("root", true));
-        List ctrNames = new ArrayList();
-        ctrNames.add("root");
-        List ctrTypes = new ArrayList();
-        ctrTypes.add(File.class);
-        GConstructorInfo ctr = new GConstructorInfo(ctrNames, ctrTypes);
-        GBEAN_INFO = new GBeanInfo(LocalConfigStore.class.getName(), attrs, ctr, Collections.EMPTY_SET, Collections.EMPTY_SET, Collections.EMPTY_SET);
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(LocalConfigStore.class);
+        infoFactory.addAttribute("root", true);
+        infoFactory.setConstructor(new String[] {"root"}, new Class[]{File.class});
+        GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {
