@@ -114,10 +114,10 @@
     <goal name="m:build" prereqs="m:default"/>
     <goal name="m:default" prereqs="m:init">
         <!-- don't run the active mq tests they take way too long and don't complete successfully -->
-        <u:available file="${basedir}/activemq">
+        <!-- <u:available file="${basedir}/activemq">
             <mkdir dir="${basedir}/activemq/modules/core/target/test-reports/"/>
             <ant:touch file="${basedir}/activemq/modules/core/target/test-reports/tstamp"/>
-        </u:available>
+        </u:available> -->
         <j:set var="goal" value="default"/>
         <attainGoal name="multiproject:goal"/>
     </goal>
@@ -151,7 +151,7 @@
         <ant:echo>+----------------------------------------</ant:echo>
         <ant:echo>| Cleaning: repo </ant:echo>
         <ant:echo>+----------------------------------------</ant:echo>
-        <delete dir="${maven.repo.local}/activemq"/>
+        <!--delete dir="${maven.repo.local}/activemq"/-->
         <delete dir="${maven.repo.local}/geronimo"/>
         <!--delete dir="${maven.repo.local}/howl"/-->
         <delete dir="${maven.repo.local}/openejb"/>
@@ -218,7 +218,7 @@
 
     <goal name="m:co" prereqs="m:checkout"/>
     <goal name="m:checkout">
-        <gscm:checkout module="activemq" root="${geronimo.activemq.cvs.access}@cvs.activemq.codehaus.org:/home/projects/activemq/scm"/>
+        <!--gscm:checkout module="activemq" root="${geronimo.activemq.cvs.access}@cvs.activemq.codehaus.org:/home/projects/activemq/scm"/-->
         <!--gscm:checkout module="howl/logger" root="${geronimo.howl.cvs.access}@cvs.forge.objectweb.org:/cvsroot/howl"/-->
         <gscm:checkout module="openejb" root="${geronimo.openejb.cvs.access}@cvs.openejb.org:/home/projects/openejb/scm"/>
 
@@ -231,7 +231,7 @@
         <ant:exec dir="${basedir}" executable="svn">
             <ant:arg line="update"/>
         </ant:exec>
-        <gscm:update dir="${basedir}/activemq"/>
+        <!--gscm:update dir="${basedir}/activemq"/-->
         <!--gscm:update dir="${basedir}/howl/logger"/-->
         <gscm:update dir="${basedir}/openejb"/>
         <gscm:update dir="${basedir}/tranql/tranql"/>
@@ -239,7 +239,7 @@
     </goal>
 
     <goal name="m:fresh-checkout">
-        <delete dir="${basedir}/activemq"/>
+        <!--delete dir="${basedir}/activemq"/-->
         <!--delete dir="${basedir}/howl"/-->
         <delete dir="${basedir}/openejb"/>
         <delete dir="${basedir}/tranql"/>
