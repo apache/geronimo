@@ -63,7 +63,7 @@ package javax.enterprise.deploy.shared;
  * Class ActionTypes defines enumeration values for the J2EE DeploymentStatus
  * actions.
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/04 05:41:20 $
+ * @version $Revision: 1.3 $ $Date: 2003/10/22 20:33:15 $
  */
 public class ActionType {
     /**
@@ -75,7 +75,7 @@ public class ActionType {
      */
     public static final ActionType CANCEL = new ActionType(1);
     /**
-     * A stop operation is being preformed on the DeploymentManager action command.
+     * A stop operation is being performed on the DeploymentManager action command.
      */
     public static final ActionType STOP = new ActionType(2);
 
