@@ -17,13 +17,12 @@
 package org.apache.geronimo.jetty;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.InputStream;
-import java.net.URL;
-import java.net.MalformedURLException;
+import java.io.OutputStream;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.mortbay.http.HttpContext;
@@ -31,7 +30,6 @@ import org.mortbay.http.HttpException;
 import org.mortbay.http.HttpHandler;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
-import org.mortbay.util.URI;
 
 /**
  * Delegates requests to a WebServiceContainer which is presumably for an EJB WebService.
@@ -82,37 +80,32 @@ public class JettyEJBWebServiceContext extends HttpContext implements HttpHandle
         this.httpContext = httpContext;
     }
 
-    public void handle(HttpRequest request, HttpResponse response) throws HttpException, IOException {
-        response.setContentType("text/xml");
-
-        if (request.getParameter("wsdl") != null) {
-            doGetWsdl(request, response);
+    public void handle(HttpRequest req, HttpResponse res) throws HttpException, IOException {
+        req.setContentType("text/xml");
+        RequestAdapter request = new RequestAdapter(req);
+        ResponseAdapter response = new ResponseAdapter(res);
+            
+        if (req.getParameter("wsdl") != null) {
+            try {
+                OutputStream out = response.getOutputStream();
+                webServiceContainer.getWsdl(request,response);
+                //WHO IS RESPONSIBLE FOR CLOSING OUT?
+            } catch (IOException e) {
+                throw e;
+            } catch (Exception e) {
+                throw (HttpException) new HttpException(500, "Could not fetch wsdl!").initCause(e);
+            }
         } else {
-            doInvoke(request, response);
+            try {
+                webServiceContainer.invoke(request,response);
+                req.setHandled(true);
+            } catch (IOException e) {
+                throw e;
+            } catch (Exception e) {
+                throw (HttpException) new HttpException(500, "Could not process message!").initCause(e);
+            }
         }
-
-    }
-
-    private void doInvoke(HttpRequest request, HttpResponse response) throws IOException {
-        try {
-            webServiceContainer.invoke(new RequestAdapter(request), new ResponseAdapter(response));
-            request.setHandled(true);
-        } catch (IOException e) {
-            throw e;
-        } catch (Exception e) {
-            throw (HttpException) new HttpException(500).initCause(e);
-        }
-    }
-
-    private void doGetWsdl(HttpRequest request, HttpResponse response) throws IOException {
-        try {
-            webServiceContainer.getWsdl(new RequestAdapter(request), new ResponseAdapter(response));
-        } catch (IOException e) {
-            throw e;
-        } catch (Exception e) {
-            throw (HttpException) new HttpException(500).initCause(e);
-        }
-        //WHO IS RESPONSIBLE FOR CLOSING OUT?
+            
     }
 
     public String getContextPath() {
@@ -121,6 +114,7 @@ public class JettyEJBWebServiceContext extends HttpContext implements HttpHandle
 
     public static class RequestAdapter implements WebServiceContainer.Request {
         private final HttpRequest request;
+        private URI uri;
 
         public RequestAdapter(HttpRequest request) {
             this.request = request;
@@ -131,25 +125,16 @@ public class JettyEJBWebServiceContext extends HttpContext implements HttpHandle
         }
 
         public java.net.URI getURI() {
-            try {
-                String uriString = request.getURI().toString();
-                //return new java.net.URI(uri.getScheme(),uri.getHost(),uri.getPath(),uri.);
-                return new java.net.URI(uriString);
-            } catch (URISyntaxException e) {
-                throw new IllegalStateException(e.getMessage());
+            if( uri==null ) {
+                try {
+                    String uriString =  request.getScheme()+"://"+request.getHost()+":"+request.getPort()+request.getURI();
+                    //return new java.net.URI(uri.getScheme(),uri.getHost(),uri.getPath(),uri.);
+                    uri = new java.net.URI(uriString);
+                } catch (URISyntaxException e) {
+                    throw new IllegalStateException(e.getMessage());
+                }
             }
-        }
-
-        public String getHost() {
-            return getURI().getHost();
-        }
-
-        public String getPath() {
-            return getURI().getPath();
-        }
-
-        public int getPort() {
-            return getURI().getPort();
+            return uri;
         }
 
         public int getContentLength() {

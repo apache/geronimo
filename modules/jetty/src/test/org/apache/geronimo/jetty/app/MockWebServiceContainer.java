@@ -16,13 +16,6 @@
  */
 package org.apache.geronimo.jetty.app;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.webservices.WebServiceContainer;
 
 /**
@@ -34,7 +27,7 @@ public class MockWebServiceContainer implements WebServiceContainer {
     }
 
     public void getWsdl(Request req, Response res) throws Exception {
-
+    
     }
 
 }

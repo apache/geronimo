@@ -19,11 +19,10 @@ package org.apache.geronimo.jetty;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -33,7 +32,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.geronimo.webservices.WebServiceContainer;
-import org.mortbay.util.URI;
 
 /**
  * Delegates requests to a WebServiceContainer which is presumably for a POJO WebService
@@ -69,17 +67,33 @@ public class POJOWebServiceServlet implements Servlet {
 
     public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
         WebServiceContainer service = (WebServiceContainer) req.getAttribute(WEBSERVICE_CONTAINER);
-        try {
-            RequestAdapter request = new RequestAdapter((HttpServletRequest)req);
-            ResponseAdapter response = new ResponseAdapter((HttpServletResponse)res);
-            service.invoke(request,response);
-        } catch (IOException e) {
-            throw e;
-        } catch (ServletException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new ServletException(e);
+
+        res.setContentType("text/xml");
+        RequestAdapter request = new RequestAdapter((HttpServletRequest)req);
+        ResponseAdapter response = new ResponseAdapter((HttpServletResponse)res);
+
+        if (request.getParameter("wsdl") != null) {
+            try {
+                service.getWsdl(request,response);
+            } catch (IOException e) {
+                throw e;
+            } catch (ServletException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new ServletException("Could not fetch wsdl!", e);
+            }
+        } else {            
+            try {
+                service.invoke(request,response);
+            } catch (IOException e) {
+                throw e;
+            } catch (ServletException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new ServletException("Could not process message!", e);
+            }
         }
+            
     }
 
     public String getServletInfo() {
@@ -108,18 +122,6 @@ public class POJOWebServiceServlet implements Servlet {
             } catch (URISyntaxException e) {
                 throw new IllegalStateException(e.getMessage());
             }
-        }
-
-        public String getHost() {
-            return getURI().getHost();
-        }
-
-        public String getPath() {
-            return getURI().getPath();
-        }
-
-        public int getPort() {
-            return getURI().getPort();
         }
 
         public int getContentLength() {
