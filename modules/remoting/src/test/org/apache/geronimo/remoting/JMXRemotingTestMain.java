@@ -121,6 +121,17 @@ public class JMXRemotingTestMain {
             System.err.println("Filtering a notification: "+notification.getType());
             return true;
         }
+        
+        public int hashCode() {
+            return 1;
+        }
+        public boolean equals(Object obj) {
+            if( obj == null )
+                return false;
+            if( obj.getClass() != getClass() )
+                return false;
+            return true;
+        }
     }
 
     public void testNotificationListner() throws Exception {
