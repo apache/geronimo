@@ -21,6 +21,7 @@ import java.beans.Introspector;
 import java.beans.IntrospectionException;
 import java.util.Map;
 import java.util.HashMap;
+import java.lang.reflect.Field;
 import javax.xml.namespace.QName;
 
 import org.apache.axis.description.TypeDesc;
@@ -77,10 +78,17 @@ public class TypeDescBuilder {
                 ElementDesc elementDesc = new ElementDesc();
                 elementDesc.setFieldName(fieldName);
                 Class javaType = (Class) properties.get(fieldName);
-                if (javaType == null) {
-                    throw new DeploymentException("field name " + fieldName + " not found in " + properties);
+                if (javaType != null) {
+                    elementDesc.setJavaType(javaType);
+                } else {
+                    //see if it is a public field
+                    try {
+                        Field field = javaClass.getField(fieldName);
+                        elementDesc.setJavaType(field.getType());
+                    } catch (NoSuchFieldException e) {
+                        throw new DeploymentException("field name " + fieldName + " not found in " + properties);
+                    }
                 }
-                elementDesc.setJavaType(javaType);
                 //TODO correct namespace???
                 String namespace = "";
                 QName xmlName = new QName(namespace, variableMapping.getXmlElementName().getStringValue().trim());
@@ -88,10 +96,10 @@ public class TypeDescBuilder {
                 QName xmlType = schemaType.getName();
                 elementDesc.setXmlType(xmlType);
                 //TODO figure out how to find these:
-//                elementDesc.setArrayType(null);
-//                elementDesc.setMinOccurs(0);
-//                elementDesc.setMaxOccurs(0);
-//                elementDesc.setNillable(false);
+//                    elementDesc.setArrayType(null);
+//                    elementDesc.setMinOccurs(0);
+//                    elementDesc.setMaxOccurs(0);
+//                    elementDesc.setNillable(false);
                 fields[i] = elementDesc;
             }
         }
