@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.16 $ $Date: 2003/08/30 01:58:00 $ -->
+<!-- $Revision: 1.17 $ $Date: 2003/08/30 08:40:37 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -101,7 +101,16 @@
         <runtime>true</runtime>
       </properties>
     </dependency>
-
+    
+    <dependency>
+      <id>log4j</id>
+      <version>1.2.8</version>
+      <url>http://jakarta.apache.org/log4j</url>
+      <properties>
+        <runtime>true</runtime>
+      </properties>
+    </dependency>
+    
     <dependency>
       <id>commons-httpclient</id>
       <version>2.0-beta1</version>
@@ -155,6 +164,9 @@
       <id>castor</id>
       <version>0.9.5</version>
       <url>http://castor.exolab.org</url>
+      <properties>
+        <runtime>true</runtime>
+      </properties>
     </dependency>
     
     <dependency>
@@ -170,13 +182,16 @@
       <id>xml-apis</id>
       <version>1.0.b2</version>
       <properties>
-        <runtime>false</runtime>
+        <runtime>true</runtime>
       </properties>
     </dependency>
     
     <dependency>
       <id>dom4j</id>
       <version>1.4</version>
+      <properties>
+        <runtime>true</runtime>
+      </properties>
     </dependency>
     
     <dependency>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.10 $ $Date: 2003/08/27 11:59:59 $ -->
+<!-- $Revision: 1.11 $ $Date: 2003/08/30 08:40:37 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -98,7 +98,7 @@
     <dependency>
       <id>commons-beanutils</id>
       <version>SNAPSHOT</version>
-      <url>http://jakarta.apache.org/commons/beanutils.html</url>
+      <url>http://jakarta.apache.org/commons/beanutils</url>
       <properties>
         <runtime>true</runtime>
       </properties>
@@ -107,7 +107,7 @@
     <dependency>
       <id>commons-collections</id>
       <version>SNAPSHOT</version>
-      <url>http://jakarta.apache.org/commons/collections.html</url>
+      <url>http://jakarta.apache.org/commons/collections</url>
       <properties>
         <runtime>true</runtime>
       </properties>
@@ -116,7 +116,7 @@
     <dependency>
       <id>commons-logging</id>
       <version>1.0.3</version>
-      <url>http://jakarta.apache.org/commons/logging.html</url>
+      <url>http://jakarta.apache.org/commons/logging</url>
       <properties>
         <runtime>true</runtime>
       </properties>
