@@ -58,12 +58,12 @@ package org.apache.geronimo.common.propertyeditor;
 
 import java.net.MalformedURLException;
 
-import org.apache.geronimo.common.Strings;
+import org.apache.geronimo.common.net.URLFactory;
 
 /**
  * A property editor for {@link java.net.URL}.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/28 09:40:53 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/03 13:50:29 $
  */
 public class URLEditor
     extends TextPropertyEditorSupport
@@ -78,7 +78,7 @@ public class URLEditor
     public Object getValue()
     {
         try {
-            return Strings.toURL(getAsText());
+            return URLFactory.create(getAsText());
         }
         catch (MalformedURLException e) {
             throw new PropertyEditorException(e);

@@ -75,7 +75,7 @@ import javax.management.relation.RelationServiceMBean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.geronimo.common.Strings;
+import org.apache.geronimo.common.net.URLFactory;
 
 import org.apache.geronimo.jmx.JMXUtil;
 import org.apache.geronimo.management.AbstractManagedObject;
@@ -87,7 +87,7 @@ import org.apache.geronimo.management.AbstractManagedObject;
  * @jmx:mbean
  *      extends="org.apache.geronimo.management.StateManageable,org.apache.geronimo.management.ManagedObject"
  *
- * @version $Revision: 1.14 $ $Date: 2003/09/01 20:38:49 $
+ * @version $Revision: 1.15 $ $Date: 2003/09/03 13:50:29 $
  */
 public class DeploymentScanner
     extends AbstractManagedObject
@@ -147,7 +147,10 @@ public class DeploymentScanner
      * @jmx:managed-operation
      */
     public void addURL(String url, boolean recurse) throws MalformedURLException {
-        addURL(Strings.toURL(url), recurse);
+        //
+        // TODO: remove these evil string adapters, let the JMX interface deal with this
+        //
+        addURL(URLFactory.create(url), recurse);
     }
     
     /**
@@ -175,7 +178,10 @@ public class DeploymentScanner
      * @jmx:managed-operation
      */
     public void removeURL(String url) throws MalformedURLException {
-        removeURL(new URL(url));
+        //
+        // TODO: remove these evil string adapters, let the JMX interface deal with this
+        //
+        removeURL(URLFactory.create(url));
     }
     
     /**

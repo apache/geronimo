@@ -68,7 +68,7 @@ import org.apache.commons.cli.PosixParser;
 import org.apache.geronimo.Main;
 
 import org.apache.geronimo.common.NullArgumentException;
-import org.apache.geronimo.common.Strings;
+import org.apache.geronimo.common.net.URLFactory;
 
 import org.apache.geronimo.twiddle.Twiddle;
 import org.apache.geronimo.twiddle.command.AbstractCommand;
@@ -80,7 +80,7 @@ import org.apache.geronimo.twiddle.util.HelpFormatter;
 /**
  * A <em>Twiddle</em> command to start a Apache Geronimo server instance.
  *
- * @version $Revision: 1.6 $ $Date: 2003/08/29 13:16:52 $
+ * @version $Revision: 1.7 $ $Date: 2003/09/03 13:50:29 $
  */
 public class StartCommand
     extends AbstractCommand
@@ -131,16 +131,16 @@ public class StartCommand
         String homeDir = Twiddle.getHomeDir().toString();
         System.setProperty("geronimo.home", homeDir);
         
-        URL mletURL = Strings.toURL(homeDir + "/etc/boot.mlet");
+        URL mletURL = URLFactory.create(homeDir + "/etc/boot.mlet");
         if (line.hasOption('m')) {
             String value = line.getOptionValue('m');
-            mletURL = Strings.toURL(value);
+            mletURL = URLFactory.create(value);
         }
         
-        URL deployURL = Strings.toURL(homeDir + "/etc/boot-service.xml");
+        URL deployURL = URLFactory.create(homeDir + "/etc/boot-service.xml");
         if (line.hasOption('d')) {
             String value = line.getOptionValue('d');
-            deployURL = Strings.toURL(value);
+            deployURL = URLFactory.create(value);
         }
         
         if (log.isDebugEnabled()) {

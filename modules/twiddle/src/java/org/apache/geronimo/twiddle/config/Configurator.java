@@ -74,8 +74,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.geronimo.common.NullArgumentException;
-import org.apache.geronimo.common.Strings;
 import org.apache.geronimo.common.StringValueParser;
+import org.apache.geronimo.common.net.URLFactory;
 
 import org.apache.geronimo.twiddle.Twiddle;
 
@@ -91,7 +91,7 @@ import org.apache.geronimo.twiddle.config.classworlds.ImportPackageConfig;
 /**
  * Handles the details of Twiddle configuration.
  *
- * @version <code>$Revision: 1.10 $ $Date: 2003/08/27 12:00:00 $</code>
+ * @version <code>$Revision: 1.11 $ $Date: 2003/09/03 13:50:29 $</code>
  */
 public class Configurator
 {
@@ -282,7 +282,7 @@ public class Configurator
             log.trace("Parsing glob URLs from spec: " + globspec);
         }
         
-        URL baseURL = Strings.toURL(globspec);
+        URL baseURL = URLFactory.create(globspec);
         if (!baseURL.getProtocol().equals("file")) {
             // only can glob on file urls
             return new URL[] { baseURL };

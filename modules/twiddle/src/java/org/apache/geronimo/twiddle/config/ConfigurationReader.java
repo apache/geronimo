@@ -65,14 +65,16 @@ import java.net.URL;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.geronimo.common.NullArgumentException;
-import org.apache.geronimo.common.Strings;
+import org.apache.geronimo.common.net.URLFactory;
+
 import org.exolab.castor.xml.Unmarshaller;
 
 /**
  * Creates <code>Configuration</code> objects.
  *
- * @version <code>$Revision: 1.7 $ $Date: 2003/08/28 13:32:09 $</code>
+ * @version <code>$Revision: 1.8 $ $Date: 2003/09/03 13:50:29 $</code>
  */
 public class ConfigurationReader
 {
@@ -124,7 +126,7 @@ public class ConfigurationReader
             throw new NullArgumentException("urlspec");
         }
         
-        return read(Strings.toURL(urlspec));
+        return read(URLFactory.create(urlspec));
     }
     
     /**
