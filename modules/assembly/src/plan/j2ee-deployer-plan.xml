@@ -56,7 +56,7 @@ Configuration for the Geronimo deployer
     </dependency>
     <!-- seems to be required to load jetty deployer - but I think this should not be here-->
     <dependency>
-        <uri>geronimo-spec/jars/geronimo-spec-j2ee-1.4-rc1.jar</uri>
+        <uri>geronimo-spec/jars/geronimo-spec-j2ee-1.4-rc2.jar</uri>
     </dependency>
     <!-- required for rar 1.5 to load realms -->
     <dependency>

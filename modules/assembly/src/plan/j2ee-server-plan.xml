@@ -30,7 +30,7 @@ by the server.
     >
 
     <dependency>
-        <uri>geronimo-spec/jars/geronimo-spec-j2ee-1.4-rc1.jar</uri>
+        <uri>geronimo-spec/jars/geronimo-spec-j2ee-1.4-rc2.jar</uri>
     </dependency>
     <dependency>
         <uri>geronimo/jars/geronimo-j2ee-1.0-SNAPSHOT.jar</uri>

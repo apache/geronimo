@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.54 $ $Date: 2004/05/27 05:20:25 $ -->
+<!-- $Revision: 1.55 $ $Date: 2004/06/24 20:59:46 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -88,31 +88,31 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
-            <version>1.0.1B-rc1</version>
+            <version>1.0.1B-rc2</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-ejb</artifactId>
-            <version>2.1-rc1</version>
+            <version>2.1-rc2</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-management</artifactId>
-            <version>1.0-rc1</version>
+            <version>1.0-rc2</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
-            <version>1.1-rc1</version>
+            <version>1.1-rc2</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-servlet</artifactId>
-            <version>2.4-rc1</version>
+            <version>2.4-rc2</version>
         </dependency>
 
         <!-- Thirdparty -->

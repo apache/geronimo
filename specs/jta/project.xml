@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.6 $ $Date: 2004/05/01 06:40:21 $ -->
+<!-- $Revision: 1.7 $ $Date: 2004/06/24 20:59:50 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -33,6 +33,6 @@
 
     <package>javax.transaction</package>
 
-    <currentVersion>1.0.1B-rc1</currentVersion>
+    <currentVersion>1.0.1B-rc2</currentVersion>
 
 </project>

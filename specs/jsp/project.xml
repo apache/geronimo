@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.8 $ $Date: 2004/06/24 18:10:52 $ -->
+<!-- $Revision: 1.9 $ $Date: 2004/06/24 20:59:49 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -33,7 +33,7 @@
 
     <package>javax.servlet.jsp</package>
 
-    <currentVersion>2.0-rc1</currentVersion>
+    <currentVersion>2.0-rc2</currentVersion>
 
     <!-- ============ -->
     <!-- Dependencies -->
@@ -44,7 +44,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-servlet</artifactId>
-            <version>2.4-rc1</version>
+            <version>2.4-rc2</version>
         </dependency>
 
     </dependencies>
