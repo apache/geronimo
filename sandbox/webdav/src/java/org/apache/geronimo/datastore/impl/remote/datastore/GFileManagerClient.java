@@ -36,7 +36,7 @@ import org.apache.geronimo.gbean.WaitingException;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/01 13:20:18 $
  */
 public class GFileManagerClient
     implements GBean, GFileManager, Connector
@@ -45,9 +45,14 @@ public class GFileManagerClient
     private static final Log log = LogFactory.getLog(GFileManagerClient.class);
 
     /**
-     * Name of this client. 
+     * Name of the proxy to be mirrorer. 
      */
     private final String name;
+    
+    /**
+     * Name of the node hosting the proxy to be mirrored.
+     */
+    private final String nodeName; 
     
     /**
      * Msg output to be used by this client to communicate with its proxy.
@@ -66,17 +71,25 @@ public class GFileManagerClient
      * of the proxy to be mirrored.
      * 
      * @param aName Name of the proxy to be mirrored.
+     * @param aNodeName Name of the node hosting the proxy.
      */
-    public GFileManagerClient(String aName) {
+    public GFileManagerClient(String aName, String aNodeName) {
         if ( null == aName ) {
             throw new IllegalArgumentException("Name is required.");
+        } else if ( null == aNodeName ) {
+            throw new IllegalArgumentException("NodeName is required.");
         }
         name = aName;
+        nodeName = aNodeName;
         sender = new RequestSender();
     }
     
     public String getName() {
         return name;
+    }
+    
+    public String getNodeName() {
+        return nodeName;
     }
     
     public void start() {
@@ -125,10 +138,14 @@ public class GFileManagerClient
 
     public void setOutput(MsgOutInterceptor anOut) {
         if ( null != anOut ) {
-            out = new HeaderOutInterceptor(
-                MsgHeaderConstants.DEST_CONNECTOR,
-                name,
-                anOut);
+            out =
+                new HeaderOutInterceptor(
+                    MsgHeaderConstants.DEST_CONNECTOR,
+                    name,
+                    new HeaderOutInterceptor(
+                        MsgHeaderConstants.DEST_NODE,
+                        nodeName,
+                        anOut));
         } else {
             out = null;
         }
