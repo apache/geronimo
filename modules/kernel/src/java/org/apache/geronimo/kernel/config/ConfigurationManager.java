@@ -23,7 +23,6 @@ import java.util.List;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 
 /**
  * 
