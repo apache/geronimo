@@ -92,7 +92,6 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
         if (sm != null) sm.checkPermission(SecurityService.CONFIGURE);
 
         ConfigurationEntryFactory factory = (ConfigurationEntryFactory) event.getMember();
-
         addConfiguration(factory);
     }
 
@@ -108,6 +107,12 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
 
     private final void addConfiguration(ConfigurationEntryFactory factory) {
         JaasLoginModuleConfiguration config = factory.generateConfiguration();
+        if(config.getLoginDomainName() == null) {
+            throw new IllegalArgumentException("A login module to be registered standalone must have a domain name!");
+        }
+        if (entries.containsKey(factory.getConfigurationName())) {
+            throw new java.lang.IllegalArgumentException("ConfigurationEntry already registered");
+        }
         AppConfigurationEntry ace = new AppConfigurationEntry(config.getLoginModuleClassName(), config.getFlag().getFlag(), config.getOptions());
 
         entries.put(factory.getConfigurationName(), ace);

@@ -14,7 +14,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.geronimo.security.jaas;
 
 import javax.management.ObjectName;
@@ -22,9 +21,10 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import java.io.File;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+import java.util.List;
+import java.util.Arrays;
 
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.security.AbstractTest;
@@ -39,11 +39,12 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 import org.apache.geronimo.kernel.Kernel;
 
-
 /**
- * @version $Rev$ $Date$
+ * Unit test for the DeploymentSupport features of security realms.
+ *
+ * @version $Rev: 105949 $ $Date: 2004-11-20 02:38:55 -0500 (Sat, 20 Nov 2004) $
  */
-public class LoginPropertiesFileTest extends AbstractTest {
+public class DeploymentSupportTest extends AbstractTest {
 
     protected ObjectName serverInfo;
     protected ObjectName loginConfiguration;
@@ -65,10 +66,6 @@ public class LoginPropertiesFileTest extends AbstractTest {
 
         gbean = new GBeanMBean("org.apache.geronimo.security.jaas.GeronimoLoginConfiguration");
         loginConfiguration = new ObjectName("geronimo.security:type=LoginConfiguration");
-        Set configurations = new HashSet();
-        configurations.add(new ObjectName("geronimo.security:type=SecurityRealm,*"));
-        configurations.add(new ObjectName("geronimo.security:type=ConfigurationEntry,*"));
-        gbean.setReferencePatterns("Configurations", configurations);
         kernel.loadGBean(loginConfiguration, gbean);
 
         gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginModuleGBean");
@@ -94,8 +91,8 @@ public class LoginPropertiesFileTest extends AbstractTest {
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
         gbean.setAttribute("serverSide", new Boolean(true));
         props = new Properties();
-        props.put("usersURI", new File(new File("."), "src/test-data/data/users.properties").toURI().toString());
-        props.put("groupsURI", new File(new File("."), "src/test-data/data/groups.properties").toURI().toString());
+        props.put("usersURI", new File(new File("."), "src/test-data/data/users.properties").toString());
+        props.put("groupsURI", new File(new File("."), "src/test-data/data/groups.properties").toString());
         gbean.setAttribute("options", props);
         gbean.setAttribute("loginDomainName", "TestProperties");
         kernel.loadGBean(testCE, gbean);
@@ -134,33 +131,39 @@ public class LoginPropertiesFileTest extends AbstractTest {
         super.tearDown();
     }
 
-    public void testLogin() throws Exception {
-
-        LoginContext context = new LoginContext("properties-client", new AbstractTest.UsernamePasswordCallback("alan", "starcraft"));
-
-        context.login();
-        Subject subject = context.getSubject();
-
-        assertTrue("expected non-null subject", subject != null);
-        assertTrue("subject should have one remote principal", subject.getPrincipals(IdentificationPrincipal.class).size() == 1);
-        IdentificationPrincipal remote = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
-        assertTrue("subject should be associated with remote id", ContextManager.getRegisteredSubject(remote.getId()) != null);
-        assertEquals("subject should have three principals ("+subject.getPrincipals().size()+")", 3, subject.getPrincipals().size());
-        assertEquals("subject should have no realm principals ("+subject.getPrincipals(RealmPrincipal.class).size()+")", 0, subject.getPrincipals(RealmPrincipal.class).size());
-
-        subject = ContextManager.getServerSideSubject(subject);
-
-        assertTrue("expected non-null subject", subject != null);
-        assertTrue("subject should have one remote principal", subject.getPrincipals(IdentificationPrincipal.class).size() == 1);
-        remote = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
-        assertTrue("subject should be associated with remote id", ContextManager.getRegisteredSubject(remote.getId()) != null);
-        assertEquals("subject should have five principals ("+subject.getPrincipals().size()+")", 5, subject.getPrincipals().size());
-        assertEquals("subject should have two realm principals ("+subject.getPrincipals(RealmPrincipal.class).size()+")", 2, subject.getPrincipals(RealmPrincipal.class).size());
-        RealmPrincipal principal = (RealmPrincipal) subject.getPrincipals(RealmPrincipal.class).iterator().next();
-        assertTrue("id of principal should be non-zero", principal.getId() != 0);
-
-        context.logout();
-
-        assertTrue("id of server subject should be null", ContextManager.getSubjectId(subject) == null);
+    public void testDeploymentSupport() throws Exception {
+        SecurityRealm realm = (SecurityRealm) MBeanProxyFactory.getProxy(SecurityRealm.class, kernel.getMBeanServer(), testRealm);
+        String[] domains = realm.getLoginDomains();
+        assertEquals(1, domains.length);
+        DeploymentSupport deployment = realm.getDeploymentSupport(domains[0]);
+        assertNotNull(deployment);
+        String[] classes = deployment.getPrincipalClassNames();
+        assertEquals(2, classes.length);
+        if(classes[0].equals(GeronimoUserPrincipal.class.getName())) {
+            assertEquals(GeronimoGroupPrincipal.class.getName(), classes[1]);
+        } else if(classes[1].equals(GeronimoUserPrincipal.class.getName())) {
+            assertEquals(GeronimoGroupPrincipal.class.getName(), classes[0]);
+        } else {
+            fail("Unexpected principal class names "+classes[0]+" / "+classes[1]);
+        }
+        String[] names = deployment.getPrincipalsOfClass(GeronimoUserPrincipal.class.getName());
+        assertEquals(5, names.length);
+        List list = Arrays.asList(names);
+        assertTrue(list.contains("izumi"));
+        assertTrue(list.contains("alan"));
+        assertTrue(list.contains("george"));
+        assertTrue(list.contains("gracie"));
+        assertTrue(list.contains("metro"));
+        names = deployment.getPrincipalsOfClass(GeronimoGroupPrincipal.class.getName());
+        assertEquals(5, names.length);
+        list = Arrays.asList(names);
+        assertTrue(list.contains("manager"));
+        assertTrue(list.contains("it"));
+        assertTrue(list.contains("pet"));
+        assertTrue(list.contains("dog"));
+        assertTrue(list.contains("cat"));
+        String[] map = deployment.getAutoMapPrincipalClassNames();
+        assertEquals(1, map.length);
+        assertEquals(GeronimoGroupPrincipal.class.getName(), map[0]);
     }
 }

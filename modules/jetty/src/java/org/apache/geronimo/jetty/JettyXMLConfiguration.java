@@ -341,8 +341,8 @@ public class JettyXMLConfiguration extends XMLConfiguration {
                 Iterator principals = realm.getPrincipals().iterator();
                 while (principals.hasNext()) {
                     Principal principal = (Principal) principals.next();
-
-                    RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, realm.getRealmName());
+                    //todo: The next line must use a login domain name, which I guess means that neds to go in the geronimo-jetty.xml
+                    RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, realm.getRealmName(), realm.getRealmName());
                     if (realmPrincipal == null) throw new GeronimoSecurityException("Unable to create realm principal");
 
                     principalSet.add(realmPrincipal);

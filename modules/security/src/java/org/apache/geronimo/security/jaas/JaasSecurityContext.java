@@ -73,25 +73,34 @@ public class JaasSecurityContext {
         return handler;
     }
 
-    public void processPrincipals() {
+    public void processPrincipals(String loginDomainName) {
         List list = new LinkedList();
         for (Iterator it = subject.getPrincipals().iterator(); it.hasNext();) {
             Principal p = (Principal) it.next();
-            if(!processedPrincipals.contains(p)) {
-                list.add(ContextManager.registerPrincipal(new RealmPrincipal(realmName, p)));
+            if(!(p instanceof RealmPrincipal) && !processedPrincipals.contains(p)) {
+                list.add(ContextManager.registerPrincipal(new RealmPrincipal(loginDomainName, p, realmName)));
                 processedPrincipals.add(p);
             }
         }
         subject.getPrincipals().addAll(list);
     }
 
-    public void processPrincipals(Principal[] principals) {
+    public void processPrincipals(Principal[] principals, String loginDomainName) {
         List list = new LinkedList();
         for (int i = 0; i < principals.length; i++) {
             Principal p = principals[i];
             list.add(p);
-            list.add(ContextManager.registerPrincipal(new RealmPrincipal(realmName, p)));
+            list.add(ContextManager.registerPrincipal(new RealmPrincipal(loginDomainName, p, realmName)));
+            processedPrincipals.add(p);
         }
         subject.getPrincipals().addAll(list);
+    }
+
+    public Set getProcessedPrincipals() {
+        return processedPrincipals;
+    }
+
+    public String getRealmName() {
+        return realmName;
     }
 }

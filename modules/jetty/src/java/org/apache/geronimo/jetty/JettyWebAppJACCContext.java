@@ -412,11 +412,13 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
         JAASJettyPrincipal result = new JAASJettyPrincipal("default");
         Subject defaultSubject = new Subject();
 
-        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getRealmName());
+        //todo: needs a proper login domain name to go with the realm name
+        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getRealmName(), defaultPrincipal.getRealmName());
         if (realmPrincipal == null) {
             throw new GeronimoSecurityException("Unable to create realm principal");
         }
-        PrimaryRealmPrincipal primaryRealmPrincipal = ConfigurationUtil.generatePrimaryRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getRealmName());
+        //todo: needs a proper login domain name to go with the realm name
+        PrimaryRealmPrincipal primaryRealmPrincipal = ConfigurationUtil.generatePrimaryRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getRealmName(), defaultPrincipal.getRealmName());
         if (primaryRealmPrincipal == null) {
             throw new GeronimoSecurityException("Unable to create primary realm principal");
         }

@@ -46,7 +46,7 @@ public class ConfigurationUtil {
      * @param realmName the security realm that the principal belongs go
      * @return a RealmPrincipal from a deployment description
      */
-    public static RealmPrincipal generateRealmPrincipal(final Principal principal, final String realmName) {
+    public static RealmPrincipal generateRealmPrincipal(final Principal principal, final String loginDomain, final String realmName) {
         try {
             return (RealmPrincipal) AccessController.doPrivileged(new PrivilegedExceptionAction() {
                 public Object run() throws Exception {
@@ -55,10 +55,14 @@ public class ConfigurationUtil {
                     Constructor constructor = clazz.getDeclaredConstructor(new Class[]{String.class});
                     p = (java.security.Principal) constructor.newInstance(new Object[]{principal.getPrincipalName()});
 
-                    return new RealmPrincipal(realmName, p);
+                    return new RealmPrincipal(loginDomain, p, realmName);
                 }
             });
         } catch (PrivilegedActionException e) {
+            e.printStackTrace();
+            if(e.getException() != null) {
+                e.getException().printStackTrace();
+            }
             return null;
         }
     }
@@ -69,7 +73,7 @@ public class ConfigurationUtil {
      * @param realmName the security realm that the principal belongs go
      * @return a RealmPrincipal from a deployment description
      */
-    public static PrimaryRealmPrincipal generatePrimaryRealmPrincipal(final Principal principal, final String realmName) {
+    public static PrimaryRealmPrincipal generatePrimaryRealmPrincipal(final Principal principal, final String loginDomain, final String realmName) {
         try {
             return (PrimaryRealmPrincipal) AccessController.doPrivileged(new PrivilegedExceptionAction() {
                 public Object run() throws Exception {
@@ -78,10 +82,14 @@ public class ConfigurationUtil {
                     Constructor constructor = clazz.getDeclaredConstructor(new Class[]{String.class});
                     p = (java.security.Principal) constructor.newInstance(new Object[]{principal.getPrincipalName()});
 
-                    return new PrimaryRealmPrincipal(realmName, p);
+                    return new PrimaryRealmPrincipal(loginDomain, p, realmName);
                 }
             });
         } catch (PrivilegedActionException e) {
+            e.printStackTrace();
+            if(e.getException() != null) {
+                e.getException().printStackTrace();
+            }
             return null;
         }
     }

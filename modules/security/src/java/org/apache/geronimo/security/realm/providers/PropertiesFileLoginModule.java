@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.HashMap;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -39,6 +40,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
+import org.apache.geronimo.security.realm.DeploymentSupport;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
@@ -49,12 +51,12 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  *
  * @version $Rev$ $Date$
  */
-public class PropertiesFileLoginModule implements LoginModule {
+public class PropertiesFileLoginModule implements LoginModule, DeploymentSupport {
     public final static String USERS_URI = "usersURI";
     public final static String GROUPS_URI = "groupsURI";
     private static Log log = LogFactory.getLog(PropertiesFileLoginModule.class);
     final Properties users = new Properties();
-    final Properties groups = new Properties();
+    final Map groups = new HashMap();
 
     Subject subject;
     CallbackHandler handler;
@@ -134,17 +136,17 @@ public class PropertiesFileLoginModule implements LoginModule {
     public boolean commit() throws LoginException {
         Set principals = subject.getPrincipals();
 
-        principals.add(new PropertiesFileUserPrincipal(username));
+        principals.add(new GeronimoUserPrincipal(username));
 
-        Enumeration e = groups.keys();
-        while (e.hasMoreElements()) {
-            String groupName = (String) e.nextElement();
+        Iterator e = groups.keySet().iterator();
+        while (e.hasNext()) {
+            String groupName = (String) e.next();
             Set users = (Set) groups.get(groupName);
             Iterator iter = users.iterator();
             while (iter.hasNext()) {
                 String user = (String) iter.next();
                 if (username.equals(user)) {
-                    principals.add(new PropertiesFileGroupPrincipal(groupName));
+                    principals.add(new GeronimoGroupPrincipal(groupName));
                     break;
                 }
             }
@@ -165,5 +167,38 @@ public class PropertiesFileLoginModule implements LoginModule {
         password = null;
 
         return true;
+    }
+
+    /**
+     * Gets the names of all principal classes that may be populated into
+     * a Subject.
+     */
+    public String[] getPrincipalClassNames() {
+        return new String[]{GeronimoUserPrincipal.class.getName(), GeronimoGroupPrincipal.class.getName()};
+    }
+
+    /**
+     * Gets the names of all principal classes that should correspond to
+     * roles when automapping.  This is a default, and may be overridden
+     * by specific values configured for the realm.
+     */
+    public String[] getAutoMapPrincipalClassNames() {
+        return new String[]{GeronimoGroupPrincipal.class.getName()};
+    }
+
+    /**
+     * Gets a list of all the principals of a particular type (identified by
+     * the principal class).  These are available for manual role mapping.
+     */
+    public String[] getPrincipalsOfClass(String className) {
+        Set s;
+        if(className.equals(GeronimoGroupPrincipal.class.getName())) {
+            s = groups.keySet();
+        } else if(className.equals(GeronimoUserPrincipal.class.getName())) {
+            s = users.keySet();
+        } else {
+            throw new IllegalArgumentException("No such principal class "+className);
+        }
+        return (String[]) s.toArray(new String[s.size()]);
     }
 }

@@ -113,6 +113,7 @@ public class TimeoutTest extends AbstractTest {
         props.put("usersURI", new File(new File("."), "src/test-data/data/users.properties").toURI().toString());
         props.put("groupsURI", new File(new File("."), "src/test-data/data/groups.properties").toURI().toString());
         gbean.setAttribute("options", props);
+        gbean.setAttribute("loginDomainName", "PropertiesDomain");
         kernel.loadGBean(testCE, gbean);
 
         gbean = new GBeanMBean("org.apache.geronimo.security.realm.GenericSecurityRealm");

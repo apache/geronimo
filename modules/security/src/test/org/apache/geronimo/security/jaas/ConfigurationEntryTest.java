@@ -56,15 +56,24 @@ public class ConfigurationEntryTest extends TestCase {
     protected ObjectName serverStub;
 
     public void test() throws Exception {
+        File log = new File("target/login-audit.log");
+        if(log.exists()) {
+            log.delete();
+        }
+        assertEquals("Audit file wasn't cleared", 0, log.length());
+
+
         // First try with explicit configuration entry
         LoginContext context = new LoginContext("properties-client", new AbstractTest.UsernamePasswordCallback("alan", "starcraft"));
 
         context.login();
         Subject subject = context.getSubject();
+        Subject clientSubject = subject;
         assertTrue("expected non-null client subject", subject != null);
         Set set = subject.getPrincipals(IdentificationPrincipal.class);
         assertEquals("client subject should have one ID principal", set.size(), 1);
         IdentificationPrincipal idp = (IdentificationPrincipal)set.iterator().next();
+        assertEquals(idp.getId(), idp.getId());
         subject = ContextManager.getRegisteredSubject(idp.getId());
 
         assertTrue("expected non-null server subject", subject != null);
@@ -78,6 +87,9 @@ public class ConfigurationEntryTest extends TestCase {
 
         context.logout();
 
+        assertNull(ContextManager.getRegisteredSubject(idp.getId()));
+        assertNull(ContextManager.getServerSideSubject(clientSubject));
+
         assertTrue("id of subject should be null", ContextManager.getSubjectId(subject) == null);
 
         // next try the automatic configuration entry
@@ -86,6 +98,11 @@ public class ConfigurationEntryTest extends TestCase {
         context.login();
         subject = context.getSubject();
         assertTrue("expected non-null client subject", subject != null);
+        set = subject.getPrincipals(IdentificationPrincipal.class);
+        assertEquals("client subject should have one ID principal", set.size(), 1);
+        IdentificationPrincipal idp2 = (IdentificationPrincipal)set.iterator().next();
+        assertNotSame(idp.getId(), idp2.getId());
+        assertEquals(idp2.getId(), idp2.getId());
         subject = ContextManager.getServerSideSubject(subject);
 
         assertTrue("expected non-null server subject", subject != null);
@@ -100,6 +117,8 @@ public class ConfigurationEntryTest extends TestCase {
         context.logout();
 
         assertTrue("id of subject should be null", ContextManager.getSubjectId(subject) == null);
+
+        assertTrue("Audit file wasn't written to", log.length() > 0);
     }
 
     protected void setUp() throws Exception {
@@ -146,12 +165,23 @@ public class ConfigurationEntryTest extends TestCase {
         props.put("usersURI", new File(new File("."), "src/test-data/data/users.properties").toURI().toString());
         props.put("groupsURI", new File(new File("."), "src/test-data/data/groups.properties").toURI().toString());
         gbean.setAttribute("options", props);
+        gbean.setAttribute("loginDomainName", "TestProperties");
+        kernel.loadGBean(testCE, gbean);
+
+        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginModuleGBean");
+        testCE = new ObjectName("geronimo.security:type=LoginModule,name=audit");
+        gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.FileAuditLoginModule");
+        gbean.setAttribute("serverSide", new Boolean(true));
+        props = new Properties();
+        props.put("file", "target/login-audit.log");
+        gbean.setAttribute("options", props);
         kernel.loadGBean(testCE, gbean);
 
         gbean = new GBeanMBean("org.apache.geronimo.security.realm.GenericSecurityRealm");
         testRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=properties-realm");
         gbean.setAttribute("realmName", "properties-realm");
         props = new Properties();
+        props.setProperty("LoginModule.2.OPTIONAL","geronimo.security:type=LoginModule,name=audit");
         props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=properties");
         gbean.setAttribute("loginModuleConfiguration", props);
         gbean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfo));

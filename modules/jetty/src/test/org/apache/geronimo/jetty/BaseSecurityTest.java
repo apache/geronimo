@@ -128,6 +128,7 @@ public class BaseSecurityTest extends TestCase {
         options.setProperty("usersURI", "src/test-resources/data/users.properties");
         options.setProperty("groupsURI", "src/test-resources/data/groups.properties");
         propertiesLMGBean.setAttribute("options", options);
+        propertiesLMGBean.setAttribute("loginDomainName", "demo-properties-realm");
 
         propertiesRealmGBean = new GBeanMBean("org.apache.geronimo.security.realm.GenericSecurityRealm");
         propertiesRealmName = new ObjectName("geronimo.security:type=SecurityRealm,realm=demo-properties-realm");
@@ -136,8 +137,8 @@ public class BaseSecurityTest extends TestCase {
         Properties config = new Properties();
         config.setProperty("LoginModule.1.REQUIRED", propertiesLMName.getCanonicalName());
         propertiesRealmGBean.setAttribute("loginModuleConfiguration", config);
-        propertiesRealmGBean.setAttribute("autoMapPrincipalClasses", "org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal");
-        propertiesRealmGBean.setAttribute("defaultPrincipal", "metro=org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal");
+//        propertiesRealmGBean.setAttribute("autoMapPrincipalClasses", "demo-properties-realm=org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
+        propertiesRealmGBean.setAttribute("defaultPrincipal", "metro=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
 
         start(serverInfoName, serverInfoGBean);
         start(propertiesLMName, propertiesLMGBean);

@@ -19,6 +19,7 @@ package org.apache.geronimo.security;
 
 import java.io.Serializable;
 import java.security.Principal;
+import org.apache.geronimo.common.NullArgumentException;
 
 
 /**
@@ -27,17 +28,18 @@ import java.security.Principal;
  * @version $Rev$ $Date$
  */
 public class RealmPrincipal implements Principal, Serializable {
-    private final String realm;
+    private final String loginDomain;
     private final Principal principal;
     private transient String name = null;
     private transient long id;
 
-    public RealmPrincipal(String realm, Principal principal) {
-        if (realm == null) throw new IllegalArgumentException("realm == null");
-        if (principal == null) throw new IllegalArgumentException("principal == null");
+    public RealmPrincipal(String loginDomain, Principal principal, String realmName) {
+        if (loginDomain == null) throw new NullArgumentException("loginDomain");
+        if (principal == null) throw new NullArgumentException("principal");
 
-        this.realm = realm;
+        this.loginDomain = loginDomain;
         this.principal = principal;
+        //todo: ignoring realm name; we don't think we'll need it.
     }
 
     public long getId() {
@@ -62,7 +64,7 @@ public class RealmPrincipal implements Principal, Serializable {
 
         RealmPrincipal realmPrincipal = (RealmPrincipal) another;
 
-        return realm.equals(realmPrincipal.realm) && principal.equals(realmPrincipal.principal);
+        return loginDomain.equals(realmPrincipal.loginDomain) && principal.equals(realmPrincipal.principal);
     }
 
     /**
@@ -92,7 +94,7 @@ public class RealmPrincipal implements Principal, Serializable {
         if (name == null) {
 
             StringBuffer buffer = new StringBuffer("");
-            buffer.append(realm);
+            buffer.append(loginDomain);
             buffer.append(":[");
             buffer.append(principal.getClass().getName());
             buffer.append(':');
@@ -118,7 +120,7 @@ public class RealmPrincipal implements Principal, Serializable {
      *
      * @return the realm that is associated with the principal.
      */
-    public String getRealm() {
-        return realm;
+    public String getLoginDomain() {
+        return loginDomain;
     }
 }

@@ -50,7 +50,7 @@ public class DirectConfigurationEntry implements ConfigurationEntryFactory {
     }
 
     public JaasLoginModuleConfiguration generateConfiguration() {
-        return new JaasLoginModuleConfiguration(applicationConfigName, module.getLoginModuleClass(), controlFlag, module.getOptions(), module.isServerSide());
+        return new JaasLoginModuleConfiguration(module.getLoginModuleClass(), controlFlag, module.getOptions(), module.isServerSide(), applicationConfigName);
     }
 
     public static final GBeanInfo GBEAN_INFO;

@@ -93,6 +93,7 @@ public class LoginSQLTest extends AbstractTest {
         props.put("userSelect", "SELECT UserName, Password FROM Users");
         props.put("groupSelect", "SELECT GroupName, UserName FROM Groups");
         gbean.setAttribute("options", props);
+        gbean.setAttribute("loginDomainName", "SQLDomain");
         kernel.loadGBean(sqlModule, gbean);
         kernel.startGBean(sqlModule);
 

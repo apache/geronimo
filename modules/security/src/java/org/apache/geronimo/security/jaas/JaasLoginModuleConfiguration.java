@@ -35,18 +35,21 @@ import java.rmi.Remote;
  */
 public class JaasLoginModuleConfiguration implements Serializable {
     private boolean serverSide;
-    private String name;
+    private String loginDomainName;
     private LoginModuleControlFlag flag;
     private String loginModuleName;
     private Map options;
     private transient LoginModule loginModule;
 
-    public JaasLoginModuleConfiguration(String name, String loginModuleName, LoginModuleControlFlag flag, Map options, boolean serverSide) {
-        this.name = name;
+    public JaasLoginModuleConfiguration(String loginModuleName, LoginModuleControlFlag flag, Map options, boolean serverSide, String loginDomainName) {
         this.serverSide = serverSide;
         this.flag = flag;
         this.loginModuleName = loginModuleName;
         this.options = options;
+        this.loginDomainName = loginDomainName;
+    }
+    public JaasLoginModuleConfiguration(String loginModuleName, LoginModuleControlFlag flag, Map options, boolean serverSide) {
+        this(loginModuleName, flag, options, serverSide, null);
     }
 
     public String getLoginModuleClassName() {
@@ -76,8 +79,8 @@ public class JaasLoginModuleConfiguration implements Serializable {
         return options;
     }
 
-    public String getName() {
-        return name;
+    public String getLoginDomainName() {
+        return loginDomainName;
     }
 
     /**
@@ -94,6 +97,6 @@ public class JaasLoginModuleConfiguration implements Serializable {
             }
         }
 
-        return new JaasLoginModuleConfiguration(name, loginModuleName, flag, other, serverSide);
+        return new JaasLoginModuleConfiguration(loginModuleName, flag, other, serverSide, loginDomainName);
     }
 }

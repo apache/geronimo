@@ -69,6 +69,7 @@ public abstract class AbstractTest extends TestCase {
         testLoginModule = new ObjectName("geronimo.security:type=LoginModule,name=TestModule");
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.bridge.TestLoginModule");
         gbean.setAttribute("serverSide", new Boolean(true));
+        gbean.setAttribute("loginDomainName", "TestLoginDomain");
         kernel.loadGBean(testLoginModule, gbean);
 
         gbean = new GBeanMBean("org.apache.geronimo.security.realm.GenericSecurityRealm");

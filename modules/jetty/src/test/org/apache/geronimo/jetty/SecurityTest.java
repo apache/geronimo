@@ -55,7 +55,7 @@ public class SecurityTest extends BaseSecurityTest {
         DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
         defaultPrincipal.setRealmName("demo-properties-realm");
         Principal principal = new Principal();
-        principal.setClassName("org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal");
+        principal.setClassName("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
         principal.setPrincipalName("izumi");
         defaultPrincipal.setPrincipal(principal);
 
@@ -64,7 +64,7 @@ public class SecurityTest extends BaseSecurityTest {
         Role role = new Role();
         role.setRoleName("content-administrator");
         principal = new Principal();
-        principal.setClassName("org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal");
+        principal.setClassName("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
         principal.setPrincipalName("it");
         Realm realm = new Realm();
         realm.setRealmName("demo-properties-realm");
@@ -247,7 +247,7 @@ public class SecurityTest extends BaseSecurityTest {
         DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
         defaultPrincipal.setRealmName("demo-properties-realm");
         Principal principal = new Principal();
-        principal.setClassName("org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal");
+        principal.setClassName("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
         principal.setPrincipalName("izumi");
         defaultPrincipal.setPrincipal(principal);
 
@@ -256,7 +256,7 @@ public class SecurityTest extends BaseSecurityTest {
         Role role = new Role();
         role.setRoleName("content-administrator");
         principal = new Principal();
-        principal.setClassName("org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal");
+        principal.setClassName("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
         principal.setPrincipalName("it");
         Realm realm = new Realm();
         realm.setRealmName("demo-properties-realm");

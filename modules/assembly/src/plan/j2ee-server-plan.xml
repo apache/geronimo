@@ -108,6 +108,7 @@ by the server.
             usersURI=var/security/users.properties
             groupsURI=var/security/groups.properties
         </attribute>
+        <attribute name="loginDomainName" type="java.lang.String">geronimo-properties-realm</attribute>
     </gbean>
 
     <gbean name="geronimo.security:type=SecurityRealm,realm=geronimo-properties-realm"

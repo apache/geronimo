@@ -52,5 +52,5 @@ public interface AutoMapAssistant {
      *
      * @return a set of principal class names
      */
-    public Set obtainRolePrincipalClasses();
+    public Set obtainRolePrincipalClasses(String loginDomain);
 }

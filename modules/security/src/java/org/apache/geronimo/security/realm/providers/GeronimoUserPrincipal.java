@@ -14,42 +14,38 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.geronimo.security.realm.providers;
 
 import java.io.Serializable;
 import java.security.Principal;
 
-
 /**
- * @version $Rev$ $Date$
+ * A principal that represents a user for the login modules distributed
+ * with Geronimo.  Custom login modules may use this if convenient or provide
+ * their own Principal implementations -- it doesn't matter.
+ *
+ * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public class PropertiesFileGroupPrincipal implements Principal, Serializable {
+public class GeronimoUserPrincipal implements Principal, Serializable {
     private final String name;
 
-    public PropertiesFileGroupPrincipal(String name) {
+    public GeronimoUserPrincipal(String name) {
         this.name = name;
     }
 
     /**
      * Compares this principal to the specified object.  Returns true
-     * if the object passed in matches the principal represented by
-     * the implementation of this interface.
-     *
-     * @param another principal to compare with.
-     * @return true if the principal passed in is the same as that
-     *         encapsulated by this principal, and false otherwise.
+     * if the object passed in is a GeronimoUserPrincipal with the
+     * same name.
      */
     public boolean equals(Object another) {
-        if (!(another instanceof PropertiesFileGroupPrincipal)) return false;
+        if (!(another instanceof GeronimoUserPrincipal)) return false;
 
-        return ((PropertiesFileGroupPrincipal) another).name.equals(name);
+        return ((GeronimoUserPrincipal) another).name.equals(name);
     }
 
     /**
      * Returns a string representation of this principal.
-     *
-     * @return a string representation of this principal.
      */
     public String toString() {
         return name;
@@ -57,8 +53,6 @@ public class PropertiesFileGroupPrincipal implements Principal, Serializable {
 
     /**
      * Returns a hashcode for this principal.
-     *
-     * @return a hashcode for this principal.
      */
     public int hashCode() {
         return name.hashCode();
@@ -66,8 +60,6 @@ public class PropertiesFileGroupPrincipal implements Principal, Serializable {
 
     /**
      * Returns the name of this principal.
-     *
-     * @return the name of this principal.
      */
     public String getName() {
         return name;

@@ -130,7 +130,7 @@ public class SQLLoginModule implements LoginModule {
                             String userName = result.getString(2);
 
                             if (cbUsername.equals(userName)) {
-                                groups.add(new SQLGroupPrincipal(groupName));
+                                groups.add(new GeronimoGroupPrincipal(groupName));
                             }
                         }
                     } finally {
@@ -151,7 +151,7 @@ public class SQLLoginModule implements LoginModule {
 
     public boolean commit() throws LoginException {
         Set principals = subject.getPrincipals();
-        principals.add(new SQLUserPrincipal(cbUsername));
+        principals.add(new GeronimoUserPrincipal(cbUsername));
         Iterator iter = groups.iterator();
         while (iter.hasNext()) {
             principals.add(iter.next());

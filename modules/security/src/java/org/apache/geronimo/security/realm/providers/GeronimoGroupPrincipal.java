@@ -14,43 +14,38 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.geronimo.security.realm.providers;
 
 import java.io.Serializable;
 import java.security.Principal;
 
-
 /**
- * @version $Rev$ $Date$
+ * A principal that represents a group for the login modules distributed
+ * with Geronimo.  Custom login modules may use this if convenient or provide
+ * their own Principal implementations -- it doesn't matter.
+ * 
+ * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-
-public class SQLGroupPrincipal implements Principal, Serializable {
+public class GeronimoGroupPrincipal implements Principal, Serializable {
     private final String name;
 
-    public SQLGroupPrincipal(String name) {
+    public GeronimoGroupPrincipal(String name) {
         this.name = name;
     }
 
     /**
      * Compares this principal to the specified object.  Returns true
-     * if the object passed in matches the principal represented by
-     * the implementation of this interface.
-     *
-     * @param another principal to compare with.
-     * @return true if the principal passed in is the same as that
-     *         encapsulated by this principal, and false otherwise.
+     * if the object passed in is a GeronimoGroupPrincipal with the
+     * same name.
      */
     public boolean equals(Object another) {
-        if (!(another instanceof SQLGroupPrincipal)) return false;
+        if (!(another instanceof GeronimoGroupPrincipal)) return false;
 
-        return ((SQLGroupPrincipal) another).name.equals(name);
+        return ((GeronimoGroupPrincipal) another).name.equals(name);
     }
 
     /**
      * Returns a string representation of this principal.
-     *
-     * @return a string representation of this principal.
      */
     public String toString() {
         return name;
@@ -58,8 +53,6 @@ public class SQLGroupPrincipal implements Principal, Serializable {
 
     /**
      * Returns a hashcode for this principal.
-     *
-     * @return a hashcode for this principal.
      */
     public int hashCode() {
         return name.hashCode();
@@ -67,8 +60,6 @@ public class SQLGroupPrincipal implements Principal, Serializable {
 
     /**
      * Returns the name of this principal.
-     *
-     * @return the name of this principal.
      */
     public String getName() {
         return name;

@@ -129,12 +129,13 @@ public class Security implements Serializable {
 
             realm.setRealmName(assistant.getSecurityRealm());
 
-            for (Iterator principalClasses = autoMapAssistant.obtainRolePrincipalClasses().iterator(); principalClasses.hasNext();) {
+            //todo: the usage of the realm name in the next call instead of the login domain name is an error!
+            for (Iterator principalClasses = autoMapAssistant.obtainRolePrincipalClasses(realmName).iterator(); principalClasses.hasNext();) {
                 Principal principal = new Principal();
-
+                //todo: Principal class needs to handle login domain as well
                 principal.setClassName((String) principalClasses.next());
                 principal.setPrincipalName(roleName);
-                principal.setDesignatedRunAs(true);
+                principal.setDesignatedRunAs(false);
 
                 realm.getPrincipals().add(principal);
             }

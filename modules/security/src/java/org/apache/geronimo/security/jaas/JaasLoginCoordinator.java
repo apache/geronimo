@@ -99,7 +99,11 @@ public class JaasLoginCoordinator implements LoginModule {
         for (int i = 0; i < workers.length; i++) {
             workers[i].getModule().commit();
         }
-        subject.getPrincipals().add(service.loginSucceeded(client));
+        Principal[] principals = service.loginSucceeded(client);
+        for (int i = 0; i < principals.length; i++) {
+            Principal principal = principals[i];
+            subject.getPrincipals().add(principal);
+        }
         return true;
     }
 
@@ -111,6 +115,7 @@ public class JaasLoginCoordinator implements LoginModule {
         } finally {
             service.loginFailed(client);
         }
+        clear();
         return true;
     }
 
@@ -122,7 +127,22 @@ public class JaasLoginCoordinator implements LoginModule {
         } finally {
             service.logout(client);
         }
+        clear();
         return true;
+    }
+
+    private void clear() {
+        serverHost = null;
+        serverPort = 0;
+        realmName = null;
+        kernelName = null;
+        service = null;
+        handler = null;
+        subject = null;
+        processedPrincipals.clear();
+        config = null;
+        client = null;
+        workers = null;
     }
 
     private JaasLoginServiceMBean connect() {
@@ -186,15 +206,11 @@ public class JaasLoginCoordinator implements LoginModule {
         public void initialize(Subject subject, CallbackHandler handler,
                                Map sharedState, Map options) {
             this.handler = handler;
-            try {
-                callbacks = service.getServerLoginCallbacks(client, index);
-            } catch (LoginException e) {
-                throw new RuntimeException("Server unable to initialize login module", e);
-            }
         }
 
         public boolean login() throws LoginException {
             try {
+                callbacks = service.getServerLoginCallbacks(client, index);
                 if(handler != null) {
                     handler.handle(callbacks);
                 } else if(callbacks != null && callbacks.length > 0) {

@@ -30,6 +30,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
 public class LoginModuleGBean {
+    private String loginDomainName;
     private String loginModuleClass;
     private Properties options;
     private String objectName;
@@ -42,6 +43,14 @@ public class LoginModuleGBean {
         this.loginModuleClass = loginModuleClass;
         this.objectName = objectName;
         this.serverSide = serverSide;
+    }
+
+    public String getLoginDomainName() {
+        return loginDomainName;
+    }
+
+    public void setLoginDomainName(String loginDomainName) {
+        this.loginDomainName = loginDomainName;
     }
 
     public Properties getOptions() {
@@ -72,6 +81,7 @@ public class LoginModuleGBean {
         infoFactory.addAttribute("loginModuleClass", String.class, true);
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("serverSide", boolean.class, true);
+        infoFactory.addAttribute("loginDomainName", String.class, true);
         infoFactory.setConstructor(new String[]{"loginModuleClass","objectName","serverSide"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

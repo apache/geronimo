@@ -44,6 +44,7 @@ by the server.
             usersURI=var/security/demo_users.properties
             groupsURI=var/security/demo_groups.properties
         </attribute>
+        <attribute name="loginDomainName" type="java.lang.String">demo-properties-realm</attribute>
     </gbean>
 
     <gbean name="geronimo.security:type=SecurityRealm,realm=demo-properties-realm"

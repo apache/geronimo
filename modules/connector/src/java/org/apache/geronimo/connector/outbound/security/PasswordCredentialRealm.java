@@ -20,10 +20,6 @@ package org.apache.geronimo.connector.outbound.security;
 import javax.resource.spi.ManagedConnectionFactory;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-
-import org.apache.regexp.RE;
-
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -33,6 +29,7 @@ import org.apache.geronimo.security.jaas.JaasLoginCoordinator;
 import org.apache.geronimo.security.jaas.JaasLoginModuleConfiguration;
 import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
 import org.apache.geronimo.security.realm.SecurityRealm;
+import org.apache.geronimo.security.realm.DeploymentSupport;
 
 /**
  *
@@ -59,23 +56,16 @@ public class PasswordCredentialRealm implements SecurityRealm, ConfigurationEntr
         return realmName;
     }
 
-    public Set getGroupPrincipals() throws GeronimoSecurityException {
-        return null;
+    public boolean isRestrictPrincipalsToServer() {
+        return true;
     }
 
-    public Set getGroupPrincipals(RE regexExpression) throws GeronimoSecurityException {
-        return null;
+    public String[] getLoginDomains() {
+        return new String[]{realmName};
     }
 
-    public Set getUserPrincipals() throws GeronimoSecurityException {
+    public DeploymentSupport getDeploymentSupport(String loginDomain) throws GeronimoSecurityException {
         return null;
-    }
-
-    public Set getUserPrincipals(RE regexExpression) throws GeronimoSecurityException {
-        return null;
-    }
-
-    public void refresh() throws GeronimoSecurityException {
     }
 
     public JaasLoginModuleConfiguration[] getAppConfigurationEntries() {
@@ -84,13 +74,9 @@ public class PasswordCredentialRealm implements SecurityRealm, ConfigurationEntr
         // TODO: This can be a bad thing, passing a reference to a realm to the login module
         // since the SerializableACE can be sent remotely
         options.put(REALM_INSTANCE, this);
-        JaasLoginModuleConfiguration config = new JaasLoginModuleConfiguration(getRealmName(), PasswordCredentialLoginModule.class.getName(),
-                LoginModuleControlFlag.REQUISITE, options, true);
+        JaasLoginModuleConfiguration config = new JaasLoginModuleConfiguration(PasswordCredentialLoginModule.class.getName(),
+                LoginModuleControlFlag.REQUISITE, options, true, getRealmName());
         return new JaasLoginModuleConfiguration[]{config};
-    }
-
-    public boolean isLoginModuleLocal() {
-        return true;
     }
 
     public void setManagedConnectionFactory(ManagedConnectionFactory managedConnectionFactory) {
@@ -110,7 +96,7 @@ public class PasswordCredentialRealm implements SecurityRealm, ConfigurationEntr
         options.put("realm", realmName);
         options.put("kernel", kernel.getKernelName());
 
-        return new JaasLoginModuleConfiguration(realmName, JaasLoginCoordinator.class.getName(), LoginModuleControlFlag.REQUIRED, options, true);
+        return new JaasLoginModuleConfiguration(JaasLoginCoordinator.class.getName(), LoginModuleControlFlag.REQUIRED, options, true, realmName);
     }
 
     static {

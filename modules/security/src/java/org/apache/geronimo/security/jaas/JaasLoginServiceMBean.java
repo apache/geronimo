@@ -116,7 +116,7 @@ public interface JaasLoginServiceMBean {
      * Indicates that the overall login succeeded.  All login modules that were
      * touched should have been logged in and committed before calling this.
      */
-    public IdentificationPrincipal loginSucceeded(JaasClientId userIdentifier) throws LoginException;
+    public Principal[] loginSucceeded(JaasClientId userIdentifier) throws LoginException;
 
     /**
      * Indicates that the overall login failed, and the server should release
