@@ -17,18 +17,19 @@
 -->
 
 
-<!--dependencies for jetty-->
+<!--dependencies for axis-->
 <service xmlns="http://geronimo.apache.org/xml/ns/deployment">
 
     <dependency>
         <uri>axis/jars/axis-${axis_version}.jar</uri>
     </dependency>
-    <dependency>
+    <!--jaxrpc and saaj are included in geronimo-spec-j2ee-${geronimo_spec_j2ee_version}.jar-->
+    <!--dependency>
         <uri>axis/jars/axis-jaxrpc-${axis_jaxrpc_version}.jar</uri>
     </dependency>
     <dependency>
         <uri>axis/jars/axis-saaj-${axis_saaj_version}.jar</uri>
-    </dependency>
+    </dependency-->
     <dependency>
         <uri>axis/jars/axis-wsdl4j-${axis_wsdl4j_version}.jar</uri>
     </dependency>
