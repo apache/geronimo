@@ -65,7 +65,7 @@ import junit.framework.TestCase;
 /**
  * Unit test for {@link MBeanProxyFactory} class.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/30 20:19:03 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/30 20:38:46 $
  */
 public class MBeanProxyFactoryTest
     extends TestCase
@@ -137,18 +137,18 @@ public class MBeanProxyFactoryTest
         assertEquals(targetObject.setPoorlyNameOperation(), value);
     }
     
-    public void testMBeanProxy() throws Exception
+    public void testMBeanProxyContext() throws Exception
     {
         MockObjectMBean bean = (MockObjectMBean)
             MBeanProxyFactory.create(MockObjectMBean.class, server, target);
         assertNotNull(bean);
         
-        assertTrue(bean instanceof MBeanProxyFactory.MBeanProxy);
+        assertTrue(bean instanceof MBeanProxyContext);
         
-        MBeanProxyFactory.MBeanProxy ctx = (MBeanProxyFactory.MBeanProxy)bean;
-        assertNotNull(ctx.getMBeanProxyObjectName());
-        assertEquals(target, ctx.getMBeanProxyObjectName());
-        assertNotNull(ctx.getMBeanProxyMBeanServer());
+        MBeanProxyContext ctx = (MBeanProxyContext)bean;
+        assertNotNull(ctx.getObjectName());
+        assertEquals(target, ctx.getObjectName());
+        assertNotNull(ctx.getMBeanServer());
     }
     
     //

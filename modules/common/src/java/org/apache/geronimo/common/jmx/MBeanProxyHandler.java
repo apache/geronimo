@@ -79,10 +79,10 @@ import org.apache.geronimo.common.NullArgumentException;
 /**
  * This class handles invocations for MBean proxies.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/30 20:19:03 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/30 20:38:46 $
  */
 public class MBeanProxyHandler
-    implements InvocationHandler, MBeanProxyFactory.MBeanProxy
+    implements InvocationHandler, MBeanProxyContext
 {
     protected final MBeanServer server;
     protected ObjectName target;
@@ -113,8 +113,8 @@ public class MBeanProxyHandler
         
         Class declaringClass = method.getDeclaringClass();
         
-        // if the method belongs to MBeanProxy, then invoke locally
-        if (declaringClass == MBeanProxyFactory.MBeanProxy.class) {
+        // if the method belongs to MBeanProxyContext, then invoke locally
+        if (declaringClass == MBeanProxyContext.class) {
             return method.invoke(this, args);
         }
         
@@ -173,7 +173,7 @@ public class MBeanProxyHandler
             throws Throwable
         {
             return server.getAttribute(
-                getMBeanProxyObjectName(), 
+                getObjectName(), 
                 info.getName()
             );
         }
@@ -193,7 +193,7 @@ public class MBeanProxyHandler
             throws Throwable
         {
             server.setAttribute(
-                getMBeanProxyObjectName(),
+                getObjectName(),
                 new Attribute(info.getName(), args[0])
             );
             
@@ -219,7 +219,7 @@ public class MBeanProxyHandler
             }
             
             return server.invoke(
-                getMBeanProxyObjectName(),
+                getObjectName(),
                 method.getName(),
                 args,
                 signature
@@ -234,13 +234,10 @@ public class MBeanProxyHandler
         
         if (taskCache == null) {
             // Allow sub-class overrides
-            ObjectName objectName = getMBeanProxyObjectName();
+            ObjectName target = getObjectName();
             
             // Get information about the target
-            MBeanInfo info = server.getMBeanInfo(objectName);
-            
-            // Initialize the task cache
-            taskCache = new HashMap();
+            MBeanInfo info = server.getMBeanInfo(target);
             
             // Load up the attribute mapping
             attributeMap = new HashMap();
@@ -248,6 +245,9 @@ public class MBeanProxyHandler
             for (int i=0; i<attributes.length; i++) {
                 attributeMap.put(attributes[i].getName(), attributes[i]);
             }
+            
+            // Initialize the task cache
+            taskCache = new HashMap();
         }
         
         String methodName = method.getName();
@@ -317,19 +317,15 @@ public class MBeanProxyHandler
     
     
     /////////////////////////////////////////////////////////////////////////
-    //                              MBeanProxy                             //
+    //                           MBeanProxyContext                         //
     /////////////////////////////////////////////////////////////////////////
     
-    //
-    // TODO: Replace with a MBeanProxyContext interface
-    //
-    
-    public ObjectName getMBeanProxyObjectName()
+    public ObjectName getObjectName()
     {
         return target;
     }
     
-    public MBeanServer getMBeanProxyMBeanServer()
+    public MBeanServer getMBeanServer()
     {
         return server;
     }

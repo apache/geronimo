@@ -56,77 +56,27 @@
 
 package org.apache.geronimo.common.jmx;
 
-import java.lang.reflect.Proxy;
-
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.common.NullArgumentException;
-
 /**
- * Creates a dynamic proxy to an MBean by ObjectName.
+ * Provides access to the context in which an MBean proxy is running.
  *
- * The interface type and object existance is not enforced during construction.
- * Instead, if a method is invoked on the proxy and there is no object registered
- * with the assigned name, an InvocationTargetException is thrown, which contains
- * an InstanceNotFoundException.
- *
- * If an interface method that is not implemented by
- * the MBean is invoked, an InvocationTargetException is thrown, which contains an
- * NoSuchMethodException.
- *
- * @version $Revision: 1.4 $ $Date: 2003/08/30 20:38:46 $
+ * @version $Revision: 1.1 $ $Date: 2003/08/30 20:38:46 $
  */
-public class MBeanProxyFactory
+public interface MBeanProxyContext
 {
     /**
-     * Creates an MBean proxy using the specified interface to the objectName.
+     * Return the ObjectName for this proxy.
      *
-     * @param type      The interface to implement for this proxy
-     * @param server    The MBeanServer in which the object is registered
-     * @param target    The objectName of the MBean to proxy
-     * @return          The new MBean proxy, which implemnts the specified interface.
+     * @return   The ObjectName for this proxy.
      */
-    public static Object create(final Class type,
-                                final MBeanServer server,
-                                final ObjectName target)
-    {
-        if (type == null) {
-            throw new NullArgumentException("type");
-        }
-        if (!type.isInterface()) {
-            throw new IllegalArgumentException("Type is not an interface: " + type);
-        }
-        if (server == null) {
-            throw new NullArgumentException("server");
-        }
-        
-        ClassLoader cl = type.getClassLoader();
-        
-        //
-        // jason: I am not sure if MPC will cause name clashes if the interface
-        //        has a getObjectName() or getMBeanServer() method...
-        //
-        
-        Class[] types = { type, MBeanProxyContext.class };
-        
-        MBeanProxyHandler handler =  new MBeanProxyHandler(server, target);
-        
-        return Proxy.newProxyInstance(cl, types, handler);
-    }
+    ObjectName getObjectName();
     
     /**
-     * Creates an MBean proxy using the specified interface to the objectName.
+     * Return the MBeanServer for this proxy.
      *
-     * @param type      The interface to implement for this proxy
-     * @param target    The objectName of the MBean to proxy
-     * @return          The new MBean proxy, which implemnts the specified interface.
+     * @return   The ObjectName for this proxy.
      */
-    public static Object create(final Class type, final ObjectName target)
-    {
-        MBeanServer server = MBeanServerLocator.locate();
-        assert server != null;
-        
-        return create(type, server, target);
-    }
+    MBeanServer getMBeanServer();
 }
