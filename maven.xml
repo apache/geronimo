@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.32 $ $Date: 2003/09/01 09:49:31 $ -->
+<!-- $Revision: 1.33 $ $Date: 2003/09/01 10:05:06 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -395,7 +395,7 @@
     <attainGoal name="modules:aggregate:site"/>
   </preGoal>
   
-  <goal name="modules:copy-site" prereqs="modules:aggregate:site"
+  <goal name="modules:aggregate:site" prereqs="modules:site"
         description="Copy the generated websites of all the modules into the root project">
     
     <ant:echo>Aggregating module site documentation...</ant:echo>
