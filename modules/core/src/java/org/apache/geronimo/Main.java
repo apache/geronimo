@@ -55,18 +55,17 @@
  */
 package org.apache.geronimo;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Set;
-
 import javax.management.MBeanServer;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.common.Duration;
-import org.apache.geronimo.common.StopWatch;
+import org.apache.commons.logging.impl.LogFactoryImpl;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.jmx.JMXKernel;
 
@@ -74,9 +73,16 @@ import org.apache.geronimo.jmx.JMXKernel;
  *
  *
  *
- * @version $Revision: 1.12 $ $Date: 2003/08/27 03:43:36 $
+ * @version $Revision: 1.13 $ $Date: 2003/08/27 20:38:49 $
  */
 public class Main implements Runnable {
+    static {
+        // Add our default Commons Logger that support the trace level
+        if(System.getProperty(LogFactoryImpl.LOG_PROPERTY) == null) {
+            System.setProperty(LogFactoryImpl.LOG_PROPERTY, "org.apache.geronimo.common.log.log4j.CachingLog4jLog");
+        }
+    }
+
     private static final Log log = LogFactory.getLog("Geronimo");
     private static final String[] DEPLOY_ARG_TYPES = {"java.net.URL"};
 
@@ -96,14 +102,14 @@ public class Main implements Runnable {
      * Main entry point
      */
     public void run() {
-        StopWatch watch = new StopWatch(true);
-        
         Object[] deployArgs = {bootURL};
         JMXKernel kernel = null;
         ShutdownThread hook = new ShutdownThread("Shutdown-Thread", Thread.currentThread());
         try {
             Runtime.getRuntime().addShutdownHook(hook);
             try {
+                long start = System.currentTimeMillis();
+
                 log.info("Starting JMXKernel");
                 kernel = new JMXKernel(domainName);
 
@@ -139,11 +145,10 @@ public class Main implements Runnable {
                 log.info("Deploying Bootstrap Services from " + bootURL);
                 MBeanServer mbServer = kernel.getMBeanServer();
                 mbServer.invoke(controllerName, "deploy", deployArgs, DEPLOY_ARG_TYPES);
-                
-                watch.stop();
-                log.info("Started Server in " + new Duration(watch.getTime()));
-            }
-            catch (Throwable e) {
+
+                long end = System.currentTimeMillis();
+                log.info("Started Server in " + (end - start) + "ms.");
+            } catch (Throwable e) {
                 log.error("Error starting Server", e);
                 return;
             }
@@ -181,6 +186,30 @@ public class Main implements Runnable {
             }
 
             log.info("Shutdown complete");
+        }
+    }
+    
+    static String GERONIMO_HOME = System.getProperty("geronimo.home","file:.");
+
+    /**
+     * Command line entry point.
+     * Starts a new ThreadGroup so that all owned threads can be identified.
+     * @param args command line arguments
+     */
+    public static void main(String[] args) {
+        try {
+            // @todo get these from somewhere a little more flexible
+            URL homeURL = new URL(GERONIMO_HOME);
+            URL mletURL = new URL(homeURL, "etc/boot.mlet");
+            URL deployURL = new URL(homeURL, "etc/boot-service.xml");
+            Main main = new Main("geronimo", mletURL, deployURL);
+
+            ThreadGroup group = new ThreadGroup("Geronimo");
+            Thread mainThread = new Thread(group, main, "Main-Thread");
+            mainThread.start();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return;
         }
     }
 
