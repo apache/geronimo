@@ -23,7 +23,7 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.util.Collections;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +70,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.32 $ $Date: 2004/06/04 17:27:00 $
+ * @version $Revision: 1.33 $ $Date: 2004/06/04 22:29:14 $
  */
 public class Kernel extends NotificationBroadcasterSupport implements Serializable, KernelMBean {
 
@@ -85,7 +85,7 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
     public static final ObjectName DEPENDENCY_SERVICE = JMXUtil.getObjectName("geronimo.boot:role=DependencyService");
 
 
-    private static final Map kernels = new Hashtable();
+    private static final Map kernels = new HashMap();
     private static final ReferenceQueue queue = new ReferenceQueue();
     private final String kernelName;
     private final String domainName;
@@ -117,7 +117,7 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
      * @param domainName the domain name to be used for the JMX MBeanServer
      */
     public Kernel(String domainName) {
-        this(null, domainName);
+        this(domainName, domainName);
     }
 
     /**
@@ -146,6 +146,9 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
      * @return the kernel that was registered with that name
      */
     public static Kernel getKernel(String name) {
+        if (name == null) {
+            return getSingleKernel();
+        }
         synchronized (kernels) {
             processQueue();
             KernelReference ref = (KernelReference) kernels.get(name);
@@ -341,11 +344,14 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
         log = LogFactory.getLog(Kernel.class.getName());
         log.info("Starting boot");
 
-        if (kernelName != null) {
-            synchronized (kernels) {
-                kernels.put(kernelName, new KernelReference(kernelName, this));
+//        if (kernelName != null) {
+        synchronized (kernels) {
+            if (kernels.containsKey(kernelName)) {
+                throw new IllegalStateException("A kernel is already running this kernel name: " + kernelName);
             }
+            kernels.put(kernelName, new KernelReference(kernelName, this));
         }
+//        }
 
         mbServer = MBeanServerFactory.createMBeanServer(domainName);
         mbServer.registerMBean(this, KERNEL);
@@ -438,11 +444,11 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
             notify();
         }
 
-        if (kernelName != null) {
-            synchronized (kernels) {
-                kernels.remove(kernelName);
-            }
+//        if (kernelName != null) {
+        synchronized (kernels) {
+            kernels.remove(kernelName);
         }
+//        }
 
         log.info("Kernel shutdown complete");
     }
