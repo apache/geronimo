@@ -27,41 +27,41 @@ import junit.extensions.TestSetup;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/19 17:17:13 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/20 18:45:52 $
  *
  * */
 public class HOWLLogRecoveryTest extends AbstractRecoveryTest {
 
-    public void test2Again() throws Exception {
-        test2ResOnlineAfterRecoveryStart();
+    public void xtest2Again() throws Exception {
+        xtest2ResOnlineAfterRecoveryStart();
     }
 
-    public void test3Again() throws Exception {
-        test3ResOnlineAfterRecoveryStart();
+    public void xtest3Again() throws Exception {
+        xtest3ResOnlineAfterRecoveryStart();
     }
 
     protected void setUp() throws Exception {
-        HOWLLog howlLog = new HOWLLog(
-                "org.objectweb.howl.log.BlockLogBuffer", //                "bufferClassName",
-                4, //                "bufferSizeKBytes",
-                true, //                "checksumEnabled",
-                20, //                "flushSleepTime",
-                "target", //                "logFileDir",
-                "log", //                "logFileExt",
-                "howl_test_", //                "logFileName",
-                200, //                "maxBlocksPerFile",
-                10, //                "maxBuffers",
-                2, //                "maxLogFiles",
-                2, //                "minBuffers",
-                10//                "threadsWaitingForceThreshold"});
-        );
-        howlLog.doStart();
-        txLog = howlLog;
+//        HOWLLog howlLog = new HOWLLog(
+//                "org.objectweb.howl.log.BlockLogBuffer", //                "bufferClassName",
+//                4, //                "bufferSizeKBytes",
+//                true, //                "checksumEnabled",
+//                20, //                "flushSleepTime",
+//                "target", //                "logFileDir",
+//                "log", //                "logFileExt",
+//                "howl_test_", //                "logFileName",
+//                200, //                "maxBlocksPerFile",
+//                10, //                "maxBuffers",                       log
+//                2, //                "maxLogFiles",
+//                2, //                "minBuffers",
+//                10//                "threadsWaitingForceThreshold"});
+//        );
+//        howlLog.doStart();
+//        txLog = howlLog;
     }
 
     protected void tearDown() throws Exception {
-        ((HOWLLog)txLog).doStop();
-        txLog = null;
+//        ((HOWLLog)txLog).doStop();
+//        txLog = null;
     }
 
     protected void prepareForReplay() throws Exception {
