@@ -16,9 +16,13 @@
     limitations under the License.
 -->
   
-<!DOCTYPE project SYSTEM "../../etc/version-info.ent">
+<!DOCTYPE project [
+<!ENTITY % locator SYSTEM "file:locator.ent">
+%locator;
+%versions;
+]>
 
-<!-- $Revision: 1.3 $ $Date: 2004/09/02 03:02:17 $ -->
+<!-- $Revision: 1.4 $ $Date: 2004/09/02 18:32:28 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
