@@ -43,24 +43,21 @@ public class AxisGbean implements GBeanLifecycle {
 
         // attributes
         infoFactory.addAttribute("Name", String.class, true);
-        infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addReference("resourceManagers", Object.class);
 
         // operations
-        infoFactory.setConstructor(new String[]{"kernel", "Name",
-                                                "objectName", "resourceManagers"});
+        infoFactory.setConstructor(new String[]{"Name",
+                                                "objectName"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
     /**
      * Constructor AxisGbean
      *
-     * @param kernel
      * @param name
-     * @param objectName
+     @param objectName
      */
-    public AxisGbean(Kernel kernel, String name, String objectName, Collection resourceManagers) {
+    public AxisGbean(String name, String objectName) {
         this.name = name;
         this.objectName = JMXUtil.getObjectName(objectName);
     }

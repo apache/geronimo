@@ -17,9 +17,6 @@ package org.apache.geronimo.axis.preconditions;
 
 import org.apache.geronimo.axis.AbstractTestCase;
 import org.apache.geronimo.axis.AxisGbean;
-import org.apache.geronimo.axis.AxisGeronimoUtils;
-import org.apache.geronimo.axis.ReferenceCollectionImpl;
-import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 
@@ -46,7 +43,6 @@ public class GBeanConfigTest extends AbstractTestCase {
     public void testStartAxisService() throws Exception {
         ClassLoader cl = getClass().getClassLoader();
         ClassLoader myCl = new URLClassLoader(new URL[0], cl);
-        ReferenceCollection rc = new ReferenceCollectionImpl();
         GBeanMBean gbean2 = new GBeanMBean(AxisGbean.getGBeanInfo(), myCl);
         gbean2.setAttribute("Name", "Test");
         kernel.loadGBean(name2, gbean2);
@@ -61,7 +57,6 @@ public class GBeanConfigTest extends AbstractTestCase {
     public void testdependencies() throws Exception {
         ClassLoader cl = getClass().getClassLoader();
         ClassLoader myCl = new URLClassLoader(new URL[0], cl);
-        ReferenceCollection rc = new ReferenceCollectionImpl();
         GBeanMBean gbean2 = new GBeanMBean(AxisGbean.getGBeanInfo(), myCl);
         gbean2.setAttribute("Name", "Test");
         kernel.loadGBean(name2, gbean2);
