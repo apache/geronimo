@@ -36,6 +36,8 @@
         <connectionfactory-interface>javax.jms.ConnectionFactory</connectionfactory-interface>
         <connectiondefinition-instance>
           <name>DefaultActiveMQConnectionFactory</name>
+          <implemented-interface>javax.jms.QueueConnectionFactory</implemented-interface>
+          <implemented-interface>javax.jms.TopicConnectionFactory</implemented-interface>
           <connectionmanager>
             <xa-transaction>
               <transaction-caching/>
