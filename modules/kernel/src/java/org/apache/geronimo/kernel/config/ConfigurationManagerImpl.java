@@ -20,16 +20,16 @@ package org.apache.geronimo.kernel.config;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.ArrayList;
+import java.util.Properties;
 import javax.management.InstanceNotFoundException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.MBeanServer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,10 +37,11 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/06/02 19:50:41 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/04 04:33:58 $
  */
 public class ConfigurationManagerImpl implements ConfigurationManager {
     private static final Log log = LogFactory.getLog(ConfigurationManagerImpl.class);
