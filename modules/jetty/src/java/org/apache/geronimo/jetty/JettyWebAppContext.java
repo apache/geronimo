@@ -39,6 +39,7 @@ import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
 import org.mortbay.http.HttpException;
 import org.mortbay.jetty.servlet.*;
+import org.mortbay.jetty.servlet.Dispatcher;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -50,6 +51,7 @@ import org.apache.geronimo.jetty.interceptor.ThreadClassloaderBeforeAfter;
 import org.apache.geronimo.jetty.interceptor.TransactionContextBeforeAfter;
 import org.apache.geronimo.jetty.interceptor.WebApplicationContextBeforeAfter;
 import org.apache.geronimo.jetty.interceptor.SecurityContextBeforeAfter;
+import org.apache.geronimo.jetty.interceptor.RequestWrappingBeforeAfter;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
@@ -232,16 +234,17 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         interceptor = new ThreadClassloaderBeforeAfter(interceptor, index++, index++, this.webClassLoader);
         interceptor = new WebApplicationContextBeforeAfter(interceptor, index++, this);
 //JACC
-        if (securityConfig != null) {
+        if (securityRealmName != null) {
             //set the JAASJettyRealm as our realm.
             JAASJettyRealm realm = new JAASJettyRealm(realmName, securityRealmName);
             setRealm(realm);
             this.securityInterceptor = new SecurityContextBeforeAfter(interceptor, index++, index++, policyContextID, securityConfig, authenticator, securityRoles, uncheckedPermissions, excludedPermissions, rolePermissions, realm);
-            interceptor = securityInterceptor;
+            interceptor = this.securityInterceptor;
         } else {
             securityInterceptor = null;
         }
 //end JACC
+        interceptor = new RequestWrappingBeforeAfter(interceptor, handler);
         chain = interceptor;
         contextLength = index;
 

@@ -88,7 +88,6 @@ public class JettyServletHolder extends ServletHolder {
             throws ServletException, UnavailableException, IOException {
 
         currentServletHolder.set(this);
-        PolicyContext.setHandlerData(ServletHttpRequest.unwrap(request));
 
         super.handle(request, response);
     }

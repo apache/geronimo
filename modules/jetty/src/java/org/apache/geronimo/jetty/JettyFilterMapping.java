@@ -21,9 +21,8 @@ import java.io.Serializable;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.mortbay.jetty.servlet.WebApplicationHandler;
-import org.mortbay.jetty.servlet.FilterHolder;
 import org.mortbay.jetty.servlet.Dispatcher;
+import org.mortbay.jetty.servlet.WebApplicationHandler;
 
 /**
  * @version $Rev:  $ $Date:  $

@@ -37,21 +37,12 @@ import javax.security.jacc.PolicyContextException;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebRoleRefPermission;
 import javax.security.jacc.WebUserDataPermission;
-
-import org.mortbay.http.Authenticator;
-import org.mortbay.http.HttpException;
-import org.mortbay.http.HttpRequest;
-import org.mortbay.http.HttpResponse;
-import org.mortbay.http.SecurityConstraint;
-import org.mortbay.http.UserRealm;
-import org.mortbay.jetty.servlet.FormAuthenticator;
-import org.mortbay.jetty.servlet.ServletHttpRequest;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.jetty.JAASJettyPrincipal;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
-import org.apache.geronimo.security.PrimaryRealmPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.SubjectId;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
@@ -62,6 +53,14 @@ import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.jacc.RoleMappingConfiguration;
 import org.apache.geronimo.security.jacc.RoleMappingConfigurationFactory;
 import org.apache.geronimo.security.util.ConfigurationUtil;
+import org.mortbay.http.Authenticator;
+import org.mortbay.http.HttpException;
+import org.mortbay.http.HttpRequest;
+import org.mortbay.http.HttpResponse;
+import org.mortbay.http.SecurityConstraint;
+import org.mortbay.http.UserRealm;
+import org.mortbay.jetty.servlet.FormAuthenticator;
+import org.mortbay.jetty.servlet.ServletHttpRequest;
 
 
 /**
@@ -174,6 +173,11 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
 
         PolicyContext.setContextID(policyContextID);
         setCurrentSecurityInterceptor(this);
+
+        if (httpRequest != null){
+            ServletHttpRequest request = (ServletHttpRequest)httpRequest.getWrapper();
+            PolicyContext.setHandlerData((HttpServletRequest)request);
+        }
 
         if (next != null) {
             next.before(context, httpRequest, httpResponse);
@@ -352,19 +356,7 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
         }
 
         JAASJettyPrincipal result = new JAASJettyPrincipal("default");
-        Subject defaultSubject = new Subject();
-
-        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getRealmName());
-        if (realmPrincipal == null) {
-            throw new GeronimoSecurityException("Unable to create realm principal");
-        }
-        PrimaryRealmPrincipal primaryRealmPrincipal = ConfigurationUtil.generatePrimaryRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getRealmName());
-        if (primaryRealmPrincipal == null) {
-            throw new GeronimoSecurityException("Unable to create primary realm principal");
-        }
-
-        defaultSubject.getPrincipals().add(realmPrincipal);
-        defaultSubject.getPrincipals().add(primaryRealmPrincipal);
+        Subject defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal);
 
         result.setSubject(defaultSubject);
 
