@@ -50,7 +50,7 @@ import org.apache.xmlbeans.XmlObject;
  * Command line based deployment utility which combines multiple deployable modules
  * into a single configuration.
  *
- * @version $Revision: 1.14 $ $Date: 2004/02/29 06:11:32 $
+ * @version $Revision: 1.15 $ $Date: 2004/03/04 03:37:24 $
  */
 public class Deployer {
     private final Collection builders;
@@ -115,7 +115,7 @@ public class Deployer {
             if (cmd.module == null) {
                 builder.buildConfiguration(cmd.carfile, (JarInputStream) null, plan);
             } else if ("file".equals(cmd.module.getProtocol())) {
-                File module = new File(cmd.module.getPath());
+                File module = new File(new URI(cmd.module.toString()));
                 builder.buildConfiguration(cmd.carfile, module, plan);
             } else if (cmd.module.toString().endsWith("/")) {
                 throw new DeploymentException("Unpacked modules must be files");
