@@ -17,11 +17,11 @@
 
 package org.apache.geronimo.naming.geronimo;
 
-import javax.naming.NamingException;
-import javax.naming.Context;
-
 import junit.framework.TestCase;
-import org.apache.geronimo.naming.geronimo.GeronimoContext;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+import java.util.Set;
 
 /**
  *
@@ -37,18 +37,26 @@ public class GeronimoContextTest extends TestCase {
         context.internalBind("one", "one");
         context.internalBind("this/is/a/compound/name", "two");
         context.internalBind("this/is/another/compound/name", "three");
+        context.internalBind("thing/one", "uno");
+        context.internalBind("thing/two", "doz");
     }
 
     public void testLookup() throws Exception {
         assertEquals(context.lookup("one"), "one");
         assertEquals(context.lookup("this/is/a/compound/name"), "two");
         assertEquals(context.lookup("this/is/another/compound/name"), "three");
+        assertEquals(context.lookup("thing/one"), "uno");
+        assertEquals(context.lookup("thing/two"), "doz");
     }
 
     public void testLookupSubContext() throws Exception {
         Context context = (Context) this.context.lookup("this/is");
         assertEquals(context.lookup("a/compound/name"), "two");
         assertEquals(context.lookup("another/compound/name"), "three");
+
+        context = (Context) this.context.lookup("thing");
+        assertEquals(context.lookup("one"), "uno");
+        assertEquals(context.lookup("two"), "doz");
     }
 
     public void testUnbind() throws Exception {
@@ -65,7 +73,9 @@ public class GeronimoContextTest extends TestCase {
         } catch (NamingException e) {
         }
         context.lookup("this/is");
-        assertEquals(5, context.internalUnbind("this/is/another/compound/name").size());
+        Set set = context.internalUnbind("this/is/another/compound/name");
+        int actual = set.size();
+        assertEquals(5, actual);
         try {
             context.lookup("this/is");
             fail();
