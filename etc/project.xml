@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: project.xml,v 1.7 2003/08/16 02:35:15 jboynes Exp $ -->
+<!-- $Id: project.xml,v 1.8 2003/08/16 14:17:48 jdillon Exp $ -->
 
 <project>
   
@@ -206,7 +206,7 @@
     </contributor>
     <contributor>
       <name>Alex Blewitt</name>
-      <email>Alex.Blewitt@bandlem.com</email>
+      <email>Alex.Blewitt@ioshq.com</email>
     </contributor>
     <contributor>
       <name>Brent Worden</name>
@@ -231,7 +231,16 @@
     <nagEmailAddress>geronimo-dev@incubator.apache.org</nagEmailAddress>
     <sourceDirectory>${basedir}/src/java</sourceDirectory>
     <unitTestSourceDirectory>${basedir}/src/test</unitTestSourceDirectory>
-
+    
+    <resources>
+      <resource>
+        <directory>${basedir}/src/resources</directory>
+        <includes>
+          <include>**/*</include>
+         </includes>
+      </resource>
+    </resources>
+    
     <unitTest>
       <includes>
         <include>**/*Test.java</include>
