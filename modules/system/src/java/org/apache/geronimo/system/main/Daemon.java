@@ -24,14 +24,15 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.system.url.GeronimoURLFactory;
 
@@ -124,9 +125,11 @@ public class Daemon {
 
             if (configs.isEmpty()) {
                 // nothing explicit, see what was running before
-                if (kernel.isLoaded(PersistentConfigurationList.OBJECT_NAME)) {
+                Set configLists = kernel.listGBeans(JMXUtil.getObjectName("*:role=PersistentConfigurationList,*"));
+                for (Iterator i = configLists.iterator(); i.hasNext();) {
+                    ObjectName configListName = (ObjectName) i.next();
                     try {
-                        configs = (List) kernel.invoke(PersistentConfigurationList.OBJECT_NAME, "restore");
+                        configs = (List) kernel.invoke(configListName, "restore");
                     } catch (IOException e) {
                         System.err.println("Unable to restore last known configurations");
                         e.printStackTrace();
