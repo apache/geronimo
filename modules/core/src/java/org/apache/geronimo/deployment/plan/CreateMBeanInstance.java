@@ -57,16 +57,14 @@ package org.apache.geronimo.deployment.plan;
 
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
+import java.io.File;
 import java.lang.reflect.Constructor;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.net.URL;
-import java.net.URI;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.io.File;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
@@ -91,7 +89,7 @@ import org.apache.geronimo.jmx.JMXUtil;
 /**
  * Creates an new MBean instance and intializes it according to the specified MBeanMetadata metadata
  *
- * @version $Revision: 1.8 $ $Date: 2003/08/20 22:38:24 $
+ * @version $Revision: 1.9 $ $Date: 2003/08/21 04:32:41 $
  */
 public class CreateMBeanInstance implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());

@@ -60,13 +60,14 @@ import java.util.Collection;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.management.StateManageable;
+import org.apache.geronimo.management.ManagedObject;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/20 07:13:25 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/21 04:32:41 $
  */
-public interface DeploymentInfoMBean extends StateManageable {
+public interface DeploymentInfoMBean extends ManagedObject, StateManageable {
     URL getURL();
 
     ObjectName getParent();

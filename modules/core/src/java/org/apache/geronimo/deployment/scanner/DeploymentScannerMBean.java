@@ -59,14 +59,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Set;
 import org.apache.geronimo.management.StateManageable;
+import org.apache.geronimo.management.ManagedObject;
 
 /**
  *
  *
  *
- * @version $Revision: 1.7 $ $Date: 2003/08/20 07:13:26 $
+ * @version $Revision: 1.8 $ $Date: 2003/08/21 04:32:41 $
  */
-public interface DeploymentScannerMBean extends StateManageable {
+public interface DeploymentScannerMBean extends ManagedObject, StateManageable {
     static final String SCAN_COMPLETE = "org.apache.geronimo.deployment.SCAN_COMPLETE";
 
     long getScanInterval();

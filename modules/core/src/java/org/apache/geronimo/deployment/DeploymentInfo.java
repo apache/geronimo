@@ -62,14 +62,14 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.common.AbstractStateManageable;
+import org.apache.geronimo.management.AbstractManagedObject;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/18 22:14:26 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/21 04:32:41 $
  */
-public class DeploymentInfo extends AbstractStateManageable implements DeploymentInfoMBean {
+public class DeploymentInfo extends AbstractManagedObject implements DeploymentInfoMBean {
     private final URL url;
     private final ObjectName name;
     private final ObjectName parent;

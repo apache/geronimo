@@ -72,17 +72,17 @@ import javax.management.relation.RelationServiceMBean;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.common.AbstractStateManageable;
 import org.apache.geronimo.jmx.JMXUtil;
+import org.apache.geronimo.management.AbstractManagedObject;
 
 /**
  * An MBean that maintains a list of URLs and periodically invokes a Scanner
  * to search them for deployments.
  *
  *
- * @version $Revision: 1.9 $ $Date: 2003/08/20 22:40:01 $
+ * @version $Revision: 1.10 $ $Date: 2003/08/21 04:32:41 $
  */
-public class DeploymentScanner extends AbstractStateManageable implements DeploymentScannerMBean {
+public class DeploymentScanner extends AbstractManagedObject implements DeploymentScannerMBean {
     private static final Log log = LogFactory.getLog(DeploymentScanner.class);
     private RelationServiceMBean relationService;
     private final Map scanners = new HashMap();
