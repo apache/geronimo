@@ -63,7 +63,7 @@ public class ActivationDataFlavor extends DataFlavor {
     }
 
     public boolean equals(DataFlavor dataFlavor) {
-        return this.isMimeTypeEqual(dataFlavor) && representationClass == dataFlavor.getRepresentationClass();
+        return this.isMimeTypeEqual(dataFlavor.getMimeType()) && representationClass == dataFlavor.getRepresentationClass();
     }
 
     public boolean isMimeTypeEqual(String mimeType) {

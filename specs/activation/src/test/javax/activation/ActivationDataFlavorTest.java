@@ -23,6 +23,7 @@
 package javax.activation;
 
 import java.io.InputStream;
+import java.awt.datatransfer.DataFlavor;
 
 import junit.framework.TestCase;
 
@@ -49,5 +50,11 @@ public class ActivationDataFlavorTest extends TestCase {
         assertEquals("Name 2", adf.getHumanPresentableName());
         adf = new ActivationDataFlavor("text/html", null);
         assertNull(adf.getHumanPresentableName());
+    }
+
+    public void testEquals() {
+        ActivationDataFlavor adf1 = new ActivationDataFlavor("text/plain", "text/plain");
+        DataFlavor adf2 = new DataFlavor("text/plain", "text/plain");
+        assertTrue(adf1.equals(adf2));
     }
 }
