@@ -37,6 +37,7 @@
 <!ENTITY avalon-logkit-version "1.2.2">
 <!ENTITY bouncycastle-bcprov-version "jdk14-124">
 <!ENTITY cglib-version "2.0">
+<!ENTITY cglib-full-version "2.0"> <!-- ActiveMQ -->
 <!ENTITY castor-version "0.9.5.3">
 <!ENTITY commons-beanutils-version "1.6.1">
 <!ENTITY commons-cli-version "1.0">
