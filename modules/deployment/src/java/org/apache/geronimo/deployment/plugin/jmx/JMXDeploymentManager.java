@@ -47,6 +47,7 @@ import org.apache.geronimo.deployment.plugin.local.UndeployCommand;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelMBean;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 import org.apache.geronimo.kernel.management.State;
@@ -54,7 +55,7 @@ import org.apache.geronimo.kernel.management.State;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/07/06 05:36:12 $
+ * @version $Revision: 1.8 $ $Date: 2004/07/22 03:24:45 $
  */
 public class JMXDeploymentManager implements DeploymentManager {
     private JMXConnector jmxConnector;
@@ -95,28 +96,28 @@ public class JMXDeploymentManager implements DeploymentManager {
         return targets;
     }
 
-    public TargetModuleID[] getAvailableModules(ModuleType moduleType, Target[] targetList) throws TargetException {
+    public TargetModuleID[] getAvailableModules(final ModuleType moduleType, Target[] targetList) throws TargetException {
         ConfigFilter filter = new ConfigFilter() {
             public boolean accept(ConfigurationInfo info) {
-                return true;
+                return info.getType() == ConfigurationModuleType.getFromValue(moduleType.getValue());
             }
         };
         return getModules(targetList, filter);
     }
 
-    public TargetModuleID[] getNonRunningModules(ModuleType moduleType, Target[] targetList) throws TargetException {
+    public TargetModuleID[] getNonRunningModules(final ModuleType moduleType, Target[] targetList) throws TargetException {
         ConfigFilter filter = new ConfigFilter() {
             public boolean accept(ConfigurationInfo info) {
-                return info.getState() != State.RUNNING;
+                return info.getState() != State.RUNNING && info.getType() == ConfigurationModuleType.getFromValue(moduleType.getValue());
             }
         };
         return getModules(targetList, filter);
     }
 
-    public TargetModuleID[] getRunningModules(ModuleType moduleType, Target[] targetList) throws TargetException {
+    public TargetModuleID[] getRunningModules(final ModuleType moduleType, Target[] targetList) throws TargetException {
         ConfigFilter filter = new ConfigFilter() {
             public boolean accept(ConfigurationInfo info) {
-                return info.getState() == State.RUNNING;
+                return info.getState() == State.RUNNING && info.getType() == ConfigurationModuleType.getFromValue(moduleType.getValue());
             }
         };
         return getModules(targetList, filter);
