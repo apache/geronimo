@@ -35,7 +35,7 @@ import org.apache.geronimo.security.RealmPrincipal;
 
 /**
  *
- * @version $Revision: 1.5 $ $Date: 2004/09/08 12:29:09 $
+ * @version $Revision: 1.5 $ $Date$
  */
 public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
     private final static int OPEN = 1;
@@ -205,7 +205,9 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
 
             Iterator roles = ((HashSet) principalRoleMapping.get(principal)).iterator();
             while (roles.hasNext()) {
-                Enumeration rolePermissions = ((Permissions) rolePermissionsMap.get(roles.next())).elements();
+                Permissions permissions =  (Permissions) rolePermissionsMap.get(roles.next());
+                if (permissions == null) continue;
+                Enumeration rolePermissions = permissions.elements();
                 while (rolePermissions.hasMoreElements()) {
                     principalPermissions.add((Permission) rolePermissions.nextElement());
                 }
