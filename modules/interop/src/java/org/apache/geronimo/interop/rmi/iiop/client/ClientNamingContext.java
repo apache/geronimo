@@ -36,26 +36,22 @@ import org.apache.geronimo.interop.rmi.iiop.ObjectRef;
 import org.apache.geronimo.interop.rmi.iiop.compiler.StubFactory;
 import org.apache.geronimo.interop.util.ExceptionUtil;
 
-
 public class ClientNamingContext implements Context, java.io.Serializable {
+
     public static ClientNamingContext getInstance(Hashtable env) {
-        ClientNamingContext nc = (ClientNamingContext) _contextMap.get(env);
+        ClientNamingContext nc = (ClientNamingContext) contextMap.get(env);
         if (nc == null) {
-            synchronized (_contextMap) {
-                nc = (ClientNamingContext) _contextMap.get(env);
+            synchronized (contextMap) {
+                nc = (ClientNamingContext) contextMap.get(env);
                 if (nc == null) {
                     nc = new ClientNamingContext();
                     nc.init(env);
-                    _contextMap.put(env, nc);
+                    contextMap.put(env, nc);
                 }
             }
         }
         return nc;
     }
-
-    // -----------------------------------------------------------------------
-    // properties
-    // -----------------------------------------------------------------------
 
     public static final StringProperty usernameProperty =
             new StringProperty(SystemProperties.class, "java.naming.security.principal");
@@ -67,64 +63,45 @@ public class ClientNamingContext implements Context, java.io.Serializable {
             new IntProperty(SystemProperties.class, "org.apache.geronimo.interop.rmi.idleConnectionTimeout")
             .defaultValue(60); // seconds
 
-    // -----------------------------------------------------------------------
-    // private data
-    // -----------------------------------------------------------------------
-
-    private static int _idleConnectionTimeout =
+    private static int idleConnectionTimeout =
             idleConnectionTimeoutProperty.getInt();
 
-    private static int _namingContextCacheTimeout =
+    private static int namingContextCacheTimeout =
             SystemProperties.rmiNamingContextCacheTimeoutProperty.getInt();
 
-    private static HashMap _contextMap = new HashMap();
+    private static HashMap  contextMap = new HashMap();
+    private static HashMap  hostListCache = new HashMap();
+    private static HashMap  multiHostMap = new HashMap();
+    private static Random   random = new Random();
+    private HashMap         cache = new HashMap();
+    private Hashtable       env;
+    private ConnectionPool  connectionPool;
+    private PropertyMap     connectionProperties;
+    static private HashMap  nameMap = new HashMap();
+    private String          prefix;
+    private String          username;
+    private String          password;
 
-    private static HashMap _hostListCache = new HashMap();
-
-    private static HashMap _multiHostMap = new HashMap();
-
-    private static Random _random = new Random();
-
-    private HashMap _cache = new HashMap();
-
-    private Hashtable _env;
-
-    private ConnectionPool _connectionPool;
-
-    private PropertyMap _connectionProperties;
-
-    private org.apache.geronimo.interop.CosNaming.NamingContext _serverNamingContext;
-    static private HashMap _nameMap = new HashMap();
-
-
-    private String _prefix;
-
-    private String _username;
-
-    private String _password;
-
-    // -----------------------------------------------------------------------
-    // public methods
-    // -----------------------------------------------------------------------
+    private org.apache.geronimo.interop.CosNaming.NamingContext serverNamingContext;
 
     public ConnectionPool getConnectionPool() {
-        return _connectionPool;
+        return connectionPool;
     }
 
     public PropertyMap getConnectionProperties() {
-        return _connectionProperties;
+        return connectionProperties;
     }
 
     public int getIdleConnectionTimeout() {
-        return _idleConnectionTimeout;
+        return idleConnectionTimeout;
     }
 
     public String getUsername() {
-        return _username;
+        return username;
     }
 
     public String getPassword() {
-        return _password;
+        return password;
     }
 
     // -----------------------------------------------------------------------
@@ -140,22 +117,22 @@ public class ClientNamingContext implements Context, java.io.Serializable {
             name = name.substring(14);
         }
 
-        String newName = (String) _nameMap.get(name);
+        String newName = (String) nameMap.get(name);
         if (newName != null) {
             name = newName;
         }
 
-        NameBinding nb = (NameBinding) _cache.get(name);
+        NameBinding nb = (NameBinding) cache.get(name);
         if (nb == null) {
-            synchronized (_cache) {
-                nb = (NameBinding) _cache.get(name);
+            synchronized (cache) {
+                nb = (NameBinding) cache.get(name);
                 if (nb != null && nb.hasExpired()) {
-                    _cache.remove(name);
+                    cache.remove(name);
                     nb = null;
                 }
                 if (nb == null) {
                     nb = resolve(name);
-                    _cache.put(name, nb);
+                    cache.put(name, nb);
                 }
             }
         }
@@ -163,17 +140,16 @@ public class ClientNamingContext implements Context, java.io.Serializable {
     }
 
     public HostList lookupHost(String name) {
-        NameBinding nb = (NameBinding) _hostListCache.get(name);
+        NameBinding nb = (NameBinding) hostListCache.get(name);
         if (nb == null) {
-            synchronized (_hostListCache) {
-                nb = (NameBinding) _hostListCache.get(name);
+            synchronized (hostListCache) {
+                nb = (NameBinding) hostListCache.get(name);
                 if (nb != null && nb.hasExpired()) {
-                    _hostListCache.remove(name);
+                    hostListCache.remove(name);
                     nb = null;
                 }
-                if (nb == null) {
-                    nb = resolve_host(name);
-                    _hostListCache.put(name, nb);
+                if (nb == null) {                    
+                    hostListCache.put(name, nb);
                 }
             }
         }
@@ -181,7 +157,7 @@ public class ClientNamingContext implements Context, java.io.Serializable {
     }
 
     public static void bind(String bindName, String name) throws NamingException {
-        _nameMap.put(bindName, name);
+        nameMap.put(bindName, name);
     }
 
     public void bind(Name name, Object obj) throws NamingException {
@@ -217,22 +193,18 @@ public class ClientNamingContext implements Context, java.io.Serializable {
     }
 
     public NamingEnumeration list(Name name) throws NamingException {
-        // TODO: support this
         throw new OperationNotSupportedException();
     }
 
     public NamingEnumeration list(String name) throws NamingException {
-        // TODO: support this
         throw new OperationNotSupportedException();
     }
 
     public NamingEnumeration listBindings(Name name) throws NamingException {
-        // TODO: support this
         throw new OperationNotSupportedException();
     }
 
     public NamingEnumeration listBindings(String name) throws NamingException {
-        // TODO: support this
         throw new OperationNotSupportedException();
     }
 
@@ -253,12 +225,10 @@ public class ClientNamingContext implements Context, java.io.Serializable {
     }
 
     public Object lookupLink(Name name) throws NamingException {
-        // TODO: support this
         throw new OperationNotSupportedException();
     }
 
     public Object lookupLink(String name) throws NamingException {
-        // TODO: support this
         throw new OperationNotSupportedException();
     }
 
@@ -271,12 +241,10 @@ public class ClientNamingContext implements Context, java.io.Serializable {
     }
 
     public Name composeName(Name name, Name prefix) throws NamingException {
-        // TODO: support this
         throw new OperationNotSupportedException();
     }
 
     public String composeName(String name, String prefix) throws NamingException {
-        // TODO: support this
         throw new OperationNotSupportedException();
     }
 
@@ -300,12 +268,8 @@ public class ClientNamingContext implements Context, java.io.Serializable {
         throw new OperationNotSupportedException();
     }
 
-    // -----------------------------------------------------------------------
-    // protected methods
-    // -----------------------------------------------------------------------
-
     protected void init(Hashtable env) {
-        _env = env;
+        env = env;
         Object urlObject = env.get(Context.PROVIDER_URL);
         if (urlObject == null) {
             System.out.println("ClientNamingContext.init(): TODO: urlObject was null, create one based on the current hostname.");
@@ -314,16 +278,16 @@ public class ClientNamingContext implements Context, java.io.Serializable {
         }
         String url = urlObject.toString();
         UrlInfo urlInfo = UrlInfo.getInstance(url);
-        _serverNamingContext = (org.apache.geronimo.interop.CosNaming.NamingContext)
+        serverNamingContext = (org.apache.geronimo.interop.CosNaming.NamingContext)
                 StubFactory.getInstance().getStub(org.apache.geronimo.interop.CosNaming.NamingContext.class);
-        ObjectRef ncRef = (ObjectRef) _serverNamingContext;
+        ObjectRef ncRef = (ObjectRef) serverNamingContext;
         ncRef.$setNamingContext(this);
         ncRef.$setProtocol(urlInfo.getProtocol());
         ncRef.$setHost("ns~" + urlInfo.getHost());
         ncRef.$setPort(urlInfo.getPort());
         ncRef.$setObjectKey(urlInfo.getObjectKey());
-        _connectionProperties = urlInfo.getProperties();
-        _connectionPool = ConnectionPool.getInstance(this);
+        connectionProperties = urlInfo.getProperties();
+        connectionPool = ConnectionPool.getInstance(this);
         Object u = env.get(Context.SECURITY_PRINCIPAL);
         Object p = env.get(Context.SECURITY_CREDENTIALS);
         if (u == null) {
@@ -332,8 +296,8 @@ public class ClientNamingContext implements Context, java.io.Serializable {
         if (p == null) {
             p = passwordProperty.getString();
         }
-        _username = u != null ? u.toString() : null;
-        _password = p != null ? p.toString() : null;
+        username = u != null ? u.toString() : null;
+        password = p != null ? p.toString() : null;
 
         /*
         if (_serverNamingContext._is_a("IDL:org.apache.geronimo.interop/rmi/iiop/NameService:1.0"))
@@ -355,34 +319,21 @@ public class ClientNamingContext implements Context, java.io.Serializable {
         if (value != null) {
             NameBinding nb = new NameBinding();
             nb.object = value;
-            nb.cacheTimeout = System.currentTimeMillis() + _namingContextCacheTimeout;
+            nb.cacheTimeout = System.currentTimeMillis() + namingContextCacheTimeout;
             return nb;
         }
         try {
             org.apache.geronimo.interop.CosNaming.NameComponent[] resolveName =
                     {new org.apache.geronimo.interop.CosNaming.NameComponent(name, "")};
-            org.omg.CORBA.Object object = _serverNamingContext.resolve(resolveName);
+            org.omg.CORBA.Object object = serverNamingContext.resolve(resolveName);
             NameBinding nb = new NameBinding();
             nb.object = object;
-            nb.cacheTimeout = System.currentTimeMillis() + _namingContextCacheTimeout;
+            nb.cacheTimeout = System.currentTimeMillis() + namingContextCacheTimeout;
             return nb;
         } catch (org.apache.geronimo.interop.CosNaming.NamingContextPackage.NotFound notFound) {
             throw new NameNotFoundException(name);
         } catch (Exception ex) {
             throw new javax.naming.NamingException(ExceptionUtil.getStackTrace(ex));
         }
-    }
-
-    protected NameBinding resolve_host(String host) {
-        HostList list = null;
-        if (_serverNamingContext instanceof org.apache.geronimo.interop.rmi.iiop.NameService) {
-            org.apache.geronimo.interop.rmi.iiop.NameService nameService = (org.apache.geronimo.interop.rmi.iiop.NameService) _serverNamingContext;
-            list = new HostList(nameService.resolve_host(host));
-        }
-        NameBinding nb = new NameBinding();
-        nb.object = list;
-        //nb.cacheTimeout = System.currentTimeMillis()
-        //   + (list != null ? list.getCacheTimeout() : _namingContextCacheTimeout);
-        return nb;
     }
 }

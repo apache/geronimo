@@ -17,9 +17,6 @@
  */
 package org.apache.geronimo.interop.properties;
 
-
-
-
 public class SystemPropertyLog {
     public static SystemPropertyLog getInstance(String instanceName) {
         SystemPropertyLog log = new SystemPropertyLog();
@@ -27,31 +24,15 @@ public class SystemPropertyLog {
         return log;
     }
 
-    // -----------------------------------------------------------------------
-    // private data
-    // -----------------------------------------------------------------------
-
-    private String _instanceName;
-
-    // -----------------------------------------------------------------------
-    // public methods
-    // -----------------------------------------------------------------------
+    private String  instanceName;
 
     public String getInstanceName() {
-        return _instanceName;
+        return instanceName;
     }
-
-    // -----------------------------------------------------------------------
-    // protected methods
-    // -----------------------------------------------------------------------
 
     protected void init(String instanceName) {
-        _instanceName = instanceName;
+        instanceName = instanceName;
     }
-
-    // -----------------------------------------------------------------------
-    // log methods
-    // -----------------------------------------------------------------------
 
     public void debugUsingValue(String value) {
         System.out.println("SystemPropertyLog.debugUsingValue(): value: " + value);

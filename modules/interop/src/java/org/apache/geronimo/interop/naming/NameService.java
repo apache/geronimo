@@ -21,25 +21,22 @@ import java.util.HashMap;
 import javax.naming.NamingException;
 
 import org.apache.geronimo.interop.adapter.Adapter;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class NameService {
-    protected static NameService _ns = null;
+    private static NameService ns = null;
+    private final Log log = LogFactory.getLog(NameService.class);
 
-    public static NameService getInstance() {
-        if (_ns == null) {
-            synchronized (NameService.class) {
-                if (_ns == null) {
-                    _ns = new NameService();
-                    _ns.init();
-                }
-            }
+    public static synchronized NameService getInstance() {
+        if (ns == null) {
+            ns = new NameService();
+            ns.init();
         }
-
-        return _ns;
+        return ns;
     }
 
-    private org.apache.geronimo.interop.naming.InitialContext _context;
+    private org.apache.geronimo.interop.naming.InitialContext context;
 
     /*
      * TODO: Do we need this method?
@@ -48,19 +45,23 @@ public class NameService {
         NamingContext.getInstance(NameService.class).bindAdapter(adp);
     }
 
+    public void unbindAdapter(Adapter adp) {
+        NamingContext.getInstance(NameService.class).unbindAdapter(adp);
+    }
+
     public static org.apache.geronimo.interop.naming.InitialContext getInitialContext() {
-        return getInstance()._context;
+        return getInstance().context;
     }
 
     public HashMap getMap() {
-        return _context.getMap();
+        return context.getMap();
     }
 
     public Object lookup(String name) throws NamingException {
-        return _context.lookup(name);
+        return context.lookup(name);
     }
 
     protected void init() {
-        _context = new org.apache.geronimo.interop.naming.InitialContext(null);
+        context = new org.apache.geronimo.interop.naming.InitialContext(null);
     }
 }

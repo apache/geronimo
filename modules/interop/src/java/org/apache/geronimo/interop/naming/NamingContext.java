@@ -22,48 +22,55 @@ import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 
 import org.apache.geronimo.interop.adapter.Adapter;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class NamingContext {
+
+    private final Log log = LogFactory.getLog(NamingContext.class);
+
     public static final NamingContext getInstance(Class baseClass) {
         NamingContext context;
-        synchronized (_contextMap) {
-            context = (NamingContext) _contextMap.get(baseClass);
+        synchronized (contextMap) {
+            context = (NamingContext) contextMap.get(baseClass);
             if (context == null) {
                 context = new NamingContext();
-                _contextMap.put(baseClass, context);
+                contextMap.put(baseClass, context);
                 context.init(baseClass);
             }
         }
         return context;
     }
 
-    private static ThreadLocal _current = new ThreadLocal();
-    private static HashMap _contextMap = new HashMap();
-    private static boolean _quiet = false; // TODO: Configure
-    private static boolean _verbose = true; // TODO: Configure
-    private String _logContext;
-    private HashMap _map = new HashMap();
+    private static ThreadLocal      current = new ThreadLocal();
+    private static HashMap          contextMap = new HashMap();
+    private static boolean          quiet = false; // TODO: Configure
+    private static boolean          verbose = true; // TODO: Configure
+    private String                  logContext;
+    private HashMap                 map = new HashMap();
 
     public static final NamingContext getCurrent() {
-        return (NamingContext) _current.get();
+        return (NamingContext) current.get();
     }
 
     public static final NamingContext push(NamingContext that) {
         NamingContext restore = getCurrent();
-        _current.set(that);
+        current.set(that);
         return restore;
     }
 
     public static void pop(NamingContext restore) {
-        _current.set(restore);
+        current.set(restore);
     }
 
     public HashMap getMap() {
-        return _map;
+        return map;
     }
 
     public Object lookup(String name, String prefix) throws NamingException {
+
+        log.debug( "NameContext.lookup(): name = " + name + ", prefix = " + prefix );
+
         if (prefix != null) {
             name += prefix + "/" + name;
         }
@@ -74,19 +81,19 @@ public class NamingContext {
         // be performed in 'init' so as to permit this method to be as
         // fast as possible (i.e. a simple unsynchronized HashMap lookup).
 
-        Object value = _map.get(name);
+        Object value = map.get(name);
 
         if (value == null) {
             value = dynamicLookup(name);
             if (value != null) {
-                _map.put(name, value); // TODO: allow refresh.
+                map.put(name, value); // TODO: allow refresh.
             }
         }
 
         if (value == null) {
             NameNotFoundException notFound = new NameNotFoundException(name.length() == 0 ? formatEmptyName() : name);
-            if (!_quiet) {
-                NameServiceLog.getInstance().warnNameNotFound(_logContext, notFound);
+            if (!quiet) {
+                NameServiceLog.getInstance().warnNameNotFound(logContext, notFound);
             }
             throw notFound;
         } else {
@@ -98,7 +105,7 @@ public class NamingContext {
         if (prefix != null) {
             name += prefix + "/" + name;
         }
-        return _map.get(name);
+        return map.get(name);
     }
 
     protected void init(Class baseClass) {
@@ -106,42 +113,31 @@ public class NamingContext {
         //       this logic isn't required for the CORBA container.
     }
 
-    protected void bindAdapter(Adapter adp) {
-        _map.put(adp.getBindName(), adp);
+    protected synchronized void bindAdapter(Adapter adp) {
+        String names[] = adp.getBindNames();
+        for( int i=0; i<names.length; i++ ) {
+            log.debug( "NameContext.bindAdapter(): name[" + i + "] = " + names[i] + ", adp = " + adp );
+            map.put(names[i], adp);
+        }
+    }
+
+    protected synchronized void unbindAdapter( Adapter adp ) {
+        String names[] = adp.getBindNames();
+        for( int i=0; i<names.length; i++ )
+        {
+            log.debug( "NameContext.bindAdapter(): name[" + i + "] = " + names[i] + ", adp = " + adp );
+            map.remove( names[i] );
+        }
     }
 
     protected boolean adapterExists(String name) {
         System.out.println("TODO: NamingComponent.componentExists(): name = " + name);
-
-        //String propsFileName = SystemProperties.getRepository() + "/Component/" + name.replace('.', '/') + ".properties";
-        //return new java.io.File(propsFileName).exists();
-
         return false;
     }
 
     protected Object dynamicLookup(String name) {
         return null;
     }
-
-    /*
-    protected List getComponentsForInterface(String interfaceName)
-    {
-        return null;
-    }
-    */
-
-    /*
-    protected String resolveComponent(String name, String pattern)
-    {
-        return "";
-    }
-    */
-
-    /*
-    protected void copyObjectsWithRemoteInterface(final HashMap intoMap)
-    {
-    }
-    */
 
     protected String formatEmptyName() {
         return "formatEmptyName:";

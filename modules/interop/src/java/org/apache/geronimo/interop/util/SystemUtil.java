@@ -54,6 +54,11 @@ public class SystemUtil {
         return _isJDK14;
     }
 
+    public static String getVmVersion()
+    {
+        return _vmVersion;
+    }
+
     public static boolean isWindows() {
         return java.io.File.separatorChar == '\\';
     }

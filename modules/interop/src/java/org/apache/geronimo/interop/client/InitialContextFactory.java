@@ -21,10 +21,9 @@ import java.util.HashMap;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
-
 public class InitialContextFactory
         implements javax.naming.spi.InitialContextFactory {
-    private HashMap _startMap = new HashMap();
+    private HashMap     startMap = new HashMap();
 
     public Context getInitialContext(java.util.Hashtable env) throws NamingException {
         return org.apache.geronimo.interop.rmi.iiop.client.ClientNamingContext.getInstance(env);

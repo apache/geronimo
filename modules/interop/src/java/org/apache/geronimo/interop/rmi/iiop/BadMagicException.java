@@ -17,8 +17,10 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-public class BadMagicException extends RuntimeException {
-    public BadMagicException(String magic) {
+public class BadMagicException extends RuntimeException
+{
+    public BadMagicException(String magic)
+    {
         super(magic);
     }
 }

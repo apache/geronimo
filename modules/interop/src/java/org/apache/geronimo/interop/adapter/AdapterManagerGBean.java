@@ -15,19 +15,23 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.interop.server;
+package org.apache.geronimo.interop.adapter;
+
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 
+public class AdapterManagerGBean
+{
+    public static final GBeanInfo GBEAN_INFO;
 
-
-public class IIOPSDaemon extends IIOPDaemon {
-    public static void main(String args[]) {
-        IIOPSDaemon id = new IIOPSDaemon();
-        id.setName("IIOPS");
-        id.setHost("localhost");
-        id.setPort(9000);
-
-        Thread t = new Thread(id);
-        t.start();
+    static {
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AdapterManager.class);                        
+        GBEAN_INFO = infoFactory.getBeanInfo();
     }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
 }

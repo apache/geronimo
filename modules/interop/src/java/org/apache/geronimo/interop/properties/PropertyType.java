@@ -21,46 +21,38 @@ import java.util.List;
 
 import org.apache.geronimo.interop.util.ExceptionUtil;
 
-
 public abstract class PropertyType {
-    protected static boolean _debug;
+    protected static boolean debug;
 
     static {
         try {
-            _debug = Boolean.getBoolean("org.apache.geronimo.interop.debug:properties");
+            debug = Boolean.getBoolean("org.apache.geronimo.interop.debug:properties");
         } catch (Exception ignore) // e.g. SecurityException for Applet
         {
-            _debug = false;
+            debug = false;
         }
     }
 
-    protected Class _componentClass;
-
-    protected String _propertyName;
-
-    protected String _displayName;
-
-    protected String _displayOnlyIfOther;
-
-    protected String _displayOnlyIfValue;
-
-    protected String _description;
-
-    protected String _consoleHelp;
-
-    protected int _sortOrder;
+    private Class   componentClass;
+    private String  propertyName;
+    private String  displayName;
+    private String  displayOnlyIfOther;
+    private String  displayOnlyIfValue;
+    private String  description;
+    private String  consoleHelp;
+    private int     sortOrder;
 
     public PropertyType(Class componentClass, String propertyName) {
-        _componentClass = componentClass;
-        _propertyName = propertyName;
+        this.componentClass = componentClass;
+        this.propertyName = propertyName;
     }
 
     public Class getComponentClass() {
-        return _componentClass;
+        return componentClass;
     }
 
     public PropertyMap getComponentProperties() {
-        if (_componentClass == SystemProperties.class) {
+        if (componentClass == SystemProperties.class) {
             return SystemProperties.getInstance();
         } else {
             return null; // Component.forClass(_componentClass).getProperties();
@@ -68,31 +60,31 @@ public abstract class PropertyType {
     }
 
     public String getPropertyName() {
-        return _propertyName;
+        return propertyName;
     }
 
     public String getDisplayName() {
-        return _displayName;
+        return displayName;
     }
 
     public String getDisplayOnlyIfOther() {
-        return _displayOnlyIfOther;
+        return displayOnlyIfOther;
     }
 
     public String getDisplayOnlyIfValue() {
-        return _displayOnlyIfValue;
+        return displayOnlyIfValue;
     }
 
     public String getDescription() {
-        return _description;
+        return description;
     }
 
     public String getConsoleHelp() {
-        return _consoleHelp;
+        return consoleHelp;
     }
 
     public int getSortOrder() {
-        return _sortOrder;
+        return sortOrder;
     }
 
     public String getDefaultValueAsString() {
@@ -108,24 +100,24 @@ public abstract class PropertyType {
     }
 
     public void setDisplayName(String displayName) {
-        _displayName = displayName;
+        this.displayName = displayName;
     }
 
     public void setDisplayOnlyIf(PropertyType other, String value) {
-        _displayOnlyIfOther = other.getPropertyName();
-        _displayOnlyIfValue = value;
+        displayOnlyIfOther = other.getPropertyName();
+        displayOnlyIfValue = value;
     }
 
     public void setDescription(String description) {
-        _description = description;
+        this.description = description;
     }
 
     public void setConsoleHelp(String consoleHelp) {
-        _consoleHelp = consoleHelp;
+        this.consoleHelp = consoleHelp;
     }
 
     public void setSortOrder(int sortOrder) {
-        _sortOrder = sortOrder;
+        this.sortOrder = sortOrder;
     }
 
     public void badPropertyValue(String instanceName, String value) {
@@ -169,20 +161,20 @@ public abstract class PropertyType {
     }
 
     public void logPropertyValue(String instanceName, String value, boolean usingDefaultValue) {
-        if (_propertyName.toLowerCase().endsWith("password")) {
+        if (propertyName.toLowerCase().endsWith("password")) {
             value = "******";
         }
-        if (_debug) // TODO: allow for bootstrap
+        if (debug) // TODO: allow for bootstrap
         {
             if (usingDefaultValue) {
-                if (_componentClass == SystemProperties.class) {
-                    SystemPropertyLog.getInstance(_propertyName).debugUsingDefaultValue(value);
+                if (componentClass == SystemProperties.class) {
+                    SystemPropertyLog.getInstance(propertyName).debugUsingDefaultValue(value);
                 } else {
                     getLog(instanceName).debugUsingDefaultValue(value);
                 }
             } else {
-                if (_componentClass == SystemProperties.class) {
-                    SystemPropertyLog.getInstance(_propertyName).debugUsingValue(value);
+                if (componentClass == SystemProperties.class) {
+                    SystemPropertyLog.getInstance(propertyName).debugUsingValue(value);
                 } else {
                     getLog(instanceName).debugUsingValue(value);
                 }
@@ -200,6 +192,6 @@ public abstract class PropertyType {
     }
 
     public PropertyLog getLog(String instanceName) {
-        return PropertyLog.getInstance(_propertyName + ", " + getContext(instanceName));
+        return PropertyLog.getInstance(propertyName + ", " + getContext(instanceName));
     }
 }

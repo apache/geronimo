@@ -19,43 +19,41 @@ package org.apache.geronimo.interop.generator;
 
 import java.io.File;
 
-
 public abstract class CodeWriter {
-    protected GenOptions _genOptions;
+    private GenOptions  genOptions;    
+    private String      fileName;
+    private String      fileExt = ".java";
 
-    protected File _file;
-
-    protected String _fileName;
-    protected String _fileExt = ".java";
+    protected File        file;
 
     public CodeWriter(GenOptions genOptions, String fileName, String ext) {
-        _genOptions = genOptions;
-        _fileName = fileName;
-        _fileExt = ext;
+        this.genOptions = genOptions;
+        this.fileName = fileName;
+        fileExt = ext;
     }
 
     public GenOptions getGenOptions() {
-        return _genOptions;
+        return genOptions;
     }
 
     public void setGenOptions(GenOptions genOptions) {
-        _genOptions = genOptions;
+        this.genOptions = genOptions;
     }
 
     public void setFileName(String val) {
-        _fileName = val;
+        fileName = val;
     }
 
     public String getFileName() {
-        return _fileName;
+        return fileName;
     }
 
     public void setFileExt(String val) {
-        _fileExt = val;
+        fileExt = val;
     }
 
     public String getFileExt() {
-        return _fileExt;
+        return fileExt;
     }
 
     public abstract void openFile() throws GenException;

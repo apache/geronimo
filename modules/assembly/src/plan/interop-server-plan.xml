@@ -45,6 +45,13 @@ Configuration for the main ring of a Geronimo Interop server.
 
 
     <!-- RMI-IIOP Protocol -->
+    <gbean gbeanName="interop:name=AdapterManager" class="org.apache.geronimo.interop.adapter.AdapterManager">
+        <references name="containers">
+          <pattern><gbean-name>geronimo.server:j2eeType=StatelessSessionBean,*</gbean-name></pattern>
+          <pattern><gbean-name>geronimo.server:j2eeType=StatefulSessionBean,*</gbean-name></pattern>
+          <pattern><gbean-name>geronimo.server:j2eeType=EntityBean,*</gbean-name></pattern>
+        </references>
+    </gbean>
 
     <gbean gbeanName="interop:type=NetworkService,name=RMIIIOP" class="org.openejb.server.StandardServiceStackGBean">
         <attribute name="name">RMIIIOP</attribute>
@@ -56,6 +63,19 @@ Configuration for the main ring of a Geronimo Interop server.
         <attribute name="logOnSuccess">HOST,NAME,THREADID,USERID</attribute>
         <attribute name="logOnFailure">HOST,NAME</attribute>
         <reference name="Server"><gbean-name>interop:type=Server,name=RMIIIOP</gbean-name></reference>
+    </gbean>
+
+    <gbean gbeanName="interop:type=Server,name=RMIIIOP" class="org.apache.geronimo.interop.rmi.iiop.server.RmiIiopServerGBean">
+        <reference name="adapterManager"><gbean-name>interop:name=AdapterManager</gbean-name></reference>
+        <attribute name="writeSystemExceptionStackTrace">false</attribute>
+        <attribute name="simpleIDL">false</attribute>
+        <attribute name="args">-ORBPort, 2001, -ORBInitRef, NameService=corbaloc::localhost:1050/NameService, -ORBCSIv2, -ORBGSSClientUser, "user1,a"</attribute>
+        <attribute name="props">
+
+            org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer
+            org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer
+
+        </attribute>
     </gbean>
 
 </configuration>

@@ -19,8 +19,8 @@ package org.apache.geronimo.interop.rmi.iiop;
 
 import org.apache.geronimo.interop.GIOP.*;
 
-
-public class GiopMessage {
+public class GiopMessage
+{
     public int size;
     public int type;
     public int giopVersion;
@@ -28,7 +28,8 @@ public class GiopMessage {
     public LocateRequestHeader_1_2 locateRequest;
     public ReplyHeader_1_2 reply;
 
-    public String toString() {
+    public String toString()
+    {
         StringBuffer sb = new StringBuffer("GiopMessage(");
         /* TODO
         if (header != null)

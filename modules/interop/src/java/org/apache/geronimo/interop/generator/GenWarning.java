@@ -15,9 +15,23 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.interop.repository;
+package org.apache.geronimo.interop.generator;
 
+public class GenWarning
+        extends Exception {
+    public GenWarning() {
+        super();
+    }
 
-public class Repository {
-    // ??
+    public GenWarning(String message) {
+        super(message);
+    }
+
+    public GenWarning(Throwable cause) {
+        super(cause);
+    }
+
+    public GenWarning(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

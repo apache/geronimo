@@ -17,8 +17,10 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-public class UnsupportedProtocolVersionException extends RuntimeException {
-    public UnsupportedProtocolVersionException(String version) {
+public class UnsupportedProtocolVersionException extends RuntimeException
+{
+    public UnsupportedProtocolVersionException(String version)
+    {
         super(version);
     }
 }

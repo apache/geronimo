@@ -18,11 +18,9 @@
 package org.apache.geronimo.interop.properties;
 
 public class ShortProperty extends PropertyType {
-    private short _defaultValue = 0;
-
-    private short _minimumValue = 0;
-
-    private short _maximumValue = Short.MAX_VALUE;
+    private short   defaultValue = 0;
+    private short   minimumValue = 0;
+    private short   maximumValue = Short.MAX_VALUE;
 
     public ShortProperty(Class componentClass, String propertyName) {
         super(componentClass, propertyName);
@@ -54,34 +52,34 @@ public class ShortProperty extends PropertyType {
     }
 
     public ShortProperty defaultValue(short defaultValue) {
-        _defaultValue = defaultValue;
+        this.defaultValue = defaultValue;
         return this;
     }
 
     public ShortProperty minimumValue(short minimumValue) {
-        _minimumValue = minimumValue;
+        this.minimumValue = minimumValue;
         return this;
     }
 
     public ShortProperty maximumValue(short maximumValue) {
-        _maximumValue = maximumValue;
+        this.maximumValue = maximumValue;
         return this;
     }
 
     public short getDefaultValue() {
-        return _defaultValue;
+        return defaultValue;
     }
 
     public String getDefaultValueAsString() {
-        return String.valueOf(_defaultValue);
+        return String.valueOf(defaultValue);
     }
 
     public short getMinimumValue() {
-        return _minimumValue;
+        return minimumValue;
     }
 
     public short getMaximumValue() {
-        return _maximumValue;
+        return maximumValue;
     }
 
     public short getShort() {
@@ -91,20 +89,20 @@ public class ShortProperty extends PropertyType {
     public short getShort(String instanceName, PropertyMap props) {
         short n;
         boolean ok = true;
-        String value = props.getProperty(_propertyName, String.valueOf(_defaultValue));
+        String value = props.getProperty(getPropertyName(), String.valueOf(defaultValue));
         try {
             n = Short.parseShort(value);
         } catch (NumberFormatException ex) {
             ok = false;
             n = 0;
         }
-        if (n < _minimumValue || n > _maximumValue) {
+        if (n < minimumValue || n > maximumValue) {
             ok = false;
         }
         if (!ok) {
-            badPropertyValue(instanceName, value, expectedNumberInRange(_minimumValue, _maximumValue));
+            badPropertyValue(instanceName, value, expectedNumberInRange(minimumValue, maximumValue));
         }
-        logPropertyValue(instanceName, value, n == _defaultValue);
+        logPropertyValue(instanceName, value, n == defaultValue);
         return n;
     }
 }

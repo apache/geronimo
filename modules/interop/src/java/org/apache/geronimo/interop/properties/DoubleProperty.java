@@ -17,15 +17,10 @@
  */
 package org.apache.geronimo.interop.properties;
 
-
-
-
 public class DoubleProperty extends PropertyType {
-    private double _defaultValue = 0;
-
-    private double _minimumValue = 0;
-
-    private double _maximumValue = Double.MAX_VALUE;
+    private double  defaultValue = 0;
+    private double  minimumValue = 0;
+    private double  maximumValue = Double.MAX_VALUE;
 
     public DoubleProperty(Class componentClass, String propertyName) {
         super(componentClass, propertyName);
@@ -57,34 +52,34 @@ public class DoubleProperty extends PropertyType {
     }
 
     public DoubleProperty defaultValue(double defaultValue) {
-        _defaultValue = defaultValue;
+        this.defaultValue = defaultValue;
         return this;
     }
 
     public DoubleProperty minimumValue(double minimumValue) {
-        _minimumValue = minimumValue;
+        this.minimumValue = minimumValue;
         return this;
     }
 
     public DoubleProperty maximumValue(double maximumValue) {
-        _maximumValue = maximumValue;
+        this.maximumValue = maximumValue;
         return this;
     }
 
     public double getDefaultValue() {
-        return _defaultValue;
+        return defaultValue;
     }
 
     public String getDefaultValueAsString() {
-        return String.valueOf(_defaultValue);
+        return String.valueOf(defaultValue);
     }
 
     public double getMinimumValue() {
-        return _minimumValue;
+        return minimumValue;
     }
 
     public double getMaximumValue() {
-        return _maximumValue;
+        return maximumValue;
     }
 
     public double getDouble() {
@@ -94,20 +89,20 @@ public class DoubleProperty extends PropertyType {
     public double getDouble(String instanceName, PropertyMap props) {
         double n;
         boolean ok = true;
-        String value = props.getProperty(_propertyName, String.valueOf(_defaultValue));
+        String value = props.getProperty(getPropertyName(), String.valueOf(defaultValue));
         try {
             n = Double.parseDouble(value);
         } catch (NumberFormatException ex) {
             ok = false;
             n = 0;
         }
-        if (n < _minimumValue || n > _maximumValue) {
+        if (n < minimumValue || n > maximumValue) {
             ok = false;
         }
         if (!ok) {
-            badPropertyValue(instanceName, value, expectedNumberInRange(_minimumValue, _maximumValue));
+            badPropertyValue(instanceName, value, expectedNumberInRange(minimumValue, maximumValue));
         }
-        logPropertyValue(instanceName, value, n == _defaultValue);
+        logPropertyValue(instanceName, value, n == defaultValue);
         return n;
     }
 }

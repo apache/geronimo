@@ -17,35 +17,46 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-import java.lang.reflect.Field;
-import java.util.Comparator;
-
+import java.lang.reflect.*;
+import java.util.*;
 
 /**
- * * Sort fields in the order they must be marshalled for RMI-IIOP.
- */
-public class FieldComparator implements Comparator {
+ ** Sort fields in the order they must be marshalled for RMI-IIOP.
+ **/
+public class FieldComparator implements Comparator
+{
     public static final FieldComparator SINGLETON = new FieldComparator();
 
-    public int compare(Object x, Object y) {
-        Field a = (Field) x;
-        Field b = (Field) y;
-        if (a.getType().isPrimitive()) {
-            if (b.getType().isPrimitive()) {
+    public int compare(Object x, Object y)
+    {
+        Field a = (Field)x;
+        Field b = (Field)y;
+        if (a.getType().isPrimitive())
+        {
+            if (b.getType().isPrimitive())
+            {
                 return a.getName().compareTo(b.getName());
-            } else {
+            }
+            else
+            {
                 return -1;
             }
-        } else {
-            if (b.getType().isPrimitive()) {
+        }
+        else
+        {
+            if (b.getType().isPrimitive())
+            {
                 return 1;
-            } else {
+            }
+            else
+            {
                 return a.getName().compareTo(b.getName());
             }
         }
     }
 
-    public boolean equals(Object x) {
+    public boolean equals(Object x)
+    {
         // shouldn't be used
         return false;
     }

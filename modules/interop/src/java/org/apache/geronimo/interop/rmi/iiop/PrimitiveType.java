@@ -17,23 +17,26 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-import org.apache.geronimo.interop.util.ArrayUtil;
+import org.apache.geronimo.interop.util.*;
 
-
-public class PrimitiveType {
+public class PrimitiveType
+{
     public static final int BOOLEAN = 1;
-    public static final int BYTE = 2;
-    public static final int CHAR = 3;
-    public static final int DOUBLE = 4;
-    public static final int FLOAT = 5;
-    public static final int INT = 6;
-    public static final int LONG = 7;
-    public static final int SHORT = 8;
+    public static final int BYTE    = 2;
+    public static final int CHAR    = 3;
+    public static final int DOUBLE  = 4;
+    public static final int FLOAT   = 5;
+    public static final int INT     = 6;
+    public static final int LONG    = 7;
+    public static final int SHORT   = 8;
 
-    public static final ObjectHelper BOOLEAN_ARRAY_HELPER = new ObjectHelper() {
-        public Object read(ObjectInputStream input) {
+    public static final ObjectHelper BOOLEAN_ARRAY_HELPER = new ObjectHelper()
+    {
+        public Object read(ObjectInputStream input)
+        {
             int n = input._cdrInput.read_long();
-            if (n == 0) {
+            if (n == 0)
+            {
                 return ArrayUtil.EMPTY_BOOLEAN_ARRAY;
             }
             boolean[] array = new boolean[n];
@@ -41,19 +44,23 @@ public class PrimitiveType {
             return array;
         }
 
-        public void write(ObjectOutputStream output, Object value) {
-            boolean[] array = (boolean[]) value;
+        public void write(ObjectOutputStream output, Object value)
+        {
+            boolean[] array = (boolean[])value;
             int n = array.length;
             output._cdrOutput.write_long(n);
             output._cdrOutput.write_boolean_array(array, 0, n);
         }
     }
-            ;
+    ;
 
-    public static final ObjectHelper BYTE_ARRAY_HELPER = new ObjectHelper() {
-        public Object read(ObjectInputStream input) {
+    public static final ObjectHelper BYTE_ARRAY_HELPER = new ObjectHelper()
+    {
+        public Object read(ObjectInputStream input)
+        {
             int n = input._cdrInput.read_long();
-            if (n == 0) {
+            if (n == 0)
+            {
                 return ArrayUtil.EMPTY_BYTE_ARRAY;
             }
             byte[] array = new byte[n];
@@ -61,19 +68,23 @@ public class PrimitiveType {
             return array;
         }
 
-        public void write(ObjectOutputStream output, Object value) {
-            byte[] array = (byte[]) value;
+        public void write(ObjectOutputStream output, Object value)
+        {
+            byte[] array = (byte[])value;
             int n = array.length;
             output._cdrOutput.write_long(n);
             output._cdrOutput.write_octet_array(array, 0, n);
         }
     }
-            ;
+    ;
 
-    public static final ObjectHelper CHAR_ARRAY_HELPER = new ObjectHelper() {
-        public Object read(ObjectInputStream input) {
+    public static final ObjectHelper CHAR_ARRAY_HELPER = new ObjectHelper()
+    {
+        public Object read(ObjectInputStream input)
+        {
             int n = input._cdrInput.read_long();
-            if (n == 0) {
+            if (n == 0)
+            {
                 return ArrayUtil.EMPTY_CHAR_ARRAY;
             }
             char[] array = new char[n];
@@ -81,19 +92,23 @@ public class PrimitiveType {
             return array;
         }
 
-        public void write(ObjectOutputStream output, Object value) {
-            char[] array = (char[]) value;
+        public void write(ObjectOutputStream output, Object value)
+        {
+            char[] array = (char[])value;
             int n = array.length;
             output._cdrOutput.write_long(n);
             output._cdrOutput.write_char_array(array, 0, n);
         }
     }
-            ;
+    ;
 
-    public static final ObjectHelper DOUBLE_ARRAY_HELPER = new ObjectHelper() {
-        public Object read(ObjectInputStream input) {
+    public static final ObjectHelper DOUBLE_ARRAY_HELPER = new ObjectHelper()
+    {
+        public Object read(ObjectInputStream input)
+        {
             int n = input._cdrInput.read_long();
-            if (n == 0) {
+            if (n == 0)
+            {
                 return ArrayUtil.EMPTY_DOUBLE_ARRAY;
             }
             double[] array = new double[n];
@@ -101,19 +116,23 @@ public class PrimitiveType {
             return array;
         }
 
-        public void write(ObjectOutputStream output, Object value) {
-            double[] array = (double[]) value;
+        public void write(ObjectOutputStream output, Object value)
+        {
+            double[] array = (double[])value;
             int n = array.length;
             output._cdrOutput.write_long(n);
             output._cdrOutput.write_double_array(array, 0, n);
         }
     }
-            ;
+    ;
 
-    public static final ObjectHelper FLOAT_ARRAY_HELPER = new ObjectHelper() {
-        public Object read(ObjectInputStream input) {
+    public static final ObjectHelper FLOAT_ARRAY_HELPER = new ObjectHelper()
+    {
+        public Object read(ObjectInputStream input)
+        {
             int n = input._cdrInput.read_long();
-            if (n == 0) {
+            if (n == 0)
+            {
                 return ArrayUtil.EMPTY_FLOAT_ARRAY;
             }
             float[] array = new float[n];
@@ -121,19 +140,23 @@ public class PrimitiveType {
             return array;
         }
 
-        public void write(ObjectOutputStream output, Object value) {
-            float[] array = (float[]) value;
+        public void write(ObjectOutputStream output, Object value)
+        {
+            float[] array = (float[])value;
             int n = array.length;
             output._cdrOutput.write_long(n);
             output._cdrOutput.write_float_array(array, 0, n);
         }
     }
-            ;
+    ;
 
-    public static final ObjectHelper INT_ARRAY_HELPER = new ObjectHelper() {
-        public Object read(ObjectInputStream input) {
+    public static final ObjectHelper INT_ARRAY_HELPER = new ObjectHelper()
+    {
+        public Object read(ObjectInputStream input)
+        {
             int n = input._cdrInput.read_long();
-            if (n == 0) {
+            if (n == 0)
+            {
                 return ArrayUtil.EMPTY_INT_ARRAY;
             }
             int[] array = new int[n];
@@ -141,19 +164,23 @@ public class PrimitiveType {
             return array;
         }
 
-        public void write(ObjectOutputStream output, Object value) {
-            int[] array = (int[]) value;
+        public void write(ObjectOutputStream output, Object value)
+        {
+            int[] array = (int[])value;
             int n = array.length;
             output._cdrOutput.write_long(n);
             output._cdrOutput.write_long_array(array, 0, n);
         }
     }
-            ;
+    ;
 
-    public static final ObjectHelper LONG_ARRAY_HELPER = new ObjectHelper() {
-        public Object read(ObjectInputStream input) {
+    public static final ObjectHelper LONG_ARRAY_HELPER = new ObjectHelper()
+    {
+        public Object read(ObjectInputStream input)
+        {
             int n = input._cdrInput.read_long();
-            if (n == 0) {
+            if (n == 0)
+            {
                 return ArrayUtil.EMPTY_LONG_ARRAY;
             }
             long[] array = new long[n];
@@ -161,19 +188,23 @@ public class PrimitiveType {
             return array;
         }
 
-        public void write(ObjectOutputStream output, Object value) {
-            long[] array = (long[]) value;
+        public void write(ObjectOutputStream output, Object value)
+        {
+            long[] array = (long[])value;
             int n = array.length;
             output._cdrOutput.write_long(n);
             output._cdrOutput.write_longlong_array(array, 0, n);
         }
     }
-            ;
+    ;
 
-    public static final ObjectHelper SHORT_ARRAY_HELPER = new ObjectHelper() {
-        public Object read(ObjectInputStream input) {
+    public static final ObjectHelper SHORT_ARRAY_HELPER = new ObjectHelper()
+    {
+        public Object read(ObjectInputStream input)
+        {
             int n = input._cdrInput.read_long();
-            if (n == 0) {
+            if (n == 0)
+            {
                 return ArrayUtil.EMPTY_SHORT_ARRAY;
             }
             short[] array = new short[n];
@@ -181,61 +212,100 @@ public class PrimitiveType {
             return array;
         }
 
-        public void write(ObjectOutputStream output, Object value) {
-            short[] array = (short[]) value;
+        public void write(ObjectOutputStream output, Object value)
+        {
+            short[] array = (short[])value;
             int n = array.length;
             output._cdrOutput.write_long(n);
             output._cdrOutput.write_short_array(array, 0, n);
         }
     }
-            ;
+    ;
 
-    public static int get(Class _class) {
-        if (_class == boolean.class) {
+    public static int get(Class _class)
+    {
+        if (_class == boolean.class)
+        {
             return BOOLEAN;
-        } else if (_class == byte.class) {
+        }
+        else if (_class == byte.class)
+        {
             return BYTE;
-        } else if (_class == char.class) {
+        }
+        else if (_class == char.class)
+        {
             return CHAR;
-        } else if (_class == double.class) {
+        }
+        else if (_class == double.class)
+        {
             return DOUBLE;
-        } else if (_class == float.class) {
+        }
+        else if (_class == float.class)
+        {
             return FLOAT;
-        } else if (_class == int.class) {
+        }
+        else if (_class == int.class)
+        {
             return INT;
-        } else if (_class == long.class) {
+        }
+        else if (_class == long.class)
+        {
             return LONG;
-        } else if (_class == short.class) {
+        }
+        else if (_class == short.class)
+        {
             return SHORT;
-        } else {
-            throw new IllegalArgumentException("class = " + _class.getName());
+        }
+        else
+        {
+            throw new IllegalArgumentException("class = " +_class.getName());
         }
     }
 
-    public static ObjectHelper getArrayHelper(Class _class) {
-        if (_class == boolean.class) {
+    public static ObjectHelper getArrayHelper(Class _class)
+    {
+        if (_class == boolean.class)
+        {
             return BOOLEAN_ARRAY_HELPER;
-        } else if (_class == byte.class) {
+        }
+        else if (_class == byte.class)
+        {
             return BYTE_ARRAY_HELPER;
-        } else if (_class == char.class) {
+        }
+        else if (_class == char.class)
+        {
             return CHAR_ARRAY_HELPER;
-        } else if (_class == double.class) {
+        }
+        else if (_class == double.class)
+        {
             return DOUBLE_ARRAY_HELPER;
-        } else if (_class == float.class) {
+        }
+        else if (_class == float.class)
+        {
             return FLOAT_ARRAY_HELPER;
-        } else if (_class == int.class) {
+        }
+        else if (_class == int.class)
+        {
             return INT_ARRAY_HELPER;
-        } else if (_class == long.class) {
+        }
+        else if (_class == long.class)
+        {
             return LONG_ARRAY_HELPER;
-        } else if (_class == short.class) {
+        }
+        else if (_class == short.class)
+        {
             return SHORT_ARRAY_HELPER;
-        } else {
-            throw new IllegalArgumentException("class = " + _class.getName());
+        }
+        else
+        {
+            throw new IllegalArgumentException("class = " +_class.getName());
         }
     }
 
-    public static org.omg.CORBA.TypeCode getTypeCode(int p) {
-        switch (p) {
+    public static org.omg.CORBA.TypeCode getTypeCode(int p)
+    {
+        switch (p)
+        {
             case BOOLEAN:
                 return TypeCode.BOOLEAN;
             case BYTE:    // java byte is IDL octet

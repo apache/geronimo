@@ -17,30 +17,45 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-import java.io.IOException;
+import org.apache.geronimo.interop.*;
+import org.apache.geronimo.interop.rmi.*;
+import org.apache.geronimo.interop.util.*;
+import java.io.*;
 
-import org.apache.geronimo.interop.SystemException;
-import org.apache.geronimo.interop.util.JavaObject;
+public class SimpleObjectInputStream extends ObjectInputStream
+{
+    //public static final Component component = new Component(SimpleObjectInputStream.class);
 
-
-public class SimpleObjectInputStream extends ObjectInputStream {
-    public static ObjectInputStream getInstance() {
-        return getInstance(CdrInputStream.getInstance());
+    public static ObjectInputStream getInstance()
+    {
+        ObjectInputStream ois = null;
+        try {
+            ois = new SimpleObjectInputStream();
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        return ois; // getInstance(CdrInputStream.getInstance());
     }
 
-    public static ObjectInputStream getInstance(byte[] bytes) {
+    public static ObjectInputStream getInstance(byte[] bytes)
+    {
         return getInstance(CdrInputStream.getInstance(bytes));
     }
 
-    public static ObjectInputStream getInstance(org.apache.geronimo.interop.rmi.iiop.CdrInputStream cdrInput) {
-        ObjectInputStream input = null;
-        try {
-            input = new SimpleObjectInputStream();
-        } catch (Exception ex) {
-            throw new SystemException(ex);
-        }
-
+    public static ObjectInputStream getInstance(org.apache.geronimo.interop.rmi.iiop.CdrInputStream cdrInput)
+    {
+        ObjectInputStream input = getInstance(); // (SimpleObjectInputStream)component.getInstance();
         input.init(cdrInput);
+        return input;
+    }
+
+    public static ObjectInputStream getPooledInstance()
+    {
+        ObjectInputStream input = null; // (SimpleObjectInputStream)_pool.get();
+        if (input == null)
+        {
+            input = getInstance();
+        }
         return input;
     }
 
@@ -48,25 +63,38 @@ public class SimpleObjectInputStream extends ObjectInputStream {
     // private data
     // -----------------------------------------------------------------------
 
+    //private static ThreadLocalInstancePool _pool = new ThreadLocalInstancePool(SimpleObjectInputStream.class.getName());
+
     // -----------------------------------------------------------------------
     // public methods
     // -----------------------------------------------------------------------
 
-    public SimpleObjectInputStream() throws IOException {
+    public SimpleObjectInputStream() throws IOException
+    {
         super();
     }
 
-    public void $reset() {
+    public void $reset()
+    {
         _cdrInput.reset();
     }
 
-    public void recycle() {
+    public void recycle()
+    {
         $reset();
+        //_pool.put(this);
     }
 
-    public Object readObject(ValueType type) {
+    public Exception readException(ValueType type)
+    {
+        return (Exception)readObject(type);
+    }
+
+    public Object readObject(ValueType type)
+    {
         ObjectHelper h = type.helper;
-        if (h != null) {
+        if (h != null)
+        {
             return h.read(this);
         }
         byte[] bytes = _cdrInput.read_octet_sequence();
@@ -78,7 +106,8 @@ public class SimpleObjectInputStream extends ObjectInputStream {
     // protected methods
     // -----------------------------------------------------------------------
 
-    protected void init(org.apache.geronimo.interop.rmi.iiop.CdrInputStream cdrInput) {
+    protected void init(org.apache.geronimo.interop.rmi.iiop.CdrInputStream cdrInput)
+    {
         super.init(cdrInput);
     }
 }

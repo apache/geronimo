@@ -29,10 +29,10 @@ import javax.naming.OperationNotSupportedException;
 
 public class InitialContext implements Context, java.io.Serializable {
     private static HashMap EMPTY_MAP = new HashMap();
-    private String _prefix;
+    private String prefix;
 
     InitialContext(String prefix) {
-        _prefix = prefix;
+        this.prefix = prefix;
     }
 
     public HashMap getMap() {
@@ -53,7 +53,7 @@ public class InitialContext implements Context, java.io.Serializable {
         if (namingContext == null) {
             namingContext = NamingContext.getInstance(NameService.class);
         }
-        return namingContext.lookup(name, _prefix);
+        return namingContext.lookup(name, prefix);
     }
 
     public Object lookupReturnNullIfNotFound(String name) {
@@ -61,7 +61,7 @@ public class InitialContext implements Context, java.io.Serializable {
         if (namingContext == null) {
             return null;
         } else {
-            return namingContext.lookupReturnNullIfNotFound(name, _prefix);
+            return namingContext.lookupReturnNullIfNotFound(name, prefix);
         }
     }
 

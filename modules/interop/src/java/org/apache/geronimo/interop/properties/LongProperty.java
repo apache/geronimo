@@ -17,15 +17,10 @@
  */
 package org.apache.geronimo.interop.properties;
 
-
-
-
 public class LongProperty extends PropertyType {
-    private long _defaultValue = 0;
-
-    private long _minimumValue = 0;
-
-    private long _maximumValue = Integer.MAX_VALUE;
+    private long    defaultValue = 0;
+    private long    minimumValue = 0;
+    private long    maximumValue = Integer.MAX_VALUE;
 
     public LongProperty(Class componentClass, String propertyName) {
         super(componentClass, propertyName);
@@ -57,65 +52,57 @@ public class LongProperty extends PropertyType {
     }
 
     public LongProperty defaultValue(long defaultValue) {
-        _defaultValue = defaultValue;
+        this.defaultValue = defaultValue;
         return this;
     }
 
     public LongProperty minimumValue(long minimumValue) {
-        _minimumValue = minimumValue;
+        this.minimumValue = minimumValue;
         return this;
     }
 
     public LongProperty maximumValue(long maximumValue) {
-        _maximumValue = maximumValue;
+        this.maximumValue = maximumValue;
         return this;
     }
 
     public long getDefaultValue() {
-        return _defaultValue;
+        return defaultValue;
     }
 
     public String getDefaultValueAsString() {
-        return String.valueOf(_defaultValue);
+        return String.valueOf(defaultValue);
     }
 
     public long getMinimumValue() {
-        return _minimumValue;
+        return minimumValue;
     }
 
     public long getMaximumValue() {
-        return _maximumValue;
+        return maximumValue;
     }
 
     public long getLong() {
         return getLong(null, getComponentProperties());
     }
 
-    /*
-    public long getLong(Object instance)
-    {
-        return getLong(((Component.InstanceName)instance).getInstanceName(),
-            ((Component.InstanceProperties)instance).getInstanceProperties());
-    }
-    */
-
     public long getLong(String instanceName, PropertyMap props) {
         long n;
         boolean ok = true;
-        String value = props.getProperty(_propertyName, String.valueOf(_defaultValue));
+        String value = props.getProperty(getPropertyName(), String.valueOf(defaultValue));
         try {
             n = Long.parseLong(value);
         } catch (NumberFormatException ex) {
             ok = false;
             n = 0;
         }
-        if (n < _minimumValue || n > _maximumValue) {
+        if (n < minimumValue || n > maximumValue) {
             ok = false;
         }
         if (!ok) {
-            badPropertyValue(instanceName, value, expectedNumberInRange(_minimumValue, _maximumValue));
+            badPropertyValue(instanceName, value, expectedNumberInRange(minimumValue, maximumValue));
         }
-        logPropertyValue(instanceName, value, n == _defaultValue);
+        logPropertyValue(instanceName, value, n == defaultValue);
         return n;
     }
 }

@@ -24,14 +24,14 @@ public class PropertyLog {
         return log;
     }
 
-    private String _instanceName;
+    private String instanceName;
 
     public String getInstanceName() {
-        return _instanceName;
+        return instanceName;
     }
 
     protected void init(String instanceName) {
-        _instanceName = instanceName;
+        this.instanceName = instanceName;
     }
 
     public void debugUsingValue(String value) {

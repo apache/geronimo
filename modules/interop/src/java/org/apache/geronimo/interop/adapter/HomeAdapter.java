@@ -1,0 +1,355 @@
+/**
+ *
+ *  Copyright 2004-2005 The Apache Software Foundation
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.geronimo.interop.adapter;
+
+import java.util.HashMap;
+import java.util.Vector;
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Constructor;
+
+import org.apache.geronimo.interop.rmi.iiop.RemoteInterface;
+import org.apache.geronimo.interop.rmi.iiop.ObjectRef;
+import org.apache.geronimo.interop.naming.NameService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openejb.EJBContainer;
+import org.openejb.proxy.ProxyInfo;
+
+public class HomeAdapter extends Adapter {
+
+    private final Log log = LogFactory.getLog(HomeAdapter.class);
+    private NameService     nameService = NameService.getInstance();
+
+    private RemoteInterface homeRemoteInterface = null;
+    private String[]        bindNames;
+    private ObjectRef       objectRef;
+
+    private EJBContainer    ejbContainer;
+    private ProxyInfo       proxyInfo;
+
+    public HomeAdapter( EJBContainer container ) {
+        this.ejbContainer = container;
+        //proxyInfo = ejbContainer.getProxyInfo();
+
+        //homeClass = proxyInfo.getHomeInterface();
+        //remoteClass = proxyInfo.getRemoteInterface();
+
+        //classLoader = ejbContainer.getClassLoader();
+
+        //objects = new HashMap();
+        //idVector = new Vector();
+
+        proxyInfo = ejbContainer.getProxyInfo();
+        Class homeInterfaceClass = proxyInfo.getHomeInterface();
+        String homeInterfaceClassName = homeInterfaceClass.getName();
+
+        /*
+         * BindNames contains all the jndi names from the ejbcontainer as well
+         * as the name of the class name for the interface.  This classname is used
+         * as part of the object key so that the server can determine which interface
+         * the client is invoking...
+         */
+        String containerBindNames[] = ejbContainer.getJndiNames();
+        bindNames = new String[ containerBindNames.length + 1 ];
+        bindNames[0] = homeInterfaceClassName;
+        System.arraycopy( containerBindNames, 0, bindNames, 1, containerBindNames.length );
+
+        /*
+         * HomeInterface objectrefs aren't going to change over the course of the
+         * ejb deployment...
+         */
+        objectRef = new ObjectRef();
+        objectRef.$setID( "RMI:" + homeInterfaceClassName + ":0000000000000000" );
+        objectRef.$setObjectKey( homeInterfaceClassName );
+
+        loadHomeRemoteInterface();
+
+        showContainer();
+    }
+
+    /*
+     * Used by the AdapterManager to keep track of all adapters....
+     */
+    public Object getAdapterID()
+    {
+        return ejbContainer.getContainerID();
+    }
+
+    public ObjectRef getObjectRef( )
+    {
+        return objectRef;
+    }
+
+    public Object getServant() {
+        return ejbContainer.getEJBHome();
+    }
+
+    public Object getEJBHome()
+    {
+        return ejbContainer.getEJBHome();
+    }
+
+    public EJBContainer getEJBContainer()
+    {
+        return ejbContainer;
+    }
+
+    /*
+     * BindName is the name that will be registered with the INS (Inter-operable Name Service)
+     * These are the names from the EJBContainer.
+     */
+    public String[] getBindNames() {
+        return bindNames;
+    }
+
+    /*
+     * The classloader that will load any dependancies of the adapter or corba skel interfaces.
+     * Its should be set by the ejb container
+     */
+//    public ClassLoader getClassLoader() {
+//        return _cl;
+//    }
+
+    /*
+     * This is the name of the remote class that implements the remote interface.
+     *
+     * This is only used if this adapter is going to directly invoke an object.  For the
+     * EJB Container, the adapter will pass through the method invocations.
+     */
+//    public Class getRemoteClass() {
+//        return remoteClass;
+//    }
+
+    /*
+     * The remote interface name for the remote object.  This will most likely be the name
+     * of the EJB's RemoteInterface and RemoteHomeInterface
+     *
+     * The stub/skel generator will use this interface name.
+     */
+//    public Class getHomeClass() {
+//        return homeClass;
+//    }
+
+    /*
+     * Return the skeleton implemention for the remote interface.  This interface has the
+     * invoke method to handle the rmi/iiop messages.
+     */
+    public RemoteInterface getRemoteInterface()
+    {
+        return homeRemoteInterface;
+    }
+
+//    public synchronized RemoteInterface getRemoteInterface() {
+//        if (ri == null) {
+//            String riName = remoteClass.getName() + "_Skeleton";
+//            remoteSkeletonClass = loadClass(riName);
+//
+//            try {
+//                ri = (RemoteInterface) remoteSkeletonClass.newInstance();
+//            } catch (InstantiationException e) {
+//                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+//            } catch (IllegalAccessException e) {
+//                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+//            }
+//        }
+//
+//        return ri;
+//    }
+
+    /*
+     * Get an object instance to invoke based on the object key.
+     *
+     * The objectKey could probably be passed to the EJB container so that the
+     * container can directly invoke the ejb object as required.
+     */
+//    public Object getInstance(byte[] objectKey) {
+//        String key = new String(objectKey);
+//        return getInstance(key);
+//    }
+//
+//    public Object getInstance(String key) {
+//        Object o = objects.get(key);
+//
+//        if (o == null) {
+//            o = newInstance(key);
+//        }
+//
+//        return o;
+//    }
+//
+//    public Object newInstance(byte[] objectKey) {
+//        String key = new String(objectKey);
+//        return newInstance(key);
+//    }
+//
+//    public Object newInstance(String key) {
+//        Object o = null;
+//
+//        try {
+//            o = remoteClassClass.newInstance();
+//            objects.put(key, o);
+//        } catch (InstantiationException e) {
+//            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+//        } catch (IllegalAccessException e) {
+//            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+//        }
+//
+//        return o;
+//    }
+
+    /*
+     * Invoke method from the IIOP Message Handler.  The adapter is bound to the INS name service.
+     * When an RMI/IIOP message is processed by the server, the message handler will perform a lookup
+     * on the name service to get the HomeAdapter, then the invocation will be passed to the adapter
+     * The adapter will obtain the object key and then determine which object instance to pass the
+     * invocation to.
+     */
+//    public void invoke(java.lang.String methodName, byte[] objectKey, org.apache.geronimo.interop.rmi.iiop.ObjectInputStream input, org.apache.geronimo.interop.rmi.iiop.ObjectOutputStream output) {
+//        RemoteInterface skeleton = getRemoteInterface();
+//        Object instance = getInstance(objectKey);
+//
+//        if (instance != null) {
+//            skeleton.$invoke(methodName, objectKey, instance, input, output);
+//        } else {
+//            throw new org.omg.CORBA.OBJECT_NOT_EXIST(new String(objectKey));
+//        }
+//    }
+
+    /*
+     * Helper function to load a class.  This uses classloader for the adapter.
+     */
+//    protected Class loadClass(String name) {
+//        Class c = null;
+//
+//        try {
+//            c = getClassLoader().loadClass(name);
+//        } catch (Exception e) {
+//            // TODO: Determine the appropriate way to propagate this error back to the caller/client.
+//            e.printStackTrace();
+//        }
+//
+//        return c;
+//    }
+
+    public void start()
+    {
+        log.info( "Starting HomeAdapter: " + ejbContainer.getEJBName() + " - " + getAdapterID() );
+        nameService.bindAdapter( this );
+    }
+
+    public void stop()
+    {
+        log.info( "Stopping HomeAdapter: " + ejbContainer.getEJBName() + " - " + getAdapterID() );
+        nameService.unbindAdapter( this );
+    }
+
+    /*
+     * Invoke method from the IIOP Message Handler.  The adapter is bound to the INS name service.
+     * When an RMI/IIOP message is processed by the server, the message handler will perform a lookup
+     * on the name service to get the HomeAdapter, then the invocation will be passed to the adapter
+     * The adapter will obtain the object key and then determine which object instance to pass the
+     * invocation to.
+     */
+    public void invoke(java.lang.String methodName, byte[] objectKey, org.apache.geronimo.interop.rmi.iiop.ObjectInputStream input, org.apache.geronimo.interop.rmi.iiop.ObjectOutputStream output) {
+        //RemoteInterface skeleton = getRemoteInterface();
+        //Object instance = getInstance(objectKey);
+
+        if (homeRemoteInterface != null) {
+            homeRemoteInterface.invoke(methodName, objectKey, this, input, output);
+        } else {
+            throw new org.omg.CORBA.OBJECT_NOT_EXIST(new String(objectKey));
+        }
+    }
+
+    protected void loadHomeRemoteInterface()
+    {
+        try
+        {
+            String name = ejbContainer.getProxyInfo().getHomeInterface().getName();
+            name += "_Skeleton";
+
+            Class hrmiClass = ejbContainer.getClassLoader().loadClass(name);
+            Constructor c = hrmiClass.getConstructor( new Class[] { EJBContainer.class } );
+
+            homeRemoteInterface = (RemoteInterface)c.newInstance( new Object[] { this } );
+        }
+        catch (ClassNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        catch (NoSuchMethodException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IllegalAccessException e)
+        {
+            e.printStackTrace();
+        }
+        catch (InvocationTargetException e)
+        {
+            e.printStackTrace();
+        }
+        catch (InstantiationException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    protected void showContainer()
+    {
+        log.debug( "container.id = " + ejbContainer.getContainerID() );
+        log.debug( "container.ejbname = " + ejbContainer.getEJBName() );
+        log.debug( "container.ejbhome = " + ejbContainer.getEJBHome() );
+        //log.debug( "container.ejbprimarykey = " + ejbContainer.getEJBPrimaryKeyClass() );
+        //log.debug( "container.ejbobject = " + ejbContainer.getEJBObject(Object primaryKey) );
+        log.debug( "container.ejblocalhome = " + ejbContainer.getEJBLocalHome() );
+        //log.debug( "container.ejblocalobject = " + ejbContainer.getEJBLocalObject(Object primaryKey) );
+
+        int i;
+        for( i=0; i<ejbContainer.getJndiNames().length; i++ )
+        {
+            log.debug( "container.jndiName[" + i + "] = " + ejbContainer.getJndiNames()[i] );
+        }
+
+        for( i=0; i<ejbContainer.getLocalJndiNames().length; i++ )
+        {
+            log.debug( "container.localJndiName[" + i + "] = " + ejbContainer.getLocalJndiNames()[i] );
+        }
+
+        //log.debug( "container.proxyFactory = " + ejbContainer.getProxyFactory() );
+        log.debug( "container.classLoader = " + ejbContainer.getClassLoader() );
+        log.debug( "container.unmanagedReference = " + ejbContainer.getUnmanagedReference() );
+
+        for( i=0; i<ejbContainer.getSignatures().length; i++ )
+        {
+            log.debug( "container.interfaceMethodSignature[" + i + "] = " + ejbContainer.getSignatures()[i] );
+        }
+
+        ProxyInfo pi = ejbContainer.getProxyInfo();
+        log.debug( "container.proxyInfo.containerID = " + pi.getContainerID() );
+        log.debug( "container.proxyInfo.componentType = " + pi.getComponentType() );
+        log.debug( "container.proxyInfo.homeInterface = " + pi.getHomeInterface() );
+        log.debug( "container.proxyInfo.primaryKey = " + pi.getPrimaryKey() );
+        log.debug( "container.proxyInfo.primaryKeyClass = " + pi.getPrimaryKeyClass() );
+        log.debug( "container.proxyInfo.remoteInterface = " + pi.getRemoteInterface() );
+
+        log.debug( "container.subject = " + ejbContainer.getDefaultSubject() );
+    }
+
+}

@@ -22,33 +22,3 @@ public class JTryStatement extends JBlockStatement {
         super();
     }
 }
-
-/*
-public class JTryStatement extends JStatement
-{
-    protected JBlockStatement    _tryStatements;
-
-    public JTryStatement( )
-    {
-        _tryStatements = new JBlockStatement();
-    }
-
-    public void addStatement( JStatement s )
-    {
-        if (s == _tryStatements ||
-            s.equals( _tryStatements ))
-        {
-            // Don't add it.
-            // Todo: Throw an exception?
-            return;
-        }
-
-        _tryStatements.addStatement( s );
-    }
-
-    public JBlockStatement getStatement()
-    {
-        return _tryStatements;
-    }
-}
-*/

@@ -39,17 +39,17 @@ public class InteropGBean implements GBeanLifecycle {
 
     private IOR ior;
 
-    private Properties properties;
-    private String strprop;
-    private String objectName;
+    private Properties  properties;
+    private String      strprop;
+    private String      name;
 
     /**
      * Construct an instance of InteropGBean
      *
      * @param strprop some strprop
      */
-    public InteropGBean(String objectName, String strprop, Properties properties) {
-        this.objectName = objectName;
+    public InteropGBean(String name, String strprop, Properties properties) {
+        this.name = name;
         this.strprop = strprop;
         this.properties = (properties == null ? new Properties() : properties);
     }
@@ -89,15 +89,15 @@ public class InteropGBean implements GBeanLifecycle {
     /**
      * Returns the object name of this protocol GBean
      */
-    public String getObjectName() {
-        return objectName;
+    public String getName() {
+        return name;
     }
 
     /**
      * Add the overrides from the member variables to the properties file.
      */
     public void echo(String msg) {
-        log.info(getObjectName() + ": Echo " + msg);
+        log.info(getName() + ": Echo " + msg);
     }    
 
     /* 
@@ -105,15 +105,15 @@ public class InteropGBean implements GBeanLifecycle {
      */
 
     public void doStart() throws Exception {
-        log.info("Started " + getObjectName());
+        log.info("Started " + getName());
     }
 
     public void doStop() throws Exception {
-        log.info("Stopped " + getObjectName());
+        log.info("Stopped " + getName());
     }
 
     public void doFail() {
-        log.info("Failed " + getObjectName());
+        log.info("Failed " + getName());
     }
 
     /* 
@@ -125,13 +125,13 @@ public class InteropGBean implements GBeanLifecycle {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(InteropGBean.class);
 
-        infoFactory.addAttribute("objectName", String.class, false);
+        infoFactory.addAttribute("name", String.class, true);
         infoFactory.addAttribute("strprop", String.class, true);
         infoFactory.addAttribute("properties", Properties.class, true);
 
         infoFactory.addOperation("echo", new Class[]{String.class});
 
-        infoFactory.setConstructor(new String[]{"objectName", "strprop", "properties"});
+        infoFactory.setConstructor(new String[]{"name", "strprop", "properties"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

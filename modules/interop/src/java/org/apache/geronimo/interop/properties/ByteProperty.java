@@ -18,11 +18,9 @@
 package org.apache.geronimo.interop.properties;
 
 public class ByteProperty extends PropertyType {
-    private byte _defaultValue = 0;
-
-    private byte _minimumValue = 0;
-
-    private byte _maximumValue = Byte.MAX_VALUE;
+    private byte    defaultValue = 0;
+    private byte    minimumValue = 0;
+    private byte    maximumValue = Byte.MAX_VALUE;
 
     public ByteProperty(Class componentClass, String propertyName) {
         super(componentClass, propertyName);
@@ -54,34 +52,34 @@ public class ByteProperty extends PropertyType {
     }
 
     public ByteProperty defaultValue(byte defaultValue) {
-        _defaultValue = defaultValue;
+        this.defaultValue = defaultValue;
         return this;
     }
 
     public ByteProperty minimumValue(byte minimumValue) {
-        _minimumValue = minimumValue;
+        this.minimumValue = minimumValue;
         return this;
     }
 
     public ByteProperty maximumValue(byte maximumValue) {
-        _maximumValue = maximumValue;
+        this.maximumValue = maximumValue;
         return this;
     }
 
     public byte getDefaultValue() {
-        return _defaultValue;
+        return defaultValue;
     }
 
     public String getDefaultValueAsString() {
-        return String.valueOf(_defaultValue);
+        return String.valueOf(defaultValue);
     }
 
     public byte getMinimumValue() {
-        return _minimumValue;
+        return minimumValue;
     }
 
     public byte getMaximumValue() {
-        return _maximumValue;
+        return maximumValue;
     }
 
     public byte getByte() {
@@ -91,20 +89,20 @@ public class ByteProperty extends PropertyType {
     public byte getByte(String instanceName, PropertyMap props) {
         byte n;
         boolean ok = true;
-        String value = props.getProperty(_propertyName, String.valueOf(_defaultValue));
+        String value = props.getProperty(getPropertyName(), String.valueOf(defaultValue));
         try {
             n = Byte.parseByte(value);
         } catch (NumberFormatException ex) {
             ok = false;
             n = 0;
         }
-        if (n < _minimumValue || n > _maximumValue) {
+        if (n < minimumValue || n > maximumValue) {
             ok = false;
         }
         if (!ok) {
-            badPropertyValue(instanceName, value, expectedNumberInRange(_minimumValue, _maximumValue));
+            badPropertyValue(instanceName, value, expectedNumberInRange(minimumValue, maximumValue));
         }
-        logPropertyValue(instanceName, value, n == _defaultValue);
+        logPropertyValue(instanceName, value, n == defaultValue);
         return n;
     }
 }
