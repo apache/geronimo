@@ -85,7 +85,7 @@ import net.sf.cglib.reflect.FastClass;
  * and once the MBean is deployed an imutable copy of will be made.  This class also adds support for multi target
  * POJOs under the MBean.
  *
- * @version $Revision: 1.12 $ $Date: 2003/11/26 02:10:08 $
+ * @version $Revision: 1.13 $ $Date: 2003/12/30 08:25:32 $
  */
 public final class GeronimoMBeanInfo extends MBeanInfo {
 
@@ -104,7 +104,8 @@ public final class GeronimoMBeanInfo extends MBeanInfo {
     private static final MBeanConstructorInfo[] NO_CONSTRUCTORS = new MBeanConstructorInfo[0];
 
     private boolean autostart = false;
-    private final boolean immutable;
+    //private
+    final boolean immutable;
     private final int hashCode = System.identityHashCode(this);
     private String name;
     private String description;
@@ -480,6 +481,20 @@ public final class GeronimoMBeanInfo extends MBeanInfo {
     }
 
     public String toString() {
-        return "[GeronimoMBeanInfo: name=" + name + " description=" + description + "]";
+        StringBuffer result = new StringBuffer("[GeronimoMBeanInfo: id=").append(super.toString()).append(" name=").append(name).append(" description=").append(description).append(" immutable=").append(immutable);
+        for (Iterator iterator = attributes.iterator(); iterator.hasNext();) {
+            GeronimoAttributeInfo geronimoAttributeInfo = (GeronimoAttributeInfo) iterator.next();
+            result.append("\n    attribute: ").append(geronimoAttributeInfo);
+        }
+        for (Iterator iterator = operations.iterator(); iterator.hasNext();) {
+            GeronimoOperationInfo geronimoOperationInfo = (GeronimoOperationInfo) iterator.next();
+            result.append("\n    operation: ").append(geronimoOperationInfo);
+        }
+        for (Iterator iterator = endpoints.iterator(); iterator.hasNext();) {
+            GeronimoMBeanEndpoint geronimoMBeanEndpoint = (GeronimoMBeanEndpoint) iterator.next();
+            result.append("\n    endpoint: ").append(geronimoMBeanEndpoint);
+        }
+        result.append("]");
+        return result.toString();
     }
 }

@@ -63,6 +63,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.JMException;
@@ -85,7 +86,7 @@ import net.sf.cglib.reflect.FastMethod;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/11/16 23:32:29 $
+ * @version $Revision: 1.6 $ $Date: 2003/12/30 08:25:32 $
  */
 public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBeanTarget {
     private static final Log log = LogFactory.getLog(GeronimoMBeanEndpoint.class);
@@ -121,12 +122,12 @@ public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBea
     private final Class iface;
 
     /**
-     * The object name patters for object to communicate with
+     * The object name patterns for object(s) to communicate with
      */
     private Collection peers;
 
     /**
-     * The connection to the other mbean
+     * The connections to the other mbeans
      */
     private Map connections;
 
@@ -153,9 +154,14 @@ public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBea
 
     /**
      * Name of the setter method.
-     * The default is "set" + name.  In the case of a defualt value we do a caseless search for the name.
+     * The default is "set" + name.  In the case of a default value we do a caseless search for the name.
      */
     private String setterName;
+
+    /**
+     * Listener for endpoint add/remove events.
+     */
+    private GeronimoMBeanEndpointListener endpointListener;
 
     /**
      * The object on which the getter and setter will be invoked
@@ -197,17 +203,25 @@ public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBea
     public GeronimoMBeanEndpoint(String name, Class type, ObjectName pattern) {
         this(name, type.getName(), Collections.singleton(pattern), false);
     }
-    
+
+    public GeronimoMBeanEndpoint(GeronimoMBeanEndpointListener endpointListener, Class type, ObjectName pattern) {
+        this(null, endpointListener, type.getName(), Collections.singleton(pattern), false, null);
+    }
+
     public GeronimoMBeanEndpoint(String name, String type, ObjectName pattern, boolean required) {
         this(name, type, Collections.singleton(pattern), required);
     }
 
     public GeronimoMBeanEndpoint(String name, Class type, ObjectName pattern, boolean required) {
         this(name, type.getName(), Collections.singleton(pattern), required);
-    }    
-    
-    public GeronimoMBeanEndpoint(String name, String type, ObjectName pattern, boolean required, String target) {
-        this(name, type, Collections.singleton(pattern), required, target);
+    }
+
+    public GeronimoMBeanEndpoint(String name, String type, ObjectName pattern, boolean required, String targetName) {
+        this(name, type, Collections.singleton(pattern), required, targetName);
+    }
+
+    public GeronimoMBeanEndpoint(GeronimoMBeanEndpointListener endpointListener, String type, ObjectName pattern, boolean required, String targetName) {
+        this(null, endpointListener, type, Collections.singleton(pattern), required, targetName);
     }
 
     public GeronimoMBeanEndpoint(String name, String type, Collection peers) {
@@ -219,7 +233,12 @@ public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBea
     }
 
     public GeronimoMBeanEndpoint(String name, String type, Collection peers, boolean required, String targetName) {
+        this(name, null, type, peers, required, targetName);
+    }
+
+    public GeronimoMBeanEndpoint(String name, GeronimoMBeanEndpointListener endpointListener, String type, Collection peers, boolean required, String targetName) {
         this.name = name;
+        this.endpointListener = endpointListener;
         this.type = type;
         this.peers = new HashSet(peers);
         this.required = required;
@@ -245,8 +264,8 @@ public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBea
         //
 
         // name
-        if (source.name == null) {
-            throw new IllegalArgumentException("Source must have a name");
+        if (source.name == null && source.endpointListener == null) {
+            throw new IllegalArgumentException("Source must have a name or an endpoint listener");
         }
         name = source.name;
 
@@ -285,6 +304,7 @@ public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBea
 
         name = source.name;
         description = source.description;
+        endpointListener = source.endpointListener;
 
         //
         // Optional (derived)
@@ -303,6 +323,11 @@ public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBea
             if (target == null) {
                 throw new IllegalArgumentException("Target not found: targetName=" + targetName);
             }
+        }
+
+        //initialize endpoint listener
+        if (endpointListener != null) {
+            endpointListener.setTarget(target);
         }
 
         // setter proxy
@@ -330,20 +355,25 @@ public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBea
         }
 
         if (setterJavaMethod == null) {
-            throw new IllegalArgumentException("Setter method not found on target:" +
-                    " setterName=" + setterName +
-                    " targetClass=" + target.getClass().getName());
-        }
-
-        if (Collection.class == setterJavaMethod.getParameterTypes()[0]) {
+            if (endpointListener == null) {
+                throw new IllegalArgumentException("Setter method not found on target:" +
+                        " setterName=" + setterName +
+                        " targetClass=" + target.getClass().getName());
+            }
             singleValued = false;
-        } else if (setterJavaMethod.getParameterTypes()[0].isAssignableFrom(iface)) {
-            singleValued = true;
+            setterMethod = null;
         } else {
-            throw new IllegalArgumentException("Setter parameter must be Collection or " + type);
-        }
 
-        setterMethod = parent.getTargetFastClass(targetName).getMethod(setterJavaMethod);
+            if (Collection.class == setterJavaMethod.getParameterTypes()[0]) {
+                singleValued = false;
+            } else if (setterJavaMethod.getParameterTypes()[0].isAssignableFrom(iface)) {
+                singleValued = true;
+            } else {
+                throw new IllegalArgumentException("Setter parameter must be Collection or " + type);
+            }
+
+            setterMethod = parent.getTargetFastClass(targetName).getMethod(setterJavaMethod);
+        }
     }
 
     public String getName() {
@@ -562,6 +592,7 @@ public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBea
                 setEndpointProxy(connection.getProxy());
             }
         } else {
+            //Is this really live?
             setEndpointProxy(Collections.unmodifiableCollection(proxies.values()));
         }
     }
@@ -597,14 +628,16 @@ public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBea
     }
 
     private synchronized void setEndpointProxy(Object proxy) {
-        try {
-            setterMethod.invoke(target, new Object[]{proxy});
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Error e) {
-            throw e;
-        } catch (Throwable t) {
-            throw new AssertionError(t);
+        if (setterMethod != null) {
+            try {
+                setterMethod.invoke(target, new Object[]{proxy});
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Error e) {
+                throw e;
+            } catch (Throwable t) {
+                throw new AssertionError(t);
+            }
         }
     }
 
@@ -686,7 +719,7 @@ public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBea
         }
 
         // create a connection
-        final GeronimoMBeanEndpointConnection connection = new GeronimoMBeanEndpointConnection(iface, context.getServer(), peer);
+        final GeronimoMBeanEndpointConnection connection = new GeronimoMBeanEndpointConnection(iface, context.getServer(), peer, endpointListener);
         connections.put(peer, connection);
 
         // update running state

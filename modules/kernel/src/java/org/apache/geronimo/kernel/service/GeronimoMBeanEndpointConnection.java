@@ -75,7 +75,7 @@ import net.sf.cglib.reflect.FastClass;
 /**
  * This handles a connection to another mbean.
  *
- * @version $Revision: 1.4 $ $Date: 2003/11/14 02:59:17 $
+ * @version $Revision: 1.5 $ $Date: 2003/12/30 08:25:32 $
  */
 class GeronimoMBeanEndpointConnection {
     /**
@@ -87,6 +87,8 @@ class GeronimoMBeanEndpointConnection {
      * The object name to which we are connected.
      */
     private ObjectName objectName;
+
+    private final GeronimoMBeanEndpointListener endpointListener;
 
     /**
      * A factory to create instances
@@ -120,7 +122,7 @@ class GeronimoMBeanEndpointConnection {
      * @param server the mbean server in which the component is registered
      * @param objectName the name of the component
      */
-    public GeronimoMBeanEndpointConnection(Class iface, MBeanServer server, ObjectName objectName) {
+    public GeronimoMBeanEndpointConnection(Class iface, MBeanServer server, ObjectName objectName, GeronimoMBeanEndpointListener endpointListener) {
         assert iface != null: "iface can not be null";
         assert server != null: "Server can not be null";
         assert objectName != null: "Object name can not be null";
@@ -134,6 +136,7 @@ class GeronimoMBeanEndpointConnection {
 
         this.server = server;
         this.objectName = objectName;
+        this.endpointListener = endpointListener;
 
         MethodInterceptor dummyInterceptor = new MethodInterceptor() {
             public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
@@ -147,6 +150,9 @@ class GeronimoMBeanEndpointConnection {
         enhancer.setCallbackFilter(new CallbackFilter() {
             public int accept(Method method) {
                 if(Modifier.isStatic(method.getModifiers())) {
+                    return Callbacks.NO_OP;
+                }
+                if(Modifier.isFinal(method.getModifiers())) {
                     return Callbacks.NO_OP;
                 }
                 return Callbacks.INTERCEPT;
@@ -222,6 +228,9 @@ class GeronimoMBeanEndpointConnection {
         methodInterceptor = new ConnectionMethodInterceptor(methodTable, server, objectName);
         proxy = factory.newInstance(methodInterceptor);
         open = true;
+        if (endpointListener != null) {
+            endpointListener.endpointAdded(proxy);
+        }
     }
 
     /**
@@ -230,6 +239,9 @@ class GeronimoMBeanEndpointConnection {
     public synchronized void close() {
         if (!open) {
             throw new IllegalStateException("Connection is already closed");
+        }
+        if (endpointListener != null) {
+            endpointListener.endpointRemoved(proxy);
         }
         methodInterceptor.invalidate();
         methodInterceptor = null;

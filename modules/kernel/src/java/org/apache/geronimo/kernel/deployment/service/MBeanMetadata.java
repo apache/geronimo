@@ -56,12 +56,11 @@
 package org.apache.geronimo.kernel.deployment.service;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
@@ -69,7 +68,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 /**
  * Metadata about an MBean that is use during deployment.
  *
- * @version $Revision: 1.5 $ $Date: 2003/11/16 00:51:24 $
+ * @version $Revision: 1.6 $ $Date: 2003/12/30 08:25:32 $
  */
 public class MBeanMetadata {
 

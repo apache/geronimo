@@ -92,7 +92,7 @@ import net.sf.cglib.reflect.FastClass;
  * GeronimoMBeanInfo instance.  The GeronimoMBean also support caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.10 $ $Date: 2003/12/28 19:28:58 $
+ * @version $Revision: 1.11 $ $Date: 2003/12/30 08:25:32 $
  */
 public class GeronimoMBean extends AbstractManagedObject2 implements DynamicMBean {
     public static final FastClass fastClass = FastClass.create(GeronimoMBean.class);
@@ -163,37 +163,20 @@ public class GeronimoMBean extends AbstractManagedObject2 implements DynamicMBea
             // @todo there is an issue here with restarted deployments
             addManagedObjectMBeanInfo();
             mbeanInfo = new GeronimoMBeanInfo(mbeanInfo);
-        } finally {
-            Thread.currentThread().setContextClassLoader(oldClassLoader);
-        }
-        return this.objectName;
-    }
-
-    public void postRegister(Boolean registrationDone) {
-        if (!registrationDone.booleanValue()) {
-            context = null;
-            return;
-        }
-
-        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        try {
-            // Set the class loader
-            Thread.currentThread().setContextClassLoader(classLoader);
-
             // build the attribute map
             Set attributes = mbeanInfo.getAttributeSet();
             for (Iterator iterator = attributes.iterator(); iterator.hasNext();) {
                 GeronimoAttributeInfo attributeInfo = (GeronimoAttributeInfo) iterator.next();
-                final String name = attributeInfo.getName();
-                attributeInfoMap.put(name, attributeInfo);
+                final String attributeName = attributeInfo.getName();
+                attributeInfoMap.put(attributeName, attributeInfo);
 
                 if (attributeInfo.isReadable()) {
                     String getterName = (attributeInfo.isIs() ? "is" : "get") +
-                            Character.toUpperCase(name.charAt(0)) + name.substring(1);
+                            Character.toUpperCase(attributeName.charAt(0)) + attributeName.substring(1);
                     operationInfoMap.put(new MBeanOperationSignature(getterName, null), attributeInfo);
                 }
                 if (attributeInfo.isWritable()) {
-                    String setterName = "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
+                    String setterName = "set" + Character.toUpperCase(attributeName.charAt(0)) + attributeName.substring(1);
                     operationInfoMap.put(new MBeanOperationSignature(setterName, new String[]{attributeInfo.getType()}), attributeInfo);
                 }
             }
@@ -220,6 +203,23 @@ public class GeronimoMBean extends AbstractManagedObject2 implements DynamicMBea
                 GeronimoMBeanEndpoint endpoint = (GeronimoMBeanEndpoint) i.next();
                 endpoint.setMBeanContext(context);
             }
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        }
+        return this.objectName;
+    }
+
+    public void postRegister(Boolean registrationDone) {
+        if (!registrationDone.booleanValue()) {
+            context = null;
+            return;
+        }
+
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            // Set the class loader
+            Thread.currentThread().setContextClassLoader(classLoader);
+
             super.postRegister(registrationDone);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
@@ -527,6 +527,12 @@ public class GeronimoMBean extends AbstractManagedObject2 implements DynamicMBea
         MBeanOperationSignature key = new MBeanOperationSignature(methodName, types);
         Object info = operationInfoMap.get(key);
         if (info == null) {
+            log.info("Operation not found on mbean" + this.objectName + ", method: " + methodName + ", paramtypes: " + types);
+            log.info("MBeanInfo is immutable: " + mbeanInfo.immutable + " on mbeanInfo: " + mbeanInfo);
+            for (Iterator iterator = operationInfoMap.keySet().iterator(); iterator.hasNext();) {
+                MBeanOperationSignature mBeanOperationSignature = (MBeanOperationSignature) iterator.next();
+                log.info("Operation: " + mBeanOperationSignature);
+            }
             throw new ReflectionException(new NoSuchMethodException("Unknown operation " + key));
         }
 
