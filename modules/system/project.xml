@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.6 $ $Date: 2004/02/24 12:20:46 $ -->
+<!-- $Revision: 1.7 $ $Date: 2004/02/27 00:43:44 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -65,20 +65,4 @@
         </dependency>
 
     </dependencies>
-
-
-    <!-- =================== -->
-    <!-- Build Specification -->
-    <!-- =================== -->
-
-    <build>
-        <unitTest>
-            <includes>
-                <include>**/*Test.java</include>
-            </includes>
-            <excludes>
-                <exclude>**/Abstract*.java</exclude>
-            </excludes>
-        </unitTest>
-    </build>
 </project>

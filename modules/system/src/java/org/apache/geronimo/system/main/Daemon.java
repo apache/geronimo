@@ -30,16 +30,20 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
+import org.apache.geronimo.system.url.GeronimoURLFactory;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:58:14 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/27 00:43:44 $
  */
 public class Daemon {
     static {
         // This MUST be done before the first log is acquired
         GeronimoLogging.initialize(GeronimoLogging.INFO);
+
+        // Install our url factory
+        GeronimoURLFactory.install();
     }
 
     private Daemon() {
