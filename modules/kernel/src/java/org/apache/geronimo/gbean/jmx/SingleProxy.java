@@ -70,11 +70,12 @@ import net.sf.cglib.proxy.Callbacks;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.SimpleCallbacks;
+import net.sf.cglib.core.CodeGenerationException;
 
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/19 06:33:24 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/21 19:43:04 $
  */
 public class SingleProxy implements Proxy {
     private static final Log log = LogFactory.getLog(SingleProxy.class);
@@ -133,7 +134,13 @@ public class SingleProxy implements Proxy {
         });
         enhancer.setCallbacks(new SimpleCallbacks());
         enhancer.setClassLoader(type.getClassLoader());
-        Factory factory = enhancer.create();
+        Factory factory = null;
+        try {
+            factory = enhancer.create();
+        } catch (CodeGenerationException e) {
+            log.info("Most likely you are enhancing a class rather than an interface and it lacks a default constructor" +  e.getMessage());
+            throw e;
+        }
         methodInterceptor = new ProxyMethodInterceptor(factory.getClass());
         proxy = factory.newInstance(methodInterceptor);
     }
@@ -213,7 +220,7 @@ public class SingleProxy implements Proxy {
             waitingForMe = false;
             gmbean.attemptFullStart();
         } catch (Exception e) {
-            log.warn("Exception occured while attempting to fully start: objetName=" + gmbean.getObjectName());
+            log.warn("Exception occured while attempting to fully start: objectName=" + gmbean.getObjectName(), e);
         }
     }
 
