@@ -34,7 +34,7 @@ public interface GenericCredential {
 
     public String getMechType();
 
-    public byte[] getCredentialData() throws SecurityException;
+    public byte[] getCredentialData() throws javax.resource.spi.SecurityException;
 
     public boolean equals(Object another);
 
