@@ -99,3 +99,16 @@ UNRESOLVED BUT MARKED FOR M3
  * 374
  * 367
  * 215
+
+CHANGES SINCE LAST RELEASE
+--------------------------
+ * CMP EJB support (still no EJB QL)
+ * security integration
+ * HTTPS support
+ * transaction logs & propogation
+ * application client
+ * persist configuration changes
+ * manifest class-path support
+ * JMS and JDBC drivers fully supported out of the box
+ * can deploy multiple RA instances in same plan
+ * hot deploy support via command-line tool
