@@ -66,7 +66,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
  * VM. Thus development on Clustering can start before an inter-vm
  * transport layer has been put in place...
  *
- * @version $Revision: 1.8 $ $Date: 2004/01/02 14:19:04 $
+ * @version $Revision: 1.9 $ $Date: 2004/01/02 19:46:30 $
  */
 public class
   LocalCluster
@@ -143,7 +143,9 @@ public class
     _channel=LocalChannel.find(getName());
     synchronized (_channel)
     {
-      setData(_channel.getData());
+      Data data=_channel.getData();
+      _log.info("state transfer - sending: "+data);
+      setData(data);
       _channel.join(this);
     }
 

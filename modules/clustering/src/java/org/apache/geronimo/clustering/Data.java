@@ -60,6 +60,8 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+// TODO - should this just inherit from HashMap ?
+
 /**
  * An object capable of holding the state of multiple applications and
  * tiers. This will be a Map of tiers (web, ejb, ...). Each tier may
@@ -78,7 +80,7 @@ import org.apache.commons.logging.LogFactory;
  * clusterable services, but incur a little more synchronisation
  * overhead on lookups, consider...
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/02 14:19:04 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/02 19:46:30 $
  */
 public class
   Data
@@ -87,4 +89,6 @@ public class
   protected         Map _tiers=new HashMap();
 
   public Map getTiers(){return _tiers;};
+
+  public String toString(){return _tiers.toString();}
 }
