@@ -436,7 +436,10 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
             webModuleData.setAttribute("distributable", webApp.getDistributableArray().length == 1 ? Boolean.TRUE : Boolean.FALSE);
 
-            webModuleData.setAttribute("sessionTimeoutSeconds", webApp.getSessionConfigArray().length == 1 ? new Integer(webApp.getSessionConfigArray(0).getSessionTimeout().getBigIntegerValue().intValue() * 60) : defaultSessionTimeoutSeconds);
+            webModuleData.setAttribute("sessionTimeoutSeconds",
+                    (webApp.getSessionConfigArray().length == 1 && webApp.getSessionConfigArray(0).getSessionTimeout() != null) ?
+                    new Integer(webApp.getSessionConfigArray(0).getSessionTimeout().getBigIntegerValue().intValue() * 60) :
+                    defaultSessionTimeoutSeconds);
 
             MimeMappingType[] mimeMappingArray = webApp.getMimeMappingArray();
             Map mimeMappingMap = new HashMap();
@@ -1176,7 +1179,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 } else if (tokens[1].equals("CONFIDENTIAL")) {
                     this.transportType = CONFIDENTIAL;
                 }
-            } 
+            }
         }
     }
 
