@@ -142,18 +142,27 @@
         </dependency>
 
         <dependency>
-            <groupId>axis</groupId>
-            <artifactId>axis-jaxrpc</artifactId>
-            <version>${axis_jaxrpc_version}</version>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-jaxrpc</artifactId>
+            <version>${geronimo_spec_jaxrpc_version}</version>
             <properties>
                 <geronimo.spec.bundle>true</geronimo.spec.bundle>
             </properties>
         </dependency>
 
         <dependency>
-            <groupId>axis</groupId>
-            <artifactId>axis-saaj</artifactId>
-            <version>${axis_saaj_version}</version>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-saaj</artifactId>
+            <version>${geronimo_spec_saaj_version}</version>
+            <properties>
+                <geronimo.spec.bundle>true</geronimo.spec.bundle>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-qname</artifactId>
+            <version>${geronimo_spec_qname_version}</version>
             <properties>
                 <geronimo.spec.bundle>true</geronimo.spec.bundle>
             </properties>
