@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- $Revision: 1.6 $ $Date: 2004/02/12 18:31:16 $ -->
+<!-- $Revision: 1.7 $ $Date: 2004/02/12 21:15:51 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -82,7 +82,6 @@
             <ant:fileset dir="${maven.repo.local}">
                 <ant:include name="geronimo/**"/>
                 <ant:include name="geronimo-spec/**"/>
-                <ant:include name="geronimo-j2ee/**"/>
                 <ant:include name="log4j/jars/log4j-1.2.8.jar"/>
                 <ant:include name="jetty/jars/org.mortbay.jetty-5.0.beta0.jar"/>
                 <ant:include name="tomcat/jars/jasper-compiler-5.0.16.jar"/>

@@ -13,7 +13,7 @@ by the server.
     >
 
     <dependency>
-        <uri>geronimo-j2ee/jars/geronimo-spec-j2ee-DEV.jar</uri>
+        <uri>geronimo-spec/jars/geronimo-spec-j2ee-DEV.jar</uri>
     </dependency>
     <dependency>
         <uri>geronimo/jars/geronimo-jetty-DEV.jar</uri>
