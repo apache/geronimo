@@ -47,5 +47,7 @@
         </ant:jar>
     </goal>
 
-    <goal name="site"/>
+    <goal name="site">
+            <ant:mkdir dir="target/docs"/>
+    </goal>
 </project>
