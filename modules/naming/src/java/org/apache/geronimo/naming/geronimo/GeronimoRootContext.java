@@ -53,45 +53,42 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.naming.java;
 
-import javax.naming.InitialContext;
-import javax.naming.LinkRef;
+package org.apache.geronimo.naming.geronimo;
 
-import junit.framework.TestCase;
+import java.util.Hashtable;
+
+import javax.naming.NamingException;
+
+import org.apache.geronimo.naming.geronimo.GeronimoContext;
 
 /**
- * Test component context can be inherited by Threads spawned by
- * a component. This is required for Application Client and Servlets;
- * it is not applicable to EJBs as they are not allowed to create Threads.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/12 06:19:52 $
- */
-public class ThreadContextTest extends TestCase {
+ *
+ * @version $Revision: 1.1 $ $Date: 2004/02/12 20:38:18 $
+ *
+ * */
+public class GeronimoRootContext extends GeronimoContext {
 
-    private Throwable failure = null;
-    public void testThreadInheritence() throws Throwable {
-        Thread worker = new Thread() {
-            public void run() {
-                try {
-                    assertEquals("Hello", new InitialContext().lookup("java:comp/env/hello"));
-                } catch (Throwable e) {
-                    failure = e;
-                }
-            }
-        };
-        worker.start();
-        worker.join();
-        if (failure != null) {
-            throw failure;
-        }
+    private static final String PROTOCOL = "geronimo:";
+    private static final int PROTOCOL_LENGTH = PROTOCOL.length();
+    static final GeronimoRootContext rootContext = new GeronimoRootContext();
+
+    private GeronimoRootContext() {
+        super();
     }
 
-    protected void setUp() throws Exception {
-        ReadOnlyContext readOnlyContext = new ReadOnlyContext();
-        readOnlyContext.internalBind("env/hello", "Hello");
-        readOnlyContext.internalBind("env/world", "Hello World");
-        readOnlyContext.internalBind("env/link", new LinkRef("java:comp/env/hello"));
-        RootContext.setComponentContext(readOnlyContext);
+    GeronimoRootContext(Hashtable environment) {
+        super(rootContext, environment);
+    }
+
+    public Object lookup(String name) throws NamingException {
+        if (name.startsWith(PROTOCOL)) {
+            name = name.substring(PROTOCOL_LENGTH);
+            if (name.length() == 0) {
+                return this;
+            }
+        }
+        return super.lookup(name);
     }
 }

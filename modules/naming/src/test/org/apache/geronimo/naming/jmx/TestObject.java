@@ -56,49 +56,49 @@
 
 package org.apache.geronimo.naming.jmx;
 
-import javax.naming.LinkRef;
-import javax.naming.NamingException;
-import javax.naming.Reference;
-
-import org.apache.geronimo.naming.java.ReferenceFactory;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GOperationInfo;
 
 /**
- * This is a preliminary implementation that makes several unwarranted and redundant assumptions such as:
- * --jndi name is entire object name of target mbean
- * --first context param is the op name to call.
  *
- * A better set of assumptions might be that the context params are the name/value pairs for the object name.
  *
- * @version $Revision: 1.5 $ $Date: 2004/02/12 08:18:21 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/12 20:38:19 $
  *
  * */
-public class JMXReferenceFactory implements ReferenceFactory {
+public class TestObject {
 
-    private final static String SESSION = "Session";
-    private final static String ENTITY = "Entity";
-    private final static String CONNECTION_FACTORY = "ConnectionFactory";
+    private static final GBeanInfo GBEAN_INFO;
 
-    private final String mbeanServerId;
+    private Object home = new Object();
+    private Object local = new Object();
+    private Object cf = new Object();
 
-    public JMXReferenceFactory(String mbeanServerId) {
-        this.mbeanServerId = mbeanServerId;
+    public TestObject() {
     }
 
-    public Reference getReference(String link, Object locator) throws NamingException {
-        String methodName = null;
-        /*
-        if (locator instanceof EJBRef) {
-            methodName = "getEJBHome";
-        } else if (locator instanceof EJBLocalRef) {
-            methodName = "getEJBLocalHome";
-        } else if (locator instanceof ResourceRef) {
-            methodName = "getConnectionFactory";
-        } else {
-            throw new NamingException("Invalid type: " + locator);
-        }
-        */
-        return new LinkRef(JMXContext.encode(mbeanServerId,
-                (link == null)? /*locator.getJndiName()*/ null: "geronimo.j2ee:J2eeType=SessionBean,name="+link,
-                methodName));
+    public Object getEJBHome() {
+        return home;
     }
+
+    public Object getEJBLocalHome() {
+        return local;
+    }
+
+    public Object getConnectionFactory() {
+        return cf;
+    }
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(TestObject.class.getName());
+        infoFactory.addOperation(new GOperationInfo("getEJBHome"));
+        infoFactory.addOperation(new GOperationInfo("getEJBLocalHome"));
+        infoFactory.addOperation(new GOperationInfo("getConnectionFactory"));
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
 }

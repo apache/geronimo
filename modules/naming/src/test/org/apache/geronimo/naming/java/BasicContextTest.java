@@ -64,17 +64,14 @@ import javax.naming.Binding;
 import javax.naming.CompositeName;
 import javax.naming.CompoundName;
 import javax.naming.Context;
-import javax.naming.InitialContext;
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
-import org.apache.geronimo.common.StopWatch;
-
 /**
-* Unit tests for basic ops on an {@link InitialContext}.
+* Unit tests for basic ops on an {@link javax.naming.InitialContext}.
  *
- * @version $Revision: 1.7 $ $Date: 2004/01/12 06:19:52 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/12 20:38:19 $
  */
 public class BasicContextTest extends AbstractContextTest {
 
@@ -185,17 +182,17 @@ public class BasicContextTest extends AbstractContextTest {
     }
 
     public void testSpeed() throws NamingException {
-        StopWatch watch = new StopWatch();
         Context comp = (Context) initialContext.lookup("java:comp");
 
-        watch.start();
+        long start = System.currentTimeMillis();
         for (int i=0; i < 1000000; i++) {
             // initialContext.lookup("java:comp/hello"); // this is sloooow due to scheme resolution
             // envContext.lookup("hello");
             comp.lookup("env/hello");
         }
 
-        System.out.println("lookup(String): " + watch.toDuration());
+        long end = System.currentTimeMillis();
+        System.out.println("lookup(String) milliseconds: " + (end - start));
     }
 
 }

@@ -54,32 +54,25 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.naming.jmx;
+package org.apache.geronimo.naming.geronimo;
 
-import java.util.Hashtable;
-
-import javax.naming.spi.ObjectFactory;
-import javax.naming.Name;
-import javax.naming.Context;
-import javax.naming.OperationNotSupportedException;
-import javax.management.MBeanServer;
+import javax.naming.NamingException;
 
 /**
- * 
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:31 $
- * 
+ *
+ * @version $Revision: 1.1 $ $Date: 2004/02/12 20:38:18 $
+ *
  * */
-public class jmxURLContextFactory implements ObjectFactory {
+public class GeronimoContextManager {
 
+    private GeronimoContextManager() {}
 
-    public Object getObjectInstance(Object obj, Name name, Context nameCtx,
-                                    Hashtable environment) throws Exception {
-        if (obj == null) {
-            return new JMXContext(environment);
-        } else {
-            throw new OperationNotSupportedException();
-        }
+    public static void bind(String name, Object value) throws NamingException {
+        GeronimoRootContext.rootContext.internalBind(name, value);
     }
 
+    public static void unbind(String name) throws NamingException {
+        GeronimoRootContext.rootContext.internalUnbind(name);
+    }
 }

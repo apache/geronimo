@@ -93,7 +93,7 @@ import javax.naming.spi.NamingManager;
  *   String envEntry2 = (String) componentContext.lookup("env/myEntry2");
  * </code>
  *
- * @version $Revision: 1.9 $ $Date: 2004/01/14 08:28:33 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/12 20:38:18 $
  */
 public class ReadOnlyContext implements Context {
     protected final Hashtable env;        // environment for this context
@@ -132,7 +132,7 @@ public class ReadOnlyContext implements Context {
      * @param name
      * @param value
      * @return
-     * @throws NamingException
+     * @throws javax.naming.NamingException
      */
     protected Map internalBind(String name, Object value) throws NamingException {
         assert name != null;

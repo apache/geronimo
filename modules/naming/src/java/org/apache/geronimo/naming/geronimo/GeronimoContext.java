@@ -54,7 +54,7 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.naming.ger;
+package org.apache.geronimo.naming.geronimo;
 
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -71,16 +71,16 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/14 08:28:33 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/12 20:38:18 $
  *
  * */
-public class GerContext extends ReadOnlyContext {
+public class GeronimoContext extends ReadOnlyContext {
 
-    GerContext() {
+    GeronimoContext() {
         super();
     }
 
-    GerContext(GerContext context, Hashtable environment) {
+    GeronimoContext(GeronimoContext context, Hashtable environment) {
         super(context, environment);
     }
 
@@ -89,7 +89,7 @@ public class GerContext extends ReadOnlyContext {
     }
 
     protected ReadOnlyContext newContext() {
-        return new GerContext();
+        return new GeronimoContext();
     }
 
     protected synchronized Set internalUnbind(String name) throws NamingException {
@@ -110,10 +110,10 @@ public class GerContext extends ReadOnlyContext {
             Object o = treeBindings.get(segment);
             if (o == null) {
                 throw new NamingException("No context was bound at " + name);
-            } else if (!(o instanceof GerContext)) {
+            } else if (!(o instanceof GeronimoContext)) {
                 throw new NamingException("Something else bound where a subcontext should be " + o);
             }
-            GerContext gerContext = (GerContext)o;
+            GeronimoContext gerContext = (GeronimoContext)o;
 
             String remainder = name.substring(pos + 1);
             Set subBindings = gerContext.internalUnbind(remainder);

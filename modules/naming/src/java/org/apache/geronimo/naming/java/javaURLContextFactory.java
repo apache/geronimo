@@ -53,54 +53,36 @@
  *
  * ====================================================================
  */
+package org.apache.geronimo.naming.java;
 
-package org.apache.geronimo.naming.ger;
-
-import javax.naming.NamingException;
-
-import junit.framework.TestCase;
+import java.util.Hashtable;
+import javax.naming.Context;
+import javax.naming.Name;
+import javax.naming.OperationNotSupportedException;
+import javax.naming.spi.ObjectFactory;
 
 /**
+ * URLContextFactory for the java: JNDI namespace.
  *
- *
- * @version $Revision: 1.1 $ $Date: 2004/01/14 08:28:33 $
- *
- * */
-public class GerContextTest extends TestCase {
-    private GerContext context;
-
-    protected void setUp() throws Exception {
-        context = new GerContext();
-        context.internalBind("one", "one");
-        context.internalBind("this/is/a/compound/name", "two");
-        context.internalBind("this/is/another/compound/name", "three");
-    }
-
-    public void testLookup() throws Exception {
-        assertEquals(context.lookup("one"), "one");
-        assertEquals(context.lookup("this/is/a/compound/name"), "two");
-        assertEquals(context.lookup("this/is/another/compound/name"), "three");
-    }
-
-    public void testUnbind() throws Exception {
-        assertEquals(1, context.internalUnbind("one").size());
-        try {
-            context.lookup("one");
-            fail();
-        } catch (NamingException e) {
-        }
-        assertEquals(3, context.internalUnbind("this/is/a/compound/name").size());
-        try {
-            context.lookup("this/is/a/compound/name");
-            fail();
-        } catch (NamingException e) {
-        }
-        context.lookup("this/is");
-        assertEquals(5, context.internalUnbind("this/is/another/compound/name").size());
-        try {
-            context.lookup("this/is");
-            fail();
-        } catch (NamingException e) {
+ * @version $Revision: 1.1 $ $Date: 2004/02/12 20:38:18 $
+ */
+public class javaURLContextFactory implements ObjectFactory {
+    /**
+     * Return a Context that is able to resolve names in the java: namespace.
+     * The root context, "java:" is always returned. This is a specific
+     * implementation of a URLContextFactory and not a general ObjectFactory.
+     * @param obj must be null
+     * @param name ignored
+     * @param nameCtx ignored
+     * @param environment ignored
+     * @return the Context for "java:"
+     * @throws javax.naming.OperationNotSupportedException if obj is not null
+     */
+    public Object getObjectInstance(Object obj, Name name, Context nameCtx, Hashtable environment) throws Exception {
+        if (obj == null) {
+            return new RootContext(environment);
+        } else {
+            throw new OperationNotSupportedException();
         }
     }
 }

@@ -75,7 +75,7 @@ import org.apache.geronimo.naming.jmx.TestObject;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/24 18:31:49 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/12 20:38:19 $
  *
  * */
 public class AbstractContextTest extends TestCase {
@@ -87,7 +87,7 @@ public class AbstractContextTest extends TestCase {
     protected Context envContext;
 
     public void testNothing() { }
-    
+
     protected void setUp() throws Exception {
         initialContext = new InitialContext();
 

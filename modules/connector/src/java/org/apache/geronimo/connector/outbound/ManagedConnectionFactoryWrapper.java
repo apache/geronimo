@@ -74,12 +74,12 @@ import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.naming.ger.GerContextManager;
+import org.apache.geronimo.naming.geronimo.GeronimoContextManager;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/25 21:07:03 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/12 20:38:17 $
  *
  * */
 public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
@@ -210,7 +210,7 @@ public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
         connectionFactory = connectionManagerFactory.createConnectionFactory(managedConnectionFactory);
         //If a globalJNDIName is supplied, bind it.
         if (globalJNDIName != null) {
-            GerContextManager.bind(globalJNDIName, connectionFactory);
+            GeronimoContextManager.bind(globalJNDIName, connectionFactory);
             log.debug("Bound connection factory into global 'ger:' context at " + globalJNDIName);
         }
 
@@ -224,7 +224,7 @@ public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
         connectionFactory = null;
         if (globalJNDIName != null) {
             try {
-                GerContextManager.unbind(globalJNDIName);
+                GeronimoContextManager.unbind(globalJNDIName);
             } catch (NamingException e) {
                 throw new RuntimeException(e);
             }

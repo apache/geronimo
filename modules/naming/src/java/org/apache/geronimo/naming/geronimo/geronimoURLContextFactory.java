@@ -53,65 +53,32 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.naming.java;
+
+package org.apache.geronimo.naming.geronimo;
 
 import java.util.Hashtable;
-import javax.naming.NameNotFoundException;
-import javax.naming.NamingException;
+
+import javax.naming.Context;
+import javax.naming.Name;
+import javax.naming.OperationNotSupportedException;
+import javax.naming.spi.ObjectFactory;
 
 /**
- * The root context for the java: namespace.
- * Automatically handles switching the "java:comp" sub-context to the
- * appropriate one for the current thread.
  *
- * @version $Revision: 1.4 $ $Date: 2003/10/30 02:00:07 $
- */
-public class RootContext extends ReadOnlyContext {
-    private static InheritableThreadLocal compContext = new InheritableThreadLocal();
+ *
+ * @version $Revision: 1.1 $ $Date: 2004/02/12 20:38:18 $
+ *
+ * */
+public class geronimoURLContextFactory implements ObjectFactory {
 
-    RootContext(Hashtable env) {
-        super(env);
-    }
 
-    public Object lookup(String name) throws NamingException {
-        if (name.startsWith("java:")) {
-            name = name.substring(5);
-            if (name.length() == 0) {
-                return this;
-            }
-
-            ReadOnlyContext compCtx = (ReadOnlyContext) compContext.get();
-            if (compCtx == null) {
-                // the component context was not set for this thread
-                throw new NameNotFoundException();
-            }
-            compCtx = new ReadOnlyContext(compCtx, getEnvironment());
-
-            if ("comp".equals(name)) {
-                return compCtx;
-            } else if (name.startsWith("comp/")) {
-                return compCtx.lookup(name.substring(5));
-            } else {
-                throw new NameNotFoundException();
-            }
+    public Object getObjectInstance(Object obj, Name name, Context nameCtx,
+                                    Hashtable environment) throws Exception {
+        if (obj == null) {
+            return new GeronimoRootContext(environment);
+        } else {
+            throw new OperationNotSupportedException();
         }
-        return super.lookup(name);
     }
 
-    /**
-     * Set the component context for the current thread. This will be returned
-     * for all lookups of "java:comp"
-     * @param ctx the current components context
-     */
-    public static void setComponentContext(ReadOnlyContext ctx) {
-        compContext.set(ctx);
-    }
-
-    /**
-     * Get the component context for the current thread.
-     * @return the current components context
-     */
-    public static ReadOnlyContext getComponentContext() {
-        return (ReadOnlyContext) compContext.get();
-    }
 }

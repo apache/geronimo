@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Revision: 1.1 $ $Date: 2004/02/12 20:38:18 $ -->
+
+<project>
+    <pomVersion>3</pomVersion>
+    <extend>${basedir}/../../etc/project.xml</extend>
+
+    <!-- ===================== -->
+    <!-- Module Identification -->
+    <!-- ===================== -->
+
+    <name>Geronimo :: Naming</name>
+    <id>geronimo-naming</id>
+    <shortDescription>Geronimo Namin</shortDescription>
+    <description>Geronimo Namin</description>
+    <url>http://incubator.apache.org/projects/geronimo/naming/</url>
+    <siteDirectory>/www/incubator.apache.org/projects/geronimo/naming</siteDirectory>
+    <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/naming</distributionDirectory>
+
+    <package>org.apache.geronimo.naming</package>
+    <currentVersion>DEV</currentVersion>
+
+
+    <!-- ============ -->
+    <!-- Dependencies -->
+    <!-- ============ -->
+
+    <dependencies>
+
+        <!-- needed for xmlbeans runtime-->
+        <dependency>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xbean-apache</artifactId>
+            <version>1.0-DEV</version>
+            <properties>
+            </properties>
+        </dependency>
+
+        <!-- Module Dependencies -->
+        <!-- only for ComponentContextInterceptor -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-core</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-deployment</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2eeschema</artifactId>
+            <version>DEV</version>
+            <properties>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-jta</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <!-- Thirdparty Dependencies -->
+        <dependency>
+            <id>mx4j</id>
+            <version>SNAPSHOT</version>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <unitTest>
+           <includes>
+                <include>**/*Test.java</include>
+            </includes>
+            <resources>
+                <resource>
+                    <directory>${basedir}/src/test-data</directory>
+                    <includes>
+                        <include>*.properties</include>
+                    </includes>
+                </resource>
+            </resources>
+        </unitTest>
+    </build>
+</project>

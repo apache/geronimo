@@ -53,38 +53,33 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.naming.java;
 
-import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.InvocationResult;
+package org.apache.geronimo.naming.geronimo;
+
+import javax.naming.InitialContext;
+
+import junit.framework.TestCase;
+import org.apache.geronimo.naming.geronimo.GeronimoContextManager;
 
 /**
- * An interceptor that pushes the current component's java:comp context into
- * the java: JNDI namespace
  *
- * @version $Revision: 1.5 $ $Date: 2003/11/26 20:54:28 $
- */
-public class ComponentContextInterceptor implements Interceptor {
-    private final Interceptor next;
-    private final ReadOnlyContext compContext;
+ *
+ * @version $Revision: 1.1 $ $Date: 2004/02/12 20:38:19 $
+ *
+ * */
+public class GeronimoRootContextTest extends TestCase {
 
-    /**
-     * Constructor specifying the components JNDI Context (java:comp)
-     * @param compContext the component's JNDI Context
-     */
-    public ComponentContextInterceptor(Interceptor next, ReadOnlyContext compContext) {
-        this.next = next;
-        this.compContext = compContext;
+    protected void setUp() throws Exception {
+        GeronimoContextManager.bind("one", "one");
+        GeronimoContextManager.bind("this/is/a/compound/name", "two");
+        GeronimoContextManager.bind("this/is/another/compound/name", "three");
     }
 
-    public InvocationResult invoke(Invocation invocation) throws Throwable {
-        ReadOnlyContext oldContext = RootContext.getComponentContext();
-        try {
-            RootContext.setComponentContext(compContext);
-            return next.invoke(invocation);
-        } finally {
-            RootContext.setComponentContext(oldContext);
-        }
+    public void testLookup() throws Exception {
+        InitialContext context = new InitialContext();
+        assertEquals(context.lookup("geronimo:one"), "one");
+        assertEquals(context.lookup("geronimo:this/is/a/compound/name"), "two");
+        assertEquals(context.lookup("geronimo:this/is/another/compound/name"), "three");
+
     }
 }

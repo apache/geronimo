@@ -97,12 +97,12 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
- * @version $Revision: 1.8 $ $Date: 2004/02/05 01:37:56 $
+ * @version $Revision: 1.9 $ $Date: 2004/02/12 20:38:18 $
  */
 public class JettyWebApplicationContext extends WebApplicationContext implements GBean {
 
     private static Log log = LogFactory.getLog(JettyWebApplicationContext.class);
-    
+
     private final ConfigurationParent config;
     private final URI uri;
     private final JettyContainer container;
@@ -137,9 +137,9 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
         this.associator = associator;
     }
 
-    
+
     /** getContextPriorityClassLoader.
-     * @return True if this context should give web application class in preference over the containers 
+     * @return True if this context should give web application class in preference over the containers
       * classes, as per the servlet specification recommendations.
      */
     public boolean getContextPriorityClassLoader() {
@@ -147,18 +147,18 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
     }
 
     /** setContextPriorityClassLoader.
-     * @param b True if this context should give web application class in preference over the containers 
+     * @param b True if this context should give web application class in preference over the containers
      * classes, as per the servlet specification recommendations.
      */
     public void setContextPriorityClassLoader(boolean b) {
         contextPriorityClassLoader= b;
     }
-    
+
     /**
-     * init the classloader. Uses the value of contextPriorityClassLoader to 
+     * init the classloader. Uses the value of contextPriorityClassLoader to
      * determine if the context needs to create its own classloader.
      */
-    protected void initClassLoader(boolean forceContextLoader) 
+    protected void initClassLoader(boolean forceContextLoader)
         throws MalformedURLException, IOException
     {
         setClassLoaderJava2Compliant(!contextPriorityClassLoader);
@@ -169,11 +169,11 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
             // setClassLoader(Thread.currentThread().getContextClassLoader());
         }
         super.initClassLoader(forceContextLoader);
-        
+
         if (log.isDebugEnabled())
             log.debug("classloader for "+getContextPath()+": "+getClassLoader());
     }
-    
+
     public void handle(String pathInContext,
                        String pathParams,
                        HttpRequest httpRequest,

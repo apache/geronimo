@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.7 $ $Date: 2004/02/09 05:52:01 $ -->
+<!-- $Revision: 1.8 $ $Date: 2004/02/12 20:38:17 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -45,10 +45,9 @@
             </properties>
         </dependency>
 
-        <!-- needed for GerContext.  change to naming module when moved -->
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-core</artifactId>
+            <artifactId>geronimo-naming</artifactId>
             <version>DEV</version>
             <properties>
             </properties>

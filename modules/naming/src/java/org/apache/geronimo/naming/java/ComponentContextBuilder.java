@@ -59,7 +59,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.naming.NamingException;
-import javax.naming.Reference;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.deployment.DeploymentException;
@@ -71,17 +70,17 @@ import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 /**
  *
  *
- * @version $Revision: 1.13 $ $Date: 2004/02/12 08:18:21 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/12 20:38:18 $
  */
 public class ComponentContextBuilder {
 
-    private final ReferenceFactory referenceFactory;
+    private final ProxyFactory proxyFactory;
     private final UserTransaction userTransaction;
     private static final String ENV = "env/";
 
-    public ComponentContextBuilder(ReferenceFactory referenceFactory, UserTransaction userTransaction) {
+    public ComponentContextBuilder(ProxyFactory proxyFactory, UserTransaction userTransaction) {
         this.userTransaction = userTransaction;
-        this.referenceFactory = referenceFactory;
+        this.proxyFactory = proxyFactory;
     }
 
     /**
@@ -152,32 +151,40 @@ public class ComponentContextBuilder {
         for (int i = 0; i < ejbRefs.length; i++) {
             EjbRefType ejbRef = ejbRefs[i];
             String name = ejbRef.getEjbRefName().getStringValue();
-            Reference ref = null;
+            Object proxy = null;
             try {
-                ref = referenceFactory.getReference(ejbRef.getEjbLink().getStringValue(), ejbRef);
+                proxy = proxyFactory.getProxy(loadClass(ejbRef.getHome().getStringValue()) ,loadClass(ejbRef.getRemote().getStringValue()), getLink(ejbRef.getEjbLink().getStringValue()));
             } catch (NamingException e) {
-                throw new DeploymentException("Could not construct reference to " + ejbRef + ", " + e.getMessage());
+                throw new DeploymentException("Could not construct proxy for " + ejbRef + ", " + e.getMessage());
             }
             try {
-                readOnlyContext.internalBind(ENV + name, ref);
+                readOnlyContext.internalBind(ENV + name, proxy);
             } catch (NamingException e) {
                 throw new DeploymentException("could not bind", e);
             }
         }
     }
 
+    private Object getLink(String link) {
+        return null;
+    }
+
+    private Class loadClass(String stringValue) {
+        return null;
+    }
+
     private void buildEJBLocalRefs(ReadOnlyContext readOnlyContext, EjbLocalRefType[] ejbLocalRefs) throws DeploymentException {
         for (int i = 0; i < ejbLocalRefs.length; i++) {
             EjbLocalRefType ejbLocalRef = ejbLocalRefs[i];
             String name = ejbLocalRef.getEjbRefName().getStringValue();
-            Reference ref = null;
+            Object proxy = null;
             try {
-                ref = referenceFactory.getReference(ejbLocalRef.getEjbLink().getStringValue(), ejbLocalRef);
+                proxy = proxyFactory.getProxy(loadClass(ejbLocalRef.getLocalHome().getStringValue()), loadClass(ejbLocalRef.getLocal().getStringValue()), getLink(ejbLocalRef.toString()));
             } catch (NamingException e) {
                 throw new DeploymentException("Could not construct reference to " + ejbLocalRef + ", " + e.getMessage());
             }
             try {
-                readOnlyContext.internalBind(ENV + name, ref);
+                readOnlyContext.internalBind(ENV + name, proxy);
             } catch (NamingException e) {
                 throw new DeploymentException("Could not bind", e);
             }
@@ -198,7 +205,7 @@ public class ComponentContextBuilder {
                 }
             } else {
                 try {
-                    ref = referenceFactory.getReference(null, resRef);
+                    ref = proxyFactory.getProxy(loadClass(resRef.getResType().getStringValue()), getLink(resRef.toString()));
                 } catch (NamingException e) {
                     throw new DeploymentException("Could not construct reference to " + resRef);
                 }

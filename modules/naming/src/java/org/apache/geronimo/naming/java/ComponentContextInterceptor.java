@@ -53,34 +53,38 @@
  *
  * ====================================================================
  */
+package org.apache.geronimo.naming.java;
 
-package org.apache.geronimo.naming.ger;
-
-import java.util.Hashtable;
-
-import javax.naming.spi.ObjectFactory;
-import javax.naming.Name;
-import javax.naming.Context;
-import javax.naming.OperationNotSupportedException;
-
-import org.apache.geronimo.naming.jmx.JMXContext;
+import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationResult;
 
 /**
+ * An interceptor that pushes the current component's java:comp context into
+ * the java: JNDI namespace
  *
- *
- * @version $Revision: 1.1 $ $Date: 2004/01/14 08:28:33 $
- *
- * */
-public class gerURLContextFactory implements ObjectFactory {
+ * @version $Revision: 1.1 $ $Date: 2004/02/12 20:38:18 $
+ */
+public class ComponentContextInterceptor implements Interceptor {
+    private final Interceptor next;
+    private final ReadOnlyContext compContext;
 
-
-    public Object getObjectInstance(Object obj, Name name, Context nameCtx,
-                                    Hashtable environment) throws Exception {
-        if (obj == null) {
-            return new GerRootContext(environment);
-        } else {
-            throw new OperationNotSupportedException();
-        }
+    /**
+     * Constructor specifying the components JNDI Context (java:comp)
+     * @param compContext the component's JNDI Context
+     */
+    public ComponentContextInterceptor(Interceptor next, ReadOnlyContext compContext) {
+        this.next = next;
+        this.compContext = compContext;
     }
 
+    public InvocationResult invoke(Invocation invocation) throws Throwable {
+        ReadOnlyContext oldContext = RootContext.getComponentContext();
+        try {
+            RootContext.setComponentContext(compContext);
+            return next.invoke(invocation);
+        } finally {
+            RootContext.setComponentContext(oldContext);
+        }
+    }
 }

@@ -55,34 +55,43 @@
  */
 package org.apache.geronimo.naming.java;
 
-import java.util.Hashtable;
-import javax.naming.Context;
-import javax.naming.Name;
-import javax.naming.OperationNotSupportedException;
-import javax.naming.spi.ObjectFactory;
+import javax.naming.InitialContext;
+import javax.naming.LinkRef;
+
+import junit.framework.TestCase;
 
 /**
- * URLContextFactory for the java: JNDI namespace.
+ * Test component context can be inherited by Threads spawned by
+ * a component. This is required for Application Client and Servlets;
+ * it is not applicable to EJBs as they are not allowed to create Threads.
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/04 05:16:17 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/12 20:38:19 $
  */
-public class javaURLContextFactory implements ObjectFactory {
-    /**
-     * Return a Context that is able to resolve names in the java: namespace.
-     * The root context, "java:" is always returned. This is a specific
-     * implementation of a URLContextFactory and not a general ObjectFactory.
-     * @param obj must be null
-     * @param name ignored
-     * @param nameCtx ignored
-     * @param environment ignored
-     * @return the Context for "java:"
-     * @throws OperationNotSupportedException if obj is not null
-     */
-    public Object getObjectInstance(Object obj, Name name, Context nameCtx, Hashtable environment) throws Exception {
-        if (obj == null) {
-            return new RootContext(environment);
-        } else {
-            throw new OperationNotSupportedException();
+public class ThreadContextTest extends TestCase {
+
+    private Throwable failure = null;
+    public void testThreadInheritence() throws Throwable {
+        Thread worker = new Thread() {
+            public void run() {
+                try {
+                    assertEquals("Hello", new InitialContext().lookup("java:comp/env/hello"));
+                } catch (Throwable e) {
+                    failure = e;
+                }
+            }
+        };
+        worker.start();
+        worker.join();
+        if (failure != null) {
+            throw failure;
         }
+    }
+
+    protected void setUp() throws Exception {
+        ReadOnlyContext readOnlyContext = new ReadOnlyContext();
+        readOnlyContext.internalBind("env/hello", "Hello");
+        readOnlyContext.internalBind("env/world", "Hello World");
+        readOnlyContext.internalBind("env/link", new LinkRef("java:comp/env/hello"));
+        RootContext.setComponentContext(readOnlyContext);
     }
 }

@@ -54,51 +54,54 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.naming.jmx;
+package org.apache.geronimo.naming.geronimo;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GOperationInfo;
+import javax.naming.NamingException;
+
+import junit.framework.TestCase;
+import org.apache.geronimo.naming.geronimo.GeronimoContext;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/21 19:56:40 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/12 20:38:19 $
  *
  * */
-public class TestObject {
+public class GeronimoContextTest extends TestCase {
+    private GeronimoContext context;
 
-    private static final GBeanInfo GBEAN_INFO;
-
-    private Object home = new Object();
-    private Object local = new Object();
-    private Object cf = new Object();
-
-    public TestObject() {
+    protected void setUp() throws Exception {
+        context = new GeronimoContext();
+        context.internalBind("one", "one");
+        context.internalBind("this/is/a/compound/name", "two");
+        context.internalBind("this/is/another/compound/name", "three");
     }
 
-    public Object getEJBHome() {
-        return home;
+    public void testLookup() throws Exception {
+        assertEquals(context.lookup("one"), "one");
+        assertEquals(context.lookup("this/is/a/compound/name"), "two");
+        assertEquals(context.lookup("this/is/another/compound/name"), "three");
     }
 
-    public Object getEJBLocalHome() {
-        return local;
+    public void testUnbind() throws Exception {
+        assertEquals(1, context.internalUnbind("one").size());
+        try {
+            context.lookup("one");
+            fail();
+        } catch (NamingException e) {
+        }
+        assertEquals(3, context.internalUnbind("this/is/a/compound/name").size());
+        try {
+            context.lookup("this/is/a/compound/name");
+            fail();
+        } catch (NamingException e) {
+        }
+        context.lookup("this/is");
+        assertEquals(5, context.internalUnbind("this/is/another/compound/name").size());
+        try {
+            context.lookup("this/is");
+            fail();
+        } catch (NamingException e) {
+        }
     }
-
-    public Object getConnectionFactory() {
-        return cf;
-    }
-
-    static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(TestObject.class.getName());
-        infoFactory.addOperation(new GOperationInfo("getEJBHome"));
-        infoFactory.addOperation(new GOperationInfo("getEJBLocalHome"));
-        infoFactory.addOperation(new GOperationInfo("getConnectionFactory"));
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
 }
