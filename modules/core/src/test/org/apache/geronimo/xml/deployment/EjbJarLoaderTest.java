@@ -73,16 +73,15 @@ import org.w3c.dom.Document;
 /**
  * Tests basic EJB JAR DD loading (not very comprehensive)
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/29 16:00:49 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/07 03:49:43 $
  */
 public class EjbJarLoaderTest extends TestCase {
     private File docDir;
-    private EjbJarLoader loader;
 
     public void testSimpleLoad() throws Exception {
         File f = new File(docDir, "simple-ejb-jar.xml");
         Document xmlDoc = LoaderUtil.parseXML(new FileReader(f));
-        EjbJarDocument doc = loader.load(xmlDoc);
+        EjbJarDocument doc = EjbJarLoader.load(xmlDoc);
         EjbJar jar = doc.getEjbJar();
         checkEjbJar(jar, "example");
     }
@@ -160,6 +159,5 @@ public class EjbJarLoaderTest extends TestCase {
 
     protected void setUp() throws Exception {
         docDir = new File("src/test-data/xml/deployment");
-        loader = new EjbJarLoader();
     }
 }
