@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.net.URI;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
@@ -32,6 +33,7 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.deployment.util.FileUtil;
+import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.kernel.KernelMBean;
 
 /**
@@ -92,17 +94,26 @@ public class DistributeCommand extends CommandSupport {
 
             Object[] args = {moduleArchive, deploymentPlan};
             List objectNames = (List) kernel.invoke(deployer, "deploy", args, DEPLOY_SIG);
+            System.err.println("deploy returned id " + objectNames.get(0));
             if (objectNames != null && !objectNames.isEmpty()) {
-                String parentName = (String) objectNames.get(0);
-
-                List childNames = objectNames.subList(1, objectNames.size());
-                String[] childIDs = (String[]) childNames.toArray(new String[childNames.size()]);
+                String parentName = ((URI) objectNames.get(0)).toString();
+                String[] childIDs = new String[objectNames.size()-1];
+                for (int j=0; j < childIDs.length; j++) {
+                    childIDs[j] = ((URI)objectNames.get(j+1)).toString();
+                }
 
                 TargetModuleID moduleID = new TargetModuleIDImpl(targetList[0], parentName.toString(), childIDs);
+                System.err.println("Distributed moduleId " + moduleID);
                 addModule(moduleID);
+            } else {
+                DeploymentException deploymentException = new DeploymentException("Got empty list");
+                deploymentException.printStackTrace();
+                throw deploymentException;
             }
             complete("Completed");
         } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println(e.getMessage());
             doFail(e);
         } finally {
             if (spool) {

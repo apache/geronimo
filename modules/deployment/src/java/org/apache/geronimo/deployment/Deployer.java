@@ -150,7 +150,7 @@ public class Deployer {
                     List deployedURIs = new ArrayList(childURIs.size() + 1);
                     deployedURIs.add(uri);
                     deployedURIs.addAll(childURIs);
-                    return childURIs;
+                    return deployedURIs;
                 }
                 return Collections.EMPTY_LIST;
             } catch (InvalidConfigException e) {
