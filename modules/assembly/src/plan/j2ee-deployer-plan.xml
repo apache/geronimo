@@ -31,29 +31,29 @@ Configuration for the Geronimo deployer
         <uri>openejb/jars/openejb-core-2.0M1.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-connector-DEV.jar</uri>
+        <uri>geronimo/jars/geronimo-connector-1.0M1.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-core-DEV.jar</uri>
+        <uri>geronimo/jars/geronimo-core-1.0M1.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-security-DEV.jar</uri>
+        <uri>geronimo/jars/geronimo-security-1.0M1.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-jetty-DEV.jar</uri>
+        <uri>geronimo/jars/geronimo-jetty-1.0M1.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-naming-DEV.jar</uri>
+        <uri>geronimo/jars/geronimo-naming-1.0M1.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-transaction-DEV.jar</uri>
+        <uri>geronimo/jars/geronimo-transaction-1.0M1.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo-spec/jars/geronimo-spec-j2eeschema-DEV.jar</uri>
+        <uri>geronimo-spec/jars/geronimo-spec-j2eeschema-1.0M1.jar</uri>
     </dependency>
     <!-- seems to be required to load jetty deployer - but I think this should not be here-->
     <dependency>
-        <uri>geronimo-spec/jars/geronimo-spec-j2ee-DEV.jar</uri>
+        <uri>geronimo-spec/jars/geronimo-spec-j2ee-1.0M1.jar</uri>
     </dependency>
     <!-- required for rar 1.5 to load realms -->
     <dependency>

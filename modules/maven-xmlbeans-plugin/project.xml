@@ -21,7 +21,7 @@
     <groupId>geronimo</groupId>
     <id>geronimo-xmlbeans-plugin</id>
     <name>Geronimo maven xmlbeans plugin</name>
-    <currentVersion>DEV</currentVersion>
+    <currentVersion>1.0M1</currentVersion>
     <organization>
         <name>Apache Software Foundation</name>
         <url>http://www.apache.org/</url>

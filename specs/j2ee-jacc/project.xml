@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Id: project.xml,v 1.6 2004/03/10 09:59:53 gdamour Exp $ -->
+<!-- $Id: project.xml,v 1.7 2004/04/26 20:18:58 dain Exp $ -->
 
 <project>
     <pomVersion>3</pomVersion>
