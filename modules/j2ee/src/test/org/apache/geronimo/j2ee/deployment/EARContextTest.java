@@ -23,10 +23,12 @@ import java.util.jar.JarOutputStream;
 
 import javax.management.ObjectName;
 
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+
 import junit.framework.TestCase;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/07/18 22:04:27 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/22 03:22:53 $
  */
 public class EARContextTest extends TestCase {
     private final URI coffee = URI.create("some/path/coffee.jar");
@@ -131,6 +133,7 @@ public class EARContextTest extends TestCase {
         carFile = File.createTempFile("EARTest", ".car");
         earContext = new EARContext(new JarOutputStream(new FileOutputStream(carFile)),
                 URI.create("configId"),
+                ConfigurationModuleType.EAR,
                 URI.create("parentId"),
                 null,
                 "j2eeDomain",

@@ -44,13 +44,14 @@ import org.apache.geronimo.deployment.xbeans.ServiceDocument;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.15 $ $Date: 2004/06/05 01:40:09 $
+ * @version $Revision: 1.16 $ $Date: 2004/07/22 03:22:53 $
  */
 public class ServiceConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
@@ -121,7 +122,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
 
         DeploymentContext context = null;
         try {
-            context = new DeploymentContext(os, configID, parentID, kernel);
+            context = new DeploymentContext(os, configID, ConfigurationModuleType.SERVICE, parentID, kernel);
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException(e);
         }

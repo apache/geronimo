@@ -46,6 +46,7 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.system.configuration.LocalConfigStore;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -56,7 +57,7 @@ import org.apache.xmlbeans.XmlOptions;
 import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
- * @version $Revision: 1.10 $ $Date: 2004/07/18 22:08:58 $
+ * @version $Revision: 1.11 $ $Date: 2004/07/22 03:22:53 $
  */
 public class RAR_1_0ConfigBuilderTest extends TestCase {
     private URL j2eeDD;
@@ -109,6 +110,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
         try {
             EARContext earContext = new EARContext(new JarOutputStream(new FileOutputStream(carFile)),
                     configId,
+                    ConfigurationModuleType.RAR,
                     parentId,
                     null,
                     j2eeDomainName,

@@ -47,13 +47,18 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Repository;
 
 /**
- * @version $Revision: 1.13 $ $Date: 2004/07/12 06:07:52 $
+ * @version $Revision: 1.14 $ $Date: 2004/07/22 03:22:53 $
  */
 public class DeploymentContext {
     private final URI configID;
+    /**
+     * Identifies the type of configuration (WAR, RAR, EAR et cetera)
+     */
+    private final ConfigurationModuleType type;
     private final Kernel kernel;
     private final GBeanMBean config;
     private final Map gbeans = new HashMap();
@@ -66,8 +71,9 @@ public class DeploymentContext {
     private final ClassLoader parentCL;
     private final Collection tmpfiles = new ArrayList();
 
-    public DeploymentContext(JarOutputStream jos, URI id, URI parentID, Kernel kernel) throws MalformedObjectNameException, DeploymentException {
+    public DeploymentContext(JarOutputStream jos, URI id, ConfigurationModuleType type, URI parentID, Kernel kernel) throws MalformedObjectNameException, DeploymentException {
         this.configID = id;
+        this.type = type;
         outputStreams.addLast(jos);
         this.kernel = kernel;
 
@@ -75,6 +81,7 @@ public class DeploymentContext {
 
         try {
             config.setAttribute("ID", id);
+            config.setAttribute("type", type);
             config.setAttribute("parentID", parentID);
         } catch (Exception e) {
             // we created this GBean ...
@@ -119,6 +126,10 @@ public class DeploymentContext {
         return configID;
     }
 
+    public ConfigurationModuleType getType() {
+        return type;
+    }
+    
     private JarOutputStream getJos() {
         if (outputStreams.isEmpty()) {
             throw new IllegalStateException();

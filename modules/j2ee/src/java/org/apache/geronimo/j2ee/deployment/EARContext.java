@@ -29,9 +29,10 @@ import javax.management.ObjectName;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/07/18 22:04:27 $
+ * @version $Revision: 1.7 $ $Date: 2004/07/22 03:22:53 $
  */
 public class EARContext extends DeploymentContext {
     private final Map ejbRefs = new HashMap();
@@ -51,8 +52,8 @@ public class EARContext extends DeploymentContext {
     private final ObjectName transactedTimerName;
     private final ObjectName nonTransactedTimerName;
 
-    public EARContext(JarOutputStream jos, URI id, URI parentID, Kernel kernel, String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactedTimerName, ObjectName nonTransactedTimerName) throws MalformedObjectNameException, DeploymentException {
-        super(jos, id, parentID, kernel);
+    public EARContext(JarOutputStream jos, URI id, ConfigurationModuleType moduleType, URI parentID, Kernel kernel, String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactedTimerName, ObjectName nonTransactedTimerName) throws MalformedObjectNameException, DeploymentException {
+        super(jos, id, moduleType, parentID, kernel);
         this.j2eeDomainName = j2eeDomainName;
         this.j2eeServerName = j2eeServerName;
 

@@ -52,6 +52,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.management.impl.J2EEApplicationImpl;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationDocument;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationType;
@@ -66,7 +67,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.13 $ $Date: 2004/07/18 22:04:27 $
+ * @version $Revision: 1.14 $ $Date: 2004/07/22 03:22:53 $
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
     static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[] {
@@ -241,6 +242,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         try {
             // get the ids from either the application plan or for a stand alone module from the specific deployer
             URI configId = getConfigId(plan);
+            ConfigurationModuleType type = getType(plan);
             URI parentId = getParentId(plan);
 
             // get the modules either the application plan or for a stand alone module from the specific deployer
@@ -261,6 +263,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             try {
                 earContext = new EARContext(os,
                         configId,
+                        type,
                         parentId,
                         kernel,
                         j2eeDomainName,
@@ -489,6 +492,32 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         if (connectorConfigBuilder != null) {
             if (connectorConfigBuilder.canHandlePlan(plan)) {
                 return connectorConfigBuilder.getConfigId(plan);
+            }
+        }
+
+        throw new DeploymentException("Could not determine config id");
+    }
+
+    private ConfigurationModuleType getType(XmlObject plan) throws DeploymentException {
+        if (plan instanceof GerApplicationDocument) {
+            return ConfigurationModuleType.EAR;
+        }
+
+        if (webConfigBuilder != null) {
+            if (webConfigBuilder.canHandlePlan(plan)) {
+                return ConfigurationModuleType.WAR;
+            }
+        }
+
+        if (ejbConfigBuilder != null) {
+            if (ejbConfigBuilder.canHandlePlan(plan)) {
+                return ConfigurationModuleType.EJB;
+            }
+        }
+
+        if (connectorConfigBuilder != null) {
+            if (connectorConfigBuilder.canHandlePlan(plan)) {
+                return ConfigurationModuleType.RAR;
             }
         }
 

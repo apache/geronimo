@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+
 import javax.management.InstanceNotFoundException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -41,7 +42,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 
 /**
- * @version $Revision: 1.10 $ $Date: 2004/07/12 06:07:52 $
+ * @version $Revision: 1.11 $ $Date: 2004/07/22 03:22:53 $
  */
 public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLifecycle {
     private static final Log log = LogFactory.getLog(ConfigurationManagerImpl.class);
@@ -86,9 +87,18 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
                             state = null;
                         }
                     } else {
-                        state = null;
+                        // If the configuration is not loaded by the kernel
+                        // and defined by the store, then it is stopped.
+                        state = State.STOPPED;
                     }
-                    result.add(new ConfigurationInfo(storeName, configID, state));
+                    ConfigurationModuleType type = null;
+                    try {
+                        GBeanMBean bean = store.getConfiguration(configID);
+                        type = (ConfigurationModuleType) bean.getAttribute("type");
+                    } catch (Exception e) {
+                        log.error(store + " defines configID " + configID + " which can not be loaded.");
+                    }
+                    result.add(new ConfigurationInfo(storeName, configID, state, type));
                 }
                 return result;
             }

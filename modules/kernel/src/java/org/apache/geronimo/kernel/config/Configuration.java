@@ -80,7 +80,7 @@ import org.apache.geronimo.kernel.repository.Repository;
  * a startRecursive() for all the GBeans it contains. Similarly, if the
  * Configuration is stopped then all of its GBeans will be stopped as well.
  *
- * @version $Revision: 1.27 $ $Date: 2004/07/12 06:07:52 $
+ * @version $Revision: 1.28 $ $Date: 2004/07/22 03:22:53 $
  */
 public class Configuration implements GBeanLifecycle {
     private static final Log log = LogFactory.getLog(Configuration.class);
@@ -88,6 +88,10 @@ public class Configuration implements GBeanLifecycle {
     private final Kernel kernel;
     private final ObjectName objectName;
     private final URI id;
+    /**
+     * Identifies the type of configuration (WAR, RAR et cetera)
+     */
+    private final ConfigurationModuleType moduleType;
     private final URI parentID;
     private final ConfigurationParent parent;
     private final List classPath;
@@ -106,16 +110,18 @@ public class Configuration implements GBeanLifecycle {
      * only used publically during the deployment process for initial configuration.
      *
      * @param id the unique ID of this Configuration
+     * @param moduleType the module type identifier
      * @param parent the parent Configuration; may be null
      * @param classPath a List<URI> of locations that define the codebase for this Configuration
      * @param gbeanState a byte array contain the Java Serialized form of the GBeans in this Configuration
      * @param repositories a Collection<Repository> of repositories used to resolve dependencies
      * @param dependencies a List<URI> of dependencies
      */
-    public Configuration(Kernel kernel, String objectName, URI id, URI parentID, ConfigurationParent parent, List classPath, byte[] gbeanState, Collection repositories, List dependencies) {
+    public Configuration(Kernel kernel, String objectName, URI id, ConfigurationModuleType moduleType, URI parentID, ConfigurationParent parent, List classPath, byte[] gbeanState, Collection repositories, List dependencies) {
         this.kernel = kernel;
         this.objectName = JMXUtil.getObjectName(objectName);
         this.id = id;
+        this.moduleType = moduleType;
         this.parentID = parentID;
         this.parent = parent;
         this.gbeanState = gbeanState;
@@ -241,6 +247,15 @@ public class Configuration implements GBeanLifecycle {
         return id;
     }
 
+    /**
+     * Gets the type of the configuration (WAR, RAR et cetera)
+     * 
+     * @return Type of the configuration.
+     */
+    public ConfigurationModuleType getModuleType() {
+        return moduleType;
+    }
+    
     /**
      * Return the URL that is used to resolve relative classpath locations
      *
@@ -381,6 +396,7 @@ public class Configuration implements GBeanLifecycle {
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("ID", URI.class, true);
+        infoFactory.addAttribute("type", ConfigurationModuleType.class, true);
         infoFactory.addAttribute("parentID", URI.class, true);
         infoFactory.addAttribute("classPath", List.class, true);
         infoFactory.addAttribute("dependencies", List.class, true);
@@ -395,6 +411,7 @@ public class Configuration implements GBeanLifecycle {
             "kernel",
             "objectName",
             "ID",
+            "type",
             "parentID",
             "Parent",
             "classPath",
