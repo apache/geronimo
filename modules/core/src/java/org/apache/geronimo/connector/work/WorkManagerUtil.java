@@ -56,16 +56,14 @@
 
 package org.apache.geronimo.connector.work;
 
-import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 
 /**
  * WorkManager helper.
  *  
- * @version $Revision: 1.1 $ $Date: 2003/11/16 22:42:20 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/16 23:12:07 $
  */
 public class WorkManagerUtil
 {

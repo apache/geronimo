@@ -75,10 +75,10 @@ import org.apache.geronimo.connector.work.pool.StartWorkExecutorPool;
 import org.apache.geronimo.connector.work.pool.SyncWorkExecutorPool;
 
 /**
- * Timing is crucial for this test case, which focuses on the synchronous
+ * Timing is crucial for this test case, which focuses on the synchronization
  * specificities of the doWork, startWork and scheduleWork.
  *  
- * @version $Revision: 1.1 $ $Date: 2003/11/16 22:42:20 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/16 23:12:07 $
  */
 public class PooledWorkManagerTest extends TestCase
 {
@@ -87,8 +87,8 @@ public class PooledWorkManagerTest extends TestCase
     private GeronimoWorkManager m_workManager;
     private static final int m_nbMin = 1;
     private static final int m_nbMax = 1;
-    private static final int m_timeout = 3000;
-    private static final int m_tempo = 2000;
+    private static final int m_timeout = 300;
+    private static final int m_tempo = 200;
 
     public PooledWorkManagerTest() throws Exception {
         super("WorkManager");
@@ -201,7 +201,7 @@ public class PooledWorkManagerTest extends TestCase
         return rarThreads;
     }
     
-    private static abstract class AbstractDummyWork extends Thread {
+    public static abstract class AbstractDummyWork extends Thread {
         public DummyWorkListener m_listener;
         protected WorkManager m_workManager;
         protected String m_name;
@@ -223,7 +223,7 @@ public class PooledWorkManagerTest extends TestCase
             WorkListener workListener) throws Exception;
     }
 
-    private static class DummyDoWork extends AbstractDummyWork {
+    public static class DummyDoWork extends AbstractDummyWork {
         public DummyDoWork(WorkManager aWorkManager, String aName) {
             super(aWorkManager, aName);
         }
@@ -235,7 +235,7 @@ public class PooledWorkManagerTest extends TestCase
         }
     }
     
-    private static class DummyStartWork extends AbstractDummyWork {
+    public static class DummyStartWork extends AbstractDummyWork {
         public DummyStartWork(WorkManager aWorkManager, String aName) {
             super(aWorkManager, aName);
         }
@@ -247,7 +247,7 @@ public class PooledWorkManagerTest extends TestCase
         }
     }
     
-    private static class DummyScheduleWork extends AbstractDummyWork {
+    public static class DummyScheduleWork extends AbstractDummyWork {
         public DummyScheduleWork(WorkManager aWorkManager, String aName) {
             super(aWorkManager, aName);
         }
@@ -259,7 +259,7 @@ public class PooledWorkManagerTest extends TestCase
         }
     }
     
-    private static class DummyWork implements Work {
+    public static class DummyWork implements Work {
         private String m_name;
         public DummyWork(String aName) {m_name = aName;}
         public void release() {}
@@ -273,7 +273,7 @@ public class PooledWorkManagerTest extends TestCase
         public String toString() {return m_name;}
     }
     
-    private static class DummyWorkListener implements WorkListener {
+    public static class DummyWorkListener implements WorkListener {
         public WorkEvent m_event;
         public void workAccepted(WorkEvent e) {m_event = e;}
         public void workRejected(WorkEvent e) {m_event = e;}

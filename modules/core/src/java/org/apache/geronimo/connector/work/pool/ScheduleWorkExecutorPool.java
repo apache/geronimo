@@ -68,13 +68,13 @@ import org.apache.geronimo.connector.work.WorkerContext;
 import EDU.oswego.cs.dl.util.concurrent.LinkedQueue;
 
 /**
- * WorkExecutorPool which treats the submitted Work instances asynchronously. 
+ * WorkExecutorPool handling the submitted Work instances asynchronously. 
  * More accurately, its execute method returns immediately after the work 
  * submission.
  *  
  * @jmx:mbean extends="AbstractWorkExecutorPoolMBean"
  * 
- * @version $Revision: 1.1 $ $Date: 2003/11/16 22:42:20 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/16 23:12:07 $
  */
 public class ScheduleWorkExecutorPool
     extends AbstractWorkExecutorPool
@@ -89,12 +89,15 @@ public class ScheduleWorkExecutorPool
     public ScheduleWorkExecutorPool(int aMinSize, int aMaxSize) {
         super(new LinkedQueue(), aMinSize, aMaxSize);
     }
-
+    
     public void setGeronimoWorkManager( GeronimoWorkManager wm ) {
         wm.setAsyncExecutor(this);
     }
     
     /**
+     * Performs the actual execution of the specified work.
+     * 
+     * @param aWork Work to be executed.
      */
     public void doExecute(WorkerContext aWork)
         throws WorkException, InterruptedException {

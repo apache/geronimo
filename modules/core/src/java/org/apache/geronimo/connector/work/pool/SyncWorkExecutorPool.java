@@ -68,10 +68,10 @@ import org.apache.geronimo.connector.work.WorkerContext;
 import EDU.oswego.cs.dl.util.concurrent.Latch;
 
 /**
- * WorkExecutorPool which treats the submitted Work instances synchronously. 
- * More accurately, its execute method blocks until the work is completed.
- *  
- * @version $Revision: 1.1 $ $Date: 2003/11/16 22:42:20 $
+ * WorkExecutorPool handling the submitted Work instances synchronously. 
+ * More accurately, its execute method blocks until the work completion.
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/11/16 23:12:07 $
  */
 public class SyncWorkExecutorPool
     extends AbstractWorkExecutorPool
@@ -86,24 +86,20 @@ public class SyncWorkExecutorPool
     public SyncWorkExecutorPool(int aMinSize, int aMaxSize) {
         super(aMinSize, aMaxSize);
     }
-        
+
     public void setGeronimoWorkManager( GeronimoWorkManager wm ) {
         wm.setSyncExecutor(this);
     }
 
     /**
-     * In the case of a synchronous execution, the Work has been executed and
-     * one needs to retrieve the WorkException thrown during this execution, if
-     * any.
-     * 
-     * @exception WorkException Not thrown.
-     * @exception InterruptedException Indicates that this work execution
-     * has been interrupted.
+     * Performs the actual work execution. This execution is synchronous.
+     *
+     * @param aWork Work to be executed. 
      */
     public void doExecute(WorkerContext aWork)
         throws WorkException, InterruptedException {
         Latch latch = aWork.provideEndLatch();
-        super.execute(aWork);
+        execute(aWork);
         latch.acquire();
     }
     

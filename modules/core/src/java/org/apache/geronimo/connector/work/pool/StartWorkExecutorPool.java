@@ -69,13 +69,13 @@ import EDU.oswego.cs.dl.util.concurrent.Latch;
 import EDU.oswego.cs.dl.util.concurrent.LinkedQueue;
 
 /**
- * WorkExecutorPool which treats the submitted Work instances synchronously 
- * until the work starts. More accurately, its execute method returns when the
+ * WorkExecutorPool handling the submitted Work instances synchronously 
+ * until the work start. More accurately, its execute method returns when the
  * work is started.
  * 
  * @jmx:mbean extends="AbstractWorkExecutorPoolMBean"
  *  
- * @version $Revision: 1.1 $ $Date: 2003/11/16 22:42:20 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/16 23:12:07 $
  */
 public class StartWorkExecutorPool
     extends AbstractWorkExecutorPool
@@ -96,21 +96,18 @@ public class StartWorkExecutorPool
     }
 
     /**
-     * In the case of a synchronous execution, the Work has been executed and
-     * one needs to retrieve the WorkException thrown during this execution, if
-     * any.
-     * 
-     * @exception WorkException Not thrown.
-     * @exception InterruptedException Indicates that this work execution
-     * has been interrupted.
+     * Performs the actual work execution. This execution is synchronous until
+     * the start of the submitted work.
+     *
+     * @param aWork Work to be executed. 
      */
     public void doExecute(WorkerContext aWork)
         throws WorkException, InterruptedException {
         Latch latch = aWork.provideStartLatch();
-        super.execute(aWork);
+        execute(aWork);
         latch.acquire();
     }
-
+    
     public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
         try {
             GeronimoMBeanInfo rc =AbstractWorkExecutorPool.getGeronimoMBeanInfo();

@@ -66,77 +66,84 @@ import org.apache.geronimo.connector.work.WorkerContext;
 import EDU.oswego.cs.dl.util.concurrent.Channel;
 
 /**
- * Based class for WorkExecutorPool. A sub-class defines the synchronization
+ * Based class for WorkExecutorPool. Sub-classes define the synchronization
  * policy (should the call block until the end of the work; or when it starts
  * et cetera).
  *
  * @jmx:mbean
  *      extends="org.apache.geronimo.kernel.management.StateManageable,org.apache.geronimo.kernel.management.ManagedObject"
  *   
- * @version $Revision: 1.1 $ $Date: 2003/11/16 22:42:20 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/16 23:12:07 $
  */
 public abstract class AbstractWorkExecutorPool implements WorkExecutorPool {
 
     /**
      * A timed out pooled executor.
      */
-    private TimedOutPooledExecutor m_pooledExecutor;
+    private TimedOutPooledExecutor pooledExecutor;
 
     /**
-     * Creates a pool with the specified minimum and maximum sizes.
+     * Creates a pool with the specified minimum and maximum sizes. The Channel
+     * used to enqueue the submitted Work instances is queueless synchronous
+     * one.  
      * 
      * @param aMinSize Minimum size of the work executor pool.
      * @param aMaxSize Maximum size of the work executor pool.
-     * @param aRetryDuration Duration (in milliseconds) to wait prior to retry 
-     * the execution of a Work.
      */
     public AbstractWorkExecutorPool(int aMinSize, int aMaxSize) {
-        m_pooledExecutor = new TimedOutPooledExecutor();
-        m_pooledExecutor.setMinimumPoolSize(aMinSize);
-        m_pooledExecutor.setMaximumPoolSize(aMaxSize);
-        m_pooledExecutor.waitWhenBlocked();
+        pooledExecutor = new TimedOutPooledExecutor();
+        pooledExecutor.setMinimumPoolSize(aMinSize);
+        pooledExecutor.setMaximumPoolSize(aMaxSize);
+        pooledExecutor.waitWhenBlocked();
     }
 
     /**
-     * Creates a pool with the specified minimum and maximum sizes.
+     * Creates a pool with the specified minimum and maximum sizes and using the
+     * specified Channel to enqueue the submitted Work instances.
      * 
-     * @param Queue to be used on top of the pool.
+     * @param aChannel Queue to be used as the queueing facility of this pool.
      * @param aMinSize Minimum size of the work executor pool.
      * @param aMaxSize Maximum size of the work executor pool.
-     * @param aRetryDuration Duration (in milliseconds) to wait prior to retry 
-     * the execution of a Work.
      */
-    public AbstractWorkExecutorPool(Channel aChannel, int aMinSize, int aMaxSize) {
-        m_pooledExecutor = new TimedOutPooledExecutor(aChannel);
-        m_pooledExecutor.setMinimumPoolSize(aMinSize);
-        m_pooledExecutor.setMaximumPoolSize(aMaxSize);
-        m_pooledExecutor.waitWhenBlocked();
+    public AbstractWorkExecutorPool(
+        Channel aChannel,
+        int aMinSize, int aMaxSize) {
+        pooledExecutor = new TimedOutPooledExecutor(aChannel);
+        pooledExecutor.setMinimumPoolSize(aMinSize);
+        pooledExecutor.setMaximumPoolSize(aMaxSize);
+        pooledExecutor.waitWhenBlocked();
     }
 
     /**
      * Delegates the work execution to the pooled executor.
      * 
-     * @see EDU.oswego.cs.dl.util.concurrent.PooledExecutor#execute(java.lang.Runnable)
+     * @param aWork Work to be executed.
      */
     protected void execute(WorkerContext aWork) throws InterruptedException {
-        m_pooledExecutor.execute(aWork);
+        pooledExecutor.execute(aWork);
     }
 
     /**
-     * @see org.apache.geronimo.workmanagement.WorkExecutorPool#execute(org.apache.geronimo.workmanagement.WorkWrapper)
+     * Execute the specified Work.
+     * 
+     * @param aWork Work to be executed.
+     * 
+     * @exception WorkException Indicates that the Work execution has been
+     * unsuccessful.
      */
     public void executeWork(WorkerContext aWork) throws WorkException {
         aWork.workAccepted(this);
         try {
             doExecute(aWork);
-            WorkException exception = aWork.getWorkException();
-            if (null != exception) {
+            WorkException exception = aWork.getWorkException();  
+            if ( null != exception ) {
                 throw exception;
             }
         } catch (InterruptedException e) {
-            WorkCompletedException wcj = new WorkCompletedException("The execution has been interrupted.", e);
+            WorkCompletedException wcj = new WorkCompletedException(
+                "The execution has been interrupted.", e);
             wcj.setErrorCode(WorkException.INTERNAL);
-            throw wcj;
+            throw wcj;    
         }
     }
 
@@ -150,57 +157,62 @@ public abstract class AbstractWorkExecutorPool implements WorkExecutorPool {
     }
 
     /**
-     * @see org.apache.geronimo.work.WorkExecutorPool#getPoolSize()
+     * Gets the size of this pool.
      */
     public int getPoolSize() {
-        return m_pooledExecutor.getPoolSize();
+        return pooledExecutor.getPoolSize();
     }
 
     /**
-     * @see org.apache.geronimo.work.WorkExecutorPool#getMinimumPoolSize()
+     * Gets the minimu size of this pool.
      */
     public int getMinimumPoolSize() {
-        return m_pooledExecutor.getMinimumPoolSize();
+        return pooledExecutor.getMinimumPoolSize();
     }
 
     /**
-     * @see org.apache.geronimo.work.WorkExecutorPool#setMinimumPoolSize(int)
+     * Sets the minimum size of this pool.
+     * @param aSize New minimum size of the pool.
      */
     public void setMinimumPoolSize(int aSize) {
-        m_pooledExecutor.setMinimumPoolSize(aSize);
+        pooledExecutor.setMinimumPoolSize(aSize);
     }
 
     /**
-     * @see org.apache.geronimo.work.WorkExecutorPool#getMaximumPoolSize()
+     * Gets the maximum size of this pool.
      */
     public int getMaximumPoolSize() {
-        return m_pooledExecutor.getMaximumPoolSize();
+        return pooledExecutor.getMaximumPoolSize();
     }
 
     /**
-     * @see org.apache.geronimo.work.WorkExecutorPool#setMaximumPoolSize(int)
+     * Sets the maximum size of this pool.
+     * @param aSize New maximum size of this pool.
      */
     public void setMaximumPoolSize(int aSize) {
-        m_pooledExecutor.setMaximumPoolSize(aSize);
+        pooledExecutor.setMaximumPoolSize(aSize);
     }
 
     /**
-     * This method must be implemented by sub-classes in order to provide a
-     * synchronization policy.
+     * This method must be implemented by sub-classes in order to provide the
+     * relevant synchronization policy. It is called by the executeWork template
+     * method.
      * 
      * @param aWork Work to be executed.
      * 
-     * @throws WorkException Indicates the work has failed.
+     * @throws WorkException Indicates that the work has failed.
      * @throws InterruptedException Indicates that the thread in charge of the 
-     * execution of the specified work dies. 
+     * execution of the specified work has been interrupted. 
      */
-    protected abstract void doExecute(WorkerContext aWork) throws WorkException, InterruptedException;
+    protected abstract void doExecute(WorkerContext aWork)
+        throws WorkException, InterruptedException;
 
-    /* (non-Javadoc)
-     * @see org.apache.geronimo.connector.WorkExecutorPool#stop()
+    /**
+     * Stops this pool. Prior to stop this pool, all the enqueued Work instances
+     * are processed. This is an orderly shutdown.
      */
     public void doStop() {
-        m_pooledExecutor.shutdownAfterProcessingCurrentlyQueuedTasks();
+        pooledExecutor.shutdownAfterProcessingCurrentlyQueuedTasks();
     }
-
+    
 }

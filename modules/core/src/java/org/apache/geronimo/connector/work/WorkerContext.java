@@ -73,87 +73,87 @@ import EDU.oswego.cs.dl.util.concurrent.Latch;
 /**
  * Work wrapper providing an execution context to a Work instance.
  * 
- * @version $Revision: 1.1 $ $Date: 2003/11/16 22:42:20 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/16 23:12:07 $
  */
 public class WorkerContext implements Work
 {
 
-    private Log m_log = LogFactory.getLog(WorkerContext.class);
+    private Log log = LogFactory.getLog(WorkerContext.class);
 
     /**
-     * Null WorkListener used as the default WorkListener. 
+     * Null WorkListener used as the default WorkListener.
      */    
     private static final WorkListener NULL_WORK_LISTENER = new WorkAdapter();
 
     /**
-     * Priority of the thread which will execute this work.
+     * Priority of the thread, which will execute this work.
      */
-    private int m_threadPriority;
+    private int threadPriority;
 
     /**
      * Actual work to be executed.
      */        
-    private Work m_adaptee;
+    private Work adaptee;
 
     /**
      * Indicates if this work has been accepted.
      */
-    private boolean m_isAccepted;
+    private boolean isAccepted;
 
     /**
-     * System.currentTimeMillis() when the Work has been accepted.
+     * System.currentTimeMillis() when the wrapped Work has been accepted.
      */
-    private long m_acceptedTime;
+    private long acceptedTime;
 
     /**
      * Number of times that the execution of this work has been tried.
      */
-    private int m_nbRetry;
+    private int nbRetry;
 
     /**
-     * time duration (in milliseconds) within which the execution of the Work 
+     * Time duration (in milliseconds) within which the execution of the Work 
      * instance must start.
      */
-    private long m_startTimeOut;
+    private long startTimeOut;
     
     /**
-     * execution context of the actual work to be executed.
+     * Execution context of the actual work to be executed.
      */
-    private ExecutionContext m_executionContext;
+    private ExecutionContext executionContext;
     
     /**
      * Listener to be notified during the life-cycle of the work treatment. 
      */
-    private WorkListener m_workListener = NULL_WORK_LISTENER;
+    private WorkListener workListener = NULL_WORK_LISTENER;
     
     /**
-     * Work exception if any.
+     * Work exception, if any.
      */
-    private WorkException m_workException;
+    private WorkException workException;
 
     /**
-     * A latch which is released when the work is started.
+     * A latch, which is released when the work is started.
      */
-    private Latch m_startLatch = new Latch();
+    private Latch startLatch = new Latch();
     
     /**
-     * A latch which is released when the work is completed.
+     * A latch, which is released when the work is completed.
      */
-    private Latch m_endLatch = new Latch();
+    private Latch endLatch = new Latch();
 
     /**
      * Create a WorkWrapper.
      * 
-     * @param aWork Work wrapped by this instance.
+     * @param aWork Work to be wrapped.
      */        
     public WorkerContext(Work aWork) {
-        m_adaptee = aWork;
+        adaptee = aWork;
     }
         
     /**
      * Create a WorkWrapper with the specified execution context.
      * 
-     * @param aWork Work wrapped by this instance.
+     * @param aWork Work to be wrapped.
      * @param aStartTimeout a time duration (in milliseconds) within which the 
      * execution of the Work instance must start. 
      * @param execContext an object containing the execution context with which
@@ -165,11 +165,11 @@ public class WorkerContext implements Work
     public WorkerContext(Work aWork, long aStartTimeout,
         ExecutionContext execContext,
         WorkListener workListener) {
-        m_adaptee = aWork;
-        m_startTimeOut = aStartTimeout;
-        m_executionContext = execContext;
+        adaptee = aWork;
+        startTimeOut = aStartTimeout;
+        executionContext = execContext;
         if ( null != workListener ) {
-            m_workListener = workListener;     
+            this.workListener = workListener;     
         }
     }
 
@@ -177,58 +177,65 @@ public class WorkerContext implements Work
      * @see javax.resource.spi.work.Work#release()
      */
     public void release() {
-        m_adaptee.release();            
+        adaptee.release();            
     }
 
     /**
-     * Defines the thread priority level of the thread which will be dispatched
+     * Defines the thread priority level of the thread, which will be dispatched
      * to process this work. This priority level must be the same one for a
-     * given resource adapter. 
+     * given resource adapter.
+     * 
+     * @param aPriority Priority of the thread to be used to process the wrapped
+     * Work instance. 
      */
     public void setThreadPriority(int aPriority) {
-        m_threadPriority = aPriority;
+        threadPriority = aPriority;
     }
 
     /**
-     * Gets the thread priority level of the thread which will be dispatched
+     * Gets the priority level of the thread, which will be dispatched
      * to process this work. This priority level must be the same one for a
-     * given resource adapter. 
+     * given resource adapter.
+     * 
+     * @return The priority level of the thread to be dispatched to
+     * process the wrapped Work instance. 
      */
     public int getThreadPriority() {
-        return m_threadPriority;
+        return threadPriority;
     }
 
     /**
-     * Used by a Work executor in order to notify this work that it has been
-     * accepted.
+     * Call-back method used by a Work executor in order to notify this
+     * instance that the wrapped Work instance has been accepted.
      * 
      * @param anObject Object on which the event initially occurred. It should
      * be the work executor.
      */
     public synchronized void workAccepted(Object anObject) {
-        m_isAccepted = true;
-        m_acceptedTime = System.currentTimeMillis();
-        m_workListener.workAccepted(new WorkEvent(anObject,
-            WorkEvent.WORK_ACCEPTED, m_adaptee, null));
+        isAccepted = true;
+        acceptedTime = System.currentTimeMillis();
+        workListener.workAccepted(new WorkEvent(anObject,
+            WorkEvent.WORK_ACCEPTED, adaptee, null));
     }
 
     /**
-     * System.currentTimeMillis() when the Work has been accepted.
+     * System.currentTimeMillis() when the Work has been accepted. This method
+     * can be used to compute the duration of a work.
      *
-     * @return when the work has ben accepted.
+     * @return When the work has been accepted.
      */
     public synchronized long getAcceptedTime() {
-        return m_acceptedTime;
+        return acceptedTime;
     }
 
     /**
      * Gets the time duration (in milliseconds) within which the execution of 
      * the Work instance must start.
      * 
-     * @return time out duration.
+     * @return Time out duration.
      */
     public long getStartTimeout() {
-        return m_startTimeOut;
+        return startTimeOut;
     }
 
     /**
@@ -236,40 +243,47 @@ public class WorkerContext implements Work
      * accepted but not started has timed out. This method MUST be called prior
      * to retry the execution of a Work.
      * 
-     * @return true if the work has timed out and false otherwise.
+     * @return true if the Work has timed out and false otherwise.
      */
     public synchronized boolean isTimedOut() {
-        assert !m_isAccepted: "The work is not accepted.";
+        assert !isAccepted: "The work is not accepted.";
         // A value of 0 means that the work never times out.
-        if ( 0 == m_startTimeOut ) {
+        if ( 0 == startTimeOut ) {
            return false;
         }
         boolean isTimeout =
-            System.currentTimeMillis() > m_acceptedTime + m_startTimeOut;
-        if ( m_log.isDebugEnabled() ) {
-            m_log.debug(this + " accepted at " + m_acceptedTime + 
-            (isTimeout? " has timed out.":" has not timed out. ") +
-            m_nbRetry + " retries have been performed.");        
+            System.currentTimeMillis() > acceptedTime + startTimeOut;
+        if ( log.isDebugEnabled() ) {
+            log.debug(
+                this
+                    + " accepted at "
+                    + acceptedTime
+                    + (isTimeout ? " has timed out." : " has not timed out. ")
+                    + nbRetry
+                    + " retries have been performed.");
         }
         if ( isTimeout ) {
-            m_workException = new WorkRejectedException("Time out.",
+            workException = new WorkRejectedException(this + " has timed out.",
                 WorkException.START_TIMED_OUT);
-            m_workListener.workRejected(
-                new WorkEvent(this, WorkEvent.WORK_REJECTED, m_adaptee,
-                m_workException));
+            workListener.workRejected(
+                new WorkEvent(
+                    this,
+                    WorkEvent.WORK_REJECTED,
+                    adaptee,
+                    workException));
             return true; 
         }
-        m_nbRetry++;
+        nbRetry++;
         return isTimeout;
     }
 
     /**
-     * Gets the WorkException, if any, thrown during this work execution.
+     * Gets the WorkException, if any, thrown during the execution.
      * 
      * @return WorkException, if any.
      */
     public synchronized WorkException getWorkException() {
-        return m_workException;
+        return workException;
     }
 
     /* (non-Javadoc)
@@ -279,27 +293,27 @@ public class WorkerContext implements Work
         if ( isTimedOut() ) {
             // In case of a time out, one releases the start and end latches
             // to prevent a dead-lock.
-            m_startLatch.release();
-            m_endLatch.release();
+            startLatch.release();
+            endLatch.release();
             return;
         }
         // Implementation note: the work listener is notified prior to release
         // the start lock. This behavior is intentional and seems to be the
         // more conservative.
-        m_workListener.workStarted(
-            new WorkEvent(this, WorkEvent.WORK_STARTED, m_adaptee, null));
-        m_startLatch.release();
+        workListener.workStarted(
+            new WorkEvent(this, WorkEvent.WORK_STARTED, adaptee, null));
+        startLatch.release();
         try {
-            m_adaptee.run();
-            m_workListener.workCompleted(
-                new WorkEvent(this, WorkEvent.WORK_COMPLETED, m_adaptee, null));
+            adaptee.run();
+            workListener.workCompleted(
+                new WorkEvent(this, WorkEvent.WORK_COMPLETED, adaptee, null));
         } catch (Throwable e) {
-            m_workException = new WorkCompletedException(e);
-            m_workListener.workRejected(
-                new WorkEvent(this, WorkEvent.WORK_REJECTED, m_adaptee,
-                m_workException));
+            workException = new WorkCompletedException(e);
+            workListener.workRejected(
+                new WorkEvent(this, WorkEvent.WORK_REJECTED, adaptee,
+                workException));
         } finally  {
-            m_endLatch.release();
+            endLatch.release();
         }
     }
 
@@ -311,7 +325,7 @@ public class WorkerContext implements Work
      * work execution.
      */
     public synchronized Latch provideStartLatch() {
-        return m_startLatch;
+        return startLatch;
     }
 
     /**
@@ -322,11 +336,11 @@ public class WorkerContext implements Work
      * work execution.
      */
     public synchronized Latch provideEndLatch() {
-        return m_endLatch;
+        return endLatch;
     }
 
     public String toString() {
-        return "Work :" + m_adaptee;  
+        return "Work :" + adaptee;  
     }
     
 }

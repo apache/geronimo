@@ -63,43 +63,45 @@ import javax.resource.spi.work.WorkListener;
 import javax.resource.spi.work.WorkManager;
 import javax.resource.spi.work.WorkRejectedException;
 
+import org.apache.geronimo.connector.work.pool.WorkExecutorPool;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
 import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
-import org.apache.geronimo.connector.work.pool.WorkExecutorPool;
 
 /**
  * WorkManager implementation which uses under the cover three WorkExecutorPool
  * - one for each synchronization policy - in order to dispatch the submitted 
  * Work instances. 
+ * <P>
+ * A WorkManager is a component of the JCA specifications, which allows a
+ * Resource Adapter to submit tasks to an Application Server for execution.  
  * 
- * @version $Revision: 1.1 $ $Date: 2003/11/16 22:42:20 $
+* @version $Revision: 1.2 $ $Date: 2003/11/16 23:12:07 $
  */
 public class GeronimoWorkManager implements WorkManager, GeronimoMBeanTarget {
 
     /**
      * Pool of threads used by this WorkManager in order to process
-     * synchronously the submitted Work instances 
+     * the Work instances submitted via the doWork methods. 
      */
-    private WorkExecutorPool m_syncWorkExecutorPool;
+    private WorkExecutorPool syncWorkExecutorPool; 
 
     /**
      * Pool of threads used by this WorkManager in order to process
      * the Work instances submitted via the startWork methods. 
      */
-    private WorkExecutorPool m_startWorkExecutorPool;
-
+    private WorkExecutorPool startWorkExecutorPool;
+     
     /**
      * Pool of threads used by this WorkManager in order to process
-     * scheduled Work instances 
+     * the Work instances submitted via the scheduleWork methods.
      */
-    private WorkExecutorPool m_scheduledWorkExecutorPool;
-
+    private WorkExecutorPool scheduledWorkExecutorPool;
     private GeronimoMBeanContext geronimoMBeanContext;
-
+     
     /**
      * Create a WorkManager. 
      */
@@ -142,63 +144,77 @@ public class GeronimoWorkManager implements WorkManager, GeronimoMBeanTarget {
      * @param anExecutorPool An executor.
      */
     public void setSyncExecutor(WorkExecutorPool anExecutorPool) {
-        m_syncWorkExecutorPool = anExecutorPool;
+        syncWorkExecutorPool = anExecutorPool;
     }
 
     /**
-     * Set the executor in charge of the processing of synchronous until start
+     * Sets the executor in charge of the processing of synchronous until start
      * works.
      * @param anExecutorPool An executor.
      */
     public void setStartExecutor(WorkExecutorPool anExecutorPool) {
-        m_startWorkExecutorPool = anExecutorPool;
+        startWorkExecutorPool = anExecutorPool;
     }
-
+    
     /**
      * Set the executor in charge of the processing of asynchronous works.
      * @param anExecutorPool An executor.
      */
     public void setAsyncExecutor(WorkExecutorPool anExecutorPool) {
-        m_scheduledWorkExecutorPool = anExecutorPool;
+        scheduledWorkExecutorPool = anExecutorPool;
     }
-
+    
     /* (non-Javadoc)
      * @see javax.resource.spi.work.WorkManager#doWork(javax.resource.spi.work.Work)
      */
     public void doWork(Work work) throws WorkException {
-        checkStateBeforeAccept(m_syncWorkExecutorPool, "synchronous");
-        m_syncWorkExecutorPool.executeWork(new WorkerContext(work));
+        checkStateBeforeAccept(syncWorkExecutorPool, "synchronous");
+        syncWorkExecutorPool.executeWork(new WorkerContext(work));
     }
 
     /* (non-Javadoc)
      * @see javax.resource.spi.work.WorkManager#doWork(javax.resource.spi.work.Work, long, javax.resource.spi.work.ExecutionContext, javax.resource.spi.work.WorkListener)
      */
-    public void doWork(Work work, long startTimeout, ExecutionContext execContext, WorkListener workListener) throws WorkException {
-        checkStateBeforeAccept(m_syncWorkExecutorPool, "synchronous");
-        WorkerContext workWrapper = new WorkerContext(work, startTimeout, execContext, workListener);
+    public void doWork(
+        Work work,
+        long startTimeout,
+        ExecutionContext execContext,
+        WorkListener workListener)
+        throws WorkException {
+        checkStateBeforeAccept(syncWorkExecutorPool, "synchronous");
+        WorkerContext workWrapper =
+            new WorkerContext(work, startTimeout, execContext, workListener);
         workWrapper.setThreadPriority(Thread.currentThread().getPriority());
-        m_syncWorkExecutorPool.executeWork(workWrapper);
+        syncWorkExecutorPool.executeWork(workWrapper);
     }
 
     /* (non-Javadoc)
      * @see javax.resource.spi.work.WorkManager#startWork(javax.resource.spi.work.Work)
      */
     public long startWork(Work work) throws WorkException {
-        checkStateBeforeAccept(m_startWorkExecutorPool, "synchronous until start");
+        checkStateBeforeAccept(startWorkExecutorPool,
+            "synchronous until start");
         WorkerContext workWrapper = new WorkerContext(work);
         workWrapper.setThreadPriority(Thread.currentThread().getPriority());
-        m_startWorkExecutorPool.executeWork(workWrapper);
+        startWorkExecutorPool.executeWork(workWrapper);
         return System.currentTimeMillis() - workWrapper.getAcceptedTime();
     }
 
     /* (non-Javadoc)
      * @see javax.resource.spi.work.WorkManager#startWork(javax.resource.spi.work.Work, long, javax.resource.spi.work.ExecutionContext, javax.resource.spi.work.WorkListener)
      */
-    public long startWork(Work work, long startTimeout, ExecutionContext execContext, WorkListener workListener) throws WorkException {
-        checkStateBeforeAccept(m_startWorkExecutorPool, "synchronous until start");
-        WorkerContext workWrapper = new WorkerContext(work, startTimeout, execContext, workListener);
+    public long startWork(
+        Work work,
+        long startTimeout,
+        ExecutionContext execContext,
+        WorkListener workListener)
+        throws WorkException {
+        checkStateBeforeAccept(startWorkExecutorPool,
+            "synchronous until start");
+        WorkerContext workWrapper =
+            new WorkerContext(work, startTimeout, execContext, workListener);
         workWrapper.setThreadPriority(Thread.currentThread().getPriority());
-        m_startWorkExecutorPool.executeWork(workWrapper);
+        startWorkExecutorPool.executeWork(workWrapper);
         return System.currentTimeMillis() - workWrapper.getAcceptedTime();
     }
 
@@ -206,38 +222,57 @@ public class GeronimoWorkManager implements WorkManager, GeronimoMBeanTarget {
      * @see javax.resource.spi.work.WorkManager#scheduleWork(javax.resource.spi.work.Work)
      */
     public void scheduleWork(Work work) throws WorkException {
-        checkStateBeforeAccept(m_scheduledWorkExecutorPool, "asynchronous");
+        checkStateBeforeAccept(scheduledWorkExecutorPool, "asynchronous");
         WorkerContext workWrapper = new WorkerContext(work);
         workWrapper.setThreadPriority(Thread.currentThread().getPriority());
-        m_scheduledWorkExecutorPool.executeWork(workWrapper);
+        scheduledWorkExecutorPool.executeWork(workWrapper);
     }
 
     /* (non-Javadoc)
      * @see javax.resource.spi.work.WorkManager#scheduleWork(javax.resource.spi.work.Work, long, javax.resource.spi.work.ExecutionContext, javax.resource.spi.work.WorkListener)
      */
-    public void scheduleWork(Work work, long startTimeout, ExecutionContext execContext, WorkListener workListener) throws WorkException {
-        checkStateBeforeAccept(m_scheduledWorkExecutorPool, "asynchronous");
-        WorkerContext workWrapper = new WorkerContext(work, startTimeout, execContext, workListener);
+    public void scheduleWork(
+        Work work,
+        long startTimeout,
+        ExecutionContext execContext,
+        WorkListener workListener)
+        throws WorkException {
+        checkStateBeforeAccept(scheduledWorkExecutorPool, "asynchronous");
+        WorkerContext workWrapper =
+            new WorkerContext(work, startTimeout, execContext, workListener);
         workWrapper.setThreadPriority(Thread.currentThread().getPriority());
-        m_scheduledWorkExecutorPool.executeWork(workWrapper);
+        scheduledWorkExecutorPool.executeWork(workWrapper);
     }
 
     /**
-     * This method MUST be called prior to accept a Work instance. It ensures
-     * that the state of this WorkManager is running.
-     * 
+     * This helper method MUST be called prior to accept a Work instance. It
+     * ensures that the state of this WorkManager is running and that the
+     * provided work executor is defined.
+     *
+     * @param aPool Work executor, which will accept the Work instance.
+     * @param aType "Label" of this work executor. It is only used to
+     * create an more accurate message when the provided Work executor is not
+     * defined (null). 
+     *  
      * @throws WorkRejectedException Indicates that this WorkManager is not
      * running and hence that a work can not be accepted.
      */
-    private void checkStateBeforeAccept(WorkExecutorPool aPool, String aType) throws WorkRejectedException {
+    private void checkStateBeforeAccept(WorkExecutorPool aPool,
+        String aType) throws WorkRejectedException {
+        if ( !(State.RUNNING_INDEX == getState()) ) {
+            throw new WorkRejectedException(getClass() + " is not running.",
+                WorkException.INTERNAL);
+        } else if ( null == aPool ) {
+            throw new WorkRejectedException(getClass() + " is partially" +
+                " running. Its " + aType + " work facilities are unmounted.",
+                WorkException.INTERNAL);
+        }
+    }
+
+
+    public int getState() throws WorkRejectedException {
         try {
-            if (!(geronimoMBeanContext.getState() == State.RUNNING_INDEX)) {
-                throw new WorkRejectedException("WorkManager is not running.", WorkException.INTERNAL);
-            } else if (null == aPool) {
-                throw new WorkRejectedException(
-                    "WorkManager is not partially" + " running. Its " + aType + " work facilities are unmounted.",
-                    WorkException.INTERNAL);
-            }
+            return geronimoMBeanContext.getState();
         } catch (Exception e) {
             throw new WorkRejectedException("WorkManager is not ready.", WorkException.INTERNAL);
         }

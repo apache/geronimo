@@ -65,15 +65,26 @@ import EDU.oswego.cs.dl.util.concurrent.PooledExecutor;
  * PooledExecutor enforcing a timed out "blocked execution policy". The works
  * submitted to this pooled executor MUST be a WorkWrapper.
  * 
- * @version $Revision: 1.1 $ $Date: 2003/11/16 22:42:20 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/16 23:12:07 $
  */
 public class TimedOutPooledExecutor extends PooledExecutor
 {
     
+    /**
+     * Creates a pooled executor. The Channel used to enqueue the submitted
+     * Work instance is a queueless synchronous one.
+     */
     public TimedOutPooledExecutor() {
         setBlockedExecutionHandler(new TimedOutSpinHandler());
     }
-    
+
+    /**
+     * Creates a pooled executor, which uses the provided Channel as its
+     * queueing mechanism.
+     * 
+     * @param aChannel Channel to be used to enqueue the submitted Work
+     * intances.
+     */    
     public TimedOutPooledExecutor(Channel aChannel) {
         super(aChannel);
         setBlockedExecutionHandler(new TimedOutSpinHandler());
@@ -83,21 +94,20 @@ public class TimedOutPooledExecutor extends PooledExecutor
      * Executes the provided task, which MUST be an instance of WorkWrapper.
      * 
      * @throws IllegalArgumentException Indicates that the provided task is not
-     * a  WorkWrapper.
+     * a WorkWrapper instance.
      */
     public void execute(Runnable aTask) throws InterruptedException {
-        if ( aTask instanceof WorkerContext ) {
-            super.execute(aTask);
-            return;
+        if ( !(aTask instanceof WorkerContext) ) {
+            throw new IllegalArgumentException("Please submit a WorkWrapper.");
         }
-        throw new IllegalArgumentException("Please submit a WorkWrapper");
+        super.execute(aTask);
     }
     
     /**
      * This class implements a time out policy when a work is blocked: it offers
      * the task to the pool until the work has timed out.
      * 
-     * @version $Revision: 1.1 $ $Date: 2003/11/16 22:42:20 $
+     * @version $Revision: 1.2 $ $Date: 2003/11/16 23:12:07 $
      */
     private class TimedOutSpinHandler
         implements PooledExecutor.BlockedExecutionHandler {
