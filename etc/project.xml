@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: project.xml,v 1.1 2003/08/12 14:44:09 jdillon Exp $ -->
+<!-- $Id: project.xml,v 1.2 2003/08/13 01:49:08 jboynes Exp $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -201,7 +201,7 @@
   <contributors>
     <contributor>
       <name>Ed Letifov</name>
-      <email></email>
+      <email>e.letifov@chello.nl</email>
     </contributor>
   </contributors>
   
