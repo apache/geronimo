@@ -76,7 +76,7 @@ by the server.
         <uri>regexp/jars/regexp-1.3.jar</uri>
     </dependency>
     <dependency>
-        <uri>mx4j/jars/mx4j-2.0.1.jar</uri>
+        <uri>mx4j/jars/mx4j-${mx4j_version}.jar</uri>
     </dependency>
     <dependency>
         <uri>tomcat/jars/jasper-compiler-${jasper_version}.jar</uri>

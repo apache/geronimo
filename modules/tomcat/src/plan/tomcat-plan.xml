@@ -82,7 +82,7 @@ Configuration for the Apache Tomcat web container
         <uri>regexp/jars/regexp-1.3.jar</uri>
     </dependency>
     <dependency>
-        <uri>mx4j/jars/mx4j-2.0.1.jar</uri>
+        <uri>mx4j/jars/mx4j-${mx4j-version}.jar</uri>
     </dependency>
 
     <gbean name="geronimo.server:type=WebContainer,container=Tomcat" class="org.apache.geronimo.tomcat.TomcatContainer">
