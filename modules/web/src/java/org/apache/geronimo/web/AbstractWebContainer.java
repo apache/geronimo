@@ -119,7 +119,7 @@ import org.w3c.dom.Node;
  * 2. the url is a directory which contains a WEB-INF/web.xml file
  * 
  * @jmx:mbean extends="org.apache.geronimo.kernel.deployment.DeploymentPlanner, org.apache.geronimo.web.WebContainer, org.apache.geronimo.kernel.management.StateManageable, javax.management.MBeanRegistration" 
- * @version $Revision: 1.12 $ $Date: 2003/11/08 08:02:10 $
+ * @version $Revision: 1.13 $ $Date: 2003/11/11 16:41:23 $
  */
 public abstract class AbstractWebContainer
     extends AbstractManagedContainer
@@ -332,14 +332,14 @@ public abstract class AbstractWebContainer
         URLType type = goal.getType();
         URL webXmlURL = null;
 
+        //check it ends with ".war"
+        if (!url.getPath().endsWith(".war"))
+            return false;
+
         //check if this is a deployable webapp. This is either a directory or a
         //war file that contains a WEB-INF directory
         if (type == URLType.PACKED_ARCHIVE)
         {
-            //check it ends with ".war" 
-            if (!url.getPath().endsWith(".war"))
-                return false;
-
             InputStream stream = null;
             try
             {
