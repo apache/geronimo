@@ -20,8 +20,18 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.wsdl.Definition;
+import javax.wsdl.Port;
+import javax.wsdl.Service;
+import javax.wsdl.extensions.ExtensibilityElement;
+import javax.wsdl.extensions.soap.SOAPAddress;
+import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLReader;
+import javax.wsdl.xml.WSDLWriter;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 
@@ -51,6 +61,11 @@ public class AxisWebServiceContainer implements WebServiceContainer {
     protected final URL wsdlURL;
     protected final SOAPService service;  //TODO why did i make these protected?
     private final ClassLoader classLoader;
+    private final Object wsdlMutext = new Object();
+
+    private Definition definition;
+
+    private WSDLWriter wsdlWriter;
 
     public AxisWebServiceContainer(URI location, URL wsdlURL, SOAPService service, ClassLoader classLoader) {
         this.location = location;
@@ -172,23 +187,59 @@ public class AxisWebServiceContainer implements WebServiceContainer {
         }
         return responseMessage;
     }
-
-    public void getWsdl(Request req, Response res) throws Exception {
-        OutputStream out = res.getOutputStream();
-        InputStream in = null;
-        try {
-            in = wsdlURL.openStream();
-            byte[] buffer = new byte[1024];
-            for (int read = in.read(buffer); read > 0; read = in.read(buffer)) {
-//                System.out.write(buffer, 0, read);
-                out.write(buffer, 0, read);
+    
+    public void getWsdl(Request request, Response response) throws Exception {
+        
+        // Avoid concurrent modification of the WSDL dom.
+        synchronized(wsdlMutext) {
+            
+            // Read in the the WSDL in once. 
+            if( definition == null ) {
+                initWSDLDom();
             }
-        } finally {
-            if (in != null) {
-                in.close();
+            
+            // Update all the service port soap address elements.
+            Map services = definition.getServices();
+            for (Iterator iter1 = services.values().iterator(); iter1.hasNext();) {
+                Service service = (Service) iter1.next();
+                Map ports = service.getPorts();
+                for (Iterator iter2 = ports.values().iterator(); iter2.hasNext();) {
+                    Port port = (Port) iter2.next();
+                    for (Iterator iter3 = port.getExtensibilityElements().iterator(); iter3.hasNext();) {
+                        ExtensibilityElement element = (ExtensibilityElement) iter3.next();
+                        if (element instanceof SOAPAddress ) {
+                            SOAPAddress soapAddress = (SOAPAddress)element;
+                            URI realLocation = request.getURI();                            
+                            // We replace the host and port here.
+                            URI updated = new URI(
+                                    realLocation.getScheme(),
+                                    realLocation.getUserInfo(), 
+                                    realLocation.getHost(), 
+                                    realLocation.getPort(),
+                                    realLocation.getPath(), // Humm is this right?
+                                    null,
+                                    null);
+                            soapAddress.setLocationURI(updated.toString());
+                        }
+                    }
+                }
             }
+            
+            // Dump the WSDL dom to the output stream
+            OutputStream out = response.getOutputStream();
+            wsdlWriter.writeWSDL(definition, out);
+            out.close();
         }
+    }
 
+    /**
+     * @throws Exception
+     */
+    private void initWSDLDom() throws Exception {
+        WSDLFactory wsdlFactory = WSDLFactory.newInstance();
+        wsdlWriter = wsdlFactory.newWSDLWriter();
+        WSDLReader wsdlReader = wsdlFactory.newWSDLReader();
+        definition = wsdlReader.readWSDL(wsdlURL.toExternalForm());
     }
 
     public URI getLocation() {

@@ -110,13 +110,10 @@ public class AxisWebServiceContainerTest extends AbstractTestCase {
             new AxisRequest(
                 504,
                 "text/xml; charset=utf-8",
-                "127.0.0.1",
                 in,
                 0,
                 new HashMap(),
-                null,
                 location,
-                8080,
                 new HashMap());
         AxisResponse res =
             new AxisResponse("text/xml; charset=utf-8", "127.0.0.1", null, null, 8080, System.out);
