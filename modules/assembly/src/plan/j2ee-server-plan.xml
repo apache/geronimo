@@ -57,7 +57,7 @@ by the server.
         <uri>tranql/jars/tranql-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-        <uri>openejb/jars/openejb-core-DEV.jar</uri>
+        <uri>openejb/jars/openejb-core-2.0M1.jar</uri>
     </dependency>
     <dependency>
         <uri>geronimo/jars/geronimo-jetty-DEV.jar</uri>

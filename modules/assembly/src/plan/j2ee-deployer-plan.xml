@@ -28,7 +28,7 @@ Configuration for the Geronimo deployer
     >
 
     <dependency>
-        <uri>openejb/jars/openejb-core-DEV.jar</uri>
+        <uri>openejb/jars/openejb-core-2.0M1.jar</uri>
     </dependency>
     <dependency>
         <uri>geronimo/jars/geronimo-connector-DEV.jar</uri>
