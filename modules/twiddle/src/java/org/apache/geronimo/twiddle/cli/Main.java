@@ -63,6 +63,8 @@ import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLDecoder;
 
+import com.werken.classworlds.ClassWorld;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.impl.LogFactoryImpl;
@@ -75,36 +77,45 @@ import org.apache.commons.cli.PosixParser;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.ParseException;
 
-import org.apache.geronimo.twiddle.Twiddle;
+import org.apache.geronimo.common.NullArgumentException;
 
+import org.apache.geronimo.twiddle.Twiddle;
 import org.apache.geronimo.twiddle.config.Configuration;
 import org.apache.geronimo.twiddle.config.ConfigurationReader;
-
 import org.apache.geronimo.twiddle.util.HelpFormatter;
 
 /**
  * Command-line interface to <code>Twiddle</code>.
  *
- * @version $Revision: 1.8 $ $Date: 2003/08/24 22:45:40 $
+ * @version $Revision: 1.9 $ $Date: 2003/08/25 15:49:13 $
  */
 public class Main
 {
     static {
         // Add our default Commons Logger that support the trace level
-        if(System.getProperty(LogFactoryImpl.LOG_PROPERTY) == null) {
+        if (System.getProperty(LogFactoryImpl.LOG_PROPERTY) == null) {
             System.setProperty(LogFactoryImpl.LOG_PROPERTY, "org.apache.geronimo.core.log.CachingLog4jLog");
         }
     }
     
     private static final Log log = LogFactory.getLog(Main.class);
     
-    /** Platform dependent line separator. */
-    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
-    
     private String filename = "etc/twiddle.conf";
+    private ClassWorld world;
     
-    public String[] processCommandLine(final String[] args) throws Exception
+    public Main(final ClassWorld world)
     {
+        if (world == null) {
+            throw new NullArgumentException("world");
+        }
+        
+        this.world = world;
+    }
+    
+    private String[] processCommandLine(final String[] args) throws Exception
+    {
+        assert args != null;
+        
         // create the Options
         Options options = new Options();
         options.addOption(OptionBuilder.withLongOpt("help")
@@ -171,6 +182,10 @@ public class Main
     
     public void boot(String[] args) throws Exception
     {
+        if (args == null) {
+            throw new NullArgumentException("args");
+        }
+        
         // Process command-line options
         args = processCommandLine(args);
         
@@ -194,7 +209,7 @@ public class Main
         ConfigurationReader reader = new ConfigurationReader();
         Configuration config = reader.read(configURL);
         
-        Twiddle twiddle = new Twiddle();
+        Twiddle twiddle = new Twiddle(world);
         twiddle.configure(config);
         
         if (args.length != 0) {
@@ -210,9 +225,25 @@ public class Main
         }
     }
     
+    public static void main(final String[] args, final ClassWorld world)
+    {
+        // args & world are checked for null by Main
+        
+        try {
+            Main main = new Main(world);
+            main.boot(args);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+    }
+    
     public static void main(final String[] args) throws Exception
     {
-        Main main = new Main();
-        main.boot(args);
+        // args are checked for null by Main
+        
+        ClassWorld world = new ClassWorld();
+        main(args, world);
     }
 }

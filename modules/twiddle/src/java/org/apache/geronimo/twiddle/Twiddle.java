@@ -61,6 +61,8 @@ import java.net.URL;
 import java.io.StringWriter;
 import java.io.PrintWriter;
 
+import com.werken.classworlds.ClassWorld;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -83,7 +85,7 @@ import org.apache.geronimo.twiddle.console.IOContext;
  *    command processor, it serves only to facilitate their operation and to
  *    provide a simple API to execute commands (hence facade).
  *
- * @version <tt>$Revision: 1.7 $ $Date: 2003/08/24 11:20:17 $</tt>
+ * @version <tt>$Revision: 1.8 $ $Date: 2003/08/25 15:49:13 $</tt>
  */
 public class Twiddle
 {
@@ -91,6 +93,9 @@ public class Twiddle
     
     /** The input/output context. */
     protected IOContext io;
+    
+    /** The class world to isolate classes. */
+    protected ClassWorld world;
     
     /** The command container. */
     protected CommandContainer container;
@@ -101,13 +106,17 @@ public class Twiddle
     /**
      * Construct a <code>Twiddle</code> command processor.
      */
-    public Twiddle(final IOContext io)
+    public Twiddle(final IOContext io, final ClassWorld world)
     {
         if (io == null) {
             throw new NullArgumentException("io");
         }
+        if (world == null) {
+            throw new NullArgumentException("world");
+        }
         
         this.io = io;
+        this.world = world;
         this.container = new CommandContainer();
         this.executor = new CommandExecutor(container);
     }
@@ -116,9 +125,18 @@ public class Twiddle
      * Construct a <code>Twiddle</code> command processor using system
      * defaults for the input/output context.
      */
+    public Twiddle(final ClassWorld world)
+    {
+        this(new IOContext(System.in, System.out, System.err), world);
+    }
+    
+    /**
+     * Construct a <code>Twiddle</code> command processor using system
+     * defaults for the input/output context and a default class world.
+     */
     public Twiddle()
     {
-        this(new IOContext(System.in, System.out, System.err));
+        this(new ClassWorld());
     }
     
     /**
