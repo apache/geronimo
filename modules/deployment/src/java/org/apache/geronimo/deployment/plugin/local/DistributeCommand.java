@@ -53,75 +53,82 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.jetty.deployment;
+package org.apache.geronimo.deployment.plugin.local;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
-import java.util.Collections;
-import javax.enterprise.deploy.spi.DeploymentManager;
-import javax.management.ObjectName;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.FileOutputStream;
+import java.net.URI;
+import java.util.jar.JarOutputStream;
+import javax.enterprise.deploy.shared.CommandType;
+import javax.enterprise.deploy.spi.TargetModuleID;
 
-import org.apache.geronimo.deployment.plugin.DeploymentManagerImpl;
+import org.apache.geronimo.deployment.DeploymentModule;
+import org.apache.geronimo.deployment.ModuleDeployer;
 import org.apache.geronimo.deployment.util.FileUtil;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.LocalConfigStore;
-import junit.framework.TestCase;
+import org.apache.geronimo.kernel.config.ConfigurationParent;
 
 /**
- * Base class for web deployer test.
- * Handles setting up the deployment environment.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/23 19:58:17 $
+ *
+ * @version $Revision: 1.1 $ $Date: 2004/01/23 19:58:16 $
  */
-public class DeployerTestCase extends TestCase {
-    protected File configStore;
-    protected Kernel kernel;
-    protected ObjectName managerName;
-    protected ObjectName serverName;
-    private ObjectName warName;
-    protected GBeanMBean managerGBean;
-    protected DeploymentManager manager;
-    protected WARConfigurationFactory warFactory;
-    protected ClassLoader classLoader;
-    protected DocumentBuilder parser;
+public class DistributeCommand extends CommandSupport {
+    private final ConfigurationParent parent;
+    private final Kernel kernel;
+    private final DeploymentModule module;
 
-    protected void setUp() throws Exception {
-        classLoader = Thread.currentThread().getContextClassLoader();
-        parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-
-        configStore = new File(System.getProperty("java.io.tmpdir"), "config-store");
-        configStore.mkdir();
-
-        kernel = new Kernel("test", LocalConfigStore.GBEAN_INFO, configStore);
-        kernel.boot();
-
-        serverName = new ObjectName("geronimo.deployment:role=Server");
-
-        warName = new ObjectName("geronimo.deployment:role=WARFactory");
-        GBeanMBean warFactoryGBean = new GBeanMBean(WARConfigurationFactory.GBEAN_INFO);
-
-        managerName = new ObjectName("geronimo.deployment:role=DeploymentManager");
-        managerGBean = new GBeanMBean(DeploymentManagerImpl.GBEAN_INFO);
-        managerGBean.setEndpointPatterns("WARFactory", Collections.singleton(warName));
-        managerGBean.setEndpointPatterns("Server", Collections.singleton(serverName));
-
-        kernel.loadGBean(warName, warFactoryGBean);
-        kernel.startGBean(warName);
-        kernel.loadGBean(managerName, managerGBean);
-        kernel.startGBean(managerName);
-
-        manager = (DeploymentManager) managerGBean.getTarget();
-        warFactory = (WARConfigurationFactory) warFactoryGBean.getTarget();
+    public DistributeCommand(ConfigurationParent parent, Kernel kernel, DeploymentModule module) {
+        super(CommandType.DISTRIBUTE);
+        this.parent = parent;
+        this.kernel = kernel;
+        this.module = module;
     }
 
-    protected void tearDown() throws Exception {
-        kernel.stopGBean(managerName);
-        kernel.unloadGBean(managerName);
-        kernel.stopGBean(warName);
-        kernel.unloadGBean(warName);
-        kernel.shutdown();
-        FileUtil.recursiveDelete(configStore);
+    public void run() {
+
+        File configFile = null;
+        File workDir = null;
+        try {
+            // create some working space
+            configFile = File.createTempFile("deploy", ".car");
+            workDir = File.createTempFile("deploy", "");
+            workDir.delete();
+            workDir.mkdir();
+
+            // convert the module to a Configuration
+            TargetModuleID targetID = module.getModuleID();
+            URI moduleID = URI.create(targetID.getModuleID());
+            ModuleDeployer deployer = new ModuleDeployer(parent, moduleID, workDir);
+            deployer.addModule(module);
+            deployer.deploy();
+
+            // Save the Configuration into a CAR
+            FileOutputStream os = new FileOutputStream(configFile);
+            try {
+                JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(os));
+                deployer.saveConfiguration(jos);
+            } finally {
+                os.close();
+            }
+
+            // install in our local server
+            kernel.install(configFile.toURL());
+
+            // load configuration
+            kernel.load(moduleID);
+
+            complete();
+        } catch (Exception e) {
+            fail(e.getMessage());
+        } finally {
+            if (workDir != null) {
+                FileUtil.recursiveDelete(workDir);
+            }
+            if (configFile != null) {
+                configFile.delete();
+            }
+        }
     }
 }

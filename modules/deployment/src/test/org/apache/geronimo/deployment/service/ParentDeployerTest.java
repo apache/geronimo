@@ -66,7 +66,7 @@ import javax.management.ObjectName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.geronimo.deployment.BatchDeployer;
+import org.apache.geronimo.deployment.URLDeployer;
 import org.apache.geronimo.deployment.util.FileUtil;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
@@ -79,7 +79,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/22 08:10:26 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/23 19:58:17 $
  */
 public class ParentDeployerTest extends TestCase {
     private DocumentBuilder parser;
@@ -107,7 +107,7 @@ public class ParentDeployerTest extends TestCase {
         assertNull(parentCL.getResource("test-resource.dat"));
 
         ObjectName childName = new ObjectName("geronimo.test:name=Child");
-        BatchDeployer batcher = new BatchDeployer(parent, URI.create("test"), Collections.singletonList(deployer), workDir);
+        URLDeployer batcher = new URLDeployer(parent, URI.create("test"), Collections.singletonList(deployer), workDir);
         batcher.addSource(new URLInfo(cl.getResource("services/service3/")));
         batcher.deploy();
         GBeanMBean childConfig = batcher.getConfiguration();

@@ -62,7 +62,7 @@ import java.net.URL;
 
 import javax.management.ObjectName;
 
-import org.apache.geronimo.deployment.BatchDeployer;
+import org.apache.geronimo.deployment.URLDeployer;
 import org.apache.geronimo.deployment.BatchDeployerFactory;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
@@ -81,7 +81,7 @@ import org.apache.geronimo.deployment.util.URLType;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/22 08:10:26 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/23 19:58:17 $
  *
  * */
 public class ExplicitDeployment implements GBean {
@@ -148,7 +148,7 @@ public class ExplicitDeployment implements GBean {
 
     public void doStart() throws WaitingException, Exception {
         File workDir = batchDeployerFactory.createWorkDir();
-        BatchDeployer batchDeployer = batchDeployerFactory.getBatchDeployer(configurationParent, configID, workDir);
+        URLDeployer batchDeployer = batchDeployerFactory.getBatchDeployer(configurationParent, configID, workDir);
         batchDeployer.addSource(new URLInfo(packageURL, URLType.getType(packageURL)));
         batchDeployer.deploy();
         configName = kernel.load(batchDeployer.getConfiguration(), workDir.toURL());

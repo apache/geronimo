@@ -62,18 +62,20 @@ import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
 /**
  * 
  * 
- * @version $Revision: 1.2 $ $Date: 2004/01/22 04:44:43 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/23 19:58:16 $
  */
 public class EJBRefConfigBean extends DConfigBeanSupport {
-    private static final String[] XPATHS = {
-        "jndi-name"
-    };
+    private String targetURI;
 
     public EJBRefConfigBean(DDBean ddBean) {
         super(ddBean);
     }
 
-    public String[] getXpaths() {
-        return XPATHS;
+    public String getTargetURI() {
+        return targetURI;
+    }
+
+    public void setTargetURI(String targetURI) {
+        this.targetURI = targetURI;
     }
 }

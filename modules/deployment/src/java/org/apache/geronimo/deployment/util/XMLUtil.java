@@ -62,7 +62,7 @@ import org.w3c.dom.Node;
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/01/21 20:37:29 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/23 19:58:17 $
  */
 public class XMLUtil {
     public static Object getContent(Element element) {
@@ -80,5 +80,24 @@ public class XMLUtil {
             }
         }
         return content.toString().trim();
+    }
+
+    public static Element getChild(Element parent, String name) {
+        for (Node child = parent.getFirstChild(); child != null; child = child.getNextSibling()) {
+            if (child instanceof Element && name.equals(child.getNodeName())) {
+                return (Element) child;
+            }
+        }
+        return null;
+    }
+
+    public static String getChildContent(Element parent, String name, String missing, String empty) {
+        Element child = getChild(parent, name);
+        if (child == null) {
+            return missing;
+        } else {
+            String content = (String) getContent(child);
+            return (content != null) ? content : empty;
+        }
     }
 }

@@ -55,20 +55,24 @@
  */
 package org.apache.geronimo.deployment.plugin.application;
 
+import java.io.InputStream;
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
 import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 import javax.enterprise.deploy.shared.ModuleType;
 
 import org.apache.geronimo.deployment.plugin.factories.DeploymentConfigurationFactory;
+import org.apache.geronimo.deployment.DeploymentModule;
+import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GOperationInfo;
+import org.w3c.dom.Document;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/22 00:51:09 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/23 19:58:16 $
  */
 public class EARConfigurationFactory implements DeploymentConfigurationFactory {
     public DeploymentConfiguration createConfiguration(DeployableObject deployable) throws InvalidModuleException {
@@ -76,6 +80,10 @@ public class EARConfigurationFactory implements DeploymentConfigurationFactory {
             throw new InvalidModuleException("DeployableObject must be an EAR");
         }
         return new EARConfiguration(deployable);
+    }
+
+    public DeploymentModule createModule(InputStream moduleArchive, Document deploymentPlan) throws DeploymentException {
+        throw new UnsupportedOperationException();
     }
 
     public static final GBeanInfo GBEAN_INFO;

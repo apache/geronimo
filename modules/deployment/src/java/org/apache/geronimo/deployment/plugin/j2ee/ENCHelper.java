@@ -53,67 +53,113 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.jetty.deployment;
+package org.apache.geronimo.deployment.plugin.j2ee;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Collections;
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.spi.DConfigBean;
 import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
-import org.apache.geronimo.deployment.plugin.j2ee.ENCHelper;
 import org.apache.geronimo.deployment.util.XMLUtil;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/23 19:58:17 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/23 19:58:16 $
  */
-public class WebAppDConfigBean extends DConfigBeanSupport {
-    private String contextRoot;
+public class ENCHelper {
+    public static final String[] ENC_XPATHS = {
+        "ejb-ref/ejb-ref-name"
+    };
 
-    private final ENCHelper encHelper;
+    private final DDBean ddBean;
+    private final Map ejbRefs = new HashMap();
 
-    WebAppDConfigBean(DDBean ddBean) {
-        super(ddBean);
-        encHelper = new ENCHelper(ddBean);
-    }
-
-    public String getContextRoot() {
-        return contextRoot;
-    }
-
-    public void setContextRoot(String contextRoot) {
-        pcs.firePropertyChange("contextRoot", this.contextRoot, contextRoot);
-        this.contextRoot = contextRoot;
+    public ENCHelper(DDBean ddBean) {
+        this.ddBean = ddBean;
     }
 
     public DConfigBean getDConfigBean(DDBean ddBean) throws ConfigurationException {
-        return encHelper.getDConfigBean(ddBean);
+        String xpath = ddBean.getXpath();
+        String name = ddBean.getText();
+
+        DConfigBean dcBean;
+        if (xpath.endsWith("ejb-ref/ejb-ref-name")) {
+            dcBean = (DConfigBean) ejbRefs.get(name);
+            if (dcBean == null) {
+                dcBean = new EJBRefConfigBean(ddBean);
+            }
+        } else {
+            throw new ConfigurationException("Unrecognized XPath: " + ddBean.getXpath());
+        }
+        return dcBean;
     }
 
     public void removeDConfigBean(DConfigBean dcBean) throws BeanNotFoundException {
-        encHelper.removeDConfigBean(dcBean);
-    }
+        DDBean ddBean = dcBean.getDDBean();
+        String xpath = ddBean.getXpath();
+        String name = ddBean.getText();
+        Map map;
 
-    public String[] getXpaths() {
-        return ENCHelper.ENC_XPATHS;
+        if (xpath.endsWith("ejb-ref/ejb-ref-name")) {
+            map = ejbRefs;
+        } else {
+            throw new BeanNotFoundException("Unrecognized XPath: " + xpath);
+        }
+        if (map.remove(name) == null) {
+            throw new BeanNotFoundException("No DConfigBean found with name: " + name);
+        }
     }
 
     public void toXML(PrintWriter writer) throws IOException {
-        if (contextRoot != null) {
-            writer.print("<context-root>");
-            writer.print(contextRoot);
-            writer.println("</context-root>");
+        for (Iterator i = ejbRefs.entrySet().iterator(); i.hasNext();) {
+            Map.Entry entry = (Map.Entry) i.next();
+            writer.println("<ejb-ref>");
+            writer.print("<ejb-ref-name>");
+            writer.print(entry.getKey());
+            writer.println("</ejb-ref-name>");
+            ((DConfigBeanSupport) entry.getValue()).toXML(writer);
+            writer.println("</ejb-ref>");
         }
-        encHelper.toXML(writer);
     }
 
-    public void fromXML(Element element) {
-        contextRoot = XMLUtil.getChildContent(element, "context-root", null, null);
-        encHelper.fromXML(element);
+    public void fromXML(Element parent) {
+        Map ejbRefDDBeans = mapDDBeans("ejb-ref/ejb-ref-name");
+        ejbRefs.clear();
+        for (Node node = parent.getFirstChild(); node != null; node = node.getNextSibling()) {
+            if (node instanceof Element == false) {
+                continue;
+            }
+            Element child = (Element) node;
+            if ("ejb-ref".equals(child.getNodeName())) {
+                String name = XMLUtil.getChildContent(child, "ejb-ref-name", null, null);
+                DDBean ejbBean = (DDBean) ejbRefDDBeans.get(name);
+                if (ejbBean != null) {
+                    ejbRefs.put(name, new EJBRefConfigBean(ejbBean));
+                }
+            }
+        }
+    }
+
+    private Map mapDDBeans(String xpath) {
+        DDBean[] ddBeans = ddBean.getChildBean(xpath);
+        if (ddBeans == null) {
+            return Collections.EMPTY_MAP;
+        }
+        Map map = new HashMap(ddBeans.length);
+        for (int i = 0; i < ddBeans.length; i++) {
+            DDBean ddBean = ddBeans[i];
+            map.put(ddBean.getText(), ddBean);
+        }
+        return map;
     }
 }

@@ -70,7 +70,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.geronimo.deployment.BatchDeployer;
+import org.apache.geronimo.deployment.URLDeployer;
 import org.apache.geronimo.deployment.NoDeployerException;
 import org.apache.geronimo.deployment.util.FileUtil;
 import org.apache.geronimo.deployment.service.ServiceDeployer;
@@ -81,15 +81,15 @@ import org.apache.geronimo.deployment.util.URLType;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/22 08:10:26 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/23 19:58:17 $
  */
 public class DeployCommand {
     private final File configFile;
-    private final BatchDeployer batcher;
+    private final URLDeployer batcher;
 
     public DeployCommand(File configFile, URI configID, File workDir, List deployers) {
         this.configFile = configFile;
-        batcher = new BatchDeployer(null, configID, deployers, workDir);
+        batcher = new URLDeployer(null, configID, deployers, workDir);
     }
 
     public void add(URL url) throws IOException, DeploymentException, NoDeployerException {

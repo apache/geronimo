@@ -58,33 +58,52 @@ package org.apache.geronimo.jetty.deployment;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Properties;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipEntry;
+import java.io.InputStream;
+import java.io.IOException;
 
 import javax.management.ObjectName;
+import javax.enterprise.deploy.spi.TargetModuleID;
 
 import org.apache.geronimo.deployment.ConfigurationCallback;
 import org.apache.geronimo.deployment.DeploymentModule;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.jetty.JettyWebApplicationContext;
 import org.apache.geronimo.deployment.DeploymentException;
+import org.w3c.dom.Document;
 
 /**
- * 
- * 
- * @version $Revision: 1.2 $ $Date: 2004/01/22 08:10:26 $
+ *
+ *
+ * @version $Revision: 1.3 $ $Date: 2004/01/23 19:58:17 $
  */
 public class JettyModule implements DeploymentModule {
-    private final URI uri;
-    private final String contextPath;
+    private final InputStream moduleArchive;
+    private URI uri;
+    private String contextPath;
 
-    public JettyModule(URI uri, String contextPath) {
-        this.uri = uri;
-        this.contextPath = contextPath;
+    public JettyModule(InputStream moduleArchive, Document deploymentPlan) {
+        this.moduleArchive = moduleArchive;
+    }
+
+    public TargetModuleID getModuleID() {
+        throw new UnsupportedOperationException();
     }
 
     public void init() throws DeploymentException {
     }
 
     public void generateClassPath(ConfigurationCallback callback) throws DeploymentException {
+        ZipInputStream zis = new ZipInputStream(moduleArchive);
+        try {
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                            
+            }
+        } catch (IOException e) {
+            throw new DeploymentException("Unable to download WAR content", e);
+        }
     }
 
     public void defineGBeans(ConfigurationCallback callback, ClassLoader cl) throws DeploymentException {

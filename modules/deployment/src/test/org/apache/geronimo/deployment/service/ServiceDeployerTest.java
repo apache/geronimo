@@ -74,7 +74,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.geronimo.deployment.ConfigurationCallback;
-import org.apache.geronimo.deployment.BatchDeployer;
+import org.apache.geronimo.deployment.URLDeployer;
 import org.apache.geronimo.deployment.util.FileUtil;
 import org.apache.geronimo.deployment.util.URLInfo;
 import org.apache.geronimo.deployment.util.URLType;
@@ -84,7 +84,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/22 08:10:26 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/23 19:58:17 $
  */
 public class ServiceDeployerTest extends TestCase {
     private static final URI MODULE_ID = URI.create("service");
@@ -97,7 +97,7 @@ public class ServiceDeployerTest extends TestCase {
     private DocumentBuilder parser;
     private ServiceDeployer deployer;
     private File workDir;
-    private BatchDeployer batcher;
+    private URLDeployer batcher;
     private File configFile;
 
     public void testResource() throws Exception {
@@ -272,7 +272,7 @@ public class ServiceDeployerTest extends TestCase {
         workDir = new File(tmpDir, "test.car.work");
         workDir.mkdir();
         configFile = new File(tmpDir, "test.car");
-        batcher = new BatchDeployer(null, URI.create("test"), Collections.singletonList(deployer), workDir);
+        batcher = new URLDeployer(null, URI.create("test"), Collections.singletonList(deployer), workDir);
     }
 
     protected void tearDown() throws Exception {

@@ -56,11 +56,14 @@
 package org.apache.geronimo.deployment.plugin;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.Arrays;
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.shared.DConfigBeanVersionType;
 import javax.enterprise.deploy.shared.ModuleType;
@@ -72,37 +75,48 @@ import javax.enterprise.deploy.spi.exceptions.DConfigBeanVersionUnsupportedExcep
 import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.deployment.DeploymentModule;
 import org.apache.geronimo.deployment.plugin.factories.DeploymentConfigurationFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GEndpointInfo;
 import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.geronimo.gbean.GEndpointInfo;
+import org.w3c.dom.Document;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/22 05:47:41 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/23 19:58:16 $
  */
 public class DeploymentManagerImpl implements DeploymentManager {
+    private final DeploymentServer server;
     private final Map configurationFactories;
 
-    private boolean connected;
-
     public DeploymentManagerImpl(
+            DeploymentServer server,
             DeploymentConfigurationFactory earFactory,
             DeploymentConfigurationFactory warFactory,
             DeploymentConfigurationFactory ejbFactory,
             DeploymentConfigurationFactory rarFactory,
             DeploymentConfigurationFactory carFactory
             ) {
-        connected = false;
+        this.server = server;
         configurationFactories = new HashMap(5);
-        configurationFactories.put(ModuleType.EAR, earFactory);
-        configurationFactories.put(ModuleType.WAR, warFactory);
-        configurationFactories.put(ModuleType.EJB, ejbFactory);
-        configurationFactories.put(ModuleType.RAR, rarFactory);
-        configurationFactories.put(ModuleType.CAR, carFactory);
+        addFactory(ModuleType.EAR, earFactory);
+        addFactory(ModuleType.WAR, warFactory);
+        addFactory(ModuleType.EJB, ejbFactory);
+        addFactory(ModuleType.RAR, rarFactory);
+        addFactory(ModuleType.CAR, carFactory);
+    }
+
+    private void addFactory(ModuleType type, DeploymentConfigurationFactory factory) {
+        if (factory != null) {
+            configurationFactories.put(type, factory);
+        }
     }
 
     public DeploymentConfiguration createConfiguration(DeployableObject deployable) throws InvalidModuleException {
@@ -133,7 +147,7 @@ public class DeploymentManagerImpl implements DeploymentManager {
     }
 
     public Locale[] getSupportedLocales() {
-        return new Locale[] { getDefaultLocale() };
+        return new Locale[]{getDefaultLocale()};
     }
 
     public Locale getCurrentLocale() {
@@ -148,101 +162,104 @@ public class DeploymentManagerImpl implements DeploymentManager {
         return getDefaultLocale().equals(locale);
     }
 
-    public void release() {
-    }
-
     public Target[] getTargets() throws IllegalStateException {
-        if (!connected) {
-            throw new IllegalStateException("Disconnected");
-        }
-        throw new UnsupportedOperationException();
+        return server.getTargets();
     }
 
     public TargetModuleID[] getRunningModules(ModuleType moduleType, Target[] targetList) throws TargetException, IllegalStateException {
-        if (!connected) {
-            throw new IllegalStateException("Disconnected");
-        }
-        throw new UnsupportedOperationException();
+        return server.getRunningModules(moduleType, targetList);
     }
 
     public TargetModuleID[] getNonRunningModules(ModuleType moduleType, Target[] targetList) throws TargetException, IllegalStateException {
-        if (!connected) {
-            throw new IllegalStateException("Disconnected");
-        }
-        throw new UnsupportedOperationException();
+        return server.getNonRunningModules(moduleType, targetList);
     }
 
     public TargetModuleID[] getAvailableModules(ModuleType moduleType, Target[] targetList) throws TargetException, IllegalStateException {
-        if (!connected) {
-            throw new IllegalStateException("Disconnected");
-        }
-        throw new UnsupportedOperationException();
+        return server.getAvailableModules(moduleType, targetList);
     }
 
     public ProgressObject distribute(Target[] targetList, File moduleArchive, File deploymentPlan) throws IllegalStateException {
-        if (!connected) {
-            throw new IllegalStateException("Disconnected");
+        try {
+            return distribute(targetList, new FileInputStream(moduleArchive), new FileInputStream(deploymentPlan));
+        } catch (FileNotFoundException e) {
+            // @todo should this return a "failed" progress object?
+            throw new IllegalStateException();
         }
-        throw new UnsupportedOperationException();
     }
 
     public ProgressObject distribute(Target[] targetList, InputStream moduleArchive, InputStream deploymentPlan) throws IllegalStateException {
-        if (!connected) {
-            throw new IllegalStateException("Disconnected");
+        Document doc;
+        try {
+            DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            doc = parser.parse(deploymentPlan);
+        } catch (Exception e) {
+            // @todo failed ProgressObject?
+            throw new IllegalStateException();
         }
-        throw new UnsupportedOperationException();
+        DeploymentModule module = null;
+        for (Iterator i = configurationFactories.values().iterator(); i.hasNext();) {
+            DeploymentConfigurationFactory factory = (DeploymentConfigurationFactory) i.next();
+            try {
+                module = factory.createModule(moduleArchive, doc);
+            } catch (DeploymentException e) {
+                // @todo failed ProgressObject?
+                throw new IllegalStateException();
+            }
+        }
+        if (module == null) {
+            // @todo failed ProgressObject?
+            throw new IllegalStateException();
+        }
+        return server.distribute(targetList, module);
     }
 
     public ProgressObject start(TargetModuleID[] moduleIDList) throws IllegalStateException {
-        if (!connected) {
-            throw new IllegalStateException("Disconnected");
-        }
-        throw new UnsupportedOperationException();
+        return server.start(moduleIDList);
     }
 
     public ProgressObject stop(TargetModuleID[] moduleIDList) throws IllegalStateException {
-        if (!connected) {
-            throw new IllegalStateException("Disconnected");
-        }
-        throw new UnsupportedOperationException();
+        return server.stop(moduleIDList);
     }
 
     public ProgressObject undeploy(TargetModuleID[] moduleIDList) throws IllegalStateException {
-        if (!connected) {
-            throw new IllegalStateException("Disconnected");
-        }
-        throw new UnsupportedOperationException();
+        return server.undeploy(moduleIDList);
     }
 
     public boolean isRedeploySupported() {
-        return true;
+        return server.isRedeploySupported();
     }
 
     public ProgressObject redeploy(TargetModuleID[] moduleIDList, File moduleArchive, File deploymentPlan) throws UnsupportedOperationException, IllegalStateException {
-        if (!connected) {
-            throw new IllegalStateException("Disconnected");
+        try {
+            return redeploy(moduleIDList, new FileInputStream(moduleArchive), new FileInputStream(deploymentPlan));
+        } catch (FileNotFoundException e) {
+            // @todo should this return a "failed" progress object?
+            throw new IllegalStateException();
         }
-        throw new UnsupportedOperationException();
     }
 
     public ProgressObject redeploy(TargetModuleID[] moduleIDList, InputStream moduleArchive, InputStream deploymentPlan) throws UnsupportedOperationException, IllegalStateException {
-        if (!connected) {
-            throw new IllegalStateException("Disconnected");
-        }
-        throw new UnsupportedOperationException();
+        return server.redeploy(moduleIDList, moduleArchive, deploymentPlan);
+    }
+
+    public void release() {
+        server.release();
+        // @todo shut down the deployment kernel
     }
 
     public static final GBeanInfo GBEAN_INFO;
+
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("JSR88 Deployment Manager", DeploymentManagerImpl.class.getName());
+        infoFactory.addEndpoint(new GEndpointInfo("Server", DeploymentServer.class.getName()));
         infoFactory.addEndpoint(new GEndpointInfo("EARFactory", DeploymentConfigurationFactory.class.getName()));
         infoFactory.addEndpoint(new GEndpointInfo("WARFactory", DeploymentConfigurationFactory.class.getName()));
         infoFactory.addEndpoint(new GEndpointInfo("EJBFactory", DeploymentConfigurationFactory.class.getName()));
         infoFactory.addEndpoint(new GEndpointInfo("RARFactory", DeploymentConfigurationFactory.class.getName()));
         infoFactory.addEndpoint(new GEndpointInfo("CARFactory", DeploymentConfigurationFactory.class.getName()));
         infoFactory.setConstructor(new GConstructorInfo(
-                Arrays.asList(new Object[] {"EARFactory", "WARFactory", "EJBFactory", "RARFactory", "CARFactory"}),
-                Arrays.asList(new Object[] {DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class})
+                Arrays.asList(new Object[]{"Server", "EARFactory", "WARFactory", "EJBFactory", "RARFactory", "CARFactory"}),
+                Arrays.asList(new Object[]{DeploymentServer.class, DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class})
         ));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

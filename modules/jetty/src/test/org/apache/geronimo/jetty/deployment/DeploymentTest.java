@@ -55,73 +55,78 @@
  */
 package org.apache.geronimo.jetty.deployment;
 
+import java.net.URL;
+import java.net.URI;
+import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
 import java.util.Collections;
-import javax.enterprise.deploy.spi.DeploymentManager;
-import javax.management.ObjectName;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import java.util.jar.JarOutputStream;
+import javax.enterprise.deploy.spi.DeploymentConfiguration;
+import javax.enterprise.deploy.spi.DConfigBeanRoot;
+import javax.enterprise.deploy.spi.Target;
 
-import org.apache.geronimo.deployment.plugin.DeploymentManagerImpl;
+import org.apache.geronimo.deployment.tools.loader.WebDeployable;
+import org.apache.geronimo.deployment.plugin.local.LocalServer;
 import org.apache.geronimo.deployment.util.FileUtil;
+import org.apache.geronimo.deployment.util.URLInfo;
+import org.apache.geronimo.deployment.URLDeployer;
+import org.apache.geronimo.deployment.service.ServiceDeployer;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.LocalConfigStore;
-import junit.framework.TestCase;
 
 /**
- * Base class for web deployer test.
- * Handles setting up the deployment environment.
- *
- * @version $Revision: 1.2 $ $Date: 2004/01/23 19:58:17 $
+ * 
+ * 
+ * @version $Revision: 1.1 $ $Date: 2004/01/23 19:58:17 $
  */
-public class DeployerTestCase extends TestCase {
-    protected File configStore;
-    protected Kernel kernel;
-    protected ObjectName managerName;
-    protected ObjectName serverName;
-    private ObjectName warName;
-    protected GBeanMBean managerGBean;
-    protected DeploymentManager manager;
-    protected WARConfigurationFactory warFactory;
-    protected ClassLoader classLoader;
-    protected DocumentBuilder parser;
+public class DeploymentTest extends DeployerTestCase {
+    private URL war;
+    private byte[] plan;
+    private File configFile;
+
+    public void testDistribute() throws Exception {
+//        Target[] targets = manager.getTargets();
+//        manager.distribute(targets, war.openStream(), new ByteArrayInputStream(plan));
+    }
 
     protected void setUp() throws Exception {
-        classLoader = Thread.currentThread().getContextClassLoader();
-        parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        super.setUp();
 
-        configStore = new File(System.getProperty("java.io.tmpdir"), "config-store");
-        configStore.mkdir();
+        URI localID = URI.create("local");
+        File workDir = new File(System.getProperty("java.io.tmpdir"), "workdir");
+        workDir.mkdir();
+        URLDeployer deployer = new URLDeployer(null, localID, Collections.singletonList(new ServiceDeployer(parser)), workDir);
+        deployer.addSource(new URLInfo(classLoader.getResource("services/local.xml")));
+        deployer.deploy();
+        configFile = new File(System.getProperty("java.io.tmpdir"), "local.car");
+        JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(configFile)));
+        deployer.saveConfiguration(jos);
+        jos.close();
+        kernel.install(configFile.toURL());
 
-        kernel = new Kernel("test", LocalConfigStore.GBEAN_INFO, configStore);
-        kernel.boot();
+        GBeanMBean serverGBean = new GBeanMBean(LocalServer.GBEAN_INFO);
+        serverGBean.setAttribute("ConfigID", localID);
+        serverGBean.setAttribute("ConfigStore", configStore);
+        kernel.loadGBean(serverName, serverGBean);
+        kernel.startGBean(serverName);
 
-        serverName = new ObjectName("geronimo.deployment:role=Server");
+        war = classLoader.getResource("deployables/war2.war");
+        WebDeployable deployable = new WebDeployable(war);
+        DeploymentConfiguration config = manager.createConfiguration(deployable);
+        DConfigBeanRoot configRoot = config.getDConfigBeanRoot(deployable.getDDBeanRoot());
+        WebAppDConfigBean contextBean = (WebAppDConfigBean) configRoot.getDConfigBean(deployable.getChildBean("/web-app")[0]);
+        contextBean.setContextRoot("/war2");
 
-        warName = new ObjectName("geronimo.deployment:role=WARFactory");
-        GBeanMBean warFactoryGBean = new GBeanMBean(WARConfigurationFactory.GBEAN_INFO);
-
-        managerName = new ObjectName("geronimo.deployment:role=DeploymentManager");
-        managerGBean = new GBeanMBean(DeploymentManagerImpl.GBEAN_INFO);
-        managerGBean.setEndpointPatterns("WARFactory", Collections.singleton(warName));
-        managerGBean.setEndpointPatterns("Server", Collections.singleton(serverName));
-
-        kernel.loadGBean(warName, warFactoryGBean);
-        kernel.startGBean(warName);
-        kernel.loadGBean(managerName, managerGBean);
-        kernel.startGBean(managerName);
-
-        manager = (DeploymentManager) managerGBean.getTarget();
-        warFactory = (WARConfigurationFactory) warFactoryGBean.getTarget();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        config.save(baos);
+        plan = baos.toByteArray();
     }
 
     protected void tearDown() throws Exception {
-        kernel.stopGBean(managerName);
-        kernel.unloadGBean(managerName);
-        kernel.stopGBean(warName);
-        kernel.unloadGBean(warName);
-        kernel.shutdown();
-        FileUtil.recursiveDelete(configStore);
+        kernel.stopGBean(serverName);
+        kernel.unloadGBean(serverName);
+        super.tearDown();
     }
 }

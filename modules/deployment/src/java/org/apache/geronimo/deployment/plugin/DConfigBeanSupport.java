@@ -57,16 +57,20 @@ package org.apache.geronimo.deployment.plugin;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import javax.enterprise.deploy.spi.DConfigBean;
-import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
-import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.XpathEvent;
+import javax.enterprise.deploy.spi.DConfigBean;
+import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
+import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
+
+import org.w3c.dom.Element;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/22 04:56:09 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/23 19:58:16 $
  */
 public abstract class DConfigBeanSupport implements DConfigBean {
     protected final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
@@ -101,5 +105,11 @@ public abstract class DConfigBeanSupport implements DConfigBean {
 
     public void removePropertyChangeListener(PropertyChangeListener pcl) {
         pcs.removePropertyChangeListener(pcl);
+    }
+
+    public void toXML(PrintWriter writer) throws IOException {
+    }
+
+    public void fromXML(Element element) {
     }
 }

@@ -53,75 +53,45 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.jetty.deployment;
+package org.apache.geronimo.deployment.plugin;
 
-import java.io.File;
-import java.util.Collections;
-import javax.enterprise.deploy.spi.DeploymentManager;
-import javax.management.ObjectName;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.InputStream;
+import javax.enterprise.deploy.shared.ModuleType;
+import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.exceptions.TargetException;
+import javax.enterprise.deploy.spi.status.ProgressObject;
 
-import org.apache.geronimo.deployment.plugin.DeploymentManagerImpl;
-import org.apache.geronimo.deployment.util.FileUtil;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.LocalConfigStore;
-import junit.framework.TestCase;
+import org.apache.geronimo.deployment.DeploymentModule;
 
 /**
- * Base class for web deployer test.
- * Handles setting up the deployment environment.
- *
- * @version $Revision: 1.2 $ $Date: 2004/01/23 19:58:17 $
+ * 
+ * 
+ * @version $Revision: 1.1 $ $Date: 2004/01/23 19:58:16 $
  */
-public class DeployerTestCase extends TestCase {
-    protected File configStore;
-    protected Kernel kernel;
-    protected ObjectName managerName;
-    protected ObjectName serverName;
-    private ObjectName warName;
-    protected GBeanMBean managerGBean;
-    protected DeploymentManager manager;
-    protected WARConfigurationFactory warFactory;
-    protected ClassLoader classLoader;
-    protected DocumentBuilder parser;
+public interface DeploymentServer {
+    public boolean isLocal();
 
-    protected void setUp() throws Exception {
-        classLoader = Thread.currentThread().getContextClassLoader();
-        parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+    public Target[] getTargets() throws IllegalStateException;
 
-        configStore = new File(System.getProperty("java.io.tmpdir"), "config-store");
-        configStore.mkdir();
+    public TargetModuleID[] getRunningModules(ModuleType moduleType, Target[] targetList) throws TargetException, IllegalStateException;
 
-        kernel = new Kernel("test", LocalConfigStore.GBEAN_INFO, configStore);
-        kernel.boot();
+    public TargetModuleID[] getNonRunningModules(ModuleType moduleType, Target[] targetList) throws TargetException, IllegalStateException;
 
-        serverName = new ObjectName("geronimo.deployment:role=Server");
+    public TargetModuleID[] getAvailableModules(ModuleType moduleType, Target[] targetList) throws TargetException, IllegalStateException;
 
-        warName = new ObjectName("geronimo.deployment:role=WARFactory");
-        GBeanMBean warFactoryGBean = new GBeanMBean(WARConfigurationFactory.GBEAN_INFO);
+    public ProgressObject distribute(Target[] targetList, DeploymentModule module) throws IllegalStateException;
 
-        managerName = new ObjectName("geronimo.deployment:role=DeploymentManager");
-        managerGBean = new GBeanMBean(DeploymentManagerImpl.GBEAN_INFO);
-        managerGBean.setEndpointPatterns("WARFactory", Collections.singleton(warName));
-        managerGBean.setEndpointPatterns("Server", Collections.singleton(serverName));
+    public ProgressObject start(TargetModuleID[] moduleIDList) throws IllegalStateException;
 
-        kernel.loadGBean(warName, warFactoryGBean);
-        kernel.startGBean(warName);
-        kernel.loadGBean(managerName, managerGBean);
-        kernel.startGBean(managerName);
+    public ProgressObject stop(TargetModuleID[] moduleIDList) throws IllegalStateException;
 
-        manager = (DeploymentManager) managerGBean.getTarget();
-        warFactory = (WARConfigurationFactory) warFactoryGBean.getTarget();
-    }
+    public ProgressObject undeploy(TargetModuleID[] moduleIDList) throws IllegalStateException;
 
-    protected void tearDown() throws Exception {
-        kernel.stopGBean(managerName);
-        kernel.unloadGBean(managerName);
-        kernel.stopGBean(warName);
-        kernel.unloadGBean(warName);
-        kernel.shutdown();
-        FileUtil.recursiveDelete(configStore);
-    }
+    public boolean isRedeploySupported();
+
+    public ProgressObject redeploy(TargetModuleID[] moduleIDList, InputStream moduleArchive, InputStream deploymentPlan) throws UnsupportedOperationException, IllegalStateException;
+
+    public void release();
+
 }

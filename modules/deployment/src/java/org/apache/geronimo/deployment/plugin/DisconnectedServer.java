@@ -53,75 +53,76 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.jetty.deployment;
+package org.apache.geronimo.deployment.plugin;
 
-import java.io.File;
-import java.util.Collections;
-import javax.enterprise.deploy.spi.DeploymentManager;
-import javax.management.ObjectName;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.InputStream;
+import javax.enterprise.deploy.shared.ModuleType;
+import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.exceptions.TargetException;
+import javax.enterprise.deploy.spi.status.ProgressObject;
 
-import org.apache.geronimo.deployment.plugin.DeploymentManagerImpl;
-import org.apache.geronimo.deployment.util.FileUtil;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.LocalConfigStore;
-import junit.framework.TestCase;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.deployment.DeploymentModule;
 
 /**
- * Base class for web deployer test.
- * Handles setting up the deployment environment.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/23 19:58:17 $
+ *
+ * @version $Revision: 1.1 $ $Date: 2004/01/23 19:58:16 $
  */
-public class DeployerTestCase extends TestCase {
-    protected File configStore;
-    protected Kernel kernel;
-    protected ObjectName managerName;
-    protected ObjectName serverName;
-    private ObjectName warName;
-    protected GBeanMBean managerGBean;
-    protected DeploymentManager manager;
-    protected WARConfigurationFactory warFactory;
-    protected ClassLoader classLoader;
-    protected DocumentBuilder parser;
-
-    protected void setUp() throws Exception {
-        classLoader = Thread.currentThread().getContextClassLoader();
-        parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-
-        configStore = new File(System.getProperty("java.io.tmpdir"), "config-store");
-        configStore.mkdir();
-
-        kernel = new Kernel("test", LocalConfigStore.GBEAN_INFO, configStore);
-        kernel.boot();
-
-        serverName = new ObjectName("geronimo.deployment:role=Server");
-
-        warName = new ObjectName("geronimo.deployment:role=WARFactory");
-        GBeanMBean warFactoryGBean = new GBeanMBean(WARConfigurationFactory.GBEAN_INFO);
-
-        managerName = new ObjectName("geronimo.deployment:role=DeploymentManager");
-        managerGBean = new GBeanMBean(DeploymentManagerImpl.GBEAN_INFO);
-        managerGBean.setEndpointPatterns("WARFactory", Collections.singleton(warName));
-        managerGBean.setEndpointPatterns("Server", Collections.singleton(serverName));
-
-        kernel.loadGBean(warName, warFactoryGBean);
-        kernel.startGBean(warName);
-        kernel.loadGBean(managerName, managerGBean);
-        kernel.startGBean(managerName);
-
-        manager = (DeploymentManager) managerGBean.getTarget();
-        warFactory = (WARConfigurationFactory) warFactoryGBean.getTarget();
+public class DisconnectedServer implements DeploymentServer {
+    public boolean isLocal() {
+        throw new IllegalStateException("Disconnected");
     }
 
-    protected void tearDown() throws Exception {
-        kernel.stopGBean(managerName);
-        kernel.unloadGBean(managerName);
-        kernel.stopGBean(warName);
-        kernel.unloadGBean(warName);
-        kernel.shutdown();
-        FileUtil.recursiveDelete(configStore);
+    public Target[] getTargets() throws IllegalStateException {
+        throw new IllegalStateException("Disconnected");
+    }
+
+    public TargetModuleID[] getAvailableModules(ModuleType moduleType, Target[] targetList) throws TargetException, IllegalStateException {
+        throw new IllegalStateException("Disconnected");
+    }
+
+    public TargetModuleID[] getRunningModules(ModuleType moduleType, Target[] targetList) throws TargetException, IllegalStateException {
+        throw new IllegalStateException("Disconnected");
+    }
+
+    public TargetModuleID[] getNonRunningModules(ModuleType moduleType, Target[] targetList) throws TargetException, IllegalStateException {
+        throw new IllegalStateException("Disconnected");
+    }
+
+    public ProgressObject distribute(Target[] targetList, DeploymentModule module) throws IllegalStateException {
+        throw new IllegalStateException("Disconnected");
+    }
+
+    public ProgressObject start(TargetModuleID[] moduleIDList) throws IllegalStateException {
+        throw new IllegalStateException("Disconnected");
+    }
+
+    public ProgressObject stop(TargetModuleID[] moduleIDList) throws IllegalStateException {
+        throw new IllegalStateException("Disconnected");
+    }
+
+    public boolean isRedeploySupported() {
+        return false;
+    }
+
+    public ProgressObject redeploy(TargetModuleID[] moduleIDList, InputStream moduleArchive, InputStream deploymentPlan) throws UnsupportedOperationException, IllegalStateException {
+        throw new UnsupportedOperationException();
+    }
+
+    public ProgressObject undeploy(TargetModuleID[] moduleIDList) throws IllegalStateException {
+        throw new IllegalStateException("Disconnected");
+    }
+
+    public void release() {
+    }
+
+    public static final GBeanInfo GBEAN_INFO;
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("JSR88 Disconnected Server", DisconnectedServer.class.getName());
+        infoFactory.addInterface(DeploymentServer.class);
+        GBEAN_INFO = infoFactory.getBeanInfo();
     }
 }

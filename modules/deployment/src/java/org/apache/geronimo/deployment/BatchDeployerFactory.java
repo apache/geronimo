@@ -70,7 +70,7 @@ import org.apache.geronimo.kernel.config.ConfigurationParent;
 /**
  * TODO this does not put the deployers in any particular order.  This may be a problem.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/19 06:40:07 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/23 19:58:16 $
  *
  * */
 public class BatchDeployerFactory {
@@ -92,8 +92,8 @@ public class BatchDeployerFactory {
         this.deployers = deployers;
     }
 
-    public BatchDeployer getBatchDeployer(ConfigurationParent configurationParent, URI configID, File workingDir) {
-        return new BatchDeployer(configurationParent, configID, new ArrayList(deployers), workingDir);
+    public URLDeployer getBatchDeployer(ConfigurationParent configurationParent, URI configID, File workingDir) {
+        return new URLDeployer(configurationParent, configID, new ArrayList(deployers), workingDir);
     }
 
     public synchronized File createWorkDir() {

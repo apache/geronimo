@@ -64,54 +64,46 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationParent;
-import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.deployment.util.URLInfo;
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationParent;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/22 08:10:26 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/23 19:58:16 $
  */
-public class BatchDeployer implements ConfigurationCallback {
+public class ModuleDeployer implements ConfigurationCallback {
     private final ConfigurationParent parent;
     private final URI configRoot;
-    private final List deployers;
-    private final Set moduleIDs = new HashSet();
     private final List modules = new ArrayList();
     private final LinkedHashSet classPath = new LinkedHashSet();
     private final GBeanMBean config;
     private final Map gbeans = new HashMap();
     private final byte[] buffer = new byte[4096];
 
-    public BatchDeployer(ConfigurationParent parent, URI configID, List deployers, File workingDir) {
+    public ModuleDeployer(ConfigurationParent parent, URI configID, File workingDir) {
         if (!workingDir.isDirectory()) {
             throw new IllegalArgumentException("workingDir is not a directory");
         }
 
         this.parent = parent;
         this.configRoot = workingDir.toURI();
-        this.deployers = deployers;
+
         try {
             config = new GBeanMBean(Configuration.GBEAN_INFO);
         } catch (InvalidConfigurationException e) {
@@ -124,37 +116,8 @@ public class BatchDeployer implements ConfigurationCallback {
         }
     }
 
-    public void addSource(URLInfo source) throws NoDeployerException, DeploymentException {
-        String path = source.getUrl().getPath();
-        while (path.endsWith("/")) {
-            path = path.substring(0, path.length()-1);
-        }
-        int end = path.lastIndexOf('/');
-        if (end != -1) {
-            path = path.substring(end+1);
-        }
-        if (path.length() == 0) {
-            path = "module";
-        }
-        URI moduleID = null;
-        try {
-            moduleID = new URI(path);
-            int i=0;
-            while (moduleIDs.contains(moduleID)) {
-                moduleID = new URI(++i + path);
-            }
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Unable to construct moduleID for URL: "+source.getUrl(), e);
-        }
-        for (Iterator i = deployers.iterator(); i.hasNext();) {
-            ModuleFactory deployer = (ModuleFactory) i.next();
-            DeploymentModule module = deployer.getModule(source, moduleID);
-            if (module != null) {
-                modules.add(module);
-                return;
-            }
-        }
-        throw new NoDeployerException("No deployer could handle source " + source.getUrl());
+    public void addModule(DeploymentModule module) {
+        modules.add(module);
     }
 
     public void deploy() throws DeploymentException {
@@ -250,27 +213,16 @@ public class BatchDeployer implements ConfigurationCallback {
         gbeans.put(name, gbean);
     }
 
-    public LinkedHashSet getClassPath() {
-        return classPath;
-    }
-
-    public GBeanMBean getConfiguration() {
-        return config;
-    }
-
     public void saveConfiguration(JarOutputStream jos) throws IOException {
         // add the configuration data
         jos.putNextEntry(new ZipEntry("META-INF/config.ser"));
         ObjectOutputStream oos = new ObjectOutputStream(jos);
-        for (Iterator i = config.getGBeanInfo().getPersistentAttributes().iterator(); i.hasNext();) {
-            GAttributeInfo attributeInfo = (GAttributeInfo) i.next();
-            try {
-                oos.writeObject(config.getAttribute(attributeInfo.getName()));
-            } catch (IOException e) {
-                throw e;
-            } catch (Exception e) {
-                throw (IllegalStateException) new IllegalStateException("Unable to save attribute " + attributeInfo.getName()).initCause(e);
-            }
+        try {
+            Configuration.storeGMBeanState(config, oos);
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw (IllegalStateException) new IllegalStateException("Unable to save configuration").initCause(e);
         }
         oos.flush();
         jos.closeEntry();
@@ -302,5 +254,13 @@ public class BatchDeployer implements ConfigurationCallback {
                 }
             }
         }
+    }
+
+    public LinkedHashSet getClassPath() {
+        return classPath;
+    }
+
+    public GBeanMBean getConfiguration() {
+        return config;
     }
 }

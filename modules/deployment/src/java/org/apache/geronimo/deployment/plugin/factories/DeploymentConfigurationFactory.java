@@ -55,15 +55,22 @@
  */
 package org.apache.geronimo.deployment.plugin.factories;
 
+import java.io.InputStream;
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
 import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 
+import org.apache.geronimo.deployment.DeploymentModule;
+import org.apache.geronimo.deployment.DeploymentException;
+import org.w3c.dom.Document;
+
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/01/22 00:51:09 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/23 19:58:16 $
  */
 public interface DeploymentConfigurationFactory {
     public DeploymentConfiguration createConfiguration(DeployableObject deployable) throws InvalidModuleException;
+
+    public DeploymentModule createModule(InputStream moduleArchive, Document deploymentPlan) throws DeploymentException;
 }

@@ -73,7 +73,7 @@ import org.w3c.dom.Node;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/21 20:37:29 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/23 19:58:17 $
  */
 public class DDBeanImpl implements DDBean {
     protected final DDBeanRoot root;
@@ -149,6 +149,9 @@ public class DDBeanImpl implements DDBean {
             return (DDBean[]) beans.toArray(new DDBean[beans.size()]);
         } else {
             List childBeans = (List) children.get(xpath.substring(0, index));
+            if (childBeans == null) {
+                return null;
+            }
             String path = xpath.substring(index + 1);
             List beans = new ArrayList();
             for (Iterator i = childBeans.iterator(); i.hasNext();) {

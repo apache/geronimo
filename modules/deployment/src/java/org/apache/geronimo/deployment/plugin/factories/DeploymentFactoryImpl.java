@@ -55,8 +55,6 @@
  */
 package org.apache.geronimo.deployment.plugin.factories;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collections;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
@@ -64,7 +62,10 @@ import javax.enterprise.deploy.spi.factories.DeploymentFactory;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.plugin.DeploymentManagerImpl;
+import org.apache.geronimo.deployment.plugin.DisconnectedServer;
+import org.apache.geronimo.deployment.plugin.local.LocalServer;
 import org.apache.geronimo.deployment.plugin.application.EARConfigurationFactory;
+import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 
@@ -75,7 +76,7 @@ import org.apache.geronimo.kernel.Kernel;
  * to contain the GBeans that are responsible for deploying each module
  * type.
  * 
- * @version $Revision: 1.2 $ $Date: 2004/01/22 00:51:09 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/23 19:58:16 $
  */
 public class DeploymentFactoryImpl implements DeploymentFactory {
     public static final String URI_PREFIX = "deployer:geronimo:";
@@ -97,21 +98,28 @@ public class DeploymentFactoryImpl implements DeploymentFactory {
             return null;
         }
 
-        URI configURI;
         try {
-            configURI = new URI(uri.substring(9));
-        } catch (URISyntaxException e) {
-            throw (DeploymentManagerCreationException) new DeploymentManagerCreationException("Unable to parse URI "+uri).initCause(e);
+            GBeanMBean server = new GBeanMBean(DisconnectedServer.GBEAN_INFO);
+            return createManager(server);
+        } catch (InvalidConfigurationException e) {
+            throw (IllegalStateException) new IllegalStateException("Unable to create disconnected server").initCause(e);
         }
-        assert "geronimo".equals(configURI.getScheme());
+    }
 
-        String subURI = configURI.getSchemeSpecificPart();
-        if (subURI.startsWith("//")) {
-            throw new AssertionError();
-        } else {
-            configURI = URI.create(subURI);
+    public DeploymentManager getDeploymentManager(String uri, String username, String password) throws DeploymentManagerCreationException {
+        if (!handlesURI(uri)) {
+            return null;
         }
 
+        try {
+            GBeanMBean server = new GBeanMBean(LocalServer.GBEAN_INFO);
+            return createManager(server);
+        } catch (InvalidConfigurationException e) {
+            throw (IllegalStateException) new IllegalStateException("Unable to create disconnected server").initCause(e);
+        }
+    }
+
+    private DeploymentManager createManager(GBeanMBean server) throws DeploymentManagerCreationException {
         Kernel kernel = new Kernel("geronimo.deployment");
         try {
             kernel.boot();
@@ -119,11 +127,17 @@ public class DeploymentFactoryImpl implements DeploymentFactory {
             throw (DeploymentManagerCreationException) new DeploymentManagerCreationException("Unable to boot embedded kernel").initCause(e);
         }
 
-        // @todo for now lets hard code the deployers to use - ultimately this should use a predefined Configuration
         GBeanMBean manager;
         try {
+            ObjectName serverName = new ObjectName("geronimo.deployment:role=DeploymentServer");
+            kernel.loadGBean(serverName, server);
+            kernel.startGBean(serverName);
+
             ObjectName managerName = new ObjectName("geronimo.deployment:role=DeploymentManager");
             manager = new GBeanMBean(DeploymentManagerImpl.GBEAN_INFO);
+            manager.setEndpointPatterns("Server", Collections.singleton(serverName));
+
+            // @todo for now lets hard code the deployers to use - ultimately this should use a predefined Configuration
             loadFactory(kernel, manager, "EARFactory", EARConfigurationFactory.class.getName());
 
             kernel.loadGBean(managerName, manager);
@@ -142,9 +156,5 @@ public class DeploymentFactoryImpl implements DeploymentFactory {
         kernel.loadGBean(earFactoryName, earFactory);
         kernel.startGBean(earFactoryName);
         manager.setEndpointPatterns(factory, Collections.singleton(earFactoryName));
-    }
-
-    public DeploymentManager getDeploymentManager(String uri, String username, String password) throws DeploymentManagerCreationException {
-        return null;
     }
 }

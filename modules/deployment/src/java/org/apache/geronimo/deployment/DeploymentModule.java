@@ -57,6 +57,9 @@ package org.apache.geronimo.deployment;
 
 import java.util.List;
 import java.util.Map;
+import java.net.URI;
+
+import javax.enterprise.deploy.spi.TargetModuleID;
 
 import org.apache.geronimo.deployment.DeploymentException;
 
@@ -72,9 +75,15 @@ import org.apache.geronimo.deployment.DeploymentException;
  * problems in the deployment process prevent the other methods being called.
  * complete() may be called without a prior call to init().
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/22 08:10:26 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/23 19:58:16 $
  */
 public interface DeploymentModule {
+    /**
+     * Get the JSR88 TargetModuleID for this module
+     * @return the moduleID
+     */
+    TargetModuleID getModuleID();
+
     /**
      * Indication to this module that the deployment process is starting.
      */

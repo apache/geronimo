@@ -55,17 +55,26 @@
  */
 package org.apache.geronimo.jetty.deployment;
 
-import javax.enterprise.deploy.model.DeployableObject;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import javax.enterprise.deploy.model.DDBeanRoot;
+import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.spi.DConfigBeanRoot;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.geronimo.deployment.plugin.DeploymentConfigurationSupport;
+import org.xml.sax.SAXException;
+import org.w3c.dom.Document;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/22 04:44:43 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/23 19:58:17 $
  */
 public class WARConfiguration extends DeploymentConfigurationSupport {
     private final WebAppDConfigRoot root;
@@ -80,5 +89,29 @@ public class WARConfiguration extends DeploymentConfigurationSupport {
             return root;
         }
         return null;
+    }
+
+    public void save(OutputStream outputArchive) throws ConfigurationException {
+        PrintWriter writer = new PrintWriter(outputArchive);
+        try {
+            root.toXML(writer);
+            writer.flush();
+        } catch (IOException e) {
+            throw (ConfigurationException) new ConfigurationException("Unable to save configuration").initCause(e);
+        }
+    }
+
+    public void restore(InputStream inputArchive) throws ConfigurationException {
+        try {
+            DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document doc = parser.parse(inputArchive);
+            root.fromXML(doc.getDocumentElement());
+        } catch (SAXException e) {
+            throw (ConfigurationException) new ConfigurationException("Error parsing configuration input").initCause(e);
+        } catch (IOException e) {
+            throw (ConfigurationException) new ConfigurationException("Error reading configuration input").initCause(e);
+        } catch (ParserConfigurationException e) {
+            throw (ConfigurationException) new ConfigurationException("Unable to get XML parser").initCause(e);
+        }
     }
 }

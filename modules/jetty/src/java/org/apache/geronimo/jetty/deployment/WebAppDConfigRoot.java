@@ -55,17 +55,20 @@
  */
 package org.apache.geronimo.jetty.deployment;
 
-import javax.enterprise.deploy.model.DDBeanRoot;
+import java.io.IOException;
+import java.io.PrintWriter;
 import javax.enterprise.deploy.model.DDBean;
+import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.spi.DConfigBean;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 
 import org.apache.geronimo.deployment.plugin.DConfigBeanRootSupport;
+import org.w3c.dom.Element;
 
 /**
- * 
- * 
- * @version $Revision: 1.1 $ $Date: 2004/01/22 04:44:43 $
+ *
+ *
+ * @version $Revision: 1.2 $ $Date: 2004/01/23 19:58:17 $
  */
 public class WebAppDConfigRoot extends DConfigBeanRootSupport {
     private static String[] XPATHS = {
@@ -88,5 +91,15 @@ public class WebAppDConfigRoot extends DConfigBeanRootSupport {
             return webAppBean;
         }
         return null;
+    }
+
+    public void toXML(PrintWriter writer) throws IOException {
+        writer.println("<web-app>");
+        webAppBean.toXML(writer);
+        writer.println("</web-app>");
+    }
+
+    public void fromXML(Element element) {
+        webAppBean.fromXML(element);
     }
 }
