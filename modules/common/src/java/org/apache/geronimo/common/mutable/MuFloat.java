@@ -64,7 +64,7 @@ import org.apache.geronimo.common.coerce.NotCoercibleException;
 /**
  * A mutable float class.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/24 20:51:22 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/27 09:08:10 $
  */
 public class MuFloat
     extends MuNumber
@@ -192,7 +192,7 @@ public class MuFloat
      * @return     The new value.
      */
     public float negate() {
-        value = ((float)-value);
+        value = (-value);
         return value;
     }
     
@@ -211,7 +211,7 @@ public class MuFloat
     /**
      * Compares this object with the specified object for order.
      *
-     * @param other   Value to compare with.
+     * @param obj     Value to compare with.
      * @return        A negative integer, zero, or a positive integer as
      *                this object is less than, equal to, or greater than
      *                the specified object.
@@ -219,7 +219,7 @@ public class MuFloat
      * @throws ClassCastException    Object is not a MuFloat.
      */
     public int compareTo(Object obj) {
-        return compareTo((MuFloat)obj);
+        return compareTo(((MuFloat)obj).get());
     }
     
     /**
@@ -303,7 +303,7 @@ public class MuFloat
      * @return   <code>float</code> value.
      */
     public float floatValue() {
-        return (float)value;
+        return value;
     }
     
     /**

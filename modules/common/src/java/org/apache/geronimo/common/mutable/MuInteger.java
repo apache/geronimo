@@ -61,7 +61,7 @@ import org.apache.geronimo.common.coerce.NotCoercibleException;
 /**
  * A mutable integer class.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/24 20:51:22 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/27 09:08:10 $
  */
 public class MuInteger
     extends MuNumber
@@ -91,7 +91,29 @@ public class MuInteger
     public MuInteger(Object obj) {
         setValue(obj);
     }
-    
+
+    /**
+     * Set the value.
+     *
+     * @param i    <code>int</code> value.
+     * @return     The previous value.
+     */
+    public int set(int i) {
+        int old = value;
+        value = i;
+        return old;
+    }
+
+    /**
+     * Get the current value.
+     *
+     * @return  The current value.
+     */
+    public int get() {
+        return value;
+    }
+
+
     /**
      * Set the value to value only if the current value is equal to 
      * the assumed value.
@@ -186,7 +208,7 @@ public class MuInteger
      * @return     The new value.
      */
     public int negate() {
-        value = ((int)-value);
+        value = -value;
         return value;
     }
     
@@ -196,7 +218,7 @@ public class MuInteger
      * @return     The new value.
      */
     public int complement() {
-        value = (int)~value;
+        value = ~value;
         return value;
     }
     
@@ -207,7 +229,7 @@ public class MuInteger
      * @return     The new value.
      */
     public int and(int b) {
-        value = (int)(value & b);
+        value = value & b;
         return value;
     }
     
@@ -218,7 +240,7 @@ public class MuInteger
      * @return     The new value.
      */
     public int or(int b) {
-        value = (int)(value | b);
+        value = value | b;
         return value;
     }
     
@@ -229,7 +251,7 @@ public class MuInteger
      * @return     The new value.
      */
     public int xor(int b) {
-        value = (int)(value ^ b);
+        value = value ^ b;
         return value;
     }
     
@@ -281,7 +303,7 @@ public class MuInteger
     /**
      * Compares this object with the specified object for order.
      *
-     * @param other   Value to compare with.
+     * @param obj     Value to compare with.
      * @return        A negative integer, zero, or a positive integer as
      *                this object is less than, equal to, or greater than
      *                the specified object.
@@ -289,7 +311,7 @@ public class MuInteger
      * @throws ClassCastException    Object is not a MuInteger.
      */
     public int compareTo(Object obj) {
-        return compareTo((MuInteger)obj);
+        return compareTo(((MuInteger)obj).value);
     }
     
     /**
@@ -355,7 +377,7 @@ public class MuInteger
      * @return   <code>int</code> value.
      */
     public int intValue() {
-        return (int)value;
+        return value;
     }
     
     /**
@@ -393,7 +415,7 @@ public class MuInteger
     /**
      * Set the value of this mutable integer.
      *
-     * @param value  Object to convert to an integer value.
+     * @param obj  Object to convert to an integer value.
      *
      * @throws NotCoercibleException    Can not convert to <code>int</code>.
      */

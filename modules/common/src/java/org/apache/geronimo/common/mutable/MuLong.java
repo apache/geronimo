@@ -63,7 +63,7 @@ import org.apache.geronimo.common.coerce.NotCoercibleException;
 /**
  * A mutable long integer class.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/24 20:51:22 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/27 09:08:10 $
  */
 public class MuLong
     extends MuNumber
@@ -188,7 +188,7 @@ public class MuLong
      * @return     The new value.
      */
     public long negate() {
-        value = ((long)-value);
+        value = -value;
         return value;
     }
     
@@ -198,7 +198,7 @@ public class MuLong
      * @return     The new value.
      */
     public long complement() {
-        value = (long)~value;
+        value = ~value;
         return value;
     }
     
@@ -209,7 +209,7 @@ public class MuLong
      * @return     The new value.
      */
     public long and(long b) {
-        value = (long)(value & b);
+        value = value & b;
         return value;
     }
     
@@ -220,7 +220,7 @@ public class MuLong
      * @return     The new value.
      */
     public long or(long b) {
-        value = (long)(value | b);
+        value = value | b;
         return value;
     }
     
@@ -231,7 +231,7 @@ public class MuLong
      * @return     The new value.
      */
     public long xor(long b) {
-        value = (long)(value ^ b);
+        value = value ^ b;
         return value;
     }
     
@@ -283,7 +283,7 @@ public class MuLong
     /**
      * Compares this object with the specified object for order.
      *
-     * @param other   Value to compare with.
+     * @param obj     Value to compare with.
      * @return        A negative integer, zero, or a positive integer as
      *                this object is less than, equal to, or greater than
      *                the specified object.
@@ -291,7 +291,7 @@ public class MuLong
      * @throws ClassCastException    Object is not a MuLong.
      */
     public int compareTo(Object obj) {
-        return compareTo((MuLong)obj);
+        return compareTo(((MuLong)obj).value);
     }
     
     /**
@@ -366,7 +366,7 @@ public class MuLong
      * @return   <code>long</code> value.
      */
     public long longValue() {
-        return (long)value;
+        return value;
     }
     
     /**
@@ -392,9 +392,17 @@ public class MuLong
      *
      * @param value    The new value.
      */
-    public void set(long value)
-    {
+    public void set(long value) {
         this.value = value;
+    }
+
+    /**
+     * Get the current value.
+     *
+     * @return     The current value.
+     */
+    public long get() {
+        return value;
     }
 
 

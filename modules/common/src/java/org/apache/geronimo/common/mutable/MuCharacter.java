@@ -64,7 +64,7 @@ import org.apache.geronimo.common.coerce.NotCoercibleException;
 /**
  * A mutable character class.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/24 20:51:22 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/27 09:08:10 $
  */
 public class MuCharacter
     extends CloneableObject
@@ -141,7 +141,7 @@ public class MuCharacter
     /**
      * Compares this object with the specified object for order.
      *
-     * @param other   Value to compare with.
+     * @param obj     Value to compare with.
      * @return        A negative integer, zero, or a positive integer as
      *                this object is less than, equal to, or greater than
      *                the specified object.
@@ -149,7 +149,7 @@ public class MuCharacter
      * @throws ClassCastException    Object is not a MuCharacter.
      */
     public int compareTo(Object obj) {
-        return compareTo((MuCharacter)obj);
+        return compareTo(((MuCharacter)obj).get());
     }
     
     /**
@@ -222,4 +222,3 @@ public class MuCharacter
         return new Character(value);
     }
 }
-
