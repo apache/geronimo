@@ -29,11 +29,12 @@ import junit.framework.TestCase;
  */
 public class PacketStreamTest extends TestCase {
 
-    EchoUpProtocol eup;
-    Latch startLatch;
-    boolean failed;
+    protected EchoUpProtocol eup;
+    protected Latch startLatch;
+    protected boolean failed;
 
-    public void testDummy() throws Exception { }
+    public void testDummy() throws Exception {
+    }
 
     public void testStream() throws Exception {
         new Thread(new WriterThread((short) 1024), "Test Writer").start();

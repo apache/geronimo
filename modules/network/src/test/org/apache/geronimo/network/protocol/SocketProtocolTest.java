@@ -14,7 +14,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.geronimo.network.protocol;
 
 import java.net.InetSocketAddress;
@@ -23,6 +22,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 
+import EDU.oswego.cs.dl.util.concurrent.CountDown;
 import junit.framework.TestCase;
 
 import org.apache.geronimo.network.SelectorManager;
@@ -35,7 +35,11 @@ import org.apache.geronimo.pool.ThreadPool;
  */
 public class SocketProtocolTest extends TestCase {
 
-    public void testNothing() {}
+    protected final int COUNT = 5;
+    protected CountDown completed;
+
+    public void testNothing() {
+    }
 
     public void test() throws Exception {
         ThreadPool tp = new ThreadPool();
@@ -55,49 +59,7 @@ public class SocketProtocolTest extends TestCase {
         sm.doStart();
 
         SocketProtocol spt = new SocketProtocol();
-        spt.setUpProtocol(new Protocol() {
-            public Protocol getUpProtocol() {
-                throw new NoSuchMethodError();
-            }
-
-            public void setUpProtocol(Protocol up) {
-                throw new NoSuchMethodError();
-            }
-
-            public Protocol getDownProtocol() {
-                throw new NoSuchMethodError();
-            }
-
-            public void setDownProtocol(Protocol down) {
-                throw new NoSuchMethodError();
-            }
-
-            public void clearLinks() {
-            }
-
-            public Protocol cloneProtocol() throws CloneNotSupportedException {
-                return (Protocol) super.clone();
-            }
-
-            public void setup() {
-            }
-
-            public void drain() {
-            }
-
-            public void teardown() throws ProtocolException {
-            }
-
-            public void sendUp(UpPacket packet) {
-                System.out.println("BAR ");
-            }
-
-            public void sendDown(DownPacket packet) {
-            }
-
-            public void flush() throws ProtocolException {
-            }
-        });
+        spt.setUpProtocol(new TestCountingProtocol(completed));
         spt.setTimeout(10 * 1000);
         spt.setSelectorManager(sm);
 
@@ -146,7 +108,7 @@ public class SocketProtocolTest extends TestCase {
             public void drain() {
             }
 
-            public void teardown() throws ProtocolException {
+            public void teardown() {
             }
 
             public void sendUp(UpPacket packet) {
@@ -155,7 +117,7 @@ public class SocketProtocolTest extends TestCase {
             public void sendDown(DownPacket packet) {
             }
 
-            public void flush() throws ProtocolException {
+            public void flush() {
             }
         });
 
@@ -167,15 +129,13 @@ public class SocketProtocolTest extends TestCase {
         sp.setup();
 
 
-        sp.sendDown(getDatagramPacket());
-        sp.sendDown(getDatagramPacket());
-        sp.sendDown(getDatagramPacket());
+        for (int i = 0; i < COUNT; i++) {
+            sp.sendDown(getDatagramPacket());
+        }
 
-        DatagramDownPacket packet = getDatagramPacket();
-        sp.sendDown(packet);
-        sp.sendDown(packet);
-
-        Thread.sleep(5 * 1000);
+        if (!completed.attempt(60 * 1000)) {
+            throw new IllegalStateException("TIMEOUT");
+        }
 
         sp.drain();
 
@@ -190,6 +150,10 @@ public class SocketProtocolTest extends TestCase {
         cp.doStop();
 
         tp.doStop();
+    }
+
+    public void setUp() throws Exception {
+        completed = new CountDown(COUNT);
     }
 
     public DatagramDownPacket getDatagramPacket() {

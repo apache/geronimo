@@ -14,13 +14,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.geronimo.network.protocol;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -31,6 +29,7 @@ import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Properties;
 
+import EDU.oswego.cs.dl.util.concurrent.CountDown;
 import EDU.oswego.cs.dl.util.concurrent.Latch;
 import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
@@ -53,6 +52,8 @@ import org.apache.geronimo.pool.ThreadPool;
 public class GSSAPIProtocolTest extends TestCase {
 
     final static private Log log = LogFactory.getLog(GSSAPIProtocolTest.class);
+    protected final int COUNT = 5;
+    protected CountDown completed;
 
     private Properties properties;
     private Subject clientSubject;
@@ -105,7 +106,7 @@ public class GSSAPIProtocolTest extends TestCase {
             clientStack.setSelectorManager(sm);
 
             SocketProtocol sp = new SocketProtocol();
-            sp.setTimeout(1000 * 1000); //todo reset to 10s
+            sp.setTimeout(10 * 1000);
             sp.setInterface(new InetSocketAddress(ssa.getConnectURI().getHost(), 0));
             sp.setAddress(new InetSocketAddress(ssa.getConnectURI().getHost(), ssa.getConnectURI().getPort()));
             sp.setSelectorManager(sm);
@@ -113,18 +114,19 @@ public class GSSAPIProtocolTest extends TestCase {
             clientStack.push(sp);
 
             ControlClientProtocol ccp = new ControlClientProtocol();
-            ccp.setTimeout(1000 * 1000); //todo set to 10s
+            ccp.setTimeout(10 * 1000);
 
             clientStack.push(ccp);
 
             clientStack.setup();
-            Thread.sleep(5 * 1000); //todo delete
 
             clientStack.sendDown(getPlainPacket());
             clientStack.sendDown(getPlainPacket());
             clientStack.sendDown(getPlainPacket());
 
-            Thread.sleep(5 * 1000); //todo back to 5s
+            if (!completed.attempt(60 * 1000)) {
+                throw new IllegalStateException("TIMEOUT");
+            }
 
             clientStack.drain();
 
@@ -222,6 +224,8 @@ public class GSSAPIProtocolTest extends TestCase {
 
             templateStack.push(waiter);
 
+            templateStack.push(new TestCountingProtocol(completed));
+
             ProtocolFactory pf = new ProtocolFactory();
             pf.setClockPool(cp);
             pf.setMaxAge(Long.MAX_VALUE);
@@ -258,6 +262,7 @@ public class GSSAPIProtocolTest extends TestCase {
         startLatch = new Latch();
         shutdownLatch = new Latch();
         stopLatch = new Latch();
+        completed = new CountDown(COUNT);
         try {
             properties = new Properties();
             try {
@@ -280,8 +285,6 @@ public class GSSAPIProtocolTest extends TestCase {
             hasKerberos = false;
         }
     }
-
-    static volatile long id = 0;
 
     protected PlainDownPacket getPlainPacket() {
         PlainDownPacket packet = new PlainDownPacket();

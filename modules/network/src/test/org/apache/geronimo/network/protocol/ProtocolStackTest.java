@@ -14,7 +14,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.geronimo.network.protocol;
 
 import java.net.InetSocketAddress;
@@ -23,6 +22,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
 
+import EDU.oswego.cs.dl.util.concurrent.CountDown;
 import junit.framework.TestCase;
 
 import org.apache.geronimo.network.SelectorManager;
@@ -34,7 +34,12 @@ import org.apache.geronimo.pool.ThreadPool;
  * @version $Rev$ $Date$
  */
 public class ProtocolStackTest extends TestCase {
-    public void testNothing() {}
+
+    protected final int COUNT = 5;
+    protected CountDown completed;
+
+    public void testNothing() {
+    }
 
     public void test() throws Exception {
         ThreadPool tp = new ThreadPool();
@@ -68,6 +73,8 @@ public class ProtocolStackTest extends TestCase {
         test.setSelectorManager(sm);
         s.push(test);
 
+        s.push(new TestCountingProtocol(completed));
+
         ProtocolFactory pf = new ProtocolFactory();
         pf.setClockPool(cp);
         pf.setMaxAge(Long.MAX_VALUE);
@@ -82,69 +89,27 @@ public class ProtocolStackTest extends TestCase {
         ssa.setAcceptorListener(pf);
         ssa.startup();
 
+        ProtocolStack stack = new ProtocolStack();
+
         SocketProtocol sp = new SocketProtocol();
-        sp.setUpProtocol(new Protocol() {
-            public Protocol getUpProtocol() {
-                throw new NoSuchMethodError();
-            }
-
-            public void setUpProtocol(Protocol up) {
-                throw new NoSuchMethodError();
-            }
-
-            public Protocol getDownProtocol() {
-                throw new NoSuchMethodError();
-            }
-
-            public void setDownProtocol(Protocol down) {
-                throw new NoSuchMethodError();
-            }
-
-            public void clearLinks() {
-            }
-
-            public Protocol cloneProtocol() throws CloneNotSupportedException {
-                return (Protocol) super.clone();
-            }
-
-            public void setup() {
-            }
-
-            public void drain() {
-            }
-
-            public void teardown() throws ProtocolException {
-            }
-
-            public void sendUp(UpPacket packet) {
-            }
-
-            public void sendDown(DownPacket packet) {
-            }
-
-            public void flush() throws ProtocolException {
-            }
-        });
-
-        sp.setTimeout(1000 * 1000);  //todo set back to 10s
+        sp.setTimeout(10 * 1000);
         sp.setInterface(new InetSocketAddress(ssa.getConnectURI().getHost(), 0));
         sp.setAddress(new InetSocketAddress(ssa.getConnectURI().getHost(), ssa.getConnectURI().getPort()));
         sp.setSelectorManager(sm);
 
-        sp.setup();
+        stack.push(sp);
 
+        stack.setup();
 
-        sp.sendDown(getDatagramPacket());
-        sp.sendDown(getDatagramPacket());
-        sp.sendDown(getDatagramPacket());
+        for (int i = 0; i < COUNT; i++) {
+            stack.sendDown(getDatagramPacket());
+        }
 
-        DatagramDownPacket packet = getDatagramPacket();
-        sp.sendDown(packet);
-        sp.sendDown(packet);
+        if (!completed.attempt(60 * 1000)) {
+            throw new IllegalStateException("TIMEOUT");
+        }
 
-        Thread.sleep(5 * 1000);
-
-        sp.drain();
+        stack.drain();
 
         ssa.drain();
 
@@ -157,6 +122,10 @@ public class ProtocolStackTest extends TestCase {
         cp.doStop();
 
         tp.doStop();
+    }
+
+    public void setUp() throws Exception {
+        completed = new CountDown(COUNT);
     }
 
     static volatile long id = 0;

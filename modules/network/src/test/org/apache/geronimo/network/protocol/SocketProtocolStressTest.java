@@ -14,7 +14,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.geronimo.network.protocol;
 
 import java.net.InetSocketAddress;
@@ -36,6 +35,12 @@ import org.apache.geronimo.pool.ThreadPool;
  */
 public class SocketProtocolStressTest extends TestCase {
 
+    protected final int WORKERS = 10;
+    protected final int MESSAGE_COUNT = 10;
+    protected CountDown simpleCompleted;
+    protected CountDown concurrentCompleted;
+    protected TestCountingProtocol simpleCounter;
+    protected TestCountingProtocol concurrentCounter;
     protected ThreadPool tp;
     protected ClockPool cp;
     protected SelectorManager sm;
@@ -45,26 +50,26 @@ public class SocketProtocolStressTest extends TestCase {
     protected SocketProtocol sp;
     protected volatile int count;
 
-    public void testNothing() {}
-
-    public void testSimple() throws Exception {
-        sp.sendDown(allocateDownPacket());
-        sp.sendDown(allocateDownPacket());
-        sp.sendDown(allocateDownPacket());
-
-        DatagramDownPacket packet = allocateDownPacket();
-        sp.sendDown(packet);
-        sp.sendDown(packet);
-
-        Thread.sleep(5 * 1000);
+    public void testNothing() {
     }
 
-    public void XtestConcurrentRequests() throws Exception {
+    public void testSimple() throws Exception {
+        simpleCounter.setCompleted(simpleCompleted = new CountDown(MESSAGE_COUNT));
 
-        final int WORKERS = 10;
-        final int MESSAGE_COUNT = 10;
+        for (int i = 0; i < MESSAGE_COUNT; i++) {
+            sp.sendDown(allocateDownPacket());
+        }
+
+        if (!simpleCompleted.attempt(60 * 1000)) {
+            throw new IllegalStateException("TIMEOUT");
+        }
+    }
+
+    public void testConcurrentRequests() throws Exception {
+
         final CyclicBarrier barrier = new CyclicBarrier(WORKERS);
-        final CountDown finished = new CountDown(WORKERS);
+
+        concurrentCounter.setCompleted(concurrentCompleted = new CountDown(WORKERS * MESSAGE_COUNT));
 
         for (int i = 0; i < WORKERS; i++) {
 
@@ -79,24 +84,22 @@ public class SocketProtocolStressTest extends TestCase {
                         for (int i = 0; i < MESSAGE_COUNT; i++)
                             sp.sendDown(allocateDownPacket());
 
-
                     } catch (Exception e) {
                         e.printStackTrace();
-                    } finally {
-                        finished.release();
                     }
                 }
             }.start();
         }
 
-        finished.acquire();
-
-        Thread.sleep(5 * 1000);
+        if (!concurrentCompleted.attempt(60 * 1000)) {
+            throw new IllegalStateException("TIMEOUT");
+        }
 
         assertEquals(WORKERS * MESSAGE_COUNT, count);
     }
 
     public void setUp() throws Exception {
+
         count = 0;
 
         tp = new ThreadPool();
@@ -135,13 +138,38 @@ public class SocketProtocolStressTest extends TestCase {
 
             public void sendUp(UpPacket packet) throws ProtocolException {
                 count++;
+                getUpProtocol().sendUp(packet);
+            }
+
+            public void sendDown(DownPacket packet) throws ProtocolException {
+                getDownProtocol().sendDown(packet);
+            }
+
+            public void flush() {
+            }
+        });
+
+        aps.push(simpleCounter = new TestCountingProtocol(new CountDown(MESSAGE_COUNT)));
+        aps.push(concurrentCounter = new TestCountingProtocol(new CountDown(WORKERS * MESSAGE_COUNT)));
+
+        aps.push(new AbstractProtocol() {
+            public void setup() {
+            }
+
+            public void drain() {
+            }
+
+            public void teardown() {
+            }
+
+            public void sendUp(UpPacket packet) throws ProtocolException {
                 this.getDownProtocol().sendDown(allocateDownPacket());
             }
 
             public void sendDown(DownPacket packet) {
             }
 
-            public void flush() throws ProtocolException {
+            public void flush() {
             }
         });
 
@@ -199,7 +227,7 @@ public class SocketProtocolStressTest extends TestCase {
             public void sendDown(DownPacket packet) {
             }
 
-            public void flush() throws ProtocolException {
+            public void flush() {
             }
         });
 

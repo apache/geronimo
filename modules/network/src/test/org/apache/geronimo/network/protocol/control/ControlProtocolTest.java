@@ -14,7 +14,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.geronimo.network.protocol.control;
 
 import java.net.InetSocketAddress;
@@ -22,16 +21,17 @@ import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
+import EDU.oswego.cs.dl.util.concurrent.CountDown;
 import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.geronimo.network.SelectorManager;
-import org.apache.geronimo.network.protocol.CountingProtocol;
 import org.apache.geronimo.network.protocol.DatagramDownPacket;
 import org.apache.geronimo.network.protocol.ProtocolFactory;
 import org.apache.geronimo.network.protocol.ServerSocketAcceptor;
 import org.apache.geronimo.network.protocol.SocketProtocol;
+import org.apache.geronimo.network.protocol.TestCountingProtocol;
 import org.apache.geronimo.network.protocol.TestProtocol;
 import org.apache.geronimo.pool.ClockPool;
 import org.apache.geronimo.pool.ThreadPool;
@@ -43,8 +43,11 @@ import org.apache.geronimo.pool.ThreadPool;
 public class ControlProtocolTest extends TestCase {
 
     final static private Log log = LogFactory.getLog(ControlProtocolTest.class);
+    protected final int COUNT = 5;
+    protected CountDown completed;
 
-    public void testDummy() throws Exception { }
+    public void testDummy() throws Exception {
+    }
 
     public void test() throws Exception {
         ThreadPool tp = new ThreadPool();
@@ -85,8 +88,6 @@ public class ControlProtocolTest extends TestCase {
 
         ControlServerProtocolWaiter waiter = new ControlServerProtocolWaiter();
 
-        waiter.push(new CountingProtocol());
-
         TestProtocol test = new TestProtocol();
         test.setValue("SimpleTest");
         test.setThreadPool(tp);
@@ -96,6 +97,8 @@ public class ControlProtocolTest extends TestCase {
         waiter.push(test);
 
         templateStack.push(waiter);
+
+        templateStack.push(new TestCountingProtocol(completed));
 
         ProtocolFactory pf = new ProtocolFactory();
         pf.setClockPool(cp);
@@ -132,15 +135,15 @@ public class ControlProtocolTest extends TestCase {
 
         clientStack.setup();
 
-        clientStack.sendDown(getDatagramPacket());
-        clientStack.sendDown(getDatagramPacket());
-        clientStack.sendDown(getDatagramPacket());
+        for (int i = 0; i < COUNT; i++) {
+            clientStack.sendDown(getDatagramPacket());
+        }
 
-        Thread.sleep(5 * 1000);
+        if (!completed.attempt(60 * 1000)) {
+            throw new IllegalStateException("TIMEOUT");
+        }
 
         clientStack.drain();
-
-        Thread.sleep(5 * 1000);
 
         ssa.drain();
 
@@ -153,7 +156,9 @@ public class ControlProtocolTest extends TestCase {
         tp.doStop();
     }
 
-    static volatile long id = 0;
+    public void setUp() throws Exception {
+        completed = new CountDown(COUNT);
+    }
 
     protected DatagramDownPacket getDatagramPacket() {
         DatagramDownPacket packet = new DatagramDownPacket();
@@ -164,10 +169,6 @@ public class ControlProtocolTest extends TestCase {
         for (int i = 0; i < COUNT; i++) {
             buffer.put((byte) 0x0b);
         }
-//        CharBuffer b = buffer.asCharBuffer();
-//        b.put("Hello! " + id++);
-//
-//        buffer.position(b.position()*2);
         buffer.flip();
         list.add(buffer);
 

@@ -14,11 +14,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.geronimo.network.protocol;
 
 import javax.security.auth.Subject;
-
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;

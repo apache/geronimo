@@ -14,7 +14,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.geronimo.network.protocol;
 
 import java.net.InetSocketAddress;
@@ -23,6 +22,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import EDU.oswego.cs.dl.util.concurrent.CountDown;
 import junit.framework.TestCase;
 
 import org.apache.geronimo.network.SelectorManager;
@@ -34,6 +34,9 @@ import org.apache.geronimo.pool.ThreadPool;
  */
 public class DatagramProtocolTest extends TestCase {
 
+    protected final int COUNT = 5;
+    protected CountDown completed;
+
     public void test() throws Exception {
         ThreadPool tp = new ThreadPool();
         tp.setKeepAliveTime(100);
@@ -44,72 +47,33 @@ public class DatagramProtocolTest extends TestCase {
         SelectorManager sm = new SelectorManager();
         sm.setThreadPool(tp);
         sm.setThreadName("SM");
-        sm.setTimeout(500);
         sm.doStart();
 
+        ProtocolStack stack = new ProtocolStack();
         DatagramProtocol dgp = new DatagramProtocol();
-        dgp.setUpProtocol(new Protocol() {
-            public Protocol getUpProtocol() {
-                throw new NoSuchMethodError();
-            }
-
-            public void setUpProtocol(Protocol up) {
-                throw new NoSuchMethodError();
-            }
-
-            public Protocol getDownProtocol() {
-                throw new NoSuchMethodError();
-            }
-
-            public void setDownProtocol(Protocol down) {
-                throw new NoSuchMethodError();
-            }
-
-            public void clearLinks() {
-            }
-
-            public Protocol cloneProtocol() throws CloneNotSupportedException {
-                return (Protocol) super.clone();
-            }
-
-            public void setup() {
-            }
-
-            public void drain() {
-            }
-
-            public void teardown() throws ProtocolException {
-            }
-
-            public void sendUp(UpPacket packet) {
-                DatagramUpPacket datgramPacket = (DatagramUpPacket) packet;
-                System.out.println("FOO " + datgramPacket.getAddress());
-            }
-
-            public void sendDown(DownPacket packet) {
-            }
-
-            public void flush() throws ProtocolException {
-            }
-        });
-
         dgp.setDestinationInterface(new InetSocketAddress("localhost", 0));
         dgp.setSourceAddress(new InetSocketAddress("localhost", 0));
         dgp.setSelectorManager(sm);
 
-        dgp.setup();
+        stack.push(dgp);
+        stack.push(new TopProtocol());
+        stack.push(new TestCountingProtocol(completed));
+
+        stack.setup();
 
         DatagramDownPacket packet = new DatagramDownPacket();
         packet.setAddress(new InetSocketAddress(dgp.getConnectURI().getHost(), dgp.getConnectURI().getPort()));
         packet.setBuffers(getByteBuffer());
 
-        dgp.sendDown(packet);
-        dgp.sendDown(packet);
-        dgp.sendDown(packet);
+        for (int i = 0; i < COUNT; i++) {
+            stack.sendDown(packet);
+        }
 
-        Thread.sleep(1 * 1000);
+        if (!completed.attempt(60 * 1000)) {
+            throw new IllegalStateException("TIMEOUT");
+        }
 
-        dgp.drain();
+        stack.drain();
 
         sm.doStop();
 
@@ -128,75 +92,41 @@ public class DatagramProtocolTest extends TestCase {
         sm.setThreadName("SM");
         sm.doStart();
 
+        ProtocolStack stack = new ProtocolStack();
         DatagramProtocol dgp = new DatagramProtocol();
-        dgp.setUpProtocol(new Protocol() {
-            public Protocol getUpProtocol() {
-                throw new NoSuchMethodError();
-            }
-
-            public void setUpProtocol(Protocol up) {
-                throw new NoSuchMethodError();
-            }
-
-            public Protocol getDownProtocol() {
-                throw new NoSuchMethodError();
-            }
-
-            public void setDownProtocol(Protocol down) {
-                throw new NoSuchMethodError();
-            }
-
-            public void clearLinks() {
-            }
-
-            public Protocol cloneProtocol() throws CloneNotSupportedException {
-                return (Protocol) super.clone();
-            }
-
-            public void setup() {
-            }
-
-            public void drain() {
-            }
-
-            public void teardown() throws ProtocolException {
-            }
-
-            public void sendUp(UpPacket packet) {
-                DatagramUpPacket datgramPacket = (DatagramUpPacket) packet;
-                System.out.println("FOO " + datgramPacket.getAddress());
-            }
-
-            public void sendDown(DownPacket packet) {
-            }
-
-            public void flush() throws ProtocolException {
-            }
-        });
-
         dgp.setDestinationInterface(new InetSocketAddress("localhost", 0));
         dgp.setSourceAddress(new InetSocketAddress("localhost", 8081));
         dgp.setSelectorManager(sm);
 
-        DatagramProtocol dgp2 = (DatagramProtocol) dgp.cloneProtocol();
+        stack.push(dgp);
+        stack.push(new TopProtocol());
+        stack.push(new TestCountingProtocol(completed));
 
-        dgp2.setup();
+        ProtocolStack stack_copy = (ProtocolStack) stack.cloneProtocol();
+
+        stack_copy.setup();
 
         DatagramDownPacket packet = new DatagramDownPacket();
         packet.setAddress(new InetSocketAddress("localhost", 8081));
         packet.setBuffers(getByteBuffer());
 
-        dgp2.sendDown(packet);
-        dgp2.sendDown(packet);
-        dgp2.sendDown(packet);
+        for (int i = 0; i < COUNT; i++) {
+            stack_copy.sendDown(packet);
+        }
 
-        Thread.sleep(5 * 1000);
+        if (!completed.attempt(60 * 1000)) {
+            throw new IllegalStateException("TIMEOUT");
+        }
 
-        dgp2.drain();
+        stack_copy.drain();
 
         sm.doStop();
 
         tp.doStop();
+    }
+
+    public void setUp() throws Exception {
+        completed = new CountDown(COUNT);
     }
 
     public Collection getByteBuffer() {
@@ -215,5 +145,30 @@ public class DatagramProtocolTest extends TestCase {
         list.add(byteBuffer);
 
         return list;
+    }
+
+    class TopProtocol extends AbstractProtocol {
+
+        public void setup() {
+        }
+
+        public void drain() {
+        }
+
+        public void teardown() {
+        }
+
+        public void sendUp(UpPacket packet) throws ProtocolException {
+            DatagramUpPacket datgramPacket = (DatagramUpPacket) packet;
+            System.out.println("FOO " + datgramPacket.getAddress());
+            getUpProtocol().sendUp(packet);
+        }
+
+        public void sendDown(DownPacket packet) throws ProtocolException {
+            getDownProtocol().sendDown(packet);
+        }
+
+        public void flush() throws ProtocolException {
+        }
     }
 }
