@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.8 $ $Date: 2004/02/06 08:55:04 $ -->
+<!-- $Revision: 1.9 $ $Date: 2004/02/09 07:17:31 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -52,6 +52,14 @@
         </dependency>
 
         <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee-deployment</artifactId>
+            <version>DEV</version>
+            <properties>
+            </properties>
+        </dependency>
+
+        <dependency>
             <id>cglib+full</id>
             <version>2.0-RC2</version>
             <url>http://cglib.sf.net/</url>
@@ -75,11 +83,9 @@
         </dependency>
 
         <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-j2ee-deployment</artifactId>
-            <version>DEV</version>
-            <properties>
-            </properties>
+            <id>commons-cli</id>
+            <version>1.0</version>
+            <url>http://jakarta.apache.org/commons/cli/</url>
         </dependency>
 
         <dependency>
@@ -91,6 +97,22 @@
             </properties>
         </dependency>
 
+<!--    uncomment to verify XML loading with DOM
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.6.0</version>
+            <properties>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xmlParserAPIs</artifactId>
+            <version>2.2.1</version>
+            <properties>
+            </properties>
+        </dependency>
+-->
     </dependencies>
 
 

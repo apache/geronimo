@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Revision: 1.1 $ $Date: 2004/02/09 07:17:31 $ -->
+
+<project default="default"
+    xmlns:xmlbeans="geronimo:xmlbeans">
+
+    <preGoal name="java:compile">
+        <xmlbeans:schema2java
+            sourceschema="${basedir}/src/schema/geronimo-config.xsd"
+            xmlconfigs="${basedir}/src/schema/xmlconfig.xml"
+            targetdir="${basedir}/target/xmlbeans"/>
+    </preGoal>
+
+</project>

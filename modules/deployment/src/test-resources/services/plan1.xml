@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration
+    xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    configId="test/plan1"
+    >
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-kernel</artifactId>
+        <version>DEV</version>
+    </dependency>
+    
+    <gbean name="geronimo.test:name=MyMockGMBean" class="org.apache.geronimo.deployment.MockGBean">
+        <attribute name="Value">1234</attribute>
+        <attribute name="IntValue">1234</attribute>
+        <reference name="MockEndpoint">geronimo.test:name=MyMockGMBean</reference>
+    </gbean>
+</configuration>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+    xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://geronimo.apache.org/xml/ns/deployment"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    >
+    <xs:annotation>
+        <xs:documentation>
+            Schema for Geronimo Services deployment plans.
+            Instance documents should begin with the element:
+
+            &gt;gbeans xmlns="http://geronimo.apache.org/xml/ns/deployment"&lt;
+        </xs:documentation>
+    </xs:annotation>
+
+    <xs:include schemaLocation="geronimo-common.xsd"/>
+
+    <xs:element name="configuration" type="configurationType"/>
+
+    <xs:complexType name="configurationType">
+        <xs:sequence>
+            <xs:element name="dependency" type="dependencyType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="gbean" type="gbeanType" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="configId" type="xs:string" use="required"/>
+        <xs:attribute name="parentId" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+</xs:schema>
