@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Revision: 1.5 $ $Date: 2004/09/03 05:48:14 $ -->
+<!-- $Revision: 1.6 $ $Date: 2004/09/07 18:36:51 $ -->
 
 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee"
     version="1.5"
@@ -27,7 +27,7 @@
         <uri>axion/jars/axion-${axion_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>commons-collections/jars/commons-collections-${commons_logging_version}.jar</uri>
+        <uri>commons-collections/jars/commons-collections-${commons_collections_version}.jar</uri>
     </dependency>
 
     <dependency>
