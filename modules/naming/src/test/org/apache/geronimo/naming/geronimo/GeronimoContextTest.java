@@ -18,6 +18,7 @@
 package org.apache.geronimo.naming.geronimo;
 
 import javax.naming.NamingException;
+import javax.naming.Context;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.naming.geronimo.GeronimoContext;
@@ -42,6 +43,12 @@ public class GeronimoContextTest extends TestCase {
         assertEquals(context.lookup("one"), "one");
         assertEquals(context.lookup("this/is/a/compound/name"), "two");
         assertEquals(context.lookup("this/is/another/compound/name"), "three");
+    }
+
+    public void testLookupSubContext() throws Exception {
+        Context context = (Context) this.context.lookup("this/is");
+        assertEquals(context.lookup("a/compound/name"), "two");
+        assertEquals(context.lookup("another/compound/name"), "three");
     }
 
     public void testUnbind() throws Exception {
