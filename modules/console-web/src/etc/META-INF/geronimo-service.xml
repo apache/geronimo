@@ -3,7 +3,7 @@
 <!--    <path>geronimo-web-console.war</path>-->
 
     <gbean class="org.apache.geronimo.jetty.JettyWebApplicationContext" objectName="geronimo.app:name=WebConsole">
-        <default attribute="URI" type="java.net.URI">file:../modules/console-web/target/geronimo-web-console/</default>
+        <default attribute="URI" type="java.net.URI">file:../../../modules/console-web/target/geronimo-web-console/</default>
         <default attribute="ContextPath" type="java.lang.String">/geronimo-web-console</default>
         <endpoint name="JettyContainer">
             <pattern>geronimo.web:type=WebContainer,container=Jetty</pattern>

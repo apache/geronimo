@@ -121,7 +121,7 @@ import org.apache.geronimo.kernel.Kernel;
  * a startRecursive() for all the GBeans it contains. Similarly, if the
  * Configuration is stopped then all of its GBeans will be stopped as well.
  *
- * @version $Revision: 1.7 $ $Date: 2004/01/25 21:07:04 $
+ * @version $Revision: 1.8 $ $Date: 2004/02/06 08:27:49 $
  */
 public class Configuration implements GBean {
     private static final Log log = LogFactory.getLog(Configuration.class);
@@ -154,14 +154,14 @@ public class Configuration implements GBean {
     }
 
     public void setGBeanContext(GBeanContext context) {
-        this.context = (GBeanMBeanContext)context;
+        this.context = (GBeanMBeanContext) context;
     }
 
     public void doStart() throws Exception {
         // build classpath
         URL[] urls = new URL[classPath.size()];
         for (int i = 0; i < urls.length; i++) {
-            URI path =  (URI) classPath.get(i);
+            URI path = (URI) classPath.get(i);
             urls[i] = new URL(baseURL, path.toString());
         }
         if (parent == null) {
@@ -180,7 +180,7 @@ public class Configuration implements GBean {
             GBeanMBean gbean = (GBeanMBean) entry.getValue();
             MBeanServer mbServer = context.getServer();
             mbServer.registerMBean(gbean, name);
-            mbServer.invoke(Kernel.DEPENDENCY_SERVICE, "addDependency", new Object[] { name, context.getObjectName()}, new String[] {ObjectName.class.getName(), ObjectName.class.getName()});
+            mbServer.invoke(Kernel.DEPENDENCY_SERVICE, "addDependency", new Object[]{name, context.getObjectName()}, new String[]{ObjectName.class.getName(), ObjectName.class.getName()});
         }
     }
 
@@ -190,16 +190,16 @@ public class Configuration implements GBean {
         for (Iterator i = gbeans.keySet().iterator(); i.hasNext();) {
             ObjectName name = (ObjectName) i.next();
             try {
-                mbServer.invoke(Kernel.DEPENDENCY_SERVICE, "removeDependency", new Object[] { name, context.getObjectName()}, new String[] {ObjectName.class.getName(), ObjectName.class.getName()});
+                mbServer.invoke(Kernel.DEPENDENCY_SERVICE, "removeDependency", new Object[]{name, context.getObjectName()}, new String[]{ObjectName.class.getName(), ObjectName.class.getName()});
             } catch (Exception e) {
                 // ignore
-                log.warn("Could not remove dependency for child "+name, e);
+                log.warn("Could not remove dependency for child " + name, e);
             }
             try {
                 mbServer.unregisterMBean(name);
             } catch (Exception e) {
                 // ignore
-                log.warn("Could not unregister child "+name, e);
+                log.warn("Could not unregister child " + name, e);
             }
         }
 
@@ -274,11 +274,13 @@ public class Configuration implements GBean {
      */
     public static Map loadGBeans(byte[] gbeanState, ClassLoader cl) throws InvalidConfigException {
         Map gbeans = new HashMap();
+        ObjectName objectName = null;
         try {
             ObjectInputStream ois = new ConfigInputStream(new ByteArrayInputStream(gbeanState), cl);
             try {
                 while (true) {
-                    ObjectName objectName = (ObjectName) ois.readObject();
+                    objectName = null;
+                    objectName = (ObjectName) ois.readObject();
                     GBeanInfo info = (GBeanInfo) ois.readObject();
                     GBeanMBean gbean = new GBeanMBean(info, cl);
                     loadGMBeanState(gbean, ois);
@@ -291,18 +293,19 @@ public class Configuration implements GBean {
             }
             return gbeans;
         } catch (Exception e) {
-            throw new InvalidConfigException("Unable to deserialize GBeanState", e);
+            throw new InvalidConfigException("Unable to deserialize GBeanState" +
+                    (objectName == null ? "" : " " + objectName), e);
         }
     }
 
     public static void loadGMBeanState(GBeanMBean gbean, ObjectInputStream ois) throws IOException, AttributeNotFoundException, InvalidAttributeValueException, MBeanException, ReflectionException, ClassNotFoundException {
         int attributeCount = ois.readInt();
-        for (int i = 0; i < attributeCount; i ++) {
-            gbean.setAttribute((String)ois.readObject(), ois.readObject());
+        for (int i = 0; i < attributeCount; i++) {
+            gbean.setAttribute((String) ois.readObject(), ois.readObject());
         }
         int endpointCount = ois.readInt();
-        for (int i = 0; i < endpointCount; i ++) {
-            gbean.setReferencePatterns((String)ois.readObject(), (Set)ois.readObject());
+        for (int i = 0; i < endpointCount; i++) {
+            gbean.setReferencePatterns((String) ois.readObject(), (Set) ois.readObject());
         }
     }
 
