@@ -119,6 +119,28 @@ by the server.
         <uri>commons-el/jars/commons-el-${commons_el_version}.jar</uri>
     </dependency>
 
+
+    <!-- HTTP/SOAP with XFire -->
+    <dependency>
+        <uri>xfire/jars/xfire-${xfire_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>xfire/jars/xfire-java-${xfire_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>xfire/jars/xfire-jaxrpc-${xfire_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>wsdl4j/jars/wsdl4j-${wsdl4j_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>stax/jars/stax-${stax_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>stax/jars/stax-api-${stax_api_version}.jar</uri>
+    </dependency>
+
+
     <!-- Default security realm using properties files -->
     <gbean name="geronimo.security:type=LoginModule,name=properties-login"
         class="org.apache.geronimo.security.jaas.LoginModuleGBean">
@@ -229,7 +251,21 @@ by the server.
         <!--        <attribute name="MaxIdleTime" type="int">10</attribute>-->
     </gbean>
 
-    <!-- EJB container -->
+    <!-- EJB Protocol -->
+    <gbean name="openejb:type=NetworkService,name=EJB" class="org.openejb.server.StandardServiceStackGBean">
+        <attribute name="name">EJB</attribute>
+        <attribute name="port">4201</attribute>
+        <attribute name="address">127.0.0.1</attribute>
+        <attribute name="allowHosts">127.0.0.1</attribute>
+        <attribute name="priority">5</attribute>
+        <attribute name="threads">20</attribute>
+        <attribute name="logOnSuccess">HOST,NAME,THREADID,USERID</attribute>
+        <attribute name="logOnFailure">HOST,NAME</attribute>
+        <reference name="Server">openejb:type=Server,name=EJB</reference>
+    </gbean>
+    <gbean name="openejb:type=Server,name=EJB" class="org.openejb.server.ejbd.EjbServerGBean">
+        <reference name="ContainerIndex">openejb:type=ContainerIndex</reference>
+    </gbean>
     <!-- pattern domain name must match the domain of the j2eeServer attribute of the EAR builder in the deployer plan -->
     <gbean name="openejb:type=ContainerIndex" class="org.openejb.ContainerIndex">
         <references name="EJBContainers">
@@ -239,17 +275,28 @@ by the server.
         </references>
     </gbean>
 
-    <!-- EJB Protocol -->
-    <gbean name="openejb:type=SocketService,name=EJB" class="org.openejb.server.SimpleSocketService">
-        <attribute name="serviceClassName">org.openejb.server.ejbd.EjbServer</attribute>
-        <attribute name="onlyFrom">127.0.0.1</attribute>
-        <reference name="ContainerIndex">openejb:type=ContainerIndex</reference>
+    <!-- HTTP/SOAP Protocol -->
+    <gbean name="openejb:type=NetworkService,name=HTTPSOAP" class="org.openejb.server.StandardServiceStackGBean">
+        <attribute name="name">HTTPSOAP</attribute>
+        <attribute name="port">8000</attribute>
+        <attribute name="address">127.0.0.1</attribute>
+        <attribute name="allowHosts">127.0.0.1</attribute>
+        <attribute name="priority">5</attribute>
+        <attribute name="threads">5</attribute>
+        <attribute name="logOnSuccess">HOST,NAME,THREADID,USERID</attribute>
+        <attribute name="logOnFailure">HOST,NAME</attribute>
+        <reference name="Server">openejb:type=Server,name=HTTPSOAP</reference>
     </gbean>
-    <gbean name="openejb:type=ServiceDaemon,name=EJB" class="org.openejb.server.ServiceDaemon">
-        <attribute name="port">4201</attribute>
-        <attribute name="inetAddress">127.0.0.1</attribute>
-        <reference name="SocketService">openejb:type=SocketService,name=EJB</reference>
+    <gbean name="openejb:type=Server,name=HTTPSOAP" class="org.openejb.server.httpd.HttpServerGBean">
+        <reference name="Listener">openejb:type=SoapHttpListener</reference>
     </gbean>
+    <gbean name="openejb:type=SoapHttpListener" class="org.openejb.server.soap.SoapHttpListenerGBean">
+        <reference name="WSContainerIndex">openejb:type=WSContainerIndex</reference>
+    </gbean>
+    <gbean name="openejb:type=WSContainerIndex" class="org.openejb.server.soap.WSContainerIndexGBean">
+        <reference name="WSContainers">openejb:type=WSContainer,*</reference>
+    </gbean>
+
 
     <!-- JSR77 Management Objects -->
     <gbean name="geronimo.server:j2eeType=J2EEDomain,name=geronimo.server" class="org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl"/>

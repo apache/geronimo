@@ -133,6 +133,26 @@ Configuration for the Geronimo deployer
         <uri>ant/jars/ant-${ant_version}.jar</uri>
     </dependency>
 
+    <!-- HTTP/SOAP with XFire -->
+    <dependency>
+        <uri>xfire/jars/xfire-${xfire_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>xfire/jars/xfire-java-${xfire_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>xfire/jars/xfire-jaxrpc-${xfire_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>wsdl4j/jars/wsdl4j-${wsdl4j_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>stax/jars/stax-${stax_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>stax/jars/stax-api-${stax_api_version}.jar</uri>
+    </dependency>
+
 
     <gbean name="geronimo.deployment:role=Deployer,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.deployment.Deployer">
         <reference name="Builders">geronimo.deployer:role=Builder,config=org/apache/geronimo/J2EEDeployer,*</reference>
