@@ -30,13 +30,14 @@ import org.apache.geronimo.connector.outbound.ConnectionInterceptor;
 import org.apache.geronimo.connector.outbound.ConnectionReturnAction;
 import org.apache.geronimo.connector.outbound.ConnectionTrackingInterceptor;
 import org.apache.geronimo.connector.outbound.ManagedConnectionInfo;
+import org.apache.geronimo.connector.outbound.GeronimoConnectionEventListener;
 import org.apache.geronimo.transaction.DefaultInstanceContext;
 import org.apache.geronimo.transaction.InstanceContext;
 
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/05/31 23:37:05 $
+ * @version $Revision: 1.9 $ $Date: 2004/07/18 22:08:59 $
  *
  * */
 public class ConnectionTrackingCoordinatorTest extends TestCase
@@ -70,8 +71,7 @@ public class ConnectionTrackingCoordinatorTest extends TestCase
         InstanceContext oldInstanceContext = connectionTrackingCoordinator.enter(componentContext);
         assertNull("Expected old instance context to be null", oldInstanceContext);
         //give the context a ConnectionInfo
-        ManagedConnectionInfo managedConnectionInfo = new ManagedConnectionInfo(null, null);
-        ConnectionInfo connectionInfo = new ConnectionInfo(managedConnectionInfo);
+        ConnectionInfo connectionInfo = newConnectionInfo();
         connectionTrackingCoordinator.handleObtained(key1, connectionInfo);
         connectionTrackingCoordinator.exit(oldInstanceContext);
         Map connectionManagerMap = componentContext.getConnectionManagerMap();
@@ -89,13 +89,21 @@ public class ConnectionTrackingCoordinatorTest extends TestCase
         assertEquals("Expected no connection set for key1", null, infos);
     }
 
+    private ConnectionInfo newConnectionInfo() {
+        ManagedConnectionInfo mci = new ManagedConnectionInfo(null, null);
+        mci.setConnectionEventListener(new GeronimoConnectionEventListener(this, mci));
+        ConnectionInfo ci = new ConnectionInfo(mci);
+        ci.setConnectionHandle(new Object());
+        mci.addConnectionHandle(ci);
+        return ci;
+    }
+
     public void testNestedComponentContextLifecyle() throws Exception {
         DefaultInstanceContext componentContext1 = new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources);
         InstanceContext oldInstanceContext1 = connectionTrackingCoordinator.enter(componentContext1);
         assertNull("Expected old component context to be null", oldInstanceContext1);
         //give the context a ConnectionInfo
-        ManagedConnectionInfo managedConnectionInfo1 = new ManagedConnectionInfo(null, null);
-        ConnectionInfo connectionInfo1 = new ConnectionInfo(managedConnectionInfo1);
+        ConnectionInfo connectionInfo1 = newConnectionInfo();
         connectionTrackingCoordinator.handleObtained(key1, connectionInfo1);
 
         //Simulate calling another component
@@ -103,8 +111,7 @@ public class ConnectionTrackingCoordinatorTest extends TestCase
         InstanceContext oldInstanceContext2 = connectionTrackingCoordinator.enter(componentContext2);
         assertTrue("Expected returned component context to be componentContext1", oldInstanceContext2 == componentContext1);
         //give the context a ConnectionInfo
-        ManagedConnectionInfo managedConnectionInfo2 = new ManagedConnectionInfo(null, null);
-        ConnectionInfo connectionInfo2 = new ConnectionInfo(managedConnectionInfo2);
+        ConnectionInfo connectionInfo2 = newConnectionInfo();
         connectionTrackingCoordinator.handleObtained(key2, connectionInfo2);
 
         connectionTrackingCoordinator.exit(oldInstanceContext2);

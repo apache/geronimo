@@ -59,7 +59,7 @@ import org.apache.xmlbeans.XmlOptions;
 import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
- * @version $Revision: 1.14 $ $Date: 2004/07/12 06:07:51 $
+ * @version $Revision: 1.15 $ $Date: 2004/07/18 22:08:58 $
  */
 public class RAR_1_5ConfigBuilderTest extends TestCase {
     private URL j2eeDD;
@@ -118,7 +118,9 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
                     j2eeServerName,
                     j2eeApplicationName,
                     null,
-                    connectionTrackerName);
+                    connectionTrackerName,
+                    null,
+                    null);
 
             moduleBuilder.installModule(new JarFile(rarFile), earContext, module);
             earContext.getClassLoader(null);

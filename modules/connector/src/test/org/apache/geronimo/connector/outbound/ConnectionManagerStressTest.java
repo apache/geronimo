@@ -19,8 +19,8 @@ package org.apache.geronimo.connector.outbound;
 
 import java.util.HashSet;
 
-import org.apache.geronimo.transaction.TransactionContext;
-import org.apache.geronimo.transaction.UnspecifiedTransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContext;
+import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
 import org.apache.geronimo.transaction.DefaultInstanceContext;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
@@ -28,7 +28,7 @@ import org.apache.commons.logging.Log;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/05/31 23:37:05 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/18 22:08:59 $
  *
  * */
 public class ConnectionManagerStressTest extends ConnectionManagerTestUtils {

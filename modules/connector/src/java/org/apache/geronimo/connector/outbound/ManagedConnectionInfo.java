@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.connector.outbound;
 
+import java.util.Collection;
+
 import javax.resource.spi.ConnectionRequestInfo;
 import javax.resource.spi.ManagedConnection;
 import javax.resource.spi.ManagedConnectionFactory;
@@ -125,6 +127,10 @@ public class ManagedConnectionInfo {
 
     public void clearConnectionHandles() {
         listener.clearConnectionInfos();
+    }
+
+    public Collection getConnectionInfos() {
+        return listener.getConnectionInfos();
     }
 
     public boolean securityMatches(ManagedConnectionInfo other) {

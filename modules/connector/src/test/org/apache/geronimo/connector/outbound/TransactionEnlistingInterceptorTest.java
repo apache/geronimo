@@ -23,16 +23,16 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import org.apache.geronimo.transaction.ContainerTransactionContext;
-import org.apache.geronimo.transaction.TransactionContext;
-import org.apache.geronimo.transaction.UnspecifiedTransactionContext;
+import org.apache.geronimo.transaction.context.ContainerTransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContext;
+import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
 
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/06/08 17:38:01 $
+ * @version $Revision: 1.8 $ $Date: 2004/07/18 22:08:59 $
  *
  * */
 public class TransactionEnlistingInterceptorTest extends ConnectionInterceptorTestUtils

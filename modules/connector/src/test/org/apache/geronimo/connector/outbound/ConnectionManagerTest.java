@@ -17,38 +17,34 @@
 
 package org.apache.geronimo.connector.outbound;
 
-import org.apache.geronimo.connector.mock.MockXAResource;
 import org.apache.geronimo.connector.mock.MockConnection;
+import org.apache.geronimo.connector.mock.MockXAResource;
 import org.apache.geronimo.connector.outbound.connectiontracking.DefaultInterceptor;
-import org.apache.geronimo.transaction.ContainerTransactionContext;
-import org.apache.geronimo.transaction.TransactionContext;
-import org.apache.geronimo.transaction.UnspecifiedTransactionContext;
-import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.InstanceContext;
+import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.context.ContainerTransactionContext;
 
 /**
  *
  *
- * @version $Revision: 1.11 $ $Date: 2004/05/24 22:36:13 $
+ * @version $Revision: 1.12 $ $Date: 2004/07/18 22:08:59 $
  *
  * */
 public class ConnectionManagerTest extends ConnectionManagerTestUtils {
 
 
     public void testSingleTransactionCall() throws Throwable {
-        ContainerTransactionContext transactionContext = new ContainerTransactionContext(transactionManager);
-        TransactionContext.setContext(transactionContext);
-        transactionContext.begin();
+        ContainerTransactionContext transactionContext = transactionContextManager.newContainerTransactionContext();
         defaultComponentInterceptor.invoke(defaultComponentContext);
         MockXAResource mockXAResource = (MockXAResource) mockManagedConnection.getXAResource();
         assertEquals("XAResource should know one xid", 1, mockXAResource.getKnownXids().size());
         assertNull("Should not be committed", mockXAResource.getCommitted());
-        transactionManager.commit();
+        transactionContext.commit();
         assertNotNull("Should be committed", mockXAResource.getCommitted());
     }
 
     public void testNoTransactionCall() throws Throwable {
-        TransactionContext.setContext(new UnspecifiedTransactionContext());
+        transactionContextManager.newUnspecifiedTransactionContext();
         defaultComponentInterceptor.invoke(defaultComponentContext);
         MockXAResource mockXAResource = (MockXAResource) mockManagedConnection.getXAResource();
         assertEquals("XAResource should know 0 xid", 0, mockXAResource.getKnownXids().size());
@@ -56,9 +52,7 @@ public class ConnectionManagerTest extends ConnectionManagerTestUtils {
     }
 
     public void testOneTransactionTwoCalls() throws Throwable {
-        ContainerTransactionContext transactionContext = new ContainerTransactionContext(transactionManager);
-        TransactionContext.setContext(transactionContext);
-        transactionContext.begin();
+        ContainerTransactionContext transactionContext = transactionContextManager.newContainerTransactionContext();
         defaultComponentInterceptor.invoke(defaultComponentContext);
         MockXAResource mockXAResource = (MockXAResource) mockManagedConnection.getXAResource();
         assertEquals("XAResource should know one xid", 1, mockXAResource.getKnownXids().size());
@@ -67,7 +61,7 @@ public class ConnectionManagerTest extends ConnectionManagerTestUtils {
         assertEquals("Expected same XAResource", mockXAResource, mockManagedConnection.getXAResource());
         assertEquals("XAResource should know one xid", 1, mockXAResource.getKnownXids().size());
         assertNull("Should not be committed", mockXAResource.getCommitted());
-        transactionManager.commit();
+        transactionContext.commit();
         assertNotNull("Should be committed", mockXAResource.getCommitted());
     }
 
@@ -86,9 +80,9 @@ public class ConnectionManagerTest extends ConnectionManagerTestUtils {
                 return null;
             }
         };
-        TransactionContext.setContext(new UnspecifiedTransactionContext());
+        transactionContextManager.newUnspecifiedTransactionContext();
         userTransaction = new UserTransactionImpl();
-        userTransaction.setUp(transactionManager, connectionTrackingCoordinator);
+        userTransaction.setUp(transactionContextManager, connectionTrackingCoordinator);
         userTransaction.setOnline(true);
         defaultComponentInterceptor.invoke(defaultComponentContext);
         MockXAResource mockXAResource = (MockXAResource) mockManagedConnection.getXAResource();
@@ -122,14 +116,12 @@ public class ConnectionManagerTest extends ConnectionManagerTestUtils {
             }
 
         };
-        ContainerTransactionContext transactionContext = new ContainerTransactionContext(transactionManager);
-        TransactionContext.setContext(transactionContext);
-        transactionContext.begin();
+        ContainerTransactionContext transactionContext = transactionContextManager.newContainerTransactionContext();
         defaultComponentInterceptor.invoke(defaultComponentContext);
         MockXAResource mockXAResource = (MockXAResource) mockManagedConnection.getXAResource();
         assertEquals("XAResource should know one xid", 1, mockXAResource.getKnownXids().size());
         assertNull("Should not be committed", mockXAResource.getCommitted());
-        transactionManager.commit();
+        transactionContext.commit();
         assertNotNull("Should be committed", mockXAResource.getCommitted());
     }
 }

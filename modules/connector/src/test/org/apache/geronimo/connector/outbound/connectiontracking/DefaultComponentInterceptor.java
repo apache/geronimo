@@ -19,14 +19,14 @@ package org.apache.geronimo.connector.outbound.connectiontracking;
 
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
-import org.apache.geronimo.transaction.TransactionContext;
-import org.apache.geronimo.transaction.UnspecifiedTransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContext;
+import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
 
 /**
  * Sample functionality for an interceptor that enables connection caching and obtaining
  * connections outside a UserTransaction.
  *
- * @version $Revision: 1.3 $ $Date: 2004/05/31 16:27:44 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/18 22:08:59 $
  *
  * */
 public class DefaultComponentInterceptor implements DefaultInterceptor {

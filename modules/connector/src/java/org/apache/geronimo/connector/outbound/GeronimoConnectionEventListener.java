@@ -19,6 +19,8 @@ package org.apache.geronimo.connector.outbound;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
 
 import javax.resource.spi.ConnectionEvent;
 import javax.resource.spi.ConnectionEventListener;
@@ -126,6 +128,10 @@ public class GeronimoConnectionEventListener
 
     public boolean isFirstConnectionInfo(ConnectionInfo connectionInfo) {
         return !connectionInfos.isEmpty() && connectionInfos.get(0) == connectionInfo;
+    }
+
+    public Collection getConnectionInfos() {
+        return Collections.unmodifiableCollection(connectionInfos);
     }
 
 }

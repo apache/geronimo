@@ -40,12 +40,14 @@ import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.bridge.RealmBridge;
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.GeronimoTransactionManager;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 
 /**
  *
  *
- * @version $Revision: 1.12 $ $Date: 2004/05/31 23:37:05 $
+ * @version $Revision: 1.13 $ $Date: 2004/07/18 22:08:59 $
  *
  * */
 public class ConnectionManagerTestUtils extends TestCase implements DefaultInterceptor, RealmBridge {
@@ -64,7 +66,7 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
     //dependencies
     protected RealmBridge realmBridge = this;
     protected ConnectionTrackingCoordinator connectionTrackingCoordinator;
-    protected TransactionManager transactionManager;
+    protected TransactionContextManager transactionContextManager;
     protected AbstractConnectionManager connectionManagerDeployment;
     protected MockConnectionFactory connectionFactory;
     protected MockManagedConnectionFactory mockManagedConnectionFactory;
@@ -89,7 +91,8 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
 
     protected void setUp() throws Exception {
         connectionTrackingCoordinator = new ConnectionTrackingCoordinator();
-        transactionManager = new TransactionManagerImpl();
+        TransactionManager transactionManager = new TransactionManagerImpl();
+        transactionContextManager = new TransactionContextManager(transactionManager);
         mockManagedConnectionFactory = new MockManagedConnectionFactory();
         subject = new Subject();
         ContextManager.setCurrentCaller(subject);
@@ -107,7 +110,7 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
 
     protected void tearDown() throws Exception {
         connectionTrackingCoordinator = null;
-        transactionManager = null;
+        transactionContextManager = null;
         mockManagedConnectionFactory = null;
         connectionManagerDeployment = null;
         connectionFactory = null;

@@ -22,7 +22,7 @@ import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.xa.XAResource;
 
-import org.apache.geronimo.transaction.TransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContext;
 
 /**
  * TransactionEnlistingInterceptor.java

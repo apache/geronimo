@@ -20,15 +20,15 @@ package org.apache.geronimo.connector.outbound;
 import javax.resource.ResourceException;
 import javax.transaction.TransactionManager;
 
-import org.apache.geronimo.transaction.ContainerTransactionContext;
-import org.apache.geronimo.transaction.TransactionContext;
-import org.apache.geronimo.transaction.UnspecifiedTransactionContext;
+import org.apache.geronimo.transaction.context.ContainerTransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContext;
+import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/05/24 19:10:35 $
+ * @version $Revision: 1.9 $ $Date: 2004/07/18 22:08:59 $
  *
  * */
 public class TransactionCachingInterceptorTest extends ConnectionInterceptorTestUtils {

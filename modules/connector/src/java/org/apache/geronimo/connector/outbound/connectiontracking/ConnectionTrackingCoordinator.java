@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.connector.outbound.connectiontracking;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -26,6 +27,7 @@ import javax.resource.ResourceException;
 
 import org.apache.geronimo.connector.outbound.ConnectionInfo;
 import org.apache.geronimo.connector.outbound.ConnectionTrackingInterceptor;
+import org.apache.geronimo.connector.outbound.ManagedConnectionInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.transaction.InstanceContext;
@@ -45,7 +47,7 @@ import org.apache.geronimo.transaction.TrackedConnectionAssociator;
  * ConnectionManager stacks so the existing ManagedConnections can be
  * enrolled properly.
  *
- * @version $Revision: 1.11 $ $Date: 2004/06/02 05:33:02 $
+ * @version $Revision: 1.12 $ $Date: 2004/07/18 22:08:58 $
  */
 public class ConnectionTrackingCoordinator implements TrackedConnectionAssociator, ConnectionTracker {
 
@@ -120,8 +122,14 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
         }
         Map resources = instanceContext.getConnectionManagerMap();
         Set infos = (Set) resources.get(connectionTrackingInterceptor);
-        //It's not at all clear that an equal ci will be supplied here
-        infos.remove(connectionInfo);
+        if (connectionInfo.getConnectionHandle() == null) {
+            //destroy was called as a result of an error
+            ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
+            Collection toRemove = mci.getConnectionInfos();
+            infos.removeAll(toRemove);
+        } else {
+            infos.remove(connectionInfo);
+        }
     }
 
     public void setEnvironment(ConnectionInfo connectionInfo, String key) {

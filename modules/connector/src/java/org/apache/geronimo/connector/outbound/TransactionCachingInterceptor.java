@@ -25,7 +25,7 @@ import java.util.Set;
 import javax.resource.ResourceException;
 
 import org.apache.geronimo.transaction.ConnectionReleaser;
-import org.apache.geronimo.transaction.TransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContext;
 
 /**
  * TransactionCachingInterceptor.java
@@ -83,6 +83,7 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor, Con
 
         if (connectionReturnAction == ConnectionReturnAction.DESTROY) {
             next.returnConnection(connectionInfo, connectionReturnAction);
+            return;
         }
 
         TransactionContext transactionContext = TransactionContext.getContext();
