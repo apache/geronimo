@@ -20,6 +20,7 @@ package org.apache.geronimo.jetty;
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpListener;
 import org.mortbay.http.UserRealm;
+import org.mortbay.http.RequestLog;
 
 /**
  * @version $Rev$ $Date$
@@ -70,4 +71,9 @@ public interface JettyContainer {
     long getRequestsDurationAve();
 
     long getRequestsDurationMax();
+
+    void setRequestLog(RequestLog log);
+
+    /* ------------------------------------------------------------ */
+    RequestLog getRequestLog();
 }

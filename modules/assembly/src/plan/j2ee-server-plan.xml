@@ -186,7 +186,11 @@ by the server.
 
 
     <!-- default WAR container using Jetty -->
-    <gbean name="geronimo.server:type=WebContainer,container=Jetty" class="org.apache.geronimo.jetty.JettyContainerImpl">
+    <gbean name="geronimo.server:type=WebContainer,container=Jetty" class="org.apache.geronimo.jetty.JettyContainerImpl"/>
+    <gbean name="geronimo.server:type=RequestLog,container=Jetty" class="org.apache.geronimo.jetty.requestlog.NCSARequestLog">
+        <reference name="JettyContainer">geronimo.server:type=WebContainer,container=Jetty</reference>
+        <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
+        <attribute name="filename">var/log/jetty_yyyy_mm_dd.log</attribute>
     </gbean>
 
     <gbean name="geronimo.server:type=WebConnector,container=Jetty,port=8080" class="org.apache.geronimo.jetty.connector.HTTPConnector">

@@ -19,6 +19,7 @@ package org.apache.geronimo.jetty;
 
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpListener;
+import org.mortbay.http.RequestLog;
 import org.mortbay.http.UserRealm;
 import org.mortbay.jetty.Server;
 
@@ -129,6 +130,15 @@ public class JettyContainerImpl implements JettyContainer, GBeanLifecycle {
         server.removeRealm(realm.getName());
     }
 
+    public void setRequestLog(RequestLog log) {
+        server.setRequestLog(log);
+    }
+
+    /* ------------------------------------------------------------ */
+    public RequestLog getRequestLog() {
+        return server.getRequestLog();
+    }
+
     public void doStart() throws WaitingException, Exception {
         server.start();
     }
@@ -168,6 +178,8 @@ public class JettyContainerImpl implements JettyContainer, GBeanLifecycle {
         infoFactory.addAttribute("requestsDurationAve", Long.TYPE, false);
         infoFactory.addAttribute("requestsDurationMax", Long.TYPE, false);
         infoFactory.addOperation("resetStatistics");
+
+        infoFactory.addAttribute("requestLog", RequestLog.class, false);
 
         infoFactory.addOperation("addListener", new Class[]{HttpListener.class});
         infoFactory.addOperation("removeListener", new Class[]{HttpListener.class});
