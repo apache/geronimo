@@ -1156,15 +1156,6 @@
 
         <dependency>
             <groupId>tmporb</groupId>
-            <artifactId>tmporb-ssl</artifactId>
-            <version>${tmporb_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>tmporb</groupId>
             <artifactId>tmporb-ots</artifactId>
             <version>${tmporb_version}</version>
             <properties>

@@ -46,7 +46,10 @@
             <arg value="TimeBase"/>
             <arg value="${pkg.prefix}"/>
             <arg value="-pkgPrefix"/>
-            <arg value="SecurityService"/>
+            <arg value="Security"/>
+            <arg value="${pkg.prefix}"/>
+            <arg value="-pkgPrefix"/>
+            <arg value="SSLIOP"/>
             <arg value="${pkg.prefix}"/>
             <arg value="-pkgPrefix"/>
             <arg value="CosTransactions"/>

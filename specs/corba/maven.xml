@@ -47,8 +47,7 @@
     -->
 
     <goal name="interop:idlj:iop">
-      <ant:echo message="Interop :: idlj :: IOP">
-      </ant:echo>
+      <ant:echo message="Interop :: idlj :: IOP"/>
       <ant:ant antfile="build.xml">
         <ant:property name="maven.build.src" value="${maven.build.src}"/>
         <ant:property name="maven.src.dir" value="${maven.src.dir}"/>
