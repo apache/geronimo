@@ -11,6 +11,12 @@
       >
 </MLET>
 
+<MLET CODE="org.apache.geronimo.kernel.service.DependencyService2"
+      NAME="geronimo.boot:role=DependencyService2"
+      ARCHIVE=""
+      >
+</MLET>
+
 <MLET CODE="org.apache.geronimo.kernel.deployment.DeploymentController"
       NAME="geronimo.deployment:role=DeploymentController"
       ARCHIVE=""
