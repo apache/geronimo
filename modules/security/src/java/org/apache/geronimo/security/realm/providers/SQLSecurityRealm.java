@@ -50,6 +50,7 @@ public class SQLSecurityRealm extends AbstractSecurityRealm implements AutoMapAs
     private String userSelect = "SELECT UserName, Password FROM Users";
     private String groupSelect = "SELECT GroupName, UserName FROM Groups";
     private Driver driver;
+    private final String driverClassName;
     private Properties properties;
     private final Map users = new HashMap();
     private final Map groups = new HashMap();
@@ -59,6 +60,7 @@ public class SQLSecurityRealm extends AbstractSecurityRealm implements AutoMapAs
      * @deprecated
      */
     public SQLSecurityRealm() {
+        this.driverClassName = null;
     }
 
     public SQLSecurityRealm(String realmName, String driver, String connectionURL, String user, String password, String userSelect, String groupSelect, ClassLoader classLoader) {
@@ -69,6 +71,7 @@ public class SQLSecurityRealm extends AbstractSecurityRealm implements AutoMapAs
         properties.setProperty("password", password);
         this.userSelect = userSelect;
         this.groupSelect = groupSelect;
+        this.driverClassName = driver;
         try {
             this.driver = (Driver) classLoader.loadClass(driver).newInstance();
         } catch (ClassNotFoundException e) {
@@ -249,7 +252,7 @@ public class SQLSecurityRealm extends AbstractSecurityRealm implements AutoMapAs
         options.put(GROUP_SELECT, groupSelect);
         options.put(CONNECTION_URL, connectionURL);
         options.put(PROPERTIES, properties);
-        options.put(DRIVER, driver);
+        options.put(DRIVER, driverClassName);
 
         AppConfigurationEntry entry = new AppConfigurationEntry("org.apache.geronimo.security.realm.providers.SQLLoginModule",
                                                                 AppConfigurationEntry.LoginModuleControlFlag.SUFFICIENT,

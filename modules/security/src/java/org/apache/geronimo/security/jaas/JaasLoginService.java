@@ -16,30 +16,40 @@
  */
 package org.apache.geronimo.security.jaas;
 
-import org.apache.geronimo.gbean.*;
-import org.apache.geronimo.security.realm.SecurityRealm;
-import org.apache.geronimo.security.SubjectId;
-import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.IdentificationPrincipal;
-import org.apache.geronimo.common.GeronimoSecurityException;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-
-import javax.security.auth.callback.*;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.login.AppConfigurationEntry;
-import javax.security.auth.spi.LoginModule;
-import javax.security.auth.Subject;
-import javax.crypto.SecretKey;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import javax.crypto.Mac;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.management.ObjectName;
-import java.security.Principal;
-import java.security.NoSuchAlgorithmException;
-import java.security.InvalidKeyException;
-import java.util.*;
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.login.AppConfigurationEntry;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
 
 import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
 import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
+
+import org.apache.geronimo.common.GeronimoSecurityException;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.ReferenceCollection;
+import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.IdentificationPrincipal;
+import org.apache.geronimo.security.SubjectId;
+import org.apache.geronimo.security.realm.SecurityRealm;
 
 /**
  * The single point of contact for Geronimo JAAS realms.  Instead of attempting
@@ -204,10 +214,15 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
         if(context == null) {
             throw new ExpiredLoginModuleException();
         }
-        if(loginModuleIndex < 0 || loginModuleIndex >= context.getModules().length || !context.getModules()[loginModuleIndex].isServerSide()) {
+        if (loginModuleIndex < 0 || loginModuleIndex >= context.getModules().length || !context.getModules()[loginModuleIndex].isServerSide()) {
             throw new LoginException("Invalid login module specified");
         }
         JaasLoginModuleConfiguration module = context.getModules()[loginModuleIndex];
+        try {
+            context.getHandler().load(results);
+        } catch (IllegalArgumentException iae) {
+            throw new LoginException(iae.toString());
+        }
         return module.getLoginModule(classLoader).login();
     }
 

@@ -54,7 +54,13 @@ public class SQLLoginModule implements LoginModule {
         properties = (Properties) options.get(SQLSecurityRealm.PROPERTIES);
         userSelect = (String) options.get(SQLSecurityRealm.USER_SELECT);
         groupSelect = (String) options.get(SQLSecurityRealm.GROUP_SELECT);
-        driver = (Driver) options.get(SQLSecurityRealm.DRIVER);
+        try {
+            this.driver = (Driver) Class.forName((String) options.get(SQLSecurityRealm.DRIVER)).newInstance();
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException("Driver class "+driver+" is not available.  Perhaps you need to add it as a dependency in your deployment plan?");
+        } catch(Exception e) {
+            throw new IllegalArgumentException("Unable to load, instantiate, register driver "+driver+": "+e.getMessage());
+        }
     }
 
     public boolean login() throws LoginException {

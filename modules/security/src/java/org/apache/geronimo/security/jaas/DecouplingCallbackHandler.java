@@ -39,17 +39,26 @@ public class DecouplingCallbackHandler implements CallbackHandler {
     }
 
     public void handle(Callback[] callbacks)
-            throws IOException, UnsupportedCallbackException {
+            throws IllegalArgumentException, UnsupportedCallbackException {
         if (exploring) {
             source = callbacks;
             throw new UnsupportedCallbackException(callbacks.length > 0 ? callbacks[0] : null, "DO NOT PROCEED WITH THIS LOGIN");
         } else {
             if(callbacks.length != source.length) {
-                throw new IOException("Mismatched callbacks");
+                throw new IllegalArgumentException("Mismatched callbacks");
             }
             for (int i = 0; i < callbacks.length; i++) {
                 callbacks[i] = source[i];
             }
+        }
+    }
+
+    public void load(Callback[] callbacks) throws IllegalArgumentException {
+        if(callbacks.length != source.length) {
+            throw new IllegalArgumentException("Mismatched callbacks");
+        }
+        for (int i = 0; i < callbacks.length; i++) {
+            source[i] = callbacks[i];
         }
     }
 
