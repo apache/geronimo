@@ -67,15 +67,15 @@ import javax.management.ObjectName;
 import javax.management.relation.RelationNotification;
 import javax.management.relation.RelationServiceMBean;
 
-import org.apache.geronimo.jmx.JMXUtil;
-import org.apache.geronimo.jmx.MBeanProxyFactory;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 
 /**
  *
  * @jmx:mbean
  *      extends="org.apache.geronimo.remoting.router.AbstractRouterRouterMBean,org.apache.geronimo.remoting.router.RouterTargetMBean"
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/01 20:38:49 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/08 04:33:53 $
  */
 public class SubsystemRouter
     extends AbstractRouterRouter
@@ -111,7 +111,7 @@ public class SubsystemRouter
     }
 
     /**
-     * @see org.apache.geronimo.management.AbstractManagedObject#handleNotification(javax.management.Notification, java.lang.Object)
+     * @see org.apache.geronimo.kernel.service.AbstractManagedObject#handleNotification(javax.management.Notification, java.lang.Object)
      */
     public void handleNotification(Notification n, Object o) {
         super.handleNotification(n, o);

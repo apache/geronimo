@@ -57,10 +57,10 @@ package org.apache.geronimo.remoting.router;
 
 import java.net.URI;
 
-import org.apache.geronimo.common.Interceptor;
-import org.apache.geronimo.common.InvocationResult;
-import org.apache.geronimo.common.SimpleInvocation;
-import org.apache.geronimo.management.AbstractManagedObject;
+import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.SimpleInvocation;
+import org.apache.geronimo.kernel.service.AbstractManagedObject;
 import org.apache.geronimo.remoting.InvocationSupport;
 import org.apache.geronimo.remoting.MarshalledObject;
 import org.apache.geronimo.remoting.transport.Msg;
@@ -73,9 +73,9 @@ import EDU.oswego.cs.dl.util.concurrent.TimeoutSync;
 /**
  *
  * @jmx:mbean
- *      extends="org.apache.geronimo.management.ManagedObject,org.apache.geronimo.management.StateManageable"
+ *      extends="org.apache.geronimo.kernel.management.ManagedObject,org.apache.geronimo.kernel.management.StateManageable"
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/01 20:38:49 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/08 04:33:53 $
  */
 public abstract class AbstractInterceptorRouter
     extends AbstractManagedObject
@@ -169,14 +169,14 @@ public abstract class AbstractInterceptorRouter
     abstract protected Interceptor lookupInterceptorFrom(URI to) throws Throwable;
 
     /**
-     * @see org.apache.geronimo.common.AbstractStateManageable#doStart()
+     * @see org.apache.geronimo.core.service.AbstractStateManageable#doStart()
      */
     protected void doStart() throws Exception {
         routerLock.release();
     }
 
     /**
-     * @see org.apache.geronimo.common.AbstractStateManageable#doStop()
+     * @see org.apache.geronimo.core.service.AbstractStateManageable#doStop()
      */
     protected void doStop() throws Exception {
         routerLock = createNewRouterLock();

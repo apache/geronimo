@@ -57,9 +57,9 @@ package org.apache.geronimo.remoting.router;
 
 import java.net.URI;
 
-import org.apache.geronimo.common.Interceptor;
-import org.apache.geronimo.common.InvocationResult;
-import org.apache.geronimo.common.SimpleInvocation;
+import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.SimpleInvocation;
 import org.apache.geronimo.remoting.InterceptorRegistry;
 import org.apache.geronimo.remoting.InvocationSupport;
 import org.apache.geronimo.remoting.MarshalledObject;
@@ -67,7 +67,7 @@ import org.apache.geronimo.remoting.transport.Msg;
 import org.apache.geronimo.remoting.transport.TransportException;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/29 19:16:54 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/08 04:33:53 $
  */
 public class SimpleInterceptorRegistryRouter implements Router {
 

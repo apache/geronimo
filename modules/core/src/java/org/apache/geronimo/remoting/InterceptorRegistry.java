@@ -57,10 +57,10 @@ package org.apache.geronimo.remoting;
 
 import java.util.HashMap;
 
-import org.apache.geronimo.common.Interceptor;
+import org.apache.geronimo.core.service.Interceptor;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/08 04:33:54 $
  */
 public class InterceptorRegistry {
 

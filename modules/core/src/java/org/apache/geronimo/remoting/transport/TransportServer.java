@@ -57,11 +57,11 @@ package org.apache.geronimo.remoting.transport;
 
 import java.net.URI;
 
-import org.apache.geronimo.common.Component;
+import org.apache.geronimo.core.service.Component;
 import org.apache.geronimo.remoting.router.*;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/29 19:16:53 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/08 04:33:54 $
  */
 public interface TransportServer extends Component {
 

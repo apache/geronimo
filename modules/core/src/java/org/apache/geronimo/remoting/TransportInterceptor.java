@@ -55,13 +55,13 @@
  */
 package org.apache.geronimo.remoting;
 
-import org.apache.geronimo.common.Interceptor;
+import org.apache.geronimo.core.service.Interceptor;
 
 /**
  * You can ask a TransportInterceptor what what type of
  * MarshalledObject the transport would like.
  * 
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/08 04:33:54 $
  */
 public interface TransportInterceptor extends Interceptor {
     MarshalledObject createMarshalledObject();

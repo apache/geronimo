@@ -60,8 +60,8 @@ import java.net.URI;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.common.Interceptor;
-import org.apache.geronimo.jmx.MBeanProxyFactory;
+import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 
 
 /**
@@ -71,7 +71,7 @@ import org.apache.geronimo.jmx.MBeanProxyFactory;
  * @jmx:mbean
  *      extends="org.apache.geronimo.remoting.router.AbstractInterceptorRouterMBean,org.apache.geronimo.remoting.router.RouterTargetMBean"
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/01 20:38:49 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/08 04:33:53 $
  */
 public class JMXRouter
     extends AbstractInterceptorRouter

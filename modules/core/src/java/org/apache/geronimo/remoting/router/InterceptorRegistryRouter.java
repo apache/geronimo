@@ -57,7 +57,7 @@ package org.apache.geronimo.remoting.router;
 
 import java.net.URI;
 
-import org.apache.geronimo.common.Interceptor;
+import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.remoting.InterceptorRegistry;
 
 /**
@@ -65,7 +65,7 @@ import org.apache.geronimo.remoting.InterceptorRegistry;
  * @jmx:mbean
  *      extends="org.apache.geronimo.remoting.router.AbstractInterceptorRouterMBean,org.apache.geronimo.remoting.router.RouterTargetMBean"
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/01 20:38:49 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/08 04:33:53 $
  */
 public class InterceptorRegistryRouter
     extends AbstractInterceptorRouter

@@ -57,10 +57,10 @@ package org.apache.geronimo.remoting;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.net.URI;
-import org.apache.geronimo.common.Invocation;
-import org.apache.geronimo.common.InvocationKey;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationKey;
 /**
- * @version $Revision: 1.4 $ $Date: 2003/08/28 05:12:10 $
+ * @version $Revision: 1.5 $ $Date: 2003/09/08 04:33:54 $
  */
 public final class InvocationSupport implements Serializable, InvocationKey {
 
@@ -126,7 +126,7 @@ public final class InvocationSupport implements Serializable, InvocationKey {
     }
     
     /**
-     * @see org.apache.geronimo.common.InvocationKey#isTransient()
+     * @see org.apache.geronimo.core.service.InvocationKey#isTransient()
      */
     public boolean isTransient() {
         return true;

@@ -55,35 +55,35 @@
  */
 package org.apache.geronimo.remoting.transport;
 
-import org.apache.geronimo.common.Interceptor;
-import org.apache.geronimo.common.Invocation;
-import org.apache.geronimo.common.InvocationResult;
+import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.remoting.MarshalledObject;
 import org.apache.geronimo.remoting.TransportInterceptor;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/26 22:11:24 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/08 04:33:54 $
  */
 public class NullTransportInterceptor implements TransportInterceptor {
 
     private Interceptor next;
 
     /**
-     * @see org.apache.geronimo.common.AbstractInterceptor#invoke(org.apache.geronimo.common.Invocation)
+     * @see org.apache.geronimo.core.service.AbstractInterceptor#invoke(org.apache.geronimo.core.service.Invocation)
      */
     public InvocationResult invoke(Invocation invocation) throws Throwable {
         return getNext().invoke(invocation);
     }
 
     /**
-     * @see org.apache.geronimo.common.Interceptor#getNext()
+     * @see org.apache.geronimo.core.service.Interceptor#getNext()
      */
     public Interceptor getNext() {
         return next;
     }
 
     /**
-     * @see org.apache.geronimo.common.Interceptor#setNext(org.apache.geronimo.common.Interceptor)
+     * @see org.apache.geronimo.core.service.Interceptor#setNext(org.apache.geronimo.core.service.Interceptor)
      */
     public void setNext(Interceptor interceptor) throws IllegalStateException {
         next = interceptor;

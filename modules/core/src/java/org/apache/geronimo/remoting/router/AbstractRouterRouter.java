@@ -57,7 +57,7 @@ package org.apache.geronimo.remoting.router;
 
 import java.net.URI;
 
-import org.apache.geronimo.management.AbstractManagedObject;
+import org.apache.geronimo.kernel.service.AbstractManagedObject;
 import org.apache.geronimo.remoting.transport.Msg;
 import org.apache.geronimo.remoting.transport.TransportException;
 
@@ -68,9 +68,9 @@ import EDU.oswego.cs.dl.util.concurrent.TimeoutSync;
 /**
  *
  * @jmx:mbean
- *      extends="org.apache.geronimo.management.ManagedObject,org.apache.geronimo.management.StateManageable"
+ *      extends="org.apache.geronimo.kernel.management.ManagedObject,org.apache.geronimo.kernel.management.StateManageable"
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/01 20:38:49 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/08 04:33:53 $
  */
 abstract public class AbstractRouterRouter
     extends AbstractManagedObject
@@ -154,14 +154,14 @@ abstract public class AbstractRouterRouter
     abstract protected Router lookupRouterFrom(URI to);
 
     /**
-     * @see org.apache.geronimo.common.AbstractStateManageable#doStart()
+     * @see org.apache.geronimo.core.service.AbstractStateManageable#doStart()
      */
     protected void doStart() throws Exception {
         routerLock.release();
     }
 
     /**
-     * @see org.apache.geronimo.common.AbstractStateManageable#doStop()
+     * @see org.apache.geronimo.core.service.AbstractStateManageable#doStop()
      */
     protected void doStop() throws Exception {
         routerLock = createNewRouterLock();

@@ -60,16 +60,16 @@ import java.net.URI;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.jmx.MBeanProxyFactory;
-import org.apache.geronimo.management.AbstractManagedObject;
+import org.apache.geronimo.kernel.service.AbstractManagedObject;
 import org.apache.geronimo.remoting.router.*;
+import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 
 /**
  *
  * @jmx:mbean
- *      extends="org.apache.geronimo.management.ManagedObject,org.apache.geronimo.management.StateManageable"
+ *      extends="org.apache.geronimo.kernel.management.ManagedObject,org.apache.geronimo.kernel.management.StateManageable"
  *
- * @version $Revision: 1.4 $ $Date: 2003/09/01 20:38:49 $
+ * @version $Revision: 1.5 $ $Date: 2003/09/08 04:33:54 $
  */
 public class TransportLoader
     extends AbstractManagedObject
@@ -81,7 +81,7 @@ public class TransportLoader
     private ObjectName routerTarget;
 
     /**
-     * @see org.apache.geronimo.common.AbstractComponent#doStart()
+     * @see org.apache.geronimo.core.service.AbstractComponent#doStart()
      */
     protected void doStart() throws Exception {
 
@@ -100,7 +100,7 @@ public class TransportLoader
     }
 
     /**
-     * @see org.apache.geronimo.common.AbstractComponent#doStop()
+     * @see org.apache.geronimo.core.service.AbstractComponent#doStop()
      */
     protected void doStop() throws Exception {
         if (transportServer == null) {

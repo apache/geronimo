@@ -55,13 +55,13 @@
  */
 package org.apache.geronimo.remoting.router;
 
-import org.apache.geronimo.common.Interceptor;
+import org.apache.geronimo.core.service.Interceptor;
 
 /**
  *
  * @jmx:mbean
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/01 20:40:14 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/08 04:33:53 $
  */
 public interface JMXTarget
 {

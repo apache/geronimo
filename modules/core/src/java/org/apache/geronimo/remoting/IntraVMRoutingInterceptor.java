@@ -60,13 +60,13 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import org.apache.geronimo.common.Interceptor;
-import org.apache.geronimo.common.Invocation;
-import org.apache.geronimo.common.InvocationResult;
+import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.remoting.transport.NullTransportInterceptor;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2003/08/28 05:12:10 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/08 04:33:54 $
  */
 public class IntraVMRoutingInterceptor implements Interceptor, Externalizable {
 
@@ -74,7 +74,7 @@ public class IntraVMRoutingInterceptor implements Interceptor, Externalizable {
     transient Interceptor next;
 
     /**
-     * @see org.apache.geronimo.common.AbstractInterceptor#invoke(org.apache.geronimo.common.Invocation)
+     * @see org.apache.geronimo.core.service.AbstractInterceptor#invoke(org.apache.geronimo.core.service.Invocation)
      */
     public InvocationResult invoke(Invocation invocation) throws Throwable {
         return next.invoke(invocation);
@@ -126,14 +126,14 @@ public class IntraVMRoutingInterceptor implements Interceptor, Externalizable {
     }
 
     /**
-     * @see org.apache.geronimo.common.Interceptor#getNext()
+     * @see org.apache.geronimo.core.service.Interceptor#getNext()
      */
     public Interceptor getNext() {
         return next;
     }
 
     /**
-     * @see org.apache.geronimo.common.Interceptor#setNext(org.apache.geronimo.common.Interceptor)
+     * @see org.apache.geronimo.core.service.Interceptor#setNext(org.apache.geronimo.core.service.Interceptor)
      */
     public void setNext(Interceptor interceptor) throws IllegalStateException {
         this.next = interceptor;
