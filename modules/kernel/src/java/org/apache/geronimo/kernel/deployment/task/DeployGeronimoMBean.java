@@ -64,6 +64,7 @@ import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
+import javax.management.MBeanAttributeInfo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -80,7 +81,7 @@ import org.apache.geronimo.kernel.service.ParserUtil;
 /**
  *
  *
- * @version $Revision: 1.9 $ $Date: 2003/12/28 19:28:58 $
+ * @version $Revision: 1.10 $ $Date: 2004/01/01 09:55:08 $
  */
 public class DeployGeronimoMBean implements DeploymentTask {
     private static final Log log = LogFactory.getLog(DeployGeronimoMBean.class);
@@ -120,6 +121,8 @@ public class DeployGeronimoMBean implements DeploymentTask {
                 if (log.isTraceEnabled()) {
                     log.trace("Creating GeronimoMBean name=" + metadata.getName());
                 }
+                GeronimoMBean mbean = new GeronimoMBean();
+                mbean.setClassSpace(metadata.getLoaderName());
                 if (metadata.getGeronimoMBeanInfo() == null) {
                     try {
                         metadata.setGeronimoMBeanInfo(GeronimoMBean.getGeronimoMBeanInfo(metadata.getGeronimoMBeanDescriptor()));
@@ -127,26 +130,26 @@ public class DeployGeronimoMBean implements DeploymentTask {
                         log.trace("Failed to obtain coded GeronimoMBeanInfo", e);
                     }
                 }
-                GeronimoMBean mbean = new GeronimoMBean();
-                mbean.setClassSpace(metadata.getLoaderName());
-                GeronimoMBeanInfo geronimoMBeanInfo = metadata.getGeronimoMBeanInfo();
-                if (geronimoMBeanInfo == null) {
+                if (metadata.getGeronimoMBeanInfo() == null) {
                     String descriptorName = metadata.getGeronimoMBeanDescriptor();
-                    log.info("Looking for descriptor: " + descriptorName);
+                    log.info("Looking for xml descriptor: " + descriptorName);
                     URL url = newCL.getResource(descriptorName);
                     if(url == null) {
                         throw new DeploymentException("GeronimoMBean descriptor not found: " + descriptorName);
                     }
-                    geronimoMBeanInfo = GeronimoMBeanInfoXMLLoader.loadMBean(url);
+                    metadata.setGeronimoMBeanInfo(GeronimoMBeanInfoXMLLoader.loadMBean(url));
                 }
+                //mbean info is now set.
+                GeronimoMBeanInfo geronimoMBeanInfo = metadata.getGeronimoMBeanInfo();
+                mbean.setMBeanInfo(geronimoMBeanInfo);
                 Map metadataAttributes = metadata.getAttributeValues();
-                for (int i = 0; i < geronimoMBeanInfo.getAttributes().length; i++) {
-                    GeronimoAttributeInfo attributeInfo = (GeronimoAttributeInfo) geronimoMBeanInfo.getAttributes()[i];
+                MBeanAttributeInfo[] attributeInfos = geronimoMBeanInfo.getAttributes();
+                for (int i = 0; i < attributeInfos.length; i++) {
+                    GeronimoAttributeInfo attributeInfo = (GeronimoAttributeInfo) attributeInfos[i];
                     if (attributeInfo.getInitialValue() == null) {
                         attributeInfo.setInitialValue(metadataAttributes.get(attributeInfo.getName()));
                     }
                 }
-                mbean.setMBeanInfo(geronimoMBeanInfo);
                 //If there are constructor args, build the default target ourselves.
                 if (geronimoMBeanInfo.getTarget() == null && metadata.getConstructorArgs() != null) {
                     Object target = ParserUtil.instantiate(geronimoMBeanInfo.getTargetClass(),

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.4 $ $Date: 2003/08/16 19:31:46 $ -->
+<!-- $Revision: 1.5 $ $Date: 2004/01/01 09:55:09 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
   <extend>${basedir}/../../etc/project.xml</extend>
   
-  <name>Geronimo :: J2EE Connector Architecure Specification</name>
+  <name>Geronimo :: J2EE Connector Architecture Specification</name>
   <groupId>geronimo-spec</groupId>
   <id>geronimo-spec-j2ee-connector</id>
   <shortDescription>J2EE Connector Architecture</shortDescription>

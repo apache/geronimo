@@ -74,7 +74,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBean;
 /**
  * Creates, registers, and starts a class space
  *
- * @version $Revision: 1.5 $ $Date: 2003/12/10 13:00:09 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/01 09:55:08 $
  */
 public class CreateClassSpace implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
@@ -116,7 +116,7 @@ public class CreateClassSpace implements DeploymentTask {
         List urls = metadata.getUrls();
         if (!server.isRegistered(name)) {
             if (metadata.getCreate() == ClassSpaceMetadata.CREATE_NEVER) {
-                throw new DeploymentException("No class space is registerd with name: objectName=" + metadata.getName());
+                throw new DeploymentException("No class space is registered with name: objectName=" + metadata.getName());
             }
 
             // Get the mbean descriptor

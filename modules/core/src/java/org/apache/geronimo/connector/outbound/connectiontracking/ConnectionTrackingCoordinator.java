@@ -70,31 +70,28 @@ import org.apache.geronimo.connector.outbound.ConnectorTransactionContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 
 /**
- * CachedConnectionManager tracks connections that are in use by
+ * ConnectionTrackingCoordinator tracks connections that are in use by
  * components such as EJB's.  The component must notify the ccm
  * when a method enters and exits.  On entrance, the ccm will
  * notify ConnectionManager stacks so the stack can make sure all
  * connection handles left open from previous method calls are
  * attached to ManagedConnections of the correct security context, and
- *  the ManagedConnections are enrolled in any current transaction.
+ * the ManagedConnections are enrolled in any current transaction.
  * On exit, the ccm will notify ConnectionManager stacks of the handles
  * left open, so they may be disassociated if appropriate.
  * In addition, when a UserTransaction is started the ccm will notify
  * ConnectionManager stacks so the existing ManagedConnections can be
  * enrolled properly.
  *
- *
- * @version $Revision: 1.2 $ $Date: 2003/12/10 09:39:46 $
- *
- * */
+ * @version $Revision: 1.3 $ $Date: 2004/01/01 09:55:08 $
+ */
 public class ConnectionTrackingCoordinator implements TrackedConnectionAssociator, ConnectionTracker {
 
     private final ThreadLocal currentConnectorComponentContexts = new ThreadLocal();
     private final ThreadLocal currentConnectorTransactionContexts = new ThreadLocal();
     private final ThreadLocal currentUnshareableResources = new ThreadLocal();
 
-    public ConnectorComponentContext enter(ConnectorComponentContext newConnectorComponentContext
-                                           )
+    public ConnectorComponentContext enter(ConnectorComponentContext newConnectorComponentContext)
             throws ResourceException {
         ConnectorComponentContext oldConnectorComponentContext = (ConnectorComponentContext) currentConnectorComponentContexts.get();
         currentConnectorComponentContexts.set(newConnectorComponentContext);

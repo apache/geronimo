@@ -64,19 +64,19 @@ import org.apache.geronimo.kernel.deployment.DeploymentException;
  * task completes successfully but a subsequent task throws an exception the undo method will be
  * called so the task can rollback any changes.
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/07 03:50:29 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/01 09:55:08 $
  */
 public interface DeploymentTask {
     /**
      * Can this task complete now?
-     * @return true if the can complete now; otherwise false and the plan should wait
+     * @return true if it can complete now; otherwise false and the plan should wait
      * @throws org.apache.geronimo.kernel.deployment.DeploymentException if a problem occurs while checking the task.
      * If the exception is thrown the plan should be discarded
      */
     boolean canRun() throws DeploymentException;
 
     /**
-     * Executes the task.  If a DeploymentException is throw undo will not be called, so task
+     * Executes the task.  If a DeploymentException is thrown undo will not be called, so task
      * should clean up after itself before throwing the exception
      * @throws org.apache.geronimo.kernel.deployment.DeploymentException if an unrecoverable problem occurs in the task, plan should
      * be rolled back

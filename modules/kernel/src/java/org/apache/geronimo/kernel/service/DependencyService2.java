@@ -77,7 +77,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
  * DependencyService is the record keeper of the dependencies in Geronimo.  The DependencyService
- * does not enforce any dependencies, it is simply a place where components can register thier intent
+ * does not enforce any dependencies, it is simply a place where components can register their intent
  * to be dependent on another component.  Since a JMX Component can pretty much do whatever it wants
  * a component must watch the components it depends on to assure that they are following the
  * J2EE-Management state machine.
@@ -87,7 +87,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  *
  * @jmx:mbean
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/06 19:50:08 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/01 09:55:08 $
  */
 public class DependencyService2 implements MBeanRegistration, NotificationListener, DependencyService2MBean {
     /**
@@ -208,7 +208,8 @@ public class DependencyService2 implements MBeanRegistration, NotificationListen
     }
 
     /**
-     * Adds dependcies from the child to every parent in the parents set
+     * Adds dependencies from the child to every parent in the parents set
+     * 
      * @param child the dependent component
      * @param parents the set of components the child is depending on
      *
@@ -236,7 +237,8 @@ public class DependencyService2 implements MBeanRegistration, NotificationListen
 
     /**
      * Gets the set of parents that the child is depending on
-     * @param child the depend component
+     * 
+     * @param child the dependent component
      * @return a collection containing all of the components the child depends on; will never be null
      *
      * @jmx:managed-operation
@@ -250,7 +252,8 @@ public class DependencyService2 implements MBeanRegistration, NotificationListen
     }
 
     /**
-     * Gets all of the MBeans that have a dependency on the specificed startParent.
+     * Gets all of the MBeans that have a dependency on the specified startParent.
+     * 
      * @param parent the component the returned childen set depend on
      * @return a collection containing all of the components that depend on the parent; will never be null
      *

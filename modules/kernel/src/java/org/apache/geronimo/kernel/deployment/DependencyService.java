@@ -78,7 +78,7 @@ import org.apache.geronimo.kernel.management.State;
  *
  * @jmx:mbean
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:33 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/01 09:55:08 $
  */
 public class DependencyService implements MBeanRegistration, DependencyServiceMBean {
     private Log log = LogFactory.getLog(getClass());
@@ -299,7 +299,7 @@ public class DependencyService implements MBeanRegistration, DependencyServiceMB
                 log.trace("Parent is running: parent=" + startParent);
             } catch (AttributeNotFoundException e) {
                 // ok -- parent is not a startable
-                log.trace("Parent does not have a State attibute");
+                log.trace("Parent does not have a State attribute");
             } catch (InstanceNotFoundException e) {
                 // depended on instance was removed bewteen the register check and the invoke
                 log.trace("Cannot run because parent is not registered: parent=" + startParent);

@@ -86,7 +86,7 @@ import net.sf.cglib.reflect.FastMethod;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2003/12/30 08:25:32 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/01 09:55:08 $
  */
 public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBeanTarget {
     private static final Log log = LogFactory.getLog(GeronimoMBeanEndpoint.class);
@@ -271,7 +271,7 @@ public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBea
 
         // peers
         if (source.peers.isEmpty()) {
-            throw new IllegalArgumentException("Source must have at lease one peer specified");
+            throw new IllegalArgumentException("Source must have at least one peer specified");
         }
         peers = new HashSet(source.peers);
 

@@ -60,9 +60,9 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 
 /**
  * An optional interface for targets of a GeronimoMBean.  When a target implements this interface, the target
- * will get a regerence to the GeronimoMBeanContext, and will get life-cycle callbacks.
+ * will get a reference to the GeronimoMBeanContext, and will get life-cycle callbacks.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:35 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/01 09:55:08 $
  */
 public interface GeronimoMBeanTarget {
     /**

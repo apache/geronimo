@@ -58,27 +58,28 @@ package org.apache.geronimo.kernel.service;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
+import javax.management.AttributeNotFoundException;
+import javax.management.InstanceNotFoundException;
+import javax.management.JMException;
 import javax.management.ListenerNotFoundException;
 import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanRegistration;
 import javax.management.MBeanServer;
+import javax.management.MBeanServerNotification;
 import javax.management.Notification;
 import javax.management.NotificationBroadcasterSupport;
 import javax.management.NotificationEmitter;
 import javax.management.NotificationFilter;
+import javax.management.NotificationFilterSupport;
 import javax.management.NotificationListener;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
-import javax.management.AttributeNotFoundException;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanServerNotification;
-import javax.management.NotificationFilterSupport;
-import javax.management.JMException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 import org.apache.geronimo.kernel.management.EventProvider;
 import org.apache.geronimo.kernel.management.ManagedObject;
 import org.apache.geronimo.kernel.management.NotificationType;
@@ -90,7 +91,7 @@ import org.apache.geronimo.kernel.management.StateManageable;
  * Implementors of StateManageable may use this class and simply provide
  * doStart, doStop and sendNotification methods.
  *
- * @version $Revision: 1.4 $ $Date: 2003/11/18 02:20:08 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/01 09:55:08 $
  */
 public abstract class AbstractManagedObject2 implements ManagedObject, StateManageable, EventProvider, NotificationListener, MBeanRegistration, NotificationEmitter {
     protected final Log log = LogFactory.getLog(getClass());
@@ -146,7 +147,7 @@ public abstract class AbstractManagedObject2 implements ManagedObject, StateMana
     protected final NotificationBroadcasterSupport notificationBroadcaster = new NotificationBroadcasterSupport();
 
     /**
-     * Check if component can start.  Dependencies in the dependency service have already been
+     * Check if component can start. Dependencies in the dependency service have already been
      * checked at this point.
      *
      * Note: this method is called from within a synchronized block, so be careful what you call as you
@@ -159,7 +160,7 @@ public abstract class AbstractManagedObject2 implements ManagedObject, StateMana
     }
 
     /**
-     * Do the start tasks for the component.  Called in the STARTING state by
+     * Do the start tasks for the component.  Called in the {@link State#STARTING} state by
      * the start() and startRecursive() methods to perform the tasks required to
      * start the component.
      *
@@ -197,7 +198,7 @@ public abstract class AbstractManagedObject2 implements ManagedObject, StateMana
     }
 
     /**
-     * Do the failure tasks for the component.  Called in the FAILED state by the fail()
+     * Do the failure tasks for the component.  Called in the {@link State#FAILED} state by the fail()
      * method to perform the tasks required to cleanup a failed component.
      *
      * Note: this method is called from within a synchronized block, so be careful what you call as you
@@ -303,17 +304,19 @@ public abstract class AbstractManagedObject2 implements ManagedObject, StateMana
     }
 
     /**
-     * Moves this MBean to the STARTING state and then attempst to move this MBean immedately to the STARTED
-     * state.
+     * Moves this MBean to the {@link State#STARTING} state
+     * and then attempts to move this MBean immedately to the {@link State#STARTED} state.
      *
-     * Note:  This method cannot be call while the current thread holds a syncronized lock on this MBean,
-     * because this method sends JMX notifications.  Sending a general notification from a synchronized block
+     * Note:  This method cannot be called while the current thread holds a synchronized lock on this MBean,
+     * because this method sends JMX notifications. Sending a general notification from a synchronized block
      * is a bad idea and therefore not allowed.
      *
      * @throws Exception  If an exception occurs while starting this MBean
+     *
+     * @see #attemptFullStart()
      */
     public final void start() throws Exception {
-        assert !Thread.holdsLock(this): "This method cannot be called while holding a syncrhonized lock on this";
+        assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
 
         // Move to the starting state
         synchronized (this) {
@@ -434,20 +437,21 @@ public abstract class AbstractManagedObject2 implements ManagedObject, StateMana
     }
 
     /**
-     * Attempts to bring the component into the fully running state. If an Exception occurs while
-     * starting the component, the component will be failed.
+     * Attempts to bring the component into {@link State#RUNNING}. If an Exception occurs while
+     * starting the component, the component will be transitioned to {@link State#FAILED} state.
+     *
      * @throws Exception if a problem occurs while starting the component
      *
-     * Note: Do not call this from within a synchronized block as it makes may send a JMX notification
+     * Note: Do not call this from within a synchronized block as it may send a JMX notification
      */
     void attemptFullStart() throws Exception {
-        assert !Thread.holdsLock(this): "This method cannot be called while holding a syncrhonized lock on this";
+        assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
 
         State newState = null;
         try {
             synchronized (this) {
                 try {
-                    // if we are still trying to start and can start now... start
+                    // only transition when in STARTING state
                     if (getStateInstance() != State.STARTING) {
                         return;
                     }
@@ -545,14 +549,15 @@ public abstract class AbstractManagedObject2 implements ManagedObject, StateMana
     }
 
     /**
-     * Attempt to bring the component into the fully stopped state.
-     * If an exception occurs while stopping the component, the component will be failed.
+     * Attempt to bring the component into {@link State#STOPPED}.
+     * If an exception occurs while stopping the component, the component will be moved to {@link State#FAILED}.
+     *
      * @throws Exception if a problem occurs while stopping the component
      *
-     * Note: Do not call this from within a synchronized block as it makes may send a JMX notification
+     * Note: Do not call this from within a synchronized block as it may send a JMX notification
      */
     void attemptFullStop() throws Exception {
-        assert !Thread.holdsLock(this): "This method cannot be called while holding a syncrhonized lock on this";
+        assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
 
         State newState = null;
         try {
@@ -682,7 +687,7 @@ public abstract class AbstractManagedObject2 implements ManagedObject, StateMana
             case State.STOPPING_INDEX:
             case State.FAILED_INDEX:
                 throw new IllegalStateException(
-                        "Can not transition to " + newState + " state from " + state);
+                        "Cannot transition to " + newState + " state from " + state);
             }
             break;
 
@@ -695,7 +700,7 @@ public abstract class AbstractManagedObject2 implements ManagedObject, StateMana
             case State.STOPPED_INDEX:
             case State.STARTING_INDEX:
                 throw new IllegalStateException(
-                        "Can not transition to " + newState + " state from " + state);
+                        "Cannot transition to " + newState + " state from " + state);
             }
             break;
 
@@ -708,7 +713,7 @@ public abstract class AbstractManagedObject2 implements ManagedObject, StateMana
             case State.STARTING_INDEX:
             case State.RUNNING_INDEX:
                 throw new IllegalStateException(
-                        "Can not transition to " + newState + " state from " + state);
+                        "Cannot transition to " + newState + " state from " + state);
             }
             break;
 
@@ -721,7 +726,7 @@ public abstract class AbstractManagedObject2 implements ManagedObject, StateMana
             case State.RUNNING_INDEX:
             case State.STOPPING_INDEX:
                 throw new IllegalStateException(
-                        "Can not transition to " + newState + " state from " + state);
+                        "Cannot transition to " + newState + " state from " + state);
             }
             break;
 
@@ -734,7 +739,7 @@ public abstract class AbstractManagedObject2 implements ManagedObject, StateMana
             case State.STOPPED_INDEX:
             case State.FAILED_INDEX:
                 throw new IllegalStateException(
-                        "Can not transition to " + newState + " state from " + state);
+                        "Cannot transition to " + newState + " state from " + state);
             }
             break;
         }
