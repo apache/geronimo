@@ -60,7 +60,7 @@ package org.apache.geronimo.common;
  * Thrown to indicate that a method argument was <tt>null</tt> and 
  * should <b>not</b> have been.
  *
- * @version <tt>$Revision: 1.2 $</tt>
+ * @version <tt>$Revision: 1.3 $</tt>
  * @author  <a href="mailto:jason@planet57.com">Jason Dillon</a>
  */
 public class NullArgumentException 
@@ -71,6 +71,21 @@ public class NullArgumentException
     
     /** The index of the argument or null if no index. */
     protected final Object index;
+    
+    
+    /**
+     * A simple helper method to chekc that the given argument value
+     * is not null. If it is null then a <tt>NullArgumentException</tt> is thrown.
+     * 
+     * @param name name of the argument
+     * @param argument the value of the argument
+     * @throws NullArgumentException if the argument is null
+     */
+    public static void checkForNull(String name, Object argument) throws NullArgumentException {
+    	if (argument == null) {
+    		throw new NullArgumentException(name);
+    	}
+    }
     
     /**
      * Construct a <tt>NullArgumentException</tt>.
