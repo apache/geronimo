@@ -55,6 +55,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
+import org.apache.geronimo.gbean.ReferenceMap;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -75,6 +76,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
 
     //TODO this being static is a really good argument that all other builders should have a reference to this gbean, not use static methods on it.
     private static final Map xmlAttributeBuilderMap = new HashMap();
+    private Map refMap;
 
     public ServiceConfigBuilder(URI defaultParentId, Repository repository) {
         this(defaultParentId, repository, null, null);
@@ -85,27 +87,13 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         this.repository = repository;
         this.kernel = kernel;
         if (xmlAttributeBuilders != null) {
-            ReferenceCollection builders = (ReferenceCollection)xmlAttributeBuilders;
-            ReferenceCollectionListener listener = new ReferenceCollectionListener() {
+            ReferenceMap.Key key = new ReferenceMap.Key() {
 
-                public void memberAdded(ReferenceCollectionEvent event) {
-                    XmlAttributeBuilder attributeBuilder = (XmlAttributeBuilder) event.getMember();
-                    String namespace = attributeBuilder.getNamespace();
-                    xmlAttributeBuilderMap.put(namespace, attributeBuilder);
-                }
-
-                public void memberRemoved(ReferenceCollectionEvent event) {
-                    XmlAttributeBuilder attributeBuilder = (XmlAttributeBuilder) event.getMember();
-                    String namespace = attributeBuilder.getNamespace();
-                    xmlAttributeBuilderMap.remove(namespace);
+                public Object getKey(Object object) {
+                    return ((XmlAttributeBuilder)object).getNamespace();
                 }
             };
-            builders.addReferenceCollectionListener(listener);
-            for (Iterator iterator = builders.iterator(); iterator.hasNext();) {
-                Object o = iterator.next();
-                ReferenceCollectionEvent e = new ReferenceCollectionEvent(null, o);
-                listener.memberAdded(e);
-            }
+            refMap = new ReferenceMap(xmlAttributeBuilders, xmlAttributeBuilderMap, key);
         }
     }
 
