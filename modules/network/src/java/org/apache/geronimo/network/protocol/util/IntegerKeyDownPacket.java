@@ -25,20 +25,20 @@ import org.apache.geronimo.network.protocol.DownPacket;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:15 $
+ * @version $Revision: 1.3 $ $Date: 2004/04/20 12:16:54 $
  */
 public abstract class IntegerKeyDownPacket implements DownPacket {
 
     final int key;
 
-    public IntegerKeyDownPacket(short key) {
+    public IntegerKeyDownPacket(int key) {
         this.key = key;
     }
 
     public final Collection getBuffers() {
         ArrayList buffers = new ArrayList();
 
-        buffers.add(ByteBuffer.allocate(2).putInt(key).flip());
+        buffers.add(ByteBuffer.allocate(4).putInt(key).flip());
 
         return buffers;
     }

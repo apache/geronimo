@@ -21,13 +21,13 @@ import org.apache.geronimo.network.protocol.UpPacket;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:15 $
+ * @version $Revision: 1.3 $ $Date: 2004/04/20 12:16:54 $
  */
 public abstract class IntegerKeyUpPacket extends UpPacket {
 
     final int key;
 
-    public IntegerKeyUpPacket(short key) {
+    public IntegerKeyUpPacket(int key) {
         this.key = key;
     }
 }
