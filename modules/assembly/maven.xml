@@ -58,6 +58,8 @@
     <preGoal name="jar:jar">
         <attainGoal name="assemble"/>
         <j:if test="${context.getVariable('geronimo.assemble.delete.logs') == 'true'}">
+            <!--wait for server to finish stopping so windows unlocks the log files -->
+            <sleep seconds="2"/>
             <delete>
                 <fileset dir="${distDir}/var/log" includes="*.log"/>
             </delete>
