@@ -85,7 +85,7 @@ import net.sf.cglib.reflect.FastClass;
  * and once the MBean is deployed an imutable copy of will be made.  This class also adds support for multi target
  * POJOs under the MBean.
  *
- * @version $Revision: 1.10 $ $Date: 2003/11/17 00:47:17 $
+ * @version $Revision: 1.11 $ $Date: 2003/11/18 02:23:35 $
  */
 public final class GeronimoMBeanInfo extends MBeanInfo {
 
@@ -152,14 +152,18 @@ public final class GeronimoMBeanInfo extends MBeanInfo {
                 Map.Entry entry = (Map.Entry) i.next();
                 Object key = entry.getKey();
                 className = (String) entry.getValue();
-                Class clazz = ParserUtil.loadClass(className);
-
-                if (Modifier.isFinal(clazz.getModifiers())) {
-                    throw new IllegalArgumentException("Target class cannot be final: " + className);
-                }
 
                 // Insert Magic Here
-                if (!targets.containsKey(key)) {
+                Class clazz;
+                if (targets.containsKey(key)) {
+                    clazz = targets.get(key).getClass();
+                } else {
+                    clazz = ParserUtil.loadClass(className);
+
+                    if (Modifier.isFinal(clazz.getModifiers())) {
+                        throw new IllegalArgumentException("Target class cannot be final: " + className);
+                    }
+
                     GeronimoMBeanTarget target = createTarget(clazz);
                     targets.put(key, target);
                 }
@@ -204,9 +208,9 @@ public final class GeronimoMBeanInfo extends MBeanInfo {
     }
 
     public void setTargetClass(Class clazz) {
-       setTargetClass(clazz.getName());
+        setTargetClass(clazz.getName());
     }
-    
+
     public void setTargetClass(String className) {
         if (immutable) {
             throw new IllegalStateException("Data is no longer mutable");
@@ -229,7 +233,7 @@ public final class GeronimoMBeanInfo extends MBeanInfo {
         }
     }
 
-    Object getTarget() {
+    public Object getTarget() {
         return targets.get(DEFAULT_TARGET_NAME);
     }
 
@@ -319,7 +323,7 @@ public final class GeronimoMBeanInfo extends MBeanInfo {
     public void addOperationsDeclaredIn(Class clazz) {
         if (immutable) {
             throw new IllegalStateException("Data is no longer mutable");
-        }        
+        }
         Method[] methods = clazz.getDeclaredMethods();
         for (int i = 0; i < methods.length; i++) {
             addOperationFor(methods[i]);
@@ -329,18 +333,18 @@ public final class GeronimoMBeanInfo extends MBeanInfo {
     public void addOperationFor(Method method) {
         if (immutable) {
             throw new IllegalStateException("Data is no longer mutable");
-        }        
+        }
         ArrayList l = new ArrayList();
         Class[] classes = method.getParameterTypes();
         for (int j = 0; j < classes.length; j++) {
             Class class1 = classes[j];
-            l.add(new GeronimoParameterInfo("arg"+(j+1), class1, ""));
+            l.add(new GeronimoParameterInfo("arg" + (j + 1), class1, ""));
         }
         GeronimoParameterInfo params[] = new GeronimoParameterInfo[l.size()];
-        l.toArray(params);            
+        l.toArray(params);
         addOperationInfo(new GeronimoOperationInfo(method.getName(), params, MBeanOperationInfo.ACTION, ""));
     }
-    
+
     public Set getNotificationsSet() {
         return Collections.unmodifiableSet(notifications);
     }
