@@ -21,19 +21,19 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.security.realm.SecurityRealm;
-import org.apache.regexp.RE;
 
 
 /**
  * @version $Rev$ $Date$
  */
 public abstract class AbstractSecurityRealm implements SecurityRealm, GBeanLifecycle {
-    private String realmName;
+    private final String realmName;
     private long maxLoginModuleAge;
 
     //default constructor for use as endpoint
     //TODO we probably always use the SecurityRealm interface and don't need this
     public AbstractSecurityRealm() {
+        this.realmName = null;
     }
 
 
@@ -51,10 +51,6 @@ public abstract class AbstractSecurityRealm implements SecurityRealm, GBeanLifec
 
     public void setMaxLoginModuleAge(long maxLoginModuleAge) {
         this.maxLoginModuleAge = maxLoginModuleAge;
-    }
-
-    public void setRealmName(String realmName) {
-        this.realmName = realmName;
     }
 
     public void doStart() {

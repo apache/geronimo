@@ -22,6 +22,9 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Properties;
+import java.util.HashSet;
+import java.net.URI;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -31,20 +34,52 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
+import org.apache.geronimo.common.GeronimoSecurityException;
+
 
 /**
  * @version $Rev$ $Date$
  */
 public class PropertiesFileLoginModule implements LoginModule {
-    PropertiesFileSecurityRealm realm;
+    final Properties users = new Properties();
+    final Properties groups = new Properties();
     Subject subject;
     CallbackHandler handler;
     String username;
     String password;
 
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
-        realm = (PropertiesFileSecurityRealm) options.get(PropertiesFileSecurityRealm.REALM_INSTANCE);
-        assert realm != null;
+
+        URI usersURI = (URI) options.get(PropertiesFileSecurityRealm.USERS_URI);
+        URI groupsURI = (URI) options.get(PropertiesFileSecurityRealm.GROUPS_URI);
+        assert usersURI != null;
+        assert groupsURI != null;
+
+        try {
+            users.load(usersURI.toURL().openStream());
+
+            Properties temp = new Properties();
+            temp.load(groupsURI.toURL().openStream());
+
+            Enumeration e = temp.keys();
+            while (e.hasMoreElements()) {
+                String groupName = (String) e.nextElement();
+                String[] userList = ((String) temp.get(groupName)).split(",");
+
+                Set userset = (Set) groups.get(groupName);
+                if (userset == null) {
+                    userset = new HashSet();
+                    groups.put(groupName, userset);
+                }
+
+                for (int i = 0; i < userList.length; i++) {
+                    userset.add(userList[i]);
+                }
+            }
+
+        } catch (IOException e) {
+            throw new GeronimoSecurityException(e);
+        }
 
         this.subject = subject;
         this.handler = callbackHandler;
@@ -64,7 +99,7 @@ public class PropertiesFileLoginModule implements LoginModule {
         }
         username = ((NameCallback) callbacks[0]).getName();
         assert username != null;
-        password = realm.users.getProperty(username);
+        password = users.getProperty(username);
 
         return new String(((PasswordCallback) callbacks[1]).getPassword()).equals(password);
     }
@@ -74,10 +109,10 @@ public class PropertiesFileLoginModule implements LoginModule {
 
         principals.add(new PropertiesFileUserPrincipal(username));
 
-        Enumeration e = realm.groups.keys();
+        Enumeration e = groups.keys();
         while (e.hasMoreElements()) {
             String groupName = (String) e.nextElement();
-            Set users = (Set) realm.groups.get(groupName);
+            Set users = (Set) groups.get(groupName);
             Iterator iter = users.iterator();
             while (iter.hasNext()) {
                 String user = (String) iter.next();

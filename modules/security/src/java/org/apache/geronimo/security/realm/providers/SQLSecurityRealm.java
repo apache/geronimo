@@ -46,27 +46,31 @@ public class SQLSecurityRealm extends AbstractSecurityRealm implements AutoMapAs
     public final static String DRIVER = "org.apache.geronimo.security.realm.providers.SQLSecurityRealm.DRIVER";
 
     private boolean running = false;
-    private String connectionURL;
-    private String userSelect = "SELECT UserName, Password FROM Users";
-    private String groupSelect = "SELECT GroupName, UserName FROM Groups";
-    private Driver driver;
+    private final String connectionURL;
+    private final String userSelect;
+    private final String groupSelect;
+    private final Driver driver;
     private final String driverClassName;
-    private Properties properties;
+    private final Properties properties = new Properties();
     private final Map users = new HashMap();
     private final Map groups = new HashMap();
-    private String defaultPrincipal;
+    private final String defaultPrincipal;
 
     /**
      * @deprecated
      */
     public SQLSecurityRealm() {
+        this.connectionURL = null;
+        this.userSelect = null;
+        this.groupSelect = null;
+        this.driver = null;
         this.driverClassName = null;
+        this.defaultPrincipal = null;
     }
 
-    public SQLSecurityRealm(String realmName, String driver, String connectionURL, String user, String password, String userSelect, String groupSelect, ClassLoader classLoader) {
+    public SQLSecurityRealm(String realmName, String driver, String connectionURL, String user, String password, String userSelect, String groupSelect, String defaultPrincipal, ClassLoader classLoader) {
         super(realmName);
         this.connectionURL = connectionURL;
-        properties = new Properties();
         properties.setProperty("user", user);
         properties.setProperty("password", password);
         this.userSelect = userSelect;
@@ -79,6 +83,7 @@ public class SQLSecurityRealm extends AbstractSecurityRealm implements AutoMapAs
         } catch(Exception e) {
             throw new IllegalArgumentException("Unable to load, instantiate, register driver "+driver+": "+e.getMessage());
         }
+        this.defaultPrincipal = defaultPrincipal;
     }
 
     public void doStart() {
@@ -317,6 +322,7 @@ public class SQLSecurityRealm extends AbstractSecurityRealm implements AutoMapAs
             "password",
             "userSelect",
             "groupSelect",
+            "defaultPrincipal",
             "classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();

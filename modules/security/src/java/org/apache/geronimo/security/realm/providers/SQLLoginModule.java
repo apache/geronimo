@@ -44,7 +44,7 @@ public class SQLLoginModule implements LoginModule {
     private Driver driver;
     private String userSelect;
     private String groupSelect;
-    Set groups = new HashSet();
+    private final Set groups = new HashSet();
 
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
         this.subject = subject;

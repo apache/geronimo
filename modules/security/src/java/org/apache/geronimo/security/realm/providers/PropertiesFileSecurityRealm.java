@@ -45,28 +45,31 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm implement
 
     private static Log log = LogFactory.getLog(PropertiesFileSecurityRealm.class);
 
-    private final ServerInfo serverInfo;
-
     private boolean running = false;
-    private URI usersURI;
-    private URI groupsURI;
+    private final ServerInfo serverInfo;
+    private final URI usersURI;
+    private final URI groupsURI;
     final Properties users = new Properties();
     final Properties groups = new Properties();
-    private String defaultPrincipal;
+    private final String defaultPrincipal;
 
-    final static String REALM_INSTANCE = "org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm";
+    final static String USERS_URI = "org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm.USERS_URI";
+    final static String GROUPS_URI = "org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm.GROUPS_URI";
 
-    public PropertiesFileSecurityRealm(String realmName, URI usersURI, URI groupsURI, ServerInfo serverInfo) {
+    public PropertiesFileSecurityRealm(String realmName, URI usersURI, URI groupsURI, String defaultPrincipal, ServerInfo serverInfo) {
         super(realmName);
+
+        assert serverInfo != null;
+        assert usersURI != null;
+        assert groupsURI != null;
+
         this.serverInfo = serverInfo;
-        setUsersURI(usersURI);
-        setGroupsURI(groupsURI);
+        this.usersURI = usersURI;
+        this.groupsURI = groupsURI;
+        this.defaultPrincipal = defaultPrincipal;
     }
 
     public void doStart() {
-        if (usersURI == null) throw  new IllegalStateException("Users URI not set");
-        if (groupsURI == null) throw  new IllegalStateException("Groups URI not set");
-
         refresh();
         running = true;
 
@@ -85,33 +88,12 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm implement
         return usersURI;
     }
 
-    public void setUsersURI(URI usersURI) {
-        if (running) {
-            throw new IllegalStateException("Cannot change the Users URI after the realm is started");
-        }
-        this.usersURI = usersURI;
-    }
-
     public URI getGroupsURI() {
         return groupsURI;
     }
 
-    public void setGroupsURI(URI groupsURI) {
-        if (running) {
-            throw new IllegalStateException("Cannot change the Groups URI after the realm is started");
-        }
-        this.groupsURI = groupsURI;
-    }
-
     public String getDefaultPrincipal() {
         return defaultPrincipal;
-    }
-
-    public void setDefaultPrincipal(String defaultPrincipal) {
-        if (running) {
-            throw new IllegalStateException("Cannot change the default principal after the realm is started");
-        }
-        this.defaultPrincipal = defaultPrincipal;
     }
 
     public Set getGroupPrincipals() throws GeronimoSecurityException {
@@ -197,7 +179,8 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm implement
     public AppConfigurationEntry[] getAppConfigurationEntries() {
         HashMap options = new HashMap();
 
-        options.put(REALM_INSTANCE, this);
+        options.put(USERS_URI, serverInfo.resolve(usersURI));
+        options.put(GROUPS_URI, serverInfo.resolve(groupsURI));
         AppConfigurationEntry entry = new AppConfigurationEntry("org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule",
                 AppConfigurationEntry.LoginModuleControlFlag.SUFFICIENT,
                 options);
@@ -250,7 +233,7 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm implement
 
         infoFactory.addReference("ServerInfo", ServerInfo.class);
 
-        infoFactory.setConstructor(new String[]{"realmName", "usersURI", "groupsURI", "ServerInfo"});
+        infoFactory.setConstructor(new String[]{"realmName", "usersURI", "groupsURI", "defaultPrincipal", "ServerInfo"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

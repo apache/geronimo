@@ -25,8 +25,8 @@ import java.io.Serializable;
  */
 public class GeronimoPasswordCredential implements Serializable {
 
-    private String userName;
-    private char[] password;
+    private final String userName;
+    private final char[] password;
 
     public GeronimoPasswordCredential(String userName, char[] password) {
         this.userName = userName;
