@@ -30,7 +30,7 @@ import org.apache.geronimo.gbean.WaitingException;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/07/10 16:07:46 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/11 02:15:23 $
  */
 public class ThreadPool implements Executor, ExecutorFactory, GBeanLifecycle {
 
@@ -89,8 +89,6 @@ public class ThreadPool implements Executor, ExecutorFactory, GBeanLifecycle {
                 return new Thread(arg0, poolName + " " + getNextWorkerID());
             }
         });
-        //I think this does nothing with a LinkedQueue present
-        p.waitWhenBlocked();
 
         executor = p;
 
