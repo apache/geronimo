@@ -40,6 +40,8 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
  */
 public class SecurityServiceImpl {
 
+    public static boolean POLICY_INSTALLED = false;
+
     private final Log log = LogFactory.getLog(SecurityServiceImpl.class);
 
     /**
@@ -68,16 +70,20 @@ public class SecurityServiceImpl {
         /**
          * javax.security.jacc.policy.provider gets preference over policyProvider
          */
-        String sysProvider = System.getProperty("javax.security.jacc.policy.provider");
-        if (sysProvider != null)
-            policyProvider = sysProvider;
 
-        if (policyProvider != null) {
-            System.setProperty("javax.security.jacc.policy.provider", policyProvider);
-            Policy customPolicy = (Policy) classLoader.loadClass(policyProvider).newInstance();
-            Policy.setPolicy(customPolicy);
-        } else {
-            Policy.setPolicy(new GeronimoPolicy());
+        if (!POLICY_INSTALLED){
+            String sysProvider = System.getProperty("javax.security.jacc.policy.provider");
+            if (sysProvider != null)
+                policyProvider = sysProvider;
+
+            if (policyProvider != null) {
+                System.setProperty("javax.security.jacc.policy.provider", policyProvider);
+                Policy customPolicy = (Policy) classLoader.loadClass(policyProvider).newInstance();
+                Policy.setPolicy(customPolicy);
+            } else {
+                Policy.setPolicy(new GeronimoPolicy());
+            }
+            POLICY_INSTALLED = true;
         }
 
         PolicyConfigurationFactory.getPolicyConfigurationFactory();
