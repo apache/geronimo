@@ -13,9 +13,13 @@
 ##  See the License for the specific language governing permissions and
 ##  limitations under the License.
 ##
-## $Rev: 47137 $ $Date: 2004-09-24 00:04:29 -0700 (Fri, 24 Sep 2004) $
+## $Rev$ $Date$
 ##
 
 text/plain;;    x-java-content-handler=org.apache.geronimo.activation.handlers.TextPlainHandler
-text/html;;    x-java-content-handler=org.apache.geronimo.activation.handlers.TextHtmlHandler
-text/xml;;    x-java-content-handler=org.apache.geronimo.activation.handlers.TextXmlHandler
+text/html;;     x-java-content-handler=org.apache.geronimo.activation.handlers.TextHtmlHandler
+text/xml;;      x-java-content-handler=org.apache.geronimo.activation.handlers.TextXmlHandler
+
+image/gif;;     x-java-content-handler=org.apache.geronimo.activation.handlers.ImageGifHandler
+image/jpeg;;    x-java-content-handler=org.apache.geronimo.activation.handlers.ImageJpegHandler
+     
