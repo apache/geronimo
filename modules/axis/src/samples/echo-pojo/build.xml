@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<project basedir="." default="jar">
+    <property name="src" location="."/>
+    <property name="build" location="build"/>
+    <property name="build.classes" location="${build}/WEB-INF/classes"/>
+    <property name="build.lib" location="${build}/lib"/>
+    <property name="lib" location="lib"/>
+    <property name="jar.dir" location="../../../target/samples/"/>
+    <target name="compile" depends="init" unless="jars.uptodate">
+        <mkdir dir="${build.classes}"/>
+        <mkdir dir="${build.lib}"/>
+        <javac destdir="${build.classes}" debug="on">
+            <classpath refid="maven.dependency.classpath"/>
+            <src path="${src}"/>
+        </javac>
+    </target>
+    <target name="jar" depends="compile" unless="jars.uptodate">
+        <copy file="${basedir}/WEB-INF/webservices.xml" todir="${build.classes}/.."/>
+        <copy file="${basedir}/WEB-INF/web.xml" todir="${build.classes}/.."/>
+        <mkdir dir="${jar.dir}"/>
+        <jar jarfile="${jar.dir}/echo.war" basedir="${build}">
+            <include name="**/*.class"/>
+            <include name="**/*.xml"/>
+        </jar>
+        <delete dir="${build}"/>
+    </target>
+    <target name="init">
+        <uptodate property="jars.uptodate" targetfile="${jar.dir}/echo.war">
+            <srcfiles dir="${src}">
+                <include name="**/*.java"/>
+                <include name="**/*.xml"/>
+                <include name="**/*.wsdl"/>
+                <exclude name="${build}/**"/>
+            </srcfiles>
+        </uptodate>
+        <echo message="the files are up to date = ${jars.uptodate}"></echo>
+    </target>
+</project>

@@ -21,7 +21,6 @@ import org.apache.geronimo.ews.ws4j2ee.module.ModuleFactory;
 import org.apache.geronimo.ews.ws4j2ee.toWs.GenerationConstants;
 import org.apache.geronimo.ews.ws4j2ee.toWs.Ws4J2eeDeployContext;
 
-
 /**
  * Class GeronimoWsDeployContext
  */

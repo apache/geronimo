@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration
+    xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    configId="test/plan1"
+    >
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-kernel</artifactId>
+        <version>DEV</version>
+    </dependency>
+    
+    <!-- Start Axis Servlet from the plan -->
+    <gbean name="geronimo.server:type=WebServiceContainer,container=axis" class="org.apache.geronimo.axis.AxisGBean">    
+</configuration>

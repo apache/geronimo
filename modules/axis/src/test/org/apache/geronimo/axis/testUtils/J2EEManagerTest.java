@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.geronimo.axis;
+package org.apache.geronimo.axis.testUtils;
 
-import org.apache.geronimo.axis.testUtils.J2EEManager;
+import org.apache.geronimo.axis.AbstractTestCase;
 import org.apache.geronimo.kernel.Kernel;
 
 import javax.management.ObjectName;

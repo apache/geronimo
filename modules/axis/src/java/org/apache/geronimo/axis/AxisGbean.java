@@ -16,8 +16,6 @@
 
 package org.apache.geronimo.axis;
 
-import javax.management.ObjectName;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -27,39 +25,17 @@ import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
+import javax.management.ObjectName;
+import java.util.Collection;
+
 /**
  * Class AxisGbean
  */
 public class AxisGbean implements GBeanLifecycle {
     private static Log log = LogFactory.getLog(AxisGbean.class);
-    /**
-     * Field name
-     */
     private final String name;
-
-    /**
-     * Field kernel
-     */
-    private final Kernel kernel;
-
-    /**
-     * Field GBEAN_INFO
-     */
     private static final GBeanInfo GBEAN_INFO;
-
-    /**
-     * Field objectName
-     */
     private final ObjectName objectName;
-
-    /**
-     * Field wscontiner
-     */
-    private WebServiceManager wscontiner;
-
-    private WebServiceDeployer wsdeployer;
-
-    private J2EEManager j2eeManager;
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("AxisGbean",
@@ -69,18 +45,11 @@ public class AxisGbean implements GBeanLifecycle {
         infoFactory.addAttribute("Name", String.class, true);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
+        infoFactory.addReference("resourceManagers", Object.class);
 
         // operations
         infoFactory.setConstructor(new String[]{"kernel", "Name",
-                                                "objectName"});
-        infoFactory.addOperation("deploy", new Class[]{String.class,
-                                                       String.class,
-                                                       String.class});
-        infoFactory.addOperation("unDeploy", new Class[]{String.class,
-                                                         String.class});
-        infoFactory.addOperation("deployEWSModule", new Class[]{String.class,
-                                                                String.class,
-                                                                String.class});
+                                                "objectName", "resourceManagers"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
@@ -91,12 +60,9 @@ public class AxisGbean implements GBeanLifecycle {
      * @param name
      * @param objectName
      */
-    public AxisGbean(Kernel kernel, String name, String objectName) {
+    public AxisGbean(Kernel kernel, String name, String objectName, Collection resourceManagers) {
         this.name = name;
-        this.kernel = kernel;
         this.objectName = JMXUtil.getObjectName(objectName);
-        wscontiner = new WebServiceManager(kernel);
-        j2eeManager = new J2EEManager();
     }
 
     /**
@@ -114,13 +80,7 @@ public class AxisGbean implements GBeanLifecycle {
      */
     public void doStart() throws WaitingException, Exception {
         log.info("Axis GBean has started");
-        log.info(kernel);
         log.info(objectName);
-        j2eeManager.startJ2EEContainer(kernel);
-        wscontiner.doStart();
-        wsdeployer = new WebServiceDeployer(AxisGeronimoConstants.TEMP_OUTPUT,
-                kernel);
-
     }
 
     /**
@@ -131,8 +91,6 @@ public class AxisGbean implements GBeanLifecycle {
      */
     public void doStop() throws WaitingException, Exception {
         log.info("Axis GBean has stoped");
-        wscontiner.doStop();
-        j2eeManager.stopJ2EEContainer(kernel);
     }
 
     /**
@@ -145,15 +103,6 @@ public class AxisGbean implements GBeanLifecycle {
     }
 
     /**
-     * Method getKernel
-     *
-     * @return
-     */
-    public Kernel getKernel() {
-        return kernel;
-    }
-
-    /**
      * Method getName
      *
      * @return
@@ -161,20 +110,4 @@ public class AxisGbean implements GBeanLifecycle {
     public String getName() {
         return name;
     }
-
-    public void deploy(String module, String j2eeApplicationName, String j2eeModuleName)
-            throws Exception {
-        wsdeployer.deploy(module, j2eeApplicationName, j2eeModuleName);
-    }
-
-    public void deployEWSModule(String module, String j2eeApplicationName, String j2eeModuleName)
-            throws Exception {
-        wsdeployer.deployEWSModule(module, j2eeApplicationName, j2eeModuleName);
-    }
-
-    public void unDeploy(String j2eeApplicationName, String j2eeModuleName)
-            throws Exception {
-        wsdeployer.unDeploy(j2eeApplicationName, j2eeModuleName);
-    }
-
 }

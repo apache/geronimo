@@ -41,7 +41,7 @@ public class AxisGBeanTest extends AbstractTestCase {
     }
 
     public void testStartAxisService() throws Exception {
-        String textFileurl = "http://localhost:" + AxisGeronimoConstants.AXIS_SERVICE_PORT + "/axis/index.html";
+        String textFileurl = "http://localhost:" + AxisGeronimoUtils.AXIS_SERVICE_PORT + "/axis/index.html";
         ClassLoader cl = getClass().getClassLoader();
         ClassLoader myCl = new URLClassLoader(new URL[0], cl);
         GBeanMBean gbean = new GBeanMBean(AxisGbean.getGBeanInfo(), myCl);
@@ -49,7 +49,6 @@ public class AxisGBeanTest extends AbstractTestCase {
         kernel.loadGBean(name, gbean);
         kernel.startGBean(name);
         System.out.println(kernel.getMBeanServer().getAttribute(name, "state"));
-
         HttpURLConnection connection = (HttpURLConnection) new URL(textFileurl).openConnection();
         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         connection.getResponseCode();
@@ -59,7 +58,6 @@ public class AxisGBeanTest extends AbstractTestCase {
             line = reader.readLine();
         }
         connection.disconnect();
-
         kernel.stopGBean(name);
         kernel.unloadGBean(name);
     }

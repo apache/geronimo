@@ -15,11 +15,9 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-  
 <jetty:web-app
     xmlns:jetty="http://geronimo.apache.org/xml/ns/web/jetty"
-    configId="org/apache/geronimo/axis"
-    >
+    configId="org/apache/geronimo/axis">
     <jetty:context-root>/axis</jetty:context-root>
     <jetty:context-priority-classloader>false</jetty:context-priority-classloader>
 </jetty:web-app>

@@ -16,6 +16,9 @@
 package org.apache.geronimo.axis;
 
 import org.apache.axis.AxisFault;
+import org.apache.axis.client.AdminClient;
+import org.apache.axis.client.Call;
+import org.apache.axis.utils.ClassUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.deployment.DeploymentException;
@@ -27,19 +30,25 @@ import org.openejb.EJBContainer;
 import javax.ejb.EJBHome;
 import javax.management.ObjectName;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 /**
  * Class AxisGeronimoUtils
  */
 public class AxisGeronimoUtils {
+    public static final int AXIS_SERVICE_PORT = 5678;
     public static HashSet startedGbeans = new HashSet();
+
     public static final Log log = LogFactory.getLog(AxisGeronimoUtils.class);
 
     public static Object invokeEJB(String ejbName,
@@ -83,7 +92,6 @@ public class AxisGeronimoUtils {
                                     }
                                     throw e;
                                 }
-
                             }
                         }
                         throw new NoSuchMethodException(methodName + " not found");
@@ -100,7 +108,6 @@ public class AxisGeronimoUtils {
             else
                 throw AxisFault.makeFault(new Exception(e));
         }
-
     }
 
     /**
@@ -169,7 +176,6 @@ public class AxisGeronimoUtils {
             file.delete();
         } else {
             File[] files = file.listFiles();
-
             if (files != null) {
                 for (int i = 0; i < files.length; i++) {
                     delete(files[i]);
@@ -188,7 +194,9 @@ public class AxisGeronimoUtils {
                 String name = zipe.getName();
                 if (name.endsWith(".class")) {
                     int index = name.lastIndexOf('.');
-                    list.add(name.substring(0, index).replace('/', '.'));
+                    name = name.substring(0, index);
+                    name = name.replace('\\', '.');
+                    list.add(name.replace('/', '.'));
                 }
             }
         }
@@ -204,6 +212,44 @@ public class AxisGeronimoUtils {
             return false;
         }
         return true;
-
     }
+
+    public static void registerClassLoader(ZipFile module, ClassLoader classloader) throws ZipException, IOException {
+        ArrayList classList = AxisGeronimoUtils.getClassFileList(module);
+        for (int i = 0; i < classList.size(); i++) {
+            String className = (String) classList.get(i);
+            ClassUtils.setClassLoader(className, classloader);
+        }
+    }
+
+    /**
+     * <p>add the entry to the Axis Confieration file about the web service.
+     * This find the coniguration file and and update this. There are two problems.
+     * Number one is service is deployed only once the Axis is restarted. And it is
+     * best not to do this while the Axis is running.</p>
+     *
+     * @param module
+     * @throws DeploymentException
+     */
+    public static void addEntryToAxisDD(InputStream deplydd) throws DeploymentException {
+        try {
+            if (deplydd != null) {
+                AdminClient adminClient = new AdminClient();
+                URL requestUrl = new URL("http://localhost:"
+                        + AXIS_SERVICE_PORT
+                        + "/axis/services/AdminService");
+                Call call = adminClient.getCall();
+                call.setTargetEndpointAddress(requestUrl);
+                String result = adminClient.process(null, deplydd);
+            } else {
+                throw new DeploymentException("the deploy.wsdd can not be found");
+            }
+        } catch (DeploymentException e) {
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new DeploymentException(e);
+        }
+    }
+
 }

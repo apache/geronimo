@@ -51,14 +51,12 @@ public class EchoHeadersTest extends AbstractTestCase {
         name = new ObjectName("test:name=AxisGBean");
         kernel = new Kernel("test.kernel", "test");
         kernel.boot();
-
         ClassLoader cl = getClass().getClassLoader();
         ClassLoader myCl = new URLClassLoader(new URL[]{}, cl);
         GBeanMBean gbean = new GBeanMBean(AxisGbean.getGBeanInfo(), myCl);
         gbean.setAttribute("Name", "Test");
         kernel.loadGBean(name, gbean);
         kernel.startGBean(name);
-
         Service service = new Service();
         service.getEngine().setOption(AxisEngine.PROP_XML_ENCODING, "UTF-8");
         call = (Call) service.createCall();
@@ -120,22 +118,17 @@ public class EchoHeadersTest extends AbstractTestCase {
     public void testSynchronization() throws Exception {
         SOAPConnectionFactory scFactory = SOAPConnectionFactory.newInstance();
         SOAPConnection con = scFactory.createConnection();
-
         MessageFactory factory = MessageFactory.newInstance();
         SOAPMessage message = factory.createMessage();
         String requestEncoding = "UTF-16";
         message.setProperty(SOAPMessage.CHARACTER_SET_ENCODING, requestEncoding);
-
         SOAPEnvelope envelope = message.getSOAPPart().getEnvelope();
         SOAPBody body = envelope.getBody();
-
         Name bodyName = envelope.createName("echo");
         SOAPBodyElement bodyElement = body.addBodyElement(bodyName);
-
         Name name = envelope.createName("arg0");
         SOAPElement symbol = bodyElement.addChildElement(name);
         symbol.addTextNode("Hello");
-
         URLEndpoint endpoint = new URLEndpoint("http://localhost:5678/axis/EchoHeaders.jws");
         SOAPMessage response = con.call(message, endpoint);
         String responseEncoding = (String) response.getProperty(SOAPMessage.CHARACTER_SET_ENCODING);

@@ -16,6 +16,7 @@
 package org.apache.geronimo.axis;
 
 import org.apache.axis.utils.ClassUtils;
+import org.apache.geronimo.axis.testUtils.AxisGeronimoConstants;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 
@@ -44,7 +45,6 @@ public class ComplexTypeWebServiceTest extends AbstractTestCase {
         GBeanMBean axisgbean = new GBeanMBean(AxisGbean.getGBeanInfo(), myCl);
         kernel.loadGBean(axisname, axisgbean);
         kernel.startGBean(axisname);
-
         File jarfile = new File(getTestFile("target/generated/samples/echo-ewsimpl.jar"));
         kernel.getMBeanServer().invoke(axisname,
                 "deployEWSModule",
@@ -57,55 +57,19 @@ public class ComplexTypeWebServiceTest extends AbstractTestCase {
                     String.class.getName(),
                     String.class.getName()});
 
-//      //try invoke from this java
-//          ContainerIndex index = ContainerIndex.getInstance();
-//          int length = index.length();
-//          System.out.println("number of continers "+length);
-//          for(int i = 0;i<length;i++){
-//              EJBContainer contianer = index.getContainer(i);
-//              if(contianer!= null){
-//                  String name = contianer.getEJBName();
-//                  System.out.println("found the ejb "+name);
-//                  if("echo".equals(name)){
-//                      EJBHome statelessHome = contianer.getEJBHome();
-//                      Object stateless = statelessHome.getClass().getMethod("create", null).invoke(statelessHome, null);
-//                      Method[] methods = stateless.getClass().getMethods();
-//                        
-//                      for(int j = 0;j< methods.length;j++){
-//                          if(methods[j].getName().equals("echoStruct")){
-//                                  Class[] classes = methods[j].getParameterTypes();
-//                                  System.out.println(classes[0]);
-//                                  methods[j].invoke(stateless, new Object[]{null});
-//                                  methods[j].invoke(stateless, new Object[]{classes[0].newInstance()});
-//                          }
-//                      }
-//                  }
-//              }
-//          }                                                    
-
         //check the real web service invocations 
-//        ClassLoader ocl = Thread.currentThread().getContextClassLoader();
-//        URLClassLoader jarclassloder = new URLClassLoader(new URL[]{jarfile.toURL()});
-//        Thread.currentThread().setContextClassLoader(jarclassloder);
-        
-//        Class echoLoacaterClass =  Class.forName("org.apache.ws.echosample.EchoServiceLocator",true,jarclassloder);
-//        Class structClass = Class.forName("org.apache.ws.echosample.EchoStruct",true,jarclassloder);
         Class echoLoacaterClass = ClassUtils.forName("org.apache.ws.echosample.EchoServiceLocator");
         Class structClass = ClassUtils.forName("org.apache.ws.echosample.EchoStruct");
-
         Object echoLoacater = echoLoacaterClass.newInstance();
         Method getportMethod = echoLoacaterClass.getMethod("getechoPort", new Class[]{URL.class});
-
         URL serviceURL = new URL("http://localhost:"
-                + AxisGeronimoConstants.AXIS_SERVICE_PORT
+                + AxisGeronimoUtils.AXIS_SERVICE_PORT
                 // + 5679
                 + "/axis/services/echoPort");
         Object echoPort = getportMethod.invoke(echoLoacater, new Object[]{serviceURL});
         Class echoClass = echoPort.getClass();
-
         Method echostuctMethod = echoClass.getMethod("echoStruct", new Class[]{structClass});
         Object structval = structClass.newInstance();
-
         Object structret = echostuctMethod.invoke(echoPort, new Object[]{null});
         structret = echostuctMethod.invoke(echoPort, new Object[]{structval});
         assertEquals(structval, structret);

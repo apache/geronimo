@@ -1,11 +1,11 @@
-
 package org.apache.ws.echosample;
 
 import java.io.Serializable;
 
-public class SmallEchoStruct implements Serializable{
-	private String val1;
-	private String val2;
+public class SmallEchoStruct implements Serializable {
+    private String val1;
+    private String val2;
+
     /**
      * @return
      */

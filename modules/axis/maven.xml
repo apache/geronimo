@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <project default="jar"
     xmlns:j="jelly:core"
     xmlns:maven="jelly:maven"
     xmlns:deploy="deploy"
     xmlns:ant="jelly:ant">
-
     <goal name="setclasspath">
         <path id="test.classpath">
             <path refid="maven.dependency.classpath"/>
@@ -13,35 +11,60 @@
         </path>
     </goal>
 
+    <!--
+    <preGoal name="test:compile">
+        <ant:javac
+            destdir="${basedir}/target/test-classes"
+            debug="on"
+            fork="true">
+            <src path="${basedir}/src/test"/>
+            <ant:classpath>
+                <ant:path refid="maven.dependency.classpath"/>
+                <ant:pathelement path="${maven.build.dest}"/>
+            </ant:classpath>
+        </ant:javac>
+    </preGoal>
+    -->
     <preGoal name="test:test">
-      <j:if test="${context.getVariable('maven.test.skip') != 'true'}">
-        <deploy:copy-deps todir="${basedir}/target/lib"/>
-        <ant:java classname="org.apache.geronimo.ews.ws4j2ee.utils.PropertyStore" fork="no">
-            <ant:arg value="${maven.repo.local}"/>
-            <ant:classpath refid="maven.dependency.classpath"/>
-        </ant:java>
-        <j:jelly xmlns="jelly:ant">
-            <ant:ant antfile="build.xml"
-                inheritall="true"
-                inheritrefs="true"
-                dir="src/samples/echo"/>
-            <taskdef name="ews" classname="org.apache.geronimo.ews.ws4j2ee.utils.EWSTask">
-                <classpath refid="maven.dependency.classpath"/>
-            </taskdef>
-            <ews outDir="target/generated/samples" module="target/samples/echo.jar">
+        <j:if test="${context.getVariable('maven.test.skip') != 'true'}">
+            <deploy:copy-deps todir="${basedir}/target/lib"/>
+            <ant:java classname="org.apache.geronimo.ews.ws4j2ee.utils.PropertyStore" fork="no">
+                <ant:arg value="${maven.repo.local}"/>
                 <ant:classpath refid="maven.dependency.classpath"/>
-            </ews>
+            </ant:java>
+            <j:jelly xmlns="jelly:ant">
+                <ant:ant antfile="build.xml"
+                    inheritall="true"
+                    inheritrefs="true"
+                    dir="src/samples/echo"/>
+                <ant:ant antfile="build.xml"
+                    inheritall="true"
+                    inheritrefs="true"
+                    dir="src/samples/echo-pojo"/>
+                <taskdef name="ews" classname="org.apache.geronimo.ews.ws4j2ee.utils.EWSTask">
+                    <classpath refid="maven.dependency.classpath"/>
+                </taskdef>
+                <ews outDir="target/generated/samples/echo-jar" module="target/samples/echo.jar">
+                    <ant:classpath refid="maven.dependency.classpath"/>
+                </ews>
+                <ews outDir="target/generated/samples/echo-war" module="target/samples/echo.war">
+                    <ant:classpath refid="maven.dependency.classpath"/>
+                </ews>
 
-	    <!-- The following ant task cause the build to break
-	         if building with JAVA 5.  The JAVA 5 'enum' reserved
-		 word is used in the source code being compiled. 
-		 The generated ANT file might need to pass the
-		 -source 1.4 option to the java compiler -->
-            <ant:ant antfile="build.xml"
-                inheritall="true"
-                inheritrefs="true"
-                dir="target/generated/samples"/>
-        </j:jelly>
-      </j:if>
+                <!-- The following ant task cause the build to break
+                     if building with JAVA 5.  The JAVA 5 'enum' reserved
+                 word is used in the source code being compiled. 
+                 The generated ANT file might need to pass the
+                 -source 1.4 option to the java compiler -->
+                <ant:ant antfile="build.xml"
+                    inheritall="true"
+                    inheritrefs="true"
+                    dir="target/generated/samples/echo-jar"/>
+                <ant:ant antfile="build.xml"
+                    inheritall="true"
+                    inheritrefs="true"
+                    dir="target/generated/samples/echo-war"/>
+            </j:jelly>
+        </j:if>
     </preGoal>
 </project>

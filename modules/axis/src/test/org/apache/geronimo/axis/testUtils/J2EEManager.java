@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package org.apache.geronimo.axis;
+package org.apache.geronimo.axis.testUtils;
 
 import org.apache.axis.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.axis.AxisGeronimoUtils;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
@@ -41,23 +42,6 @@ public class J2EEManager {
     public void init() throws AxisFault {
     }
     
-//    containerName = new ObjectName("geronimo.jetty:role=Container");
-//    containerPatterns = Collections.singleton(containerName);
-//    connectorName = new ObjectName("geronimo.jetty:role=Connector");
-//    appName = new ObjectName("geronimo.jetty:app=test");
-//
-//    tmName = new ObjectName("geronimo.test:role=TransactionManager");
-//    tcmName = new ObjectName("geronimo.test:role=TransactionContextManager");
-//    tcaName = new ObjectName("geronimo.test:role=ConnectionTrackingCoordinator");
-//
-//    kernel = new Kernel("test.kernel", "test");
-//    kernel.boot();
-//    mbServer = kernel.getMBeanServer();
-//    container = new GBeanMBean(JettyContainerImpl.GBEAN_INFO);
-//
-//
-
-
     public void startJ2EEContainer(Kernel kernel) throws AxisFault {
         try {
             String str =
@@ -67,16 +51,12 @@ public class J2EEManager {
             } else {
                 str = str + ":org.apache.geronimo.naming";
             }
-
             System.setProperty(javax.naming.Context.URL_PKG_PREFIXES, str);
-
             setUpTransactionManager(kernel);
             setUpTimer(kernel);
-
             GBeanMBean serverInfoGBean = new GBeanMBean(ServerInfo.GBEAN_INFO);
             serverInfoGBean.setAttribute("baseDirectory", ".");
             AxisGeronimoUtils.startGBeanOnlyIfNotStarted(AxisGeronimoConstants.J2EE_SERVER_INFO, serverInfoGBean, kernel);
-
             GBeanMBean j2eeServerGBean = new GBeanMBean(J2EEServerImpl.GBEAN_INFO);
             j2eeServerGBean.setReferencePatterns("ServerInfo", Collections.singleton(AxisGeronimoConstants.J2EE_SERVER_INFO));
             AxisGeronimoUtils.startGBeanOnlyIfNotStarted(AxisGeronimoConstants.J2EE_SERVER_NAME, j2eeServerGBean, kernel);
@@ -86,11 +66,9 @@ public class J2EEManager {
             // setUpResourceAdapter(kernel);
             startEJBContainer(kernel);
             startWebContainer(kernel);
-
         } catch (Exception e) {
             throw AxisFault.makeFault(e);
         }
-
     }
 
     public void stopJ2EEContainer(Kernel kernel) throws AxisFault {
@@ -104,7 +82,6 @@ public class J2EEManager {
         } catch (Exception e) {
             throw AxisFault.makeFault(e);
         }
-
     }
 
     private void setUpTransactionManager(Kernel kernel) throws AxisFault {
@@ -115,11 +92,9 @@ public class J2EEManager {
             tmGBean.setAttribute("defaultTransactionTimeoutSeconds", new Integer(10));
             tmGBean.setReferencePatterns("ResourceManagers", rmpatterns);
             AxisGeronimoUtils.startGBeanOnlyIfNotStarted(AxisGeronimoConstants.TRANSACTION_MANAGER_NAME, tmGBean, kernel);
-
             GBeanMBean tcmGBean = new GBeanMBean(TransactionContextManager.GBEAN_INFO);
             tcmGBean.setReferencePattern("TransactionManager", AxisGeronimoConstants.TRANSACTION_MANAGER_NAME);
             AxisGeronimoUtils.startGBeanOnlyIfNotStarted(AxisGeronimoConstants.TRANSACTION_CONTEXT_MANAGER_NAME, tcmGBean, kernel);
-
             GBeanMBean trackedConnectionAssociator = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
             AxisGeronimoUtils.startGBeanOnlyIfNotStarted(AxisGeronimoConstants.TRACKED_CONNECTION_ASSOCIATOR_NAME, trackedConnectionAssociator, kernel);
         } catch (Exception e) {
@@ -143,13 +118,11 @@ public class J2EEManager {
         threadPoolGBean.setAttribute("poolSize", new Integer(5));
         threadPoolGBean.setAttribute("poolName", "DefaultThreadPool");
         AxisGeronimoUtils.startGBeanOnlyIfNotStarted(AxisGeronimoConstants.THREADPOOL_NAME, threadPoolGBean, kernel);
-
         GBeanMBean transactionalTimerGBean = new GBeanMBean(VMStoreThreadPooledTransactionalTimer.GBEAN_INFO);
         transactionalTimerGBean.setAttribute("repeatCount", new Integer(5));
         transactionalTimerGBean.setReferencePattern("TransactionContextManager", AxisGeronimoConstants.TRANSACTION_CONTEXT_MANAGER_NAME);
         transactionalTimerGBean.setReferencePattern("ThreadPool", AxisGeronimoConstants.THREADPOOL_NAME);
         AxisGeronimoUtils.startGBeanOnlyIfNotStarted(AxisGeronimoConstants.TRANSACTIONAL_TIMER_NAME, transactionalTimerGBean, kernel);
-
         GBeanMBean nonTransactionalTimerGBean = new GBeanMBean(VMStoreThreadPooledNonTransactionalTimer.GBEAN_INFO);
         nonTransactionalTimerGBean.setReferencePattern("ThreadPool", AxisGeronimoConstants.THREADPOOL_NAME);
         AxisGeronimoUtils.startGBeanOnlyIfNotStarted(AxisGeronimoConstants.NONTRANSACTIONAL_TIMER_NAME, nonTransactionalTimerGBean, kernel);
@@ -165,47 +138,12 @@ public class J2EEManager {
         }
     }
 
-//    public void setUpResourceAdapter(Kernel kernel) throws Exception {
-//        GBeanMBean geronimoWorkManagerGBean = new GBeanMBean(GeronimoWorkManager.getGBeanInfo());
-//        geronimoWorkManagerGBean.setAttribute("syncMaximumPoolSize", new Integer(5));
-//        geronimoWorkManagerGBean.setAttribute("startMaximumPoolSize", new Integer(5));
-//        geronimoWorkManagerGBean.setAttribute("scheduledMaximumPoolSize", new Integer(5));
-//        geronimoWorkManagerGBean.setReferencePattern("XAServices", AxisGeronimoConstants.TRANSACTION_MANAGER_NAME);
-//        AxisGeronimoUtils.startGBeanOnlyIfNotStarted(AxisGeronimoConstants.WORKMANAGER_NAME, geronimoWorkManagerGBean,kernel);
-//
-//        GBeanMBean resourceAdapterGBean = new GBeanMBean(ResourceAdapterWrapper.getGBeanInfo());
-//        Map activationSpecInfoMap = new HashMap();
-////        ActivationSpecInfo activationSpecInfo = new ActivationSpecInfo(MockActivationSpec.class, ActivationSpecWrapper.getGBeanInfo());
-////        activationSpecInfoMap.put(MockActivationSpec.class.getName(), activationSpecInfo);
-////        resourceAdapterGBean.setAttribute("resourceAdapterClass", MockResourceAdapter.class);
-////        resourceAdapterGBean.setAttribute("activationSpecInfoMap", activationSpecInfoMap);
-//        resourceAdapterGBean.setReferencePattern("WorkManager", AxisGeronimoConstants.WORKMANAGER_NAME);
-//        AxisGeronimoUtils.startGBeanOnlyIfNotStarted(AxisGeronimoConstants.RESOURCE_ADAPTER_NAME, resourceAdapterGBean,kernel);
-//
-//        GBeanMBean activationSpecGBean = new GBeanMBean(ActivationSpecWrapper.getGBeanInfo());
-////        activationSpecGBean.setAttribute("activationSpecClass", MockActivationSpec.class);
-//        activationSpecGBean.setAttribute("containerId", AxisGeronimoConstants.CONTAINER_NAME.getCanonicalName());
-//        activationSpecGBean.setReferencePattern("ResourceAdapterWrapper", AxisGeronimoConstants.RESOURCE_ADAPTER_NAME);
-//        AxisGeronimoUtils.startGBeanOnlyIfNotStarted(AxisGeronimoConstants.ACTIVATIONSPEC_NAME, activationSpecGBean,kernel);
-//    }
-//    
-//    private void stopResourceAdapter(Kernel kernel) throws AxisFault{
-//        try{
-//            AxisGeronimoUtils.stopGBean(AxisGeronimoConstants.WORKMANAGER_NAME, kernel);
-//            AxisGeronimoUtils.stopGBean(AxisGeronimoConstants.RESOURCE_ADAPTER_NAME, kernel);
-//            AxisGeronimoUtils.stopGBean(AxisGeronimoConstants.ACTIVATIONSPEC_NAME, kernel);
-//        }catch(Exception e){
-//            throw AxisFault.makeFault(e);
-//        }
-//    }
-
     public void startWebContainer(Kernel kernel) throws Exception {
         Set containerPatterns = Collections.singleton(AxisGeronimoConstants.WEB_CONTAINER_NAME);
         GBeanMBean container = new GBeanMBean("org.apache.geronimo.jetty.JettyContainerImpl");
         GBeanMBean connector = new GBeanMBean("org.apache.geronimo.jetty.connector.HTTPConnector");
-        connector.setAttribute("port", new Integer(AxisGeronimoConstants.AXIS_SERVICE_PORT));
+        connector.setAttribute("port", new Integer(AxisGeronimoUtils.AXIS_SERVICE_PORT));
         connector.setReferencePatterns("JettyContainer", containerPatterns);
-
         AxisGeronimoUtils.startGBeanOnlyIfNotStarted(AxisGeronimoConstants.WEB_CONTAINER_NAME, container, kernel);
         AxisGeronimoUtils.startGBeanOnlyIfNotStarted(AxisGeronimoConstants.WEB_CONNECTOR_NAME, connector, kernel);
     }
@@ -221,9 +159,7 @@ public class J2EEManager {
 
     public void startEJBContainer(Kernel kernel) throws Exception {
         GBeanMBean containerIndexGBean = new GBeanMBean("org.openejb.ContainerIndex");
-
         Set ejbContainerNames = new HashSet();
-
         ejbContainerNames.add(ObjectName.getInstance(AxisGeronimoConstants.J2EE_DOMAIN_NAME
                 + ":j2eeType=StatelessSessionBean,*"));
         ejbContainerNames.add(ObjectName.getInstance(AxisGeronimoConstants.J2EE_DOMAIN_NAME
@@ -232,7 +168,6 @@ public class J2EEManager {
                 + ":j2eeType=EntityBean,*"));
         containerIndexGBean.setReferencePatterns("EJBContainers",
                 ejbContainerNames);
-
         AxisGeronimoUtils.startGBeanOnlyIfNotStarted(AxisGeronimoConstants.EJB_CONTAINER_NAME,
                 containerIndexGBean, kernel);
     }

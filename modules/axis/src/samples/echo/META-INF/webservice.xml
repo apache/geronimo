@@ -1,32 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<webservices xmlns="http://java.sun.com/xml/ns/j2ee" 
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-xmlns:ns1="http://echosample.ws.apache.org"
-xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
-http://www.ibm.com/standards/xml/webservices/j2ee/j2ee_web_services_1_1.xsd" version="1.1">
+<webservices xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ns1="http://echosample.ws.apache.org"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+    http://www.ibm.com/standards/xml/webservices/j2ee/j2ee_web_services_1_1.xsd" version="1.1">
     <description>echo Service</description>
-	<display-name>echo</display-name>
-	<webservice-description >
-		<description>echo</description>
-		<display-name>echo</display-name>
-		<webservice-description-name >echoService</webservice-description-name>
-		<wsdl-file >echo.wsdl</wsdl-file>
-		<jaxrpc-mapping-file >echomapping.xml</jaxrpc-mapping-file>
-		<port-component >
-			<description >echo</description>
-			<display-name >echo</display-name>
-			
-			<icon xml:lang="en-us" id="ID000298">
-				<small-icon>token</small-icon>
-				<large-icon>token</large-icon>
-			</icon>
-
-			<port-component-name >echo</port-component-name>
-			<wsdl-port id="ID000311">ns1:echoPort</wsdl-port>
-			<service-endpoint-interface >org.apache.ws.echosample.Echo</service-endpoint-interface>
-			<service-impl-bean >
-				<ejb-link >echo</ejb-link>
-			</service-impl-bean>
-		</port-component>
-	</webservice-description>
+    <display-name>echo</display-name>
+    <webservice-description>
+        <description>echo</description>
+        <display-name>echo</display-name>
+        <webservice-description-name>echoService</webservice-description-name>
+        <wsdl-file>echo.wsdl</wsdl-file>
+        <jaxrpc-mapping-file>echomapping.xml</jaxrpc-mapping-file>
+        <port-component>
+            <description>echo</description>
+            <display-name>echo</display-name>
+            <icon xml:lang="en-us" id="ID000298">
+                <small-icon>token</small-icon>
+                <large-icon>token</large-icon>
+            </icon>
+            <port-component-name>echo</port-component-name>
+            <wsdl-port id="ID000311">ns1:echoPort</wsdl-port>
+            <service-endpoint-interface>org.apache.ws.echosample.Echo</service-endpoint-interface>
+            <service-impl-bean>
+                <ejb-link>echo</ejb-link>
+            </service-impl-bean>
+        </port-component>
+    </webservice-description>
 </webservices>

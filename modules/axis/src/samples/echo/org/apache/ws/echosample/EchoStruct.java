@@ -2,30 +2,30 @@ package org.apache.ws.echosample;
 
 import java.io.Serializable;
 
-public class EchoStruct implements Serializable{
-	private int intVal;
-	private double doubleVal;
-	private byte[] bytesVal;
-	private float floatVal;
-	private long longVal;
-	private short shortVal;
-	private boolean boolaenVal;
-	
-	private String strVal;
-	
-	private int[] intaVal;
-	private double[] doubleaVal;
-	private byte[][] bytesaVal;
-	private float[] floataVal;
-	private long[] longaVal;
-	private short[] shortaVal;
-	private boolean[] boolaenaVal;
-	
-	private String[] straVal;
-	
-	private SmallEchoStruct sturctVal;
-	private SmallEchoStruct sturctaVal;
-	
+public class EchoStruct implements Serializable {
+    private int intVal;
+    private double doubleVal;
+    private byte[] bytesVal;
+    private float floatVal;
+    private long longVal;
+    private short shortVal;
+    private boolean boolaenVal;
+
+    private String strVal;
+
+    private int[] intaVal;
+    private double[] doubleaVal;
+    private byte[][] bytesaVal;
+    private float[] floataVal;
+    private long[] longaVal;
+    private short[] shortaVal;
+    private boolean[] boolaenaVal;
+
+    private String[] straVal;
+
+    private SmallEchoStruct sturctVal;
+    private SmallEchoStruct sturctaVal;
+
     /**
      * @return
      */
@@ -53,9 +53,6 @@ public class EchoStruct implements Serializable{
     public byte[] getBytesVal() {
         return bytesVal;
     }
-
-   
-   
 
     /**
      * @return
@@ -169,7 +166,6 @@ public class EchoStruct implements Serializable{
         bytesVal = bs;
     }
 
-    
     /**
      * @param ds
      */

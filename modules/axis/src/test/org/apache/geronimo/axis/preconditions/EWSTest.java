@@ -13,38 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.geronimo.axis;
+package org.apache.geronimo.axis.preconditions;
 
-import org.apache.geronimo.axis.testUtils.J2EEManager;
-import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.axis.AbstractTestCase;
+import org.apache.geronimo.axis.GeronimoWsDeployContext;
+import org.apache.geronimo.ews.ws4j2ee.toWs.Ws4J2ee;
 
-import javax.management.ObjectName;
+import java.io.File;
 
 /**
  * <p>This test case represents the code generation with the EWS module.
  * This test case needed the $JAVA_HOME/lib.tools.jar at the classapth.</p>
  */
-public class J2EEManagerTest extends AbstractTestCase {
-    private ObjectName name;
-    private Kernel kernel;
-
-    public J2EEManagerTest(String testName) {
+public class EWSTest extends AbstractTestCase {
+    public EWSTest(String testName) {
         super(testName);
     }
 
-    public void testEcho() throws Exception {
-        J2EEManager j2eem = new J2EEManager();
-        j2eem.startJ2EEContainer(kernel);
-        j2eem.stopJ2EEContainer(kernel);
+    public void testEchoPOJO() throws Exception {
+        GeronimoWsDeployContext deployContext =
+                new GeronimoWsDeployContext(getTestFile("target/samples/echo.war"),
+                        outDir + "/echo-war");
+        Ws4J2ee ws4j2ee = new Ws4J2ee(deployContext, null);
+        ws4j2ee.generate();
+        File out = new File(outDir + "/echo-war", "echo-ewsimpl.jar");
+        assertTrue(out.exists());
     }
 
     protected void setUp() throws Exception {
-        name = new ObjectName("test:name=AxisGBean");
-        kernel = new Kernel("test.kernel", "test");
-        kernel.boot();
+        new File(outDir).mkdirs();
     }
 
     protected void tearDown() throws Exception {
-        kernel.shutdown();
     }
 }
