@@ -48,12 +48,12 @@ import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/06/05 01:40:09 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/08 17:38:01 $
  */
 public class ManagedConnectionFactoryWrapperTest extends TestCase {
 
     private Kernel kernel;
-    private ObjectName selfName;
+    private ObjectName managedConnectionFactoryName;
     private ObjectName ctcName;
     private ObjectName cmfName;
     private static final String GLOBAL_NAME = "GLOBAL_NAME";
@@ -61,23 +61,23 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
     private static final String TARGET_NAME = "testCFName";
 
     public void testProxy() throws Exception {
-        Object proxy = kernel.invoke(selfName, "getProxy");
+        Object proxy = kernel.invoke(managedConnectionFactoryName, "getProxy");
         assertNotNull(proxy);
         assertTrue(proxy instanceof ConnectionFactory);
         Connection connection = ((ConnectionFactory) proxy).getConnection();
         assertNotNull(connection);
-        kernel.stopGBean(selfName);
+        kernel.stopGBean(managedConnectionFactoryName);
         try {
             ((ConnectionFactory) proxy).getConnection();
             fail();
         } catch (IllegalStateException ise) {
         }
-        kernel.startGBean(selfName);
+        kernel.startGBean(managedConnectionFactoryName);
         ((ConnectionFactory) proxy).getConnection();
     }
 
     public void testSerialization() throws Exception {
-        ConnectionFactory proxy = (ConnectionFactory) kernel.invoke(selfName, "getProxy");
+        ConnectionFactory proxy = (ConnectionFactory) kernel.invoke(managedConnectionFactoryName, "getProxy");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
         oos.writeObject(proxy);
@@ -90,7 +90,7 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         assertTrue(proxy instanceof ConnectionFactory);
         Connection connection = proxy.getConnection();
         assertNotNull(connection);
-        kernel.stopGBean(selfName);
+        kernel.stopGBean(managedConnectionFactoryName);
         ObjectInputStream ois2 = new ObjectInputStream(new ByteArrayInputStream(bytes));
         ConnectionFactory proxy3 = (ConnectionFactory) ois2.readObject();
         try {
@@ -98,7 +98,7 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
             fail();
         } catch (IllegalStateException ise) {
         }
-        kernel.startGBean(selfName);
+        kernel.startGBean(managedConnectionFactoryName);
         proxy3.getConnection();
 
     }
@@ -112,13 +112,13 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         Context ctx = new InitialContext(env);
         ConnectionFactory cf = (ConnectionFactory) ctx.lookup("geronimo:" + GLOBAL_NAME);
         assertNotNull(cf);
-        kernel.stopGBean(selfName);
+        kernel.stopGBean(managedConnectionFactoryName);
         try {
             ctx.lookup("geronimo:" + GLOBAL_NAME);
             fail();
         } catch (NamingException ne) {
         }
-        kernel.startGBean(selfName);
+        kernel.startGBean(managedConnectionFactoryName);
         ConnectionFactory cf2 = (ConnectionFactory) ctx.lookup("geronimo:" + GLOBAL_NAME);
         assertNotNull(cf2);
     }
@@ -190,7 +190,7 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         cmfName = ObjectName.getInstance("test:role=ConnectionManagerFactory");
         kernel.loadGBean(cmfName, cmf);
 
-        selfName = ObjectName.getInstance(JMXReferenceFactory.BASE_MANAGED_CONNECTION_FACTORY_NAME + TARGET_NAME);
+        managedConnectionFactoryName = ObjectName.getInstance(JMXReferenceFactory.BASE_MANAGED_CONNECTION_FACTORY_NAME + TARGET_NAME);
 
         GBeanMBean mcfw = new GBeanMBean(ManagedConnectionFactoryWrapper.getGBeanInfo());
         mcfw.setAttribute("ManagedConnectionFactoryClass", MockManagedConnectionFactory.class);
@@ -202,16 +202,15 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         //"ResourceAdapterWrapper",
         mcfw.setReferencePatterns("ConnectionManagerFactory", Collections.singleton(cmfName));
         //"ManagedConnectionFactoryListener",
-        mcfw.setAttribute("SelfName", selfName);
-        kernel.loadGBean(selfName, mcfw);
+        kernel.loadGBean(managedConnectionFactoryName, mcfw);
 
         kernel.startGBean(ctcName);
         kernel.startGBean(cmfName);
-        kernel.startGBean(selfName);
+        kernel.startGBean(managedConnectionFactoryName);
     }
 
     protected void tearDown() throws Exception {
-        kernel.stopGBean(selfName);
+        kernel.stopGBean(managedConnectionFactoryName);
         kernel.shutdown();
     }
 

@@ -27,15 +27,16 @@ import org.apache.geronimo.transaction.ContainerTransactionContext;
 import org.apache.geronimo.transaction.TransactionContext;
 import org.apache.geronimo.transaction.UnspecifiedTransactionContext;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.transaction.manager.NamedXAResource;
 
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/05/24 19:10:35 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/08 17:38:01 $
  *
  * */
 public class TransactionEnlistingInterceptorTest extends ConnectionInterceptorTestUtils
-        implements XAResource {
+        implements NamedXAResource {
 
     private TransactionEnlistingInterceptor transactionEnlistingInterceptor;
     private boolean started;

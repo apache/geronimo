@@ -23,19 +23,24 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
+import org.apache.geronimo.transaction.manager.NamedXAResource;
+
 /**
+ * Works with JDBCLog to provide last resource optimization for a single 1-pc database.
+ * The database work is committed when the log writes its prepare record, not here.
  *
- *
- * @version $Revision: 1.2 $ $Date: 2004/05/30 19:03:36 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/08 17:38:01 $
  *
  * */
-public class LogXAResource implements XAResource {
+public class LogXAResource implements NamedXAResource {
 
+    final String name;
     final LocalTransaction localTransaction;
     private Xid xid;
 
-    public LogXAResource(LocalTransaction localTransaction) {
+    public LogXAResource(LocalTransaction localTransaction, String name) {
         this.localTransaction = localTransaction;
+        this.name = name;
     }
     public void commit(Xid xid, boolean onePhase) throws XAException {
     }
@@ -99,4 +104,8 @@ public class LogXAResource implements XAResource {
             throw new XAException("unknown state");
         }
      }
+
+    public String getName() {
+        return name;
+    }
 }

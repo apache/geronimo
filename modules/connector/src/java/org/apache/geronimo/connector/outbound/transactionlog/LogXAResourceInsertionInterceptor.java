@@ -28,16 +28,18 @@ import org.apache.geronimo.connector.outbound.ManagedConnectionInfo;
  * LocalXAResourceInsertionInterceptor.java
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/06 03:58:23 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/08 17:38:01 $
 
  */
 public class LogXAResourceInsertionInterceptor
         implements ConnectionInterceptor {
 
     private final ConnectionInterceptor next;
+    private final String name;
 
-    public LogXAResourceInsertionInterceptor(final ConnectionInterceptor next) {
+    public LogXAResourceInsertionInterceptor(final ConnectionInterceptor next, String name) {
         this.next = next;
+        this.name = name;
     }
 
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
@@ -45,7 +47,7 @@ public class LogXAResourceInsertionInterceptor
         ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
         mci.setXAResource(
                 new LogXAResource(
-                        mci.getManagedConnection().getLocalTransaction()));
+                        mci.getManagedConnection().getLocalTransaction(), name));
     }
 
     public void returnConnection(

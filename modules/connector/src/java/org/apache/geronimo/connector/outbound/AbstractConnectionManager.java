@@ -29,9 +29,10 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/06/05 07:53:21 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/08 17:38:00 $
  */
 public abstract class AbstractConnectionManager implements ConnectionManagerFactory, GBeanLifecycle, ConnectionManager, LazyAssociatableConnectionManager {
+
     protected ConnectionInterceptor stack;
 
     public AbstractConnectionManager() {

@@ -70,7 +70,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.19 $ $Date: 2004/06/05 01:40:09 $
+ * @version $Revision: 1.20 $ $Date: 2004/06/08 17:38:00 $
  */
 public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
 
@@ -301,7 +301,7 @@ public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
             throw new DeploymentException("Unexpected pooling support element");
         }
         try {
-            connectionManagerGBean.setAttribute("Name", connectionfactoryInstance.getName());
+//            connectionManagerGBean.setAttribute("Name", connectionfactoryInstance.getName());
             connectionManagerGBean.setAttribute("TransactionSupport", transactionSupport);
             connectionManagerGBean.setAttribute("Pooling", pooling);
             connectionManagerGBean.setReferencePatterns("ConnectionTracker", Collections.singleton(connectionTrackerNamePattern));

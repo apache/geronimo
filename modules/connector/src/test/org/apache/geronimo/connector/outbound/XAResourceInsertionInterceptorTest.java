@@ -25,17 +25,18 @@ import javax.transaction.xa.Xid;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/04/20 18:32:00 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/08 17:38:01 $
  *
  * */
 public class XAResourceInsertionInterceptorTest extends ConnectionInterceptorTestUtils {
 
     private XAResourceInsertionInterceptor xaResourceInsertionInterceptor;
     private XAResource xaResource;
+    private String name = "XAResource";
 
     protected void setUp() throws Exception {
         super.setUp();
-        xaResourceInsertionInterceptor = new XAResourceInsertionInterceptor(this);
+        xaResourceInsertionInterceptor = new XAResourceInsertionInterceptor(this, name);
     }
 
     protected void tearDown() throws Exception {
@@ -48,11 +49,15 @@ public class XAResourceInsertionInterceptorTest extends ConnectionInterceptorTes
         xaResource = new TestXAResource();
         managedConnection = new TestManagedConnection(xaResource);
         xaResourceInsertionInterceptor.getConnection(connectionInfo);
-        assertTrue("Expected the same XAResource", xaResource == connectionInfo.getManagedConnectionInfo().getXAResource());
+        xaResource.setTransactionTimeout(200);
+        //xaresource is wrapped, so we do something to ours to make it distinguishable.
+        assertEquals("Expected the same XAResource", 200, connectionInfo.getManagedConnectionInfo().getXAResource().getTransactionTimeout());
     }
 
 
     private static class TestXAResource implements XAResource {
+        private int txTimeout;
+
         public void commit(Xid xid, boolean onePhase) throws XAException {
         }
 
@@ -63,7 +68,7 @@ public class XAResourceInsertionInterceptorTest extends ConnectionInterceptorTes
         }
 
         public int getTransactionTimeout() throws XAException {
-            return 0;
+            return txTimeout;
         }
 
         public boolean isSameRM(XAResource xaResource) throws XAException {
@@ -82,6 +87,7 @@ public class XAResourceInsertionInterceptorTest extends ConnectionInterceptorTes
         }
 
         public boolean setTransactionTimeout(int seconds) throws XAException {
+            this.txTimeout = seconds;
             return false;
         }
 

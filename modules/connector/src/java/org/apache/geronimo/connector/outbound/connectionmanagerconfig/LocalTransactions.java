@@ -25,7 +25,7 @@ import org.apache.geronimo.connector.outbound.TransactionEnlistingInterceptor;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/30 19:03:36 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/08 17:38:00 $
  *
  * */
 public class LocalTransactions extends TransactionSupport {
@@ -34,8 +34,8 @@ public class LocalTransactions extends TransactionSupport {
     private LocalTransactions() {
     }
 
-    public ConnectionInterceptor addXAResourceInsertionInterceptor(ConnectionInterceptor stack) {
-        return new LocalXAResourceInsertionInterceptor(stack);
+    public ConnectionInterceptor addXAResourceInsertionInterceptor(ConnectionInterceptor stack, String name) {
+        return new LocalXAResourceInsertionInterceptor(stack, name);
     }
 
     public ConnectionInterceptor addTransactionInterceptors(ConnectionInterceptor stack) {

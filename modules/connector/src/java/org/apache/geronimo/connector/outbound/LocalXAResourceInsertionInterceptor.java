@@ -23,24 +23,25 @@ import javax.resource.ResourceException;
  * LocalXAResourceInsertionInterceptor.java
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:32 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/08 17:38:00 $
 
  */
 public class LocalXAResourceInsertionInterceptor
         implements ConnectionInterceptor {
 
     private final ConnectionInterceptor next;
+    private final String name;
 
-    public LocalXAResourceInsertionInterceptor(final ConnectionInterceptor next) {
+    public LocalXAResourceInsertionInterceptor(final ConnectionInterceptor next, final String name) {
         this.next = next;
-    } // XAResourceInsertionInterceptor constructor
+        this.name = name;
+    }
 
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
         next.getConnection(connectionInfo);
         ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
         mci.setXAResource(
-                new LocalXAResource(
-                        mci.getManagedConnection().getLocalTransaction()));
+                new LocalXAResource(mci.getManagedConnection().getLocalTransaction(), name));
     }
 
     public void returnConnection(
@@ -49,4 +50,4 @@ public class LocalXAResourceInsertionInterceptor
         next.returnConnection(connectionInfo, connectionReturnAction);
     }
 
-} // XAResourceInsertionInterceptor
+}

@@ -25,7 +25,7 @@ import org.apache.geronimo.connector.outbound.transactionlog.LogXAResourceInsert
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/30 19:03:36 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/08 17:38:00 $
  *
  * */
 public class TransactionLog extends TransactionSupport
@@ -35,8 +35,8 @@ public class TransactionLog extends TransactionSupport
     private TransactionLog() {
     }
 
-    public ConnectionInterceptor addXAResourceInsertionInterceptor(ConnectionInterceptor stack) {
-        return new LogXAResourceInsertionInterceptor(stack);
+    public ConnectionInterceptor addXAResourceInsertionInterceptor(ConnectionInterceptor stack, String name) {
+        return new LogXAResourceInsertionInterceptor(stack, name);
     }
 
     public ConnectionInterceptor addTransactionInterceptors(ConnectionInterceptor stack) {

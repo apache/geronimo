@@ -68,7 +68,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
- * @version $Revision: 1.16 $ $Date: 2004/06/05 01:40:09 $
+ * @version $Revision: 1.17 $ $Date: 2004/06/08 17:38:00 $
  */
 public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
 
@@ -175,7 +175,7 @@ public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
                         context.addGBean(ObjectName.getInstance(BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + connectionfactoryInstance.getName()), realmGBean);
                         managedConnectionFactoryGBean.setReferencePatterns("ManagedConnectionFactoryListener", Collections.singleton(ObjectName.getInstance(BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + connectionfactoryInstance.getName())));
                     }
-                    managedConnectionFactoryGBean.setAttribute("SelfName", managedConnectionFactoryObjectName);
+//                    managedConnectionFactoryGBean.setAttribute("SelfName", managedConnectionFactoryObjectName);
                 } catch (Exception e) {
                     throw new DeploymentException(e);
                 }

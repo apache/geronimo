@@ -29,18 +29,17 @@ import org.apache.geronimo.security.bridge.RealmBridge;
  * GenericConnectionManager sets up a connection manager stack according to the
  * policies described in the attributes.
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:02 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/08 17:38:00 $
  */
 public class GenericConnectionManager extends AbstractConnectionManager {
+
+    private String objectName;
 
     //connection manager configuration choices
     private TransactionSupport transactionSupport;
     private PoolingSupport pooling;
-    /**
-     * Identifying string used by unshareable resource detection
-     */
-    private String name;
     //dependencies
+
     protected RealmBridge realmBridge;
     protected ConnectionTracker connectionTracker;
 
@@ -50,12 +49,12 @@ public class GenericConnectionManager extends AbstractConnectionManager {
 
     public GenericConnectionManager(TransactionSupport transactionSupport,
             PoolingSupport pooling,
-            String name,
+            String objectName,
             RealmBridge realmBridge,
             ConnectionTracker connectionTracker) {
         this.transactionSupport = transactionSupport;
         this.pooling = pooling;
-        this.name = name;
+        this.objectName = objectName;
         this.realmBridge = realmBridge;
         this.connectionTracker = connectionTracker;
     }
@@ -82,7 +81,7 @@ public class GenericConnectionManager extends AbstractConnectionManager {
         MCFConnectionInterceptor tail = new MCFConnectionInterceptor();
         ConnectionInterceptor stack = tail;
 
-        stack = transactionSupport.addXAResourceInsertionInterceptor(stack);
+        stack = transactionSupport.addXAResourceInsertionInterceptor(stack, objectName);
         stack = pooling.addPoolingInterceptors(stack);
         //experimental threadlocal caching
         //moved to XATransactions
@@ -98,13 +97,12 @@ public class GenericConnectionManager extends AbstractConnectionManager {
         stack = new ConnectionHandleInterceptor(stack);
         if (connectionTracker != null) {
             stack = new ConnectionTrackingInterceptor(stack,
-                    getName(),
+                    objectName,
                     connectionTracker);
         }
         tail.setStack(stack);
         this.stack = stack;
     }
-
 
     public TransactionSupport getTransactionSupport() {
         return transactionSupport;
@@ -120,14 +118,6 @@ public class GenericConnectionManager extends AbstractConnectionManager {
 
     public void setPooling(PoolingSupport pooling) {
         this.pooling = pooling;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public RealmBridge getRealmBridge() {
@@ -151,6 +141,7 @@ public class GenericConnectionManager extends AbstractConnectionManager {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(GenericConnectionManager.class, AbstractConnectionManager.GBEAN_INFO);
 
+        infoFactory.addAttribute("ObjectName", String.class, true);
         infoFactory.addAttribute("Name", String.class, true);
         infoFactory.addAttribute("TransactionSupport", TransactionSupport.class, true);
         infoFactory.addAttribute("Pooling", PoolingSupport.class, true);
@@ -161,7 +152,7 @@ public class GenericConnectionManager extends AbstractConnectionManager {
         infoFactory.setConstructor(new String[]{
             "TransactionSupport",
             "Pooling",
-            "Name",
+            "ObjectName",
             "RealmBridge",
             "ConnectionTracker"});
 

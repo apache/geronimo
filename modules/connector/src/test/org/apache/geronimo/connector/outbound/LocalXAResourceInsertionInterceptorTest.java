@@ -23,17 +23,18 @@ import javax.resource.spi.LocalTransaction;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/04/20 18:29:39 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/08 17:38:01 $
  *
  * */
 public class LocalXAResourceInsertionInterceptorTest extends ConnectionInterceptorTestUtils {
 
     private LocalXAResourceInsertionInterceptor localXAResourceInsertionInterceptor;
     private LocalTransaction localTransaction;
+    private String name = "LocalXAResource";
 
     protected void setUp() throws Exception {
         super.setUp();
-        localXAResourceInsertionInterceptor = new LocalXAResourceInsertionInterceptor(this);
+        localXAResourceInsertionInterceptor = new LocalXAResourceInsertionInterceptor(this, name);
     }
 
     protected void tearDown() throws Exception {

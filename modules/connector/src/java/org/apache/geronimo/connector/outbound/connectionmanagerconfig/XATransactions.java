@@ -26,7 +26,7 @@ import org.apache.geronimo.connector.outbound.XAResourceInsertionInterceptor;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/05/30 19:03:36 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/08 17:38:00 $
  *
  * */
 public class XATransactions extends TransactionSupport {
@@ -54,8 +54,8 @@ public class XATransactions extends TransactionSupport {
         this.useThreadCaching = useThreadCaching;
     }
 
-    public ConnectionInterceptor addXAResourceInsertionInterceptor(ConnectionInterceptor stack) {
-        return new XAResourceInsertionInterceptor(stack);
+    public ConnectionInterceptor addXAResourceInsertionInterceptor(ConnectionInterceptor stack, String name) {
+        return new XAResourceInsertionInterceptor(stack, name);
     }
 
     public ConnectionInterceptor addTransactionInterceptors(ConnectionInterceptor stack) {

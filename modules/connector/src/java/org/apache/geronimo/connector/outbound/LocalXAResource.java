@@ -23,23 +23,27 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
+import org.apache.geronimo.transaction.manager.NamedXAResource;
+
 /**
  * LocalXAResource adapts a local transaction to be controlled by a
  * JTA transaction manager.  Of course, it cannot provide xa
  * semantics.
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/05/06 03:58:22 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/08 17:38:00 $
  */
-public class LocalXAResource implements XAResource {
+public class LocalXAResource implements NamedXAResource {
 
     //accessible in package for testing
     final LocalTransaction localTransaction;
+    private final String name;
     private Xid xid;
     private int transactionTimeout;
 
-    public LocalXAResource(LocalTransaction localTransaction) {
+    public LocalXAResource(LocalTransaction localTransaction, String name) {
         this.localTransaction = localTransaction;
+        this.name = name;
     }
 
     // Implementation of javax.transaction.xa.XAResource
@@ -123,5 +127,9 @@ public class LocalXAResource implements XAResource {
     public int prepare(Xid xid) throws XAException {
         //log warning that semantics are incorrect...
         return XAResource.XA_OK;
+    }
+
+    public String getName() {
+        return name;
     }
 }

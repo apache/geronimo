@@ -39,7 +39,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.geronimo.GeronimoContextManager;
 
 /**
- * @version $Revision: 1.13 $ $Date: 2004/06/05 07:53:21 $
+ * @version $Revision: 1.14 $ $Date: 2004/06/08 17:38:00 $
  */
 public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicGBean {
 
@@ -70,7 +70,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
     private Object proxy;
     private ConnectorMethodInterceptor interceptor;
     private final Kernel kernel;
-    private final ObjectName selfName;
+    private final String objectName;
 
     //default constructor for enhancement proxy endpoint
     public ManagedConnectionFactoryWrapper() {
@@ -80,7 +80,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         connectionInterface = null;
         connectionImplClass = null;
         kernel = null;
-        selfName = null;
+        objectName = null;
     }
 
     public ManagedConnectionFactoryWrapper(Class managedConnectionFactoryClass,
@@ -93,7 +93,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
             ConnectionManagerFactory connectionManagerFactory,
             ManagedConnectionFactoryListener managedConnectionFactoryListener,
             Kernel kernel,
-            ObjectName selfName) throws InstantiationException, IllegalAccessException {
+            String objectName) throws InstantiationException, IllegalAccessException {
         this.managedConnectionFactoryClass = managedConnectionFactoryClass;
         this.connectionFactoryInterface = connectionFactoryInterface;
         this.connectionFactoryImplClass = connectionFactoryImplClass;
@@ -110,7 +110,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         delegate.addAll(managedConnectionFactory);
         this.managedConnectionFactoryListener = managedConnectionFactoryListener;
         this.kernel = kernel;
-        this.selfName = selfName;
+        this.objectName = objectName;
 
     }
 
@@ -177,7 +177,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
             enhancer.setSuperclass(connectionFactoryInterface);
             enhancer.setCallbackType(net.sf.cglib.proxy.MethodInterceptor.class);
             enhancer.setUseFactory(false);//????
-            interceptor = new ConnectorMethodInterceptor(kernel.getKernelName(), selfName);
+            interceptor = new ConnectorMethodInterceptor(kernel.getKernelName(), ObjectName.getInstance(objectName));
             enhancer.setCallbacks(new Callback[]{interceptor});
             proxy = enhancer.create(new Class[0], new Object[0]);
         }
@@ -240,7 +240,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         infoFactory.addAttribute("ConnectionFactoryImplClass", Class.class, true);
         infoFactory.addAttribute("ConnectionInterface", Class.class, true);
         infoFactory.addAttribute("ConnectionImplClass", Class.class, true);
-        infoFactory.addAttribute("SelfName", ObjectName.class, true);
+        infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("GlobalJNDIName", String.class, true);
         infoFactory.addAttribute("kernel", Kernel.class, false);
 
@@ -262,7 +262,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
             "ConnectionManagerFactory",
             "ManagedConnectionFactoryListener",
             "kernel",
-            "SelfName"});
+            "objectName"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

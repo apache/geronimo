@@ -24,11 +24,11 @@ import org.apache.geronimo.connector.outbound.ConnectionInterceptor;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/06 03:58:22 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/08 17:38:00 $
  *
  * */
 public abstract class TransactionSupport implements Serializable {
-    public abstract ConnectionInterceptor addXAResourceInsertionInterceptor(ConnectionInterceptor stack);
+    public abstract ConnectionInterceptor addXAResourceInsertionInterceptor(ConnectionInterceptor stack, String name);
     public abstract ConnectionInterceptor addTransactionInterceptors(ConnectionInterceptor stack);
 
 }

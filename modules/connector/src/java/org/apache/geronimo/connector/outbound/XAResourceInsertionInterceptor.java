@@ -19,24 +19,28 @@ package org.apache.geronimo.connector.outbound;
 
 import javax.resource.ResourceException;
 
+import org.apache.geronimo.transaction.manager.WrapperNamedXAResource;
+
 /**
  * XAResourceInsertionInterceptor.java
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:32 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/08 17:38:00 $
  */
 public class XAResourceInsertionInterceptor implements ConnectionInterceptor {
 
     private final ConnectionInterceptor next;
+    private final String name;
 
-    public XAResourceInsertionInterceptor(final ConnectionInterceptor next) {
+    public XAResourceInsertionInterceptor(final ConnectionInterceptor next, final String name) {
         this.next = next;
+        this.name = name;
     }
 
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
         next.getConnection(connectionInfo);
         ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
-        mci.setXAResource(mci.getManagedConnection().getXAResource());
+        mci.setXAResource(new WrapperNamedXAResource(mci.getManagedConnection().getXAResource(), name));
     }
 
     public void returnConnection(ConnectionInfo connectionInfo, ConnectionReturnAction connectionReturnAction) {

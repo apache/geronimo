@@ -22,7 +22,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import javax.sql.DataSource;
 import javax.transaction.xa.Xid;
 
@@ -33,15 +36,19 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.transaction.manager.LogException;
 import org.apache.geronimo.transaction.manager.TransactionLog;
-import org.apache.geronimo.transaction.manager.XidImpl;
+import org.apache.geronimo.transaction.manager.XidFactory;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/06/05 07:53:21 $
+ * "Last Resource optimization" for single servers wishing to have valid xa transactions with
+ * a single 1-pc datasource.  The database is used for the log, and the database work is
+ * committed when the log writes its prepare record.
+ *
+ * @version $Revision: 1.6 $ $Date: 2004/06/08 17:38:01 $
  */
 public class JDBCLog implements TransactionLog, GBeanLifecycle {
-    private final static String INSERT_XID = "INSERT INTO TXLOG (SYSTEMID, FORMATID, GLOBALID, BRANCHID) VALUES (?, ?, ?, ?)";
+    private final static String INSERT_XID = "INSERT INTO TXLOG (SYSTEMID, FORMATID, GLOBALID, BRANCHID, NAME) VALUES (?, ?, ?, ?, ?)";
     private final static String DELETE_XID = "DELETE FROM TXLOG WHERE SYSTEMID = ? AND FORMATID = ? AND GLOBALID = ? BRANCHID = ?";
-    private final static String RECOVER = "SELECT FORMATID, GLOBALID, BRANCHID FROM TXLOG WHERE SYSTEMID = ?";
+    private final static String RECOVER = "SELECT FORMATID, GLOBALID, BRANCHID, NAME FROM TXLOG WHERE SYSTEMID = ? ORDER BY FORMATID, GLOBALID, BRANCHID, NAME";
 
     private DataSource dataSource;
     private final String systemId;
@@ -66,15 +73,42 @@ public class JDBCLog implements TransactionLog, GBeanLifecycle {
     public void begin(Xid xid) throws LogException {
     }
 
-    public void prepare(Xid xid) throws LogException {
-        xidOperation(xid, INSERT_XID);
-    }
-
-    private void xidOperation(Xid xid, String sql) throws LogException {
+    public void prepare(Xid xid, String[] names) throws LogException {
+        int formatId = xid.getFormatId();
+        byte[] globalTransactionId = xid.getGlobalTransactionId();
+        byte[] branchQualifier = xid.getBranchQualifier();
         try {
             Connection connection = dataSource.getConnection();
             try {
-                PreparedStatement ps = connection.prepareStatement(sql);
+                PreparedStatement ps = connection.prepareStatement(INSERT_XID);
+                try {
+                    for (int i = 0; i < names.length; i++ ) {
+                        ps.setString(0, systemId);
+                        ps.setInt(1, formatId);
+                        ps.setBytes(2, globalTransactionId);
+                        ps.setBytes(3, branchQualifier);
+                        ps.setString(4, names[i]);
+                        ps.execute();
+                    }
+                } finally {
+                    ps.close();
+                }
+                if (!connection.getAutoCommit()) {
+                    connection.commit();
+                }
+            } finally {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            throw new LogException("Failure during prepare or commit", e);
+        }
+    }
+
+    public void commit(Xid xid) throws LogException {
+        try {
+            Connection connection = dataSource.getConnection();
+            try {
+                PreparedStatement ps = connection.prepareStatement(DELETE_XID);
                 try {
                     ps.setString(0, systemId);
                     ps.setInt(1, xid.getFormatId());
@@ -95,37 +129,50 @@ public class JDBCLog implements TransactionLog, GBeanLifecycle {
         }
     }
 
-    public void commit(Xid xid) throws LogException {
-        xidOperation(xid, DELETE_XID);
-    }
-
     public void rollback(Xid xid) throws LogException {
         throw new LogException("JDBCLog does not support rollback of prepared transactions.  Use it only on servers that do not import transactions");
     }
 
-    public List recover() throws LogException {
+    public Map recover(XidFactory xidFactory) throws LogException {
         try {
             Connection connection = dataSource.getConnection();
             try {
-                List xids = new ArrayList();
+                Map xids = new HashMap();
                 PreparedStatement ps = connection.prepareStatement(RECOVER);
                 ps.setString(0, systemId);
                 ResultSet rs = ps.executeQuery();
+                Xid lastXid = null;
+                Xid currentXid = null;
+                List names = new ArrayList();
                 while (rs.next()) {
                     int formatId = rs.getInt(0);
                     byte[] globalId = rs.getBytes(1);
                     byte[] branchId = rs.getBytes(2);
-                    Xid xid = new XidImpl(formatId, globalId, branchId);
-                    xids.add(xid);
+                    String name = rs.getString(3);
+                    currentXid = xidFactory.recover(formatId, globalId, branchId);
+                    if (!currentXid.equals(lastXid) && lastXid != null) {
+                        addRecoveredXid(xids, lastXid, names);
+                        names.clear();
+                        lastXid = currentXid;
+                    }
+                    names.add(name);
+                }
+                if (currentXid != null) {
+                    addRecoveredXid(xids, currentXid, names);
                 }
                 return xids;
             } finally {
                 connection.close();
             }
         } catch (SQLException e) {
-            throw new LogException("Recover failure", e);
+            throw new LogException("Recovery failure", e);
         }
 
+    }
+
+    private void addRecoveredXid(Map xids, Xid xid, List names) {
+        String[] nameArray = (String[])names.toArray(new String[names.size()]);
+        xids.put(xid, nameArray);
     }
 
     public String getXMLStats() {
