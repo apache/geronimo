@@ -75,7 +75,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
  * An HttpSessionManager for &lt;distributable/&gt; webapps, which
  * backs onto the generic Geronimo clustering framework.
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/07 00:15:38 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/07 22:09:47 $
  */
 public class
   HttpSessionManager
@@ -102,6 +102,10 @@ public class
   public String getNodeName(){return _nodeName;}
   public void setNodeName(String nodeName){_nodeName=nodeName;}
 
+  protected String _tierName="web";
+  public String getTierName(){return _tierName;}
+  public void setTierName(String tierName){_tierName=tierName;}
+
   protected String _contextPath;
   public String getContextPath(){return _contextPath;}
   public void setContextPath(String contextPath){_contextPath=contextPath;}
@@ -121,7 +125,7 @@ public class
     try
     {
       // find our tier
-      _tier=(Tier)_server.getAttribute(WebTier.makeObjectName(getClusterName(), getNodeName()), "Reference");
+      _tier=(Tier)_server.getAttribute(Tier.makeObjectName(getClusterName(), getNodeName(), getTierName()), "Reference");
       _log.debug("Tier: "+_tier);
     }
     catch (Exception e)
@@ -167,6 +171,7 @@ public class
     // TODO - these should probably become RO...
     mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ClusterName", true, true, "name of Cluster upon which this webapp is deployed"));
     mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("NodeName",    true, true, "name of Cluster Node upon which this webapp is deployed"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("TierName",    true, true, "name of Tier to which this webapp is attached"));
     mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ContextPath", true, true, "context path at which this webapp is deployed"));
     return mbeanInfo;
   }

@@ -98,6 +98,7 @@
     >
         <attribute name="ClusterName">GERONIMO</attribute>
         <attribute name="NodeName">0</attribute>
+        <attribute name="TierName">web</attribute>
         <attribute name="ContextPath">/dummy</attribute>
   </mbean>
 

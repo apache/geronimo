@@ -74,29 +74,13 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
  * Responsible for maintaining state stored in the EJB tier -
  * i.e. StatefulSessions.
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/07 00:15:38 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/07 22:09:47 $
  */
 public class
   EJBTier
   extends Tier
 {
   //  protected Log _log=LogFactory.getLog(EJBTier.class);
-
-  /**
-   * Makes an ObjectName for a Tier MBean with the given parameters.
-   *
-   * @param clusterName a <code>String</code> value
-   * @param nodeName a <code>String</code> value
-   * @param tierName a <code>String</code> value
-   * @return an <code>ObjectName</code> value
-   * @exception Exception if an error occurs
-   */
-  public static ObjectName
-    makeObjectName(String clusterName, String nodeName)
-    throws Exception
-  {
-    return Tier.makeObjectName(clusterName, nodeName, "ejb");
-  }
 
   //----------------------------------------
   // EJBTier
