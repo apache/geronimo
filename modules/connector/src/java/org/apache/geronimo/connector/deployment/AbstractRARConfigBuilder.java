@@ -38,7 +38,7 @@ import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
-import org.apache.geronimo.deployment.util.XmlBeansUtil;
+import org.apache.geronimo.common.xml.XmlBeansUtil;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -58,7 +58,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.10 $ $Date: 2004/03/12 17:58:45 $
+ * @version $Revision: 1.11 $ $Date: 2004/03/21 18:12:06 $
  *
  * */
 public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
@@ -120,7 +120,7 @@ public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
     public XmlObject getDeploymentPlan(URL module) {
          try {
             URL moduleBase = new URL("jar:" + module.toString() + "!/");
-            XmlObject plan = XmlBeansUtil.getPlan(new URL(moduleBase, "META-INF/geronimo-ra.xml"), GerConnectorDocument.type);
+            XmlObject plan = XmlBeansUtil.getXmlObject(new URL(moduleBase, "META-INF/geronimo-ra.xml"), GerConnectorDocument.type);
              if (plan != null && canConfigure(plan)) {
                  return plan;
              } else {

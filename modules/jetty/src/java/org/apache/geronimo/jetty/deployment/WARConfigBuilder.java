@@ -45,7 +45,7 @@ import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
-import org.apache.geronimo.deployment.util.XmlBeansUtil;
+import org.apache.geronimo.common.xml.XmlBeansUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
@@ -64,6 +64,8 @@ import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
 import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
+import org.apache.geronimo.common.xml.XmlBeansUtil;
+
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
@@ -72,7 +74,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.14 $ $Date: 2004/03/10 09:58:56 $
+ * @version $Revision: 1.15 $ $Date: 2004/03/21 18:12:42 $
  */
 public class WARConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
@@ -99,7 +101,7 @@ public class WARConfigBuilder implements ConfigurationBuilder {
             } else {
                 moduleBase = new URL("jar:" + module.toString() + "!/");
             }
-            XmlObject plan = XmlBeansUtil.getPlan(new URL(moduleBase, "WEB-INF/geronimo-jetty.xml"), JettyWebAppDocument.type);
+            XmlObject plan = XmlBeansUtil.getXmlObject(new URL(moduleBase, "WEB-INF/geronimo-jetty.xml"), JettyWebAppDocument.type);
 // todo needs generic web XMLBeans
 //            if (plan == null) {
 //                plan = getPlan(new URL(moduleBase, "WEB-INF/geronimo-web.xml"));
