@@ -60,7 +60,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import javax.management.InstanceNotFoundException;
 import javax.management.ListenerNotFoundException;
 import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanRegistration;
@@ -89,20 +88,20 @@ import javax.management.relation.RoleNotFoundException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.deployment.DependencyServiceMBean;
+import org.apache.geronimo.kernel.deployment.service.MBeanRelationshipMetadata;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.EventProvider;
 import org.apache.geronimo.kernel.management.ManagedObject;
 import org.apache.geronimo.kernel.management.NotificationType;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.management.StateManageable;
-import org.apache.geronimo.kernel.deployment.service.MBeanRelationshipMetadata;
 
 /**
  * Abstract implementation of JSR77 StateManageable.
  * Implementors of StateManageable may use this class and simply provide
  * doStart, doStop and sendNotification methods.
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/30 07:47:04 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/07 17:47:14 $
  */
 public abstract class AbstractManagedObject implements ManagedObject, StateManageable, EventProvider, NotificationListener, MBeanRegistration, NotificationEmitter {
     protected final Log log = LogFactory.getLog(getClass());
@@ -475,7 +474,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
             source = notification.getMBeanName();
             try {
                 server.addNotificationListener(source, this, NotificationType.NOTIFICATION_FILTER, null);
-            } catch (InstanceNotFoundException e) {
+            } catch (Exception e) {
                 // the instance died before we could get going... not a big deal
                 return;
             }
