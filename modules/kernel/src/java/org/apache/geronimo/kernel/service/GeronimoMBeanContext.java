@@ -65,7 +65,7 @@ import org.apache.geronimo.kernel.management.State;
  * Context handle for Geronimo MBean targets which gives a target a reference to the MBean server, the object name
  * of the GeronimoMBean containing the target, allows the target to send MBean notifications.
  *
- * @version $Revision: 1.4 $ $Date: 2003/11/16 23:32:29 $
+ * @version $Revision: 1.5 $ $Date: 2003/12/28 19:29:30 $
  */
 public class GeronimoMBeanContext {
     /**
@@ -115,14 +115,13 @@ public class GeronimoMBeanContext {
     /**
      * Gets the state of this component as an int.
      * The int return is required by the JSR77 specification.
-     * 
+     *
      * @return the current state of this component
-     * @throws Exception if a problem occurs while starting the component
      */
-    public int getState() throws Exception {
+    public int getState() {
         return geronimoMBean.getState();
     }
-    
+
     /**
      * Attempts to bring the component into the fully running state. If an Exception occurs while
      * starting the component, the component is automaticaly failed.
