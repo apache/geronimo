@@ -40,7 +40,6 @@
         </xsd:annotation>
         <xsd:sequence>
             <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="auto-map-roles" type="geronimo:auto-map-rolesType" minOccurs="0"/>
             <xsd:element name="default-principal" type="geronimo:default-principalType" minOccurs="0"/>
             <xsd:element name="role-mappings" type="geronimo:role-mappingsType" minOccurs="0"/>
         </xsd:sequence>
@@ -112,25 +111,6 @@
                 </xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
-    </xsd:complexType>
-    <xsd:complexType name="auto-map-rolesType">
-        <xsd:sequence>
-            <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="class-override" type="geronimo:class-overrideType" minOccurs="0" maxOccurs="unbounded"/>
-        </xsd:sequence>
-        <xsd:attribute name="security-realm" type="xsd:string" use="required"/>
-    </xsd:complexType>
-    <xsd:complexType name="class-overrideType">
-        <xsd:annotation>
-            <xsd:documentation>
-                Class overrides allow a deployer to specify a different set of
-                principal classes to be used in the auto mapping of roles.
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:sequence>
-            <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
-        </xsd:sequence>
-        <xsd:attribute name="class" type="xsd:string" use="required"/>
     </xsd:complexType>
 
 </xsd:schema>

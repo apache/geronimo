@@ -17,26 +17,20 @@
 
 package org.apache.geronimo.security;
 
-import java.security.Policy;
-import java.util.Collection;
-import java.util.Iterator;
 import javax.security.jacc.PolicyConfigurationFactory;
 import javax.security.jacc.PolicyContextException;
+import java.security.Policy;
 
-import EDU.oswego.cs.dl.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.ReferenceCollection;
-import org.apache.geronimo.gbean.ReferenceCollectionEvent;
-import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.security.jacc.GeronimoPolicy;
 import org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerContainerSubject;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerHttpServletRequest;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerSOAPMessage;
-import org.apache.geronimo.security.realm.AutoMapAssistant;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 
 

@@ -16,8 +16,9 @@
  */
 package org.apache.geronimo.security.realm;
 
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,16 +26,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.security.auth.spi.LoginModule;
 
-import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
-import org.apache.geronimo.security.deploy.MapOfSets;
 import org.apache.geronimo.security.deploy.Principal;
 import org.apache.geronimo.security.jaas.ConfigurationEntryFactory;
 import org.apache.geronimo.security.jaas.JaasLoginCoordinator;
@@ -77,7 +73,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  *
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFactory, AutoMapAssistant {
+public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFactory {
 
     public final static String KERNEL_LM_OPTION = "org.apache.geronimo.security.realm.GenericSecurityRealm.KERNEL";
     public final static String SERVERINFO_LM_OPTION = "org.apache.geronimo.security.realm.GenericSecurityRealm.SERVERINFO";
@@ -88,10 +84,8 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
     private final ServerInfo serverInfo;
     private final ClassLoader classLoader;
 
-    private final MapOfSets autoMapPrincipalClasses;
     private final Principal defaultPrincipal;
 
-    private Map deployment;
     private String[] domains;
     private boolean restrictPrincipalsToServer;
 
@@ -99,8 +93,6 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
                                 Properties loginModuleConfiguration,
                                 boolean restrictPrincipalsToServer,
                                 Principal defaultPrincipal,
-                                MapOfSets autoMapPrincipalClasses,
-                                Properties deploymentSupport,
                                 ServerInfo serverInfo,
                                 ClassLoader classLoader,
                                 Kernel kernel) throws MalformedObjectNameException {
@@ -110,14 +102,8 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
         this.classLoader = classLoader;
         this.restrictPrincipalsToServer = restrictPrincipalsToServer;
         this.defaultPrincipal = defaultPrincipal;
-        if (autoMapPrincipalClasses != null) {
-            this.autoMapPrincipalClasses = autoMapPrincipalClasses;
-        } else {
-            this.autoMapPrincipalClasses = new MapOfSets();
-        }
 
         processConfiguration(loginModuleConfiguration);
-        initializeDeployment(deploymentSupport);
     }
 
     public String getRealmName() {
@@ -126,15 +112,6 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
 
     public JaasLoginModuleConfiguration[] getAppConfigurationEntries() {
         return config;
-    }
-
-    /**
-     * Gets a helper that lists principals for the realm to help with
-     * generating deployment descriptors.  May return null if the realm does
-     * not support these features.
-     */
-    public DeploymentSupport getDeploymentSupport(String domain) throws GeronimoSecurityException {
-        return (DeploymentSupport) deployment.get(domain);
     }
 
     /**
@@ -156,10 +133,6 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
      */
     public Principal getDefaultPrincipal() {
         return defaultPrincipal;
-    }
-
-    public MapOfSets getAutoMapPrincipalClasses() {
-        return autoMapPrincipalClasses;
     }
 
     /**
@@ -217,9 +190,9 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
                         if (classLoader != null && !options.containsKey(CLASSLOADER_LM_OPTION)) {
                             options.put(CLASSLOADER_LM_OPTION, classLoader);
                         }
-                        if(module.getLoginDomainName() != null) {
-                            if(domains.contains(module.getLoginDomainName())) {
-                                throw new IllegalStateException("Error in "+realmName+": one security realm cannot contain multiple login modules for the same login domain");
+                        if (module.getLoginDomainName() != null) {
+                            if (domains.contains(module.getLoginDomainName())) {
+                                throw new IllegalStateException("Error in " + realmName + ": one security realm cannot contain multiple login modules for the same login domain");
                             } else {
                                 domains.add(module.getLoginDomainName());
                             }
@@ -242,35 +215,6 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
         config = (JaasLoginModuleConfiguration[]) list.toArray(new JaasLoginModuleConfiguration[list.size()]);
     }
 
-    private void initializeDeployment(Properties deploymentSupport) {
-        deployment = new HashMap();
-        for (int i = 0; i < config.length; i++) {
-            if(config[i].getLoginDomainName() == null) {
-                continue;
-            }
-            DeploymentSupport support = null;
-            if(deploymentSupport != null && deploymentSupport.containsKey(config[i].getLoginDomainName())) {
-                try {
-                    //todo: how should this be configured?  Should it be a GBean?
-                    support = (DeploymentSupport) classLoader.loadClass(deploymentSupport.getProperty(config[i].getLoginDomainName())).newInstance();
-                } catch (Exception e) {
-                    throw new GeronimoSecurityException("Unable to load deployment support class '"+deploymentSupport.getProperty(config[i].getLoginDomainName())+"'", e);
-                }
-            } else if(config[i].getLoginModule(classLoader) instanceof DeploymentSupport) {
-                LoginModule module = config[i].getLoginModule(classLoader);
-                module.initialize(null, null, null, config[i].getOptions());
-                support = (DeploymentSupport) module;
-            }
-            if(support != null) {
-                deployment.put(config[i].getLoginDomainName(), support);
-                String[] auto = support.getAutoMapPrincipalClassNames();
-                if(auto != null) {
-                    autoMapPrincipalClasses.put(config[i].getLoginDomainName(), new HashSet(Arrays.asList(auto)));
-                }
-            }
-        }
-    }
-
 
     public static final GBeanInfo GBEAN_INFO;
 
@@ -283,7 +227,6 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("loginModuleConfiguration", Properties.class, true);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-        infoFactory.addAttribute("autoMapPrincipalClasses", MapOfSets.class, true);
         infoFactory.addAttribute("defaultPrincipal", Principal.class, true);
         infoFactory.addAttribute("deploymentSupport", Properties.class, true);
         infoFactory.addAttribute("restrictPrincipalsToServer", boolean.class, true);
@@ -291,14 +234,11 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
         infoFactory.addReference("ServerInfo", ServerInfo.class);
 
         infoFactory.addOperation("getAppConfigurationEntries", new Class[0]);
-        infoFactory.addOperation("getDeploymentSupport", new Class[]{String.class});
 
         infoFactory.setConstructor(new String[]{"realmName",
                                                 "loginModuleConfiguration",
                                                 "restrictPrincipalsToServer",
                                                 "defaultPrincipal",
-                                                "autoMapPrincipalClasses",
-                                                "deploymentSupport",
                                                 "ServerInfo",
                                                 "classLoader",
                                                 "kernel"});

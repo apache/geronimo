@@ -20,7 +20,7 @@ package org.apache.geronimo.connector.outbound.security;
 import javax.resource.spi.ManagedConnectionFactory;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.geronimo.common.GeronimoSecurityException;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
@@ -29,14 +29,11 @@ import org.apache.geronimo.security.jaas.JaasLoginCoordinator;
 import org.apache.geronimo.security.jaas.JaasLoginModuleConfiguration;
 import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
 import org.apache.geronimo.security.realm.SecurityRealm;
-import org.apache.geronimo.security.realm.DeploymentSupport;
+
 
 /**
- *
- *
  * @version $Rev$ $Date$
- *
- * */
+ */
 public class PasswordCredentialRealm implements SecurityRealm, ConfigurationEntryFactory, ManagedConnectionFactoryListener {
 
     private static final GBeanInfo GBEAN_INFO;
@@ -64,10 +61,6 @@ public class PasswordCredentialRealm implements SecurityRealm, ConfigurationEntr
         return new String[]{realmName};
     }
 
-    public DeploymentSupport getDeploymentSupport(String loginDomain) throws GeronimoSecurityException {
-        return null;
-    }
-
     public JaasLoginModuleConfiguration[] getAppConfigurationEntries() {
         Map options = new HashMap();
 
@@ -75,7 +68,7 @@ public class PasswordCredentialRealm implements SecurityRealm, ConfigurationEntr
         // since the SerializableACE can be sent remotely
         options.put(REALM_INSTANCE, this);
         JaasLoginModuleConfiguration config = new JaasLoginModuleConfiguration(PasswordCredentialLoginModule.class.getName(),
-                LoginModuleControlFlag.REQUISITE, options, true, getRealmName());
+                                                                               LoginModuleControlFlag.REQUISITE, options, true, getRealmName());
         return new JaasLoginModuleConfiguration[]{config};
     }
 

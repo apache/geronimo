@@ -89,40 +89,4 @@ public class Security implements Serializable {
             roleMappings.put(role.getRoleName(), role);
         }
     }
-
-    /**
-     * Automatically generate role mappings and add them to the existing role mappings.
-     * <p/>
-     * NOTE: This method should be called during deployment.
-     *
-     */
-    public void autoGenerate(String loginDomainName, String realmName, Set principalClasseSet) {
-        /**
-         * Append roles
-         */
-        for (Iterator iter = roleNames.iterator(); iter.hasNext();) {
-            String roleName = (String) iter.next();
-            Role role = new Role();
-
-            role.setRoleName(roleName);
-
-            Realm realm = new Realm();
-
-            realm.setRealmName(realmName);
-
-            for (Iterator principalClasses = principalClasseSet.iterator(); principalClasses.hasNext();) {
-                Principal principal = new Principal();
-                //todo: Principal class needs to handle login domain as well
-                principal.setClassName((String) principalClasses.next());
-                principal.setPrincipalName(roleName);
-                principal.setDesignatedRunAs(false);
-
-                realm.getPrincipals().add(principal);
-            }
-            role.append(realm);
-
-            append(role);
-        }
-
-    }
 }

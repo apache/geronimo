@@ -49,7 +49,6 @@ by the server.
         <attribute name="loginModuleConfiguration">
             LoginModule.1.REQUIRED=geronimo.security:type=LoginModule,name=demo-properties-login
         </attribute>
-        <attribute name="autoMapPrincipalClasses">demo-properties-realm=org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal</attribute>
         <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
     </gbean>
 

@@ -56,7 +56,6 @@ import org.apache.geronimo.transaction.OnlineUserTransaction;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.security.deploy.Security;
-import org.apache.geronimo.security.realm.AutoMapAssistant;
 
 
 /**

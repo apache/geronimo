@@ -40,7 +40,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
-import org.apache.geronimo.security.realm.DeploymentSupport;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
@@ -51,7 +50,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  *
  * @version $Rev$ $Date$
  */
-public class PropertiesFileLoginModule implements LoginModule, DeploymentSupport {
+public class PropertiesFileLoginModule implements LoginModule {
     public final static String USERS_URI = "usersURI";
     public final static String GROUPS_URI = "groupsURI";
     private static Log log = LogFactory.getLog(PropertiesFileLoginModule.class);
@@ -178,15 +177,6 @@ public class PropertiesFileLoginModule implements LoginModule, DeploymentSupport
      */
     public String[] getPrincipalClassNames() {
         return new String[]{GeronimoUserPrincipal.class.getName(), GeronimoGroupPrincipal.class.getName()};
-    }
-
-    /**
-     * Gets the names of all principal classes that should correspond to
-     * roles when automapping.  This is a default, and may be overridden
-     * by specific values configured for the realm.
-     */
-    public String[] getAutoMapPrincipalClassNames() {
-        return new String[]{GeronimoGroupPrincipal.class.getName()};
     }
 
     /**

@@ -186,9 +186,6 @@ public class AbstractWebModuleTest extends TestCase {
         Properties config = new Properties();
         config.setProperty("LoginModule.1.REQUIRED", propertiesLMName.getCanonicalName());
         propertiesRealmGBean.setAttribute("loginModuleConfiguration", config);
-        MapOfSets.MapOfSetsEditor mapEditor = new MapOfSets.MapOfSetsEditor();
-        mapEditor.setAsText(securityRealmName + "=org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
-        propertiesRealmGBean.setAttribute("autoMapPrincipalClasses", mapEditor.getValue());
         Principal.PrincipalEditor principalEditor = new Principal.PrincipalEditor();
         principalEditor.setAsText("metro=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
         propertiesRealmGBean.setAttribute("defaultPrincipal", principalEditor.getValue());

@@ -88,7 +88,7 @@ public class JaasLoginCoordinator implements LoginModule {
         workers = new LoginModuleConfiguration[config.length];
         for (int i = 0; i < workers.length; i++) {
             LoginModule wrapper;
-            if(config[i].isServerSide()) {
+            if(config[i].isServerSide()) { 
                 wrapper = new ServerLoginModule(i);
             } else {
                 LoginModule source = config[i].getLoginModule(JaasLoginCoordinator.class.getClassLoader());

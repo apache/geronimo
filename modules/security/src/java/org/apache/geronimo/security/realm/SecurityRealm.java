@@ -17,19 +17,14 @@
 
 package org.apache.geronimo.security.realm;
 
-import javax.security.auth.login.AppConfigurationEntry;
-
-import java.util.Set;
-
-import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.jaas.JaasLoginModuleConfiguration;
-import org.apache.regexp.RE;
 
 
 /**
  * @version $Rev$ $Date$
  */
 public interface SecurityRealm {
+
     static final String BASE_OBJECT_NAME = "geronimo.security:type=SecurityRealm";
 
     /**
@@ -59,10 +54,4 @@ public interface SecurityRealm {
      */
     public String[] getLoginDomains();
 
-    /**
-     * Gets a helper that lists principals for the realm to help with
-     * generating deployment descriptors.  May return null if the realm does
-     * not support these features.
-     */
-    public DeploymentSupport getDeploymentSupport(String loginDomain) throws GeronimoSecurityException;
 }
