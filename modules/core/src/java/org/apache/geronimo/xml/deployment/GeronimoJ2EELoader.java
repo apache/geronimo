@@ -75,7 +75,7 @@ import org.w3c.dom.Element;
 /**
  * Loads common Geronimo DD tags
  *
- * @version $Revision: 1.7 $ $Date: 2003/11/18 04:16:22 $
+ * @version $Revision: 1.8 $ $Date: 2003/11/19 07:45:46 $
  */
 public final class GeronimoJ2EELoader {
     public static EjbRef[] loadEJBRefs(Element e) {
@@ -206,6 +206,9 @@ public final class GeronimoJ2EELoader {
 
     public static Security loadSecurity(Element e) {
         Element s = LoaderUtil.getChild(e, "security");
+        if (s == null) {
+            return null;
+        }
         Security security = new Security();
 
         J2EELoader.loadDescribable(s, security);
