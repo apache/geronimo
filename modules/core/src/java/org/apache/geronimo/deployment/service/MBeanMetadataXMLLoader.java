@@ -55,27 +55,46 @@
  */
 package org.apache.geronimo.deployment.service;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.jmx.GeronimoMBeanInfo;
+import org.apache.geronimo.jmx.GeronimoMBeanInfoXMLLoader;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
+ * Loads MBean metadata from xml.
  *
- *
- * @version $Revision: 1.5 $ $Date: 2003/08/27 03:43:36 $
+ * @version $Revision: 1.6 $ $Date: 2003/09/05 02:37:49 $
  */
 public class MBeanMetadataXMLLoader {
-    public MBeanMetadata loadXML(Element element) throws DeploymentException {
+    private final GeronimoMBeanInfoXMLLoader xmlLoader;
+
+    public MBeanMetadataXMLLoader() throws DeploymentException {
+        this.xmlLoader = new GeronimoMBeanInfoXMLLoader();
+    }
+
+    public MBeanMetadata loadXML(URI baseURI, Element element) throws DeploymentException {
         MBeanMetadata md = new MBeanMetadata();
-        md.setCode(element.getAttribute("code").trim());
+        md.setBaseURI(baseURI);
+        String code = element.getAttribute("code").trim();
+        if (code.length() > 0) {
+            md.setCode(code);
+        }
+        String descriptor = element.getAttribute("descriptor").trim();
+        if (descriptor.length() > 0) {
+            URI descriptorURI = baseURI.resolve(descriptor);
+            GeronimoMBeanInfo geronimoMBeanInfo = xmlLoader.loadXML(descriptorURI);
+            md.setGeronimoMBeanInfo(geronimoMBeanInfo);
+        }
         String s = element.getAttribute("name").trim();
         try {
             if (s.length() > 0) {
@@ -117,7 +136,7 @@ public class MBeanMetadataXMLLoader {
 
             ObjectName target = null;
             String targetString = argElement.getAttribute("target");
-            if(targetString != null && targetString.length() > 0) {
+            if (targetString != null && targetString.length() > 0) {
                 try {
                     target = new ObjectName(targetString);
                 } catch (MalformedObjectNameException e) {

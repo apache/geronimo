@@ -55,22 +55,25 @@
  */
 package org.apache.geronimo.deployment.service;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.net.URI;
 import javax.management.ObjectName;
 
+import org.apache.geronimo.jmx.GeronimoMBeanInfo;
+
 /**
+ * Metadata about an MBean that is use during deployment.
  *
- *
- * @version $Revision: 1.5 $ $Date: 2003/08/20 22:41:23 $
+ * @version $Revision: 1.6 $ $Date: 2003/09/05 02:37:49 $
  */
 public class MBeanMetadata {
     private String code;
+    private GeronimoMBeanInfo geronimoMBeanInfo;
     private ObjectName name;
     private ObjectName loaderName;
     private ObjectName parentName;
@@ -106,12 +109,27 @@ public class MBeanMetadata {
         this.parentName = parentName;
     }
 
+    public MBeanMetadata(ObjectName name, GeronimoMBeanInfo geronimoMBeanInfo, ObjectName loaderName, ObjectName parentName) {
+        this.name = name;
+        this.geronimoMBeanInfo = geronimoMBeanInfo;
+        this.loaderName = loaderName;
+        this.parentName = parentName;
+    }
+
     public String getCode() {
         return code;
     }
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public GeronimoMBeanInfo getGeronimoMBeanInfo() {
+        return geronimoMBeanInfo;
+    }
+
+    public void setGeronimoMBeanInfo(GeronimoMBeanInfo geronimoMBeanInfo) {
+        this.geronimoMBeanInfo = geronimoMBeanInfo;
     }
 
     public ObjectName getName() {

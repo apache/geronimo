@@ -64,7 +64,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
@@ -79,8 +78,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.goal.DeployURL;
 import org.apache.geronimo.deployment.goal.DeploymentGoal;
@@ -96,29 +93,26 @@ import org.apache.geronimo.deployment.plan.StartMBeanInstance;
 import org.apache.geronimo.deployment.plan.StopMBeanInstance;
 import org.apache.geronimo.deployment.scanner.URLType;
 import org.apache.geronimo.jmx.JMXUtil;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
+ * Plans deployment of MBean services.
  *
- * @jmx:mbean
- *      extends="org.apache.geronimo.deployment.DeploymentPlanner"
+ * @jmx:mbean extends="org.apache.geronimo.deployment.DeploymentPlanner"
  *
- * @version $Revision: 1.10 $ $Date: 2003/09/01 20:38:49 $
+ * @version $Revision: 1.11 $ $Date: 2003/09/05 02:37:49 $
  */
-public class ServiceDeploymentPlanner
-    implements ServiceDeploymentPlannerMBean, MBeanRegistration
-{
-    private static final Log log = LogFactory.getLog(ServiceDeploymentPlanner.class);
-    
+public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, MBeanRegistration {
     private MBeanServer server;
     private ObjectName objectName;
     private RelationServiceMBean relationService;
     private final DocumentBuilder parser;
     private final MBeanMetadataXMLLoader mbeanLoader;
 
-    public ServiceDeploymentPlanner() {
+    public ServiceDeploymentPlanner() throws DeploymentException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
             parser = factory.newDocumentBuilder();
@@ -173,8 +167,9 @@ public class ServiceDeploymentPlanner
     private boolean addURL(DeployURL goal, Set goals, Set plans) throws DeploymentException {
         InputStream is;
         URL url = goal.getUrl();
-        URI baseURI = URI.create(url.toString()).normalize();;
-        
+        URI baseURI = URI.create(url.toString()).normalize();
+        ;
+
         URLType type = goal.getType();
         if (type == URLType.RESOURCE) {
             if (!url.getPath().endsWith("-service.xml")) {
@@ -227,7 +222,7 @@ public class ServiceDeploymentPlanner
             DeploymentPlan createPlan = new DeploymentPlan();
 
             Element mbeanElement = (Element) nl.item(i);
-            metadata = mbeanLoader.loadXML(mbeanElement);
+            metadata = mbeanLoader.loadXML(baseURI, mbeanElement);
             if (server.isRegistered(metadata.getName())) {
                 throw new DeploymentException("MBean already exists " + metadata.getName());
             }
