@@ -7,12 +7,20 @@
         <ref-name>jdbc/DefaultDatasource</ref-name>
         <target-name>DefaultDatasource</target-name>
     </resource-ref>
+    <resource-ref>
+        <ref-name>jms/JMSConnectionFactory</ref-name>
+        <target-name>DefaultActiveMQConnectionFactory</target-name>
+    </resource-ref>
+    <resource-env-ref>
+        <ref-name>jms/Queue</ref-name>
+        <target-name>MDBTransferBeanOutQueue</target-name>
+    </resource-env-ref>
     <resource>
         <external-rar>tranql/rars/tranql-connector-1.0-SNAPSHOT.rar</external-rar>
         <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
             version="1.5"
             configId="org/apache/geronimo/DefaultDatabase"
-            parentId="org/apache/geronimo/Server">
+            >
 
             <dependency>
                 <uri>axion/jars/axion-1.0-M3-dev.jar</uri>
@@ -56,6 +64,71 @@
                 </outbound-resourceadapter>
             </resourceadapter>
 
+        </connector>
+
+    </resource>
+    <resource>
+        <external-rar>activemq/rars/activemq-1.1-SNAPSHOT.rar</external-rar>
+        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector" version="1.5"
+          configId="org.codehaus.activemq.ra/default"
+          >
+          <resourceadapter>
+            <resourceadapter-instance>
+              <resourceadapter-name>ActiveMQ RA</resourceadapter-name>
+              <config-property-setting name="ServerUrl">vm://localhost</config-property-setting>
+              <config-property-setting name="UserName">geronimo</config-property-setting>
+              <config-property-setting name="Password">geronimo</config-property-setting>
+              <config-property-setting name="XA">true</config-property-setting>
+              <workmanager-name>DefaultWorkManager</workmanager-name>
+            </resourceadapter-instance>
+            <outbound-resourceadapter>
+              <connection-definition>
+                <connectionfactory-interface>javax.jms.ConnectionFactory</connectionfactory-interface>
+                <connectiondefinition-instance>
+                  <name>DefaultActiveMQConnectionFactory</name>
+                  <connectionmanager>
+                    <xa-transaction>
+                      <transaction-caching/>
+                    </xa-transaction>
+                    <single-pool>
+                      <max-size>10</max-size>
+                      <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
+                      <match-one/>
+                    </single-pool>
+                  </connectionmanager>
+                  <!--credential-interface>javax.resource.spi.security.PasswordCredential</credential-interface-->
+                </connectiondefinition-instance>
+              </connection-definition>
+            </outbound-resourceadapter>
+            <adminobject>
+              <adminobject-interface>javax.jms.Queue</adminobject-interface>
+              <adminobject-class>org.codehaus.activemq.message.ActiveMQQueue</adminobject-class>
+              <adminobject-instance>
+                <message-destination-name>MDBTransferBeanOutQueue</message-destination-name>
+                <config-property-setting name="PhysicalName">MDBTransferBeanOutQueue</config-property-setting>
+              </adminobject-instance>
+            </adminobject>
+            <adminobject>
+              <adminobject-interface>javax.jms.Queue</adminobject-interface>
+              <adminobject-class>org.codehaus.activemq.message.ActiveMQQueue</adminobject-class>
+              <adminobject-instance>
+                <message-destination-name>SendReceiveQueue</message-destination-name>
+                <config-property-setting name="PhysicalName">SendReceiveQueue</config-property-setting>
+              </adminobject-instance>
+            </adminobject>
+          </resourceadapter>
+
+          <gbean name="geronimo.client:type=JMSServer,container=ActiveMQ" class="org.codehaus.activemq.gbean.ActiveMQContainer">
+            <attribute name="brokerName" type="java.lang.String">possibly-unique-broker</attribute>
+          </gbean>
+          <gbean name='geronimo.client:type=JMSConnector,container=ActiveMQ,url="tcp://localhost:61616"' class="org.codehaus.activemq.gbean.ActiveMQConnector">
+            <attribute name="Url" type="java.lang.String">tcp://localhost:61616</attribute>
+            <reference name="ActiveMQContainer">geronimo.server:type=JMSServer,container=ActiveMQ</reference>
+          </gbean>
+          <gbean name='geronimo.client:type=JMSConnector,container=ActiveMQ,url="vm://localhost"' class="org.codehaus.activemq.gbean.ActiveMQConnector">
+            <attribute name="Url" type="java.lang.String">vm://localhost</attribute>
+            <reference name="ActiveMQContainer">geronimo.server:type=JMSServer,container=ActiveMQ</reference>
+          </gbean>
         </connector>
 
     </resource>

@@ -48,19 +48,26 @@
            <artifactId>geronimo-kernel</artifactId>
            <version>${pom.currentVersion}</version>
        </dependency>
+
       <dependency>
           <groupId>mx4j</groupId>
           <artifactId>mx4j</artifactId>
           <version>&mx4j-version;</version>
       </dependency>
- 
-      <dependency>
-           <groupId>geronimo</groupId>
-           <artifactId>geronimo-naming</artifactId>
-           <version>${pom.currentVersion}</version>
-       </dependency>
 
       <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-naming</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+      <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-jms</artifactId>
+            <version>&geronimo-spec-jms-version;</version>
+        </dependency>
+
+        <dependency>
            <groupId>axion</groupId>
            <artifactId>axion</artifactId>
            <version>&axion-version;</version>
@@ -108,6 +115,16 @@
               <repository>true</repository>
           </properties>
           <url>http://jakarta.apache.org/regexp</url>
+      </dependency>
+
+      <dependency>
+           <groupId>activemq</groupId>
+           <artifactId>activemq</artifactId>
+           <version>&activemq-version;</version>
+           <type>rar</type>
+           <properties>
+               <repository>true</repository>
+           </properties>
       </dependency>
 
   </dependencies>
