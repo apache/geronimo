@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.18 $ $Date: 2004/01/23 13:26:48 $ -->
+<!-- $Revision: 1.19 $ $Date: 2004/01/24 00:08:35 $ -->
 
 <project name="Apache Geronimo">
 
@@ -42,6 +42,7 @@
       <item name="Mail"                     href="/modules/mail/index.html"/>
       <item name="Remoting"                 href="/modules/remoting/index.html"/>
       <item name="Security"                 href="/modules/security/index.html"/>
+      <item name="Transaction"              href="/modules/transaction/index.html"/>
     </menu>
 
     <menu name="Specifications">
