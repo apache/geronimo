@@ -39,7 +39,7 @@ import org.apache.geronimo.security.bridge.RealmBridge;
  * a connection the CachedConnectionManager is notified.
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/04/07 22:37:10 $
+ * @version $Revision: 1.8 $ $Date: 2004/04/22 17:03:28 $
  */
 public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
 
@@ -137,8 +137,9 @@ public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
                 assert size - 1 == connectionInfos.size();
                 ((DissociatableManagedConnection) managedConnection).dissociateConnections();
                 managedConnectionInfo.clearConnectionHandles();
+                //todo this needs some kind of check so cx isn't returned more than once
+                //in case dissociate calls connection closed event and returns cx to pool.
                 returnConnection(connectionInfo, ConnectionReturnAction.RETURN_HANDLE);
-                assert size - 1 == connectionInfos.size();
             }
         }
     }

@@ -29,6 +29,7 @@ public class ConnectionInfo {
 
     private ManagedConnectionInfo mci;
     private Object connection;
+    private Exception trace;
 
     public ConnectionInfo() {
     } // ConnectionInfo constructor
@@ -85,6 +86,14 @@ public class ConnectionInfo {
     public int hashCode() {
         return ((connection != null) ? connection.hashCode() : 7) ^
                 ((mci != null) ? mci.hashCode() : 7);
+    }
+
+    public void setTrace() {
+        this.trace = new Exception("Stack Trace");
+    }
+
+    public Exception getTrace() {
+        return trace;
     }
 
 } // ConnectionInfo
