@@ -70,18 +70,25 @@ import javax.management.MBeanOperationInfo;
 import org.apache.geronimo.kernel.service.ParserUtil;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 
+import net.sf.cglib.reflect.FastClass;
+
 /**
  * Describes a GeronimoMBean.  This extension allows the properties to be mutable during setup,
  * and once the MBean is deployed an imutable copy of will be made.  This class also adds support for multi target
  * POJOs under the MBean.
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/24 22:45:01 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/06 19:58:45 $
  */
 public final class GeronimoMBeanInfo extends MBeanInfo {
     /**
-     * The key for the default target.
+     * The key for the default target
      */
-    private final static String DEFAULT_TARGET_NAME = "default";
+    final static String DEFAULT_TARGET_NAME = "default";
+
+    /**
+     * The key for the geronimo mbean
+     */
+    final static String GERONIMO_MBEAN_TARGET_NAME = "___Geronimo___MBean___";
 
     private static final MBeanConstructorInfo[] NO_CONSTRUCTORS = new MBeanConstructorInfo[0];
     private final boolean immutable;
@@ -92,7 +99,9 @@ public final class GeronimoMBeanInfo extends MBeanInfo {
     private final Set attributes = new HashSet();
     private final Set operations = new HashSet();
     private final Set notifications = new HashSet();
+    private final Set endpoints = new HashSet();
     final Map targets = new HashMap();
+    final Map targetFastClasses = new HashMap();
     public static final String ALWAYS = "always";
     public static final String NEVER = "never";
 
@@ -129,8 +138,11 @@ public final class GeronimoMBeanInfo extends MBeanInfo {
             for (Iterator i = targetClasses.entrySet().iterator(); i.hasNext();) {
                 Map.Entry entry = (Map.Entry) i.next();
                 className = (String) entry.getValue();
-                Object target = ParserUtil.loadClass(className).newInstance();
+                Class clazz = ParserUtil.loadClass(className);
+                Object target = clazz.newInstance();
                 targets.put(entry.getKey(), target);
+                FastClass fastClass = FastClass.create(clazz);
+                targetFastClasses.put(entry.getKey(), fastClass);
             }
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException("Target class could not be loaded: className=" + className);
@@ -160,6 +172,12 @@ public final class GeronimoMBeanInfo extends MBeanInfo {
         for (Iterator iterator = source.notifications.iterator(); iterator.hasNext();) {
             GeronimoNotificationInfo notificationInfo = (GeronimoNotificationInfo) iterator.next();
             notifications.add(new GeronimoNotificationInfo(notificationInfo, this));
+        }
+
+
+        for (Iterator iterator = source.endpoints.iterator(); iterator.hasNext();) {
+            GeronimoMBeanEndpoint endpoint = (GeronimoMBeanEndpoint) iterator.next();
+            endpoints.add(new GeronimoMBeanEndpoint(endpoint, this));
         }
     }
 
@@ -199,6 +217,17 @@ public final class GeronimoMBeanInfo extends MBeanInfo {
 
     Object getTarget(String name) {
         return targets.get(name);
+    }
+
+    FastClass getTargetFastClass() {
+        return (FastClass)targetFastClasses.get(DEFAULT_TARGET_NAME);
+    }
+
+    FastClass getTargetFastClass(String name) {
+        if(GERONIMO_MBEAN_TARGET_NAME.equals(name)) {
+            return GeronimoMBean.fastClass;
+        }
+        return (FastClass)targetFastClasses.get(name);
     }
 
     public String getName() {
@@ -271,6 +300,21 @@ public final class GeronimoMBeanInfo extends MBeanInfo {
             throw new IllegalStateException("Data is no longer mutable");
         }
         notifications.add(notificationInfo);
+    }
+
+    public Set getEndpointsSet() {
+        return Collections.unmodifiableSet(endpoints);
+    }
+
+    public GeronimoMBeanEndpoint[] getEndpoints() {
+        return (GeronimoMBeanEndpoint[]) endpoints.toArray(new GeronimoMBeanEndpoint[endpoints.size()]);
+    }
+
+    public void addEndpoint(GeronimoMBeanEndpoint endpoint) {
+        if (immutable) {
+            throw new IllegalStateException("Data is no longer mutable");
+        }
+        endpoints.add(endpoint);
     }
 
     public int hashCode() {
