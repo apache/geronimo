@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.messaging;
 
+import java.util.Set;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBean;
@@ -24,10 +26,10 @@ import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.messaging.interceptors.ThrowableTrapOutInterceptor;
 import org.apache.geronimo.messaging.interceptors.HeaderOutInterceptor;
 import org.apache.geronimo.messaging.interceptors.MsgOutDispatcher;
 import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
+import org.apache.geronimo.messaging.interceptors.ThrowableTrapOutInterceptor;
 import org.apache.geronimo.messaging.io.IOContext;
 import org.apache.geronimo.messaging.io.NullReplacerResolver;
 import org.apache.geronimo.messaging.io.ReplacerResolver;
@@ -50,7 +52,7 @@ import org.apache.geronimo.system.ThreadPool;
 /**
  * Node implementation.
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/20 13:37:11 $
+ * @version $Revision: 1.3 $ $Date: 2004/05/27 14:34:46 $
  */
 public class NodeImpl
     implements Node, GBean
@@ -187,6 +189,10 @@ public class NodeImpl
     
     public void releaseEndPointProxy(Object aProxy) {
         endPointProxyFactory.releaseProxy(aProxy);
+    }
+    
+    public Set getRemoteNodeInfos() {
+        return compression.getTopology().getNodes();
     }
     
     public void setGBeanContext(GBeanContext aContext) {

@@ -17,6 +17,11 @@
 
 package org.apache.geronimo.messaging;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.messaging.io.NullReplacerResolver;
@@ -25,14 +30,24 @@ import org.apache.geronimo.messaging.proxy.EndPointProxyInfo;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/20 13:37:11 $
+ * @version $Revision: 1.3 $ $Date: 2004/05/27 14:34:46 $
  */
 public class MockNode implements Node
 {
 
     private NodeInfo nodeInfo;
     private ReplacerResolver replacerResolver = new NullReplacerResolver();
-
+    private final Map factoryEndPointProxy = new HashMap();
+    private final Set getRemoteNodeInfos = new HashSet();
+    
+    public Map getMockFactoryEndPointProxy() {
+        return factoryEndPointProxy;
+    }
+    
+    public Set getMockGetRemoteNodeInfos() {
+        return getRemoteNodeInfos;
+    }
+    
     public void setNodeInfo(NodeInfo aNodeInfo) {
         nodeInfo = aNodeInfo;
     }
@@ -73,10 +88,14 @@ public class MockNode implements Node
     }
 
     public Object factoryEndPointProxy(EndPointProxyInfo anInfo) {
-        return null;
+        return factoryEndPointProxy.get(anInfo.getTargets()[0]);
     }
 
     public void releaseEndPointProxy(Object aProxy) {
     }
 
+    public Set getRemoteNodeInfos() {
+        return getRemoteNodeInfos;
+    }
+    
 }

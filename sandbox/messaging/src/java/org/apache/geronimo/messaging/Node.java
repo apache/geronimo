@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.messaging;
 
+import java.util.Set;
+
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.messaging.io.ReplacerResolver;
 import org.apache.geronimo.messaging.proxy.EndPointProxyInfo;
@@ -32,7 +34,7 @@ import org.apache.geronimo.messaging.proxy.EndPointProxyInfo;
  * EndPoint -- MTO -- Node -- MTM -- Node -- OTM -- EndPoint
  * </PRE>
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/20 13:37:11 $
+ * @version $Revision: 1.3 $ $Date: 2004/05/27 14:34:46 $
  */
 public interface Node extends GBean
 {
@@ -104,11 +106,20 @@ public interface Node extends GBean
      * Releases the resources of the specified EndPoint proxy.
      * <BR>
      * From this point, the proxy can no more be used.
+     * <BR>An IllegalStateException should be thrown when a method is invoked
+     * on a released proxy.
      * 
      * @param aProxy EndPoint proxy.
      * @exception IllegalArgumentException Indicates that the provided instance
      * is not a proxy.
      */
     public void releaseEndPointProxy(Object aProxy);
+    
+    /**
+     * Gets the NodeInfo of the Nodes which can be reached from this Node.
+     * 
+     * @return Set of NodeInfos.
+     */
+    public Set getRemoteNodeInfos();
     
 }
