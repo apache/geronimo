@@ -42,9 +42,9 @@ import org.apache.geronimo.deployment.plugin.local.StopCommand;
 import org.apache.geronimo.deployment.plugin.TargetImpl;
 
 /**
- * 
- * 
- * @version $Revision: 1.1 $ $Date: 2004/06/02 06:50:41 $
+ *
+ *
+ * @version $Revision: 1.2 $ $Date: 2004/06/02 07:05:30 $
  */
 public class JMXDeploymentManager implements DeploymentManager {
     private JMXConnector jmxConnector;
@@ -69,6 +69,9 @@ public class JMXDeploymentManager implements DeploymentManager {
     }
 
     public Target[] getTargets() {
+        if (kernel == null) {
+            throw new IllegalStateException("Disconnected");
+        }
         Target target = new TargetImpl("default", null);
         return new Target[]{target};
     }
@@ -81,7 +84,7 @@ public class JMXDeploymentManager implements DeploymentManager {
         throw new UnsupportedOperationException();
     }
 
-    public TargetModuleID[] getRunningModules(ModuleType moduleType, Target[] targetList) throws TargetException{
+    public TargetModuleID[] getRunningModules(ModuleType moduleType, Target[] targetList) throws TargetException {
         throw new UnsupportedOperationException();
     }
 
@@ -94,12 +97,18 @@ public class JMXDeploymentManager implements DeploymentManager {
     }
 
     public ProgressObject start(TargetModuleID[] moduleIDList) {
+        if (kernel == null) {
+            throw new IllegalStateException("Disconnected");
+        }
         StartCommand command = new StartCommand(kernel, moduleIDList);
         new Thread(command).start();
         return command;
     }
 
     public ProgressObject stop(TargetModuleID[] moduleIDList) {
+        if (kernel == null) {
+            throw new IllegalStateException("Disconnected");
+        }
         StopCommand command = new StopCommand(kernel, moduleIDList);
         new Thread(command).start();
         return command;
@@ -110,7 +119,7 @@ public class JMXDeploymentManager implements DeploymentManager {
     }
 
     public boolean isRedeploySupported() {
-        throw new UnsupportedOperationException();
+        return false;
     }
 
     public ProgressObject redeploy(TargetModuleID[] moduleIDList, File moduleArchive, File deploymentPlan) {
