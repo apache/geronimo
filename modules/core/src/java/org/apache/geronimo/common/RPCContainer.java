@@ -56,44 +56,57 @@
 package org.apache.geronimo.common;
 
 
-import java.util.List;
-
+import org.apache.geronimo.common.Interceptor;
+import org.apache.geronimo.common.Invocation;
+import org.apache.geronimo.common.InvocationResult;
+import javax.management.ObjectName;
 
 /**
- * Container
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/15 14:11:26 $
+ *
+ * @version $Revision: 1.1 $ $Date: 2003/08/15 14:11:26 $
  */
-public interface Container extends Component{
-
-    /**
-     * Add a component to the set for a Container
-     *
-     * @param component
-     * 
-     */
-    public void addComponent(Component component);
-
-
+public interface RPCContainer extends Container {
+    //
+    //  Main entry point
+    //
+    InvocationResult invoke(Invocation invocation) throws Exception;
 
 
     /**
-     * Get all the Components known to the Container
-     *
-     * @return an immutable List of Components
+     * Add an interceptor to the interceptor stack
+     * @param Interceptor
      */
-    public List getComponents ();
-
-
+    void addInterceptor (Interceptor interceptor);
 
     /**
-     * Remove a Component from the Container.
-     * If the Component is not in the Container,
-     * an Exception is thrown.
-     *
-     * @param component the Component to remove
-     * @exception Exception if the Component cannot be removed
+     * Get the JMX object name of the logical plugin.
+     * @param logicalPluginName the logical name of the desired plugin
+     * @return the JMX object name associated with the logical plugin, or null if a name is not found
      */
-    public void removeComponent (Component component) throws Exception;
+    ObjectName getPlugin(String logicalPluginName);
+
+    /**
+     * Puts the objectName in the container.
+     * @param logicalPluginName the logical name of the plugin to set
+     * @param objectName the JMX object name to set
+     */
+    void putPlugin(String logicalPluginName, ObjectName objectName);
+
+    /**
+     * Gets the named plugin as an Object.
+     * @deprecated Switch plugin to a JMX object an use 'ObjectName getPlugin(String name)' instead
+     * @param logicalPluginName the name of the plugin to get
+     * @return the actual plugin object
+     */
+    Object getPluginObject(String logicalPluginName);
+
+    /**
+     * Puts the named plugin Object in the container.
+     * @deprecated Switch plugin to a JMX object an use 'void putPlugin(String name, ObjectName objectName)' instead
+     * @param logicalPluginName the name of the plugin to get
+     * @param plugin the plugin obect or null to remove an existing plugin
+     */
+    void putPluginObject(String logicalPluginName, Object plugin);
 }

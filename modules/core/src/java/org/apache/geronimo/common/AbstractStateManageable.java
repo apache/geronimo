@@ -63,7 +63,7 @@ import org.apache.commons.logging.LogFactory;
  * Implementors of StateManageable may use this class and simply provide 
  * doStart, doStop and doNotification methods.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 07:14:33 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 14:11:26 $
  */
 public abstract class AbstractStateManageable implements StateManageable
 {
@@ -266,5 +266,5 @@ public abstract class AbstractStateManageable implements StateManageable
         }
     }
 
-    
+
 }

@@ -60,9 +60,9 @@ package org.apache.geronimo.common;
  * Implements the JSR 77 state model
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/14 07:14:33 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/15 14:11:26 $
  */
-public interface Component  extends StateManageable
+public interface Component extends StateManageable
 {
     /**
      * Gets the container to which this component belongs.
@@ -82,5 +82,10 @@ public interface Component  extends StateManageable
     void setContainer(Container container) throws IllegalStateException, IllegalArgumentException;
 
 
-
+    /**
+     * Get the unique id of this Component
+     *
+     * @return name formatted according to JSR77
+     */
+    String getObjectName();
 }

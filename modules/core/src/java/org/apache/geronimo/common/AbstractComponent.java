@@ -59,20 +59,40 @@ package org.apache.geronimo.common;
  * A helper implementation of the Component interface that should 
  * be used as a base class for Component implementations.
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/14 07:14:33 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/15 14:11:26 $
  */
 public class AbstractComponent 
     extends AbstractStateManageable
     implements Component
 {
+    //the Container this Component belongs to
     private Container container;
 
-    public final Container getContainer()
+    //the identity of this Component
+    private String name;
+
+
+    /**
+     * The Container that this Component belongs to
+     *
+     * @return a <code>Container</code> value
+     */
+    public Container getContainer()
     {
         return container;
     }
 
-    public final void setContainer(Container container)
+    /**
+     * Sets the container which ownes this component.
+     * The contianer can only be set before create() or to null after the destroy().
+     *
+     * @param container which owns this component
+     * @throws java.lang.IllegalStateException if this component is not in the not-created or destroyed state
+     * @throws java.lang.IllegalArgumentException if this comonent has not been created and the container
+     * parameter is null, or the component has been destroyed and the container parameter is NOT null
+     */
+    public void setContainer(Container container)
+        throws IllegalStateException, IllegalArgumentException
     {
         if (getStateInstance() != State.STOPPED)
         {
@@ -82,21 +102,21 @@ public class AbstractComponent
         this.container= container;
     }
 
-    /* (non-Javadoc)
+    /* Start the Component
      * @see org.apache.geronimo.common.AbstractStateManageable#doStart()
      */
     public void doStart() throws Exception
     {
     }
 
-    /* (non-Javadoc)
+    /* Stop the Component
      * @see org.apache.geronimo.common.AbstractStateManageable#doStop()
      */
     public void doStop() throws Exception
     {
     }
 
-    /* (non-Javadoc)
+    /* 
      * @see org.apache.geronimo.common.AbstractStateManageable#doNotification(java.lang.String)
      */
     public void doNotification(String eventTypeValue)
@@ -104,4 +124,47 @@ public class AbstractComponent
         log.debug("notification: "+eventTypeValue+" from "+this);
     }
     
+
+    /**
+     * Get the unique identity of this Component
+     *
+     * @return the name (formatted according to JSR 77)
+     */
+    public String getObjectName ()
+    {
+        return name;
+    }
+
+    /**
+     * Two Components are equal if they have the same name;
+     *
+     * @param component to test
+     * @return true if the names are the same, false otherwise
+     */
+    public boolean equals (Component component)
+    {
+        if (component == null)
+            return false;
+
+        if (component.getObjectName().equals(name))
+            return true;
+
+        return false;
+    }
+
+
+    /**
+     * Get a hash value for this Component.
+     * This is the hash of the unique name of
+     * the Component.
+     *
+     * @return hash of Component name
+     */
+    public int hashCode ()
+    {
+        if (name == null)
+            return 0;
+
+        return name.hashCode();
+    }
 }

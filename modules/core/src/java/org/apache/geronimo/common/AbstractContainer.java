@@ -55,15 +55,144 @@
  */
 package org.apache.geronimo.common;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+
 /**
  * Abstract implementation of Container interface.
- * There is no behaviour here yet, as this is just a place holder 
- * for a class that should exist
  * 
- * */
-public abstract class AbstractContainer 
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 14:11:26 $ 
+ * 
+*/
+public abstract class AbstractContainer
     extends AbstractComponent
     implements Container
 {
+    private ArrayList components = new ArrayList();
+
+    /**
+     * A Container cannot be itself contained in a Container. 
+     *
+     * NB. Do we agree this is the model?
+     * @return always null
+     */
+    public Container getContainer()
+    {
+        return null;
+    }
+
+    /**
+     * A Container cannot be itself contained in a Container.
+     *     
+     * NB. Do we agree this is the model?
+     * @throws java.lang.UnsupportedOperationException
+     */
+    public void setContainer()
+    {
+        throw new UnsupportedOperationException("Cannot call setContainer on a Container");
+    }
+
+    /**
+     * Add a component to the set for a Container.
+     * Subclasses might like to override this in order
+     * to check their state before allowing the addition.
+     *
+     * @param component 
+     */
+    public void addComponent(Component component)
+    {
+        if (component == null)
+            return;
+
+        components.add(component);
+    }
+
+    /**
+     * Get all the Components known to the Container
+     *
+     * @return an immutable List of Components
+     */
+    public List getComponents()
+    {
+        return Collections.unmodifiableList(components);
+    }
+
+    /**
+     * Remove a Component from the Container.
+     * If the Component is not in the Container,
+     * an Exception is thrown.
+     *
+     * Subclasses might want to override this, for
+     * example to disallow Component addition/removal
+     * after the Container is started.
+     *
+     * @param component the Component to remove
+     */
+    public void removeComponent(Component component) throws Exception
+    {
+        if (component == null)
+            return;
+
+        components.remove(component);
+    }
+
+    /**
+     * Start the Container, and all of its Components.
+     *
+     * @exception Exception if an error occurs
+     */
+    public void startRecursive() throws Exception
+    {
+        //start the container itself
+        start();
+
+        //start the Components
+        Iterator itor = components.iterator();
+        while (itor.hasNext())
+        {
+            //only start stopped or failed Components as per JSR77
+            Component c = (Component) itor.next();
+            if ((c.getStateInstance() == State.STOPPED)
+                || 
+                (c.getStateInstance() == State.FAILED))
+                c.startRecursive();
+        }
+
+        //NOTE: it is perfectly possible that some Components will be
+        //in the RUNNING state and some of them in the STOPPED or FAILED state
+    }
+
+
+    /* -------------------------------------------------------------------------------------- */
+    /** Do a recursive stop.
+     * 
+     * @see org.apache.geronimo.common.StateManageable#stop()
+     */
+    public void stop()
+    {
+        // Stop all the Components in reverse insertion order
+        try
+        {
+            setState(State.STOPPING);
+
+            for (ListIterator iterator =
+                components.listIterator(components.size());
+                iterator.hasPrevious();
+                )
+            {
+                Interceptor interceptor = (Interceptor) iterator.previous();
+                interceptor.stop();
+            }
+            setState(State.STOPPED);
+        }
+        finally
+        {
+            if (getStateInstance() != State.STOPPED)
+                setState(State.FAILED);
+        }
+    }
 
 }
