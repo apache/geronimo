@@ -128,6 +128,9 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-service-builder</artifactId>
             <version>${pom.currentVersion}</version>
+            <properties>
+                <xmlbeans>true</xmlbeans>
+            </properties>
         </dependency>
 
         <!-- test only-->

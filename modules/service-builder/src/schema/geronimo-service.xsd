@@ -32,7 +32,7 @@
         </xs:documentation>
     </xs:annotation>
 
-    <xs:include schemaLocation="geronimo-common.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment" schemaLocation="geronimo-config.xsd"/>
 
     <xs:element name="service" type="serviceType"/>
 

@@ -21,6 +21,7 @@
     targetNamespace="http://geronimo.apache.org/xml/ns/web/jetty"
     xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
     xmlns:security="http://geronimo.apache.org/xml/ns/security"
+    xmlns:sys="http://geronimo.apache.org/xml/ns/deployment"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
@@ -28,14 +29,14 @@
 
     <xs:import namespace="http://geronimo.apache.org/xml/ns/naming" schemaLocation="../../../naming-builder/src/schema/geronimo-naming.xsd"/>
     <xs:import namespace="http://geronimo.apache.org/xml/ns/security" schemaLocation="../../../security-builder/src/schema/geronimo-security.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment" schemaLocation="../../../service-builder/src/schema/geronimo-common.xsd"/>
 
-    <xs:include schemaLocation="../../../service-builder/src/schema/geronimo-common.xsd"/>
 
     <xs:element name="web-app" type="jetty:web-appType"/>
 
     <xs:complexType name="web-appType">
         <xs:sequence>
-            <xs:element name="dependency" type="jetty:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
 
             <xs:element name="context-root" type="xs:string" minOccurs="0"/>
             <xs:element name="context-priority-classloader" type="xs:boolean"/>
@@ -54,7 +55,7 @@
             <xs:element ref="naming:resource-ref" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="naming:resource-env-ref" minOccurs="0" maxOccurs="unbounded"/>
 
-            <xs:element name="gbean" type="jetty:gbeanType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded"/>
 
         </xs:sequence>
         <xs:attribute name="configId" type="xs:string" use="required"/>

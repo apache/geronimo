@@ -33,14 +33,18 @@ import java.util.zip.ZipEntry;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.client.AppClientContainer;
+import org.apache.geronimo.client.StaticJndiContextPlugin;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.service.GBeanHelper;
+import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.util.NestedJarFile;
+import org.apache.geronimo.deployment.xbeans.DependencyType;
+import org.apache.geronimo.deployment.xbeans.GbeanType;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.AppClientModule;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
@@ -60,8 +64,6 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientDocument;
 import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientType;
-import org.apache.geronimo.xbeans.geronimo.client.GerDependencyType;
-import org.apache.geronimo.xbeans.geronimo.client.GerGbeanType;
 import org.apache.geronimo.xbeans.geronimo.client.GerResourceType;
 import org.apache.geronimo.xbeans.j2ee.ApplicationClientDocument;
 import org.apache.geronimo.xbeans.j2ee.ApplicationClientType;
@@ -198,6 +200,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             // if we got one extract the validate it otherwise create a default one
             if (gerAppClient != null) {
                 gerAppClient = (GerApplicationClientType) SchemaConversionUtils.convertToGeronimoNamingSchema(gerAppClient);
+                gerAppClient = (GerApplicationClientType) SchemaConversionUtils.convertToGeronimoServiceSchema(gerAppClient);
                 SchemaConversionUtils.validateDD(gerAppClient);
             } else {
                 String path;
@@ -296,20 +299,20 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
         // create a gbean for the app client module and add it to the ear
         ReadOnlyContext componentContext;
-        GBeanMBean appClientModuleGBean = new GBeanMBean(J2EEAppClientModuleImpl.GBEAN_INFO, earClassLoader);
+        GBeanData appClientModuleGBeanData = new GBeanData(appClientModuleName, J2EEAppClientModuleImpl.GBEAN_INFO);
         try {
-            appClientModuleGBean.setReferencePatterns("J2EEServer", Collections.singleton(earContext.getServerObjectName()));
+            appClientModuleGBeanData.setReferencePatterns("J2EEServer", Collections.singleton(earContext.getServerObjectName()));
             if (!earContext.getJ2EEApplicationName().equals("null")) {
-                appClientModuleGBean.setReferencePatterns("J2EEApplication", Collections.singleton(earContext.getApplicationObjectName()));
+                appClientModuleGBeanData.setReferencePatterns("J2EEApplication", Collections.singleton(earContext.getApplicationObjectName()));
             }
-            appClientModuleGBean.setAttribute("deploymentDescriptor", null);
+            appClientModuleGBeanData.setAttribute("deploymentDescriptor", null);
 
             componentContext = buildComponentContext(earContext, appClientModule, appClient, geronimoAppClient, earClassLoader);
-            appClientModuleGBean.setAttribute("componentContext", componentContext);
+            appClientModuleGBeanData.setAttribute("componentContext", componentContext);
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
         }
-        earContext.addGBean(appClientModuleName, appClientModuleGBean);
+        earContext.addGBean(appClientModuleGBeanData);
 
         // create another child configuration within the config store for the client application
         EARContext appClientDeploymentContext = null;
@@ -354,34 +357,12 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 }
 
                 // add the includes
-                GerDependencyType[] includes = geronimoAppClient.getIncludeArray();
-                for (int i = 0; i < includes.length; i++) {
-                    GerDependencyType include = includes[i];
-                    URI uri = getDependencyURI(include);
-                    String name = uri.toString();
-                    int idx = name.lastIndexOf('/');
-                    if (idx != -1) {
-                        name = name.substring(idx + 1);
-                    }
-                    URI path;
-                    try {
-                        path = new URI(name);
-                    } catch (URISyntaxException e) {
-                        throw new DeploymentException("Unable to generate path for include: " + uri, e);
-                    }
-                    try {
-                        URL url = repository.getURL(uri);
-                        appClientDeploymentContext.addInclude(path, url);
-                    } catch (IOException e) {
-                        throw new DeploymentException("Unable to add include: " + uri, e);
-                    }
-                }
+                DependencyType[] includes = geronimoAppClient.getIncludeArray();
+                ServiceConfigBuilder.addIncludes(appClientDeploymentContext, includes, repository);
 
                 // add the dependencies
-                GerDependencyType[] dependencies = geronimoAppClient.getDependencyArray();
-                for (int i = 0; i < dependencies.length; i++) {
-                    appClientDeploymentContext.addDependency(getDependencyURI(dependencies[i]));
-                }
+                DependencyType[] dependencies = geronimoAppClient.getDependencyArray();
+                ServiceConfigBuilder.addDependencies(appClientDeploymentContext, dependencies, repository);
 
                 // add manifest class path entries to the app client context
                 addManifestClassPath(appClientDeploymentContext, appClientModule.getEarFile(), moduleFile, moduleBase);
@@ -391,10 +372,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
                 // pop in all the gbeans declared in the geronimo app client file
                 if (geronimoAppClient != null) {
-                    GerGbeanType[] gbeans = geronimoAppClient.getGbeanArray();
-                    for (int i = 0; i < gbeans.length; i++) {
-                        GBeanHelper.addGbean(new AppClientGBeanAdapter(gbeans[i]), appClientClassLoader, appClientDeploymentContext);
-                    }
+                    GbeanType[] gbeans = geronimoAppClient.getGbeanArray();
+                    ServiceConfigBuilder.addGBeans(gbeans, appClientClassLoader, appClientDeploymentContext);
                     //deploy the resource adapters specified in the geronimo-application.xml
                     Collection resourceModules = new ArrayList();
                     try {
@@ -440,28 +419,28 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
                 // add the app client static jndi provider
                 ObjectName jndiContextName = ObjectName.getInstance("geronimo.client:type=StaticJndiContext");
-                GBeanMBean jndiContextGBean = new GBeanMBean("org.apache.geronimo.client.StaticJndiContextPlugin", appClientClassLoader);
+                GBeanData jndiContextGBeanData = new GBeanData(jndiContextName, StaticJndiContextPlugin.GBEAN_INFO);
                 try {
 
                     componentContext = buildComponentContext(appClientDeploymentContext, appClientModule, appClient, geronimoAppClient, earClassLoader);
-                    jndiContextGBean.setAttribute("context", componentContext);
+                    jndiContextGBeanData.setAttribute("context", componentContext);
                 } catch (Exception e) {
                     throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
                 }
-                appClientDeploymentContext.addGBean(jndiContextName, jndiContextGBean);
+                appClientDeploymentContext.addGBean(jndiContextGBeanData);
 
                 // finally add the app client container
                 ObjectName appClienContainerName = ObjectName.getInstance("geronimo.client:type=ClientContainer");
-                GBeanMBean appClienContainerGBean = new GBeanMBean("org.apache.geronimo.client.AppClientContainer", appClientClassLoader);
+                GBeanData appClienContainerGBeanData = new GBeanData(appClienContainerName, AppClientContainer.GBEAN_INFO);
                 try {
-                    appClienContainerGBean.setAttribute("mainClassName", mainClasss);
-                    appClienContainerGBean.setAttribute("appClientModuleName", appClientModuleName);
-                    appClienContainerGBean.setReferencePattern("JNDIContext", new ObjectName("geronimo.client:type=StaticJndiContext"));
-                    appClienContainerGBean.setReferencePattern("TransactionContextManager", new ObjectName("geronimo.client:type=TransactionContextManager"));
+                    appClienContainerGBeanData.setAttribute("mainClassName", mainClasss);
+                    appClienContainerGBeanData.setAttribute("appClientModuleName", appClientModuleName);
+                    appClienContainerGBeanData.setReferencePattern("JNDIContext", new ObjectName("geronimo.client:type=StaticJndiContext"));
+                    appClienContainerGBeanData.setReferencePattern("TransactionContextManager", new ObjectName("geronimo.client:type=TransactionContextManager"));
                 } catch (Exception e) {
                     throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
                 }
-                appClientDeploymentContext.addGBean(appClienContainerName, appClienContainerGBean);
+                appClientDeploymentContext.addGBean(appClienContainerGBeanData);
             } finally {
                 if (appClientDeploymentContext != null) {
                     try {
@@ -572,7 +551,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     }
 
 
-    private URI getDependencyURI(GerDependencyType dep) throws DeploymentException {
+    private URI getDependencyURI(DependencyType dep) throws DeploymentException {
         URI uri;
         if (dep.isSetUri()) {
             try {

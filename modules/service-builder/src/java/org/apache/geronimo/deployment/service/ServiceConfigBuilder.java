@@ -20,24 +20,30 @@ package org.apache.geronimo.deployment.service;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.MalformedURLException;
 import java.net.URLClassLoader;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.jar.JarFile;
 import javax.management.MalformedObjectNameException;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.xbeans.AttributeType;
 import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
+import org.apache.geronimo.deployment.xbeans.ReferenceType;
+import org.apache.geronimo.deployment.xbeans.ReferencesType;
 import org.apache.geronimo.deployment.xbeans.ServiceDocument;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
@@ -108,21 +114,18 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException(e);
         }
-        addIncludes(context, configType);
-        addDependencies(context, configType.getDependencyArray());
+        DependencyType[] includes = configType.getIncludeArray();
+        addIncludes(context, includes, repository);
+        addDependencies(context, configType.getDependencyArray(), repository);
         ClassLoader cl = context.getClassLoader(repository);
         GbeanType[] gbeans = configType.getGbeanArray();
-        for (int i = 0; i < gbeans.length; i++) {
-            GBeanHelper.addGbean(new ServiceGBeanAdapter(gbeans[i]), cl, context);
-
-        }
+        addGBeans(gbeans, cl, context);
         context.close();
 
         return Collections.EMPTY_LIST;
     }
 
-    private void addIncludes(DeploymentContext context, ConfigurationType configType) throws DeploymentException {
-        DependencyType[] includes = configType.getIncludeArray();
+    public static void addIncludes(DeploymentContext context, DependencyType[] includes, Repository repository) throws DeploymentException {
         for (int i = 0; i < includes.length; i++) {
             DependencyType include = includes[i];
             URI uri = getDependencyURI(include);
@@ -146,7 +149,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    private void addDependencies(DeploymentContext context, DependencyType[] deps) throws DeploymentException {
+    public static void addDependencies(DeploymentContext context, DependencyType[] deps, Repository repository) throws DeploymentException {
         for (int i = 0; i < deps.length; i++) {
             URI dependencyURI = getDependencyURI(deps[i]);
             context.addDependency(dependencyURI);
@@ -171,13 +174,55 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
                 }
                 DependencyType[] dependencyDeps = serviceDoc.getService().getDependencyArray();
                 if (dependencyDeps != null) {
-                    addDependencies(context, dependencyDeps);
+                    addDependencies(context, dependencyDeps, repository);
                 }
             }
         }
     }
 
-    private URI getDependencyURI(DependencyType dep) throws DeploymentException {
+    //TODO returning set of added gbeans is a HACK used only by stuff needing to access security gbeans at deploy time!  REMOVE IT!!
+    public static Set addGBeans(GbeanType[] gbeans, ClassLoader cl, DeploymentContext context) throws DeploymentException {
+        Set result = new HashSet();
+        for (int i = 0; i < gbeans.length; i++) {
+            GBeanData gBeanData = getGBeanData(gbeans[i], cl);
+            context.addGBean(gBeanData);
+            result.add(gBeanData);
+        }
+        return result;
+    }
+
+    public static GBeanData getGBeanData(GbeanType gbean, ClassLoader cl) throws DeploymentException {
+        GBeanBuilder builder = new GBeanBuilder(gbean.getName(), cl, gbean.getClass1());
+
+        // set up attributes
+        AttributeType[] attributeArray = gbean.getAttributeArray();
+        if (attributeArray != null) {
+            for (int j = 0; j < attributeArray.length; j++) {
+                builder.setAttribute(attributeArray[j].getName().trim(), attributeArray[j].getType(), attributeArray[j].getStringValue());
+            }
+        }
+
+        // set up all single pattern references
+        ReferenceType[] referenceArray = gbean.getReferenceArray();
+        if (referenceArray != null) {
+            for (int j = 0; j < referenceArray.length; j++) {
+                builder.setReference(referenceArray[j].getName(), referenceArray[j].getStringValue());
+            }
+        }
+
+        // set up app multi-patterned references
+        ReferencesType[] referencesArray = gbean.getReferencesArray();
+        if (referencesArray != null) {
+            for (int j = 0; j < referencesArray.length; j++) {
+                builder.setReference(referencesArray[j].getName(), referencesArray[j].getPatternArray());
+            }
+        }
+
+        GBeanData gBeanData = builder.getGBeanData();
+        return gBeanData;
+    }
+
+    private static URI getDependencyURI(DependencyType dep) throws DeploymentException {
         URI uri;
         if (dep.isSetUri()) {
             try {

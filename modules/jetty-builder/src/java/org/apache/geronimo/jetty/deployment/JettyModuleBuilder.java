@@ -47,8 +47,10 @@ import javax.security.jacc.WebUserDataPermission;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.service.GBeanHelper;
+import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.deployment.xbeans.DependencyType;
+import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -65,17 +67,16 @@ import org.apache.geronimo.jetty.JettyFilterMapping;
 import org.apache.geronimo.jetty.JettyServletHolder;
 import org.apache.geronimo.jetty.JettyWebAppContext;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
-import org.apache.geronimo.security.util.URLPattern;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
+import org.apache.geronimo.security.util.URLPattern;
 import org.apache.geronimo.transaction.OnlineUserTransaction;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyDependencyType;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyGbeanType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
 import org.apache.geronimo.xbeans.j2ee.DispatcherType;
@@ -124,6 +125,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
     private final List defaultWelcomeFiles;
     private final Integer defaultSessionTimeoutSeconds;
 
+    private final Repository repository;
     private final Kernel kernel;
 
     public JettyModuleBuilder(URI defaultParentId,
@@ -133,6 +135,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
                               ObjectName defaultServlets,
                               ObjectName defaultFilters,
                               ObjectName defaultFilterMappings,
+                              Repository repository,
                               Kernel kernel) {
         this.defaultParentId = defaultParentId;
         this.defaultSessionTimeoutSeconds = (defaultSessionTimeoutSeconds == null) ? new Integer(30 * 60) : defaultSessionTimeoutSeconds;
@@ -140,6 +143,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         this.defaultServlets = defaultServlets;
         this.defaultFilters = defaultFilters;
         this.defaultFilterMappings = defaultFilterMappings;
+        this.repository = repository;
         this.kernel = kernel;
 
         //todo locale mappings
@@ -239,6 +243,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             if (jettyWebApp != null) {
                 jettyWebApp = (JettyWebAppType) SchemaConversionUtils.convertToGeronimoNamingSchema(jettyWebApp);
                 jettyWebApp = (JettyWebAppType) SchemaConversionUtils.convertToGeronimoSecuritySchema(jettyWebApp);
+                jettyWebApp = (JettyWebAppType) SchemaConversionUtils.convertToGeronimoServiceSchema(jettyWebApp);
                 SchemaConversionUtils.validateDD(jettyWebApp);
             } else {
                 String path;
@@ -306,10 +311,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
             // add the dependencies declared in the geronimo-jetty.xml file
             JettyWebAppType jettyWebApp = (JettyWebAppType) module.getVendorDD();
-            JettyDependencyType[] dependencies = jettyWebApp.getDependencyArray();
-            for (int i = 0; i < dependencies.length; i++) {
-                earContext.addDependency(getDependencyURI(dependencies[i]));
-            }
+            DependencyType[] dependencies = jettyWebApp.getDependencyArray();
+            ServiceConfigBuilder.addDependencies(earContext, dependencies, repository);
         } catch (IOException e) {
             throw new DeploymentException("Problem deploying war", e);
         }
@@ -347,10 +350,10 @@ public class JettyModuleBuilder implements ModuleBuilder {
         ClassLoader webClassLoader = new JettyClassLoader(webClassPathURLs, cl, contextPriorityClassLoader);
         Map localSecurityRealms = new HashMap();
         if (jettyWebApp != null) {
-            JettyGbeanType[] gbeans = jettyWebApp.getGbeanArray();
-            for (int i = 0; i < gbeans.length; i++) {
-                GBeanData gBeanData = GBeanHelper.getGBeanData(new JettyGBeanAdapter(gbeans[i]), webClassLoader);
-                earContext.addGBean(gBeanData);
+            GbeanType[] gbeans = jettyWebApp.getGbeanArray();
+            Set added = ServiceConfigBuilder.addGBeans(gbeans, cl, earContext);
+            for (Iterator iterator = added.iterator(); iterator.hasNext();) {
+                GBeanData gBeanData = (GBeanData) iterator.next();
                 String className = gBeanData.getGBeanInfo().getClassName();
                 if (GenericSecurityRealm.class.getName().equals(className)) {
                     localSecurityRealms.put(gBeanData.getAttribute("realmName"), gBeanData);
@@ -977,27 +980,6 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 cl);
     }
 
-
-    private URI getDependencyURI(JettyDependencyType dep) throws DeploymentException {
-        URI uri;
-        if (dep.isSetUri()) {
-            try {
-                uri = new URI(dep.getUri());
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid dependency URI " + dep.getUri(), e);
-            }
-        } else {
-            // @todo support more than just jars
-            String id = dep.getGroupId() + "/jars/" + dep.getArtifactId() + '-' + dep.getVersion() + ".jar";
-            try {
-                uri = new URI(id);
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Unable to construct URI for groupId=" + dep.getGroupId() + ", artifactId=" + dep.getArtifactId() + ", version=" + dep.getVersion(), e);
-            }
-        }
-        return uri;
-    }
-
     private static void check(WebAppType webApp) throws DeploymentException {
         checkURLPattern(webApp);
         checkMultiplicities(webApp);
@@ -1052,6 +1034,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         infoBuilder.addAttribute("defaultServlets", ObjectName.class, true);
         infoBuilder.addAttribute("defaultFilters", ObjectName.class, true);
         infoBuilder.addAttribute("defaultFilterMappings", ObjectName.class, true);
+        infoBuilder.addReference("Repository", Repository.class);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addInterface(ModuleBuilder.class);
 
@@ -1063,6 +1046,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             "defaultServlets",
             "defaultFilters",
             "defaultFilterMappings",
+            "Repository",
             "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

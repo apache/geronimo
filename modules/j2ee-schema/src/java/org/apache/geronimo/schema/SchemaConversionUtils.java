@@ -44,6 +44,7 @@ public class SchemaConversionUtils {
 
     static final String GERONIMO_NAMING_NAMESPACE = "http://geronimo.apache.org/xml/ns/naming";
     private static final String GERONIMO_SECURITY_NAMESPACE = "http://geronimo.apache.org/xml/ns/security";
+    private static final String GERONIMO_SERVICE_NAMESPACE = "http://geronimo.apache.org/xml/ns/deployment";
 
     private static final QName RESOURCE_ADAPTER_VERSION = new QName(J2EE_NAMESPACE, "resourceadapter-version");
     private static final QName TAGLIB = new QName(J2EE_NAMESPACE, "taglib");
@@ -345,6 +346,28 @@ public class SchemaConversionUtils {
                     String localName = cursor.getName().getLocalPart();
                     if (localName.equals("security")) {
                         convertElementToSchema(cursor, end, GERONIMO_SECURITY_NAMESPACE);
+                    }
+                }
+                cursor.toNextToken();
+            }
+        } finally {
+            cursor.dispose();
+            end.dispose();
+        }
+        return xmlObject;
+    }
+
+    public static XmlObject convertToGeronimoServiceSchema(XmlObject xmlObject) {
+        XmlCursor cursor = xmlObject.newCursor();
+        XmlCursor end = xmlObject.newCursor();
+        try {
+            while (cursor.hasNextToken()) {
+                if (cursor.isStart()) {
+                    String localName = cursor.getName().getLocalPart();
+                    if (localName.equals("gbean")
+                    || localName.equals("dependency")
+                    || localName.equals("include")) {
+                        convertElementToSchema(cursor, end, GERONIMO_SERVICE_NAMESPACE);
                     }
                 }
                 cursor.toNextToken();

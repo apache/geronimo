@@ -18,14 +18,14 @@
 
 <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema"
     xmlns:ger="http://geronimo.apache.org/xml/ns/j2ee/connector"
+    xmlns:sys="http://geronimo.apache.org/xml/ns/deployment"
     targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/connector"
-    xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
     version="1.5">
 
-    <xsd:include schemaLocation="../../../service-builder/src/schema/geronimo-common.xsd"/>
+    <xsd:import namespace="http://geronimo.apache.org/xml/ns/deployment" schemaLocation="../../../service-builder/src/schema/geronimo-config.xsd"/>
 
     <xsd:annotation>
         <xsd:documentation>
@@ -299,13 +299,15 @@
         </xsd:annotation>
 
         <xsd:sequence>
-            <xsd:element name="dependency" type="ger:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
+<!--            <xsd:element name="dependency" type="sys:dependencyType" minOccurs="0" maxOccurs="unbounded"/>-->
 
             <xsd:element name="resourceadapter" type="ger:resourceadapterType" maxOccurs="unbounded"/>
 
             <xsd:element name="adminobject" type="ger:adminobjectType" minOccurs="0" maxOccurs="unbounded"/>
 
-            <xsd:element name="gbean" type="ger:gbeanType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded"/>
+<!--            <xsd:element name="gbean" type="sys:gbeanType" minOccurs="0" maxOccurs="unbounded"/>-->
         </xsd:sequence>
 
         <xsd:attribute name="version" type="ger:versionType" use="required"/>

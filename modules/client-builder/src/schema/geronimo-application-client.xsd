@@ -21,6 +21,7 @@
     targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/application-client"
     xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
     xmlns:connector="http://geronimo.apache.org/xml/ns/j2ee/connector"
+    xmlns:sys="http://geronimo.apache.org/xml/ns/deployment"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
@@ -28,15 +29,14 @@
 
     <xs:import namespace="http://geronimo.apache.org/xml/ns/naming" schemaLocation="../../../naming-builder/src/schema/geronimo-naming.xsd"/>
     <xs:import namespace="http://geronimo.apache.org/xml/ns/j2ee/connector" schemaLocation="../../../connector-builder/src/schema/geronimo-connector_1_5.xsd"/>
-    <!--xs:include schemaLocation="../../../naming-builder/src/schema/geronimo-naming.xsd"/-->
-    <xs:include schemaLocation="../../../service-builder/src/schema/geronimo-common.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment" schemaLocation="../../../service-builder/src/schema/geronimo-config.xsd"/>
 
     <xs:element name="application-client" type="geronimo:application-clientType"/>
 
     <xs:complexType name="application-clientType">
         <xs:sequence>
-            <xs:element name="include" type="geronimo:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="dependency" type="geronimo:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="include" type="sys:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
 
             <!---->
             <!--            <xs:element name="callback-handler"-->
@@ -54,7 +54,7 @@
 
             <xs:element name="resource" type="geronimo:resourceType" minOccurs="0" maxOccurs="unbounded"/>
 
-            <xs:element name="gbean" type="geronimo:gbeanType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
 
         <xs:attribute name="configId" type="xs:string" use="required"/>

@@ -19,20 +19,21 @@
 <xs:schema
     xmlns:geronimo="http://geronimo.apache.org/xml/ns/j2ee/application"
     targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/application"
+    xmlns:sys="http://geronimo.apache.org/xml/ns/deployment"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
     version="1.0">
 
-    <xs:include schemaLocation="../../../service-builder/src/schema/geronimo-common.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment" schemaLocation="../../../service-builder/src/schema/geronimo-common.xsd"/>
 
     <xs:element name="application" type="geronimo:applicationType"/>
 
     <xs:complexType name="applicationType">
         <xs:sequence>
-            <xs:element name="dependency" type="geronimo:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="gbean" type="geronimo:gbeanType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="module" type="geronimo:moduleType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
 
         <xs:attribute name="configId" type="xs:string" use="required"/>

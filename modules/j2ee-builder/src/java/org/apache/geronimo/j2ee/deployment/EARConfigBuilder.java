@@ -18,10 +18,10 @@ package org.apache.geronimo.j2ee.deployment;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.MalformedURLException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -39,12 +39,14 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
-import org.apache.geronimo.deployment.service.GBeanHelper;
-import org.apache.geronimo.deployment.util.NestedJarFile;
+import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.deployment.util.NestedJarFile;
+import org.apache.geronimo.deployment.xbeans.DependencyType;
+import org.apache.geronimo.deployment.xbeans.GbeanType;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.ApplicationInfo;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEApplicationImpl;
@@ -54,8 +56,6 @@ import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationDocument;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationType;
-import org.apache.geronimo.xbeans.geronimo.j2ee.GerDependencyType;
-import org.apache.geronimo.xbeans.geronimo.j2ee.GerGbeanType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerModuleType;
 import org.apache.geronimo.xbeans.j2ee.ApplicationType;
 import org.apache.geronimo.xbeans.j2ee.ModuleType;
@@ -175,6 +175,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
             // if we got one extract the validate it otherwise create a default one
             if (gerApplicationDoc != null) {
+                gerApplicationDoc = (GerApplicationDocument) SchemaConversionUtils.convertToGeronimoServiceSchema(gerApplicationDoc);
                 SchemaConversionUtils.validateDD(gerApplicationDoc);
                 gerApplication = gerApplicationDoc.getApplication();
             } else {
@@ -303,10 +304,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             // add dependencies declared in the geronimo-application.xml
             GerApplicationType geronimoApplication = (GerApplicationType) applicationInfo.getVendorDD();
             if (geronimoApplication != null) {
-                GerDependencyType[] dependencies = geronimoApplication.getDependencyArray();
-                for (int i = 0; i < dependencies.length; i++) {
-                    earContext.addDependency(getDependencyURI(dependencies[i]));
-                }
+                DependencyType[] dependencies = geronimoApplication.getDependencyArray();
+                ServiceConfigBuilder.addDependencies(earContext, dependencies, repository);
             }
 
             // each module installs it's files into the output context.. this is different for each module type
@@ -325,23 +324,20 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
             // add gbeans declared in the geronimo-application.xml
             if (geronimoApplication != null) {
-                GerGbeanType[] gbeans = geronimoApplication.getGbeanArray();
-                for (int i = 0; i < gbeans.length; i++) {
-                    GBeanHelper.addGbean(new GerGBeanAdapter(gbeans[i]), cl, earContext);
-                }
+                GbeanType[] gbeans = geronimoApplication.getGbeanArray();
+                ServiceConfigBuilder.addGBeans(gbeans, cl, earContext);
             }
 
             // Create the J2EEApplication managed object
             if (ConfigurationModuleType.EAR == applicationType) {
-                GBeanMBean gbean = new GBeanMBean(J2EEApplicationImpl.GBEAN_INFO, cl);
+                GBeanData gbeanData = new GBeanData(earContext.getApplicationObjectName(), J2EEApplicationImpl.GBEAN_INFO);
                 try {
-                    gbean.setAttribute("deploymentDescriptor", applicationInfo.getOriginalSpecDD());
+                    gbeanData.setAttribute("deploymentDescriptor", applicationInfo.getOriginalSpecDD());
                 } catch (Exception e) {
                     throw new DeploymentException("Error initializing J2EEApplication managed object");
                 }
-                gbean.setReferencePatterns("j2eeServer", Collections.singleton(j2eeServer));
-                ObjectName applicationName = earContext.getApplicationObjectName();
-                earContext.addGBean(applicationName, gbean);
+                gbeanData.setReferencePatterns("j2eeServer", Collections.singleton(j2eeServer));
+                earContext.addGBean(gbeanData);
             }
 
             // each module can now add it's GBeans
@@ -516,26 +512,6 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             return appClientConfigBuilder;
         }
         throw new IllegalArgumentException("Unknown module type: " + module.getClass().getName());
-    }
-
-    private URI getDependencyURI(GerDependencyType dep) throws DeploymentException {
-        URI uri;
-        if (dep.isSetUri()) {
-            try {
-                uri = new URI(dep.getUri());
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid dependency URI " + dep.getUri(), e);
-            }
-        } else {
-            // @todo support more than just jars
-            String id = dep.getGroupId() + "/jars/" + dep.getArtifactId() + '-' + dep.getVersion() + ".jar";
-            try {
-                uri = new URI(id);
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Unable to construct URI for groupId=" + dep.getGroupId() + ", artifactId=" + dep.getArtifactId() + ", version=" + dep.getVersion(), e);
-            }
-        }
-        return uri;
     }
 
     public static final GBeanInfo GBEAN_INFO;

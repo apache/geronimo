@@ -17,9 +17,9 @@
 -->
   
 <xs:schema
-    xmlns="http://geronimo.apache.org/xml/ns/deployment"
-    xmlns:xs="http://www.w3.org/2001/XMLSchema"
     targetNamespace="http://geronimo.apache.org/xml/ns/deployment"
+    xmlns:sys="http://geronimo.apache.org/xml/ns/deployment"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
     >
@@ -32,18 +32,66 @@
         </xs:documentation>
     </xs:annotation>
 
-    <xs:include schemaLocation="geronimo-common.xsd"/>
+<!--    <xs:include schemaLocation="geronimo-common.xsd"/>-->
 
-    <xs:element name="configuration" type="configurationType"/>
+    <xs:element name="configuration" type="sys:configurationType"/>
 
     <xs:complexType name="configurationType">
         <xs:sequence>
-            <xs:element name="include" type="dependencyType" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="dependency" type="dependencyType" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="gbean" type="gbeanType" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="include" type="sys:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="configId" type="xs:string" use="required"/>
         <xs:attribute name="parentId" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+    <xs:element name="dependency" type="sys:dependencyType"/>
+    <xs:element name="gbean" type="sys:gbeanType"/>
+
+    <xs:complexType name="dependencyType">
+        <xs:choice>
+            <xs:sequence>
+                <xs:element name="groupId" type="xs:string"/>
+                <xs:element name="artifactId" type="xs:string"/>
+                <xs:element name="version" type="xs:string"/>
+            </xs:sequence>
+            <xs:element name="uri" type="xs:string"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="gbeanType">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="attribute" type="sys:attributeType"/>
+            <xs:element name="reference" type="sys:referenceType"/>
+            <xs:element name="references" type="sys:referencesType"/>
+        </xs:choice>
+        <xs:attribute name="name" type="xs:string"/>
+        <xs:attribute name="class" type="xs:string"/>
+    </xs:complexType>
+
+    <xs:complexType name="attributeType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" type="xs:string"/>
+                <xs:attribute name="type" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="referenceType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="referencesType">
+        <xs:sequence>
+            <xs:element name="pattern" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string"/>
     </xs:complexType>
 
 </xs:schema>

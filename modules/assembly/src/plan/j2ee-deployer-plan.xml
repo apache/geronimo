@@ -170,6 +170,7 @@ Configuration for the Geronimo deployer
         <attribute name="defaultWelcomeFiles">index.html,index.htm,index.jsp</attribute>
         <attribute name="jettyContainerObjectName">geronimo.server:type=WebContainer,container=Jetty</attribute>
         <attribute name="defaultServlets">geronimo.deployer:role=DefaultServlet,config=org/apache/geronimo/J2EEDeployer,*</attribute>
+        <reference name="Repository">*:role=Repository,*</reference>
     </gbean>
 
 <!--
@@ -223,6 +224,7 @@ Configuration for the Geronimo deployer
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/J2EEDeployer" class="org.openejb.deployment.OpenEJBModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
 <!--        <reference name="SkeletonGenerator">openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB</reference>-->
+        <reference name="Repository">*:role=Repository,*</reference>
     </gbean>
 
     <gbean name="geronimo.deployer:role=ClientEJBReferenceBuilder,config=org/apache/geronimo/J2EEDeployer" class="org.openejb.deployment.RemoteEJBReferenceBuilder">
@@ -236,6 +238,7 @@ Configuration for the Geronimo deployer
         <attribute name="defaultIdleTimeoutMinutes" type="int">15</attribute>
         <attribute name="defaultXATransactionCaching" type="boolean">true</attribute>
         <attribute name="defaultXAThreadCaching" type="boolean">false</attribute>
+        <reference name="Repository">*:role=Repository,*</reference>
     </gbean>
 
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=AppClient,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.client.builder.AppClientModuleBuilder">

@@ -52,6 +52,7 @@ import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
+import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.xmlbeans.XmlOptions;
 import org.tranql.sql.jdbc.JDBCUtil;
 
@@ -84,6 +85,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
     public void testLoadGeronimoDeploymentDescriptor() throws Exception {
         InputStream geronimoInputStream = geronimoDD.openStream();
         GerConnectorDocument connectorDocument = GerConnectorDocument.Factory.parse(geronimoInputStream);
+        connectorDocument = (GerConnectorDocument)SchemaConversionUtils.convertToGeronimoServiceSchema(connectorDocument);
         assertEquals(1, connectorDocument.getConnector().getResourceadapterArray().length);
         if (!connectorDocument.validate(xmlOptions)) {
             fail(errors.toString());
@@ -127,7 +129,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
         ObjectName connectionTrackerName = new ObjectName("geronimo.connector:service=ConnectionTracker");
 
         Kernel kernel = new Kernel("testServer");
-        ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultParentId, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, kernel);
+        ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultParentId, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, null, kernel);
         File rarFile = action.getRARFile();
 
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();

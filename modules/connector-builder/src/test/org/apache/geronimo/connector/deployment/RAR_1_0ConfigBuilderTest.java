@@ -54,6 +54,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
+import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.xmlbeans.XmlOptions;
 import org.tranql.sql.jdbc.JDBCUtil;
 
@@ -78,6 +79,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
     public void testLoadGeronimoDeploymentDescriptor() throws Exception {
         InputStream geronimoInputStream = geronimoDD.openStream();
         GerConnectorDocument connectorDocument = GerConnectorDocument.Factory.parse(geronimoInputStream);
+        connectorDocument = (GerConnectorDocument)SchemaConversionUtils.convertToGeronimoServiceSchema(connectorDocument);
         assertEquals(1, connectorDocument.getConnector().getResourceadapterArray().length);
         if (!connectorDocument.validate(xmlOptions)) {
             fail(errors.toString());
@@ -169,7 +171,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
         ObjectName connectionTrackerName = new ObjectName("geronimo.connector:service=ConnectionTracker");
 
         Kernel kernel = new Kernel("testServer");
-        ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultParentId, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, kernel);
+        ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultParentId, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, null, kernel);
         File rarFile = action.getRARFile();
 
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
@@ -223,7 +225,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
         JarFile rarFile = null;
         try {
             rarFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear-noger.ear"));
-            EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, j2eeServer, null, connectionTrackerName, null, null, null, null, null, null, new ConnectorModuleBuilder(defaultParentId, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, kernel), null, null, kernel);
+            EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, j2eeServer, null, connectionTrackerName, null, null, null, null, null, null, new ConnectorModuleBuilder(defaultParentId, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, null, kernel), null, null, kernel);
             File tempDir = null;
             try {
                 tempDir = DeploymentUtil.createTempDir();

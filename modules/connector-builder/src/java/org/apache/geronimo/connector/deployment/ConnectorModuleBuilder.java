@@ -54,8 +54,10 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.Transactio
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransactions;
 import org.apache.geronimo.connector.outbound.security.PasswordCredentialRealm;
-import org.apache.geronimo.deployment.service.GBeanHelper;
+import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.deployment.xbeans.DependencyType;
+import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.gbean.DynamicGAttributeInfo;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
@@ -71,6 +73,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.reference.GBeanGetResourceRefAddr;
 import org.apache.geronimo.naming.reference.RefAddrContentObjectFactory;
 import org.apache.geronimo.schema.SchemaConversionUtils;
@@ -83,8 +86,6 @@ import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorType;
 import org.apache.geronimo.xbeans.geronimo.GerCredentialInterfaceType;
-import org.apache.geronimo.xbeans.geronimo.GerDependencyType;
-import org.apache.geronimo.xbeans.geronimo.GerGbeanType;
 import org.apache.geronimo.xbeans.geronimo.GerPartitionedpoolType;
 import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
 import org.apache.geronimo.xbeans.geronimo.GerSinglepoolType;
@@ -112,10 +113,20 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     private final int defaultIdleTimeoutMinutes;
     private final boolean defaultXATransactionCaching;
     private final boolean defaultXAThreadCaching;
-    private final Kernel kernel;
     private final URI defaultParentId;
+    private final Repository repository;
+    private final Kernel kernel;
 
-    public ConnectorModuleBuilder(URI defaultParentId, int defaultMaxSize, int defaultMinSize, int defaultBlockingTimeoutMilliseconds, int defaultIdleTimeoutMinutes, boolean defaultXATransactionCaching, boolean defaultXAThreadCaching, Kernel kernel) {
+    public ConnectorModuleBuilder(URI defaultParentId,
+                                  int defaultMaxSize,
+                                  int defaultMinSize,
+                                  int defaultBlockingTimeoutMilliseconds,
+                                  int defaultIdleTimeoutMinutes,
+                                  boolean defaultXATransactionCaching,
+                                  boolean defaultXAThreadCaching,
+                                  Repository repository,
+                                  Kernel kernel) {
+        assert repository != null;
         this.defaultParentId = defaultParentId;
         this.defaultMaxSize = defaultMaxSize;
         this.defaultMinSize = defaultMinSize;
@@ -123,6 +134,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         this.defaultIdleTimeoutMinutes = defaultIdleTimeoutMinutes;
         this.defaultXATransactionCaching = defaultXATransactionCaching;
         this.defaultXAThreadCaching = defaultXAThreadCaching;
+        this.repository = repository;
         this.kernel = kernel;
     }
 
@@ -185,6 +197,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             if (gerConnector == null) {
                 throw new DeploymentException("A connector module must be deployed using a plan");
             }
+            gerConnector = (GerConnectorType) SchemaConversionUtils.convertToGeronimoServiceSchema(gerConnector);
             SchemaConversionUtils.validateDD(gerConnector);
         } catch (XmlException e) {
             throw new DeploymentException(e);
@@ -234,10 +247,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             }
 
             GerConnectorType vendorConnector = (GerConnectorType) module.getVendorDD();
-            GerDependencyType[] dependencies = vendorConnector.getDependencyArray();
-            for (int i = 0; i < dependencies.length; i++) {
-                earContext.addDependency(getDependencyURI(dependencies[i]));
-            }
+            DependencyType[] dependencies = vendorConnector.getDependencyArray();
+            ServiceConfigBuilder.addDependencies(earContext, dependencies, repository);
         } catch (IOException e) {
             throw new DeploymentException("Problem deploying connector", e);
         }
@@ -366,10 +377,11 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
         GerConnectorType geronimoConnector = (GerConnectorType) module.getVendorDD();
 
-        GerGbeanType[] gbeans = geronimoConnector.getGbeanArray();
-        for (int i = 0; i < gbeans.length; i++) {
-            GBeanHelper.addGbean(new RARGBeanAdapter(gbeans[i]), cl, earContext);
-        }
+        GbeanType[] gbeans = geronimoConnector.getGbeanArray();
+        ServiceConfigBuilder.addGBeans(gbeans, cl, earContext);
+//        for (int i = 0; i < gbeans.length; i++) {
+//            GBeanHelper.addGbean(new RARGBeanAdapter(gbeans[i]), cl, earContext);
+//        }
 
         addConnectorGBeans(earContext, moduleJ2eeContext, resourceAdapterModuleName, (ConnectorType) specDD, geronimoConnector, cl);
 
@@ -766,23 +778,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         earContext.addGBean(connectionFactoryGBeanData);
     }
 
-    private static URI getDependencyURI(GerDependencyType dependency) throws DeploymentException {
-        if (dependency.isSetUri()) {
-            try {
-                return new URI(dependency.getUri());
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid dependency URI " + dependency.getUri(), e);
-            }
-        } else {
-            String id = dependency.getGroupId() + "/jars/" + dependency.getArtifactId() + '-' + dependency.getVersion() + ".jar";
-            try {
-                return new URI(id);
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Unable to construct URI for groupId=" + dependency.getGroupId() + ", artifactId=" + dependency.getArtifactId() + ", version=" + dependency.getVersion(), e);
-            }
-        }
-    }
-
     //ResourceReferenceBuilder implementation
     public Reference createResourceRef(String containerId, Class iface) throws DeploymentException {
         Reference ref = new Reference(null, RefAddrContentObjectFactory.class.getName(), null);
@@ -855,12 +850,21 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         infoBuilder.addAttribute("defaultXATransactionCaching", boolean.class, true);
         infoBuilder.addAttribute("defaultXAThreadCaching", boolean.class, true);
 
+        infoBuilder.addReference("Repository", Repository.class);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
 
         infoBuilder.addInterface(ModuleBuilder.class);
         infoBuilder.addInterface(ResourceReferenceBuilder.class);
 
-        infoBuilder.setConstructor(new String[]{"defaultParentId", "defaultMaxSize", "defaultMinSize", "defaultBlockingTimeoutMilliseconds", "defaultIdleTimeoutMinutes", "defaultXATransactionCaching", "defaultXAThreadCaching", "kernel"});
+        infoBuilder.setConstructor(new String[]{"defaultParentId",
+                                                "defaultMaxSize",
+                                                "defaultMinSize",
+                                                "defaultBlockingTimeoutMilliseconds",
+                                                "defaultIdleTimeoutMinutes",
+                                                "defaultXATransactionCaching",
+                                                "defaultXAThreadCaching",
+                                                "Repository",
+                                                "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

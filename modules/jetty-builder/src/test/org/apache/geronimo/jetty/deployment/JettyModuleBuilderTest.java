@@ -187,7 +187,7 @@ public class JettyModuleBuilderTest extends TestCase {
         //install the policy configuration factory
         SecurityServiceImpl securityService = new SecurityServiceImpl("org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory");
 
-        builder = new JettyModuleBuilder(new URI("null"), new Integer(1800), Collections.EMPTY_LIST, containerName, defaultServlets, null, null, kernel);
+        builder = new JettyModuleBuilder(new URI("null"), new Integer(1800), Collections.EMPTY_LIST, containerName, defaultServlets, null, null, null, kernel);
 
         container = new GBeanData(containerName, JettyContainerImpl.GBEAN_INFO);
 
