@@ -69,7 +69,7 @@ import java.io.IOException;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/27 10:33:48 $
+ * @version $Revision: 1.3 $ $Date: 2003/12/28 19:34:05 $
  */
 
 public class SQLLoginModule implements LoginModule {
@@ -100,7 +100,6 @@ public class SQLLoginModule implements LoginModule {
         }
         username = ((NameCallback) callbacks[0]).getName();
         password = realm.obfuscate((String) realm.users.get(username));
-
         return new String(((PasswordCallback) callbacks[1]).getPassword()).equals(password);
     }
 

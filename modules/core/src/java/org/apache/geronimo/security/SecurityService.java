@@ -55,53 +55,38 @@
  */
 package org.apache.geronimo.security;
 
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
-import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.core.service.AbstractManagedComponent;
-import org.apache.geronimo.security.util.ConfigurationUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.security.AccessController;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Collections;
 
+import javax.management.ObjectName;
 import javax.security.auth.login.Configuration;
 import javax.security.jacc.PolicyContextException;
-import javax.management.ObjectName;
-import javax.management.MBeanServer;
-import javax.management.Query;
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanRegistrationException;
-import javax.management.NotCompliantMBeanException;
-import javax.management.Notification;
-import javax.management.MBeanServerNotification;
-import javax.management.InstanceNotFoundException;
-import java.util.Set;
-import java.security.AccessController;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
+import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
+import org.apache.geronimo.security.util.ConfigurationUtil;
 
 
 /**
  * An MBean that maintains a list of security realms.
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/14 17:21:01 $
- * @jmx:mbean
+ * @version $Revision: 1.3 $ $Date: 2003/12/28 19:34:05 $
  */
-public class SecurityService extends AbstractManagedComponent implements SecurityServiceMBean, GeronimoMBeanTarget {
+public class SecurityService  {
 
-    private static final ObjectName DEFAULT_NAME = JMXUtil.getObjectName("geronimo.security:type=SecurityService");
-    private GeronimoMBeanContext context;
 
     private final Log log = LogFactory.getLog(SecurityService.class);
 
-    static {
-        AccessController.doPrivileged(
-                new java.security.PrivilegedAction() {
-                    public Object run() {
-                        Configuration.setConfiguration(new GeronimoLoginConfiguration());
-                        return null;
-                    }
-                });
-    }
+    private Collection realms = Collections.EMPTY_SET;
+    private Collection ejbModuleConfigurations = Collections.EMPTY_SET;
+    private Collection webModuleConfigurations = Collections.EMPTY_SET;
+
 
     /**
      * Permissions that protect access to sensitive security information
@@ -111,36 +96,35 @@ public class SecurityService extends AbstractManagedComponent implements Securit
     public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
         GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
         mbeanInfo.setTargetClass(SecurityService.class.getName());
+
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getEjbModuleConfiguration",
+                new GeronimoParameterInfo[] {
+                    new GeronimoParameterInfo("contextID", String.class, ""),
+                    new GeronimoParameterInfo("remove", Boolean.TYPE, "")},
+                GeronimoOperationInfo.ACTION_INFO,
+                "Get security configuration for ejb module identified by contextID"));
+
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getWebModuleConfiguration",
+                new GeronimoParameterInfo[] {
+                    new GeronimoParameterInfo("contextID", String.class, ""),
+                    new GeronimoParameterInfo("remove", Boolean.TYPE, "")},
+                GeronimoOperationInfo.ACTION_INFO,
+                "Get security configuration for web module identified by contextID"));
+        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("Realms", SecurityRealm.class, ObjectName.getInstance("geronimo.security:type=SecurityRealm,*")));
+        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("EJBModuleConfigurations", EJBModuleConfiguration.class, ObjectName.getInstance("geronimo.security:Type=EJBModuleConfiguration,*")));
+        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("WebModuleConfigurations", WebModuleConfiguration.class, ObjectName.getInstance("geronimo.security:Type=WebModuleConfiguration,*")));
         return mbeanInfo;
     }
 
-    public ObjectName preRegister(MBeanServer mBeanServer, ObjectName objectName) throws Exception {
-        if (objectName == null) objectName = DEFAULT_NAME;
-        return super.preRegister(mBeanServer, objectName);
-    }
 
-    /**
-     * @param aBoolean a <code>Boolean</code> value
-     */
-    public void postRegister(Boolean aBoolean) {
-        super.postRegister(aBoolean);
-    }
-
-    public void preDeregister() throws Exception {
-    }
-
-    public void postDeregister() {
-    }
-
-    public void setMBeanContext(GeronimoMBeanContext context) {
-        this.context = context;
-    }
-
-    public boolean canStart() {
-        return true;
-    }
-
-    public void doStart() {
+    public SecurityService() {
+        AccessController.doPrivileged(
+                new java.security.PrivilegedAction() {
+                    public Object run() {
+                        Configuration.setConfiguration(new GeronimoLoginConfiguration(SecurityService.this));
+                        return null;
+                    }
+                });
         /**
          *  @see "JSR 115 4.6.1" Container Subject Policy Contact Handler
          */
@@ -151,45 +135,50 @@ public class SecurityService extends AbstractManagedComponent implements Securit
         } catch (PolicyContextException pce) {
             log.error("Exception in doStart()", pce);
 
-            IllegalStateException ise = new IllegalStateException();
-            ise.initCause(pce);
-            throw ise;
+            throw (IllegalStateException)new IllegalStateException().initCause(pce);
         }
-        log.debug("Security Server started");
-    }
-
-    public boolean canStop() {
-        return true;
-    }
-
-    public void doStop() {
-        log.debug("Security Server stopped");
-    }
-
-    public void doFail() {
     }
 
     /**
      *
+     * This was once a managed operation...only used by GeronimoLoginConfiguration, which uses it directly.
+     * Return type was a Set.  Changed to collection to work with GeronimoMBeanEndpoints.
      * @return
      * @throws GeronimoSecurityException
-     * @jmx:managed-operation
      */
-    public Set getRealms() throws GeronimoSecurityException {
+    public Collection getRealms() throws GeronimoSecurityException {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(CONFIGURE);
+        return realms;
+    }
 
-        try {
-            return server.queryMBeans(JMXUtil.getObjectName("geronimo.security:type=SecurityRealm"), null);
-        } catch (Exception e) {
-            throw new GeronimoSecurityException(e);
-        }
+
+    public void setRealms(Collection realms) {
+        SecurityManager sm = System.getSecurityManager();
+          if (sm != null) sm.checkPermission(CONFIGURE);
+        this.realms = realms;
+    }
+
+    public Collection getEJBModuleConfigurations() {
+        return ejbModuleConfigurations;
+    }
+
+    public void setEJBModuleConfigurations(Collection ejbModuleConfigurations) {
+        this.ejbModuleConfigurations = ejbModuleConfigurations;
+    }
+
+    public Collection getWebModuleConfigurations() {
+        return webModuleConfigurations;
+    }
+
+    public void setWebModuleConfigurations(Collection webModuleConfigurations) {
+        this.webModuleConfigurations = webModuleConfigurations;
     }
 
     /**
      * <p>This method is used to obtain a web module configuration that corresponds to the identified policy context.
      * The methods of the <code>WebModuleConfigurationMBean</code> class are used to map deployment descriptor
-     * information into policy statements needed by the identified policy context as well as the principal to roll
+     * information into policy statements needed by the identified policy context as well as the principal to role
      * mapping.</p>
      *
      * <p>If at the time of the call, the identified web module configuration does not exist, then the web module
@@ -215,46 +204,22 @@ public class SecurityService extends AbstractManagedComponent implements Securit
      *                  identified policy context.
      * @throws GeronimoSecurityException if the implementation throws a checked exception that has not been accounted for by
      *                  the <code>getWebModuleConfiguration</code> method signature.
-     * @jmx:managed-operation
      */
-    public ObjectName getWebModuleConfiguration(String contextID, boolean remove) throws GeronimoSecurityException {
+    public WebModuleConfiguration getWebModuleConfiguration(String contextID, boolean remove) throws GeronimoSecurityException {
+        assert contextID != null : "ContextID must be supplied!";
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(CONFIGURE);
 
-        Set configBeans = server.queryMBeans(JMXUtil.getObjectName("geronimo.security:type=WebModuleConfigurationMBean,*"),
-                                             Query.eq(Query.attr("ContextID"),
-                                                      Query.value(contextID)));
-        assert configBeans.size() <= 1;
-
-        WebModuleConfigurationMBean configBean = null;
-        ObjectName objName;
-        if (configBeans.isEmpty()) {
-            configBean = new WebModuleConfiguration(contextID);
-
-            objName = configBean.getObjectName();
-            try {
-                server.registerMBean(configBean, configBean.getObjectName());
-            } catch (InstanceAlreadyExistsException e) {
-                throw new GeronimoSecurityException(e);
-            } catch (MBeanRegistrationException e) {
-                throw new GeronimoSecurityException(e);
-            } catch (NotCompliantMBeanException e) {
-                throw new GeronimoSecurityException(e);
-            } catch (IllegalArgumentException e) {
-                throw new GeronimoSecurityException(e);
+        for (Iterator iterator = webModuleConfigurations.iterator(); iterator.hasNext();) {
+            WebModuleConfiguration webModuleConfiguration = (WebModuleConfiguration) iterator.next();
+            if (contextID.equals(webModuleConfiguration.getContextID())) {
+                if (remove) {
+                    webModuleConfiguration.delete();
+                }
+                return webModuleConfiguration;
             }
-        } else {
-            objName = (ObjectName)configBeans.iterator().next();
         }
-
-        if (remove) {
-            configBean = (WebModuleConfigurationMBean) MBeanProxyFactory.getProxy(WebModuleConfigurationMBean.class,
-                                                                                  server,
-                                                                                  objName);
-            configBean.delete();
-        }
-
-        return objName;
+        return null;
     }
 
     /**
@@ -286,80 +251,22 @@ public class SecurityService extends AbstractManagedComponent implements Securit
      *                  identified policy context.
      * @throws GeronimoSecurityException if the implementation throws a checked exception that has not been accounted for by
      *                  the <code>getEjbModuleConfiguration</code> method signature.
-     * @jmx:managed-operation
      */
-    public ObjectName getEjbModuleConfiguration(String contextID, boolean remove) throws GeronimoSecurityException {
+    public EJBModuleConfiguration getEjbModuleConfiguration(String contextID, boolean remove) throws GeronimoSecurityException {
+        assert contextID != null : "ContextID must be supplied!";
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(CONFIGURE);
 
-        Set configBeans = server.queryMBeans(JMXUtil.getObjectName("geronimo.security:type=EjbModuleConfigurationMBean,*"),
-                                             Query.eq(Query.attr("ContextID"),
-                                                      Query.value(contextID)));
-        assert configBeans.size() <= 1;
-
-        EJBModuleConfigurationMBean configBean = null;
-        ObjectName objName;
-        if (configBeans.isEmpty()) {
-            configBean = new EJBModuleConfiguration(contextID);
-
-            objName = configBean.getObjectName();
-            try {
-                server.registerMBean(configBean, configBean.getObjectName());
-            } catch (InstanceAlreadyExistsException e) {
-                throw new GeronimoSecurityException(e);
-            } catch (MBeanRegistrationException e) {
-                throw new GeronimoSecurityException(e);
-            } catch (NotCompliantMBeanException e) {
-                throw new GeronimoSecurityException(e);
-            } catch (IllegalArgumentException e) {
-                throw new GeronimoSecurityException(e);
-            }
-        } else {
-            objName = (ObjectName)configBeans.iterator().next();
-        }
-
-        if (remove) {
-            configBean = (EJBModuleConfiguration) MBeanProxyFactory.getProxy(EJBModuleConfiguration.class,
-                                                                                  server,
-                                                                                  objName);
-            configBean.delete();
-        }
-
-        return objName;
-    }
-
-    /**
-     * Monitor JMX notifications<p>
-     *
-     * When a security realm is registered in JMX, then set up the containment relationship with it so that it
-     * becomes one of our components.
-     * @param n a <code>Notification</code> value
-     * @param o an <code>Object</code> value
-     */
-    public void handleNotification(Notification n, Object o) {
-        ObjectName source = null;
-
-        try {
-            // Respond to registrations of SecurityRealm
-            if (MBeanServerNotification.REGISTRATION_NOTIFICATION.equals(n.getType())) {
-                MBeanServerNotification notification = (MBeanServerNotification) n;
-                source = notification.getMBeanName();
-                if (server.isInstanceOf(source, SecurityRealm.class.getName())) {
-                    log.debug("Received registration notification for SecurityRealm=" + source);
-                    dependencyService.addStartDependency(source, objectName);
-                } else if (server.isInstanceOf(source, AbstractModuleConfiguration.class.getName())) {
-                    log.debug("Received registration notification for ModuleConfiguration=" + source);
-                    dependencyService.addStartDependency(source, objectName);
-                } else {
-                    log.debug("Ignoring registration of mbean=" + source);
+        for (Iterator iterator = ejbModuleConfigurations.iterator(); iterator.hasNext();) {
+            EJBModuleConfiguration ejbModuleConfiguration = (EJBModuleConfiguration) iterator.next();
+            if (contextID.equals(ejbModuleConfiguration.getContextID())) {
+                if (remove) {
+                    ejbModuleConfiguration.delete();
                 }
+                return ejbModuleConfiguration;
             }
-        } catch (InstanceNotFoundException e) {
-            log.debug("Registration notification received for non-existant object: " + source);
-        } catch (Exception e) {
-            throw new IllegalStateException(e.toString());
         }
-
-        super.handleNotification(n, o);
+        return null;
     }
+
 }

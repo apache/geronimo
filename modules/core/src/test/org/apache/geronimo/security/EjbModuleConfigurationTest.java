@@ -72,7 +72,7 @@ import org.w3c.dom.Document;
 /**
  * Unit test for EJB module configuration
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/18 05:28:27 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/28 19:34:05 $
  */
 public class EjbModuleConfigurationTest extends TestCase {
     private File docDir;
@@ -83,19 +83,18 @@ public class EjbModuleConfigurationTest extends TestCase {
     public void setUp() throws Exception {
         System.setProperty("javax.security.jacc.PolicyConfigurationFactory.provider", "org.apache.geronimo.security.GeronimoPolicyConfigurationFactory");
 
-        module = new EJBModuleConfiguration("pookie test");
         docDir = new File("src/test-data/xml/deployment");
         loader = new GeronimoEjbJarLoader();
     }
 
     public void testRead() throws Exception {
-        assertSame("pookie test", module.getContextID());
 
         File f = new File(docDir, "geronimo-ejb-jar-testRead.xml");
         Document xmlDoc = LoaderUtil.parseXML(new FileReader(f));
         GeronimoEjbJarDocument doc = loader.load(xmlDoc);
         EjbJar jar = doc.getEjbJar();
 
-        module.configure(jar);
+        module = new EJBModuleConfiguration("pookie test", jar);
+        assertSame("pookie test", module.getContextID());
     }
 }

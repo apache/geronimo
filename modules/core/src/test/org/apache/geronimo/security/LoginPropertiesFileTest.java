@@ -55,55 +55,46 @@
  */
 package org.apache.geronimo.security;
 
-import junit.framework.TestCase;
-
-import javax.management.MBeanServer;
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.Subject;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.NameCallback;
-
-import org.apache.geronimo.security.providers.PropertiesFileSecurityRealm;
-import org.apache.geronimo.test.util.ServerUtil;
-
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.LoginContext;
+
+import junit.framework.TestCase;
+import org.apache.geronimo.security.providers.PropertiesFileSecurityRealm;
 
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/18 05:20:12 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/28 19:34:05 $
  */
 public class LoginPropertiesFileTest extends TestCase {
-    MBeanServer server;
     SecurityService securityService;
 
     public void setUp() throws Exception {
-        server = ServerUtil.newLocalServer();
 
         securityService = new SecurityService();
-        server.registerMBean(securityService, null);
 
-        PropertiesFileSecurityRealm c = new PropertiesFileSecurityRealm();
-        c.setRealmName("Foo");
-        c.setUsersURI((new File(new File("."), "src/test-data/data/users.properties")).toURI());
-        c.setGroupsURI((new File(new File("."), "src/test-data/data/groups.properties")).toURI());
-        server.registerMBean(c, null);
+        PropertiesFileSecurityRealm securityRealm = new PropertiesFileSecurityRealm();
+        securityRealm.setRealmName("Foo");
+        securityRealm.setUsersURI((new File(new File("."), "src/test-data/data/users.properties")).toURI());
+        securityRealm.setGroupsURI((new File(new File("."), "src/test-data/data/groups.properties")).toURI());
+        securityRealm.doStart();
+        securityService.setRealms(Collections.singleton(securityRealm));
 
-        securityService.startRecursive();
     }
 
     public void tearDown() throws Exception {
-        securityService.stop();
-
-        ServerUtil.stopLocalServer(server);
     }
 
     public void testLogin() throws Exception {
-        GeronimoLoginConfiguration.setMBeanServer(server);
 
         Subject subject = new Subject();
         CallbackHandler handler = new CallbackHandler() {
@@ -122,5 +113,7 @@ public class LoginPropertiesFileTest extends TestCase {
 
         context.login();
         Subject rSubject = context.getSubject();
+        assertTrue("expected non-null subject", rSubject != null);
+
     }
 }

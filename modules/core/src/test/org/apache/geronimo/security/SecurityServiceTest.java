@@ -55,55 +55,57 @@
  */
 package org.apache.geronimo.security;
 
-import junit.framework.TestCase;
-
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-
-import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
-import org.apache.geronimo.security.providers.PropertiesFileSecurityRealm;
-import org.apache.geronimo.test.util.ServerUtil;
-
 import java.io.File;
+import java.util.Collections;
+
+import junit.framework.TestCase;
+import org.apache.geronimo.security.providers.PropertiesFileSecurityRealm;
+import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
+import org.apache.geronimo.deployment.model.geronimo.ejb.EnterpriseBeans;
+import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.Security;
+import org.apache.geronimo.deployment.model.ejb.AssemblyDescriptor;
+import org.apache.geronimo.deployment.model.ejb.ExcludeList;
 
 
 /**
  * Unit test for web module configuration
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/18 05:28:27 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/28 19:34:05 $
  */
 public class SecurityServiceTest extends TestCase {
-    MBeanServer server;
-    SecurityRealm c1;
     SecurityService securityService;
 
     public void setUp() throws Exception {
         System.setProperty("javax.security.jacc.PolicyConfigurationFactory.provider", "org.apache.geronimo.security.GeronimoPolicyConfigurationFactory");
 
-        server = ServerUtil.newLocalServer();
-
         securityService = new SecurityService();
-        server.registerMBean(securityService, null);
 
-        PropertiesFileSecurityRealm c = new PropertiesFileSecurityRealm();
-        c.setRealmName("Foo");
-        c.setUsersURI((new File(new File("."), "src/test-data/data/users.properties")).toURI());
-        c.setGroupsURI((new File(new File("."), "src/test-data/data/groups.properties")).toURI());
-        server.registerMBean(c, null);
+        PropertiesFileSecurityRealm securityRealm = new PropertiesFileSecurityRealm();
+        securityRealm.setRealmName("Foo");
+        securityRealm.setUsersURI((new File(new File("."), "src/test-data/data/users.properties")).toURI());
+        securityRealm.setGroupsURI((new File(new File("."), "src/test-data/data/groups.properties")).toURI());
 
-        securityService.startRecursive();
+        securityService.setRealms(Collections.singleton(securityRealm));
+        EjbJar ejbJar = new EjbJar();
+        ejbJar.setEnterpriseBeans(new EnterpriseBeans());
+        AssemblyDescriptor assemblyDescriptor = new AssemblyDescriptor();
+        assemblyDescriptor.setExcludeList(new ExcludeList());
+        ejbJar.setAssemblyDescriptor(assemblyDescriptor);
+        ejbJar.setSecurity(new Security());
+        securityService.setEJBModuleConfigurations(Collections.singleton(new EJBModuleConfiguration("Foo", ejbJar)));
+        WebApp webApp = new WebApp();
+        webApp.setSecurity(new Security());
+        securityService.setWebModuleConfigurations(Collections.singleton(new WebModuleConfiguration("Bar", webApp)));
     }
 
     public void tearDown() throws Exception {
-        securityService.stop();
-
-        ServerUtil.stopLocalServer(server);
     }
 
     public void testConfig() throws Exception {
-        ObjectName name = securityService.getEjbModuleConfiguration("Foo", false);
-        EJBModuleConfigurationMBean ejbConfig = (EJBModuleConfigurationMBean) MBeanProxyFactory.getProxy(EJBModuleConfigurationMBean.class,
-                                                                                                         server,
-                                                                                                         name);
+        EJBModuleConfiguration ejbModuleConfiguration = securityService.getEjbModuleConfiguration("Foo", false);
+        assertTrue("expected an ejbModuleConfiguration", ejbModuleConfiguration != null);
+        WebModuleConfiguration webModuleConfiguration = securityService.getWebModuleConfiguration("Bar", false);
+        assertTrue("expected a webModuleConfiguration", webModuleConfiguration != null);
     }
 }

@@ -55,39 +55,44 @@
  */
 package org.apache.geronimo.security;
 
-import junit.framework.TestCase;
-
-import javax.management.MBeanServer;
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.Subject;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.NameCallback;
-
-import org.apache.geronimo.security.providers.SQLSecurityRealm;
-import org.apache.geronimo.test.util.ServerUtil;
-
 import java.io.IOException;
-import java.sql.DriverManager;
 import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.Collections;
+
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.LoginContext;
+
+import junit.framework.TestCase;
+import org.apache.geronimo.security.providers.SQLSecurityRealm;
 
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/18 05:20:12 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/28 19:34:05 $
  */
 public class LoginSQLTest extends TestCase {
-    MBeanServer server;
+
+    private static final String hsqldbURL = "jdbc:hsqldb:target/database/LoginSQLTest";
     SecurityService securityService;
 
     public void setUp() throws Exception {
         DriverManager.registerDriver(new org.hsqldb.jdbcDriver());
 
-        Connection conn = DriverManager.getConnection("jdbc:hsqldb:target/database/LoginSQLTest", "sa", "");
+        Connection conn = DriverManager.getConnection(hsqldbURL, "sa", "");
 
-        conn.prepareStatement("CREATE USER loginmodule PASSWORD password ADMIN;").executeQuery();
+
+        try {
+            conn.prepareStatement("CREATE USER loginmodule PASSWORD password ADMIN;").executeQuery();
+        } catch (SQLException e) {
+            //ignore, for some reason user already exists.
+        }
 
         conn.prepareStatement("CREATE TABLE Users(UserName VARCHAR(16), Password VARCHAR(16));").executeQuery();
         conn.prepareStatement("CREATE TABLE Groups(GroupName VARCHAR(16), UserName VARCHAR(16));").executeQuery();
@@ -112,36 +117,33 @@ public class LoginSQLTest extends TestCase {
 
         conn.close();
 
-        server = ServerUtil.newLocalServer();
-
         securityService = new SecurityService();
-        server.registerMBean(securityService, null);
 
-        SQLSecurityRealm c = new SQLSecurityRealm();
-        c.setRealmName("Foo");
-        c.setConnectionURL("jdbc:hsqldb:target/database/LoginSQLTest");
-        c.setUser("loginmodule");
-        c.setPassword("password");
-        server.registerMBean(c, null);
-
-        securityService.startRecursive();
+        SQLSecurityRealm securityRealm = new SQLSecurityRealm();
+        securityRealm.setRealmName("Foo");
+        securityRealm.setConnectionURL(hsqldbURL);
+        securityRealm.setUser("loginmodule");
+        securityRealm.setPassword("password");
+        securityRealm.doStart();
+        securityService.setRealms(Collections.singleton(securityRealm));
     }
 
     public void tearDown() throws Exception {
-        securityService.stop();
 
-        ServerUtil.stopLocalServer(server);
+        Connection conn = DriverManager.getConnection(hsqldbURL, "sa", "");
 
-        Connection conn = DriverManager.getConnection("jdbc:hsqldb:target/database/LoginSQLTest", "sa", "");
+        try {
+            conn.prepareStatement("DROP USER loginmodule;").executeQuery();
 
-        conn.prepareStatement("DROP USER loginmodule;").executeQuery();
+            conn.prepareStatement("DROP TABLE Users;").executeQuery();
+            conn.prepareStatement("DROP TABLE Groups;").executeQuery();
+        } catch (SQLException e) {
+            //who knows??
+        }
 
-        conn.prepareStatement("DROP TABLE Users;").executeQuery();
-        conn.prepareStatement("DROP TABLE Groups;").executeQuery();
     }
 
     public void testLogin() throws Exception {
-        GeronimoLoginConfiguration.setMBeanServer(server);
 
         Subject subject = new Subject();
         CallbackHandler handler = new CallbackHandler() {
@@ -160,5 +162,6 @@ public class LoginSQLTest extends TestCase {
 
         context.login();
         Subject rSubject = context.getSubject();
+        assertTrue("expected non-null subject", rSubject != null);
     }
 }

@@ -65,15 +65,10 @@ import java.util.HashSet;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/18 05:17:17 $
+ * @version $Revision: 1.1 $ $Date: 2003/12/28 19:34:05 $
  */
-public interface ModuleConfigurationMBean extends GeronimoMBeanTarget, MBeanRegistration {
+public interface ModuleConfiguration {
 
-    /**
-     * This method returns this MBean's object name.
-     * @return this MBean's object name.
-     */
-    public ObjectName getObjectName();
 
     /**
      * This method returns this modules's policy context identifier.
@@ -94,7 +89,7 @@ public interface ModuleConfigurationMBean extends GeronimoMBeanTarget, MBeanRegi
      * @param principals The set of principals that are to be mapped to to role.
      * @throws GeronimoSecurityException if the mapping principals to the same role twice occurs.
      */
-    public void addRollMapping(String role, Collection principals) throws GeronimoSecurityException;
+    public void addRoleMapping(String role, Collection principals) throws GeronimoSecurityException;
 
     /**
      * <p>Creates a relationship between this configuration and another such that they share the same principal-to-role
@@ -119,7 +114,7 @@ public interface ModuleConfigurationMBean extends GeronimoMBeanTarget, MBeanRegi
      * the linkConfiguration method signature. The exception thrown by the implementation class will be encapsulated
      * (during construction) in the thrown <code>GeronimoSecurityException</code>.
      */
-    public void linkConfiguration(ModuleConfigurationMBean link) throws GeronimoSecurityException;
+    public void linkConfiguration(ModuleConfiguration link) throws GeronimoSecurityException;
 
     /**
      * <p>Causes all policy statements to be deleted from this <code>PolicyConfiguration</code> and sets its internal

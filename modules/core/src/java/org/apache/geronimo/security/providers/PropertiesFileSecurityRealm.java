@@ -75,9 +75,10 @@ import java.io.IOException;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/18 05:17:18 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/28 19:34:05 $
  */
 public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
+    private boolean running = false;
     private URI usersURI;
     private URI groupsURI;
     Properties users = new Properties();
@@ -85,19 +86,21 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
 
     final static String REALM = "org.apache.geronimo.security.providers.PropertiesFileSecurityRealm";
 
-    protected void doStart() throws Exception {
+    public void doStart() {
         if (usersURI == null) throw  new IllegalStateException("Users URI not set");
         if (groupsURI == null) throw  new IllegalStateException("Groups URI not set");
 
         refresh();
+        running = true;
     }
 
-    protected void doStop() throws Exception {
+    public void doStop() {
         usersURI = null;
         groupsURI = null;
 
         users.clear();
         groups.clear();
+        running = false;
     }
 
     public URI getUsersURI() {
@@ -105,9 +108,9 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
     }
 
     public void setUsersURI(URI usersURI) {
-        if (getStateInstance() != State.STOPPED)
+        if (running) {
             throw new IllegalStateException("Cannot change the Users URI after the realm is started");
-
+        }
         this.usersURI = usersURI;
     }
 
@@ -116,23 +119,23 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
     }
 
     public void setGroupsURI(URI groupsURI) {
-        if (getStateInstance() != State.STOPPED)
+        if (running) {
             throw new IllegalStateException("Cannot change the Groups URI after the realm is started");
-
+        }
         this.groupsURI = groupsURI;
     }
 
     public Set getGroupPrincipals() throws GeronimoSecurityException {
-        if (getStateInstance() != State.RUNNING)
+        if (!running) {
             throw new IllegalStateException("Cannot obtain Groups until the realm is started");
-
+        }
         return Collections.unmodifiableSet(groups.keySet());
     }
 
     public Set getGroupPrincipals(RE regexExpression) throws GeronimoSecurityException {
-        if (getStateInstance() != State.RUNNING)
+        if (!running) {
             throw new IllegalStateException("Cannot obtain Groups until the realm is started");
-
+        }
         HashSet result = new HashSet();
         Enumeration enum = groups.keys();
         String group;
@@ -148,16 +151,16 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
     }
 
     public Set getUserPrincipals() throws GeronimoSecurityException {
-        if (getStateInstance() != State.RUNNING)
+        if (!running) {
             throw new IllegalStateException("Cannot obtain Users until the realm is started");
-
+        }
         return Collections.unmodifiableSet(users.keySet());
     }
 
     public Set getUserPrincipals(RE regexExpression) throws GeronimoSecurityException {
-        if (getStateInstance() != State.RUNNING)
+        if (!running) {
             throw new IllegalStateException("Cannot obtain Users until the realm is started");
-
+        }
         HashSet result = new HashSet();
         Enumeration enum = users.keys();
         String user;

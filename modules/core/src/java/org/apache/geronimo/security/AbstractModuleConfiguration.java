@@ -55,37 +55,37 @@
  */
 package org.apache.geronimo.security;
 
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
+import java.util.Collection;
+import java.util.HashSet;
 
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanRegistrationException;
+import javax.management.ObjectName;
 import javax.security.jacc.PolicyConfiguration;
 import javax.security.jacc.PolicyConfigurationFactory;
 import javax.security.jacc.PolicyContextException;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanRegistrationException;
-import java.util.Collection;
-import java.util.HashSet;
+
+import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/18 05:17:17 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/28 19:34:05 $
  */
-public abstract class AbstractModuleConfiguration implements ModuleConfigurationMBean {
+public abstract class AbstractModuleConfiguration implements ModuleConfiguration, GeronimoMBeanTarget {
+
     private String contextId;
     private GeronimoMBeanContext context;
-    private MBeanServer server;
-    private ObjectName objectName;
     private PolicyConfigurationFactory factory;
     private PolicyConfiguration policyConfiguration;
     private boolean configured = false;
     private HashSet roleNames = new HashSet();
 
-    public AbstractModuleConfiguration(String contextId, String objectName) throws GeronimoSecurityException {
+    public AbstractModuleConfiguration(String contextId) throws GeronimoSecurityException {
         this.contextId = contextId;
-        this.objectName = JMXUtil.getObjectName(objectName);
 
         try {
             factory = PolicyConfigurationFactory.getPolicyConfigurationFactory();
@@ -97,20 +97,6 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
         }
     }
 
-    public ObjectName preRegister(MBeanServer mBeanServer, ObjectName objectName) throws Exception {
-        server = mBeanServer;
-
-        return objectName;
-    }
-
-    public void postRegister(Boolean aBoolean) {
-    }
-
-    public void preDeregister() throws Exception {
-    }
-
-    public void postDeregister() {
-    }
 
     public void doStart() {
 
@@ -136,13 +122,6 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
         this.context = context;
     }
 
-    /**
-     * This method returns this MBean's object name.
-     * @return this MBean's object name.
-     */
-    public ObjectName getObjectName() {
-        return objectName;
-    }
 
     /**
      * This method returns this object's policy context identifier.
@@ -183,7 +162,7 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
      * @param principals The set of principals that are to be mapped to to role.
      * @throws GeronimoSecurityException if the mapping principals to the same role twice occurs.
      */
-    public void addRollMapping(String role, Collection principals) throws GeronimoSecurityException {
+    public void addRoleMapping(String role, Collection principals) throws GeronimoSecurityException {
         if (!configured) throw new GeronimoSecurityException("Must call configure() first");
 
         try {
@@ -222,7 +201,7 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
      * the linkConfiguration method signature. The exception thrown by the implementation class will be encapsulated
      * (during construction) in the thrown <code>GeronimoSecurityException</code>.
      */
-    public void linkConfiguration(ModuleConfigurationMBean link) throws GeronimoSecurityException {
+    public void linkConfiguration(ModuleConfiguration link) throws GeronimoSecurityException {
         PolicyConfiguration other;
 
         try {
@@ -256,12 +235,21 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
      * construction) in the thrown <code>GeronimoSecurityException</code>.
      */
     public void delete() throws GeronimoSecurityException {
+
         try {
-            server.unregisterMBean(objectName);
-        } catch (InstanceNotFoundException e) {
-            throw new GeronimoSecurityException("Already deleted", e);
-        } catch (MBeanRegistrationException e) {
-        } finally {
+            if (context != null) {
+                try {
+                    context.stop();
+                } catch (Exception e) {
+                }
+                try {
+                    context.getServer().unregisterMBean(context.getObjectName());
+                } catch (InstanceNotFoundException e) {
+                    throw new GeronimoSecurityException("Already deleted", e);
+                } catch (MBeanRegistrationException e) {
+                }
+            }
+        }finally {
             try {
                 policyConfiguration.delete();
             } catch (PolicyContextException e) {
@@ -314,4 +302,12 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
             throw new GeronimoSecurityException("Unable to obtain inService state", e.getCause());
         }
     }
+
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
+        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
+        //don't set target class: do this in concrete subclasses.
+        mbeanInfo.addOperationsDeclaredIn(ModuleConfiguration.class);
+        return mbeanInfo;
+    }
+
 }

@@ -55,25 +55,19 @@
  */
 package org.apache.geronimo.security;
 
-import org.apache.geronimo.core.service.AbstractManagedComponent;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-
-import javax.management.ObjectName;
-import javax.management.MBeanServer;
+import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
+import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/18 05:17:17 $
- * @jmx:mbean extends="org.apache.geronimo.security.SecurityRealm, org.apache.geronimo.kernel.management.StateManageable"
+ * @version $Revision: 1.3 $ $Date: 2003/12/28 19:34:05 $
  */
-public abstract class AbstractSecurityRealm extends AbstractManagedComponent implements SecurityRealm, AbstractSecurityRealmMBean {
+public abstract class AbstractSecurityRealm  implements SecurityRealm, GeronimoMBeanTarget {
+
     private String realmName;
 
-    public ObjectName preRegister(MBeanServer mBeanServer, ObjectName objectName) throws Exception {
-        if (objectName == null) objectName = JMXUtil.getObjectName("geronimo.security:type=SecurityRealm");
-        return super.preRegister(mBeanServer, objectName);
-    }
+    protected GeronimoMBeanContext context;
 
     public String getRealmName() {
         return realmName;
@@ -81,5 +75,26 @@ public abstract class AbstractSecurityRealm extends AbstractManagedComponent imp
 
     public void setRealmName(String realmName) {
         this.realmName = realmName;
+    }
+
+    public void setMBeanContext(GeronimoMBeanContext context) {
+        this.context = context;
+    }
+
+    public boolean canStart() {
+        return true;
+    }
+
+    public void doStart() {
+    }
+
+    public boolean canStop() {
+        return true;
+    }
+
+    public void doStop() {
+    }
+
+    public void doFail() {
     }
 }

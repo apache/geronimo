@@ -55,30 +55,31 @@
  */
 package org.apache.geronimo.security.providers;
 
-import org.apache.geronimo.security.AbstractSecurityRealm;
-import org.apache.geronimo.security.GeronimoSecurityException;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.regexp.RE;
-
-import javax.security.auth.login.AppConfigurationEntry;
-import java.util.Set;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.sql.DriverManager;
 import java.sql.Connection;
-import java.sql.SQLException;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+import javax.security.auth.login.AppConfigurationEntry;
+
+import org.apache.geronimo.security.AbstractSecurityRealm;
+import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.regexp.RE;
 
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/18 05:17:18 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/28 19:34:05 $
  */
 
 public class SQLSecurityRealm extends AbstractSecurityRealm {
+    private boolean running = false;
     private String connectionURL;
     private String user = "";
     private String password = "";
@@ -89,13 +90,15 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
 
     final static String REALM = "org.apache.geronimo.security.providers.SQLSecurityRealm";
 
-    protected void doStart() throws Exception {
+    public void doStart() {
         if (connectionURL == null) throw  new IllegalStateException("Connection URI not set");
 
         refresh();
+        running = true;
     }
 
-    protected void doStop() throws Exception {
+    public void doStop() {
+        running = false;
         connectionURL = null;
 
         users.clear();
@@ -107,9 +110,9 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
     }
 
     public void setConnectionURL(String connectionURL) {
-        if (getStateInstance() != State.STOPPED)
+        if (running) {
             throw new IllegalStateException("Cannot change the Connection URI after the realm is started");
-
+        }
         this.connectionURL = connectionURL;
     }
 
@@ -118,9 +121,9 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
     }
 
     public void setPassword(String password) {
-        if (getStateInstance() != State.STOPPED)
+        if (running) {
             throw new IllegalStateException("Cannot change the connection password after the realm is started");
-
+        }
         this.password = password;
     }
 
@@ -129,9 +132,9 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
     }
 
     public void setUser(String user) {
-        if (getStateInstance() != State.STOPPED)
+        if (running) {
             throw new IllegalStateException("Cannot change the connection user after the realm is started");
-
+        }
         this.user = user;
     }
 
@@ -140,9 +143,9 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
     }
 
     public void setUserSelect(String userSelect) {
-        if (getStateInstance() != State.STOPPED)
+        if (running) {
             throw new IllegalStateException("Cannot change the user SQL select statement after the realm is started");
-
+        }
         this.userSelect = userSelect;
     }
 
@@ -151,24 +154,24 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
     }
 
     public void setGroupSelect(String groupSelect) {
-        if (getStateInstance() != State.STOPPED)
+        if (running) {
             throw new IllegalStateException("Cannot change the group SQL select statement after the realm is started");
-
+        }
         this.groupSelect = groupSelect;
     }
 
 
     public Set getGroupPrincipals() throws GeronimoSecurityException {
-        if (getStateInstance() != State.RUNNING)
+        if (!running) {
             throw new IllegalStateException("Cannot obtain Groups until the realm is started");
-
+        }
         return Collections.unmodifiableSet(groups.keySet());
     }
 
     public Set getGroupPrincipals(RE regexExpression) throws GeronimoSecurityException {
-        if (getStateInstance() != State.RUNNING)
+        if (!running) {
             throw new IllegalStateException("Cannot obtain Groups until the realm is started");
-
+        }
         HashSet result = new HashSet();
         Iterator iter = groups.keySet().iterator();
         String group;
@@ -184,16 +187,16 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
     }
 
     public Set getUserPrincipals() throws GeronimoSecurityException {
-        if (getStateInstance() != State.RUNNING)
+        if (!running) {
             throw new IllegalStateException("Cannot obtain Users until the realm is started");
-
+        }
         return Collections.unmodifiableSet(users.keySet());
     }
 
     public Set getUserPrincipals(RE regexExpression) throws GeronimoSecurityException {
-        if (getStateInstance() != State.RUNNING)
+        if (!running) {
             throw new IllegalStateException("Cannot obtain Users until the realm is started");
-
+        }
         HashSet result = new HashSet();
         Iterator iter = users.keySet().iterator();
         String user;

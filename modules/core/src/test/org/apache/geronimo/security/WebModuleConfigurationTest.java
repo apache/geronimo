@@ -56,23 +56,21 @@
 
 package org.apache.geronimo.security;
 
-import junit.framework.TestCase;
-
 import java.io.File;
 import java.io.FileReader;
 
+import junit.framework.TestCase;
+import org.apache.geronimo.deployment.model.geronimo.web.GeronimoWebAppDocument;
+import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
 import org.apache.geronimo.xml.deployment.GeronimoWebAppLoader;
 import org.apache.geronimo.xml.deployment.LoaderUtil;
-import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
-import org.apache.geronimo.deployment.model.geronimo.web.GeronimoWebAppDocument;
 import org.w3c.dom.Document;
-import org.apache.geronimo.common.StopWatch;
 
 
 /**
  * Unit test for web module configuration
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/18 05:28:27 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/28 19:34:05 $
  */
 public class WebModuleConfigurationTest extends TestCase {
     private File docDir;
@@ -83,21 +81,20 @@ public class WebModuleConfigurationTest extends TestCase {
     public void setUp() throws Exception {
         System.setProperty("javax.security.jacc.PolicyConfigurationFactory.provider", "org.apache.geronimo.security.GeronimoPolicyConfigurationFactory");
 
-        module = new WebModuleConfiguration("pookie /test");
         docDir = new File("src/test-data/xml/deployment");
         loader = new GeronimoWebAppLoader();
     }
 
     public void testRead() throws Exception {
 
-        assertSame("pookie /test", module.getContextID());
 
         File f = new File(docDir, "geronimo-web-app-testRead.xml");
         Document xmlDoc = LoaderUtil.parseXML(new FileReader(f));
         GeronimoWebAppDocument doc = loader.load(xmlDoc);
         client = doc.getWebApp();
 
-        module.configure(client);
+        module = new WebModuleConfiguration("pookie /test", client);
+        assertSame("pookie /test", module.getContextID());
 
     }
 }

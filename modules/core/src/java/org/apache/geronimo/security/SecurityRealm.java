@@ -64,9 +64,9 @@ import java.util.Set;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/08 06:06:42 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/28 19:34:05 $
  */
-public interface SecurityRealm extends Component {
+public interface SecurityRealm {
 
     public String getRealmName();
 

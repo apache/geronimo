@@ -63,6 +63,9 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.Principal;
 import org.apache.geronimo.deployment.model.ejb.AssemblyDescriptor;
 import org.apache.geronimo.deployment.model.j2ee.SecurityRole;
 import org.apache.geronimo.security.util.ConfigurationUtil;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
+import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
 
 import javax.security.jacc.PolicyConfiguration;
 import java.util.HashSet;
@@ -73,13 +76,13 @@ import java.lang.reflect.InvocationTargetException;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/18 05:36:57 $
- * @jmx:mbean extends="org.apache.geronimo.security.ModuleConfigurationMBean"
+ * @version $Revision: 1.3 $ $Date: 2003/12/28 19:34:05 $
  */
-public class EJBModuleConfiguration extends AbstractModuleConfiguration implements EJBModuleConfigurationMBean {
+public class EJBModuleConfiguration extends AbstractModuleConfiguration {
 
-    public EJBModuleConfiguration(String contextId) throws GeronimoSecurityException {
-        super(contextId, "geronimo.security:type=EjbModuleConfigurationMBean");
+    public EJBModuleConfiguration(String contextId, EjbJar ejbJar) throws GeronimoSecurityException {
+        super(contextId);
+        configure(ejbJar);
     }
 
     /**
@@ -92,9 +95,8 @@ public class EJBModuleConfiguration extends AbstractModuleConfiguration implemen
      * the security descriptor or the state of the module configuration.
      * @see javax.security.jacc.PolicyConfiguration
      * @see "Java Authorization Contract for Containers", section 3.1.3
-     * @jmx:managed-operation
      */
-    public void configure(EjbJar ejbJar) throws GeronimoSecurityException {
+    private void configure(EjbJar ejbJar) throws GeronimoSecurityException {
         PolicyConfiguration configuration = getPolicyConfiguration();
 
         AssemblyDescriptor assemblyDescriptor = ejbJar.getAssemblyDescriptor();
@@ -137,9 +139,20 @@ public class EJBModuleConfiguration extends AbstractModuleConfiguration implemen
                             throw new GeronimoSecurityException(e);
                         }
                     }
-                    super.addRollMapping(role.getRoleName(), set);
+                    super.addRoleMapping(role.getRoleName(), set);
                 }
             }
         }
+    }
+
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
+        GeronimoMBeanInfo mbeanInfo = AbstractModuleConfiguration.getGeronimoMBeanInfo();
+        mbeanInfo.setTargetClass(EJBModuleConfiguration.class);
+        /*mbeanInfo.addOperationInfo(new GeronimoOperationInfo("configure",
+                new GeronimoParameterInfo[] {
+                    new GeronimoParameterInfo("EJBJar", EjbJar.class, "Geronimo POJO ejb jar descriptor")},
+                GeronimoOperationInfo.ACTION,
+                "Translate the EJB deployment descriptors into equivalent security permissions"));  */
+        return mbeanInfo;
     }
 }

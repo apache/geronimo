@@ -55,41 +55,32 @@
  */
 package org.apache.geronimo.security;
 
-import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-
-import javax.security.auth.login.Configuration;
-import javax.security.auth.login.AppConfigurationEntry;
-import javax.security.auth.AuthPermission;
-import javax.management.MBeanServer;
-import javax.management.ObjectInstance;
-import java.util.Iterator;
-import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+
+import javax.security.auth.login.AppConfigurationEntry;
+import javax.security.auth.login.Configuration;
 
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/23 17:26:43 $
+ * @version $Revision: 1.3 $ $Date: 2003/12/28 19:34:05 $
  */
 public class GeronimoLoginConfiguration extends Configuration {
-    private static ThreadLocal mBeanServer = new ThreadLocal();
-    SecurityServiceMBean securityServiceMBean;
+
+    private final SecurityService securityService;
+
+    public GeronimoLoginConfiguration(SecurityService securityService) {
+        this.securityService = securityService;
+    }
 
     public AppConfigurationEntry[] getAppConfigurationEntry(String realm) {
-        MBeanServer server = (MBeanServer)mBeanServer.get();
-        if (server == null) throw new java.lang.IllegalStateException("MBean Server not set");
-
-        SecurityServiceMBean ss = (SecurityServiceMBean) MBeanProxyFactory.getProxy(SecurityServiceMBean.class,
-                                                                                    server,
-                                                                                    JMXUtil.getObjectName("geronimo.security:type=SecurityService"));
 
         ArrayList list = new ArrayList();
-        Iterator iter = ss.getRealms().iterator();
-        while (iter.hasNext()) {
-            ObjectInstance instance = (ObjectInstance) iter.next();
+        for (Iterator iter = securityService.getRealms().iterator(); iter.hasNext();) {
+            SecurityRealm sr = (SecurityRealm) iter.next();
 
-            SecurityRealm sr = (SecurityRealm) MBeanProxyFactory.getProxy(SecurityRealm.class, server, instance.getObjectName());
             if (realm.equals(sr.getRealmName())) {
                 AppConfigurationEntry[] ace = sr.getAppConfigurationEntry();
 
@@ -115,17 +106,4 @@ public class GeronimoLoginConfiguration extends Configuration {
     public void refresh() {
     }
 
-    /**
-     * This sets the MBean server that the GeronimoLoginConfiguration is to use
-     * when generating the AppConfigurationEntries.<p>
-     *
-     * todo This strikes me as kinda kludgy
-     * @param server
-     */
-    public static void setMBeanServer(MBeanServer server) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) sm.checkPermission(new AuthPermission("setLoginConfiguration"));
-
-        mBeanServer.set(server);
-    }
 }

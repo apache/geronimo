@@ -56,22 +56,26 @@
 
 package org.apache.geronimo.security;
 
-import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.RoleMappings;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.Role;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.Realm;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.Principal;
-import org.apache.geronimo.security.util.ConfigurationUtil;
-
-import javax.security.jacc.PolicyConfiguration;
-import java.util.HashSet;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
+
+import javax.security.jacc.PolicyConfiguration;
+
+import org.apache.geronimo.deployment.model.geronimo.j2ee.Principal;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.Realm;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.Role;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.RoleMappings;
+import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
+import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
+import org.apache.geronimo.security.util.ConfigurationUtil;
 
 
 /**
  * This es an MBean wrapper class that performs much of the utility work
- * needed to perform the translattion of the web deployment descriptors
+ * needed to perform the translation of the web deployment descriptors
  * into equivalent security permissions.  These permissions are placed into
  * the appropriate <code>PolicyConfiguration</code> object as defined in the
  * JAAC spec.
@@ -79,15 +83,15 @@ import java.lang.reflect.InvocationTargetException;
  * <p>It is expected that deployment tools will configure modules through
  * these utility MBeans and not directly access the
  * <code>PolicyConfiguration</code> objects.
- * @version $Revision: 1.2 $ $Date: 2003/11/18 05:36:57 $
+ * @version $Revision: 1.3 $ $Date: 2003/12/28 19:34:05 $
  * @see javax.security.jacc.PolicyConfiguration
  * @see "Java Authorization Contract for Containers", section 3.1.3
- * @jmx:mbean extends="org.apache.geronimo.security.ModuleConfigurationMBean"
  */
-public class WebModuleConfiguration extends AbstractModuleConfiguration implements WebModuleConfigurationMBean {
+public class WebModuleConfiguration extends AbstractModuleConfiguration {
 
-    public WebModuleConfiguration(String contextId) throws GeronimoSecurityException {
-        super(contextId, "geronimo.security:type=WebModuleConfigurationMBean");
+    public WebModuleConfiguration(String contextId, WebApp webApp) throws GeronimoSecurityException {
+        super(contextId);
+        configure(webApp);
     }
 
     /**
@@ -100,9 +104,8 @@ public class WebModuleConfiguration extends AbstractModuleConfiguration implemen
      * the security descriptor or the state of the module configuration.
      * @see javax.security.jacc.PolicyConfiguration
      * @see "Java Authorization Contract for Containers", section 3.1.3
-     * @jmx:managed-operation
      */
-    public void configure(WebApp webApp) throws GeronimoSecurityException {
+    private void configure(WebApp webApp) throws GeronimoSecurityException {
 
         PolicyConfiguration configuration = getPolicyConfiguration();
 
@@ -139,9 +142,20 @@ public class WebModuleConfiguration extends AbstractModuleConfiguration implemen
                             throw new GeronimoSecurityException(e);
                         }
                     }
-                    super.addRollMapping(role.getRoleName(), set);
+                    super.addRoleMapping(role.getRoleName(), set);
                 }
             }
         }
+    }
+
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
+        GeronimoMBeanInfo mbeanInfo = AbstractModuleConfiguration.getGeronimoMBeanInfo();
+        mbeanInfo.setTargetClass(WebModuleConfiguration.class);
+        /*mbeanInfo.addOperationInfo(new GeronimoOperationInfo("configure",
+                new GeronimoParameterInfo[] {
+                    new GeronimoParameterInfo("WebApp", WebApp.class, "Geronimo POJO web-app descriptor")},
+                GeronimoOperationInfo.ACTION,
+                "Translate the Web deployment descriptors into equivalent security permissions"));*/
+        return mbeanInfo;
     }
 }
