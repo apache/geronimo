@@ -164,12 +164,10 @@
 
 
     <contributors>
-<!--
       <contributor>
-        <name>John Doe</name>
-        <email>foo@bar.com</email>
+        <name>Ed Letifov</name>
+        <email></email>
       </contributor>
--->
     </contributors>
 
     <dependencies>
