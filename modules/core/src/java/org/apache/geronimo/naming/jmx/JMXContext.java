@@ -77,7 +77,7 @@ import javax.naming.OperationNotSupportedException;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/17 07:33:51 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/18 02:13:09 $
  *
  * */
 public class JMXContext  implements Context  {
@@ -113,7 +113,7 @@ public class JMXContext  implements Context  {
         } catch (MalformedObjectNameException e) {
             throw getNamingException("Bad object name part", e);
         } catch (InstanceNotFoundException e) {
-            throw getNamingException("No such mbean", e);
+            throw getNamingException("No such mbean: "+name, e);
         } catch (MBeanException e) {
             throw getNamingException("MBean problem", e);
         } catch (ReflectionException e) {
