@@ -66,7 +66,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @version $Revision: 1.12 $ $Date: 2004/02/24 18:41:45 $
+ * @version $Revision: 1.13 $ $Date: 2004/02/24 22:36:01 $
  */
 public class GBeanInfoFactory {
 
@@ -91,15 +91,11 @@ public class GBeanInfoFactory {
     }
 
     public GBeanInfoFactory(Class clazz) {
-        if (clazz == null) {
-            throw new IllegalArgumentException("argument is null");
-        }
-        this.name = this.className = clazz.getName();
+        this(((Class) checkNotNull(clazz)).getName(), clazz.getName(), null);
     }
 
     public GBeanInfoFactory(String name, String className) {
-        this.name = name;
-        this.className = className;
+        this(name, className, null);
     }
 
     public GBeanInfoFactory(String className, GBeanInfo source) {
@@ -107,34 +103,50 @@ public class GBeanInfoFactory {
     }
 
     public GBeanInfoFactory(Class clazz, GBeanInfo source) {
-        this(clazz.getName(), clazz.getName(), source);
+        this(((Class) checkNotNull(clazz)).getName(), clazz.getName(), source);
     }
 
     public GBeanInfoFactory(String name, String className, GBeanInfo source) {
-        if (name == null || className == null || source == null) {
-            throw new IllegalArgumentException("null argument(s) supplied");
-        }
+        checkNotNull(name);
+        checkNotNull(className);
+
         this.name = name;
         this.className = className;
-        Set sourceAttrs = source.getAttributes();
-        if (sourceAttrs != null && !sourceAttrs.isEmpty()) {
-            for (Iterator it = sourceAttrs.iterator(); it.hasNext();) {
-                GAttributeInfo gattrInfo = (GAttributeInfo) it.next();
-                attributes.put(gattrInfo.getName(), gattrInfo);
+        if (source != null) {
+            Set sourceAttrs = source.getAttributes();
+            if (sourceAttrs != null && !sourceAttrs.isEmpty()) {
+                for (Iterator it = sourceAttrs.iterator(); it.hasNext();) {
+                    GAttributeInfo gattrInfo = (GAttributeInfo) it.next();
+                    attributes.put(gattrInfo.getName(), gattrInfo);
+                }
             }
-        }
 
-        Set sourceOps = source.getOperations();
-        if (sourceOps != null && !sourceOps.isEmpty()) {
-            for (Iterator it = sourceOps.iterator(); it.hasNext();) {
-                GOperationInfo gopInfo = (GOperationInfo) it.next();
-                operations.put(gopInfo.getName(), gopInfo);
+            Set sourceOps = source.getOperations();
+            if (sourceOps != null && !sourceOps.isEmpty()) {
+                for (Iterator it = sourceOps.iterator(); it.hasNext();) {
+                    GOperationInfo gopInfo = (GOperationInfo) it.next();
+                    operations.put(gopInfo.getName(), gopInfo);
+                }
             }
+            references.addAll(source.getReferences());
+            notifications.addAll(source.getNotifications());
+            //in case subclass constructor has same parameters as superclass.
+            constructor = source.getConstructor();
         }
-        references.addAll(source.getReferences());
-        notifications.addAll(source.getNotifications());
-        //in case subclass constructor has same parameters as superclass.
-        constructor = source.getConstructor();
+    }
+
+    /**
+     * Checks whether or not the input argument is null; otherwise it throws
+     * {@link IllegalArgumentException}.
+     * 
+     * @param obj
+     *            the input argument to validate
+     */
+    private static final Object checkNotNull(final Object obj) {
+        if (obj == null) {
+            throw new IllegalArgumentException("null argument supplied");
+        }
+        return obj;
     }
 
     public void addInterface(Class intf) {

@@ -56,12 +56,13 @@
 package org.apache.geronimo.gbean;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Set;
 
 import junit.framework.TestCase;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/02/24 18:41:45 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/24 22:36:01 $
  */
 public class GBeanInfoFactoryTest extends TestCase {
 
@@ -70,7 +71,15 @@ public class GBeanInfoFactoryTest extends TestCase {
      */
     public void testGBeanInfoFactoryString() {
         assertNotNull(new GBeanInfoFactory(""));
-        assertNotNull(new GBeanInfoFactory((String) null));
+        try {
+            new GBeanInfoFactory((String) null);
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {}
+
+        final String gbeanName = "gbeanName";
+        GBeanInfoFactory gbeanInfoFactory = new GBeanInfoFactory(gbeanName);
+        assertEquals(gbeanName, gbeanInfoFactory.getBeanInfo().getName());
+        assertEquals(gbeanName, gbeanInfoFactory.getBeanInfo().getClassName());
     }
 
     /*
@@ -82,12 +91,38 @@ public class GBeanInfoFactoryTest extends TestCase {
             new GBeanInfoFactory((Class) null);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException expected) {}
+
+        final Class className = String.class;
+        GBeanInfoFactory gbeanInfoFactory = new GBeanInfoFactory(className);
+        assertEquals(className.getName(), gbeanInfoFactory.getBeanInfo().getName());
+        assertEquals(className.getName(), gbeanInfoFactory.getBeanInfo().getClassName());
     }
 
     /*
-     * Class to test for void GBeanInfoFactory(String, String)
+     * test for void GBeanInfoFactory(Class, String)
      */
-    public void testGBeanInfoFactoryStringString() {
+    public void testGBeanInfoFactoryClassString() {
+        try {
+            new GBeanInfoFactory((Class) null, null);
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {}
+    }
+
+    /*
+     * test for void GBeanInfoFactory(Class, GBeanInfo)
+     */
+    public void testGBeanInfoFactoryClassGBeanInfo() {
+        try {
+            new GBeanInfoFactory((Class) null, (GBeanInfo) null);
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {}
+
+        final Class className = String.class;
+        GBeanInfoFactory gbeanInfoFactory = new GBeanInfoFactory(className, MockGBean.getGBeanInfo());
+        assertEquals(className.getName(), gbeanInfoFactory.getBeanInfo().getName());
+        assertEquals(className.getName(), gbeanInfoFactory.getBeanInfo().getClassName());
+        assertTrue(gbeanInfoFactory.getBeanInfo().getAttributes().isEmpty());
+        assertTrue(gbeanInfoFactory.getBeanInfo().getOperations().isEmpty());
     }
 
     /*
@@ -103,11 +138,6 @@ public class GBeanInfoFactoryTest extends TestCase {
                                        GBeanInfoTest.MockGBean.class.getClassLoader()));
         assertNotNull(gbeanInfoFactory);
     }
-
-    /*
-     * void GBeanInfoFactory(String, String, GBeanInfo)
-     */
-    public void testGBeanInfoFactoryStringStringGBeanInfo() {}
 
     /*
      * Class to test for void addInterface(Class)
@@ -153,59 +183,6 @@ public class GBeanInfoFactoryTest extends TestCase {
         assertEquals("setInt", gattrInfo.getSetterName());
     }
 
-    /*
-     * Class to test for void addInterface(Class, String[])
-     */
-    public void testAddInterfaceClassStringArray() {}
-
-    /*
-     * Class to test for void addAttribute(String, boolean)
-     */
-    public void testAddAttributeStringboolean() {}
-
-    /*
-     * Class to test for void addAttribute(GAttributeInfo)
-     */
-    public void testAddAttributeGAttributeInfo() {}
-
-    /*
-     * Class to test for void setConstructor(GConstructorInfo)
-     */
-    public void testSetConstructorGConstructorInfo() {}
-
-    /*
-     * Class to test for void setConstructor(String[], Class[])
-     */
-    public void testSetConstructorStringArrayClassArray() {}
-
-    /*
-     * Class to test for void addOperation(GOperationInfo)
-     */
-    public void testAddOperationGOperationInfo() {}
-
-    /*
-     * Class to test for void addOperation(String, Class[])
-     */
-    public void testAddOperationStringClassArray() {}
-
-    /*
-     * Class to test for void addReference(GReferenceInfo)
-     */
-    public void testAddReferenceGReferenceInfo() {}
-
-    /*
-     * Class to test for void addReference(String, Class)
-     */
-    public void testAddReferenceStringClass() {}
-
-    public void testAddNotification() {}
-
-    public void testGetBeanInfo() {}
-
-    protected void setUp() {}
-
-    protected void tearDown() {}
-
     private static interface SetterOnlyInterface {
 
         public void setInt(int i);
@@ -215,4 +192,27 @@ public class GBeanInfoFactoryTest extends TestCase {
 
         public int getInt();
     }
+
+    final static GNotificationInfo notificationInfo = new GNotificationInfo("notification", Collections.singleton(null));
+
+    final static GReferenceInfo refInfo = new GReferenceInfo("reference", String.class);
+
+    public static final class MockGBean {
+
+        public static final GBeanInfo GBEAN_INFO;
+
+        static {
+            GBeanInfoFactory infoFactory = new GBeanInfoFactory(MockGBean.class);
+            infoFactory.setConstructor(new GConstructorInfo(new String[] { String.class.getName(),
+                    Integer.class.getName()}, new Class[] { String.class, Integer.class}));
+            infoFactory.addNotification(notificationInfo);
+            infoFactory.addReference(refInfo);
+            GBEAN_INFO = infoFactory.getBeanInfo();
+        }
+
+        public static GBeanInfo getGBeanInfo() {
+            return GBEAN_INFO;
+        }
+    }
+
 }
