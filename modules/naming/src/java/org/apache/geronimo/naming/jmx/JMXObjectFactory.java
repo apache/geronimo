@@ -55,7 +55,7 @@ public class JMXObjectFactory implements ObjectFactory {
                 throw new IllegalStateException("Proxy not returned. Target " + jmxRefAddr.getTargetName() + " not started");
             }
             if (!jmxRefAddr.getInterface().isAssignableFrom(proxy.getClass())) {
-                throw new IllegalStateException("Proxy does not implement expected interface " + jmxRefAddr.getInterface());
+                throw new ClassCastException("Proxy does not implement expected interface " + jmxRefAddr.getInterface());
             }
             return proxy;
         }
