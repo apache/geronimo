@@ -71,6 +71,8 @@ import javax.transaction.xa.Xid;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GOperationInfo;
+import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 
 /**
@@ -79,11 +81,11 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
  * are delegated to the wrapped TransactionManager; all other operations are delegated to the
  * wrapped Transaction.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 18:54:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/30 01:32:00 $
  */
 public class TransactionManagerProxy implements TransactionManager, XATerminator {
 
-    private static final GBeanInfo GBEAN_INFO;
+    public static final GBeanInfo GBEAN_INFO;
 
     private final TransactionManager delegate;
     private final ThreadLocal threadTx = new ThreadLocal();
@@ -207,6 +209,13 @@ public class TransactionManagerProxy implements TransactionManager, XATerminator
     //for now we use the default constructor.
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(TransactionManagerProxy.class.getName());
+
+        infoFactory.setConstructor(new GConstructorInfo(
+                new String[] { "Delegate" },
+                new Class[] { TransactionManager.class }));
+
+        infoFactory.addAttribute(new GAttributeInfo("Delegate", true));
+
         infoFactory.addOperation(new GOperationInfo("setTransactionTimeout", new String[] {Integer.TYPE.getName()}));
         infoFactory.addOperation(new GOperationInfo("begin"));
         infoFactory.addOperation(new GOperationInfo("getStatus"));
