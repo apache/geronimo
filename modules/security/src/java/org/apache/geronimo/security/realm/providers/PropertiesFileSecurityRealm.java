@@ -50,8 +50,8 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm implement
     private boolean running = false;
     private URI usersURI;
     private URI groupsURI;
-    private final Properties users = new Properties();
-    private final Properties groups = new Properties();
+    final Properties users = new Properties();
+    final Properties groups = new Properties();
     private String defaultPrincipal;
 
     final static String REALM_INSTANCE = "org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm";
