@@ -75,7 +75,6 @@ import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanBuilder;
-import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
@@ -100,7 +99,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/20 16:57:11 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/20 20:30:22 $
  */
 public class WARConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
@@ -121,14 +120,20 @@ public class WARConfigBuilder implements ConfigurationBuilder {
 
     public XmlObject getDeploymentPlan(URL module) {
         try {
-            XmlObject plan = getPlan(new URL(module, "WEB-INF/geronimo-jetty.xml"), JettyWebAppDocument.type);
+            URL moduleBase;
+            if (module.toString().endsWith("/")) {
+                moduleBase = module;
+            } else {
+                moduleBase = new URL("jar:"+module.toString()+"!/");
+            }
+            XmlObject plan = getPlan(new URL(moduleBase, "WEB-INF/geronimo-jetty.xml"), JettyWebAppDocument.type);
 // todo needs generic web XMLBeans
 //            if (plan == null) {
-//                plan = getPlan(new URL(module, "WEB-INF/geronimo-web.xml"));
+//                plan = getPlan(new URL(moduleBase, "WEB-INF/geronimo-web.xml"));
 //            }
 // todo should be able to deploy a naked WAR
 //            if (plan == null) {
-//                plan = getPlan(new URL(module, "WEB-INF/web.xml"), WebAppDocument.type);
+//                plan = getPlan(new URL(moduleBase, "WEB-INF/web.xml"), WebAppDocument.type);
 //            }
             return plan;
         } catch (MalformedURLException e) {
@@ -297,13 +302,13 @@ public class WARConfigBuilder implements ConfigurationBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ServiceConfigBuilder.class);
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(WARConfigBuilder.class);
         infoFactory.addInterface(ConfigurationBuilder.class);
         infoFactory.addReference(new GReferenceInfo("Repository", Repository.class));
         infoFactory.addReference(new GReferenceInfo("Kernel", Kernel.class));
         infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"Repository", "Kernel"},
-                new Class[]{Repository.class, Kernel.class}
+                new String[]{"Kernel", "Repository"},
+                new Class[]{Kernel.class, Repository.class}
         ));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
