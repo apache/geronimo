@@ -69,7 +69,9 @@ import org.apache.geronimo.kernel.registry.GBeanRegistry;
  * The Kernel also provides a ConfigurationStore which is used to stage
  * installed Configurations (providing a local filesystem based classpath) and
  * used hold the persistent state of each Configuration. This allows
- * Configurations to restart in he event of system failure.
+ * Configurations to restart in the event of system failure.
+ * 
+ * TODO: Describe the order of method invocation (e.g. if loadGbean may be before boot)
  *
  * @version $Rev$ $Date$
  */

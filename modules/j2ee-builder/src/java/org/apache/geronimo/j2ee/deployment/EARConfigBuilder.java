@@ -415,28 +415,28 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 if (moduleXml.isSetEjb()) {
                     modulePath = moduleXml.getEjb().getStringValue();
                     if (ejbConfigBuilder == null) {
-                        throw new DeploymentException("Can not deploy ejb application; No ejb deployer defined: " + modulePath);
+                        throw new DeploymentException("Cannot deploy ejb application; No ejb deployer defined: " + modulePath);
                     }
                     builder = ejbConfigBuilder;
                     moduleTypeName = "an EJB";
                 } else if (moduleXml.isSetWeb()) {
                     modulePath = moduleXml.getWeb().getWebUri().getStringValue();
                     if (webConfigBuilder == null) {
-                        throw new DeploymentException("Can not deploy web application; No war deployer defined: " + modulePath);
+                        throw new DeploymentException("Cannot deploy web application; No war deployer defined: " + modulePath);
                     }
                     builder = webConfigBuilder;
                     moduleTypeName = "a war";
                 } else if (moduleXml.isSetConnector()) {
                     modulePath = moduleXml.getConnector().getStringValue();
                     if (connectorConfigBuilder == null) {
-                        throw new DeploymentException("Can not deploy resource adapter; No rar deployer defined: " + modulePath);
+                        throw new DeploymentException("Cannot deploy resource adapter; No rar deployer defined: " + modulePath);
                     }
                     builder = connectorConfigBuilder;
                     moduleTypeName = "a connector";
                 } else if (moduleXml.isSetJava()) {
                     modulePath = moduleXml.getJava().getStringValue();
                     if (appClientConfigBuilder == null) {
-                        throw new DeploymentException("Can not deploy app client; No app client deployer defined: " + modulePath);
+                        throw new DeploymentException("Cannot deploy app client; No app client deployer defined: " + modulePath);
                     }
                     builder = appClientConfigBuilder;
                     moduleTypeName = "an application client";
@@ -492,22 +492,22 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private ModuleBuilder getBuilder(Module module) throws DeploymentException {
         if (module instanceof EJBModule) {
             if (ejbConfigBuilder == null) {
-                throw new DeploymentException("Can not deploy ejb application; No ejb deployer defined: " + module.getModuleURI());
+                throw new DeploymentException("Cannot deploy ejb application; No ejb deployer defined: " + module.getModuleURI());
             }
             return ejbConfigBuilder;
         } else if (module instanceof WebModule) {
             if (webConfigBuilder == null) {
-                throw new DeploymentException("Can not deploy web application; No war deployer defined: " + module.getModuleURI());
+                throw new DeploymentException("Cannot deploy web application; No war deployer defined: " + module.getModuleURI());
             }
             return webConfigBuilder;
         } else if (module instanceof ConnectorModule) {
             if (connectorConfigBuilder == null) {
-                throw new DeploymentException("Can not deploy resource adapter; No rar deployer defined: " + module.getModuleURI());
+                throw new DeploymentException("Cannot deploy resource adapter; No rar deployer defined: " + module.getModuleURI());
             }
             return connectorConfigBuilder;
         } else if (module instanceof AppClientModule) {
             if (appClientConfigBuilder == null) {
-                throw new DeploymentException("Can not deploy app client; No app client deployer defined: " + module.getModuleURI());
+                throw new DeploymentException("Cannot deploy app client; No app client deployer defined: " + module.getModuleURI());
             }
             return appClientConfigBuilder;
         }

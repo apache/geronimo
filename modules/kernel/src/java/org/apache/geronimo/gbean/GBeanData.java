@@ -29,7 +29,7 @@ import java.util.Set;
 import javax.management.ObjectName;
 
 /**
- * @version $Rev: $ $Date: $
+ * @version $Rev$ $Date$
  */
 public class GBeanData implements Externalizable {
     private ObjectName name;
