@@ -24,7 +24,7 @@ type:
 	
         $> cd modules/assembly
         $> maven
-        $> cd modules/assembly/target/geronimo-1.0-SNAPSHOT
+        $> cd target/geronimo-1.0-SNAPSHOT
         $> java -jar bin/server.jar org/apache/geronimo/Server
 
 To stop the server use ctrl-C or an equivalent; a proper shutdown
