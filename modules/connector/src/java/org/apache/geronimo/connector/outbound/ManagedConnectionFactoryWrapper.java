@@ -41,6 +41,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.geronimo.GeronimoContextManager;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.apache.geronimo.transaction.manager.ResourceManager;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -291,7 +292,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ManagedConnectionFactoryWrapper.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ManagedConnectionFactoryWrapper.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
 
         infoFactory.addAttribute("managedConnectionFactoryClass", String.class, true);
         infoFactory.addAttribute("connectionFactoryInterface", String.class, true);

@@ -27,6 +27,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -163,7 +164,7 @@ public abstract class AbstractConnectionManager implements ConnectionManagerFact
 
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(AbstractConnectionManager.class);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(AbstractConnectionManager.class, NameFactory.JCA_CONNECTION_MANAGER);
 
         infoBuilder.addInterface(ConnectionManagerFactory.class);
         //these attributes are persisted via the pooling state.

@@ -49,6 +49,12 @@
         </dependency>
 
         <dependency>
+             <groupId>geronimo</groupId>
+             <artifactId>geronimo-j2ee</artifactId>
+             <version>${pom.currentVersion}</version>
+         </dependency>
+
+        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-naming</artifactId>
             <version>${pom.currentVersion}</version>
@@ -71,7 +77,7 @@
             <artifactId>geronimo-spec-jta</artifactId>
             <version>${geronimo_spec_jta_version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-connector</artifactId>

@@ -573,7 +573,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(AppClientModuleBuilder.class);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(AppClientModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultClientParentId", URI.class, true);
         infoBuilder.addAttribute("defaultServerParentId", URI.class, true);
         infoBuilder.addAttribute("transactionContextManagerObjectName", ObjectName.class, true);

@@ -74,9 +74,10 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.naming.reference.ResourceReference;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
+import org.apache.geronimo.naming.reference.ResourceReference;
 import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.security.bridge.AbstractRealmBridge;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
 import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
@@ -104,7 +105,6 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev$ $Date$
  */
 public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceBuilder {
-    private static final String BASE_REALM_BRIDGE_NAME = "geronimo.security:service=RealmBridge,name=";
     private static final String BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME = "geronimo.security:service=Realm,type=PasswordCredential,name=";
 
     private final int defaultMaxSize;
@@ -695,7 +695,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             connectionManagerGBean.setAttribute("pooling", pooling);
             connectionManagerGBean.setReferencePattern("ConnectionTracker", earContext.getConnectionTrackerObjectName());
             if (connectionManager.getRealmBridge() != null) {
-                connectionManagerGBean.setReferencePattern("RealmBridge", ObjectName.getInstance(BASE_REALM_BRIDGE_NAME + connectionManager.getRealmBridge()));
+                ObjectName realmBridgeName = NameFactory.getComponentName(null, null, null, null, connectionManager.getRealmBridge().trim(), AbstractRealmBridge.GBEAN_INFO.getJ2eeType(), j2eeContext);
+                connectionManagerGBean.setReferencePattern("RealmBridge", realmBridgeName);
             }
             connectionManagerGBean.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
         } catch (Exception e) {
@@ -830,7 +831,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ConnectorModuleBuilder.class);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ConnectorModuleBuilder.class, NameFactory.MODULE_BUILDER);
 
         infoBuilder.addAttribute("defaultParentId", URI.class, true);
         infoBuilder.addAttribute("defaultMaxSize", int.class, true);

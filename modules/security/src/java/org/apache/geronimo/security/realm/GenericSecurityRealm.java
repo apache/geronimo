@@ -39,6 +39,7 @@ import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
 import org.apache.geronimo.security.jaas.LoginModuleControlFlagEditor;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 
 /**
@@ -219,7 +220,7 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(GenericSecurityRealm.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(GenericSecurityRealm.class, NameFactory.SECURITY_REALM);
 
         infoFactory.addInterface(SecurityRealm.class);
         infoFactory.addInterface(ConfigurationEntryFactory.class);

@@ -144,7 +144,7 @@ public class JaasLoginServiceRemotingServer implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JaasLoginServiceRemotingServer.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JaasLoginServiceRemotingServer.class); //has fixed name, j2eeType is irrelevant
         infoFactory.addAttribute("bindURI", URI.class, true);
         infoFactory.addAttribute("clientConnectURI", URI.class, false);        
         infoFactory.addReference("loginService", JaasLoginServiceMBean.class);

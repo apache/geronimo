@@ -68,6 +68,8 @@ import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
@@ -221,7 +223,8 @@ public class ConnectorModuleBuilderTest extends TestCase {
     private void executeTestBuildModule(InstallAction action, boolean is15) throws Exception {
         J2eeContext j2eeContext = new J2eeContextImpl("test", "bar", "null", "org/apache/geronimo/j2ee/deployment/test", null, null);
         String resourceAdapterName = "testRA";
-        ObjectName connectionTrackerName = new ObjectName("geronimo.connector:service=ConnectionTracker");
+        ObjectName connectionTrackerName = NameFactory.getComponentName(null, null, null, null, "ConnectionTracker", ConnectionTrackingCoordinator.GBEAN_INFO.getJ2eeType(), j2eeContext); 
+                //new ObjectName("test:J2EEServer=bar,J2EEModule=org/apache/geronimo/j2ee/deployment/test,service=ConnectionTracker");
 
         Kernel kernel = new Kernel("foo", new BasicGBeanRegistry());
         try {
@@ -548,7 +551,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
         private static final byte[] NO_OBJECTS_OS;
 
         static {
-            GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(MockConfigStore.class);
+            GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(MockConfigStore.class, NameFactory.CONFIGURATION_STORE);
             infoBuilder.addInterface(ConfigurationStore.class);
             GBEAN_INFO = infoBuilder.getBeanInfo();
 

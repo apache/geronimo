@@ -28,6 +28,7 @@ import org.apache.geronimo.j2ee.management.J2EEApplication;
 import org.apache.geronimo.j2ee.management.J2EEServer;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.j2ee.management.impl.Util;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
@@ -145,7 +146,7 @@ public class ResourceAdapterModuleImpl {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ResourceAdapterModuleImpl.class);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ResourceAdapterModuleImpl.class, NameFactory.RESOURCE_ADAPTER_MODULE);
         infoBuilder.addReference("J2EEServer", J2EEServer.class);
         infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
 

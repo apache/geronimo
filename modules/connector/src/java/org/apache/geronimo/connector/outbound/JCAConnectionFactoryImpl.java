@@ -23,6 +23,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.management.J2EEServer;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
@@ -78,7 +79,7 @@ public class JCAConnectionFactoryImpl {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JCAConnectionFactoryImpl.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JCAConnectionFactoryImpl.class, NameFactory.JCA_CONNECTION_FACTORY);
         infoFactory.addReference("J2EEServer", J2EEServer.class);
 
         infoFactory.addAttribute("objectName", String.class, false);

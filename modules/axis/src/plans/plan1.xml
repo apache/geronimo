@@ -12,11 +12,11 @@
     <!-- Use the default deployer -->
     <gbean name="geronimo.deployer:role=Builder,type=EAR,config=org/apache/geronimo/Server" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
-        <attribute name="j2eeServer" type="javax.management.ObjectName">geronimo.server:j2eeType=J2EEServer,name=geronimo</attribute>
-        <attribute name="transactionContextManagerObjectName" type="javax.management.ObjectName">geronimo.server:type=TransactionContextManager</attribute>
-        <attribute name="connectionTrackerObjectName" type="javax.management.ObjectName">geronimo.server:type=ConnectionTracker</attribute>
-        <attribute name="transactionalTimerObjectName" type="javax.management.ObjectName">geronimo.server:type=ThreadPooledTimer,name=TransactionalThreadPooledTimer</attribute>
-        <attribute name="nonTransactionalTimerObjectName" type="javax.management.ObjectName">geronimo.server:type=ThreadPooledTimer,name=NonTransactionalThreadPooledTimer</attribute>
+        <attribute name="j2eeServer">geronimo.server:j2eeType=J2EEServer,name=geronimo</attribute>
+        <attribute name="transactionContextManagerObjectName">geronimo.server:type=TransactionContextManager</attribute>
+        <attribute name="connectionTrackerObjectName">geronimo.server:type=ConnectionTracker</attribute>
+        <attribute name="transactionalTimerObjectName">geronimo.server:type=ThreadPooledTimer,name=TransactionalThreadPooledTimer</attribute>
+        <attribute name="nonTransactionalTimerObjectName">geronimo.server:type=ThreadPooledTimer,name=NonTransactionalThreadPooledTimer</attribute>
         <reference name="Repository">*:role=Repository,*</reference>
         <reference name="EJBConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/Server</reference>
         <reference name="EJBReferenceBuilder">geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/Server</reference>

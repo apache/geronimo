@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.mortbay.jetty.servlet.FilterHolder;
 import org.mortbay.jetty.servlet.WebApplicationHandler;
 
@@ -48,7 +49,7 @@ public class JettyFilterHolder extends FilterHolder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JettyFilterHolder.class);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JettyFilterHolder.class, NameFactory.WEB_FILTER);
         infoBuilder.addAttribute("filterName", String.class, true);
         infoBuilder.addAttribute("filterClass", String.class, true);
         infoBuilder.addAttribute("initParams", Map.class, true);

@@ -20,6 +20,7 @@ import java.util.Properties;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 
 /**
@@ -68,7 +69,7 @@ public class ServerRealmConfigurationEntry implements ConfigurationEntryFactory 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ServerRealmConfigurationEntry.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ServerRealmConfigurationEntry.class, NameFactory.CONFIGURATION_ENTRY);
         infoFactory.addInterface(ConfigurationEntryFactory.class);
         infoFactory.addAttribute("applicationConfigName", String.class, true);
         infoFactory.addAttribute("realmName", String.class, true);

@@ -21,6 +21,7 @@ import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * Wrapper around AdminObject that exposes its config-properties as GBeanAttributes and
@@ -124,7 +125,7 @@ public class AdminObjectWrapper implements DynamicGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(AdminObjectWrapper.class);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(AdminObjectWrapper.class, NameFactory.JCA_ADMIN_OBJECT);
         infoBuilder.addAttribute("adminObjectInterface", String.class, true);
         infoBuilder.addAttribute("adminObjectClass", String.class, true);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);

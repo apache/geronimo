@@ -107,7 +107,7 @@ by the server.
 
 
     <!-- Default security realm using properties files -->
-    <gbean namePart="properties-login" type="LoginModule"
+    <gbean namePart="properties-login"
         class="org.apache.geronimo.security.jaas.LoginModuleGBean">
         <attribute name="loginModuleClass">org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</attribute>
         <attribute name="serverSide">true</attribute>
@@ -115,10 +115,10 @@ by the server.
             usersURI=var/security/users.properties
             groupsURI=var/security/groups.properties
         </attribute>
-        <attribute name="loginDomainName" type="java.lang.String">geronimo-properties-realm</attribute>
+        <attribute name="loginDomainName">geronimo-properties-realm</attribute>
     </gbean>
 
-    <gbean namePart="geronimo-properties-realm" type="SecurityRealm"
+    <gbean namePart="geronimo-properties-realm"
         class="org.apache.geronimo.security.realm.GenericSecurityRealm">
         <attribute name="realmName">geronimo-properties-realm</attribute>
         <attribute name="loginModuleConfiguration">
@@ -127,7 +127,7 @@ by the server.
         <reference name="ServerInfo">geronimo.server:name=ServerInfo,*</reference>
     </gbean>
 
-    <gbean namePart="JMX" type="ConfigurationEntry"
+    <gbean namePart="JMX"
         class="org.apache.geronimo.security.jaas.ServerRealmConfigurationEntry">
         <attribute name="applicationConfigName">JMX</attribute>
         <attribute name="realmName">geronimo-properties-realm</attribute>
@@ -147,7 +147,7 @@ by the server.
 
     <gbean namePart="JaasLoginService" class="org.apache.geronimo.security.jaas.JaasLoginService">
         <reference name="Realms">geronimo.server:j2eeType=SecurityRealm,*</reference>
-        <!--        <attribute name="reclaimPeriod" type="long">100000</attribute>-->
+        <!--        <attribute name="reclaimPeriod">100000</attribute>-->
         <attribute name="algorithm">HmacSHA1</attribute>
         <attribute name="password">secret</attribute>
     </gbean>
@@ -161,7 +161,7 @@ by the server.
     <gbean namePart="ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
     </gbean>
 
-    <gbean namePart="DefaultWorkManager" type="JCAWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManager">
+    <gbean namePart="DefaultWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManager">
         <attribute name="syncMaximumPoolSize">10</attribute>
         <attribute name="startMaximumPoolSize">10</attribute>
         <attribute name="scheduledMaximumPoolSize">10</attribute>
@@ -213,8 +213,8 @@ by the server.
     <gbean namePart="JettyWebConnector" class="org.apache.geronimo.jetty.connector.HTTPConnector">
         <attribute name="port">8080</attribute>
         <reference name="JettyContainer">geronimo.server:name=JettyWebContainer,*</reference>
-        <!--        <attribute name="MaxConnections" type="int">10</attribute>-->
-        <!--        <attribute name="MaxIdleTime" type="int">10</attribute>-->
+        <!--        <attribute name="MaxConnections">10</attribute>-->
+        <!--        <attribute name="MaxIdleTime">10</attribute>-->
     </gbean>
 
     <!-- EJB Protocol -->
@@ -272,7 +272,7 @@ by the server.
     <gbean name="geronimo.server:j2eeType=JVM,J2EEServer=geronimo" class="org.apache.geronimo.j2ee.management.impl.JVMImpl"/>
 
     <!-- JMX Remoting -->
-    <gbean namePart="localhost" type="JMXService" class="org.apache.geronimo.jmxremoting.JMXConnector">
+    <gbean namePart="JMXService" class="org.apache.geronimo.jmxremoting.JMXConnector">
         <attribute name="URL">service:jmx:rmi://localhost/jndi/rmi:/JMXConnector</attribute>
         <attribute name="applicationConfigName">JMX</attribute>
     </gbean>

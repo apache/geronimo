@@ -319,7 +319,7 @@ public class JettyModuleBuilderTest extends TestCase {
         private static final byte[] NO_OBJECTS_OS;
 
         static {
-            GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(MockConfigStore.class);
+            GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(MockConfigStore.class, NameFactory.CONFIGURATION_STORE);
             infoBuilder.addInterface(ConfigurationStore.class);
             GBEAN_INFO = infoBuilder.getBeanInfo();
 

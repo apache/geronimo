@@ -354,8 +354,10 @@ public class Deployer {
 */
     public static final GBeanInfo GBEAN_INFO;
 
+    private static final String DEPLOYER = "Deployer";
+
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(Deployer.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(Deployer.class, DEPLOYER);
 
 //        infoFactory.addOperation("deploy", new Class[]{String[].class});
         infoFactory.addOperation("deploy", new Class[]{File.class, File.class});

@@ -28,6 +28,7 @@ import javax.servlet.UnavailableException;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.jetty.servlet.ServletHttpRequest;
 
@@ -105,7 +106,7 @@ public class JettyServletHolder extends ServletHolder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JettyServletHolder.class);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JettyServletHolder.class, NameFactory.SERVLET);
         //todo replace with interface
         infoBuilder.addInterface(ServletHolder.class);
         

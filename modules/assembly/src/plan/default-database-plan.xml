@@ -66,13 +66,13 @@
     </resourceadapter>
 
     <!--gbean name="geronimo.security:service=RealmBridge,name=TargetRealm" class="org.apache.geronimo.security.bridge.ConfiguredIdentityUserPasswordRealmBridge">
-        <attribute name="TargetRealm" type="java.lang.String">TargetRealm</attribute>
-        <attribute name="ConfiguredUser" type="java.lang.String">testUser</attribute>
-        <attribute name="ConfiguredPassword" type="java.lang.String">testPassword</attribute>
+        <attribute name="TargetRealm">TargetRealm</attribute>
+        <attribute name="ConfiguredUser">testUser</attribute>
+        <attribute name="ConfiguredPassword">testPassword</attribute>
     </gbean-->
 
     <gbean namePart="JDBCTransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledTransactionalTimer">
-        <attribute name="repeatCount" type="int">5</attribute>
+        <attribute name="repeatCount">5</attribute>
         <reference name="TransactionContextManager">geronimo.server:type=TransactionContextManager</reference>
         <reference name="ManagedConnectionFactoryWrapper">geronimo.server:J2EEServer=geronimo,j2eeType=JCAManagedConnectionFactory,name=DefaultDatasource</reference>
         <reference name="ThreadPool">geronimo.server:type=ThreadPool,name=DefaultThreadPool</reference>

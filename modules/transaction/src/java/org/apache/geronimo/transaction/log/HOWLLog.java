@@ -38,6 +38,7 @@ import org.apache.geronimo.transaction.manager.TransactionBranchInfo;
 import org.apache.geronimo.transaction.manager.TransactionBranchInfoImpl;
 import org.apache.geronimo.transaction.manager.TransactionLog;
 import org.apache.geronimo.transaction.manager.XidFactory;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.objectweb.howl.log.Configuration;
 import org.objectweb.howl.log.LogClosedException;
 import org.objectweb.howl.log.LogConfigurationException;
@@ -392,7 +393,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(HOWLLog.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(HOWLLog.class, NameFactory.JTA_RESOURCE);
         infoFactory.addAttribute("bufferClassName", String.class, true);
         infoFactory.addAttribute("bufferSizeKBytes", Integer.TYPE, true);
         infoFactory.addAttribute("checksumEnabled", Boolean.TYPE, true);

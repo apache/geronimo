@@ -151,7 +151,7 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
     private static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(GeronimoLoginConfiguration.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(GeronimoLoginConfiguration.class); //just a gbean
         infoFactory.addReference("Configurations", ConfigurationEntryFactory.class);
 
         GBEAN_INFO = infoFactory.getBeanInfo();

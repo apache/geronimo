@@ -44,6 +44,7 @@ import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.transaction.ExtendedTransactionManager;
 import org.apache.geronimo.transaction.log.UnrecoverableLog;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * Simple implementation of a transaction manager.
@@ -288,7 +289,7 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(TransactionManagerImpl.class);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(TransactionManagerImpl.class, NameFactory.JTA_RESOURCE);
 
         infoBuilder.addAttribute("defaultTransactionTimeoutSeconds", int.class, true);
         infoBuilder.addReference("TransactionLog", TransactionLog.class);

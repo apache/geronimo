@@ -185,7 +185,7 @@ public class FileConfigurationList implements GBeanLifecycle, PersistentConfigur
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(FileConfigurationList.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(FileConfigurationList.class, "PersistentConfigurationList");
         infoFactory.addInterface(PersistentConfigurationList.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("kernelFullyStarted", boolean.class, false);

@@ -1033,7 +1033,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JettyModuleBuilder.class);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JettyModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultParentId", URI.class, true);
         infoBuilder.addAttribute("defaultSessionTimeoutSeconds", Integer.class, true);
         infoBuilder.addAttribute("defaultWelcomeFiles", List.class, true);

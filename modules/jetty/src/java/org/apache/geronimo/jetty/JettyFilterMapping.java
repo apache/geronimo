@@ -20,6 +20,7 @@ import java.io.Serializable;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.mortbay.jetty.servlet.WebApplicationHandler;
 import org.mortbay.jetty.servlet.FilterHolder;
 
@@ -137,7 +138,7 @@ public class JettyFilterMapping implements Serializable {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JettyFilterMapping.class);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JettyFilterMapping.class, NameFactory.WEB_FILTER_MAPPING);
         infoBuilder.addAttribute("urlPattern", String.class, true);
         infoBuilder.addAttribute("requestDispatch", boolean.class, true);
         infoBuilder.addAttribute("forwardDispatch", boolean.class, true);

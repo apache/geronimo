@@ -79,13 +79,13 @@
     </resourceadapter>
 
     <!--normally this is in the j2ee-server-plan.xml.  It is included here so the gbeans can start in unit tests-->
-    <gbean name="geronimo.connector:service=ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
+    <gbean namePart="ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
     </gbean>
 
-    <gbean name="geronimo.security:service=RealmBridge,name=TargetRealm" class="org.apache.geronimo.security.bridge.ConfiguredIdentityUserPasswordRealmBridge">
-        <attribute name="targetRealm" type="java.lang.String">TargetRealm</attribute>
-        <attribute name="configuredUser" type="java.lang.String">testUser</attribute>
-        <attribute name="configuredPassword" type="java.lang.String">testPassword</attribute>
+    <gbean namePart="TargetRealm" class="org.apache.geronimo.security.bridge.ConfiguredIdentityUserPasswordRealmBridge">
+        <attribute name="targetRealm">TargetRealm</attribute>
+        <attribute name="configuredUser">testUser</attribute>
+        <attribute name="configuredPassword">testPassword</attribute>
     </gbean>
 
 </connector>

@@ -384,7 +384,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(LocalConfigStore.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(LocalConfigStore.class, "ConfigurationStore"); //NameFactory.CONFIGURATION_STORE
 
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("objectName", String.class, false);

@@ -178,7 +178,14 @@ public class ENCConfigBuilder {
                     throw  new DeploymentException("Could not bind " + name, e);
                 }
             } else {
-                String containerId = getResourceContainerId(name, uri, gerResourceRef, refContext, j2eeContext);
+                //determine jsr-77 type from interface
+                String j2eeType;
+                if ("javax.mail.Session".equals(type)) {
+                    j2eeType = NameFactory.JAVA_MAIL_RESOURCE;
+                } else {
+                    j2eeType = NameFactory.JCA_MANAGED_CONNECTION_FACTORY;
+                }
+                String containerId = getResourceContainerId(name, j2eeType, uri, gerResourceRef, refContext, j2eeContext);
 
                 ref = refContext.getConnectionFactoryRef(containerId, iface);
                 try {
@@ -191,14 +198,14 @@ public class ENCConfigBuilder {
 
     }
 
-    private static String getResourceContainerId(String name, URI uri, GerResourceRefType gerResourceRef, RefContext refContext, J2eeContext j2eeContext) throws DeploymentException {
+    private static String getResourceContainerId(String name, String type, URI uri, GerResourceRefType gerResourceRef, RefContext refContext, J2eeContext j2eeContext) throws DeploymentException {
         String containerId = null;
         if (gerResourceRef == null) {
             //try to resolve ref based only matching resource-ref-name
             //throws exception if it can't locate ref.
-            containerId = refContext.getConnectionFactoryContainerId(uri, name, j2eeContext);
+            containerId = refContext.getConnectionFactoryContainerId(uri, name, type, j2eeContext);
         } else if (gerResourceRef.isSetResourceLink()) {
-            containerId = refContext.getConnectionFactoryContainerId(uri, getStringValue(gerResourceRef.getResourceLink()), j2eeContext);
+            containerId = refContext.getConnectionFactoryContainerId(uri, getStringValue(gerResourceRef.getResourceLink()), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
         } else if (gerResourceRef.isSetTargetName()) {
             containerId = getStringValue(gerResourceRef.getTargetName());
         } else {
@@ -210,7 +217,7 @@ public class ENCConfigBuilder {
                         getStringValue(gerResourceRef.getModule()),
                         getStringValue(gerResourceRef.getName()),
                         //todo determine type from iface class
-                        gerResourceRef.getType() == null ? NameFactory.JCA_MANAGED_CONNECTION_FACTORY : gerResourceRef.getType().trim(),
+                        gerResourceRef.getType() == null ? type : gerResourceRef.getType().trim(),
                         j2eeContext);
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException("could not construct object name for resource", e);
@@ -545,9 +552,11 @@ public class ENCConfigBuilder {
         for (int i = 0; i < resourceRefs.length; i++) {
             ResourceRefType resourceRefType = resourceRefs[i];
 
-            if (!URL.class.getName().equals(resourceRefType.getResType().getStringValue().trim())) {
+            String type = resourceRefType.getResType().getStringValue().trim();
+            if (!URL.class.getName().equals(type)
+                    && !"javax.mail.Session".equals(type)) {
                 GerResourceRefType gerResourceRef = (GerResourceRefType) refMap.get(resourceRefType.getResRefName().getStringValue());
-                String containerId = getResourceContainerId(getStringValue(resourceRefType.getResRefName()), uri, gerResourceRef, refContext, j2eeContext);
+                String containerId = getResourceContainerId(getStringValue(resourceRefType.getResRefName()), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, uri, gerResourceRef, refContext, j2eeContext);
                 if ("Unshareable".equals(getStringValue(resourceRefType.getResSharingScope()))) {
                     unshareableResources.add(containerId);
                 }

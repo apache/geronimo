@@ -38,6 +38,7 @@ import org.apache.geronimo.transaction.ImportedTransactionActiveException;
 import org.apache.geronimo.transaction.XAWork;
 import org.apache.geronimo.transaction.manager.Recovery;
 import org.apache.geronimo.transaction.manager.XidImporter;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -280,7 +281,7 @@ public class TransactionContextManager implements XATerminator, XAWork {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(TransactionContextManager.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(TransactionContextManager.class, NameFactory.JTA_RESOURCE);
 
         infoFactory.addOperation("getTransactionManager");
         infoFactory.addOperation("getContext");

@@ -40,14 +40,14 @@ specific services - those should be provided by children.
     <gbean namePart="URLFactory" class="org.apache.geronimo.system.url.GeronimoURLFactory"/>
 
     <!-- Configuration Store service -->
-    <gbean namePart="Local" type="ConfigurationStore" class="org.apache.geronimo.system.configuration.LocalConfigStore">
-        <attribute name="root" type="java.net.URI">config-store</attribute>
+    <gbean namePart="Local" class="org.apache.geronimo.system.configuration.LocalConfigStore">
+        <attribute name="root">config-store</attribute>
         <reference name="ServerInfo">*:name=ServerInfo,*</reference>
     </gbean>
 
     <!-- Repository -->
     <gbean namePart="Repository" class="org.apache.geronimo.system.repository.ReadOnlyRepository">
-        <attribute name="root" type="java.net.URI">repository/</attribute>
+        <attribute name="root">repository/</attribute>
         <reference name="ServerInfo">*:name=ServerInfo,*</reference>
     </gbean>
 
@@ -60,9 +60,9 @@ specific services - those should be provided by children.
 
     <!-- Naming properties -->
     <gbean namePart="NamingProperties" class="org.apache.geronimo.system.properties.NamingProperties">
-        <attribute name="namingFactoryInitial" type="java.lang.String">com.sun.jndi.rmi.registry.RegistryContextFactory</attribute>
-        <attribute name="namingFactoryUrlPkgs" type="java.lang.String">org.apache.geronimo.naming</attribute>
-        <attribute name="namingProviderUrl" type="java.lang.String">rmi://localhost:1099</attribute>
+        <attribute name="namingFactoryInitial">com.sun.jndi.rmi.registry.RegistryContextFactory</attribute>
+        <attribute name="namingFactoryUrlPkgs">org.apache.geronimo.naming</attribute>
+        <attribute name="namingProviderUrl">rmi://localhost:1099</attribute>
     </gbean>
 
 </configuration>

@@ -19,6 +19,7 @@ package org.apache.geronimo.security.jaas;
 import java.util.Properties;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * A GBean that wraps a LoginModule, plus options to configure the LoginModule.
@@ -76,7 +77,7 @@ public class LoginModuleGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(LoginModuleGBean.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(LoginModuleGBean.class, NameFactory.LOGIN_MODULE);
         infoFactory.addAttribute("options", Properties.class, true);
         infoFactory.addAttribute("loginModuleClass", String.class, true);
         infoFactory.addAttribute("objectName", String.class, false);

@@ -22,6 +22,7 @@ import java.net.UnknownHostException;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  *
@@ -94,7 +95,7 @@ public class JVMImpl {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JVMImpl.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JVMImpl.class, NameFactory.JVM);
 
         infoFactory.addAttribute("javaVersion", String.class, false);
         infoFactory.addAttribute("javaVendor", String.class, false);

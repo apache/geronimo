@@ -1,6 +1,6 @@
 <gbeans>
     <gbean class="org.apache.geronimo.deployment.MockGBean" objectName="geronimo.test:name=MyMockGMBean">
-        <default attribute="Value" type="java.lang.String">1234</default>
-        <default attribute="IntValue" type="int">1234</default>
+        <default attribute="Value">1234</default>
+        <default attribute="IntValue">1234</default>
     </gbean>
 </gbeans>

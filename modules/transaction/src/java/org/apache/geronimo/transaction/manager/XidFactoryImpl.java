@@ -24,6 +24,7 @@ import javax.transaction.xa.Xid;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * Factory for transaction ids.
@@ -115,7 +116,7 @@ public class XidFactoryImpl implements XidFactory {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(XidFactoryImpl.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(XidFactoryImpl.class, NameFactory.JTA_RESOURCE);
         infoFactory.addInterface(XidFactory.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

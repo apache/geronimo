@@ -38,15 +38,10 @@ public class GBeanBuilder {
     private final GBeanData gbean;
     private final ClassLoader classLoader;
 
-    public GBeanBuilder(ObjectName objectName, ClassLoader classLoader, String className) throws DeploymentException {
+    public GBeanBuilder(ObjectName objectName, GBeanInfo gBeanInfo, ClassLoader classLoader) {
 
         this.classLoader = classLoader;
-
-        try {
-            gbean = new GBeanData(objectName, GBeanInfo.getGBeanInfo(className, classLoader));
-        } catch (Exception e) {
-            throw new DeploymentException("Unable to create GBean from class " + className, e);
-        }
+        this.gbean = new GBeanData(objectName, gBeanInfo);
     }
 
     public void setAttribute(String name, String type, String text) throws DeploymentException {

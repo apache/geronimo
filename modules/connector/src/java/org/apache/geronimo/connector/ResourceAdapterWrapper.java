@@ -35,6 +35,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * Dynamic GBean wrapper around a ResourceAdapter object, exposing the config-properties as
@@ -130,7 +131,7 @@ public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, Res
     }
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ResourceAdapterWrapper.class);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ResourceAdapterWrapper.class, NameFactory.RESOURCE_ADAPTER);
         infoBuilder.addAttribute("resourceAdapterClass", String.class, true);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
 

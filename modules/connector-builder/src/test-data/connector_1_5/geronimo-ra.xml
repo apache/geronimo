@@ -104,33 +104,33 @@
     </adminobject>
 
     <!--normally this is in the j2ee-server-plan.xml.  It is included here so the gbeans can start in unit tests-->
-    <gbean name="geronimo.connector:service=ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
+    <gbean namePart="ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
     </gbean>
 
-    <gbean namePart="DefaultWorkManager" type="JCAWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManager">
-        <attribute name="syncMaximumPoolSize" type="int">10</attribute>
-        <attribute name="startMaximumPoolSize" type="int">10</attribute>
-        <attribute name="scheduledMaximumPoolSize" type="int">10</attribute>
-        <reference name="TransactionContextManager">geronimo.server:type=TransactionContextManager</reference>
+    <gbean namePart="DefaultWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManager">
+        <attribute name="syncMaximumPoolSize">10</attribute>
+        <attribute name="startMaximumPoolSize">10</attribute>
+        <attribute name="scheduledMaximumPoolSize">10</attribute>
+        <reference name="TransactionContextManager">*:name=TransactionContextManager,*</reference>
     </gbean>
 
-    <gbean name="geronimo.server:type=TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImpl">
-        <attribute name="defaultTransactionTimeoutSeconds" type="int">10</attribute>
+    <gbean namePart="TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImpl">
+        <attribute name="defaultTransactionTimeoutSeconds">10</attribute>
         <references name="ResourceManagers">
-            <pattern>geronimo.server:j2eeType=JCAManagedConnectionFactory,*</pattern>
-            <pattern>geronimo.server:j2eeType=MessageDrivenBean,*</pattern>
+            <pattern>*:j2eeType=JCAManagedConnectionFactory,*</pattern>
+            <pattern>*:j2eeType=MessageDrivenBean,*</pattern>
         </references>
     </gbean>
 
-    <gbean name="geronimo.server:type=TransactionContextManager" class="org.apache.geronimo.transaction.context.TransactionContextManager">
-        <reference name="TransactionManager">geronimo.server:type=TransactionManager</reference>
-        <reference name="XidImporter">geronimo.server:type=TransactionManager</reference>
+    <gbean namePart="TransactionContextManager" class="org.apache.geronimo.transaction.context.TransactionContextManager">
+        <reference name="TransactionManager">*:name=TransactionManager,*</reference>
+        <reference name="XidImporter">*:name=TransactionManager,*</reference>
     </gbean>
 
-    <gbean name="geronimo.security:service=RealmBridge,name=TargetRealm" class="org.apache.geronimo.security.bridge.ConfiguredIdentityUserPasswordRealmBridge">
-        <attribute name="targetRealm" type="java.lang.String">TargetRealm</attribute>
-        <attribute name="configuredUser" type="java.lang.String">testUser</attribute>
-        <attribute name="configuredPassword" type="java.lang.String">testPassword</attribute>
+    <gbean namePart="TargetRealm" class="org.apache.geronimo.security.bridge.ConfiguredIdentityUserPasswordRealmBridge">
+        <attribute name="targetRealm">TargetRealm</attribute>
+        <attribute name="configuredUser">testUser</attribute>
+        <attribute name="configuredPassword">testPassword</attribute>
     </gbean>
 
 </connector>

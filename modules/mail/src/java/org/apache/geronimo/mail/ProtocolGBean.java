@@ -167,7 +167,7 @@ public class ProtocolGBean implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ProtocolGBean.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ProtocolGBean.class); //TODO just a gbean?
 
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("protocol", String.class, true);

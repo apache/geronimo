@@ -37,6 +37,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * WorkManager implementation which uses under the cover three WorkExecutorPool
@@ -253,7 +254,7 @@ public class GeronimoWorkManager implements WorkManager, GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(GeronimoWorkManager.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(GeronimoWorkManager.class, NameFactory.JCA_WORK_MANAGER);
         infoFactory.addInterface(WorkManager.class);
 
         infoFactory.addAttribute("syncMaximumPoolSize", Integer.TYPE, true);

@@ -33,15 +33,15 @@ Configuration for the system layer of the Geronimo deployer
     </gbean>
 
     <!-- Configuration Store service -->
-    <gbean namePart="Local" type="ConfigurationStore" class="org.apache.geronimo.system.configuration.LocalConfigStore">
-        <attribute name="root" type="java.net.URI">config-store/</attribute>
+    <gbean namePart="Local" class="org.apache.geronimo.system.configuration.LocalConfigStore">
+        <attribute name="root">config-store/</attribute>
         <reference name="ServerInfo">geronimo.deployer:name=ServerInfo,*</reference>
     </gbean>
 
 
     <!-- Repository -->
     <gbean namePart="Repository" class="org.apache.geronimo.system.repository.ReadOnlyRepository">
-        <attribute name="root" type="java.net.URI">repository/</attribute>
+        <attribute name="root">repository/</attribute>
         <reference name="ServerInfo">geronimo.deployer:name=ServerInfo,*</reference>
     </gbean>
 

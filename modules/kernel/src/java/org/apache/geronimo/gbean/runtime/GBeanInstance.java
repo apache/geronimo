@@ -277,7 +277,7 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
 
         // rebuild the gbean info based on the current attributes, operations, and references because
         // the above code add new attributes and operations
-        this.gbeanInfo = rebuildGBeanInfo(gbeanInfo.getConstructor());
+        this.gbeanInfo = rebuildGBeanInfo(gbeanInfo.getConstructor(), gbeanInfo.getJ2eeType());
 
         // create the raw invokers
         rawInvoker = new RawInvoker(this);
@@ -995,7 +995,7 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
                 }));
     }
 
-    private GBeanInfo rebuildGBeanInfo(GConstructorInfo constructor) {
+    private GBeanInfo rebuildGBeanInfo(GConstructorInfo constructor, String j2eeType) {
         Set attributeInfos = new HashSet();
         for (int i = 0; i < attributes.length; i++) {
             GBeanAttribute attribute = attributes[i];
@@ -1013,6 +1013,7 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
 
         return new GBeanInfo(name,
                 type.getName(),
+                j2eeType,
                 attributeInfos,
                 constructor,
                 operationInfos,

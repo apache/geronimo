@@ -70,13 +70,28 @@ public class NameFactory {
     //geronimo extensions
     public static final String JCA_ADMIN_OBJECT = "JCAAdminObject";
     public static final String JCA_ACTIVATION_SPEC = "JCAActivationSpec";
+    //TODO shouldn't we use the RESOURCE_ADAPTER string?
     public static final String JCA_RESOURCE_ADAPTER = "JCAResourceAdapter";
     public static final String JCA_WORK_MANAGER = "JCAWorkManager";
     public static final String JCA_CONNECTION_MANAGER = "JCAConnectionManager";
     public static final String WEB_FILTER = "WebFilter";
     public static final String WEB_FILTER_MAPPING = "WebFilterMapping";
     public static final String URL_PATTERN = "URLPattern";
-    public static final String GERONIMO_SERVICE = "GBean";
+    public static final String GERONIMO_SERVICE = "GBean"; //copied in GBeanInfoBuilder to avoid dependencies in the wrong direction.
+
+    public static final String CONFIG_BUILDER = "ConfigBuilder";
+    public static final String MODULE_BUILDER = "ModuleBuilder";
+    public static final String SECURITY_REALM = "SecurityRealm";
+    public static final String LOGIN_MODULE = "LoginModule";
+    public static final String APP_CLIENT = "AppClient";
+    //jsr 88 configurer
+    public static final String DEPLOYMENT_CONFIGURER = "DeploymentConfigurer";
+    public static final String CONFIGURATION_STORE = "ConfigurationStore";
+    public static final String DEPLOYER = "Deployer"; //duplicated in Deployer
+    public static final String REALM_BRIDGE = "RealmBridge";
+    public static final String CONFIGURATION_ENTRY = "ConfigurationEntry";
+    public static final String PERSISTENT_CONFIGURATION_LIST = "PersistentConfigurationList"; //duplicated in FileConfigurationList
+//    public static final String URL_PATTERN = "URLPattern";
 
     public static ObjectName getDomainName(String j2eeDomainName, J2eeContext context) throws MalformedObjectNameException {
         Properties props = new Properties();

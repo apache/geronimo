@@ -32,9 +32,14 @@ import java.util.Set;
  * @version $Rev$ $Date$
  */
 public class GBeanInfoBuilder {
+
+    public static final String DEFAULT_J2EE_TYPE = "GBean"; //NameFactory.GERONIMO_SERVICE
+
     private static final Class[] NO_ARGS = {};
 
     private final String name;
+
+    private final String j2eeType;
 
     private final Class gbeanType;
 
@@ -47,22 +52,39 @@ public class GBeanInfoBuilder {
     private final Map references = new HashMap();
 
     public GBeanInfoBuilder(Class gbeanType) {
-        this(checkNotNull(gbeanType).getName(), gbeanType, null);
+        this(checkNotNull(gbeanType).getName(), gbeanType, null, null);
+    }
+
+    public GBeanInfoBuilder(Class gbeanType, String j2eeType) {
+        this(checkNotNull(gbeanType).getName(), gbeanType, null, j2eeType);
     }
 
     public GBeanInfoBuilder(String name, Class gbeanType) {
-        this(name, checkNotNull(gbeanType), null);
+        this(name, checkNotNull(gbeanType), null, null);
+    }
+
+    public GBeanInfoBuilder(String name, Class gbeanType, String j2eeType) {
+        this(name, checkNotNull(gbeanType), null, j2eeType);
     }
 
     public GBeanInfoBuilder(Class gbeanType, GBeanInfo source) {
         this(checkNotNull(gbeanType).getName(), gbeanType, source);
     }
 
+    public GBeanInfoBuilder(Class gbeanType, GBeanInfo source, String j2eeType) {
+        this(checkNotNull(gbeanType).getName(), gbeanType, source, j2eeType);
+    }
+
+    //TODO this is not used, shall we remove it?
     public GBeanInfoBuilder(String name, ClassLoader classLoader) {
         this(checkNotNull(name), loadClass(classLoader, name), GBeanInfo.getGBeanInfo(name, classLoader));
     }
 
     public GBeanInfoBuilder(String name, Class gbeanType, GBeanInfo source) {
+        this(name, gbeanType, source, null);
+    }
+
+    public GBeanInfoBuilder(String name, Class gbeanType, GBeanInfo source, String j2eeType) {
         checkNotNull(name);
         checkNotNull(gbeanType);
         this.name = name;
@@ -86,6 +108,13 @@ public class GBeanInfoBuilder {
 
             //in case subclass constructor has same parameters as superclass.
             constructor = source.getConstructor();
+        }
+        if (j2eeType != null) {
+            this.j2eeType = j2eeType;
+        } else if (source != null) {
+            this.j2eeType = source.getJ2eeType();
+        } else {
+            this.j2eeType = DEFAULT_J2EE_TYPE; //NameFactory.GERONIMO_SERVICE
         }
     }
 
@@ -233,7 +262,7 @@ public class GBeanInfoBuilder {
         }
 
 
-        return new GBeanInfo(name, gbeanType.getName(), attributes.values(), constructor, operations.values(), referenceInfos);
+        return new GBeanInfo(name, gbeanType.getName(), j2eeType, attributes.values(), constructor, operations.values(), referenceInfos);
     }
 
     private Map getConstructorTypes() throws InvalidConfigurationException {

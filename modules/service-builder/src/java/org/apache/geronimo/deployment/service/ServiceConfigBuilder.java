@@ -217,6 +217,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     }
 
     public static GBeanData getGBeanData(GbeanType gbean, J2eeContext j2eeContext, ClassLoader cl) throws DeploymentException {
+        GBeanInfo gBeanInfo = GBeanInfo.getGBeanInfo(gbean.getClass1(), cl);
         ObjectName objectName;
         if (gbean.isSetName()) {
             try {
@@ -227,13 +228,13 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         } else {
             String namePart = gbean.getNamePart();
             try {
-                String type = gbean.getType();
-                objectName = NameFactory.getComponentName(null, null, null, null, namePart, type == null ? NameFactory.GERONIMO_SERVICE : type, j2eeContext);
+                String j2eeType = gBeanInfo.getJ2eeType();
+                objectName = NameFactory.getComponentName(null, null, null, null, namePart, j2eeType, j2eeContext);
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException("Invalid ObjectName: " + namePart, e);
             }
         }
-        GBeanBuilder builder = new GBeanBuilder(objectName, cl, gbean.getClass1());
+        GBeanBuilder builder = new GBeanBuilder(objectName, gBeanInfo, cl);
 
         // set up attributes
         AttributeType[] attributeArray = gbean.getAttributeArray();
@@ -286,7 +287,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ServiceConfigBuilder.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ServiceConfigBuilder.class, NameFactory.CONFIG_BUILDER);
 
         infoFactory.addInterface(ConfigurationBuilder.class);
 

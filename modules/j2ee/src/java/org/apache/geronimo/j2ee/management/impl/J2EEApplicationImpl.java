@@ -23,6 +23,7 @@ import javax.management.ObjectName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.management.J2EEServer;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
@@ -91,7 +92,7 @@ public class J2EEApplicationImpl {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(J2EEApplicationImpl.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(J2EEApplicationImpl.class, NameFactory.J2EE_APPLICATION);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addReference("j2eeServer", J2EEServer.class);

@@ -249,14 +249,14 @@ public class RefContext {
         }
     }
 
-    public String getConnectionFactoryContainerId(URI module, String resourceLink, J2eeContext j2eeContext) throws DeploymentException, UnknownEJBRefException {
+    public String getConnectionFactoryContainerId(URI module, String resourceLink, String type, J2eeContext j2eeContext) throws DeploymentException, UnknownEJBRefException {
         String name = resourceLink.substring(resourceLink.lastIndexOf('#') + 1);
         try {
             return getContainerId(module, resourceLink, (Map) connectionFactoryIndex.get(name));
         } catch (UnknownEJBRefException e) {
             ObjectName query = null;
             try {
-                query = NameFactory.getComponentRestrictedQueryName(null, null, name, NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
+                query = NameFactory.getComponentRestrictedQueryName(null, null, name, type, j2eeContext);
             } catch (MalformedObjectNameException e1) {
                 throw new DeploymentException("Could not construct connection factory object name query", e);
             }

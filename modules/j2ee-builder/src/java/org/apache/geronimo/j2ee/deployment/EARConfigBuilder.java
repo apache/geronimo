@@ -517,7 +517,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(EARConfigBuilder.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(EARConfigBuilder.class, NameFactory.CONFIG_BUILDER);
         infoFactory.addAttribute("defaultParentId", URI.class, true);
         infoFactory.addAttribute("transactionContextManagerObjectName", ObjectName.class, true);
         infoFactory.addAttribute("connectionTrackerObjectName", ObjectName.class, true);

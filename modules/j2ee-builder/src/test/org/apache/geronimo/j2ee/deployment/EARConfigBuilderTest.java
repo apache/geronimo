@@ -45,6 +45,7 @@ import org.apache.geronimo.kernel.registry.BasicGBeanRegistry;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -355,7 +356,7 @@ public class EARConfigBuilderTest extends TestCase {
         private static final byte[] NO_OBJECTS_OS;
 
         static {
-            GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(MockConfigStore.class);
+            GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(MockConfigStore.class, NameFactory.CONFIGURATION_STORE);
             infoBuilder.addInterface(ConfigurationStore.class);
             GBEAN_INFO = infoBuilder.getBeanInfo();
 

@@ -29,6 +29,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 
 /**
@@ -348,7 +349,7 @@ public class MailGBean implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(MailGBean.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(MailGBean.class, NameFactory.JAVA_MAIL_RESOURCE);
 
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addReference("Protocols", ProtocolGBean.class);

@@ -49,7 +49,7 @@ public class GBeanInfoFactoryTest extends TestCase {
      */
     public void testGBeanInfoFactoryClassString() {
         try {
-            new GBeanInfoBuilder((Class) null, null);
+            new GBeanInfoBuilder((Class) null, (String) null);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException expected) {
         }

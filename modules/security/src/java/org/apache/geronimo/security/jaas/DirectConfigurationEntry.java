@@ -18,6 +18,7 @@ package org.apache.geronimo.security.jaas;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 
 /**
@@ -56,7 +57,7 @@ public class DirectConfigurationEntry implements ConfigurationEntryFactory {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(DirectConfigurationEntry.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(DirectConfigurationEntry.class, NameFactory.CONFIGURATION_ENTRY);
         infoFactory.addInterface(ConfigurationEntryFactory.class);
         infoFactory.addAttribute("applicationConfigName", String.class, true);
         infoFactory.addAttribute("controlFlag", LoginModuleControlFlag.class, true);

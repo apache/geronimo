@@ -60,17 +60,17 @@
 
     <gbean namePart="DerbySystem" class="org.apache.geronimo.derby.DerbySystemGBean">
         <reference name="serverInfo">geronimo.server:name=ServerInfo,*</reference>
-        <attribute name="derbySystemHome" type="java.lang.String">var/derby</attribute>
+        <attribute name="derbySystemHome">var/derby</attribute>
     </gbean>
     <gbean namePart="DerbyNetwork" class="org.apache.geronimo.derby.DerbyNetworkGBean">
         <reference name="derbySystem">geronimo.server:name=DerbySystem,*</reference>
-        <attribute name="host" type="java.lang.String">127.0.0.1</attribute>
-        <attribute name="port" type="int">1527</attribute>
+        <attribute name="host">127.0.0.1</attribute>
+        <attribute name="port">1527</attribute>
     </gbean>
 
     <!--
     <gbean name="geronimo.server:type=ThreadPooledTimer,name=JDBCTransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledTransactionalTimer">
-        <attribute name="repeatCount" type="int">5</attribute>
+        <attribute name="repeatCount">5</attribute>
         <reference name="TransactionContextManager">geronimo.server:type=TransactionContextManager</reference>
         <reference name="ManagedConnectionFactoryWrapper">geronimo.server:J2EEServer=geronimo,j2eeType=JCAManagedConnectionFactory,name=DefaultDatasource</reference>
         <reference name="ThreadPool">geronimo.server:type=ThreadPool,name=DefaultThreadPool</reference>

@@ -26,6 +26,7 @@ import org.apache.geronimo.connector.deployment.dconfigbean.ResourceAdapter_1_0D
 import org.apache.geronimo.deployment.ModuleConfigurer;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  *
@@ -52,7 +53,7 @@ public class RARConfigurer implements ModuleConfigurer {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(RARConfigurer.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(RARConfigurer.class, NameFactory.DEPLOYMENT_CONFIGURER);
         infoFactory.addInterface(ModuleConfigurer.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

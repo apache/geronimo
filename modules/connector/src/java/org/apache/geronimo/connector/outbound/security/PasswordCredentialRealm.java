@@ -29,6 +29,7 @@ import org.apache.geronimo.security.jaas.JaasLoginCoordinator;
 import org.apache.geronimo.security.jaas.JaasLoginModuleConfiguration;
 import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
 import org.apache.geronimo.security.realm.SecurityRealm;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 
 /**
@@ -93,7 +94,7 @@ public class PasswordCredentialRealm implements SecurityRealm, ConfigurationEntr
     }
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(PasswordCredentialRealm.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(PasswordCredentialRealm.class, NameFactory.SECURITY_REALM);
 
         infoFactory.addInterface(ManagedConnectionFactoryListener.class);
         infoFactory.addInterface(ConfigurationEntryFactory.class);
