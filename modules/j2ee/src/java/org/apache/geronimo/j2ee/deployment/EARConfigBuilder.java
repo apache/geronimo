@@ -165,29 +165,18 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
             URL path = new URL(moduleBase, "META-INF/geronimo-application.xml");
             XmlObject plan = null;
-            try {
-                plan = SchemaConversionUtils.parse(path.openStream());
-            } catch (XmlException e) {
-                throw new DeploymentException(e);
-            } catch (IOException e) {
-                //plan not found, construct default plan
-            }
+            plan = getGerConnector(path);
             if (plan != null) {
-                plan.changeType(GerApplicationDocument.type);
-                SchemaConversionUtils.validateDD(plan);
                 return plan;
             }
 
             // try to create a default plan (will return null if this is not an ear file)
-            GerApplicationDocument defaultPlan = createDefaultPlan(moduleBase);
+            GerApplicationType defaultPlan = createDefaultPlan(moduleBase);
             if (defaultPlan != null) {
                 return defaultPlan;
             }
         } catch (MalformedURLException e) {
-        } catch (XmlException e) {
-            throw new DeploymentException("Invalid geronimo-application.xml", e);
         }
-
         // support a naked modules
         if (webConfigBuilder != null) {
             XmlObject plan = webConfigBuilder.getDeploymentPlan(deploymentURL);
@@ -220,7 +209,29 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         return null;
     }
 
-    private GerApplicationDocument createDefaultPlan(URL deploymentURL) {
+    private GerApplicationType getGerConnector(URL path) throws DeploymentException {
+        try {
+            XmlObject dd = SchemaConversionUtils.parse(path.openStream());
+            return (GerApplicationType) validateVendorDD(dd);
+        } catch (IOException e) {
+            //todo should this throw an exception? we have already opened the stream!
+            return null;
+        } catch (XmlException e) {
+            throw new DeploymentException(e);
+        }
+    }
+
+    private XmlObject validateVendorDD(XmlObject dd) throws DeploymentException {
+        try {
+            dd = SchemaConversionUtils.getNestedObjectAsType(dd, "application", GerApplicationType.type);
+            SchemaConversionUtils.validateDD(dd);
+            return dd;
+        } catch (Exception e) {
+            throw new DeploymentException(e);
+        }
+    }
+
+    private GerApplicationType createDefaultPlan(URL deploymentURL) {
         // load the web.xml
         URL applicationXmlUrl = null;
         try {
@@ -242,8 +253,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         }
 
         // construct the empty geronimo-application.xml
-        GerApplicationDocument gerApplicationDocument = GerApplicationDocument.Factory.newInstance();
-        GerApplicationType gerApplication = gerApplicationDocument.addNewApplication();
+        GerApplicationType gerApplication = GerApplicationType.Factory.newInstance();
 
         // set the parentId and configId
         gerApplication.setParentId(PARENT_ID);
@@ -263,7 +273,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         }
 
         gerApplication.setConfigId(id);
-        return gerApplicationDocument;
+        return gerApplication;
     }
 
     public void buildConfiguration(File outfile, Manifest manifest, final File earFolder, final XmlObject plan) throws IOException, DeploymentException {
@@ -388,7 +398,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     }
 
     private ApplicationType addModules(final JarFile earFile, XmlObject plan, URI configId, Set moduleLocations, Set modules) throws IOException, DeploymentException {
-        if (plan instanceof GerApplicationDocument) {
+        if (plan instanceof GerApplicationType) {
             ApplicationType application;
             JarEntry appXMLEntry = earFile.getJarEntry("META-INF/application.xml");
             if (appXMLEntry == null) {
@@ -399,12 +409,12 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
             // build map from module path to alt vendor dd
             Map altVendorDDs = new HashMap();
-            GerApplicationDocument gerApplication = (GerApplicationDocument) plan;
-            GerModuleType gerModuleTypes[] = gerApplication.getApplication().getModuleArray();
+            GerApplicationType gerApplication = (GerApplicationType) plan;
+            GerModuleType gerModuleTypes[] = gerApplication.getModuleArray();
             for (int i = 0; i < gerModuleTypes.length; i++) {
                 GerModuleType gerModuleType = gerModuleTypes[i];
+                String path = null;
                 if (gerModuleType.isSetAltDd()) {
-                    String path = null;
                     if (gerModuleType.isSetEjb()) {
                         path = gerModuleType.getEjb().getStringValue();
                     } else if (gerModuleType.isSetWeb()) {
@@ -412,7 +422,18 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                     } else if (gerModuleType.isSetConnector()) {
                         path = gerModuleType.getConnector().getStringValue();
                     }
-                    altVendorDDs.put(path, JarUtil.createJarURL(earFile, gerModuleType.getAltDd().getStringValue()));
+                    URL ddURL = JarUtil.createJarURL(earFile, gerModuleType.getAltDd().getStringValue());
+                    XmlObject dd = null;
+                    try {
+                        dd = SchemaConversionUtils.parse(ddURL.openStream());
+                    } catch (XmlException e) {
+                        throw new DeploymentException(e);
+                    }
+
+                    altVendorDDs.put(path, dd);
+                } else {
+                    //dd is included explicitly
+                    altVendorDDs.put(path, gerModuleType.getModuleDd());
                 }
             }
 
@@ -463,9 +484,9 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                     }
 
                     XmlObject vendorDD = null;
-                    URL altVendorDD = (URL) altVendorDDs.get(modulePath);
+                    XmlObject altVendorDD = (XmlObject) altVendorDDs.get(modulePath);
                     if (altVendorDD != null) {
-                        vendorDD = builder.parseVendorDD(altVendorDD);
+                        vendorDD = builder.validateVendorDD(altVendorDD);
                         if (vendorDD == null) {
                             throw new DeploymentException("Invalid alt vendor dd: modulePath=" + modulePath + ", url=" + altVendorDD);
                         }
@@ -532,9 +553,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     }
 
     private URI getParentId(XmlObject plan) throws DeploymentException {
-        if (plan instanceof GerApplicationDocument) {
-            GerApplicationDocument applicationDoc = (GerApplicationDocument) plan;
-            GerApplicationType application = applicationDoc.getApplication();
+        if (plan instanceof GerApplicationType) {
+            GerApplicationType application = (GerApplicationType) plan;
             if (application.isSetParentId()) {
                 try {
                     return new URI(application.getParentId());
@@ -574,9 +594,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     }
 
     private URI getConfigId(XmlObject plan) throws DeploymentException {
-        if (plan instanceof GerApplicationDocument) {
-            GerApplicationDocument applicationDoc = (GerApplicationDocument) plan;
-            GerApplicationType application = applicationDoc.getApplication();
+        if (plan instanceof GerApplicationType) {
+            GerApplicationType application = (GerApplicationType) plan;
             try {
                 return new URI(application.getConfigId());
             } catch (URISyntaxException e) {
@@ -612,7 +631,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     }
 
     private ConfigurationModuleType getType(XmlObject plan) throws DeploymentException {
-        if (plan instanceof GerApplicationDocument) {
+        if (plan instanceof GerApplicationType) {
             return ConfigurationModuleType.EAR;
         }
 

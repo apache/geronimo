@@ -15,7 +15,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-  
+
 <xs:schema
     xmlns:geronimo="http://geronimo.apache.org/xml/ns/j2ee/application"
     targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/application"
@@ -38,7 +38,7 @@
         <xs:attribute name="configId" type="xs:string" use="required"/>
         <xs:attribute name="parentId" type="xs:string" use="optional"/>
     </xs:complexType>
-    
+
     <xs:complexType name="moduleType">
         <xs:annotation>
             <xs:documentation>
@@ -48,22 +48,31 @@
         </xs:annotation>
         <xs:sequence>
             <xs:choice>
-	            <xs:element name="connector" type="geronimo:pathType"/>
+                <xs:element name="connector" type="geronimo:pathType"/>
                 <xs:element name="ejb" type="geronimo:pathType"/>
                 <xs:element name="java" type="geronimo:pathType"/>
                 <xs:element name="web" type="geronimo:pathType"/>
             </xs:choice>
-            <xs:element name="alt-dd" type="geronimo:pathType" minOccurs="0">
-	            <xs:annotation>
-	                <xs:documentation>
+            <xs:choice>
+                <xs:element name="alt-dd" type="geronimo:pathType">
+                    <xs:annotation>
+                        <xs:documentation>
   Specifies an optional URI to the post-assembly version of the Geronimo
   specific deployment descriptor file for a particular J2EE module.
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="module-dd" type="geronimo:module-ddType">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Include the literal vendor dd in the appropriate namespace.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+            </xs:choice>
         </xs:sequence>
     </xs:complexType>
-    
+
     <xs:complexType name="pathType">
         <xs:annotation>
             <xs:documentation>
@@ -74,7 +83,7 @@
             <xs:restriction base="geronimo:string"/>
         </xs:simpleContent>
     </xs:complexType>
-    
+
     <xs:complexType name="string">
         <xs:annotation>
             <xs:documentation>
@@ -83,9 +92,20 @@
         </xs:annotation>
         <xs:simpleContent>
             <xs:extension base="xs:token">
-	            <xs:attribute name="id" type="xs:ID"/>
+                <xs:attribute name="id" type="xs:ID"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
-    
+
+    <xs:complexType name="module-ddType">
+        <xs:annotation>
+            <xs:documentation>
+  contains a literal vendor dd
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:any/>
+        </xs:sequence>
+    </xs:complexType>
+
 </xs:schema>

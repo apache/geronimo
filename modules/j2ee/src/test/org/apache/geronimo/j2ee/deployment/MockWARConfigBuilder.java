@@ -16,17 +16,16 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.util.jar.JarFile;
-import java.io.InputStream;
-import java.io.IOException;
 
 import junit.framework.Assert;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlException;
 
 /**
  * @version $Rev$ $Date$
@@ -91,21 +90,8 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
         }
     }
 
-    public XmlObject parseVendorDD(URL vendorURL) throws DeploymentException {
-        InputStream in = null;
-        try {
-            in = vendorURL.openStream();
-            return XmlObject.Factory.newInstance();
-        } catch (IOException e) {
-            throw new DeploymentException(e);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                }
-            }
-        }
+    public XmlObject validateVendorDD(XmlObject vendorDD) throws DeploymentException {
+        return XmlObject.Factory.newInstance();
     }
 
     public void initContext(EARContext earContext, Module webModule, ClassLoader cl) {

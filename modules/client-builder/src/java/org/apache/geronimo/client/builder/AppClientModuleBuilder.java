@@ -70,6 +70,7 @@ import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlException;
 
 
 /**
@@ -132,19 +133,25 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             } else {
                 moduleBase = new URL("jar:" + module.toString() + "!/");
             }
-            GerApplicationClientDocument plan = (GerApplicationClientDocument) parseVendorDD(new URL(moduleBase, "META-INF/geronimo-application-client.xml"));
+            URL path = new URL(moduleBase, "META-INF/geronimo-application-client.xml");
+            XmlObject dd = SchemaConversionUtils.parse(path.openStream());
+
+            GerApplicationClientDocument plan = (GerApplicationClientDocument) validateVendorDD(dd);
             if (plan == null) {
                 return createDefaultPlan(moduleBase);
             }
             return plan;
         } catch (MalformedURLException e) {
             return null;
+        } catch (IOException e) {
+            return null;
+        } catch (XmlException e) {
+            throw new DeploymentException(e);
         }
     }
 
-    public XmlObject parseVendorDD(URL path) throws DeploymentException {
+    public XmlObject validateVendorDD(XmlObject dd) throws DeploymentException {
         try {
-            XmlObject dd = SchemaConversionUtils.parse(path.openStream());
             dd = SchemaConversionUtils.convertToGeronimoNamingSchema(dd);
             return dd.changeType(GerApplicationClientDocument.type);
         } catch (Exception e) {

@@ -22,7 +22,6 @@ import java.util.jar.JarFile;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -31,7 +30,7 @@ import org.apache.xmlbeans.XmlObject;
 public interface ModuleBuilder {
     XmlObject parseSpecDD(URL path) throws DeploymentException;
 
-    XmlObject parseVendorDD(URL vendorURL) throws DeploymentException;
+    XmlObject validateVendorDD(XmlObject vendorDD) throws DeploymentException;
 
     XmlObject getDeploymentPlan(URL module) throws DeploymentException;
 

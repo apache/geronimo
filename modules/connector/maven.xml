@@ -54,12 +54,45 @@
             basedir="${basedir}/target/test-rar-15"/>
 
         <!-- Build test-ear -->
-        <ant:jar destfile="${basedir}/target/test-ear.ear" >
+        <ant:jar destfile="${basedir}/target/test-ear.ear">
             <fileset dir="${basedir}/target">
                 <include name="test-rar-10.rar"/>
                 <include name="test-rar-15.rar"/>
             </fileset>
             <zipfileset dir="${basedir}/src/test-data/ear" prefix="META-INF"/>
+        </ant:jar>
+        <!--do it again without geronimo dds-->
+        <!-- Build test-rar-10 -->
+        <ant:mkdir dir="${basedir}/target/test-rar-10-noger/META-INF"/>
+        <copy todir="${basedir}/target/test-rar-10-noger/META-INF">
+            <fileset dir="${basedir}/src/test-data/connector_1_0">
+                <exclude name="geronimo-ra.xml"/>
+            </fileset>
+        </copy>
+
+        <ant:jar destfile="${basedir}/target/test-rar-10-noger.rar"
+            basedir="${basedir}/target/test-rar-10"/>
+
+        <!-- Build test-rar-15 -->
+        <ant:mkdir dir="${basedir}/target/test-rar-15-noger/META-INF"/>
+        <copy todir="${basedir}/target/test-rar-15-noger/META-INF">
+            <fileset dir="${basedir}/src/test-data/connector_1_5">
+                <exclude name="geronimo-ra.xml"/>
+            </fileset>
+        </copy>
+
+        <ant:jar destfile="${basedir}/target/test-rar-15-noger.rar"
+            basedir="${basedir}/target/test-rar-15"/>
+
+        <!-- Build test-ear -->
+        <ant:jar destfile="${basedir}/target/test-ear-noger.ear">
+            <fileset dir="${basedir}/target">
+                <include name="test-rar-10-noger.rar"/>
+                <include name="test-rar-15-noger.rar"/>
+            </fileset>
+            <zipfileset dir="${basedir}/src/test-data/ear" prefix="META-INF">
+                <exclude name="geronimo-application.xml"/>
+            </zipfileset>
         </ant:jar>
 
     </preGoal>

@@ -31,6 +31,7 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.SchemaType;
 
 /**
  * @version $Rev$ $Date$
@@ -203,26 +204,46 @@ public class SchemaConversionUtils {
 
     public static XmlObject convertToGeronimoNamingSchema(XmlObject xmlObject) {
         XmlCursor cursor = xmlObject.newCursor();
-	XmlCursor end = xmlObject.newCursor();
+        XmlCursor end = xmlObject.newCursor();
         String version = "1.0";
         try {
             while (cursor.hasNextToken()) {
                 if (cursor.isStart()) {
                     String localName = cursor.getName().getLocalPart();
                     if (localName.equals("ejb-ref")
-                        || localName.equals("ejb-local-ref")
-                        || localName.equals("resource-ref")
-                        || localName.equals("resource-env-ref")) {
+                            || localName.equals("ejb-local-ref")
+                            || localName.equals("resource-ref")
+                            || localName.equals("resource-env-ref")) {
                         convertElementToSchema(cursor, end, GERONIMO_NAMING_NAMESPACE, GERONIMO_NAMING_NAMESPACE_L0CATION, version);
                     }
-		}
-	        cursor.toNextToken();
+                }
+                cursor.toNextToken();
+            }
+        } finally {
+            cursor.dispose();
+            end.dispose();
+        }
+        return xmlObject;
+    }
+
+    public static XmlObject getNestedObjectAsType(XmlObject xmlObject, String desiredElement, SchemaType type) {
+        XmlCursor cursor = xmlObject.newCursor();
+        try {
+            while (cursor.hasNextToken()) {
+                if (cursor.isStart()) {
+                    String localName = cursor.getName().getLocalPart();
+                    if (localName.equals(desiredElement)) {
+                        XmlObject child = cursor.getObject();
+                        XmlObject result = child.changeType(type);
+                        return result;
+                    }
+                }
+                cursor.toNextToken();
             }
         } finally {
             cursor.dispose();
         }
-        return xmlObject;
-
+        throw new IllegalArgumentException("xmlobject did not have desired element: " + desiredElement + "/n" + xmlObject);
     }
 
 
@@ -252,9 +273,9 @@ public class SchemaConversionUtils {
 
     public static boolean convertElementToSchema(XmlCursor cursor, XmlCursor end, String namespace, String schemaLocationURL, String version) {
         //convert namespace
-	//        boolean isFirstStart = true;
-	end.toCursor(cursor);
-	end.toEndToken();
+        //        boolean isFirstStart = true;
+        end.toCursor(cursor);
+        end.toEndToken();
         while (cursor.hasNextToken() && cursor.isLeftOf(end)) {
             if (cursor.isStart()) {
                 if (namespace.equals(cursor.getName().getNamespaceURI())) {
@@ -263,9 +284,9 @@ public class SchemaConversionUtils {
                 }
                 cursor.setName(new QName(namespace, cursor.getName().getLocalPart()));
                 cursor.toNextToken();
-		//      if (isFirstStart) {
-		    //                    cursor.insertAttributeWithValue(new QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation", "xsi"), namespace + " " + schemaLocationURL);
-		//  isFirstStart = false;
+                //      if (isFirstStart) {
+                //                    cursor.insertAttributeWithValue(new QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation", "xsi"), namespace + " " + schemaLocationURL);
+                //  isFirstStart = false;
                 //}
             } else {
                 cursor.toNextToken();

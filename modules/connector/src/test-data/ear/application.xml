@@ -3,15 +3,9 @@
     xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/application_1_4.xsd"
     version="1.4">
     <module>
-        <web>
-            <context-root>test</context-root>
-            <web-uri>test-war.war</web-uri>
-        </web>
+        <connector>test-rar-10-noger.rar</connector>
     </module>
     <module>
-        <ejb>test-ejb-jar.jar</ejb>
-    </module>
-    <module>
-        <connector>test-rar.rar</connector>
+        <connector>test-rar-15-noger.rar</connector>
     </module>
 </application>

@@ -47,6 +47,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
+import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -56,8 +57,10 @@ import org.apache.geronimo.system.configuration.LocalConfigStore;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorDocument10;
+import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlCursor;
 import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
@@ -100,9 +103,11 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
             }
 
             private File rarFile = new File(basedir, "target/test-rar-10");
+
             public File getRARFile() {
                 return rarFile;
             }
+
             public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
                 moduleBuilder.installModule(new UnpackedJarFile(rarFile), earContext, module);
             }
@@ -121,9 +126,11 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
             }
 
             private File rarFile = new File(basedir, "target/test-rar-10");
+
             public File getRARFile() {
                 return rarFile;
             }
+
             public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
                 moduleBuilder.installModule(new UnpackedJarFile(rarFile), earContext, module);
             }
@@ -147,9 +154,11 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
             }
 
             private File rarFile = new File(basedir, "target/test-rar-10");
+
             public File getRARFile() {
                 return rarFile;
             }
+
             public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
                 moduleBuilder.installModule(new UnpackedJarFile(rarFile), earContext, module);
             }
@@ -160,7 +169,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
         } catch (DeploymentException e) {
         }
     }
-    
+
     public void testBuildUnpackedAltSpecVendorDDModule() throws Exception {
         InstallAction action = new InstallAction() {
             public URL getVendorDD() throws MalformedURLException {
@@ -173,16 +182,18 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
             }
 
             private File rarFile = new File(basedir, "target/test-rar-10");
+
             public File getRARFile() {
                 return rarFile;
             }
+
             public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
                 moduleBuilder.installModule(new UnpackedJarFile(rarFile), earContext, module);
             }
         };
         executeTestBuildModule(action);
     }
-    
+
     public void testBuildPackedModule() throws Exception {
         InstallAction action = new InstallAction() {
             public URL getVendorDD() {
@@ -194,9 +205,11 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
             }
 
             private File rarFile = new File(basedir, "target/test-rar-10.rar");
+
             public File getRARFile() {
                 return rarFile;
             }
+
             public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
                 moduleBuilder.installModule(JarUtil.createJarFile(rarFile), earContext, module);
             }
@@ -211,7 +224,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
         String j2eeModuleName = "org/apache/geronimo/j2ee/deployment/test";
         ObjectName connectionTrackerName = new ObjectName("geronimo.connector:service=ConnectionTracker");
 
-        ModuleBuilder moduleBuilder = new ConnectorModuleBuilder();
+        ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder();
         File rarFile = action.getRARFile();
 
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
@@ -224,7 +237,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
         if (vendorURL == null) {
             vendorURL = JarUtil.createJarURL(rarJarFile, "META-INF/geronimo-ra.xml");
         }
-        XmlObject plan = moduleBuilder.parseVendorDD(vendorURL);
+        XmlObject plan = moduleBuilder.getGerConnector(vendorURL);
         if (plan == null) {
             throw new DeploymentException();
         }
@@ -266,6 +279,34 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
             carFile.delete();
         }
     }
+
+    public void testBuildEar() throws Exception {
+        String j2eeDomainName = "geronimo.server";
+        String j2eeServerName = "TestGeronimoServer";
+        String j2eeApplicationName = "TestEar";
+        String j2eeModuleName = "org/apache/geronimo/j2ee/deployment/test";
+        ObjectName connectionTrackerName = new ObjectName("geronimo.connector:service=ConnectionTracker");
+        ObjectName j2eeServer = new ObjectName(j2eeDomainName + ":name=" + j2eeServerName);
+        Kernel kernel = new Kernel("blah");
+        kernel.boot();
+
+        EARConfigBuilder configBuilder = new EARConfigBuilder(j2eeServer, null, connectionTrackerName, null, null, null, null, null, null, new ConnectorModuleBuilder(), null, kernel);
+        File rarFile = new File(basedir, "target/test-ear-noger.ear");
+        File outFile = File.createTempFile("EARTest", ".car");
+        try {
+            File planFile = new File(basedir, "src/test-data/data/external-application-plan.xml");
+            XmlObject planDoc = SchemaConversionUtils.parse(planFile.toURL().openStream());
+            XmlCursor cursor = planDoc.newCursor();
+            cursor.toFirstChild();
+            XmlObject plan = cursor.getObject();
+            cursor.dispose();
+            configBuilder.buildConfiguration(outFile, null, rarFile, plan);
+
+        } finally {
+            outFile.delete();
+        }
+    }
+
 
     private void verifyDeployment(File unpackedDir, ClassLoader cl, String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName) throws Exception {
         DataSource ds = null;
@@ -428,8 +469,11 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
 
     private interface InstallAction {
         File getRARFile();
+
         void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception;
+
         URL getVendorDD() throws MalformedURLException;
+
         URL getSpecDD() throws MalformedURLException;
     }
 

@@ -24,6 +24,7 @@ import java.util.List;
 import junit.framework.TestCase;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 
 /**
  * ejb 1.1 dtd appears to be a subset of ejb 2.0 dtd so the same xsl should
@@ -250,6 +251,15 @@ public class SchemaConversionUtilsTest extends TestCase {
         xmlObject = SchemaConversionUtils.convertToGeronimoNamingSchema(xmlObject);
         boolean ok2 = compareXmlObjects(xmlObject, expected, problems);
         assertTrue("Differences: " + problems, ok2);
+    }
+//
+    public void testGetNestedObjectAsType() throws Exception {
+        File srcXml = new File(basedir, "src/test-data/geronimo/ejb-naming-pre.xml");
+//        File expectedOutputXml = new File(basedir, "src/test-data/geronimo/ejb-naming-post.xml");
+        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
+        //this is not a usable type, we'll see what happens though
+        xmlObject = SchemaConversionUtils.getNestedObjectAsType(xmlObject, "openejb-jar", EjbJarType.type);
+//	        System.out.println(xmlObject.toString());
     }
 
     private boolean compareXmlObjects(XmlObject xmlObject, XmlObject expectedObject, List problems) {

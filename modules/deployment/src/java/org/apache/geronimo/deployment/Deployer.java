@@ -47,6 +47,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlCursor;
 
 /**
  * Command line based deployment utility which combines multiple deployable modules
@@ -69,10 +70,8 @@ public class Deployer {
         XmlObject plan = null;
         if (deploymentPlan != null) {
             try {
-                plan = getLoader().parse(deploymentPlan, null, null);
-            } catch (XmlException e) {
-                throw new DeploymentException(e);
-            } catch (IOException e) {
+                plan = getPlan(deploymentPlan.toURL());
+            } catch (MalformedURLException e) {
                 throw new DeploymentException(e);
             }
             for (Iterator i = builders.iterator(); i.hasNext();) {
@@ -123,6 +122,19 @@ public class Deployer {
         }
     }
 
+    private XmlObject getPlan(URL deploymentPlan) throws DeploymentException {
+        try {
+            XmlObject plan = getLoader().parse(deploymentPlan, null, null);
+            XmlCursor cursor = plan.newCursor();
+            cursor.toFirstChild();
+            return cursor.getObject();
+        } catch (XmlException e) {
+            throw new DeploymentException(e);
+        } catch (IOException e) {
+            throw new DeploymentException(e);
+        }
+    }
+
     /**
      * GBean entry point invoked from an executable CAR.
      *
@@ -139,7 +151,7 @@ public class Deployer {
         // parse the plan
         XmlObject plan = null;
         if (cmd.plan != null) {
-            plan = getLoader().parse(cmd.plan, null, null);
+            plan = getPlan(cmd.plan);
             for (Iterator i = builders.iterator(); i.hasNext();) {
                 ConfigurationBuilder candidate = (ConfigurationBuilder) i.next();
                 if (candidate.canConfigure(plan)) {

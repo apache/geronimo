@@ -117,9 +117,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
         return webAppDoc.getWebApp();
     }
 
-    public XmlObject parseVendorDD(URL path) throws DeploymentException {
+    public XmlObject validateVendorDD(XmlObject dd) throws DeploymentException {
         try {
-            XmlObject dd = SchemaConversionUtils.parse(path.openStream());
             dd = SchemaConversionUtils.convertToGeronimoNamingSchema(dd);
             dd = dd.changeType(JettyWebAppDocument.type);
             SchemaConversionUtils.validateDD(dd);
@@ -137,13 +136,19 @@ public class JettyModuleBuilder implements ModuleBuilder {
             } else {
                 moduleBase = new URL("jar:" + module.toString() + "!/");
             }
-            JettyWebAppDocument plan = (JettyWebAppDocument) parseVendorDD(new URL(moduleBase, "WEB-INF/geronimo-jetty.xml"));
+            URL path = new URL(moduleBase, "WEB-INF/geronimo-jetty.xml");
+            XmlObject dd = SchemaConversionUtils.parse(path.openStream());
+            JettyWebAppDocument plan = (JettyWebAppDocument) validateVendorDD(dd);
             if (plan == null) {
                 return createDefaultPlan(moduleBase);
             }
             return plan;
         } catch (MalformedURLException e) {
             return null;
+        } catch (IOException e) {
+            return null;
+        } catch (XmlException e) {
+            throw new DeploymentException(e);
         }
     }
 

@@ -24,11 +24,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Enumeration;
-import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import javax.management.AttributeNotFoundException;
@@ -37,7 +36,6 @@ import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
-import org.apache.geronimo.common.xml.XmlBeansUtil;
 import org.apache.geronimo.connector.ActivationSpecInfo;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.LocalTransactions;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoPool;
@@ -51,8 +49,8 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransact
 import org.apache.geronimo.connector.outbound.security.PasswordCredentialRealm;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
-import org.apache.geronimo.deployment.util.JarUtil;
 import org.apache.geronimo.deployment.util.IOUtil;
+import org.apache.geronimo.deployment.util.JarUtil;
 import org.apache.geronimo.gbean.DynamicGAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -137,13 +135,15 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         throw new DeploymentException("Unable to parse specDD");
     }
 
-    public XmlObject parseVendorDD(URL path) throws DeploymentException {
+    public XmlObject validateVendorDD(XmlObject dd) throws DeploymentException {
         try {
-             XmlObject dd = SchemaConversionUtils.parse(path.openStream());
-             return dd.changeType(GerConnectorDocument.type);
-         } catch (Exception e) {
-             throw new DeploymentException(e);
-         }
+            dd = SchemaConversionUtils.getNestedObjectAsType(dd, "connector", GerConnectorType.type);
+            SchemaConversionUtils.validateDD(dd);
+            System.out.println("Successfully validated: " + dd);
+            return dd;
+        } catch (Exception e) {
+            throw new DeploymentException(e);
+        }
     }
 
     public XmlObject getDeploymentPlan(URL module) throws DeploymentException {
@@ -154,18 +154,33 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
             } else {
                 moduleBase = new URL("jar:" + module.toString() + "!/");
             }
-            return (GerConnectorDocument) parseVendorDD(new URL(moduleBase, "META-INF/geronimo-ra.xml"));
+            URL path = new URL(moduleBase, "META-INF/geronimo-ra.xml");
+            return getGerConnector(path);
         } catch (MalformedURLException e) {
+            return null;
+        } catch (IOException e) {
             return null;
         }
     }
 
+    GerConnectorType getGerConnector(URL path) throws DeploymentException {
+        try {
+            XmlObject dd = SchemaConversionUtils.parse(path.openStream());
+            return (GerConnectorType) validateVendorDD(dd);
+        } catch (IOException e) {
+            //todo should this throw an exception? we have already opened the stream!
+            return null;
+        } catch (XmlException e) {
+            throw new DeploymentException(e);
+        }
+    }
+
     public boolean canHandlePlan(XmlObject plan) {
-        return plan instanceof GerConnectorDocument;
+        return plan instanceof GerConnectorType;
     }
 
     public URI getParentId(XmlObject plan) throws DeploymentException {
-        GerConnectorType geronimoConnector = ((GerConnectorDocument) plan).getConnector();
+        GerConnectorType geronimoConnector = (GerConnectorType) plan;
         if (geronimoConnector.isSetParentId()) {
             try {
                 return new URI(geronimoConnector.getParentId());
@@ -178,7 +193,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
     }
 
     public URI getConfigId(XmlObject plan) throws DeploymentException {
-        GerConnectorType geronimoConnector = ((GerConnectorDocument) plan).getConnector();
+        GerConnectorType geronimoConnector = (GerConnectorType) plan;
         try {
             return new URI(geronimoConnector.getConfigId());
         } catch (URISyntaxException e) {
@@ -217,13 +232,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
 
         if (vendorDD == null) {
             try {
-                JarEntry entry = moduleFile.getJarEntry("META-INF/geronimo-ra.xml");
-                if (entry != null) {
-                    InputStream in = moduleFile.getInputStream(entry);
-                    if (in != null) {
-                        vendorDD = XmlBeansUtil.parse(in, GerConnectorDocument.type);
-                    }
-                }
+                URL vendorURL = JarUtil.createJarURL(moduleFile, "META-INF/geronimo-ra.xml");
+                vendorDD = getGerConnector(vendorURL);
             } catch (Exception e) {
                 throw new DeploymentException("Unable to parse META-INF/geronimo-ra.xml", e);
             }
@@ -232,8 +242,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("No geronimo-ra.xml.");
         }
 
-        GerConnectorDocument geronimoConnectorDoc = (GerConnectorDocument) vendorDD;
-        GerConnectorType geronimoConnector = geronimoConnectorDoc.getConnector();
+        GerConnectorType geronimoConnector = (GerConnectorType) vendorDD;
 
         return new ConnectorModule(name, moduleURI, moduleFile, targetPath, connector, geronimoConnector, specDD);
     }
