@@ -55,19 +55,19 @@
  */
 package org.apache.geronimo.client;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
-import org.apache.geronimo.common.AbstractInterceptor;
-import org.apache.geronimo.common.InvocationResult;
-import org.apache.geronimo.common.Invocation;
-import org.apache.geronimo.common.SimpleInvocationResult;
+import org.apache.geronimo.core.service.AbstractInterceptor;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.SimpleInvocationResult;
 import org.apache.geronimo.proxy.ProxyInvocation;
 
 /**
  * Basic invoker for the main method of an Application Client
  * 
- * @version $Revision: 1.3 $ $Date: 2003/09/03 16:02:05 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/08 04:22:23 $
  */
 public class MainInvokerInterceptor extends AbstractInterceptor {
     private final Method mainMethod;
