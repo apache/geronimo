@@ -55,16 +55,16 @@
  */
 package org.apache.geronimo.security;
 
-import org.apache.geronimo.core.service.Component;
-import org.apache.regexp.RE;
+import java.util.Set;
 
 import javax.security.auth.login.AppConfigurationEntry;
-import java.util.Set;
+
+import org.apache.regexp.RE;
 
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2003/12/28 20:13:06 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/02 04:31:44 $
  */
 public interface SecurityRealm {
 

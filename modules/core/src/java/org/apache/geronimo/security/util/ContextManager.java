@@ -55,24 +55,25 @@
  */
 package org.apache.geronimo.security.util;
 
-import org.apache.geronimo.security.GeronimoSecurityPermission;
-import org.apache.geronimo.security.RealmPrincipal;
-
-import javax.security.jacc.EJBRoleRefPermission;
-import javax.security.jacc.WebRoleRefPermission;
-import javax.security.auth.Subject;
-import java.util.Stack;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Iterator;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
 import java.security.Principal;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Stack;
+
+import javax.security.auth.Subject;
+import javax.security.jacc.EJBRoleRefPermission;
+import javax.security.jacc.WebRoleRefPermission;
+
+import org.apache.geronimo.security.GeronimoSecurityPermission;
+import org.apache.geronimo.security.RealmPrincipal;
 
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/23 17:43:01 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/02 04:31:44 $
  */
 
 public class ContextManager {
@@ -137,7 +138,7 @@ public class ContextManager {
 
     public static Principal getCallerPrincipal() {
         Iterator iter = contexts.peek().subject.getPrincipals(RealmPrincipal.class).iterator();
-        
+
         assert iter.hasNext();
 
         return (RealmPrincipal)iter.next();

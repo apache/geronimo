@@ -55,15 +55,16 @@
  */
 package org.apache.geronimo.security;
 
-import javax.security.jacc.PolicyContextHandler;
-import javax.security.jacc.PolicyContextException;
-import javax.security.auth.Subject;
 import java.security.AccessController;
+
+import javax.security.auth.Subject;
+import javax.security.jacc.PolicyContextException;
+import javax.security.jacc.PolicyContextHandler;
 
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/08 06:25:34 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/02 04:31:44 $
  */
 public class PolicyContextHandlerContainerSubject implements PolicyContextHandler {
     public static final String HANDLER_KEY = "javax.security.auth.Subject.container";

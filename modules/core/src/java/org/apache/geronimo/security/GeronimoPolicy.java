@@ -55,21 +55,20 @@
  */
 package org.apache.geronimo.security;
 
-import org.apache.geronimo.security.util.ContextManager;
+import java.security.CodeSource;
+import java.security.Permission;
+import java.security.PermissionCollection;
+import java.security.Policy;
+import java.security.ProtectionDomain;
 
 import javax.security.jacc.PolicyConfigurationFactory;
-import javax.security.jacc.PolicyContextException;
 import javax.security.jacc.PolicyContext;
-import java.security.Policy;
-import java.security.PermissionCollection;
-import java.security.CodeSource;
-import java.security.ProtectionDomain;
-import java.security.Permission;
+import javax.security.jacc.PolicyContextException;
 
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/18 05:17:17 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/02 04:31:44 $
  */
 public class GeronimoPolicy extends Policy {
     private final Policy root;

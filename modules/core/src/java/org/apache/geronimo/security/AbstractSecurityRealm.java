@@ -55,13 +55,13 @@
  */
 package org.apache.geronimo.security;
 
-import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
+import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2003/12/28 19:34:05 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/02 04:31:44 $
  */
 public abstract class AbstractSecurityRealm  implements SecurityRealm, GeronimoMBeanTarget {
 

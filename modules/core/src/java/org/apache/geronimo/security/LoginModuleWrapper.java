@@ -55,19 +55,20 @@
  */
 package org.apache.geronimo.security;
 
-import org.apache.geronimo.security.util.ContextManager;
-
-import javax.security.auth.spi.LoginModule;
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.callback.CallbackHandler;
-import java.util.Map;
-import java.util.Set;
-import java.util.Iterator;
-import java.security.Principal;
-import java.security.PrivilegedActionException;
 import java.security.AccessControlContext;
 import java.security.AccessController;
+import java.security.Principal;
+import java.security.PrivilegedActionException;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import javax.security.auth.Subject;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
+
+import org.apache.geronimo.security.util.ContextManager;
 
 
 /**
@@ -76,7 +77,7 @@ import java.security.AccessController;
  * which, in turn, also get placed into the subject.  It is these RealmPrincipals
  * that are used in the principal to role mapping.
  *
- * @version $Revision: 1.4 $ $Date: 2003/11/12 13:07:06 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/02 04:31:44 $
  */
 public class LoginModuleWrapper implements LoginModule {
     private String realm;

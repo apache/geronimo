@@ -55,17 +55,13 @@
  */
 package org.apache.geronimo.security;
 
-import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
-
-import javax.management.ObjectName;
-import javax.management.MBeanRegistration;
 import java.util.Collection;
 import java.util.HashSet;
 
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2003/12/28 19:34:05 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/02 04:31:44 $
  */
 public interface ModuleConfiguration {
 

@@ -68,8 +68,6 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.Role;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.RoleMappings;
 import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
-import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 
 
@@ -83,7 +81,7 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
  * <p>It is expected that deployment tools will configure modules through
  * these utility MBeans and not directly access the
  * <code>PolicyConfiguration</code> objects.
- * @version $Revision: 1.4 $ $Date: 2003/12/28 20:13:06 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/02 04:31:44 $
  * @see javax.security.jacc.PolicyConfiguration
  * @see "Java Authorization Contract for Containers", section 3.1.3
  */

@@ -55,28 +55,27 @@
  */
 package org.apache.geronimo.security;
 
-import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.RoleMappings;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.Role;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.Realm;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.Principal;
-import org.apache.geronimo.deployment.model.ejb.AssemblyDescriptor;
-import org.apache.geronimo.deployment.model.j2ee.SecurityRole;
-import org.apache.geronimo.security.util.ConfigurationUtil;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
-import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
-
-import javax.security.jacc.PolicyConfiguration;
-import java.util.HashSet;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
+
+import javax.security.jacc.PolicyConfiguration;
+
+import org.apache.geronimo.deployment.model.ejb.AssemblyDescriptor;
+import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.Principal;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.Realm;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.Role;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.RoleMappings;
+import org.apache.geronimo.deployment.model.j2ee.SecurityRole;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.security.util.ConfigurationUtil;
 
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/12/28 20:13:06 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/02 04:31:44 $
  */
 public class EJBModuleConfiguration extends AbstractModuleConfiguration {
 

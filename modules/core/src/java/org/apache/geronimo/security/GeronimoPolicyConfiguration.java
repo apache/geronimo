@@ -55,13 +55,13 @@
  */
 package org.apache.geronimo.security;
 
-import java.security.ProtectionDomain;
 import java.security.Permission;
+import java.security.ProtectionDomain;
 
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/18 05:17:17 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/02 04:31:44 $
  */
 
 public interface GeronimoPolicyConfiguration extends RoleMappingConfiguration {

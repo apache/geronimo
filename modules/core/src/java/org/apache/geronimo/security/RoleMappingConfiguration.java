@@ -55,9 +55,10 @@
  */
 package org.apache.geronimo.security;
 
+import java.util.Collection;
+
 import javax.security.jacc.PolicyConfiguration;
 import javax.security.jacc.PolicyContextException;
-import java.util.Collection;
 
 
 /**
@@ -69,7 +70,7 @@ import java.util.Collection;
  * <code>PolicyConfigurationFactory.getPolicyConfiguration</code>.  If the object that is returned <i>also</i>
  * implements <code>RoleMappingConfiguration</code>, Geronimo will call the methods of that interface to provide role
  * mappings to the <code>Policy</code> provider</p>
- * @version $Revision: 1.1 $ $Date: 2003/11/08 05:29:07 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/02 04:31:44 $
  * @see        javax.security.jacc.PolicyConfiguration
  * @see        javax.security.jacc.PolicyConfigurationFactory#getPolicyConfiguration
  */

@@ -85,7 +85,6 @@ import org.apache.geronimo.kernel.deployment.service.ClassSpaceMetadata;
 import org.apache.geronimo.kernel.deployment.service.MBeanMetadata;
 import org.apache.geronimo.kernel.deployment.task.CreateClassSpace;
 import org.apache.geronimo.kernel.deployment.task.DeployGeronimoMBean;
-import org.apache.geronimo.kernel.deployment.task.RegisterMBeanInstance;
 import org.apache.geronimo.kernel.deployment.task.StartMBeanInstance;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
@@ -100,7 +99,7 @@ import org.xml.sax.SAXException;
  * DeploymentPlanner in charge of the plannification of Connector deployments.
  *
  *
- * @version $Revision: 1.9 $ $Date: 2003/12/28 23:06:42 $
+ * @version $Revision: 1.10 $ $Date: 2004/01/02 04:31:44 $
  */
 public class ConnectorDeploymentPlanner
         extends AbstractDeploymentPlanner {
@@ -110,7 +109,6 @@ public class ConnectorDeploymentPlanner
     public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
         return AbstractDeploymentPlanner.getGeronimoMBeanInfo(ConnectorDeploymentPlanner.class.getName());
     }
-
 
     /**
      * Deploys the specified URL. If this deployer can deploy the specified

@@ -55,40 +55,41 @@
  */
 package org.apache.geronimo.security.util;
 
-import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
-import org.apache.geronimo.deployment.model.web.SecurityConstraint;
-import org.apache.geronimo.deployment.model.web.WebResourceCollection;
-import org.apache.geronimo.deployment.model.j2ee.SecurityRole;
-import org.apache.geronimo.deployment.model.j2ee.SecurityRoleRef;
-import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
-import org.apache.geronimo.deployment.model.ejb.EnterpriseBeans;
-import org.apache.geronimo.deployment.model.ejb.Entity;
-import org.apache.geronimo.deployment.model.ejb.Session;
-import org.apache.geronimo.deployment.model.ejb.AssemblyDescriptor;
-import org.apache.geronimo.deployment.model.ejb.MethodPermission;
-import org.apache.geronimo.deployment.model.ejb.ExcludeList;
-import org.apache.geronimo.deployment.model.ejb.Method;
-import org.apache.geronimo.deployment.model.ejb.RpcBean;
-import org.apache.geronimo.security.GeronimoSecurityException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 
-import javax.security.jacc.PolicyConfiguration;
-import javax.security.jacc.WebResourcePermission;
-import javax.security.jacc.WebUserDataPermission;
-import javax.security.jacc.PolicyContextException;
 import javax.security.jacc.EJBMethodPermission;
 import javax.security.jacc.EJBRoleRefPermission;
-import javax.security.jacc.PolicyContextHandler;
+import javax.security.jacc.PolicyConfiguration;
 import javax.security.jacc.PolicyContext;
-import java.util.HashSet;
-import java.util.HashMap;
-import java.util.Iterator;
+import javax.security.jacc.PolicyContextException;
+import javax.security.jacc.PolicyContextHandler;
+import javax.security.jacc.WebResourcePermission;
+import javax.security.jacc.WebUserDataPermission;
+
+import org.apache.geronimo.deployment.model.ejb.AssemblyDescriptor;
+import org.apache.geronimo.deployment.model.ejb.EnterpriseBeans;
+import org.apache.geronimo.deployment.model.ejb.Entity;
+import org.apache.geronimo.deployment.model.ejb.ExcludeList;
+import org.apache.geronimo.deployment.model.ejb.Method;
+import org.apache.geronimo.deployment.model.ejb.MethodPermission;
+import org.apache.geronimo.deployment.model.ejb.RpcBean;
+import org.apache.geronimo.deployment.model.ejb.Session;
+import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
+import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
+import org.apache.geronimo.deployment.model.j2ee.SecurityRole;
+import org.apache.geronimo.deployment.model.j2ee.SecurityRoleRef;
+import org.apache.geronimo.deployment.model.web.SecurityConstraint;
+import org.apache.geronimo.deployment.model.web.WebResourceCollection;
+import org.apache.geronimo.security.GeronimoSecurityException;
 
 
 /**
  * A collection of utility functions that assist with the configuration of
  * <code>PolicyConfiguration</code>s.
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/18 05:17:18 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/02 04:31:44 $
  * @see javax.security.jacc.PolicyConfiguration
  *  @see "JSR 115" Java Authorization Contract for Containers
  */
@@ -107,7 +108,7 @@ public class ConfigurationUtil {
      */
     public static void registerPolicyContextHandler(PolicyContextHandler handler, boolean replace) throws PolicyContextException {
         String[] keys = handler.getKeys();
-        
+
         for (int i=0; i<keys.length; i++) {
             PolicyContext.registerHandler(keys[i], handler, replace);
         }

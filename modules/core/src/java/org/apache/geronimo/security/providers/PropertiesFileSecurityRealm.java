@@ -55,27 +55,27 @@
  */
 package org.apache.geronimo.security.providers;
 
-import org.apache.geronimo.security.AbstractSecurityRealm;
-import org.apache.geronimo.security.GeronimoSecurityException;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.regexp.RE;
-
-import javax.security.auth.login.AppConfigurationEntry;
-import java.util.Set;
-import java.util.Properties;
-import java.util.HashSet;
-import java.util.Enumeration;
-import java.util.Collections;
-import java.util.HashMap;
-import java.net.URI;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
+
+import javax.security.auth.login.AppConfigurationEntry;
+
+import org.apache.geronimo.security.AbstractSecurityRealm;
+import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.regexp.RE;
 
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/28 19:34:05 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/02 04:31:44 $
  */
 public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
     private boolean running = false;

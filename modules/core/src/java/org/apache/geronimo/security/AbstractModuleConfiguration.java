@@ -60,12 +60,10 @@ import java.util.HashSet;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistrationException;
-import javax.management.ObjectName;
 import javax.security.jacc.PolicyConfiguration;
 import javax.security.jacc.PolicyConfigurationFactory;
 import javax.security.jacc.PolicyContextException;
 
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
@@ -73,7 +71,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/28 19:34:05 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/02 04:31:44 $
  */
 public abstract class AbstractModuleConfiguration implements ModuleConfiguration, GeronimoMBeanTarget {
 

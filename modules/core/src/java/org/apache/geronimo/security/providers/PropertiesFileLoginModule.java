@@ -55,21 +55,22 @@
  */
 package org.apache.geronimo.security.providers;
 
-import javax.security.auth.spi.LoginModule;
+import java.io.IOException;
+import java.util.Map;
+
 import javax.security.auth.Subject;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
-import java.util.Map;
-import java.io.IOException;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
 
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/18 05:17:18 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/02 04:31:44 $
  */
 public class PropertiesFileLoginModule implements LoginModule {
     PropertiesFileSecurityRealm realm;

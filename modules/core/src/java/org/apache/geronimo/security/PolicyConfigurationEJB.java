@@ -55,28 +55,25 @@
  */
 package org.apache.geronimo.security;
 
-import sun.security.util.BitArray;
-
-import javax.security.jacc.PolicyContextException;
+import java.security.Permission;
+import java.security.PermissionCollection;
+import java.security.Permissions;
+import java.security.Principal;
+import java.security.ProtectionDomain;
+import java.util.BitSet;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Enumeration;
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.Collections;
-import java.util.BitSet;
-import java.security.PermissionCollection;
-import java.security.Permission;
-import java.security.ProtectionDomain;
-import java.security.Principal;
-import java.security.Permissions;
 
-import org.apache.geronimo.security.util.ContextManager;
+import javax.security.jacc.PolicyContextException;
 
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/18 05:17:17 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/02 04:31:44 $
  */
 public class PolicyConfigurationEJB implements GeronimoPolicyConfiguration {
     private final static int OPEN = 1;
