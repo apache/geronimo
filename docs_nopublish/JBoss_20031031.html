@@ -1,8 +1,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-  <meta http-equiv="content-type"
- content="text/html; charset=ISO-8859-1">
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
   <title>JBoss 20031031</title>
 </head>
 <body>
@@ -24,17 +24,22 @@ Assertion D.<br>
 Specifically, the exhibits :<br>
 <ul>
   <li>Exhibit A :&nbsp; The source file
-org.apache.geronimo.core.log.XLevel is similar to
-org.jboss.logging.XLevel</li>
+org.apache.geronimo.core.log.XLevel has a "very high degree of
+similarity" to
+org.jboss.logging.XLevel, and suggest that the Geronimo file is
+"derived from the JBoss file".<br>
+  </li>
   <li>Exhibit B : The source file
-org.apache.geronimo.core.log.PatternParser is similar to
+org.apache.geronimo.core.log.PatternParser "appears to be nearly
+identical" to
 org.jboss.logging.layout.PatternParserX<br>
   </li>
   <li>Exhibit C : The source file
-org.apache.geronimo.common.InvocationType is similar to
+org.apache.geronimo.common.InvocationType is "nearly identical" to
 org.jboss.invocation.InvocationType.<br>
   </li>
-  <li>Assertion D : The source files org.jboss.invocation.Invocation
+  <li>"Assertion D", following Exhibit C : The source files
+org.jboss.invocation.Invocation
 and org.apache.geronimo.common.Invocation are similar.&nbsp; Further,
 the architectural concepts of "AsIs", "Transient" and "Marshalled" are
 present because of copying of the JBoss code,&nbsp; and that these
