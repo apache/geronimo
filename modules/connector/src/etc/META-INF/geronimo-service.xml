@@ -11,6 +11,9 @@
         <default attribute="StartMaximumPoolSize" type="int">10</default>
         <default attribute="ScheduledMinimumPoolSize" type="int">0</default>
         <default attribute="ScheduledMaximumPoolSize" type="int">10</default>
+        <endpoint name="XAWork">
+            <pattern>geronimo.transaction:service=TransactionManager</pattern>
+        </endpoint>
     </gbean>
 
     <gbean class="org.apache.geronimo.connector.BootstrapContext" objectName="geronimo.connector:role=BootstrapContext">
