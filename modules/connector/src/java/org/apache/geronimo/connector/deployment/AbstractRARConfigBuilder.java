@@ -31,15 +31,14 @@ import java.net.URL;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
-
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
+import org.apache.geronimo.common.xml.XmlBeansUtil;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
-import org.apache.geronimo.common.xml.XmlBeansUtil;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -50,6 +49,7 @@ import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorType;
 import org.apache.geronimo.xbeans.geronimo.GerGbeanType;
+import org.apache.geronimo.xbeans.geronimo.GerDependencyType;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
@@ -59,7 +59,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.12 $ $Date: 2004/04/03 22:37:57 $
+ * @version $Revision: 1.13 $ $Date: 2004/04/14 04:01:24 $
  *
  * */
 public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
@@ -179,6 +179,11 @@ public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
                 throw new DeploymentException(e);
             }
 
+            GerDependencyType[] dependencies = geronimoConnector.getDependencyArray();
+            for (int i = 0; i < dependencies.length; i++) {
+                context.addDependency(getDependencyURI(dependencies[i]));
+            }
+
             XmlObject genericConnectorDocument = generateClassPath(configID, module, context);
             ClassLoader cl = context.getClassLoader(repository);
 
@@ -207,6 +212,26 @@ public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
     }
 
     abstract void addConnectorGBeans(DeploymentContext context, XmlObject gerericConnectorDocument, GerConnectorType geronimoConnector, ClassLoader cl) throws DeploymentException;
+
+    private URI getDependencyURI(GerDependencyType dep) throws DeploymentException {
+        URI uri;
+        if (dep.isSetUri()) {
+            try {
+                uri = new URI(dep.getUri());
+            } catch (URISyntaxException e) {
+                throw new DeploymentException("Invalid dependency URI " + dep.getUri(), e);
+            }
+        } else {
+            // @todo support more than just jars
+            String id = dep.getGroupId() + "/jars/" + dep.getArtifactId() + '-' + dep.getVersion() + ".jar";
+            try {
+                uri = new URI(id);
+            } catch (URISyntaxException e) {
+                throw new DeploymentException("Unable to construct URI for groupId=" + dep.getGroupId() + ", artifactId=" + dep.getArtifactId() + ", version=" + dep.getVersion(), e);
+            }
+        }
+        return uri;
+    }
 
     public static final GBeanInfo GBEAN_INFO;
 

@@ -278,12 +278,13 @@
         </xsd:annotation>
 
         <xsd:sequence>
-            <xsd:element name="resourceadapter"
-                type="ger:resourceadapterType"/>
+            <xsd:element name="dependency" type="ger:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
+
+            <xsd:element name="resourceadapter" type="ger:resourceadapterType"/>
 
             <xsd:element name="gbean" type="ger:gbeanType" minOccurs="0" maxOccurs="unbounded"/>
-
         </xsd:sequence>
+
         <xsd:attribute name="version" type="ger:versionType" use="required"/>
         <xsd:attribute name="configId" type="xsd:string" use="required"/>
         <xsd:attribute name="parentId" type="xsd:string" use="optional"/>

@@ -17,13 +17,11 @@
 
 package org.apache.geronimo.connector.outbound;
 
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.resource.ResourceException;
-import javax.resource.spi.ManagedConnectionFactory;
 import javax.resource.spi.ConnectionManager;
-import javax.resource.spi.LazyAssociatableConnectionManager;
 import javax.resource.spi.ConnectionRequestInfo;
+import javax.resource.spi.LazyAssociatableConnectionManager;
+import javax.resource.spi.ManagedConnectionFactory;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
 import org.apache.geronimo.gbean.GAttributeInfo;
@@ -35,16 +33,14 @@ import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.kernel.KernelMBean;
 import org.apache.geronimo.security.bridge.RealmBridge;
-import org.apache.geronimo.deployment.DeploymentException;
 
 /**
  * ConnectionManagerDeployment is an mbean that sets up a ProxyConnectionManager
  * and connection manager stack according to the policies described in the attributes.
  * It's used by deserialized copies of the proxy to get a reference to the actual stack.
  *
- * @version $Revision: 1.7 $ $Date: 2004/04/08 20:35:32 $
+ * @version $Revision: 1.8 $ $Date: 2004/04/14 04:01:24 $
  * */
 public class ConnectionManagerDeployment implements ConnectionManagerFactory, GBean, ConnectionManager, LazyAssociatableConnectionManager {
 
@@ -112,10 +108,10 @@ public class ConnectionManagerDeployment implements ConnectionManagerFactory, GB
      * LocalXAResourceInsertionInterceptor or XAResourceInsertionInterceptor (useTransactions (&localTransactions))
      * MCFConnectionInterceptor
      */
-    private void setUpConnectionManager() throws DeploymentException {
+    private void setUpConnectionManager() throws IllegalStateException {
         //check for consistency between attributes
         if (realmBridge == null && useSubject) {
-            throw new  DeploymentException("To use Subject in pooling, you need a SecurityDomain");
+            throw new IllegalStateException("To use Subject in pooling, you need a SecurityDomain");
         }
 
         //Set up the interceptor stack
@@ -127,21 +123,21 @@ public class ConnectionManagerDeployment implements ConnectionManagerFactory, GB
                 stack = new XAResourceInsertionInterceptor(stack);
             }
         }
-        if (useSubject || useConnectionRequestInfo) {
-            stack = new MultiPoolConnectionInterceptor(
-                    stack,
-                    maxSize,
-                    blockingTimeout,
-                    useSubject,
-                    useConnectionRequestInfo);
-        } else {
-            stack = new SinglePoolConnectionInterceptor(
-                    stack,
-                    null,
-                    null,
-                    maxSize,
-                    blockingTimeout);
-        }
+//        if (useSubject || useConnectionRequestInfo) {
+//            stack = new MultiPoolConnectionInterceptor(
+//                    stack,
+//                    maxSize,
+//                    blockingTimeout,
+//                    useSubject,
+//                    useConnectionRequestInfo);
+//        } else {
+//            stack = new SinglePoolConnectionInterceptor(
+//                    stack,
+//                    null,
+//                    null,
+//                    maxSize,
+//                    blockingTimeout);
+//        }
         if (realmBridge != null) {
             stack = new SubjectInterceptor(stack, realmBridge);
         }
