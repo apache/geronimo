@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Id: project.xml,v 1.1 2003/08/12 18:18:45 jdillon Exp $ -->
+
+<project>
+  <pomVersion>3</pomVersion>
+  <extend>${basedir}/../../etc/project.xml</extend>
+  
+  <!-- ===================== -->
+  <!-- Module Identification -->
+  <!-- ===================== -->
+  
+  <name>Geronimo :: Twiddle</name>
+  <id>geronimo-twiddle</id>
+  <shortDescription></shortDescription>
+  <description></description>
+  <siteDirectory></siteDirectory>
+  <distributionDirectory></distributionDirectory>
+  
+  <package>org.apache.geronimo.twiddle</package>
+  <currentVersion>DEV</currentVersion>
+  
+  
+  <!-- ============ -->
+  <!-- Dependencies -->
+  <!-- ============ -->
+  
+  <dependencies>
+  
+    <!-- Module Dependencies -->
+    
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>geronimo-common</artifactId>
+      <version>DEV</version>         
+    </dependency>
+    
+    <!-- Thirdparty Dependencies -->
+    
+    <dependency>
+      <id>junit</id>
+      <version>3.8.1</version>
+      <url>http://junit.org</url>
+    </dependency>
+    
+    <dependency>
+      <id>castor</id>
+      <version>0.9.5</version>
+      <url>http://castor.exolab.org</url>
+    </dependency>
+    
+    <dependency>
+      <id>xerces</id>
+      <version>2.4.0</version>
+      <url>http://xml.apache.org</url>
+    </dependency>
+    
+    <dependency>
+      <id>xml-apis</id>
+      <version>1.0.b2</version>
+    </dependency>
+    
+    <dependency>
+      <id>log4j</id>
+      <version>1.2.8</version>
+      <url>http://jakarta.apache.org/log4j</url>
+    </dependency>
+    
+    <dependency>
+      <id>commons-logging</id>
+      <version>1.0.3</version>
+      <url>http://jakarta.apache.org/commons/logging.html</url>
+    </dependency>
+    
+    <dependency>
+      <id>commons-jexl</id>
+      <version>SNAPSHOT</version>
+      <url>http://jakarta.apache.org/commons/jexl.html</url>
+    </dependency>
+    
+    <dependency>
+      <id>commons-cli</id>
+      <version>1.0</version>
+      <url>http://jakarta.apache.org/commons/cli</url>
+    </dependency>
+    
+  </dependencies>
+  
+  
+  <!-- =================== -->
+  <!-- Build Specification -->
+  <!-- =================== -->
+  
+  <build>
+    <unitTest>
+      <!-- For some reason this is not pulled from the global project -->
+      <includes>
+        <include>**/*Test.java</include>
+      </includes>
+      <excludes>
+        <exclude>**/Abstract*.java</exclude>
+      </excludes>
+      
+      <resources>
+        <resource>
+          <directory>${basedir}/src/test</directory>
+          <includes>
+            <include>**/*.xml</include>
+          </includes>
+        </resource>
+      </resources>
+    </unitTest>
+  </build>
+
+</project>

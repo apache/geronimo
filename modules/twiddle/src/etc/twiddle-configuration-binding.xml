@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Id: twiddle-configuration-binding.xml,v 1.1 2003/08/12 18:18:45 jdillon Exp $ -->
+
+<binding xmlns="http://www.castor.org/SourceGenerator/Binding"
+         defaultBindingType="element">
+
+  <!-- Define the {namespace,package} binding -->
+  
+  <package>
+    <name>org.apache.geronimo.twiddle.config</name>
+    <namespace>http://geronimo.apache.org/xml/schema/Twiddle/Configuration</namespace>
+  </package>
+  
+  <!-- Use custom class naming -->
+  
+  <!--
+  <namingXML>
+    <elementName>
+      <suffix>Config</suffix>
+    </elementName>
+    
+    <complexTypeName>
+      <suffix>Type</suffix>
+    </complexTypeName>
+    
+    <modelGroupName>
+      <suffix>Group</suffix>
+    </modelGroupName>
+  </namingXML>
+  -->
+  
+  <!-- Custom element binding -->
+  
+  <elementBinding name="environment">
+    <java-class name="EnvironmentConfig"/>
+  </elementBinding>
+  
+  <elementBinding name="command">
+    <java-class name="CommandConfig"/>
+  </elementBinding>
+  
+  <elementBinding name="command-set">
+    <java-class name="CommandSetConfig"/>
+  </elementBinding>
+  
+</binding>
