@@ -59,12 +59,14 @@ package org.apache.geronimo.management;
 import javax.management.Notification;
 import javax.management.NotificationFilter;
 
+import org.apache.geronimo.kernel.management.NotificationType;
+
 import junit.framework.TestCase;
 
 /**
  * Unit test for org.apache.geronimo.common.State class
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/24 05:31:40 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/08 04:36:32 $
  */
 
 public class NotificationTypeTest extends TestCase {

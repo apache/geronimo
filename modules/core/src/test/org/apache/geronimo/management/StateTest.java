@@ -56,12 +56,14 @@
 
 package org.apache.geronimo.management;
 
+import org.apache.geronimo.kernel.management.State;
+
 import junit.framework.TestCase;
 
 /**
  * Unit test for org.apache.geronimo.common.State class
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/21 00:36:35 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/08 04:36:32 $
  */
 
 public class StateTest extends TestCase {
