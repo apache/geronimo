@@ -132,8 +132,7 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
         Configuration.setConfiguration(oldConfiguration);
 
         for (Iterator iter = entries.keySet().iterator(); iter.hasNext();){
-            ConfigurationEntryFactory factory = (ConfigurationEntryFactory) entries.get(iter.next());
-            log.info("Removed Application Configuration Entry " + factory.getConfigurationName());
+            log.info("Removed Application Configuration Entry " + iter.next());
         }
         entries.clear();
         
