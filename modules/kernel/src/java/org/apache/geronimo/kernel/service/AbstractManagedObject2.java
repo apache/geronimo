@@ -90,7 +90,7 @@ import org.apache.geronimo.kernel.management.StateManageable;
  * Implementors of StateManageable may use this class and simply provide
  * doStart, doStop and sendNotification methods.
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/09 19:42:39 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/15 23:02:30 $
  */
 public abstract class AbstractManagedObject2 implements ManagedObject, StateManageable, EventProvider, NotificationListener, MBeanRegistration, NotificationEmitter {
     protected final Log log = LogFactory.getLog(getClass());
@@ -286,7 +286,11 @@ public abstract class AbstractManagedObject2 implements ManagedObject, StateMana
      */
     public final void sendNotification(String type) {
         assert !Thread.holdsLock(this): "This method cannot be called while holding a syncrhonized lock on this";
-        notificationBroadcaster.sendNotification(new Notification(type, objectName, sequenceNumber++));
+        long seq;
+        synchronized(this) {
+            seq = sequenceNumber++;
+        }
+        notificationBroadcaster.sendNotification(new Notification(type, objectName, seq));
     }
 
     public void sendNotification(Notification notification) {
