@@ -113,7 +113,7 @@ public abstract class AbstractDeploymentPlanner implements DeploymentPlanner, Ge
 
 
     public boolean plan(Set goals, Set plans) throws DeploymentException {
-        log.info(context.getObjectName().toString() + " Got to plan method with goals " + goals);
+//        log.info(context.getObjectName().toString() + " Got to plan method with goals " + goals);
         boolean progress = false;
         Set x = new HashSet(goals);
         for (Iterator i = x.iterator(); i.hasNext();) {

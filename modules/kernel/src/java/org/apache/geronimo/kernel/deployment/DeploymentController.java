@@ -88,7 +88,7 @@ import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/11/16 02:22:58 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/17 00:17:25 $
  */
 public class DeploymentController implements GeronimoMBeanTarget {
 
@@ -153,11 +153,11 @@ public class DeploymentController implements GeronimoMBeanTarget {
                 //only add a new deployment goal if we don't already have one. One can already exist if
                 //there was no deployer available when the url was scanned
                 if ((lastScan == null) || ((lastScan != null) &&!lastScan.contains (urlInfo))){
-                    log.info("Adding url goal for " + url);
+//                    log.info("Adding url goal for " + url);
                     goals.add(new DeployURL(url, urlInfo.getType()));
                 }
             } else {
-                log.info("Redeploying url " + url);
+//                log.info("Redeploying url " + url);
                 goals.add(new RedeployURL(url));
             }
         }
@@ -251,7 +251,7 @@ public class DeploymentController implements GeronimoMBeanTarget {
                 boolean madeProgress = false;
                 for (Iterator i = planners.iterator(); i.hasNext();) {
                     DeploymentPlanner planner = (DeploymentPlanner) i.next();
-                    log.info("Talking to planner: " + planner);
+//                    log.info("Talking to planner: " + planner);
                     boolean progress = planner.plan(goals, plans);
                     if (progress) {
                         madeProgress = true;

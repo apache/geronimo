@@ -67,7 +67,7 @@ import org.apache.geronimo.kernel.deployment.task.DeploymentTask;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/14 16:27:34 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/17 00:17:25 $
  */
 public class DeploymentPlan {
     private final Log log = LogFactory.getLog(this.getClass());
@@ -88,7 +88,7 @@ public class DeploymentPlan {
         boolean canRun = true;
         for (Iterator i = tasks.iterator(); i.hasNext();) {
             DeploymentTask task = (DeploymentTask) i.next();
-            log.trace("Checking if task can run " + task);
+            log.trace("Checking if task can run: plan=" + hashCode() + " task=" + task);
 
             // always check each task, so the task can throw an exception if the task can never run
             boolean thisCanRun = task.canRun();
