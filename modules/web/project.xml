@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.2 $ $Date: 2003/08/20 05:37:03 $ -->
+<!-- $Revision: 1.3 $ $Date: 2003/08/24 05:36:36 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -12,8 +12,8 @@
   
   <name>Geronimo :: Web</name>
   <id>geronimo-web</id>
-  <shortDescription>Geronimo Web J2EE Container</shortDescription>
-  <description>Geronimo Web J2EE Container</description>
+  <shortDescription>Geronimo Web Container</shortDescription>
+  <description>Geronimo Web Container</description>
   <url>http://incubator.apache.org/projects/geronimo/web/</url>
   <siteDirectory>/www/incubator.apache.org/projects/geronimo/web</siteDirectory>
   <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/web</distributionDirectory>
