@@ -69,7 +69,7 @@ import java.io.IOException;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/18 05:17:18 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/27 10:33:48 $
  */
 
 public class SQLLoginModule implements LoginModule {
@@ -105,7 +105,7 @@ public class SQLLoginModule implements LoginModule {
     }
 
     public boolean commit() throws LoginException {
-        subject.getPrincipals().add(new PropertiesFileUserPrincipal(username));
+        subject.getPrincipals().add(new SQLUserPrincipal(username));
 
         return true;
     }
