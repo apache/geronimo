@@ -55,107 +55,22 @@
  */
 package org.apache.geronimo.clustering;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.util.Vector;
 import java.util.List;
-import java.util.Collections;
 
 /**
- * An initial Cluster impl, which only clusters within a single
- * VM. Thus development on Clustering can start before an inter-vm
- * transport layer has been put in place...
+ * An interface implemented by components that wish to have their
+ * state initialised from the Cluster.
  *
- * @jmx:mbean extends="org.apache.geronimo.clustering.AbstractClusterMBean"
- * @version $Revision: 1.4 $ $Date: 2003/12/30 14:54:38 $
+ * @version $Revision: 1.1 $ $Date: 2003/12/30 14:54:38 $
  */
-public class
-  LocalCluster
-  extends AbstractCluster
-  implements LocalClusterMBean, MetaDataListener, DataListener, DataDeltaListener
+public interface
+  DataDeltaListener
 {
-  protected Log _log=LogFactory.getLog(LocalCluster.class);
-
-  // LocalCluster
-
-  protected LocalChannel _channel;
-
   /**
-   * @jmx.managed-attribute
+   * Called by Cluster to initialise the state of a [new] node.
+   *
+   * @param delta a <code>Object</code> delta to be applied to the
+   * nodes current state.
    */
-  public List getMembers(){return _channel.getMembers();}
-
-  public void join()  {_channel.join(this);}
-  public void leave() {_channel.leave(this);}
-
-  // StateManageable
-  public boolean canStart() {return true;}
-  public boolean canStop()  {return true;}
-
-  public void
-    doStart()
-  {
-    _log=LogFactory.getLog(getClass().getName()+"#"+getName()+"/"+getNode());
-    _log.info("starting");
-    _channel=LocalChannel.find(getName());
-    synchronized (_channel)
-    {
-      setData(_channel.getData());
-      join();
-    }
-  }
-
-  public void
-    doStop()
-  {
-    _log.info("stopping");
-    leave();
-  }
-
-  public void
-    doFail()
-  {
-    _log.info("failing");
-    leave();			// ??
-  }
-
-  // MetaDataListener
-  public void
-    setMetaData(List members)
-  {
-    _log.info("membership changed: "+members);
-  }
-
-  // DataListener
-  protected Object _data;
-
-  // TODO - should probably return byte[] - needs renaming
-  public Object getData() {return _data;}
-
-  // TODO - should probably expect byte[] - needs renaming
-  public void
-    setData(Object data)
-  {
-    String xtra="we must be the first node up";
-
-    if (data!=null)
-    {
-      xtra="we are joining an extant cluster";
-      _data=data;
-    }
-    else
-    {
-      _data=new Object();
-    }
-
-    _log.debug("initialising data - "+xtra);
-  }
-
-  // DataDeltaListener
-  public void
-    applyDataDelta(Object delta)
-  {
-    _log.trace("applying data delta - "+delta);
-  }
+  public void applyDataDelta(Object delta);
 }

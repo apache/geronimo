@@ -58,18 +58,21 @@ package org.apache.geronimo.clustering;
 import java.util.List;
 
 /**
- * An initial Cluster impl, which only clusters within a single
- * VM. Thus development on Clustering can start before an inter-vm
- * transport layer has been put in place...
+ * An interface implemented by components that wish to be notified
+ * upon membership of a Cluster changing.
  *
- * @jmx:mbean extends="org.apache.geronimo.clustering.AbstractClusterMBean"
- * @version $Revision: 1.1 $ $Date: 2003/12/29 18:50:11 $
+ * @version $Revision: 1.1 $ $Date: 2003/12/30 14:54:38 $
  */
 public interface
-  MembershipChangedListener
+  MetaDataListener
 {
-  // this is better than a memberLeft/memberJoined notification as it
-  // can handle multiple concurrent leave/joins, this may occur in the
-  // case of event elysion...
-  public void membershipChanged(List newMembers);
+  /**
+   * Called by Cluster when a change in membership occurs. This is
+   * better than a memberLeft/memberJoined notification as it can
+   * handle multiple concurrent leave/joins, this may occur in the
+   * case of event elysion...
+   *
+   * @param members a <code>List</code> of members.
+   */
+  public void setMetaData(List members);
 }

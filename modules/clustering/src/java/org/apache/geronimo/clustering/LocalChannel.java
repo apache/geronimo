@@ -67,7 +67,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * A uniquely identifiable n->n intra-vm event-raising communications channel...
  *
- * @version $Revision: 1.1 $ $Date: 2003/12/29 18:50:11 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/30 14:54:38 $
  */
 public class
   LocalChannel
@@ -78,26 +78,26 @@ public class
 
   public static LocalChannel
     find(String name)
+  {
+    synchronized (_map)
     {
-      synchronized (_map)
+      LocalChannel channel=(LocalChannel)_map.get(name);
+
+      if (channel==null)
       {
-	LocalChannel channel=(LocalChannel)_map.get(name);
+	channel=new LocalChannel(name);
+	_map.put(name, channel);
 
-	if (channel==null)
-	{
-	  channel=new LocalChannel(name);
-	  _map.put(name, channel);
-
-	  _log.trace("created channel: "+name);
-	}
-	else
-	{
-	  _log.trace("found channel: "+name);
-	}
-
-	return channel;
+	_log.trace("created channel: "+name);
       }
+      else
+      {
+	_log.trace("found channel: "+name);
+      }
+
+      return channel;
     }
+  }
 
   // instance
   protected String _name;
@@ -107,61 +107,71 @@ public class
 
   public List getMembers(){synchronized (_members){return Collections.unmodifiableList(_members);}}
 
-  // membership
+  // MetaData
 
   protected void
     notifyMembershipChanged(List members)
-    {
-      for (Iterator i=members.iterator(); i.hasNext();)
-	try
-	{
-	  ((MembershipChangedListener)i.next()).membershipChanged(members);
-	}
-	catch (Exception e)
-	{
-	  _log.warn("problem notifying membership changed", e);
-	}
-    }
+  {
+    for (Iterator i=members.iterator(); i.hasNext();)
+      try
+      {
+	Object member=i.next();
+	if (member instanceof MetaDataListener)
+	  ((MetaDataListener)member).setMetaData(members);
+      }
+      catch (Exception e)
+      {
+	_log.warn("problem notifying membership changed", e);
+      }
+  }
 
   public void
-    join(MembershipChangedListener member)
+    join(Object member)
+  {
+    // first one in could turn on the lights...
+    synchronized (_members)
     {
-      // first one in could turn on the lights...
-      synchronized (_members)
-      {
-	_members.add(member);
-	notifyMembershipChanged(_members);
-      }
+      _members.add(member);
+      notifyMembershipChanged(_members);
     }
+  }
 
   public void
-    leave(MembershipChangedListener member)
+    leave(Object member)
+  {
+    synchronized (_members)
     {
-      synchronized (_members)
-      {
-	_members.remove(member);
-	notifyMembershipChanged(_members);
-      }
-
-      // last one out could turn out the lights...
+      _members.remove(member);
+      notifyMembershipChanged(_members);
     }
 
-  // state
+    // last one out could turn out the lights...
+  }
+
+  // Data
 
   public synchronized Object
-    getCurrentState()
-    {
-      // TODO - we need a pluggable election policy to decide who will
-      // be asked for state...
+    getData()
+  {
+    // TODO - we need a pluggable election policy to decide who will
+    // be asked for state...
 
-      synchronized (_members)
+    synchronized (_members)
+    {
+      if (_members.isEmpty())
+	return null;
+      else
       {
-	if (_members.isEmpty())
-	  return null;
-	else
+	for (Iterator i=_members.iterator(); i.hasNext();)
+	{
+	  Object member=i.next();
 	  // TODO - we need to do a deep copy of the state here -
 	  // serialise and deserialise...
-	  return ((LocalCluster)_members.get(0)).getCurrentState();
+	  if (member instanceof DataListener)
+	    return ((DataListener)member).getData();
+	}
+	return null;
       }
     }
+  }
 }
