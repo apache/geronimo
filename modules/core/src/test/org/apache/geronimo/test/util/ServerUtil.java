@@ -69,7 +69,7 @@ import java.util.Set;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/18 05:18:11 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/19 02:07:01 $
  */
 
 public class ServerUtil {
@@ -80,11 +80,13 @@ public class ServerUtil {
     private static final Object[] REL_ARGS = {"name=Route\nleft.name=Source\nright.name=Target\nright.class=org.apache.geronimo.remoting.router.RouterTargetMBean"};
     private static final ObjectName RELATION_SERVICE = JMXUtil.getObjectName("geronimo.boot:role=RelationService");
     private static final ObjectName DEPENDS_SERVICE = JMXUtil.getObjectName("geronimo.boot:role=DependencyService");
+    private static final ObjectName DEPENDS_SERVICE2 = JMXUtil.getObjectName("geronimo.boot:role=DependencyService2");
 
     public static MBeanServer newLocalServer() throws Exception {
         MBeanServer mbServer = MBeanServerFactory.createMBeanServer("LocalTestServer");
         mbServer.createMBean("javax.management.relation.RelationService", RELATION_SERVICE, new Object[]{Boolean.TRUE}, new String[]{"boolean"});
         mbServer.createMBean("org.apache.geronimo.kernel.deployment.DependencyService", DEPENDS_SERVICE);
+        mbServer.createMBean("org.apache.geronimo.kernel.service.DependencyService2", DEPENDS_SERVICE2);
 
         return mbServer;
     }
