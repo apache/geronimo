@@ -22,7 +22,7 @@
 %versions;
 ]>
 
-<!-- $Revision: 1.42 $ $Date: 2004/09/02 18:32:25 $ -->
+<!-- $Revision: 1.43 $ $Date: 2004/09/03 05:48:14 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -45,6 +45,18 @@
     <!-- ============ -->
 
     <dependencies>
+        <!-- Used for preprocessing our plans -->
+        <dependency>
+            <groupId>commons-jelly</groupId>
+            <artifactId>commons-jelly-tags-velocity</artifactId>
+            <version>&jelly-velocity-tags-version;</version>
+        </dependency>
+        <dependency>
+            <groupId> velocity</groupId>
+            <artifactId>velocity</artifactId>
+            <version>&velocity-version;</version>
+        </dependency>
+
         <!-- ========================================================== -->
         <!-- We use the follow properties in this build:                -->
         <!--     lib: copy dependency into lib                          -->

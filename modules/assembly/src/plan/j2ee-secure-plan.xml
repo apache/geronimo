@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE configuration [
-<!ENTITY version  "1.0-SNAPSHOT">
-]>
 <!--
 
     Copyright 2004 The Apache Software Foundation
@@ -19,6 +16,7 @@
     limitations under the License.
 -->
 
+<!-- $Revision: 1.6 $ $Date: 2004/09/03 05:48:14 $ -->
 
 <!--
 Configuration for the main ring of a Geronimo server.
@@ -33,7 +31,7 @@ by the server.
     >
 
     <dependency>
-        <uri>geronimo/jars/geronimo-jetty-&version;.jar</uri>
+        <uri>geronimo/jars/geronimo-jetty-${geronimo_version}.jar</uri>
     </dependency>
 
     <!-- Security GBeans -->

@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.32 $ $Date: 2004/09/02 03:02:16 $ -->
+<!-- $Revision: 1.33 $ $Date: 2004/09/03 05:48:14 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -41,6 +41,21 @@
     <!-- expanded correctly when in the global.properties file -->
     <j:set var="maven.war.final.name" value="${pom.artifactId}-${pom.currentVersion}.war"/>
 
+    <!-- convert the version-info.ent into a properties file and load that file -->
+    <copy file="${project.root}/etc/version-info.ent" tofile="${project.root}/etc/version-info.properties" overwrite="true"/>
+    <replaceregexp file="${project.root}/etc/version-info.properties"
+        match='&lt;!ENTITY  *(.*)-version  *"(.*)"&gt;'
+        replace="\1_version=\2"
+        byline="true"/>
+    <replaceregexp file="${project.root}/etc/version-info.properties"
+        match="(..*)-(..*)-(..*).version=(.*)"
+        replace="\1_\2_\3_version=\4"
+        byline="true"/>
+    <replaceregexp file="${project.root}/etc/version-info.properties"
+        match="(..*)-(..*).version=(.*)"
+        replace="\1_\2_version=\3"
+        byline="true"/>
+    <ant:property file="${project.root}/etc/version-info.properties"/>
 
     <!-- ==================== -->
     <!-- Default Global Goals -->
@@ -64,8 +79,9 @@
         <ant:echo>
             H E L L O
             ---------
-            Module Name: ${pom.name}
-            Version: ${pom.currentVersion}
+            Module Name ${pom.name} [${pom.currentVersion}]
+            Geronimo: ${geronimo_version}
+            OpenEJB: ${openejb_version}
         </ant:echo>
     </goal>
 

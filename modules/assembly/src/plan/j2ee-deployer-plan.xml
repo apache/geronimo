@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE configuration [
-<!ENTITY version  "1.0-SNAPSHOT">
-]>
 <!--
 
     Copyright 2004 The Apache Software Foundation
@@ -19,10 +16,10 @@
     limitations under the License.
 -->
 
+<!-- $Revision: 1.28 $ $Date: 2004/09/03 05:48:14 $ -->
 
 <!--
 Configuration for the Geronimo deployer
-
 -->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment"
@@ -30,52 +27,50 @@ Configuration for the Geronimo deployer
     parentId="org/apache/geronimo/DeployerSystem"
     >
 
-    
-    <!-- TODO Use parsed entities for version numbers -->
     <dependency>
-        <uri>openejb/jars/openejb-core-2.0-SNAPSHOT.jar</uri>
+        <uri>openejb/jars/openejb-core-${openejb_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-connector-&version;.jar</uri>
+        <uri>geronimo/jars/geronimo-connector-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-core-&version;.jar</uri>
+        <uri>geronimo/jars/geronimo-core-${geronimo_version}.jar</uri>
     </dependency>
     <!-- needed to load some connector and core classes-->
     <dependency>
-        <uri>concurrent/jars/concurrent-1.3.4.jar</uri>
+        <uri>concurrent/jars/concurrent-${concurrent_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-j2ee-&version;.jar</uri>
+        <uri>geronimo/jars/geronimo-j2ee-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-security-&version;.jar</uri>
+        <uri>geronimo/jars/geronimo-security-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-jetty-&version;.jar</uri>
+        <uri>geronimo/jars/geronimo-jetty-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-naming-&version;.jar</uri>
+        <uri>geronimo/jars/geronimo-naming-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-timer-&version;.jar</uri>
+        <uri>geronimo/jars/geronimo-timer-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-transaction-&version;.jar</uri>
+        <uri>geronimo/jars/geronimo-transaction-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-j2ee-schema-&version;.jar</uri>
+        <uri>geronimo/jars/geronimo-j2ee-schema-${geronimo_version}.jar</uri>
     </dependency>
     <!-- seems to be required to load jetty deployer - but I think this should not be here-->
     <dependency>
-        <uri>geronimo-spec/jars/geronimo-spec-j2ee-1.4-rc2.jar</uri>
+        <uri>geronimo-spec/jars/geronimo-spec-j2ee-${geronimo_spec_j2ee_version}.jar</uri>
     </dependency>
     <!-- required for rar 1.5 to load realms -->
     <dependency>
-        <uri>regexp/jars/regexp-1.3.jar</uri>
+        <uri>regexp/jars/regexp-${regexp_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>tranql/jars/tranql-1.0-SNAPSHOT.jar</uri>
+        <uri>tranql/jars/tranql-${tranql_version}.jar</uri>
     </dependency>
 
     <gbean name="geronimo.deployment:role=Deployer,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.deployment.Deployer">
