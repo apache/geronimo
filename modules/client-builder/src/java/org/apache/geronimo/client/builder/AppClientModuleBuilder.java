@@ -320,17 +320,17 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                     }
                 };
 
-                URI configId = URI.create(geronimoAppClient.getClientConfigId());
-                URI parentId;
-                if (geronimoAppClient.isSetParentId()) {
-                    parentId = URI.create(geronimoAppClient.getParentId());
+                URI clientConfigId = URI.create(geronimoAppClient.getClientConfigId());
+                URI clientParentId;
+                if (geronimoAppClient.isSetClientParentId()) {
+                    clientParentId = URI.create(geronimoAppClient.getClientParentId());
                 } else {
-                    parentId = CLIENT_PARENT_ID;
+                    clientParentId = CLIENT_PARENT_ID;
                 }
                 appClientDeploymentContext = new EARContext(jos,
-                        configId,
+                        clientConfigId,
                         ConfigurationModuleType.APP_CLIENT,
-                        parentId,
+                        clientParentId,
                         kernel,
                         clientDomainName,
                         clientServerName,
