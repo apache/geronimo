@@ -37,7 +37,7 @@ import org.apache.geronimo.network.SelectorManager;
 
 
 /**
- * @version $Revision: 1.12 $ $Date: 2004/05/01 23:16:37 $
+ * @version $Revision: 1.13 $ $Date: 2004/05/04 03:05:36 $
  */
 public class SocketProtocol implements AcceptableProtocol, SelectionEventListner {
 
@@ -185,7 +185,7 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
 
         if (address == null && acceptedSocketChannel == null) throw new IllegalStateException("No address set");
 
-        log.trace("Starting");
+        log.trace("Starting "+ this);
         if (acceptedSocketChannel == null) {
             try {
                 socketChannel = SocketChannel.open();
@@ -271,26 +271,27 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
         }
     }
 
-    public void selectionEvent(SelectionKey selection) {
+    public void selectionEvent(SelectorManager.Event event) {
         try {
-            if (selection.isReadable()) {
+            if (event.isReadable()) {
                 synchronized (serviceReadMutex) {
                     serviceRead();
                 }
             }
-            if (selection.isWritable()) {
+            if (event.isWritable()) {
                 synchronized (serviceWriteMutex) {
                     serviceWrite();
                 }
             }
         } catch (CancelledKeyException e) {
+            log.trace("CancelledKeyException " + e);
             // who knows, by the time we get here,
             // the key could have been canceled.
         }
     }
 
     private void serviceWrite() {
-        log.trace("serviceWrite() triggered.");
+        log.trace("serviceWrite() triggered " + selectionKey);
         try {
             if (sendBuffer == null) {
                 log.trace("Write had allready been serviced.");
@@ -328,7 +329,7 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
 
     public void serviceRead() {
         boolean tracing = log.isTraceEnabled();
-        if (tracing) log.trace("serviceRead() triggered.");
+        if (tracing) log.trace("serviceRead() triggered " + selectionKey);
         lastUsed = System.currentTimeMillis();
         try {
             while (true) {
@@ -430,7 +431,7 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
                 } catch (Throwable e) {
                     log.info("Closing error: ", e);
                 }
-                log.trace("Closed");
+                log.trace("Closed "+ this);
             }
             state = STOPPED;
         }

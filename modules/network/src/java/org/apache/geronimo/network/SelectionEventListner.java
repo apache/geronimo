@@ -25,7 +25,7 @@ import java.nio.channels.SelectionKey;
  * that are registed with the Selector of the SelectorManager manager
  * must implement.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:12 $
+ * @version $Revision: 1.3 $ $Date: 2004/05/04 03:05:36 $
  */
 public interface SelectionEventListner {
 
@@ -33,5 +33,5 @@ public interface SelectionEventListner {
      * When the SelectorKey is triggered, the service method will
      * be called on the attachment.
      */
-    public void selectionEvent(SelectionKey selection);
+    public void selectionEvent(SelectorManager.Event event);
 }

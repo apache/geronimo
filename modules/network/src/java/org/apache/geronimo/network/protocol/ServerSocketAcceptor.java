@@ -35,7 +35,7 @@ import org.apache.geronimo.network.URISupport;
 
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/05/01 17:23:55 $
+ * @version $Revision: 1.8 $ $Date: 2004/05/04 03:05:36 $
  */
 public class ServerSocketAcceptor implements SelectionEventListner {
 
@@ -171,10 +171,10 @@ public class ServerSocketAcceptor implements SelectionEventListner {
         state = STOPPED;        
     }
 
-    public void selectionEvent(SelectionKey selection) {
-        if (selection.isAcceptable()) {
+    public void selectionEvent(SelectorManager.Event event) {
+        if (event.isAcceptable()) {
             try {
-                ServerSocketChannel server = (ServerSocketChannel) selection.channel();
+                ServerSocketChannel server = (ServerSocketChannel) event.getSelectionKey().channel();
                 SocketChannel channel = server.accept();
 
                 if (channel == null) return;

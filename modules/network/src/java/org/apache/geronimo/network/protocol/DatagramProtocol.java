@@ -37,7 +37,7 @@ import org.apache.geronimo.network.SelectorManager;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/04/25 02:03:37 $
+ * @version $Revision: 1.6 $ $Date: 2004/05/04 03:05:36 $
  */
 public class DatagramProtocol implements Protocol, SelectionEventListner {
 
@@ -207,7 +207,7 @@ public class DatagramProtocol implements Protocol, SelectionEventListner {
 
     ByteBuffer receiveBuffer = ByteBuffer.allocate(65336);
 
-    public synchronized void selectionEvent(SelectionKey selection) {
+    public synchronized void selectionEvent(SelectorManager.Event event) {
         boolean tracing = log.isTraceEnabled();
 
         if (tracing) log.trace("ReadDataAction triggered.");

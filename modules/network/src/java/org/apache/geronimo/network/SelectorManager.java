@@ -25,6 +25,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Stack;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,7 +42,7 @@ import org.apache.geronimo.system.ThreadPool;
  * The SelectorManager will manage one Selector and the thread that checks
  * the selector.
  *
- * @version $Revision: 1.7 $ $Date: 2004/05/01 23:16:22 $
+ * @version $Revision: 1.8 $ $Date: 2004/05/04 03:05:36 $
  */
 public class SelectorManager implements Runnable, GBean {
 
@@ -55,11 +56,6 @@ public class SelectorManager implements Runnable, GBean {
      * be stopped.
      */
     private volatile boolean running;
-
-    /**
-     * The guard
-     */
-    private Object guard = new Object();
 
     /**
      * The selector used to wait for non-blocking events.
@@ -85,6 +81,11 @@ public class SelectorManager implements Runnable, GBean {
      * how many times we have been started ++ and stoped --
      */
     private int startCounter;
+
+    /**
+     * A list of channels to be closed.
+     */
+    private Stack closing = new Stack();
 
 
     public SelectorManager() throws IOException {
@@ -127,15 +128,51 @@ public class SelectorManager implements Runnable, GBean {
         try {
 
             log.debug("Selector Work thread has started.");
-            log.debug("Selector Manager timeout: "+timeout);
+            log.debug("Selector Manager timeout: " + timeout);
             while (running) {
                 try {
 
-                    synchronized (guard) { /* do nothing */
-                        log.trace("Waiting for selector to return.");
+                    synchronized (closing) {
+                        if (!closing.isEmpty()) {
+                            /**
+                             * Close channels that have been queued up to be
+                             * closed.  Closing channels in this manner prevents
+                             * NullPointExceptions.
+                             *
+                             * http://developer.java.sun.com/developer/bugParade/bugs/4729342.html
+                             */
+                            Iterator iter = closing.iterator();
+
+                            while (iter.hasNext()) {
+                                SelectableChannel selectableChannel = (SelectableChannel) iter.next();
+                                selectableChannel.close();
+                            }
+                            closing.clear();
+                        }
                     }
 
-                    if (selector.select(timeout) == 0) continue;
+                    log.trace("Waiting for selector to return.");
+                    if (selector.select(timeout) == 0) {
+                        /**
+                         * Clean stale connections that do not have and data: select
+                         * returns indicating that the count of active connections with
+                         * input is 0.  However the list still has these "stale"
+                         * connections lingering around.  We remove them since they
+                         * are prematurely triggering selection to return w/o input.
+                         *
+                         * http://nagoya.apache.org/jira/secure/ViewIssue.jspa?key=DIR-18
+                         */
+                        Iterator list = selector.selectedKeys().iterator();
+
+                        while (list.hasNext()) {
+                            SelectionKey key = (SelectionKey) list.next();
+                            key.channel().close();
+                            key.cancel();
+                            list.remove();
+                        }
+
+                        continue;
+                    }
 
                     // Get a java.util.Set containing the SelectionKey objects for
                     // all channels that are ready for I/O.
@@ -143,71 +180,60 @@ public class SelectorManager implements Runnable, GBean {
 
                     // Use a java.util.Iterator to loop through the selected keys
                     for (Iterator i = keys.iterator(); i.hasNext();) {
-                        final SelectionKey key = (SelectionKey) i.next();
+                        SelectionKey key = (SelectionKey) i.next();
 
                         if (key.isReadable()) {
                             log.trace("-OP_READ " + key);
                             key.interestOps(key.interestOps() & (~SelectionKey.OP_READ));
+                            threadPool.getWorkManager().execute(new Event(key, SelectionKey.OP_READ));
                         }
                         if (key.isWritable()) {
                             log.trace("-OP_WRITE " + key);
                             key.interestOps(key.interestOps() & (~SelectionKey.OP_WRITE));
+                            threadPool.getWorkManager().execute(new Event(key, SelectionKey.OP_WRITE));
                         }
                         if (key.isAcceptable()) {
                             log.trace("-OP_ACCEPT " + key);
                             key.interestOps(key.interestOps() & (~SelectionKey.OP_ACCEPT));
+                            threadPool.getWorkManager().execute(new Event(key, SelectionKey.OP_ACCEPT));
                         }
-
-                        threadPool.getWorkManager().execute(new Runnable() {
-                            public void run() {
-                                try {
-                                    ((SelectionEventListner) key.attachment()).selectionEvent(key);
-                                } catch (Throwable e) {
-                                    log.trace("Request Failed.", e);
-                                }
-                            }
-                        });
 
                         i.remove(); // Remove the key from the set of selected keys
                     }
-                    
+
                 } catch (CancelledKeyException e) {
-                    log.debug("Key has Been Cancelled: "+e);
+                    log.debug("Key has Been Cancelled: " + e);
                 }
             }
         } catch (IOException e) {
             log.warn("IOException occured.", e);
         } catch (InterruptedException e) {
             log.debug("Selector Work thread has been interrupted.");
-		} finally {
+        } finally {
             log.debug("Selector Work thread has stopped.");
         }
     }
 
     public SelectionKey register(SelectableChannel selectableChannel, int ops, SelectionEventListner listener) throws ClosedChannelException {
-        synchronized (guard) {
+        synchronized (closing) {
             selector.wakeup();
             SelectionKey key = selectableChannel.register(selector, ops, listener);
             return key;
         }
     }
+
     public void closeChannel(SelectableChannel selectableChannel) throws IOException {
-        synchronized (guard) {
+        synchronized (closing) {
             selector.wakeup();
-            selectableChannel.keyFor(selector).cancel();
-            selectableChannel.close();
+            closing.push(selectableChannel);
         }
     }
 
     public void addInterestOps(SelectionKey selectorKey, int addOpts) {
-        synchronized (guard) {
+        synchronized (closing) {
             selector.wakeup();
-            selectorKey.interestOps( selectorKey.interestOps() | addOpts );
+            selectorKey.interestOps(selectorKey.interestOps() | addOpts);
         }
-    }
-
-    public void wakeup() {
-        selector.wakeup();
     }
 
     public void setGBeanContext(GBeanContext context) {
@@ -250,5 +276,40 @@ public class SelectorManager implements Runnable, GBean {
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
+    }
+
+    public class Event implements Runnable {
+
+        final int flags;
+        final SelectionKey key;
+
+        private Event(SelectionKey key, int flags) {
+            this.flags = flags;
+            this.key = key;
+        }
+
+        public SelectionKey getSelectionKey() {
+            return key;
+        }
+
+        public final boolean isReadable() {
+            return (flags & SelectionKey.OP_READ) != 0;
+        }
+
+        public final boolean isWritable() {
+            return (flags & SelectionKey.OP_WRITE) != 0;
+        }
+
+        public final boolean isAcceptable() {
+            return (flags & SelectionKey.OP_ACCEPT) != 0;
+        }
+
+        public void run() {
+            try {
+                ((SelectionEventListner) key.attachment()).selectionEvent(this);
+            } catch (Throwable e) {
+                log.trace("Request Failed.", e);
+            }
+        }
     }
 }
