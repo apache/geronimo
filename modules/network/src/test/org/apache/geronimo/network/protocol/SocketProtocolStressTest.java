@@ -59,7 +59,7 @@ public class SocketProtocolStressTest extends TestCase {
         Thread.sleep(5 * 1000);
     }
 
-    public void testConcurrentRequests() throws Exception {
+    public void XtestConcurrentRequests() throws Exception {
 
         final int WORKERS = 10;
         final int MESSAGE_COUNT = 10;

@@ -89,6 +89,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final ModuleBuilder ejbConfigBuilder;
     private final ModuleBuilder webConfigBuilder;
     private final ModuleBuilder connectorConfigBuilder;
+    private final ModuleBuilder appClientConfigBuilder;
     private final EJBReferenceBuilder ejbReferenceBuilder;
     private final String j2eeServerName;
     private final String j2eeDomainName;
@@ -99,7 +100,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final ObjectName nonTransactionalTimerObjectName;
 
 
-    public EARConfigBuilder(ObjectName j2eeServer, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactionalTimerObjectName, ObjectName nonTransactionalTimerObjectName, Repository repository, ModuleBuilder ejbConfigBuilder, EJBReferenceBuilder ejbReferenceBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder, Kernel kernel) {
+    public EARConfigBuilder(ObjectName j2eeServer, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactionalTimerObjectName, ObjectName nonTransactionalTimerObjectName, Repository repository, ModuleBuilder ejbConfigBuilder, EJBReferenceBuilder ejbReferenceBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder, ModuleBuilder appClientConfigBuilder, Kernel kernel) {
         this.kernel = kernel;
         this.repository = repository;
         this.j2eeServer = j2eeServer;
@@ -110,6 +111,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         this.ejbReferenceBuilder = ejbReferenceBuilder;
         this.webConfigBuilder = webConfigBuilder;
         this.connectorConfigBuilder = connectorConfigBuilder;
+        this.appClientConfigBuilder = appClientConfigBuilder;
         this.transactionContextManagerObjectName = transactionContextManagerObjectName;
         this.connectionTrackerObjectName = connectionTrackerObjectName;
         this.transactionalTimerObjectName = transactionalTimerObjectName;
@@ -120,13 +122,16 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         if (plan instanceof GerApplicationDocument) {
             return true;
         }
-        if (connectorConfigBuilder != null && connectorConfigBuilder.canHandlePlan(plan)) {
-            return true;
-        }
         if (ejbConfigBuilder != null && ejbConfigBuilder.canHandlePlan(plan)) {
             return true;
         }
         if (webConfigBuilder != null && webConfigBuilder.canHandlePlan(plan)) {
+            return true;
+        }
+        if (connectorConfigBuilder != null && connectorConfigBuilder.canHandlePlan(plan)) {
+            return true;
+        }
+        if (appClientConfigBuilder != null && appClientConfigBuilder.canHandlePlan(plan)) {
             return true;
         }
         return false;
@@ -135,14 +140,17 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     public SchemaTypeLoader[] getTypeLoaders() {
         List typeLoaders = new ArrayList();
         typeLoaders.add(SCHEMA_TYPE_LOADER);
-        if (connectorConfigBuilder != null) {
-            typeLoaders.add(connectorConfigBuilder.getSchemaTypeLoader());
-        }
         if (ejbConfigBuilder != null) {
             typeLoaders.add(ejbConfigBuilder.getSchemaTypeLoader());
         }
         if (webConfigBuilder != null) {
             typeLoaders.add(webConfigBuilder.getSchemaTypeLoader());
+        }
+        if (connectorConfigBuilder != null) {
+            typeLoaders.add(connectorConfigBuilder.getSchemaTypeLoader());
+        }
+        if (appClientConfigBuilder != null) {
+            typeLoaders.add(appClientConfigBuilder.getSchemaTypeLoader());
         }
         return (SchemaTypeLoader[]) typeLoaders.toArray(new SchemaTypeLoader[typeLoaders.size()]);
     }
@@ -185,6 +193,13 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
         if (connectorConfigBuilder != null) {
             XmlObject plan = connectorConfigBuilder.getDeploymentPlan(deploymentURL);
+            if (plan != null) {
+                return plan;
+            }
+        }
+
+        if (appClientConfigBuilder != null) {
+            XmlObject plan = appClientConfigBuilder.getDeploymentPlan(deploymentURL);
             if (plan != null) {
                 return plan;
             }
@@ -424,6 +439,12 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                         throw new DeploymentException("Can not deploy resource adapter; No rar deployer defined: " + modulePath);
                     }
                     builder = connectorConfigBuilder;
+                } else if (moduleXml.isSetJava()) {
+                    modulePath = moduleXml.getJava().getStringValue();
+                    if (appClientConfigBuilder == null) {
+                        throw new DeploymentException("Can not deploy app client; No app client deployer defined: " + modulePath);
+                    }
+                    builder = appClientConfigBuilder;
                 }
                 if (builder != null) {
                     moduleLocations.add(modulePath);
@@ -464,6 +485,9 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         } else if (connectorConfigBuilder != null && connectorConfigBuilder.canHandlePlan(plan)) {
             modules.add(connectorConfigBuilder.createModule(configId.toString(), earFile, plan));
             return null;
+        } else if (appClientConfigBuilder!= null && appClientConfigBuilder.canHandlePlan(plan)) {
+            modules.add(appClientConfigBuilder.createModule(configId.toString(), earFile, plan));
+            return null;
         }
         throw new DeploymentException("Could not build module list; Unknown plan type");
     }
@@ -484,6 +508,11 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 throw new DeploymentException("Can not deploy resource adapter; No rar deployer defined: " + module.getModuleURI());
             }
             return connectorConfigBuilder;
+        } else if (module instanceof AppClientModule) {
+            if (appClientConfigBuilder == null) {
+                throw new DeploymentException("Can not deploy app client; No app client deployer defined: " + module.getModuleURI());
+            }
+            return appClientConfigBuilder;
         }
         throw new IllegalArgumentException("Unknown module type: " + module.getClass().getName());
     }
@@ -532,6 +561,12 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             }
         }
 
+        if (appClientConfigBuilder != null) {
+            if (appClientConfigBuilder.canHandlePlan(plan)) {
+                return appClientConfigBuilder.getParentId(plan);
+            }
+        }
+
         return null;
     }
 
@@ -564,6 +599,12 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             }
         }
 
+        if (appClientConfigBuilder != null) {
+            if (appClientConfigBuilder.canHandlePlan(plan)) {
+                return appClientConfigBuilder.getConfigId(plan);
+            }
+        }
+
         throw new DeploymentException("Could not determine config id");
     }
 
@@ -587,6 +628,12 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         if (connectorConfigBuilder != null) {
             if (connectorConfigBuilder.canHandlePlan(plan)) {
                 return ConfigurationModuleType.RAR;
+            }
+        }
+
+        if (appClientConfigBuilder != null) {
+            if (appClientConfigBuilder.canHandlePlan(plan)) {
+                return ConfigurationModuleType.APP_CLIENT;
             }
         }
 
@@ -628,6 +675,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         infoFactory.addReference("EJBReferenceBuilder", EJBReferenceBuilder.class);
         infoFactory.addReference("WebConfigBuilder", ModuleBuilder.class);
         infoFactory.addReference("ConnectorConfigBuilder", ModuleBuilder.class);
+        infoFactory.addReference("AppClientConfigBuilder", ModuleBuilder.class);
 
         infoFactory.addAttribute("kernel", Kernel.class, false);
 
@@ -644,6 +692,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             "EJBReferenceBuilder",
             "WebConfigBuilder",
             "ConnectorConfigBuilder",
+            "AppClientConfigBuilder",
             "kernel"
         });
 

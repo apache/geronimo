@@ -24,9 +24,7 @@ import java.io.Serializable;
  *
  * @version $Rev$ $Date$
  */
-public class ConfigurationModuleType implements Serializable
-{
-
+public class ConfigurationModuleType implements Serializable {
     public static final ConfigurationModuleType EAR = new ConfigurationModuleType("EAR", 0);
 
     public static final ConfigurationModuleType EJB = new ConfigurationModuleType("EJB", 1);
@@ -39,7 +37,9 @@ public class ConfigurationModuleType implements Serializable
 
     public static final ConfigurationModuleType SERVICE = new ConfigurationModuleType("SERVICE", 5);
 
-    private static final ConfigurationModuleType[] fromInt = {EAR, EJB, CAR, RAR, WAR, SERVICE};
+    public static final ConfigurationModuleType APP_CLIENT = new ConfigurationModuleType("APP_CLIENT", 6);
+
+    private static final ConfigurationModuleType[] fromInt = {EAR, EJB, CAR, RAR, WAR, SERVICE, APP_CLIENT};
 
     private final String name;
     

@@ -64,12 +64,6 @@
         <!-- Module Dependencies -->
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-client</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo</groupId>
             <artifactId>geronimo-common</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
@@ -121,13 +115,6 @@
             <artifactId>geronimo-transaction</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
-
-        <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-j2ee</artifactId>
-            <version>&geronimo-spec-j2ee-version;</version>
-        </dependency>
-
         <!-- Thirdparty -->
 
         <dependency>

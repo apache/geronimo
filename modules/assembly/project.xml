@@ -67,6 +67,26 @@
         <!-- ========================================================== -->
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-client</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <deploy>true</deploy>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-client-builder</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <deploy>true</deploy>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-clustering</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
