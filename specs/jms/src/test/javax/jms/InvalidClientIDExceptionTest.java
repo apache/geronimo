@@ -19,7 +19,7 @@
  * 3. The end-user documentation included with the redistribution,
  *    if any, must include the following acknowledgment:
  *       "This product includes software developed by the
- *        Apache Software Foundation (http://www.apache.org/)."
+ *        Apache Software Foundation (http:www.apache.org/)."
  *    Alternately, this acknowledgment may appear in the software itself,
  *    if and wherever such third-party acknowledgments normally appear.
  *
@@ -49,83 +49,65 @@
  * This software consists of voluntary contributions made by many
  * individuals on behalf of the Apache Software Foundation.  For more
  * information on the Apache Software Foundation, please see
- * <http://www.apache.org/>.
+ * <http:www.apache.org/>.
  *
  * ====================================================================
  */
-
-//
-// This source code implements specifications defined by the Java
-// Community Process. In order to remain compliant with the specification
-// DO NOT add / change / or delete method signatures!
-//
-
 package javax.jms;
 
+import junit.framework.TestCase;
+
+
 /**
- * @version $Revision: 1.3 $ $Date: 2003/12/07 16:28:07 $
+ *
+ * @version $Revision: 1.1 $ $Date: 2003/12/07 16:28:07 $
  */
-public class QueueRequestor {
-    private QueueSession session;
-    private TemporaryQueue temporaryQueue;
-    private QueueSender sender;
-    private QueueReceiver receiver;
-
-    public QueueRequestor(QueueSession session, Queue queue)
-        throws JMSException
-    {
-        super();
-
-        if(queue == null) {
-            throw new InvalidDestinationException("Invalid queue");
-        }
-        
-        setSession(session);
-        setTemporaryQueue(session.createTemporaryQueue());
-        setSender(session.createSender(queue));
-        setReceiver(session.createReceiver(getTemporaryQueue()));
+public class InvalidClientIDExceptionTest extends TestCase {
+    public void testConstructorNull() {
+        InvalidClientIDException ex = new InvalidClientIDException(null);
+        assertNull(ex.getMessage());
+        assertNull(ex.getErrorCode());
+        assertNull(ex.getLinkedException());
     }
 
-    public Message request(Message message) throws JMSException {
-        message.setJMSReplyTo(getTemporaryQueue());
-        getSender().send(message);
-        return getReceiver().receive();
+    public void testConstructorNullNull() {
+        InvalidClientIDException ex = new InvalidClientIDException(null, null);
+        assertNull(ex.getMessage());
+        assertNull(ex.getErrorCode());
+        assertNull(ex.getLinkedException());
     }
 
-    public void close() throws JMSException {
-        getSession().close();
-        getTemporaryQueue().delete();
+    public void testConstructorNullString() {
+        String expected = "some code";
+        InvalidClientIDException ex = new InvalidClientIDException(null, expected);
+        assertNull(ex.getMessage());
+        assertEquals(expected, ex.getErrorCode());
+        assertNull(ex.getLinkedException());
     }
 
-    private void setReceiver(QueueReceiver receiver) {
-        this.receiver = receiver;
+    public void testConstructorString() {
+        String expected = "some message";
+        InvalidClientIDException ex = new InvalidClientIDException(expected);
+        assertEquals(expected, ex.getMessage());
+        assertNull(ex.getErrorCode());
+        assertNull(ex.getLinkedException());
     }
 
-    private QueueReceiver getReceiver() {
-        return receiver;
+    public void testConstructorStringNull() {
+        String expected = "some message";
+        InvalidClientIDException ex = new InvalidClientIDException(expected, null);
+        assertEquals(expected, ex.getMessage());
+        assertNull(ex.getErrorCode());
+        assertNull(ex.getLinkedException());
     }
 
-    private void setSender(QueueSender sender) {
-        this.sender = sender;
-    }
-
-    private QueueSender getSender() {
-        return sender;
-    }
-
-    private void setSession(QueueSession session) {
-        this.session = session;
-    }
-
-    private QueueSession getSession() {
-        return session;
-    }
-
-    private void setTemporaryQueue(TemporaryQueue temporaryQueue) {
-        this.temporaryQueue = temporaryQueue;
-    }
-
-    private TemporaryQueue getTemporaryQueue() {
-        return temporaryQueue;
+    public void testConstructorStringString() {
+        String expectedMessage = "some message";
+        String expectedCode = "some code";
+        InvalidClientIDException ex = new InvalidClientIDException(expectedMessage, expectedCode);
+        assertEquals(expectedMessage, ex.getMessage());
+        assertEquals(expectedCode, ex.getErrorCode());
+        assertNull(ex.getLinkedException());
     }
 }
+

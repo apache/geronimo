@@ -54,78 +54,66 @@
  * ====================================================================
  */
 
-//
-// This source code implements specifications defined by the Java
-// Community Process. In order to remain compliant with the specification
-// DO NOT add / change / or delete method signatures!
-//
-
 package javax.jms;
 
+import junit.framework.TestCase;
+
+
 /**
- * @version $Revision: 1.3 $ $Date: 2003/12/07 16:28:07 $
+ * @version $Revision: 1.1 $ $Date: 2003/12/07 16:28:07 $
  */
-public class QueueRequestor {
-    private QueueSession session;
-    private TemporaryQueue temporaryQueue;
-    private QueueSender sender;
-    private QueueReceiver receiver;
-
-    public QueueRequestor(QueueSession session, Queue queue)
-        throws JMSException
-    {
-        super();
-
-        if(queue == null) {
-            throw new InvalidDestinationException("Invalid queue");
-        }
-        
-        setSession(session);
-        setTemporaryQueue(session.createTemporaryQueue());
-        setSender(session.createSender(queue));
-        setReceiver(session.createReceiver(getTemporaryQueue()));
+public class JMSExceptionTest extends TestCase {
+    public void testConstructorNull() {
+        JMSException ex = new JMSException(null);
+        assertNull(ex.getMessage());
+        assertNull(ex.getErrorCode());
+        assertNull(ex.getLinkedException());
     }
 
-    public Message request(Message message) throws JMSException {
-        message.setJMSReplyTo(getTemporaryQueue());
-        getSender().send(message);
-        return getReceiver().receive();
+    public void testConstructorNullNull() {
+        JMSException ex = new JMSException(null, null);
+        assertNull(ex.getMessage());
+        assertNull(ex.getErrorCode());
+        assertNull(ex.getLinkedException());
     }
 
-    public void close() throws JMSException {
-        getSession().close();
-        getTemporaryQueue().delete();
+    public void testConstructorNullString() {
+        String expected = "some code";
+        JMSException ex = new JMSException(null, expected);
+        assertNull(ex.getMessage());
+        assertEquals(expected, ex.getErrorCode());
+        assertNull(ex.getLinkedException());
     }
 
-    private void setReceiver(QueueReceiver receiver) {
-        this.receiver = receiver;
+    public void testConstructorString() {
+        String expected = "some message";
+        JMSException ex = new JMSException(expected);
+        assertEquals(expected, ex.getMessage());
+        assertNull(ex.getErrorCode());
+        assertNull(ex.getLinkedException());
     }
 
-    private QueueReceiver getReceiver() {
-        return receiver;
+    public void testConstructorStringNull() {
+        String expected = "some message";
+        JMSException ex = new JMSException(expected, null);
+        assertEquals(expected, ex.getMessage());
+        assertNull(ex.getErrorCode());
+        assertNull(ex.getLinkedException());
     }
 
-    private void setSender(QueueSender sender) {
-        this.sender = sender;
+    public void testConstructorStringString() {
+        String expectedMessage = "some message";
+        String expectedCode = "some code";
+        JMSException ex = new JMSException(expectedMessage, expectedCode);
+        assertEquals(expectedMessage, ex.getMessage());
+        assertEquals(expectedCode, ex.getErrorCode());
+        assertNull(ex.getLinkedException());
     }
 
-    private QueueSender getSender() {
-        return sender;
-    }
-
-    private void setSession(QueueSession session) {
-        this.session = session;
-    }
-
-    private QueueSession getSession() {
-        return session;
-    }
-
-    private void setTemporaryQueue(TemporaryQueue temporaryQueue) {
-        this.temporaryQueue = temporaryQueue;
-    }
-
-    private TemporaryQueue getTemporaryQueue() {
-        return temporaryQueue;
+    public void testSetLinkedException() {
+        Exception expected = new Exception();
+        JMSException ex = new JMSException(null);
+        ex.setLinkedException(expected);
+        assertEquals(expected, ex.getLinkedException());
     }
 }

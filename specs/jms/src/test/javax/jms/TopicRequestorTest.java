@@ -54,78 +54,29 @@
  * ====================================================================
  */
 
-//
-// This source code implements specifications defined by the Java
-// Community Process. In order to remain compliant with the specification
-// DO NOT add / change / or delete method signatures!
-//
-
 package javax.jms;
 
+import com.mockobjects.jms.MockTopic;
+
+import junit.framework.TestCase;
+
+
 /**
- * @version $Revision: 1.3 $ $Date: 2003/12/07 16:28:07 $
+ * @version $Revision: 1.1 $ $Date: 2003/12/07 16:28:07 $
  */
-public class QueueRequestor {
-    private QueueSession session;
-    private TemporaryQueue temporaryQueue;
-    private QueueSender sender;
-    private QueueReceiver receiver;
+public class TopicRequestorTest extends TestCase {
+    public void testConstructorNullTopic() {
+        MockTopic topic = new MockTopic();
 
-    public QueueRequestor(QueueSession session, Queue queue)
-        throws JMSException
-    {
-        super();
-
-        if(queue == null) {
-            throw new InvalidDestinationException("Invalid queue");
+        try {
+            new TopicRequestor(null, topic);
+            fail();
+        } catch (JMSException ex) {
+            fail("JMSException should not have been thrown.");
+        } catch (NullPointerException ex) {
+            // success.
         }
-        
-        setSession(session);
-        setTemporaryQueue(session.createTemporaryQueue());
-        setSender(session.createSender(queue));
-        setReceiver(session.createReceiver(getTemporaryQueue()));
-    }
 
-    public Message request(Message message) throws JMSException {
-        message.setJMSReplyTo(getTemporaryQueue());
-        getSender().send(message);
-        return getReceiver().receive();
-    }
-
-    public void close() throws JMSException {
-        getSession().close();
-        getTemporaryQueue().delete();
-    }
-
-    private void setReceiver(QueueReceiver receiver) {
-        this.receiver = receiver;
-    }
-
-    private QueueReceiver getReceiver() {
-        return receiver;
-    }
-
-    private void setSender(QueueSender sender) {
-        this.sender = sender;
-    }
-
-    private QueueSender getSender() {
-        return sender;
-    }
-
-    private void setSession(QueueSession session) {
-        this.session = session;
-    }
-
-    private QueueSession getSession() {
-        return session;
-    }
-
-    private void setTemporaryQueue(TemporaryQueue temporaryQueue) {
-        this.temporaryQueue = temporaryQueue;
-    }
-
-    private TemporaryQueue getTemporaryQueue() {
-        return temporaryQueue;
+        topic.verify();
     }
 }
