@@ -55,7 +55,6 @@
  */
 package org.apache.geronimo.jetty.deployment;
 
-import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
 
@@ -74,13 +73,11 @@ import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/02/06 08:55:49 $
+ * @version $Revision: 1.6 $ $Date: 2004/02/08 20:19:21 $
  */
 public class WARConfigurationFactory implements DeploymentConfigurationFactory {
     private static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
@@ -92,6 +89,8 @@ public class WARConfigurationFactory implements DeploymentConfigurationFactory {
         return new WARConfiguration(deployable);
     }
 
+    //TODO a createModule method taking a file/directory for unpacked jsp handling.
+    //Should create a UnpackedModule if supplied file is a directory.
     public DeploymentModule createModule(InputStream moduleArchive, XmlObject deploymentPlan, URI configID, boolean isLocal) throws DeploymentException {
         JettyWebAppDocument webAppDoc = (JettyWebAppDocument)deploymentPlan;
         return new JettyModule(configID, moduleArchive, webAppDoc.getWebApp());
@@ -104,19 +103,6 @@ public class WARConfigurationFactory implements DeploymentConfigurationFactory {
 
     public SchemaTypeLoader getSchemaTypeLoader() {
         return SCHEMA_TYPE_LOADER;
-    }
-
-    public DeploymentModule createModule(File moduleArchive, Document deploymentPlan, URI configID, boolean isLocal) throws DeploymentException {
-        Element root = deploymentPlan.getDocumentElement();
-        if (!"web-app".equals(root.getNodeName())) {
-            return null;
-        }
-
-        if (isLocal && moduleArchive.isDirectory()) {
-            return new UnpackedModule(configID, moduleArchive, deploymentPlan);
-        } else {
-            return new JettyModule(configID, moduleArchive, deploymentPlan);
-        }
     }
 
     public static final GBeanInfo GBEAN_INFO;

@@ -55,10 +55,8 @@
  */
 package org.apache.geronimo.jetty.deployment;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -67,14 +65,12 @@ import java.util.zip.ZipInputStream;
 
 import org.apache.geronimo.deployment.ConfigurationCallback;
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.deployment.util.XMLUtil;
 import org.apache.geronimo.xbeans.geronimo.deployment.jetty.JettyWebAppType;
-import org.w3c.dom.Document;
 
 /**
  *
  *
- * @version $Revision: 1.9 $ $Date: 2004/02/08 02:06:13 $
+ * @version $Revision: 1.10 $ $Date: 2004/02/08 20:19:21 $
  */
 public class JettyModule extends AbstractModule {
     private final File moduleDirectory;
@@ -82,51 +78,6 @@ public class JettyModule extends AbstractModule {
     private final boolean closeStream;
     private URI classes;
     private URI lib;
-
-    public JettyModule(URI configID, InputStream moduleArchive, Document deploymentPlan) throws DeploymentException
-    {
-        super(configID);
-        moduleDirectory= null;
-        this.zipArchive= new ZipInputStream(moduleArchive);
-        closeStream= false;
-
-        // TODO - This should decode XML directly here.  Should use xmlbeans?
-        contextPath= XMLUtil.getChildContent(deploymentPlan.getDocumentElement(), "context-root", null, null);
-        if (contextPath == null)
-            throw new DeploymentException("No context root specified");
-        String t=XMLUtil.getChildContent(deploymentPlan.getDocumentElement(), "context-priority-classloader", null, null);
-        contextPriorityClassLoader= new Boolean(t).booleanValue();
-    }
-
-    public JettyModule(URI configID, File archiveFile, Document deploymentPlan) throws DeploymentException {
-        super(configID);
-        if (!archiveFile.isDirectory()) {
-            moduleDirectory = null;
-            try {
-                this.zipArchive = new ZipInputStream(new BufferedInputStream(new FileInputStream(archiveFile)));
-                closeStream = false;
-            } catch (FileNotFoundException e) {
-                throw new DeploymentException("Could not open module archive", e);
-            }
-        } else {
-            moduleDirectory = archiveFile;
-            this.zipArchive = null;
-            closeStream = false;
-        }
-
-        contextPath = archiveFile.getName();
-        if (contextPath.endsWith(".war")) {
-            contextPath = contextPath.substring(0, contextPath.length() - 4);
-        }
-        contextPath = XMLUtil.getChildContent(deploymentPlan.getDocumentElement(), "context-root", contextPath, contextPath);
-        if (!contextPath.startsWith("/")) {
-            contextPath = "/" + contextPath;
-        }
-
-        // TODO - This should decode XML directly here.  Should use x mlbeans?
-        String t=XMLUtil.getChildContent(deploymentPlan.getDocumentElement(), "context-priority-classloader", null, null);
-        contextPriorityClassLoader= new Boolean(t).booleanValue();
-    }
 
     public JettyModule(URI configID, InputStream moduleArchive, JettyWebAppType webApp) throws DeploymentException {
         super(configID);
