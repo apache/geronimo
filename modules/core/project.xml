@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.39 $ $Date: 2004/01/23 07:16:40 $ -->
+<!-- $Revision: 1.40 $ $Date: 2004/01/23 19:04:48 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -97,15 +97,6 @@
             <version>DEV</version>
             <properties>
                 <runtime>true</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-j2ee-connector</artifactId>
-            <version>DEV</version>
-            <properties>
-                <module>true</module>
             </properties>
         </dependency>
 
