@@ -48,31 +48,31 @@ public class LoginSQLTest extends AbstractTest {
 
 
         try {
-            conn.prepareStatement("CREATE USER loginmodule PASSWORD password ADMIN;").executeQuery();
+            conn.prepareStatement("CREATE USER loginmodule PASSWORD password ADMIN;").executeUpdate();
         } catch (SQLException e) {
             //ignore, for some reason user already exists.
         }
 
-        conn.prepareStatement("CREATE TABLE Users(UserName VARCHAR(16), Password VARCHAR(16));").executeQuery();
-        conn.prepareStatement("CREATE TABLE Groups(GroupName VARCHAR(16), UserName VARCHAR(16));").executeQuery();
+        conn.prepareStatement("CREATE TABLE Users(UserName VARCHAR(16), Password VARCHAR(16));").executeUpdate();
+        conn.prepareStatement("CREATE TABLE Groups(GroupName VARCHAR(16), UserName VARCHAR(16));").executeUpdate();
 
-        conn.prepareStatement("GRANT SELECT ON Users TO loginmodule;").executeQuery();
-        conn.prepareStatement("GRANT SELECT ON Groups TO loginmodule;").executeQuery();
+        conn.prepareStatement("GRANT SELECT ON Users TO loginmodule;").executeUpdate();
+        conn.prepareStatement("GRANT SELECT ON Groups TO loginmodule;").executeUpdate();
 
-        conn.prepareStatement("INSERT INTO Users VALUES ('izumi', 'violin');").executeQuery();
-        conn.prepareStatement("INSERT INTO Users VALUES ('alan', 'starcraft');").executeQuery();
-        conn.prepareStatement("INSERT INTO Users VALUES ('george', 'bone');").executeQuery();
-        conn.prepareStatement("INSERT INTO Users VALUES ('gracie', 'biscuit');").executeQuery();
-        conn.prepareStatement("INSERT INTO Users VALUES ('metro', 'mouse');").executeQuery();
+        conn.prepareStatement("INSERT INTO Users VALUES ('izumi', 'violin');").executeUpdate();
+        conn.prepareStatement("INSERT INTO Users VALUES ('alan', 'starcraft');").executeUpdate();
+        conn.prepareStatement("INSERT INTO Users VALUES ('george', 'bone');").executeUpdate();
+        conn.prepareStatement("INSERT INTO Users VALUES ('gracie', 'biscuit');").executeUpdate();
+        conn.prepareStatement("INSERT INTO Users VALUES ('metro', 'mouse');").executeUpdate();
 
-        conn.prepareStatement("INSERT INTO Groups VALUES ('manager', 'izumi');").executeQuery();
-        conn.prepareStatement("INSERT INTO Groups VALUES ('it', 'alan');").executeQuery();
-        conn.prepareStatement("INSERT INTO Groups VALUES ('pet', 'george');").executeQuery();
-        conn.prepareStatement("INSERT INTO Groups VALUES ('pet', 'gracie');").executeQuery();
-        conn.prepareStatement("INSERT INTO Groups VALUES ('pet', 'metro');").executeQuery();
-        conn.prepareStatement("INSERT INTO Groups VALUES ('dog', 'george');").executeQuery();
-        conn.prepareStatement("INSERT INTO Groups VALUES ('dog', 'gracie');").executeQuery();
-        conn.prepareStatement("INSERT INTO Groups VALUES ('cat', 'metro');").executeQuery();
+        conn.prepareStatement("INSERT INTO Groups VALUES ('manager', 'izumi');").executeUpdate();
+        conn.prepareStatement("INSERT INTO Groups VALUES ('it', 'alan');").executeUpdate();
+        conn.prepareStatement("INSERT INTO Groups VALUES ('pet', 'george');").executeUpdate();
+        conn.prepareStatement("INSERT INTO Groups VALUES ('pet', 'gracie');").executeUpdate();
+        conn.prepareStatement("INSERT INTO Groups VALUES ('pet', 'metro');").executeUpdate();
+        conn.prepareStatement("INSERT INTO Groups VALUES ('dog', 'george');").executeUpdate();
+        conn.prepareStatement("INSERT INTO Groups VALUES ('dog', 'gracie');").executeUpdate();
+        conn.prepareStatement("INSERT INTO Groups VALUES ('cat', 'metro');").executeUpdate();
 
         conn.close();
 
@@ -98,10 +98,10 @@ public class LoginSQLTest extends AbstractTest {
         Connection conn = DriverManager.getConnection(hsqldbURL, "sa", "");
 
         try {
-            conn.prepareStatement("DROP USER loginmodule;").executeQuery();
+            conn.prepareStatement("DROP USER loginmodule;").executeUpdate();
 
-            conn.prepareStatement("DROP TABLE Users;").executeQuery();
-            conn.prepareStatement("DROP TABLE Groups;").executeQuery();
+            conn.prepareStatement("DROP TABLE Users;").executeUpdate();
+            conn.prepareStatement("DROP TABLE Groups;").executeUpdate();
         } catch (SQLException e) {
             //who knows??
         }
