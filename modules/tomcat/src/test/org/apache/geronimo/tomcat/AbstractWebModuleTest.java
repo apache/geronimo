@@ -169,10 +169,6 @@ public class AbstractWebModuleTest extends TestCase {
         loginServiceGBean.setAttribute("algorithm", "HmacSHA1");
         loginServiceGBean.setAttribute("password", "secret");
 
-        serverInfoName = new ObjectName("geronimo.system:role=ServerInfo");
-        serverInfoGBean = new GBeanData(serverInfoName, ServerInfo.GBEAN_INFO);
-        serverInfoGBean.setAttribute("baseDirectory", ".");
-
         propertiesLMName = new ObjectName("geronimo.security:type=LoginModule,name=demo-properties-login");
         propertiesLMGBean = new GBeanData(propertiesLMName, LoginModuleGBean.GBEAN_INFO);
         propertiesLMGBean.setAttribute("loginModuleClass",
@@ -198,7 +194,6 @@ public class AbstractWebModuleTest extends TestCase {
 
         start(securityServiceGBean);
         start(loginServiceGBean);
-        start(serverInfoGBean);
         start(propertiesLMGBean);
         start(propertiesRealmGBean);
 
@@ -241,10 +236,18 @@ public class AbstractWebModuleTest extends TestCase {
         kernel = new Kernel("test.kernel");
         kernel.boot();
 
+        serverInfoName = new ObjectName("geronimo.system:role=ServerInfo");
+        serverInfoGBean = new GBeanData(serverInfoName, ServerInfo.GBEAN_INFO);
+        serverInfoGBean.setAttribute("baseDirectory", ".");
+
+        start(serverInfoGBean);
+
         // Need to override the constructor for unit tests
         container = new GBeanData(containerName, TomcatContainer.GBEAN_INFO);
         container.setAttribute("catalinaHome", "target/var/catalina");
         container.setAttribute("port", new Integer(8080));
+        container.setAttribute("endorsedDirs", "target/endorsed");
+        container.setReferencePattern("ServerInfo", serverInfoName);
 
         start(container);
 

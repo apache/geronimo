@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.tomcat;
 
+import java.io.File;
+
 import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
 import org.apache.catalina.Host;
@@ -27,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
  * Apache Tomcat GBean
@@ -93,6 +96,16 @@ public class TomcatContainer implements GBeanLifecycle {
      */
     private int port;
 
+    /**
+     * The java.endorsed.dirs directories
+     */
+    private String endorsedDirs = System.getProperty("java.endorsed.dirs");
+
+    /**
+     * Used only to resolve the path to the endorsed standards dir
+     */
+    private ServerInfo serverInfo;
+
     // Required as it's referenced by deployed webapps
     public TomcatContainer() {
         setCatalinaHome(DEFAULT_CATALINA_HOME);
@@ -103,9 +116,10 @@ public class TomcatContainer implements GBeanLifecycle {
      * GBean constructor (invoked dynamically when the gbean is declared in a
      * plan)
      */
-    public TomcatContainer(String catalinaHome, int port) {
+    public TomcatContainer(String catalinaHome, int port, ServerInfo serverInfo) {
         setCatalinaHome(catalinaHome);
         setPort(port);
+        this.serverInfo = serverInfo;
     }
 
     public void doFail() {
@@ -123,6 +137,10 @@ public class TomcatContainer implements GBeanLifecycle {
      */
     public void doStart() throws Exception {
         log.debug("doStart()");
+
+        // set endorsed dirs (so it's not mandatory to set it up by a user
+        // anymore)
+        System.setProperty("java.endorsed.dirs", serverInfo.resolvePath(getEndorsedDirs()));
 
         // The comments are from the javadoc of the Embedded class
 
@@ -252,15 +270,26 @@ public class TomcatContainer implements GBeanLifecycle {
         this.port = port;
     }
 
+    public String getEndorsedDirs() {
+        return endorsedDirs;
+    }
+
+    public void setEndorsedDirs(String endorsedDirs) {
+        this.endorsedDirs = endorsedDirs;
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Tomcat Web Container", TomcatContainer.class);
 
-        infoFactory.setConstructor(new String[] { "catalinaHome", "port" });
+        infoFactory.setConstructor(new String[] { "catalinaHome", "port", "ServerInfo" });
 
         infoFactory.addAttribute("catalinaHome", String.class, true);
         infoFactory.addAttribute("port", int.class, true);
+        infoFactory.addAttribute("endorsedDirs", String.class, true);
+
+        infoFactory.addReference("ServerInfo", ServerInfo.class);
 
         infoFactory.addOperation("addContext", new Class[] { TomcatContext.class });
         infoFactory.addOperation("removeContext", new Class[] { TomcatContext.class });

@@ -54,7 +54,10 @@
 -->
 
     <preGoal name="test:test">
-        <mkdir dir="${maven.build.dir}/endorsed"/>
+    
+        <j:set var="endorsed.dir" value="${maven.build.dir}/endorsed"/>
+        
+        <mkdir dir="${endorsed.dir}"/>
         <mkdir dir="${maven.build.dir}/var"/>
         <mkdir dir="${maven.build.dir}/var/catalina"/>
         <mkdir dir="${maven.build.dir}/var/catalina/webapps"/>
@@ -69,7 +72,7 @@
 
         <j:forEach var="dep" items="${pom.dependencies}">
             <j:if test="${dep.artifactId.equals('xercesImpl') || dep.artifactId.equals('xml-apis')}">
-                <copy file="${maven.repo.local}/${dep.groupId}/jars/${dep.artifact}" todir="${maven.build.dir}/endorsed"/>
+                <copy file="${maven.repo.local}/${dep.groupId}/jars/${dep.artifact}" todir="${endorsed.dir}"/>
             </j:if>
         </j:forEach>
     </preGoal>
