@@ -66,6 +66,7 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.Principal;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.Realm;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.Role;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.RoleMappings;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.Security;
 import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.security.util.ConfigurationUtil;
@@ -81,7 +82,7 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
  * <p>It is expected that deployment tools will configure modules through
  * these utility MBeans and not directly access the
  * <code>PolicyConfiguration</code> objects.
- * @version $Revision: 1.5 $ $Date: 2004/01/02 04:31:44 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/03 01:09:31 $
  * @see javax.security.jacc.PolicyConfiguration
  * @see "Java Authorization Contract for Containers", section 3.1.3
  */
@@ -112,37 +113,41 @@ public class WebModuleConfiguration extends AbstractModuleConfiguration {
         ConfigurationUtil.configure(configuration, webApp);
         setConfigured(true);
 
-        RoleMappings roleMappings = webApp.getSecurity().getRoleMappings();
-        if (roleMappings != null) {
-            Role[] roles = roleMappings.getRole();
-            for (int i=0; i<roles.length; i++) {
-                Role role = roles[i];
-                Realm[] realms = role.getRealm();
-                for (int j=0; j<realms.length; j++) {
-                    Realm realm = realms[j];
-                    Principal[] principals = realm.getPrincipal();
-                    HashSet set = new HashSet();
-                    for (int k=0; k<principals.length; k++) {
-                        Principal principal = principals[k];
-                        java.security.Principal p = null;
-                        try {
-                            Class clazz = Class.forName(principal.getClassName());
-                            Constructor constructor = clazz.getDeclaredConstructor(new Class[]{ String.class });
-                            p = (java.security.Principal)constructor.newInstance(new Object[] { principal.getName() });
-                            set.add(new RealmPrincipal(realm.getRealmName(), p));
-                        } catch (InstantiationException e) {
-                            throw new GeronimoSecurityException(e);
-                        } catch (IllegalAccessException e) {
-                            throw new GeronimoSecurityException(e);
-                        } catch (ClassNotFoundException e) {
-                            throw new GeronimoSecurityException(e);
-                        } catch (NoSuchMethodException e) {
-                            throw new GeronimoSecurityException(e);
-                        } catch (InvocationTargetException e) {
-                            throw new GeronimoSecurityException(e);
+        Security security = webApp.getSecurity();
+        //TODO not clear if schema allows/should allow security == null
+        if (security != null) {
+            RoleMappings roleMappings = security.getRoleMappings();
+            if (roleMappings != null) {
+                Role[] roles = roleMappings.getRole();
+                for (int i = 0; i < roles.length; i++) {
+                    Role role = roles[i];
+                    Realm[] realms = role.getRealm();
+                    for (int j = 0; j < realms.length; j++) {
+                        Realm realm = realms[j];
+                        Principal[] principals = realm.getPrincipal();
+                        HashSet set = new HashSet();
+                        for (int k = 0; k < principals.length; k++) {
+                            Principal principal = principals[k];
+                            java.security.Principal p = null;
+                            try {
+                                Class clazz = Class.forName(principal.getClassName());
+                                Constructor constructor = clazz.getDeclaredConstructor(new Class[]{String.class});
+                                p = (java.security.Principal) constructor.newInstance(new Object[]{principal.getName()});
+                                set.add(new RealmPrincipal(realm.getRealmName(), p));
+                            } catch (InstantiationException e) {
+                                throw new GeronimoSecurityException(e);
+                            } catch (IllegalAccessException e) {
+                                throw new GeronimoSecurityException(e);
+                            } catch (ClassNotFoundException e) {
+                                throw new GeronimoSecurityException(e);
+                            } catch (NoSuchMethodException e) {
+                                throw new GeronimoSecurityException(e);
+                            } catch (InvocationTargetException e) {
+                                throw new GeronimoSecurityException(e);
+                            }
                         }
+                        super.addRoleMapping(role.getRoleName(), set);
                     }
-                    super.addRoleMapping(role.getRoleName(), set);
                 }
             }
         }
@@ -151,11 +156,6 @@ public class WebModuleConfiguration extends AbstractModuleConfiguration {
     public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
         GeronimoMBeanInfo mbeanInfo = AbstractModuleConfiguration.getGeronimoMBeanInfo();
         mbeanInfo.setTargetClass(WebModuleConfiguration.class);
-        /*mbeanInfo.addOperationInfo(new GeronimoOperationInfo("configure",
-                new GeronimoParameterInfo[] {
-                    new GeronimoParameterInfo("WebApp", WebApp.class, "Geronimo POJO web-app descriptor")},
-                GeronimoOperationInfo.ACTION,
-                "Translate the Web deployment descriptors into equivalent security permissions"));*/
         return mbeanInfo;
     }
 }

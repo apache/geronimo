@@ -67,6 +67,7 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.Principal;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.Realm;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.Role;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.RoleMappings;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.Security;
 import org.apache.geronimo.deployment.model.j2ee.SecurityRole;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.security.util.ConfigurationUtil;
@@ -75,7 +76,7 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/02 04:31:44 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/03 01:09:31 $
  */
 public class EJBModuleConfiguration extends AbstractModuleConfiguration {
 
@@ -110,37 +111,41 @@ public class EJBModuleConfiguration extends AbstractModuleConfiguration {
         ConfigurationUtil.configure(configuration, ejbJar);
         setConfigured(true);
 
-        RoleMappings roleMappings = ejbJar.getSecurity().getRoleMappings();
-        if (roleMappings != null) {
-            Role[] roles = roleMappings.getRole();
-            for (int i=0; i<roles.length; i++) {
-                Role role = roles[i];
-                Realm[] realms = role.getRealm();
-                for (int j=0; j<realms.length; j++) {
-                    Realm realm = realms[j];
-                    Principal[] principals = realm.getPrincipal();
-                    HashSet set = new HashSet();
-                    for (int k=0; k<principals.length; k++) {
-                        Principal principal = principals[k];
-                        java.security.Principal p = null;
-                        try {
-                            Class clazz = Class.forName(principal.getClassName());
-                            Constructor constructor = clazz.getDeclaredConstructor(new Class[]{ String.class });
-                            p = (java.security.Principal)constructor.newInstance(new Object[] { principal.getName() });
-                            set.add(new RealmPrincipal(realm.getRealmName(), p));
-                        } catch (InstantiationException e) {
-                            throw new GeronimoSecurityException(e);
-                        } catch (IllegalAccessException e) {
-                            throw new GeronimoSecurityException(e);
-                        } catch (ClassNotFoundException e) {
-                            throw new GeronimoSecurityException(e);
-                        } catch (NoSuchMethodException e) {
-                            throw new GeronimoSecurityException(e);
-                        } catch (InvocationTargetException e) {
-                            throw new GeronimoSecurityException(e);
+        Security security = ejbJar.getSecurity();
+        //TODO not clear if schema allows/should allow security == null
+        if (security != null) {
+            RoleMappings roleMappings = security.getRoleMappings();
+            if (roleMappings != null) {
+                Role[] roles = roleMappings.getRole();
+                for (int i = 0; i < roles.length; i++) {
+                    Role role = roles[i];
+                    Realm[] realms = role.getRealm();
+                    for (int j = 0; j < realms.length; j++) {
+                        Realm realm = realms[j];
+                        Principal[] principals = realm.getPrincipal();
+                        HashSet set = new HashSet();
+                        for (int k = 0; k < principals.length; k++) {
+                            Principal principal = principals[k];
+                            java.security.Principal p = null;
+                            try {
+                                Class clazz = Class.forName(principal.getClassName());
+                                Constructor constructor = clazz.getDeclaredConstructor(new Class[]{String.class});
+                                p = (java.security.Principal) constructor.newInstance(new Object[]{principal.getName()});
+                                set.add(new RealmPrincipal(realm.getRealmName(), p));
+                            } catch (InstantiationException e) {
+                                throw new GeronimoSecurityException(e);
+                            } catch (IllegalAccessException e) {
+                                throw new GeronimoSecurityException(e);
+                            } catch (ClassNotFoundException e) {
+                                throw new GeronimoSecurityException(e);
+                            } catch (NoSuchMethodException e) {
+                                throw new GeronimoSecurityException(e);
+                            } catch (InvocationTargetException e) {
+                                throw new GeronimoSecurityException(e);
+                            }
                         }
+                        super.addRoleMapping(role.getRoleName(), set);
                     }
-                    super.addRoleMapping(role.getRoleName(), set);
                 }
             }
         }
@@ -149,11 +154,6 @@ public class EJBModuleConfiguration extends AbstractModuleConfiguration {
     public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
         GeronimoMBeanInfo mbeanInfo = AbstractModuleConfiguration.getGeronimoMBeanInfo();
         mbeanInfo.setTargetClass(EJBModuleConfiguration.class);
-        /*mbeanInfo.addOperationInfo(new GeronimoOperationInfo("configure",
-                new GeronimoParameterInfo[] {
-                    new GeronimoParameterInfo("EJBJar", EjbJar.class, "Geronimo POJO ejb jar descriptor")},
-                GeronimoOperationInfo.ACTION,
-                "Translate the EJB deployment descriptors into equivalent security permissions"));  */
         return mbeanInfo;
     }
 }

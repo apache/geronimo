@@ -89,7 +89,7 @@ import org.apache.geronimo.security.GeronimoSecurityException;
  * A collection of utility functions that assist with the configuration of
  * <code>PolicyConfiguration</code>s.
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/02 04:31:44 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/03 01:09:31 $
  * @see javax.security.jacc.PolicyConfiguration
  *  @see "JSR 115" Java Authorization Contract for Containers
  */
@@ -109,7 +109,7 @@ public class ConfigurationUtil {
     public static void registerPolicyContextHandler(PolicyContextHandler handler, boolean replace) throws PolicyContextException {
         String[] keys = handler.getKeys();
 
-        for (int i=0; i<keys.length; i++) {
+        for (int i = 0; i < keys.length; i++) {
             PolicyContext.registerHandler(keys[i], handler, replace);
         }
     }
@@ -124,7 +124,6 @@ public class ConfigurationUtil {
      * the security descriptor or the state of the module configuration.
      * @see javax.security.jacc.PolicyConfiguration
      * @see "Java Authorization Contract for Containers", section 3.1.3
-     * @jmx:managed-operation
      */
     public static void configure(PolicyConfiguration configuration, WebApp webApp) throws GeronimoSecurityException {
 
@@ -279,7 +278,9 @@ public class ConfigurationUtil {
                 String name = pattern.getQualifiedPattern(allSet);
                 String actions = pattern.getComplementedMethods();
 
-                if (actions.length() == 0) continue;
+                if (actions.length() == 0) {
+                    continue;
+                }
 
                 configuration.addToUncheckedPolicy(new WebResourcePermission(name, actions));
                 configuration.addToUncheckedPolicy(new WebUserDataPermission(name, actions));
@@ -318,9 +319,9 @@ public class ConfigurationUtil {
             for (int j = 0; j < methods.length; j++) {
                 Method method = methods[j];
                 EJBMethodPermission permission = new EJBMethodPermission(method.getEjbName(),
-                                                                         method.getMethodName(),
-                                                                         method.getMethodIntf(),
-                                                                         method.getMethodParam());
+                        method.getMethodName(),
+                        method.getMethodIntf(),
+                        method.getMethodParam());
 
                 try {
                     if (methodPermission.isUnchecked()) {
@@ -345,9 +346,9 @@ public class ConfigurationUtil {
         try {
             for (int i = 0; i < methods.length; i++) {
                 EJBMethodPermission permission = new EJBMethodPermission(methods[i].getEjbName(),
-                                                                         methods[i].getMethodName(),
-                                                                         methods[i].getMethodIntf(),
-                                                                         methods[i].getMethodParam());
+                        methods[i].getMethodName(),
+                        methods[i].getMethodIntf(),
+                        methods[i].getMethodParam());
                 configuration.addToExcludedPolicy(permission);
             }
         } catch (PolicyContextException e) {
