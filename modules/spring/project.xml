@@ -16,8 +16,9 @@
     limitations under the License.
 -->
   
+<!DOCTYPE project SYSTEM "../../etc/version-info.ent">
 
-<!-- $Revision: 1.2 $ $Date: 2004/07/11 21:48:46 $ -->
+<!-- $Revision: 1.3 $ $Date: 2004/09/02 03:02:17 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -53,33 +54,33 @@
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>1.0.3</version>
+            <version>&commons-logging-version;</version>
             <url>http://jakarta.apache.org/commons/logging/</url>
         </dependency>
 
         <dependency>
             <groupId>concurrent</groupId>
             <artifactId>concurrent</artifactId>
-            <version>1.3.4</version>
+            <version>&concurrent-version;</version>
         </dependency>
 
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j</artifactId>
-            <version>2.0.1</version>
+            <version>&mx4j-version;</version>
         </dependency>
 
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-full</artifactId>
-            <version>2.0</version>
+            <version>&cglib-version;</version>
             <url>http://cglib.sf.net/</url>
         </dependency>
 
       <dependency>
         <id>springframework</id>
         <artifactId>spring-full</artifactId>
-        <version>1.0.1</version>
+        <version>&spring-version;</version>
         <url>http://www.springframework.org</url>
       </dependency>
 

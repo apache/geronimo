@@ -16,8 +16,9 @@
     limitations under the License.
 -->
 
+<!DOCTYPE project SYSTEM "../../etc/version-info.ent">
 
-<!-- $Revision: 1.38 $ $Date: 2004/09/02 01:09:16 $ -->
+<!-- $Revision: 1.39 $ $Date: 2004/09/02 03:02:16 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -198,7 +199,7 @@
         <dependency>
             <groupId>howl</groupId>
             <artifactId>howl-logger</artifactId>
-            <version>0.1.4</version>
+            <version>&howl-version;</version>
             <url>http://forge.objectweb.org/projects/howl</url>
             <properties>
                 <repository>true</repository>
@@ -208,7 +209,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee</artifactId>
-            <version>1.4-rc2</version>
+            <version>&geronimo-spec-j2ee-version;</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -217,7 +218,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
-            <version>1.1-rc2</version>
+            <version>&geronimo-spec-j2ee-deployment-version;</version>
             <properties>
                 <clideployer>true</clideployer>
             </properties>
@@ -235,14 +236,14 @@
         <dependency>
             <groupId>tranql</groupId>
             <artifactId>tranql-connector</artifactId>
-            <version>1.0-M2</version>
+            <version>&tranql-connector-version;</version>
             <type>rar</type>
         </dependency>
 
         <dependency>
             <groupId>ant</groupId>
             <artifactId>ant</artifactId>
-            <version>1.5</version>
+            <version>&ant-version;</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -252,7 +253,7 @@
         <dependency>
             <groupId>xstream</groupId>
             <artifactId>xstream</artifactId>
-            <version>1.0.1</version>
+            <version>&xstream-version;</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -265,7 +266,7 @@
             <artifactId>xpp3</artifactId>
             <url>http://www.extreme.indiana.edu/xgws/xsoap/xpp</url>
             <!-- can we get by with 1.1.3.3_min?-->
-            <version>1.1.3.3</version>
+            <version>&xpp3-version;</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -275,7 +276,7 @@
         <dependency>
             <groupId>axion</groupId>
             <artifactId>axion</artifactId>
-            <version>1.0-M3-dev</version>
+            <version>&axion-version;</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -284,7 +285,7 @@
         <dependency>
             <groupId>castor</groupId>
             <artifactId>castor</artifactId>
-            <version>0.9.3.9</version>
+            <version>&castor-version;</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -293,7 +294,7 @@
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-full</artifactId>
-            <version>2.0</version>
+            <version>&cglib-version;</version>
             <url>http://cglib.sf.net/</url>
             <properties>
                 <lib>true</lib>
@@ -305,7 +306,7 @@
         <dependency>
             <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>
-            <version>1.0</version>
+            <version>&commons-cli-version;</version>
             <url>http://jakarta.apache.org/commons/cli/</url>
             <properties>
                 <lib>true</lib>
@@ -327,7 +328,7 @@
         <dependency>
             <groupId>commons-el</groupId>
             <artifactId>commons-el</artifactId>
-            <version>1.0</version>
+            <version>&commons-el-version;</version>
             <url>http://jakarta.apache.org/commons/el/</url>
             <properties>
                 <repository>true</repository>
@@ -337,7 +338,7 @@
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
-            <version>1.0</version>
+            <version>&commons-fileupload-version;</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -347,7 +348,7 @@
             <!--axion-->
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>1.0.3</version>
+            <version>&commons-logging-version;</version>
             <url>http://jakarta.apache.org/commons/logging/</url>
             <properties>
                 <lib>true</lib>
@@ -361,7 +362,7 @@
             <!--axion-->
             <groupId>commons-primitives</groupId>
             <artifactId>commons-primitives</artifactId>
-            <version>1.0</version>
+            <version>&commons-primitives-version;</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -370,7 +371,7 @@
         <dependency>
             <groupId>concurrent</groupId>
             <artifactId>concurrent</artifactId>
-            <version>1.3.4</version>
+            <version>&concurrent-version;</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -379,7 +380,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>3.8</version>
+            <version>&junit-version;</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -388,7 +389,7 @@
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>1.2.8</version>
+            <version>&log4j-version;</version>
             <url>http://jakarta.apache.org/log4j</url>
             <properties>
                 <lib>true</lib>
@@ -400,7 +401,7 @@
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j</artifactId>
-            <version>2.0.1</version>
+            <version>&mx4j-version;</version>
             <properties>
                 <lib>true</lib>
                 <server>true</server>
@@ -412,7 +413,7 @@
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j-remote</artifactId>
-            <version>2.0.1</version>
+            <version>&mx4j-version;</version>
             <properties>
                 <lib>true</lib>
                 <server>true</server>
@@ -424,7 +425,7 @@
         <dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-core</artifactId>
-            <version>2.0-SNAPSHOT</version>
+            <version>&openejb-version;</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -434,7 +435,7 @@
             <!--axion-->
             <groupId>regexp</groupId>
             <artifactId>regexp</artifactId>
-            <version>1.3</version>
+            <version>&regexp-version;</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -444,17 +445,7 @@
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
-            <version>2.6.0</version>
-            <properties>
-                <lib>true</lib>
-                <server>true</server>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xmlParserAPIs</artifactId>
-            <version>2.2.1</version>
+            <version>&xerces-version;</version>
             <properties>
                 <lib>true</lib>
                 <server>true</server>
@@ -464,7 +455,7 @@
         <dependency>
             <groupId>xmlbeans</groupId>
             <artifactId>xbean-apache</artifactId>
-            <version>1.0-DEV</version>
+            <version>&xmlbeans-version;</version>
             <properties>
                 <lib>true</lib>
                 <deploy>true</deploy>
@@ -475,7 +466,7 @@
         <dependency>
             <groupId>tranql</groupId>
             <artifactId>tranql</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>&tranql-version;</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -485,7 +476,7 @@
         <dependency>
             <groupId>jetty</groupId>
             <artifactId>org.mortbay.jetty</artifactId>
-            <version>5.0.RC0</version>
+            <version>&jetty-version;</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -494,7 +485,7 @@
         <dependency>
             <groupId>jetty</groupId>
             <artifactId>org.mortbay.jaas</artifactId>
-            <version>5.0.RC0</version>
+            <version>&jetty-version;</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -504,7 +495,7 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>jasper-compiler</artifactId>
-            <version>5.0.16</version>
+            <version>&tomcat-version;</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -513,7 +504,7 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>jasper-runtime</artifactId>
-            <version>5.0.16</version>
+            <version>&tomcat-version;</version>
             <properties>
                 <repository>true</repository>
             </properties>

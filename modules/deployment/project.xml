@@ -16,8 +16,9 @@
     limitations under the License.
 -->
 
+<!DOCTYPE project SYSTEM "../../etc/version-info.ent">
 
-<!-- $Revision: 1.21 $ $Date: 2004/07/18 22:04:26 $ -->
+<!-- $Revision: 1.22 $ $Date: 2004/09/02 03:02:16 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -53,7 +54,7 @@
         <dependency>
             <groupId>xmlbeans</groupId>
             <artifactId>xbean-apache</artifactId>
-            <version>1.0-DEV</version>
+            <version>&xmlbeans-version;</version>
         </dependency>
 
         <dependency>
@@ -77,7 +78,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
-            <version>1.1-rc2</version>
+            <version>&geronimo-spec-j2ee-deployment-version;</version>
         </dependency>
 
         <dependency>
@@ -89,56 +90,42 @@
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-full</artifactId>
-            <version>2.0</version>
+            <version>&cglib-version;</version>
             <url>http://cglib.sf.net/</url>
         </dependency>
 
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j</artifactId>
-            <version>2.0.1</version>
+            <version>&mx4j-version;</version>
         </dependency>
 
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j-remote</artifactId>
-            <version>2.0.1</version>
+            <version>&mx4j-version;</version>
         </dependency>
 
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>1.0.3</version>
+            <version>&commons-logging-version;</version>
             <url>http://jakarta.apache.org/commons/logging/</url>
         </dependency>
 
         <dependency>
             <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>
-            <version>1.0</version>
+            <version>&commons-cli-version;</version>
             <url>http://jakarta.apache.org/commons/cli/</url>
         </dependency>
 
         <dependency>
             <groupId>xml-resolver</groupId>
             <artifactId>xml-resolver</artifactId>
-            <version>1.1</version>
+            <version>&xml-resolver-version;</version>
             <url>http://xml.apache.org/commons</url>
         </dependency>
-
-<!--    uncomment to verify XML loading with DOM
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-            <version>2.6.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xmlParserAPIs</artifactId>
-            <version>2.2.1</version>
-        </dependency>
--->
     </dependencies>
 
 

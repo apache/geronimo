@@ -5,6 +5,7 @@
     xmlns:maven="jelly:maven"
     xmlns:deploy="deploy"
     xmlns:ant="jelly:ant">
+
     <goal name="setclasspath">
         <path id="test.classpath">
             <path refid="maven.dependency.classpath"/>
@@ -13,27 +14,26 @@
     </goal>
 
     <preGoal name="test:test">
-        <deploy:copy-deps todir="${basedir}/target/lib"/>  
-        <ant:java classname="org.apache.geronimo.ews.ws4j2ee.utils.PropertyStore" 
-		      fork="no" >
-		  <ant:arg value="${maven.repo.local}"/>
-  	     	<ant:classpath refid="maven.dependency.classpath"/>
-         </ant:java>
+        <deploy:copy-deps todir="${basedir}/target/lib"/>
+        <ant:java classname="org.apache.geronimo.ews.ws4j2ee.utils.PropertyStore" fork="no">
+            <ant:arg value="${maven.repo.local}"/>
+            <ant:classpath refid="maven.dependency.classpath"/>
+        </ant:java>
         <j:jelly xmlns="jelly:ant">
-		<ant:ant antfile="build.xml" 
-			inheritall="true" 
-			inheritrefs="true" 
-			dir="src/samples/echo"/>
-	<taskdef name="ews" classname="org.apache.geronimo.ews.ws4j2ee.utils.EWSTask">
-                   <classpath refid="maven.dependency.classpath"/>
-        </taskdef>
-	<ews outDir="target/generated/samples" 	     				             module="target/samples/echo.jar">
-		<ant:classpath refid="maven.dependency.classpath"/>
-	</ews>
-		<ant:ant antfile="build.xml" 
-			inheritall="true" 
-			inheritrefs="true" 
-			dir="target/generated/samples"/>
+            <ant:ant antfile="build.xml"
+                inheritall="true"
+                inheritrefs="true"
+                dir="src/samples/echo"/>
+            <taskdef name="ews" classname="org.apache.geronimo.ews.ws4j2ee.utils.EWSTask">
+                <classpath refid="maven.dependency.classpath"/>
+            </taskdef>
+            <ews outDir="target/generated/samples" module="target/samples/echo.jar">
+                <ant:classpath refid="maven.dependency.classpath"/>
+            </ews>
+            <ant:ant antfile="build.xml"
+                inheritall="true"
+                inheritrefs="true"
+                dir="target/generated/samples"/>
         </j:jelly>
-    </preGoal> 
+    </preGoal>
 </project>

@@ -15,9 +15,10 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-  
 
-<!-- $Revision: 1.32 $ $Date: 2004/07/29 03:03:00 $ -->
+<!DOCTYPE project SYSTEM "version-info.ent">
+
+<!-- $Revision: 1.33 $ $Date: 2004/09/02 03:02:16 $ -->
 
 <project>
 
@@ -77,7 +78,7 @@
     <!-- Versions -->
     <!-- ======== -->
 
-    <currentVersion>1.0-SNAPSHOT</currentVersion>
+    <currentVersion>&geronimo-version;</currentVersion>
 
     <versions>
         <version>

@@ -16,8 +16,9 @@
     limitations under the License.
 -->
   
+<!DOCTYPE project SYSTEM "../../etc/version-info.ent">
 
-<!-- $Revision: 1.27 $ $Date: 2004/05/27 05:20:24 $ -->
+<!-- $Revision: 1.28 $ $Date: 2004/09/02 03:02:16 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -53,28 +54,28 @@
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>1.0.3</version>
+            <version>&commons-logging-version;</version>
             <url>http://jakarta.apache.org/commons/logging</url>
         </dependency>
 
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>1.2.8</version>
+            <version>&log4j-version;</version>
             <url>http://jakarta.apache.org/log4j</url>
         </dependency>
 
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j-jmx</artifactId>
-            <version>2.0.1</version>
+            <version>&mx4j-version;</version>
             <url>http://mx4j.sourceforge.net</url>
         </dependency>
 
         <dependency>
             <groupId>xmlbeans</groupId>
             <artifactId>xbean-apache</artifactId>
-            <version>1.0-DEV</version>
+            <version>&xmlbeans-version;</version>
         </dependency>
     </dependencies>
 

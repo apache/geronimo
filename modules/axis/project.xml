@@ -16,8 +16,9 @@
     limitations under the License.
 -->
   
+<!DOCTYPE project SYSTEM "../../etc/version-info.ent">
 
-<!-- $Revision: 1.6 $ $Date: 2004/08/11 13:28:16 $ -->
+<!-- $Revision: 1.7 $ $Date: 2004/09/02 03:02:16 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -53,7 +54,7 @@
         <dependency>
             <groupId>xmlbeans</groupId>
             <artifactId>xbean-apache</artifactId>
-            <version>1.0-DEV</version>
+            <version>&xmlbeans-version;</version>
         </dependency>
 
         <dependency>
@@ -141,25 +142,25 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
-            <version>1.0.1B-rc2</version>
+            <version>&geronimo-spec-jta-version;</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-jacc</artifactId>
-            <version>1.0-rc2</version>
+            <version>&geronimo-spec-j2ee-jacc-version;</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-connector</artifactId>
-            <version>1.5-rc2</version>
+            <version>&geronimo-spec-j2ee-connector-version;</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
-            <version>1.1-rc2</version>
+            <version>&geronimo-spec-j2ee-deployment-version;</version>
         </dependency>
 
         <dependency>
@@ -173,31 +174,31 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-ejb</artifactId>
-            <version>2.1-rc2</version>
+            <version>&geronimo-spec-ejb-version;</version>
         </dependency>
 
         <dependency>
             <groupId>jetty</groupId>
             <artifactId>org.mortbay.jetty</artifactId>
-            <version>5.0.RC0</version>
+            <version>&jetty-version;</version>
         </dependency>
 
         <dependency>
             <groupId>jetty</groupId>
             <artifactId>org.mortbay.jaas</artifactId>
-            <version>5.0.RC0</version>
+            <version>&jetty-version;</version>
         </dependency>
 
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j</artifactId>
-            <version>2.0.1</version>
+            <version>&mx4j-version;</version>
         </dependency>
-        
-         <dependency>
+
+        <dependency>
             <groupId>dom4j</groupId>
             <artifactId>dom4j</artifactId>
-            <version>1.4</version>
+            <version>&dom4j-version;</version>
             <properties>
                 <module>true</module>
             </properties>
@@ -207,88 +208,83 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-servlet</artifactId>
-            <version>2.4-rc2</version>
+            <version>&geronimo-spec-servlet-version;</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jsp</artifactId>
-            <version>2.0-rc2</version>
+            <version>&geronimo-spec-jsp-version;</version>
         </dependency>
 
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>1.0.3</version>
+            <version>&commons-logging-version;</version>
             <url>http://jakarta.apache.org/commons/logging/</url>
         </dependency>
 
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>jasper-compiler</artifactId>
-            <version>5.0.16</version>
+            <version>&tomcat-version;</version>
         </dependency>
 
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>jasper-runtime</artifactId>
-            <version>5.0.16</version>
+            <version>&tomcat-version;</version>
         </dependency>
 
         <dependency>
             <groupId>commons-el</groupId>
             <artifactId>commons-el</artifactId>
-            <version>1.0</version>
+            <version>&commons-el-version;</version>
             <url>http://jakarta.apache.org/commons/el/</url>
         </dependency>
 
         <dependency>
             <groupId>ant</groupId>
             <artifactId>ant</artifactId>
-            <version>1.5</version>
+            <version>&ant-version;</version>
         </dependency>
 
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
-            <version>2.6.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xmlParserAPIs</artifactId>
-            <version>2.2.1</version>
+            <version>&xerces-version;</version>
         </dependency>
 
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-full</artifactId>
-            <version>2.0</version>
+            <version>&cglib-version;</version>
             <url>http://cglib.sf.net/</url>
         </dependency>
 
         <dependency>
-            <id>concurrent</id>
-            <version>1.3.4</version>
+            <groupId>concurrent</groupId>
+            <artifactId>concurrent</artifactId>
+            <version>&concurrent-version;</version>
         </dependency>
 
         <dependency>
             <groupId>regexp</groupId>
             <artifactId>regexp</artifactId>
-            <version>1.3</version>
+            <version>&regexp-version;</version>
             <url>http://jakarta.apache.org/regexp</url>
         </dependency>
 
         <dependency>
             <groupId>tranql</groupId>
             <artifactId>tranql</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>&tranql-version;</version>
             <url>http://tranql.codehaus.org</url>
         </dependency>
-    <dependency>
+        <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>1.2.8</version>
+            <version>&log4j-version;</version>
             <url>http://jakarta.apache.org/log4j</url>
         </dependency>
 
@@ -296,7 +292,7 @@
         <dependency>
             <groupId>ews</groupId>
             <artifactId>ews</artifactId>
-            <version>SNAPSHOT</version>
+            <version>&ews-version;</version>
             <properties>
                 <module>true</module>
             </properties>
@@ -304,7 +300,7 @@
         <dependency>
             <groupId>jaxb-ri</groupId>
             <artifactId>jaxb-api</artifactId>
-            <version>SNAPSHOT</version>
+            <version>&jaxb-ri-version;</version>
             <properties>
                 <module>true</module>
             </properties>
@@ -312,7 +308,7 @@
         <dependency>
             <groupId>jaxb-ri</groupId>
             <artifactId>jaxb-impl</artifactId>
-            <version>SNAPSHOT</version>
+            <version>&jaxb-ri-version;</version>
             <properties>
                 <module>true</module>
             </properties>
@@ -320,7 +316,7 @@
         <dependency>
             <groupId>jaxb-ri</groupId>
             <artifactId>jaxb-libs</artifactId>
-            <version>SNAPSHOT</version>
+            <version>&jaxb-ri-version;</version>
             <properties>
                 <module>true</module>
             </properties>
@@ -328,7 +324,7 @@
         <dependency>
             <groupId>jaxb-ri</groupId>
             <artifactId>namespace</artifactId>
-            <version>SNAPSHOT</version>
+            <version>&jaxb-ri-version;</version>
             <properties>
                 <module>true</module>
             </properties>
@@ -336,7 +332,7 @@
         <dependency>
             <groupId>jaxb-ri</groupId>
             <artifactId>relaxngDatatype</artifactId>
-            <version>SNAPSHOT</version>
+            <version>&jaxb-ri-version;</version>
             <properties>
                 <module>true</module>
             </properties>
@@ -344,7 +340,7 @@
         <dependency>
             <groupId>jaxb-ri</groupId>
             <artifactId>xsdlib</artifactId>
-            <version>SNAPSHOT</version>
+            <version>&jaxb-ri-version;</version>
             <properties>
                 <module>true</module>
             </properties>
@@ -352,7 +348,7 @@
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis</artifactId>
-            <version>SNAPSHOT</version>
+            <version>&axis-version;</version>
             <properties>
                 <module>true</module>
             </properties>
@@ -360,7 +356,7 @@
         <dependency>
             <groupId>axis</groupId>
             <artifactId>commons-discovery</artifactId>
-            <version>SNAPSHOT</version>
+            <version>&axis-version;</version>
             <properties>
                 <module>true</module>
             </properties>
@@ -368,7 +364,7 @@
         <dependency>
             <groupId>axis</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>SNAPSHOT</version>
+            <version>&axis-version;</version>
             <properties>
                 <module>true</module>
             </properties>
@@ -376,7 +372,7 @@
         <dependency>
             <groupId>axis</groupId>
             <artifactId>jaxrpc</artifactId>
-            <version>SNAPSHOT</version>
+            <version>&axis-version;</version>
             <properties>
                 <module>true</module>
             </properties>
@@ -384,7 +380,7 @@
         <dependency>
             <groupId>axis</groupId>
             <artifactId>saaj</artifactId>
-            <version>SNAPSHOT</version>
+            <version>&axis-version;</version>
             <properties>
                 <module>true</module>
             </properties>
@@ -392,7 +388,7 @@
         <dependency>
             <groupId>axis</groupId>
             <artifactId>wsdl4j</artifactId>
-            <version>SNAPSHOT</version>
+            <version>&axis-version;</version>
             <properties>
                 <module>true</module>
             </properties>
@@ -400,15 +396,15 @@
         <dependency>
             <groupId>ant</groupId>
             <artifactId>ant</artifactId>
-            <version>1.5.3-1</version>
+            <version>&ant-version;</version>
             <properties>
                 <module>true</module>
             </properties>
         </dependency>
         <dependency>
             <groupId>openejb</groupId>
-            <artifactId>openejb-core-2.0</artifactId>
-            <version>SNAPSHOT</version>
+            <artifactId>openejb-core</artifactId>
+            <version>&openejb-version;</version>
             <properties>
                 <module>true</module>
             </properties>
@@ -434,7 +430,7 @@
 
             <excludes>
                 <exclude>**/Abstract*.java</exclude>
-                <exclude>**/EWSTest.java</exclude> 
+                <exclude>**/EWSTest.java</exclude>
                 <exclude>**/ComplexTypeWebServiceTest.java</exclude>
             </excludes>
 

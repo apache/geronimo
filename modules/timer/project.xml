@@ -16,8 +16,9 @@
     limitations under the License.
 -->
 
+<!DOCTYPE project SYSTEM "../../etc/version-info.ent">
 
-<!-- $Revision: 1.1 $ $Date: 2004/07/18 22:10:56 $ -->
+<!-- $Revision: 1.2 $ $Date: 2004/09/02 03:02:17 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -70,13 +71,13 @@
        <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
-            <version>1.0.1B-rc2</version>
+            <version>&geronimo-spec-jta-version;</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-connector</artifactId>
-            <version>1.5-rc2</version>
+            <version>&geronimo-spec-j2ee-connector-version;</version>
         </dependency>
 
 
@@ -85,7 +86,7 @@
         <dependency>
             <groupId>xstream</groupId>
             <artifactId>xstream</artifactId>
-            <version>1.0.1</version>
+            <version>&xstream-version;</version>
         </dependency>
 
         <dependency>
@@ -95,13 +96,13 @@
             <artifactId>xpp3</artifactId>
             <url>http://www.extreme.indiana.edu/xgws/xsoap/xpp</url>
             <!-- can we get by with 1.1.3.3_min?-->
-            <version>1.1.3.3</version>
+            <version>&xpp3-version;</version>
         </dependency>
 
         <dependency>
             <groupId>axion</groupId>
             <artifactId>axion</artifactId>
-            <version>1.0-M3-dev</version>
+            <version>&axion-version;</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -110,7 +111,7 @@
         <dependency>
             <groupId>commons-primitives</groupId>
             <artifactId>commons-primitives</artifactId>
-            <version>1.0</version>
+            <version>&commons-primitives-version;</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -120,33 +121,33 @@
         <dependency>
             <groupId>concurrent</groupId>
             <artifactId>concurrent</artifactId>
-            <version>1.3.4</version>
+            <version>&concurrent-version;</version>
         </dependency>
 
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>1.0.3</version>
+            <version>&commons-logging-version;</version>
             <url>http://jakarta.apache.org/commons/logging/</url>
         </dependency>
 
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j</artifactId>
-            <version>2.0.1</version>
+            <version>&mx4j-version;</version>
         </dependency>
         <!-- needed for passwordcredential realm-->
         <dependency>
             <groupId>regexp</groupId>
             <artifactId>regexp</artifactId>
-            <version>1.3</version>
+            <version>&regexp-version;</version>
             <url>http://jakarta.apache.org/regexp</url>
         </dependency>
 
         <dependency>
             <groupId>tranql</groupId>
             <artifactId>tranql</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>&tranql-version;</version>
             <url>http://tranql.codehaus.org</url>
         </dependency>
 

@@ -16,8 +16,9 @@
     limitations under the License.
 -->
   
+<!DOCTYPE project SYSTEM "../../etc/version-info.ent">
 
-<!-- $Revision: 1.9 $ $Date: 2004/06/24 20:59:46 $ -->
+<!-- $Revision: 1.10 $ $Date: 2004/09/02 03:02:16 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -45,26 +46,26 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-servlet</artifactId>
-            <version>2.4-rc2</version>
+            <version>&geronimo-spec-servlet-version;</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jsp</artifactId>
-            <version>2.0-rc2</version>
+            <version>&geronimo-spec-jsp-version;</version>
         </dependency>
 
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j-jmx</artifactId>
-            <version>2.0.1</version>
+            <version>&mx4j-version;</version>
             <url>http://mx4j.sourceforge.net</url>
         </dependency>
 
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>1.0.3</version>
+            <version>&commons-logging-version;</version>
             <url>http://jakarta.apache.org/commons/logging</url>
         </dependency>
     </dependencies>
