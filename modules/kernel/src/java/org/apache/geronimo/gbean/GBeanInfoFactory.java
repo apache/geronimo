@@ -67,7 +67,7 @@ import java.util.Arrays;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/01/25 21:07:04 $
+ * @version $Revision: 1.8 $ $Date: 2004/02/08 21:52:59 $
  */
 public class GBeanInfoFactory {
     private final String name;
@@ -80,6 +80,10 @@ public class GBeanInfoFactory {
 
     public GBeanInfoFactory(String name) {
         this(name, name);
+    }
+
+    public GBeanInfoFactory(Class clazz) {
+        this.name = this.className = clazz.getName();
     }
 
     public GBeanInfoFactory(String name, String className) {

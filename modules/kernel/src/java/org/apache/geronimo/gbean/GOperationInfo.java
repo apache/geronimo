@@ -64,7 +64,7 @@ import java.util.List;
 /**
  * Describes an operation on a GBean.
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/18 01:22:42 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/08 21:52:59 $
  */
 public class GOperationInfo implements Serializable {
     /**
@@ -84,6 +84,15 @@ public class GOperationInfo implements Serializable {
 
     public GOperationInfo(String name) {
         this(name, name, Collections.EMPTY_LIST);
+    }
+
+    public GOperationInfo(String name, Class[] paramTypes) {
+        this.name = this.methodName = name;
+        String[] args = new String[paramTypes.length];
+        for (int i = 0; i < args.length; i++) {
+            args[i] = paramTypes[i].getName();
+        }
+        this.parameters = Collections.unmodifiableList(Arrays.asList(args));
     }
 
     public GOperationInfo(String name, String[] paramTypes) {
