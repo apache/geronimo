@@ -70,21 +70,23 @@ import javax.management.ReflectionException;
 
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
+import org.apache.geronimo.gbean.DynamicGOperationInfo;
+import org.apache.geronimo.gbean.DynamicGBean;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/17 00:32:10 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/18 01:22:42 $
  */
 public class GBeanMBeanOperation {
-    private final GBeanMBean gMBean;
+    private final GBeanMBean gmbean;
     private final String name;
     private final List parameterTypes;
     private final MBeanOperationInfo mbeanOperationInfo;
     private final MethodInvoker methodInvoker;
 
     public GBeanMBeanOperation(GBeanMBean gMBean, String name, List parameterTypes, Class returnType, MethodInvoker methodInvoker) {
-        this.gMBean = gMBean;
+        this.gmbean = gMBean;
         this.name = name;
         this.parameterTypes = Collections.unmodifiableList(new ArrayList(parameterTypes));
         this.methodInvoker = methodInvoker;
@@ -108,7 +110,7 @@ public class GBeanMBeanOperation {
     }
 
     public GBeanMBeanOperation(GBeanMBean gMBean, GOperationInfo operationInfo) throws InvalidConfigurationException {
-        this.gMBean = gMBean;
+        this.gmbean = gMBean;
         this.name = operationInfo.getName();
 
         // get an array of the parameter classes
@@ -118,7 +120,7 @@ public class GBeanMBeanOperation {
         for (int i = 0; i < types.length; i++) {
             String type = (String) parameterTypes.get(i);
             try {
-                types[i] = loadClass((String)parameterTypes.get(i), classLoader);
+                types[i] = loadClass((String) parameterTypes.get(i), classLoader);
             } catch (ClassNotFoundException e) {
                 throw new InvalidConfigurationException("Could not load operation parameter class:" +
                         " name=" + operationInfo.getName() +
@@ -128,15 +130,27 @@ public class GBeanMBeanOperation {
 
         // get a method invoker for the operation
         Class returnType;
-        try {
-            Method javaMethod = gMBean.getType().getMethod(operationInfo.getMethodName(), types);
-            returnType = javaMethod.getReturnType();
-            methodInvoker = new FastMethodInvoker(javaMethod);
-        } catch (Exception e) {
-            throw new InvalidConfigurationException("Target does not have specified method:" +
-                    " name=" + operationInfo.getName() +
-                    " methodName=" + operationInfo.getMethodName() +
-                    " targetClass=" + gMBean.getType().getName());
+        if (operationInfo instanceof DynamicGOperationInfo) {
+            returnType = Object.class;
+            methodInvoker = new MethodInvoker() {
+                private String[] types = (String[]) parameterTypes.toArray(new String[parameterTypes.size()]);
+                public Object invoke(Object target, Object[] arguments) throws Exception {
+                    DynamicGBean dynamicGBean = (DynamicGBean) GBeanMBeanOperation.this.gmbean.getTarget();
+                    dynamicGBean.invoke(name, arguments, types);
+                    return null;
+                }
+            };
+        } else {
+            try {
+                Method javaMethod = gMBean.getType().getMethod(operationInfo.getMethodName(), types);
+                returnType = javaMethod.getReturnType();
+                methodInvoker = new FastMethodInvoker(javaMethod);
+            } catch (Exception e) {
+                throw new InvalidConfigurationException("Target does not have specified method:" +
+                        " name=" + operationInfo.getName() +
+                        " methodName=" + operationInfo.getMethodName() +
+                        " targetClass=" + gMBean.getType().getName());
+            }
         }
 
         MBeanParameterInfo[] signature = new MBeanParameterInfo[parameterTypes.size()];
@@ -169,14 +183,14 @@ public class GBeanMBeanOperation {
     }
 
     public Object invoke(Object[] arguments) throws MBeanException, ReflectionException {
-        if (gMBean.isOffline()) {
+        if (gmbean.isOffline()) {
             throw new IllegalStateException("Operations can not be called while offline");
         }
 
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(gMBean.getClassLoader());
-            return methodInvoker.invoke(gMBean.getTarget(), arguments);
+            Thread.currentThread().setContextClassLoader(gmbean.getClassLoader());
+            return methodInvoker.invoke(gmbean.getTarget(), arguments);
         } catch (Throwable throwable) {
             throw new ReflectionException(new InvocationTargetException(throwable));
         } finally {

@@ -55,64 +55,23 @@
  */
 package org.apache.geronimo.gbean;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
- * Describes an operation on a GBean.
- *
- * @version $Revision: 1.4 $ $Date: 2004/01/18 01:22:42 $
+ * 
+ * 
+ * @version $Revision: 1.1 $ $Date: 2004/01/18 01:22:42 $
  */
-public class GOperationInfo implements Serializable {
-    /**
-     * The name of this method.
-     */
-    private final String name;
-
-    /**
-     * Parameters of this method.
-     */
-    private final List parameters;
-
-    /**
-     * Target method name.
-     */
-    private final String methodName;
-
-    public GOperationInfo(String name) {
-        this(name, name, Collections.EMPTY_LIST);
+public class DynamicGOperationInfo extends GOperationInfo {
+    public DynamicGOperationInfo(String name) {
+        super(name);
     }
 
-    public GOperationInfo(String name, String[] paramTypes) {
-        this(name, name, Arrays.asList(paramTypes));
+    public DynamicGOperationInfo(String name, String[] paramTypes) {
+        super(name, paramTypes);
     }
 
-    public GOperationInfo(String name, List parameters) {
-        this(name, name, parameters);
-    }
-
-    public GOperationInfo(String name, String methodName, List parameters) {
-        this.name = name;
-        this.methodName = methodName;
-        this.parameters = Collections.unmodifiableList(new ArrayList(parameters));
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getMethodName() {
-        return methodName;
-    }
-
-    public List getParameterList() {
-        return parameters;
-    }
-
-    public String toString() {
-        return "[GOperationInfo: name=" + name + " parameters=" + parameters + "]";
+    public DynamicGOperationInfo(String name, List parameters) {
+        super(name, parameters);
     }
 }
