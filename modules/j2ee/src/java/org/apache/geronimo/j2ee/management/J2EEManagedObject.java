@@ -17,7 +17,7 @@
 
 package org.apache.geronimo.j2ee.management;
 
-import org.apache.geronimo.kernel.management.ManagedObject;
+
 
 /**
  * 
@@ -31,26 +31,26 @@ public interface J2EEManagedObject {
      *
      * @return the unique name of this object within the server
      */
-    String getobjectName();
+    String getObjectName();
 
     /**
      * Determines if this object implements the state manageable type defined in the J2EE Management specification.
      *
      * @return true if this class also implements the state manageable type; false otherwise
      */
-    boolean isstateManageable();
+    boolean isStateManageable();
 
     /**
      * Determines if this object implemnts the statistics provider type defined in the J2EE Management specification.
      *
      * @return true if this class also implements the state manageable type; false otherwise
      */
-    boolean isstatisticsProvider();
+    boolean isStatisticsProvider();
 
     /**
      * Determines if this object implemnts the event provider type defined in the J2EE Management specification.
      *
      * @return true if this class also implements the event manageable type; false otherwise
      */
-    boolean iseventProvider();
+    boolean isEventProvider();
 }

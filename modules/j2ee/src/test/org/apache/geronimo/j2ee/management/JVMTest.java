@@ -31,10 +31,10 @@ public class JVMTest extends Abstract77Test {
     private Runtime runtime;
 
     public void testStandardInterface() {
-        assertEquals(JVM_NAME.getCanonicalName(), jvm.getobjectName());
-        assertEquals(System.getProperty("java.version"), jvm.getjavaVersion());
-        assertEquals(System.getProperty("java.vendor"), jvm.getjavaVendor());
-        assertEquals(node, jvm.getnode());
+        assertEquals(JVM_NAME.getCanonicalName(), jvm.getObjectName());
+        assertEquals(System.getProperty("java.version"), jvm.getJavaVersion());
+        assertEquals(System.getProperty("java.vendor"), jvm.getJavaVendor());
+        assertEquals(node, jvm.getNode());
     }
 
     public void testStandardAttributes() throws Exception {
@@ -45,12 +45,12 @@ public class JVMTest extends Abstract77Test {
     }
 
     public void testGeronimoInterface() {
-        assertEquals(runtime.availableProcessors(), jvmEx.getavailableProcessors());
+        assertEquals(runtime.availableProcessors(), jvmEx.getAvailableProcessors());
 
         // I'm going to leave these in but I am not sure the results are deterministic
-//        assertEquals(runtime.freeMemory(), jvmEx.getfreeMemory());
-        assertEquals(runtime.maxMemory(), jvmEx.getmaxMemory());
-        assertEquals(runtime.totalMemory(), jvmEx.gettotalMemory());
+//        assertEquals(runtime.freeMemory(), jvmEx.getFreeMemory());
+        assertEquals(runtime.maxMemory(), jvmEx.getMaxMemory());
+        assertEquals(runtime.totalMemory(), jvmEx.getTotalMemory());
 
     }
 

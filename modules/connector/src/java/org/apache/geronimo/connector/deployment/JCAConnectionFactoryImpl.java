@@ -41,7 +41,7 @@ public class JCAConnectionFactoryImpl {
     }
 
     public String getServer() {
-        return server.getobjectName();
+        return server.getObjectName();
     }
 
     public String getManagedConnectionFactory() {

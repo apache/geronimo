@@ -27,8 +27,8 @@ public class DomainTest extends Abstract77Test {
     private J2EEDomain domain;
 
     public void testStandardInterface() throws Exception {
-        assertEquals(DOMAIN_NAME.toString(), domain.getobjectName());
-        assertObjectNamesEqual(new String[]{SERVER_NAME.toString()}, domain.getservers());
+        assertEquals(DOMAIN_NAME.toString(), domain.getObjectName());
+        assertObjectNamesEqual(new String[]{SERVER_NAME.toString()}, domain.getServers());
     }
 
     public void testStandardAttributes() throws Exception {

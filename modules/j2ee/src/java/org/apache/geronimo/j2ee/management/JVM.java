@@ -29,7 +29,7 @@ public interface JVM extends J2EEManagedObject {
      * @see "JSR77.3.4.1.1"
      * @return the JVMImpl version
      */
-    String getjavaVersion();
+    String getJavaVersion();
 
     /**
      * The vendor of the JVMImpl we are running on.
@@ -37,7 +37,7 @@ public interface JVM extends J2EEManagedObject {
      * @see "JSR77.3.4.1.2"
      * @return the JVMImpl version
      */
-    String getjavaVendor();
+    String getJavaVendor();
 
     /**
      * The node we are running on.
@@ -46,5 +46,5 @@ public interface JVM extends J2EEManagedObject {
      * @see "JSR77.3.4.1.3"
      * @return the node we are running on
      */
-    String getnode();
+    String getNode();
 }

@@ -28,5 +28,5 @@ public interface J2EEDomain extends J2EEManagedObject {
      * @see "JSR77.3.2.1.1"
      * @return all J2EE Servers
      */
-    String[] getservers();
+    String[] getServers();
 }

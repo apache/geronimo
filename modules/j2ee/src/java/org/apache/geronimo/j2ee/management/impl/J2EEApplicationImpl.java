@@ -80,12 +80,12 @@ public class J2EEApplicationImpl {
                 new String[]{"AppClientModule", "EJBModule", "WebModule", "ResourceAdapterModule"});
     }
 
-    public String getdeploymentDescriptor() {
+    public String getDeploymentDescriptor() {
         return deploymentDescriptor;
     }
 
-    public String getserver() {
-        return server.getobjectName();
+    public String getServer() {
+        return server.getObjectName();
     }
 
     public static final GBeanInfo GBEAN_INFO;

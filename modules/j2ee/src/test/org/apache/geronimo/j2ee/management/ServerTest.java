@@ -27,12 +27,12 @@ public class ServerTest extends Abstract77Test {
     private String version;
 
     public void testStandardInterface() throws Exception {
-        assertEquals(SERVER_NAME.toString(), server.getobjectName());
-        assertEquals(0, server.getdeployedObjects().length);
-        assertEquals(0, server.getresources().length);
-        assertObjectNamesEqual(new String[]{JVM_NAME.toString()}, server.getjavaVMs());
-        assertEquals("The Apache Software Foundation", server.getserverVendor());
-        assertEquals(version, server.getserverVersion());
+        assertEquals(SERVER_NAME.toString(), server.getObjectName());
+        assertEquals(0, server.getDeployedObjects().length);
+        assertEquals(0, server.getResources().length);
+        assertObjectNamesEqual(new String[]{JVM_NAME.toString()}, server.getJavaVMs());
+        assertEquals("The Apache Software Foundation", server.getServerVendor());
+        assertEquals(version, server.getServerVersion());
     }
 
     public void testStandardAttributes() throws Exception {

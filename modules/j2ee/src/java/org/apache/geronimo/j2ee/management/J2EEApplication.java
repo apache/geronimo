@@ -29,5 +29,5 @@ public interface J2EEApplication extends J2EEDeployedObject {
      * @see "JSR77.3.6.1.1"
      * @return the modules in this EAR
      */
-    String[] getmodules();
+    String[] getModules();
 }

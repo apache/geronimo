@@ -28,33 +28,33 @@ public interface J2EEServer extends J2EEManagedObject {
      * @see "JSR77.3.3.1.1"
      * @return the deployed objects on this server
      */
-    String[] getdeployedObjects();
+    String[] getDeployedObjects();
 
     /**
      * A list of resources available to this server.
      * @see "JSR77.3.3.1.2"
      * @return the resources available to this server
      */
-    String[] getresources();
+    String[] getResources();
 
     /**
      * A list of all Java virtual machines on which this J2EEServer has running threads.
      * @see "JSR77.3.3.1.3"
      * @return the JVMs for this server
      */
-    String[] getjavaVMs();
+    String[] getJavaVMs();
 
     /**
      * Identifies the J2EE platform vendor of this J2EEServer.
      * @see "JSR77.3.3.1.4"
      * @return the server vendor
      */
-    String getserverVendor();
+    String getServerVendor();
 
     /**
      * Identifies the J2EE implemetation version of this J2EEServer.
      * @see "JSR77.3.3.1.5"
      * @return the server version
      */
-    String getserverVersion();
+    String getServerVersion();
 }

@@ -23,8 +23,8 @@ package org.apache.geronimo.j2ee.management.geronimo;
  * @version $Rev$ $Date$
  */
 public interface JVM extends org.apache.geronimo.j2ee.management.JVM {
-    long getfreeMemory();
-    long gettotalMemory();
-    long getmaxMemory();
-    int getavailableProcessors();
+    long getFreeMemory();
+    long getTotalMemory();
+    long getMaxMemory();
+    int getAvailableProcessors();
 }

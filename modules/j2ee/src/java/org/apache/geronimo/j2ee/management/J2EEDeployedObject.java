@@ -29,12 +29,12 @@ public interface J2EEDeployedObject extends J2EEManagedObject {
      * @see "JSR77.3.5.0.1"
      * @return this module's deployment descriptor
      */
-    String getdeploymentDescriptor();
+    String getDeploymentDescriptor();
 
     /**
      * The J2EE server the application or module is deployed on.
      * @see "JSR77.3.5.0.2"
      * @return the server this module is deployed on
      */
-    String getserver();
+    String getServer();
 }
