@@ -56,6 +56,7 @@
 package org.apache.geronimo.deployment.service;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
@@ -77,6 +78,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.deployment.scanner.URLType;
 import org.apache.geronimo.deployment.goal.DeployURL;
 import org.apache.geronimo.deployment.goal.DeploymentGoal;
 import org.apache.geronimo.deployment.goal.RedeployURL;
@@ -97,7 +99,7 @@ import org.xml.sax.SAXException;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/14 00:02:43 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/15 15:27:42 $
  */
 public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, MBeanRegistration {
     private MBeanServer server;
@@ -105,7 +107,6 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
     private RelationServiceMBean relationService;
     private final DocumentBuilder parser;
     private final MBeanMetadataXMLLoader mbeanLoader;
-    private final ClassSpaceMetadataXMLLoader classSpaceLoader;
 
     public ServiceDeploymentPlanner() {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -115,7 +116,6 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
             throw new AssertionError("No XML parser available");
         }
         mbeanLoader = new MBeanMetadataXMLLoader();
-        classSpaceLoader = new ClassSpaceMetadataXMLLoader();
     }
 
     public ObjectName preRegister(MBeanServer mBeanServer, ObjectName objectName) throws Exception {
@@ -161,14 +161,34 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
     }
 
     private boolean addURL(DeployURL goal, Set goals, Set plans) throws DeploymentException {
+        InputStream is;
         URL url = goal.getUrl();
-        if (!url.getPath().endsWith("-service.xml")) {
+        URLType type = goal.getType();
+        if (type == URLType.RESOURCE) {
+            if (!url.getPath().endsWith("-service.xml")) {
+                return false;
+            }
+            try {
+                is = url.openConnection().getInputStream();
+            } catch (IOException e) {
+                throw new DeploymentException(e);
+            }
+        } else if (type == URLType.UNPACKED_ARCHIVE) {
+            try {
+                URL serviceURL = new URL(url, "META-INF/geronimo-service.xml");
+                is = serviceURL.openConnection().getInputStream();
+            } catch (IOException e) {
+                // assume resource does not exist
+                return false;
+            }
+        } else {
             return false;
         }
 
+
         Document doc;
         try {
-            doc = parser.parse(url.toString());
+            doc = parser.parse(is);
         } catch (SAXException e) {
             throw new DeploymentException(e);
         } catch (IOException e) {
@@ -185,7 +205,7 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
         ServiceDeployment serviceInfo = new ServiceDeployment(deploymentName, null, url);
         createPlan.addTask(new RegisterMBeanInstance(server, deploymentName, serviceInfo));
 
-        ObjectName loaderName = addClassSpaces(doc.getElementsByTagName("class-space"), createPlan);
+        ObjectName loaderName = addClassSpaces(doc.getElementsByTagName("class-space"), createPlan, url);
 
         NodeList nl = doc.getElementsByTagName("mbean");
         for (int i = 0; i < nl.getLength(); i++) {
@@ -204,12 +224,13 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
         return true;
     }
 
-    private ObjectName addClassSpaces(NodeList nl, DeploymentPlan plan) throws DeploymentException {
+    private ObjectName addClassSpaces(NodeList nl, DeploymentPlan plan, URL baseURL) throws DeploymentException {
         Element classSpaceElement = (Element) nl.item(0);
         if (classSpaceElement == null) {
             return null;
         }
 
+        ClassSpaceMetadataXMLLoader classSpaceLoader = new ClassSpaceMetadataXMLLoader(baseURL);
         ClassSpaceMetadata md = classSpaceLoader.loadXML(classSpaceElement);
         CreateClassSpace createTask = new CreateClassSpace(server, md);
         plan.addTask(createTask);

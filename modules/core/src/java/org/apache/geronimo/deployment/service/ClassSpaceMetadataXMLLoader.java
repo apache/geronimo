@@ -76,9 +76,15 @@ import org.w3c.dom.NodeList;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/12 07:10:16 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/15 15:27:42 $
  */
 public class ClassSpaceMetadataXMLLoader {
+    private final URL baseURL;
+
+    public ClassSpaceMetadataXMLLoader(URL baseURL) {
+        this.baseURL = baseURL;
+    }
+
     public ClassSpaceMetadata loadXML(Element element) throws DeploymentException {
         ClassSpaceMetadata md = new ClassSpaceMetadata();
         try {
@@ -92,7 +98,7 @@ public class ClassSpaceMetadataXMLLoader {
             for (int i = 0; i < nl.getLength(); i++) {
                 Element codebaseElement = (Element) nl.item(i);
                 URL codebase;
-                codebase = new URL(codebaseElement.getAttribute("url"));
+                codebase = new URL(baseURL, codebaseElement.getAttribute("url"));
                 NodeList archiveNodes = codebaseElement.getElementsByTagName("archive");
                 if (archiveNodes.getLength() == 0) {
                     // no archives present, use codebase itself
