@@ -57,81 +57,42 @@ package org.apache.geronimo.xml.deployment;
 
 import java.io.File;
 import java.io.FileReader;
-
-import junit.framework.TestCase;
+import java.io.FileWriter;
 import org.w3c.dom.Document;
 import org.apache.geronimo.deployment.model.geronimo.ejb.GeronimoEjbJarDocument;
-import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
-import org.apache.geronimo.deployment.model.geronimo.ejb.EnterpriseBeans;
-import org.apache.geronimo.deployment.model.geronimo.ejb.Session;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
-import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
+import junit.framework.TestCase;
 
 /**
- * Tests basic Geronimo EJB JAR DD loading (not very comprehensive)
+ * Tests for storing a Geronimo EJB JAR
  *
- * @version $Revision: 1.3 $ $Date: 2003/10/01 19:03:40 $
+ * @version $Revision: 1.1 $ $Date: 2003/10/01 19:03:40 $
  */
-public class GeronimoEjbJarLoaderTest extends TestCase {
+public class GeronimoEjbJarStorerTest extends TestCase {
     private File docDir;
     private GeronimoEjbJarLoader loader;
-
-    public void testSimpleLoad() throws Exception {
-        File f = new File(docDir, "simple-geronimo-ejb-jar.xml");
-        Document xmlDoc = LoaderUtil.parseXML(new FileReader(f));
-        GeronimoEjbJarDocument doc = loader.load(xmlDoc);
-        checkGeronimoJar(doc);
-    }
-
-    static void checkGeronimoJar(GeronimoEjbJarDocument doc) {
-        EjbJar jar = doc.getEjbJar();
-        EjbJarLoaderTest.checkEjbJar(jar, "OverrideExample");
-        EnterpriseBeans beans = jar.getGeronimoEnterpriseBeans();
-        Session[] session = beans.getGeronimoSession();
-        assertEquals(2, session.length);
-        assertEquals("Stateless", session[0].getSessionType());
-        assertEquals("Stateful", session[1].getSessionType());
-        checkStateless(session[0]);
-        checkStateful(session[1]);
-    }
-
-    static void checkStateless(Session session) {
-        assertEquals("StatelessTest", session.getEJBName());
-        assertEquals("StatelessTestJNDI", session.getJndiName());
-
-        EnvEntry[] envs = session.getEnvEntry();
-        assertEquals(1, envs.length);
-        EnvEntry envEntry = envs[0];
-        assertEquals("Variable 1", envEntry.getEnvEntryName());
-        assertEquals("OverrideExample", envEntry.getEnvEntryValue());
-
-        ResourceEnvRef[] resEnvRefs = session.getGeronimoResourceEnvRef();
-        assertEquals(1, resEnvRefs.length);
-        ResourceEnvRef resEnvRef = resEnvRefs[0];
-        assertEquals("jdbc/StatelessDatabase", resEnvRef.getResourceEnvRefName());
-        assertEquals("java:jdbc/MyDatabase", resEnvRef.getJndiName());
-    }
-
-    static void checkStateful(Session session) {
-        assertEquals("StatefulTest", session.getEJBName());
-        assertEquals("StatefulTestJNDI", session.getJndiName());
-
-        EjbRef[] ejbRefs = session.getGeronimoEJBRef();
-        assertEquals(1, ejbRefs.length);
-        EjbRef ejbRef = ejbRefs[0];
-        assertEquals("ejb/MyStateless", ejbRef.getEJBRefName());
-        assertNull(ejbRef.getJndiName());
-
-        ResourceEnvRef[] resEnvRefs = session.getGeronimoResourceEnvRef();
-        assertEquals(1, resEnvRefs.length);
-        ResourceEnvRef resEnvRef = resEnvRefs[0];
-        assertEquals("jdbc/StatefulDatabase", resEnvRef.getResourceEnvRefName());
-        assertTrue("resEnvRef does not have an empty JNDI name!", resEnvRef.getJndiName() == null || resEnvRef.getJndiName().equals(""));
-    }
+    private GeronimoEjbJarStorer storer;
 
     protected void setUp() throws Exception {
         docDir = new File("src/test-data/xml/deployment");
         loader = new GeronimoEjbJarLoader();
+        storer = new GeronimoEjbJarStorer();
+    }
+
+    public void testLoadStoreLoad() throws Exception {
+        File f = new File(docDir, "simple-geronimo-ejb-jar.xml");
+        Document xmlDoc = LoaderUtil.parseXML(new FileReader(f));
+        GeronimoEjbJarDocument doc = loader.load(xmlDoc);
+        GeronimoEjbJarLoaderTest.checkGeronimoJar(doc);
+
+        File of = new File(docDir, "test-copy-geronimo-ejb-jar.xml");
+        FileWriter out = new FileWriter(of);
+        storer.store(doc, out);
+        out.flush();
+        out.close();
+
+        f = new File(docDir, "test-copy-geronimo-ejb-jar.xml");
+        xmlDoc = LoaderUtil.parseXML(new FileReader(f));
+        doc = loader.load(xmlDoc);
+        GeronimoEjbJarLoaderTest.checkGeronimoJar(doc);
     }
 }
