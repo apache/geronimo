@@ -87,10 +87,10 @@ public class Log4jService implements GBeanLifecycle {
      * Construct a <code>Log4jService</code>.
      *
      * @param configurationFile The log4j configuration file.
-     * @param refreshPeroid The refresh refreshPeroid (in seconds).
+     * @param refreshPeriod The refresh refreshPeriod (in seconds).
      */
-    public Log4jService(final String configurationFile, final int refreshPeroid, ServerInfo serverInfo) {
-        this.refreshPeriod = refreshPeroid;
+    public Log4jService(final String configurationFile, final int refreshPeriod, ServerInfo serverInfo) {
+        this.refreshPeriod = refreshPeriod;
         this.configurationFile = configurationFile;
         this.serverInfo = serverInfo;
     }
@@ -218,6 +218,7 @@ public class Log4jService implements GBeanLifecycle {
         }
 
         this.configurationFile = configurationFile;
+        lastChanged = -1;
     }
 
     /**
@@ -343,13 +344,18 @@ public class Log4jService implements GBeanLifecycle {
         synchronized (this) {
             timer = new Timer(true);
 
-            // Peroidally check the configuration file
+            // Periodically check the configuration file
             schedule();
 
             // Make sure the root Logger has loaded
             LogManager.getRootLogger();
 
             reconfigure();
+
+            File file = resolveConfigurationFile();
+            if (file != null) {
+                lastChanged = file.lastModified();
+            }
         }
 
         // Change all of the loggers over to use log4j
