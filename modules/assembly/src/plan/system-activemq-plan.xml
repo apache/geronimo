@@ -21,7 +21,7 @@
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment"
     configId="org/apache/geronimo/ActiveMQServer"
-    parentId="org/apache/geronimo/Server">    
+    parentId="org/apache/geronimo/SystemDatabase">    
 
     <dependency>
         <uri>activemq/jars/activemq-core-${activemq_version}.jar</uri>
@@ -29,34 +29,39 @@
     <dependency>
         <uri>activemq/jars/activemq-gbean-${activemq_version}.jar</uri>
     </dependency>
+    <!--
     <dependency>
         <uri>activemq/jars/activemq-store-jdbm-${activemq_version}.jar</uri>
     </dependency>
     <dependency>
         <uri>jdbm/jars/jdbm-0.20-dev.jar</uri>
     </dependency>
-    <!--
-    <dependency>
-        <uri>emberio/jars/emberio-0.3-alpha.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>jgroups/jars/jgroups-2.2.5.jar</uri>
-    </dependency>
     -->
+    <dependency>
+        <uri>activemq/jars/activemq-store-jdbc-${activemq_version}.jar</uri>
+    </dependency>
 
     <!-- message broker -->
-    <gbean namePart="ActiveMQJMSServer" class="org.codehaus.activemq.gbean.ActiveMQContainerGBean">
-        <reference name="serverInfo">geronimo.server:name=ServerInfo,*</reference>
-        <attribute name="brokerName" type="java.lang.String">possibly-unique-broker</attribute>
-        <attribute name="dataDirectory" type="java.lang.String">var/activemq</attribute>    
+    <!--
+    <gbean namePart="ActiveMQ" type="JMSPersistence" class="org.codehaus.activemq.store.jdbm.JdbmPersistenceAdapterGBean">
+        <reference name="ServerInfo">geronimo.system:name=ServerInfo,*</reference>
+        <attribute name="DataDirectory">var/activemq</attribute>    
     </gbean>
-    <gbean namePart='"tcp://localhost:61616"' type="JMSConnector" class="org.codehaus.activemq.gbean.ActiveMQConnectorGBean">
-        <attribute name="Url" type="java.lang.String">tcp://localhost:61616</attribute>
-        <reference name="ActiveMQContainer">geronimo.server:name=ActiveMQJMSServer,*</reference>
+    -->
+    <gbean namePart="ActiveMQ" type="JMSPersistence" class="org.codehaus.activemq.store.jdbc.JDBCPersistenceAdapterGBean">
+        <reference name="DataSource">geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=org/apache/geronimo/SystemDatabase,j2eeType=JCAManagedConnectionFactory,name=SystemDatasource</reference>
     </gbean>
-    <gbean namePart='"vm://localhost"' type="JMSConnector" class="org.codehaus.activemq.gbean.ActiveMQConnectorGBean">
-        <attribute name="Url" type="java.lang.String">vm://localhost</attribute>
-        <reference name="ActiveMQContainer">geronimo.server:name=ActiveMQJMSServer,*</reference>
+    <gbean namePart="ActiveMQ" type="JMSServer" class="org.codehaus.activemq.gbean.ActiveMQContainerGBean">
+        <attribute name="BrokerName">possibly-unique-broker</attribute>
+        <reference name="PersistenceAdapter">geronimo.server:j2eeType=JMSPersistence,name=ActiveMQ,*</reference>
     </gbean>
-  
+    <gbean namePart="ActiveMQ.tcp.localhost.61616" type="JMSConnector" class="org.codehaus.activemq.gbean.ActiveMQConnectorGBean">
+        <attribute name="Url">tcp://localhost:61616</attribute>
+        <reference name="ActiveMQContainer">geronimo.server:j2eeType=JMSServer,name=ActiveMQ,*</reference>
+    </gbean>
+    <gbean namePart="ActiveMQ.vm.localhost" type="JMSConnector" class="org.codehaus.activemq.gbean.ActiveMQConnectorGBean">
+        <attribute name="Url">vm://localhost</attribute>
+        <reference name="ActiveMQContainer">geronimo.server:j2eeType=JMSServer,name=ActiveMQ,*</reference>
+    </gbean>    
+
 </configuration>
