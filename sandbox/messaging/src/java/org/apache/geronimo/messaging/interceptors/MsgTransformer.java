@@ -15,30 +15,16 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.messaging.proxy;
-
-import org.apache.geronimo.messaging.interceptors.MsgTransformer;
-
+package org.apache.geronimo.messaging.interceptors;
 
 /**
- * EndPointProxyFactory creates EndPoint proxies, which automatically implement
- * this interface.
+ * An interface allowing various implementations to transform Msgs.
+ * <BR>
+ * In a first step, the Msg is pushed to this component, then the Msg is popped.
  *
- * @version $Revision: 1.3 $ $Date: 2004/07/20 00:06:13 $
+ * @version $Revision: 1.1 $ $Date: 2004/07/20 00:06:13 $
  */
-public interface EndPointProxy
+public interface MsgTransformer
+    extends MsgInInterceptor, MsgOutInterceptor
 {
-    
-    /**
-     * Releases the EndPoint proxy resources.
-     */
-    public void release();
-    
-    /**
-     * Allows to transform Msgs being sent by this proxy.
-     * 
-     * @param aTransformer Msg transformer.
-     */
-    public void setTransformer(MsgTransformer aTransformer);
-    
 }

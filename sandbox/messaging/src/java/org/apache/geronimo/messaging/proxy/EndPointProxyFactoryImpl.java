@@ -30,11 +30,12 @@ import net.sf.cglib.proxy.MethodInterceptor;
 import org.apache.geronimo.messaging.BaseEndPoint;
 import org.apache.geronimo.messaging.Node;
 import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
+import org.apache.geronimo.messaging.interceptors.MsgTransformer;
 
 /**
  * EndPointProxyFactory implementation.
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/10 23:12:24 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/20 00:06:13 $
  */
 public class EndPointProxyFactoryImpl
     extends BaseEndPoint
@@ -172,6 +173,9 @@ public class EndPointProxyFactoryImpl
                 }
                 callbacks.remove(endPointCallback);
             }
+        }
+        public void setTransformer(MsgTransformer aTransformer) {
+            endPointCallback.setTransformer(aTransformer);
         }
     }
     

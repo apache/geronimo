@@ -22,15 +22,17 @@ import java.lang.reflect.Method;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
+import org.apache.geronimo.messaging.Msg;
 import org.apache.geronimo.messaging.NodeInfo;
 import org.apache.geronimo.messaging.Request;
 import org.apache.geronimo.messaging.RequestSender;
 import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
+import org.apache.geronimo.messaging.interceptors.MsgTransformer;
 
 /**
  * This Callback sends Request to an EndPoint hosted by a set of Nodes. 
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/01 13:37:14 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/20 00:06:13 $
  */
 public class EndPointCallback
     implements MethodInterceptor
@@ -41,6 +43,11 @@ public class EndPointCallback
      */
     private final RequestSender sender;
 
+    /**
+     * Applies the MsgTransformer, if any.
+     */
+    private final Transformer transformer;
+    
     /**
      * Transport bus. 
      */
@@ -57,6 +64,11 @@ public class EndPointCallback
     private Object id;
 
     /**
+     * Msg transformer, if any.
+     */
+    private MsgTransformer msgTransformer;
+    
+    /**
      * @param aSender RequestSender to be used to send Request to the
      * associated EndPoint.
      */
@@ -65,6 +77,8 @@ public class EndPointCallback
             throw new IllegalArgumentException("Sender is required.");
         }
         sender = aSender;
+        
+        transformer = new Transformer();
     }
 
     /**
@@ -113,6 +127,15 @@ public class EndPointCallback
     }
 
     /**
+     * Sets the transformer to be applied on Msgs sent by this instance.
+     * 
+     * @param aTransformer
+     */
+    public void setTransformer(MsgTransformer aTransformer) {
+        msgTransformer = aTransformer;
+    }
+    
+    /**
      * Sets the Nodes hosting the target EndPoints.
      * 
      * @param aTargets The targets to set.
@@ -133,7 +156,7 @@ public class EndPointCallback
         try {
             Object opaque = sender.sendSyncRequest(
                 new Request(arg1.getName(), arg1.getParameterTypes(), arg2),
-                    out, id, targets);
+                    transformer, id, targets);
             return opaque;
         } catch (RuntimeException e) {
             Throwable nested = e.getCause();
@@ -151,4 +174,21 @@ public class EndPointCallback
         }
     }
 
+    /**
+     * Applies the MsgTransformer, if any, on the sent Msgs.
+     */
+    private class Transformer implements MsgOutInterceptor {
+
+        public void push(Msg aMsg) {
+            if ( null != msgTransformer ) {
+                synchronized(msgTransformer) {
+                    msgTransformer.push(aMsg);
+                    aMsg = msgTransformer.pop();
+                }
+            }
+            out.push(aMsg);
+        }
+        
+    }
+    
 }
