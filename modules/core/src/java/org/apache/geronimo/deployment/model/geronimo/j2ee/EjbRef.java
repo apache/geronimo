@@ -58,11 +58,11 @@ package org.apache.geronimo.deployment.model.geronimo.j2ee;
 /**
  * JavaBean for the Geronimo DD tag ejb-ref
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/05 20:44:24 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/29 14:47:00 $
  */
 public class EjbRef extends org.apache.geronimo.deployment.model.j2ee.EJBRef {
     private String jndiName;
-    private JndiContextParam[] jndiContextParam;
+    private JndiContextParam[] jndiContextParam = new JndiContextParam[0];
 
     public String getJndiName() {
         return jndiName;
