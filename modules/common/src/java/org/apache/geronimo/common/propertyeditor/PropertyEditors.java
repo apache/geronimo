@@ -70,7 +70,7 @@ import org.apache.geronimo.common.NullArgumentException;
  *
  * <p>Allows editors to be nested sub-classes named PropertyEditor.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/28 10:16:39 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/29 21:40:49 $
  */
 public class PropertyEditors
 {
@@ -101,7 +101,18 @@ public class PropertyEditors
             throw new NullArgumentException("type");
         }
         
-        return PropertyEditorManager.findEditor(type);
+        PropertyEditor editor = PropertyEditorManager.findEditor(type);
+        
+        // Try to use adapter for array types
+        if (editor == null && type.isArray()) {
+            Class ctype = type.getComponentType();
+            editor = findEditor(ctype);
+            if (editor != null) {
+                editor = new ArrayPropertyEditorAdapter(ctype, editor);
+            }
+        }
+        
+        return editor;
     }
     
     /**
