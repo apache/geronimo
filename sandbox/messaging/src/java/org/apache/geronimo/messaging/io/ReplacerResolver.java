@@ -25,7 +25,7 @@ import java.io.IOException;
  * <BR>
  * ReplacerResolvers are chained components.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/27 14:18:13 $
  */
 public interface ReplacerResolver {
 
@@ -58,10 +58,31 @@ public interface ReplacerResolver {
     public ReplacerResolver append(ReplacerResolver aNext);
     
     /**
-     * Gets the next element of the chain.
+     * Gets the next online element of the chain.
      * 
      * @return Next element.
      */
     public ReplacerResolver getNext();
+
+    /**
+     * Sets this instance online.
+     * <BR>
+     * This instance can be added to a chain.
+     */
+    public void online();
+    
+    /**
+     * Sets this instance offline.
+     * <BR>
+     * This instance does no more belong to the chain.
+     */
+    public void offline();
+
+    /**
+     * Indicates if this instance if online.
+     * 
+     * @return true if online - it belongs to a chain.
+     */
+    public boolean isOffline();
     
 }

@@ -22,22 +22,44 @@ import java.io.IOException;
 /**
  * Base implementation for the ReplacerResolver contracts.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/27 14:18:13 $
  */
 public abstract class AbstractReplacerResolver implements ReplacerResolver {
 
+    private volatile boolean isOffline;
     private volatile ReplacerResolver next;
+
+    public void online() {
+        isOffline = false;
+    }
+    
+    public void offline() {
+        isOffline = true;
+    }
+    
+    public boolean isOffline() {
+        return isOffline;
+    }
     
     public ReplacerResolver append(ReplacerResolver anHandler) {
-        if ( null != anHandler ) {
-            anHandler.append(next);
+        ReplacerResolver onlineNext = getNext();
+        if ( null != onlineNext ) {
+            onlineNext.append(anHandler);
+        } else {
+            next = anHandler;
         }
-        next = anHandler;
-        return next;
+        return anHandler;
     }
 
     public ReplacerResolver getNext() {
-        return next;
+        ReplacerResolver onlineNext = next;
+        while ( null != onlineNext && onlineNext.isOffline() ) {
+            onlineNext = onlineNext.getNext();
+        }
+        if ( next != onlineNext ) {
+            next = onlineNext;
+        }
+        return onlineNext;
     }
     
     public Object replaceObject(Object obj) throws IOException {
@@ -48,7 +70,7 @@ public abstract class AbstractReplacerResolver implements ReplacerResolver {
         if ( null == next ) {
             return obj;
         }
-        replaced = next.replaceObject(obj);
+        replaced =  getNext().replaceObject(obj);
         if ( null != replaced ) {
             return replaced;
         }
@@ -66,7 +88,7 @@ public abstract class AbstractReplacerResolver implements ReplacerResolver {
         if ( null == next ) {
             return obj;
         }
-        resolved = next.resolveObject(obj);
+        resolved = getNext().resolveObject(obj);
         if ( null != resolved ) {
             return resolved;
         }
