@@ -18,7 +18,6 @@ package org.apache.geronimo.gbean.runtime;
 
 import java.util.Set;
 
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.gbean.GReferenceInfo;
 
 /**
@@ -37,7 +36,7 @@ public interface GBeanReference {
 
     void setPatterns(Set patterns);
 
-    void online(Kernel kernel);
+    void online();
 
     void offline();
 

@@ -21,7 +21,8 @@ import java.net.URI;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.TargetModuleID;
 
-import org.apache.geronimo.kernel.KernelMBean;
+import org.apache.geronimo.kernel.jmx.KernelMBean;
+import org.apache.geronimo.kernel.jmx.KernelMBean;
 
 /**
  *

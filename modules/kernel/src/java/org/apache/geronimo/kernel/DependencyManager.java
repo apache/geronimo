@@ -28,6 +28,10 @@ import java.util.Map;
 import java.util.Set;
 import javax.management.ObjectName;
 
+import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
+import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
+import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
+
 /**
  * DependencyManager is the record keeper of the dependencies in Geronimo.  The DependencyManager
  * does not enforce any dependencies, it is simply a place where components can register their intent

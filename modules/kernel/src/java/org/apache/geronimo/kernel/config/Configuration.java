@@ -211,6 +211,7 @@ public class Configuration implements GBeanLifecycle {
                 log.trace("Registering GBean " + name);
                 kernel.loadGBean(gbeanData, configurationClassLoader);
                 objectNames.add(name);
+                // todo change this to a dependency on the gbeanData itself as soon as we add that feature 
                 kernel.getDependencyManager().addDependency(name, this.objectName);
             }
             this.objectNames = objectNames;

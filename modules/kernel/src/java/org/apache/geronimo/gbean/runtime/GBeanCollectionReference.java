@@ -21,13 +21,15 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.DependencyManager;
 
 /**
  * @version $Rev: 71492 $ $Date: 2004-11-14 21:31:50 -0800 (Sun, 14 Nov 2004) $
  */
 public class GBeanCollectionReference extends AbstractGBeanReference {
-    public GBeanCollectionReference(GBeanInstance gbeanInstance, GReferenceInfo referenceInfo) throws InvalidConfigurationException {
-        super(gbeanInstance, referenceInfo);
+    public GBeanCollectionReference(GBeanInstance gbeanInstance, GReferenceInfo referenceInfo, Kernel kernel, DependencyManager dependencyManager) throws InvalidConfigurationException {
+        super(gbeanInstance, referenceInfo, kernel, dependencyManager);
     }
 
     public synchronized void start() throws Exception {

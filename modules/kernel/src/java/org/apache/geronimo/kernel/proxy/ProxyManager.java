@@ -33,9 +33,6 @@ public class ProxyManager {
     // todo use weak keys for this
     private final IdentityHashMap interceptors = new IdentityHashMap();
 
-    /**
-     * @deprecated don't use this yet... it may change or go away
-     */
     public ProxyManager(Kernel kernel) {
         this.kernel = kernel;
     }

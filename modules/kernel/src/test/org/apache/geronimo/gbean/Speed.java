@@ -95,7 +95,7 @@ public class Speed {
         printResults("FastClass", end, start, iterations);
 
         // start a kernel
-        Kernel kernel = new Kernel();
+        Kernel kernel = new Kernel("speed");
         kernel.boot();
         GBeanMBean mockGBean = new GBeanMBean(MockGBean.getGBeanInfo(), Speed.class.getClassLoader());
         mockGBean.setAttribute("Name", "bar");
@@ -225,7 +225,7 @@ public class Speed {
         printResults("FastClass", end, start, iterations);
 
         // start a kernel
-        Kernel kernel = new Kernel();
+        Kernel kernel = new Kernel("speed");
         kernel.boot();
         GBeanMBean mockGBean = new GBeanMBean(MockGBean.getGBeanInfo(), Speed.class.getClassLoader());
         mockGBean.setAttribute("Name", "bar");

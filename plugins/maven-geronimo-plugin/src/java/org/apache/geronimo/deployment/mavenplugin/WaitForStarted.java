@@ -16,20 +16,18 @@
  */
 package org.apache.geronimo.deployment.mavenplugin;
 
-import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelMBean;
-import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
-import org.apache.geronimo.kernel.management.State;
-
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
-import java.io.IOException;
-import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
+
+import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
+import org.apache.geronimo.kernel.jmx.KernelDelegate;
+import org.apache.geronimo.kernel.jmx.KernelMBean;
+import org.apache.geronimo.kernel.management.State;
 
 public class WaitForStarted extends AbstractModuleCommand {
 
@@ -65,9 +63,9 @@ public class WaitForStarted extends AbstractModuleCommand {
                 try {
                     JMXConnector jmxConnector = JMXConnectorFactory.connect(address, environment);
                     mbServerConnection = jmxConnector.getMBeanServerConnection();
-                    kernel = (KernelMBean) MBeanProxyFactory.getProxy(KernelMBean.class, mbServerConnection, Kernel.KERNEL);
+                    kernel = new KernelDelegate(mbServerConnection);
                     break;
-                } catch (IOException e) {
+                } catch (Exception e) {
                     if (tries == 0) {
                         throw new Exception("Could not connect");
                     }

@@ -30,14 +30,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.management.Attribute;
-import javax.management.AttributeNotFoundException;
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.InstanceNotFoundException;
-import javax.management.JMException;
-import javax.management.JMRuntimeException;
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -45,8 +37,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.gbean.jmx.JMXLifecycleBroadcaster;
 import org.apache.geronimo.gbean.runtime.GBeanInstance;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -54,8 +44,14 @@ import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
+import org.apache.geronimo.kernel.jmx.JMXLifecycleBroadcaster;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.lifecycle.BasicLifecycleMonitor;
+import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
+import org.apache.geronimo.kernel.lifecycle.LifecycleMonitorFlyweight;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
+import org.apache.geronimo.kernel.registry.BasicGBeanRegistry;
+import org.apache.geronimo.kernel.registry.GBeanRegistry;
 
 
 /**
@@ -77,7 +73,7 @@ import org.apache.geronimo.kernel.proxy.ProxyManager;
  *
  * @version $Rev$ $Date$
  */
-public class Kernel implements KernelMBean {
+public class Kernel {
 
     /**
      * The JMX name used by a Kernel to register itself when it boots.
@@ -118,11 +114,6 @@ public class Kernel implements KernelMBean {
     private final String kernelName;
 
     /**
-     * JMX domain name of this kernel
-     */
-    private final String domainName;
-
-    /**
      * The log
      */
     private Log log;
@@ -138,9 +129,9 @@ public class Kernel implements KernelMBean {
     private Date bootTime;
 
     /**
-     * The MBean server used by this kernel
+     * The gbean registry
      */
-    private MBeanServer mbServer;
+    private final GBeanRegistry gbeanRegistry;
 
     /**
      * Listeners for when the kernel shutdown
@@ -164,49 +155,54 @@ public class Kernel implements KernelMBean {
 
     /**
      * Monitors the lifecycle of all gbeans.
-     * @deprecated don't use this yet... it may go away
      */
-    private LifecycleMonitor lifecycleMonitor;
+    private BasicLifecycleMonitor lifecycleMonitor;
+    private LifecycleMonitor publicLifecycleMonitor;
 
     /**
      * This factory gbean proxies, and tracks all proxies in the system
-     * @deprecated don't use this yet... it may go away
      */
     private ProxyManager proxyManager;
 
     /**
      * No-arg constructor allowing this class to be used as a GBean reference.
      */
-    public Kernel() {
+    protected Kernel() {
         kernelName = null;
-        domainName = null;
+        gbeanRegistry = null;
     }
 
     /**
-     * Construct a Kernel which does not have a config store.
+     * Construct a Kernel with the specified name and GBeanRegistry implementation.
      *
-     * @param kernelName the domain name to be used for the JMX MBeanServer
+     * @param kernelName the name of the kernel
+     * @param gbeanRegistry the GBeanRegistry implementation to use for this contianer
+     */
+    public Kernel(String kernelName, GBeanRegistry gbeanRegistry) {
+        if (kernelName.indexOf(':') >= 0 || kernelName.indexOf('*') >= 0 || kernelName.indexOf('?') >= 0) {
+            throw new IllegalArgumentException("Kernel name may not contain a ':', '*' or '?' character");
+        }
+        this.kernelName = kernelName;
+        this.gbeanRegistry = gbeanRegistry;
+    }
+
+    /**
+     * Construct a Kernel with the specified name and an unspecified GBeanRegistry implementation.
+     *
+     * @param kernelName the name of the kernel
      */
     public Kernel(String kernelName) {
-        this.kernelName = kernelName;
-        this.domainName = kernelName;
+        this(kernelName, new BasicGBeanRegistry());
     }
 
     /**
-     * Construct a Kernel which does not have a config store.
+     * Construct a Kernel with the specified name and an unspecified GBeanRegistry implementation.
      *
-     * @param kernelName the name of the kernel that uniquely indentifies the kernel in a VM
-     * @param domainName the domain name to be used for the JMX MBeanServer
-     * @deprecated we are dropping the ability to have multiple kernels in a single mbean server, as the kernels will
-     * stomp on each others namespace
+     * @param kernelName the name of the kernel
+     * @deprecated use new Kernel(kernelName)
      */
-    public Kernel(String kernelName, String domainName) {
-        this.kernelName = kernelName;
-        this.domainName = domainName;
-    }
-
-    public MBeanServer getMBeanServer() {
-        return mbServer;
+    public Kernel(String kernelName, String ignored) {
+        this(kernelName);
     }
 
     public String getKernelName() {
@@ -258,6 +254,9 @@ public class Kernel implements KernelMBean {
         }
     }
 
+    /**
+     * @deprecated this will be removed as when we add generalized dependencies to gbeans... the only current user is Configuration
+     */
     public DependencyManager getDependencyManager() {
         return dependencyManager;
     }
@@ -271,7 +270,7 @@ public class Kernel implements KernelMBean {
      * @deprecated don't use this yet... it may change or go away
      */
     public LifecycleMonitor getLifecycleMonitor() {
-        return lifecycleMonitor;
+        return publicLifecycleMonitor;
     }
 
     /**
@@ -282,50 +281,14 @@ public class Kernel implements KernelMBean {
         return proxyManager;
     }
 
-    public Object getAttribute(ObjectName objectName, String attributeName) throws GBeanNotFoundException, NoSuchAttributeException, InternalKernelException, Exception {
-        try {
-            return mbServer.getAttribute(objectName, attributeName);
-        } catch (Exception e) {
-            Throwable cause = unwrapJMException(e);
-            if (cause instanceof InstanceNotFoundException) {
-                throw new GBeanNotFoundException(objectName.getCanonicalName());
-            } else if (cause instanceof AttributeNotFoundException) {
-                throw new NoSuchAttributeException(cause.getMessage());
-            } else if (cause instanceof JMException) {
-                throw new InternalKernelException(cause);
-            } else if (cause instanceof JMRuntimeException) {
-                throw new InternalKernelException(cause);
-            } else if (cause instanceof Error) {
-                throw (Error) cause;
-            } else if (cause instanceof Exception) {
-                throw (Exception) cause;
-            } else {
-                throw new InternalKernelException("Unknown throwable", cause);
-            }
-        }
+    public Object getAttribute(ObjectName objectName, String attributeName) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
+        GBeanInstance gbeanInstance = gbeanRegistry.getGBeanInstance(objectName);
+        return gbeanInstance.getAttribute(attributeName);
     }
 
-    public void setAttribute(ObjectName objectName, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, InternalKernelException, Exception {
-        try {
-            mbServer.setAttribute(objectName, new Attribute(attributeName, attributeValue));
-        } catch (Exception e) {
-            Throwable cause = unwrapJMException(e);
-            if (cause instanceof InstanceNotFoundException) {
-                throw new GBeanNotFoundException(objectName.getCanonicalName());
-            } else if (cause instanceof AttributeNotFoundException) {
-                throw new NoSuchAttributeException(cause.getMessage());
-            } else if (cause instanceof JMException) {
-                throw new InternalKernelException(cause);
-            } else if (cause instanceof JMRuntimeException) {
-                throw new InternalKernelException(cause);
-            } else if (cause instanceof Error) {
-                throw (Error) cause;
-            } else if (cause instanceof Exception) {
-                throw (Exception) cause;
-            } else {
-                throw new InternalKernelException("Unknown throwable", cause);
-            }
-        }
+    public void setAttribute(ObjectName objectName, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
+        GBeanInstance gbeanInstance = gbeanRegistry.getGBeanInstance(objectName);
+        gbeanInstance.setAttribute(attributeName, attributeValue);
     }
 
     public Object invoke(ObjectName objectName, String methodName) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
@@ -333,147 +296,61 @@ public class Kernel implements KernelMBean {
     }
 
     public Object invoke(ObjectName objectName, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
-        try {
-            return mbServer.invoke(objectName, methodName, args, types);
-        } catch (Exception e) {
-            Throwable cause = unwrapJMException(e);
-            if (cause instanceof InstanceNotFoundException) {
-                throw new GBeanNotFoundException(objectName.getCanonicalName());
-            } else if (cause instanceof NoSuchMethodException) {
-                throw new NoSuchOperationException(cause.getMessage());
-            } else if (cause instanceof JMException) {
-                throw new InternalKernelException(cause);
-            } else if (cause instanceof JMRuntimeException) {
-                throw new InternalKernelException(cause);
-            } else if (cause instanceof Error) {
-                throw (Error) cause;
-            } else if (cause instanceof Exception) {
-                throw (Exception) cause;
-            } else {
-                throw new InternalKernelException("Unknown throwable", cause);
-            }
-        }
+        GBeanInstance gbeanInstance = gbeanRegistry.getGBeanInstance(objectName);
+        return gbeanInstance.invoke(methodName, args, types);
     }
-
-    private Throwable unwrapJMException(Throwable cause) {
-        while ((cause instanceof JMException || cause instanceof JMRuntimeException) && cause.getCause() != null) {
-            cause = cause.getCause();
-        }
-        return cause;
-    }
-
 
     public boolean isLoaded(ObjectName name) {
-        try {
-            return mbServer != null && mbServer.isRegistered(name);
-        } catch (RuntimeException e) {
-            throw new InternalKernelException(e);
-        }
+        return gbeanRegistry.isRegistered(name);
     }
 
-    public GBeanInfo getGBeanInfo(ObjectName name) throws GBeanNotFoundException, InternalKernelException {
-        try {
-            return (GBeanInfo) getAttribute(name, "gbeanInfo");
-        } catch (GBeanNotFoundException e) {
-            throw e;
-        } catch (InternalKernelException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InternalKernelException(e);
-        }
+    public GBeanInfo getGBeanInfo(ObjectName name) throws GBeanNotFoundException {
+        GBeanInstance gbeanInstance = gbeanRegistry.getGBeanInstance(name);
+        return gbeanInstance.getGBeanInfo();
     }
 
     public GBeanData getGBeanData(ObjectName name) throws GBeanNotFoundException, InternalKernelException {
-        try {
-            return (GBeanData) getAttribute(name, GBeanInstance.GBEAN_DATA);
-        } catch (GBeanNotFoundException e) {
-            throw e;
-        } catch (InternalKernelException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InternalKernelException(e);
-        }
+        GBeanInstance gbeanInstance = gbeanRegistry.getGBeanInstance(name);
+        return gbeanInstance.getGBeanData();
     }
 
     public void loadGBean(GBeanData gbeanData, ClassLoader classLoader) throws GBeanAlreadyExistsException, InternalKernelException {
-        try {
-            GBeanMBean gbean = new GBeanMBean(this, gbeanData, classLoader);
-            mbServer.registerMBean(gbean, gbeanData.getName());
-        } catch (InstanceAlreadyExistsException e) {
-            throw new GBeanAlreadyExistsException("A GBean is alreayd registered witht then name " + gbeanData.getName());
-        } catch (Exception e) {
-            throw new InternalKernelException("Error loading GBean " + gbeanData.getName().getCanonicalName(), unwrapJMException(e));
-        }
+        ObjectName objectName = gbeanData.getName();
+        GBeanInstance gbeanInstance = new GBeanInstance(gbeanData, this, dependencyManager, lifecycleMonitor.createLifecycleBroadcaster(objectName), classLoader);
+        gbeanRegistry.register(gbeanInstance);
     }
 
     /**
      * @deprecated use loadGBean(GBeanData gbeanData, ClassLoader classLoader)
      */
-    public void loadGBean(ObjectName name, GBeanMBean gbean) throws GBeanAlreadyExistsException, InternalKernelException {
+    public void loadGBean(ObjectName name, org.apache.geronimo.gbean.jmx.GBeanMBean gbean) throws GBeanAlreadyExistsException, InternalKernelException {
         GBeanData gbeanData = gbean.getGBeanData();
         gbeanData.setName(name);
         ClassLoader classLoader = gbean.getClassLoader();
         loadGBean(gbeanData, classLoader);
     }
 
-    public void startGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException {
-        try {
-            invoke(name, "start");
-        } catch (GBeanNotFoundException e) {
-            throw e;
-        } catch (InternalKernelException e) {
-            throw e;
-        } catch (NoSuchOperationException e) {
-            throw new InternalKernelException("GBean is not state manageable: " + name.getCanonicalName(), e);
-        } catch (Exception e) {
-            throw new InternalKernelException("Invalid GBean configuration for " + name, unwrapJMException(e));
-        }
+    public void startGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        GBeanInstance gbeanInstance = gbeanRegistry.getGBeanInstance(name);
+        gbeanInstance.start();
     }
 
-    public void startRecursiveGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException {
-        try {
-            invoke(name, "startRecursive");
-        } catch (GBeanNotFoundException e) {
-            throw e;
-        } catch (InternalKernelException e) {
-            throw e;
-        } catch (NoSuchOperationException e) {
-            throw new InternalKernelException("GBean is not state manageable: " + name.getCanonicalName(), e);
-        } catch (Exception e) {
-            throw new InternalKernelException("Invalid GBean configuration for " + name, e);
-        }
+    public void startRecursiveGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        GBeanInstance gbeanInstance = gbeanRegistry.getGBeanInstance(name);
+        gbeanInstance.startRecursive();
     }
 
-    public void stopGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException {
-        try {
-            invoke(name, "stop");
-        } catch (GBeanNotFoundException e) {
-            throw e;
-        } catch (InternalKernelException e) {
-            throw e;
-        } catch (NoSuchOperationException e) {
-            throw new InternalKernelException("GBean is not state manageable: " + name.getCanonicalName(), e);
-        } catch (Exception e) {
-            throw new InternalKernelException("Invalid GBean configuration for " + name, e);
-        }
+    public void stopGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        GBeanInstance gbeanInstance = gbeanRegistry.getGBeanInstance(name);
+        gbeanInstance.stop();
     }
 
-    public void unloadGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException {
-       try {
-            mbServer.unregisterMBean(name);
-       } catch (InstanceNotFoundException e) {
-           throw new GBeanNotFoundException(name.getCanonicalName());
-       } catch (Exception e) {
-           throw new InternalKernelException("Error unloading GBean " + name, unwrapJMException(e));
-       }
+    public void unloadGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+       gbeanRegistry.unregister(name);
     }
 
     public Set listGBeans(ObjectName pattern) {
-        try {
-            return mbServer.queryNames(pattern, null);
-        } catch (RuntimeException e) {
-            throw new InternalKernelException("Error while applying pattern " + pattern, e);
-        }
+        return gbeanRegistry.listGBeans(pattern);
     }
 
     public Set listGBeans(Set patterns) {
@@ -518,18 +395,16 @@ public class Kernel implements KernelMBean {
     }
 
     public int getConfigurationState(URI configID) throws NoSuchConfigException, InternalKernelException {
-         try {
-             ObjectName configName = Configuration.getConfigurationObjectName(configID);
-             return ((Integer)getAttribute(configName, "state")).intValue();
-         } catch (MalformedObjectNameException e) {
-             throw new NoSuchConfigException(e);
-         } catch (GBeanNotFoundException e) {
-             throw new NoSuchConfigException(e);
-         } catch (InternalKernelException e) {
-             throw e;
-         } catch (Exception e) {
-             throw new InternalKernelException(e);
-         }
+        GBeanInstance gbeanInstance = null;
+        try {
+            ObjectName configName = Configuration.getConfigurationObjectName(configID);
+            gbeanInstance = gbeanRegistry.getGBeanInstance(configName);
+        } catch (MalformedObjectNameException e) {
+            throw new NoSuchConfigException(e);
+        } catch (GBeanNotFoundException e) {
+            throw new NoSuchConfigException(e);
+        }
+        return gbeanInstance.getState();
     }
 
     /**
@@ -546,6 +421,7 @@ public class Kernel implements KernelMBean {
         log = LogFactory.getLog(Kernel.class.getName());
         log.info("Starting boot");
 
+        // todo cleanup when boot fails
         synchronized (kernels) {
             if (kernels.containsKey(kernelName)) {
                 throw new IllegalStateException("A kernel is already running this kernel name: " + kernelName);
@@ -553,10 +429,11 @@ public class Kernel implements KernelMBean {
             kernels.put(kernelName, new KernelReference(kernelName, this));
         }
 
-        mbServer = MBeanServerFactory.createMBeanServer(domainName);
-        mbServer.registerMBean(this, KERNEL);
-        lifecycleMonitor = new LifecycleMonitor(this);
-        dependencyManager = new DependencyManager(lifecycleMonitor);
+        gbeanRegistry.start(this);
+
+        lifecycleMonitor = new BasicLifecycleMonitor(this);
+        publicLifecycleMonitor = new LifecycleMonitorFlyweight(lifecycleMonitor);
+        dependencyManager = new DependencyManager(publicLifecycleMonitor);
         proxyManager = new ProxyManager(this);
 
         // set up the data for the new configuration manager instance
@@ -565,14 +442,16 @@ public class Kernel implements KernelMBean {
 
         // create the connfiguration manager instance
         JMXLifecycleBroadcaster lifecycleBroadcaster = new JMXLifecycleBroadcaster(CONFIGURATION_MANAGER_NAME, lifecycleMonitor.createLifecycleBroadcaster(CONFIGURATION_MANAGER_NAME));
-        configurationManagerInstance = new GBeanInstance(this, configurationData, lifecycleBroadcaster, getClass().getClassLoader());
+        configurationManagerInstance = new GBeanInstance(configurationData, this, dependencyManager, lifecycleBroadcaster, getClass().getClassLoader());
         configurationManagerInstance.start();
         configurationManager = (ConfigurationManager) configurationManagerInstance.getTarget();
         assert configurationManager != null: "ConfigurationManager failed to start";
+        gbeanRegistry.register(configurationManagerInstance);
 
-        // wrap it in an mbean and register it
-        GBeanMBean configurationManagerGBean = new GBeanMBean(this, configurationManagerInstance, lifecycleBroadcaster);
-        mbServer.registerMBean(configurationManagerGBean, CONFIGURATION_MANAGER_NAME);
+        // load and start the kernel gbean
+        GBeanData kernelGBeanData = new GBeanData(KERNEL, KernelGBean.GBEAN_INFO);
+        loadGBean(kernelGBeanData, getClass().getClassLoader());
+        startGBean(KERNEL);
 
         running = true;
         log.info("Booted");
@@ -609,17 +488,11 @@ public class Kernel implements KernelMBean {
         notifyShutdownHooks();
         shutdownConfigManager();
 
-        try {
-            mbServer.unregisterMBean(KERNEL);
-        } catch (Exception e) {
-            // ignore
-        }
+        gbeanRegistry.stop();
 
         dependencyManager.close();
         dependencyManager = null;
 
-        MBeanServerFactory.releaseMBeanServer(mbServer);
-        mbServer = null;
         synchronized (this) {
             notify();
         }
@@ -654,7 +527,7 @@ public class Kernel implements KernelMBean {
                 // ignore
             }
             try {
-                mbServer.unregisterMBean(CONFIGURATION_MANAGER_NAME);
+                gbeanRegistry.unregister(CONFIGURATION_MANAGER_NAME);
             } catch (Exception e) {
                 // ignore
             }
@@ -667,13 +540,8 @@ public class Kernel implements KernelMBean {
     }
 
     public ClassLoader getClassLoaderFor(ObjectName name) throws GBeanNotFoundException {
-        try {
-            return mbServer.getClassLoaderFor(name);
-        } catch (InstanceNotFoundException e) {
-            throw new GBeanNotFoundException(name.getCanonicalName());
-        } catch (RuntimeException e) {
-            throw new InternalKernelException("Error while attemping to get class loader for " + name.getCanonicalName(), e);
-        }
+        GBeanInstance gbeanInstance = gbeanRegistry.getGBeanInstance(name);
+        return gbeanInstance.getClassLoader();
     }
 
     private static void processQueue() {

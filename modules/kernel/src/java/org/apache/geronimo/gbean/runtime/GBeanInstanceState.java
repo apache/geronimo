@@ -16,22 +16,21 @@
  */
 package org.apache.geronimo.gbean.runtime;
 
-import java.util.Set;
 import java.util.Iterator;
-
+import java.util.Set;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.LifecycleAdapter;
-import org.apache.geronimo.kernel.LifecycleListener;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.DependencyManager;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.NoSuchAttributeException;
-import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.kernel.DependencyManager;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.NoSuchAttributeException;
+import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
+import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
+import org.apache.geronimo.kernel.management.State;
 
 /**
  * @version $Rev$ $Date$
@@ -74,10 +73,10 @@ public class GBeanInstanceState {
     // objects check if each other are in one state or another (i.e., classic A calls B while B calls A)
     private volatile State state = State.STOPPED;
 
-    GBeanInstanceState(Kernel kernel, ObjectName objectName, GBeanLifecycle gbeanLifecycle, LifecycleBroadcaster lifecycleBroadcaster) {
-        this.kernel = kernel;
-        this.dependencyManager = kernel.getDependencyManager();
+    GBeanInstanceState(ObjectName objectName, Kernel kernel, DependencyManager dependencyManager, GBeanLifecycle gbeanLifecycle, LifecycleBroadcaster lifecycleBroadcaster) {
         this.objectName = objectName;
+        this.kernel = kernel;
+        this.dependencyManager = dependencyManager;
         this.gbeanLifecycle = gbeanLifecycle;
         this.lifecycleBroadcaster = lifecycleBroadcaster;
     }
@@ -89,10 +88,8 @@ public class GBeanInstanceState {
      * Note:  This method cannot be called while the current thread holds a synchronized lock on this MBean,
      * because this method sends JMX notifications. Sending a general notification from a synchronized block
      * is a bad idea and therefore not allowed.
-     *
-     * @throws Exception If an exception occurs while starting this MBean
      */
-    public final void start() throws Exception {
+    public final void start() {
         assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
 
         // Move to the starting state
@@ -122,10 +119,8 @@ public class GBeanInstanceState {
      * Note:  This method cannot be call while the current thread holds a synchronized lock on this MBean,
      * because this method sends JMX notifications.  Sending a general notification from a synchronized block
      * is a bad idea and therefore not allowed.
-     *
-     * @throws Exception if a problem occurs will starting this MBean or any child MBean
      */
-    public final void startRecursive() throws Exception {
+    public final void startRecursive() {
         assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
 
         State state = getStateInstance();
@@ -143,18 +138,18 @@ public class GBeanInstanceState {
         Set dependents = dependencyManager.getChildren(objectName);
         for (Iterator iterator = dependents.iterator(); iterator.hasNext();) {
             ObjectName dependent = (ObjectName) iterator.next();
-            boolean enabled = true;
             try {
-                enabled = ((Boolean) kernel.getAttribute(dependent, "gbeanEnabled")).booleanValue();
+                if (((Boolean) kernel.getAttribute(dependent, "gbeanEnabled")).booleanValue()) {
+                    kernel.startRecursiveGBean(dependent);
+                }
             } catch (NoSuchAttributeException e) {
                 // this is ok didn't have the attribute....
-            }
-            if (enabled) {
-                try {
-                    kernel.invoke(dependent, "startRecursive", null, null);
-                } catch (NoSuchMethodException e) {
-                    // did not have a startRecursive method - ok
-                }
+            } catch (GBeanNotFoundException e) {
+                // this is ok the gbean died before we could start it
+                continue;
+            } catch (Exception e) {
+                // the is something wrong with this gbean... skip it
+                continue;
             }
         }
     }
@@ -166,10 +161,8 @@ public class GBeanInstanceState {
      * Note:  This method can not be call while the current thread holds a syncronized lock on this MBean,
      * because this method sends JMX notifications.  Sending a general notification from a synchronized block
      * is a bad idea and therefore not allowed.
-     *
-     * @throws Exception If an exception occurs while stopping this MBean or any of the children
      */
-    public final void stop() throws Exception {
+    public final void stop() {
         assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
 
         // move to the stopping state
@@ -238,11 +231,10 @@ public class GBeanInstanceState {
      * Attempts to bring the component into {@link org.apache.geronimo.kernel.management.State#RUNNING} state. If an Exception occurs while
      * starting the component, the component will be failed.
      *
-     * @throws Exception if a problem occurs while starting the component
      * <p/>
      * Note: Do not call this from within a synchronized block as it makes may send a JMX notification
      */
-    void attemptFullStart() throws Exception {
+    void attemptFullStart() {
         assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
 
         State newState = null;
@@ -327,14 +319,12 @@ public class GBeanInstanceState {
                     } catch (WaitingException e) {
                         log.debug("Waiting to start: objectName=\"" + objectName + "\" reason=\"" + e.getMessage() + "\"");
                         return;
+                    } catch (Exception e) {
+                        log.error("Error while starting: objectName=\"" + objectName+ "\"", e);
+                        return;
                     }
                     setStateInstance(State.RUNNING);
                     newState = State.RUNNING;
-                } catch (Exception e) {
-                    doSafeFail();
-                    setStateInstance(State.FAILED);
-                    newState = State.FAILED;
-                    throw e;
                 } catch (Error e) {
                     doSafeFail();
                     setStateInstance(State.FAILED);
@@ -353,11 +343,10 @@ public class GBeanInstanceState {
      * Attempt to bring the component into the fully stopped state.
      * If an exception occurs while stopping the component, the component will be failed.
      *
-     * @throws Exception if a problem occurs while stopping the component
      * <p/>
      * Note: Do not call this from within a synchronized block as it may send a JMX notification
      */
-    void attemptFullStop() throws Exception {
+    void attemptFullStop() {
         assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
 
         State newState = null;
@@ -399,14 +388,12 @@ public class GBeanInstanceState {
                     } catch (WaitingException e) {
                         log.debug("Waiting to stop: objectName=\"" + objectName + "\" reason=\"" + e.getMessage() + "\"");
                         return;
+                    } catch (Exception e) {
+                        log.error("Error while stopping: objectName=\"" + objectName+ "\"", e);
+                        return;
                     }
                     setStateInstance(State.STOPPED);
                     newState = State.STOPPED;
-                } catch (Exception e) {
-                    doSafeFail();
-                    setStateInstance(State.FAILED);
-                    newState = State.FAILED;
-                    throw e;
                 } catch (Error e) {
                     doSafeFail();
                     setStateInstance(State.FAILED);

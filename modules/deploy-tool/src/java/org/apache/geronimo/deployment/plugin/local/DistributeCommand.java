@@ -33,7 +33,7 @@ import javax.management.ObjectName;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.kernel.KernelMBean;
+import org.apache.geronimo.kernel.jmx.KernelMBean;
 
 /**
  * @version $Rev$ $Date$

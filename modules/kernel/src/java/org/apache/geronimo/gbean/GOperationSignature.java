@@ -19,8 +19,6 @@ package org.apache.geronimo.gbean;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import javax.management.MBeanOperationInfo;
-import javax.management.MBeanParameterInfo;
 
 /**
  * This is a key class based on a MBean operation name and parameters.
@@ -38,15 +36,6 @@ public final class GOperationSignature {
         argumentTypes = new String[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
             argumentTypes[i] = parameters[i].getName();
-        }
-    }
-
-    public GOperationSignature(MBeanOperationInfo operationInfo) {
-        name = operationInfo.getName();
-        MBeanParameterInfo[] parameters = operationInfo.getSignature();
-        argumentTypes = new String[parameters.length];
-        for (int i = 0; i < parameters.length; i++) {
-            argumentTypes[i] = parameters[i].getType();
         }
     }
 

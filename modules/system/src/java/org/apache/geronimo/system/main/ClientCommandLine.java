@@ -20,9 +20,6 @@ import java.net.URI;
 import java.util.Collections;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.system.main.CommandLine;
-import org.apache.geronimo.system.main.ExceptionUtil;
-
 /**
  * @version $Revision$ $Date$
  */

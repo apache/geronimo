@@ -45,6 +45,7 @@ import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.NoSuchAttributeException;
 import org.apache.geronimo.kernel.NoSuchOperationException;
+import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.management.EventProvider;
 import org.apache.geronimo.kernel.management.ManagedObject;
 import org.apache.geronimo.kernel.management.NotificationType;
@@ -64,11 +65,6 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
      * @deprecated DO NOT USE THIS... THIS WILL BE REMOVED!!!!!!
      */
     public static final String RAW_INVOKER = "$$RAW_INVOKER$$";
-
-    /**
-     * Attribute name used to retrieve the GBeanData for the GBean
-     */
-    public static final String GBEAN_DATA = "$$GBEAN_DATA$$";
 
     /**
      * The kernel in which this server is registered.
@@ -189,11 +185,11 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
      * @throws org.apache.geronimo.gbean.InvalidConfigurationException if the gbeanInfo is inconsistent with the actual java classes, such as
      * mismatched attribute types or the intial data can not be set
      */
-    public GBeanInstance(Kernel kernel, GBeanData gbeanData, LifecycleBroadcaster lifecycleBroadcaster, ClassLoader classLoader) throws InvalidConfigurationException {
-        this.kernel = kernel;
+    public GBeanInstance(GBeanData gbeanData, Kernel kernel, DependencyManager dependencyManager, LifecycleBroadcaster lifecycleBroadcaster, ClassLoader classLoader) throws InvalidConfigurationException {
         this.objectName = gbeanData.getName();
+        this.kernel = kernel;
         this.lifecycleBroadcaster = lifecycleBroadcaster;
-        this.gbeanInstanceState = new GBeanInstanceState(kernel, objectName, new GBeanLifecycleCallback(), lifecycleBroadcaster);
+        this.gbeanInstanceState = new GBeanInstanceState(objectName, kernel, dependencyManager, new GBeanLifecycleCallback(), lifecycleBroadcaster);
         this.classLoader = classLoader;
         gbeanLifecycleController = new GBeanInstanceLifecycleController(this);
 
@@ -227,9 +223,9 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
         for (Iterator iterator = gbeanInfo.getReferences().iterator(); iterator.hasNext();) {
             GReferenceInfo referenceInfo = (GReferenceInfo) iterator.next();
             if (referenceInfo.getProxyType().equals(Collection.class.getName())) {
-                referencesSet.add(new GBeanCollectionReference(this, referenceInfo));
+                referencesSet.add(new GBeanCollectionReference(this, referenceInfo, kernel, dependencyManager));
             } else {
-                referencesSet.add(new GBeanSingleReference(this, referenceInfo));
+                referencesSet.add(new GBeanSingleReference(this, referenceInfo, kernel, dependencyManager));
             }
         }
         references = (GBeanReference[]) referencesSet.toArray(new GBeanReference[gbeanInfo.getReferences().size()]);
@@ -294,7 +290,7 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
         }
 
         for (int i = 0; i < references.length; i++) {
-            references[i].online(this.kernel);
+            references[i].online();
         }
         lifecycleBroadcaster.fireLoadedEvent();
     }
@@ -454,10 +450,9 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
      * Moves this GBeanInstance to the starting state and then attempts to move this MBean immediately
      * to the running state.
      *
-     * @throws Exception If an exception occurs while starting this MBean
      * @throws IllegalStateException If the gbean is disabled
      */
-    public final void start() throws Exception {
+    public final void start() {
         synchronized (this) {
             if (!enabled) {
                 throw new IllegalStateException("A disabled GBean can not be started: objectName=" + objectName);
@@ -469,10 +464,9 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
     /**
      * Starts this GBeanInstance and then attempts to start all of its start dependent children.
      *
-     * @throws Exception if a problem occurs will starting this MBean or any child MBean
      * @throws IllegalStateException If the gbean is disabled
      */
-    public final void startRecursive() throws Exception {
+    public final void startRecursive() {
         synchronized (this) {
             if (!enabled) {
                 throw new IllegalStateException("A disabled GBean can not be started: objectName=" + objectName);
@@ -484,10 +478,8 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
     /**
      * Moves this GBeanInstance to the STOPPING state, calls stop on all start dependent children, and then attempt
      * to move this MBean to the STOPPED state.
-     *
-     * @throws Exception If an exception occurs while stoping this MBean or any of the childern
      */
-    public final void stop() throws Exception {
+    public final void stop() {
         gbeanInstanceState.stop();
     }
 
@@ -592,12 +584,6 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
             if (attributeName.equals(RAW_INVOKER)) {
                 return rawInvoker;
             }
-
-            if (attributeName.equals(GBEAN_DATA)) {
-                return getGBeanData();
-
-            }
-
             throw e;
         }
 
@@ -941,6 +927,16 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
                         new MethodInvoker() {
                             public Object invoke(Object target, Object[] arguments) throws Exception {
                                 return new Boolean(isEventProvider());
+                            }
+                        }));
+
+        attributesMap.put("eventTypes",
+                GBeanAttribute.createFrameworkAttribute(this,
+                        "eventTypes",
+                        Boolean.TYPE,
+                        new MethodInvoker() {
+                            public Object invoke(Object target, Object[] arguments) throws Exception {
+                                return getEventTypes();
                             }
                         }));
 

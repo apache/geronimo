@@ -23,7 +23,7 @@ import java.util.Set;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.j2ee.management.impl.JVMImpl;
@@ -48,20 +48,22 @@ public abstract class Abstract77Test extends TestCase {
         super.setUp();
         kernel = new Kernel(DOMAIN);
         kernel.boot();
-        GBeanMBean gbean;
-        gbean = new GBeanMBean(ServerInfo.getGBeanInfo());
+
+        ClassLoader classLoader = getClass().getClassLoader();
+        GBeanData gbean;
+        gbean = new GBeanData(SERVER_INFO_NAME, ServerInfo.getGBeanInfo());
         gbean.setAttribute("baseDirectory", System.getProperty("java.io.tmpdir"));
-        kernel.loadGBean(SERVER_INFO_NAME, gbean);
+        kernel.loadGBean(gbean, classLoader);
 
-        gbean = new GBeanMBean(J2EEDomainImpl.GBEAN_INFO);
-        kernel.loadGBean(DOMAIN_NAME, gbean);
+        gbean = new GBeanData(DOMAIN_NAME, J2EEDomainImpl.GBEAN_INFO);
+        kernel.loadGBean(gbean, classLoader);
 
-        gbean = new GBeanMBean(J2EEServerImpl.GBEAN_INFO);
+        gbean = new GBeanData(SERVER_NAME, J2EEServerImpl.GBEAN_INFO);
         gbean.setReferencePatterns("ServerInfo", Collections.singleton(SERVER_INFO_NAME));
-        kernel.loadGBean(SERVER_NAME, gbean);
+        kernel.loadGBean(gbean, classLoader);
 
 
-        kernel.loadGBean(JVM_NAME, new GBeanMBean(JVMImpl.GBEAN_INFO));
+        kernel.loadGBean(new GBeanData(JVM_NAME, JVMImpl.GBEAN_INFO), classLoader);
         kernel.startGBean(SERVER_INFO_NAME);
         kernel.startGBean(DOMAIN_NAME);
         kernel.startGBean(SERVER_NAME);

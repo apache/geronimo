@@ -24,23 +24,18 @@ import org.apache.geronimo.kernel.ClassLoading;
  *
  * @version $Rev$ $Date$
  */
-public class ClassEditor
-    extends TextPropertyEditorSupport
-{
+public class ClassEditor extends TextPropertyEditorSupport {
     /**
      * Returns a Class for the input object converted to a string.
      *
      * @return a Class object
-     *
-     * @throws PropertyEditorException   Failed to create Class instance.
+     * @throws PropertyEditorException Failed to create Class instance.
      */
-    public Object getValue()
-    {
+    public Object getValue() {
         try {
             String classname = getAsText();
-            return ClassLoading.loadClass(classname);
-        }
-        catch (Exception e) {
+            return ClassLoading.loadClass(classname, Thread.currentThread().getContextClassLoader());
+        } catch (Exception e) {
             throw new PropertyEditorException(e);
         }
     }

@@ -27,17 +27,6 @@ import java.util.Map;
  * @version $Rev$ $Date$
  */
 public class ClassLoading {
-    /**
-     * Load a class for the given name using the context class loader.
-     *
-     * @param className The name of the Class to be loaded.
-     * @return The Class object for the given name.
-     * @throws ClassNotFoundException Failed to load Class object.
-     * @see #loadClass(String,ClassLoader)
-     */
-    public static Class loadClass(final String className) throws ClassNotFoundException {
-        return loadClass(className, getContextClassLoader());
-    }
 
     /**
      * Load a class for the given name.
@@ -127,16 +116,6 @@ public class ClassLoading {
             rc.append(VM_PRIMITIVES_REVERSE.get(clazz));
         }
         return rc.toString();
-    }
-
-    /**
-     * This method acts equivalently to invoking
-     * <code>Thread.currentThread().getContextClassLoader()</code>.
-     *
-     * @return The thread context class Loader.
-     */
-    private static ClassLoader getContextClassLoader() {
-        return Thread.currentThread().getContextClassLoader();
     }
 
     /**

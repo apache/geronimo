@@ -26,6 +26,7 @@ import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.management.State;
 
 /**
@@ -44,8 +45,8 @@ public class GBeanSingleReference extends AbstractGBeanReference {
      */
     private ObjectName proxyTarget;
 
-    public GBeanSingleReference(GBeanInstance gbeanInstance, GReferenceInfo referenceInfo) throws InvalidConfigurationException {
-        super(gbeanInstance, referenceInfo);
+    public GBeanSingleReference(GBeanInstance gbeanInstance, GReferenceInfo referenceInfo, Kernel kernel, DependencyManager dependencyManager) throws InvalidConfigurationException {
+        super(gbeanInstance, referenceInfo, kernel, dependencyManager);
     }
 
     public synchronized void start() throws Exception {
@@ -73,30 +74,30 @@ public class GBeanSingleReference extends AbstractGBeanReference {
         waitingForMe = false;
 
         // stop all gbeans that would match our patterns from starting
-        Kernel kernel = getKernel();
         ObjectName objectName = getGBeanInstance().getObjectNameObject();
-        kernel.getDependencyManager().addStartHolds(objectName, getPatterns());
+        DependencyManager dependencyManager = getDependencyManager();
+        dependencyManager.addStartHolds(objectName, getPatterns());
 
         // add a dependency on our target and create the proxy
         ObjectName target = (ObjectName) targets.iterator().next();
-        setProxy(kernel.getProxyManager().createProxy(target, getReferenceType()));
+        setProxy(getKernel().getProxyManager().createProxy(target, getReferenceType()));
         proxyTarget = target;
-        kernel.getDependencyManager().addDependency(objectName, target);
+        dependencyManager.addDependency(objectName, target);
     }
 
     public synchronized void stop() {
         waitingForMe = false;
-        Kernel kernel = getKernel();
         ObjectName objectName = getGBeanInstance().getObjectNameObject();
         Set patterns = getPatterns();
+        DependencyManager dependencyManager = getDependencyManager();
         if (!patterns.isEmpty()) {
-            kernel.getDependencyManager().removeStartHolds(objectName, patterns);
+            dependencyManager.removeStartHolds(objectName, patterns);
         }
 
         Object proxy = getProxy();
         if (proxy != null) {
-            kernel.getDependencyManager().removeDependency(objectName, proxyTarget);
-            kernel.getProxyManager().destroyProxy(proxy);
+            dependencyManager.removeDependency(objectName, proxyTarget);
+            getKernel().getProxyManager().destroyProxy(proxy);
             setProxy(null);
             proxyTarget = null;
         }

@@ -14,13 +14,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.kernel.jmx;
+package org.apache.geronimo.kernel.lifecycle;
 
+import java.util.Set;
 import javax.management.ObjectName;
 
 /**
- * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
-public interface JMXInvoker {
-    Object invoke(ObjectName objectName, Object[] arguments) throws Throwable;
+public interface LifecycleMonitor {
+    void addLifecycleListener(LifecycleListener listener, ObjectName pattern);
+
+    void addLifecycleListener(LifecycleListener listener, Set patterns);
+
+    void removeLifecycleListener(LifecycleListener listener);
 }

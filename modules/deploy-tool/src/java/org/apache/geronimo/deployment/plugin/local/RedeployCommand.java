@@ -26,8 +26,9 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
-import org.apache.geronimo.kernel.KernelMBean;
+import org.apache.geronimo.kernel.jmx.KernelMBean;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.jmx.KernelMBean;
 
 /**
  * @version $Rev$ $Date$

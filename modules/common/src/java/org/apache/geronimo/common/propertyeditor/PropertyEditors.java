@@ -158,8 +158,9 @@ public class PropertyEditors
             throw new NullArgumentException("editorTypeName");
         }
 
-        Class type = ClassLoading.loadClass(typeName);
-        Class editorType = ClassLoading.loadClass(editorTypeName);
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        Class type = ClassLoading.loadClass(typeName, classLoader);
+        Class editorType = ClassLoading.loadClass(editorTypeName, classLoader);
 
         registerEditor(type, editorType);
     }

@@ -15,25 +15,28 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.kernel;
+package org.apache.geronimo.kernel.jmx;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.InternalKernelException;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 
 /**
+ * @deprecated nothing implements this interface.... we should introduce a Kernel interface
  * @version $Rev$ $Date$
  */
 public interface KernelMBean {
@@ -42,13 +45,6 @@ public interface KernelMBean {
      * @return the time this kernel was last booted; null if the kernel has not been 
      */
     Date getBootTime();
-
-    /**
-     * Get the MBeanServer used by this kernel
-     *
-     * @return the MBeanServer used by this kernel
-     */
-    MBeanServer getMBeanServer();
 
     /**
      * Get the name of this kernel
@@ -63,8 +59,8 @@ public interface KernelMBean {
      *
      * @param gbeanData the GBean to load
      * @param classLoader the class loader to use to load the gbean
-     * @throws GBeanAlreadyExistsException if the name is already used
-     * @throws InternalKernelException if there is a problem during registration
+     * @throws org.apache.geronimo.kernel.GBeanAlreadyExistsException if the name is already used
+     * @throws org.apache.geronimo.kernel.InternalKernelException if there is a problem during registration
      */
     public void loadGBean(GBeanData gbeanData, ClassLoader classLoader) throws GBeanAlreadyExistsException, InternalKernelException;
 
@@ -84,10 +80,11 @@ public interface KernelMBean {
      * Start a specific GBean.
      *
      * @param name the GBean to start
-     * @throws GBeanNotFoundException if the GBean could not be found
+     * @throws org.apache.geronimo.kernel.GBeanNotFoundException if the GBean could not be found
      * @throws InternalKernelException if there GBean is not state manageable or if there is a general error
+     * @throws IllegalStateException If the gbean is disabled
      */
-    void startGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException;
+    void startGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
 
     /**
      * Start a specific GBean and its children.
@@ -95,8 +92,9 @@ public interface KernelMBean {
      * @param name the GBean to start
      * @throws GBeanNotFoundException if the GBean could not be found
      * @throws InternalKernelException if there GBean is not state manageable or if there is a general error
+     * @throws IllegalStateException If the gbean is disabled
      */
-    void startRecursiveGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException;
+    void startRecursiveGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
 
     /**
      * Stop a specific GBean.
@@ -104,8 +102,9 @@ public interface KernelMBean {
      * @param name the GBean to stop
      * @throws GBeanNotFoundException if the GBean could not be found
      * @throws InternalKernelException if there GBean is not state manageable or if there is a general error
+     * @throws IllegalStateException If the gbean is disabled
      */
-    void stopGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException;
+    void stopGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
 
     /**
      * Unload a specific GBean.

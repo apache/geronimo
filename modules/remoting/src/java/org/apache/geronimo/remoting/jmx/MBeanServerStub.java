@@ -18,6 +18,7 @@
 package org.apache.geronimo.remoting.jmx;
 
 import javax.management.ObjectName;
+import javax.management.MBeanServer;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -25,6 +26,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.jmx.MBeanServerDelegate;
 import org.apache.geronimo.proxy.ProxyContainer;
 import org.apache.geronimo.proxy.ReflexiveInterceptor;
 import org.apache.geronimo.remoting.DeMarshalingInterceptor;
@@ -63,7 +65,8 @@ public class MBeanServerStub implements GBeanLifecycle, JMXTarget {
         router.register(objectName, this);
 
         // Setup the server side contianer..
-        Interceptor firstInterceptor = new ReflexiveInterceptor(kernel.getMBeanServer());
+        MBeanServer mbeanServer = new MBeanServerDelegate(kernel);
+        Interceptor firstInterceptor = new ReflexiveInterceptor(mbeanServer);
         demarshaller = new DeMarshalingInterceptor(firstInterceptor, getClass().getClassLoader());
         serverContainer = new ProxyContainer(firstInterceptor);
     }

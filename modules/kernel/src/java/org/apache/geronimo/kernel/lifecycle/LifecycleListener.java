@@ -14,32 +14,20 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.kernel;
+package org.apache.geronimo.kernel.lifecycle;
 
+import java.util.EventListener;
 import javax.management.ObjectName;
 
 /**
  * @version $Rev$ $Date$
  */
-public class LifecycleAdapter implements LifecycleListener {
-    public void loaded(ObjectName objectName) {
-    }
-
-    public void starting(ObjectName objectName) {
-    }
-
-    public void running(ObjectName objectName) {
-    }
-
-    public void stopping(ObjectName objectName) {
-    }
-
-    public void stopped(ObjectName objectName) {
-    }
-
-    public void failed(ObjectName objectName) {
-    }
-
-    public void unloaded(ObjectName objectName) {
-    }
+public interface LifecycleListener extends EventListener {
+    public void loaded(ObjectName objectName);
+    public void starting(ObjectName objectName);
+    public void running(ObjectName objectName);
+    public void stopping(ObjectName objectName);
+    public void stopped(ObjectName objectName);
+    public void failed(ObjectName objectName);
+    public void unloaded(ObjectName objectName);
 }

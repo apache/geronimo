@@ -348,12 +348,14 @@ public class GBeanAttributeTest extends TestCase {
         kernel = new Kernel("test");
         kernel.boot();
 
-        gbeanInstance = new GBeanInstance(kernel,
-                new GBeanData(new ObjectName("test:MockGBean=normal"), MockGBean.getGBeanInfo()),
+        gbeanInstance = new GBeanInstance(new GBeanData(new ObjectName("test:MockGBean=normal"), MockGBean.getGBeanInfo()),
+                kernel,
+                kernel.getDependencyManager(),
                 new MyLifecycleBroadcaster(),
                 MockGBean.class.getClassLoader());
-        dynamicGBeanInstance = new GBeanInstance(kernel,
-                new GBeanData(new ObjectName("test:MockGBean=dynamic"), MockDynamicGBean.getGBeanInfo()),
+        dynamicGBeanInstance = new GBeanInstance(new GBeanData(new ObjectName("test:MockGBean=dynamic"), MockDynamicGBean.getGBeanInfo()),
+                kernel,
+                kernel.getDependencyManager(),
                 new MyLifecycleBroadcaster(),
                 MockGBean.class.getClassLoader());
         getInvoker = new MethodInvoker() {

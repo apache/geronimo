@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.kernel;
+package org.apache.geronimo.kernel.lifecycle;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,12 +28,13 @@ import javax.management.ObjectName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.runtime.LifecycleBroadcaster;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  * @version $Rev: 71492 $ $Date: 2004-11-14 21:31:50 -0800 (Sun, 14 Nov 2004) $
  */
-public class LifecycleMonitor {
-    private static final Log log = LogFactory.getLog(LifecycleMonitor.class);
+public class BasicLifecycleMonitor implements LifecycleMonitor {
+    private static final Log log = LogFactory.getLog(BasicLifecycleMonitor.class);
 
     private final Kernel kernel;
 
@@ -41,10 +42,7 @@ public class LifecycleMonitor {
     private final Map boundListeners = new HashMap();
     private final Map listenerPatterns = new HashMap();
 
-    /**
-     * @deprecated don't use this yet... it may change or go away
-     */
-    public LifecycleMonitor(Kernel kernel) {
+    public BasicLifecycleMonitor(Kernel kernel) {
         this.kernel = kernel;
 
         // register for state change notifications with all mbeans that match the target patterns
@@ -207,9 +205,6 @@ public class LifecycleMonitor {
         }
     }
 
-    /**
-     * @deprecated is this for internal use by the GBeanInstance and will be remove later
-     */
     public LifecycleBroadcaster createLifecycleBroadcaster(ObjectName objectName) {
         return new RawLifecycleBroadcaster(objectName);
     }
@@ -223,31 +218,31 @@ public class LifecycleMonitor {
 
         public void fireLoadedEvent() {
             addSource(objectName);
-            LifecycleMonitor.this.fireLoadedEvent(objectName);
+            BasicLifecycleMonitor.this.fireLoadedEvent(objectName);
         }
 
         public void fireStartingEvent() {
-            LifecycleMonitor.this.fireStartingEvent(objectName);
+            BasicLifecycleMonitor.this.fireStartingEvent(objectName);
         }
 
         public void fireRunningEvent() {
-            LifecycleMonitor.this.fireRunningEvent(objectName);
+            BasicLifecycleMonitor.this.fireRunningEvent(objectName);
         }
 
         public void fireStoppingEvent() {
-            LifecycleMonitor.this.fireStoppingEvent(objectName);
+            BasicLifecycleMonitor.this.fireStoppingEvent(objectName);
         }
 
         public void fireStoppedEvent() {
-            LifecycleMonitor.this.fireStoppedEvent(objectName);
+            BasicLifecycleMonitor.this.fireStoppedEvent(objectName);
         }
 
         public void fireFailedEvent() {
-            LifecycleMonitor.this.fireFailedEvent(objectName);
+            BasicLifecycleMonitor.this.fireFailedEvent(objectName);
         }
 
         public void fireUnloadedEvent() {
-            LifecycleMonitor.this.fireUnloadedEvent(objectName);
+            BasicLifecycleMonitor.this.fireUnloadedEvent(objectName);
             removeSource(objectName);
         }
     }

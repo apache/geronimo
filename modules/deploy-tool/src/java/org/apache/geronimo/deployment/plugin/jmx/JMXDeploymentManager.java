@@ -44,12 +44,11 @@ import org.apache.geronimo.deployment.plugin.local.RedeployCommand;
 import org.apache.geronimo.deployment.plugin.local.StartCommand;
 import org.apache.geronimo.deployment.plugin.local.StopCommand;
 import org.apache.geronimo.deployment.plugin.local.UndeployCommand;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelMBean;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
-import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
+import org.apache.geronimo.kernel.jmx.KernelDelegate;
+import org.apache.geronimo.kernel.jmx.KernelMBean;
 import org.apache.geronimo.kernel.management.State;
 
 /**
@@ -66,7 +65,7 @@ public class JMXDeploymentManager implements DeploymentManager {
     public JMXDeploymentManager(JMXConnector jmxConnector) throws IOException {
         this.jmxConnector = jmxConnector;
         mbServerConnection = jmxConnector.getMBeanServerConnection();
-        kernel = (KernelMBean) MBeanProxyFactory.getProxy(KernelMBean.class, mbServerConnection, Kernel.KERNEL);
+        kernel = new KernelDelegate(mbServerConnection);
     }
 
     public void release() {

@@ -24,31 +24,8 @@ import junit.framework.TestCase;
  *
  * @version $Rev$ $Date$
  */
-public class ClassloadingTest
-        extends TestCase {
-    protected Class loadClass(final String name) {
-        Class type = null;
-
-        try {
-            type = ClassLoading.loadClass(name);
-        } catch (ClassNotFoundException e) {
-            fail("Class should have been found: " + e);
-        }
-
-        assertNotNull(type);
-
-        return type;
-    }
-
+public class ClassloadingTest extends TestCase {
     public void testLoadClass_Null() {
-        try {
-            ClassLoading.loadClass(null);
-            fail("Expected NullArgumentException");
-        } catch (IllegalArgumentException ignore) {
-        } catch (ClassNotFoundException e) {
-            fail("Class should have been found: " + e);
-        }
-
         try {
             ClassLoading.loadClass("org.apache.geronimo.kernel.ClassLoading", null);
             fail("Expected NullArgumentException");
@@ -62,15 +39,6 @@ public class ClassloadingTest
         String className = "org.apache.geronimo.kernel.ClassLoading";
         Class type = loadClass(className);
         assertEquals(className, type.getName());
-    }
-
-    public void testLoadClass_Missing() {
-        String className = "some.class.that.does.not.Exist";
-        try {
-            ClassLoading.loadClass(className);
-            fail("Expected ClassNotFoundException: " + className);
-        } catch (ClassNotFoundException ignore) {
-        }
     }
 
     public void testLoadClass_Primitives() {
@@ -146,5 +114,19 @@ public class ClassloadingTest
         y = loadClass(x);
         assertEquals(t, y);
 
+    }
+
+    private Class loadClass(String name) {
+        Class type = null;
+
+        try {
+            type = ClassLoading.loadClass(name, getClass().getClassLoader());
+        } catch (ClassNotFoundException e) {
+            fail("Class should have been found: " + e);
+        }
+
+        assertNotNull(type);
+
+        return type;
     }
 }

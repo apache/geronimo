@@ -36,7 +36,6 @@ import org.apache.geronimo.security.realm.DeploymentSupport;
 import org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal;
 import org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 import org.apache.geronimo.kernel.Kernel;
 
 

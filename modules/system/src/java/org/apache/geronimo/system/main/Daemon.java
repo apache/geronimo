@@ -32,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.jmx.JMXGBeanRegistry;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.system.url.GeronimoURLFactory;
@@ -97,8 +98,8 @@ public class Daemon {
                 ois.close();
             }
 
-            // build a basic kernel without a configuration-store, our configuration store is
-            final Kernel kernel = new Kernel("geronimo.kernel", "geronimo");
+            // build a jms kernel
+            final Kernel kernel = new Kernel("geronimo", new JMXGBeanRegistry());
 
             // boot the kernel
             try {

@@ -21,6 +21,7 @@ import java.util.Map;
 import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
+import javax.management.MBeanServer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,6 +30,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.MBeanServerDelegate;
 
 /**
  * A Connector that supports the server sideof JSR 160 JMX Remoting.
@@ -106,7 +108,8 @@ public class JMXConnector implements GBeanLifecycle {
         } else {
             log.warn("Starting unauthenticating JMXConnector for " + serviceURL);
         }
-        server = JMXConnectorServerFactory.newJMXConnectorServer(serviceURL, env, kernel.getMBeanServer());
+        MBeanServer mbeanServer = new MBeanServerDelegate(kernel);
+        server = JMXConnectorServerFactory.newJMXConnectorServer(serviceURL, env, mbeanServer);
         server.start();
         log.info("Started JMXConnector " + server.getAddress());
     }

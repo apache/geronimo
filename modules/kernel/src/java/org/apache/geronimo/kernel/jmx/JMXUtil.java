@@ -17,8 +17,22 @@
 
 package org.apache.geronimo.kernel.jmx;
 
+import java.util.Set;
+import java.util.Iterator;
+import java.util.List;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.MBeanInfo;
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanConstructorInfo;
+import javax.management.MBeanOperationInfo;
+import javax.management.MBeanParameterInfo;
+import javax.management.MBeanNotificationInfo;
+
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GOperationInfo;
+import org.apache.geronimo.kernel.management.NotificationType;
 
 
 /**
@@ -29,11 +43,6 @@ import javax.management.ObjectName;
 public final class JMXUtil {
     private JMXUtil() {
     }
-
-    /**
-     * the ObjectName of the MBeanServerDelegate
-     */
-    public static final ObjectName DELEGATE_NAME = getObjectName("JMImplementation:type=MBeanServerDelegate");
 
     /**
      * Convert a String to an ObjectName
@@ -48,5 +57,56 @@ public final class JMXUtil {
         } catch (MalformedObjectNameException e) {
             throw new IllegalArgumentException("Malformed ObjectName: " + name);
         }
+    }
+
+    public static MBeanInfo toMBeanInfo(GBeanInfo gBeanInfo) {
+        String className = gBeanInfo.getClassName();
+        String description = "No description available";
+
+        // attributes
+        Set gbeanAttributes = gBeanInfo.getAttributes();
+        MBeanAttributeInfo[] attributes = new MBeanAttributeInfo[gbeanAttributes.size()];
+        int a = 0;
+        for (Iterator iterator = gbeanAttributes.iterator(); iterator.hasNext();) {
+            GAttributeInfo gAttributeInfo = (GAttributeInfo) iterator.next();
+            attributes[a] = new MBeanAttributeInfo(gAttributeInfo.getName(), gAttributeInfo.getType(), "no description available", gAttributeInfo.isReadable(), gAttributeInfo.isWritable(), isIs(gAttributeInfo));
+            a++;
+        }
+
+        //we don't expose managed constructors
+        MBeanConstructorInfo[] constructors = new MBeanConstructorInfo[0];
+
+        // operations
+        Set gbeanOperations = gBeanInfo.getOperations();
+        MBeanOperationInfo[] operations = new MBeanOperationInfo[gbeanOperations.size()];
+        int o = 0;
+        for (Iterator iterator = gbeanOperations.iterator(); iterator.hasNext();) {
+            GOperationInfo gOperationInfo = (GOperationInfo) iterator.next();
+            //list of class names
+            List gparameters = gOperationInfo.getParameterList();
+            MBeanParameterInfo[] parameters = new MBeanParameterInfo[gparameters.size()];
+            int p = 0;
+            for (Iterator piterator = gparameters.iterator(); piterator.hasNext();) {
+                String type = (String) piterator.next();
+                parameters[p] = new MBeanParameterInfo("parameter" + p, type, "no description available");
+                p++;
+            }
+            operations[o] = new MBeanOperationInfo(gOperationInfo.getName(), "no description available", parameters, "java.lang.Object", MBeanOperationInfo.UNKNOWN);
+            o++;
+        }
+
+        MBeanNotificationInfo[] notifications = new MBeanNotificationInfo[1];
+        notifications[0] = new MBeanNotificationInfo(NotificationType.TYPES, "javax.management.Notification", "J2EE Notifications");
+
+        MBeanInfo mbeanInfo = new MBeanInfo(className, description, attributes, constructors, operations, notifications);
+        return mbeanInfo;
+    }
+
+    private static boolean isIs(GAttributeInfo gAttributeInfo) {
+        String getterName = gAttributeInfo.getGetterName();
+        if (getterName == null) {
+            return false;
+        }
+        return getterName.startsWith("is");
     }
 }

@@ -27,11 +27,12 @@ import javax.management.ObjectName;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.ClassLoading;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.LifecycleAdapter;
-import org.apache.geronimo.kernel.LifecycleListener;
-import org.apache.geronimo.kernel.NoSuchAttributeException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.NoSuchAttributeException;
+import org.apache.geronimo.kernel.DependencyManager;
+import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
+import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 import org.apache.geronimo.kernel.management.State;
 
 /**
@@ -79,21 +80,37 @@ public abstract class AbstractGBeanReference implements GBeanReference {
      */
     private final Set targets = new HashSet();
 
+    /**
+     * The metadata for this reference
+     */
     private final GReferenceInfo referenceInfo;
 
     /**
      * The kernel to which the reference is bound.
      */
-    private Kernel kernel;
+    private final Kernel kernel;
+
+    /**
+     * The dependency manager of the kernel.
+     */
+    private final DependencyManager dependencyManager;
 
     /**
      * Proxy for this reference
      */
     private Object proxy;
 
-    public AbstractGBeanReference(GBeanInstance gbeanInstance, GReferenceInfo referenceInfo) throws InvalidConfigurationException {
+    /**
+     * is this reference online
+     */
+    private boolean isOnline = false;
+
+    public AbstractGBeanReference(GBeanInstance gbeanInstance, GReferenceInfo referenceInfo, Kernel kernel, DependencyManager dependencyManager) throws InvalidConfigurationException {
         this.gbeanInstance = gbeanInstance;
         this.referenceInfo = referenceInfo;
+        this.kernel = kernel;
+        this.dependencyManager = dependencyManager;
+
         this.name = referenceInfo.getName();
         try {
             this.referenceType = ClassLoading.loadClass(referenceInfo.getReferenceType(), gbeanInstance.getClassLoader());
@@ -158,6 +175,10 @@ public abstract class AbstractGBeanReference implements GBeanReference {
         return kernel;
     }
 
+    protected DependencyManager getDependencyManager() {
+        return dependencyManager;
+    }
+
     public final GBeanInstance getGBeanInstance() {
         return gbeanInstance;
     }
@@ -191,7 +212,7 @@ public abstract class AbstractGBeanReference implements GBeanReference {
     }
 
     public final void setPatterns(Set patterns) {
-        if (kernel != null) {
+        if (isOnline) {
             throw new IllegalStateException("Pattern set can not be modified while online");
         }
 
@@ -210,9 +231,7 @@ public abstract class AbstractGBeanReference implements GBeanReference {
         }
     }
 
-    public final synchronized void online(Kernel kernel) {
-        this.kernel = kernel;
-
+    public final synchronized void online() {
         Set gbeans = kernel.listGBeans(patterns);
         for (Iterator objectNameIterator = gbeans.iterator(); objectNameIterator.hasNext();) {
             ObjectName target = (ObjectName) objectNameIterator.next();
@@ -226,6 +245,7 @@ public abstract class AbstractGBeanReference implements GBeanReference {
         }
 
         kernel.getLifecycleMonitor().addLifecycleListener(listener, patterns);
+        isOnline = true;
     }
 
     public final synchronized void offline() {
@@ -235,7 +255,7 @@ public abstract class AbstractGBeanReference implements GBeanReference {
         kernel.getLifecycleMonitor().removeLifecycleListener(listener);
 
         targets.clear();
-        kernel = null;
+        isOnline = false;
     }
 
     protected abstract void targetAdded(ObjectName target);
