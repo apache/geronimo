@@ -1,1 +1,4 @@
 .project
+.classpath
+maven.log
+target
