@@ -16,12 +16,12 @@
  */
 package org.apache.geronimo.gbean.jmx;
 
-import java.lang.reflect.InvocationTargetException;
+
 
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/06/02 06:49:23 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/03 23:12:54 $
  */
 public class VMProxyFactory extends ProxyFactory {
     private final Class proxyType;
@@ -38,11 +38,7 @@ public class VMProxyFactory extends ProxyFactory {
     }
 
     public Object create(ProxyMethodInterceptor methodInterceptor) {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        if (cl == null) {
-            cl = this.getClass().getClassLoader();
-        }
-        return java.lang.reflect.Proxy.newProxyInstance(cl, new Class[]{proxyType}, (VMMethodInterceptor)methodInterceptor);
+        return java.lang.reflect.Proxy.newProxyInstance(proxyType.getClassLoader(), new Class[]{proxyType}, (VMMethodInterceptor)methodInterceptor);
     }
 
     public Object create(ProxyMethodInterceptor methodInterceptor, Class[] types, Object[] arguments) {

@@ -23,7 +23,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/06/02 05:33:02 $
+ * @version $Revision: 1.8 $ $Date: 2004/06/03 23:12:54 $
  */
 public class MockGBean implements MockEndpoint {
     private final String name;
@@ -64,11 +64,6 @@ public class MockGBean implements MockEndpoint {
         this.endpoint = endpoint;
     }
 
-    public boolean checkResource(String name) {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        return cl.getResource(name) != null;
-    }
-
     public String doSomething(String name) {
         return name;
     }
@@ -89,7 +84,6 @@ public class MockGBean implements MockEndpoint {
         infoFactory.addAttribute("Value", String.class, true);
         infoFactory.addAttribute("IntValue", int.class, true);
 
-        infoFactory.addOperation("checkResource", new Class[]{String.class});
         infoFactory.addOperation("checkEndpoint");
         infoFactory.addOperation("doSomething", new Class[]{String.class});
 
