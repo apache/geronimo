@@ -80,12 +80,11 @@
         </New>
     </Set>
 
-<!--
     <Call name="addWebApplication">
-        <Arg>/</Arg>
-        <Arg><SystemProperty name="jetty.home.dir"/>/elba-jmx-console/</Arg>
+        <Arg></Arg>
+        <Arg>jmx-console</Arg>
+        <Arg><SystemProperty name="jetty.home.dir"/>/geronimo-web-console.war</Arg>
         <Arg><SystemProperty name="jetty.home.dir"/>/webdefault.xml</Arg>
-        <Arg type="boolean">false</Arg>
+        <Arg type="boolean">true</Arg>
     </Call>
--->
 </Configure>
