@@ -78,14 +78,13 @@ import org.xml.sax.SAXException;
  * Helper class that handles locating files in META-INF directory, building
  * class space and dealing with deployments
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/16 23:39:46 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/17 01:32:38 $
  */
 public class DeploymentHelper {
     protected final URL url;
     protected final URLType urlType;
     protected URL j2eeURL;
     protected URL geronimoURL;
-    private final String objectNameTypeName;
 
     /**
      * Create an helper related to the specified deployment URL with META-INF
@@ -93,26 +92,24 @@ public class DeploymentHelper {
      *
      * @see #DeploymentHelper(URLInfo, String, String, String, String)
      */
-    public DeploymentHelper(URLInfo urlInfo, String objectNameTypeName, String j2eeDDName,
+    public DeploymentHelper(URLInfo urlInfo, String j2eeDDName,
             String geronimoDDName) throws DeploymentException {
-        this(urlInfo, objectNameTypeName, j2eeDDName, geronimoDDName, "META-INF");
+        this(urlInfo, j2eeDDName, geronimoDDName, "META-INF");
     }
 
     /**
      * Creates an helper related to the specified deployment URL.
      *
      * @param urlInfo Deployment URLInfo.
-     * @param objectNameTypeName type's name of the ObjectName
      * @param j2eeDDName name of the J2EE deployment descriptor file
      * @param geronimoDDName name of the Geronimo deployment descriptor file
      * @param infDir the directory where deployment descriptors are to be looked up
      * @throws DeploymentException when the deployment doesn't exist
      */
-    public DeploymentHelper(URLInfo urlInfo, String objectNameTypeName, String j2eeDDName,
+    public DeploymentHelper(URLInfo urlInfo, String j2eeDDName,
             String geronimoDDName, String infDir) throws DeploymentException {
         this.url = urlInfo.getUrl();
         this.urlType = urlInfo.getType();
-        this.objectNameTypeName = objectNameTypeName;
         try {
             if (URLType.RESOURCE == urlType) {
                 j2eeURL = null;

@@ -93,7 +93,7 @@ import org.w3c.dom.Document;
  * --java2classloading compliance should be loaded from GeronimoWebDoc??
  * --we are using the Jetty classloader at the moment.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/16 23:42:54 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/17 01:32:38 $
  *
  * */
 public class WebDeployer implements ModuleFactory {
@@ -116,7 +116,7 @@ public class WebDeployer implements ModuleFactory {
 
     public DeploymentModule getModule(URLInfo urlInfo, URI moduleID) throws DeploymentException {
 
-        DeploymentHelper deploymentHelper = new DeploymentHelper(urlInfo, null, "web.xml", "geronimo-web.xml", "WEB-INF");
+        DeploymentHelper deploymentHelper = new DeploymentHelper(urlInfo, "web.xml", "geronimo-web.xml", "WEB-INF");
         //we require the Geronimo dd.
         if (deploymentHelper.locateGeronimoDD() == null || deploymentHelper.locateJ2EEDD() == null) {
             return null;

@@ -55,27 +55,25 @@
  */
 package org.apache.geronimo.deployment.service;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashSet;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.xml.parsers.DocumentBuilder;
 
-import org.apache.geronimo.deployment.ModuleFactory;
 import org.apache.geronimo.deployment.DeploymentModule;
+import org.apache.geronimo.deployment.ModuleFactory;
+import org.apache.geronimo.deployment.util.DeploymentHelper;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
 import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
-import org.apache.geronimo.kernel.deployment.scanner.URLType;
 import org.apache.geronimo.kernel.deployment.service.XMLUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -85,7 +83,7 @@ import org.w3c.dom.NodeList;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/16 22:19:51 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/17 01:32:38 $
  */
 public class ServiceDeployer implements ModuleFactory {
     private final DocumentBuilder parser;
@@ -96,28 +94,9 @@ public class ServiceDeployer implements ModuleFactory {
     }
 
     public DeploymentModule getModule(URLInfo urlInfo, URI moduleID) throws DeploymentException {
-        URL baseURL = urlInfo.getUrl();
-        URL metaDataURL;
-        try {
-            if (urlInfo.getType() == URLType.RESOURCE) {
-                metaDataURL = baseURL;
-            } else if (urlInfo.getType() == URLType.PACKED_ARCHIVE) {
-                baseURL = new URL("jar:" + baseURL.toString() + "!/");
-                metaDataURL = new URL(baseURL, "META-INF/geronimo-service.xml");
-            } else if (urlInfo.getType() == URLType.UNPACKED_ARCHIVE) {
-                metaDataURL = new URL(baseURL, "META-INF/geronimo-service.xml");
-            } else {
-                return null;
-            }
-        } catch (MalformedURLException e) {
-            return null;
-        }
-
-        Document doc = null;
-        try {
-            doc = parser.parse(metaDataURL.openStream());
-        } catch (Exception e) {
-            // this is not an XML file we can parse - let someone else try
+        DeploymentHelper deploymentHelper = new DeploymentHelper(urlInfo, null, "geronimo-service.xml");
+        Document doc = deploymentHelper.getGeronimoDoc(parser);
+        if (doc == null) {
             return null;
         }
         Element documentElement = doc.getDocumentElement();
