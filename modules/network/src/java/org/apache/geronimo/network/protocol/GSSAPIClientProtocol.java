@@ -32,9 +32,11 @@ import org.ietf.jgss.Oid;
 
 import org.apache.geronimo.system.ThreadPool;
 
+import EDU.oswego.cs.dl.util.concurrent.Latch;
+
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/17 03:11:59 $
+ * @version $Revision: 1.4 $ $Date: 2004/04/24 23:17:07 $
  */
 public class GSSAPIClientProtocol extends AbstractProtocol {
 
@@ -46,6 +48,8 @@ public class GSSAPIClientProtocol extends AbstractProtocol {
     private boolean mutualAuth;
     private boolean confidential;
     private boolean integrity;
+    Latch startupLatch = new Latch();
+
 
     public ThreadPool getThreadPool() {
         return threadPool;
@@ -160,6 +164,10 @@ public class GSSAPIClientProtocol extends AbstractProtocol {
                     if (context.getMutualAuthState()) log.trace("MUTUAL AUTHENTICATION IN PLACE");
                     if (context.getConfState()) log.trace("CONFIDENTIALITY IN PLACE");
                     if (context.getIntegState()) log.trace("INTEGRITY IN PLACE");
+                    
+                    log.trace("RELEASING " + startupLatch);
+                    startupLatch.release();
+                    log.trace("RELEASED " + startupLatch);
                 }
             } else {
                 ByteBuffer buffer = packet.getBuffer();
@@ -178,6 +186,10 @@ public class GSSAPIClientProtocol extends AbstractProtocol {
         try {
             log.trace("sendDown");
 
+            log.trace("AQUIRING " + startupLatch);
+            if (!startupLatch.attempt(1000 * 1000)) throw new ProtocolException("Send timeout");
+            log.trace("AQUIRED " + startupLatch);
+
             int size = 0;
             for (Iterator iter = packet.getBuffers().iterator(); iter.hasNext();) {
                 size += ((ByteBuffer) iter.next()).remaining();
@@ -193,6 +205,8 @@ public class GSSAPIClientProtocol extends AbstractProtocol {
             reply.setBuffers(Collections.singletonList(ByteBuffer.allocate(token.length).put(token).flip()));
             getDownProtocol().sendDown(reply);
         } catch (GSSException e) {
+            throw new ProtocolException(e);
+        } catch (InterruptedException e) {
             throw new ProtocolException(e);
         }
     }

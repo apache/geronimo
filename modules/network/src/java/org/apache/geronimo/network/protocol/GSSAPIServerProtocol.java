@@ -19,21 +19,21 @@ package org.apache.geronimo.network.protocol;
 
 import javax.security.auth.Subject;
 import javax.security.auth.kerberos.KerberosPrincipal;
-
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 
+import EDU.oswego.cs.dl.util.concurrent.Latch;
 import com.sun.security.jgss.GSSUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;
 import org.ietf.jgss.MessageProp;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.geronimo.network.protocol.control.BootstrapCook;
 import org.apache.geronimo.network.protocol.control.ControlContext;
@@ -44,7 +44,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/17 03:11:59 $
+ * @version $Revision: 1.4 $ $Date: 2004/04/24 23:17:07 $
  */
 public class GSSAPIServerProtocol extends AbstractProtocol implements BootstrapCook {
 
@@ -57,6 +57,7 @@ public class GSSAPIServerProtocol extends AbstractProtocol implements BootstrapC
     private boolean integrity;
     private GSSContext context;
     private Subject clientSubject;
+    Latch startupLatch;
 
     public ThreadPool getThreadPool() {
         return threadPool;
@@ -98,19 +99,24 @@ public class GSSAPIServerProtocol extends AbstractProtocol implements BootstrapC
         this.integrity = integrity;
     }
 
-    public void setup() throws ProtocolException {
-        log.trace("Starting");
+    public Protocol cloneProtocol() throws CloneNotSupportedException {
+        GSSAPIServerProtocol result = (GSSAPIServerProtocol) super.clone();
+
+        result.startupLatch = new Latch();
         try {
             GSSManager manager = GSSManager.getInstance();
-            context = manager.createContext((GSSCredential) null);
-            context.requestMutualAuth(mutualAuth);
-            context.requestConf(confidential);
-            context.requestInteg(integrity);
-            context.requestCredDeleg(true);
+            result.context = manager.createContext((GSSCredential) null);
+            result.context.requestMutualAuth(mutualAuth);
+            result.context.requestConf(confidential);
+            result.context.requestInteg(integrity);
+            result.context.requestCredDeleg(true);
         } catch (GSSException e) {
-            e.printStackTrace();
-            throw new ProtocolException(e);
+            throw new CloneNotSupportedException(e.toString());
         }
+        return result;
+    }
+    public void setup() throws ProtocolException {
+        log.trace("Starting");
     }
 
     public void drain() throws ProtocolException {
@@ -146,6 +152,7 @@ public class GSSAPIServerProtocol extends AbstractProtocol implements BootstrapC
                         KerberosPrincipal principal = new KerberosPrincipal(context.getSrcName().toString());
                         clientSubject.getPrincipals().add(principal);
                     }
+                    startupLatch.release();
                 }
             } else {
                 ByteBuffer buffer = packet.getBuffer();
@@ -167,6 +174,10 @@ public class GSSAPIServerProtocol extends AbstractProtocol implements BootstrapC
         try {
             log.trace("sendDown");
 
+            log.trace("AQUIRING " + startupLatch);
+            if (!startupLatch.attempt(1000 * 1000)) throw new ProtocolException("Send timeout");
+            log.trace("AQUIRED " + startupLatch);
+
             int size = 0;
             for (Iterator iter = packet.getBuffers().iterator(); iter.hasNext();) {
                 size += ((ByteBuffer) iter.next()).remaining();
@@ -182,6 +193,8 @@ public class GSSAPIServerProtocol extends AbstractProtocol implements BootstrapC
             reply.setBuffers(Collections.singletonList(ByteBuffer.allocate(token.length).put(token).flip()));
             getDownProtocol().sendDown(reply);
         } catch (GSSException e) {
+            throw new ProtocolException(e);
+        } catch (InterruptedException e) {
             throw new ProtocolException(e);
         }
     }
