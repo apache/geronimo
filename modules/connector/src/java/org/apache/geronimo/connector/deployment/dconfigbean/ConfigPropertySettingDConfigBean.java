@@ -66,12 +66,11 @@ import org.apache.xmlbeans.XmlBeans;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/10 17:26:58 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/20 08:14:11 $
  *
  * */
 public class ConfigPropertySettingDConfigBean extends DConfigBeanSupport {
     private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
-    private final static String[] CONFIG_PROPERTY_SETTING_XPATHS = {"config-property"};
 
     public ConfigPropertySettingDConfigBean(DDBean ddBean, GerConfigPropertySettingType configPropertySetting) {
         super(ddBean, configPropertySetting, SCHEMA_TYPE_LOADER);
@@ -107,7 +106,6 @@ public class ConfigPropertySettingDConfigBean extends DConfigBeanSupport {
     public void setConfigPropertyValue(String configPropertyValue) {
         getConfigPropertySetting().setStringValue(configPropertyValue);
     }
-    public String[] getXpaths() {
-        return CONFIG_PROPERTY_SETTING_XPATHS;
-    }
+
 }
+

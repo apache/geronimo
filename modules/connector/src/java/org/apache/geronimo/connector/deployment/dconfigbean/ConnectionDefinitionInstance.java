@@ -68,7 +68,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 
 /**
- * @version $Revision 1.0$  $Date: 2004/02/18 20:57:07 $
+ * @version $Revision 1.0$  $Date: 2004/02/20 08:14:11 $
  */
 public class ConnectionDefinitionInstance extends XmlBeanSupport {
     private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
@@ -105,7 +105,7 @@ public class ConnectionDefinitionInstance extends XmlBeanSupport {
                 setConfigProperty(configs);
             }
 
-        });
+        }, "config-property", "config-property-name");
     }
 
 

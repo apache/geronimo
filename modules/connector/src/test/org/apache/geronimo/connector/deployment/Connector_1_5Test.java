@@ -108,7 +108,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.9 $ $Date: 2004/02/19 23:16:06 $
+ * @version $Revision: 1.10 $ $Date: 2004/02/20 08:14:12 $
  *
  * */
 public class Connector_1_5Test extends TestCase implements ConfigurationCallback {
@@ -145,6 +145,7 @@ public class Connector_1_5Test extends TestCase implements ConfigurationCallback
         assertNotNull(root);
 
         //resource adapter
+        String path = root.getXpaths()[0];
         DDBean resourceAdapterdd = ddroot.getChildBean(root.getXpaths()[0])[0];
         ResourceAdapterDConfigBean resourceAdapterDConfigBean = (ResourceAdapterDConfigBean) root.getDConfigBean(resourceAdapterdd);
         assertNotNull(resourceAdapterDConfigBean);

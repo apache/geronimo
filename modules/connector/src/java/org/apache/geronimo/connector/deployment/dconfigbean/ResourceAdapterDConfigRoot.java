@@ -67,6 +67,7 @@ import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 import org.apache.geronimo.deployment.plugin.DConfigBeanRootSupport;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
+import org.apache.geronimo.xbeans.geronimo.GerVersionType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
@@ -74,13 +75,13 @@ import org.apache.xmlbeans.XmlException;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/11 08:02:20 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/20 08:14:11 $
  *
  * */
 public class ResourceAdapterDConfigRoot extends DConfigBeanRootSupport {
     private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
-    private static String[] XPATHS = {
-        "connector/resourceadapter"
+    private static String[][] XPATHS = {
+        {"connector", "resourceadapter"}
     };
 
     private ResourceAdapterDConfigBean resourceAdapterDConfigBean;
@@ -88,12 +89,13 @@ public class ResourceAdapterDConfigRoot extends DConfigBeanRootSupport {
     public ResourceAdapterDConfigRoot(DDBeanRoot ddBean) {
         super(ddBean, GerConnectorDocument.Factory.newInstance(), SCHEMA_TYPE_LOADER);
         GerResourceadapterType resourceAdapter = getConnectorDocument().addNewConnector().addNewResourceadapter();
+        getConnectorDocument().getConnector().setVersion(GerVersionType.X_1_5);
         replaceResourceAdapterDConfigBean(resourceAdapter);
     }
 
     private void replaceResourceAdapterDConfigBean(GerResourceadapterType resourceAdapter) {
         DDBean ddBean = getDDBean();
-        DDBean childDDBean = ddBean.getChildBean(XPATHS[0])[0];
+        DDBean childDDBean = ddBean.getChildBean(getXpaths()[0])[0];
         resourceAdapterDConfigBean = new ResourceAdapterDConfigBean(childDDBean, resourceAdapter);
     }
 
@@ -102,11 +104,11 @@ public class ResourceAdapterDConfigRoot extends DConfigBeanRootSupport {
     }
 
     public String[] getXpaths() {
-        return XPATHS;
+        return getXPathsForJ2ee_1_4(XPATHS);
     }
 
     public DConfigBean getDConfigBean(DDBean bean) throws ConfigurationException {
-        if (XPATHS[0].equals(bean.getXpath())) {
+        if (getXpaths()[0].equals(bean.getXpath())) {
             return resourceAdapterDConfigBean;
         }
         return null;
@@ -114,6 +116,9 @@ public class ResourceAdapterDConfigRoot extends DConfigBeanRootSupport {
 
     public void fromXML(InputStream inputStream) throws XmlException, IOException {
         super.fromXML(inputStream);
+        if (!getConnectorDocument().getConnector().getVersion().equals(GerVersionType.X_1_5)) {
+            throw new IllegalStateException("Wrong version, expected 1.5");
+        }
         replaceResourceAdapterDConfigBean(getConnectorDocument().getConnector().getResourceadapter());
     }
 }

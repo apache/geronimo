@@ -68,7 +68,7 @@ import org.apache.xmlbeans.XmlBeans;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/18 20:57:07 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/20 08:14:11 $
  *
  * */
 public class AdminObjectInstance extends XmlBeanSupport{
@@ -106,7 +106,7 @@ public class AdminObjectInstance extends XmlBeanSupport{
                 setConfigProperty(configs);
             }
 
-        });
+        }, "config-property", "config-property-name");
     }
 
     boolean hasParent() {

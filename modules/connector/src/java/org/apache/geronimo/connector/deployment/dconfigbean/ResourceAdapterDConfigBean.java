@@ -76,16 +76,16 @@ import org.apache.xmlbeans.XmlBeans;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/02/19 23:16:06 $
+ * @version $Revision: 1.6 $ $Date: 2004/02/20 08:14:11 $
  *
  * */
 public class ResourceAdapterDConfigBean extends DConfigBeanSupport {
     private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
 
-    private final static String[] RESOURCE_ADAPTER_XPATHS = {
-        "config-property",
-        "outbound-resourceadapter/connection-definition",
-        "adminobject"};
+    private final static String[][] RESOURCE_ADAPTER_XPATHS = {
+        {"config-property"},
+        {"outbound-resourceadapter", "connection-definition"},
+        {"adminobject"}};
     private Map configPropertiesMap = new HashMap();
     private Map connectionDefinitionsMap = new HashMap();
     private Map adminObjectsMap = new HashMap();
@@ -117,13 +117,13 @@ public class ResourceAdapterDConfigBean extends DConfigBeanSupport {
             public void setConfigPropertySettings(ConfigPropertySettings[] configs) {
             }
 
-        }, configPropertiesMap);
+        }, configPropertiesMap, "config-property", "config-property-name");
         //initialize connection definitions
         GerOutboundResourceadapterType outboundResourceadapter = resourceadapter.getOutboundResourceadapter();
         if (outboundResourceadapter == null) {
             outboundResourceadapter = resourceadapter.addNewOutboundResourceadapter();
         }
-        DDBean[] connectionDefinitionDDBeans = ddBean.getChildBean(RESOURCE_ADAPTER_XPATHS[1]);
+        DDBean[] connectionDefinitionDDBeans = ddBean.getChildBean(getXpaths()[1]);
         GerConnectionDefinitionType[] connectionDefinitions = outboundResourceadapter.getConnectionDefinitionArray();
 
         if (connectionDefinitions.length == 0) {
@@ -149,7 +149,7 @@ public class ResourceAdapterDConfigBean extends DConfigBeanSupport {
         }
 
         //admin objects
-        DDBean[] adminObjecDdBeans = ddBean.getChildBean(RESOURCE_ADAPTER_XPATHS[2]);
+        DDBean[] adminObjecDdBeans = ddBean.getChildBean(getXpaths()[2]);
         GerAdminobjectType[] adminobjectTypes = getResourceadapter().getAdminobjectArray();
 
         if (adminobjectTypes.length == 0) {
@@ -206,21 +206,22 @@ public class ResourceAdapterDConfigBean extends DConfigBeanSupport {
 
     public DConfigBean getDConfigBean(DDBean bean) throws ConfigurationException {
         String xpath = bean.getXpath();
-        if (xpath.equals(RESOURCE_ADAPTER_XPATHS[0])) {
+        String[] xpaths = getXpaths();
+        if (xpath.equals(xpaths[0])) {
             //resource adapter config property
             String configPropertyName = bean.getText("config-property-name")[0];
             ConfigPropertySettingDConfigBean configPropertySetting = (ConfigPropertySettingDConfigBean) configPropertiesMap.get(configPropertyName);
             assert configPropertySetting != null;
             return configPropertySetting;
         }
-        if (xpath.equals(RESOURCE_ADAPTER_XPATHS[1])) {
+        if (xpath.equals(xpaths[1])) {
             //connection definition
             String connectionFactoryInterface = bean.getText("connectionfactory-interface")[0];
             ConnectionDefinitionDConfigBean connectionDefinition = (ConnectionDefinitionDConfigBean) connectionDefinitionsMap.get(connectionFactoryInterface);
             assert connectionDefinition != null;
             return connectionDefinition;
         }
-        if (xpath.equals(RESOURCE_ADAPTER_XPATHS[2])) {
+        if (xpath.equals(xpaths[2])) {
             //admin objects
             String adminObjectInterface = bean.getText("adminobject-interface")[0];
             String adminObjectClass = bean.getText("adminobject-class")[0];
@@ -233,7 +234,7 @@ public class ResourceAdapterDConfigBean extends DConfigBeanSupport {
 
 
     public String[] getXpaths() {
-        return RESOURCE_ADAPTER_XPATHS;
+        return getXPathsForJ2ee_1_4(RESOURCE_ADAPTER_XPATHS);
     }
 
 

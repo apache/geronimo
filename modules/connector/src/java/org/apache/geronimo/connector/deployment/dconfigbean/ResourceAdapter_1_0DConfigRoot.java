@@ -54,24 +54,71 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.connector.deployment;
+package org.apache.geronimo.connector.deployment.dconfigbean;
 
-import javax.enterprise.deploy.model.DeployableObject;
-import javax.enterprise.deploy.spi.DConfigBeanRoot;
+import java.io.IOException;
+import java.io.InputStream;
 
-import org.apache.geronimo.deployment.plugin.DeploymentConfigurationSupport;
+import javax.enterprise.deploy.model.DDBean;
+import javax.enterprise.deploy.model.DDBeanRoot;
+import javax.enterprise.deploy.spi.DConfigBean;
+import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
+
 import org.apache.geronimo.deployment.plugin.DConfigBeanRootSupport;
-import org.apache.geronimo.connector.deployment.dconfigbean.ResourceAdapterDConfigRoot;
+import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
+import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
+import org.apache.geronimo.xbeans.geronimo.GerVersionType;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlException;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/20 08:14:12 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/20 08:14:11 $
  *
  * */
-public class RARConfiguration extends DeploymentConfigurationSupport {
+public class ResourceAdapter_1_0DConfigRoot extends DConfigBeanRootSupport {
+    private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
+    private static String[] XPATHS = {
+        "connector/resourceadapter"
+    };
 
-    public RARConfiguration(DeployableObject deployable, DConfigBeanRootSupport dconfigRoot) {
-        super(deployable, dconfigRoot);
+    private ConnectionDefinitionDConfigBean connectionDefinitionDConfigBean;
+
+    public ResourceAdapter_1_0DConfigRoot(DDBeanRoot ddBean) {
+        super(ddBean, GerConnectorDocument.Factory.newInstance(), SCHEMA_TYPE_LOADER);
+        GerConnectionDefinitionType connectionDefinition = getConnectorDocument().addNewConnector().addNewResourceadapter().addNewOutboundResourceadapter().addNewConnectionDefinition();
+        getConnectorDocument().getConnector().setVersion(GerVersionType.X_1_0);
+        replaceConnectionDefinitionDConfigBean(connectionDefinition);
+    }
+
+    private void replaceConnectionDefinitionDConfigBean(GerConnectionDefinitionType connectionDefinition) {
+        DDBean ddBean = getDDBean();
+        DDBean childDDBean = ddBean.getChildBean(getXpaths()[0])[0];
+        connectionDefinitionDConfigBean = new ConnectionDefinitionDConfigBean(childDDBean, connectionDefinition);
+    }
+
+    GerConnectorDocument getConnectorDocument() {
+        return (GerConnectorDocument)getXmlObject();
+    }
+
+    public String[] getXpaths() {
+        return XPATHS;
+    }
+
+    public DConfigBean getDConfigBean(DDBean bean) throws ConfigurationException {
+        if (getXpaths()[0].equals(bean.getXpath())) {
+            return connectionDefinitionDConfigBean;
+        }
+        return null;
+    }
+
+    public void fromXML(InputStream inputStream) throws XmlException, IOException {
+        super.fromXML(inputStream);
+        if (!getConnectorDocument().getConnector().getVersion().equals(GerVersionType.X_1_0)) {
+            throw new IllegalStateException("Wrong version, expected 1.0");
+        }
+        replaceConnectionDefinitionDConfigBean(getConnectorDocument().getConnector().getResourceadapter().getOutboundResourceadapter().getConnectionDefinitionArray(0));
     }
 }

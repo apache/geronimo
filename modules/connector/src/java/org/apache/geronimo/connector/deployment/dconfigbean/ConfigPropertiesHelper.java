@@ -15,13 +15,13 @@ import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/18 20:57:07 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/20 08:14:11 $
  *
  * */
 public class ConfigPropertiesHelper {
 
-    public static void initializeConfigSettings(DDBean ddBean, ConfigPropertiesSource configPropertiesSource, Map configPropertiesMap) {
-        DDBean[] configProperties = ddBean.getChildBean("config-property");
+    public static void initializeConfigSettings(DDBean ddBean, ConfigPropertiesSource configPropertiesSource, Map configPropertiesMap, String configPropertyXPath, String configPropertyNameXPath) {
+        DDBean[] configProperties = ddBean.getChildBean(configPropertyXPath);
         GerConfigPropertySettingType[] configPropertySettings = configPropertiesSource.getConfigPropertySettingArray();
 
         if (configPropertySettings.length == 0) {
@@ -29,7 +29,7 @@ public class ConfigPropertiesHelper {
             for (int i = 0; i < configProperties.length; i++) {
                 DDBean configProperty = configProperties[i];
                 GerConfigPropertySettingType configPropertySetting = configPropertiesSource.addNewConfigPropertySetting();
-                String name = configProperty.getText("config-property-name")[0];
+                String name = configProperty.getText(configPropertyNameXPath)[0];
                 ConfigPropertySettingDConfigBean configPropertySettingDConfigBean = new ConfigPropertySettingDConfigBean(configProperty, configPropertySetting);
                 configPropertiesMap.put(name, configPropertySettingDConfigBean);
             }
@@ -39,7 +39,7 @@ public class ConfigPropertiesHelper {
             for (int i = 0; i < configProperties.length; i++) {
                 DDBean configProperty = configProperties[i];
                 GerConfigPropertySettingType configPropertySetting = configPropertySettings[i];
-                String name = configProperty.getText("config-property-name")[0];
+                String name = configProperty.getText(configPropertyNameXPath)[0];
                 assert name.equals(configPropertySetting.getName());
                 ConfigPropertySettingDConfigBean configPropertySettingDConfigBean = new ConfigPropertySettingDConfigBean(configProperty, configPropertySetting);
                 configPropertiesMap.put(name, configPropertySettingDConfigBean);
@@ -47,13 +47,13 @@ public class ConfigPropertiesHelper {
         }
     }
 
-    public static XpathListener initialize(DDBean parentDDBean, final ConfigPropertiesHelper.ConfigPropertiesSource configPropertiesSource) {
-        DDBean[] beans = parentDDBean.getChildBean("config-property");
+    public static XpathListener initialize(DDBean parentDDBean, final ConfigPropertiesHelper.ConfigPropertiesSource configPropertiesSource, String configPropertyXPath, String configPropertyNameXPath) {
+        DDBean[] beans = parentDDBean.getChildBean(configPropertyXPath);
         ConfigPropertySettings[] configs = new ConfigPropertySettings[beans.length];
         Set xmlBeans = new HashSet(Arrays.asList(configPropertiesSource.getConfigPropertySettingArray()));
         for (int i = 0; i < beans.length; i++) {
             DDBean bean = beans[i];
-            String[] names = bean.getText("config-property-name");
+            String[] names = bean.getText(configPropertyNameXPath);
             String name = names.length == 1 ? names[0] : "";
             GerConfigPropertySettingType target = null;
             for (Iterator it = xmlBeans.iterator(); it.hasNext();) {
@@ -120,7 +120,7 @@ public class ConfigPropertiesHelper {
                 // ignore change event (no contents, no attributes)
             }
         };
-        parentDDBean.addXpathListener("config-property", configListener);
+        parentDDBean.addXpathListener(configPropertyXPath, configListener);
         return configListener;
     }
 
