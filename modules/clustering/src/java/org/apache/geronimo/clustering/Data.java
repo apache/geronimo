@@ -55,22 +55,24 @@
  */
 package org.apache.geronimo.clustering;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
- * An interface implemented by components that wish to be notified
- * about changes to Cluster state.
+ * An object capable of holding the state of multiple applications and
+ * tiers.
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/30 15:32:20 $
+ * @version $Revision: 1.1 $ $Date: 2003/12/30 15:32:20 $
  */
-public interface
-  DataDeltaListener
+public class
+  Data
 {
-  /**
-   * Called by Cluster to initialise the state of a [new] node.
-   *
-   * @param delta a <code>Object</code> delta to be applied to the
-   * nodes current state.
-   */
-  public void applyDataDelta(DataDelta delta);
+  protected static  Log _log=LogFactory.getLog(Data.class);
+
+  protected Map    _web=new HashMap(); // Map of webapps context:sessioms
+  protected Map    _ejb=new HashMap(); // Map of ejb ?type?:[stateful]sessions
+  protected Object _jndi;	// ???
+  //...
 }

@@ -67,7 +67,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * A uniquely identifiable n->n intra-vm event-raising communications channel...
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/30 14:54:38 $
+ * @version $Revision: 1.3 $ $Date: 2003/12/30 15:32:20 $
  */
 public class
   LocalChannel
@@ -150,7 +150,7 @@ public class
 
   // Data
 
-  public synchronized Object
+  public synchronized Data
     getData()
   {
     // TODO - we need a pluggable election policy to decide who will

@@ -61,7 +61,7 @@ import java.util.List;
  * An interface implemented by components that wish to have their
  * state initialised from the Cluster.
  *
- * @version $Revision: 1.1 $ $Date: 2003/12/30 14:54:38 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/30 15:32:20 $
  */
 public interface
   DataListener
@@ -72,12 +72,12 @@ public interface
    * @param state an <code>Object</code> to be used as the
    * node's initial state.
    */
-  public Object getData();
+  public Data getData();
   /**
    * Called by Cluster to initialise the state of a [new] node.
    *
    * @param state an <code>Object</code> to be used as the
    * node's initial state.
    */
-  public void setData(Object state);
+  public void setData(Data state);
 }

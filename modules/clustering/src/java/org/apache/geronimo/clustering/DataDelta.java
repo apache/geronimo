@@ -55,22 +55,14 @@
  */
 package org.apache.geronimo.clustering;
 
-import java.util.List;
-
 /**
- * An interface implemented by components that wish to be notified
- * about changes to Cluster state.
+ * An object capable of holding a Data change (Delta) and applying it
+ * to said Data.
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/30 15:32:20 $
+ * @version $Revision: 1.1 $ $Date: 2003/12/30 15:32:20 $
  */
-public interface
-  DataDeltaListener
+public abstract class
+  DataDelta
 {
-  /**
-   * Called by Cluster to initialise the state of a [new] node.
-   *
-   * @param delta a <code>Object</code> delta to be applied to the
-   * nodes current state.
-   */
-  public void applyDataDelta(DataDelta delta);
+  public abstract void apply(Data data);
 }

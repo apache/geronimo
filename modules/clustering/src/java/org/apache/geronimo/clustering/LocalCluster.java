@@ -68,7 +68,7 @@ import java.util.Collections;
  * transport layer has been put in place...
  *
  * @jmx:mbean extends="org.apache.geronimo.clustering.AbstractClusterMBean"
- * @version $Revision: 1.4 $ $Date: 2003/12/30 14:54:38 $
+ * @version $Revision: 1.5 $ $Date: 2003/12/30 15:32:20 $
  */
 public class
   LocalCluster
@@ -128,14 +128,14 @@ public class
   }
 
   // DataListener
-  protected Object _data;
+  protected Data _data;
 
   // TODO - should probably return byte[] - needs renaming
-  public Object getData() {return _data;}
+  public Data getData() {return _data;}
 
   // TODO - should probably expect byte[] - needs renaming
   public void
-    setData(Object data)
+    setData(Data data)
   {
     String xtra="we must be the first node up";
 
@@ -146,7 +146,7 @@ public class
     }
     else
     {
-      _data=new Object();
+      _data=new Data();
     }
 
     _log.debug("initialising data - "+xtra);
@@ -154,7 +154,7 @@ public class
 
   // DataDeltaListener
   public void
-    applyDataDelta(Object delta)
+    applyDataDelta(DataDelta delta)
   {
     _log.trace("applying data delta - "+delta);
   }
